@@ -3,6 +3,8 @@ import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
 import { Component, ElementRef, HostBinding, Input } from "@angular/core";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "[bitMenuItem]",
   templateUrl: "menu-item.component.html",
@@ -20,7 +22,7 @@ export class MenuItemDirective implements FocusableOption {
     "tw-border-none",
     "tw-bg-background",
     "tw-text-left",
-    "hover:tw-bg-primary-100",
+    "hover:tw-bg-hover-default",
     "focus-visible:tw-z-50",
     "focus-visible:tw-outline-none",
     "focus-visible:tw-ring-2",
@@ -39,6 +41,11 @@ export class MenuItemDirective implements FocusableOption {
     return this.disabled || null; // native disabled attr must be null when false
   }
 
+  // TODO: Skipped for signal migration because:
+  //  This input overrides a field from a superclass, while the superclass field
+  //  is not migrated.
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ transform: coerceBooleanProperty }) disabled?: boolean = false;
 
   constructor(public elementRef: ElementRef<HTMLButtonElement>) {}

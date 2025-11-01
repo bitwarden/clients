@@ -7,6 +7,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { RegistrationCheckEmailIcon, RegistrationUserAddIcon } from "@bitwarden/assets/svg";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterSendVerificationEmailRequest } from "@bitwarden/common/auth/models/request/registration/register-send-verification-email.request";
 import { RegionConfig, Region } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -14,6 +15,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
+  AnonLayoutWrapperDataService,
   AsyncActionsModule,
   ButtonModule,
   CheckboxModule,
@@ -23,9 +25,6 @@ import {
 } from "@bitwarden/components";
 
 import { LoginEmailService } from "../../../common";
-import { AnonLayoutWrapperDataService } from "../../anon-layout/anon-layout-wrapper-data.service";
-import { RegistrationUserAddIcon } from "../../icons";
-import { RegistrationCheckEmailIcon } from "../../icons/registration-check-email.icon";
 import { RegistrationEnvSelectorComponent } from "../registration-env-selector/registration-env-selector.component";
 
 // FIXME: update to use a const object instead of a typescript enum
@@ -41,6 +40,8 @@ const DEFAULT_MARKETING_EMAILS_PREF_BY_REGION: Record<Region, boolean> = {
   [Region.SelfHosted]: false,
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "auth-registration-start",
   templateUrl: "./registration-start.component.html",
@@ -58,6 +59,8 @@ const DEFAULT_MARKETING_EMAILS_PREF_BY_REGION: Record<Region, boolean> = {
   ],
 })
 export class RegistrationStartComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() registrationStartStateChange = new EventEmitter<RegistrationStartState>();
 
   state: RegistrationStartState = RegistrationStartState.USER_DATA_ENTRY;
@@ -162,6 +165,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
       await this.router.navigate(["/finish-signup"], {
         queryParams: { token: result, email: this.email.value },
       });
+      return;
     }
 
     // Result is null, so email verification is required

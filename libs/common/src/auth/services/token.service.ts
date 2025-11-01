@@ -7,18 +7,18 @@ import { Opaque } from "type-fest";
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason, decodeJwtTokenToJson } from "@bitwarden/auth/common";
 
+import { KeyGenerationService } from "../../key-management/crypto";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { EncString, EncryptedString } from "../../key-management/crypto/models/enc-string";
 import {
   VaultTimeout,
   VaultTimeoutAction,
   VaultTimeoutStringType,
 } from "../../key-management/vault-timeout";
-import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { AbstractStorageService } from "../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../platform/enums";
 import { Utils } from "../../platform/misc/utils";
-import { EncString, EncryptedString } from "../../platform/models/domain/enc-string";
 import { StorageOptions } from "../../platform/models/domain/storage-options";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import {
@@ -296,22 +296,36 @@ export class TokenService implements TokenServiceAbstraction {
     return await this.encryptService.encryptString(accessToken, accessTokenKey);
   }
 
+  /**
+   * Decrypts the access token using the provided access token key.
+   *
+   * @param accessTokenKey - the key used to decrypt the access token
+   * @param encryptedAccessToken - the encrypted access token to decrypt
+   * @returns the decrypted access token
+   * @throws Error if the access token key is not provided or the decryption fails
+   */
   private async decryptAccessToken(
     accessTokenKey: AccessTokenKey,
     encryptedAccessToken: EncString,
-  ): Promise<string | null> {
+  ): Promise<string> {
     if (!accessTokenKey) {
       throw new Error(
         "decryptAccessToken: Access token key required. Cannot decrypt access token.",
       );
     }
 
-    const decryptedAccessToken = await this.encryptService.decryptString(
-      encryptedAccessToken,
-      accessTokenKey,
-    );
+    try {
+      const decryptedAccessToken = await this.encryptService.decryptString(
+        encryptedAccessToken,
+        accessTokenKey,
+      );
+      return decryptedAccessToken;
+    } catch (e) {
+      // Note: This should be replaced by the owning team with appropriate, domain-specific behavior.
 
-    return decryptedAccessToken;
+      this.logService.error("[TokenService] Error decrypting access token", e);
+      throw e;
+    }
   }
 
   /**
@@ -348,7 +362,10 @@ export class TokenService implements TokenServiceAbstraction {
           // Save the encrypted access token to disk
           await this.singleUserStateProvider
             .get(userId, ACCESS_TOKEN_DISK)
-            .update((_) => encryptedAccessToken.encryptedString);
+            .update((_) => encryptedAccessToken.encryptedString, {
+              shouldUpdate: (previousValue) =>
+                previousValue !== encryptedAccessToken.encryptedString,
+            });
 
           // If we've successfully stored the encrypted access token to disk, we can return the decrypted access token
           // so that the caller can use it immediately.
@@ -367,7 +384,9 @@ export class TokenService implements TokenServiceAbstraction {
           // Fall back to disk storage for unecrypted access token
           decryptedAccessToken = await this.singleUserStateProvider
             .get(userId, ACCESS_TOKEN_DISK)
-            .update((_) => accessToken);
+            .update((_) => accessToken, {
+              shouldUpdate: (previousValue) => previousValue !== accessToken,
+            });
         }
 
         return decryptedAccessToken;
@@ -376,7 +395,9 @@ export class TokenService implements TokenServiceAbstraction {
         // Access token stored on disk unencrypted as platform does not support secure storage
         return await this.singleUserStateProvider
           .get(userId, ACCESS_TOKEN_DISK)
-          .update((_) => accessToken);
+          .update((_) => accessToken, {
+            shouldUpdate: (previousValue) => previousValue !== accessToken,
+          });
       case TokenStorageLocation.Memory:
         // Access token stored in memory due to vault timeout settings
         return await this.singleUserStateProvider
@@ -431,13 +452,13 @@ export class TokenService implements TokenServiceAbstraction {
     }
 
     // Platform doesn't support secure storage, so use state provider implementation
-    await this.singleUserStateProvider.get(userId, ACCESS_TOKEN_DISK).update((_) => null);
+    await this.singleUserStateProvider.get(userId, ACCESS_TOKEN_DISK).update((_) => null, {
+      shouldUpdate: (previousValue) => previousValue !== null,
+    });
     await this.singleUserStateProvider.get(userId, ACCESS_TOKEN_MEMORY).update((_) => null);
   }
 
-  async getAccessToken(userId?: UserId): Promise<string | null> {
-    userId ??= await firstValueFrom(this.activeUserIdGlobalState.state$);
-
+  async getAccessToken(userId: UserId): Promise<string | null> {
     if (!userId) {
       return null;
     }
@@ -578,7 +599,9 @@ export class TokenService implements TokenServiceAbstraction {
           // TODO: PM-6408
           // 2024-02-20: Remove refresh token from memory and disk so that we migrate to secure storage over time.
           // Remove these 2 calls to remove the refresh token from memory and disk after 3 months.
-          await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_DISK).update((_) => null);
+          await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_DISK).update((_) => null, {
+            shouldUpdate: (previousValue) => previousValue !== null,
+          });
           await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_MEMORY).update((_) => null);
         } catch (error) {
           // This case could be hit for both Linux users who don't have secure storage configured
@@ -591,7 +614,9 @@ export class TokenService implements TokenServiceAbstraction {
           // Fall back to disk storage for refresh token
           decryptedRefreshToken = await this.singleUserStateProvider
             .get(userId, REFRESH_TOKEN_DISK)
-            .update((_) => refreshToken);
+            .update((_) => refreshToken, {
+              shouldUpdate: (previousValue) => previousValue !== refreshToken,
+            });
         }
 
         return decryptedRefreshToken;
@@ -599,7 +624,9 @@ export class TokenService implements TokenServiceAbstraction {
       case TokenStorageLocation.Disk:
         return await this.singleUserStateProvider
           .get(userId, REFRESH_TOKEN_DISK)
-          .update((_) => refreshToken);
+          .update((_) => refreshToken, {
+            shouldUpdate: (previousValue) => previousValue !== refreshToken,
+          });
 
       case TokenStorageLocation.Memory:
         return await this.singleUserStateProvider
@@ -608,9 +635,7 @@ export class TokenService implements TokenServiceAbstraction {
     }
   }
 
-  async getRefreshToken(userId?: UserId): Promise<string | null> {
-    userId ??= await firstValueFrom(this.activeUserIdGlobalState.state$);
-
+  async getRefreshToken(userId: UserId): Promise<string | null> {
     if (!userId) {
       return null;
     }
@@ -679,7 +704,9 @@ export class TokenService implements TokenServiceAbstraction {
 
     // Platform doesn't support secure storage, so use state provider implementation
     await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_MEMORY).update((_) => null);
-    await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_DISK).update((_) => null);
+    await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_DISK).update((_) => null, {
+      shouldUpdate: (previousValue) => previousValue !== null,
+    });
   }
 
   async setClientId(
@@ -721,9 +748,7 @@ export class TokenService implements TokenServiceAbstraction {
     }
   }
 
-  async getClientId(userId?: UserId): Promise<string | undefined> {
-    userId ??= await firstValueFrom(this.activeUserIdGlobalState.state$);
-
+  async getClientId(userId: UserId): Promise<string | undefined> {
     if (!userId) {
       return undefined;
     }
@@ -797,9 +822,7 @@ export class TokenService implements TokenServiceAbstraction {
     }
   }
 
-  async getClientSecret(userId?: UserId): Promise<string | undefined> {
-    userId ??= await firstValueFrom(this.activeUserIdGlobalState.state$);
-
+  async getClientSecret(userId: UserId): Promise<string | undefined> {
     if (!userId) {
       return undefined;
     }
@@ -890,7 +913,9 @@ export class TokenService implements TokenServiceAbstraction {
     if (Utils.isGuid(tokenOrUserId)) {
       token = await this.getAccessToken(tokenOrUserId as UserId);
     } else {
-      token ??= await this.getAccessToken();
+      token ??= await this.getAccessToken(
+        await firstValueFrom(this.activeUserIdGlobalState.state$),
+      );
     }
 
     if (token == null) {
@@ -903,10 +928,10 @@ export class TokenService implements TokenServiceAbstraction {
   // TODO: PM-6678- tech debt - consider consolidating the return types of all these access
   // token data retrieval methods to return null if something goes wrong instead of throwing an error.
 
-  async getTokenExpirationDate(): Promise<Date | null> {
+  async getTokenExpirationDate(userId: UserId): Promise<Date | null> {
     let decoded: DecodedAccessToken;
     try {
-      decoded = await this.decodeAccessToken();
+      decoded = await this.decodeAccessToken(userId);
     } catch (error) {
       throw new Error("Failed to decode access token: " + error.message);
     }
@@ -922,8 +947,8 @@ export class TokenService implements TokenServiceAbstraction {
     return expirationDate;
   }
 
-  async tokenSecondsRemaining(offsetSeconds = 0): Promise<number> {
-    const date = await this.getTokenExpirationDate();
+  async tokenSecondsRemaining(userId: UserId, offsetSeconds = 0): Promise<number> {
+    const date = await this.getTokenExpirationDate(userId);
     if (date == null) {
       return 0;
     }
@@ -932,8 +957,8 @@ export class TokenService implements TokenServiceAbstraction {
     return Math.round(msRemaining / 1000);
   }
 
-  async tokenNeedsRefresh(minutes = 5): Promise<boolean> {
-    const sRemaining = await this.tokenSecondsRemaining();
+  async tokenNeedsRefresh(userId: UserId, minutes = 5): Promise<boolean> {
+    const sRemaining = await this.tokenSecondsRemaining(userId);
     return sRemaining < 60 * minutes;
   }
 

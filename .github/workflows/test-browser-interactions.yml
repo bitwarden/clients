@@ -1,0 +1,85 @@
+name: Autofill BIT checks
+run-name: Autofill BIT checks on ${{ github.event.workflow_run.head_branch }} build
+
+on:
+  workflow_run:
+    workflows: ["Build Browser"]
+    types:
+      - completed
+
+jobs:
+  check-files:
+    name: Check files
+    runs-on: ubuntu-22.04
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      with:
+        fetch-depth: 0
+        persist-credentials: false
+
+    - name: Check for job requirements
+      if: ${{ !github.event.workflow_run.pull_requests || !github.event.workflow_run.head_branch }}
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        gh run cancel ${{ github.run_id }}
+        gh run watch ${{ github.run_id }}
+
+    - name: Log in to Azure
+      uses: bitwarden/gh-actions/azure-login@main
+      with:
+        subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+        client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+    - name: Get Azure Key Vault secrets
+      id: get-kv-secrets
+      uses: bitwarden/gh-actions/get-keyvault-secrets@main
+      with:
+        keyvault: gh-org-bitwarden
+        secrets: "BW-GHAPP-ID,BW-GHAPP-KEY"
+
+    - name: Log out from Azure
+      uses: bitwarden/gh-actions/azure-logout@main
+
+    - name: Generate GH App token
+      uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3
+      id: app-token
+      with:
+        app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
+        private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
+        owner: bitwarden
+        repositories: browser-interactions-testing
+        permission-actions: write
+
+    - name: Get changed files
+      id: changed-files
+      uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+      with:
+        list-files: shell
+        ref: ${{ github.event.workflow_run.head_branch }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+        filters: |
+          monitored:
+            - 'apps/browser/src/autofill/**'
+            - 'apps/browser/src/background/**'
+            - 'apps/browser/src/platform/services/browser-script-injector.service.ts'
+
+    - name: Trigger test-all workflow in browser-interactions-testing
+      if: steps.changed-files.outputs.monitored == 'true'
+      uses: peter-evans/repository-dispatch@5fc4efd1a4797ddb68ffd0714a238564e4cc0e6f # v4.0.0
+      with:
+        token: ${{ steps.app-token.outputs.token }}
+        repository: "bitwarden/browser-interactions-testing"
+        event-type: trigger-bit-tests
+        client-payload: |-
+          {
+            "origin_issue": ${{ github.event.workflow_run.pull_requests[0].number }},
+            "origin_branch": "${{ github.event.workflow_run.pull_requests[0].head.ref }}"
+          }

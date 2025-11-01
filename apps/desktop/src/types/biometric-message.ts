@@ -9,29 +9,33 @@ export enum BiometricAction {
   SetKeyForUser = "setKeyForUser",
   RemoveKeyForUser = "removeKeyForUser",
 
-  SetClientKeyHalf = "setClientKeyHalf",
-
   Setup = "setup",
 
   GetShouldAutoprompt = "getShouldAutoprompt",
   SetShouldAutoprompt = "setShouldAutoprompt",
+
+  EnrollPersistent = "enrollPersistent",
+  HasPersistentKey = "hasPersistentKey",
+
+  EnableWindowsV2 = "enableWindowsV2",
+  IsWindowsV2Enabled = "isWindowsV2Enabled",
 }
 
 export type BiometricMessage =
-  | {
-      action: BiometricAction.SetClientKeyHalf;
-      userId: string;
-      key: string | null;
-    }
   | {
       action: BiometricAction.SetKeyForUser;
       userId: string;
       key: string;
     }
   | {
+      action: BiometricAction.EnrollPersistent;
+      userId: string;
+      key: string;
+    }
+  | {
       action: Exclude<
         BiometricAction,
-        BiometricAction.SetClientKeyHalf | BiometricAction.SetKeyForUser
+        BiometricAction.SetKeyForUser | BiometricAction.EnrollPersistent
       >;
       userId?: string;
       data?: any;

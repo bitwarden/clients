@@ -1,7 +1,7 @@
 {
   "name": "@bitwarden/cli",
   "description": "A secure and free password manager for all of your devices.",
-  "version": "2025.5.0",
+  "version": "2025.10.1",
   "keywords": [
     "bitwarden",
     "password",
@@ -13,19 +13,19 @@
   "homepage": "https://bitwarden.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bitwarden/clients"
+    "url": "git+https://github.com/bitwarden/clients.git"
   },
   "license": "SEE LICENSE IN LICENSE.txt",
   "scripts": {
     "clean": "rimraf dist",
-    "build:oss": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" webpack",
+    "build:oss": "webpack",
     "build:oss:debug": "npm run build:oss && node --inspect ./build/bw.js",
     "build:oss:watch": "webpack --watch",
     "build:oss:prod": "cross-env NODE_ENV=production webpack",
     "build:oss:prod:watch": "cross-env NODE_ENV=production webpack --watch",
     "debug": "node --inspect ./build/bw.js",
     "publish:npm": "npm run build:oss:prod && npm publish --access public",
-    "build:bit": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" webpack -c ../../bitwarden_license/bit-cli/webpack.config.js",
+    "build:bit": "webpack -c ../../bitwarden_license/bit-cli/webpack.config.js",
     "build:bit:debug": "npm run build:bit && node --inspect ./build/bw.js",
     "build:bit:watch": "webpack --watch -c ../../bitwarden_license/bit-cli/webpack.config.js",
     "build:bit:prod": "cross-env NODE_ENV=production npm run build:bit",
@@ -59,20 +59,18 @@
   },
   "pkg": {
     "assets": [
-      "./build/**/*",
-      "../../node_modules/argon2/**/*"
+      "./build/**/*"
     ]
   },
   "dependencies": {
-    "@koa/multer": "3.1.0",
-    "@koa/router": "13.1.0",
-    "argon2": "0.41.1",
+    "@koa/multer": "4.0.0",
+    "@koa/router": "14.0.0",
     "big-integer": "1.6.52",
     "browser-hrtime": "1.1.8",
     "chalk": "4.1.2",
-    "commander": "11.1.0",
-    "core-js": "3.42.0",
-    "form-data": "4.0.1",
+    "commander": "14.0.0",
+    "core-js": "3.45.0",
+    "form-data": "4.0.4",
     "https-proxy-agent": "7.0.6",
     "inquirer": "8.2.6",
     "jsdom": "26.1.0",
@@ -82,7 +80,7 @@
     "koa-json": "2.0.2",
     "lowdb": "1.0.0",
     "lunr": "2.3.9",
-    "multer": "1.4.5-lts.2",
+    "multer": "2.0.2",
     "node-fetch": "2.6.12",
     "node-forge": "1.3.1",
     "open": "10.1.2",

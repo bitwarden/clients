@@ -1,9 +1,11 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
 import AutofillInit from "../../../content/autofill-init";
+import { NotificationType } from "../../../enums/notification-type.enum";
 import { DomQueryService } from "../../../services/abstractions/dom-query.service";
 import DomElementVisibilityService from "../../../services/dom-element-visibility.service";
 import { flushPromises, sendMockExtensionMessage } from "../../../spec/testing-utils";
+import * as utils from "../../../utils";
 import { NotificationTypeData } from "../abstractions/overlay-notifications-content.service";
 
 import { OverlayNotificationsContentService } from "./overlay-notifications-content.service";
@@ -14,9 +16,13 @@ describe("OverlayNotificationsContentService", () => {
   let domElementVisibilityService: DomElementVisibilityService;
   let autofillInit: AutofillInit;
   let bodyAppendChildSpy: jest.SpyInstance;
+  let postMessageSpy: jest.SpyInstance<void, Parameters<Window["postMessage"]>>;
 
   beforeEach(() => {
     jest.useFakeTimers();
+    jest.spyOn(utils, "sendExtensionMessage").mockImplementation(jest.fn());
+    jest.spyOn(HTMLIFrameElement.prototype, "contentWindow", "get").mockReturnValue(window);
+    postMessageSpy = jest.spyOn(window, "postMessage").mockImplementation(jest.fn());
     domQueryService = mock<DomQueryService>();
     domElementVisibilityService = new DomElementVisibilityService();
     overlayNotificationsContentService = new OverlayNotificationsContentService();
@@ -45,7 +51,7 @@ describe("OverlayNotificationsContentService", () => {
     });
 
     it("closes the notification bar if the notification bar type has changed", async () => {
-      overlayNotificationsContentService["currentNotificationBarType"] = "add";
+      overlayNotificationsContentService["currentNotificationBarType"] = NotificationType.AddLogin;
       const closeNotificationBarSpy = jest.spyOn(
         overlayNotificationsContentService as any,
         "closeNotificationBar",
@@ -54,7 +60,7 @@ describe("OverlayNotificationsContentService", () => {
       sendMockExtensionMessage({
         command: "openNotificationBar",
         data: {
-          type: "change",
+          type: NotificationType.ChangePassword,
           typeData: mock<NotificationTypeData>(),
         },
       });
@@ -63,24 +69,31 @@ describe("OverlayNotificationsContentService", () => {
       expect(closeNotificationBarSpy).toHaveBeenCalled();
     });
 
-    it("creates the notification bar elements and appends them to the body", async () => {
+    it("creates the notification bar elements and appends them to the body within a shadow root", async () => {
       sendMockExtensionMessage({
         command: "openNotificationBar",
         data: {
-          type: "change",
+          type: NotificationType.ChangePassword,
           typeData: mock<NotificationTypeData>(),
         },
       });
       await flushPromises();
 
       expect(overlayNotificationsContentService["notificationBarElement"]).toMatchSnapshot();
+
+      const rootElement = overlayNotificationsContentService["notificationBarRootElement"];
+      expect(bodyAppendChildSpy).toHaveBeenCalledWith(rootElement);
+      expect(rootElement?.tagName).toBe("BIT-NOTIFICATION-BAR-ROOT");
+
+      expect(document.getElementById("bit-notification-bar")).toBeNull();
+      expect(document.querySelector("#bit-notification-bar-iframe")).toBeNull();
     });
 
     it("sets up a slide in animation when the notification is fresh", async () => {
       sendMockExtensionMessage({
         command: "openNotificationBar",
         data: {
-          type: "change",
+          type: NotificationType.ChangePassword,
           typeData: mock<NotificationTypeData>({
             launchTimestamp: Date.now(),
           }),
@@ -97,7 +110,7 @@ describe("OverlayNotificationsContentService", () => {
       sendMockExtensionMessage({
         command: "openNotificationBar",
         data: {
-          type: "change",
+          type: NotificationType.ChangePassword,
           typeData: mock<NotificationTypeData>(),
         },
       });
@@ -113,18 +126,17 @@ describe("OverlayNotificationsContentService", () => {
     });
 
     it("sends an initialization message to the notification bar iframe", async () => {
+      const addEventListenerSpy = jest.spyOn(globalThis, "addEventListener");
+
       sendMockExtensionMessage({
         command: "openNotificationBar",
         data: {
-          type: "change",
+          type: NotificationType.ChangePassword,
           typeData: mock<NotificationTypeData>(),
         },
       });
       await flushPromises();
-      const postMessageSpy = jest.spyOn(
-        overlayNotificationsContentService["notificationBarIframeElement"].contentWindow,
-        "postMessage",
-      );
+      expect(addEventListenerSpy).toHaveBeenCalledWith("message", expect.any(Function));
 
       globalThis.dispatchEvent(
         new MessageEvent("message", {
@@ -139,7 +151,6 @@ describe("OverlayNotificationsContentService", () => {
       );
       await flushPromises();
 
-      expect(postMessageSpy).toHaveBeenCalledTimes(1);
       expect(postMessageSpy).toHaveBeenCalledWith(
         {
           command: "initNotificationBar",
@@ -155,7 +166,7 @@ describe("OverlayNotificationsContentService", () => {
       sendMockExtensionMessage({
         command: "openNotificationBar",
         data: {
-          type: "change",
+          type: NotificationType.ChangePassword,
           typeData: mock<NotificationTypeData>(),
         },
       });
@@ -173,11 +184,21 @@ describe("OverlayNotificationsContentService", () => {
       ).toBe("0");
 
       jest.advanceTimersByTime(150);
+    });
 
-      expect(chrome.runtime.sendMessage).toHaveBeenCalledWith(
-        { command: "bgRemoveTabFromNotificationQueue" },
-        expect.any(Function),
-      );
+    it("triggers a fadeout of the notification bar and removes from the notification queue", () => {
+      sendMockExtensionMessage({
+        command: "closeNotificationBar",
+        data: { fadeOutNotification: true, type: NotificationType.ChangePassword },
+      });
+
+      expect(
+        overlayNotificationsContentService["notificationBarIframeElement"]?.style.opacity,
+      ).toBe("0");
+
+      jest.advanceTimersByTime(150);
+
+      expect(utils.sendExtensionMessage).toHaveBeenCalledWith("bgRemoveTabFromNotificationQueue");
     });
 
     it("closes the notification bar without a fadeout", () => {
@@ -197,7 +218,7 @@ describe("OverlayNotificationsContentService", () => {
       sendMockExtensionMessage({
         command: "openNotificationBar",
         data: {
-          type: "change",
+          type: NotificationType.ChangePassword,
           typeData: mock<NotificationTypeData>(),
         },
       });
@@ -221,7 +242,7 @@ describe("OverlayNotificationsContentService", () => {
       sendMockExtensionMessage({
         command: "openNotificationBar",
         data: {
-          type: "change",
+          type: NotificationType.ChangePassword,
           typeData: mock<NotificationTypeData>(),
         },
       });
@@ -229,20 +250,15 @@ describe("OverlayNotificationsContentService", () => {
     });
 
     it("sends a message to the notification bar iframe indicating that the save attempt completed", () => {
-      jest.spyOn(
-        overlayNotificationsContentService["notificationBarIframeElement"].contentWindow,
-        "postMessage",
-      );
-
       sendMockExtensionMessage({
         command: "saveCipherAttemptCompleted",
         data: { error: undefined },
       });
 
-      expect(
-        overlayNotificationsContentService["notificationBarIframeElement"].contentWindow
-          .postMessage,
-      ).toHaveBeenCalledWith({ command: "saveCipherAttemptCompleted", error: undefined }, "*");
+      expect(postMessageSpy).toHaveBeenCalledWith(
+        { command: "saveCipherAttemptCompleted", error: undefined },
+        "*",
+      );
     });
   });
 
@@ -251,16 +267,17 @@ describe("OverlayNotificationsContentService", () => {
       sendMockExtensionMessage({
         command: "openNotificationBar",
         data: {
-          type: "change",
+          type: NotificationType.ChangePassword,
           typeData: mock<NotificationTypeData>(),
         },
       });
       await flushPromises();
     });
 
-    it("triggers a closure of the notification bar", () => {
+    it("triggers a closure of the notification bar and cleans up all shadow DOM elements", () => {
       overlayNotificationsContentService.destroy();
 
+      expect(overlayNotificationsContentService["notificationBarRootElement"]).toBeNull();
       expect(overlayNotificationsContentService["notificationBarElement"]).toBeNull();
       expect(overlayNotificationsContentService["notificationBarIframeElement"]).toBeNull();
     });

@@ -16,14 +16,13 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { ToastService } from "@bitwarden/components";
+import { AnonLayoutWrapperDataService, ToastService } from "@bitwarden/components";
 
 import {
   LoginStrategyServiceAbstraction,
   LoginSuccessHandlerService,
   PasswordLoginCredentials,
 } from "../../../common";
-import { AnonLayoutWrapperDataService } from "../../anon-layout/anon-layout-wrapper-data.service";
 import {
   InputPasswordComponent,
   InputPasswordFlow,
@@ -32,6 +31,8 @@ import { PasswordInputResult } from "../../input-password/password-input-result"
 
 import { RegistrationFinishService } from "./registration-finish.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "auth-registration-finish",
   templateUrl: "./registration-finish.component.html",
@@ -40,7 +41,7 @@ import { RegistrationFinishService } from "./registration-finish.service";
 export class RegistrationFinishComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  inputPasswordFlow = InputPasswordFlow.AccountRegistration;
+  inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAccountRegistration;
   loading = true;
   submitting = false;
   email: string;
@@ -186,12 +187,6 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
         await this.router.navigate(["/2fa"]);
         return;
       }
-
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t("youHaveBeenLoggedIn"),
-      });
 
       await this.loginSuccessHandlerService.run(authenticationResult.userId);
 

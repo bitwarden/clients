@@ -13,6 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { BadgeModule } from "../badge";
 import { FormControlModule } from "../form-control";
+import { FormFieldModule } from "../form-field";
 import { TableModule } from "../table";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
@@ -27,19 +28,26 @@ const template = /*html*/ `
   </form>
 `;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-example",
   template,
+  imports: [FormControlModule, CheckboxModule, FormsModule, FormFieldModule, ReactiveFormsModule],
 })
 class ExampleComponent {
   protected formObj = this.formBuilder.group({
     checkbox: [false, Validators.requiredTrue],
   });
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() set checked(value: boolean) {
     this.formObj.patchValue({ checkbox: value });
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() set disabled(disable: boolean) {
     if (disable) {
       this.formObj.disable();
@@ -55,8 +63,8 @@ export default {
   title: "Component Library/Form/Checkbox",
   decorators: [
     moduleMetadata({
-      declarations: [ExampleComponent],
       imports: [
+        ExampleComponent,
         FormsModule,
         ReactiveFormsModule,
         FormControlModule,
@@ -195,17 +203,17 @@ export const Custom: Story = {
     props: args,
     template: /*html*/ `
       <div class="tw-flex tw-flex-col tw-w-32">
-        <label class="tw-text-main tw-flex tw-bg-secondary-300 tw-p-2">
+        <label class="tw-text-main tw-gap-2 tw-flex tw-items-center tw-justify-between tw-bg-secondary-300 tw-p-2">
           A-Z
-          <input class="tw-ms-auto focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
+          <input class="tw-me-0 focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
         </label>
-        <label class="tw-text-main tw-flex tw-bg-secondary-300 tw-p-2">
+        <label class="tw-text-main tw-flex tw-items-center tw-justify-between tw-bg-secondary-300 tw-p-2">
           a-z
-          <input class="tw-ms-auto focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
+          <input class="tw-me-0 focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
         </label>
-        <label class="tw-text-main tw-flex tw-bg-secondary-300 tw-p-2">
+       <label class="tw-text-main tw-flex tw-items-center tw-justify-between tw-bg-secondary-300 tw-p-2">
           0-9
-          <input class="tw-ms-auto focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
+          <input class="tw-me-0 focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
         </label>
       </div>
     `,
@@ -216,7 +224,10 @@ export const Indeterminate: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <input type="checkbox" bitCheckbox [indeterminate]="true">
+      <label>
+        Indeterminate
+        <input type="checkbox" bitCheckbox [indeterminate]="true">
+      </label>
     `,
   }),
 };
@@ -254,6 +265,9 @@ export const InTableRow: Story = {
                 bitCheckbox
                 id="checkOne"
               />
+              <label for="checkOne" class="tw-sr-only">
+                Check row 0
+              </label>
             </td>
             <td bitCell>Lorem</td>
             <td bitCell>Ipsum</td>

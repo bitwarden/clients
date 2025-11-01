@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
-import { Component, HostListener, Input, Optional } from "@angular/core";
-import { RouterModule } from "@angular/router";
+import { Component, HostListener, Optional, input } from "@angular/core";
+import { RouterLinkActive, RouterModule } from "@angular/router";
 import { BehaviorSubject, map } from "rxjs";
 
 import { IconButtonModule } from "../icon-button";
@@ -13,6 +13,8 @@ export abstract class NavGroupAbstraction {
   abstract setOpen(open: boolean): void;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-nav-item",
   templateUrl: "./nav-item.component.html",
@@ -21,7 +23,7 @@ export abstract class NavGroupAbstraction {
 })
 export class NavItemComponent extends NavBaseComponent {
   /** Forces active styles to be shown, regardless of the `routerLinkActiveOptions` */
-  @Input() forceActiveStyles? = false;
+  readonly forceActiveStyles = input<boolean>(false);
 
   /**
    * Is `true` if `to` matches the current route
@@ -34,8 +36,16 @@ export class NavItemComponent extends NavBaseComponent {
     }
   }
   protected get showActiveStyles() {
-    return this.forceActiveStyles || (this._isActive && !this.hideActiveStyles);
+    return this.forceActiveStyles() || (this._isActive && !this.hideActiveStyles());
   }
+
+  /**
+   * Allow overriding of the RouterLink['ariaCurrentWhenActive'] property.
+   *
+   * Useful for situations like nav-groups that navigate to their first child page and should
+   * not be marked `current` while the child page is marked as `current`
+   */
+  readonly ariaCurrentWhenActive = input<RouterLinkActive["ariaCurrentWhenActive"]>("page");
 
   /**
    * The design spec calls for the an outline to wrap the entire element when the template's

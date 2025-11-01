@@ -1,34 +1,32 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { TemplatePortal, CdkPortalOutlet } from "@angular/cdk/portal";
-import { Component, HostBinding, Input } from "@angular/core";
+import { Component, effect, HostBinding, input } from "@angular/core";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-tab-body",
   templateUrl: "tab-body.component.html",
   imports: [CdkPortalOutlet],
 })
 export class TabBodyComponent {
-  private _firstRender: boolean;
+  private _firstRender = false;
 
-  @Input() content: TemplatePortal;
-  @Input() preserveContent = false;
+  readonly content = input<TemplatePortal>();
+  readonly preserveContent = input(false);
 
   @HostBinding("attr.hidden") get hidden() {
-    return !this.active || null;
+    return !this.active() || null;
   }
 
-  @Input()
-  get active() {
-    return this._active;
+  readonly active = input<boolean>();
+
+  constructor() {
+    effect(() => {
+      if (this.active()) {
+        this._firstRender = true;
+      }
+    });
   }
-  set active(value: boolean) {
-    this._active = value;
-    if (this._active) {
-      this._firstRender = true;
-    }
-  }
-  private _active: boolean;
 
   /**
    * The tab content to render.
@@ -37,11 +35,11 @@ export class TabBodyComponent {
    * then the content persists after the first time content is rendered.
    */
   get tabContent() {
-    if (this.active) {
-      return this.content;
+    if (this.active()) {
+      return this.content();
     }
-    if (this.preserveContent && this._firstRender) {
-      return this.content;
+    if (this.preserveContent() && this._firstRender) {
+      return this.content();
     }
     return null;
   }

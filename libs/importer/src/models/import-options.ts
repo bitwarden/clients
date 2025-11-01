@@ -6,7 +6,7 @@ export interface ImportOption {
 export const featuredImportOptions = [
   { id: "bitwardenjson", name: "Bitwarden (json)" },
   { id: "bitwardencsv", name: "Bitwarden (csv)" },
-  { id: "chromecsv", name: "Chrome (csv)" },
+  { id: "chromecsv", name: "Chrome" },
   { id: "dashlanecsv", name: "Dashlane (csv)" },
   { id: "firefoxcsv", name: "Firefox (csv)" },
   { id: "keepass2xml", name: "KeePass 2 (xml)" },
@@ -46,9 +46,10 @@ export const regularImportOptions = [
   { id: "ascendocsv", name: "Ascendo DataVault (csv)" },
   { id: "meldiumcsv", name: "Meldium (csv)" },
   { id: "passkeepcsv", name: "PassKeep (csv)" },
-  { id: "edgecsv", name: "Edge (csv)" },
-  { id: "operacsv", name: "Opera (csv)" },
-  { id: "vivaldicsv", name: "Vivaldi (csv)" },
+  { id: "edgecsv", name: "Edge" },
+  { id: "operacsv", name: "Opera" },
+  { id: "vivaldicsv", name: "Vivaldi" },
+  { id: "bravecsv", name: "Brave" },
   { id: "gnomejson", name: "GNOME Passwords and Keys/Seahorse (json)" },
   { id: "blurcsv", name: "Blur (csv)" },
   { id: "passwordagentcsv", name: "Password Agent (csv)" },
@@ -73,6 +74,7 @@ export const regularImportOptions = [
   { id: "passkyjson", name: "Passky (json)" },
   { id: "passwordxpcsv", name: "Password XP (csv)" },
   { id: "netwrixpasswordsecure", name: "Netwrix Password Secure (csv)" },
+  { id: "passworddepot17xml", name: "Password Depot 17 (xml)" },
 ] as const;
 
 export type ImportType =

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from "@angular/core";
 
@@ -8,6 +6,7 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType, FieldType, LinkedIdType } from "@bitwarden/common/vault/enums";
+import { LinkedMetadata } from "@bitwarden/common/vault/linked-field-option.decorator";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
@@ -25,6 +24,8 @@ import {
 
 import { VaultAutosizeReadOnlyTextArea } from "../../directives/readonly-textarea.directive";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-custom-fields-v2",
   templateUrl: "custom-fields-v2.component.html",
@@ -43,9 +44,11 @@ import { VaultAutosizeReadOnlyTextArea } from "../../directives/readonly-textare
   ],
 })
 export class CustomFieldV2Component implements OnInit, OnChanges {
-  @Input() cipher: CipherView;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input({ required: true }) cipher!: CipherView;
   fieldType = FieldType;
-  fieldOptions: any;
+  fieldOptions: Map<number, LinkedMetadata> | undefined;
 
   /** Indexes of hidden fields that are revealed */
   revealedHiddenFields: number[] = [];
@@ -67,12 +70,14 @@ export class CustomFieldV2Component implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes["cipher"]) {
       this.revealedHiddenFields = [];
+      this.fieldOptions = this.getLinkedFieldsOptionsForCipher();
     }
   }
 
   getLinkedType(linkedId: LinkedIdType) {
-    const linkedType = this.fieldOptions.get(linkedId);
-    return this.i18nService.t(linkedType.i18nKey);
+    const linkedType = this.fieldOptions?.get(linkedId);
+
+    return linkedType ? this.i18nService.t(linkedType.i18nKey) : null;
   }
 
   get canViewPassword() {
@@ -123,7 +128,7 @@ export class CustomFieldV2Component implements OnInit, OnChanges {
       case CipherType.Identity:
         return IdentityView.prototype.linkedFieldOptions;
       default:
-        return null;
+        return undefined;
     }
   }
 }

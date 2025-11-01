@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Všechny aplikace"
   },
+  "activity": {
+    "message": "Aktivita"
+  },
   "appLogoLabel": {
     "message": "Logo Bitwarden"
   },
@@ -21,7 +24,7 @@
     "message": "Rizikové heslo"
   },
   "reviewAtRiskPasswords": {
-    "message": "Zkontrolujte riziková hesla (slabá, odhalená nebo opakovaně používaná) ve všech aplikacích. Vyberte nejkritičtější aplikace a stanovte priority bezpečnostních opatření pro uživatele, abyste se vypořádali s rizikovými hesly."
+    "message": "Zkontrolujte ohrožená hesla (slabá, odhalená nebo opakovaně používaná) ve všech aplikacích. Vyberte nejkritičtější aplikace a stanovte priority bezpečnostních opatření pro uživatele, abyste se vypořádali s ohroženými hesly."
   },
   "dataLastUpdated": {
     "message": "Data naposledy aktualizována: $DATE$",
@@ -31,6 +34,9 @@
         "example": "2021-01-01"
       }
     }
+  },
+  "noReportRan": {
+    "message": "Zatím jste nevytvořili hlášení"
   },
   "notifiedMembers": {
     "message": "Obeznámení členové"
@@ -56,12 +62,104 @@
   "createNewLoginItem": {
     "message": "Vytvořit novou položku přihlášení"
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$ % dokončeno",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ z $TOTAL$ bezpečnostních úkolů dokončeno",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Probíhá změna hesla"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Přiřadit úkoly členů ke sledování průběhu"
+  },
+  "onceYouReviewApps": {
+    "message": "Jakmile zkontrolujete aplikace a označíte je jako kritické, můžete přidělit členům úkoly k řešení ohrožených položek a sledovat průběh zde"
+  },
+  "sendReminders": {
+    "message": "Odeslat připomenutí"
+  },
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Jakmile označíte aplikace jako kritické, zobrazí se zde."
+  },
+  "viewAtRiskMembers": {
+    "message": "Zobrazit ohrožené členy"
+  },
+  "viewAtRiskApplications": {
+    "message": "Zobrazit ohrožené aplikace"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ z $TOTAL$ kritických aplikací je ohrožených kvůli ohroženým heslům",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "criticalApplicationsWithCount": {
     "message": "Kritické aplikace ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ kritických aplikací",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ ohrožených aplikací",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ ohrožených hesel",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ nových ohrožených hesel",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -74,8 +172,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "V $ORG NAME$ nebyly nalezeny žádné aplikace",
+  "noApplicationsInOrgTitle": {
+    "message": "Pro $ORG NAME$ nebyly nalezeny žádné aplikace",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -83,23 +181,62 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "Jakmile uživatelé uloží přihlašovací údaje, zobrazí se zde aplikace, které zobrazují všechna ohrožená hesla. Označte kritické aplikace a upozorněte uživatele, aby hesla aktualizovali."
+  "noApplicationsInOrgDescription": {
+    "message": "Importujte přihlašovací údaje Vaší organizace a začněte sledovat bezpečnostní rizika spojená s přihlašovacími údaji. Po importu získáte přístup k:"
   },
-  "noCriticalAppsTitle": {
+  "benefit1Title": {
+    "message": "Upřednostnit rizika"
+  },
+  "benefit1Description": {
+    "message": "Zaměřit se na aplikace, na které záleží nejvíce"
+  },
+  "benefit2Title": {
+    "message": "Průvodce nápravou"
+  },
+  "benefit2Description": {
+    "message": "Přiřadit ohroženým členům řízené úkoly, aby střídali používání ohrožených přihlašovacích údajů"
+  },
+  "benefit3Title": {
+    "message": "Sledovat průběh"
+  },
+  "benefit3Description": {
+    "message": "Sleduje změny v průběhu času pro zobrazení zlepšení zabezpečení."
+  },
+  "noReportRunTitle": {
+    "message": "Spustit první hlášení pro zobrazení aplikací"
+  },
+  "noReportRunDescription": {
+    "message": "Vygenerujte zprávu o rizicích, abyste mohli analyzovat aplikace Vaší organizace a identifikovat riziková hesla, která vyžadují pozornost. Spuštěním první zprávy:"
+  },
+  "noCriticalApplicationsTitle": {
     "message": "Neoznačili jste žádné aplikace jako kritické"
   },
-  "noCriticalAppsDescription": {
-    "message": "Vyberte své nejkritičtější aplikace, abyste objevili riziková hesla a upozorněte uživatele na změnu těchto hesel."
+  "noCriticalApplicationsDescription": {
+    "message": "Vyberte nejdůležitější aplikace a stanovte priority bezpečnostních opatření, která mají uživatelé provést, aby vyřešili problém rizikových hesel."
   },
-  "markCriticalApps": {
-    "message": "Označit kritické aplikace"
+  "markCriticalApplications": {
+    "message": "Vyberte kritické aplikace"
   },
   "markAppAsCritical": {
     "message": "Označit aplikaci jako kritickou"
   },
+  "markAsCritical": {
+    "message": "Označit jako kritické"
+  },
+  "applicationsSelected": {
+    "message": "vybraných aplikací"
+  },
+  "selectApplication": {
+    "message": "Vybrat aplikaci"
+  },
+  "unselectApplication": {
+    "message": "Zrušit výběr aplikace"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Aplikace označené jako kritické"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Nepodařilo se označit aplikace jako kritické"
   },
   "application": {
     "message": "Aplikace"
@@ -119,8 +256,20 @@
   "atRiskMembers": {
     "message": "Ohrožení členové"
   },
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "Členové s přístupem k rizikovým položkám pro kritické aplikace"
+  },
+  "membersAtRiskCount": {
+    "message": "$COUNT$ členů v ohrožení",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "atRiskMembersWithCount": {
-    "message": "Rizikoví členové ($COUNT$)",
+    "message": "Ohrožení členové ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -129,7 +278,7 @@
     }
   },
   "atRiskApplicationsWithCount": {
-    "message": "Rizikové aplikace ($COUNT$)",
+    "message": "Ohrožené aplikace ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -171,16 +320,64 @@
     "message": "Celkem členů"
   },
   "atRiskApplications": {
-    "message": "Rizikové aplikace"
+    "message": "Ohrožené aplikace"
   },
   "totalApplications": {
     "message": "Celkem aplikací"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Zrušit označení jako kritické aplikace"
+  "applicationsNeedingReview": {
+    "message": "Aplikace, které vyžadují kontrolu"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Kritická aplikace úspěšně odoznačena"
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ nových aplikací",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Zkontrolujte nové aplikace a označte je jako kritické a udržujte v bezpečí Vaši organizaci"
+  },
+  "reviewNow": {
+    "message": "Zkontrolovat nyní"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Upřednostnit kritické aplikace"
+  },
+  "atRiskItems": {
+    "message": "Položky v ohrožení"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Funkce označení jako kritické bude implementována v budoucí aktualizaci"
+  },
+  "applicationReviewSaved": {
+    "message": "Kontrola aplikace uložena"
+  },
+  "applicationsMarkedAsCritical": {
+    "message": "$COUNT$ aplikací označeno jako kritické",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "newApplicationsReviewed": {
+    "message": "Nové aplikace zkontrolovány"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Chyba při ukládání stavu kontroly"
+  },
+  "pleaseTryAgain": {
+    "message": "Zkuste to znovu"
+  },
+  "unmarkAsCritical": {
+    "message": "Zrušit označení jako kritické"
+  },
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "Úspěšné zrušení označení aplikace jako kritické"
   },
   "whatTypeOfItem": {
     "message": "O jaký typ položky se jedná?"
@@ -568,6 +765,9 @@
   "cancel": {
     "message": "Zrušit"
   },
+  "later": {
+    "message": "Později"
+  },
   "canceled": {
     "message": "Zrušeno"
   },
@@ -587,7 +787,7 @@
     "message": "Upravit"
   },
   "searchCollection": {
-    "message": "Prohledat kolekci"
+    "message": "Prohledat sbírku"
   },
   "searchFolder": {
     "message": "Prohledat složku"
@@ -626,6 +826,9 @@
   "searchGroups": {
     "message": "Prohledat skupiny"
   },
+  "resetSearch": {
+    "message": "Resetovat hledání"
+  },
   "allItems": {
     "message": "Všechny položky"
   },
@@ -647,6 +850,9 @@
   "typeSecureNote": {
     "message": "Zabezpečená poznámka"
   },
+  "typeNote": {
+    "message": "Poznámka"
+  },
   "typeSshKey": {
     "message": "SSH klíč"
   },
@@ -666,7 +872,7 @@
     "message": "Složky"
   },
   "collections": {
-    "message": "Kolekce"
+    "message": "Sbírky"
   },
   "firstName": {
     "message": "Křestní jméno"
@@ -725,32 +931,81 @@
   "viewItem": {
     "message": "Zobrazit položku"
   },
-  "newItemHeader": {
-    "message": "Nové $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Nové přihlášení",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Upravit $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Nová karta",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "Zobrazit $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Nová identita",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Nová poznámka",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Nový SSH klíč",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Nový textový Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Nový Send se soubory",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Upravit přihlášení",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Upravit kartu",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Upravit identitu",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Upravit poznámku",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Upravit SSH klíč",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Upravit textový Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Upravit Send se soubory",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Zobrazit přihlášení",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Zobrazit kartu",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Zobrazit identitu",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Zobrazit poznámku",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Zobrazit SSH klíč",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "Nová",
@@ -858,11 +1113,40 @@
   "copyLicenseNumber": {
     "message": "Kopírovat číslo dokladu totožnosti"
   },
+  "copyPrivateKey": {
+    "message": "Kopírovat soukromý klíč"
+  },
+  "copyPublicKey": {
+    "message": "Kopírovat veřejný klíč"
+  },
+  "copyFingerprint": {
+    "message": "Kopírovat otisk prstu"
+  },
   "copyName": {
     "message": "Kopírovat název"
   },
+  "cardNumber": {
+    "message": "číslo karty"
+  },
+  "copyFieldCipherName": {
+    "message": "Kopírovat $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "me": {
     "message": "Já"
+  },
+  "myItems": {
+    "message": "Moje položky"
   },
   "myVault": {
     "message": "Můj trezor"
@@ -1001,7 +1285,7 @@
     "message": "Úroveň přístupu"
   },
   "accessing": {
-    "message": "Přistupování"
+    "message": "Přístup k"
   },
   "loggedOut": {
     "message": "Odhlášení"
@@ -1063,6 +1347,9 @@
   "readingPasskeyLoadingInfo": {
     "message": "Ponechte toto okno otevřené a postupujte podle dotazů z Vašeho prohlížeče."
   },
+  "passkeyAuthenticationFailed": {
+    "message": "Ověření přístupového klíče se nezdařilo. Zkuste to znovu."
+  },
   "useADifferentLogInMethod": {
     "message": "Použít jinou metodu přihlášení"
   },
@@ -1071,6 +1358,9 @@
   },
   "useSingleSignOn": {
     "message": "Použít jednotné přihlášení"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Vaše organizace vyžaduje jednotné přihlášení."
   },
   "welcomeBack": {
     "message": "Vítejte zpět"
@@ -1357,6 +1647,15 @@
   "invalidMasterPassword": {
     "message": "Chybné hlavní heslo"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Neplatné hlavní heslo. Potvrďte správnost e-mailu a zda byl Váš účet vytvořen na $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "Neplatné heslo souboru, použijte heslo zadané při vytvoření souboru exportu."
   },
@@ -1366,14 +1665,38 @@
   "noItemsInList": {
     "message": "Žádné položky k zobrazení."
   },
+  "noItemsInTrash": {
+    "message": "Žádné položky v koši"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Položky, které smažete, se zde zobrazí a budou trvale smazány po 30 dnech"
+  },
+  "noItemsInVault": {
+    "message": "Žádné položky v trezoru"
+  },
+  "emptyVaultDescription": {
+    "message": "Trezor chrání více než jen Vaše hesla. Bezpečně zde uložte zabezpečená přihlášení, ID, karty a poznámky."
+  },
+  "emptyFavorites": {
+    "message": "Nemáte oblíbené žádné položky"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Přidejte často používané položky do oblíbených pro rychlý přístup."
+  },
+  "noSearchResults": {
+    "message": "Nebyly vráceny žádné výsledky hledání"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Vymažte filtry nebo zkuste jiný hledaný výraz"
+  },
   "noPermissionToViewAllCollectionItems": {
-    "message": "Nemáte oprávnění k zobrazení všech položek v této kolekci."
+    "message": "Nemáte oprávnění k zobrazení všech položek v této sbírce."
   },
   "youDoNotHavePermissions": {
-    "message": "Nemáte oprávnění k této kolekci"
+    "message": "Nemáte oprávnění k této sbírce"
   },
   "noCollectionsInList": {
-    "message": "Žádné kolekce k zobrazení."
+    "message": "Žádné sbírky k zobrazení."
   },
   "noGroupsInList": {
     "message": "Žádné skupiny k zobrazení."
@@ -1398,9 +1721,6 @@
   },
   "notificationSentDevicePart1": {
     "message": "Odemknout Bitwarden na Vašem zařízení nebo na "
-  },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Pokoušíte se získat přístup k Vašemu účtu?"
   },
   "accessAttemptBy": {
     "message": "Pokus o přístup z $EMAIL$",
@@ -1475,11 +1795,11 @@
   "selectTwoStepLoginMethod": {
     "message": "Vyberte metodu dvoufázového přihlášení"
   },
-  "recoveryCodeDesc": {
-    "message": "Ztratili jste přístup ke všem nastaveným poskytovatelům dvoufázového přihlášení? Použijte obnovovací kód pro vypnutí dvoufázového přihlášení."
-  },
   "recoveryCodeTitle": {
     "message": "Kód pro obnovení"
+  },
+  "invalidRecoveryCode": {
+    "message": "Neplatný kód pro obnovení"
   },
   "authenticatorAppTitle": {
     "message": "Ověřovací aplikace"
@@ -1539,7 +1859,7 @@
     "message": "Vyberte organizaci, do které chcete tuto položku přesunout. Přesun do organizace převede vlastnictví položky této organizaci. Po přesunutí této položky již nebudete přímým vlastníkem této položky."
   },
   "collectionsDesc": {
-    "message": "Upravte kolekce, ve kterých je tato položka sdílená. Pouze uživatelé organizace, kteří mají přístup k těmto kolekcím, budou moci tuto položku vidět."
+    "message": "Upravte sbírky, ve kterých je tato položka sdílená. Pouze uživatelé organizace, kteří mají přístup k těmto sbírkám, budou moci tuto položku vidět."
   },
   "deleteSelectedItemsDesc": {
     "message": "$COUNT$ položek bude přesunuto do koše.",
@@ -1551,7 +1871,7 @@
     }
   },
   "deleteSelectedCollectionsDesc": {
-    "message": "$COUNT$ kolekcí bude trvale smazáno.",
+    "message": "$COUNT$ sbírek bude trvale smazáno.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1781,6 +2101,9 @@
   "loggedOutWarning": {
     "message": "Pokud chcete pokračovat, budete odhlášeni z aktuální relace a bude nutné se znovu přihlásit. Aktivní relace na jiných zařízeních mohou nadále zůstat aktivní po dobu až jedné hodiny."
   },
+  "changePasswordWarning": {
+    "message": "Po změně hesla se budete muset přihlásit pomocí svého nového hesla. Aktivní relace na jiných zařízeních budou odhlášeny do jedné hodiny."
+  },
   "emailChanged": {
     "message": "E-mail byl změněn"
   },
@@ -1813,9 +2136,6 @@
   },
   "encKeySettings": {
     "message": "Nastavení šifrovacího klíče"
-  },
-  "kdfAlgorithm": {
-    "message": "Algoritmus KDF"
   },
   "kdfIterations": {
     "message": "Iterace KDF"
@@ -1850,9 +2170,6 @@
   },
   "argon2Desc": {
     "message": "Vyšší hodnota iterací KDF, paměti a paralelity pomáhá chránit Vaše hlavní heslo před útokem hrubou silou (brute force attack)."
-  },
-  "changeKdf": {
-    "message": "Změnit KDF"
   },
   "encKeySettingsChanged": {
     "message": "Nastavení šifrovacího klíče bylo uloženo"
@@ -2019,17 +2336,13 @@
     "message": "Zvolte složku"
   },
   "selectImportCollection": {
-    "message": "Zvolte kolekci"
+    "message": "Zvolte sbírku"
   },
-  "importTargetHint": {
-    "message": "Pokud chcete obsah importovaného souboru přesunout do složky $DESTINATION$, vyberte tuto volbu",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Pokud chcete obsah importovaného souboru přesunout do sbírky, vyberte tuto volbu"
+  },
+  "importTargetHintFolder": {
+    "message": "Pokud chcete obsah importovaného souboru přesunout do složky, vyberte tuto volbu"
   },
   "importUnassignedItemsError": {
     "message": "Soubor obsahuje nepřiřazené položky."
@@ -2077,11 +2390,8 @@
   "languageDesc": {
     "message": "Změní jazyk používaný ve webovém trezoru."
   },
-  "enableFavicon": {
-    "message": "Zobrazit ikony webových stránek"
-  },
-  "faviconDesc": {
-    "message": "Zobrazí rozeznatelný obrázek vedle každého přihlášení."
+  "showIconsChangePasswordUrls": {
+    "message": "Zobrazit ikony webových stránek a načíst URL adresy pro změnu hesla"
   },
   "default": {
     "message": "Výchozí"
@@ -2153,11 +2463,17 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Nastavením dvoufázového přihlášení můžete sami sobě znemožnit přihlášení k Vašemu účtu. Obnovovací kód umožňuje přístup do Vašeho účtu i v případě, pokud již nemůžete použít svůj normální způsob dvoufázového přihlášení (např. ztráta zařízení). Pokud ztratíte přístup ke svému účtu, nebude Vám schopna pomoci ani zákaznická podpora Bitwardenu. Doporučujeme si proto kód pro obnovení zapsat nebo vytisknout a uložit jej na bezpečném místě."
   },
-  "restrictedItemTypesPolicy": {
+  "restrictedItemTypePolicy": {
     "message": "Odebrat typ položky karty"
   },
-  "restrictedItemTypesPolicyDesc": {
-    "message": "Nedovolí členům vytvářet typy položek karet."
+  "restrictedItemTypePolicyDesc": {
+    "message": "Nepovolovat členům vytvářet typy položek karty. Existující karty budou automaticky odebrány."
+  },
+  "restrictCardTypeImport": {
+    "message": "Nelze importovat typy položek karty"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Zásady nastavené 1 nebo více organizací Vám brání v importu karet do Vašeho trezoru."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Jednorázový kód pro obnovení lze použít k vypnutí dvoufázového přihlašování v případě, že ztratíte přístup ke svému poskytovateli dvoufázového přihlašování. Bitwarden doporučuje, abyste si kód pro obnovení zapsali a uložili na bezpečném místě."
@@ -2201,7 +2517,7 @@
     "message": "Spravovat"
   },
   "manageCollection": {
-    "message": "Spravovat kolekci"
+    "message": "Spravovat sbírku"
   },
   "viewItems": {
     "message": "Zobrazit položky"
@@ -2217,6 +2533,9 @@
   },
   "disable": {
     "message": "Vypnout"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Podrobnosti o členovi nebyly nalezeny"
   },
   "revokeAccess": {
     "message": "Zrušit přístup"
@@ -2412,9 +2731,6 @@
   },
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Při čtení bezpečnostního klíče došlo k potížím. Zkuste to znovu."
-  },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Z důvodu omezení platformy nelze WebAuthn použít ve všech aplikacích Bitwarden. Měli byste využít i jiného poskytovatele dvoufaktorového přihlášení, abyste měli přístup ke svému účtu, když nelze použít WebAuthn."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Váš kód pro obnovení dvoufázového přihlášení"
@@ -2685,6 +3001,9 @@
   "makeSureEnoughCredit": {
     "message": "Ujistěte se, že je na Vašem účtu dostatečný kredit pro provedení tohoto nákupu. Nemáte-li na účtu dostatečný kredit, bude pro doplacení rozdílu použita Vaše výchozí platební metoda. Kredit si můžete navýšit prostřednictvím stránky Fakturace."
   },
+  "notEnoughAccountCredit": {
+    "message": "Pro tento nákup nemáte na účtu dostatek prostředků. Prostředky na účet můžete přidat na stránce Fakturace."
+  },
   "creditAppliedDesc": {
     "message": "Pro nákupy bude použit kredit z Vašeho účtu. Jakýkoli dostupný kredit bude automaticky použit pro faktury vystavené pro tento účet."
   },
@@ -2785,6 +3104,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Zobrazit přehled cen"
+  },
+  "hidePricingSummary": {
+    "message": "Skrýt přehled cen"
   },
   "summary": {
     "message": "Souhrn"
@@ -3141,7 +3466,7 @@
     }
   },
   "limitedCollections": {
-    "message": "Omezeno na $COUNT$ kolekcí",
+    "message": "Omezeno na $COUNT$ sbírek",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3162,7 +3487,7 @@
     "message": "Neomezený počet uživatelů"
   },
   "createUnlimitedCollections": {
-    "message": "Neomezený počet kolekcí"
+    "message": "Neomezený počet sbírek"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ šifrovaného úložiště",
@@ -3195,7 +3520,7 @@
     "message": "Přednostní zákaznická podpora"
   },
   "xDayFreeTrial": {
-    "message": "$COUNT$denní zkušební verze, možno kdykoli zrušit",
+    "message": "$COUNT$denní zkušební verze, můžete kdykoli zrušit",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3264,7 +3589,7 @@
     "message": "Opustili jste organizaci"
   },
   "defaultCollection": {
-    "message": "Výchozí kolekce"
+    "message": "Výchozí sbírka"
   },
   "getHelp": {
     "message": "Získat nápovědu"
@@ -3339,7 +3664,7 @@
     "message": "Externí SSO ID je nešifrovaná reference mezi Bitwardenem a Vaším nastaveným poskytovatelem SSO."
   },
   "nestCollectionUnder": {
-    "message": "Vnořit kolekci pod"
+    "message": "Vnořit sbírku pod"
   },
   "accessControl": {
     "message": "Správa přístupů"
@@ -3348,19 +3673,19 @@
     "message": "Jen ke čtení"
   },
   "newCollection": {
-    "message": "Nová kolekce"
+    "message": "Nová sbírka"
   },
   "addCollection": {
-    "message": "Přidat kolekci"
+    "message": "Přidat sbírku"
   },
   "editCollection": {
-    "message": "Upravit kolekci"
+    "message": "Upravit sbírku"
   },
   "collectionInfo": {
-    "message": "Informace o kolekci"
+    "message": "Informace o sbírce"
   },
   "deleteCollectionConfirmation": {
-    "message": "Opravdu chcete smazat tuto kolekci?"
+    "message": "Opravdu chcete smazat tuto sbírku?"
   },
   "editMember": {
     "message": "Upravit člena"
@@ -3420,13 +3745,13 @@
     "message": "Administrátor"
   },
   "adminDesc": {
-    "message": "Spravuje přístup v organizaci, všechny kolekce, členy, hlášení a nastavení zabezpečení."
+    "message": "Spravuje přístup v organizaci, všechny sbírky, členy, hlášení a nastavení zabezpečení."
   },
   "user": {
     "message": "Uživatel"
   },
   "userDesc": {
-    "message": "Přistupuje k přiřazeným kolekcím a přidává je."
+    "message": "Přistupuje k přiřazeným sbírkám a přidává položky."
   },
   "all": {
     "message": "Vše"
@@ -3466,6 +3791,9 @@
   },
   "webVault": {
     "message": "Webový trezor"
+  },
+  "webApp": {
+    "message": "Webová aplikace"
   },
   "cli": {
     "message": "CLI"
@@ -3607,7 +3935,7 @@
     }
   },
   "viewCollectionWithName": {
-    "message": "Byla zobrazena kolekce $NAME$.",
+    "message": "Zobrazit sbírku - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3661,7 +3989,7 @@
     }
   },
   "createdCollectionId": {
-    "message": "Byla vytvořena kolekce $ID$.",
+    "message": "Byla vytvořena sbírka $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3670,7 +3998,7 @@
     }
   },
   "editedCollectionId": {
-    "message": "Byla upravena kolekce $ID$.",
+    "message": "Byla upravena sbírka $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3679,10 +4007,10 @@
     }
   },
   "deletedCollections": {
-    "message": "Byly smazány kolekce."
+    "message": "Byly smazány sbírky."
   },
   "deletedCollectionId": {
-    "message": "Byla smazána kolekce $ID$.",
+    "message": "Byla smazána sbírka $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3799,7 +4127,7 @@
     }
   },
   "editedCollectionsForItem": {
-    "message": "Byly upraveny kolekce pro položku $ID$.",
+    "message": "Byly upraveny sbírky pro položku $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3933,8 +4261,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Tento požadavek již není platný."
   },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Přihlášení bylo potvrzeno z $EMAIL$ pro $DEVICE$",
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Požadavek na přihlášení byl schválen pro $EMAIL$ na $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3942,12 +4270,12 @@
       },
       "device": {
         "content": "$2",
-        "example": "iOS"
+        "example": "Web app - Chrome"
       }
     }
   },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Pokus o přihlášení byl zamítnut z jiného zařízení. Pokud jste to opravdu Vy, zkuste se znovu přihlásit do zařízení."
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Pokus o přihlášení byl zamítnut z jiného zařízení. Pokud jste to Vy, zkuste se znovu přihlásit do zařízení."
   },
   "loginRequestHasAlreadyExpired": {
     "message": "Požadavek na přihlášení již vypršel."
@@ -3965,7 +4293,7 @@
     }
   },
   "creatingAccountOn": {
-    "message": "Vytváření účtu na"
+    "message": "Vytvořit účet na"
   },
   "checkYourEmail": {
     "message": "Zkontrolujte Váš e-mail"
@@ -3980,7 +4308,7 @@
     "message": "Žádný e-mail?"
   },
   "goBack": {
-    "message": "Zpět"
+    "message": "Vraťte se"
   },
   "toEditYourEmailAddress": {
     "message": "pro úpravu Vaší e-mailové adresy."
@@ -4004,7 +4332,7 @@
     "message": "Přístup skupiny"
   },
   "groupAccessUserDesc": {
-    "message": "Udělí členům přístup ke kolekcím přidáním do 1 nebo více skupin."
+    "message": "Udělí členům přístup ke sbírkám přidáním do 1 nebo více skupin."
   },
   "invitedUsers": {
     "message": "Uživatelé byli pozváni"
@@ -4084,6 +4412,9 @@
   "generatingYourRiskInsights": {
     "message": "Generování poznatků o rizicích..."
   },
+  "riskInsightsRunReport": {
+    "message": "Spustit hlášení"
+  },
   "updateBrowserDesc": {
     "message": "Používáte nepodporovaný webový prohlížeč. Webový trezor nemusí pracovat správně."
   },
@@ -4092,6 +4423,9 @@
   },
   "reviewLoginRequest": {
     "message": "Podívat se na žádost o přihlášení"
+  },
+  "loginRequest": {
+    "message": "Požadavek na přihlášení"
   },
   "freeTrialEndPromptCount": {
     "message": "Vaše zkušební doba končí za $COUNT$ dnů.",
@@ -4163,8 +4497,8 @@
   "inviteAccepted": {
     "message": "Pozvánka byla přijata"
   },
-  "inviteAcceptedDesc": {
-    "message": "K této organizaci můžete přistupovat, jakmile správce potvrdí Vaše členství. Až se tak stane, pošleme Vám e-mail."
+  "invitationAcceptedDesc": {
+    "message": "Vaše pozvánka byla úspěšně přijata."
   },
   "inviteInitAcceptedDesc": {
     "message": "Nyní můžete přistupovat k této organizaci."
@@ -4569,14 +4903,17 @@
   "receiveMarketingEmailsV2": {
     "message": "Dostávejte do své e-mailové schránky rady, oznámení a příležitosti k výzkumu od společnosti Bitwarden."
   },
+  "subscribe": {
+    "message": "Předplatné"
+  },
   "unsubscribe": {
     "message": "Odhlásit odběr"
   },
   "atAnyTime": {
-    "message": "kdykoli."
+    "message": "můžete kdykoli."
   },
   "byContinuingYouAgreeToThe": {
-    "message": "Pokračováním souhlasíte s"
+    "message": "Pokračováním souhlasíte s dokumenty"
   },
   "and": {
     "message": "a"
@@ -4644,6 +4981,12 @@
   "organizationIsDisabled": {
     "message": "Organizace byla deaktivována"
   },
+  "organizationIsSuspended": {
+    "message": "Organizace je deaktivována"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "K položkám v deaktivované organizaci nemáte přístup. Požádejte o pomoc vlastníka organizace."
+  },
   "secretsAccessSuspended": {
     "message": "K deaktivované organizaci nemáte přístup. Požádejte o pomoc vlastníka organizace."
   },
@@ -4655,9 +4998,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "Servisní účty nelze vytvořit v pozastavených organizacích. Požádejte o pomoc vlastníka organizace."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "K položkám v deaktivované organizaci nemáte přístup. Požádejte o pomoc vlastníka organizace."
   },
   "licenseIsExpired": {
     "message": "Licence vypršela."
@@ -4775,7 +5115,7 @@
     "message": "Měnit klíč API"
   },
   "selectOneCollection": {
-    "message": "Musíte vybrat alespoň jednu kolekci."
+    "message": "Musíte vybrat alespoň jednu sbírku."
   },
   "couldNotChargeCardPayInvoice": {
     "message": "Nepodařilo se nám strhnout platbu z Vaší karty. Prohlédněte si a zaplaťte nezaplacenou fakturu uvedenou níže."
@@ -5032,9 +5372,13 @@
   "ssoIdentifier": {
     "message": "SSO identifikátor"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "Poskytněte toto ID Vašim členům pro přihlášení pomocí SSO. Chcete-li obejít tento krok, nastavte ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Zadejte toto ID svým členům a přihlaste se pomocí SSO. Členové mohou přeskočit zadání tohoto identifikátoru během SSO, pokud je nastavena požadovaná doména. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Dozvědět se více",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "Zrušit propojení s SSO"
@@ -5218,6 +5562,14 @@
   "downloadAttachments": {
     "message": "Stáhnout přílohy"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Zadejte heslo pro zobrazení tohoto Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Zobrazit Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Send, ke kterému se pokoušíte přistupovat, neexistuje nebo již není k dispozici.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5363,6 +5715,9 @@
   "emergencyRejected": {
     "message": "Nouzový přístup byl odmítnut"
   },
+  "grantorDetailsNotFound": {
+    "message": "Údaje o zadavateli nebyly nalezeny"
+  },
   "passwordResetFor": {
     "message": "Pro $USER$ bylo obnoveno heslo. Nyní se můžete přihlásit pomocí nového hesla.",
     "placeholders": {
@@ -5371,6 +5726,99 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Vynutit vlastnictví dat organizace"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Vyžaduje, aby byly všechny položky vlastněny organizací s odebráním volby ukládat položky na úrovni účtu.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "Všechny položky budou vlastněny a uloženy v organizaci, což umožní organizaci ovládání, viditelnost a hlášení. Pokud je zapnuto, bude k dispozici výchozí sbírka pro každého člena pro ukládání položek. Další informace o správě ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "životního cyklu pověření",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Opravdu chcete pokračovat?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "bude i nadále přístupné členům"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "nebude automaticky vybráno při vytváření nových položek"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "nelze spravovat z konzole pro správce, dokud není uživatel odpojen"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "Odmítnutím této zásady se jedná o výchozí sbírku: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Více informací o ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
+  },
+  "availableNow": {
+    "message": "Nyní k dispozici"
+  },
+  "autoConfirm": {
+    "message": "Automatické potvrzení nových uživatelů"
+  },
+  "autoConfirmDescription": {
+    "message": "Noví uživatelé pozvaní do organizace budou automaticky potvrzeni při odemknutí zařízení správce.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "Jak zapnout automatické potvrzení uživatele"
+  },
+  "autoConfirmStep1": {
+    "message": "Otevřete rozšíření Bitwarden."
+  },
+  "autoConfirmStep2a": {
+    "message": "Vyberte",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Zapnout.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Rozšíření prohlížeče Bitwarden bylo úspěšně otevřeno. Nyní můžete aktivovat automatické potvrzení uživatele."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "Noví uživatelé pozvaní do organizace budou automaticky potvrzeni při odemknutí zařízení správce. Před zapnutím této zásady zkontrolujte a odsouhlaste následující: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potenciální bezpečnostní riziko. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Automatické potvrzení uživatele by mohlo představovat bezpečnostní riziko pro data Vaší organizace."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Více o rizicích",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Vyžadují se jednotné zásady organizace. "
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "Kdokoli, kdo je členem více než jedné organizace, bude mít přístup odvolán do té doby, než opustí ostatní organizace."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Jednotné zásady organizace se budou vztahovat na všechny role. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "Žádný nouzový přístup. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Nouzový přístup bude odebrán."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "Přijímám tato rizika a aktualizace zásad"
   },
   "personalOwnership": {
     "message": "Odebrat osobní trezor"
@@ -5382,7 +5830,14 @@
     "message": "Majitelé a správci organizací jsou od prosazování těchto zásad osvobozeni."
   },
   "personalOwnershipSubmitError": {
-    "message": "Z důvodu podnikových zásad nemůžete ukládat položky do svého osobního trezoru. Změňte vlastnictví položky na organizaci a poté si vyberte z dostupných kolekcí."
+    "message": "Z důvodu podnikových zásad nemůžete ukládat položky do svého osobního trezoru. Změňte vlastnictví položky na organizaci a poté si vyberte z dostupných sbírek."
+  },
+  "desktopAutotypePolicy": {
+    "message": "Výchozí nastavení Desktop Autotype"
+  },
+  "desktopAutotypePolicyDesc": {
+    "message": "Ve výchozím nastavení pro členy zapne Desktop Autotype. Uživatelé mohou v klientovi na počítači vypnout Desktop Autotype ručně.",
+    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
   },
   "disableSend": {
     "message": "Odebrat Send"
@@ -5472,16 +5927,16 @@
     "message": "K provedení této akce nemáte potřebná oprávnění."
   },
   "manageAllCollections": {
-    "message": "Správa všech kolekcí"
+    "message": "Správa všech sbírek"
   },
   "createNewCollections": {
-    "message": "Vytváření nových kolekcí"
+    "message": "Vytváření nových sbírek"
   },
   "editAnyCollection": {
-    "message": "Úprava jakékoli kolekce"
+    "message": "Úprava jakékoli sbírky"
   },
   "deleteAnyCollection": {
-    "message": "Smazání jakékoli kolekce"
+    "message": "Smazání jakékoli sbírky"
   },
   "manageGroups": {
     "message": "Správa skupin"
@@ -5525,7 +5980,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendAccessTaglineLearnMore": {
-    "message": "Dozvědět se více o",
+    "message": "Získejte více informací o",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**Learn more about** Bitwarden Send or sign up to try it today.'"
   },
   "sendVaultCardProductDesc": {
@@ -5629,7 +6084,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or **sign up** to try it today.'"
   },
   "sendAccessTaglineTryToday": {
-    "message": "abyste to vyzkoušeli ještě dnes.",
+    "message": "pro vyzkoušení ještě dnes.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
   "sendAccessCreatorIdentifier": {
@@ -5763,10 +6218,22 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Pokračováním odhlásíte $NAME$ z aktuální relace, což znamená, že se bude muset znovu přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "tento uživatel"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
+    "message": "Jedna nebo více zásad organizace vyžaduje, aby hlavní heslo splňovalo následující požadavky:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Jedna nebo více zásad organizace vyžaduje, aby hlavní heslo splňovalo následující požadavky:"
   },
   "resetPasswordSuccess": {
@@ -6034,11 +6501,20 @@
   "add": {
     "message": "Přidat"
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Hlavní heslo bylo úspěšně nastaveno"
+  },
   "updatedMasterPassword": {
     "message": "Hlavní heslo bylo aktualizováno"
   },
   "updateMasterPassword": {
     "message": "Aktualizovat hlavní heslo"
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Pro dokončení obnovy účtu změňte hlavní heslo."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Hlavní heslo nesplňuje požadavky této organizace. Chcete-li pokračovat, změňte hlavní heslo."
   },
   "updateMasterPasswordWarning": {
     "message": "Správce v organizaci nedávno změnil Vaše hlavní heslo. Pro přístup k trezoru jej nyní musíte změnit. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se znovu přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny."
@@ -6064,23 +6540,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "Vaše organizace aktualizovala možnosti dešifrování. Nastavte hlavní heslo pro přístup k Vašemu trezoru."
   },
-  "maximumVaultTimeout": {
-    "message": "Časový limit trezoru"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Časový limit relace"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Nastaví maximální časový limit trezoru pro všechny uživatele."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Nastavte maximální časový limit relace pro všechny členy kromě vlastníků."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Maximální časový limit trezoru"
+  "maximumAllowedTimeout": {
+    "message": "Maximální povolený časový limit"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "Neplatný maximální časový limit trezoru."
+  "maximumAllowedTimeoutRequired": {
+    "message": "Je vyžadován maximální povolený časový limit."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Čas je neplatný. Změňte alespoň jednu hodnotu."
+  },
+  "sessionTimeoutAction": {
+    "message": "Akce časového limitu relace"
+  },
+  "immediately": {
+    "message": "Okamžitě"
+  },
+  "onSystemLock": {
+    "message": "Při uzamknutí systému"
+  },
+  "onAppRestart": {
+    "message": "Při restartu aplikace"
   },
   "hours": {
     "message": "Hodiny"
   },
   "minutes": {
     "message": "Minuty"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Jste si jisti, že chcete povolit maximální časový limit \"Nikdy\" pro všechny členy?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "Tato volba uloží šifrovací klíče Vašich členů do jejich zařízení. Pokud zvolíte tuto volbu, ujistěte se, že jsou jejich zařízení náležitě chráněna."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Další informace o ochraně zařízení"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "Volba \"Při uzamknutí systému\" se bude vztahovat jen na prohlížeč a desktopovou aplikaci"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "Mobilní a webová aplikace bude používat \"Při restartu aplikace\" jako maximální povolený časový limit, protože tato volba není podporována."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Zásady Vaší organizace nastavily maximální povolený časový limit trezoru na $HOURS$ hodin a $MINUTES$ minut.",
@@ -6318,7 +6824,7 @@
     "message": "Prémiový přístup až pro 6 uživatelů"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
-    "message": "Sdílené kolekce pro členy rodiny"
+    "message": "Sdílené sbírky pro členy rodiny"
   },
   "memberFamilies": {
     "message": "Rodiny členů"
@@ -6526,6 +7032,15 @@
   },
   "disabledSso": {
     "message": "SSO je vypnuto"
+  },
+  "emailMustLoginWithSso": {
+    "message": "$EMAIL$ se musí přihlásit jednotným přihlášením",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "enabledKeyConnector": {
     "message": "Je aktivován Key Connector"
@@ -6765,6 +7280,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Bude exportován jen trezor organizace přidružený k $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Bude exportován jen trezor organizace přidružený k $ORGANIZATION$. Položky mých sbírek nebudou zahrnuty.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "Přístup byl odepřen. Nemáte oprávnění k zobrazení této stránky."
   },
@@ -6915,6 +7448,15 @@
   },
   "unknownCipher": {
     "message": "Neznámá položka, možná budete muset požádat o oprávnění pro přístup k této položce."
+  },
+  "unknownSecret": {
+    "message": "Neznámý tajný klíč. Možná budete muset požádat o oprávnění pro přístup k tomuto tajnému klíči."
+  },
+  "unknownServiceAccount": {
+    "message": "Neznámý strojový účet. Možná budete muset požádat o oprávnění pro přístup k tomuto strojovému účtu."
+  },
+  "unknownProject": {
+    "message": "Neznámý projekt. Možná budete muset požádat o oprávnění pro přístup k tomuto projektu."
   },
   "cannotSponsorSelf": {
     "message": "Nemůžete uplatnit pro aktivní účet. Zadejte jiný e-mail."
@@ -7303,6 +7845,9 @@
   "off": {
     "message": "VYP."
   },
+  "connected": {
+    "message": "Připojeno"
+  },
   "members": {
     "message": "Členové"
   },
@@ -7614,9 +8159,9 @@
     "message": "Účet služby byl aktualizován",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Napište nebo vyberte projekty nebo tajné klíče",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Napište nebo vyberte projekty",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Pište pro filtrování",
@@ -7701,8 +8246,8 @@
     "message": "Přístupové tokeny",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Nový přístupový token",
+  "createAccessToken": {
+    "message": "Vytvořit přístupový token",
     "description": "Button label for creating a new access token."
   },
   "expires": {
@@ -7795,19 +8340,19 @@
     "message": "Informace o skupině"
   },
   "editGroupMembersDesc": {
-    "message": "Udělí členům přístup k přiřazeným kolekcím skupiny."
+    "message": "Udělí členům přístup k přiřazeným sbírkám skupiny."
   },
   "editGroupCollectionsDesc": {
-    "message": "Udělí členům přístup ke kolekcím přidáním do této skupiny."
+    "message": "Udělí členům přístup ke sbírkám přidáním do této skupiny."
   },
   "restrictedCollectionAssignmentDesc": {
-    "message": "Můžete přiřadit jen Vámi spravované kolekce."
+    "message": "Můžete přiřadit jen Vámi spravované sbírky."
   },
   "selectMembers": {
     "message": "Vybrat členy"
   },
   "selectCollections": {
-    "message": "Vybrat kolekce"
+    "message": "Vybrat sbírku"
   },
   "role": {
     "message": "Role"
@@ -7816,13 +8361,13 @@
     "message": "Odebrat člena"
   },
   "collection": {
-    "message": "Kolekce"
+    "message": "Sbírka"
   },
   "noCollection": {
-    "message": "Žádná kolekce"
+    "message": "Žádná sbírka"
   },
   "noCollectionsAdded": {
-    "message": "Nebyly přidány žádné kolekce"
+    "message": "Nebyly přidány žádné sbírky"
   },
   "noMembersAdded": {
     "message": "Nebyli přidáni žádní členové"
@@ -8023,7 +8568,7 @@
     }
   },
   "freeOrgMaxCollectionReachedManageBilling": {
-    "message": "Bezplatné organizace mohou mít až $COLLECTIONCOUNT$ kolekcí. Chcete-li přidat více kolekcí, přejděte na placený tarif.",
+    "message": "Bezplatné organizace mohou mít až $COLLECTIONCOUNT$ sbírek. Chcete-li přidat více sbírek, přejděte na placený tarif.",
     "placeholders": {
       "COLLECTIONCOUNT": {
         "content": "$1",
@@ -8032,7 +8577,7 @@
     }
   },
   "freeOrgMaxCollectionReachedNoManageBilling": {
-    "message": "Bezplatné organizace mohou mít až $COLLECTIONCOUNT$ kolekcí. Pro aktualizaci kontaktujte majitele organizace.",
+    "message": "Bezplatné organizace mohou mít až $COLLECTIONCOUNT$ sbírek. Pro aktualizaci kontaktujte majitele organizace.",
     "placeholders": {
       "COLLECTIONCOUNT": {
         "content": "$1",
@@ -8157,12 +8702,6 @@
   "groupSlashUser": {
     "message": "Skupina/Uživatel"
   },
-  "lowKdfIterations": {
-    "message": "Nízke iterace KDF"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "Aktualizujte své nastavení šifrování tak, aby splňovalo nová bezpečnostní doporučení a zlepšilo ochranu účtu."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "Pokračováním se odhlásíte ze všech aktivních relací. Budete se muset znovu přihlásit a dokončit nastavení dvoufázového přihlášení, pokud nějaké máte. Před změnou nastavení šifrování doporučujeme exportovat trezor, aby nedošlo ke ztrátě dat."
   },
@@ -8203,10 +8742,197 @@
   "errorReadingImportFile": {
     "message": "V průběhu pokusu o přečtení souboru s importem se vyskytla chyba"
   },
+  "accessedSecretWithId": {
+    "message": "Přístup k tajnému klíči s ID: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "accessedSecret": {
     "message": "Přistoupeno k tajnému klíči $SECRET_ID$.",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedSecretWithId": {
+    "message": "Úprava tajného klíče s ID: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedSecretWithId": {
+    "message": "Smazání tajného klíče s ID: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "permanentlyDeletedSecretWithId": {
+    "message": "Trvalé smazání tajného klíče s ID: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Obnovení tajného klíče s ID: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdSecretWithId": {
+    "message": "Vytvoření nového tajného klíče s ID: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithIdentifier": {
+    "message": "Přístup k projektu s ID: $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Smazání projektu s ID: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "Smazání tajného klíče s ID: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "ID smazaného strojového účtu: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Úprava projektu s ID: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Přidán uživatel $USER_ID$ do strojového účtu s ID $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Smazaný uživatel $USER_ID$ ze strojového účtu s ID $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Odebrána skupina $GROUP_ID$ ze strojového účtu s ID $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Vytvořený strojový účet s ID $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Přidána skupina $GROUP_ID$ do strojového účtu s ID $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Smazán strojový účet s ID $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Smazání projektu s ID: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Vytvoření nového projektu s ID: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -8383,6 +9109,12 @@
   },
   "requestAdminApproval": {
     "message": "Žádost o schválení správcem"
+  },
+  "unableToCompleteLogin": {
+    "message": "Nelze dokončit přihlášení"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Musíte se přihlásit na důvěryhodném zařízení nebo požádat správce, aby Vám přiřadil heslo."
   },
   "trustedDeviceEncryption": {
     "message": "Šifrování důvěryhodného zařízení"
@@ -8692,25 +9424,30 @@
     }
   },
   "collectionManagement": {
-    "message": "Správa kolekce"
+    "message": "Správa sbírky"
   },
-  "collectionManagementDesc": {
-    "message": "Spravuje chování kolekce pro organizaci"
+  "collectionManagementDescription": {
+    "message": "Nastaví chování sbírky pro organizaci"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Omezí vytváření kolekce na vlastníky a správce"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Povolit vlastníkům a administrátorům spravovat všechny sbírky a položky z konzole administrace"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Omezí mazání kolekce na vlastníky a správce"
+  "restrictCollectionCreationDescription": {
+    "message": "Omezí vytváření sbírky na vlastníky a správce"
   },
-  "limitItemDeletionDescription": {
-    "message": "Omezit smazání položky na členy s oprávněním Spravovat kolekci"
+  "restrictCollectionDeletionDescription": {
+    "message": "Omezí vytváření sbírky na vlastníky a správce"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Vlastníci a správci mohou spravovat všechny kolekce a předměty"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Omezit smazání položek na členy s ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " oprávněním",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
-    "message": "Aktualizované nastavení správy kolekce"
+    "message": "Aktualizované nastavení správy sbírky"
   },
   "passwordManagerPlanPrice": {
     "message": "Cena předplatného Správce hesel"
@@ -8743,10 +9480,10 @@
     "message": "Beta"
   },
   "assignCollectionAccess": {
-    "message": "Přiřadit přístup ke kolekci"
+    "message": "Přiřadit přístup ke sbírce"
   },
   "editedCollections": {
-    "message": "Upravené kolekce"
+    "message": "Upravené sbírky"
   },
   "baseUrl": {
     "message": "URL serveru"
@@ -8777,7 +9514,79 @@
     "message": "Přístupový klíč nebude zkopírován do duplikované položky. Chete pokračovat v duplikování této položky?"
   },
   "modifiedCollectionManagement": {
-    "message": "Upraveno nastavení správy kolekce $ID$.",
+    "message": "Upraveno nastavení správy sbírky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Zapnuto nastavení omezení vytváření sbírky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Vypnuto nastavení omezení vytváření sbírky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Zapnuto nastavení omezení mazání sbírky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Vypnuto nastavení omezení mazání sbírky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Zapnuto nastavení omezení mazání položky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Vypnuto nastavení omezení mazání položky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Zapnuto nastavení povolení vlastníkům a administrátorům spravovat všechny sbírky a položky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Vypnuto nastavení povolení vlastníkům a administrátorům spravovat všechny sbírky a položky $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8811,25 +9620,25 @@
     "message": "Byl dosažen limit počtu uživatelů. Kontaktujte svého poskytovatele pro zakoupení dalších uživatelů."
   },
   "collectionAccessRestricted": {
-    "message": "Přístup ke kolekci je omezen"
+    "message": "Přístup ke sbírce je omezen"
   },
   "readOnlyCollectionAccess": {
-    "message": "Nemáte přístup ke správě této kolekce."
+    "message": "Nemáte přístup ke správě této sbírky."
   },
   "grantManageCollectionWarningTitle": {
-    "message": "Chybějící oprávnění pro správu kolekcí"
+    "message": "Chybějící oprávnění pro správu sbírky"
   },
   "grantManageCollectionWarning": {
-    "message": "Udělte oprávnění \"Spravovat kolekci\" pro úplnou správu kolekce, včetně jejího smazání."
+    "message": "Udělte oprávnění \"Spravovat sbírku\" pro úplnou správu sbírky, včetně jejího smazání."
   },
   "grantCollectionAccess": {
-    "message": "Udělí skupinám nebo členům přístup k této kolekci."
+    "message": "Udělí skupinám nebo členům přístup k této sbírce."
   },
   "grantCollectionAccessMembersOnly": {
-    "message": "Udělí členům přístup k této kolekci."
+    "message": "Udělí členům přístup k této sbírce."
   },
   "adminCollectionAccess": {
-    "message": "Správci mohou přistupovat ke kolekcím a spravovat je."
+    "message": "Správci mohou přistupovat ke sbírkám a spravovat je."
   },
   "serviceAccountAccessUpdated": {
     "message": "Přístup účtu služby byl aktualizován"
@@ -8837,6 +9646,30 @@
   "commonImportFormats": {
     "message": "Společné formáty",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Detekce shody URI je způsob, jakým Bitwarden identifikuje návrhy automatického vyplňování.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regulární výraz\" je pokročilá volba se zvýšeným rizikem odhalení přihlašovacích údajů.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Začíná na\" je pokročilá volba se zvýšeným rizikem odhalení přihlašovacích údajů.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Další informace o detekci shody",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Rozšířené volby",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Varování",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "Pro správu předplatného pro $ORG$, ",
@@ -8918,31 +9751,34 @@
     "message": "Do skupin nemůžete přidat sami sebe."
   },
   "cannotAddYourselfToCollections": {
-    "message": "Do kolekcí nemůžete přidat sami sebe."
+    "message": "Do sbírek nemůžete přidat sami sebe."
   },
   "assign": {
     "message": "Přiřadit"
   },
+  "assignTasks": {
+    "message": "Přiřadit úkoly"
+  },
   "assignToCollections": {
-    "message": "Přiřadit ke kolekcím"
+    "message": "Přiřadit ke sbírkám"
   },
   "assignToTheseCollections": {
-    "message": "Přiřadit k těmto kolekcím"
+    "message": "Přiřadit k těmto sbírkám"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "Jen členové organizace s přístupem k těmto kolekcím budou moci vidět položku."
+    "message": "Jen členové organizace s přístupem k těmto sbírkám budou moci vidět položku."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "Jen členové organizace s přístupem k těmto kolekcím budou moci vidět položky."
+    "message": "Jen členové organizace s přístupem k těmto sbírkám budou moci vidět položky."
   },
   "selectCollectionsToAssign": {
-    "message": "Vyberte kolekce pro přiřazení"
+    "message": "Vyberte sbírky pro přiřazení"
   },
   "noCollectionsAssigned": {
-    "message": "Nebyly přiřazeny žádné kolekce"
+    "message": "Nebyly přiřazeny žádné sbírky"
   },
   "successfullyAssignedCollections": {
-    "message": "Kolekce byly úspěšně přiřazeny"
+    "message": "Sbírky byly úspěšně přiřazeny"
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Vybrali jste $TOTAL_COUNT$ položek. Nemůžete aktualizovat $READONLY_COUNT$ položek, protože nemáte oprávnění k úpravám.",
@@ -9254,7 +10090,7 @@
     "message": "Smazání poskytovatele je trvalé. Tuto akci nelze vrátit zpět."
   },
   "errorAssigningTargetCollection": {
-    "message": "Chyba při přiřazování cílové kolekce."
+    "message": "Chyba při přiřazování do cílové sbírky."
   },
   "errorAssigningTargetFolder": {
     "message": "Chyba při přiřazování cílové složky."
@@ -9315,6 +10151,21 @@
   "deviceManagementDesc": {
     "message": "Nastaví správu zařízení pro Bitwarden pomocí implementačního průvodce pro Vaši platformu."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Odeslat data události do Vaší instance Logscale"
+  },
+  "datadogEventIntegrationDesc": {
+    "message": "Odeslat data o trezoru do Vaší instance Datadog"
+  },
+  "failedToSaveIntegration": {
+    "message": "Nepodařilo se uložit integraci. Opakujte akci později."
+  },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "Pro provedení této akce musíte být vlastníkem organizace."
+  },
+  "failedToDeleteIntegration": {
+    "message": "Nepodařilo se smazat integraci. Opakujte akci později."
+  },
   "deviceIdMissing": {
     "message": "Chybí ID zařízení"
   },
@@ -9329,6 +10180,24 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Znovu otevřete tento odkaz z Vašeho e-mailu na počítači."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Připojit $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "Aktualizovat $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Spustí průvodce implementací $INTEGRATION$.",
@@ -9387,6 +10256,18 @@
   "createNewClientToManageAsProvider": {
     "message": "Vytvořte novou klientskou organizaci pro správu jako poskytovatele. Další uživatelé budou reflektováni v dalším platebním cyklu."
   },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Token na doručitele"
+  },
+  "repositoryNameHint": {
+    "message": "Název úložiště, do kterého má být vpuštěno"
+  },
+  "index": {
+    "message": "Index"
+  },
   "selectAPlan": {
     "message": "Vyberte plán"
   },
@@ -9412,7 +10293,7 @@
     "message": "Žádný přístup"
   },
   "collectionAdminConsoleManaged": {
-    "message": "Tato kolekce je přístupná pouze z konzole správce"
+    "message": "Tato sbírka je přístupná pouze z konzole správce"
   },
   "organizationOptionsMenu": {
     "message": "Přepnout menu organizace"
@@ -9421,7 +10302,7 @@
     "message": "Vybrat položku trezoru"
   },
   "collectionItemSelect": {
-    "message": "Vybrat položku kolekce"
+    "message": "Vybrat položku sbírky"
   },
   "manageBillingFromProviderPortalMessage": {
     "message": "Spravovat fakturaci z portálu poskytovatele"
@@ -9494,7 +10375,7 @@
     "message": "Zobrazit přístup"
   },
   "noCollectionsSelected": {
-    "message": "Nevybrali jste žádné kolekce."
+    "message": "Nevybrali jste žádné sbírky."
   },
   "updateName": {
     "message": "Aktualizovat název"
@@ -9522,12 +10403,6 @@
         "example": "2"
       }
     }
-  },
-  "lowKDFIterationsBanner": {
-    "message": "Nízké iterace KDF. Zvyšte iterace pro zvýšení bezpečnosti Vašeho účtu."
-  },
-  "changeKDFSettings": {
-    "message": "Změnit nastavení KDF"
   },
   "secureYourInfrastructure": {
     "message": "Zabezpečte Vaši infrastrukturu"
@@ -9603,13 +10478,13 @@
     "message": "Ujistěte se, že členové mají přístup k správným údajům a jejich účty jsou bezpečné. Použijte tuto zprávu k získání CSV přístupu členů a konfigurací účtu."
   },
   "memberAccessReportPageDesc": {
-    "message": "Audit přístupu členů organizace ke skupinám, kolekcím a položkám kolekcí. Export CSV poskytuje podrobný rozpis pro jednotlivé členy, včetně informací o oprávněních ke kolekcím a konfiguracích účtů."
+    "message": "Audit přístupu členů organizace ke skupinám, sbírkám a položkám sbírek. Export CSV poskytuje podrobný rozpis pro jednotlivé členy, včetně informací o oprávněních ke sbírkám a konfiguracích účtů."
   },
   "memberAccessReportNoCollection": {
-    "message": "(Žádná kolekce)"
+    "message": "(Žádná sbírka)"
   },
   "memberAccessReportNoCollectionPermission": {
-    "message": "(Žádné oprávnění ke kolekci)"
+    "message": "(Žádné oprávnění ke sbírce)"
   },
   "memberAccessReportNoGroup": {
     "message": "(Žádná skupina)"
@@ -9626,26 +10501,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Vypnuto"
   },
-  "higherKDFIterations": {
-    "message": "Více iterací KDF Vám může pomoci ochránit hlavní heslo před útočníkem, který by ho vylákal hrubou silou."
-  },
-  "incrementsOf100,000": {
-    "message": "přírůstky po 100 000"
-  },
-  "smallIncrements": {
-    "message": "malé přírůstky"
-  },
   "kdfIterationRecommends": {
     "message": "Doporučujeme 600 000 nebo více"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "U starších zařízení může příliš vysoké nastavení KDF vést k problémům s výkonem. Zvyšte hodnotu v $VALUE$ a otestujte svá zařízení.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Pro obnovení předplatného se obraťte na zákaznickou podporu."
@@ -9832,14 +10689,8 @@
   "learnMoreAboutApi": {
     "message": "Další informace o API Bitwardenu"
   },
-  "fileSend": {
-    "message": "Send souboru"
-  },
   "fileSends": {
     "message": "Sends se soubory"
-  },
-  "textSend": {
-    "message": "Send textu"
   },
   "textSends": {
     "message": "Sends s texty"
@@ -9971,7 +10822,7 @@
     "message": "Neomezené sdílení"
   },
   "unlimitedCollections": {
-    "message": "Neomezené kolekce"
+    "message": "Neomezené sbírky"
   },
   "secureDataSharing": {
     "message": "Zabezpečené sdílení dat"
@@ -10110,7 +10961,7 @@
     }
   },
   "deleteOrganizationUserWarningDesc": {
-    "message": "Tímto trvale smažete všechny položky vlastněné $NAME$. Položky kolekcí nejsou ovlivněny.",
+    "message": "Tímto trvale smažete všechny položky vlastněné $NAME$. Položky sbírky nejsou ovlivněny.",
     "description": "Warning description for the delete organization user dialog",
     "placeholders": {
       "name": {
@@ -10120,7 +10971,7 @@
     }
   },
   "deleteManyOrganizationUsersWarningDesc": {
-    "message": "Tímto trvale smažete všechny položky vlastněné následujícími členy. Položky kolekcí nejsou ovlivněny.",
+    "message": "Tímto trvale smažete všechny položky vlastněné následujícími členy. Položky sbírky nejsou ovlivněny.",
     "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
@@ -10135,8 +10986,8 @@
   "organizationUserDeletedDesc": {
     "message": "Uživatel byl odebrán z organizace a všechna přidružená uživatelská data byla smazána."
   },
-  "deletedUserId": {
-    "message": "Smazaný uživatel $ID$ - vlastník / správce smazal uživatelský účet",
+  "deletedUserIdEventMessage": {
+    "message": "Smazaný uživatel $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10193,7 +11044,7 @@
     "message": "Kód z popisu"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "Nemůžete odebrat kolekce s oprávněními jen pro zobrazení: $COLLECTIONS$",
+    "message": "Nemůžete odebrat sbírky s oprávněními jen pro zobrazení: $COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -10246,8 +11097,8 @@
   "domainStatusUnderVerification": {
     "message": "V ověřování"
   },
-  "claimedDomainsDesc": {
-    "message": "Uplatněním domény získáte všechny členské účty, jejichž e-mailová adresa se shoduje s doménou. Členové budou moci při přihlašování přeskočit identifikátor SSO. Správci budou moci členské účty také mazat."
+  "claimedDomainsDescription": {
+    "message": "Požádejte o doménu, abyste mohli vlastnit členské účty. Stránka s identifikátorem SSO bude při přihlašování členů s deklarovanými doménami přeskočena a správci budou moci deklarované účty smazat."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Vstup není platný formát. Příklad: mojedoména.cz.Poddomény vyžadují samostatné záznamy, které je třeba uplatnit."
@@ -10294,6 +11145,15 @@
   },
   "domainClaimed": {
     "message": "Doména uplatněna"
+  },
+  "itemAddedToFavorites": {
+    "message": "Položka byla přidána do oblíbených"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Položka byla odebrána z oblíbených"
+  },
+  "copyNote": {
+    "message": "Kopírovat poznámku"
   },
   "organizationNameMaxLength": {
     "message": "Název organizace nesmí přesáhnout 50 znaků."
@@ -10383,7 +11243,7 @@
     "message": "Otevřeno rozšíření prohlížeče"
   },
   "openedExtensionViewAtRiskPasswords": {
-    "message": "Rozšíření Bitwarden pro prohlížeč bylo úspěšně otevřeno. Nyní můžete zkontrolovat Vaše riziková hesla."
+    "message": "Rozšíření Bitwarden pro prohlížeč bylo úspěšně otevřeno. Nyní můžete zkontrolovat Vaše ohrožená hesla."
   },
   "openExtensionManuallyPart1": {
     "message": "Měli jsme potíže s otevřením rozšíření Bitwarden pro pohlížeč. Klepněte na ikonu Bitwarden",
@@ -10527,6 +11387,12 @@
   "changeAtRiskPassword": {
     "message": "Změnit ohrožené heslo"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Tyto přihlašovací údaje jsou ohrožené a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
+  },
+  "missingWebsite": {
+    "message": "Chybějící webová stránka"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Odebrat odemknutí pomocí PIN"
   },
@@ -10542,8 +11408,63 @@
   "upgradeEventLogMessage": {
     "message": "Tyto události jsou jen příklady a neodrážejí skutečné události v rámci Vaší organizace Bitwarden."
   },
+  "viewEvents": {
+    "message": "Zobrazit události"
+  },
   "cannotCreateCollection": {
-    "message": "Bezplatné organizace mohou mít až 2 kolekce. Chcete-li přidat více kolekcí, přejděte na placený tarif."
+    "message": "Bezplatné organizace mohou mít až 2 sbírky. Chcete-li přidat více sbírek, přejděte na placený tarif."
+  },
+  "searchArchive": {
+    "message": "Hledat v archivu"
+  },
+  "archiveNoun": {
+    "message": "Archiv",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archivovat",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Odebrat z archivu"
+  },
+  "itemsInArchive": {
+    "message": "Položky v archivu"
+  },
+  "noItemsInArchive": {
+    "message": "Žádné položky v archivu"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Zde se zobrazí archivované položky a budou vyloučeny z obecných výsledků vyhledávání a návrhů automatického vyplňování."
+  },
+  "itemWasSentToArchive": {
+    "message": "Položka byla přesunuta do archivu"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Položky byly přesunuty do archivu"
+  },
+  "itemUnarchived": {
+    "message": "Položka byla odebrána z archivu"
+  },
+  "bulkArchiveItems": {
+    "message": "Archivované položky"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Položky odebrané z archivu"
+  },
+  "archiveItem": {
+    "message": "Archivovat položku",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tuto položku archivovat?"
+  },
+  "archiveBulkItems": {
+    "message": "Archivovat položky",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tyto položky archivovat?"
   },
   "businessUnit": {
     "message": "Obchodní jednotka"
@@ -10628,6 +11549,57 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
+  "setupExtensionPageTitle": {
+    "message": "Bezpečné automatické vyplňování hesel jedním klepnutím"
+  },
+  "setupExtensionPageDescription": {
+    "message": "Získejte rozšíření Bitwarden pro prohlížeč a začněte s automatickým vyplňováním ještě dnes"
+  },
+  "getTheExtension": {
+    "message": "Získat rozšíření"
+  },
+  "addItLater": {
+    "message": "Přidat později"
+  },
+  "cannotAutofillPasswordsWithoutExtensionTitle": {
+    "message": "Bez rozšíření prohlížeče nelze automaticky vyplňovat hesla"
+  },
+  "cannotAutofillPasswordsWithoutExtensionDesc": {
+    "message": "Opravdu nechcete nyní přidat rozšíření?"
+  },
+  "skipToWebApp": {
+    "message": "Přeskočit na webovou aplikaci"
+  },
+  "bitwardenExtensionInstalled": {
+    "message": "Rozšíření Bitwarden nainstalováno!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Otevřít rozšíření Bitwarden"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "Rozšíření Bitwarden je nainstalováno! Otevřete rozšíření pro přihlášení a začněte používat automatické vyplňování."
+  },
+  "openExtensionToAutofill": {
+    "message": "Otevřete rozšíření pro příhlášení a spuštění automatického vyplňování."
+  },
+  "openBitwardenExtension": {
+    "message": "Otevřít rozšíření Bitwarden"
+  },
+  "gettingStartedWithBitwardenPart1": {
+    "message": "Pro tipy, jak začít používat Bitwarden, navštivte",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "gettingStartedWithBitwardenPart2": {
+    "message": "Centrum výuky",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "gettingStartedWithBitwardenPart3": {
+    "message": "Centrum nápovědy",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "setupExtensionContentAlt": {
+    "message": "Pomocí rozšíření Bitwarden pro prohlížeč můžete snadno vytvářet nová přihlašovací jména, přistupovat k uloženým přihlašovacím jménům přímo z panelu nástrojů prohlížeče a rychle se přihlašovat k účtům pomocí automatického vyplňování."
+  },
   "restart": {
     "message": "Restartovat"
   },
@@ -10649,5 +11621,407 @@
         "example": "12/31/2024"
       }
     }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Pro přidání kreditu je vyžadována fakturační adresa.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "O tomto nastavení"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden bude používat uložené přihlašovací URI k identifikaci, která ikona nebo změna adresy URL by měla být použita pro zlepšení Vašeho zážitku. Při používání této služby nejsou shromažďovány ani ukládány žádné informace."
+  },
+  "billingAddress": {
+    "message": "Fakturační adresa"
+  },
+  "addBillingAddress": {
+    "message": "Přidat fakturační adresu"
+  },
+  "editBillingAddress": {
+    "message": "Upravit fakturační adresu"
+  },
+  "noBillingAddress": {
+    "message": "Žádná adresa."
+  },
+  "billingAddressUpdated": {
+    "message": "Vaše fakturační adresa byla aktualizována."
+  },
+  "paymentDetails": {
+    "message": "Platební údaje"
+  },
+  "paymentMethodUpdated": {
+    "message": "Vaše platební metoda byla aktualizována."
+  },
+  "bankAccountVerified": {
+    "message": "Váš bankovní účet byl ověřen."
+  },
+  "availableCreditAppliedToInvoice": {
+    "message": "Jakýkoli dostupný kredit bude automaticky použit na faktury generované pro tento účet."
+  },
+  "mustBePositiveNumber": {
+    "message": "Musí být kladné číslo"
+  },
+  "cardSecurityCode": {
+    "message": "Kód CVC/CVV"
+  },
+  "cardSecurityCodeDescription": {
+    "message": "Bezpečnostní kód karty, známý také jako CVV nebo CVC, je obvykle třímístné číslo vytištěné na zadní straně platební karty nebo čtyřmístné číslo vytištěné na přední straně nad číslem karty."
+  },
+  "verifyBankAccountWarning": {
+    "message": "Platba bankovním účtem je dostupná jen pro zákazníky ve Spojených státech. Budete požádáni o ověření svého bankovního účtu. Mikrovklad provedeme během následujících 1-2 pracovních dnů. Pro ověření bankovního účtu zadejte kód popisu výpisu z tohoto vkladu na stránce s podrobnostmi o platbě. Pokud bankovní účet neověříte, bude to mít za následek zmeškání platby a pozastavení Vašeho předplatného."
+  },
+  "taxId": {
+    "message": "DIČ: $TAX_ID$",
+    "placeholders": {
+      "tax_id": {
+        "content": "$1",
+        "example": "12-3456789"
+      }
+    }
+  },
+  "unpaidInvoices": {
+    "message": "Nezaplacené faktury"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Vaše předplatné nebylo zaplaceno. Obraťte se na správce poskytovatele, abyste obnovili službu pro Vás a Vaše klienty.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ je pozastaven",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "Chcete-li obnovit přístup k portálu poskytovatele, obraťte se na zákaznickou podporu Bitwarden pro obnovení předplatného.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Vaše předplatné nebylo zaplaceno. Chcete-li obnovit službu Vám a Vašim klientům, přidejte platební metodu do $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Předplatné $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Vaše 7denní zkušební verze $PLAN$ začíná dnes. Přidejte platební metodu nyní, abyste mohli pokračovat v používání těchto funkcí po skončení zkušební verze: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Neomezené tajné klíče a projekty"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Předplatné bylo zrušeno"
+  },
+  "providersubCanceledmessage": {
+    "message": "Chcete-li se znovu přihlásit, kontaktujte zákaznickou podporu Bitwarden."
+  },
+  "showMore": {
+    "message": "Zobrazit více"
+  },
+  "showLess": {
+    "message": "Zobrazit méně"
+  },
+  "missingTaxId": {
+    "message": "Chybí DIČ"
+  },
+  "missingTaxIdWarning": {
+    "message": "Požadovaná akce: V platebních údajích chybí DIČ. Pokud DIČ není uvedeno, mohou být Vaše faktury zatíženy dodatečnou daní."
+  },
+  "moreBreadcrumbs": {
+    "message": "Více...",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Přidat DIČ"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Požadovaná akce: Chybí DIČ"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "Pokud není přidáno DIČ, Vaše faktury mohou obsahovat další daň."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Požadovaná akce: Vaše DIČ není ověřeno. Pokud není DIČ ověřeno, Vaše faktury mohou obsahovat další daň."
+  },
+  "editTaxId": {
+    "message": "Upravit Vaše DIČ"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "DIČ neověřeno"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Zkontrolujte své DIČ pro ověření správného formátu a zda neexistují žádné překlepy."
+  },
+  "pendingVerification": {
+    "message": "Čeká se na ověření"
+  },
+  "checkInputFormat": {
+    "message": "Zkontrolujte vstupní formát, zda neobsahuje překlepy."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Příklad formátu $CODE$: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potvrdit doménu Key Connectoru"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "Platba z bankovního účtu je k dispozici jen zákazníkům ve Spojených státech. Budete požádáni o ověření svého bankovního účtu. V průběhu následujících 1–2 pracovních dnů provedeme mikroplatbu. Pokud bankovní účet neověříte, platba nebude provedena a Vaše předplatné bude pozastaveno."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "Provedli jsme mikroplatbu na Váš bankovní účet. To může trvat 1–2 pracovní dny. Jakmile se platba objeví na Vašem účtu, můžete svůj bankovní účet ověřit. Pokud svůj bankovní účet neověříte, dojde k neprovedení platby a Vaše předplatné bude pozastaveno."
+  },
+  "verifyNow": {
+    "message": "Ověřit nyní"
+  },
+  "additionalStorageGB": {
+    "message": "Další úložiště (GB)"
+  },
+  "additionalServiceAccountsV2": {
+    "message": "Další strojové účty"
+  },
+  "secretsManagerSeats": {
+    "message": "Uživatelé Správce tajných klíčů"
+  },
+  "additionalStorage": {
+    "message": "Další úložiště"
+  },
+  "expandPurchaseDetails": {
+    "message": "Rozbalit podrobnosti o nákupu"
+  },
+  "collapsePurchaseDetails": {
+    "message": "Sbalit podrobnosti o nákupu"
+  },
+  "familiesMembership": {
+    "message": "Členství v rodinách"
+  },
+  "planDescPremium": {
+    "message": "Dokončit online zabezpečení"
+  },
+  "planDescFamiliesV2": {
+    "message": "Prémiové zabezpečení pro Vaši rodinu"
+  },
+  "planDescFreeV2": {
+    "message": "Sdílet s dalšími $COUNT$ uživateli",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "planDescEnterpriseV2": {
+    "message": "Pokročilé funkce pro jakékoli organizace"
+  },
+  "planNameCustom": {
+    "message": "Vlastní plán"
+  },
+  "planDescCustom": {
+    "message": "Bitwarden se přizpůsobí firmám všech velikostí a zajistí bezpečnost hesel a citlivých informací. Pokud jste součástí velké společnosti, kontaktujte obchodní oddělení a požádejte o cenovou nabídku."
+  },
+  "builtInAuthenticator": {
+    "message": "Vestavěný autentifikátor"
+  },
+  "breachMonitoring": {
+    "message": "Sledování úniků"
+  },
+  "andMoreFeatures": {
+    "message": "A ještě více!"
+  },
+  "secureFileStorage": {
+    "message": "Zabezpečené úložiště souborů"
+  },
+  "familiesUnlimitedSharing": {
+    "message": "Neomezené sdílení - vyberte kdo co vidí"
+  },
+  "familiesUnlimitedCollections": {
+    "message": "Neomezené rodinné sbírky"
+  },
+  "familiesSharedStorage": {
+    "message": "Sdílené úložiště pro důležité rodinné informace"
+  },
+  "limitedUsersV2": {
+    "message": "Pro až $COUNT$ členů",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedCollectionsV2": {
+    "message": "Pro až $COUNT$ sbírek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "alwaysFree": {
+    "message": "Vždy zdarma"
+  },
+  "twoSecretsIncluded": {
+    "message": "2 tajné klíče"
+  },
+  "projectsIncludedV2": {
+    "message": "$COUNT$ projektů",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "secureItemSharing": {
+    "message": "Zabezpečené sdílení položek"
+  },
+  "scimSupport": {
+    "message": "Podpora SCIM"
+  },
+  "includedMachineAccountsV2": {
+    "message": "$COUNT$ strojových účtů",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "enterpriseSecurityPolicies": {
+    "message": "Bezpečnosti zásady podniků"
+  },
+  "selfHostOption": {
+    "message": "Volba vlastního hostitele"
+  },
+  "complimentaryFamiliesPlan": {
+    "message": "Bezplatný rodinný plán pro všechny uživatele"
+  },
+  "strengthenCybersecurity": {
+    "message": "Posílená kybernetická bezpečnost"
+  },
+  "boostProductivity": {
+    "message": "Zvýšená produktivita"
+  },
+  "seamlessIntegration": {
+    "message": "Hladká integrace"
+  },
+  "families": {
+    "message": "Rodiny"
+  },
+  "upgradeToFamilies": {
+    "message": "Aktualizovat na Rodiny"
+  },
+  "upgradeToPremium": {
+    "message": "Aktualizovat na Premium"
+  },
+  "familiesUpdated": {
+    "message": "Aktualizovali jste na Rodiny!"
+  },
+  "taxCalculationError": {
+    "message": "Došlo k chybě při výpočtu daně pro Vaši polohu. Zkuste to znovu."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Vítejte v Bitwardenu"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Odemkněte více bezpečnostních funkcí s lidencí Premium, nebo začněte sdílet položky s Rodinami"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Ceny nezahrnují daň a účtují se každoročně."
+  },
+  "organizationNameDescription": {
+    "message": "Název Vaší organizace se zobrazí v pozvánkách, které posíláte členům."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Pokračovat bez aktualizace"
+  },
+  "upgradeYourPlan": {
+    "message": "Aktualizovat plán"
+  },
+  "upgradeNow": {
+    "message": "Aktualizovat nyní"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Vyplněním tohoto formuláře vytvoříte novou organizaci Rodin. Můžete vylepšit svou bezplatnou organizaci z konzole správce."
+  },
+  "upgradeErrorMessage": {
+    "message": "Při zpracování aktualizace došlo k chybě. Zkuste to znovu."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "Máte bezplatný plán Bitwarden"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Aktualizujte pro úplné zabezpečení"
+  },
+  "viewbusinessplans": {
+    "message": "Zobrazit obchodní plány"
+  },
+  "updateEncryptionSettings": {
+    "message": "Aktualizovat nastavení šifrování"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Aktualizujte nastavení šifrování"
+  },
+  "updateSettings": {
+    "message": "Aktualizovat nastavení"
+  },
+  "algorithm": {
+    "message": "Algoritmus"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Vyberte, jak by Bitwarden měl šifrovat Vaše data trezoru. Všechny volby jsou bezpečné, ale silnější metody poskytují lepší ochranu - zejména proti útokům silou. Bitwarden doporučuje výchozí nastavení pro většinu uživatelů."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Zvýšení hodnot nad výchozím nastavením zvýší zabezpečení, ale odemknutí Vašeho trezoru může trvat déle."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "O šifrovacích algoritmech"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 je dobře testovaná šifrovací metoda, která vyvažuje bezpečnost a výkon. Dobré pro všechny uživatele."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id nabízí silnější ochranu proti moderním útokům. Nejlepší pro pokročilé uživatele s výkonnými zařízeními."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / PSČ"
+  },
+  "cardNumberLabel": {
+    "message": "Číslo karty"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Zahájit bezplatnou zkušební verzi pro rodiny"
   }
 }

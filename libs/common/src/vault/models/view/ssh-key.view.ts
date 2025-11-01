@@ -1,24 +1,13 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { SshKeyView as SdkSshKeyView } from "@bitwarden/sdk-internal";
 
-import { SshKey } from "../domain/ssh-key";
-
 import { ItemView } from "./item.view";
 
 export class SshKeyView extends ItemView {
-  privateKey: string = null;
-  publicKey: string = null;
-  keyFingerprint: string = null;
-
-  constructor(n?: SshKey) {
-    super();
-    if (!n) {
-      return;
-    }
-  }
+  privateKey!: string;
+  publicKey!: string;
+  keyFingerprint!: string;
 
   get maskedPrivateKey(): string {
     if (!this.privateKey || this.privateKey.length === 0) {
@@ -43,22 +32,31 @@ export class SshKeyView extends ItemView {
     return this.keyFingerprint;
   }
 
-  static fromJSON(obj: Partial<Jsonify<SshKeyView>>): SshKeyView {
+  static fromJSON(obj: Partial<Jsonify<SshKeyView>> | undefined): SshKeyView {
     return Object.assign(new SshKeyView(), obj);
   }
 
   /**
    * Converts the SDK SshKeyView to a SshKeyView.
    */
-  static fromSdkSshKeyView(obj: SdkSshKeyView): SshKeyView | undefined {
-    if (!obj) {
-      return undefined;
-    }
+  static fromSdkSshKeyView(obj: SdkSshKeyView): SshKeyView {
+    const sshKeyView = new SshKeyView();
 
-    const keyFingerprint = obj.fingerprint;
+    sshKeyView.privateKey = obj.privateKey;
+    sshKeyView.publicKey = obj.publicKey;
+    sshKeyView.keyFingerprint = obj.fingerprint;
 
-    return Object.assign(new SshKeyView(), obj, {
-      keyFingerprint,
-    });
+    return sshKeyView;
+  }
+
+  /**
+   * Converts the SshKeyView to an SDK SshKeyView.
+   */
+  toSdkSshKeyView(): SdkSshKeyView {
+    return {
+      privateKey: this.privateKey,
+      publicKey: this.publicKey,
+      fingerprint: this.keyFingerprint,
+    };
   }
 }

@@ -1,27 +1,33 @@
-<div
-  class="tw-fixed tw-z-50 tw-w-full tw-flex tw-justify-center tw-opacity-0 focus-within:tw-opacity-100 tw-pointer-events-none focus-within:tw-pointer-events-auto"
->
-  <nav class="tw-bg-background-alt3 tw-rounded-md tw-rounded-t-none tw-py-2 tw-text-alt2">
-    <a
-      bitLink
-      class="tw-mx-6 focus-visible:before:!tw-ring-0"
-      [fragment]="mainContentId"
-      [routerLink]="[]"
-      (click)="focusMainContent()"
-      linkType="light"
-      >{{ "skipToContent" | i18n }}</a
-    >
-  </nav>
-</div>
+@let mainContentId = "main-content";
 <div class="tw-flex tw-w-full">
-  <ng-content select="bit-side-nav, [slot=side-nav]"></ng-content>
-  <main
-    [id]="mainContentId"
-    tabindex="-1"
-    class="tw-overflow-auto tw-min-w-0 tw-flex-1 tw-bg-background tw-p-6 md:tw-ms-0 tw-ms-16"
-  >
-    <ng-content></ng-content>
-
+  <div class="tw-flex tw-w-full" cdkTrapFocus>
+    <div
+      class="tw-fixed tw-z-50 tw-w-full tw-flex tw-justify-center tw-opacity-0 focus-within:tw-opacity-100 tw-pointer-events-none focus-within:tw-pointer-events-auto"
+    >
+      <nav class="tw-bg-background-alt3 tw-rounded-md tw-rounded-t-none tw-py-2 tw-text-alt2">
+        <a
+          #skipLink
+          bitLink
+          class="tw-mx-6 focus-visible:before:!tw-ring-0"
+          [fragment]="mainContentId"
+          [routerLink]="[]"
+          (click)="focusMainContent()"
+          linkType="light"
+          >{{ "skipToContent" | i18n }}</a
+        >
+      </nav>
+    </div>
+    <ng-content select="bit-side-nav, [slot=side-nav]"></ng-content>
+    <main
+      #main
+      [id]="mainContentId"
+      tabindex="-1"
+      bitScrollLayoutHost
+      class="tw-overflow-auto tw-max-h-screen tw-min-w-0 tw-flex-1 tw-bg-background tw-p-8 tw-pt-6 tw-@container"
+    >
+      <!-- ^ If updating this padding, also update the padding correction in bit-banner! ^ -->
+      <ng-content></ng-content>
+    </main>
     <!-- overlay backdrop for side-nav -->
     @if (
       {
@@ -38,6 +44,8 @@
         }
       </div>
     }
-  </main>
-  <ng-template [cdkPortalOutlet]="drawerPortal()"></ng-template>
+  </div>
+  <div class="tw-absolute tw-z-50 tw-left-0 md:tw-sticky tw-top-0 tw-h-screen md:tw-w-auto">
+    <ng-template [cdkPortalOutlet]="drawerPortal()"></ng-template>
+  </div>
 </div>

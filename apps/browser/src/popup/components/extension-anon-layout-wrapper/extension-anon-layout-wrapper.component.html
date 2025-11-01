@@ -1,0 +1,32 @@
+<popup-page [disablePadding]="true">
+  <popup-header
+    slot="header"
+    [background]="'alt'"
+    [showBackButton]="showBackButton"
+    [pageTitle]="''"
+  >
+    <div class="tw-w-32">
+      <bit-icon *ngIf="showLogo" [icon]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-icon>
+    </div>
+
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+      <app-current-account *ngIf="showAcctSwitcher && hasLoggedInAccount"></app-current-account>
+    </ng-container>
+  </popup-header>
+
+  <auth-anon-layout
+    [title]="pageTitle"
+    [subtitle]="pageSubtitle"
+    [icon]="pageIcon"
+    [showReadonlyHostname]="showReadonlyHostname"
+    [hideLogo]="true"
+    [maxWidth]="maxWidth"
+    [hideFooter]="hideFooter"
+    [hideCardWrapper]="hideCardWrapper"
+  >
+    <router-outlet></router-outlet>
+    <router-outlet slot="secondary" name="secondary"></router-outlet>
+    <router-outlet slot="environment-selector" name="environment-selector"></router-outlet>
+  </auth-anon-layout>
+</popup-page>

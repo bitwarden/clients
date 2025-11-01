@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
@@ -25,6 +25,8 @@ import { generate_ssh_key } from "@bitwarden/sdk-internal";
 import { SshImportPromptService } from "../../../services/ssh-import-prompt.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-sshkey-section",
   templateUrl: "./sshkey-section.component.html",
@@ -42,9 +44,13 @@ import { CipherFormContainer } from "../../cipher-form-container";
 })
 export class SshKeySectionComponent implements OnInit {
   /** The original cipher */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() originalCipherView: CipherView;
 
   /** True when all fields should be disabled */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() disabled: boolean;
 
   /**
@@ -60,6 +66,7 @@ export class SshKeySectionComponent implements OnInit {
   });
 
   showImport = false;
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private cipherFormContainer: CipherFormContainer,
@@ -94,6 +101,16 @@ export class SshKeySectionComponent implements OnInit {
     if (this.platformUtilsService.getClientType() !== ClientType.Web) {
       this.showImport = true;
     }
+
+    // Disable the form if the cipher form container is enabled
+    // to prevent user interaction
+    this.cipherFormContainer.formStatusChange$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((status) => {
+        if (status === "enabled") {
+          this.sshKeyForm.disable();
+        }
+      });
   }
 
   /** Set form initial form values from the current cipher */

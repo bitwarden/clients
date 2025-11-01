@@ -1,14 +1,9 @@
 import { TestBed } from "@angular/core/testing";
 import { BehaviorSubject, firstValueFrom, take, timeout } from "rxjs";
 
-import {
-  UserDecryptionOptions,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
+import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
-import { DeviceResponse } from "@bitwarden/common/auth/abstractions/devices/responses/device.response";
-import { DeviceView } from "@bitwarden/common/auth/abstractions/devices/views/device.view";
+import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DeviceType } from "@bitwarden/common/enums";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -17,7 +12,6 @@ import { StateProvider } from "@bitwarden/common/platform/state";
 import { FakeStateProvider, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { KdfConfigService, KdfType } from "@bitwarden/key-management";
 
 import {
   PREMIUM_BANNER_REPROMPT_KEY,
@@ -33,14 +27,10 @@ describe("VaultBannersService", () => {
   const fakeStateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
   const getEmailVerified = jest.fn().mockResolvedValue(true);
   const lastSync$ = new BehaviorSubject<Date | null>(null);
-  const userDecryptionOptions$ = new BehaviorSubject<UserDecryptionOptions>({
-    hasMasterPassword: true,
-  });
-  const kdfConfig$ = new BehaviorSubject({ kdfType: KdfType.PBKDF2_SHA256, iterations: 600000 });
   const accounts$ = new BehaviorSubject<Record<UserId, AccountInfo>>({
     [userId]: { email: "test@bitwarden.com", emailVerified: true, name: "name" } as AccountInfo,
   });
-  const devices$ = new BehaviorSubject<DeviceView[]>([]);
+  const pendingAuthRequests$ = new BehaviorSubject<Array<AuthRequestResponse>>([]);
 
   beforeEach(() => {
     lastSync$.next(new Date("2024-05-14"));
@@ -63,30 +53,16 @@ describe("VaultBannersService", () => {
           useValue: fakeStateProvider,
         },
         {
-          provide: PlatformUtilsService,
-          useValue: { isSelfHost },
-        },
-        {
           provide: AccountService,
           useValue: { accounts$ },
-        },
-        {
-          provide: KdfConfigService,
-          useValue: { getKdfConfig$: () => kdfConfig$ },
         },
         {
           provide: SyncService,
           useValue: { lastSync$: () => lastSync$ },
         },
         {
-          provide: UserDecryptionOptionsServiceAbstraction,
-          useValue: {
-            userDecryptionOptionsById$: () => userDecryptionOptions$,
-          },
-        },
-        {
-          provide: DevicesServiceAbstraction,
-          useValue: { getDevices$: () => devices$ },
+          provide: AuthRequestServiceAbstraction,
+          useValue: { getPendingAuthRequests$: () => pendingAuthRequests$ },
         },
       ],
     });
@@ -191,45 +167,6 @@ describe("VaultBannersService", () => {
     });
   });
 
-  describe("KDFSettings", () => {
-    beforeEach(async () => {
-      userDecryptionOptions$.next({ hasMasterPassword: true });
-      kdfConfig$.next({ kdfType: KdfType.PBKDF2_SHA256, iterations: 599999 });
-    });
-
-    it("shows low KDF iteration banner", async () => {
-      service = TestBed.inject(VaultBannersService);
-
-      expect(await service.shouldShowLowKDFBanner(userId)).toBe(true);
-    });
-
-    it("does not show low KDF iteration banner if KDF type is not PBKDF2_SHA256", async () => {
-      kdfConfig$.next({ kdfType: KdfType.Argon2id, iterations: 600001 });
-
-      service = TestBed.inject(VaultBannersService);
-
-      expect(await service.shouldShowLowKDFBanner(userId)).toBe(false);
-    });
-
-    it("does not show low KDF for iterations about 600,000", async () => {
-      kdfConfig$.next({ kdfType: KdfType.PBKDF2_SHA256, iterations: 600001 });
-
-      service = TestBed.inject(VaultBannersService);
-
-      expect(await service.shouldShowLowKDFBanner(userId)).toBe(false);
-    });
-
-    it("dismisses low KDF iteration banner", async () => {
-      service = TestBed.inject(VaultBannersService);
-
-      expect(await service.shouldShowLowKDFBanner(userId)).toBe(true);
-
-      await service.dismissBanner(userId, VisibleVaultBanner.KDFSettings);
-
-      expect(await service.shouldShowLowKDFBanner(userId)).toBe(false);
-    });
-  });
-
   describe("OutdatedBrowser", () => {
     beforeEach(async () => {
       // Hardcode `MSIE` in userAgent string
@@ -286,31 +223,25 @@ describe("VaultBannersService", () => {
 
   describe("PendingAuthRequest", () => {
     const now = new Date();
-    let deviceResponse: DeviceResponse;
+    let authRequestResponse: AuthRequestResponse;
 
     beforeEach(() => {
-      deviceResponse = new DeviceResponse({
-        Id: "device1",
-        UserId: userId,
-        Name: "Test Device",
-        Identifier: "test-device",
-        Type: DeviceType.Android,
-        CreationDate: now.toISOString(),
-        RevisionDate: now.toISOString(),
-        IsTrusted: false,
+      authRequestResponse = new AuthRequestResponse({
+        id: "authRequest1",
+        deviceId: "device1",
+        deviceName: "Test Device",
+        deviceType: DeviceType.Android,
+        creationDate: now.toISOString(),
+        requestApproved: null,
       });
       // Reset devices list, single user state, and active user state before each test
-      devices$.next([]);
+      pendingAuthRequests$.next([]);
       fakeStateProvider.singleUser.states.clear();
       fakeStateProvider.activeUser.states.clear();
     });
 
     it("shows pending auth request banner when there is a pending request", async () => {
-      deviceResponse.devicePendingAuthRequest = {
-        id: "123",
-        creationDate: now.toISOString(),
-      };
-      devices$.next([new DeviceView(deviceResponse)]);
+      pendingAuthRequests$.next([new AuthRequestResponse(authRequestResponse)]);
 
       service = TestBed.inject(VaultBannersService);
 
@@ -318,8 +249,7 @@ describe("VaultBannersService", () => {
     });
 
     it("does not show pending auth request banner when there are no pending requests", async () => {
-      deviceResponse.devicePendingAuthRequest = null;
-      devices$.next([new DeviceView(deviceResponse)]);
+      pendingAuthRequests$.next([]);
 
       service = TestBed.inject(VaultBannersService);
 
@@ -327,11 +257,7 @@ describe("VaultBannersService", () => {
     });
 
     it("dismisses pending auth request banner", async () => {
-      deviceResponse.devicePendingAuthRequest = {
-        id: "123",
-        creationDate: now.toISOString(),
-      };
-      devices$.next([new DeviceView(deviceResponse)]);
+      pendingAuthRequests$.next([new AuthRequestResponse(authRequestResponse)]);
 
       service = TestBed.inject(VaultBannersService);
 

@@ -4,7 +4,7 @@ import { Router } from "@angular/router";
 import { Subject, firstValueFrom, map, of, startWith, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { LockService } from "@bitwarden/auth/common";
+import { LockService, LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -33,6 +33,8 @@ import { AccountComponent } from "./account.component";
 import { CurrentAccountComponent } from "./current-account.component";
 import { AccountSwitcherService } from "./services/account-switcher.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "account-switcher.component.html",
   imports: [
@@ -69,6 +71,7 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private authService: AuthService,
     private lockService: LockService,
+    private logoutService: LogoutService,
   ) {}
 
   get accountLimit() {
@@ -140,12 +143,9 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
     });
 
     if (confirmed) {
-      const result = await this.accountSwitcherService.logoutAccount(userId);
-      // unlocked logout responses need to be navigated out of the account switcher.
-      // other responses will be handled by background and app.component
-      if (result?.status === AuthenticationStatus.Unlocked) {
-        this.location.back();
-      }
+      await this.logoutService.logout(userId);
+      // navigate to root so redirect guard can properly route next active user or null user to correct page
+      await this.router.navigate(["/"]);
     }
     this.loading = false;
   }

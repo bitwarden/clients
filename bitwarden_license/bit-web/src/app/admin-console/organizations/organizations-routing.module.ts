@@ -8,7 +8,7 @@ import { organizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-con
 import { OrganizationLayoutComponent } from "@bitwarden/web-vault/app/admin-console/organizations/layouts/organization-layout.component";
 import { deepLinkGuard } from "@bitwarden/web-vault/app/auth/guards/deep-link/deep-link.guard";
 
-import { SsoComponent } from "../../auth/sso/sso.component";
+import { SsoManageComponent } from "../../auth/sso/sso-manage.component";
 
 import { DomainVerificationComponent } from "./manage/domain-verification/domain-verification.component";
 import { ScimComponent } from "./manage/scim.component";
@@ -33,7 +33,7 @@ const routes: Routes = [
           },
           {
             path: "sso",
-            component: SsoComponent,
+            component: SsoManageComponent,
             canActivate: [organizationPermissionsGuard((org) => org.canManageSso)],
             data: {
               titleId: "singleSignOn",
@@ -79,9 +79,18 @@ const routes: Routes = [
       },
       {
         path: "access-intelligence",
+        canActivate: [organizationPermissionsGuard((org) => org.canAccessReports)],
         loadChildren: () =>
           import("../../dirt/access-intelligence/access-intelligence.module").then(
             (m) => m.AccessIntelligenceModule,
+          ),
+      },
+      {
+        path: "integrations",
+        canActivate: [organizationPermissionsGuard((org) => org.canAccessIntegrations)],
+        loadChildren: () =>
+          import("../../dirt/organization-integrations/organization-integrations.module").then(
+            (m) => m.OrganizationIntegrationsModule,
           ),
       },
     ],

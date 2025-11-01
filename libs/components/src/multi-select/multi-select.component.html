@@ -1,12 +1,12 @@
 <ng-select
-  [items]="baseItems"
+  [items]="baseItems()"
   [(ngModel)]="selectedItems"
   (ngModelChange)="onChange($event)"
   (blur)="onBlur()"
   bindLabel="listName"
   groupBy="parentGrouping"
-  [placeholder]="placeholder"
-  [loading]="loading"
+  [placeholder]="placeholder()"
+  [loading]="loading()"
   [loadingText]="loadingText"
   notFoundText="{{ 'multiSelectNotFound' | i18n }}"
   clearAllText="{{ 'multiSelectClearAll' | i18n }}"
@@ -20,7 +20,7 @@
   appendTo="body"
 >
   <ng-template ng-loadingspinner-tmp>
-    <i class="bwi bwi-spinner bwi-spin tw-me-1" [title]="loadingText" aria-hidden="true"></i>
+    <bit-spinner></bit-spinner>
   </ng-template>
   <ng-template ng-label-tmp let-item="item" let-clear="clear">
     <button

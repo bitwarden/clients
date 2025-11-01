@@ -3,6 +3,7 @@ import * as crypto from "crypto";
 import * as forge from "node-forge";
 
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { UnsignedPublicKey } from "@bitwarden/common/key-management/types";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
@@ -31,29 +32,6 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
         }
       });
     });
-  }
-
-  async argon2(
-    password: string | Uint8Array,
-    salt: string | Uint8Array,
-    iterations: number,
-    memory: number,
-    parallelism: number,
-  ): Promise<Uint8Array> {
-    const nodePassword = this.toNodeValue(password);
-    const nodeSalt = this.toNodeBuffer(this.toUint8Buffer(salt));
-
-    const argon2 = await import("argon2");
-    const hash = await argon2.hash(nodePassword, {
-      salt: nodeSalt,
-      raw: true,
-      hashLength: 32,
-      timeCost: iterations,
-      memoryCost: memory,
-      parallelism: parallelism,
-      type: argon2.argon2id,
-    });
-    return this.toUint8Buffer(hash);
   }
 
   // ref: https://tools.ietf.org/html/rfc5869
@@ -255,7 +233,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     return Promise.resolve(this.toUint8Buffer(decipher));
   }
 
-  rsaExtractPublicKey(privateKey: Uint8Array): Promise<Uint8Array> {
+  async rsaExtractPublicKey(privateKey: Uint8Array): Promise<UnsignedPublicKey> {
     const privateKeyByteString = Utils.fromBufferToByteString(privateKey);
     const privateKeyAsn1 = forge.asn1.fromDer(privateKeyByteString);
     const forgePrivateKey: any = forge.pki.privateKeyFromAsn1(privateKeyAsn1);
@@ -263,11 +241,11 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     const publicKeyAsn1 = forge.pki.publicKeyToAsn1(forgePublicKey);
     const publicKeyByteString = forge.asn1.toDer(publicKeyAsn1).data;
     const publicKeyArray = Utils.fromByteStringToArray(publicKeyByteString);
-    return Promise.resolve(publicKeyArray);
+    return publicKeyArray as UnsignedPublicKey;
   }
 
-  async rsaGenerateKeyPair(length: 1024 | 2048 | 4096): Promise<[Uint8Array, Uint8Array]> {
-    return new Promise<[Uint8Array, Uint8Array]>((resolve, reject) => {
+  async rsaGenerateKeyPair(length: 1024 | 2048 | 4096): Promise<[UnsignedPublicKey, Uint8Array]> {
+    return new Promise<[UnsignedPublicKey, Uint8Array]>((resolve, reject) => {
       forge.pki.rsa.generateKeyPair(
         {
           bits: length,
@@ -289,7 +267,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
           const privateKeyByteString = forge.asn1.toDer(privateKeyPkcs8).getBytes();
           const privateKey = Utils.fromByteStringToArray(privateKeyByteString);
 
-          resolve([publicKey, privateKey]);
+          resolve([publicKey as UnsignedPublicKey, privateKey]);
         },
       );
     });

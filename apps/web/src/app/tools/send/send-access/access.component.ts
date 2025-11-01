@@ -4,7 +4,6 @@ import { Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 
-import { AnonLayoutWrapperDataService } from "@bitwarden/auth/angular";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -17,9 +16,8 @@ import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SEND_KDF_ITERATIONS } from "@bitwarden/common/tools/send/send-kdf";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
-import { NoItemsModule, ToastService } from "@bitwarden/components";
+import { AnonLayoutWrapperDataService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { ExpiredSendIcon } from "@bitwarden/send-ui";
 
 import { SharedModule } from "../../../shared";
 
@@ -27,6 +25,8 @@ import { SendAccessFileComponent } from "./send-access-file.component";
 import { SendAccessPasswordComponent } from "./send-access-password.component";
 import { SendAccessTextComponent } from "./send-access-text.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send-access",
   templateUrl: "access.component.html",
@@ -35,7 +35,6 @@ import { SendAccessTextComponent } from "./send-access-text.component";
     SendAccessTextComponent,
     SendAccessPasswordComponent,
     SharedModule,
-    NoItemsModule,
   ],
 })
 export class AccessComponent implements OnInit {
@@ -50,7 +49,6 @@ export class AccessComponent implements OnInit {
   protected hideEmail = false;
   protected decKey: SymmetricCryptoKey;
   protected accessRequest: SendAccessRequest;
-  protected expiredSendIcon = ExpiredSendIcon;
 
   protected formGroup = this.formBuilder.group({});
 

@@ -1,20 +1,26 @@
 <aside
-  class="tw-mb-4 tw-box-border tw-rounded-lg tw-border tw-border-l-4 tw-border-solid tw-bg-background tw-ps-3 tw-pe-2 tw-py-2 tw-leading-5 tw-text-main"
-  [ngClass]="calloutClass"
+  class="tw-mb-4 tw-box-border tw-border tw-border-solid tw-rounded-lg tw-bg-background tw-ps-4 tw-pe-4 tw-py-3 tw-leading-5 tw-flex tw-gap-2"
+  [ngClass]="[calloutClass()]"
   [attr.aria-labelledby]="titleId"
 >
-  @if (title) {
-    <header
-      id="{{ titleId }}"
-      class="tw-mb-1 tw-mt-0 tw-text-base tw-font-semibold tw-flex tw-gap-2 tw-items-center"
-    >
-      @if (icon) {
-        <i class="bwi" [ngClass]="[icon, headerClass]" aria-hidden="true"></i>
-      }
-      {{ title }}
-    </header>
+  @let title = titleComputed();
+  @let icon = iconComputed();
+
+  @if (icon) {
+    <i
+      class="bwi tw-relative"
+      [ngClass]="[icon, title ? 'tw-top-[3px] tw-self-start' : 'tw-top-[1px]']"
+      aria-hidden="true"
+    ></i>
   }
-  <div bitTypography="body2">
-    <ng-content></ng-content>
+  <div class="tw-flex tw-flex-col tw-gap-0.5">
+    @if (title) {
+      <header id="{{ titleId }}" class="tw-text-base tw-font-semibold">
+        {{ title }}
+      </header>
+    }
+    <div bitTypography="body2">
+      <ng-content></ng-content>
+    </div>
   </div>
 </aside>

@@ -58,8 +58,18 @@ describe("Menu", () => {
 
     expect(getBitMenuPanel()).toBeFalsy();
   });
+
+  it("should not open when the trigger button is disabled", () => {
+    const buttonDebugElement = fixture.debugElement.query(By.directive(MenuTriggerForDirective));
+    buttonDebugElement.nativeElement.setAttribute("disabled", "true");
+    (buttonDebugElement.nativeElement as HTMLButtonElement).click();
+
+    expect(getBitMenuPanel()).toBeFalsy();
+  });
 });
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "test-app",
   template: `

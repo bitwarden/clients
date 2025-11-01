@@ -2,25 +2,17 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, lastValueFrom, Subject, takeUntil } from "rxjs";
+import { concatMap, Subject, takeUntil } from "rxjs";
 
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
-import { PaymentMethodType } from "@bitwarden/common/billing/enums";
-import { TaxInformation } from "@bitwarden/common/billing/models/domain";
-import { ExpandedTaxInfoUpdateRequest } from "@bitwarden/common/billing/models/request/expanded-tax-info-update.request";
-import { VerifyBankAccountRequest } from "@bitwarden/common/billing/models/request/verify-bank-account.request";
 import {
   ProviderPlanResponse,
   ProviderSubscriptionResponse,
 } from "@bitwarden/common/billing/models/response/provider-subscription-response";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, ToastService } from "@bitwarden/components";
 import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
-import {
-  AdjustPaymentDialogComponent,
-  AdjustPaymentDialogResultType,
-} from "@bitwarden/web-vault/app/billing/shared/adjust-payment-dialog/adjust-payment-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-provider-subscription",
   templateUrl: "./provider-subscription.component.html",
@@ -35,15 +27,10 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected totalCost: number;
 
-  protected readonly TaxInformation = TaxInformation;
-
   constructor(
     private billingApiService: BillingApiServiceAbstraction,
-    private i18nService: I18nService,
     private route: ActivatedRoute,
     private billingNotificationService: BillingNotificationService,
-    private dialogService: DialogService,
-    private toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -75,40 +62,6 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
       this.loading = false;
     }
   }
-
-  protected updatePaymentMethod = async (): Promise<void> => {
-    const dialogRef = AdjustPaymentDialogComponent.open(this.dialogService, {
-      data: {
-        initialPaymentMethod: this.subscription.paymentSource?.type,
-        providerId: this.providerId,
-      },
-    });
-
-    const result = await lastValueFrom(dialogRef.closed);
-
-    if (result === AdjustPaymentDialogResultType.Submitted) {
-      await this.load();
-    }
-  };
-
-  protected updateTaxInformation = async (taxInformation: TaxInformation) => {
-    try {
-      const request = ExpandedTaxInfoUpdateRequest.From(taxInformation);
-      await this.billingApiService.updateProviderTaxInformation(this.providerId, request);
-      this.billingNotificationService.showSuccess(this.i18nService.t("updatedTaxInformation"));
-    } catch (error) {
-      this.billingNotificationService.handleError(error);
-    }
-  };
-
-  protected verifyBankAccount = async (request: VerifyBankAccountRequest): Promise<void> => {
-    await this.billingApiService.verifyProviderBankAccount(this.providerId, request);
-    this.toastService.showToast({
-      variant: "success",
-      title: null,
-      message: this.i18nService.t("verifiedBankAccount"),
-    });
-  };
 
   protected getFormattedCost(
     cost: number,
@@ -154,7 +107,7 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
   }
 
   protected getBillingCadenceLabel(providerPlanResponse: ProviderPlanResponse): string {
-    if (providerPlanResponse == null || providerPlanResponse == undefined) {
+    if (providerPlanResponse == null) {
       return "month";
     }
 
@@ -166,28 +119,5 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
       default:
         return "month";
     }
-  }
-
-  protected get paymentSourceClasses() {
-    if (this.subscription.paymentSource == null) {
-      return [];
-    }
-    switch (this.subscription.paymentSource.type) {
-      case PaymentMethodType.Card:
-        return ["bwi-credit-card"];
-      case PaymentMethodType.BankAccount:
-      case PaymentMethodType.Check:
-        return ["bwi-billing"];
-      case PaymentMethodType.PayPal:
-        return ["bwi-paypal text-primary"];
-      default:
-        return [];
-    }
-  }
-
-  protected get updatePaymentSourceButtonText(): string {
-    const key =
-      this.subscription.paymentSource == null ? "addPaymentMethod" : "changePaymentMethod";
-    return this.i18nService.t(key);
   }
 }

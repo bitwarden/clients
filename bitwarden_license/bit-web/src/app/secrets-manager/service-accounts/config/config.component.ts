@@ -1,10 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute, Params } from "@angular/router";
-import { Subject, concatMap, takeUntil } from "rxjs";
+import { ActivatedRoute } from "@angular/router";
+import { Subject, combineLatest, from, switchMap, takeUntil } from "rxjs";
 
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import {
+  Environment,
+  EnvironmentService,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
@@ -21,6 +24,8 @@ class ServiceAccountConfig {
   projects: ProjectListView[];
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-service-account-config",
   templateUrl: "./config.component.html",
@@ -48,11 +53,11 @@ export class ServiceAccountConfigComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.route.params
+    combineLatest([this.route.params, this.environmentService.environment$])
       .pipe(
-        concatMap(async (params: Params) => {
-          return await this.load(params.organizationId, params.serviceAccountId);
-        }),
+        switchMap(([params, env]) =>
+          from(this.load(env, params.organizationId, params.serviceAccountId)),
+        ),
         takeUntil(this.destroy$),
       )
       .subscribe((smConfig) => {
@@ -67,9 +72,11 @@ export class ServiceAccountConfigComponent implements OnInit, OnDestroy {
       });
   }
 
-  async load(organizationId: string, serviceAccountId: string): Promise<ServiceAccountConfig> {
-    const environment = await this.environmentService.getEnvironment();
-
+  private async load(
+    environment: Environment,
+    organizationId: string,
+    serviceAccountId: string,
+  ): Promise<ServiceAccountConfig> {
     const allProjects = await this.projectService.getProjects(organizationId);
     const policies = await this.accessPolicyService.getServiceAccountGrantedPolicies(
       organizationId,
@@ -88,11 +95,11 @@ export class ServiceAccountConfigComponent implements OnInit, OnDestroy {
     });
 
     return {
-      organizationId: organizationId,
-      serviceAccountId: serviceAccountId,
+      organizationId,
+      serviceAccountId,
       identityUrl: environment.getIdentityUrl(),
       apiUrl: environment.getApiUrl(),
-      projects: projects,
+      projects,
     } as ServiceAccountConfig;
   }
 

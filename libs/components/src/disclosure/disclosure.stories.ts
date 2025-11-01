@@ -1,6 +1,9 @@
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import { IconButtonModule } from "../icon-button";
+import { I18nMockService } from "../utils";
 
 import { DisclosureTriggerForDirective } from "./disclosure-trigger-for.directive";
 import { DisclosureComponent } from "./disclosure.component";
@@ -11,6 +14,16 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [DisclosureTriggerForDirective, DisclosureComponent, IconButtonModule],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              loading: "Loading",
+            });
+          },
+        },
+      ],
     }),
   ],
   parameters: {
@@ -27,7 +40,7 @@ export const DisclosureWithIconButton: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <button type="button" bitIconButton="bwi-sliders" [buttonType]="'muted'" [bitDisclosureTriggerFor]="disclosureRef">
+      <button type="button" label="Settings" bitIconButton="bwi-sliders" [buttonType]="'muted'" [bitDisclosureTriggerFor]="disclosureRef">
       </button>
       <bit-disclosure #disclosureRef class="tw-text-main tw-block" open>click button to hide this content</bit-disclosure>
     `,

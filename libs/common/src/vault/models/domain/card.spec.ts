@@ -1,5 +1,5 @@
 import { mockEnc, mockFromJson } from "../../../../spec";
-import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
+import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { CardData } from "../../../vault/models/data/card.data";
 import { Card } from "../../models/domain/card";
 
@@ -22,12 +22,12 @@ describe("Card", () => {
     const card = new Card(data);
 
     expect(card).toEqual({
-      cardholderName: null,
-      brand: null,
-      number: null,
-      expMonth: null,
-      expYear: null,
-      code: null,
+      cardholderName: undefined,
+      brand: undefined,
+      number: undefined,
+      expMonth: undefined,
+      expYear: undefined,
+      code: undefined,
     });
   });
 
@@ -63,7 +63,6 @@ describe("Card", () => {
     expect(view).toEqual({
       _brand: "brand",
       _number: "number",
-      _subTitle: null,
       cardholderName: "cardHolder",
       code: "code",
       expMonth: "expMonth",
@@ -95,8 +94,8 @@ describe("Card", () => {
       expect(actual).toBeInstanceOf(Card);
     });
 
-    it("returns null if object is null", () => {
-      expect(Card.fromJSON(null)).toBeNull();
+    it("returns undefined if object is null", () => {
+      expect(Card.fromJSON(null)).toBeUndefined();
     });
   });
 

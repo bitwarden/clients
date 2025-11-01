@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
@@ -43,6 +41,7 @@ export default {
             return new I18nMockService({
               ...mockLayoutI18n,
               close: "Close",
+              loading: "Loading",
             });
           },
         },

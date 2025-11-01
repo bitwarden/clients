@@ -16,7 +16,15 @@ import { BiometricStateService } from "@bitwarden/key-management";
 import { WindowState } from "../platform/models/domain/window-state";
 import { applyMainWindowStyles, applyPopupModalStyles } from "../platform/popup-modal-styles";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
-import { cleanUserAgent, isDev, isLinux, isMac, isMacAppStore, isWindows } from "../utils";
+import {
+  cleanUserAgent,
+  isDev,
+  isLinux,
+  isMac,
+  isMacAppStore,
+  isSnapStore,
+  isWindows,
+} from "../utils";
 
 const mainWindowSizeKey = "mainWindowSize";
 const WindowEventHandlingDelay = 100;
@@ -28,7 +36,7 @@ export class WindowMain {
   private windowStateChangeTimer: NodeJS.Timeout;
   private windowStates: { [key: string]: WindowState } = {};
   private enableAlwaysOnTop = false;
-  private enableRendererProcessForceCrashReload = false;
+  private enableRendererProcessForceCrashReload = true;
   session: Electron.Session;
 
   readonly defaultWidth = 950;
@@ -74,7 +82,12 @@ export class WindowMain {
 
     ipcMain.on("window-hide", () => {
       if (this.win != null) {
-        this.win.hide();
+        if (isWindows()) {
+          // On windows, to return focus we need minimize
+          this.win.minimize();
+        } else {
+          this.win.hide();
+        }
       }
     });
 
@@ -141,29 +154,31 @@ export class WindowMain {
         // initialization and is ready to create browser windows.
         // Some APIs can only be used after this event occurs.
         app.on("ready", async () => {
-          if (isMac() || isWindows()) {
-            this.enableRendererProcessForceCrashReload = true;
-          } else if (isLinux() && !isDev()) {
-            if (await processisolations.isCoreDumpingDisabled()) {
-              this.logService.info("Coredumps are disabled in renderer process");
-              this.enableRendererProcessForceCrashReload = true;
-            } else {
-              this.logService.info("Disabling coredumps in main process");
+          if (!isDev()) {
+            // This currently breaks the file portal for snap https://github.com/flatpak/xdg-desktop-portal/issues/785
+            if (!isSnapStore()) {
+              this.logService.info(
+                "[Process Isolation] Isolating process from debuggers and memory dumps",
+              );
               try {
-                await processisolations.disableCoredumps();
+                await processisolations.isolateProcess();
               } catch (e) {
-                this.logService.error("Failed to disable coredumps", e);
+                this.logService.error("[Process Isolation] Failed to isolate main process", e);
               }
             }
 
-            // this currently breaks the file portal, so should only be used when
-            // no files are needed but security requirements are super high https://github.com/flatpak/xdg-desktop-portal/issues/785
-            if (process.env.EXPERIMENTAL_PREVENT_DEBUGGER_MEMORY_ACCESS === "true") {
-              this.logService.info("Disabling memory dumps in main process");
-              try {
-                await processisolations.disableMemoryAccess();
-              } catch (e) {
-                this.logService.error("Failed to disable memory dumps", e);
+            if (isLinux()) {
+              if (await processisolations.isCoreDumpingDisabled()) {
+                this.logService.info("Coredumps are disabled in renderer process");
+              } else {
+                this.enableRendererProcessForceCrashReload = false;
+                this.logService.info("Disabling coredumps in main process");
+                try {
+                  await processisolations.disableCoredumps();
+                  this.enableRendererProcessForceCrashReload = true;
+                } catch (e) {
+                  this.logService.error("Failed to disable coredumps", e);
+                }
               }
             }
           }
@@ -286,6 +301,15 @@ export class WindowMain {
 
     this.win.webContents.on("dom-ready", () => {
       this.win.webContents.zoomFactor = this.windowStates[mainWindowSizeKey].zoomFactor ?? 1.0;
+    });
+
+    // Persist zoom changes immediately when user zooms in/out or resets zoom
+    // We can't depend on higher level web events (like close) to do this
+    // because locking the vault resets window state.
+    this.win.webContents.on("zoom-changed", async () => {
+      const newZoom = this.win.webContents.zoomFactor;
+      this.windowStates[mainWindowSizeKey].zoomFactor = newZoom;
+      await this.desktopSettingsService.setWindow(this.windowStates[mainWindowSizeKey]);
     });
 
     if (this.windowStates[mainWindowSizeKey].isMaximized) {
@@ -481,9 +505,9 @@ export class WindowMain {
         displayBounds.x !== state.displayBounds.x ||
         displayBounds.y !== state.displayBounds.y
       ) {
-        state.x = undefined;
-        state.y = undefined;
         displayBounds = screen.getPrimaryDisplay().bounds;
+        state.x = displayBounds.x + displayBounds.width / 2 - state.width / 2;
+        state.y = displayBounds.y + displayBounds.height / 2 - state.height / 2;
       }
     }
 

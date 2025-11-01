@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import * as papa from "papaparse";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import {
   CollectionService,
@@ -10,20 +10,20 @@ import {
   CollectionDetailsResponse,
   CollectionView,
 } from "@bitwarden/admin-console/common";
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { CipherWithIdExport, CollectionWithIdExport } from "@bitwarden/common/models/export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { newGuid } from "@bitwarden/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import {
@@ -33,6 +33,7 @@ import {
   ExportedVaultAsString,
 } from "../types";
 
+import { VaultExportApiService } from "./api/vault-export-api.service.abstraction";
 import { BaseVaultExportService } from "./base-vault-export.service";
 import { ExportHelper } from "./export-helper";
 import { OrganizationVaultExportServiceAbstraction } from "./org-vault-export.service.abstraction";
@@ -44,31 +45,33 @@ export class OrganizationVaultExportService
 {
   constructor(
     private cipherService: CipherService,
-    private apiService: ApiService,
+    private vaultExportApiService: VaultExportApiService,
     pinService: PinServiceAbstraction,
     private keyService: KeyService,
     encryptService: EncryptService,
     cryptoFunctionService: CryptoFunctionService,
     private collectionService: CollectionService,
     kdfConfigService: KdfConfigService,
-    private accountService: AccountService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     super(pinService, encryptService, cryptoFunctionService, kdfConfigService);
   }
 
   /** Creates a password protected export of an organizational vault.
+   * @param userId The userId of the account requesting the export
    * @param organizationId The organization id
    * @param password The password to protect the export
    * @param onlyManagedCollections If true only managed collections will be exported
    * @returns The exported vault
    */
   async getPasswordProtectedExport(
-    organizationId: string,
+    userId: UserId,
+    organizationId: OrganizationId,
     password: string,
     onlyManagedCollections: boolean,
   ): Promise<ExportedVaultAsString> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const exportVault = await this.getOrganizationExport(
+      userId,
       organizationId,
       "json",
       onlyManagedCollections,
@@ -82,6 +85,7 @@ export class OrganizationVaultExportService
   }
 
   /** Creates an export of an organizational vault. Based on the provided format it will either be unencrypted, encrypted
+   * @param userId The userId of the account requesting the export
    * @param organizationId The organization id
    * @param format The format of the export
    * @param onlyManagedCollections If true only managed collections will be exported
@@ -92,7 +96,8 @@ export class OrganizationVaultExportService
    * @throws Error if the organization policies prevent the export
    */
   async getOrganizationExport(
-    organizationId: string,
+    userId: UserId,
+    organizationId: OrganizationId,
     format: ExportFormat = "csv",
     onlyManagedCollections: boolean,
   ): Promise<ExportedVaultAsString> {
@@ -103,14 +108,13 @@ export class OrganizationVaultExportService
     if (format === "zip") {
       throw new Error("Zip export not supported for organization");
     }
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     if (format === "encrypted_json") {
       return {
         type: "text/plain",
         data: onlyManagedCollections
           ? await this.getEncryptedManagedExport(userId, organizationId)
-          : await this.getOrganizationEncryptedExport(organizationId),
+          : await this.getOrganizationEncryptedExport(userId, organizationId),
         fileName: ExportHelper.getFileName("org", "encrypted_json"),
       } as ExportedVaultAsString;
     }
@@ -126,23 +130,27 @@ export class OrganizationVaultExportService
 
   private async getOrganizationDecryptedExport(
     activeUserId: UserId,
-    organizationId: string,
+    organizationId: OrganizationId,
     format: "json" | "csv",
   ): Promise<string> {
     const decCollections: CollectionView[] = [];
     const decCiphers: CipherView[] = [];
     const promises = [];
 
+    const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
+
     promises.push(
-      this.apiService.getOrganizationExport(organizationId).then((exportData) => {
-        const exportPromises: any = [];
+      this.vaultExportApiService.getOrganizationExport(organizationId).then((exportData) => {
+        const exportPromises: Promise<void>[] = [];
         if (exportData != null) {
           if (exportData.collections != null && exportData.collections.length > 0) {
             exportData.collections.forEach((c) => {
-              const collection = new Collection(new CollectionData(c as CollectionDetailsResponse));
+              const collection = Collection.fromCollectionData(
+                new CollectionData(c as CollectionDetailsResponse),
+              );
               exportPromises.push(
                 firstValueFrom(this.keyService.activeUserOrgKeys$)
-                  .then((keys) => collection.decrypt(keys[organizationId as OrganizationId]))
+                  .then((keys) => collection.decrypt(keys[organizationId], this.encryptService))
                   .then((decCol) => {
                     decCollections.push(decCol);
                   }),
@@ -156,7 +164,11 @@ export class OrganizationVaultExportService
                 const cipher = new Cipher(new CipherData(c));
                 exportPromises.push(
                   this.cipherService.decrypt(cipher, activeUserId).then((decCipher) => {
-                    decCiphers.push(decCipher);
+                    if (
+                      !this.restrictedItemTypesService.isCipherRestricted(decCipher, restrictions)
+                    ) {
+                      decCiphers.push(decCipher);
+                    }
                   }),
                 );
               });
@@ -174,55 +186,51 @@ export class OrganizationVaultExportService
     return this.buildJsonExport(decCollections, decCiphers);
   }
 
-  private async getOrganizationEncryptedExport(organizationId: string): Promise<string> {
+  private async getOrganizationEncryptedExport(
+    userId: UserId,
+    organizationId: OrganizationId,
+  ): Promise<string> {
     const collections: Collection[] = [];
     const ciphers: Cipher[] = [];
-    const promises = [];
 
-    promises.push(
-      this.apiService.getCollections(organizationId).then((c) => {
-        if (c != null && c.data != null && c.data.length > 0) {
-          c.data.forEach((r) => {
-            const collection = new Collection(new CollectionData(r as CollectionDetailsResponse));
-            collections.push(collection);
-          });
-        }
-      }),
-    );
+    const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
 
-    promises.push(
-      this.apiService.getCiphersOrganization(organizationId).then((c) => {
-        if (c != null && c.data != null && c.data.length > 0) {
-          c.data
-            .filter((item) => item.deletedDate === null)
-            .forEach((item) => {
-              const cipher = new Cipher(new CipherData(item));
-              ciphers.push(cipher);
-            });
-        }
-      }),
-    );
+    const exportData = await this.vaultExportApiService.getOrganizationExport(organizationId);
 
-    await Promise.all(promises);
+    if (exportData == null) {
+      return;
+    }
 
-    return this.BuildEncryptedExport(organizationId, collections, ciphers);
+    if (exportData.collections != null && exportData.collections.length > 0) {
+      exportData.collections.forEach((c) => {
+        const collection = Collection.fromCollectionData(
+          new CollectionData(c as CollectionDetailsResponse),
+        );
+        collections.push(collection);
+      });
+    }
+
+    if (exportData.ciphers != null && exportData.ciphers.length > 0) {
+      exportData.ciphers
+        .filter((c) => c.deletedDate === null)
+        .forEach((c) => {
+          const cipher = new Cipher(new CipherData(c));
+          if (!this.restrictedItemTypesService.isCipherRestricted(cipher, restrictions)) {
+            ciphers.push(cipher);
+          }
+        });
+    }
+    return this.BuildEncryptedExport(userId, organizationId, collections, ciphers);
   }
 
   private async getDecryptedManagedExport(
     activeUserId: UserId,
-    organizationId: string,
+    organizationId: OrganizationId,
     format: "json" | "csv",
   ): Promise<string> {
     let decCiphers: CipherView[] = [];
     let allDecCiphers: CipherView[] = [];
-    let decCollections: CollectionView[] = [];
     const promises = [];
-
-    promises.push(
-      this.collectionService.getAllDecrypted().then(async (collections) => {
-        decCollections = collections.filter((c) => c.organizationId == organizationId && c.manage);
-      }),
-    );
 
     promises.push(
       this.cipherService.getAllDecrypted(activeUserId).then((ciphers) => {
@@ -231,11 +239,24 @@ export class OrganizationVaultExportService
     );
     await Promise.all(promises);
 
+    const decCollections: CollectionView[] = await firstValueFrom(
+      this.collectionService
+        .decryptedCollections$(activeUserId)
+        .pipe(
+          map((collections) =>
+            collections.filter((c) => c.organizationId == organizationId && c.manage),
+          ),
+        ),
+    );
+
+    const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
+
     decCiphers = allDecCiphers.filter(
       (f) =>
         f.deletedDate == null &&
         f.organizationId == organizationId &&
-        decCollections.some((dC) => f.collectionIds.some((cId) => dC.id === cId)),
+        decCollections.some((dC) => f.collectionIds.some((cId) => dC.id === cId)) &&
+        !this.restrictedItemTypesService.isCipherRestricted(f, restrictions),
     );
 
     if (format === "csv") {
@@ -246,18 +267,11 @@ export class OrganizationVaultExportService
 
   private async getEncryptedManagedExport(
     activeUserId: UserId,
-    organizationId: string,
+    organizationId: OrganizationId,
   ): Promise<string> {
     let encCiphers: Cipher[] = [];
     let allCiphers: Cipher[] = [];
-    let encCollections: Collection[] = [];
     const promises = [];
-
-    promises.push(
-      this.collectionService.getAll().then((collections) => {
-        encCollections = collections.filter((c) => c.organizationId == organizationId && c.manage);
-      }),
-    );
 
     promises.push(
       this.cipherService.getAll(activeUserId).then((ciphers) => {
@@ -267,23 +281,40 @@ export class OrganizationVaultExportService
 
     await Promise.all(promises);
 
+    const encCollections: Collection[] = await firstValueFrom(
+      this.collectionService.encryptedCollections$(activeUserId).pipe(
+        map((collections) => collections ?? []),
+        map((collections) =>
+          collections.filter((c) => c.organizationId == organizationId && c.manage),
+        ),
+      ),
+    );
+
+    const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
+
     encCiphers = allCiphers.filter(
       (f) =>
         f.deletedDate == null &&
         f.organizationId == organizationId &&
-        encCollections.some((eC) => f.collectionIds.some((cId) => eC.id === cId)),
+        encCollections.some((eC) => f.collectionIds.some((cId) => eC.id === cId)) &&
+        !this.restrictedItemTypesService.isCipherRestricted(f, restrictions),
     );
 
-    return this.BuildEncryptedExport(organizationId, encCollections, encCiphers);
+    return this.BuildEncryptedExport(activeUserId, organizationId, encCollections, encCiphers);
   }
 
   private async BuildEncryptedExport(
-    organizationId: string,
+    activeUserId: UserId,
+    organizationId: OrganizationId,
     collections: Collection[],
     ciphers: Cipher[],
   ): Promise<string> {
-    const orgKey = await this.keyService.getOrgKey(organizationId);
-    const encKeyValidation = await this.encryptService.encryptString(Utils.newGuid(), orgKey);
+    const orgKeys = await firstValueFrom(this.keyService.orgKeys$(activeUserId));
+    const keyForEncryption: SymmetricCryptoKey = orgKeys?.[organizationId];
+    if (keyForEncryption == null) {
+      throw new Error("No encryption key found for organization");
+    }
+    const encKeyValidation = await this.encryptService.encryptString(newGuid(), keyForEncryption);
 
     const jsonDoc: BitwardenEncryptedOrgJsonExport = {
       encrypted: true,

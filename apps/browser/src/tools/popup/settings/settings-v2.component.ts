@@ -14,8 +14,6 @@ import {
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BadgeComponent, ItemModule } from "@bitwarden/components";
 
@@ -26,6 +24,8 @@ import { PopOutComponent } from "../../../platform/popup/components/pop-out.comp
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "settings-v2.component.html",
   imports: [
@@ -75,15 +75,10 @@ export class SettingsV2Component implements OnInit {
     ),
   );
 
-  protected isNudgeFeatureEnabled$ = this.configService.getFeatureFlag$(
-    FeatureFlag.PM8851_BrowserOnboardingNudge,
-  );
-
   constructor(
     private readonly nudgesService: NudgesService,
     private readonly accountService: AccountService,
     private readonly autofillBrowserSettingsService: AutofillBrowserSettingsService,
-    private readonly configService: ConfigService,
   ) {}
 
   async ngOnInit() {

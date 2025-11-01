@@ -23,17 +23,18 @@ import {
   Option,
   SelectModule,
 } from "@bitwarden/components";
+import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
+import { PopupWidthOption } from "../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupCompactModeService } from "../../../platform/popup/layout/popup-compact-mode.service";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
-import {
-  PopupWidthOption,
-  PopupSizeService,
-} from "../../../platform/popup/layout/popup-size.service";
+import { PopupSizeService } from "../../../platform/popup/layout/popup-size.service";
 import { VaultPopupCopyButtonsService } from "../services/vault-popup-copy-buttons.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./appearance-v2.component.html",
   imports: [
@@ -48,6 +49,7 @@ import { VaultPopupCopyButtonsService } from "../services/vault-popup-copy-butto
     ReactiveFormsModule,
     CheckboxModule,
     BadgeModule,
+    PermitCipherDetailsPopoverComponent,
   ],
 })
 export class AppearanceV2Component implements OnInit {

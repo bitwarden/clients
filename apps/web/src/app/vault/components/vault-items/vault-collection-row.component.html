@@ -1,38 +1,53 @@
 <td bitCell [ngClass]="RowHeightClass" class="tw-min-w-fit">
-  <input
-    type="checkbox"
-    bitCheckbox
-    appStopProp
-    *ngIf="showCheckbox"
-    [disabled]="disabled"
-    [checked]="checked"
-    (change)="$event ? this.checkedToggled.next() : null"
-    [attr.aria-label]="'collectionItemSelect' | i18n"
-  />
+  @if (this.canEditCollection || this.canDeleteCollection) {
+    <input
+      type="checkbox"
+      bitCheckbox
+      appStopProp
+      [disabled]="disabled"
+      [checked]="checked"
+      (change)="$event ? this.checkedToggled.next() : null"
+      [attr.aria-label]="'collectionItemSelect' | i18n"
+    />
+  }
 </td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-min-w-fit">
   <div aria-hidden="true">
-    <i class="bwi bwi-fw bwi-lg bwi-collection-shared"></i>
+    <i
+      [class]="
+        'bwi bwi-fw bwi-lg ' +
+        (collection.type === DefaultCollectionType ? 'bwi-user' : 'bwi-collection-shared')
+      "
+    ></i>
   </div>
 </td>
 <td bitCell [ngClass]="RowHeightClass">
-  <button
-    bitLink
-    [disabled]="disabled"
-    type="button"
-    class="tw-flex tw-w-full tw-text-start tw-leading-snug"
-    linkType="secondary"
-    title="{{ 'viewCollectionWithName' | i18n: collection.name }}"
-    [routerLink]="[]"
-    [queryParams]="{ collectionId: collection.id }"
-    queryParamsHandling="merge"
-    appStopProp
-  >
-    <span class="tw-truncate tw-mr-1">{{ collection.name }}</span>
-    <div>
-      <span *ngIf="showAddAccess" bitBadge variant="warning">{{ "addAccess" | i18n }}</span>
-    </div>
-  </button>
+  <div class="tw-flex">
+    <button
+      bitLink
+      [disabled]="disabled"
+      type="button"
+      class="tw-flex tw-text-start tw-leading-snug tw-truncate"
+      linkType="secondary"
+      title="{{ 'viewCollectionWithName' | i18n: collection.name }}"
+      [routerLink]="[]"
+      [queryParams]="{ collectionId: collection.id }"
+      queryParamsHandling="merge"
+      appStopProp
+    >
+      <span class="tw-truncate tw-mr-1">{{ collection.name }}</span>
+    </button>
+    @if (showAddAccess) {
+      <button
+        bitBadge
+        type="button"
+        (click)="addAccess(CollectionPermission.Manage)"
+        variant="warning"
+      >
+        {{ "addAccess" | i18n }}
+      </button>
+    }
+  </div>
 </td>
 <td bitCell [ngClass]="RowHeightClass" *ngIf="showOwner" class="tw-hidden lg:tw-table-cell">
   <app-org-badge
@@ -57,16 +72,17 @@
   </p>
 </td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-text-right">
-  <button
-    *ngIf="canEditCollection || canDeleteCollection || canViewCollectionInfo"
-    [disabled]="disabled"
-    [bitMenuTriggerFor]="collectionOptions"
-    size="small"
-    bitIconButton="bwi-ellipsis-v"
-    type="button"
-    appA11yTitle="{{ 'options' | i18n }}"
-    appStopProp
-  ></button>
+  @if (canEditCollection || canDeleteCollection || canViewCollectionInfo) {
+    <button
+      [disabled]="disabled"
+      [bitMenuTriggerFor]="collectionOptions"
+      size="small"
+      bitIconButton="bwi-ellipsis-v"
+      type="button"
+      label="{{ 'options' | i18n }}"
+      appStopProp
+    ></button>
+  }
   <bit-menu #collectionOptions>
     <ng-container *ngIf="canEditCollection">
       <button type="button" bitMenuItem (click)="edit(false)">

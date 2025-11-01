@@ -3,6 +3,13 @@ import { Component, OnInit } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
+  TwoFactorAuthAuthenticatorIcon,
+  TwoFactorAuthDuoIcon,
+  TwoFactorAuthEmailIcon,
+  TwoFactorAuthWebAuthnIcon,
+  TwoFactorAuthYubicoIcon,
+} from "@bitwarden/assets/svg";
+import {
   TwoFactorProviderDetails,
   TwoFactorService,
 } from "@bitwarden/common/auth/abstractions/two-factor.service";
@@ -19,18 +26,12 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-import {
-  TwoFactorAuthAuthenticatorIcon,
-  TwoFactorAuthDuoIcon,
-  TwoFactorAuthEmailIcon,
-  TwoFactorAuthWebAuthnIcon,
-  TwoFactorAuthYubicoIcon,
-} from "../icons/two-factor-auth";
-
 export type TwoFactorOptionsDialogResult = {
   type: TwoFactorProviderType;
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-options",
   templateUrl: "two-factor-options.component.html",

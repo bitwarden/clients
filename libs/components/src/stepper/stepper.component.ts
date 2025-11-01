@@ -12,6 +12,8 @@ import { StepComponent } from "./step.component";
  * The `<bit-stepper>` component extends the
  * [Angular CdkStepper](https://material.angular.io/cdk/stepper/api#CdkStepper) component
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-stepper",
   templateUrl: "stepper.component.html",
@@ -42,6 +44,10 @@ export class StepperComponent extends CdkStepper {
   private initialOrientation: StepperOrientation | undefined = undefined;
 
   // overriding CdkStepper orientation input so we can default to vertical
+  // TODO: Skipped for signal migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   override get orientation() {
     return this.internalOrientation || "vertical";

@@ -16,7 +16,8 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { isCardExpired } from "@bitwarden/common/autofill/utils";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { CipherId, CollectionId, EmergencyAccessId, UserId } from "@bitwarden/common/types/guid";
+import { getByIds } from "@bitwarden/common/platform/misc";
+import { CipherId, EmergencyAccessId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -38,6 +39,8 @@ import { LoginCredentialsViewComponent } from "./login-credentials/login-credent
 import { SshKeyViewComponent } from "./sshkey-sections/sshkey-view.component";
 import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-identity-sections.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-cipher-view",
   templateUrl: "cipher-view.component.html",
@@ -60,9 +63,13 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
   ],
 })
 export class CipherViewComponent implements OnChanges, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) cipher: CipherView | null = null;
 
   // Required for fetching attachment data when viewed from cipher via emergency access
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() emergencyAccessId?: EmergencyAccessId;
 
   activeUserId$ = getUserId(this.accountService.activeAccount$);
@@ -71,9 +78,13 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
    * Optional list of collections the cipher is assigned to. If none are provided, they will be fetched using the
    * `CipherService` and the `collectionIds` property of the cipher.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() collections?: CollectionView[];
 
   /** Should be set to true when the component is used within the Admin Console */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() isAdminConsole?: boolean = false;
 
   organization$: Observable<Organization | undefined> | undefined;
@@ -138,10 +149,16 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
     return !!this.cipher?.sshKey?.privateKey;
   }
 
+  get hasLoginUri() {
+    return this.cipher?.login?.hasUris;
+  }
+
   async loadCipherData() {
     if (!this.cipher) {
       return;
     }
+
+    const userId = await firstValueFrom(this.activeUserId$);
 
     // Load collections if not provided and the cipher has collectionIds
     if (
@@ -150,13 +167,11 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
       (!this.collections || this.collections.length === 0)
     ) {
       this.collections = await firstValueFrom(
-        this.collectionService.decryptedCollectionViews$(
-          this.cipher.collectionIds as CollectionId[],
-        ),
+        this.collectionService
+          .decryptedCollections$(userId)
+          .pipe(getByIds(this.cipher.collectionIds)),
       );
     }
-
-    const userId = await firstValueFrom(this.activeUserId$);
 
     if (this.cipher.organizationId) {
       this.organization$ = this.organizationService

@@ -1,22 +1,18 @@
 import { mock } from "jest-mock-extended";
 
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
-import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricStateService, KdfConfigService } from "@bitwarden/key-management";
 
 import {
-  makeEncString,
-  makeStaticByteArray,
   makeSymmetricCryptoKey,
   FakeAccountService,
   mockAccountServiceWith,
@@ -29,7 +25,6 @@ import { ElectronKeyService } from "./electron-key.service";
 describe("ElectronKeyService", () => {
   let keyService: ElectronKeyService;
 
-  const pinService = mock<PinServiceAbstraction>();
   const keyGenerationService = mock<KeyGenerationService>();
   const cryptoFunctionService = mock<CryptoFunctionService>();
   const encryptService = mock<EncryptService>();
@@ -51,7 +46,6 @@ describe("ElectronKeyService", () => {
     stateProvider = new FakeStateProvider(accountService);
 
     keyService = new ElectronKeyService(
-      pinService,
       masterPasswordService,
       keyGenerationService,
       cryptoFunctionService,
@@ -80,7 +74,6 @@ describe("ElectronKeyService", () => {
 
         await keyService.setUserKey(userKey, mockUserId);
 
-        expect(biometricService.setClientKeyHalfForUser).not.toHaveBeenCalled();
         expect(biometricService.setBiometricProtectedUnlockKeyForUser).not.toHaveBeenCalled();
         expect(biometricStateService.setEncryptedClientKeyHalf).not.toHaveBeenCalled();
         expect(biometricStateService.getBiometricUnlockEnabled).toHaveBeenCalledWith(mockUserId);
@@ -96,14 +89,12 @@ describe("ElectronKeyService", () => {
 
           await keyService.setUserKey(userKey, mockUserId);
 
-          expect(biometricService.setClientKeyHalfForUser).toHaveBeenCalledWith(mockUserId, null);
           expect(biometricService.setBiometricProtectedUnlockKeyForUser).toHaveBeenCalledWith(
             mockUserId,
-            userKey.keyB64,
+            userKey,
           );
           expect(biometricStateService.setEncryptedClientKeyHalf).not.toHaveBeenCalled();
           expect(biometricStateService.getBiometricUnlockEnabled).toHaveBeenCalledWith(mockUserId);
-          expect(biometricStateService.getRequirePasswordOnStart).toHaveBeenCalledWith(mockUserId);
         });
 
         describe("require password on start enabled", () => {
@@ -111,73 +102,11 @@ describe("ElectronKeyService", () => {
             biometricStateService.getRequirePasswordOnStart.mockResolvedValue(true);
           });
 
-          it("sets new biometric client key half and biometric unlock key when no biometric client key half stored", async () => {
-            const clientKeyHalfBytes = makeStaticByteArray(32);
-            const clientKeyHalf = Utils.fromBufferToUtf8(clientKeyHalfBytes);
-            const encryptedClientKeyHalf = makeEncString();
-            biometricStateService.getEncryptedClientKeyHalf.mockResolvedValue(null);
-            cryptoFunctionService.randomBytes.mockResolvedValue(
-              clientKeyHalfBytes.buffer as CsprngArray,
-            );
-            encryptService.encryptString.mockResolvedValue(encryptedClientKeyHalf);
-
+          it("sets biometric key", async () => {
             await keyService.setUserKey(userKey, mockUserId);
 
-            expect(biometricService.setClientKeyHalfForUser).toHaveBeenCalledWith(
-              mockUserId,
-              clientKeyHalf,
-            );
             expect(biometricService.setBiometricProtectedUnlockKeyForUser).toHaveBeenCalledWith(
               mockUserId,
-              userKey.keyB64,
-            );
-            expect(biometricStateService.setEncryptedClientKeyHalf).toHaveBeenCalledWith(
-              encryptedClientKeyHalf,
-              mockUserId,
-            );
-            expect(biometricStateService.getBiometricUnlockEnabled).toHaveBeenCalledWith(
-              mockUserId,
-            );
-            expect(biometricStateService.getRequirePasswordOnStart).toHaveBeenCalledWith(
-              mockUserId,
-            );
-            expect(biometricStateService.getEncryptedClientKeyHalf).toHaveBeenCalledWith(
-              mockUserId,
-            );
-            expect(cryptoFunctionService.randomBytes).toHaveBeenCalledWith(32);
-            expect(encryptService.encryptString).toHaveBeenCalledWith(clientKeyHalf, userKey);
-          });
-
-          it("sets decrypted biometric client key half and biometric unlock key when existing biometric client key half stored", async () => {
-            const encryptedClientKeyHalf = makeEncString();
-            const clientKeyHalf = Utils.fromBufferToUtf8(makeStaticByteArray(32));
-            biometricStateService.getEncryptedClientKeyHalf.mockResolvedValue(
-              encryptedClientKeyHalf,
-            );
-            encryptService.decryptString.mockResolvedValue(clientKeyHalf);
-
-            await keyService.setUserKey(userKey, mockUserId);
-
-            expect(biometricService.setClientKeyHalfForUser).toHaveBeenCalledWith(
-              mockUserId,
-              clientKeyHalf,
-            );
-            expect(biometricService.setBiometricProtectedUnlockKeyForUser).toHaveBeenCalledWith(
-              mockUserId,
-              userKey.keyB64,
-            );
-            expect(biometricStateService.setEncryptedClientKeyHalf).not.toHaveBeenCalled();
-            expect(biometricStateService.getBiometricUnlockEnabled).toHaveBeenCalledWith(
-              mockUserId,
-            );
-            expect(biometricStateService.getRequirePasswordOnStart).toHaveBeenCalledWith(
-              mockUserId,
-            );
-            expect(biometricStateService.getEncryptedClientKeyHalf).toHaveBeenCalledWith(
-              mockUserId,
-            );
-            expect(encryptService.decryptString).toHaveBeenCalledWith(
-              encryptedClientKeyHalf,
               userKey,
             );
           });

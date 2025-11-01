@@ -1,6 +1,8 @@
 use std::borrow::Cow;
 
-use zbus::{export::futures_util::TryStreamExt, Connection, MatchRule};
+use futures::TryStreamExt;
+use zbus::{Connection, MatchRule};
+
 struct ScreenLock {
     interface: Cow<'static, str>,
     path: Cow<'static, str>,
@@ -17,13 +19,15 @@ const SCREEN_LOCK_MONITORS: [ScreenLock; 2] = [
     },
 ];
 
+// FIXME: Remove unwraps! They panic and terminate the whole application.
+#[allow(clippy::unwrap_used)]
 pub async fn on_lock(tx: tokio::sync::mpsc::Sender<()>) -> Result<(), Box<dyn std::error::Error>> {
     let connection = Connection::session().await?;
 
     let proxy = zbus::fdo::DBusProxy::new(&connection).await?;
     for monitor in SCREEN_LOCK_MONITORS.iter() {
         let match_rule = MatchRule::builder()
-            .msg_type(zbus::MessageType::Signal)
+            .msg_type(zbus::message::Type::Signal)
             .interface(monitor.interface.clone())?
             .member("ActiveChanged")?
             .build();
@@ -39,6 +43,8 @@ pub async fn on_lock(tx: tokio::sync::mpsc::Sender<()>) -> Result<(), Box<dyn st
     Ok(())
 }
 
+// FIXME: Remove unwraps! They panic and terminate the whole application.
+#[allow(clippy::unwrap_used)]
 pub async fn is_lock_monitor_available() -> bool {
     let connection = Connection::session().await.unwrap();
     for monitor in SCREEN_LOCK_MONITORS {

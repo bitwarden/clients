@@ -1,0 +1,56 @@
+name: Lint Crowdin Config
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - '**/crowdin.yml'
+
+jobs:
+  lint-crowdin-config:
+    name: Lint Crowdin Config ${{ matrix.app.name }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      matrix:
+        app: [
+          { name: 'web', project_id: '308189', config_path: 'apps/web/crowdin.yml' },
+          { name: 'desktop', project_id: '299360', config_path: 'apps/desktop/crowdin.yml' },
+          { name: 'browser', project_id: '268134', config_path: 'apps/browser/crowdin.yml' }
+        ]
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Retrieve secrets
+        id: retrieve-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "crowdin-api-token"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Lint ${{ matrix.app.name }} config
+        uses: crowdin/github-action@f214c8723025f41fc55b2ad26e67b60b80b1885d # v2.7.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CROWDIN_PROJECT_ID: ${{ matrix.app.project_id }}
+          CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}
+        with:
+          dryrun_action: true
+          command: 'config lint'
+          command_args: '--verbose -c ${{ matrix.app.config_path }}'

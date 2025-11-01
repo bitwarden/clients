@@ -55,11 +55,15 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     return false;
   }
 
+  isChromium(): boolean {
+    return true;
+  }
+
   isMacAppStore(): boolean {
     return ipc.platform.isMacAppStore;
   }
 
-  isViewOpen(): Promise<boolean> {
+  isPopupOpen(): Promise<boolean> {
     return Promise.resolve(false);
   }
 
@@ -84,6 +88,14 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
 
   supportsDuo(): boolean {
     return true;
+  }
+
+  supportsAutofill(): boolean {
+    return false;
+  }
+
+  supportsFileDownloads(): boolean {
+    return false;
   }
 
   showToast(

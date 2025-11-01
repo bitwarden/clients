@@ -51,6 +51,9 @@ env:
   _AZ_REGISTRY: bitwardenprod.azurecr.io
   _GITHUB_PR_REPO_NAME: ${{ github.event.pull_request.head.repo.full_name }}
 
+permissions:
+  contents: read
+
 jobs:
   setup:
     name: Setup
@@ -61,28 +64,27 @@ jobs:
       has_secrets: ${{ steps.check-secrets.outputs.has_secrets }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Get GitHub sha as version
         id: version
-        run: echo "value=${GITHUB_SHA:0:7}" >> $GITHUB_OUTPUT
+        run: echo "value=${GITHUB_SHA:0:7}" >> "$GITHUB_OUTPUT"
 
       - name: Get Node Version
         id: retrieve-node-version
         run: |
           NODE_NVMRC=$(cat .nvmrc)
           NODE_VERSION=${NODE_NVMRC/v/''}
-          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
+          echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Check secrets
         id: check-secrets
-        env:
-          AZURE_KV_CI_SERVICE_PRINCIPAL: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
         run: |
-          has_secrets=${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL != '' }}
-          echo "has_secrets=$has_secrets" >> $GITHUB_OUTPUT
+          has_secrets=${{ secrets.AZURE_CLIENT_ID != '' }}
+          echo "has_secrets=$has_secrets" >> "$GITHUB_OUTPUT"
 
 
   build-containers:
@@ -97,30 +99,43 @@ jobs:
       matrix:
         include:
           - artifact_name: selfhosted-open-source
+            license_type: "oss"
             image_name: web-oss
             npm_command: dist:oss:selfhost
           - artifact_name: cloud-COMMERCIAL
+            license_type: "commercial"
             image_name: web-cloud
             npm_command: dist:bit:cloud
           - artifact_name: selfhosted-COMMERCIAL
+            license_type: "commercial"
             image_name: web
             npm_command: dist:bit:selfhost
+          - artifact_name: selfhosted-DEV
+            license_type: "commercial"
+            image_name: web
+            npm_command: build:bit:selfhost:dev
+            git_metadata: true
           - artifact_name: cloud-QA
+            license_type: "commercial"
             image_name: web-qa-cloud
             npm_command: build:bit:qa
             git_metadata: true
           - artifact_name: ee
+            license_type: "commercial"
             image_name: web-ee
             npm_command: build:bit:ee
             git_metadata: true
           - artifact_name: cloud-euprd
+            license_type: "commercial"
             image_name: web-euprd
             npm_command: build:bit:euprd
           - artifact_name: cloud-euqa
+            license_type: "commercial"
             image_name: web-euqa
             npm_command: build:bit:euqa
             git_metadata: true
           - artifact_name: cloud-usdev
+            license_type: "commercial"
             image_name: web-usdev
             npm_command: build:bit:usdev
             git_metadata: true
@@ -129,9 +144,10 @@ jobs:
       _VERSION: ${{ needs.setup.outputs.version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Get Latest Server Version
         id: latest-server-version
@@ -142,8 +158,10 @@ jobs:
 
       - name: Set Server Ref
         id: set-server-ref
+        env:
+          _SERVER_VERSION: ${{ steps.latest-server-version.outputs.version }}
         run: |
-          SERVER_REF="${{ steps.latest-server-version.outputs.version }}"
+          SERVER_REF="$_SERVER_VERSION"
           echo "Latest server release version: $SERVER_REF"
           if [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
             SERVER_REF="$GITHUB_REF"
@@ -153,26 +171,27 @@ jobs:
             SERVER_REF="refs/heads/main"
           fi
           echo "Server ref: $SERVER_REF"
-          echo "server_ref=$SERVER_REF" >> $GITHUB_OUTPUT
+          echo "server_ref=$SERVER_REF" >> "$GITHUB_OUTPUT"
 
       - name: Check out Server repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           path: server
           repository: bitwarden/server
           ref: ${{ steps.set-server-ref.outputs.server_ref }}
+          persist-credentials: false
 
       - name: Check Branch to Publish
         env:
           PUBLISH_BRANCHES: "main,rc,hotfix-rc-web"
         id: publish-branch-check
         run: |
-          IFS="," read -a publish_branches <<< $PUBLISH_BRANCHES
+          IFS="," read -a publish_branches <<< "$PUBLISH_BRANCHES"
 
           if [[ " ${publish_branches[*]} " =~ " ${GITHUB_REF:11} " ]]; then
-            echo "is_publish_branch=true" >> $GITHUB_ENV
+            echo "is_publish_branch=true" >> "$GITHUB_ENV"
           else
-            echo "is_publish_branch=false" >> $GITHUB_ENV
+            echo "is_publish_branch=false" >> "$GITHUB_ENV"
           fi
 
       - name: Add Git metadata to build version
@@ -202,19 +221,23 @@ jobs:
         uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
 
       ########## ACRs ##########
-      - name: Login to Prod Azure
+      - name: Log in to Azure
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_PROD_KV_CREDENTIALS }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Log into Prod container registry
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        run: az acr login -n ${_AZ_REGISTRY%.azurecr.io}
+        run: az acr login -n "${_AZ_REGISTRY%.azurecr.io}"
 
       ########## Generate image tag and build Docker image ##########
       - name: Generate container image tag
         id: tag
+        env:
+          _TAG_EXTENSION: ${{ github.event.inputs.custom_tag_extension }}
         run: |
           if [[ "${GITHUB_EVENT_NAME}" == "pull_request" || "${GITHUB_EVENT_NAME}" == "pull_request_target" ]]; then
             IMAGE_TAG=$(echo "${GITHUB_HEAD_REF}" | sed "s/[^a-zA-Z0-9]/-/g") # Sanitize branch name to alphanumeric only
@@ -224,7 +247,7 @@ jobs:
 
           if [[ "${{ github.event.pull_request.head.repo.fork }}" == "true" ]]; then
             SANITIZED_REPO_NAME=$(echo "$_GITHUB_PR_REPO_NAME" | sed "s/[^a-zA-Z0-9]/-/g") # Sanitize repo name to alphanumeric only
-            IMAGE_TAG=$SANITIZED_REPO_NAME-$IMAGE_TAG # Add repo name to the tag
+            IMAGE_TAG="$SANITIZED_REPO_NAME-$IMAGE_TAG" # Add repo name to the tag
             IMAGE_TAG=${IMAGE_TAG:0:128}  # Limit to 128 characters, as that's the max length for Docker image tags
           fi
 
@@ -232,13 +255,13 @@ jobs:
             IMAGE_TAG=dev
           fi
 
-          TAG_EXTENSION=${{ github.event.inputs.custom_tag_extension }}
+          TAG_EXTENSION="$_TAG_EXTENSION"
 
           if [[ $TAG_EXTENSION ]]; then
-            IMAGE_TAG=$IMAGE_TAG-$TAG_EXTENSION
+            IMAGE_TAG="$IMAGE_TAG-$TAG_EXTENSION"
           fi
 
-          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
 
       ########## Build Image ##########
       - name: Generate image full name
@@ -246,7 +269,7 @@ jobs:
         env:
           IMAGE_TAG: ${{ steps.tag.outputs.image_tag }}
           PROJECT_NAME: ${{ matrix.image_name }}
-        run: echo "name=$_AZ_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}" >> $GITHUB_OUTPUT
+        run: echo "name=$_AZ_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
 
       - name: Build Docker image
         id: build-container
@@ -255,6 +278,7 @@ jobs:
           build-args: |
             NODE_VERSION=${{ env._NODE_VERSION }}
             NPM_COMMAND=${{ matrix.npm_command }}
+            LICENSE_TYPE=${{ matrix.license_type }}
           context: .
           file: apps/web/Dockerfile
           load: true
@@ -269,7 +293,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         env:
           IMAGE_NAME: ${{ steps.image-name.outputs.name }}
-        run: docker push $IMAGE_NAME
+        run: docker push "$IMAGE_NAME"
 
       - name: Zip project
         working-directory: apps/web
@@ -277,10 +301,10 @@ jobs:
           IMAGE_NAME: ${{ steps.image-name.outputs.name }}
         run: |
           mkdir build
-          docker run --rm --volume $(pwd)/build:/temp --entrypoint bash \
-            $IMAGE_NAME -c "cp -r ./ /temp"
+          docker run --rm --volume "$(pwd)/build":/temp --entrypoint sh \
+            "$IMAGE_NAME" -c "cp -r ./ /temp"
 
-          zip -r web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip build
+          zip -r web-$_VERSION-${{ matrix.artifact_name }}.zip build
 
       - name: Upload ${{ matrix.artifact_name }} artifact
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
@@ -299,12 +323,13 @@ jobs:
           DIGEST: ${{ steps.build-container.outputs.digest }}
           TAGS: ${{ steps.image-name.outputs.name }}
         run: |
-          IFS="," read -a tags <<< "${TAGS}"
-          images=""
-          for tag in "${tags[@]}"; do
-            images+="${tag}@${DIGEST} "
+          IFS=',' read -r -a tags_array <<< "${TAGS}"
+          images=()
+          for tag in "${tags_array[@]}"; do
+            images+=("${tag}@${DIGEST}")
           done
-          cosign sign --yes ${images}
+          cosign sign --yes "${images[@]}"
+          echo "images=${images[*]}" >> "$GITHUB_OUTPUT"
 
       - name: Scan Docker image
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -317,31 +342,42 @@ jobs:
 
       - name: Upload Grype results to GitHub
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: github/codeql-action/upload-sarif@d68b2d4edb4189fd2a5366ac14e72027bd4b37dd # v3.28.2
+        uses: github/codeql-action/upload-sarif@573acd9552f33577783abde4acb66a1058e762e5 # codeql-bundle-v2.23.1
         with:
           sarif_file: ${{ steps.container-scan.outputs.sarif }}
           sha: ${{ contains(github.event_name, 'pull_request') && github.event.pull_request.head.sha || github.sha }}
           ref: ${{ contains(github.event_name, 'pull_request') && format('refs/pull/{0}/head', github.event.pull_request.number) || github.ref }}
 
       - name: Log out of Docker
-        run: docker logout $_AZ_REGISTRY
+        run: docker logout "$_AZ_REGISTRY"
+
+      - name: Log out from Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-logout@main
 
 
   crowdin-push:
     name: Crowdin Push
     if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
     needs: build-containers
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
     runs-on: ubuntu-24.04
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
 
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -350,8 +386,11 @@ jobs:
           keyvault: "bitwarden-ci"
           secrets: "crowdin-api-token"
 
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Upload Sources
-        uses: crowdin/github-action@30849777a3cba6ee9a09e24e195272b8287a0a5b # v1.20.4
+        uses: crowdin/github-action@f214c8723025f41fc55b2ad26e67b60b80b1885d # v2.7.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}
@@ -368,11 +407,15 @@ jobs:
     if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     needs: build-containers
+    permissions:
+      id-token: write
     steps:
-      - name: Login to Azure - CI Subscription
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve github PAT secrets
         id: retrieve-secret-pat
@@ -381,8 +424,11 @@ jobs:
           keyvault: "bitwarden-ci"
           secrets: "github-pat-bitwarden-devops-bot-repo-scope"
 
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Trigger web vault deploy using GitHub Run ID
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           github-token: ${{ steps.retrieve-secret-pat.outputs.github-pat-bitwarden-devops-bot-repo-scope }}
           script: |
@@ -407,6 +453,8 @@ jobs:
       - build-containers
       - crowdin-push
       - trigger-web-vault-deploy
+    permissions:
+      id-token: write
     steps:
       - name: Check if any job failed
         if: |
@@ -415,11 +463,13 @@ jobs:
           && contains(needs.*.result, 'failure')
         run: exit 1
 
-      - name: Login to Azure - Prod Subscription
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         if: failure()
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -428,6 +478,9 @@ jobs:
         with:
           keyvault: "bitwarden-ci"
           secrets: "devops-alerts-slack-webhook-url"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Notify Slack on failure
         uses: act10ns/slack@44541246747a30eb3102d87f7a4cc5471b0ffb7d # v2.1.0

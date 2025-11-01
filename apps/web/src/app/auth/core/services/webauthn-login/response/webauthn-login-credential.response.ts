@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { RotateableKeySet } from "@bitwarden/auth/common";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 
 import { WebauthnLoginCredentialPrfStatus } from "../../../enums/webauthn-login-credential-prf-status.enum";
 
@@ -40,6 +40,6 @@ export class WebauthnLoginCredentialResponse extends BaseResponse {
   }
 
   hasPrfKeyset(): boolean {
-    return this.encryptedUserKey != null && this.encryptedPublicKey != null;
+    return this.prfStatus === WebauthnLoginCredentialPrfStatus.Enabled;
   }
 }

@@ -4,12 +4,15 @@ import { OptionValues } from "commander";
 import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
+import { isGuid } from "@bitwarden/guid";
 
 import { DownloadCommand } from "../../../commands/download.command";
 import { Response } from "../../../models/response";
@@ -22,6 +25,7 @@ export class SendGetCommand extends DownloadCommand {
     private searchService: SearchService,
     encryptService: EncryptService,
     apiService: ApiService,
+    private accountService: AccountService,
   ) {
     super(encryptService, apiService);
   }
@@ -71,13 +75,14 @@ export class SendGetCommand extends DownloadCommand {
   }
 
   private async getSendView(id: string): Promise<SendView | SendView[]> {
-    if (Utils.isGuid(id)) {
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    if (isGuid(id)) {
       const send = await this.sendService.getFromState(id);
       if (send != null) {
-        return await send.decrypt();
+        return await send.decrypt(activeUserId);
       }
     } else if (id.trim() !== "") {
-      let sends = await this.sendService.getAllDecryptedFromState();
+      let sends = await this.sendService.getAllDecryptedFromState(activeUserId);
       sends = this.searchService.searchSends(sends, id);
       if (sends.length > 1) {
         return sends;

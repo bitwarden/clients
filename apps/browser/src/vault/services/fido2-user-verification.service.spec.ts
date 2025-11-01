@@ -8,6 +8,8 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import { SetPinComponent } from "./../../auth/popup/components/set-pin.component";
 import { Fido2UserVerificationService } from "./fido2-user-verification.service";
 

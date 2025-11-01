@@ -4,13 +4,14 @@
     <p bitTypography="body1" class="tw-mb-0 tw-mt-2">{{ "openingExtension" | i18n }}</p>
   </ng-container>
 
+  @let page = extensionPage$ | async;
   <ng-container *ngIf="pageState === BrowserPromptState.Error">
     <p bitTypography="body1" class="tw-mb-4 tw-text-xl">{{ "openingExtensionError" | i18n }}</p>
     <button
       bitButton
       buttonType="primary"
       type="button"
-      (click)="openExtension()"
+      (click)="openExtension(page)"
       id="bw-extension-prompt-button"
     >
       {{ "openExtension" | i18n }}
@@ -21,19 +22,12 @@
   <ng-container *ngIf="pageState === BrowserPromptState.Success">
     <i class="bwi tw-text-2xl bwi-check-circle tw-text-success-700" aria-hidden="true"></i>
     <p bitTypography="body1" class="tw-mb-4 tw-text-xl">
-      {{ "openedExtensionViewAtRiskPasswords" | i18n }}
+      {{ pageToI18nKeyMap[page] | i18n }}
     </p>
   </ng-container>
 
   <ng-container *ngIf="pageState === BrowserPromptState.ManualOpen">
-    <p bitTypography="body1" class="tw-mb-0 tw-text-xl">
-      {{ "openExtensionManuallyPart1" | i18n }}
-      <bit-icon
-        [icon]="BitwardenIcon"
-        class="[&>svg]:tw-align-baseline [&>svg]:-tw-mb-[2px]"
-      ></bit-icon>
-      {{ "openExtensionManuallyPart2" | i18n }}
-    </p>
+    <vault-manually-open-extension></vault-manually-open-extension>
   </ng-container>
 
   <ng-container *ngIf="pageState === BrowserPromptState.MobileBrowser">

@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 
 const AuthPopoutType = {
   unlockExtension: "auth_unlockExtension",
@@ -20,9 +20,8 @@ const extensionUnlockUrls = new Set([
  * Opens a window that facilitates unlocking / logging into the extension.
  *
  * @param senderTab - Used to determine the windowId of the sender.
- * @param skipNotification - Used to determine whether to show the unlock notification.
  */
-async function openUnlockPopout(senderTab: chrome.tabs.Tab, skipNotification = false) {
+async function openUnlockPopout(senderTab: chrome.tabs.Tab) {
   const existingPopoutWindowTabs = await BrowserApi.tabsQuery({ windowType: "popup" });
   existingPopoutWindowTabs.forEach((tab) => {
     if (extensionUnlockUrls.has(tab.url)) {
@@ -36,7 +35,7 @@ async function openUnlockPopout(senderTab: chrome.tabs.Tab, skipNotification = f
     singleActionKey: AuthPopoutType.unlockExtension,
     senderWindowId: senderTab.windowId,
   });
-  await BrowserApi.tabSendMessageData(senderTab, "bgUnlockPopoutOpened", { skipNotification });
+  await BrowserApi.tabSendMessageData(senderTab, "bgUnlockPopoutOpened", {});
 }
 
 /**

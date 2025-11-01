@@ -10,6 +10,7 @@ import { catchError, defer, firstValueFrom, from, map, of, switchMap, throwError
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   LoginEmailServiceAbstraction,
+  LogoutService,
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
@@ -29,6 +30,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
+  AnonLayoutWrapperDataService,
   AsyncActionsModule,
   ButtonModule,
   CheckboxModule,
@@ -39,8 +41,6 @@ import {
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
-import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
-
 import { LoginDecryptionOptionsService } from "./login-decryption-options.service";
 
 // FIXME: update to use a const object instead of a typescript enum
@@ -50,6 +50,8 @@ enum State {
   ExistingUserUntrustedDevice,
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./login-decryption-options.component.html",
   imports: [
@@ -109,6 +111,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private toastService: ToastService,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private validationService: ValidationService,
+    private logoutService: LogoutService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -156,19 +159,17 @@ export class LoginDecryptionOptionsComponent implements OnInit {
   }
 
   private async handleMissingEmail() {
+    // TODO: PM-15174 - the solution for this bug will allow us to show the toast on app re-init after
+    // the user has been logged out and the process reload has occurred.
     this.toastService.showToast({
       variant: "error",
       title: null,
       message: this.i18nService.t("activeUserEmailNotFoundLoggingYouOut"),
     });
 
-    setTimeout(async () => {
-      // We can't simply redirect to `/login` because the user is authed and the unauthGuard
-      // will prevent navigation. We must logout the user first via messagingService, which
-      // redirects to `/`, which will be handled by the redirectGuard to navigate the user to `/login`.
-      // The timeout just gives the user a chance to see the error toast before process reload runs on logout.
-      await this.loginDecryptionOptionsService.logOut();
-    }, 5000);
+    await this.logoutService.logout(this.activeAccountId);
+    // navigate to root so redirect guard can properly route next active user or null user to correct page
+    await this.router.navigate(["/"]);
   }
 
   private observeAndPersistRememberDeviceValueChanges() {
@@ -250,7 +251,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     }
 
     try {
-      const { publicKey, privateKey } = await this.keyService.initAccount();
+      const { publicKey, privateKey } = await this.keyService.initAccount(this.activeAccountId);
       const keysRequest = new KeysRequest(publicKey, privateKey.encryptedString);
       await this.apiService.postAccountKeys(keysRequest);
 
@@ -312,7 +313,9 @@ export class LoginDecryptionOptionsComponent implements OnInit {
 
     const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
     if (confirmed) {
-      this.messagingService.send("logout", { userId: userId });
+      await this.logoutService.logout(userId);
+      // navigate to root so redirect guard can properly route next active user or null user to correct page
+      await this.router.navigate(["/"]);
     }
   }
 }

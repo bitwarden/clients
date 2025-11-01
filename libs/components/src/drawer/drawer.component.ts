@@ -10,7 +10,7 @@ import {
   viewChild,
 } from "@angular/core";
 
-import { DrawerHostDirective } from "./drawer-host.directive";
+import { DrawerService } from "./drawer.service";
 
 /**
  * A drawer is a panel of supplementary content that is adjacent to the page's main content.
@@ -24,8 +24,8 @@ import { DrawerHostDirective } from "./drawer-host.directive";
   templateUrl: "drawer.component.html",
 })
 export class DrawerComponent {
-  private drawerHost = inject(DrawerHostDirective);
-  private portal = viewChild.required(CdkPortal);
+  private drawerHost = inject(DrawerService);
+  private readonly portal = viewChild.required(CdkPortal);
 
   /**
    * Whether or not the drawer is open.
@@ -33,7 +33,7 @@ export class DrawerComponent {
    * Note: Does not support implicit boolean transform due to Angular limitation. Must be bound explicitly `[open]="true"` instead of just `open`.
    * https://github.com/angular/angular/issues/55166#issuecomment-2032150999
    **/
-  open = model<boolean>(false);
+  readonly open = model<boolean>(false);
 
   /**
    * The ARIA role of the drawer.
@@ -43,7 +43,7 @@ export class DrawerComponent {
    * - [navigation](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/navigation_role)
    *    - For drawers that primary contain links to other content.
    */
-  role = input<"complementary" | "navigation">("complementary");
+  readonly role = input<"complementary" | "navigation">("complementary");
 
   constructor() {
     effect(

@@ -26,7 +26,6 @@ const eventsToTest = [
   EVENTS.CHANGE,
   EVENTS.INPUT,
   EVENTS.KEYDOWN,
-  EVENTS.KEYPRESS,
   EVENTS.KEYUP,
   "blur",
   "click",
@@ -103,7 +102,7 @@ describe("InsertAutofillContentService", () => {
         delay_between_operations: 20,
       },
       metadata: {},
-      autosubmit: null,
+      autosubmit: [],
       savedUrls: ["https://bitwarden.com"],
       untrustedIframe: false,
       itemType: "login",
@@ -153,7 +152,9 @@ describe("InsertAutofillContentService", () => {
 
     it("returns early if the script is filling within a sand boxed iframe", async () => {
       Object.defineProperty(globalThis, "frameElement", {
-        value: { hasAttribute: jest.fn(() => true) },
+        value: {
+          getAttribute: jest.fn(() => ""),
+        },
         writable: true,
       });
       jest.spyOn(insertAutofillContentService as any, "userCancelledInsecureUrlAutofill");
@@ -216,28 +217,21 @@ describe("InsertAutofillContentService", () => {
 
       await insertAutofillContentService.fillForm(fillScript);
 
-      expect(insertAutofillContentService["userCancelledInsecureUrlAutofill"]).toHaveBeenCalled();
-      expect(
-        insertAutofillContentService["userCancelledUntrustedIframeAutofill"],
-      ).toHaveBeenCalled();
       expect(insertAutofillContentService["runFillScriptAction"]).toHaveBeenCalledTimes(3);
       expect(insertAutofillContentService["runFillScriptAction"]).toHaveBeenNthCalledWith(
         1,
         fillScript.script[0],
         0,
-        fillScript.script,
       );
       expect(insertAutofillContentService["runFillScriptAction"]).toHaveBeenNthCalledWith(
         2,
         fillScript.script[1],
         1,
-        fillScript.script,
       );
       expect(insertAutofillContentService["runFillScriptAction"]).toHaveBeenNthCalledWith(
         3,
         fillScript.script[2],
         2,
-        fillScript.script,
       );
     });
   });
@@ -621,14 +615,12 @@ describe("InsertAutofillContentService", () => {
       });
     });
 
-    it("will set the `value` attribute of any passed input or textarea elements", () => {
-      document.body.innerHTML = `<input type="text" id="username" /><textarea id="bio"></textarea>`;
+    it("will set the `value` attribute of any passed input or textarea elements if the value differs", () => {
+      document.body.innerHTML = `<input type="text" id="username" value="old" /><textarea id="bio">old</textarea>`;
       const value1 = "test";
       const value2 = "test2";
       const textInputElement = document.getElementById("username") as HTMLInputElement;
-      textInputElement.value = value1;
       const textareaElement = document.getElementById("bio") as HTMLTextAreaElement;
-      textareaElement.value = value2;
       jest.spyOn(insertAutofillContentService as any, "handleInsertValueAndTriggerSimulatedEvents");
 
       insertAutofillContentService["insertValueIntoField"](textInputElement, value1);
@@ -644,6 +636,45 @@ describe("InsertAutofillContentService", () => {
       expect(
         insertAutofillContentService["handleInsertValueAndTriggerSimulatedEvents"],
       ).toHaveBeenCalledWith(textareaElement, expect.any(Function));
+    });
+
+    it("will NOT set the `value` attribute of any passed input or textarea elements if they already have values matching the passed value", () => {
+      document.body.innerHTML = `<input type="text" id="username" /><textarea id="bio"></textarea>`;
+      const value1 = "test";
+      const value2 = "test2";
+      const textInputElement = document.getElementById("username") as HTMLInputElement;
+      textInputElement.value = value1;
+      const textareaElement = document.getElementById("bio") as HTMLTextAreaElement;
+      textareaElement.value = value2;
+      jest.spyOn(insertAutofillContentService as any, "handleInsertValueAndTriggerSimulatedEvents");
+
+      insertAutofillContentService["insertValueIntoField"](textInputElement, value1);
+
+      expect(textInputElement.value).toBe(value1);
+      expect(
+        insertAutofillContentService["handleInsertValueAndTriggerSimulatedEvents"],
+      ).not.toHaveBeenCalled();
+
+      insertAutofillContentService["insertValueIntoField"](textareaElement, value2);
+
+      expect(textareaElement.value).toBe(value2);
+      expect(
+        insertAutofillContentService["handleInsertValueAndTriggerSimulatedEvents"],
+      ).not.toHaveBeenCalled();
+    });
+
+    it("skips filling when the field already has the target value", () => {
+      const value = "test";
+      document.body.innerHTML = `<input type="text" id="username" value="${value}"/>`;
+      const element = document.getElementById("username") as FillableFormFieldElement;
+      jest.spyOn(insertAutofillContentService as any, "handleInsertValueAndTriggerSimulatedEvents");
+
+      insertAutofillContentService["insertValueIntoField"](element, value);
+
+      expect(
+        insertAutofillContentService["handleInsertValueAndTriggerSimulatedEvents"],
+      ).not.toHaveBeenCalled();
+      expect(element.value).toBe(value);
     });
   });
 
@@ -1012,13 +1043,13 @@ describe("InsertAutofillContentService", () => {
   });
 
   describe("simulateUserKeyboardEventInteractions", () => {
-    it("will trigger `keydown`, `keypress`, and `keyup` events on the passed element", () => {
+    it("will trigger `keydown` and `keyup` events on the passed element", () => {
       const inputElement = document.querySelector('input[type="text"]') as HTMLInputElement;
       jest.spyOn(inputElement, "dispatchEvent");
 
       insertAutofillContentService["simulateUserKeyboardEventInteractions"](inputElement);
 
-      [EVENTS.KEYDOWN, EVENTS.KEYPRESS, EVENTS.KEYUP].forEach((eventName) => {
+      [EVENTS.KEYDOWN, EVENTS.KEYUP].forEach((eventName) => {
         expect(inputElement.dispatchEvent).toHaveBeenCalledWith(
           new KeyboardEvent(eventName, { bubbles: true }),
         );

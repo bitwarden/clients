@@ -22,11 +22,15 @@ jobs:
   setup:
     name: Setup
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
     outputs:
       release_version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Branch check
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
@@ -53,9 +57,13 @@ jobs:
     name: Locales Test
     runs-on: ubuntu-22.04
     needs: setup
+    permissions:
+      contents: read
     steps:
       - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Testing locales - extName length
         run: |
@@ -65,9 +73,11 @@ jobs:
           echo "============"
           echo "extName string must be 40 characters or less"
           echo
-          for locale in $(ls src/_locales/); do
-            string_length=$(jq '.extName.message | length' src/_locales/$locale/messages.json)
-            if [[ $string_length -gt 40 ]]; then
+
+          for locale_path in src/_locales/*/messages.json; do
+            locale=$(basename "$(dirname "$locale_path")")
+            string_length=$(jq '.extName.message | length' "$locale_path")
+            if [ "$string_length" -gt 40 ]; then
               echo "$locale: $string_length"
               found_error=true
             fi
@@ -89,6 +99,8 @@ jobs:
     needs:
       - setup
       - locales-test
+    permissions:
+      contents: write
     steps:
       - name: Download latest Release build artifacts
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
@@ -120,11 +132,11 @@ jobs:
         env:
           PACKAGE_VERSION: ${{ needs.setup.outputs.release_version }}
         run: |
-          mv browser-source.zip browser-source-$PACKAGE_VERSION.zip
-          mv dist-chrome.zip dist-chrome-$PACKAGE_VERSION.zip
-          mv dist-opera.zip dist-opera-$PACKAGE_VERSION.zip
-          mv dist-firefox.zip dist-firefox-$PACKAGE_VERSION.zip
-          mv dist-edge.zip dist-edge-$PACKAGE_VERSION.zip
+          mv browser-source.zip "browser-source-$PACKAGE_VERSION.zip"
+          mv dist-chrome.zip "dist-chrome-$PACKAGE_VERSION.zip"
+          mv dist-opera.zip "dist-opera-$PACKAGE_VERSION.zip"
+          mv dist-firefox.zip "dist-firefox-$PACKAGE_VERSION.zip"
+          mv dist-edge.zip "dist-edge-$PACKAGE_VERSION.zip"
 
       - name: Create release
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}

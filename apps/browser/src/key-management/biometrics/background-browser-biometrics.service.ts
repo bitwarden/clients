@@ -1,5 +1,7 @@
-import { Injectable } from "@angular/core";
+import { combineLatest, timer } from "rxjs";
+import { filter, concatMap } from "rxjs/operators";
 
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -18,8 +20,9 @@ import {
 import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
 import { BrowserApi } from "../../platform/browser/browser-api";
 
-@Injectable()
 export class BackgroundBrowserBiometricsService extends BiometricsService {
+  BACKGROUND_POLLING_INTERVAL = 30_000;
+
   constructor(
     private nativeMessagingBackground: () => NativeMessagingBackground,
     private logService: LogService,
@@ -27,8 +30,27 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     private biometricStateService: BiometricStateService,
     private messagingService: MessagingService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    private pinService: PinServiceAbstraction,
   ) {
     super();
+    // Always connect to the native messaging background if biometrics are enabled, not just when it is used
+    // so that there is no wait when used.
+    const biometricsEnabled = this.biometricStateService.biometricUnlockEnabled$;
+
+    combineLatest([timer(0, this.BACKGROUND_POLLING_INTERVAL), biometricsEnabled])
+      .pipe(
+        filter(([_, enabled]) => enabled),
+        filter(([_]) => !this.nativeMessagingBackground().connected),
+        concatMap(async () => {
+          try {
+            await this.nativeMessagingBackground().connect();
+            await this.getBiometricsStatus();
+          } catch {
+            // Ignore
+          }
+        }),
+      )
+      .subscribe();
   }
 
   async authenticateWithBiometrics(): Promise<boolean> {
@@ -51,8 +73,6 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     }
 
     try {
-      await this.ensureConnected();
-
       const response = await this.nativeMessagingBackground().callCommand({
         command: BiometricsCommands.GetBiometricsStatus,
       });
@@ -83,6 +103,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
         if (await this.keyService.validateUserKey(userKey, userId)) {
           await this.biometricStateService.setBiometricUnlockEnabled(true);
           await this.keyService.setUserKey(userKey, userId);
+          await this.pinService.userUnlocked(userId);
           // to update badge and other things
           this.messagingService.send("switchAccount", { userId });
           return userKey;

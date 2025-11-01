@@ -3,5 +3,6 @@
   "angularCompilerOptions": {
     "strictTemplates": true
   },
-  "include": ["src", "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts"]
+  "include": ["src"],
+  "exclude": ["src/**/*.spec.ts"]
 }

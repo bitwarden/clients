@@ -1,6 +1,8 @@
 <div class="tw-mx-auto tw-flex tw-flex-col tw-items-center tw-justify-center tw-pt-6">
   <div class="tw-max-w-sm tw-flex tw-flex-col tw-items-center">
-    <bit-icon [icon]="icon" aria-hidden="true"></bit-icon>
+    <div class="tw-size-24 tw-content-center">
+      <bit-icon [icon]="icon()" aria-hidden="true"></bit-icon>
+    </div>
     <h3 class="tw-font-semibold tw-text-center tw-mt-4">
       <ng-content select="[slot=title]"></ng-content>
     </h3>

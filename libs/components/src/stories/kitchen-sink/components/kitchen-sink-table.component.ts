@@ -2,6 +2,8 @@ import { Component } from "@angular/core";
 
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-kitchen-sink-table",
   imports: [KitchenSinkSharedModule],
@@ -23,6 +25,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
               type="button"
               bitIconButton="bwi-ellipsis-v"
               [bitMenuTriggerFor]="menu1"
+              label="Options"
             ></button>
             <bit-menu #menu1>
               <a href="#" bitMenuItem>Anchor link</a>
@@ -40,6 +43,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
               type="button"
               bitIconButton="bwi-ellipsis-v"
               [bitMenuTriggerFor]="menu2"
+              label="Options"
             ></button>
             <bit-menu #menu2>
               <a href="#" bitMenuItem>Anchor link</a>

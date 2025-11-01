@@ -18,14 +18,18 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { UserVerificationModule } from "../../auth/shared/components/user-verification";
+import { SharedModule } from "../../shared";
+
 export interface PurgeVaultDialogData {
   organizationId: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "app-purge-vault",
   templateUrl: "purge-vault.component.html",
-  standalone: false,
+  imports: [SharedModule, UserVerificationModule],
 })
 export class PurgeVaultComponent {
   organizationId: string = null;

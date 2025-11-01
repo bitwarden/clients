@@ -6,7 +6,12 @@ license = { workspace = true }
 publish = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
-windows = { workspace = true, features = ["Win32_Foundation", "Win32_Security", "Win32_System_Com", "Win32_System_LibraryLoader" ] }
+windows = { workspace = true, features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System_Com",
+    "Win32_System_LibraryLoader",
+] }
 windows-core = { workspace = true }
 hex = { workspace = true }
 reqwest = { version = "0.12", features = ["json", "blocking"] }
@@ -15,3 +20,6 @@ serde = { workspace = true, features = ["derive"] }
 ciborium = "0.2"
 sha2 = "0.10"
 tokio = { workspace = true }
+
+[lints]
+workspace = true

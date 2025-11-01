@@ -41,7 +41,8 @@ import {
 import { SecretService } from "../../secrets/secret.service";
 import { SecretsListComponent } from "../../shared/secrets-list.component";
 import { ProjectService } from "../project.service";
-
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-project-secrets",
   templateUrl: "./project-secrets.component.html",
@@ -68,16 +69,13 @@ export class ProjectSecretsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Refresh list if project is edited
     const currentProjectEdited = this.projectService.project$.pipe(
       filter((p) => p?.id === this.projectId),
       startWith(null),
     );
 
     this.project$ = combineLatest([this.route.params, currentProjectEdited]).pipe(
-      switchMap(([params, _]) => {
-        return this.projectService.getByProjectId(params.projectId);
-      }),
+      switchMap(([params, _]) => this.projectService.getByProjectId(params.projectId, false)),
     );
 
     this.secrets$ = this.secretService.secret$.pipe(

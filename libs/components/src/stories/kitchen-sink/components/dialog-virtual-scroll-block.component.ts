@@ -3,14 +3,25 @@ import { Component, OnInit } from "@angular/core";
 
 import { DialogModule, DialogService } from "../../../dialog";
 import { IconButtonModule } from "../../../icon-button";
+import { ScrollLayoutDirective } from "../../../layout";
 import { SectionComponent } from "../../../section";
 import { TableDataSource, TableModule } from "../../../table";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "dialog-virtual-scroll-block",
-  imports: [DialogModule, IconButtonModule, SectionComponent, TableModule, ScrollingModule],
+  standalone: true,
+  imports: [
+    DialogModule,
+    IconButtonModule,
+    SectionComponent,
+    TableModule,
+    ScrollingModule,
+    ScrollLayoutDirective,
+  ],
   template: /*html*/ `<bit-section>
-    <cdk-virtual-scroll-viewport scrollWindow itemSize="47">
+    <cdk-virtual-scroll-viewport bitScrollLayout itemSize="49.5">
       <bit-table [dataSource]="dataSource">
         <ng-container header>
           <tr>
@@ -27,7 +38,7 @@ import { TableDataSource, TableModule } from "../../../table";
               <button
                 bitIconButton="bwi-ellipsis-v"
                 type="button"
-                aria-label="Options"
+                label="Options"
                 (click)="openDefaultDialog()"
               ></button>
             </td>

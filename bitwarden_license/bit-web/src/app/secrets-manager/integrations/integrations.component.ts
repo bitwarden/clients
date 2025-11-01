@@ -1,8 +1,10 @@
 import { Component } from "@angular/core";
 
+import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
 import { IntegrationType } from "@bitwarden/common/enums";
-import { Integration } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/integrations/models";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-integrations",
   templateUrl: "./integrations.component.html",
@@ -36,7 +38,7 @@ export class IntegrationsComponent {
       },
       {
         name: "Ansible",
-        linkURL: "https://bitwarden.com/help/ansible-integration/",
+        linkURL: "https://galaxy.ansible.com/ui/repo/published/bitwarden/secrets",
         image: "../../../../../../../images/secrets-manager/integrations/ansible.svg",
         type: IntegrationType.Integration,
       },
@@ -95,6 +97,13 @@ export class IntegrationsComponent {
         image: "../../../../../../../images/secrets-manager/integrations/kubernetes.svg",
         type: IntegrationType.Integration,
         newBadgeExpiration: "2024-8-12",
+      },
+      {
+        name: "Terraform Provider",
+        linkURL: "https://registry.terraform.io/providers/bitwarden/bitwarden-secrets/latest",
+        image: "../../../../../../../images/secrets-manager/integrations/terraform.svg",
+        type: IntegrationType.Integration,
+        newBadgeExpiration: "2025-12-12", // December 12, 2025
       },
     ];
   }

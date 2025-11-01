@@ -3,7 +3,8 @@ import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
-import { TableModule } from "@bitwarden/components";
+import { ScrollLayoutDirective, TableModule } from "@bitwarden/components";
+import { CopyCipherFieldDirective } from "@bitwarden/vault";
 
 import { CollectionNameBadgeComponent } from "../../../admin-console/organizations/collections";
 import { GroupBadgeModule } from "../../../admin-console/organizations/collections/group-badge/group-badge.module";
@@ -26,6 +27,8 @@ import { VaultItemsComponent } from "./vault-items.component";
     CollectionNameBadgeComponent,
     GroupBadgeModule,
     PipesModule,
+    CopyCipherFieldDirective,
+    ScrollLayoutDirective,
   ],
   declarations: [VaultItemsComponent, VaultCipherRowComponent, VaultCollectionRowComponent],
   exports: [VaultItemsComponent],

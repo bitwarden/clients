@@ -36,7 +36,7 @@
 </ng-container>
 <bit-table-scroll *ngIf="!(isLoading$ | async)" [dataSource]="dataSource" [rowSize]="53">
   <ng-container header>
-    <th bitCell bitSortable="name" default>{{ "members" | i18n }}</th>
+    <th bitCell bitSortable="email" default>{{ "members" | i18n }}</th>
     <th bitCell bitSortable="groupsCount" class="tw-w-[278px]">{{ "groups" | i18n }}</th>
     <th bitCell bitSortable="collectionsCount" class="tw-w-[278px]">{{ "collections" | i18n }}</th>
     <th bitCell bitSortable="itemsCount" class="tw-w-[278px]">{{ "items" | i18n }}</th>

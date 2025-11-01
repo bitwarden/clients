@@ -28,6 +28,8 @@ export type AddEditCustomFieldDialogData = {
   disallowHiddenField?: boolean;
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-add-edit-custom-field-dialog",
   templateUrl: "./add-edit-custom-field-dialog.component.html",
@@ -71,8 +73,11 @@ export class AddEditCustomFieldDialogComponent {
       if (this.data.disallowHiddenField && option.value === FieldType.Hidden) {
         return false;
       }
-      // Filter out the Linked field type for Secure Notes
-      if (this.data.cipherType === CipherType.SecureNote) {
+      // Filter out the Linked field type for Secure Notes and SSH Keys
+      if (
+        this.data.cipherType === CipherType.SecureNote ||
+        this.data.cipherType === CipherType.SshKey
+      ) {
         return option.value !== FieldType.Linked;
       }
 

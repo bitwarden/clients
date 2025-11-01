@@ -1,14 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`OverlayNotificationsContentService opening the notification bar creates the notification bar elements and appends them to the body 1`] = `
+exports[`OverlayNotificationsContentService opening the notification bar creates the notification bar elements and appends them to the body within a shadow root 1`] = `
 <div
   id="bit-notification-bar"
-  style="height: 82px !important; width: 430px !important; max-width: calc(100% - 20px) !important; min-height: initial !important; top: 10px !important; right: 10px !important; padding: 0px !important; position: fixed !important; z-index: 2147483647 !important; visibility: visible !important; border-radius: 4px !important; background-color: transparent !important; overflow: hidden !important; transition: box-shadow 0.15s ease !important; transition-delay: 0.15s;"
+  style="height: 400px !important; width: 430px !important; max-width: calc(100% - 20px) !important; min-height: initial !important; top: 10px !important; right: 0px !important; padding: 0px !important; position: fixed !important; z-index: 2147483647 !important; visibility: visible !important; border-radius: 4px !important; background-color: transparent !important; overflow: hidden !important; transition: box-shadow 0.15s ease !important; transition-delay: 0.15s;"
 >
   <iframe
     id="bit-notification-bar-iframe"
     src="chrome-extension://id/notification/bar.html"
-    style="width: 100% !important; height: 100% !important; border: 0px !important; display: block !important; position: relative !important; transition: transform 0.15s ease-out, opacity 0.15s ease !important; border-radius: 4px !important; transform: translateX(0) !important; opacity: 0;"
+    style="width: 100% !important; height: 100% !important; border: 0px !important; display: block !important; position: relative !important; transition: transform 0.15s ease-out, opacity 0.15s ease !important; border-radius: 4px !important; color-scheme: auto !important; transform: translateX(0) !important; opacity: 0;"
   />
 </div>
 `;

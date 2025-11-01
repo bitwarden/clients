@@ -1,4 +1,4 @@
-<popup-page [loading]="loading$ | async" disablePadding>
+<popup-page [loading]="loading$ | async">
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
       <app-new-item-dropdown [initialValues]="newItemItemValues$ | async"></app-new-item-dropdown>
@@ -41,6 +41,9 @@
       </bit-spotlight>
     </ng-container>
     <ng-container *ngIf="vaultState !== VaultStateEnum.Empty">
+      <!-- At-Risk callout displays as a banner and should always remain visually above all other callouts -->
+      <vault-at-risk-password-callout></vault-at-risk-password-callout>
+
       <div class="tw-mb-4" *ngIf="showHasItemsVaultSpotlight$ | async">
         <bit-spotlight
           [title]="'hasItemsVaultNudgeTitle' | i18n"
@@ -53,7 +56,6 @@
           </ul>
         </bit-spotlight>
       </div>
-      <vault-at-risk-password-callout></vault-at-risk-password-callout>
       <app-vault-header-v2></app-vault-header-v2>
     </ng-container>
   </ng-container>
@@ -84,11 +86,7 @@
       </div>
     </div>
 
-    <div
-      *ngIf="vaultState === null"
-      cdkVirtualScrollingElement
-      class="tw-h-full tw-p-3 bit-compact:tw-p-2 tw-styled-scrollbar"
-    >
+    <ng-container *ngIf="vaultState === null">
       <app-autofill-vault-list-items></app-autofill-vault-list-items>
       <app-vault-list-items-container
         [title]="'favorites' | i18n"
@@ -103,6 +101,6 @@
         disableSectionMargin
         collapsibleKey="allItems"
       ></app-vault-list-items-container>
-    </div>
+    </ng-container>
   </ng-container>
 </popup-page>

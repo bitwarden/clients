@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   Component,
   EventEmitter,
@@ -30,27 +28,38 @@ let nextId = 0;
   *   bitIconButton="bwi-sliders"
   *   [buttonType]="'muted'"
   *   [bitDisclosureTriggerFor]="disclosureRef"
+  *   [label]="'Settings' | i18n"
   * ></button>
   * <bit-disclosure #disclosureRef open>click button to hide this content</bit-disclosure>
   * ```
   *
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-disclosure",
   template: `<ng-content></ng-content>`,
 })
 export class DisclosureComponent {
-  private _open: boolean;
-
   /** Emits the visibility of the disclosure content */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() openChange = new EventEmitter<boolean>();
 
+  private _open?: boolean;
   /**
    * Optionally init the disclosure in its opened state
    */
+  // TODO: Skipped for signal migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ transform: booleanAttribute }) set open(isOpen: boolean) {
     this._open = isOpen;
     this.openChange.emit(isOpen);
+  }
+  get open(): boolean {
+    return !!this._open;
   }
 
   @HostBinding("class") get classList() {
@@ -58,8 +67,4 @@ export class DisclosureComponent {
   }
 
   @HostBinding("id") id = `bit-disclosure-${nextId++}`;
-
-  get open(): boolean {
-    return this._open;
-  }
 }

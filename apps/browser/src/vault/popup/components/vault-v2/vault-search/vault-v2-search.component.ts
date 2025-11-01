@@ -5,12 +5,13 @@ import { FormsModule } from "@angular/forms";
 import { Subject, Subscription, debounceTime, distinctUntilChanged, filter } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import { SearchModule } from "@bitwarden/components";
 
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 
-const SearchTextDebounceInterval = 200;
-
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   imports: [CommonModule, SearchModule, JslibModule, FormsModule],
   selector: "app-vault-v2-search",

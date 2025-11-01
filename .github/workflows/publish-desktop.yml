@@ -18,10 +18,15 @@ on:
         type: string
         default: latest
       electron_rollout_percentage:
-        description: 'Staged Rollout Percentage for Electron'
-        required: true
+        description: 'Staged Rollout Percentage for Electron (ignored if Electron publish disabled)'
+        required: false
         default: '10'
         type: string
+      electron_publish:
+        description: 'Publish to Electron (auto-updater)'
+        required: true
+        default: true
+        type: boolean
       snap_publish:
         description: 'Publish to Snap store'
         required: true
@@ -32,6 +37,15 @@ on:
         required: true
         default: true
         type: boolean
+      mas_publish:
+        description: 'Publish to Mac App Store'
+        required: true
+        default: true
+        type: boolean
+      release_notes:
+        description: 'Release Notes'
+        required: false
+        type: string
 
 jobs:
   setup:
@@ -42,6 +56,9 @@ jobs:
       release_channel: ${{ steps.release_channel.outputs.channel }}
       tag_name: ${{ steps.version.outputs.tag_name }}
       deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+    permissions:
+      contents: read
+      deployments: write
     steps:
       - name: Branch check
         if: ${{ inputs.publish_type != 'Dry Run' }}
@@ -55,39 +72,47 @@ jobs:
 
       - name: Check Publish Version
         id: version
+        env:
+          _INPUT_VERSION: ${{ inputs.version }}
         run: |
-          if [[ "${{ inputs.version }}" == "latest" || "${{ inputs.version }}" == "" ]]; then
-            TAG_NAME=$(curl  "https://api.github.com/repos/bitwarden/clients/releases" | jq -c '.[] | select(.tag_name | contains("desktop")) | .tag_name' | head -1 | cut -d '"' -f 2)
-            VERSION=$(echo $TAG_NAME | sed "s/desktop-v//")
+          if [[ "$_INPUT_VERSION" == "latest" || "$_INPUT_VERSION" == "" ]]; then
+            TAG_NAME=$(curl  "https://api.github.com/repos/bitwarden/clients/releases" \
+              | jq -c '.[] | select(.tag_name | contains("desktop")) | .tag_name' \
+              | head -1 | cut -d '"' -f 2)
+            VERSION="${TAG_NAME#desktop-v}"
+
             echo "Latest Released Version: $VERSION"
-            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
             echo "Tag name: $TAG_NAME"
-            echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+            echo "tag_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
           else
-            echo "Release Version: ${{ inputs.version }}"
-            echo "version=${{ inputs.version }}"
+            VERSION="$_INPUT_VERSION"
+            TAG_NAME="desktop-v$VERSION"
 
-            $TAG_NAME="desktop-v${{ inputs.version }}"
+            echo "Release Version: $VERSION"
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
             echo "Tag name: $TAG_NAME"
-            echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+            echo "tag_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Get Version Channel
         id: release_channel
+        env:
+          _VERSION: ${{ steps.version.outputs.version }}
         run: |
-          case "${{ steps.version.outputs.version }}" in
+          case "${_VERSION}" in
             *"alpha"*)
-              echo "channel=alpha" >> $GITHUB_OUTPUT
+              echo "channel=alpha" >> "$GITHUB_OUTPUT"
               echo "[!] We do not yet support 'alpha'"
               exit 1
               ;;
             *"beta"*)
-              echo "channel=beta" >> $GITHUB_OUTPUT
+              echo "channel=beta" >> "$GITHUB_OUTPUT"
               ;;
             *)
-              echo "channel=latest" >> $GITHUB_OUTPUT
+              echo "channel=latest" >> "$GITHUB_OUTPUT"
               ;;
           esac
 
@@ -106,14 +131,22 @@ jobs:
     name: Electron blob publish
     runs-on: ubuntu-22.04
     needs: setup
+    if: inputs.electron_publish
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+      deployments: write
     env:
       _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
       _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
     steps:
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -124,6 +157,9 @@ jobs:
             aws-electron-access-key,
             aws-electron-bucket-name"
 
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Create artifacts directory
         run: mkdir -p apps/desktop/artifacts
 
@@ -131,16 +167,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         working-directory: apps/desktop/artifacts
-        run: gh release download ${{ env._RELEASE_TAG }} -R bitwarden/clients
+        run: gh release download "$_RELEASE_TAG" -R bitwarden/clients
 
       - name: Set staged rollout percentage
         env:
           RELEASE_CHANNEL: ${{ needs.setup.outputs.release_channel }}
           ROLLOUT_PCT: ${{ inputs.electron_rollout_percentage }}
         run: |
-          echo "stagingPercentage: ${ROLLOUT_PCT}" >> apps/desktop/artifacts/${RELEASE_CHANNEL}.yml
-          echo "stagingPercentage: ${ROLLOUT_PCT}" >> apps/desktop/artifacts/${RELEASE_CHANNEL}-linux.yml
-          echo "stagingPercentage: ${ROLLOUT_PCT}" >> apps/desktop/artifacts/${RELEASE_CHANNEL}-mac.yml
+          echo "stagingPercentage: ${ROLLOUT_PCT}" >> "apps/desktop/artifacts/${RELEASE_CHANNEL}.yml"
+          echo "stagingPercentage: ${ROLLOUT_PCT}" >> "apps/desktop/artifacts/${RELEASE_CHANNEL}-linux.yml"
+          echo "stagingPercentage: ${ROLLOUT_PCT}" >> "apps/desktop/artifacts/${RELEASE_CHANNEL}-mac.yml"
 
       - name: Publish artifacts to S3
         if: ${{ inputs.publish_type != 'Dry Run' }}
@@ -151,7 +187,7 @@ jobs:
           AWS_S3_BUCKET_NAME: ${{ steps.retrieve-secrets.outputs.aws-electron-bucket-name }}
         working-directory: apps/desktop/artifacts
         run: |
-          aws s3 cp ./ $AWS_S3_BUCKET_NAME/desktop/ \
+          aws s3 cp ./ "$AWS_S3_BUCKET_NAME/desktop/" \
           --acl "public-read" \
           --recursive \
           --quiet
@@ -176,18 +212,25 @@ jobs:
     name: Deploy Snap
     runs-on: ubuntu-22.04
     needs: setup
+    permissions:
+      contents: read
+      id-token: write
     if: inputs.snap_publish
     env:
       _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
       _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          persist-credentials: false
+
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -196,8 +239,11 @@ jobs:
           keyvault: "bitwarden-ci"
           secrets: "snapcraft-store-token"
 
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Install Snap
-        uses: samuelmeuli/action-snapcraft@d33c176a9b784876d966f80fb1b461808edc0641 # v2.1.1
+        uses: samuelmeuli/action-snapcraft@fceeb3c308e76f3487e72ef608618de625fb7fe8 # v3.0.1
 
       - name: Setup
         run: mkdir dist
@@ -205,14 +251,14 @@ jobs:
 
       - name: Download artifacts
         working-directory: apps/desktop/dist
-        run: wget https://github.com/bitwarden/clients/releases/download/${{ env._RELEASE_TAG }}/bitwarden_${{ env._PKG_VERSION }}_amd64.snap
+        run: wget "https://github.com/bitwarden/clients/releases/download/$_RELEASE_TAG/bitwarden_$_PKG_VERSION_amd64.snap"
 
       - name: Deploy to Snap Store
         if: ${{ inputs.publish_type != 'Dry Run' }}
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ steps.retrieve-secrets.outputs.snapcraft-store-token }}
         run: |
-          snapcraft upload bitwarden_${{ env._PKG_VERSION }}_amd64.snap --release stable
+          snapcraft upload "bitwarden_$_PKG_VERSION_amd64.snap" --release stable
           snapcraft logout
         working-directory: apps/desktop/dist
 
@@ -220,23 +266,30 @@ jobs:
     name: Deploy Choco
     runs-on: windows-2022
     needs: setup
+    permissions:
+      contents: read
+      id-token: write
     if: inputs.choco_publish
     env:
       _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
       _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Print Environment
         run: |
           dotnet --version
           dotnet nuget --version
 
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -244,6 +297,9 @@ jobs:
         with:
           keyvault: "bitwarden-ci"
           secrets: "cli-choco-api-key"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Setup Chocolatey
         run: choco apikey --key $env:CHOCO_API_KEY --source https://push.chocolatey.org/
@@ -256,12 +312,102 @@ jobs:
 
       - name: Download artifacts
         working-directory: apps/desktop/dist
-        run: Invoke-WebRequest -Uri "https://github.com/bitwarden/clients/releases/download/${{ env._RELEASE_TAG }}/bitwarden.${{ env._PKG_VERSION }}.nupkg" -OutFile bitwarden.${{ env._PKG_VERSION }}.nupkg
+        run: Invoke-WebRequest -Uri "https://github.com/bitwarden/clients/releases/download/$_RELEASE_TAG/bitwarden.$_PKG_VERSION.nupkg" -OutFile "bitwarden.$_PKG_VERSION.nupkg"
 
       - name: Push to Chocolatey
         if: ${{ inputs.publish_type != 'Dry Run' }}
         run: choco push --source=https://push.chocolatey.org/
         working-directory: apps/desktop/dist
+
+  mas:
+    name: Deploy Mac App Store
+    runs-on: macos-15
+    needs: setup
+    permissions:
+      contents: read
+      id-token: write
+    if: inputs.mas_publish
+    env:
+      _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
+      _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - name: Validate release notes for MAS
+        if: inputs.mas_publish && (inputs.release_notes == '' || inputs.release_notes == null)
+        run: |
+          echo "❌ Release notes are required when publishing to Mac App Store"
+          echo "Please provide release notes using the 'Release Notes' input field"
+          exit 1
+
+      - name: Download MacOS App Store build number
+        working-directory: apps/desktop
+        run: wget "https://github.com/bitwarden/clients/releases/download/$_RELEASE_TAG/macos-build-number.json"
+
+      - name: Setup Ruby and Install Fastlane
+        uses: ruby/setup-ruby@ca041f971d66735f3e5ff1e21cc13e2d51e7e535 # v1.233.0
+        with:
+          ruby-version: '3.0'
+          bundler-cache: false
+          working-directory: apps/desktop
+        
+      - name: Install Fastlane
+        working-directory: apps/desktop
+        run: gem install fastlane
+
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-clients
+          secrets: "APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Publish to App Store
+        env:
+          APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
+          APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
+          _RELEASE_NOTES: ${{ inputs.release_notes }}
+          _PUBLISH_TYPE: ${{ inputs.publish_type }}
+        working-directory: apps/desktop
+        run: |
+          BUILD_NUMBER=$(jq -r '.buildNumber' macos-build-number.json)
+          CHANGELOG="$_RELEASE_NOTES"
+          IS_DRY_RUN="$_PUBLISH_TYPE == 'Dry Run'"
+
+          if [ "$IS_DRY_RUN" = "true" ]; then
+            echo "🧪 DRY RUN MODE - Testing without actual App Store submission"
+            echo "📦 Would publish build $BUILD_NUMBER to Mac App Store"
+          else
+            echo "🚀 PRODUCTION MODE - Publishing to Mac App Store"
+            echo "📦 Publishing build $BUILD_NUMBER to Mac App Store"
+          fi
+          
+          echo "📝 Release notes (${#CHANGELOG} chars): ${CHANGELOG:0:100}..."
+          
+          # Validate changelog length (App Store limit is 4000 chars)
+          if [ ${#CHANGELOG} -gt 4000 ]; then
+            echo "❌ Release notes too long: ${#CHANGELOG} characters (max 4000)"
+            exit 1
+          fi
+          
+          fastlane publish --verbose \
+            app_version:"$PKG_VERSION" \
+            build_number:"$BUILD_NUMBER" \
+            changelog:"$CHANGELOG" \
+            dry_run:"$IS_DRY_RUN"
 
   update-deployment:
     name: Update Deployment Status
@@ -271,6 +417,10 @@ jobs:
       - electron-blob
       - snap
       - choco
+      - mas
+    permissions:
+      contents: read
+      deployments: write
     if: ${{ always() && inputs.publish_type != 'Dry Run' }}
     steps:
       - name: Check if any job failed

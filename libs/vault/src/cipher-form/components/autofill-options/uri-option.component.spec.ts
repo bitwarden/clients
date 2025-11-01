@@ -1,14 +1,19 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NG_VALUE_ACCESSOR } from "@angular/forms";
+import { of } from "rxjs";
 
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { DialogRef, DialogService } from "@bitwarden/components";
 
+import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";
 import { UriOptionComponent } from "./uri-option.component";
 
 describe("UriOptionComponent", () => {
   let component: UriOptionComponent;
   let fixture: ComponentFixture<UriOptionComponent>;
+  let dialogServiceMock: jest.Mocked<DialogService>;
+  let dialogRefMock: jest.Mocked<DialogRef<boolean>>;
 
   const getToggleMatchDetectionBtn = () =>
     fixture.nativeElement.querySelector(
@@ -26,9 +31,19 @@ describe("UriOptionComponent", () => {
     ) as HTMLButtonElement;
 
   beforeEach(async () => {
+    dialogServiceMock = {
+      open: jest.fn().mockReturnValue(dialogRefMock),
+    } as unknown as jest.Mocked<DialogService>;
+
+    dialogRefMock = {
+      close: jest.fn(),
+      afterClosed: jest.fn().mockReturnValue(of(true)),
+    } as unknown as jest.Mocked<DialogRef<boolean>>;
+
     await TestBed.configureTestingModule({
       imports: [UriOptionComponent],
       providers: [
+        { provide: DialogService, useValue: dialogServiceMock },
         {
           provide: I18nService,
           useValue: { t: (...keys: string[]) => keys.filter(Boolean).join(" ") },
@@ -134,13 +149,17 @@ describe("UriOptionComponent", () => {
       expect(getMatchDetectionSelect()).not.toBeNull();
     });
 
-    it("should update the match detection button title when the toggle is clicked", () => {
+    it("should update the match detection button aria-label when the toggle is clicked", () => {
       component.writeValue({ uri: "https://example.com", matchDetection: UriMatchStrategy.Exact });
       fixture.detectChanges();
-      expect(getToggleMatchDetectionBtn().title).toBe("showMatchDetection https://example.com");
+      expect(getToggleMatchDetectionBtn().getAttribute("aria-label")).toBe(
+        "showMatchDetection https://example.com",
+      );
       getToggleMatchDetectionBtn().click();
       fixture.detectChanges();
-      expect(getToggleMatchDetectionBtn().title).toBe("hideMatchDetection https://example.com");
+      expect(getToggleMatchDetectionBtn().getAttribute("aria-label")).toBe(
+        "hideMatchDetection https://example.com",
+      );
     });
   });
 
@@ -163,6 +182,38 @@ describe("UriOptionComponent", () => {
       fixture.detectChanges();
       getRemoveButton().click();
       expect(component.remove.emit).toHaveBeenCalled();
+    });
+  });
+
+  describe("advanced match strategy dialog", () => {
+    function testDialogAction(action: "onContinue" | "onCancel", expected: number) {
+      const openSpy = jest
+        .spyOn(AdvancedUriOptionDialogComponent, "open")
+        .mockReturnValue(dialogRefMock);
+
+      component["uriForm"].controls.matchDetection.setValue(UriMatchStrategy.Domain);
+      component["uriForm"].controls.matchDetection.setValue(UriMatchStrategy.StartsWith);
+
+      const [, params] = openSpy.mock.calls[0] as [
+        DialogService,
+        {
+          contentKey: string;
+          onContinue: () => void;
+          onCancel: () => void;
+        },
+      ];
+
+      params[action]();
+
+      expect(component["uriForm"].value.matchDetection).toBe(expected);
+    }
+
+    it("should apply the advanced match strategy when the user continues", () => {
+      testDialogAction("onContinue", UriMatchStrategy.StartsWith);
+    });
+
+    it("should revert to the previous strategy when the user cancels", () => {
+      testDialogAction("onCancel", UriMatchStrategy.Domain);
     });
   });
 });

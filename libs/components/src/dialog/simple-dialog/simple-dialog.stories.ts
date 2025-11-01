@@ -1,7 +1,10 @@
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import { ButtonModule } from "../../button";
+import { I18nMockService } from "../../utils";
 import { DialogModule } from "../dialog.module";
 
 import { SimpleDialogComponent } from "./simple-dialog.component";
@@ -12,6 +15,16 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [ButtonModule, NoopAnimationsModule, DialogModule],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              loading: "Loading",
+            });
+          },
+        },
+      ],
     }),
   ],
   parameters: {
@@ -27,13 +40,13 @@ type Story = StoryObj<SimpleDialogComponent & { useDefaultIcon: boolean }>;
 export const Default: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <bit-simple-dialog>
         <span bitDialogTitle>Alert Dialog</span>
         <span bitDialogContent>Message Content</span>
         <ng-container bitDialogFooter>
-          <button bitButton buttonType="primary">Yes</button>
-          <button bitButton buttonType="secondary">No</button>
+          <button type="button" bitButton buttonType="primary">Yes</button>
+          <button type="button" bitButton buttonType="secondary">No</button>
         </ng-container>
       </bit-simple-dialog>
     `,
@@ -43,14 +56,14 @@ export const Default: Story = {
 export const CustomIcon: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <bit-simple-dialog>
         <i bitDialogIcon class="bwi bwi-star tw-text-3xl tw-text-success" aria-hidden="true"></i>
         <span bitDialogTitle>Premium Subscription Available</span>
         <span bitDialogContent> Message Content</span>
         <ng-container bitDialogFooter>
-          <button bitButton buttonType="primary">Yes</button>
-          <button bitButton buttonType="secondary">No</button>
+          <button type="button" bitButton buttonType="primary">Yes</button>
+          <button type="button" bitButton buttonType="secondary">No</button>
         </ng-container>
       </bit-simple-dialog>
     `,
@@ -60,13 +73,13 @@ export const CustomIcon: Story = {
 export const HideIcon: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <bit-simple-dialog hideIcon>
         <span bitDialogTitle>Premium Subscription Available</span>
         <span bitDialogContent> Message Content</span>
         <ng-container bitDialogFooter>
-          <button bitButton buttonType="primary">Yes</button>
-          <button bitButton buttonType="secondary">No</button>
+          <button type="button" bitButton buttonType="primary">Yes</button>
+          <button type="button" bitButton buttonType="secondary">No</button>
         </ng-container>
       </bit-simple-dialog>
     `,
@@ -76,7 +89,7 @@ export const HideIcon: Story = {
 export const ScrollingContent: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <bit-simple-dialog>
         <span bitDialogTitle>Alert Dialog</span>
         <span bitDialogContent>
@@ -87,8 +100,8 @@ export const ScrollingContent: Story = {
           end of sequence!
         </span>
         <ng-container bitDialogFooter>
-          <button bitButton buttonType="primary">Yes</button>
-          <button bitButton buttonType="secondary">No</button>
+          <button type="button" bitButton buttonType="primary">Yes</button>
+          <button type="button" bitButton buttonType="secondary">No</button>
         </ng-container>
       </bit-simple-dialog>
     `,
@@ -101,13 +114,13 @@ export const ScrollingContent: Story = {
 export const TextOverflow: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <bit-simple-dialog>
         <span bitDialogTitle>Alert Dialogdialogdialogdialogdialogdialogdialogdialogdialogdialogdialogdialogdialog</span>
         <span bitDialogContent>Message Contentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontent</span>
         <ng-container bitDialogFooter>
-          <button bitButton buttonType="primary">Yes</button>
-          <button bitButton buttonType="secondary">No</button>
+          <button type="button" bitButton buttonType="primary">Yes</button>
+          <button type="button" bitButton buttonType="secondary">No</button>
         </ng-container>
       </bit-simple-dialog>
     `,

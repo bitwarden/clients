@@ -18,12 +18,16 @@ jobs:
   setup:
     name: Setup
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
     outputs:
       release_version: ${{ steps.version.outputs.version }}
       tag_version: ${{ steps.version.outputs.tag }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Branch check
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
@@ -50,6 +54,8 @@ jobs:
     runs-on: ubuntu-22.04
     needs:
       - setup
+    permissions:
+      contents: write
     steps:
       - name: Download latest build artifacts
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
@@ -75,9 +81,11 @@ jobs:
 
       - name: Rename assets
         working-directory: apps/web/artifacts
+        env:
+          _RELEASE_VERSION: ${{ needs.setup.outputs.release_version }}
         run: |
-          mv web-*-selfhosted-COMMERCIAL.zip web-${{ needs.setup.outputs.release_version }}-selfhosted-COMMERCIAL.zip
-          mv web-*-selfhosted-open-source.zip web-${{ needs.setup.outputs.release_version }}-selfhosted-open-source.zip
+          mv web-*-selfhosted-COMMERCIAL.zip "web-$_RELEASE_VERSION-selfhosted-COMMERCIAL.zip"
+          mv web-*-selfhosted-open-source.zip "web-$_RELEASE_VERSION-selfhosted-open-source.zip"
 
       - name: Create release
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}

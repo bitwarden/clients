@@ -8,6 +8,8 @@ import { ChipSelectComponent } from "@bitwarden/components";
 
 import { VaultPopupListFiltersService } from "../../../services/vault-popup-list-filters.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-list-filters",
   templateUrl: "./vault-list-filters.component.html",
@@ -18,7 +20,7 @@ export class VaultListFiltersComponent {
   protected organizations$ = this.vaultPopupListFiltersService.organizations$;
   protected collections$ = this.vaultPopupListFiltersService.collections$;
   protected folders$ = this.vaultPopupListFiltersService.folders$;
-  protected cipherTypes = this.vaultPopupListFiltersService.cipherTypes;
+  protected cipherTypes$ = this.vaultPopupListFiltersService.cipherTypes$;
 
   // Combine all filters into a single observable to eliminate the filters from loading separately in the UI.
   protected allFilters$ = combineLatest([

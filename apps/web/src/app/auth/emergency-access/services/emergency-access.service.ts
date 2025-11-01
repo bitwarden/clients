@@ -1,17 +1,16 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Injectable } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { BulkEncryptService } from "@bitwarden/common/key-management/crypto/abstractions/bulk-encrypt.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import {
+  EncryptedString,
+  EncString,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -58,10 +57,8 @@ export class EmergencyAccessService
     private apiService: ApiService,
     private keyService: KeyService,
     private encryptService: EncryptService,
-    private bulkEncryptService: BulkEncryptService,
     private cipherService: CipherService,
     private logService: LogService,
-    private configService: ConfigService,
   ) {}
 
   /**
@@ -76,24 +73,42 @@ export class EmergencyAccessService
    * Gets all emergency access that the user has been granted.
    */
   async getEmergencyAccessTrusted(): Promise<GranteeEmergencyAccess[]> {
-    return (await this.emergencyAccessApiService.getEmergencyAccessTrusted()).data;
+    const listResponse = await this.emergencyAccessApiService.getEmergencyAccessTrusted();
+    if (!listResponse || listResponse.data.length === 0) {
+      return [];
+    }
+    return listResponse.data.map((response) => GranteeEmergencyAccess.fromResponse(response));
   }
 
   /**
    * Gets all emergency access that the user has granted.
    */
   async getEmergencyAccessGranted(): Promise<GrantorEmergencyAccess[]> {
-    return (await this.emergencyAccessApiService.getEmergencyAccessGranted()).data;
+    const listResponse = await this.emergencyAccessApiService.getEmergencyAccessGranted();
+    if (!listResponse || listResponse.data.length === 0) {
+      return [];
+    }
+    return listResponse.data.map((response) => GrantorEmergencyAccess.fromResponse(response));
   }
 
   /**
-   * Returns policies that apply to the grantor.
+   * Returns policies that apply to the grantor if the grantor is the owner of an org, otherwise returns null.
    * Intended for grantee.
    * @param id emergency access id
+   *
+   * @remarks
+   * The ONLY time the API call will return an array of policies is when the Grantor is the OWNER
+   * of an organization. In all other scenarios the server returns null. Even if the Grantor
+   * is the member of an org that has enforced MP policies, the server will still return null
+   * because in the Emergency Access Takeover process, the Grantor gets removed from the org upon
+   * takeover, and therefore the MP policies are irrelevant.
+   *
+   * The only scenario where a Grantor does NOT get removed from the org is when that Grantor is the
+   * OWNER of the org. In that case the server returns Grantor policies and we enforce them on the client.
    */
   async getGrantorPolicies(id: string): Promise<Policy[]> {
     const response = await this.emergencyAccessApiService.getEmergencyGrantorPolicies(id);
-    let policies: Policy[];
+    let policies: Policy[] = [];
     if (response.data != null && response.data.length > 0) {
       policies = response.data.map((policyResponse) => new Policy(new PolicyData(policyResponse)));
     }
@@ -160,11 +175,17 @@ export class EmergencyAccessService
    * Step 3 of the 3 step setup flow.
    * Intended for grantor.
    * @param id emergency access id
-   * @param token secret token provided in email
+   * @param granteeId id of the grantee
    * @param publicKey public key of grantee
+   * @param activeUserId the active user's id
    */
-  async confirm(id: string, granteeId: string, publicKey: Uint8Array): Promise<void> {
-    const userKey = await this.keyService.getUserKey();
+  async confirm(
+    id: string,
+    granteeId: string,
+    publicKey: Uint8Array,
+    activeUserId: UserId,
+  ): Promise<void> {
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
     if (!userKey) {
       throw new Error("No user key found");
     }
@@ -223,11 +244,14 @@ export class EmergencyAccessService
    * Gets the grantor ciphers for an emergency access in view mode.
    * Intended for grantee.
    * @param id emergency access id
+   * @param activeUserId the user id of the active user
    */
-  async getViewOnlyCiphers(id: string): Promise<CipherView[]> {
+  async getViewOnlyCiphers(id: string, activeUserId: UserId): Promise<CipherView[]> {
     const response = await this.emergencyAccessApiService.postEmergencyAccessView(id);
 
-    const activeUserPrivateKey = await this.keyService.getPrivateKey();
+    const activeUserPrivateKey = await firstValueFrom(
+      this.keyService.userPrivateKey$(activeUserId),
+    );
 
     if (activeUserPrivateKey == null) {
       throw new Error("Active user does not have a private key, cannot get view only ciphers.");
@@ -239,17 +263,8 @@ export class EmergencyAccessService
     )) as UserKey;
 
     let ciphers: CipherView[] = [];
-    if (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) {
-      ciphers = await this.bulkEncryptService.decryptItems(
-        response.ciphers.map((c) => new Cipher(c)),
-        grantorUserKey,
-      );
-    } else {
-      ciphers = await this.encryptService.decryptItems(
-        response.ciphers.map((c) => new Cipher(c)),
-        grantorUserKey,
-      );
-    }
+    const ciphersEncrypted = response.ciphers.map((c) => new Cipher(c));
+    ciphers = await Promise.all(ciphersEncrypted.map(async (c) => c.decrypt(grantorUserKey)));
     return ciphers.sort(this.cipherService.getLocaleSortingFunction());
   }
 
@@ -259,11 +274,14 @@ export class EmergencyAccessService
    * @param id emergency access id
    * @param masterPassword new master password
    * @param email email address of grantee (must be consistent or login will fail)
+   * @param activeUserId the user id of the active user
    */
-  async takeover(id: string, masterPassword: string, email: string) {
+  async takeover(id: string, masterPassword: string, email: string, activeUserId: UserId) {
     const takeoverResponse = await this.emergencyAccessApiService.postEmergencyAccessTakeover(id);
 
-    const activeUserPrivateKey = await this.keyService.getPrivateKey();
+    const activeUserPrivateKey = await firstValueFrom(
+      this.keyService.userPrivateKey$(activeUserId),
+    );
 
     if (activeUserPrivateKey == null) {
       throw new Error("Active user does not have a private key, cannot complete a takeover.");
@@ -299,13 +317,15 @@ export class EmergencyAccessService
 
     const encKey = await this.keyService.encryptUserKeyWithMasterKey(masterKey, grantorUserKey);
 
+    if (encKey == null || !encKey[1].encryptedString) {
+      throw new Error("masterKeyEncryptedUserKey not found");
+    }
+
     const request = new EmergencyAccessPasswordRequest();
     request.newMasterPasswordHash = masterKeyHash;
     request.key = encKey[1].encryptedString;
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.emergencyAccessApiService.postEmergencyAccessPassword(id, request);
+    await this.emergencyAccessApiService.postEmergencyAccessPassword(id, request);
   }
 
   private async getEmergencyAccessData(): Promise<EmergencyAccessGranteeDetailsResponse[]> {
@@ -405,6 +425,15 @@ export class EmergencyAccessService
   }
 
   private async encryptKey(userKey: UserKey, publicKey: Uint8Array): Promise<EncryptedString> {
-    return (await this.encryptService.encapsulateKeyUnsigned(userKey, publicKey)).encryptedString;
+    const publicKeyEncryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(
+      userKey,
+      publicKey,
+    );
+
+    if (publicKeyEncryptedUserKey == null || !publicKeyEncryptedUserKey.encryptedString) {
+      throw new Error("publicKeyEncryptedUserKey not found");
+    }
+
+    return publicKeyEncryptedUserKey.encryptedString;
   }
 }

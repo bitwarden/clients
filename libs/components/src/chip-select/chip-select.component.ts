@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   AfterViewInit,
   Component,
@@ -9,11 +7,12 @@ import {
   HostListener,
   Input,
   QueryList,
-  ViewChild,
   ViewChildren,
   booleanAttribute,
   inject,
   signal,
+  input,
+  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
@@ -36,6 +35,8 @@ export type ChipSelectOption<T> = Option<T> & {
 /**
  * `<bit-chip-select>` is a select element that is commonly used to filter items in lists or tables.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-chip-select",
   templateUrl: "chip-select.component.html",
@@ -49,18 +50,25 @@ export type ChipSelectOption<T> = Option<T> & {
   ],
 })
 export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, AfterViewInit {
-  @ViewChild(MenuComponent) menu: MenuComponent;
-  @ViewChildren(MenuItemDirective) menuItems: QueryList<MenuItemDirective>;
-  @ViewChild("chipSelectButton") chipSelectButton: ElementRef<HTMLButtonElement>;
+  readonly menu = viewChild(MenuComponent);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @ViewChildren(MenuItemDirective) menuItems?: QueryList<MenuItemDirective>;
+  readonly chipSelectButton = viewChild<ElementRef<HTMLButtonElement>>("chipSelectButton");
 
   /** Text to show when there is no selected option */
-  @Input({ required: true }) placeholderText: string;
+  readonly placeholderText = input.required<string>();
 
   /** Icon to show when there is no selected option or the selected option does not have an icon */
-  @Input() placeholderIcon: string;
+  readonly placeholderIcon = input<string>();
 
-  private _options: ChipSelectOption<T>[];
+  private _options: ChipSelectOption<T>[] = [];
+
+  // TODO: Skipped for signal migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   /** The select options to render */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true })
   get options(): ChipSelectOption<T>[] {
     return this._options;
@@ -71,15 +79,19 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
   }
 
   /** Disables the entire chip */
+  // TODO: Skipped for signal migration because:
+  //  Your application code writes to the input. This prevents migration.
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ transform: booleanAttribute }) disabled = false;
 
   /** Chip will stretch to full width of its container */
-  @Input({ transform: booleanAttribute }) fullWidth?: boolean;
+  readonly fullWidth = input<boolean, unknown>(undefined, { transform: booleanAttribute });
 
   /**
    * We have `:focus-within` and `:focus-visible` but no `:focus-visible-within`
    */
-  protected focusVisibleWithin = signal(false);
+  protected readonly focusVisibleWithin = signal(false);
   @HostListener("focusin", ["$event.target"])
   onFocusIn(target: HTMLElement) {
     this.focusVisibleWithin.set(target.matches("[data-fvw-target]:focus-visible"));
@@ -91,19 +103,19 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
 
   @HostBinding("class")
   get classList() {
-    return ["tw-inline-block", this.fullWidth ? "tw-w-full" : "tw-max-w-52"];
+    return ["tw-inline-block", this.fullWidth() ? "tw-w-full" : "tw-max-w-52"];
   }
 
   private destroyRef = inject(DestroyRef);
 
   /** Tree constructed from `this.options` */
-  private rootTree: ChipSelectOption<T>;
+  private rootTree?: ChipSelectOption<T> | null;
 
   /** Options that are currently displayed in the menu */
-  protected renderedOptions: ChipSelectOption<T>;
+  protected renderedOptions?: ChipSelectOption<T> | null;
 
   /** The option that is currently selected by the user */
-  protected selectedOption: ChipSelectOption<T>;
+  protected selectedOption?: ChipSelectOption<T> | null;
 
   /**
    * The initial calculated width of the menu when it opens, which is used to
@@ -113,12 +125,12 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
 
   /** The label to show in the chip button */
   protected get label(): string {
-    return this.selectedOption?.label || this.placeholderText;
+    return this.selectedOption?.label || this.placeholderText();
   }
 
   /** The icon to show in the chip button */
-  protected get icon(): string {
-    return this.selectedOption?.icon || this.placeholderIcon;
+  protected get icon(): string | undefined {
+    return this.selectedOption?.icon || this.placeholderIcon();
   }
 
   /**
@@ -127,7 +139,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
    */
   protected setOrResetRenderedOptions(): void {
     this.renderedOptions = this.selectedOption
-      ? this.selectedOption.children?.length > 0
+      ? (this.selectedOption.children?.length ?? 0) > 0
         ? this.selectedOption
         : this.getParent(this.selectedOption)
       : this.rootTree;
@@ -165,7 +177,14 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
    * @param value the option value to look for
    * @returns the `ChipSelectOption` associated with the provided value, or null if not found
    */
-  private findOption(tree: ChipSelectOption<T>, value: T): ChipSelectOption<T> | null {
+  private findOption(
+    tree: ChipSelectOption<T> | null | undefined,
+    value: T,
+  ): ChipSelectOption<T> | null {
+    if (!tree) {
+      return null;
+    }
+
     let result = null;
     if (tree.value !== null && compareValues(tree.value, value)) {
       return tree;
@@ -191,7 +210,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
     });
   }
 
-  protected getParent(option: ChipSelectOption<T>): ChipSelectOption<T> | null {
+  protected getParent(option: ChipSelectOption<T>): ChipSelectOption<T> | null | undefined {
     return this.childParentMap.get(option);
   }
 
@@ -211,8 +230,8 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
      * menuItems will change when the user navigates into or out of a submenu. when that happens, we want to
      * direct their focus to the first item in the new menu
      */
-    this.menuItems.changes.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.menu.keyManager.setFirstItemActive();
+    this.menuItems?.changes.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.menu()?.keyManager?.setFirstItemActive();
     });
   }
 
@@ -221,17 +240,17 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
    * the initially rendered options
    */
   protected setMenuWidth() {
-    const chipWidth = this.chipSelectButton.nativeElement.getBoundingClientRect().width;
+    const chipWidth = this.chipSelectButton()?.nativeElement.getBoundingClientRect().width ?? 0;
 
     const firstMenuItemWidth =
-      this.menu.menuItems.first.elementRef.nativeElement.getBoundingClientRect().width;
+      this.menu()?.menuItems().at(0)?.elementRef.nativeElement.getBoundingClientRect().width ?? 0;
 
     this.menuWidth = Math.max(chipWidth, firstMenuItemWidth);
   }
 
   /** Control Value Accessor */
 
-  private notifyOnChange?: (value: T) => void;
+  private notifyOnChange?: (value: T | null) => void;
   private notifyOnTouched?: () => void;
 
   /** Implemented as part of NG_VALUE_ACCESSOR */
@@ -241,7 +260,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
   }
 
   /** Implemented as part of NG_VALUE_ACCESSOR */
-  registerOnChange(fn: (value: T) => void): void {
+  registerOnChange(fn: (value: T | null) => void): void {
     this.notifyOnChange = fn;
   }
 

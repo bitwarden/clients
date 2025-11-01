@@ -1,42 +1,38 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-
-import { Component, Input, OnChanges } from "@angular/core";
+import { Component, OnChanges, input } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BadgeModule, BadgeVariant } from "../badge";
 
+function transformMaxItems(value: number | undefined) {
+  return value == undefined ? undefined : Math.max(1, value);
+}
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-badge-list",
   templateUrl: "badge-list.component.html",
   imports: [BadgeModule, I18nPipe],
 })
 export class BadgeListComponent implements OnChanges {
-  private _maxItems: number;
-
   protected filteredItems: string[] = [];
   protected isFiltered = false;
 
-  @Input() variant: BadgeVariant = "primary";
-  @Input() items: string[] = [];
-  @Input() truncate = true;
+  readonly variant = input<BadgeVariant>("primary");
+  readonly items = input<string[]>([]);
+  readonly truncate = input(true);
 
-  @Input()
-  get maxItems(): number | undefined {
-    return this._maxItems;
-  }
-
-  set maxItems(value: number | undefined) {
-    this._maxItems = value == undefined ? undefined : Math.max(1, value);
-  }
+  readonly maxItems = input(undefined, { transform: transformMaxItems });
 
   ngOnChanges() {
-    if (this.maxItems == undefined || this.items.length <= this.maxItems) {
-      this.filteredItems = this.items;
+    const maxItems = this.maxItems();
+
+    if (maxItems == undefined || this.items().length <= maxItems) {
+      this.filteredItems = this.items();
     } else {
-      this.filteredItems = this.items.slice(0, this.maxItems - 1);
+      this.filteredItems = this.items().slice(0, maxItems - 1);
     }
-    this.isFiltered = this.items.length > this.filteredItems.length;
+    this.isFiltered = this.items().length > this.filteredItems.length;
   }
 }

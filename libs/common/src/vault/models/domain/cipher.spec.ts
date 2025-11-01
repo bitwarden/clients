@@ -10,12 +10,14 @@ import {
   UriMatchType,
   CipherRepromptType as SdkCipherRepromptType,
   LoginLinkedIdType,
+  Cipher as SdkCipher,
+  EncString as SdkEncString,
 } from "@bitwarden/sdk-internal";
 
 import { makeStaticByteArray, mockEnc, mockFromJson } from "../../../../spec/utils";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { ContainerService } from "../../../platform/services/container.service";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { UserId } from "../../../types/guid";
@@ -42,30 +44,90 @@ describe("Cipher DTO", () => {
     const data = new CipherData();
     const cipher = new Cipher(data);
 
-    expect(cipher).toEqual({
-      initializerKey: InitializerKey.Cipher,
-      id: null,
-      organizationId: null,
-      folderId: null,
-      name: null,
-      notes: null,
-      type: undefined,
-      favorite: undefined,
-      organizationUseTotp: undefined,
-      edit: undefined,
+    expect(cipher.id).toBeUndefined();
+    expect(cipher.organizationId).toBeUndefined();
+    expect(cipher.folderId).toBeUndefined();
+    expect(cipher.name).toBeInstanceOf(EncString);
+    expect(cipher.notes).toBeUndefined();
+    expect(cipher.type).toBeUndefined();
+    expect(cipher.favorite).toBeUndefined();
+    expect(cipher.organizationUseTotp).toBeUndefined();
+    expect(cipher.edit).toBeUndefined();
+    expect(cipher.viewPassword).toBeUndefined();
+    expect(cipher.revisionDate).toBeInstanceOf(Date);
+    expect(cipher.collectionIds).toEqual([]);
+    expect(cipher.localData).toBeUndefined();
+    expect(cipher.creationDate).toBeInstanceOf(Date);
+    expect(cipher.deletedDate).toBeUndefined();
+    expect(cipher.reprompt).toBeUndefined();
+    expect(cipher.attachments).toBeUndefined();
+    expect(cipher.fields).toBeUndefined();
+    expect(cipher.passwordHistory).toBeUndefined();
+    expect(cipher.key).toBeUndefined();
+    expect(cipher.permissions).toBeUndefined();
+    expect(cipher.archivedDate).toBeUndefined();
+  });
+
+  it("Decrypt should handle cipher key error", async () => {
+    const cipher = new Cipher();
+    cipher.id = "id";
+    cipher.organizationId = "orgId";
+    cipher.folderId = "folderId";
+    cipher.edit = true;
+    cipher.viewPassword = true;
+    cipher.organizationUseTotp = true;
+    cipher.favorite = false;
+    cipher.revisionDate = new Date("2022-01-31T12:00:00.000Z");
+    cipher.type = CipherType.Login;
+    cipher.name = mockEnc("EncryptedString");
+    cipher.notes = mockEnc("EncryptedString");
+    cipher.creationDate = new Date("2022-01-01T12:00:00.000Z");
+    cipher.deletedDate = undefined;
+    cipher.reprompt = CipherRepromptType.None;
+    cipher.key = mockEnc("EncKey");
+    cipher.permissions = new CipherPermissionsApi();
+
+    const loginView = new LoginView();
+    loginView.username = "username";
+    loginView.password = "password";
+
+    const login = mock<Login>();
+    login.decrypt.mockResolvedValue(loginView);
+    cipher.login = login;
+
+    const keyService = mock<KeyService>();
+    const encryptService = mock<EncryptService>();
+    const cipherService = mock<CipherService>();
+
+    encryptService.unwrapSymmetricKey.mockRejectedValue(new Error("Failed to unwrap key"));
+
+    (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+
+    const cipherView = await cipher.decrypt(
+      await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
+    );
+
+    expect(cipherView).toMatchObject({
+      id: "id",
+      organizationId: "orgId",
+      folderId: "folderId",
+      name: "[error: cannot decrypt]",
+      type: 1,
+      favorite: false,
+      organizationUseTotp: true,
+      edit: true,
       viewPassword: true,
-      revisionDate: null,
-      collectionIds: undefined,
-      localData: null,
-      creationDate: null,
-      deletedDate: null,
-      reprompt: undefined,
-      attachments: null,
-      fields: null,
-      passwordHistory: null,
-      key: null,
-      permissions: undefined,
+      decryptionFailure: true,
+      collectionIds: [],
+      revisionDate: new Date("2022-01-31T12:00:00.000Z"),
+      creationDate: new Date("2022-01-01T12:00:00.000Z"),
+      deletedDate: undefined,
+      reprompt: 0,
+      localData: undefined,
+      permissions: new CipherPermissionsApi(),
     });
+
+    expect(login.decrypt).not.toHaveBeenCalled();
   });
 
   describe("LoginCipher", () => {
@@ -85,10 +147,12 @@ describe("Cipher DTO", () => {
         name: "EncryptedString",
         notes: "EncryptedString",
         creationDate: "2022-01-01T12:00:00.000Z",
-        deletedDate: null,
+        deletedDate: undefined,
         permissions: new CipherPermissionsApi(),
         reprompt: CipherRepromptType.None,
         key: "EncryptedString",
+        archivedDate: undefined,
+        collectionIds: [],
         login: {
           uris: [
             {
@@ -144,7 +208,7 @@ describe("Cipher DTO", () => {
     it("Convert", () => {
       const cipher = new Cipher(cipherData);
 
-      expect(cipher).toEqual({
+      expect(cipher).toMatchObject({
         initializerKey: InitializerKey.Cipher,
         id: "id",
         organizationId: "orgId",
@@ -157,13 +221,14 @@ describe("Cipher DTO", () => {
         edit: true,
         viewPassword: true,
         revisionDate: new Date("2022-01-31T12:00:00.000Z"),
-        collectionIds: undefined,
-        localData: null,
+        collectionIds: [],
+        localData: undefined,
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
-        deletedDate: null,
+        deletedDate: undefined,
         permissions: new CipherPermissionsApi(),
         reprompt: 0,
         key: { encryptedString: "EncryptedString", encryptionType: 0 },
+        archivedDate: undefined,
         login: {
           passwordRevisionDate: new Date("2022-01-31T12:00:00.000Z"),
           autofillOnPageLoad: false,
@@ -198,13 +263,13 @@ describe("Cipher DTO", () => {
         ],
         fields: [
           {
-            linkedId: null,
+            linkedId: undefined,
             name: { encryptedString: "EncryptedString", encryptionType: 0 },
             type: 0,
             value: { encryptedString: "EncryptedString", encryptionType: 0 },
           },
           {
-            linkedId: null,
+            linkedId: undefined,
             name: { encryptedString: "EncryptedString", encryptionType: 0 },
             type: 1,
             value: { encryptedString: "EncryptedString", encryptionType: 0 },
@@ -238,10 +303,11 @@ describe("Cipher DTO", () => {
       cipher.name = mockEnc("EncryptedString");
       cipher.notes = mockEnc("EncryptedString");
       cipher.creationDate = new Date("2022-01-01T12:00:00.000Z");
-      cipher.deletedDate = null;
+      cipher.deletedDate = undefined;
       cipher.reprompt = CipherRepromptType.None;
       cipher.key = mockEnc("EncKey");
       cipher.permissions = new CipherPermissionsApi();
+      cipher.archivedDate = undefined;
 
       const loginView = new LoginView();
       loginView.username = "username";
@@ -277,16 +343,17 @@ describe("Cipher DTO", () => {
         edit: true,
         viewPassword: true,
         login: loginView,
-        attachments: null,
-        fields: null,
-        passwordHistory: null,
-        collectionIds: undefined,
+        attachments: [],
+        fields: [],
+        passwordHistory: [],
+        collectionIds: [],
         revisionDate: new Date("2022-01-31T12:00:00.000Z"),
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
-        deletedDate: null,
+        deletedDate: undefined,
         reprompt: 0,
         localData: undefined,
         permissions: new CipherPermissionsApi(),
+        archivedDate: undefined,
       });
     });
   });
@@ -308,13 +375,15 @@ describe("Cipher DTO", () => {
         name: "EncryptedString",
         notes: "EncryptedString",
         creationDate: "2022-01-01T12:00:00.000Z",
-        deletedDate: null,
+        deletedDate: undefined,
         reprompt: CipherRepromptType.None,
         key: "EncKey",
+        collectionIds: [],
         secureNote: {
           type: SecureNoteType.Generic,
         },
         permissions: new CipherPermissionsApi(),
+        archivedDate: undefined,
       };
     });
 
@@ -334,17 +403,18 @@ describe("Cipher DTO", () => {
         edit: true,
         viewPassword: true,
         revisionDate: new Date("2022-01-31T12:00:00.000Z"),
-        collectionIds: undefined,
-        localData: null,
+        collectionIds: [],
+        localData: undefined,
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
-        deletedDate: null,
+        deletedDate: undefined,
         reprompt: 0,
         secureNote: { type: SecureNoteType.Generic },
-        attachments: null,
-        fields: null,
-        passwordHistory: null,
+        attachments: undefined,
+        fields: undefined,
+        passwordHistory: undefined,
         key: { encryptedString: "EncKey", encryptionType: 0 },
         permissions: new CipherPermissionsApi(),
+        archivedDate: undefined,
       });
     });
 
@@ -367,12 +437,13 @@ describe("Cipher DTO", () => {
       cipher.name = mockEnc("EncryptedString");
       cipher.notes = mockEnc("EncryptedString");
       cipher.creationDate = new Date("2022-01-01T12:00:00.000Z");
-      cipher.deletedDate = null;
+      cipher.deletedDate = undefined;
       cipher.reprompt = CipherRepromptType.None;
       cipher.secureNote = new SecureNote();
       cipher.secureNote.type = SecureNoteType.Generic;
       cipher.key = mockEnc("EncKey");
       cipher.permissions = new CipherPermissionsApi();
+      cipher.archivedDate = undefined;
 
       const keyService = mock<KeyService>();
       const encryptService = mock<EncryptService>();
@@ -400,16 +471,17 @@ describe("Cipher DTO", () => {
         edit: true,
         viewPassword: true,
         secureNote: { type: 0 },
-        attachments: null,
-        fields: null,
-        passwordHistory: null,
-        collectionIds: undefined,
+        attachments: [],
+        fields: [],
+        passwordHistory: [],
+        collectionIds: [],
         revisionDate: new Date("2022-01-31T12:00:00.000Z"),
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
-        deletedDate: null,
+        deletedDate: undefined,
         reprompt: 0,
         localData: undefined,
         permissions: new CipherPermissionsApi(),
+        archivedDate: undefined,
       });
     });
   });
@@ -431,9 +503,10 @@ describe("Cipher DTO", () => {
         name: "EncryptedString",
         notes: "EncryptedString",
         creationDate: "2022-01-01T12:00:00.000Z",
-        deletedDate: null,
+        deletedDate: undefined,
         permissions: new CipherPermissionsApi(),
         reprompt: CipherRepromptType.None,
+        collectionIds: [],
         card: {
           cardholderName: "EncryptedString",
           brand: "EncryptedString",
@@ -443,6 +516,7 @@ describe("Cipher DTO", () => {
           code: "EncryptedString",
         },
         key: "EncKey",
+        archivedDate: undefined,
       };
     });
 
@@ -462,10 +536,10 @@ describe("Cipher DTO", () => {
         edit: true,
         viewPassword: true,
         revisionDate: new Date("2022-01-31T12:00:00.000Z"),
-        collectionIds: undefined,
-        localData: null,
+        collectionIds: [],
+        localData: undefined,
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
-        deletedDate: null,
+        deletedDate: undefined,
         reprompt: 0,
         card: {
           cardholderName: { encryptedString: "EncryptedString", encryptionType: 0 },
@@ -475,11 +549,12 @@ describe("Cipher DTO", () => {
           expYear: { encryptedString: "EncryptedString", encryptionType: 0 },
           code: { encryptedString: "EncryptedString", encryptionType: 0 },
         },
-        attachments: null,
-        fields: null,
-        passwordHistory: null,
+        attachments: undefined,
+        fields: undefined,
+        passwordHistory: undefined,
         key: { encryptedString: "EncKey", encryptionType: 0 },
         permissions: new CipherPermissionsApi(),
+        archivedDate: undefined,
       });
     });
 
@@ -502,10 +577,11 @@ describe("Cipher DTO", () => {
       cipher.name = mockEnc("EncryptedString");
       cipher.notes = mockEnc("EncryptedString");
       cipher.creationDate = new Date("2022-01-01T12:00:00.000Z");
-      cipher.deletedDate = null;
+      cipher.deletedDate = undefined;
       cipher.reprompt = CipherRepromptType.None;
       cipher.key = mockEnc("EncKey");
       cipher.permissions = new CipherPermissionsApi();
+      cipher.archivedDate = undefined;
 
       const cardView = new CardView();
       cardView.cardholderName = "cardholderName";
@@ -541,16 +617,17 @@ describe("Cipher DTO", () => {
         edit: true,
         viewPassword: true,
         card: cardView,
-        attachments: null,
-        fields: null,
-        passwordHistory: null,
-        collectionIds: undefined,
+        attachments: [],
+        fields: [],
+        passwordHistory: [],
+        collectionIds: [],
         revisionDate: new Date("2022-01-31T12:00:00.000Z"),
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
-        deletedDate: null,
+        deletedDate: undefined,
         reprompt: 0,
         localData: undefined,
         permissions: new CipherPermissionsApi(),
+        archivedDate: undefined,
       });
     });
   });
@@ -572,10 +649,12 @@ describe("Cipher DTO", () => {
         name: "EncryptedString",
         notes: "EncryptedString",
         creationDate: "2022-01-01T12:00:00.000Z",
-        deletedDate: null,
+        deletedDate: undefined,
         permissions: new CipherPermissionsApi(),
         reprompt: CipherRepromptType.None,
         key: "EncKey",
+        archivedDate: undefined,
+        collectionIds: [],
         identity: {
           title: "EncryptedString",
           firstName: "EncryptedString",
@@ -615,11 +694,12 @@ describe("Cipher DTO", () => {
         edit: true,
         viewPassword: true,
         revisionDate: new Date("2022-01-31T12:00:00.000Z"),
-        collectionIds: undefined,
-        localData: null,
+        collectionIds: [],
+        localData: undefined,
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
-        deletedDate: null,
+        deletedDate: undefined,
         reprompt: 0,
+        archivedDate: undefined,
         identity: {
           title: { encryptedString: "EncryptedString", encryptionType: 0 },
           firstName: { encryptedString: "EncryptedString", encryptionType: 0 },
@@ -640,9 +720,9 @@ describe("Cipher DTO", () => {
           passportNumber: { encryptedString: "EncryptedString", encryptionType: 0 },
           licenseNumber: { encryptedString: "EncryptedString", encryptionType: 0 },
         },
-        attachments: null,
-        fields: null,
-        passwordHistory: null,
+        attachments: undefined,
+        fields: undefined,
+        passwordHistory: undefined,
         key: { encryptedString: "EncKey", encryptionType: 0 },
         permissions: new CipherPermissionsApi(),
       });
@@ -667,10 +747,11 @@ describe("Cipher DTO", () => {
       cipher.name = mockEnc("EncryptedString");
       cipher.notes = mockEnc("EncryptedString");
       cipher.creationDate = new Date("2022-01-01T12:00:00.000Z");
-      cipher.deletedDate = null;
+      cipher.deletedDate = undefined;
       cipher.reprompt = CipherRepromptType.None;
       cipher.key = mockEnc("EncKey");
       cipher.permissions = new CipherPermissionsApi();
+      cipher.archivedDate = undefined;
 
       const identityView = new IdentityView();
       identityView.firstName = "firstName";
@@ -706,16 +787,17 @@ describe("Cipher DTO", () => {
         edit: true,
         viewPassword: true,
         identity: identityView,
-        attachments: null,
-        fields: null,
-        passwordHistory: null,
-        collectionIds: undefined,
+        attachments: [],
+        fields: [],
+        passwordHistory: [],
+        collectionIds: [],
         revisionDate: new Date("2022-01-31T12:00:00.000Z"),
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
-        deletedDate: null,
+        deletedDate: undefined,
         reprompt: 0,
         localData: undefined,
         permissions: new CipherPermissionsApi(),
+        archivedDate: undefined,
       });
     });
   });
@@ -729,6 +811,7 @@ describe("Cipher DTO", () => {
 
       const revisionDate = new Date("2022-08-04T01:06:40.441Z");
       const deletedDate = new Date("2022-09-04T01:06:40.441Z");
+      const archivedDate = new Date("2022-10-04T01:06:40.441Z");
       const actual = Cipher.fromJSON({
         name: "myName",
         notes: "myNotes",
@@ -737,6 +820,7 @@ describe("Cipher DTO", () => {
         fields: ["field1", "field2"] as any,
         passwordHistory: ["ph1", "ph2"] as any,
         deletedDate: deletedDate.toISOString(),
+        archivedDate: archivedDate.toISOString(),
       } as Jsonify<Cipher>);
 
       expect(actual).toMatchObject({
@@ -747,6 +831,7 @@ describe("Cipher DTO", () => {
         fields: ["field1_fromJSON", "field2_fromJSON"],
         passwordHistory: ["ph1_fromJSON", "ph2_fromJSON"],
         deletedDate: deletedDate,
+        archivedDate: archivedDate,
       });
       expect(actual).toBeInstanceOf(Cipher);
     });
@@ -774,8 +859,8 @@ describe("Cipher DTO", () => {
       expect(actual).toMatchObject(expected);
     });
 
-    it("returns null if object is null", () => {
-      expect(Cipher.fromJSON(null)).toBeNull();
+    it("returns undefined if object is undefined", () => {
+      expect(Cipher.fromJSON(undefined)).toBeUndefined();
     });
   });
 
@@ -785,9 +870,9 @@ describe("Cipher DTO", () => {
       const lastLaunched = new Date("2025-04-15T12:00:00.000Z").getTime();
 
       const cipherData: CipherData = {
-        id: "id",
-        organizationId: "orgId",
-        folderId: "folderId",
+        id: "2afb03fd-0d8e-4c08-a316-18b2f0efa618",
+        organizationId: "4748ad12-212e-4bc8-82b7-a75f6709d033",
+        folderId: "b4dac811-e44a-495a-9334-9e53b7aaf54c",
         edit: true,
         permissions: new CipherPermissionsApi(),
         viewPassword: true,
@@ -798,7 +883,8 @@ describe("Cipher DTO", () => {
         name: "EncryptedString",
         notes: "EncryptedString",
         creationDate: "2022-01-01T12:00:00.000Z",
-        deletedDate: null,
+        deletedDate: undefined,
+        archivedDate: undefined,
         reprompt: CipherRepromptType.None,
         key: "EncryptedString",
         login: {
@@ -856,9 +942,9 @@ describe("Cipher DTO", () => {
       const sdkCipher = cipher.toSdkCipher();
 
       expect(sdkCipher).toEqual({
-        id: "id",
-        organizationId: "orgId",
-        folderId: "folderId",
+        id: "2afb03fd-0d8e-4c08-a316-18b2f0efa618",
+        organizationId: "4748ad12-212e-4bc8-82b7-a75f6709d033",
+        folderId: "b4dac811-e44a-495a-9334-9e53b7aaf54c",
         collectionIds: [],
         key: "EncryptedString",
         name: "EncryptedString",
@@ -887,7 +973,10 @@ describe("Cipher DTO", () => {
         reprompt: SdkCipherRepromptType.None,
         organizationUseTotp: true,
         edit: true,
-        permissions: new CipherPermissionsApi(),
+        permissions: {
+          delete: false,
+          restore: false,
+        },
         viewPassword: true,
         localData: {
           lastUsedDate: "2025-04-15T12:00:00.000Z",
@@ -935,6 +1024,169 @@ describe("Cipher DTO", () => {
         deletedDate: undefined,
         revisionDate: "2022-01-31T12:00:00.000Z",
       });
+    });
+
+    it("should map from SDK Cipher", () => {
+      jest.restoreAllMocks();
+      const sdkCipher: SdkCipher = {
+        id: "id" as any,
+        organizationId: "orgId" as any,
+        folderId: "folderId" as any,
+        collectionIds: [],
+        key: "EncryptedString" as SdkEncString,
+        name: "EncryptedString" as SdkEncString,
+        notes: "EncryptedString" as SdkEncString,
+        type: SdkCipherType.Login,
+        login: {
+          username: "EncryptedString" as SdkEncString,
+          password: "EncryptedString" as SdkEncString,
+          passwordRevisionDate: "2022-01-31T12:00:00.000Z",
+          uris: [
+            {
+              uri: "EncryptedString" as SdkEncString,
+              uriChecksum: "EncryptedString" as SdkEncString,
+              match: UriMatchType.Domain,
+            },
+          ],
+          totp: "EncryptedString" as SdkEncString,
+          autofillOnPageLoad: false,
+          fido2Credentials: undefined,
+        },
+        identity: undefined,
+        card: undefined,
+        secureNote: undefined,
+        sshKey: undefined,
+        favorite: false,
+        reprompt: SdkCipherRepromptType.None,
+        organizationUseTotp: true,
+        edit: true,
+        permissions: new CipherPermissionsApi(),
+        viewPassword: true,
+        localData: {
+          lastUsedDate: "2025-04-15T12:00:00.000Z",
+          lastLaunched: "2025-04-15T12:00:00.000Z",
+        },
+        attachments: [
+          {
+            id: "a1",
+            url: "url",
+            size: "1100",
+            sizeName: "1.1 KB",
+            fileName: "file" as SdkEncString,
+            key: "EncKey" as SdkEncString,
+          },
+          {
+            id: "a2",
+            url: "url",
+            size: "1100",
+            sizeName: "1.1 KB",
+            fileName: "file" as SdkEncString,
+            key: "EncKey" as SdkEncString,
+          },
+        ],
+        fields: [
+          {
+            name: "EncryptedString" as SdkEncString,
+            value: "EncryptedString" as SdkEncString,
+            type: FieldType.Linked,
+            linkedId: LoginLinkedIdType.Username,
+          },
+          {
+            name: "EncryptedString" as SdkEncString,
+            value: "EncryptedString" as SdkEncString,
+            type: FieldType.Linked,
+            linkedId: LoginLinkedIdType.Password,
+          },
+        ],
+        passwordHistory: [
+          {
+            password: "EncryptedString" as SdkEncString,
+            lastUsedDate: "2022-01-31T12:00:00.000Z",
+          },
+        ],
+        creationDate: "2022-01-01T12:00:00.000Z",
+        deletedDate: undefined,
+        archivedDate: undefined,
+        revisionDate: "2022-01-31T12:00:00.000Z",
+      };
+
+      const lastUsedDate = new Date("2025-04-15T12:00:00.000Z").getTime();
+      const lastLaunched = new Date("2025-04-15T12:00:00.000Z").getTime();
+
+      const cipherData: CipherData = {
+        id: "id",
+        organizationId: "orgId",
+        folderId: "folderId",
+        edit: true,
+        permissions: new CipherPermissionsApi(),
+        collectionIds: [],
+        viewPassword: true,
+        organizationUseTotp: true,
+        favorite: false,
+        revisionDate: "2022-01-31T12:00:00.000Z",
+        type: CipherType.Login,
+        name: "EncryptedString",
+        notes: "EncryptedString",
+        creationDate: "2022-01-01T12:00:00.000Z",
+        deletedDate: undefined,
+        archivedDate: undefined,
+        reprompt: CipherRepromptType.None,
+        key: "EncryptedString",
+        login: {
+          uris: [
+            {
+              uri: "EncryptedString",
+              uriChecksum: "EncryptedString",
+              match: UriMatchStrategy.Domain,
+            },
+          ],
+          username: "EncryptedString",
+          password: "EncryptedString",
+          passwordRevisionDate: "2022-01-31T12:00:00.000Z",
+          totp: "EncryptedString",
+          autofillOnPageLoad: false,
+        },
+        passwordHistory: [
+          { password: "EncryptedString", lastUsedDate: "2022-01-31T12:00:00.000Z" },
+        ],
+        attachments: [
+          {
+            id: "a1",
+            url: "url",
+            size: "1100",
+            sizeName: "1.1 KB",
+            fileName: "file",
+            key: "EncKey",
+          },
+          {
+            id: "a2",
+            url: "url",
+            size: "1100",
+            sizeName: "1.1 KB",
+            fileName: "file",
+            key: "EncKey",
+          },
+        ],
+        fields: [
+          {
+            name: "EncryptedString",
+            value: "EncryptedString",
+            type: FieldType.Linked,
+            linkedId: LoginLinkedId.Username,
+          },
+          {
+            name: "EncryptedString",
+            value: "EncryptedString",
+            type: FieldType.Linked,
+            linkedId: LoginLinkedId.Password,
+          },
+        ],
+      };
+      const expectedCipher = new Cipher(cipherData, { lastUsedDate, lastLaunched });
+
+      const cipher = Cipher.fromSdkCipher(sdkCipher);
+
+      expect(cipher).toEqual(expectedCipher);
     });
   });
 });

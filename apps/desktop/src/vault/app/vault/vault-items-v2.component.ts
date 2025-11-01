@@ -2,40 +2,52 @@ import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { distinctUntilChanged } from "rxjs";
+import { distinctUntilChanged, debounceTime } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultItemsComponent as BaseVaultItemsComponent } from "@bitwarden/angular/vault/components/vault-items.component";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuModule } from "@bitwarden/components";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-items-v2",
   templateUrl: "vault-items-v2.component.html",
   imports: [MenuModule, CommonModule, JslibModule, ScrollingModule],
 })
-export class VaultItemsV2Component extends BaseVaultItemsComponent {
+export class VaultItemsV2Component<C extends CipherViewLike> extends BaseVaultItemsComponent<C> {
+  protected CipherViewLikeUtils = CipherViewLikeUtils;
   constructor(
     searchService: SearchService,
     private readonly searchBarService: SearchBarService,
     cipherService: CipherService,
     accountService: AccountService,
+    restrictedItemTypesService: RestrictedItemTypesService,
+    configService: ConfigService,
   ) {
-    super(searchService, cipherService, accountService);
+    super(searchService, cipherService, accountService, restrictedItemTypesService, configService);
 
     this.searchBarService.searchText$
-      .pipe(distinctUntilChanged(), takeUntilDestroyed())
+      .pipe(debounceTime(SearchTextDebounceInterval), distinctUntilChanged(), takeUntilDestroyed())
       .subscribe((searchText) => {
         this.searchText = searchText!;
       });
   }
 
-  trackByFn(index: number, c: CipherView): string {
-    return c.id;
+  trackByFn(index: number, c: C): string {
+    return uuidAsString(c.id!);
   }
 }

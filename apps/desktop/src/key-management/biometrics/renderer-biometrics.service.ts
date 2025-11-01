@@ -34,8 +34,14 @@ export class RendererBiometricsService extends DesktopBiometricsService {
     return await ipc.keyManagement.biometric.getBiometricsStatusForUser(id);
   }
 
-  async setBiometricProtectedUnlockKeyForUser(userId: UserId, value: string): Promise<void> {
-    return await ipc.keyManagement.biometric.setBiometricProtectedUnlockKeyForUser(userId, value);
+  async setBiometricProtectedUnlockKeyForUser(
+    userId: UserId,
+    value: SymmetricCryptoKey,
+  ): Promise<void> {
+    return await ipc.keyManagement.biometric.setBiometricProtectedUnlockKeyForUser(
+      userId,
+      value.toBase64(),
+    );
   }
 
   async deleteBiometricUnlockKeyForUser(userId: UserId): Promise<void> {
@@ -44,10 +50,6 @@ export class RendererBiometricsService extends DesktopBiometricsService {
 
   async setupBiometrics(): Promise<void> {
     return await ipc.keyManagement.biometric.setupBiometrics();
-  }
-
-  async setClientKeyHalfForUser(userId: UserId, value: string | null): Promise<void> {
-    return await ipc.keyManagement.biometric.setClientKeyHalf(userId, value);
   }
 
   async getShouldAutopromptNow(): Promise<boolean> {
@@ -65,5 +67,21 @@ export class RendererBiometricsService extends DesktopBiometricsService {
       BiometricsStatus.AutoSetupNeeded,
       BiometricsStatus.ManualSetupNeeded,
     ].includes(biometricStatus);
+  }
+
+  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
+    return await ipc.keyManagement.biometric.enrollPersistent(userId, key.toBase64());
+  }
+
+  async hasPersistentKey(userId: UserId): Promise<boolean> {
+    return await ipc.keyManagement.biometric.hasPersistentKey(userId);
+  }
+
+  async enableWindowsV2Biometrics(): Promise<void> {
+    return await ipc.keyManagement.biometric.enableWindowsV2Biometrics();
+  }
+
+  async isWindowsV2BiometricsEnabled(): Promise<boolean> {
+    return await ipc.keyManagement.biometric.isWindowsV2BiometricsEnabled();
   }
 }

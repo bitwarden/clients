@@ -22,7 +22,7 @@
     "**/node_modules/@bitwarden/desktop-napi/index.js",
     "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node"
   ],
-  "electronVersion": "36.3.1",
+  "electronVersion": "36.9.3",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
@@ -99,6 +99,10 @@
       {
         "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}.exe",
         "to": "desktop_proxy.exe"
+      },
+      {
+        "from": "desktop_native/dist/bitwarden_chromium_import_helper.${platform}-${arch}.exe",
+        "to": "bitwarden_chromium_import_helper.exe"
       }
     ]
   },
@@ -109,6 +113,10 @@
       {
         "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
         "to": "desktop_proxy"
+      },
+      {
+        "from": "desktop_native/dist/libprocess_isolation.so",
+        "to": "libprocess_isolation.so"
       }
     ],
     "target": ["deb", "freebsd", "rpm", "AppImage", "snap"],
@@ -165,9 +173,77 @@
     "artifactName": "${productName}-Portable-${version}.${ext}"
   },
   "appx": {
-    "artifactName": "${productName}-${arch}.${ext}",
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
+    "backgroundColor": "#175DDC",
     "customManifestPath": "./custom-appx-manifest.xml",
-    "publisher": "CN=com.bitwarden.localdevelopment"
+    "applicationId": "bitwardendesktop",
+    "identityName": "8bitSolutionsLLC.bitwardendesktop",
+    "publisher": "CN=14D52771-DE3C-4886-B8BF-825BA7690418",
+    "publisherDisplayName": "Bitwarden Inc",
+    "languages": [
+      "en-US",
+      "af",
+      "ar",
+      "az-latn",
+      "be",
+      "bg",
+      "bn",
+      "bs",
+      "ca",
+      "cs",
+      "cy",
+      "da",
+      "de",
+      "el",
+      "en-gb",
+      "en-in",
+      "es",
+      "et",
+      "eu",
+      "fa",
+      "fi",
+      "fil",
+      "fr",
+      "gl",
+      "he",
+      "hi",
+      "hr",
+      "hu",
+      "id",
+      "it",
+      "ja",
+      "ka",
+      "km",
+      "kn",
+      "ko",
+      "lt",
+      "lv",
+      "ml",
+      "mr",
+      "nb",
+      "ne",
+      "nl",
+      "nn",
+      "or",
+      "pl",
+      "pt-br",
+      "pt-pt",
+      "ro",
+      "ru",
+      "si",
+      "sk",
+      "sl",
+      "sr-cyrl",
+      "sv",
+      "ta",
+      "te",
+      "th",
+      "tr",
+      "uk",
+      "vi",
+      "zh-cn",
+      "zh-tw"
+    ]
   },
   "deb": {
     "artifactName": "${productName}-${version}-${arch}.${ext}",
@@ -177,7 +253,8 @@
     "artifactName": "${productName}-${version}-${arch}.${ext}"
   },
   "rpm": {
-    "artifactName": "${productName}-${version}-${arch}.${ext}"
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
+    "fpm": ["--rpm-rpmbuild-define", "_build_id_links none"]
   },
   "freebsd": {
     "artifactName": "${productName}-${version}-${arch}.${ext}"
@@ -199,7 +276,8 @@
       },
       "u2f-devices"
     ],
-    "stagePackages": ["default"]
+    "stagePackages": ["default"],
+    "allowNativeWayland": true
   },
   "protocols": [
     {

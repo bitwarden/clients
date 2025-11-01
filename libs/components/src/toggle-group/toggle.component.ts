@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { NgClass } from "@angular/common";
 import {
   AfterContentChecked,
@@ -7,15 +5,17 @@ import {
   Component,
   ElementRef,
   HostBinding,
-  Input,
   signal,
-  ViewChild,
+  input,
+  viewChild,
 } from "@angular/core";
 
 import { ToggleGroupComponent } from "./toggle-group.component";
 
 let nextId = 0;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-toggle",
   templateUrl: "./toggle.component.html",
@@ -24,24 +24,24 @@ let nextId = 0;
 export class ToggleComponent<TValue> implements AfterContentChecked, AfterViewInit {
   id = nextId++;
 
-  @Input() value?: TValue;
-  @ViewChild("labelContent") labelContent: ElementRef<HTMLSpanElement>;
-  @ViewChild("bitBadgeContainer") bitBadgeContainer: ElementRef<HTMLSpanElement>;
+  readonly value = input.required<TValue>();
+  readonly labelContent = viewChild<ElementRef<HTMLSpanElement>>("labelContent");
+  readonly bitBadgeContainer = viewChild<ElementRef<HTMLSpanElement>>("bitBadgeContainer");
 
   constructor(private groupComponent: ToggleGroupComponent<TValue>) {}
 
   @HostBinding("tabIndex") tabIndex = "-1";
   @HostBinding("class") classList = ["tw-group/toggle", "tw-flex", "tw-min-w-16"];
 
-  protected bitBadgeContainerHasChidlren = signal(false);
-  protected labelTitle = signal<string>(null);
+  protected readonly bitBadgeContainerHasChidlren = signal(false);
+  protected readonly labelTitle = signal<string | null>(null);
 
   get name() {
     return this.groupComponent.name;
   }
 
   get selected() {
-    return this.groupComponent.selected === this.value;
+    return this.groupComponent.selected() === this.value();
   }
 
   get inputClasses() {
@@ -68,7 +68,7 @@ export class ToggleComponent<TValue> implements AfterContentChecked, AfterViewIn
       "tw-border-r",
       "tw-border-l-0",
       "tw-cursor-pointer",
-      "hover:tw-bg-primary-100",
+      "hover:tw-bg-hover-default",
 
       "group-first-of-type/toggle:tw-border-l",
       "group-first-of-type/toggle:tw-rounded-s-full",
@@ -95,17 +95,17 @@ export class ToggleComponent<TValue> implements AfterContentChecked, AfterViewIn
   }
 
   onInputInteraction() {
-    this.groupComponent.onInputInteraction(this.value);
+    this.groupComponent.onInputInteraction(this.value());
   }
 
   ngAfterContentChecked() {
     this.bitBadgeContainerHasChidlren.set(
-      this.bitBadgeContainer?.nativeElement.childElementCount > 0,
+      (this.bitBadgeContainer()?.nativeElement.childElementCount ?? 0) > 0,
     );
   }
 
   ngAfterViewInit() {
-    const labelText = this.labelContent?.nativeElement.innerText;
+    const labelText = this.labelContent()?.nativeElement.innerText;
     if (labelText) {
       this.labelTitle.set(labelText);
     }

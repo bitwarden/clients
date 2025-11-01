@@ -7,9 +7,13 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -103,7 +107,7 @@ export class CopyCipherFieldService {
   async copy(
     valueToCopy: string,
     actionType: CopyAction,
-    cipher: CipherView,
+    cipher: CipherViewLike,
     skipReprompt: boolean = false,
   ): Promise<boolean> {
     const action = CopyActions[actionType];
@@ -141,9 +145,9 @@ export class CopyCipherFieldService {
     if (action.event !== undefined) {
       await this.eventCollectionService.collect(
         action.event,
-        cipher.id,
+        cipher.id ? uuidAsString(cipher.id) : undefined,
         false,
-        cipher.organizationId,
+        cipher.organizationId ? uuidAsString(cipher.organizationId) : undefined,
       );
     }
 
@@ -153,13 +157,16 @@ export class CopyCipherFieldService {
   /**
    * Determines if TOTP generation is allowed for a cipher and user.
    */
-  async totpAllowed(cipher: CipherView): Promise<boolean> {
+  async totpAllowed(cipher: CipherViewLike): Promise<boolean> {
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     if (!activeAccount?.id) {
       return false;
     }
+
+    const login = CipherViewLikeUtils.getLogin(cipher);
+
     return (
-      (cipher?.login?.hasTotp ?? false) &&
+      !!login?.totp &&
       (cipher.organizationUseTotp ||
         (await firstValueFrom(
           this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeAccount.id),

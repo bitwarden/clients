@@ -1,10 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { firstValueFrom } from "rxjs";
 import { Jsonify } from "type-fest";
 
+import { UserId } from "@bitwarden/common/types/guid";
+
+import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import { Utils } from "../../../../platform/misc/utils";
 import Domain from "../../../../platform/models/domain/domain-base";
-import { EncString } from "../../../../platform/models/domain/enc-string";
 import { SendType } from "../../enums/send-type";
 import { SendData } from "../data/send.data";
 import { SendView } from "../view/send.view";
@@ -27,6 +30,7 @@ export class Send extends Domain {
   expirationDate: Date;
   deletionDate: Date;
   password: string;
+  emails: string;
   disabled: boolean;
   hideEmail: boolean;
 
@@ -53,6 +57,7 @@ export class Send extends Domain {
     this.maxAccessCount = obj.maxAccessCount;
     this.accessCount = obj.accessCount;
     this.password = obj.password;
+    this.emails = obj.emails;
     this.disabled = obj.disabled;
     this.revisionDate = obj.revisionDate != null ? new Date(obj.revisionDate) : null;
     this.deletionDate = obj.deletionDate != null ? new Date(obj.deletionDate) : null;
@@ -71,22 +76,18 @@ export class Send extends Domain {
     }
   }
 
-  async decrypt(): Promise<SendView> {
-    const model = new SendView(this);
+  async decrypt(userId: UserId): Promise<SendView> {
+    if (!userId) {
+      throw new Error("User ID must not be null or undefined");
+    }
 
+    const model = new SendView(this);
     const keyService = Utils.getContainerService().getKeyService();
     const encryptService = Utils.getContainerService().getEncryptService();
-
-    try {
-      const sendKeyEncryptionKey = await keyService.getUserKey();
-      // model.key is a seed used to derive a key, not a SymmetricCryptoKey
-      model.key = await encryptService.decryptBytes(this.key, sendKeyEncryptionKey);
-      model.cryptoKey = await keyService.makeSendKey(model.key);
-      // FIXME: Remove when updating file. Eslint update
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {
-      // TODO: error?
-    }
+    const sendKeyEncryptionKey = await firstValueFrom(keyService.userKey$(userId));
+    // model.key is a seed used to derive a key, not a SymmetricCryptoKey
+    model.key = await encryptService.decryptBytes(this.key, sendKeyEncryptionKey);
+    model.cryptoKey = await keyService.makeSendKey(model.key);
 
     await this.decryptObj<Send, SendView>(this, model, ["name", "notes"], null, model.cryptoKey);
 

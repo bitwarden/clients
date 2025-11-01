@@ -1,3 +1,6 @@
+import http from "node:http";
+import net from "node:net";
+
 import * as koaRouter from "@koa/router";
 import { OptionValues } from "commander";
 import * as koa from "koa";
@@ -48,13 +51,35 @@ export class ServeCommand {
       .use(koaBodyParser())
       .use(koaJson({ pretty: false, param: "pretty" }));
 
-    this.serveConfigurator.configureRouter(router);
+    await this.serveConfigurator.configureRouter(router);
 
-    server
-      .use(router.routes())
-      .use(router.allowedMethods())
-      .listen(port, hostname === "all" ? null : hostname, () => {
+    server.use(router.routes()).use(router.allowedMethods());
+
+    if (hostname.startsWith("fd+connected://")) {
+      const fd = parseInt(hostname.slice("fd+connected://".length));
+      const httpServer = http.createServer(server.callback());
+      const socket = new net.Socket({ fd: fd, readable: true, writable: true });
+      // allow idle sockets, incomplete handshakes and slow requests
+      httpServer.keepAliveTimeout = 0;
+      httpServer.headersTimeout = 0;
+      httpServer.timeout = 0;
+      socket.pause();
+      httpServer.emit("connection", socket);
+      socket.resume(); // Let the HTTP parser start reading
+    } else if (hostname.startsWith("fd+listening://")) {
+      const fd = parseInt(hostname.slice("fd+listening://".length));
+      server.listen({ fd }, () => {
+        this.serviceContainer.logService.info("Listening on " + hostname);
+      });
+    } else if (hostname.startsWith("unix://")) {
+      const socketPath = hostname.slice("unix://".length);
+      server.listen(socketPath, () => {
+        this.serviceContainer.logService.info("Listening on " + hostname);
+      });
+    } else {
+      server.listen(port, hostname === "all" ? null : hostname, () => {
         this.serviceContainer.logService.info("Listening on " + hostname + ":" + port);
       });
+    }
   }
 }

@@ -48,6 +48,7 @@ export type FocusedFieldData = {
   frameId?: number;
   accountCreationFieldType?: string;
   showPasskeys?: boolean;
+  focusedFieldForm?: string;
 };
 
 export type InlineMenuElementPosition = {
@@ -245,6 +246,7 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   editedCipher: () => void;
   deletedCipher: () => void;
   bgSaveCipher: () => void;
+  updateOverlayCiphers: () => void;
   fido2AbortRequest: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
 };
 

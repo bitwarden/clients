@@ -1,13 +1,16 @@
 import { Observable } from "rxjs";
 
-import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
 import { ProfileProviderOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/response/profile-provider.response";
+import {
+  EncryptedString,
+  EncString,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { WrappedSigningKey } from "@bitwarden/common/key-management/types";
 import { KeySuffixOptions, HashPurpose } from "@bitwarden/common/platform/enums";
-import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
   UserKey,
   MasterKey,
@@ -105,28 +108,6 @@ export abstract class KeyService {
   abstract getUserKey(userId?: string): Promise<UserKey>;
 
   /**
-   * Checks if the user is using an old encryption scheme that used the master key
-   * for encryption of data instead of the user key.
-   */
-  abstract isLegacyUser(masterKey?: MasterKey, userId?: string): Promise<boolean>;
-
-  /**
-   * Use for encryption/decryption of data in order to support legacy
-   * encryption models. It will return the user key if available,
-   * if not it will return the master key.
-   *
-   * @deprecated Please provide the userId of the user you want the user key for.
-   */
-  abstract getUserKeyWithLegacySupport(): Promise<UserKey>;
-
-  /**
-   * Use for encryption/decryption of data in order to support legacy
-   * encryption models. It will return the user key if available,
-   * if not it will return the master key.
-   * @param userId The desired user
-   */
-  abstract getUserKeyWithLegacySupport(userId: UserId): Promise<UserKey>;
-  /**
    * Retrieves the user key from storage
    * @param keySuffix The desired version of the user's key to retrieve
    * @param userId The desired user
@@ -139,61 +120,55 @@ export abstract class KeyService {
   ): Promise<UserKey | null>;
 
   /**
-   * Determines whether the user key is available for the given user.
-   * @param userId The desired user. If not provided, the active user will be used. If no active user exists, the method will return false.
-   * @returns True if the user key is available
-   */
-  abstract hasUserKey(userId?: UserId): Promise<boolean>;
-  /**
    * Determines whether the user key is available for the given user in memory.
-   * @param userId The desired user. If not provided, the active user will be used. If no active user exists, the method will return false.
-   * @returns True if the user key is available
+   * @param userId The desired user. If null or undefined, will return false.
+   * @returns True if the user key is available, returns false otherwise.
    */
-  abstract hasUserKeyInMemory(userId?: string): Promise<boolean>;
-  /**
-   * @param keySuffix The desired version of the user's key to check
-   * @param userId The desired user
-   * @returns True if the provided version of the user key is stored
-   */
-  abstract hasUserKeyStored(keySuffix: KeySuffixOptions, userId?: string): Promise<boolean>;
+  abstract hasUserKey(userId: UserId): Promise<boolean>;
+
   /**
    * Generates a new user key
+   * @deprecated Interacting with the master key directly is prohibited. Use {@link makeUserKeyV1} instead.
    * @throws Error when master key is null and there is no active user
    * @param masterKey The user's master key. When null, grabs master key from active user.
    * @returns A new user key and the master key protected version of it
    */
   abstract makeUserKey(masterKey: MasterKey | null): Promise<[UserKey, EncString]>;
   /**
+   * Generates a new user key for a V1 user
+   * Note: This will be replaced by a higher level function to initialize a whole users cryptographic state in the near future.
+   * @returns A new user key
+   */
+  abstract makeUserKeyV1(): Promise<UserKey>;
+  /**
    * Clears the user's stored version of the user key
-   * @param keySuffix The desired version of the key to clear
    * @param userId The desired user
    * @throws Error when userId is null or undefined.
    */
-  abstract clearStoredUserKey(keySuffix: KeySuffixOptions, userId: string): Promise<void>;
+  abstract clearStoredUserKey(userId: string): Promise<void>;
   /**
-   * Stores the master key encrypted user key
-   * @throws Error when userId is null and there is no active user.
-   * @param userKeyMasterKey The master key encrypted user key to set
-   * @param userId The desired user
-   */
-  abstract setMasterKeyEncryptedUserKey(userKeyMasterKey: string, userId?: UserId): Promise<void>;
-  /**
-   * @throws Error when userId is null and no active user
+   * Retrieves the user's master key if it is in state, or derives it from the provided password
    * @param password The user's master password that will be used to derive a master key if one isn't found
    * @param userId The desired user
+   * @deprecated Interacting with the master key directly is prohibited. Use a high level function from MasterPasswordService instead.
+   * @throws Error when userId is null/undefined.
+   * @throws Error when email or Kdf configuration cannot be found for the user.
+   * @returns The user's master key if it exists, or a newly derived master key.
    */
-  abstract getOrDeriveMasterKey(password: string, userId?: string): Promise<MasterKey>;
+  abstract getOrDeriveMasterKey(password: string, userId: UserId): Promise<MasterKey>;
   /**
    * Generates a master key from the provided password
+   * @deprecated Interacting with the master key directly is prohibited.
    * @param password The user's master password
    * @param email The user's email
    * @param KdfConfig The user's key derivation function configuration
    * @returns A master key derived from the provided password
    */
-  abstract makeMasterKey(password: string, email: string, KdfConfig: KdfConfig): Promise<MasterKey>;
+  abstract makeMasterKey(password: string, email: string, kdfConfig: KdfConfig): Promise<MasterKey>;
   /**
    * Encrypts the existing (or provided) user key with the
    * provided master key
+   * @deprecated Interacting with the master key directly is prohibited. Use a high level function from MasterPasswordService instead.
    * @param masterKey The user's master key
    * @param userKey The user key
    * @returns The user key and the master key protected version of it
@@ -206,24 +181,27 @@ export abstract class KeyService {
    * Creates a master password hash from the user's master password. Can
    * be used for local authentication or for server authentication depending
    * on the hashPurpose provided.
-   * @throws Error when password is null or key is null and no active user or active user have no master key
+   * @deprecated Interacting with the master key directly is prohibited. Use a high level function from MasterPasswordService instead.
    * @param password The user's master password
    * @param key The user's master key or active's user master key.
-   * @param hashPurpose The iterations to use for the hash
+   * @param hashPurpose The iterations to use for the hash. Defaults to {@link HashPurpose.ServerAuthorization}.
+   * @throws Error when password is null/undefined or key is null/undefined.
    * @returns The user's master password hash
    */
   abstract hashMasterKey(
     password: string,
-    key: MasterKey | null,
+    key: MasterKey,
     hashPurpose?: HashPurpose,
   ): Promise<string>;
   /**
    * Compares the provided master password to the stored password hash.
+   * @deprecated Interacting with the master key directly is prohibited. Use a high level function from MasterPasswordService instead.
    * @param masterPassword The user's master password
-   * @param key The user's master key
+   * @param masterKey The user's master key
    * @param userId The id of the user to do the operation for.
-   * @returns True if the provided master password matches either the stored
-   * key hash or the server key hash
+   * @throws Error when master key is null/undefined.
+   * @returns True if the derived master password hash matches the stored
+   * key hash, false otherwise.
    */
   abstract compareKeyHash(
     masterPassword: string,
@@ -249,6 +227,7 @@ export abstract class KeyService {
    * @deprecated Use {@link orgKeys$} with a required {@link UserId} instead.
    */
   abstract activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
+
   /**
    * Returns the organization's symmetric key
    * @deprecated Use the observable userOrgKeys$ and `map` to the desired {@link OrgKey} instead
@@ -258,8 +237,10 @@ export abstract class KeyService {
    */
   abstract getOrgKey(orgId: string): Promise<OrgKey | null>;
   /**
-   * Uses the org key to derive a new symmetric key for encrypting data
-   * @param key The organization's symmetric key
+   * Makes a fresh attachment content encryption key and returns it along with a wrapped (encrypted) version of it.
+   * @deprecated Do not use this for new code / new cryptographic designs.
+   * @param key The organization's symmetric key or the user's user key to wrap the attachment key with
+   * @returns The new attachment content encryption key and the wrapped version of it
    */
   abstract makeDataEncKey<T extends UserKey | OrgKey>(
     key: T,
@@ -267,25 +248,28 @@ export abstract class KeyService {
 
   /**
    * Stores the provider keys for a given user.
-   * @param orgs The provider orgs for which to save the keys from.
+   * @param providers The provider orgs for which to save the keys from.
    * @param userId The user id of the user for which to store the keys for.
    */
-  abstract setProviderKeys(orgs: ProfileProviderResponse[], userId: UserId): Promise<void>;
+  abstract setProviderKeys(providers: ProfileProviderResponse[], userId: UserId): Promise<void>;
+
   /**
-   *
-   * @throws Error when providerId is null or no active user
-   * @param providerId The desired provider
-   * @returns The provider's symmetric key
+   * Gets an observable of provider keys for the given user.
+   * @param userId The user to get provider keys for.
+   * @return An observable stream of the users providers keys if they are unlocked, or null if the user is not unlocked.
+   * @throws If an invalid user id is passed in.
    */
-  abstract getProviderKey(providerId: string): Promise<ProviderKey | null>;
+  abstract providerKeys$(userId: UserId): Observable<Record<ProviderId, ProviderKey> | null>;
+
   /**
    * Creates a new organization key and encrypts it with the user's public key.
    * This method can also return Provider keys for creating new Provider users.
-   *
-   * @throws Error when no active user or user have no public key
-   * @returns The new encrypted org key and the decrypted key itself
+   * @param userId The user id of the target user's public key to use.
+   * @throws Error when userId is null or undefined.
+   * @throws Error when no public key is found for the target user.
+   * @returns The new encrypted OrgKey | ProviderKey and the decrypted key itself
    */
-  abstract makeOrgKey<T extends OrgKey | ProviderKey>(): Promise<[EncString, T]>;
+  abstract makeOrgKey<T extends OrgKey | ProviderKey>(userId: UserId): Promise<[EncString, T]>;
   /**
    * Sets the user's encrypted private key in storage and
    * clears the decrypted private key from memory
@@ -294,15 +278,13 @@ export abstract class KeyService {
    */
   abstract setPrivateKey(encPrivateKey: string, userId: UserId): Promise<void>;
   /**
-   * Returns the private key from memory. If not available, decrypts it
-   * from storage and stores it in memory
-   * @returns The user's private key
-   *
-   * @throws Error when no active user
-   *
-   * @deprecated Use {@link userPrivateKey$} instead.
+   * Sets the user's encrypted signing key in storage
+   * In contrast to the private key, the decrypted signing key
+   * is not stored in memory outside of the SDK.
+   * @param encryptedSigningKey An encrypted signing key
+   * @param userId The user id of the user to set the signing key for
    */
-  abstract getPrivateKey(): Promise<Uint8Array | null>;
+  abstract setUserSigningKey(encryptedSigningKey: WrappedSigningKey, userId: UserId): Promise<void>;
 
   /**
    * Gets an observable stream of the given users decrypted private key, will emit null if the user
@@ -310,6 +292,8 @@ export abstract class KeyService {
    * encrypted private key at all.
    *
    * @param userId The user id of the user to get the data for.
+   * @returns An observable stream of the decrypted private key or null.
+   * @throws Error when decryption of the encrypted private key fails.
    */
   abstract userPrivateKey$(userId: UserId): Observable<UserPrivateKey | null>;
 
@@ -325,15 +309,6 @@ export abstract class KeyService {
   abstract userEncryptedPrivateKey$(userId: UserId): Observable<EncryptedString | null>;
 
   /**
-   * Gets an observable stream of the given users decrypted private key with legacy support,
-   * will emit null if the user doesn't have a UserKey to decrypt the encrypted private key
-   * or null if the user doesn't have an encrypted private key at all.
-   *
-   * @param userId The user id of the user to get the data for.
-   */
-  abstract userPrivateKeyWithLegacySupport$(userId: UserId): Observable<UserPrivateKey | null>;
-
-  /**
    * Gets an observable stream of the given users decrypted private key and public key, guaranteed to be consistent.
    * Will emit null if the user doesn't have a userkey to decrypt the encrypted private key, or null if the user doesn't have a private key
    * at all.
@@ -356,14 +331,14 @@ export abstract class KeyService {
   ): Observable<{ privateKey: UserPrivateKey; publicKey: UserPublicKey } | null>;
 
   /**
-   * Generates a fingerprint phrase for the user based on their public key
+   * Generates a fingerprint phrase for the public key provided.
    *
-   * @throws Error when publicKey is null and there is no active user, or the active user does not have a public key
+   * @throws Error when publicKey is null or undefined.
    * @param fingerprintMaterial Fingerprint material
-   * @param publicKey The user's public key
-   * @returns The user's fingerprint phrase
+   * @param publicKey The public key to generate the fingerprint phrase for.
+   * @returns The fingerprint phrase
    */
-  abstract getFingerprint(fingerprintMaterial: string, publicKey?: Uint8Array): Promise<string[]>;
+  abstract getFingerprint(fingerprintMaterial: string, publicKey: Uint8Array): Promise<string[]>;
   /**
    * Generates a new keypair
    * @param key A key to encrypt the private key with. If not provided,
@@ -372,14 +347,6 @@ export abstract class KeyService {
    * @throws If the provided key is a null-ish value.
    */
   abstract makeKeyPair(key: SymmetricCryptoKey): Promise<[string, EncString]>;
-  /**
-   * Clears the user's pin keys from storage
-   * Note: This will remove the stored pin and as a result,
-   * disable pin protection for the user
-   * @param userId The desired user
-   * @throws Error when provided userId is null or undefined
-   */
-  abstract clearPinKeys(userId: UserId): Promise<void>;
   /**
    * @param keyMaterial The key material to derive the send key from
    * @returns A new send key
@@ -401,11 +368,12 @@ export abstract class KeyService {
   /**
    * Initialize all necessary crypto keys needed for a new account.
    * Warning! This completely replaces any existing keys!
+   * @param userId The user id of the target user.
    * @returns The user's newly created  public key, private key, and encrypted private key
-   *
-   * @throws An error if there is no user currently active.
+   * @throws An error if the userId is null or undefined.
+   * @throws An error if the user already has a user key.
    */
-  abstract initAccount(): Promise<{
+  abstract initAccount(userId: UserId): Promise<{
     userKey: UserKey;
     publicKey: string;
     privateKey: EncString;
@@ -443,9 +411,7 @@ export abstract class KeyService {
    * @deprecated Temporary function to allow the SDK to be initialized after the login process, it
    * will be removed when auth has been migrated to the SDK.
    */
-  abstract encryptedOrgKeys$(
-    userId: UserId,
-  ): Observable<Record<OrganizationId, EncryptedOrganizationKeyData> | null>;
+  abstract encryptedOrgKeys$(userId: UserId): Observable<Record<OrganizationId, EncString>>;
 
   /**
    * Gets an observable stream of the users public key. If the user is does not have
@@ -455,7 +421,13 @@ export abstract class KeyService {
    *
    * @throws If an invalid user id is passed in.
    */
-  abstract userPublicKey$(userId: UserId): Observable<UserPublicKey | null>;
+  abstract userPublicKey$(userId: UserId): Observable<Uint8Array | null>;
+
+  /**
+   * Gets a users signing keys from local state.
+   * The observable will emit null, exactly if the local state returns null.
+   */
+  abstract userSigningKey$(userId: UserId): Observable<WrappedSigningKey | null>;
 
   /**
    * Validates that a userkey is correct for a given user

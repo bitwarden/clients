@@ -46,13 +46,17 @@ class MockStateService {
   accounts$ = new BehaviorSubject({ "1": { profile: { name: "Foo" } } }).asObservable();
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "product-switcher",
-  template: `<button type="button" bitIconButton="bwi-filter"></button>`,
+  template: `<button type="button" bitIconButton="bwi-filter" label="Switch products"></button>`,
   standalone: false,
 })
 class MockProductSwitcher {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "dynamic-avatar",
   template: `<bit-avatar [text]="name$ | async"></bit-avatar>`,
@@ -68,6 +72,8 @@ class MockDynamicAvatar implements Partial<DynamicAvatarComponent> {
     ),
   );
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   text?: string;
 

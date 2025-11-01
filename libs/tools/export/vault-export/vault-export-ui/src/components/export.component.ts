@@ -10,13 +10,20 @@ import {
   OnInit,
   Output,
   ViewChild,
+  Optional,
 } from "@angular/core";
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
+import { Router } from "@angular/router";
 import {
+  BehaviorSubject,
   combineLatest,
+  firstValueFrom,
+  from,
   map,
   merge,
   Observable,
+  of,
+  shareReplay,
   startWith,
   Subject,
   switchMap,
@@ -29,21 +36,23 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PasswordStrengthV2Component } from "@bitwarden/angular/tools/password-strength/password-strength-v2.component";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { EventType } from "@bitwarden/common/enums";
+import { ClientType, EventType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { pin } from "@bitwarden/common/tools/rx";
+import { isId, OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
@@ -58,12 +67,18 @@ import {
 } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/generator-core";
-import { ExportedVault, VaultExportServiceAbstraction } from "@bitwarden/vault-export-core";
+import {
+  ExportedVault,
+  ExportFormatMetadata,
+  VaultExportServiceAbstraction,
+} from "@bitwarden/vault-export-core";
 
 import { EncryptedExportType } from "../enums/encrypted-export-type.enum";
 
 import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-export",
   templateUrl: "export.component.html",
@@ -84,36 +99,75 @@ import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
   ],
 })
 export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
-  private _organizationId: string;
-
-  get organizationId(): string {
-    return this._organizationId;
-  }
+  private _organizationId$ = new BehaviorSubject<OrganizationId | undefined>(undefined);
+  private createDefaultLocationFlagEnabled$: Observable<boolean>;
+  private _showExcludeMyItems = false;
 
   /**
    * Enables the hosting control to pass in an organizationId
    * If a organizationId is provided, the organization selection is disabled.
    */
-  @Input() set organizationId(value: string) {
-    this._organizationId = value;
+  // TODO: Fix this the next time the file is edited.
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() set organizationId(value: OrganizationId | string | undefined) {
+    if (Utils.isNullOrEmpty(value)) {
+      this._organizationId$.next(undefined);
+      return;
+    }
+
+    if (!isId<OrganizationId>(value)) {
+      this._organizationId$.next(undefined);
+      return;
+    }
+
+    this._organizationId$.next(value);
+
     getUserId(this.accountService.activeAccount$)
       .pipe(
-        switchMap((userId) =>
-          this.organizationService
-            .organizations$(userId)
-            .pipe(getOrganizationById(this._organizationId)),
-        ),
+        switchMap((userId) => this.organizationService.organizations$(userId).pipe(getById(value))),
       )
       .pipe(takeUntil(this.destroy$))
       .subscribe((organization) => {
-        this._organizationId = organization?.id;
+        this._organizationId$.next(organization?.id);
       });
+  }
+
+  get organizationId(): OrganizationId | undefined {
+    return this._organizationId$.value;
+  }
+
+  get showExcludeMyItems(): boolean {
+    return this._showExcludeMyItems;
+  }
+
+  get orgExportDescription(): string {
+    if (!this._showExcludeMyItems) {
+      return "exportingOrganizationVaultDesc";
+    }
+    return this.isAdminConsoleContext
+      ? "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc"
+      : "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc";
+  }
+
+  private get isAdminConsoleContext(): boolean {
+    const isWeb = this.platformUtilsService.getClientType?.() === ClientType.Web;
+    if (!isWeb || !this.router) {
+      return false;
+    }
+    try {
+      const url = this.router.url ?? "";
+      return url.includes("/organizations/");
+    } catch {
+      return false;
+    }
   }
 
   /**
    * The hosting control also needs a bitSubmitDirective (on the Submit button) which calls this components {@link submit}-method.
    * This components formState (loading/disabled) is emitted back up to the hosting component so for example the Submit button can be enabled/disabled and show loading state.
    */
+  // TODO: Fix this the next time the file is edited.
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(BitSubmitDirective)
   private bitSubmit: BitSubmitDirective;
 
@@ -121,6 +175,8 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
    * Emits true when the BitSubmitDirective({@link bitSubmit} is executing {@link submit} and false when execution has completed.
    * Example: Used to show the loading state of the submit button present on the hosting component
    * */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   formLoading = new EventEmitter<boolean>();
 
@@ -128,17 +184,23 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
    * Emits true when this form gets disabled and false when enabled.
    * Example: Used to disable the submit button, which is present on the hosting component
    * */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   formDisabled = new EventEmitter<boolean>();
 
   /**
    * Emits when the creation and download of the export-file have succeeded
-   * - Emits an null/empty string when exporting from an individual vault
-   * - Emits the organizationId when exporting from an organizationl vault
+   * - Emits an undefined when exporting from an individual vault
+   * - Emits the organizationId when exporting from an organizational vault
    * */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
-  onSuccessfulExport = new EventEmitter<string>();
+  onSuccessfulExport = new EventEmitter<OrganizationId | undefined>();
 
+  // TODO: Fix this the next time the file is edited.
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(PasswordStrengthV2Component) passwordStrengthComponent: PasswordStrengthV2Component;
 
   encryptedExportType = EncryptedExportType;
@@ -153,7 +215,10 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   disablePersonalVaultExportPolicy$: Observable<boolean>;
-  disablePersonalOwnershipPolicy$: Observable<boolean>;
+  // detects if policy is enabled and applies to the user, admins are exempted
+  organizationDataOwnershipPolicyAppliesToUser$: Observable<boolean>;
+  // detects if policy is enabled regardless of admin exemption
+  organizationDataOwnershipPolicyEnabledForOrg$: Observable<boolean>;
 
   exportForm = this.formBuilder.group({
     vaultSelector: [
@@ -170,11 +235,11 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     fileEncryptionType: [EncryptedExportType.AccountEncrypted],
   });
 
-  formatOptions = [
-    { name: ".json", value: "json" },
-    { name: ".csv", value: "csv" },
-    { name: ".json (Encrypted)", value: "encrypted_json" },
-  ];
+  /**
+   * Observable stream of available export format options
+   * Dynamically updates based on vault selection (My Vault vs Organization)
+   */
+  formatOptions$: Observable<ExportFormatMetadata[]>;
 
   private destroy$ = new Subject<void>();
   private onlyManagedCollections = true;
@@ -194,14 +259,46 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     protected organizationService: OrganizationService,
     private accountService: AccountService,
     private collectionService: CollectionService,
+    private configService: ConfigService,
+    private platformUtilsService: PlatformUtilsService,
+    @Optional() private router?: Router,
   ) {}
 
   async ngOnInit() {
-    // Setup subscription to emit when this form is enabled/disabled
+    this.observeFeatureFlags();
+    this.observeFormState();
+    this.observePolicyStatus();
+    this.observeFormSelections();
+
+    // order is important below this line
+    this.observeMyItemsExclusionCriteria();
+    this.observeValidatorAdjustments();
+    this.setupPasswordGeneration();
+
+    if (this.organizationId) {
+      // organization vault export
+      this.initOrganizationOnly();
+      return;
+    }
+
+    // individual vault export
+    this.initIndividual();
+    this.setupPolicyBasedFormState();
+  }
+
+  private observeFeatureFlags(): void {
+    this.createDefaultLocationFlagEnabled$ = from(
+      this.configService.getFeatureFlag(FeatureFlag.CreateDefaultLocation),
+    ).pipe(shareReplay({ bufferSize: 1, refCount: true }));
+  }
+
+  private observeFormState(): void {
     this.exportForm.statusChanges.pipe(takeUntil(this.destroy$)).subscribe((c) => {
       this.formDisabled.emit(c === "DISABLED");
     });
+  }
 
+  private observePolicyStatus(): void {
     this.disablePersonalVaultExportPolicy$ = this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
@@ -209,33 +306,108 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       ),
     );
 
-    this.disablePersonalOwnershipPolicy$ = this.accountService.activeAccount$.pipe(
+    // when true, html template will hide "My Vault" option in vault selector drop down
+    this.organizationDataOwnershipPolicyAppliesToUser$ = this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
-        this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+        this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
       ),
     );
 
-    this.exportForm.controls.vaultSelector.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((value) => {
-        this.organizationId = value !== "myVault" ? value : undefined;
-
-        this.formatOptions = this.formatOptions.filter((option) => option.value !== "zip");
-        this.exportForm.get("format").setValue("json");
-        if (value === "myVault") {
-          this.formatOptions.push({ name: ".zip (with attachments)", value: "zip" });
+    /*
+      Determines how organization exports are described in the callout.
+      Admins are exempted from organization data ownership policy,
+      and so this needs to determine if the policy is enabled for the org, not if it applies to the user.
+    */
+    this.organizationDataOwnershipPolicyEnabledForOrg$ = combineLatest([
+      this.accountService.activeAccount$.pipe(getUserId),
+      this._organizationId$,
+    ]).pipe(
+      switchMap(([userId, organizationId]) => {
+        if (!organizationId || !userId) {
+          return of(false);
         }
-      });
+        return this.policyService.policies$(userId).pipe(
+          map((policies) => {
+            const policy = policies?.find(
+              (p) =>
+                p.type === PolicyType.OrganizationDataOwnership &&
+                p.organizationId === organizationId,
+            );
+            return policy?.enabled ?? false;
+          }),
+        );
+      }),
+    );
+  }
 
+  private observeFormSelections(): void {
+    // Set up dynamic format options based on vault selection
+    this.formatOptions$ = this.exportForm.controls.vaultSelector.valueChanges.pipe(
+      startWith(this.exportForm.controls.vaultSelector.value),
+      map((vaultSelection) => {
+        const isMyVault = vaultSelection === "myVault";
+        // Update organizationId based on vault selection
+        this.organizationId = isMyVault ? undefined : vaultSelection;
+        return { isMyVault };
+      }),
+      switchMap((options) => this.exportService.formats$(options)),
+      tap((formats) => {
+        // Preserve the current format selection if it's still available in the new format list
+        const currentFormat = this.exportForm.get("format").value;
+        const isFormatAvailable = formats.some((f) => f.format === currentFormat);
+
+        // Only reset to json if the current format is no longer available
+        if (!isFormatAvailable) {
+          this.exportForm.get("format").setValue("json");
+        }
+      }),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+  }
+
+  /**
+   * Determine value of showExcludeMyItems. Returns true when:
+   * CreateDefaultLocation feature flag is on
+   * AND organizationDataOwnershipPolicy is enabled for the selected organization
+   * AND a valid OrganizationId is present (not exporting from individual vault)
+   */
+  private observeMyItemsExclusionCriteria(): void {
+    combineLatest({
+      createDefaultLocationFlagEnabled: this.createDefaultLocationFlagEnabled$,
+      organizationDataOwnershipPolicyEnabledForOrg:
+        this.organizationDataOwnershipPolicyEnabledForOrg$,
+      organizationId: this._organizationId$,
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(
+        ({
+          createDefaultLocationFlagEnabled,
+          organizationDataOwnershipPolicyEnabledForOrg,
+          organizationId,
+        }) => {
+          if (!createDefaultLocationFlagEnabled || !organizationId) {
+            this._showExcludeMyItems = false;
+            return;
+          }
+
+          this._showExcludeMyItems = organizationDataOwnershipPolicyEnabledForOrg;
+        },
+      );
+  }
+
+  // Setup validator adjustments based on format and encryption type changes
+  private observeValidatorAdjustments(): void {
     merge(
       this.exportForm.get("format").valueChanges,
       this.exportForm.get("fileEncryptionType").valueChanges,
     )
       .pipe(startWith(0), takeUntil(this.destroy$))
       .subscribe(() => this.adjustValidators());
+  }
 
-    // Wire up the password generation for the password-protected export
+  // Wire up the password generation for password-protected exports
+  private setupPasswordGeneration(): void {
     const account$ = this.accountService.activeAccount$.pipe(
       pin({
         name() {
@@ -246,6 +418,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
         },
       }),
     );
+
     this.generatorService
       .generate$({ on$: this.onGenerate$, account$ })
       .pipe(takeUntil(this.destroy$))
@@ -255,60 +428,70 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
           confirmFilePassword: generated.credential,
         });
       });
+  }
 
-    if (this.organizationId) {
-      this.organizations$ = this.accountService.activeAccount$.pipe(
+  /*
+  Initialize component for organization only export
+  Hides "My Vault" option by returning immediately
+  */
+  private initOrganizationOnly(): void {
+    this.organizations$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.organizationService
+          .memberOrganizations$(userId)
+          .pipe(map((orgs) => orgs.filter((org) => org.id == this.organizationId))),
+      ),
+    );
+    this.exportForm.controls.vaultSelector.patchValue(this.organizationId);
+    this.exportForm.controls.vaultSelector.disable();
+
+    this.onlyManagedCollections = false;
+  }
+
+  // Initialize component to support individual and organizational exports
+  private initIndividual(): void {
+    this.organizations$ = this.accountService.activeAccount$
+      .pipe(
         getUserId,
         switchMap((userId) =>
-          this.organizationService
-            .memberOrganizations$(userId)
-            .pipe(map((orgs) => orgs.filter((org) => org.id == this.organizationId))),
+          combineLatest({
+            collections: this.collectionService.decryptedCollections$(userId),
+            memberOrganizations: this.organizationService.memberOrganizations$(userId),
+          }),
         ),
+      )
+      .pipe(
+        map(({ collections, memberOrganizations }) => {
+          const managedCollectionsOrgIds = new Set(
+            collections.filter((c) => c.manage).map((c) => c.organizationId),
+          );
+          const filteredOrgs = memberOrganizations.filter((org) =>
+            managedCollectionsOrgIds.has(org.id),
+          );
+          return filteredOrgs.sort(Utils.getSortFunction(this.i18nService, "name"));
+        }),
       );
-      this.exportForm.controls.vaultSelector.patchValue(this.organizationId);
-      this.exportForm.controls.vaultSelector.disable();
+  }
 
-      this.onlyManagedCollections = false;
-      return;
-    }
-
-    this.organizations$ = combineLatest({
-      collections: this.collectionService.decryptedCollections$,
-      memberOrganizations: this.accountService.activeAccount$.pipe(
-        getUserId,
-        switchMap((userId) => this.organizationService.memberOrganizations$(userId)),
-      ),
-    }).pipe(
-      map(({ collections, memberOrganizations }) => {
-        const managedCollectionsOrgIds = new Set(
-          collections.filter((c) => c.manage).map((c) => c.organizationId),
-        );
-        // Filter organizations that exist in managedCollectionsOrgIds
-        const filteredOrgs = memberOrganizations.filter((org) =>
-          managedCollectionsOrgIds.has(org.id),
-        );
-        // Sort the filtered organizations based on the name
-        return filteredOrgs.sort(Utils.getSortFunction(this.i18nService, "name"));
-      }),
-    );
-
+  private setupPolicyBasedFormState(): void {
     combineLatest([
       this.disablePersonalVaultExportPolicy$,
-      this.disablePersonalOwnershipPolicy$,
+      this.organizationDataOwnershipPolicyAppliesToUser$,
       this.organizations$,
     ])
       .pipe(
-        tap(([disablePersonalVaultExport, disablePersonalOwnership, organizations]) => {
+        tap(([disablePersonalVaultExport, organizationDataOwnership, organizations]) => {
           this._disabledByPolicy = disablePersonalVaultExport;
 
-          // When personalOwnership is disabled and we have orgs, set the first org as the selected vault
-          if (disablePersonalOwnership && organizations.length > 0) {
+          // When organizationDataOwnership is enabled and we have orgs, set the first org as the selected vault
+          if (organizationDataOwnership && organizations.length > 0) {
             this.exportForm.enable();
             this.exportForm.controls.vaultSelector.setValue(organizations[0].id);
           }
 
-          // When personalOwnership is disabled and we have no orgs, disable the form
-          if (disablePersonalOwnership && organizations.length === 0) {
+          // When organizationDataOwnership is enabled and we have no orgs, disable the form
+          if (organizationDataOwnership && organizations.length === 0) {
             this.exportForm.disable();
           }
 
@@ -318,7 +501,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
           }
 
           // When neither policy is enabled, enable the form and set the default vault to "myVault"
-          if (!disablePersonalVaultExport && !disablePersonalOwnership) {
+          if (!disablePersonalVaultExport && !organizationDataOwnership) {
             this.exportForm.controls.vaultSelector.setValue("myVault");
           }
         }),
@@ -448,9 +631,11 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   protected async getExportData(): Promise<ExportedVault> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     return Utils.isNullOrWhitespace(this.organizationId)
-      ? this.exportService.getExport(this.format, this.filePassword)
+      ? this.exportService.getExport(userId, this.format, this.filePassword)
       : this.exportService.getOrganizationExport(
+          userId,
           this.organizationId,
           this.format,
           this.filePassword,

@@ -12,6 +12,8 @@ import { I18nMockService } from "../utils/i18n-mock.service";
 import { NavGroupComponent } from "./nav-group.component";
 import { NavigationModule } from "./navigation.module";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "",
 })
@@ -39,6 +41,7 @@ export default {
               toggleCollapse: "toggle collapse",
               toggleSideNavigation: "Toggle side navigation",
               skipToContent: "Skip to content",
+              loading: "Loading",
             });
           },
         },
@@ -63,7 +66,8 @@ export default {
       type: "figma",
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-40145&t=b5tDKylm5sWm2yKo-4",
     },
-    chromatic: { viewports: [640, 1280] },
+    // remove disableSnapshots in CL-890
+    chromatic: { viewports: [640, 1280], disableSnapshot: true },
   },
 } as Meta;
 
@@ -105,31 +109,6 @@ export const HideEmptyGroups: StoryObj<NavGroupComponent & { renderChildren: boo
           <bit-nav-item text="Child A" icon="bwi-filter"></bit-nav-item>
           <bit-nav-item text="Child B"></bit-nav-item>
           <bit-nav-item text="Child C" icon="bwi-filter"></bit-nav-item>
-        </bit-nav-group>
-      </bit-side-nav>
-    `,
-  }),
-};
-
-export const Tree: StoryObj<NavGroupComponent> = {
-  render: (args) => ({
-    props: args,
-    template: /*html*/ `
-      <bit-side-nav>
-        <bit-nav-group text="Tree example" icon="bwi-collection-shared" [open]="true">
-          <bit-nav-group text="Level 1 - with children (empty)" route="t1" icon="bwi-collection-shared" variant="tree"></bit-nav-group>
-          <bit-nav-item text="Level 1 - no children" route="t2" icon="bwi-collection-shared" variant="tree"></bit-nav-item>
-          <bit-nav-group text="Level 1 - with children" route="t3" icon="bwi-collection-shared" variant="tree" [open]="true">
-            <bit-nav-group text="Level 2 - with children" route="t4" icon="bwi-collection-shared" variant="tree" [open]="true">
-              <bit-nav-item text="Level 3 - no children, no icon" route="t5" variant="tree"></bit-nav-item>
-              <bit-nav-group text="Level 3 - with children" route="t6" icon="bwi-collection-shared" variant="tree" [open]="true">
-                <bit-nav-item text="Level 4 - no children, no icon" route="t7" variant="tree"></bit-nav-item>
-              </bit-nav-group>
-            </bit-nav-group>
-            <bit-nav-group text="Level 2 - with children (empty)" route="t8" icon="bwi-collection-shared" variant="tree" [open]="true"></bit-nav-group>
-            <bit-nav-item text="Level 2 - no children" route="t9" icon="bwi-collection-shared" variant="tree"></bit-nav-item>
-          </bit-nav-group>
-          <bit-nav-item text="Level 1 - no children" route="t10" icon="bwi-collection-shared" variant="tree"></bit-nav-item>
         </bit-nav-group>
       </bit-side-nav>
     `,

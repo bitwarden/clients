@@ -1,13 +1,15 @@
-import { Observable, map, shareReplay } from "rxjs";
+import { Observable, combineLatest, map, shareReplay } from "rxjs";
 
 import { ActiveUserState, GlobalState, StateProvider } from "../../../platform/state";
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "../../abstractions/vault-settings/vault-settings.service";
+import { CipherType } from "../../enums";
 import {
   SHOW_CARDS_CURRENT_TAB,
   SHOW_IDENTITIES_CURRENT_TAB,
   USER_ENABLE_PASSKEYS,
   CLICK_ITEMS_AUTOFILL_VAULT_VIEW,
 } from "../key-state/vault-settings.state";
+import { RestrictedItemTypesService } from "../restricted-item-types.service";
 
 /**
  * {@link VaultSettingsServiceAbstraction}
@@ -27,8 +29,15 @@ export class VaultSettingsService implements VaultSettingsServiceAbstraction {
   /**
    * {@link VaultSettingsServiceAbstraction.showCardsCurrentTab$}
    */
-  readonly showCardsCurrentTab$: Observable<boolean> = this.showCardsCurrentTabState.state$.pipe(
-    map((x) => x ?? true),
+  readonly showCardsCurrentTab$: Observable<boolean> = combineLatest([
+    this.showCardsCurrentTabState.state$.pipe(map((x) => x ?? true)),
+    this.restrictedItemTypesService.restricted$,
+  ]).pipe(
+    map(
+      ([enabled, restrictions]) =>
+        // If enabled, show cards tab unless card type is restricted
+        enabled && !restrictions.some((r) => r.cipherType === CipherType.Card),
+    ),
   );
 
   private showIdentitiesCurrentTabState: ActiveUserState<boolean> = this.stateProvider.getActive(
@@ -51,7 +60,10 @@ export class VaultSettingsService implements VaultSettingsServiceAbstraction {
       shareReplay({ bufferSize: 1, refCount: false }),
     );
 
-  constructor(private stateProvider: StateProvider) {}
+  constructor(
+    private stateProvider: StateProvider,
+    private restrictedItemTypesService: RestrictedItemTypesService,
+  ) {}
 
   /**
    * {@link VaultSettingsServiceAbstraction.setShowCardsCurrentTab}

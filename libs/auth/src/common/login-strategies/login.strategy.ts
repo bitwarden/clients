@@ -25,20 +25,15 @@ import {
 } from "@bitwarden/common/key-management/vault-timeout";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { Account, AccountProfile } from "@bitwarden/common/platform/models/domain/account";
+import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { UserId } from "@bitwarden/common/types/guid";
-import {
-  KeyService,
-  Argon2KdfConfig,
-  PBKDF2KdfConfig,
-  KdfConfigService,
-  KdfType,
-} from "@bitwarden/key-management";
+import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import {
@@ -91,6 +86,7 @@ export abstract class LoginStrategy {
     protected vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     protected KdfConfigService: KdfConfigService,
     protected environmentService: EnvironmentService,
+    protected configService: ConfigService,
   ) {}
 
   abstract exportCache(): CacheData;
@@ -195,19 +191,6 @@ export abstract class LoginStrategy {
 
     await this.accountService.switchAccount(userId);
 
-    await this.stateService.addAccount(
-      new Account({
-        profile: {
-          ...new AccountProfile(),
-          ...{
-            userId,
-            name: accountInformation.name,
-            email: accountInformation.email,
-          },
-        },
-      }),
-    );
-
     await this.verifyAccountAdded(userId);
 
     // We must set user decryption options before retrieving vault timeout settings
@@ -215,6 +198,15 @@ export abstract class LoginStrategy {
     await this.userDecryptionOptionsService.setUserDecryptionOptions(
       UserDecryptionOptions.fromResponse(tokenResponse),
     );
+
+    if (tokenResponse.userDecryptionOptions?.masterPasswordUnlock != null) {
+      const masterPasswordUnlockData =
+        tokenResponse.userDecryptionOptions.masterPasswordUnlock.toMasterPasswordUnlockData();
+      await this.masterPasswordService.setMasterPasswordUnlockData(
+        masterPasswordUnlockData,
+        userId,
+      );
+    }
 
     const vaultTimeoutAction = await firstValueFrom(
       this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(userId),
@@ -231,16 +223,7 @@ export abstract class LoginStrategy {
       tokenResponse.refreshToken, // Note: CLI login via API key sends undefined for refresh token.
     );
 
-    await this.KdfConfigService.setKdfConfig(
-      userId as UserId,
-      tokenResponse.kdf === KdfType.PBKDF2_SHA256
-        ? new PBKDF2KdfConfig(tokenResponse.kdfIterations)
-        : new Argon2KdfConfig(
-            tokenResponse.kdfIterations,
-            tokenResponse.kdfMemory,
-            tokenResponse.kdfParallelism,
-          ),
-    );
+    await this.KdfConfigService.setKdfConfig(userId as UserId, tokenResponse.kdfConfig);
 
     await this.billingAccountProfileStateService.setHasPremium(
       accountInformation.premium ?? false,
@@ -265,8 +248,6 @@ export abstract class LoginStrategy {
 
     result.resetMasterPassword = response.resetMasterPassword;
 
-    await this.processForceSetPasswordReason(response.forcePasswordReset, userId);
-
     if (response.twoFactorToken != null) {
       // note: we can read email from access token b/c it was saved in saveAccountInformation
       const userEmail = await this.tokenService.getEmail();
@@ -277,6 +258,9 @@ export abstract class LoginStrategy {
     await this.setMasterKey(response, userId);
     await this.setUserKey(response, userId);
     await this.setPrivateKey(response, userId);
+
+    // This needs to run after the keys are set because it checks for the existence of the encrypted private key
+    await this.processForceSetPasswordReason(response.forcePasswordReset, userId);
 
     this.messagingService.send("loggedIn");
 
@@ -322,7 +306,15 @@ export abstract class LoginStrategy {
 
   protected async createKeyPairForOldAccount(userId: UserId) {
     try {
-      const userKey = await this.keyService.getUserKeyWithLegacySupport(userId);
+      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+      if (userKey === null) {
+        throw new Error("User key is null when creating key pair for old account");
+      }
+
+      if (userKey.inner().type == EncryptionType.CoseEncrypt0) {
+        throw new Error("Cannot create key pair for account on V2 encryption");
+      }
+
       const [publicKey, privateKey] = await this.keyService.makeKeyPair(userKey);
       if (!privateKey.encryptedString) {
         throw new Error("Failed to create encrypted private key");

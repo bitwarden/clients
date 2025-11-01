@@ -8,7 +8,7 @@ setCompodocJson(docJson);
 
 const wrapperDecorator = componentWrapperDecorator((story) => {
   return /*html*/ `
-    <div class="tw-bg-background tw-px-5 tw-py-10">
+    <div class="tw-bg-background tw-px-5 tw-py-10 tw-@container">
       ${story}
     </div>
   `;

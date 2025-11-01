@@ -1,7 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { NgTemplateOutlet } from "@angular/common";
-import { Component, ContentChild, HostBinding, Input, Optional, Self } from "@angular/core";
+import { Component, HostBinding, Optional, Self, input, contentChild } from "@angular/core";
 import { ControlValueAccessor, NgControl, Validators } from "@angular/forms";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -10,30 +8,31 @@ import { BitLabel } from "../form-control/label.component";
 
 let nextId = 0;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-radio-group",
   templateUrl: "radio-group.component.html",
   imports: [NgTemplateOutlet, I18nPipe],
+  host: {
+    "[id]": "id()",
+  },
 })
 export class RadioGroupComponent implements ControlValueAccessor {
   selected: unknown;
   disabled = false;
 
-  private _name?: string;
-  @Input() get name() {
-    return this._name ?? this.ngControl?.name?.toString();
-  }
-  set name(value: string) {
-    this._name = value;
+  get name() {
+    return this.ngControl?.name?.toString();
   }
 
-  @Input() block = false;
+  readonly block = input(false);
 
   @HostBinding("attr.role") role = "radiogroup";
-  @HostBinding("attr.id") @Input() id = `bit-radio-group-${nextId++}`;
+  readonly id = input(`bit-radio-group-${nextId++}`);
   @HostBinding("class") classList = ["tw-block", "tw-mb-4"];
 
-  @ContentChild(BitLabel) protected label: BitLabel;
+  protected readonly label = contentChild(BitLabel);
 
   constructor(@Optional() @Self() private ngControl?: NgControl) {
     if (ngControl != null) {
@@ -46,8 +45,8 @@ export class RadioGroupComponent implements ControlValueAccessor {
   }
 
   // ControlValueAccessor
-  onChange: (value: unknown) => void;
-  onTouched: () => void;
+  onChange?: (value: unknown) => void;
+  onTouched?: () => void;
 
   writeValue(value: boolean): void {
     this.selected = value;
@@ -67,10 +66,10 @@ export class RadioGroupComponent implements ControlValueAccessor {
 
   onInputChange(value: unknown) {
     this.selected = value;
-    this.onChange(this.selected);
+    this.onChange?.(this.selected);
   }
 
   onBlur() {
-    this.onTouched();
+    this.onTouched?.();
   }
 }

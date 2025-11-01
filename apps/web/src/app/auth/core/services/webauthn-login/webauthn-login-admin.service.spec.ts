@@ -9,16 +9,20 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginCredentialAssertionView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion.view";
 import { WebAuthnLoginAssertionResponseRequest } from "@bitwarden/common/auth/services/webauthn-login/request/webauthn-login-assertion-response.request";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { makeSymmetricCryptoKey } from "@bitwarden/common/spec";
+import { makeEncString, makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { PrfKey, UserKey } from "@bitwarden/common/types/key";
+import { UserId } from "@bitwarden/user-core";
 
+import { WebauthnLoginCredentialPrfStatus } from "../../enums/webauthn-login-credential-prf-status.enum";
 import { CredentialCreateOptionsView } from "../../views/credential-create-options.view";
 import { PendingWebauthnLoginCredentialView } from "../../views/pending-webauthn-login-credential.view";
 import { RotateableKeySetService } from "../rotateable-key-set.service";
 
 import { EnableCredentialEncryptionRequest } from "./request/enable-credential-encryption.request";
+import { WebauthnLoginCredentialResponse } from "./response/webauthn-login-credential.response";
 import { WebAuthnLoginAdminApiService } from "./webauthn-login-admin-api.service";
 import { WebauthnLoginAdminService } from "./webauthn-login-admin.service";
 
@@ -246,6 +250,79 @@ describe("WebauthnAdminService", () => {
       const rotateKeySetMock = jest.spyOn(rotateableKeySetService, "rotateKeySet");
       await service.getRotatedData(oldUserKey, newUserKey, null);
       expect(rotateKeySetMock).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("getRotatedData", () => {
+    const mockRotatedPublicKey = makeEncString("rotated_encryptedPublicKey");
+    const mockRotatedUserKey = makeEncString("rotated_encryptedUserKey");
+    const oldUserKey = makeSymmetricCryptoKey(64) as UserKey;
+    const newUserKey = makeSymmetricCryptoKey(64) as UserKey;
+    const userId = Utils.newGuid() as UserId;
+
+    it("should only include credentials with PRF keysets", async () => {
+      const responseUnsupported = new WebauthnLoginCredentialResponse({
+        id: "test-credential-id-1",
+        name: "Test Credential 1",
+        prfStatus: WebauthnLoginCredentialPrfStatus.Unsupported,
+        encryptedPublicKey: null,
+        encryptedUserKey: null,
+      });
+      const responseSupported = new WebauthnLoginCredentialResponse({
+        id: "test-credential-id-2",
+        name: "Test Credential 2",
+        prfStatus: WebauthnLoginCredentialPrfStatus.Supported,
+        encryptedPublicKey: null,
+        encryptedUserKey: null,
+      });
+      const responseEnabled = new WebauthnLoginCredentialResponse({
+        id: "test-credential-id-3",
+        name: "Test Credential 3",
+        prfStatus: WebauthnLoginCredentialPrfStatus.Enabled,
+        encryptedPublicKey: makeEncString("encryptedPublicKey").toJSON(),
+        encryptedUserKey: makeEncString("encryptedUserKey").toJSON(),
+      });
+
+      apiService.getCredentials.mockResolvedValue(
+        new ListResponse<WebauthnLoginCredentialResponse>(
+          {
+            data: [responseUnsupported, responseSupported, responseEnabled],
+          },
+          WebauthnLoginCredentialResponse,
+        ),
+      );
+
+      rotateableKeySetService.rotateKeySet.mockResolvedValue(
+        new RotateableKeySet<PrfKey>(mockRotatedUserKey, mockRotatedPublicKey),
+      );
+
+      const result = await service.getRotatedData(oldUserKey, newUserKey, userId);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual(
+        expect.objectContaining({
+          id: "test-credential-id-3",
+          encryptedPublicKey: mockRotatedPublicKey,
+          encryptedUserKey: mockRotatedUserKey,
+        }),
+      );
+      expect(rotateableKeySetService.rotateKeySet).toHaveBeenCalledTimes(1);
+      expect(rotateableKeySetService.rotateKeySet).toHaveBeenCalledWith(
+        responseEnabled.getRotateableKeyset(),
+        oldUserKey,
+        newUserKey,
+      );
+    });
+
+    it("should error when getCredentials fails", async () => {
+      const expectedError = "API connection failed";
+      apiService.getCredentials.mockRejectedValue(new Error(expectedError));
+
+      await expect(service.getRotatedData(oldUserKey, newUserKey, userId)).rejects.toThrow(
+        expectedError,
+      );
+
+      expect(rotateableKeySetService.rotateKeySet).not.toHaveBeenCalled();
     });
   });
 });

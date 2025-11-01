@@ -9,6 +9,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { SelectComponent } from "./select.component";
 import { SelectModule } from "./select.module";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   imports: [SelectModule, ReactiveFormsModule],
   template: `
@@ -37,15 +39,15 @@ describe("Select Component", () => {
 
   describe("initial state", () => {
     it("selected option should update when items input changes", () => {
-      expect(select.selectedOption?.value).toBeUndefined();
+      expect(select.selectedOption()?.value).toBeUndefined();
 
-      select.items = [
+      select.items.set([
         { label: "Apple", value: "apple" },
         { label: "Pear", value: "pear" },
         { label: "Banana", value: "banana" },
-      ];
+      ]);
 
-      expect(select.selectedOption?.value).toBe("apple");
+      expect(select.selectedOption()?.value).toBe("apple");
     });
   });
 });

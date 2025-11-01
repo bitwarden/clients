@@ -44,23 +44,27 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
   ): Promise<CipherFormConfig> {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-    const [organizations, collections, allowPersonalOwnership, folders, cipher] =
+    const [organizations, collections, organizationDataOwnershipDisabled, folders, cipher] =
       await firstValueFrom(
         combineLatest([
           this.organizations$(activeUserId),
-          this.collectionService.encryptedCollections$.pipe(
+          this.collectionService.encryptedCollections$(activeUserId).pipe(
+            map((collections) => collections ?? []),
             switchMap((c) =>
-              this.collectionService.decryptedCollections$.pipe(
+              this.collectionService.decryptedCollections$(activeUserId).pipe(
                 filter((d) => d.length === c.length), // Ensure all collections have been decrypted
               ),
             ),
           ),
-          this.allowPersonalOwnership$,
+          this.organizationDataOwnershipDisabled$,
           this.folderService.folders$(activeUserId).pipe(
             switchMap((f) =>
-              this.folderService.folderViews$(activeUserId).pipe(
-                filter((d) => d.length - 1 === f.length), // -1 for "No Folder" in folderViews$
-              ),
+              this.folderService
+                .folderViews$(activeUserId)
+                // Ensure the folders have decrypted. f.length === 0 indicates we don't have any
+                // folders to wait for, and d.length > 0 indicates that `folderViews` has emitted the
+                // array, which includes the "No Folder" default folder.
+                .pipe(filter((d) => d.length > 0 || f.length === 0)),
             ),
           ),
           this.getCipher(activeUserId, cipherId),
@@ -71,7 +75,7 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
       mode,
       cipherType: cipher?.type ?? cipherType ?? CipherType.Login,
       admin: false,
-      allowPersonalOwnership,
+      organizationDataOwnershipDisabled,
       originalCipher: cipher,
       collections,
       organizations,
@@ -91,10 +95,10 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
       );
   }
 
-  private allowPersonalOwnership$ = this.accountService.activeAccount$.pipe(
+  private organizationDataOwnershipDisabled$ = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) =>
-      this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+      this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
     ),
     map((p) => !p),
   );

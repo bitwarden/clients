@@ -2,11 +2,16 @@ import { importProvidersFrom } from "@angular/core";
 import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { BadgeModule, IconModule } from "@bitwarden/components";
+import {
+  BadgeModule,
+  BaseCardComponent,
+  CardContentComponent,
+  IconModule,
+} from "@bitwarden/components";
 
 import { PreloadedEnglishI18nModule } from "../../../../core/tests";
-import { PremiumBadgeComponent } from "../../../../vault/components/premium-badge.component";
 import { reports } from "../../reports";
 import { ReportVariant } from "../models/report-variant";
 import { ReportCardComponent } from "../report-card/report-card.component";
@@ -18,8 +23,16 @@ export default {
   component: ReportListComponent,
   decorators: [
     moduleMetadata({
-      imports: [JslibModule, BadgeModule, RouterTestingModule, IconModule],
-      declarations: [PremiumBadgeComponent, ReportCardComponent],
+      imports: [
+        JslibModule,
+        BadgeModule,
+        RouterTestingModule,
+        IconModule,
+        PremiumBadgeComponent,
+        CardContentComponent,
+        BaseCardComponent,
+      ],
+      declarations: [ReportCardComponent],
     }),
     applicationConfig({
       providers: [importProvidersFrom(PreloadedEnglishI18nModule)],

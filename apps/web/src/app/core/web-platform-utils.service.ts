@@ -35,6 +35,13 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
     } else if (navigator.userAgent.indexOf(" Vivaldi/") !== -1) {
       this.browserCache = DeviceType.VivaldiBrowser;
     } else if (
+      // We are only detecting DuckDuckGo browser on macOS currently, as
+      // it is not presenting the Ddg suffix on Windows. DuckDuckGo users
+      // on Windows will be detected as Edge.
+      navigator.userAgent.indexOf("Ddg") !== -1
+    ) {
+      this.browserCache = DeviceType.DuckDuckGoBrowser;
+    } else if (
       navigator.userAgent.indexOf(" Safari/") !== -1 &&
       navigator.userAgent.indexOf("Chrome") === -1
     ) {
@@ -83,11 +90,19 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
     return this.getDevice() === DeviceType.SafariBrowser;
   }
 
+  isChromium(): boolean {
+    return this.isChrome() || this.isEdge() || this.isOpera() || this.isVivaldi();
+  }
+
+  isWebKit(): boolean {
+    return true;
+  }
+
   isMacAppStore(): boolean {
     return false;
   }
 
-  isViewOpen(): Promise<boolean> {
+  isPopupOpen(): Promise<boolean> {
     return Promise.resolve(false);
   }
 
@@ -118,6 +133,15 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
 
   supportsDuo(): boolean {
     return true;
+  }
+
+  supportsAutofill(): boolean {
+    return false;
+  }
+
+  // Safari support for blob downloads is inconsistent and requires workarounds
+  supportsFileDownloads(): boolean {
+    return !(this.getDevice() === DeviceType.SafariBrowser);
   }
 
   showToast(

@@ -123,6 +123,10 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return this.getDevice() === DeviceType.SafariExtension;
   }
 
+  isChromium(): boolean {
+    return this.isChrome() || this.isEdge() || this.isOpera() || this.isVivaldi();
+  }
+
   /**
    * Safari previous to version 16.1 had a bug which caused artifacts on hover in large extension popups.
    * https://bugs.webkit.org/show_bug.cgi?id=218704
@@ -150,7 +154,7 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
    * message to the popup and waiting for a response. If a response is received,
    * the view is open.
    */
-  async isViewOpen(): Promise<boolean> {
+  async isPopupOpen(): Promise<boolean> {
     if (this.isSafari()) {
       // Query views on safari since chrome.runtime.sendMessage does not timeout and will hang.
       return BrowserApi.isPopupOpen();
@@ -205,6 +209,14 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
 
   supportsDuo(): boolean {
     return true;
+  }
+
+  supportsAutofill(): boolean {
+    return true;
+  }
+
+  supportsFileDownloads(): boolean {
+    return false;
   }
 
   abstract showToast(

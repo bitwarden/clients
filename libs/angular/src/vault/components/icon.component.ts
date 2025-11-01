@@ -13,7 +13,7 @@ import {
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { buildCipherIcon, CipherIconDetails } from "@bitwarden/common/vault/icon/build-cipher-icon";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 @Component({
   selector: "app-vault-icon",
@@ -25,9 +25,14 @@ export class IconComponent {
   /**
    * The cipher to display the icon for.
    */
-  cipher = input.required<CipherView>();
+  readonly cipher = input.required<CipherViewLike>();
 
-  imageLoaded = signal(false);
+  /**
+   * coloredIcon will adjust the size of favicons and the colors of the text icon when user is in the item details view.
+   */
+  readonly coloredIcon = input<boolean>(false);
+
+  readonly imageLoaded = signal(false);
 
   protected data$: Observable<CipherIconDetails>;
 

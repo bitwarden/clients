@@ -1,23 +1,24 @@
-@if (sideNavService.open) {
-  <div class="tw-sticky tw-top-0 tw-z-50">
-    <a
-      [routerLink]="route"
-      class="tw-px-5 tw-pb-5 tw-pt-7 tw-block tw-bg-background-alt3 tw-outline-none focus-visible:tw-ring focus-visible:tw-ring-inset focus-visible:tw-ring-text-alt2"
-      [attr.aria-label]="label"
-      [title]="label"
-      routerLinkActive
-      [ariaCurrentWhenActive]="'page'"
-    >
-      <bit-icon [icon]="openIcon"></bit-icon>
-    </a>
-  </div>
-}
-@if (!sideNavService.open) {
-  <bit-nav-item
-    class="tw-block tw-pt-7"
-    [hideActiveStyles]="true"
-    [route]="route"
-    [icon]="closedIcon"
-    [text]="label"
-  ></bit-nav-item>
-}
+<div
+  [ngClass]="{
+    'tw-sticky tw-top-0 tw-z-50 tw-pb-4': sideNavService.open,
+    'tw-pb-[calc(theme(spacing.8)_+_2px)]': !sideNavService.open,
+  }"
+  class="tw-px-2 tw-pt-2"
+>
+  <!-- absolutely position the link svg to avoid shifting layout when sidenav is closed -->
+  <a
+    [routerLink]="route()"
+    class="tw-relative tw-p-3 tw-block tw-rounded-md tw-bg-background-alt3 tw-outline-none focus-visible:tw-ring focus-visible:tw-ring-inset focus-visible:tw-ring-text-alt2 hover:tw-bg-hover-contrast tw-h-[73px] [&_svg]:tw-absolute [&_svg]:tw-inset-[theme(spacing.3)] [&_svg]:tw-w-[calc(100%_-_theme(spacing.6))] [&_svg]:tw-transition-[inline-start-inset]"
+    [ngClass]="{
+      '!tw-h-[55px] [&_svg]:!tw-w-[26px] [&_svg]:tw-inset-y-[theme(spacing.3)]':
+        !sideNavService.open,
+      'tw-w-56': sideNavService.open,
+    }"
+    [attr.aria-label]="label()"
+    [title]="label()"
+    routerLinkActive
+    [ariaCurrentWhenActive]="'page'"
+  >
+    <bit-icon [icon]="sideNavService.open ? openIcon() : closedIcon()"></bit-icon>
+  </a>
+</div>

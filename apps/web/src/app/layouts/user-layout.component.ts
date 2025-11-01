@@ -6,6 +6,7 @@ import { RouterModule } from "@angular/router";
 import { Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -13,9 +14,10 @@ import { IconModule } from "@bitwarden/components";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
 
-import { PasswordManagerLogo } from "./password-manager-logo";
 import { WebLayoutModule } from "./web-layout.module";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-user-layout",
   templateUrl: "user-layout.component.html",

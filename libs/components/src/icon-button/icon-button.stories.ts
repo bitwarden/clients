@@ -1,14 +1,32 @@
-import { Meta, StoryObj } from "@storybook/angular";
+import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
+import { I18nMockService } from "../utils";
 
 import { BitIconButtonComponent } from "./icon-button.component";
 
 export default {
   title: "Component Library/Icon Button",
   component: BitIconButtonComponent,
+  decorators: [
+    moduleMetadata({
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              loading: "Loading",
+            });
+          },
+        },
+      ],
+    }),
+  ],
   args: {
     bitIconButton: "bwi-plus",
+    label: "Your button label here",
   },
   argTypes: {
     buttonType: {
@@ -29,7 +47,7 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <button ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}>Button</button>
+      <button type="button" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}>Button</button>
     `,
   }),
 };
@@ -46,13 +64,6 @@ export const Primary: Story = {
   ...Default,
   args: {
     buttonType: "primary",
-  },
-};
-
-export const Secondary: Story = {
-  ...Default,
-  args: {
-    buttonType: "secondary",
   },
 };
 
@@ -77,18 +88,18 @@ export const Muted: Story = {
   },
 };
 
-export const Light: Story = {
+export const NavContrast: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-    <div class="tw-bg-background-alt2 tw-p-6 tw-w-full tw-inline-block">
+    <div class="tw-bg-background-alt3 tw-p-6 tw-w-full tw-inline-block">
       <!-- <div> used only to provide dark background color -->
-      <button ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}>Button</button>
+      <button type="button" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}>Button</button>
     </div>
       `,
   }),
   args: {
-    buttonType: "light",
+    buttonType: "nav-contrast",
   },
 };
 
@@ -98,7 +109,7 @@ export const Contrast: Story = {
     template: /*html*/ `
     <div class="tw-bg-primary-600 tw-p-6 tw-w-full tw-inline-block">
       <!-- <div> used only to provide dark background color -->
-      <button ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}>Button</button>
+      <button type="button" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}>Button</button>
     </div>
       `,
   }),

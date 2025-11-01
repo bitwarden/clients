@@ -8,11 +8,13 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { DialogService } from "@bitwarden/components";
 
+import { ChangeKdfModule } from "../../../key-management/change-kdf/change-kdf.module";
 import { SharedModule } from "../../../shared";
 
 import { ApiKeyComponent } from "./api-key.component";
-import { ChangeKdfModule } from "./change-kdf/change-kdf.module";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "security-keys.component.html",
   imports: [SharedModule, ChangeKdfModule],

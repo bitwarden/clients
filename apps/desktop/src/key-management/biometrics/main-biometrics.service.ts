@@ -1,6 +1,7 @@
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -9,20 +10,22 @@ import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-manageme
 import { WindowMain } from "../../main/window.main";
 
 import { DesktopBiometricsService } from "./desktop.biometrics.service";
+import { WindowsBiometricsSystem } from "./native-v2";
 import { OsBiometricService } from "./os-biometrics.service";
 
 export class MainBiometricsService extends DesktopBiometricsService {
   private osBiometricsService: OsBiometricService;
-  private clientKeyHalves = new Map<string, string | null>();
   private shouldAutoPrompt = true;
+  private windowsV2BiometricsEnabled = false;
 
   constructor(
     private i18nService: I18nService,
     private windowMain: WindowMain,
     private logService: LogService,
-    private messagingService: MessagingService,
     private platform: NodeJS.Platform,
     private biometricStateService: BiometricStateService,
+    private encryptService: EncryptService,
+    private cryptoFunctionService: CryptoFunctionService,
   ) {
     super();
     if (platform === "win32") {
@@ -32,15 +35,23 @@ export class MainBiometricsService extends DesktopBiometricsService {
         this.i18nService,
         this.windowMain,
         this.logService,
+        this.biometricStateService,
+        this.encryptService,
+        this.cryptoFunctionService,
       );
     } else if (platform === "darwin") {
       // eslint-disable-next-line
       const OsBiometricsServiceMac = require("./os-biometrics-mac.service").default;
-      this.osBiometricsService = new OsBiometricsServiceMac(this.i18nService);
+      this.osBiometricsService = new OsBiometricsServiceMac(this.i18nService, this.logService);
     } else if (platform === "linux") {
       // eslint-disable-next-line
       const OsBiometricsServiceLinux = require("./os-biometrics-linux.service").default;
-      this.osBiometricsService = new OsBiometricsServiceLinux(this.i18nService, this.windowMain);
+      this.osBiometricsService = new OsBiometricsServiceLinux(
+        this.biometricStateService,
+        this.encryptService,
+        this.cryptoFunctionService,
+        this.logService,
+      );
     } else {
       throw new Error("Unsupported platform");
     }
@@ -55,11 +66,11 @@ export class MainBiometricsService extends DesktopBiometricsService {
    * @returns the status of the biometrics of the platform
    */
   async getBiometricsStatus(): Promise<BiometricsStatus> {
-    if (!(await this.osBiometricsService.osSupportsBiometric())) {
+    if (!(await this.osBiometricsService.supportsBiometrics())) {
       return BiometricsStatus.HardwareUnavailable;
     } else {
-      if (await this.osBiometricsService.osBiometricsNeedsSetup()) {
-        if (await this.osBiometricsService.osBiometricsCanAutoSetup()) {
+      if (await this.osBiometricsService.needsSetup()) {
+        if (await this.osBiometricsService.canAutoSetup()) {
           return BiometricsStatus.AutoSetupNeeded;
         } else {
           return BiometricsStatus.ManualSetupNeeded;
@@ -80,20 +91,12 @@ export class MainBiometricsService extends DesktopBiometricsService {
     if (!(await this.biometricStateService.getBiometricUnlockEnabled(userId))) {
       return BiometricsStatus.NotEnabledLocally;
     }
-
     const platformStatus = await this.getBiometricsStatus();
     if (!(platformStatus === BiometricsStatus.Available)) {
       return platformStatus;
     }
 
-    const requireClientKeyHalf = await this.biometricStateService.getRequirePasswordOnStart(userId);
-    const clientKeyHalfB64 = this.clientKeyHalves.get(userId);
-    const clientKeyHalfSatisfied = !requireClientKeyHalf || !!clientKeyHalfB64;
-    if (!clientKeyHalfSatisfied) {
-      return BiometricsStatus.UnlockNeeded;
-    }
-
-    return BiometricsStatus.Available;
+    return await this.osBiometricsService.getBiometricsFirstUnlockStatusForUser(userId);
   }
 
   async authenticateBiometric(): Promise<boolean> {
@@ -101,11 +104,7 @@ export class MainBiometricsService extends DesktopBiometricsService {
   }
 
   async setupBiometrics(): Promise<void> {
-    return await this.osBiometricsService.osBiometricsSetup();
-  }
-
-  async setClientKeyHalfForUser(userId: UserId, value: string | null): Promise<void> {
-    this.clientKeyHalves.set(userId, value);
+    return await this.osBiometricsService.runSetup();
   }
 
   async authenticateWithBiometrics(): Promise<boolean> {
@@ -113,43 +112,23 @@ export class MainBiometricsService extends DesktopBiometricsService {
   }
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
-    const biometricKey = await this.osBiometricsService.getBiometricKey(
-      "Bitwarden_biometric",
-      `${userId}_user_biometric`,
-      this.clientKeyHalves.get(userId) ?? undefined,
-    );
-    if (biometricKey == null) {
-      return null;
-    }
-
-    return SymmetricCryptoKey.fromString(biometricKey) as UserKey;
+    return (await this.osBiometricsService.getBiometricKey(userId)) as UserKey;
   }
 
-  async setBiometricProtectedUnlockKeyForUser(userId: UserId, value: string): Promise<void> {
-    const service = "Bitwarden_biometric";
-    const storageKey = `${userId}_user_biometric`;
-    if (!this.clientKeyHalves.has(userId)) {
-      throw new Error("No client key half provided for user");
-    }
-
-    return await this.osBiometricsService.setBiometricKey(
-      service,
-      storageKey,
-      value,
-      this.clientKeyHalves.get(userId) ?? undefined,
-    );
+  async setBiometricProtectedUnlockKeyForUser(
+    userId: UserId,
+    key: SymmetricCryptoKey,
+  ): Promise<void> {
+    return await this.osBiometricsService.setBiometricKey(userId, key);
   }
 
   async deleteBiometricUnlockKeyForUser(userId: UserId): Promise<void> {
-    return await this.osBiometricsService.deleteBiometricKey(
-      "Bitwarden_biometric",
-      `${userId}_user_biometric`,
-    );
+    return await this.osBiometricsService.deleteBiometricKey(userId);
   }
 
   /**
    * Set whether to auto-prompt the user for biometric unlock; this can be used to prevent auto-prompting being initiated by a process reload.
-   * Reasons for enabling auto prompt include: Starting the app, un-minimizing the app, manually account switching
+   * Reasons for enabling auto-prompt include: Starting the app, un-minimizing the app, manually account switching
    * @param value Whether to auto-prompt the user for biometric unlock
    */
   async setShouldAutopromptNow(value: boolean): Promise<void> {
@@ -166,5 +145,29 @@ export class MainBiometricsService extends DesktopBiometricsService {
 
   async canEnableBiometricUnlock(): Promise<boolean> {
     return true;
+  }
+
+  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
+    return await this.osBiometricsService.enrollPersistent(userId, key);
+  }
+
+  async hasPersistentKey(userId: UserId): Promise<boolean> {
+    return await this.osBiometricsService.hasPersistentKey(userId);
+  }
+
+  async enableWindowsV2Biometrics(): Promise<void> {
+    if (this.platform === "win32" && !this.windowsV2BiometricsEnabled) {
+      this.logService.info("[BiometricsMain] Loading native biometrics module v2 for windows");
+      this.osBiometricsService = new WindowsBiometricsSystem(
+        this.i18nService,
+        this.windowMain,
+        this.logService,
+      );
+      this.windowsV2BiometricsEnabled = true;
+    }
+  }
+
+  async isWindowsV2BiometricsEnabled(): Promise<boolean> {
+    return this.windowsV2BiometricsEnabled;
   }
 }

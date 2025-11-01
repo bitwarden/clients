@@ -2,6 +2,7 @@ import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 import { provideAnimations } from "@angular/platform-browser/animations";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { getAllByRole, userEvent } from "@storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -14,22 +15,52 @@ interface Animal {
   animal: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  template: `<button type="button" bitButton (click)="openDialog()">Open Simple Dialog</button>`,
+  template: `
+    <button type="button" bitButton (click)="openSimpleDialog()">Open Simple Dialog</button>
+    <button type="button" bitButton (click)="openNonDismissableWithPrimaryButtonDialog()">
+      Open Non-Dismissable Simple Dialog with Primary Button
+    </button>
+    <button type="button" bitButton (click)="openNonDismissableWithNoButtonsDialog()">
+      Open Non-Dismissable Simple Dialog with No Buttons
+    </button>
+  `,
   imports: [ButtonModule],
 })
 class StoryDialogComponent {
   constructor(public dialogService: DialogService) {}
 
-  openDialog() {
-    this.dialogService.open(StoryDialogContentComponent, {
+  openSimpleDialog() {
+    this.dialogService.open(SimpleDialogContent, {
       data: {
         animal: "panda",
       },
     });
   }
+
+  openNonDismissableWithPrimaryButtonDialog() {
+    this.dialogService.open(NonDismissableWithPrimaryButtonContent, {
+      data: {
+        animal: "panda",
+      },
+      disableClose: true,
+    });
+  }
+
+  openNonDismissableWithNoButtonsDialog() {
+    this.dialogService.open(NonDismissableWithNoButtonsContent, {
+      data: {
+        animal: "panda",
+      },
+      disableClose: true,
+    });
+  }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-simple-dialog>
@@ -49,7 +80,64 @@ class StoryDialogComponent {
   `,
   imports: [ButtonModule, DialogModule],
 })
-class StoryDialogContentComponent {
+class SimpleDialogContent {
+  constructor(
+    public dialogRef: DialogRef,
+    @Inject(DIALOG_DATA) private data: Animal,
+  ) {}
+
+  get animal() {
+    return this.data?.animal;
+  }
+}
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  template: `
+    <bit-simple-dialog>
+      <span bitDialogTitle>Dialog Title</span>
+      <span bitDialogContent>
+        Dialog body text goes here.
+        <br />
+        Animal: {{ animal }}
+      </span>
+      <ng-container bitDialogFooter>
+        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">
+          Save
+        </button>
+      </ng-container>
+    </bit-simple-dialog>
+  `,
+  imports: [ButtonModule, DialogModule],
+})
+class NonDismissableWithPrimaryButtonContent {
+  constructor(
+    public dialogRef: DialogRef,
+    @Inject(DIALOG_DATA) private data: Animal,
+  ) {}
+
+  get animal() {
+    return this.data?.animal;
+  }
+}
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  template: `
+    <bit-simple-dialog>
+      <span bitDialogTitle>Dialog Title</span>
+      <span bitDialogContent>
+        Dialog body text goes here.
+        <br />
+        Animal: {{ animal }}
+      </span>
+    </bit-simple-dialog>
+  `,
+  imports: [ButtonModule, DialogModule],
+})
+class NonDismissableWithNoButtonsContent {
   constructor(
     public dialogRef: DialogRef,
     @Inject(DIALOG_DATA) private data: Animal,
@@ -89,4 +177,29 @@ export default {
 
 type Story = StoryObj<StoryDialogComponent>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  play: async (context) => {
+    const canvas = context.canvasElement;
+
+    const button = getAllByRole(canvas, "button")[0];
+    await userEvent.click(button);
+  },
+};
+
+export const NonDismissableWithPrimaryButton: Story = {
+  play: async (context) => {
+    const canvas = context.canvasElement;
+
+    const button = getAllByRole(canvas, "button")[1];
+    await userEvent.click(button);
+  },
+};
+
+export const NonDismissableWithNoButtons: Story = {
+  play: async (context) => {
+    const canvas = context.canvasElement;
+
+    const button = getAllByRole(canvas, "button")[2];
+    await userEvent.click(button);
+  },
+};

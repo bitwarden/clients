@@ -45,7 +45,7 @@ export class NativeAutofillMain {
     );
 
     this.ipcServer = await autofill.IpcServer.listen(
-      "autofill",
+      "af",
       // RegistrationCallback
       (error, clientId, sequenceNumber, request) => {
         if (error) {

@@ -206,7 +206,7 @@ export class DesktopAutofillService implements OnDestroy {
           }
 
           request.credentialId = Array.from(
-            parseCredentialId(decrypted.login.fido2Credentials?.[0].credentialId),
+            new Uint8Array(parseCredentialId(decrypted.login.fido2Credentials?.[0].credentialId)),
           );
         }
 
@@ -333,12 +333,12 @@ export class DesktopAutofillService implements OnDestroy {
     response: Fido2AuthenticatorGetAssertionResult,
   ): autofill.PasskeyAssertionResponse {
     return {
-      userHandle: Array.from(response.selectedCredential.userHandle),
+      userHandle: Array.from(new Uint8Array(response.selectedCredential.userHandle)),
       rpId: request.rpId,
-      signature: Array.from(response.signature),
+      signature: Array.from(new Uint8Array(response.signature)),
       clientDataHash: request.clientDataHash,
-      authenticatorData: Array.from(response.authenticatorData),
-      credentialId: Array.from(response.selectedCredential.id),
+      authenticatorData: Array.from(new Uint8Array(response.authenticatorData)),
+      credentialId: Array.from(new Uint8Array(response.selectedCredential.id)),
     };
   }
 

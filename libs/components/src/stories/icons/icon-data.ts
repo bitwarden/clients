@@ -46,6 +46,10 @@ const bitwardenObjects = [
     usage: "card item type",
   },
   {
+    id: "bwi-dashboard",
+    usage: "access-intelligence dashboard view",
+  },
+  {
     id: "bwi-family",
     usage: "family vault or organization",
   },
@@ -60,6 +64,10 @@ const bitwardenObjects = [
   {
     id: "bwi-id-card",
     usage: "identity item type",
+  },
+  {
+    id: "bwi-premium",
+    usage: "upgrade to premium",
   },
   {
     id: "bwi-send",
@@ -199,6 +207,10 @@ const actions = [
   {
     id: "bwi-trash",
     usage: "delete action or trash area",
+  },
+  {
+    id: "bwi-unarchive",
+    usage: "remove item from archive",
   },
   {
     id: "bwi-undo",

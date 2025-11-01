@@ -1,19 +1,22 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, map, Observable } from "rxjs";
+import { combineLatest, map, Observable, startWith } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { IconButtonModule, TypographyModule } from "@bitwarden/components";
 
-import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
-import { PopupCipherView } from "../../../views/popup-cipher.view";
+import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { VaultListItemsContainerComponent } from "../vault-list-items-container/vault-list-items-container.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   imports: [
     CommonModule,
@@ -30,7 +33,7 @@ export class AutofillVaultListItemsComponent {
    * The list of ciphers that can be used to autofill the current page.
    * @protected
    */
-  protected autofillCiphers$: Observable<PopupCipherView[]> =
+  protected autofillCiphers$: Observable<PopupCipherViewLike[]> =
     this.vaultPopupItemsService.autoFillCiphers$;
 
   /**
@@ -41,9 +44,11 @@ export class AutofillVaultListItemsComponent {
 
   /** Flag indicating whether the login item should automatically autofill when clicked  */
   protected clickItemsToAutofillVaultView$: Observable<boolean> =
-    this.vaultSettingsService.clickItemsToAutofillVaultView$;
+    this.vaultSettingsService.clickItemsToAutofillVaultView$.pipe(
+      startWith(true), // Start with true to avoid flashing the fill button on first load
+    );
 
-  protected groupByType = toSignal(
+  protected readonly groupByType = toSignal(
     this.vaultPopupItemsService.hasFilterApplied$.pipe(map((hasFilter) => !hasFilter)),
   );
 
@@ -60,7 +65,9 @@ export class AutofillVaultListItemsComponent {
   ]).pipe(
     map(
       ([hasFilter, ciphers, canAutoFill]) =>
-        !hasFilter && canAutoFill && ciphers.filter((c) => c.type == CipherType.Login).length === 0,
+        !hasFilter &&
+        canAutoFill &&
+        ciphers.filter((c) => CipherViewLikeUtils.getType(c) == CipherType.Login).length === 0,
     ),
   );
 
@@ -74,9 +81,7 @@ export class AutofillVaultListItemsComponent {
     private vaultPopupItemsService: VaultPopupItemsService,
     private vaultPopupAutofillService: VaultPopupAutofillService,
     private vaultSettingsService: VaultSettingsService,
-  ) {
-    // TODO: Migrate logic to show Autofill policy toast PM-8144
-  }
+  ) {}
 
   /**
    * Refreshes the current tab to re-populate the autofill ciphers.

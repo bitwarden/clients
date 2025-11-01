@@ -1,7 +1,9 @@
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { CommonModule } from "@angular/common";
-import { Component, Input } from "@angular/core";
+import { Component, input } from "@angular/core";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-section",
   imports: [CommonModule],
@@ -9,7 +11,7 @@ import { Component, Input } from "@angular/core";
     <section
       [ngClass]="{
         'tw-mb-5 bit-compact:tw-mb-4 [&:not(bit-dialog_*):not(popup-page_*)]:md:tw-mb-12':
-          !disableMargin,
+          !disableMargin(),
       }"
     >
       <ng-content></ng-content>
@@ -17,5 +19,5 @@ import { Component, Input } from "@angular/core";
   `,
 })
 export class SectionComponent {
-  @Input({ transform: coerceBooleanProperty }) disableMargin = false;
+  readonly disableMargin = input(false, { transform: coerceBooleanProperty });
 }

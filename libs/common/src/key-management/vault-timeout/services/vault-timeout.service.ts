@@ -7,14 +7,14 @@ import { combineLatest, concatMap, filter, firstValueFrom, map, timeout } from "
 import { CollectionService } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { BiometricsService } from "@bitwarden/key-management";
 
-import { SearchService } from "../../../abstractions/search.service";
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
+import { TokenService } from "../../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { MessagingService } from "../../../platform/abstractions/messaging.service";
@@ -25,6 +25,7 @@ import { StateEventRunnerService } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { FolderService } from "../../../vault/abstractions/folder/folder.service.abstraction";
+import { SearchService } from "../../../vault/abstractions/search.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
 import { VaultTimeoutSettingsService } from "../abstractions/vault-timeout-settings.service";
 import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "../abstractions/vault-timeout.service";
@@ -43,6 +44,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     private messagingService: MessagingService,
     private searchService: SearchService,
     private stateService: StateService,
+    private tokenService: TokenService,
     private authService: AuthService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private stateEventRunnerService: StateEventRunnerService,
@@ -50,10 +52,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     protected logService: LogService,
     private biometricService: BiometricsService,
     private lockedCallback: (userId: UserId) => Promise<void> = null,
-    private loggedOutCallback: (
-      logoutReason: LogoutReason,
-      userId?: string,
-    ) => Promise<void> = null,
+    private logoutService: LogoutService,
   ) {
     this.taskSchedulerService.registerTaskHandler(
       ScheduledTaskNames.vaultTimeoutCheckInterval,
@@ -82,7 +81,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
 
   async checkVaultTimeout(): Promise<void> {
     // Get whether or not the view is open a single time so it can be compared for each user
-    const isViewOpen = await this.platformUtilsService.isViewOpen();
+    const isViewOpen = await this.platformUtilsService.isPopupOpen();
 
     await firstValueFrom(
       combineLatest([
@@ -108,7 +107,10 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
   async lock(userId?: UserId): Promise<void> {
     await this.biometricService.setShouldAutopromptNow(false);
 
-    const authed = await this.stateService.getIsAuthenticated({ userId: userId });
+    const lockingUserId =
+      userId ?? (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id))));
+
+    const authed = await firstValueFrom(this.tokenService.hasAccessToken$(lockingUserId));
     if (!authed) {
       return;
     }
@@ -118,14 +120,8 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     );
     const supportsLock = availableActions.includes(VaultTimeoutAction.Lock);
     if (!supportsLock) {
-      await this.logOut(userId);
+      await this.logoutService.logout(userId, "vaultTimeout");
     }
-
-    const currentUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
-
-    const lockingUserId = userId ?? currentUserId;
 
     // HACK: Start listening for the transition of the locking user from something to the locked state.
     // This is very much a hack to ensure that the authentication status to retrievable right after
@@ -142,10 +138,6 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
         }),
       ),
     );
-
-    if (userId == null || userId === currentUserId) {
-      await this.collectionService.clearActiveUserCache();
-    }
 
     await this.searchService.clearIndex(lockingUserId);
 
@@ -167,12 +159,6 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
 
     if (this.lockedCallback != null) {
       await this.lockedCallback(lockingUserId);
-    }
-  }
-
-  async logOut(userId?: string): Promise<void> {
-    if (this.loggedOutCallback != null) {
-      await this.loggedOutCallback("vaultTimeout", userId);
     }
   }
 
@@ -219,7 +205,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
       this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(userId),
     );
     timeoutAction === VaultTimeoutAction.LogOut
-      ? await this.logOut(userId)
+      ? await this.logoutService.logout(userId, "vaultTimeout")
       : await this.lock(userId);
   }
 }

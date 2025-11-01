@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { CipherRepromptType } from "../../vault/enums/cipher-reprompt-type";
 import { CipherType } from "../../vault/enums/cipher-type";
 import { Cipher as CipherDomain } from "../../vault/models/domain/cipher";
@@ -36,6 +36,7 @@ export class CipherExport {
     req.creationDate = null;
     req.revisionDate = null;
     req.deletedDate = null;
+    req.archivedDate = null;
     return req;
   }
 
@@ -53,6 +54,7 @@ export class CipherExport {
     view.notes = req.notes;
     view.favorite = req.favorite;
     view.reprompt = req.reprompt ?? CipherRepromptType.None;
+    view.key = req.key != null ? new EncString(req.key) : null;
 
     if (req.fields != null) {
       view.fields = req.fields.map((f) => FieldExport.toView(f));
@@ -80,9 +82,10 @@ export class CipherExport {
       view.passwordHistory = req.passwordHistory.map((ph) => PasswordHistoryExport.toView(ph));
     }
 
-    view.creationDate = req.creationDate;
-    view.revisionDate = req.revisionDate;
-    view.deletedDate = req.deletedDate;
+    view.creationDate = req.creationDate ? new Date(req.creationDate) : view.creationDate;
+    view.revisionDate = req.revisionDate ? new Date(req.revisionDate) : view.revisionDate;
+    view.deletedDate = req.deletedDate ? new Date(req.deletedDate) : view.deletedDate;
+    view.archivedDate = req.archivedDate ? new Date(req.archivedDate) : view.archivedDate;
     return view;
   }
 
@@ -124,9 +127,10 @@ export class CipherExport {
       domain.passwordHistory = req.passwordHistory.map((ph) => PasswordHistoryExport.toDomain(ph));
     }
 
-    domain.creationDate = req.creationDate;
-    domain.revisionDate = req.revisionDate;
-    domain.deletedDate = req.deletedDate;
+    domain.creationDate = req.creationDate ? new Date(req.creationDate) : null;
+    domain.revisionDate = req.revisionDate ? new Date(req.revisionDate) : null;
+    domain.deletedDate = req.deletedDate ? new Date(req.deletedDate) : null;
+    domain.archivedDate = req.archivedDate ? new Date(req.archivedDate) : null;
     return domain;
   }
 
@@ -148,6 +152,7 @@ export class CipherExport {
   revisionDate: Date = null;
   creationDate: Date = null;
   deletedDate: Date = null;
+  archivedDate: Date = null;
   key: string;
 
   // Use build method instead of ctor so that we can control order of JSON stringify for pretty print
@@ -194,5 +199,6 @@ export class CipherExport {
     this.creationDate = o.creationDate;
     this.revisionDate = o.revisionDate;
     this.deletedDate = o.deletedDate;
+    this.archivedDate = o.archivedDate;
   }
 }
