@@ -9,7 +9,7 @@
   "author": "",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@napi-rs/cli": "2.18.4"
+    "@napi-rs/cli": "3.4.1"
   },
   "napi": {
     "name": "desktop_napi",
