@@ -109,7 +109,6 @@ export abstract class BasePolicyEditComponent implements OnInit {
     }
 
     const request: PolicyRequest = {
-      type: this.policy.type,
       enabled: this.enabled.value ?? false,
       data: this.buildRequestData(),
     };

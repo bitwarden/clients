@@ -197,7 +197,6 @@ export class AutoConfirmPolicyDialogComponent
 
   private async submitSingleOrg(): Promise<void> {
     const singleOrgRequest: PolicyRequest = {
-      type: PolicyType.SingleOrg,
       enabled: true,
       data: null,
     };
