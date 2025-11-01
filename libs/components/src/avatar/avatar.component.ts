@@ -41,7 +41,7 @@ const SizeClasses: Record<SizeTypes, string[]> = {
           [attr.fill]="textColor()"
           [style.fontWeight]="svgFontWeight"
           [style.fontSize.px]="svgFontSize"
-          font-family='Roboto,"Helvetica Neue",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"'
+          font-family='Inter,"Helvetica Neue",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"'
         >
           {{ displayChars() }}
         </text>
