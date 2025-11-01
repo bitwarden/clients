@@ -9,6 +9,7 @@ import {
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { KeyService } from "@bitwarden/key-management";
+import { UserId } from "@bitwarden/user-core";
 
 import { PasswordInputResult } from "../../input-password/password-input-result";
 
@@ -95,5 +96,9 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     }
 
     return registerFinishRequest;
+  }
+
+  async establishIntentToSetupPremium(userId: UserId) {
+    // no-op
   }
 }

@@ -20,6 +20,9 @@ import {
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { KeyService } from "@bitwarden/key-management";
+import { UserId } from "@bitwarden/user-core";
+
+import { SetupPremiumService } from "../../../../billing/individual/premium/setup-premium.service";
 
 export class WebRegistrationFinishService
   extends DefaultRegistrationFinishService
@@ -32,6 +35,7 @@ export class WebRegistrationFinishService
     private policyApiService: PolicyApiServiceAbstraction,
     private logService: LogService,
     private policyService: PolicyService,
+    private setupPremiumService: SetupPremiumService,
   ) {
     super(keyService, accountApiService);
   }
@@ -122,5 +126,9 @@ export class WebRegistrationFinishService
     }
 
     return registerRequest;
+  }
+
+  async establishIntentToSetupPremium(userId: UserId) {
+    await this.setupPremiumService.setIntentToSetupPremium(true, userId);
   }
 }

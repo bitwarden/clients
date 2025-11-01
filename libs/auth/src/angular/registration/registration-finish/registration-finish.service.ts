@@ -1,4 +1,5 @@
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
+import { UserId } from "@bitwarden/user-core";
 
 import { PasswordInputResult } from "../../input-password/password-input-result";
 
@@ -39,4 +40,6 @@ export abstract class RegistrationFinishService {
     providerInviteToken?: string,
     providerUserId?: string,
   ): Promise<void>;
+
+  abstract establishIntentToSetupPremium(userId: UserId): Promise<void>;
 }
