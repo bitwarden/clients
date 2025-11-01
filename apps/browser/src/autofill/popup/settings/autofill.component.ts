@@ -155,13 +155,13 @@ export class AutofillComponent implements OnInit {
   autofillOnPageLoadOptions: { name: string; value: boolean }[];
   enableContextMenuItem: boolean = false;
   enableAutoTotpCopy: boolean = false;
-  clearClipboard: ClearClipboardDelaySetting;
+  clearClipboard!: ClearClipboardDelaySetting;
   clearClipboardOptions: { name: string; value: ClearClipboardDelaySetting }[];
   defaultUriMatch: UriMatchStrategySetting = UriMatchStrategy.Domain;
   uriMatchOptions: { name: string; value: UriMatchStrategySetting; disabled?: boolean }[];
   showCardsCurrentTab: boolean = true;
   showIdentitiesCurrentTab: boolean = true;
-  autofillKeyboardHelperText: string;
+  autofillKeyboardHelperText!: string;
   accountSwitcherEnabled: boolean = false;
 
   constructor(

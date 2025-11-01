@@ -267,9 +267,7 @@ import { Messenger } from "./messaging/messenger";
 
       clearWaitForFocus();
       void messenger.destroy();
-      // FIXME: Remove when updating file. Eslint update
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {
+    } catch {
       /** empty */
     }
   }
