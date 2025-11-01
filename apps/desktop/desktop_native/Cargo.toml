@@ -86,10 +86,13 @@ zbus_polkit = "=5.0.0"
 zeroizing-alloc = "=0.1.0"
 
 [workspace.lints.clippy]
+disallowed-macros = "deny"
+
 # Dis-allow println and eprintln, which are typically used in debugging.
 # Use `tracing` and `tracing-subscriber` crates for observability needs.
 print_stderr = "deny"
 print_stdout = "deny"
+
 string_slice = "warn"
 unused_async = "deny"
 unwrap_used = "deny"
