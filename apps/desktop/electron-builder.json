@@ -20,7 +20,7 @@
     "**/node_modules/@bitwarden/desktop-napi/index.js",
     "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node"
   ],
-  "electronVersion": "36.9.3",
+  "electronVersion": "37.7.0",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
