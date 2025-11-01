@@ -388,6 +388,7 @@ export class PhishingDetectionService {
   private static _cleanup() {
     this._destroy$.next();
     this._destroy$.complete();
+    this._destroy$ = new Subject<void>();
 
     this._caughtTabs.clear();
 
