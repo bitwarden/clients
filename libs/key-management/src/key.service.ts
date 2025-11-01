@@ -159,6 +159,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return this.stateProvider.getUserState$(USER_KEY, userId);
   }
 
+  /**
+   * @deprecated Use {@link userKey$} with a required {@link UserId} instead.
+   */
   async getUserKey(userId?: UserId): Promise<UserKey> {
     const userKey = await firstValueFrom(this.stateProvider.getUserState$(USER_KEY, userId));
     return userKey;
@@ -291,9 +294,15 @@ export class DefaultKeyService implements KeyServiceAbstraction {
    */
   async encryptUserKeyWithMasterKey(
     masterKey: MasterKey,
-    userKey?: UserKey,
+    userKey: UserKey,
   ): Promise<[UserKey, EncString]> {
-    userKey ||= await this.getUserKey();
+    if (masterKey == null) {
+      throw new Error("masterKey is required.");
+    }
+    if (userKey == null) {
+      throw new Error("userKey is required.");
+    }
+
     return await this.buildProtectedSymmetricKey(masterKey, userKey);
   }
 
@@ -623,7 +632,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     // Verify user key doesn't exist
-    const existingUserKey = await this.getUserKey(userId);
+    const existingUserKey = await firstValueFrom(this.userKey$(userId));
 
     if (existingUserKey != null) {
       this.logService.error("Tried to initialize account with existing user key.");

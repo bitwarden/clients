@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { RotateableKeySet } from "@bitwarden/auth/common";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { RotateableKeySet } from "@bitwarden/common/key-management/keys/models/rotateable-key-set";
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
 import { WebauthnLoginCredentialPrfStatus } from "../../../enums/webauthn-login-credential-prf-status.enum";
