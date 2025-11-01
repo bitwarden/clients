@@ -57,6 +57,7 @@ describe("MasterPasswordLockComponent", () => {
         enabled: false,
         biometricsStatus: BiometricsStatus.NotEnabledLocally,
       },
+      prf: { enabled: false },
     };
 
     accountService.activeAccount$ = of(account);
