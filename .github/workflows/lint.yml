@@ -1,4 +1,6 @@
 name: Lint
+# test comment for a PR
+# the linter should fail
 
 on:
   pull_request:
