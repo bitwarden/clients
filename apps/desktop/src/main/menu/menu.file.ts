@@ -156,7 +156,7 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
   private get importVault(): MenuItemConstructorOptions {
     return {
       id: "importVault",
-      label: this.localize("importData"),
+      label: this.localize("importItems"),
       click: () => this.sendMessage("importVault"),
       enabled: !this._isLocked,
     };

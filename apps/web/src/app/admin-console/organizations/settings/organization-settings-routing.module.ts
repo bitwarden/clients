@@ -57,7 +57,7 @@ const routes: Routes = [
               ),
             canActivate: [organizationPermissionsGuard((org) => org.canAccessImport)],
             data: {
-              titleId: "importData",
+              titleId: "importItems",
             },
           },
           {
