@@ -668,7 +668,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: InternalUserDecryptionOptionsServiceAbstraction,
     useClass: UserDecryptionOptionsService,
-    deps: [StateProvider],
+    deps: [SingleUserStateProvider],
   }),
   safeProvider({
     provide: UserDecryptionOptionsServiceAbstraction,
@@ -1281,6 +1281,7 @@ const safeProviders: SafeProvider[] = [
       UserDecryptionOptionsServiceAbstraction,
       LogService,
       ConfigService,
+      AccountServiceAbstraction,
     ],
   }),
   safeProvider({
