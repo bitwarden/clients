@@ -311,15 +311,6 @@ export class Main {
       this.windowMain,
     );
 
-    app
-      .whenReady()
-      .then(() => {
-        this.mainDesktopAutotypeService.init();
-      })
-      .catch((reason) => {
-        this.logService.error("Error initializing Autotype.", reason);
-      });
-
     app.on("will-quit", () => {
       this.mainDesktopAutotypeService.disableAutotype();
     });

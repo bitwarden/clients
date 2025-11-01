@@ -5,6 +5,9 @@ import type { autofill } from "@bitwarden/desktop-napi";
 import { Command } from "../platform/main/autofill/command";
 import { RunCommandParams, RunCommandResult } from "../platform/main/autofill/native-autofill.main";
 
+import { AutotypeConfig } from "./models/autotype-configure";
+import { AUTOTYPE_IPC_CHANNELS } from "./models/ipc-channels";
+
 export default {
   runCommand: <C extends Command>(params: RunCommandParams<C>): Promise<RunCommandResult<C>> =>
     ipcRenderer.invoke("autofill.runCommand", params),
@@ -127,8 +130,17 @@ export default {
       },
     );
   },
-  configureAutotype: (enabled: boolean, keyboardShortcut: string[]) => {
-    ipcRenderer.send("autofill.configureAutotype", { enabled, keyboardShortcut });
+  initAutotype: () => {
+    return ipcRenderer.invoke(AUTOTYPE_IPC_CHANNELS.INIT);
+  },
+  autotypeIsInitialized: () => {
+    return ipcRenderer.invoke(AUTOTYPE_IPC_CHANNELS.INITIALIZED);
+  },
+  configureAutotype: (config: AutotypeConfig) => {
+    ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.CONFIGURE, config);
+  },
+  toggleAutotype: (enable: boolean) => {
+    ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.TOGGLE, enable);
   },
   listenAutotypeRequest: (
     fn: (
@@ -140,7 +152,7 @@ export default {
     ) => void,
   ) => {
     ipcRenderer.on(
-      "autofill.listenAutotypeRequest",
+      AUTOTYPE_IPC_CHANNELS.LISTEN,
       (
         event,
         data: {
@@ -151,14 +163,14 @@ export default {
 
         fn(windowTitle, (error, response) => {
           if (error) {
-            ipcRenderer.send("autofill.completeError", {
+            ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR, {
               windowTitle,
               error: error.message,
             });
             return;
           }
 
-          ipcRenderer.send("autofill.completeAutotypeRequest", {
+          ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.EXECUTE, {
             windowTitle,
             response,
           });
