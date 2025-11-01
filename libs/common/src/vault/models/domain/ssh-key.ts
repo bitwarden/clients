@@ -24,16 +24,12 @@ export class SshKey extends Domain {
     this.keyFingerprint = new EncString(obj.keyFingerprint);
   }
 
-  decrypt(
-    orgId: string | undefined,
-    context = "No Cipher Context",
-    encKey?: SymmetricCryptoKey,
-  ): Promise<SshKeyView> {
+  decrypt(encKey: SymmetricCryptoKey, context = "No Cipher Context"): Promise<SshKeyView> {
     return this.decryptObj<SshKey, SshKeyView>(
       this,
       new SshKeyView(),
       ["privateKey", "publicKey", "keyFingerprint"],
-      orgId ?? null,
+      null,
       encKey,
       "DomainType: SshKey; " + context,
     );

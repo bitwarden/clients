@@ -1,6 +1,6 @@
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 
-import { mockEnc } from "../../../../spec";
+import { mockContainerService, mockEnc } from "../../../../spec";
 import { SshKeyApi } from "../api/ssh-key.api";
 import { SshKeyData } from "../data/ssh-key.data";
 
@@ -17,6 +17,8 @@ describe("Sshkey", () => {
         KeyFingerprint: "keyFingerprint",
       }),
     );
+
+    mockContainerService();
   });
 
   it("Convert", () => {

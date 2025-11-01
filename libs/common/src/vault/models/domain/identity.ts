@@ -56,9 +56,8 @@ export class Identity extends Domain {
   }
 
   decrypt(
-    orgId: string | undefined,
+    encKey: SymmetricCryptoKey,
     context: string = "No Cipher Context",
-    encKey?: SymmetricCryptoKey,
   ): Promise<IdentityView> {
     return this.decryptObj<Identity, IdentityView>(
       this,
@@ -83,7 +82,7 @@ export class Identity extends Domain {
         "passportNumber",
         "licenseNumber",
       ],
-      orgId ?? null,
+      null,
       encKey,
       "DomainType: Identity; " + context,
     );

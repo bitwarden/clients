@@ -15,7 +15,7 @@ import {
 } from "@bitwarden/common/models/export";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { KeyService } from "@bitwarden/key-management";
@@ -45,6 +45,7 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
   }
 
   async parse(data: string): Promise<ImportResult> {
+    const account = await firstValueFrom(this.accountService.activeAccount$);
     this.result = new ImportResult();
     const results: BitwardenJsonExport = JSON.parse(data);
     if (results == null || results.items == null) {
@@ -53,9 +54,9 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
     }
 
     if (results.encrypted) {
-      await this.parseEncrypted(results as any);
+      await this.parseEncrypted(results as any, account.id);
     } else {
-      await this.parseDecrypted(results as any);
+      await this.parseDecrypted(results as any, account.id);
     }
 
     return this.result;
@@ -63,14 +64,13 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
 
   private async parseEncrypted(
     results: BitwardenEncryptedIndividualJsonExport | BitwardenEncryptedOrgJsonExport,
+    userId: UserId,
   ) {
-    const account = await firstValueFrom(this.accountService.activeAccount$);
-
     if (results.encKeyValidation_DO_NOT_EDIT != null) {
-      const orgKeys = await firstValueFrom(this.keyService.orgKeys$(account.id));
+      const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
       let keyForDecryption: SymmetricCryptoKey = orgKeys?.[this.organizationId];
       if (keyForDecryption == null) {
-        keyForDecryption = await firstValueFrom(this.keyService.userKey$(account.id));
+        keyForDecryption = await firstValueFrom(this.keyService.userKey$(userId));
       }
       const encKeyValidation = new EncString(results.encKeyValidation_DO_NOT_EDIT);
       try {
@@ -84,7 +84,7 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
 
     const groupingsMap = this.organization
       ? await this.parseCollections(results as BitwardenEncryptedOrgJsonExport)
-      : await this.parseFolders(results as BitwardenEncryptedIndividualJsonExport);
+      : await this.parseFolders(results as BitwardenEncryptedIndividualJsonExport, userId);
 
     for (const c of results.items) {
       const cipher = CipherWithIdExport.toDomain(c);
@@ -114,7 +114,7 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
         });
       }
 
-      const view = await this.cipherService.decrypt(cipher, account.id);
+      const view = await this.cipherService.decrypt(cipher, userId);
       this.cleanupCipher(view);
       this.result.ciphers.push(view);
     }
@@ -124,10 +124,11 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
 
   private async parseDecrypted(
     results: BitwardenUnEncryptedIndividualJsonExport | BitwardenUnEncryptedOrgJsonExport,
+    userId: UserId,
   ) {
     const groupingsMap = this.organization
       ? await this.parseCollections(results as BitwardenUnEncryptedOrgJsonExport)
-      : await this.parseFolders(results as BitwardenUnEncryptedIndividualJsonExport);
+      : await this.parseFolders(results as BitwardenUnEncryptedIndividualJsonExport, userId);
 
     results.items.forEach((c) => {
       const cipher = CipherWithIdExport.toView(c);
@@ -166,10 +167,13 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
 
   private async parseFolders(
     data: BitwardenUnEncryptedIndividualJsonExport | BitwardenEncryptedIndividualJsonExport,
+    userId: UserId,
   ): Promise<Map<string, number>> | null {
     if (data.folders == null) {
       return null;
     }
+
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
     const groupingsMap = new Map<string, number>();
 
@@ -178,7 +182,7 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
       if (data.encrypted) {
         const folder = FolderWithIdExport.toDomain(f);
         if (folder != null) {
-          folderView = await folder.decrypt();
+          folderView = await folder.decrypt(userKey);
         }
       } else {
         folderView = FolderWithIdExport.toView(f);
