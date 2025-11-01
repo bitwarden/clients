@@ -1,17 +1,15 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { LoginApi } from "../api/login.api";
 
 import { Fido2CredentialData } from "./fido2-credential.data";
 import { LoginUriData } from "./login-uri.data";
 
 export class LoginData {
-  uris: LoginUriData[];
-  username: string;
-  password: string;
-  passwordRevisionDate: string;
-  totp: string;
-  autofillOnPageLoad: boolean;
+  uris?: LoginUriData[];
+  username?: string;
+  password?: string;
+  passwordRevisionDate?: string;
+  totp?: string;
+  autofillOnPageLoad?: boolean;
   fido2Credentials?: Fido2CredentialData[];
 
   constructor(data?: LoginApi) {
