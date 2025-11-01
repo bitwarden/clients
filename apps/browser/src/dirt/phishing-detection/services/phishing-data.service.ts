@@ -36,7 +36,7 @@ export const PHISHING_DOMAINS_KEY = new KeyDefinition<PhishingData>(
   "phishingDomains",
   {
     deserializer: (value: PhishingData) =>
-      value ?? { dommains: [], timestamp: 0, checksum: "", applicationVersion: "" },
+      value ?? { domains: [], timestamp: 0, checksum: "", applicationVersion: "" },
   },
 );
 
