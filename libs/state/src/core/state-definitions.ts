@@ -40,6 +40,7 @@ export const AUTO_CONFIRM = new StateDefinition("autoConfirm", "disk");
 
 // Billing
 export const BILLING_DISK = new StateDefinition("billing", "disk");
+export const BILLING_MEMORY = new StateDefinition("billing", "memory");
 
 // Auth
 
