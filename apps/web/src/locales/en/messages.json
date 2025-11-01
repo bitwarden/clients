@@ -26,6 +26,9 @@
   "reviewAtRiskPasswords": {
     "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Review at-risk logins"
+  },
   "dataLastUpdated": {
     "message": "Data last updated: $DATE$",
     "placeholders": {
@@ -126,6 +129,9 @@
         "example": "3"
       }
     }
+  },
+  "criticalApplicationsMarked": {
+    "message": "critical applications marked"
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ critical applications",
@@ -259,6 +265,12 @@
   "membersWithAccessToAtRiskItemsForCriticalApps": {
     "message": "Members with access to at-risk items for critical applications"
   },
+  "membersWithAtRiskPasswords": {
+    "message": "members with at-risk passwords"
+  },
+  "membersWillReceiveNotification": {
+    "message": "Members will receive a notification to resolve at-risk logins through the browser extension."
+  },
   "membersAtRiskCount": {
     "message": "$COUNT$ members at-risk",
     "placeholders": {
@@ -352,8 +364,20 @@
   "prioritizeCriticalApplications": {
     "message": "Prioritize critical applications"
   },
+  "selectCriticalApplicationsDescription": {
+    "message": "Select which applications are most critical to your organization, then assign security tasks to members to resolve risks."
+  },
+  "clickIconToMarkCritical": {
+    "message": "Click the icon to mark an app as critical"
+  },
   "atRiskItems": {
     "message": "At-risk items"
+  },
+  "totalItems": {
+    "message": "Total items"
+  },
+  "membersAffected": {
+    "message": "Members affected"
   },
   "markAsCriticalPlaceholder": {
     "message": "Mark as critical functionality will be implemented in a future update"
@@ -840,6 +864,9 @@
   },
   "favorites": {
     "message": "Favorites"
+  },
+  "taskSummary": {
+    "message": "Task summary"
   },
   "types": {
     "message": "Types"
@@ -9783,6 +9810,9 @@
   },
   "assignTasks": {
     "message": "Assign tasks"
+  },
+  "assignTasksToMembers": {
+    "message": "Assign tasks to members for guided resolution"
   },
   "assignToCollections": {
     "message": "Assign to collections"
