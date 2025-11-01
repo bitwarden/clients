@@ -24,8 +24,7 @@ import { TwoFactorEmailResponse } from "@bitwarden/common/auth/models/response/t
 import { TwoFactorWebAuthnResponse } from "@bitwarden/common/auth/models/response/two-factor-web-authn.response";
 import { TwoFactorYubiKeyResponse } from "@bitwarden/common/auth/models/response/two-factor-yubi-key.response";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { TwoFactorProviders } from "@bitwarden/common/auth/services/two-factor.service";
-import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorService, TwoFactorProviders } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
@@ -60,7 +59,6 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
   recoveryCodeWarningMessage: string;
   showPolicyWarning = false;
   loading = true;
-  formPromise: Promise<any>;
 
   tabbedHeader = true;
 
@@ -70,7 +68,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
 
   constructor(
     protected dialogService: DialogService,
-    protected twoFactorApiService: TwoFactorApiService,
+    protected twoFactorService: TwoFactorService,
     protected messagingService: MessagingService,
     protected policyService: PolicyService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
@@ -272,7 +270,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
   }
 
   protected getTwoFactorProviders() {
-    return this.twoFactorApiService.getTwoFactorProviders();
+    return this.twoFactorService.getEnabledTwoFactorProviders();
   }
 
   protected filterProvider(type: TwoFactorProviderType): boolean {
