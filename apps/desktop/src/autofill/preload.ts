@@ -5,6 +5,8 @@ import type { autofill } from "@bitwarden/desktop-napi";
 import { Command } from "../platform/main/autofill/command";
 import { RunCommandParams, RunCommandResult } from "../platform/main/autofill/native-autofill.main";
 
+import { AutotypeVaultData } from "./models/autotype-vault-data";
+
 export default {
   runCommand: <C extends Command>(params: RunCommandParams<C>): Promise<RunCommandResult<C>> =>
     ipcRenderer.invoke("autofill.runCommand", params),
@@ -133,10 +135,7 @@ export default {
   listenAutotypeRequest: (
     fn: (
       windowTitle: string,
-      completeCallback: (
-        error: Error | null,
-        response: { username?: string; password?: string },
-      ) => void,
+      completeCallback: (error: Error | null, response: AutotypeVaultData | null) => void,
     ) => void,
   ) => {
     ipcRenderer.on(
@@ -149,7 +148,7 @@ export default {
       ) => {
         const { windowTitle } = data;
 
-        fn(windowTitle, (error, response) => {
+        fn(windowTitle, (error, vaultData) => {
           if (error) {
             ipcRenderer.send("autofill.completeError", {
               windowTitle,
@@ -157,11 +156,9 @@ export default {
             });
             return;
           }
-
-          ipcRenderer.send("autofill.completeAutotypeRequest", {
-            windowTitle,
-            response,
-          });
+          if (vaultData !== null) {
+            ipcRenderer.send("autofill.completeAutotypeRequest", vaultData);
+          }
         });
       },
     );
