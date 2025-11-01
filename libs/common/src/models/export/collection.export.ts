@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { Collection as CollectionDomain, CollectionView } from "@bitwarden/admin-console/common";
@@ -10,11 +8,17 @@ import { CollectionId, emptyGuid, OrganizationId } from "../../types/guid";
 import { safeGetString } from "./utils";
 
 export class CollectionExport {
+  constructor() {
+    this.organizationId = emptyGuid as OrganizationId;
+    this.name = "";
+    this.externalId = "";
+  }
+
   static template(): CollectionExport {
     const req = new CollectionExport();
     req.organizationId = emptyGuid as OrganizationId;
     req.name = "Collection name";
-    req.externalId = null;
+    req.externalId = "";
     return req;
   }
 
@@ -29,7 +33,7 @@ export class CollectionExport {
   }
 
   static toDomain(req: CollectionExport, domain: CollectionDomain) {
-    domain.name = req.name != null ? new EncString(req.name) : null;
+    domain.name = new EncString(req.name ?? "");
     domain.externalId = req.externalId;
     if (domain.organizationId == null) {
       domain.organizationId = req.organizationId;
@@ -44,7 +48,7 @@ export class CollectionExport {
   // Use build method instead of ctor so that we can control order of JSON stringify for pretty print
   build(o: CollectionView | CollectionDomain) {
     this.organizationId = o.organizationId;
-    this.name = safeGetString(o.name);
-    this.externalId = o.externalId;
+    this.name = safeGetString(o.name) ?? "";
+    this.externalId = o.externalId ?? "";
   }
 }

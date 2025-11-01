@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { EncString } from "../../key-management/crypto/models/enc-string";
 import { Fido2Credential } from "../../vault/models/domain/fido2-credential";
 import { Fido2CredentialView } from "../../vault/models/view/fido2-credential.view";
@@ -28,7 +26,7 @@ export class Fido2CredentialExport {
     req.rpName = "rpName";
     req.userDisplayName = "userDisplayName";
     req.discoverable = "false";
-    req.creationDate = null;
+    req.creationDate = new Date();
     return req;
   }
 
@@ -62,36 +60,35 @@ export class Fido2CredentialExport {
    * @returns Fido2Credential - The populated domain, or a new instance if none was provided.
    */
   static toDomain(req: Fido2CredentialExport, domain = new Fido2Credential()) {
-    domain.credentialId = req.credentialId != null ? new EncString(req.credentialId) : null;
-    domain.keyType = req.keyType != null ? new EncString(req.keyType) : null;
-    domain.keyAlgorithm = req.keyAlgorithm != null ? new EncString(req.keyAlgorithm) : null;
-    domain.keyCurve = req.keyCurve != null ? new EncString(req.keyCurve) : null;
-    domain.keyValue = req.keyValue != null ? new EncString(req.keyValue) : null;
-    domain.rpId = req.rpId != null ? new EncString(req.rpId) : null;
-    domain.userHandle = req.userHandle != null ? new EncString(req.userHandle) : null;
-    domain.userName = req.userName != null ? new EncString(req.userName) : null;
-    domain.counter = req.counter != null ? new EncString(req.counter) : null;
-    domain.rpName = req.rpName != null ? new EncString(req.rpName) : null;
-    domain.userDisplayName =
-      req.userDisplayName != null ? new EncString(req.userDisplayName) : null;
-    domain.discoverable = req.discoverable != null ? new EncString(req.discoverable) : null;
+    domain.credentialId = new EncString(req.credentialId ?? "");
+    domain.keyType = new EncString(req.keyType ?? "");
+    domain.keyAlgorithm = new EncString(req.keyAlgorithm ?? "");
+    domain.keyCurve = new EncString(req.keyCurve ?? "");
+    domain.keyValue = new EncString(req.keyValue ?? "");
+    domain.rpId = new EncString(req.rpId ?? "");
+    domain.userHandle = new EncString(req.userHandle ?? "");
+    domain.userName = new EncString(req.userName ?? "");
+    domain.counter = new EncString(req.counter ?? "");
+    domain.rpName = new EncString(req.rpName ?? "");
+    domain.userDisplayName = new EncString(req.userDisplayName ?? "");
+    domain.discoverable = new EncString(req.discoverable ?? "");
     domain.creationDate = req.creationDate;
     return domain;
   }
 
-  credentialId: string;
-  keyType: string;
-  keyAlgorithm: string;
-  keyCurve: string;
-  keyValue: string;
-  rpId: string;
-  userHandle: string;
-  userName: string;
-  counter: string;
-  rpName: string;
-  userDisplayName: string;
-  discoverable: string;
-  creationDate: Date;
+  credentialId: string = "";
+  keyType: string = "";
+  keyAlgorithm: string = "";
+  keyCurve: string = "";
+  keyValue: string = "";
+  rpId: string = "";
+  userHandle: string = "";
+  userName: string = "";
+  counter: string = "";
+  rpName: string = "";
+  userDisplayName: string = "";
+  discoverable: string = "";
+  creationDate: Date = new Date();
 
   /**
    * Constructs a new Fid2CredentialExport instance.
@@ -103,18 +100,18 @@ export class Fido2CredentialExport {
       return;
     }
 
-    this.credentialId = safeGetString(o.credentialId);
-    this.keyType = safeGetString(o.keyType);
-    this.keyAlgorithm = safeGetString(o.keyAlgorithm);
-    this.keyCurve = safeGetString(o.keyCurve);
-    this.keyValue = safeGetString(o.keyValue);
-    this.rpId = safeGetString(o.rpId);
-    this.userHandle = safeGetString(o.userHandle);
-    this.userName = safeGetString(o.userName);
-    this.counter = safeGetString(String(o.counter));
-    this.rpName = safeGetString(o.rpName);
-    this.userDisplayName = safeGetString(o.userDisplayName);
-    this.discoverable = safeGetString(String(o.discoverable));
+    this.credentialId = safeGetString(o.credentialId) ?? "";
+    this.keyType = safeGetString(o.keyType) ?? "";
+    this.keyAlgorithm = safeGetString(o.keyAlgorithm) ?? "";
+    this.keyCurve = safeGetString(o.keyCurve) ?? "";
+    this.keyValue = safeGetString(o.keyValue) ?? "";
+    this.rpId = safeGetString(o.rpId) ?? "";
+    this.userHandle = safeGetString(o.userHandle ?? "") ?? "";
+    this.userName = safeGetString(o.userName ?? "") ?? "";
+    this.counter = safeGetString(String(o.counter)) ?? "";
+    this.rpName = safeGetString(o.rpName ?? "") ?? "";
+    this.userDisplayName = safeGetString(o.userDisplayName ?? "") ?? "";
+    this.discoverable = safeGetString(String(o.discoverable)) ?? "";
     this.creationDate = o.creationDate;
   }
 }
