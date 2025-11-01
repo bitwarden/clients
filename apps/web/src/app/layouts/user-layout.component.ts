@@ -9,6 +9,8 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { IconModule } from "@bitwarden/components";
 
@@ -32,19 +34,23 @@ import { WebLayoutModule } from "./web-layout.module";
 })
 export class UserLayoutComponent implements OnInit {
   protected readonly logo = PasswordManagerLogo;
-  protected hasFamilySponsorshipAvailable$: Observable<boolean>;
-  protected showSponsoredFamilies$: Observable<boolean>;
   protected showSubscription$: Observable<boolean>;
+  protected consolidatedSessionTimeoutComponent$: Observable<boolean>;
 
   constructor(
     private syncService: SyncService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private accountService: AccountService,
+    private configService: ConfigService,
   ) {
     this.showSubscription$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
         this.billingAccountProfileStateService.canViewSubscription$(account.id),
       ),
+    );
+
+    this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
+      FeatureFlag.ConsolidatedSessionTimeoutComponent,
     );
   }
 
