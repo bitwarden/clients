@@ -15,14 +15,12 @@
       <h3 class="tw-mb-4 tw-text-xl tw-font-bold">{{ title }}</h3>
       <p class="tw-mb-0">{{ description }}</p>
     </bit-card-content>
-    <span
-      bitBadge
-      [variant]="requiresPremium ? 'success' : 'primary'"
-      class="tw-absolute tw-left-2 tw-top-2 tw-leading-none"
-      *ngIf="disabled"
-    >
-      <ng-container *ngIf="requiresPremium">{{ "premium" | i18n }}</ng-container>
-      <ng-container *ngIf="!requiresPremium">{{ "upgrade" | i18n }}</ng-container>
-    </span>
+    @if (requiresPremium) {
+      <app-premium-badge class="tw-absolute tw-left-2 tw-top-2"></app-premium-badge>
+    } @else if (requiresUpgrade) {
+      <span bitBadge variant="primary" class="tw-absolute tw-left-2 tw-top-2">
+        {{ "upgrade" | i18n }}
+      </span>
+    }
   </bit-base-card>
 </a>

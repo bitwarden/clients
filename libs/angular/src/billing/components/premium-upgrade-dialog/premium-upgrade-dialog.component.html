@@ -1,0 +1,98 @@
+@if (cardDetails$ | async; as cardDetails) {
+  <section
+    class="tw-min-w-[332px] md:tw-max-w-sm tw-overflow-y-auto tw-self-center tw-bg-background tw-rounded-xl tw-shadow-lg tw-border-secondary-100 tw-border-solid tw-border"
+    cdkTrapFocus
+    cdkTrapFocusAutoCapture
+  >
+    <header
+      class="tw-flex tw-items-center tw-justify-end tw-pl-6 tw-pt-3 tw-pr-2 !tw-bg-background !tw-border-none"
+    >
+      <button
+        type="button"
+        bitIconButton="bwi-close"
+        buttonType="main"
+        size="default"
+        [label]="'close' | i18n"
+        (click)="close()"
+      ></button>
+    </header>
+    <div class="tw-flex tw-justify-center tw-mb-6">
+      <div
+        class="tw-box-border tw-bg-background tw-text-main tw-size-full tw-flex tw-flex-col tw-px-8 tw-pb-2 tw-w-full tw-max-w-md"
+      >
+        <div class="tw-flex tw-items-center tw-justify-between tw-mb-2">
+          <h3 slot="title" class="tw-m-0" bitTypography="h3">
+            {{ "upgradeToPremium" | i18n }}
+          </h3>
+        </div>
+
+        <!-- Tagline with consistent height (exactly 2 lines) -->
+        <div class="tw-mb-6 tw-h-6">
+          <p bitTypography="helper" class="tw-text-muted tw-m-0 tw-leading-relaxed tw-line-clamp-2">
+            {{ cardDetails.tagline }}
+          </p>
+        </div>
+
+        <!-- Price Section -->
+        <div class="tw-mb-6">
+          <div class="tw-flex tw-items-baseline tw-gap-1 tw-flex-wrap">
+            <span class="tw-text-3xl tw-font-bold tw-leading-none tw-m-0">{{
+              cardDetails.price.amount | currency: "$"
+            }}</span>
+            <span bitTypography="helper" class="tw-text-muted">
+              / {{ cardDetails.price.cadence }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Button space (always reserved) -->
+        <div class="tw-mb-6 tw-h-12">
+          <button
+            bitButton
+            [buttonType]="cardDetails.button.type"
+            [block]="true"
+            (click)="upgrade()"
+            type="button"
+          >
+            @if (cardDetails.button.icon?.position === "before") {
+              <i class="bwi {{ cardDetails.button.icon.type }} tw-me-2" aria-hidden="true"></i>
+            }
+            {{ cardDetails.button.text }}
+            @if (
+              cardDetails.button.icon &&
+              (cardDetails.button.icon.position === "after" || !cardDetails.button.icon.position)
+            ) {
+              <i class="bwi {{ cardDetails.button.icon.type }} tw-ms-2" aria-hidden="true"></i>
+            }
+          </button>
+        </div>
+
+        <!-- Features List -->
+        <div class="tw-flex-grow">
+          @if (cardDetails.features.length > 0) {
+            <ul class="tw-list-none tw-p-0 tw-m-0">
+              @for (feature of cardDetails.features; track feature) {
+                <li class="tw-flex tw-items-start tw-gap-2 tw-mb-2 last:tw-mb-0">
+                  <i
+                    class="bwi bwi-check tw-text-primary-600 tw-mt-0.5 tw-flex-shrink-0"
+                    aria-hidden="true"
+                  ></i>
+                  <span bitTypography="helper" class="tw-text-muted tw-leading-relaxed">{{
+                    feature
+                  }}</span>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+} @else {
+  <i
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
+    title="{{ 'loading' | i18n }}"
+    aria-hidden="true"
+  ></i>
+  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+}

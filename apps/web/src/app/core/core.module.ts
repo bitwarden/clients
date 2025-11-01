@@ -55,6 +55,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
@@ -94,6 +95,7 @@ import { NoopSdkLoadService } from "@bitwarden/common/platform/services/sdk/noop
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
+import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
 import {
   DefaultThemeStateService,
   ThemeStateService,
@@ -408,7 +410,16 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: PremiumUpgradePromptService,
     useClass: WebVaultPremiumUpgradePromptService,
-    deps: [DialogService, Router],
+    deps: [
+      DialogService,
+      ConfigService,
+      AccountService,
+      ApiService,
+      SyncService,
+      BillingAccountProfileStateService,
+      PlatformUtilsService,
+      Router,
+    ],
   }),
 ];
 

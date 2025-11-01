@@ -4,6 +4,7 @@ import { Component, Inject, OnInit, signal } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { PersonalSubscriptionPricingTierId } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   ButtonModule,
@@ -15,7 +16,6 @@ import {
 
 import { AccountBillingClient, TaxClient } from "../../../clients";
 import { BillingServicesModule } from "../../../services";
-import { PersonalSubscriptionPricingTierId } from "../../../types/subscription-pricing-tier";
 import { UpgradeAccountComponent } from "../upgrade-account/upgrade-account.component";
 import { UpgradePaymentService } from "../upgrade-payment/services/upgrade-payment.service";
 import {
