@@ -620,7 +620,6 @@ dependencies = [
  "sha1",
  "tokio",
  "tracing",
- "tracing-subscriber",
  "windows 0.61.1",
 ]
 
@@ -934,14 +933,12 @@ dependencies = [
  "ashpd",
  "base64",
  "bitwarden-russh",
- "byteorder",
  "bytes",
  "cbc",
  "chacha20poly1305",
  "core-foundation",
  "desktop_objc",
  "dirs",
- "ed25519",
  "futures",
  "homedir",
  "interprocess",
@@ -951,10 +948,7 @@ dependencies = [
  "memsec",
  "oo7",
  "pin-project",
- "pkcs8",
  "rand 0.9.1",
- "rsa",
- "russh-cryptovec",
  "scopeguard",
  "secmem-proc",
  "security-framework",
@@ -962,12 +956,10 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
- "ssh-encoding",
  "ssh-key",
  "sysinfo",
  "thiserror 2.0.12",
  "tokio",
- "tokio-stream",
  "tokio-util",
  "tracing",
  "typenum",
@@ -985,18 +977,14 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "autotype",
- "base64",
  "chromium_importer",
  "desktop_core",
- "hex",
  "napi",
  "napi-build",
  "napi-derive",
  "serde",
  "serde_json",
  "tokio",
- "tokio-stream",
- "tokio-util",
  "tracing",
  "tracing-subscriber",
  "windows-registry",
@@ -1011,7 +999,6 @@ dependencies = [
  "cc",
  "core-foundation",
  "glob",
- "thiserror 2.0.12",
  "tokio",
  "tracing",
 ]
@@ -1020,7 +1007,6 @@ dependencies = [
 name = "desktop_proxy"
 version = "0.0.0"
 dependencies = [
- "anyhow",
  "desktop_core",
  "embed_plist",
  "futures",
@@ -1895,7 +1881,6 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
- "tokio-util",
  "tracing",
  "tracing-oslog",
  "tracing-subscriber",
@@ -2553,29 +2538,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "pkcs5"
-version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e847e2c91a18bfa887dd028ec33f2fe6f25db77db3619024764914affe8b69a6"
-dependencies = [
- "aes",
- "cbc",
- "der",
- "pbkdf2",
- "scrypt",
- "sha2",
- "spki",
-]
-
-[[package]]
 name = "pkcs8"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f950b2377845cebe5cf8b5165cb3cc1a5e0fa5cfa3e1f7f55707d8fd82e0a7b7"
 dependencies = [
  "der",
- "pkcs5",
- "rand_core 0.6.4",
  "spki",
 ]
 
@@ -2967,15 +2935,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28d3b2b1366ec20994f1fd18c3c594f05c5dd4bc44d8bb0c1c632c8d6829481f"
 
 [[package]]
-name = "salsa20"
-version = "0.10.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "97a22f5af31f73a954c10289c93e8a50cc23d971e80ee446f1f6f7137a088213"
-dependencies = [
- "cipher",
-]
-
-[[package]]
 name = "scc"
 version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3014,17 +2973,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
-]
-
-[[package]]
-name = "scrypt"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0516a385866c09368f0b5bcd1caff3366aace790fcd46e2bb032697bb172fd1f"
-dependencies = [
- "pbkdf2",
- "salsa20",
- "sha2",
 ]
 
 [[package]]
@@ -3512,17 +3460,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
-]
-
-[[package]]
-name = "tokio-stream"
-version = "0.1.15"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "267ac89e0bec6e691e5813911606935d77c476ff49024f98abcea3e7b15e37af"
-dependencies = [
- "futures-core",
- "pin-project-lite",
- "tokio",
 ]
 
 [[package]]

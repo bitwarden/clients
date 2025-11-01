@@ -10,7 +10,6 @@ default = []
 
 [dependencies]
 anyhow = { workspace = true }
-thiserror = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
 
