@@ -1,28 +1,14 @@
-import {
-  combineLatest,
-  concatMap,
-  delay,
-  EMPTY,
-  map,
-  Subject,
-  Subscription,
-  switchMap,
-} from "rxjs";
+import { combineLatest, concatMap, delay, EMPTY, map, Subject, switchMap, takeUntil } from "rxjs";
 
-import { AuditService } from "@bitwarden/common/abstractions/audit.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
-import { devFlagEnabled, devFlagValue } from "@bitwarden/common/platform/misc/flags";
-import { ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
-import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling/task-scheduler.service";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 
+import { PhishingDataService } from "./phishing-data.service";
 import {
   CaughtPhishingDomain,
   isPhishingDetectionMessage,
@@ -32,39 +18,23 @@ import {
 } from "./phishing-detection.types";
 
 export class PhishingDetectionService {
-  private static readonly _UPDATE_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-  private static readonly _RETRY_INTERVAL = 5 * 60 * 1000; // 5 minutes
-  private static readonly _MAX_RETRIES = 3;
-  private static readonly _STORAGE_KEY = "phishing_domains_cache";
-  private static _auditService: AuditService;
+  private static _destroy$ = new Subject<void>();
+
   private static _logService: LogService;
-  private static _storageService: AbstractStorageService;
-  private static _taskSchedulerService: TaskSchedulerService;
-  private static _updateCacheSubscription: Subscription | null = null;
-  private static _retrySubscription: Subscription | null = null;
+  private static _phishingDataService: PhishingDataService;
+
   private static _navigationEventsSubject = new Subject<PhishingDetectionNavigationEvent>();
-  private static _navigationEvents: Subscription | null = null;
-  private static _knownPhishingDomains = new Set<string>();
   private static _caughtTabs: Map<PhishingDetectionTabId, CaughtPhishingDomain> = new Map();
-  private static _isInitialized = false;
-  private static _isUpdating = false;
-  private static _retryCount = 0;
-  private static _lastUpdateTime: number = 0;
 
   static initialize(
     accountService: AccountService,
-    auditService: AuditService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
     configService: ConfigService,
-    eventCollectionService: EventCollectionService,
     logService: LogService,
-    storageService: AbstractStorageService,
-    taskSchedulerService: TaskSchedulerService,
+    phishingDataService: PhishingDataService,
   ): void {
-    this._auditService = auditService;
     this._logService = logService;
-    this._storageService = storageService;
-    this._taskSchedulerService = taskSchedulerService;
+    this._phishingDataService = phishingDataService;
 
     logService.info("[PhishingDetectionService] Initialize called. Checking prerequisites...");
 
@@ -96,21 +66,6 @@ export class PhishingDetectionService {
         }),
       )
       .subscribe();
-  }
-
-  /**
-   * Checks if the given URL is a known phishing domain
-   *
-   * @param url The URL to check
-   * @returns True if the URL is a known phishing domain, false otherwise
-   */
-  static isPhishingDomain(url: URL): boolean {
-    const result = this._knownPhishingDomains.has(url.hostname);
-    if (result) {
-      this._logService.debug("[PhishingDetectionService] Caught phishing domain:", url.hostname);
-      return true;
-    }
-    return false;
   }
 
   /**
@@ -147,44 +102,11 @@ export class PhishingDetectionService {
   }
 
   /**
-   * Initializes the phishing detection service, setting up listeners and registering tasks
-   */
-  private static async _setup(): Promise<void> {
-    if (this._isInitialized) {
-      this._logService.info("[PhishingDetectionService] Already initialized, skipping setup.");
-      return;
-    }
-
-    this._isInitialized = true;
-    this._setupListeners();
-
-    // Register the update task
-    this._taskSchedulerService.registerTaskHandler(
-      ScheduledTaskNames.phishingDomainUpdate,
-      async () => {
-        try {
-          await this._fetchKnownPhishingDomains();
-        } catch (error) {
-          this._logService.error(
-            "[PhishingDetectionService] Failed to update phishing domains in task handler:",
-            error,
-          );
-        }
-      },
-    );
-
-    // Initial load of cached domains
-    await this._loadCachedDomains();
-
-    // Set up periodic updates every 24 hours
-    this._setupPeriodicUpdates();
-    this._logService.debug("[PhishingDetectionService] Phishing detection feature is initialized.");
-  }
-
-  /**
    * Sets up listeners for messages from the web page and web navigation events
    */
-  private static _setupListeners(): void {
+  private static _setup(): void {
+    this._phishingDataService.update$.pipe(takeUntil(this._destroy$)).subscribe();
+
     // Setup listeners from web page/content script
     BrowserApi.addListener(chrome.runtime.onMessage, this._handleExtensionMessage.bind(this));
     BrowserApi.addListener(chrome.tabs.onReplaced, this._handleReplacementEvent.bind(this));
@@ -192,9 +114,10 @@ export class PhishingDetectionService {
 
     // When a navigation event occurs, check if a replace event for the same tabId exists,
     // and call the replace handler before handling navigation.
-    this._navigationEvents = this._navigationEventsSubject
+    this._navigationEventsSubject
       .pipe(
         delay(100), // Delay slightly to allow replace events to be caught
+        takeUntil(this._destroy$),
       )
       .subscribe(({ tabId, changeInfo, tab }) => {
         void this._processNavigation(tabId, changeInfo, tab);
@@ -271,7 +194,7 @@ export class PhishingDetectionService {
     }
 
     // Check if tab is navigating to a phishing url and handle navigation
-    this._checkTabForPhishing(tabId, new URL(tab.url));
+    await this._checkTabForPhishing(tabId, new URL(tab.url));
     await this._handleTabNavigation(tabId);
   }
 
@@ -371,11 +294,11 @@ export class PhishingDetectionService {
    * @param tabId Tab to check for phishing domain
    * @param url URL of the tab to check
    */
-  private static _checkTabForPhishing(tabId: PhishingDetectionTabId, url: URL) {
+  private static async _checkTabForPhishing(tabId: PhishingDetectionTabId, url: URL) {
     // Check if the tab already being tracked
     const caughtTab = this._caughtTabs.get(tabId);
 
-    const isPhishing = this.isPhishingDomain(url);
+    const isPhishing = await this._phishingDataService.isPhishingDomain(url);
     this._logService.debug(
       `[PhishingDetectionService] Checking for phishing url. Result: ${isPhishing} on ${url}`,
     );
@@ -459,236 +382,15 @@ export class PhishingDetectionService {
   }
 
   /**
-   * Sets up periodic updates for phishing domains
-   */
-  private static _setupPeriodicUpdates() {
-    // Clean up any existing subscriptions
-    if (this._updateCacheSubscription) {
-      this._updateCacheSubscription.unsubscribe();
-    }
-    if (this._retrySubscription) {
-      this._retrySubscription.unsubscribe();
-    }
-
-    this._updateCacheSubscription = this._taskSchedulerService.setInterval(
-      ScheduledTaskNames.phishingDomainUpdate,
-      this._UPDATE_INTERVAL,
-    );
-  }
-
-  /**
-   * Schedules a retry for updating phishing domains if the update fails
-   */
-  private static _scheduleRetry() {
-    // If we've exceeded max retries, stop retrying
-    if (this._retryCount >= this._MAX_RETRIES) {
-      this._logService.warning(
-        `[PhishingDetectionService] Max retries (${this._MAX_RETRIES}) reached for phishing domain update. Will try again in ${this._UPDATE_INTERVAL / (1000 * 60 * 60)} hours.`,
-      );
-      this._retryCount = 0;
-      if (this._retrySubscription) {
-        this._retrySubscription.unsubscribe();
-        this._retrySubscription = null;
-      }
-      return;
-    }
-
-    // Clean up existing retry subscription if any
-    if (this._retrySubscription) {
-      this._retrySubscription.unsubscribe();
-    }
-
-    // Increment retry count
-    this._retryCount++;
-
-    // Schedule a retry in 5 minutes
-    this._retrySubscription = this._taskSchedulerService.setInterval(
-      ScheduledTaskNames.phishingDomainUpdate,
-      this._RETRY_INTERVAL,
-    );
-
-    this._logService.info(
-      `[PhishingDetectionService] Scheduled retry ${this._retryCount}/${this._MAX_RETRIES} for phishing domain update in ${this._RETRY_INTERVAL / (1000 * 60)} minutes`,
-    );
-  }
-
-  /**
-   * Handles adding test phishing URLs from dev flags for testing purposes
-   */
-  private static _handleTestUrls() {
-    if (devFlagEnabled("testPhishingUrls")) {
-      const testPhishingUrls = devFlagValue("testPhishingUrls");
-      this._logService.debug(
-        "[PhishingDetectionService] Dev flag enabled for testing phishing detection. Adding test phishing domains:",
-        testPhishingUrls,
-      );
-      if (testPhishingUrls && testPhishingUrls instanceof Array) {
-        testPhishingUrls.forEach((domain) => {
-          if (domain && typeof domain === "string") {
-            this._knownPhishingDomains.add(domain);
-          }
-        });
-      }
-    }
-  }
-
-  /**
-   * Loads cached phishing domains from storage
-   * If no cache exists or it is expired, fetches the latest domains
-   */
-  private static async _loadCachedDomains() {
-    try {
-      const cachedData = await this._storageService.get<{ domains: string[]; timestamp: number }>(
-        this._STORAGE_KEY,
-      );
-      if (cachedData) {
-        this._logService.info("[PhishingDetectionService] Phishing cachedData exists");
-        const phishingDomains = cachedData.domains || [];
-
-        this._setKnownPhishingDomains(phishingDomains);
-        this._handleTestUrls();
-      }
-
-      // If cache is empty or expired, trigger an immediate update
-      if (
-        this._knownPhishingDomains.size === 0 ||
-        Date.now() - this._lastUpdateTime >= this._UPDATE_INTERVAL
-      ) {
-        await this._fetchKnownPhishingDomains();
-      }
-    } catch (error) {
-      this._logService.error(
-        "[PhishingDetectionService] Failed to load cached phishing domains:",
-        error,
-      );
-      this._handleTestUrls();
-    }
-  }
-
-  /**
-   * Fetches the latest known phishing domains from the audit service
-   * Updates the cache and handles retries if necessary
-   */
-  static async _fetchKnownPhishingDomains(): Promise<void> {
-    let domains: string[] = [];
-
-    // Prevent concurrent updates
-    if (this._isUpdating) {
-      this._logService.warning(
-        "[PhishingDetectionService] Update already in progress, skipping...",
-      );
-      return;
-    }
-
-    try {
-      this._logService.info("[PhishingDetectionService] Starting phishing domains update...");
-      this._isUpdating = true;
-      domains = await this._auditService.getKnownPhishingDomains();
-      this._setKnownPhishingDomains(domains);
-
-      await this._saveDomains();
-
-      this._resetRetry();
-      this._isUpdating = false;
-
-      this._logService.info("[PhishingDetectionService] Successfully fetched domains");
-    } catch (error) {
-      this._logService.error(
-        "[PhishingDetectionService] Failed to fetch known phishing domains.",
-        error,
-      );
-
-      this._scheduleRetry();
-      this._isUpdating = false;
-
-      throw error;
-    }
-  }
-
-  /**
-   * Saves the known phishing domains to storage
-   * Caches the updated domains and updates the last update time
-   */
-  private static async _saveDomains() {
-    try {
-      // Cache the updated domains
-      await this._storageService.save(this._STORAGE_KEY, {
-        domains: Array.from(this._knownPhishingDomains),
-        timestamp: this._lastUpdateTime,
-      });
-      this._logService.info(
-        `[PhishingDetectionService] Updated phishing domains cache with ${this._knownPhishingDomains.size} domains`,
-      );
-    } catch (error) {
-      this._logService.error(
-        "[PhishingDetectionService] Failed to save known phishing domains.",
-        error,
-      );
-      this._scheduleRetry();
-      throw error;
-    }
-  }
-
-  /**
-   * Resets the retry count and clears the retry subscription
-   */
-  private static _resetRetry(): void {
-    this._logService.info(
-      `[PhishingDetectionService] Resetting retry count and clearing retry subscription.`,
-    );
-    // Reset retry count and clear retry subscription on success
-    this._retryCount = 0;
-    if (this._retrySubscription) {
-      this._retrySubscription.unsubscribe();
-      this._retrySubscription = null;
-    }
-  }
-
-  /**
-   * Adds phishing domains to the known phishing domains set
-   * Clears old domains to prevent memory leaks
-   *
-   * @param domains Array of phishing domains to add
-   */
-  private static _setKnownPhishingDomains(domains: string[]): void {
-    this._logService.debug(
-      `[PhishingDetectionService] Tracking ${domains.length} phishing domains`,
-    );
-
-    // Clear old domains to prevent memory leaks
-    this._knownPhishingDomains.clear();
-
-    domains.forEach((domain: string) => {
-      if (domain) {
-        this._knownPhishingDomains.add(domain);
-      }
-    });
-    this._lastUpdateTime = Date.now();
-  }
-
-  /**
    * Cleans up the phishing detection service
    * Unsubscribes from all subscriptions and clears caches
    */
   private static _cleanup() {
-    if (this._updateCacheSubscription) {
-      this._updateCacheSubscription.unsubscribe();
-      this._updateCacheSubscription = null;
-    }
-    if (this._retrySubscription) {
-      this._retrySubscription.unsubscribe();
-      this._retrySubscription = null;
-    }
-    if (this._navigationEvents) {
-      this._navigationEvents.unsubscribe();
-      this._navigationEvents = null;
-    }
-    this._knownPhishingDomains.clear();
+    this._destroy$.next();
+    this._destroy$.complete();
+    this._destroy$ = new Subject<void>();
+
     this._caughtTabs.clear();
-    this._lastUpdateTime = 0;
-    this._isUpdating = false;
-    this._isInitialized = false;
-    this._retryCount = 0;
 
     // Manually type cast to satisfy the listener signature due to the mixture
     // of static and instance methods in this class. To be fixed when refactoring
