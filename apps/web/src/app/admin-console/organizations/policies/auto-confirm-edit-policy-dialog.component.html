@@ -63,7 +63,9 @@
     bitFormButton
     type="submit"
   >
-    @if (autoConfirmEnabled$ | async) {
+    @let autoConfirmEnabled = autoConfirmEnabled$ | async;
+    @let managePoliciesOnly = managePolicies$ | async;
+    @if (autoConfirmEnabled || managePoliciesOnly) {
       {{ "save" | i18n }}
     } @else {
       {{ "continue" | i18n }}

@@ -22,6 +22,7 @@ import {
   tap,
 } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -30,6 +31,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -83,6 +85,12 @@ export class AutoConfirmPolicyDialogComponent
     switchMap((userId) => this.policyService.policies$(userId)),
     map((policies) => policies.find((p) => p.type === PolicyType.AutoConfirm)?.enabled ?? false),
   );
+  protected managePolicies$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => this.organizationService.organizations$(userId)),
+    getById(this.data.organizationId),
+    map((organization) => (!organization?.isAdmin && organization?.canManagePolicies) ?? false),
+  );
 
   private readonly submitPolicy: Signal<TemplateRef<unknown> | undefined> = viewChild("step0");
   private readonly openExtension: Signal<TemplateRef<unknown> | undefined> = viewChild("step1");
@@ -105,6 +113,7 @@ export class AutoConfirmPolicyDialogComponent
     toastService: ToastService,
     configService: ConfigService,
     keyService: KeyService,
+    private organizationService: OrganizationService,
     private policyService: PolicyService,
     private router: Router,
   ) {
@@ -146,19 +155,31 @@ export class AutoConfirmPolicyDialogComponent
       tap((singleOrgPolicyEnabled) =>
         this.policyComponent?.setSingleOrgEnabled(singleOrgPolicyEnabled),
       ),
-      map((singleOrgPolicyEnabled) => [
-        {
-          sideEffect: () => this.handleSubmit(singleOrgPolicyEnabled ?? false),
-          footerContent: this.submitPolicy,
-          titleContent: this.submitPolicyTitle,
-        },
-        {
-          sideEffect: () => this.openBrowserExtension(),
-          footerContent: this.openExtension,
-          titleContent: this.openExtensionTitle,
-        },
-      ]),
+      switchMap((singleOrgPolicyEnabled) => this.buildMultiStepSubmit(singleOrgPolicyEnabled)),
       shareReplay({ bufferSize: 1, refCount: true }),
+    );
+  }
+
+  private buildMultiStepSubmit(singleOrgPolicyEnabled: boolean): Observable<MultiStepSubmit[]> {
+    return this.managePolicies$.pipe(
+      map((managePoliciesOnly) => {
+        const submitSteps = [
+          {
+            sideEffect: () => this.handleSubmit(singleOrgPolicyEnabled ?? false),
+            footerContent: this.submitPolicy,
+            titleContent: this.submitPolicyTitle,
+          },
+        ];
+
+        if (!managePoliciesOnly) {
+          submitSteps.push({
+            sideEffect: () => this.openBrowserExtension(),
+            footerContent: this.openExtension,
+            titleContent: this.openExtensionTitle,
+          });
+        }
+        return submitSteps;
+      }),
     );
   }
 
