@@ -6,7 +6,7 @@ import {
   filter,
   firstValueFrom,
   fromEvent,
-  fromEventPattern,
+  map,
   merge,
   Observable,
   Subject,
@@ -28,6 +28,7 @@ import {
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
+import { fromChromeEvent } from "../../../platform/browser/from-chrome-event";
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
 import { closeFido2Popout, openFido2Popout } from "../../../vault/popup/utils/vault-popout-window";
@@ -232,12 +233,8 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         }
       });
 
-    this.windowClosed$ = fromEventPattern(
-      // FIXME: Make sure that is does not cause a memory leak in Safari or use BrowserApi.AddListener
-      // and test that it doesn't break. Tracking Ticket: https://bitwarden.atlassian.net/browse/PM-4735
-      // eslint-disable-next-line no-restricted-syntax
-      (handler: any) => chrome.windows.onRemoved.addListener(handler),
-      (handler: any) => chrome.windows.onRemoved.removeListener(handler),
+    this.windowClosed$ = fromChromeEvent(chrome.windows.onRemoved).pipe(
+      map(([windowId]) => windowId),
     );
 
     BrowserFido2UserInterfaceSession.sendMessage({
