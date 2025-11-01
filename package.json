@@ -162,7 +162,7 @@
     "@angular/router": "19.2.14",
     "@bitwarden/sdk-internal": "0.2.0-main.365",
     "@bitwarden/commercial-sdk-internal": "0.2.0-main.365",
-    "@electron/fuses": "1.8.0",
+    "@electron/fuses": "2.0.0",
     "@emotion/css": "11.13.5",
     "@koa/multer": "4.0.0",
     "@koa/router": "14.0.0",
