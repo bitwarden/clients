@@ -73,7 +73,7 @@
     "form-data": "4.0.4",
     "https-proxy-agent": "7.0.6",
     "inquirer": "8.2.6",
-    "jsdom": "26.1.0",
+    "jsdom": "27.0.1",
     "jszip": "3.10.1",
     "koa": "2.16.1",
     "koa-bodyparser": "4.4.1",
