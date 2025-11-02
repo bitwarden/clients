@@ -4418,8 +4418,9 @@
   "updateBrowser": {
     "message": "Update browser"
   },
-  "generatingYourRiskInsights": {
-    "message": "Generating your Risk Insights..."
+
+  "generatingYourAccessIntelligence": {
+    "message": "Loading Access Intelligence..."
   },
   "riskInsightsRunReport": {
     "message": "Run report"
