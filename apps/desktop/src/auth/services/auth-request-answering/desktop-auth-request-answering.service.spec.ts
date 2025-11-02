@@ -85,86 +85,178 @@ describe("DesktopAuthRequestAnsweringService", () => {
       expect(pendingAuthRequestsState.add).toHaveBeenCalledWith(userId);
     });
 
-    it("should send an 'openLoginApproval' message if the desktop window is visible and the user is Unlocked, active, and not required to set/change their master password", async () => {
-      // Arrange
-      (global as any).ipc.platform.isWindowVisible.mockResolvedValue(true);
-      authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+    describe("given the user is Unlocked, active, and not required to set/change their master password", () => {
+      describe("given the Desktop window is visible", () => {
+        it("should send an 'openLoginApproval' message", async () => {
+          // Arrange
+          (global as any).ipc.platform.isWindowVisible.mockResolvedValue(true);
+          authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
 
-      // Act
-      await sut.receivedPendingAuthRequest(userId, authRequestId);
+          // Act
+          await sut.receivedPendingAuthRequest(userId, authRequestId);
 
-      // Assert
-      expect(messagingService.send).toHaveBeenCalledTimes(1);
-      expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval");
+          // Assert
+          expect(messagingService.send).toHaveBeenCalledTimes(1);
+          expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval");
+        });
+
+        it("should NOT create a system notification", async () => {
+          // Arrange
+          (global as any).ipc.platform.isWindowVisible.mockResolvedValue(true);
+          authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+
+          // Act
+          await sut.receivedPendingAuthRequest(userId, authRequestId);
+
+          // Assert
+          expect((global as any).ipc.auth.loginRequest).not.toHaveBeenCalled();
+        });
+      });
+
+      describe("given the Desktop window is NOT visible", () => {
+        it("should STILL send an 'openLoginApproval' message", async () => {
+          // Arrange
+          (global as any).ipc.platform.isWindowVisible.mockResolvedValue(false);
+          authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+
+          // Act
+          await sut.receivedPendingAuthRequest(userId, authRequestId);
+
+          // Assert
+          expect(messagingService.send).toHaveBeenCalledTimes(1);
+          expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval");
+        });
+
+        it("should create a system notification", async () => {
+          // Arrange
+          (global as any).ipc.platform.isWindowVisible.mockResolvedValue(false);
+          authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+
+          // Act
+          await sut.receivedPendingAuthRequest(userId, authRequestId);
+
+          // Assert
+          expect(i18nService.t).toHaveBeenCalledWith("accountAccessRequested");
+          expect(i18nService.t).toHaveBeenCalledWith("confirmAccessAttempt", "user@example.com");
+          expect(i18nService.t).toHaveBeenCalledWith("close");
+
+          expect((global as any).ipc.auth.loginRequest).toHaveBeenCalledWith(
+            "accountAccessRequested",
+            "confirmAccessAttempt:user@example.com",
+            "close",
+          );
+        });
+      });
     });
 
-    it("should not send an 'openLoginApproval' message if the desktop window is not visible", async () => {
-      (global as any).ipc.platform.isWindowVisible.mockResolvedValue(false);
-      authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+    describe("given the user is Locked", () => {
+      it("should NOT send an 'openLoginApproval' message", async () => {
+        // Arrange
+        (global as any).ipc.platform.isWindowVisible.mockResolvedValue(true);
+        authService.activeAccountStatus$ = of(AuthenticationStatus.Locked);
 
-      // Act
-      await sut.receivedPendingAuthRequest(userId, authRequestId);
+        // Act
+        await sut.receivedPendingAuthRequest(userId, authRequestId);
 
-      // Assert
-      expect(messagingService.send).not.toHaveBeenCalled();
+        // Assert
+        expect(messagingService.send).not.toHaveBeenCalled();
+      });
+
+      it("should create a system notification", async () => {
+        // Arrange
+        (global as any).ipc.platform.isWindowVisible.mockResolvedValue(true);
+        authService.activeAccountStatus$ = of(AuthenticationStatus.Locked);
+
+        // Act
+        await sut.receivedPendingAuthRequest(userId, authRequestId);
+
+        // Assert
+        expect((global as any).ipc.auth.loginRequest).toHaveBeenCalledWith(
+          "accountAccessRequested",
+          "confirmAccessAttempt:user@example.com",
+          "close",
+        );
+      });
     });
 
-    it("should create a system notification if the desktop window is not visible", async () => {
-      // Arrange
-      (global as any).ipc.platform.isWindowVisible.mockResolvedValue(false);
-      authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+    describe("given the user is NOT the active user", () => {
+      it("should NOT send an 'openLoginApproval' message", async () => {
+        // Arrange
+        const differentUserId = "different-user-id" as UserId;
+        (global as any).ipc.platform.isWindowVisible.mockResolvedValue(true);
+        authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+        accountService.activeAccount$ = of({
+          id: differentUserId,
+          email: "different@example.com",
+          emailVerified: true,
+          name: "Different User",
+        });
 
-      // Act
-      await sut.receivedPendingAuthRequest(userId, authRequestId);
+        // Act
+        await sut.receivedPendingAuthRequest(userId, authRequestId);
 
-      // Assert
-      expect(i18nService.t).toHaveBeenCalledWith("accountAccessRequested");
-      expect(i18nService.t).toHaveBeenCalledWith("confirmAccessAttempt", "user@example.com");
-      expect(i18nService.t).toHaveBeenCalledWith("close");
+        // Assert
+        expect(messagingService.send).not.toHaveBeenCalled();
+      });
 
-      expect((global as any).ipc.auth.loginRequest).toHaveBeenCalledWith(
-        "accountAccessRequested",
-        "confirmAccessAttempt:user@example.com",
-        "close",
-      );
+      it("should create a system notification", async () => {
+        // Arrange
+        const differentUserId = "different-user-id" as UserId;
+        (global as any).ipc.platform.isWindowVisible.mockResolvedValue(true);
+        authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+        accountService.activeAccount$ = of({
+          id: differentUserId,
+          email: "different@example.com",
+          emailVerified: true,
+          name: "Different User",
+        });
+
+        // Act
+        await sut.receivedPendingAuthRequest(userId, authRequestId);
+
+        // Assert
+        expect((global as any).ipc.auth.loginRequest).toHaveBeenCalledWith(
+          "accountAccessRequested",
+          "confirmAccessAttempt:user@example.com",
+          "close",
+        );
+      });
     });
 
-    it("should not create a system notification if the desktop window is visible and the user is Unlocked, active, and not required to set/change their master password", async () => {
-      // Arrange
-      (global as any).ipc.platform.isWindowVisible.mockResolvedValue(true);
-      authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+    describe("given the user is required to set/change their master password", () => {
+      it("should NOT send an 'openLoginApproval' message", async () => {
+        // Arrange
+        (global as any).ipc.platform.isWindowVisible.mockResolvedValue(true);
+        authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+        masterPasswordService.forceSetPasswordReason$ = jest
+          .fn()
+          .mockReturnValue(of(ForceSetPasswordReason.WeakMasterPassword));
 
-      // Act
-      await sut.receivedPendingAuthRequest(userId, authRequestId);
+        // Act
+        await sut.receivedPendingAuthRequest(userId, authRequestId);
 
-      // Assert
-      expect((global as any).ipc.auth.loginRequest).not.toHaveBeenCalled();
-    });
-  });
+        // Assert
+        expect(messagingService.send).not.toHaveBeenCalled();
+      });
 
-  describe("userMeetsConditionsToShowApprovalDialog()", () => {
-    it("should return true if desktop window is visible and user is Unlocked, active, and not required to set/change their master password", async () => {
-      // Arrange
-      (global as any).ipc.platform.isWindowVisible.mockResolvedValue(true);
-      authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+      it("should create a system notification", async () => {
+        // Arrange
+        (global as any).ipc.platform.isWindowVisible.mockResolvedValue(true);
+        authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+        masterPasswordService.forceSetPasswordReason$ = jest
+          .fn()
+          .mockReturnValue(of(ForceSetPasswordReason.WeakMasterPassword));
 
-      // Act
-      const result = await sut.userMeetsConditionsToShowApprovalDialog(userId);
+        // Act
+        await sut.receivedPendingAuthRequest(userId, authRequestId);
 
-      // Assert
-      expect(result).toBe(true);
-    });
-
-    it("should return false if desktop window is not visible", async () => {
-      // Arrange
-      (global as any).ipc.platform.isWindowVisible.mockResolvedValue(false);
-      authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
-
-      // Act
-      const result = await sut.userMeetsConditionsToShowApprovalDialog(userId);
-
-      // Assert
-      expect(result).toBe(false);
+        // Assert
+        expect((global as any).ipc.auth.loginRequest).toHaveBeenCalledWith(
+          "accountAccessRequested",
+          "confirmAccessAttempt:user@example.com",
+          "close",
+        );
+      });
     });
   });
 

@@ -47,8 +47,16 @@ export class DesktopAuthRequestAnsweringService
     if (userIsAvailableToViewDialog) {
       // Send message to open dialog immediately for this request
       this.messagingService.send("openLoginApproval");
-    } else {
-      // Create a system notification
+    }
+
+    const isWindowVisible = await ipc.platform.isWindowVisible();
+
+    // Create a system notification if either of the following are true:
+    // - User does NOT meet conditions to show dialog
+    // - User does meet conditions, but the Desktop window is not visible
+    //   - In this second case, we both send the "openLoginApproval" message (above) AND
+    //     also create the system notification to notify the user that the dialog is there.
+    if (!userIsAvailableToViewDialog || !isWindowVisible) {
       const accounts = await firstValueFrom(this.accountService.accounts$);
       const emailForUser = accounts[userId].email;
       await ipc.auth.loginRequest(
@@ -57,16 +65,6 @@ export class DesktopAuthRequestAnsweringService
         this.i18nService.t("close"),
       );
     }
-  }
-
-  async userMeetsConditionsToShowApprovalDialog(userId: UserId): Promise<boolean> {
-    const meetsBasicConditions = await super.userMeetsConditionsToShowApprovalDialog(userId);
-
-    // To show an approval dialog immediately on Desktop, the window must be open.
-    const isWindowVisible = await ipc.platform.isWindowVisible();
-    const meetsDesktopConditions = meetsBasicConditions && isWindowVisible;
-
-    return meetsDesktopConditions;
   }
 
   async handleAuthRequestNotificationClicked(event: SystemNotificationEvent) {
