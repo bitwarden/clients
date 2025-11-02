@@ -239,7 +239,13 @@
     "message": "Unselect application"
   },
   "applicationsMarkedAsCriticalSuccess": {
-    "message": "Applications marked as critical"
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "applicationsMarkedAsCriticalFail": {
     "message": "Failed to mark applications as critical"
@@ -366,15 +372,6 @@
   },
   "applicationReviewSaved": {
     "message": "Application review saved"
-  },
-  "applicationsMarkedAsCritical": {
-    "message": "$COUNT$ applications marked as critical",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
   },
   "newApplicationsReviewed": {
     "message": "New applications reviewed"

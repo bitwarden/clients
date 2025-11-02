@@ -13,10 +13,10 @@
         </div>
 
         <div bitTypography="body1" class="tw-text-main">
-          <strong>{{ criticalAppsAtRiskMemberCount }}</strong>
+          <strong>{{ atRiskCriticalMembersCount() }}</strong>
           {{ "membersWithAtRiskPasswords" | i18n }}
           for
-          <strong>{{ selectedApplicationsCount() }}</strong>
+          <strong>{{ criticalApplicationsCount() }}</strong>
           {{ "criticalApplications" | i18n }}
         </div>
       </div>
@@ -31,7 +31,7 @@
         ></bit-icon-tile>
         <div class="tw-flex tw-flex-col">
           <span bitTypography="h2" class="tw-font-bold tw-mb-1">
-            {{ criticalAppsAtRiskMemberCount }}
+            {{ atRiskCriticalMembersCount() }}
           </span>
           <span bitTypography="body2" class="tw-text-muted">
             {{ "membersWithAtRiskPasswords" | i18n }}
@@ -50,10 +50,10 @@
         <div class="tw-flex tw-flex-col">
           <div class="tw-flex tw-items-baseline tw-gap-2 tw-mb-1">
             <span bitTypography="h2" class="tw-font-bold tw-text-main">
-              {{ selectedApplicationsCount() }}
+              {{ criticalApplicationsCount() }}
             </span>
             <span bitTypography="body1" class="tw-text-muted">
-              of {{ totalApplicationsCount }} total
+              of {{ totalApplicationsCount() }} total
             </span>
           </div>
           <span bitTypography="body2" class="tw-text-muted">
@@ -164,32 +164,5 @@
         {{ "membersWillReceiveNotification" | i18n }}
       </div>
     </div>
-  </div>
-
-  <!-- Footer: Action Buttons -->
-  <div class="tw-flex tw-gap-2 tw-pt-4 tw-pb-2">
-    <button
-      type="button"
-      bitButton
-      size="small"
-      buttonType="primary"
-      (click)="onAssignTasks()"
-      [disabled]="isAssigning"
-      [loading]="isAssigning"
-      [attr.aria-label]="'assignTasks' | i18n"
-    >
-      {{ "assignTasks" | i18n }}
-    </button>
-    <button
-      type="button"
-      bitButton
-      size="small"
-      buttonType="secondary"
-      (click)="onBack()"
-      [disabled]="isAssigning"
-      [attr.aria-label]="'back' | i18n"
-    >
-      {{ "back" | i18n }}
-    </button>
   </div>
 </div>
