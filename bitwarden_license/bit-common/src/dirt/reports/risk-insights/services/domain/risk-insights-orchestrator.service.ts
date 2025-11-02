@@ -101,16 +101,14 @@ export class RiskInsightsOrchestratorService {
   // New applications that haven't been reviewed (reviewedDate === null)
   newApplications$: Observable<ApplicationHealthReportDetail[]> = this.rawReportData$.pipe(
     map((reportState) => {
-      const reportApplications = reportState.data?.applicationData;
-      if (!reportApplications) {
-        return [];
-      }
+      const reportApplications = reportState.data?.applicationData || [];
 
-      const newApplications = reportState.data.reportData.filter((reportApp) =>
-        reportApplications.some(
-          (app) => app.applicationName == reportApp.applicationName && app.reviewedDate == null,
-        ),
-      );
+      const newApplications =
+        reportState?.data?.reportData.filter((reportApp) =>
+          reportApplications.some(
+            (app) => app.applicationName == reportApp.applicationName && app.reviewedDate == null,
+          ),
+        ) || [];
       return newApplications;
     }),
     distinctUntilChanged(

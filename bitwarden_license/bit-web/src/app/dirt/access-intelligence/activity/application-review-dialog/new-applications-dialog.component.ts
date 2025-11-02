@@ -179,17 +179,18 @@ export class NewApplicationsDialogComponent {
         switchMap((updatedState) => {
           // After initial save is complete, created the assigned tasks
           // for at risk passwords
-          const updatedStateApplicationData = updatedState.data.applicationData;
+          const updatedStateApplicationData = updatedState?.data?.applicationData || [];
           // Manual enrich for type matching
           // TODO Consolidate in model updates
-          const manualEnrichedApplications = updatedState.data.reportData.map(
-            (application): ApplicationHealthReportDetailEnriched => ({
-              ...application,
-              isMarkedAsCritical: updatedStateApplicationData.some(
-                (a) => a.applicationName == application.applicationName && a.isCritical,
-              ),
-            }),
-          );
+          const manualEnrichedApplications =
+            updatedState?.data?.reportData.map(
+              (application): ApplicationHealthReportDetailEnriched => ({
+                ...application,
+                isMarkedAsCritical: updatedStateApplicationData.some(
+                  (a) => a.applicationName == application.applicationName && a.isCritical,
+                ),
+              }),
+            ) || [];
           return from(
             this.accessIntelligenceSecurityTasksService.assignTasks(
               this.dialogParams.organizationId,
