@@ -33,8 +33,8 @@ mod windows_binary {
                 self,
                 Cryptography::{
                     self, CryptUnprotectData, NCryptOpenKey, NCryptOpenStorageProvider,
-                    CRYPTPROTECT_UI_FORBIDDEN, CRYPT_INTEGER_BLOB, NCRYPT_KEY_HANDLE,
-                    NCRYPT_PROV_HANDLE,
+                    CERT_KEY_SPEC, CRYPTPROTECT_UI_FORBIDDEN, CRYPT_INTEGER_BLOB, NCRYPT_FLAGS,
+                    NCRYPT_KEY_HANDLE, NCRYPT_PROV_HANDLE, NCRYPT_SILENT_FLAG,
                 },
                 DuplicateToken, ImpersonateLoggedOnUser, RevertToSelf, TOKEN_DUPLICATE,
                 TOKEN_QUERY,
@@ -417,43 +417,57 @@ mod windows_binary {
         Ok(key)
     }
 
-    fn decrypt_with_cng(keydpapi: &[u8]) -> Result<Vec<u8>> {
-        let mut phprovider = NCRYPT_PROV_HANDLE::default();
+    fn decrypt_with_cng(ciphertext: &[u8]) -> Result<Vec<u8>> {
+        // 1. Open the cryptographic provider
+        let mut provider = NCRYPT_PROV_HANDLE::default();
         unsafe {
-            let pszprovidername = w!("Microsoft Software Key Storage Provider");
-            NCryptOpenStorageProvider(&mut phprovider, pszprovidername, 0)?;
+            NCryptOpenStorageProvider(
+                &mut provider,
+                w!("Microsoft Software Key Storage Provider"),
+                0,
+            )?;
         };
-        let mut hkey = NCRYPT_KEY_HANDLE::default();
+
+        // Don't forget to free the provider
+        defer!(unsafe {
+            _ = Cryptography::NCryptFreeObject(provider.into());
+        });
+
+        // 2. Open the key
+        let mut key = NCRYPT_KEY_HANDLE::default();
         unsafe {
             NCryptOpenKey(
-                phprovider,
-                &mut hkey,
+                provider,
+                &mut key,
                 w!("Google Chromekey1"),
-                Cryptography::CERT_KEY_SPEC::default(),
-                Cryptography::NCRYPT_FLAGS::default(),
+                CERT_KEY_SPEC::default(),
+                NCRYPT_FLAGS::default(),
             )?;
         };
 
-        let mut output_buffer = vec![0; keydpapi.len()];
-        let mut output_len = 0;
+        // Don't forget to free the key
+        defer!(unsafe {
+            _ = Cryptography::NCryptFreeObject(key.into());
+        });
+
+        // 3. Decrypt the data (assume the plaintext is not larger than the ciphertext)
+        let mut plaintext = vec![0; ciphertext.len()];
+        let mut plaintext_len = 0;
         unsafe {
             Cryptography::NCryptDecrypt(
-                hkey,
-                keydpapi.into(),
+                key,
+                ciphertext.into(),
                 None,
-                Some(&mut output_buffer),
-                &mut output_len,
-                Cryptography::NCRYPT_SILENT_FLAG,
+                Some(&mut plaintext),
+                &mut plaintext_len,
+                NCRYPT_SILENT_FLAG,
             )?;
         };
 
-        unsafe {
-            Cryptography::NCryptFreeObject(hkey.into())?;
-            Cryptography::NCryptFreeObject(phprovider.into())?;
-        };
-        output_buffer.truncate(output_len as usize);
+        // In case the plaintext is smaller than the ciphertext
+        plaintext.truncate(plaintext_len as usize);
 
-        Ok(output_buffer)
+        Ok(plaintext)
     }
 
     //
