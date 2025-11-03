@@ -1,5 +1,5 @@
 <div class="tw-ps-2 tw-pe-2">
-  @let open = sideNavService.open$ | async;
+  @let open = sideNavService.open();
   @if (open || icon()) {
     <div
       class="tw-relative tw-rounded-md tw-h-10"
@@ -9,28 +9,7 @@
       [class.hover:tw-bg-hover-contrast]="!showActiveStyles"
     >
       <div class="tw-relative tw-flex tw-items-center tw-h-full">
-        <ng-container *ngIf="route(); then isAnchor; else isButton"></ng-container>
-
-        <!-- Main content of `NavItem` -->
-        <ng-template #anchorAndButtonContent>
-          <div
-            [title]="text()"
-            class="tw-gap-2 tw-flex tw-items-center tw-font-bold tw-h-full"
-            [class.tw-justify-center]="!open"
-          >
-            <i
-              class="!tw-m-0 tw-w-4 tw-shrink-0 bwi bwi-fw tw-text-alt2 {{ icon() }}"
-              [attr.aria-hidden]="open"
-              [attr.aria-label]="text()"
-            ></i>
-            @if (open) {
-              <span class="tw-truncate">{{ text() }}</span>
-            }
-          </div>
-        </ng-template>
-
-        <!-- Show if a value was passed to `this.route` -->
-        <ng-template #isAnchor>
+        @if (route()) {
           <!-- The `data-fvw` attribute passes focus to `this.focusVisibleWithin$` -->
           <!-- The following `class` field should match the `#isButton` class field below -->
           <a
@@ -47,10 +26,7 @@
           >
             <ng-container *ngTemplateOutlet="anchorAndButtonContent"></ng-container>
           </a>
-        </ng-template>
-
-        <!-- Show if `this.route` is falsy -->
-        <ng-template #isButton>
+        } @else {
           <!-- Class field should match `#isAnchor` class field above -->
           <button
             type="button"
@@ -62,7 +38,7 @@
           >
             <ng-container *ngTemplateOutlet="anchorAndButtonContent"></ng-container>
           </button>
-        </ng-template>
+        }
 
         @if (open) {
           <div
@@ -75,3 +51,21 @@
     </div>
   }
 </div>
+
+<!-- Main content of `NavItem` -->
+<ng-template #anchorAndButtonContent>
+  <div
+    [title]="text()"
+    class="tw-gap-2 tw-flex tw-items-center tw-font-bold tw-h-full"
+    [class.tw-justify-center]="!open"
+  >
+    <i
+      class="!tw-m-0 tw-w-4 tw-shrink-0 bwi bwi-fw tw-text-alt2 {{ icon() }}"
+      [attr.aria-hidden]="open"
+      [attr.aria-label]="text()"
+    ></i>
+    @if (open) {
+      <span class="tw-truncate">{{ text() }}</span>
+    }
+  </div>
+</ng-template>

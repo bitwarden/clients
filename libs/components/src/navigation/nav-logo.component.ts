@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, input, inject } from "@angular/core";
 import { RouterLinkActive, RouterLink } from "@angular/router";
 
@@ -11,10 +10,12 @@ import { SideNavService } from "./side-nav.service";
 @Component({
   selector: "bit-nav-logo",
   templateUrl: "./nav-logo.component.html",
-  imports: [CommonModule, RouterLinkActive, RouterLink, BitIconComponent],
+  imports: [RouterLinkActive, RouterLink, BitIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavLogoComponent {
+  protected readonly sideNavService = inject(SideNavService);
+
   /**
    * Icon that is displayed when the side nav is closed
    *
@@ -36,6 +37,4 @@ export class NavLogoComponent {
    * Passed to `attr.aria-label` and `attr.title`
    */
   readonly label = input.required<string>();
-
-  protected readonly sideNavService = inject(SideNavService);
 }

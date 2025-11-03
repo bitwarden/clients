@@ -1,4 +1,4 @@
-import { CommonModule } from "@angular/common";
+import { NgTemplateOutlet } from "@angular/common";
 import {
   booleanAttribute,
   Component,
@@ -9,7 +9,6 @@ import {
   ChangeDetectionStrategy,
   computed,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterLinkActive } from "@angular/router";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -27,7 +26,7 @@ import { SideNavService } from "./side-nav.service";
     { provide: NavBaseComponent, useExisting: NavGroupComponent },
     { provide: NavGroupAbstraction, useExisting: NavGroupComponent },
   ],
-  imports: [CommonModule, NavItemComponent, IconButtonModule, I18nPipe],
+  imports: [NgTemplateOutlet, NavItemComponent, IconButtonModule, I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavGroupComponent extends NavBaseComponent {
@@ -36,7 +35,7 @@ export class NavGroupComponent extends NavBaseComponent {
 
   readonly nestedNavComponents = contentChildren(NavBaseComponent, { descendants: true });
 
-  readonly sideNavOpen = toSignal(this.sideNavService.open$);
+  protected readonly sideNavOpen = this.sideNavService.open;
 
   readonly sideNavAndGroupOpen = computed(() => {
     return this.open() && this.sideNavOpen();
@@ -92,7 +91,7 @@ export class NavGroupComponent extends NavBaseComponent {
   }
 
   protected handleMainContentClicked() {
-    if (!this.sideNavService.open) {
+    if (!this.sideNavService.open()) {
       if (!this.route()) {
         this.sideNavService.setOpen();
       }

@@ -1,4 +1,4 @@
-import { CommonModule } from "@angular/common";
+import { NgTemplateOutlet } from "@angular/common";
 import { ChangeDetectionStrategy, Component, input, inject, signal, computed } from "@angular/core";
 import { RouterModule, RouterLinkActive } from "@angular/router";
 
@@ -16,7 +16,7 @@ export abstract class NavGroupAbstraction {
   selector: "bit-nav-item",
   templateUrl: "./nav-item.component.html",
   providers: [{ provide: NavBaseComponent, useExisting: NavItemComponent }],
-  imports: [CommonModule, IconButtonModule, RouterModule],
+  imports: [NgTemplateOutlet, IconButtonModule, RouterModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     "(focusin)": "onFocusIn($event.target)",

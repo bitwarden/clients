@@ -29,21 +29,16 @@
       <ng-content></ng-content>
     </main>
     <!-- overlay backdrop for side-nav -->
-    @if (
-      {
-        open: sideNavService.open$ | async,
-      };
-      as data
-    ) {
-      <div
-        class="tw-pointer-events-none tw-fixed tw-inset-0 tw-z-10 tw-bg-black tw-bg-opacity-0 motion-safe:tw-transition-colors md:tw-hidden"
-        [ngClass]="[data.open ? 'tw-bg-opacity-30 md:tw-bg-opacity-0' : 'tw-bg-opacity-0']"
-      >
-        @if (data.open) {
-          <div (click)="sideNavService.toggle()" class="tw-pointer-events-auto tw-size-full"></div>
-        }
-      </div>
-    }
+    <div
+      class="tw-pointer-events-none tw-fixed tw-inset-0 tw-z-10 tw-bg-black tw-bg-opacity-0 motion-safe:tw-transition-colors md:tw-hidden"
+      [ngClass]="[
+        sideNavService.open() ? 'tw-bg-opacity-30 md:tw-bg-opacity-0' : 'tw-bg-opacity-0',
+      ]"
+    >
+      @if (sideNavService.open()) {
+        <div (click)="sideNavService.toggle()" class="tw-pointer-events-auto tw-size-full"></div>
+      }
+    </div>
   </div>
   <div class="tw-absolute tw-z-50 tw-left-0 md:tw-sticky tw-top-0 tw-h-screen md:tw-w-auto">
     <ng-template [cdkPortalOutlet]="drawerPortal()"></ng-template>
