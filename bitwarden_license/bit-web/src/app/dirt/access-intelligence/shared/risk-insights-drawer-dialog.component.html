@@ -73,22 +73,26 @@
           : "atRiskApplicationsDescriptionNone"
         ) | i18n
       }}</span>
-      <ng-container *ngIf="drawerDetails.atRiskAppDetails.length > 0">
-        <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
-          <div bitTypography="body2" class="tw-text-sm tw-font-bold">
-            {{ "application" | i18n }}
+      @if (drawerDetails.atRiskAppDetails?.length > 0) {
+        <ng-container>
+          <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
+            <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+              {{ "application" | i18n }}
+            </div>
+            <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+              {{ "atRiskPasswords" | i18n }}
+            </div>
           </div>
-          <div bitTypography="body2" class="tw-text-sm tw-font-bold">
-            {{ "atRiskPasswords" | i18n }}
-          </div>
-        </div>
-        <ng-container *ngFor="let app of drawerDetails.atRiskAppDetails">
-          <div class="tw-flex tw-justify-between tw-mt-2">
-            <div>{{ app.applicationName }}</div>
-            <div>{{ app.atRiskPasswordCount }}</div>
-          </div>
+          @for (app of drawerDetails.atRiskAppDetails; track app.applicationName) {
+            <ng-container *ngFor="let app of drawerDetails.atRiskAppDetails">
+              <div class="tw-flex tw-justify-between tw-mt-2">
+                <div>{{ app.applicationName }}</div>
+                <div>{{ app.atRiskPasswordCount }}</div>
+              </div>
+            </ng-container>
+          }
         </ng-container>
-      </ng-container>
+      }
     </ng-container>
   </bit-dialog>
 }

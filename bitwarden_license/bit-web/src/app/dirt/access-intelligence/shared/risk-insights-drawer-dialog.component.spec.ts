@@ -44,7 +44,7 @@ beforeAll(() => {
   }
 });
 
-describe("DrawerDialogComponent", () => {
+describe("RiskInsightsDrawerDialogComponent", () => {
   let component: RiskInsightsDrawerDialogComponent;
   let fixture: ComponentFixture<RiskInsightsDrawerDialogComponent>;
   const mockI18nService = mock<I18nService>();

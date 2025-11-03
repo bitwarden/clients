@@ -22,7 +22,13 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { AsyncActionsModule, ButtonModule, DialogService, TabsModule } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  DialogRef,
+  DialogService,
+  TabsModule,
+} from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { AllActivityComponent } from "./activity/all-activity.component";
@@ -52,7 +58,6 @@ import { ApplicationsLoadingComponent } from "./shared/risk-insights-loading.com
 })
 export class RiskInsightsComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
-  private _isDrawerOpen: boolean = false;
   protected ReportStatusEnum = ReportStatus;
 
   tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllApps;
@@ -76,6 +81,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   protected emptyStateVideoSrc: string | null = "/videos/risk-insights-mark-as-critical.mp4";
 
   protected IMPORT_ICON = "bwi bwi-download";
+  protected currentDialogRef: DialogRef<unknown, RiskInsightsDrawerDialogComponent>;
 
   // TODO: See https://github.com/bitwarden/clients/pull/16832#discussion_r2474523235
 
@@ -135,11 +141,11 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((details) => {
         if (details.activeDrawerType !== DrawerType.None) {
-          this.dialogService.openDrawer(RiskInsightsDrawerDialogComponent, {
+          this.currentDialogRef = this.dialogService.openDrawer(RiskInsightsDrawerDialogComponent, {
             data: details,
           });
         } else {
-          this.dialogService.closeAll();
+          this.currentDialogRef?.close();
         }
       });
   }
@@ -164,6 +170,9 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       queryParams: { tabIndex: newIndex },
       queryParamsHandling: "merge",
     });
+
+    // close drawer when tabs are changed
+    this.currentDialogRef?.close();
   }
 
   // Empty state methods
