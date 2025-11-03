@@ -172,8 +172,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "在$ORG NAME$中找無應用程式",
+  "noApplicationsInOrgTitle": {
+    "message": "No applications found for $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -181,8 +181,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "在使用者儲存登入後，應用程式將會顯示在這裡，並同時顯示具有風險的密碼。標註重要應用程式並通知使用者以更新密碼。"
+  "noApplicationsInOrgDescription": {
+    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  },
+  "benefit1Title": {
+    "message": "Prioritize risks"
+  },
+  "benefit1Description": {
+    "message": "Focus on applications that matter the most"
+  },
+  "benefit2Title": {
+    "message": "Guide remediation"
+  },
+  "benefit2Description": {
+    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  },
+  "benefit3Title": {
+    "message": "Monitor progress"
+  },
+  "benefit3Description": {
+    "message": "Track changes over time to show security improvements"
+  },
+  "noReportRunTitle": {
+    "message": "Run your first report to see applications"
+  },
+  "noReportRunDescription": {
+    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
   },
   "noCriticalApplicationsTitle": {
     "message": "您尚未將任何應用程式標記為關鍵"
@@ -327,6 +351,27 @@
   },
   "markAsCriticalPlaceholder": {
     "message": "標記為關鍵功能將在未來更新中實現"
+  },
+  "applicationReviewSaved": {
+    "message": "Application review saved"
+  },
+  "applicationsMarkedAsCritical": {
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "newApplicationsReviewed": {
+    "message": "New applications reviewed"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Error saving review status"
+  },
+  "pleaseTryAgain": {
+    "message": "Please try again"
   },
   "unmarkAsCritical": {
     "message": "取消標記為關鍵"
@@ -1313,6 +1358,9 @@
   },
   "useSingleSignOn": {
     "message": "使用單一登入"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
   },
   "welcomeBack": {
     "message": "歡迎回來"
@@ -4449,8 +4497,8 @@
   "inviteAccepted": {
     "message": "邀請已接受"
   },
-  "inviteAcceptedDesc": {
-    "message": "管理員確認您的成員身分後，您便可以存取此組織。到時我們會向您傳送電子郵件通知。"
+  "invitationAcceptedDesc": {
+    "message": "成功接受您的邀請。"
   },
   "inviteInitAcceptedDesc": {
     "message": "您現在可以存取此組織了。"
@@ -6492,23 +6540,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "您的組織已更新您的解密選項。請設定主密碼以存取您的密碼庫。"
   },
-  "maximumVaultTimeout": {
-    "message": "密碼庫逾時時間"
+  "sessionTimeoutPolicyTitle": {
+    "message": "工作階段逾時"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "為成員設定最大密碼庫逾時時間。"
+  "sessionTimeoutPolicyDescription": {
+    "message": "為除擁有者外的所有成員設定最長工作階段逾時時間。"
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "最大密碼庫逾時時間"
+  "maximumAllowedTimeout": {
+    "message": "最大允許的逾時時間"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "無效的最大密碼庫逾時時間。"
+  "maximumAllowedTimeoutRequired": {
+    "message": "需要最大允許的逾時時間"
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "時間無效。請至少變更一個值。"
+  },
+  "sessionTimeoutAction": {
+    "message": "工作階段逾時動作"
+  },
+  "immediately": {
+    "message": "立即"
+  },
+  "onSystemLock": {
+    "message": "於系統鎖定時"
+  },
+  "onAppRestart": {
+    "message": "應用程式重新啟動時"
   },
   "hours": {
     "message": "小時"
   },
   "minutes": {
     "message": "分鐘"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "您確定要允許所有成員的最長逾時為「永不」嗎？"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "此選項會將成員的加密金鑰儲存在其裝置上。若選擇此選項，請確保這些裝置具備充分的防護。"
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "進一步了解裝置保護"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "「系統鎖定」僅適用於瀏覽器與桌面應用程式"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "由於不支援此選項，行動與網頁應用程式將以「在應用程式重新啟動時」作為其最長允許逾時時間。"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "您的組織政策已限定您密碼庫逾時的時間長度。密碼庫逾時時間最高可以設定到 $HOURS$ 小時 $MINUTES$ 分鐘。",
@@ -11936,5 +12014,14 @@
   },
   "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
     "message": "Argon2id 對抗現代攻擊提供更強的防護，最適合具有高效能裝置的進階使用者。"
+  },
+  "zipPostalCodeLabel": {
+    "message": "郵編 / 郵政代碼"
+  },
+  "cardNumberLabel": {
+    "message": "支付卡號碼"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "開始免費家庭試用"
   }
 }

@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Jedinstvena prijava (SSO)"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Dobro došli natrag"
   },
@@ -588,6 +591,9 @@
   "view": {
     "message": "Prikaz"
   },
+  "viewAll": {
+    "message": "View all"
+  },
   "viewLogin": {
     "message": "Prikaži prijavu"
   },
@@ -1027,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Stavka izmijenjena"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Želiš li zaista poslati u smeće?"
@@ -1676,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Isključi auto-ispunu"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "Prikaži prijedloge auto-ispune na poljima obrazaca"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Prikaži identitete kao prijedloge"
@@ -3240,6 +3279,9 @@
   "decryptionError": {
     "message": "Pogreška pri dešifriranju"
   },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden nije mogao dešifrirati sljedeće stavke trezora."
   },
@@ -4010,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Auto-ispuna kod učitavanja stranice koristi zadane postavke.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "U/Isključi bočnu navigaciju"
@@ -5721,5 +5772,11 @@
   "settingDisabledByPolicy": {
     "message": "Ova je postavka onemogućena pravilima tvoje organizacije.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

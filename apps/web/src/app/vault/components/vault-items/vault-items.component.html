@@ -162,7 +162,7 @@
           [showPremiumFeatures]="showPremiumFeatures"
           [useEvents]="useEvents"
           [viewingOrgVault]="viewingOrgVault"
-          [cloneable]="canClone(item)"
+          [cloneable]="canClone$(item) | async"
           [organizations]="allOrganizations"
           [collections]="allCollections"
           [checked]="selection.isSelected(item)"

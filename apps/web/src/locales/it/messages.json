@@ -172,8 +172,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "Nessuna applicazione trovata in $ORG NAME$",
+  "noApplicationsInOrgTitle": {
+    "message": "No applications found for $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -181,8 +181,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "Quando gli utenti salvano i login, i relativi dati e le password a rischio sono mostrati qui. Contrassegna le applicazioni critiche e notifica agli utenti di aggiornare le password."
+  "noApplicationsInOrgDescription": {
+    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  },
+  "benefit1Title": {
+    "message": "Prioritize risks"
+  },
+  "benefit1Description": {
+    "message": "Focus on applications that matter the most"
+  },
+  "benefit2Title": {
+    "message": "Guide remediation"
+  },
+  "benefit2Description": {
+    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  },
+  "benefit3Title": {
+    "message": "Monitor progress"
+  },
+  "benefit3Description": {
+    "message": "Track changes over time to show security improvements"
+  },
+  "noReportRunTitle": {
+    "message": "Run your first report to see applications"
+  },
+  "noReportRunDescription": {
+    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Non hai contrassegnato nessuna applicazione come critica"
@@ -327,6 +351,27 @@
   },
   "markAsCriticalPlaceholder": {
     "message": "La funzionalità per contrassegnare gli elementi critici sarà implementata in un aggiornamento futuro"
+  },
+  "applicationReviewSaved": {
+    "message": "Application review saved"
+  },
+  "applicationsMarkedAsCritical": {
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "newApplicationsReviewed": {
+    "message": "New applications reviewed"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Error saving review status"
+  },
+  "pleaseTryAgain": {
+    "message": "Please try again"
   },
   "unmarkAsCritical": {
     "message": "Contrassegna l'elemento come non critico"
@@ -1313,6 +1358,9 @@
   },
   "useSingleSignOn": {
     "message": "Usa login unificato (SSO)"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
   },
   "welcomeBack": {
     "message": "Bentornato/a"
@@ -4449,8 +4497,8 @@
   "inviteAccepted": {
     "message": "Invito accettato"
   },
-  "inviteAcceptedDesc": {
-    "message": "Puoi accedere a questa organizzazione se l'amministratore conferma la tua iscrizione. Ti invieremo un'email quando sarà confermata."
+  "invitationAcceptedDesc": {
+    "message": "Successfully accepted your invitation."
   },
   "inviteInitAcceptedDesc": {
     "message": "Ora puoi accedere a questa organizzazione."
@@ -6492,23 +6540,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "La tua organizzazione ha aggiornato le tue opzioni di decrittazione. Per favore, imposta una master password per accedere alla tua cassaforte."
   },
-  "maximumVaultTimeout": {
-    "message": "Timeout cassaforte"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Session timeout"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Imposta un timeout massimo della cassaforte per i membri."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Set a maximum session timeout for all members except owners."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Timeout massimo della cassaforte"
+  "maximumAllowedTimeout": {
+    "message": "Maximum allowed timeout"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "Timeout massimo della cassaforte non valido."
+  "maximumAllowedTimeoutRequired": {
+    "message": "Maximum allowed timeout is required."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Time is invalid. Change at least one value."
+  },
+  "sessionTimeoutAction": {
+    "message": "Session timeout action"
+  },
+  "immediately": {
+    "message": "Immediately"
+  },
+  "onSystemLock": {
+    "message": "On system lock"
+  },
+  "onAppRestart": {
+    "message": "On app restart"
   },
   "hours": {
     "message": "Ore"
   },
   "minutes": {
     "message": "Minuti"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Are you certain you want to allow a maximum timeout of \"Never\" for all members?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "This option will save your members' encryption keys on their devices. If you choose this option, ensure that their devices are adequately protected."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Learn more about device protection"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "\"System lock\" will only apply to the browser and desktop app"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "The mobile and web app will use \"on app restart\" as their maximum allowed timeout, since the option is not supported."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Le politiche della tua organizzazione hanno impostato il timeout massimo consentito della tua cassaforte su $HOURS$ ore e $MINUTES$ minuti.",
@@ -11936,5 +12014,14 @@
   },
   "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
     "message": "Argon2id offers stronger protection against modern attacks. Best for advanced users with powerful devices."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Start free Families trial"
   }
 }
