@@ -3,7 +3,7 @@ export type ReferenceId = number;
 export type PropertySymbol = keyof typeof PropertySymbolMap;
 export type SerializedPropertySymbol = (typeof PropertySymbolMap)[keyof typeof PropertySymbolMap];
 
-export type BatchCommand =
+export type RunCommand =
   | { method: "get"; propertyName: string }
   | { method: "get"; propertySymbol: SerializedPropertySymbol }
   | { method: "apply"; args: unknown[] }
@@ -11,17 +11,7 @@ export type BatchCommand =
   | { method: "transfer" };
 
 export type Command =
-  | { method: "get"; referenceId: ReferenceId; propertyName: string }
-  | { method: "get"; referenceId: ReferenceId; propertySymbol: SerializedPropertySymbol }
-  | { method: "call"; referenceId: ReferenceId; propertyName: string; args: unknown[] }
-  | {
-      method: "call";
-      referenceId: ReferenceId;
-      propertySymbol: SerializedPropertySymbol;
-      args: unknown[];
-    }
-  | { method: "batch"; referenceId: ReferenceId; commands: BatchCommand[] }
-  | { method: "by_value"; referenceId: ReferenceId }
+  | { method: "run"; referenceId: ReferenceId; commands: RunCommand[] }
   | { method: "release"; referenceId: ReferenceId };
 
 export type Response = { status: "success"; result: Result } | { status: "error"; error: unknown };
@@ -29,7 +19,6 @@ export type Response = { status: "success"; result: Result } | { status: "error"
 export type Result =
   | { type: "value"; value: unknown }
   | { type: "reference"; referenceId: ReferenceId; objectType?: string };
-// | { type: "rc", referenceId: ReferenceId, objectType?: string };
 
 // A list of supported property symbols and their wire names
 const PropertySymbolMap = {

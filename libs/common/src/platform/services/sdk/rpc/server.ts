@@ -1,6 +1,6 @@
 import { map, Observable, ReplaySubject } from "rxjs";
 
-import { executeBatchCommands } from "./executor";
+import { executeRunCommand } from "./executor";
 import { Command, Response, Result } from "./protocol";
 import { ReferenceStore } from "./reference-store";
 
@@ -17,14 +17,14 @@ export class RpcServer<T> {
   constructor() {}
 
   async handle(command: Command): Promise<Response> {
-    if (command.method === "batch") {
+    if (command.method === "run") {
       const target = this.references.get<any>(command.referenceId);
       if (!target) {
         return { status: "error", error: `[RPC] Reference ID ${command.referenceId} not found` };
       }
 
       try {
-        return await executeBatchCommands(target, command.commands, this.references);
+        return await executeRunCommand(target, command.commands, this.references);
       } catch (error) {
         return { status: "error", error };
       }

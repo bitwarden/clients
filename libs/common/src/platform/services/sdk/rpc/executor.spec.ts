@@ -1,6 +1,6 @@
 import { RpcError } from "./error";
-import { executeBatchCommands } from "./executor";
-import { BatchCommand, serializeSymbol } from "./protocol";
+import { executeRunCommand } from "./executor";
+import { RunCommand, serializeSymbol } from "./protocol";
 import { ReferenceStore } from "./reference-store";
 
 describe("Batch executor", () => {
@@ -13,9 +13,9 @@ describe("Batch executor", () => {
   });
 
   it("returns error when command list is empty", async () => {
-    const commands: BatchCommand[] = [];
+    const commands: RunCommand[] = [];
 
-    const response = await executeBatchCommands(target, commands, referenceStore);
+    const response = await executeRunCommand(target, commands, referenceStore);
     expect(response).toEqual({ status: "error", error: expect.any(RpcError) });
   });
 
@@ -26,9 +26,9 @@ describe("Batch executor", () => {
     ["propNull", null],
     ["propUndefined", undefined],
   ])("returns value of property when value is a primitive", async (propertyName, expectedValue) => {
-    const commands: BatchCommand[] = [{ method: "get", propertyName }];
+    const commands: RunCommand[] = [{ method: "get", propertyName }];
 
-    const response = await executeBatchCommands(target, commands, referenceStore);
+    const response = await executeRunCommand(target, commands, referenceStore);
 
     expect(response).toEqual({
       status: "success",
@@ -41,9 +41,9 @@ describe("Batch executor", () => {
   });
 
   it("returns reference of property when value is an object", async () => {
-    const commands: BatchCommand[] = [{ method: "get", propertyName: "propObject" }];
+    const commands: RunCommand[] = [{ method: "get", propertyName: "propObject" }];
 
-    const response = await executeBatchCommands(target, commands, referenceStore);
+    const response = await executeRunCommand(target, commands, referenceStore);
     expect(response).toEqual({
       status: "success",
       result: {
@@ -57,12 +57,12 @@ describe("Batch executor", () => {
   });
 
   it("returns value of property when transfer is explicitly requested", async () => {
-    const commands: BatchCommand[] = [
+    const commands: RunCommand[] = [
       { method: "get", propertyName: "propObject" },
       { method: "transfer" },
     ];
 
-    const response = await executeBatchCommands(target, commands, referenceStore);
+    const response = await executeRunCommand(target, commands, referenceStore);
     expect(response).toEqual({
       status: "success",
       result: {
@@ -74,12 +74,12 @@ describe("Batch executor", () => {
   });
 
   it("returns function result when calling a method", async () => {
-    const commands: BatchCommand[] = [
+    const commands: RunCommand[] = [
       { method: "get", propertyName: "getTestObject" },
       { method: "apply", args: ["arg"] },
     ];
 
-    const response = await executeBatchCommands(target, commands, referenceStore);
+    const response = await executeRunCommand(target, commands, referenceStore);
     expect(response).toEqual({
       status: "success",
       result: {
@@ -93,10 +93,10 @@ describe("Batch executor", () => {
   });
 
   it("returns function result when fetch and call is separate", async () => {
-    const fetchCommands: BatchCommand[] = [{ method: "get", propertyName: "getPropString" }];
-    const callCommands: BatchCommand[] = [{ method: "apply", args: [] }];
+    const fetchCommands: RunCommand[] = [{ method: "get", propertyName: "getPropString" }];
+    const callCommands: RunCommand[] = [{ method: "apply", args: [] }];
 
-    const response = await executeBatchCommands(target, fetchCommands, referenceStore);
+    const response = await executeRunCommand(target, fetchCommands, referenceStore);
     expect(response).toEqual({
       status: "success",
       result: {
@@ -113,7 +113,7 @@ describe("Batch executor", () => {
 
     const functionRefId = response.result.referenceId;
     const fun = referenceStore.get<TestTarget["getTestObject"]>(functionRefId);
-    const callResponse = await executeBatchCommands(fun!, callCommands, referenceStore);
+    const callResponse = await executeRunCommand(fun!, callCommands, referenceStore);
 
     expect(callResponse).toEqual({
       status: "success",
@@ -125,12 +125,12 @@ describe("Batch executor", () => {
   });
 
   it("calls method fetched using symbol property", async () => {
-    const commands: BatchCommand[] = [
+    const commands: RunCommand[] = [
       { method: "get", propertySymbol: serializeSymbol(Symbol.asyncDispose) },
       { method: "apply", args: [] },
     ];
 
-    const response = await executeBatchCommands(target, commands, referenceStore);
+    const response = await executeRunCommand(target, commands, referenceStore);
     expect(response).toEqual({
       status: "success",
       result: {
@@ -142,14 +142,14 @@ describe("Batch executor", () => {
   });
 
   it("is compatible with complex command sequences", async () => {
-    const commands: BatchCommand[] = [
+    const commands: RunCommand[] = [
       { method: "get", propertyName: "child" },
       { method: "get", propertyName: "getTestObject" },
       { method: "apply", args: ["complex"] },
       { method: "get", propertyName: "name" },
     ];
 
-    const response = await executeBatchCommands(target, commands, referenceStore);
+    const response = await executeRunCommand(target, commands, referenceStore);
     expect(response).toEqual({
       status: "success",
       result: {
@@ -160,12 +160,12 @@ describe("Batch executor", () => {
   });
 
   it("returns error when a command fails", async () => {
-    const commands: BatchCommand[] = [
+    const commands: RunCommand[] = [
       { method: "get", propertyName: "nonExistentProperty" }, // This returns undefined
       { method: "get", propertyName: "nonExistentProperty" }, // Trying to get property of undefined
     ];
 
-    const response = await executeBatchCommands(target, commands, referenceStore);
+    const response = await executeRunCommand(target, commands, referenceStore);
     expect(response.status).toBe("error");
     expect((response as any).error).toBeInstanceOf(Error);
   });

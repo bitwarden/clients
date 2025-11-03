@@ -1,5 +1,5 @@
 import { RpcError } from "./error";
-import { BatchCommand, deserializeSymbol, Response } from "./protocol";
+import { RunCommand, deserializeSymbol, Response } from "./protocol";
 import { ReferenceStore } from "./reference-store";
 
 const PRIMITIVE_TYPES = ["string", "number", "boolean", "undefined"];
@@ -18,9 +18,9 @@ const PRIMITIVE_TYPES = ["string", "number", "boolean", "undefined"];
  * @param commands The array of commands to execute.
  * @returns A promise that resolves to the response of the batch execution.
  */
-export async function executeBatchCommands(
+export async function executeRunCommand(
   target: any,
-  commands: BatchCommand[],
+  commands: RunCommand[],
   referenceStore: ReferenceStore,
 ): Promise<Response> {
   if (commands.length === 0) {

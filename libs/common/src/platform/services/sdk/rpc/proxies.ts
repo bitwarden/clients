@@ -1,6 +1,6 @@
 import { RpcRequestChannel } from "./client";
 import { RpcError } from "./error";
-import { ReferenceId, PropertySymbol, BatchCommand, serializeSymbol } from "./protocol";
+import { ReferenceId, PropertySymbol, RunCommand, serializeSymbol } from "./protocol";
 
 export type BatchingProxy<T> = {
   [ProxyInfo]: T & {
@@ -46,7 +46,7 @@ export function RpcObjectReference(channel: RpcRequestChannel, reference: RpcObj
  */
 export type RpcPendingObjectReference = {
   reference: RpcObjectReference;
-  commands: BatchCommand[];
+  commands: RunCommand[];
 };
 
 export function RpcPendingObjectReference(
@@ -70,7 +70,7 @@ function proxyHandler(
   target: any,
   channel: RpcRequestChannel,
   reference: RpcObjectReference,
-  commands: BatchCommand[],
+  commands: RunCommand[],
 ): any {
   return {
     get(target: any, property: string | PropertySymbol) {
@@ -86,7 +86,7 @@ function proxyHandler(
       }
 
       if (property === "then" && commands.length > 0) {
-        return BatchCommandExecutor(channel, reference.referenceId, commands);
+        return run(channel, reference.referenceId, commands);
       }
 
       if (property === "await") {
@@ -121,13 +121,13 @@ function proxyHandler(
   } satisfies ProxyHandler<any>;
 }
 
-function BatchCommandExecutor(
+function run(
   channel: RpcRequestChannel,
   referenceId: ReferenceId,
-  commands: BatchCommand[],
+  commands: RunCommand[],
 ): (onFulfilled: (value: any) => void, onRejected: (reason: any) => void) => void {
   const command = {
-    method: "batch",
+    method: "run",
     referenceId,
     commands: commands.filter((cmd) => cmd.method !== "await"),
   } as const;
@@ -156,7 +156,7 @@ function BatchCommandExecutor(
   };
 }
 
-function commandsToString(commands: BatchCommand[]): string {
+function commandsToString(commands: RunCommand[]): string {
   return commands
     .map((cmd) => {
       if (cmd.method === "get") {

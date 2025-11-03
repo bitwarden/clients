@@ -1,8 +1,8 @@
 import { Observable } from "rxjs";
 
-import { ProxyInfo, RpcObjectReference } from "./proxies";
 import { RpcRequestChannel } from "./client";
 import { Command, Response } from "./protocol";
+import { ProxyInfo, RpcObjectReference } from "./proxies";
 
 describe("Batching proxies", () => {
   let channel: RpcChannel;
@@ -120,7 +120,7 @@ describe("Batching proxies", () => {
 
     expect(channel.outgoing).toHaveLength(1);
     expect(channel.outgoing[0]).toEqual({
-      method: "batch",
+      method: "run",
       referenceId: 1,
       commands: [
         { method: "get", propertyName: "propOne" },
