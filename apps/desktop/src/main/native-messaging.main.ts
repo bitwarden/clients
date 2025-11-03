@@ -78,7 +78,7 @@ export class NativeMessagingMain {
       this.ipcServer.stop();
     }
 
-    this.ipcServer = await ipc.IpcServer.listen("bitwarden", (error, msg) => {
+    this.ipcServer = await ipc.IpcServer.listen("bw", (error, msg) => {
       switch (msg.kind) {
         case ipc.IpcMessageType.Connected: {
           this.connected.push(msg.clientId);

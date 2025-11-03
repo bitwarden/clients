@@ -172,8 +172,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "Nieuwe applicaties gevonden in $ORG NAME$",
+  "noApplicationsInOrgTitle": {
+    "message": "No applications found for $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -181,8 +181,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "Als gebruikers inloggegevens opslaan, verschijnen hier applicaties met wachtwoorden die risico lopen. Markeer belangrijke applicaties en attendeer gebruikers op het bijwerken van wachtwoorden."
+  "noApplicationsInOrgDescription": {
+    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  },
+  "benefit1Title": {
+    "message": "Prioritize risks"
+  },
+  "benefit1Description": {
+    "message": "Focus on applications that matter the most"
+  },
+  "benefit2Title": {
+    "message": "Guide remediation"
+  },
+  "benefit2Description": {
+    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  },
+  "benefit3Title": {
+    "message": "Monitor progress"
+  },
+  "benefit3Description": {
+    "message": "Track changes over time to show security improvements"
+  },
+  "noReportRunTitle": {
+    "message": "Run your first report to see applications"
+  },
+  "noReportRunDescription": {
+    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Je hebt nog geen applicaties als belangrijk aangewezen"
@@ -327,6 +351,27 @@
   },
   "markAsCriticalPlaceholder": {
     "message": "Markeren als kritieke functionaliteit wordt geïmplementeerd in een toekomstige update"
+  },
+  "applicationReviewSaved": {
+    "message": "Application review saved"
+  },
+  "applicationsMarkedAsCritical": {
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "newApplicationsReviewed": {
+    "message": "New applications reviewed"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Error saving review status"
+  },
+  "pleaseTryAgain": {
+    "message": "Please try again"
   },
   "unmarkAsCritical": {
     "message": "Markeren als belangrijk ongedaan maken"
@@ -1313,6 +1358,9 @@
   },
   "useSingleSignOn": {
     "message": "Single sign-on gebruiken"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
   },
   "welcomeBack": {
     "message": "Welkom terug"
@@ -4449,8 +4497,8 @@
   "inviteAccepted": {
     "message": "Uitnodiging geaccepteerd"
   },
-  "inviteAcceptedDesc": {
-    "message": "Je krijgt toegang tot deze organisatie zodra een beheerder je lidmaatschap bevestigt. We sturen je een e-mail zodra dat gebeurt."
+  "invitationAcceptedDesc": {
+    "message": "Je uitnodiging is geaccepteerd."
   },
   "inviteInitAcceptedDesc": {
     "message": "Je hebt nu toegang tot deze organisatie."
@@ -5717,20 +5765,20 @@
     "message": "Nu beschikbaar"
   },
   "autoConfirm": {
-    "message": "Automatic confirmation of new users"
+    "message": "Automatische bevestiging van nieuwe gebruikers"
   },
   "autoConfirmDescription": {
-    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
+    "message": "Nieuwe uitgenodigde gebruikers in de organisatie worden automatisch bevestigd wanneer het apparaat van een beheerder is ontgrendeld.",
     "description": "This is the description of the policy as it appears in the 'Policies' page"
   },
   "howToTurnOnAutoConfirm": {
-    "message": "How to turn on automatic user confirmation"
+    "message": "Automatische bevestiging van gebruikers inschakelen"
   },
   "autoConfirmStep1": {
-    "message": "Open your Bitwarden extension."
+    "message": "De Bitwarden-extensie openen."
   },
   "autoConfirmStep2a": {
-    "message": "Select",
+    "message": "Selecteer",
     "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
   },
   "autoConfirmStep2b": {
@@ -5738,39 +5786,39 @@
     "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
   },
   "autoConfirmExtensionOpened": {
-    "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
+    "message": "De Bitwarden-browserextensie is succesvol geopend. Je kunt nu de automatische bevestiging van de gebruiker activeren."
   },
   "autoConfirmPolicyEditDescription": {
-    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "message": "Nieuwe uitgenodigde gebruikers in de organisatie worden automatisch bevestigd wanneer het apparaat van een beheerder is ontgrendeld. Voordat je dit beleid gaat inschakelt, graag het volgende lezen en instemmen: ",
     "description": "This is the description of the policy as it appears inside the policy edit dialog"
   },
   "autoConfirmAcceptSecurityRiskTitle": {
     "message": "Mogelijk beveiligingsrisico. "
   },
   "autoConfirmAcceptSecurityRiskDescription": {
-    "message": "Automatic user confirmation could pose a security risk to your organization’s data."
+    "message": "Automatische gebruikersbevestiging kan een beveiligingsrisico vormen voor de gegevens van je organisatie."
   },
   "autoConfirmAcceptSecurityRiskLearnMore": {
-    "message": "Learn about the risks",
+    "message": "Meer informatie over de risico's",
     "description": "The is the link copy for the first check box option in the edit policy dialog"
   },
   "autoConfirmSingleOrgRequired": {
-    "message": "Single organization policy required. "
+    "message": "Enkele Organisatie-beleid vereist "
   },
   "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
+    "message": "Iedereen die deel uitmaakt van meer dan één organisatie krijgt zijn toegang ingetrokken totdat deze de andere organisaties verlaat."
   },
   "autoConfirmSingleOrgExemption": {
-    "message": "Single organization policy will extend to all roles. "
+    "message": "Het beleid inzake één organisatie strekt zich uit tot alle rollen. "
   },
   "autoConfirmNoEmergencyAccess": {
-    "message": "No emergency access. "
+    "message": "Geen noodtoegang. "
   },
   "autoConfirmNoEmergencyAccessDescription": {
-    "message": "Emergency Access will be removed."
+    "message": "Noodtoegang zal worden verwijderd."
   },
   "autoConfirmCheckBoxLabel": {
-    "message": "I accept these risks and policy updates"
+    "message": "Ik accepteer deze risico's en beleidsupdates"
   },
   "personalOwnership": {
     "message": "Persoonlijk eigendom"
@@ -6492,23 +6540,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "Je organisatie heeft je versleutelingsopties gewijzigd. Stel een hoofdwachtwoord in om toegang te krijgen tot je kluis."
   },
-  "maximumVaultTimeout": {
-    "message": "Time-out van de kluis"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Sessie time-out"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Stel een maximale time-out van de kluis in voor alle gebruikers."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Stel een maximale sessie time-out in voor alle leden behalve eigenaren."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Maximale time-out van de kluis"
+  "maximumAllowedTimeout": {
+    "message": "Maximaal toegestane time-out"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "Ongeldige maximale time-out van de kluis."
+  "maximumAllowedTimeoutRequired": {
+    "message": "Maximaal toegestane time-out is vereist."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Tijd is ongeldig. Wijzig ten minste één waarde."
+  },
+  "sessionTimeoutAction": {
+    "message": "Actie voor sessie time-out"
+  },
+  "immediately": {
+    "message": "Onmiddellijk"
+  },
+  "onSystemLock": {
+    "message": "Bij systeemvergrendeling"
+  },
+  "onAppRestart": {
+    "message": "Na opnieuw starten"
   },
   "hours": {
     "message": "Uren"
   },
   "minutes": {
     "message": "Minuten"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Weet je zeker dat je een maximale time-out van \"Nooit\" wilt toestaan voor alle leden?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "Deze optie slaat de encryptiesleutels van je leden op hun apparaten op. Als je deze optie kiest, zorg er dan voor dat hun apparaten voldoende worden beschermd."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Lees meer over apparaatbescherming"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "\"Systeem vergrendeling\" zal alleen van toepassing zijn op de browser en desktop app"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "De mobiele en web-app gebruikt \"bij herstarten van de app\" als maximaal toegestane time-out, aangezien de optie niet wordt ondersteund."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Het beleid van je organisatie heeft invloed op de time-out van je kluis. De maximaal toegestane time-out voor je kluis is $HOURS$ uur en $MINUTES$ minuten.",
@@ -11936,5 +12014,14 @@
   },
   "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
     "message": "Argon2id biedt een sterkere bescherming tegen moderne aanvallen. Het beste voor geavanceerde gebruikers met krachtige apparaten."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Postcode"
+  },
+  "cardNumberLabel": {
+    "message": "Kaartnummer"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Start gratis Families-proefperiode"
   }
 }

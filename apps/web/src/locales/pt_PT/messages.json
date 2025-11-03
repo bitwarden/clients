@@ -172,8 +172,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "Não foram encontradas aplicações em $ORG NAME$",
+  "noApplicationsInOrgTitle": {
+    "message": "Não foram encontradas aplicações para $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -181,8 +181,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "À medida que os utilizadores guardam as credenciais, as aplicações aparecem aqui, mostrando quaisquer palavras-passe em risco. Marque as aplicações críticas e notifique os utilizadores para atualizarem as palavras-passe."
+  "noApplicationsInOrgDescription": {
+    "message": "Importe as credenciais da sua organização para começar a monitorizar os riscos de segurança das credenciais. Após a importação, poderá:"
+  },
+  "benefit1Title": {
+    "message": "Priorizar os riscos"
+  },
+  "benefit1Description": {
+    "message": "Com foco nas aplicações mais importantes"
+  },
+  "benefit2Title": {
+    "message": "Remediação de guias"
+  },
+  "benefit2Description": {
+    "message": "Atribuir tarefas orientadas aos membros em risco para alterar as credenciais em risco"
+  },
+  "benefit3Title": {
+    "message": "Monitorizar o progresso"
+  },
+  "benefit3Description": {
+    "message": "Acompanhe as alterações ao longo do tempo para mostrar as melhorias na segurança"
+  },
+  "noReportRunTitle": {
+    "message": "Execute o seu primeiro relatório para ver as aplicações"
+  },
+  "noReportRunDescription": {
+    "message": "Gere um relatório de insights de risco para analisar as aplicações da sua organização e identificar palavras-passe em risco que precisam de atenção. A execução do seu primeiro relatório irá:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Não marcou nenhuma aplicação como crítica"
@@ -327,6 +351,27 @@
   },
   "markAsCriticalPlaceholder": {
     "message": "A funcionalidade marcada como crítica será implementada numa atualização futura"
+  },
+  "applicationReviewSaved": {
+    "message": "Revisão da aplicação guardada"
+  },
+  "applicationsMarkedAsCritical": {
+    "message": "$COUNT$ marcadas como críticas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "newApplicationsReviewed": {
+    "message": "Novas aplicações revistas"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Erro ao guardar o estado da revisão"
+  },
+  "pleaseTryAgain": {
+    "message": "Por favor, tente novamente"
   },
   "unmarkAsCritical": {
     "message": "Desmarcar como crítica"
@@ -1313,6 +1358,9 @@
   },
   "useSingleSignOn": {
     "message": "Utilizar início de sessão único"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "A sua organização exige o início de sessão único."
   },
   "welcomeBack": {
     "message": "Bem-vindo de volta"
@@ -4449,8 +4497,8 @@
   "inviteAccepted": {
     "message": "Convite aceite"
   },
-  "inviteAcceptedDesc": {
-    "message": "Pode aceder a esta organização quando um administrador confirmar a sua inscrição. Enviar-lhe-emos um e-mail quando tal acontecer."
+  "invitationAcceptedDesc": {
+    "message": "O seu convite foi aceite com sucesso."
   },
   "inviteInitAcceptedDesc": {
     "message": "Já pode aceder a esta organização."
@@ -5714,63 +5762,63 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "availableNow": {
-    "message": "Available now"
+    "message": "Já disponível"
   },
   "autoConfirm": {
-    "message": "Automatic confirmation of new users"
+    "message": "Confirmação automática de novos utilizadores"
   },
   "autoConfirmDescription": {
-    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
+    "message": "Os novos utilizadores convidados para a organização serão automaticamente confirmados quando o dispositivo de um administrador for desbloqueado.",
     "description": "This is the description of the policy as it appears in the 'Policies' page"
   },
   "howToTurnOnAutoConfirm": {
-    "message": "How to turn on automatic user confirmation"
+    "message": "Como ativar a confirmação automática do utilizador"
   },
   "autoConfirmStep1": {
-    "message": "Open your Bitwarden extension."
+    "message": "Abra a sua extensão Bitwarden."
   },
   "autoConfirmStep2a": {
-    "message": "Select",
+    "message": "Selecione",
     "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
   },
   "autoConfirmStep2b": {
-    "message": " Turn on.",
+    "message": " Ativar.",
     "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
   },
   "autoConfirmExtensionOpened": {
-    "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
+    "message": "A extensão do navegador Bitwarden foi aberta com sucesso. Agora pode ativar a configuração de confirmação automática do utilizador."
   },
   "autoConfirmPolicyEditDescription": {
-    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "message": "Os novos utilizadores convidados para a organização serão automaticamente confirmados quando o dispositivo de um administrador for desbloqueado. Antes de ativar esta política, reveja e concorde com o seguinte: ",
     "description": "This is the description of the policy as it appears inside the policy edit dialog"
   },
   "autoConfirmAcceptSecurityRiskTitle": {
-    "message": "Potential security risk. "
+    "message": "Potencial risco de segurança. "
   },
   "autoConfirmAcceptSecurityRiskDescription": {
-    "message": "Automatic user confirmation could pose a security risk to your organization’s data."
+    "message": "A confirmação automática do utilizador pode representar um risco de segurança para os dados da sua organização."
   },
   "autoConfirmAcceptSecurityRiskLearnMore": {
-    "message": "Learn about the risks",
+    "message": "Saiba mais sobre os riscos",
     "description": "The is the link copy for the first check box option in the edit policy dialog"
   },
   "autoConfirmSingleOrgRequired": {
-    "message": "Single organization policy required. "
+    "message": "É necessária uma política de organização única. "
   },
   "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
+    "message": "Qualquer pessoa que faça parte de mais de uma organização terá o seu acesso revogado até que saia das outras organizações."
   },
   "autoConfirmSingleOrgExemption": {
-    "message": "Single organization policy will extend to all roles. "
+    "message": "A política de organização única será estendida a todos os papéis. "
   },
   "autoConfirmNoEmergencyAccess": {
-    "message": "No emergency access. "
+    "message": "Sem acesso de emergência. "
   },
   "autoConfirmNoEmergencyAccessDescription": {
-    "message": "Emergency Access will be removed."
+    "message": "O acesso de emergência será removido."
   },
   "autoConfirmCheckBoxLabel": {
-    "message": "I accept these risks and policy updates"
+    "message": "Aceito estes riscos e atualizações da política"
   },
   "personalOwnership": {
     "message": "Remover cofre pessoal"
@@ -6492,23 +6540,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "A sua organização atualizou as opções de desencriptação. Por favor, defina uma palavra-passe mestra para aceder ao seu cofre."
   },
-  "maximumVaultTimeout": {
-    "message": "Tempo limite do cofre"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Tempo limite da sessão"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Definir um tempo limite máximo do cofre para os membros."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Defina um tempo limite máximo de sessão para todos os membros, exceto proprietários."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Tempo limite máximo do cofre"
+  "maximumAllowedTimeout": {
+    "message": "Tempo limite máximo permitido"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "Tempo limite máximo do cofre inválido."
+  "maximumAllowedTimeoutRequired": {
+    "message": "É necessário o tempo limite máximo permitido."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "O tempo é inválido. Altere pelo menos um valor."
+  },
+  "sessionTimeoutAction": {
+    "message": "Ação de tempo limite da sessão"
+  },
+  "immediately": {
+    "message": "Imediatamente"
+  },
+  "onSystemLock": {
+    "message": "Ao bloquear o sistema"
+  },
+  "onAppRestart": {
+    "message": "Ao reiniciar a app"
   },
   "hours": {
     "message": "Horas"
   },
   "minutes": {
     "message": "Minutos"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Tem a certeza de que deseja permitir um tempo limite máximo de \"Nunca\" para todos os membros?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "Esta opção guardará as chaves de encriptação dos seus membros nos seus dispositivos. Se escolher esta opção, certifique-se de que os dispositivos deles estão adequadamente protegidos."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Saiba mais sobre a proteção de dispositivos"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "O \"bloqueio do sistema\" só se aplicará ao navegador e à app para computador"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "A app móvel e Web utilizará \"ao reiniciar a app\" como o tempo limite máximo permitido, uma vez que a opção não é suportada."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "As políticas da sua organização definiram o tempo limite máximo permitido do cofre de $HOURS$ hora(s) e $MINUTES$ minuto(s).",
@@ -11936,5 +12014,14 @@
   },
   "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
     "message": "O Argon2id oferece uma proteção mais forte contra ataques modernos. Ideal para utilizadores avançados com dispositivos potentes."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Código postal"
+  },
+  "cardNumberLabel": {
+    "message": "Número do cartão"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Comece o teste gratuito do plano Familiar"
   }
 }
