@@ -8,7 +8,8 @@
     [routerLinkActiveOptions]="routerLinkActiveOptions()"
     (mainContentClicked)="handleMainContentClicked()"
     [ariaLabel]="ariaLabel()"
-    [hideActiveStyles]="parentHideActiveStyles"
+    [hideActiveStyles]="parentHideActiveStyles()"
+    [ariaCurrentWhenActive]="ariaCurrent()"
   >
     <ng-template #button>
       <button
@@ -18,7 +19,6 @@
         [buttonType]="'nav-contrast'"
         (click)="toggle($event)"
         size="small"
-        aria-haspopup="true"
         [attr.aria-expanded]="open().toString()"
         [attr.aria-controls]="contentId"
         [label]="['toggleCollapse' | i18n, text()].join(' ')"
@@ -30,7 +30,7 @@
     </ng-container>
   </bit-nav-item>
   <!-- [attr.aria-controls] of the above button expects a unique ID on the controlled element -->
-  @if (sideNavService.open$ | async) {
+  @if (sideNavOpen()) {
     @if (open()) {
       <div
         [attr.id]="contentId"

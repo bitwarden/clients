@@ -101,6 +101,8 @@ export class RiskInsightsOrchestratorService {
   // --------------------------- Trigger subjects ---------------------
   private _initializeOrganizationTriggerSubject = new Subject<OrganizationId>();
   private _fetchReportTriggerSubject = new Subject<void>();
+  private _markUnmarkUpdatesSubject = new Subject<ReportState>();
+  private _markUnmarkUpdates$ = this._markUnmarkUpdatesSubject.asObservable();
 
   private _reportStateSubscription: Subscription | null = null;
   private _migrationSubscription: Subscription | null = null;
@@ -163,6 +165,7 @@ export class RiskInsightsOrchestratorService {
   initializeForOrganization(organizationId: OrganizationId) {
     this.logService.debug("[RiskInsightsOrchestratorService] Initializing for org", organizationId);
     this._initializeOrganizationTriggerSubject.next(organizationId);
+    this.fetchReport();
   }
 
   removeCriticalApplication$(criticalApplication: string): Observable<ReportState> {
@@ -236,7 +239,12 @@ export class RiskInsightsOrchestratorService {
           )
           .pipe(
             map(() => updatedState),
-            tap((finalState) => this._rawReportDataSubject.next(finalState)),
+            tap((finalState) => {
+              this._markUnmarkUpdatesSubject.next({
+                ...finalState,
+                organizationId: reportState.organizationId,
+              });
+            }),
             catchError((error: unknown) => {
               this.logService.error("Failed to save updated applicationData", error);
               return of({ ...reportState, error: "Failed to remove a critical application" });
@@ -318,7 +326,12 @@ export class RiskInsightsOrchestratorService {
           )
           .pipe(
             map(() => updatedState),
-            tap((finalState) => this._rawReportDataSubject.next(finalState)),
+            tap((finalState) => {
+              this._markUnmarkUpdatesSubject.next({
+                ...finalState,
+                organizationId: reportState.organizationId,
+              });
+            }),
             catchError((error: unknown) => {
               this.logService.error("Failed to save updated applicationData", error);
               return of({ ...reportState, error: "Failed to save critical applications" });
@@ -336,10 +349,13 @@ export class RiskInsightsOrchestratorService {
           loading: false,
           error: null,
           data: result ?? null,
+          organizationId,
         };
       }),
-      catchError(() => of({ loading: false, error: "Failed to fetch report", data: null })),
-      startWith({ loading: true, error: null, data: null }),
+      catchError(() =>
+        of({ loading: false, error: "Failed to fetch report", data: null, organizationId }),
+      ),
+      startWith({ loading: true, error: null, data: null, organizationId }),
     );
   }
 
@@ -400,12 +416,18 @@ export class RiskInsightsOrchestratorService {
             creationDate: new Date(),
             contentEncryptionKey,
           },
+          organizationId,
         };
       }),
-      catchError(() => {
-        return of({ loading: false, error: "Failed to generate or save report", data: null });
+      catchError((): Observable<ReportState> => {
+        return of({
+          loading: false,
+          error: "Failed to generate or save report",
+          data: null,
+          organizationId,
+        });
       }),
-      startWith({ loading: true, error: null, data: null }),
+      startWith<ReportState>({ loading: true, error: null, data: null, organizationId }),
     );
   }
 
@@ -581,7 +603,7 @@ export class RiskInsightsOrchestratorService {
   private _setupEnrichedReportData() {
     // Setup the enriched report data pipeline
     const enrichmentSubscription = combineLatest([
-      this.rawReportData$.pipe(filter((data) => !!data && !!data?.data)),
+      this.rawReportData$,
       this._ciphers$.pipe(filter((data) => !!data)),
     ]).pipe(
       switchMap(([rawReportData, ciphers]) => {
@@ -621,7 +643,7 @@ export class RiskInsightsOrchestratorService {
       .pipe(
         withLatestFrom(this._userId$),
         filter(([orgId, userId]) => !!orgId && !!userId),
-        exhaustMap(([orgId, userId]) =>
+        switchMap(([orgId, userId]) =>
           this.organizationService.organizations$(userId!).pipe(
             getOrganizationById(orgId),
             map((org) => ({ organizationId: orgId!, organizationName: org?.name ?? "" })),
@@ -714,12 +736,26 @@ export class RiskInsightsOrchestratorService {
       initialReportLoad$,
       manualReportFetch$,
       newReportGeneration$,
+      this._markUnmarkUpdates$,
     ).pipe(
-      scan((prevState: ReportState, currState: ReportState) => ({
-        ...prevState,
-        ...currState,
-        data: currState.data !== null ? currState.data : prevState.data,
-      })),
+      scan((prevState: ReportState, currState: ReportState) => {
+        // If organization changed, use new state completely (don't preserve old data)
+        // This allows null data to clear old org's data when switching orgs
+        if (currState.organizationId && prevState.organizationId !== currState.organizationId) {
+          return {
+            ...currState,
+            data: currState.data, // Allow null to clear old org's data
+          };
+        }
+
+        // Same org (or no org ID): preserve data when currState.data is null
+        // This preserves critical flags during loading states within the same org
+        return {
+          ...prevState,
+          ...currState,
+          data: currState.data !== null ? currState.data : prevState.data,
+        };
+      }),
       startWith({ loading: false, error: null, data: null }),
       shareReplay({ bufferSize: 1, refCount: true }),
       takeUntil(this._destroy$),

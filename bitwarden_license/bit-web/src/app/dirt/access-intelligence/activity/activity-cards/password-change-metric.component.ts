@@ -191,7 +191,7 @@ export class PasswordChangeMetricComponent implements OnInit {
   async assignTasks() {
     await this.accessIntelligenceSecurityTasksService.assignTasks(
       this.organizationId,
-      this.allApplicationsDetails,
+      this.allApplicationsDetails.filter((app) => app.isMarkedAsCritical),
     );
   }
 }

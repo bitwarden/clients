@@ -55,6 +55,9 @@ export class AllActivitiesService {
   }
 
   setCriticalAppsReportSummary(summary: OrganizationReportSummary) {
+    if (!summary) {
+      return;
+    }
     this.reportSummarySubject$.next({
       ...this.reportSummarySubject$.getValue(),
       totalCriticalApplicationCount: summary.totalApplicationCount,
@@ -65,6 +68,10 @@ export class AllActivitiesService {
   }
 
   setAllAppsReportSummary(summary: OrganizationReportSummary) {
+    if (!summary) {
+      return;
+    }
+
     this.reportSummarySubject$.next({
       ...this.reportSummarySubject$.getValue(),
       totalMemberCount: summary.totalMemberCount,
@@ -76,12 +83,9 @@ export class AllActivitiesService {
   }
 
   setAllAppsReportDetails(applications: ApplicationHealthReportDetailEnriched[]) {
-    // Only count at-risk passwords for CRITICAL applications
-    const criticalApps = applications.filter((app) => app.isMarkedAsCritical);
-    const totalAtRiskPasswords = criticalApps.reduce(
-      (sum, app) => sum + app.atRiskPasswordCount,
-      0,
-    );
+    const totalAtRiskPasswords = applications
+      .filter((app) => app.isMarkedAsCritical)
+      .reduce((sum, app) => sum + app.atRiskPasswordCount, 0);
     this.atRiskPasswordsCountSubject$.next(totalAtRiskPasswords);
 
     this.allApplicationsDetailsSubject$.next(applications);

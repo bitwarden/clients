@@ -31,6 +31,7 @@ import { ProviderOrganizationCreateRequest } from "@bitwarden/common/admin-conso
 import { ProviderResponse } from "@bitwarden/common/admin-console/models/response/provider/provider.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { PlanSponsorshipType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { BillingResponse } from "@bitwarden/common/billing/models/response/billing.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
@@ -41,7 +42,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
@@ -654,7 +655,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
         orgId = this.selfHosted
           ? await this.createSelfHosted(key, collectionCt, orgKeys)
-          : await this.createCloudHosted(key, collectionCt, orgKeys, orgKey[1]);
+          : await this.createCloudHosted(key, collectionCt, orgKeys, orgKey[1], activeUserId);
 
         this.toastService.showToast({
           variant: "success",
@@ -808,6 +809,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     collectionCt: string,
     orgKeys: [string, EncString],
     orgKey: SymmetricCryptoKey,
+    activeUserId: UserId,
   ): Promise<string> {
     const request = new OrganizationCreateRequest();
     request.key = key;
@@ -855,7 +857,14 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         this.formGroup.controls.clientOwnerEmail.value,
         request,
       );
-      const providerKey = await this.keyService.getProviderKey(this.providerId);
+
+      const providerKey = await firstValueFrom(
+        this.keyService
+          .providerKeys$(activeUserId)
+          .pipe(map((providerKeys) => providerKeys?.[this.providerId as ProviderId] ?? null)),
+      );
+      assertNonNullish(providerKey, "Provider key not found");
+
       providerRequest.organizationCreateRequest.key = (
         await this.encryptService.wrapSymmetricKey(orgKey, providerKey)
       ).encryptedString;
