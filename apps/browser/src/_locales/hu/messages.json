@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Egyszeri bejelentkezés használata"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Üdvözlet újra"
   },
@@ -588,6 +591,9 @@
   "view": {
     "message": "Nézet"
   },
+  "viewAll": {
+    "message": "Összes megtekintése"
+  },
   "viewLogin": {
     "message": "Bejelentkezés megtekintése"
   },
@@ -1027,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Az elem szerkesztésre került."
+  },
+  "savedWebsite": {
+    "message": "Mentett webhely"
+  },
+  "savedWebsites": {
+    "message": "Mentett webhelyek ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Biztosan törlésre kerüljön ezt az elem?"
@@ -1676,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Automat kitöltés bekapcsolása"
   },
+  "confirmAutofill": {
+    "message": "Automatikus kitöltés megerősítése"
+  },
+  "confirmAutofillDesc": {
+    "message": "Ez a webhely nem egyezik a mentett bejelentkezési adatokkal. Mielőtt kitöltenénk a bejelentkezés hitelesítő adatokat, győződjünk meg arról, hogy megbízható webhelyről van-e szó."
+  },
   "showInlineMenuLabel": {
     "message": "Automatikus kitöltési javaslatok megjelenítése űrlapmezőknél"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Hogyan védi meg a Bitwarden az adathalászattól az adatokat?"
+  },
+  "currentWebsite": {
+    "message": "Jelenlegi webhely"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Automatikus kitöltés és ezen webhely hozzáadása"
+  },
+  "autofillWithoutAdding": {
+    "message": "Automatikus kitöltés hozzáadás nélkül"
+  },
+  "doNotAutofill": {
+    "message": "Ne legyen automatikus kitöltés"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Az identitások megjelenítése javaslatként"
@@ -3240,6 +3279,9 @@
   "decryptionError": {
     "message": "Visszafejtési hiba"
   },
+  "errorGettingAutoFillData": {
+    "message": "Hiba történt az automatikus kitöltési adatok beolvasásakor."
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "A Bitwarden nem tudta visszafejteni az alább felsorolt ​​széf elemeket."
   },
@@ -4010,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Az automatikus kitöltés az oldal betöltésekor az alapértelmezett beállítás használatára lett beállítva.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Nem lehetséges az automatikus kitöltés."
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Az alapértelmezett egyezés beállítása 'Pontos egyezés'. Az aktuális webhely nem egyezik pontosan az ezzel az elemmel mentett bejelentkezési adatokkal."
+  },
+  "okay": {
+    "message": "OK"
   },
   "toggleSideNavigation": {
     "message": "Oldalnavigáció váltás"
@@ -5721,5 +5772,11 @@
   "settingDisabledByPolicy": {
     "message": "Ezt a beállítást a szervezet házirendje letiltotta.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Irányítószám"
+  },
+  "cardNumberLabel": {
+    "message": "Kártya szám"
   }
 }
