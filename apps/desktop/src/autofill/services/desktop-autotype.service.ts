@@ -2,6 +2,7 @@ import { Injectable, OnDestroy } from "@angular/core";
 import {
   combineLatest,
   concatMap,
+  distinctUntilChanged,
   filter,
   firstValueFrom,
   map,
@@ -88,6 +89,7 @@ export class DesktopAutotypeService implements OnDestroy {
   ) {
     this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$.pipe(
       map((enabled) => enabled ?? false),
+      distinctUntilChanged(), // Only emit when the boolean result changes
       takeUntil(this.destroy$),
     );
 
@@ -96,6 +98,7 @@ export class DesktopAutotypeService implements OnDestroy {
       switchMap((account) =>
         this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
       ),
+      distinctUntilChanged(), // Only emit when the boolean result changes
       takeUntil(this.destroy$),
     );
 
@@ -190,6 +193,7 @@ export class DesktopAutotypeService implements OnDestroy {
           authStatus === AuthenticationStatus.Unlocked &&
           isPremiumAcct,
       ),
+      distinctUntilChanged(), // Only emit when the boolean result changes
       takeUntil(this.destroy$),
     );
   }
