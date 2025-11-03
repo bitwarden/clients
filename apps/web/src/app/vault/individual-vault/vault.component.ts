@@ -335,6 +335,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private organizationWarningsService: OrganizationWarningsService,
     private policyService: PolicyService,
     private unifiedUpgradePromptService: UnifiedUpgradePromptService,
+    private autoConfirmService: AutomaticUserConfirmationService,
+    private configService: ConfigService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
     private autoConfirmService: AutomaticUserConfirmationService,
     private configService: ConfigService,
