@@ -156,7 +156,7 @@ struct AllProfiles {
 #[derive(serde::Deserialize, Clone)]
 struct OneProfile {
     name: String,
-    gaia_name: Option<String>,
+    gaia_id: Option<String>,
     user_name: Option<String>,
 }
 
@@ -200,13 +200,13 @@ fn get_profile_info(local_state: &LocalState) -> Vec<ProfileInfo> {
         .info_cache
         .iter()
         .map(|(name, info)| ProfileInfo {
-            name: if info.name.is_empty() {
-                name.clone()
-            } else {
+            name: if !info.name.is_empty() {
                 info.name.clone()
+            } else {
+                String::from("Default")
             },
             folder: name.clone(),
-            account_name: info.gaia_name.clone(),
+            account_name: info.gaia_id.clone(),
             account_email: info.user_name.clone(),
         })
         .collect()
@@ -362,12 +362,12 @@ mod tests {
     fn make_local_state(profiles: Vec<(&str, &str, Option<&str>, Option<&str>)>) -> LocalState {
         let info_cache = profiles
             .into_iter()
-            .map(|(folder, name, gaia_name, user_name)| {
+            .map(|(folder, name, gaia_id, user_name)| {
                 (
                     folder.to_string(),
                     OneProfile {
                         name: name.to_string(),
-                        gaia_name: gaia_name.map(|s| s.to_string()),
+                        gaia_id: gaia_id.map(|s| s.to_string()),
                         user_name: user_name.map(|s| s.to_string()),
                     },
                 )
@@ -424,7 +424,7 @@ mod tests {
         )]);
         let infos = get_profile_info(&local_state);
         assert_eq!(infos.len(), 1);
-        assert_eq!(infos[0].name, "ProfileX");
+        assert_eq!(infos[0].name, "Default");
         assert_eq!(infos[0].folder, "ProfileX");
     }
 
@@ -448,7 +448,7 @@ mod tests {
         let infos = get_profile_info(&local_state);
         assert_eq!(infos.len(), 3);
         assert_eq!(infos[0].name, "N1");
-        assert_eq!(infos[1].name, "P2");
+        assert_eq!(infos[1].name, "Default");
         assert_eq!(infos[2].name, "N3");
         assert_eq!(infos[2].account_name.as_deref(), Some("A3"));
         assert_eq!(infos[2].account_email, None);
