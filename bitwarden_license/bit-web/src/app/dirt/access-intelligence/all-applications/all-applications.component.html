@@ -6,71 +6,80 @@
     <h2 class="tw-mb-6" bitTypography="h2">{{ "allApplications" | i18n }}</h2>
     <div class="tw-flex tw-gap-6">
       <div
+        role="region"
+        [attr.aria-label]="'atRiskMembers' | i18n"
         class="tw-flex-1 tw-box-border tw-bg-background tw-block tw-text-main tw-border-solid tw-border tw-border-secondary-300 tw-rounded-lg tw-p-4"
         [ngClass]="{
           'tw-bg-primary-100': drawerDetails.invokerId === 'allAppsOrgAtRiskMembers',
         }"
       >
         <div class="tw-flex tw-flex-col tw-gap-1">
-          <span bitTypography="h6" class="tw-flex tw-text-main">{{ "atRiskMembers" | i18n }}</span>
-          <div class="tw-flex tw-items-baseline tw-gap-2">
-            <span bitTypography="h3" class="!tw-mb-0">{{
-              applicationSummary.totalAtRiskMemberCount
-            }}</span>
+          <span bitTypography="h6" class="tw-flex tw-text-main" id="allAppsAtRiskMembersLabel">{{
+            "atRiskMembers" | i18n
+          }}</span>
+          <div class="tw-flex tw-items-baseline tw-gap-2" role="status" aria-live="polite">
+            <span
+              bitTypography="h3"
+              class="!tw-mb-0"
+              aria-describedby="allAppsAtRiskMembersLabel"
+              >{{ applicationSummary.totalAtRiskMemberCount }}</span
+            >
             <span bitTypography="body2">{{
               "cardMetrics" | i18n: applicationSummary.totalMemberCount
             }}</span>
           </div>
           <div class="tw-flex tw-items-baseline tw-mt-1 tw-gap-2">
             <p bitTypography="body1" class="tw-mb-0">
-              <a
-                #allAppsOrgAtRiskMembers
+              <button
+                type="button"
                 bitLink
-                href="#"
-                (click)="
-                  dataService.setDrawerForOrgAtRiskMembers('allAppsOrgAtRiskMembers');
-                  $event.preventDefault()
-                "
-                rel="noreferrer"
+                [attr.aria-label]="('viewAtRiskMembers' | i18n) + ': ' + ('atRiskMembers' | i18n)"
+                (click)="dataService.setDrawerForOrgAtRiskMembers('allAppsOrgAtRiskMembers')"
               >
                 {{ "viewAtRiskMembers" | i18n }}
-              </a>
+              </button>
             </p>
           </div>
         </div>
       </div>
       <div
+        role="region"
+        [attr.aria-label]="'atRiskApplications' | i18n"
         class="tw-flex-1 tw-box-border tw-bg-background tw-block tw-text-main tw-border-solid tw-border tw-border-secondary-300 tw-rounded-lg tw-p-4"
         [ngClass]="{
           'tw-bg-primary-100': drawerDetails.invokerId === 'allAppsOrgAtRiskApplications',
         }"
       >
         <div class="tw-flex tw-flex-col tw-gap-1">
-          <span bitTypography="h6" class="tw-flex tw-text-main">{{
-            "atRiskApplications" | i18n
-          }}</span>
-          <div class="tw-flex tw-items-baseline tw-gap-2">
-            <span bitTypography="h3" class="!tw-mb-0">{{
-              applicationSummary.totalAtRiskApplicationCount
-            }}</span>
+          <span
+            bitTypography="h6"
+            class="tw-flex tw-text-main"
+            id="allAppsAtRiskApplicationsLabel"
+            >{{ "atRiskApplications" | i18n }}</span
+          >
+          <div class="tw-flex tw-items-baseline tw-gap-2" role="status" aria-live="polite">
+            <span
+              bitTypography="h3"
+              class="!tw-mb-0"
+              aria-describedby="allAppsAtRiskApplicationsLabel"
+              >{{ applicationSummary.totalAtRiskApplicationCount }}</span
+            >
             <span bitTypography="body2">{{
               "cardMetrics" | i18n: applicationSummary.totalApplicationCount
             }}</span>
           </div>
           <div class="tw-flex tw-items-baseline tw-mt-1 tw-gap-2">
             <p bitTypography="body1" class="tw-mb-0">
-              <a
-                #allAppsOrgAtRiskApplications
+              <button
+                type="button"
                 bitLink
-                href="#"
-                (click)="
-                  dataService.setDrawerForOrgAtRiskApps('allAppsOrgAtRiskApplications');
-                  $event.preventDefault()
+                [attr.aria-label]="
+                  ('viewAtRiskApplications' | i18n) + ': ' + ('atRiskApplications' | i18n)
                 "
-                rel="noreferrer"
+                (click)="dataService.setDrawerForOrgAtRiskApps('allAppsOrgAtRiskApplications')"
               >
                 {{ "viewAtRiskApplications" | i18n }}
-              </a>
+              </button>
             </p>
           </div>
         </div>
