@@ -11,6 +11,7 @@ import {
   switchMap,
   takeUntil,
 } from "rxjs";
+import { Injectable, OnDestroy } from "@angular/core";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -31,9 +32,7 @@ import { LogService } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
 
 import { AutotypeConfig } from "../models/autotype-configure";
-
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
-import { OnDestroy } from "@angular/core";
 
 export const defaultWindowsAutotypeKeyboardShortcut: string[] = ["Control", "Shift", "B"];
 
@@ -56,6 +55,9 @@ export const AUTOTYPE_KEYBOARD_SHORTCUT = new KeyDefinition<string[]>(
   { deserializer: (b) => b },
 );
 
+@Injectable({
+  providedIn: "root",
+})
 export class DesktopAutotypeService implements OnDestroy {
   private readonly autotypeEnabledState = this.globalStateProvider.get(AUTOTYPE_ENABLED);
   private readonly autotypeKeyboardShortcut = this.globalStateProvider.get(
