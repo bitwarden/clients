@@ -2,7 +2,6 @@ import { Injectable, OnDestroy } from "@angular/core";
 import {
   combineLatest,
   concatMap,
-  distinctUntilChanged,
   filter,
   firstValueFrom,
   map,
@@ -90,7 +89,6 @@ export class DesktopAutotypeService implements OnDestroy {
     this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$.pipe(
       map((enabled) => enabled ?? false),
       takeUntil(this.destroy$),
-      // distinctUntilChanged(), // Only emit when the result changes
     );
 
     this.isPremiumAccount$ = this.accountService.activeAccount$.pipe(
@@ -182,24 +180,16 @@ export class DesktopAutotypeService implements OnDestroy {
       this.configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype),
       // if there is an active account with an unlocked vault
       this.authService.activeAccountStatus$,
+      // if the active user's account is Premium
       this.isPremiumAccount$,
-      // if the user's account is Premium
-      // this.accountService.activeAccount$.pipe(
-      //   filter((account): account is Account => !!account),
-      //   switchMap((account) =>
-      //     this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-      //   ),
-      // ),
     ]).pipe(
       map(
         ([settingsEnabled, ffEnabled, authStatus, isPremiumAcct]) =>
-          // ([settingsEnabled, ffEnabled, authStatus]) =>
           settingsEnabled &&
           ffEnabled &&
           authStatus === AuthenticationStatus.Unlocked &&
           isPremiumAcct,
       ),
-      distinctUntilChanged(), // Only emit when the boolean result changes
       takeUntil(this.destroy$),
     );
   }
