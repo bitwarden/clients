@@ -41,70 +41,40 @@
           <div class="tw-text-main tw-max-w-4xl tw-mb-2" *ngIf="appsCount > 0">
             {{ "reviewAtRiskPasswords" | i18n }}
           </div>
-          @if (dataLastUpdated) {
-            <div
-              class="tw-bg-primary-100 tw-rounded-lg tw-w-full tw-px-8 tw-py-4 tw-my-4 tw-flex tw-items-center"
-            >
-              <i
-                class="bwi bwi-exclamation-triangle bwi-lg tw-text-[1.2rem] tw-text-muted"
-                aria-hidden="true"
-              ></i>
+          @let isRunningReport = dataService.isGeneratingReport$ | async;
+          <div
+            class="tw-bg-primary-100 tw-rounded-lg tw-w-full tw-px-8 tw-py-4 tw-my-4 tw-flex tw-items-center"
+          >
+            <i
+              class="bwi bwi-exclamation-triangle bwi-lg tw-text-[1.2rem] tw-text-muted"
+              aria-hidden="true"
+            ></i>
+            @if (dataLastUpdated) {
               <span class="tw-mx-4">{{
                 "dataLastUpdated" | i18n: (dataLastUpdated | date: "MMMM d, y 'at' h:mm a")
               }}</span>
-              @let isRunningReport = dataService.isGeneratingReport$ | async;
-              <span class="tw-flex tw-justify-center">
-                <button
-                  *ngIf="!isRunningReport"
-                  type="button"
-                  bitButton
-                  buttonType="secondary"
-                  class="tw-border-none !tw-font-normal tw-cursor-pointer !tw-py-0"
-                  tabindex="0"
-                  [bitAction]="generateReport.bind(this)"
-                >
-                  {{ "riskInsightsRunReport" | i18n }}
-                </button>
-                <span>
-                  <i
-                    *ngIf="isRunningReport"
-                    class="bwi bwi-spinner bwi-spin tw-text-muted tw-text-[1.2rem]"
-                    aria-hidden="true"
-                  ></i>
-                </span>
+            }
+            <span class="tw-flex tw-justify-center">
+              <button
+                *ngIf="!isRunningReport"
+                type="button"
+                bitButton
+                buttonType="secondary"
+                class="tw-border-none !tw-font-normal tw-cursor-pointer !tw-py-0"
+                tabindex="0"
+                [bitAction]="generateReport.bind(this)"
+              >
+                {{ "riskInsightsRunReport" | i18n }}
+              </button>
+              <span>
+                <i
+                  *ngIf="isRunningReport"
+                  class="bwi bwi-spinner bwi-spin tw-text-muted tw-text-[1.2rem]"
+                  aria-hidden="true"
+                ></i>
               </span>
-            </div>
-          } @else {
-            @let isRunningReport = dataService.isGeneratingReport$ | async;
-            <div
-              class="tw-bg-primary-100 tw-rounded-lg tw-w-full tw-px-8 tw-py-4 tw-my-4 tw-flex tw-items-center"
-            >
-              <i
-                class="bwi bwi-exclamation-triangle bwi-lg tw-text-[1.2rem] tw-text-muted"
-                aria-hidden="true"
-              ></i>
-              <span class="tw-flex tw-justify-center">
-                <button
-                  *ngIf="!isRunningReport"
-                  type="button"
-                  bitButton
-                  buttonType="secondary"
-                  class="tw-border-none !tw-font-normal tw-cursor-pointer !tw-py-0"
-                  tabindex="0"
-                  [bitAction]="generateReport.bind(this)"
-                >
-                  {{ "riskInsightsRunReport" | i18n }}
-                </button>
-                <span>
-                  <i
-                    *ngIf="isRunningReport"
-                    class="bwi bwi-spinner bwi-spin tw-text-muted tw-text-[1.2rem]"
-                    aria-hidden="true"
-                  ></i>
-                </span>
-              </span>
-            </div>
-          }
+            </span>
+          </div>
         </div>
 
         <div class="tw-flex-1 tw-flex tw-flex-col">
