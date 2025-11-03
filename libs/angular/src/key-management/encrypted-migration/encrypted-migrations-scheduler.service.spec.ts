@@ -66,6 +66,7 @@ describe("DefaultEncryptedMigrationsSchedulerService", () => {
 
     jest.spyOn(PromptMigrationPasswordComponent, "open").mockReturnValue(mockDialogRef as any);
     mockI18nService.t.mockReturnValue("translated_migrationsFailed");
+    (mockRouter as any)["events"] = of({ url: "/vault" }) as any;
 
     service = new DefaultEncryptedMigrationsSchedulerService(
       mockSyncService,
