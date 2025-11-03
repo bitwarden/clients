@@ -1,4 +1,14 @@
-import { combineLatest, switchMap, of, firstValueFrom, filter, delay, concatMap } from "rxjs";
+import { NavigationEnd, Router } from "@angular/router";
+import {
+  combineLatest,
+  switchMap,
+  of,
+  firstValueFrom,
+  filter,
+  concatMap,
+  Observable,
+  map,
+} from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -28,6 +38,7 @@ export const ENCRYPTED_MIGRATION_DISMISSED = new UserKeyDefinition<Date>(
   },
 );
 const DISMISS_TIME_HOURS = 24;
+const VAULT_ROUTE = "/vault";
 
 /**
  * This services schedules encrypted migrations for users on clients that are interactive (non-cli), and handles manual interaction,
@@ -38,6 +49,7 @@ export class DefaultEncryptedMigrationsSchedulerService
   implements EncryptedMigrationsSchedulerService
 {
   isMigrating = false;
+  url$: Observable<string>;
 
   constructor(
     private syncService: SyncService,
@@ -49,7 +61,13 @@ export class DefaultEncryptedMigrationsSchedulerService
     private dialogService: DialogService,
     private toastService: ToastService,
     private i18nService: I18nService,
+    private router: Router,
   ) {
+    this.url$ = this.router.events.pipe(
+      filter((event: any) => event instanceof NavigationEnd),
+      map((event: NavigationEnd) => event.url),
+    );
+
     // For all accounts, if the auth status changes to unlocked or a sync happens, prompt for migration
     this.accountService.accounts$
       .pipe(
@@ -65,9 +83,12 @@ export class DefaultEncryptedMigrationsSchedulerService
               combineLatest([
                 this.authService.authStatusFor$(userId),
                 this.syncService.lastSync$(userId).pipe(filter((lastSync) => lastSync != null)),
+                this.url$,
               ]).pipe(
-                filter(([authStatus]) => authStatus === AuthenticationStatus.Unlocked),
-                delay(5_000),
+                filter(
+                  ([authStatus, _date, url]) =>
+                    authStatus === AuthenticationStatus.Unlocked && url === VAULT_ROUTE,
+                ),
                 concatMap(() => this.runMigrationsIfNeeded(userId)),
               ),
             ),
