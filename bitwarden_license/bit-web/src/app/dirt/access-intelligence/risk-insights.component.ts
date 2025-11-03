@@ -15,6 +15,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -92,6 +93,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     protected dataService: RiskInsightsDataService,
     protected i18nService: I18nService,
     private fileDownloadService: FileDownloadService,
+    private logService: LogService,
   ) {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllApps;
@@ -216,37 +218,61 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
    * downloads at risk members as CSV
    */
   downloadAtRiskMembers = async () => {
-    const drawerDetails = await firstValueFrom(this.dataService.drawerDetails$);
-    if (!drawerDetails.atRiskMemberDetails || drawerDetails.atRiskMemberDetails.length === 0) {
-      return;
-    }
+    try {
+      const drawerDetails = await firstValueFrom(this.dataService.drawerDetails$);
 
-    this.fileDownloadService.download({
-      fileName: ExportHelper.getFileName("at-risk-members"),
-      blobData: exportToCSV(drawerDetails.atRiskMemberDetails, {
-        email: this.i18nService.t("email"),
-        atRiskPasswordCount: this.i18nService.t("atRiskPasswords"),
-      }),
-      blobOptions: { type: "text/plain" },
-    });
+      // Validate drawer is open and showing the correct drawer type
+      if (
+        !drawerDetails.open ||
+        drawerDetails.activeDrawerType !== DrawerType.OrgAtRiskMembers ||
+        !drawerDetails.atRiskMemberDetails ||
+        drawerDetails.atRiskMemberDetails.length === 0
+      ) {
+        return;
+      }
+
+      this.fileDownloadService.download({
+        fileName: ExportHelper.getFileName("at-risk-members"),
+        blobData: exportToCSV(drawerDetails.atRiskMemberDetails, {
+          email: this.i18nService.t("email"),
+          atRiskPasswordCount: this.i18nService.t("atRiskPasswords"),
+        }),
+        blobOptions: { type: "text/plain" },
+      });
+    } catch (error) {
+      // Log error for debugging
+      this.logService.error("Failed to download at-risk members", error);
+    }
   };
 
   /**
    * downloads at risk applications as CSV
    */
   downloadAtRiskApplications = async () => {
-    const drawerDetails = await firstValueFrom(this.dataService.drawerDetails$);
-    if (!drawerDetails.atRiskAppDetails || drawerDetails.atRiskAppDetails.length === 0) {
-      return;
-    }
+    try {
+      const drawerDetails = await firstValueFrom(this.dataService.drawerDetails$);
 
-    this.fileDownloadService.download({
-      fileName: ExportHelper.getFileName("at-risk-applications"),
-      blobData: exportToCSV(drawerDetails.atRiskAppDetails, {
-        applicationName: this.i18nService.t("application"),
-        atRiskPasswordCount: this.i18nService.t("atRiskPasswords"),
-      }),
-      blobOptions: { type: "text/plain" },
-    });
+      // Validate drawer is open and showing the correct drawer type
+      if (
+        !drawerDetails.open ||
+        drawerDetails.activeDrawerType !== DrawerType.OrgAtRiskApps ||
+        !drawerDetails.atRiskAppDetails ||
+        drawerDetails.atRiskAppDetails.length === 0
+      ) {
+        return;
+      }
+
+      this.fileDownloadService.download({
+        fileName: ExportHelper.getFileName("at-risk-applications"),
+        blobData: exportToCSV(drawerDetails.atRiskAppDetails, {
+          applicationName: this.i18nService.t("application"),
+          atRiskPasswordCount: this.i18nService.t("atRiskPasswords"),
+        }),
+        blobOptions: { type: "text/plain" },
+      });
+    } catch (error) {
+      // Log error for debugging
+      this.logService.error("Failed to download at-risk applications", error);
+    }
   };
 }
