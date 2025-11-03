@@ -32,8 +32,6 @@ export type ChipSelectOption<T> = Option<T> & {
 /**
  * `<bit-chip-select>` is a select element that is commonly used to filter items in lists or tables.
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-chip-select",
   templateUrl: "chip-select.component.html",
