@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Използване на еднократна идентификация"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Вашата организация изисква еднократно удостоверяване."
+  },
   "welcomeBack": {
     "message": "Добре дошли отново"
   },
@@ -588,6 +591,9 @@
   "view": {
     "message": "Преглед"
   },
+  "viewAll": {
+    "message": "Показване на всички"
+  },
   "viewLogin": {
     "message": "Преглед на елемента за вписване"
   },
@@ -1027,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Елементът е редактиран"
+  },
+  "savedWebsite": {
+    "message": "Запазен уеб сайт"
+  },
+  "savedWebsites": {
+    "message": "Запазени уеб сайтове ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Наистина ли искате да изтриете елемента?"
@@ -1676,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Изключване на автоматичното попълване"
   },
+  "confirmAutofill": {
+    "message": "Потвърждаване на автоматичното попълване"
+  },
+  "confirmAutofillDesc": {
+    "message": "Този уеб сайт не съвпада със запазените данни за вписване. Преди да попълните данните си, уверете се, че имате вяра на сайта."
+  },
   "showInlineMenuLabel": {
     "message": "Показване на предложения за авт. попълване на полетата във формуляри"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Как Битуорден защитава данните Ви от измами?"
+  },
+  "currentWebsite": {
+    "message": "Текущ уеб сайт"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Автоматично попълване и добавяне на този уеб сайт"
+  },
+  "autofillWithoutAdding": {
+    "message": "Автоматично попълване без добавяне"
+  },
+  "doNotAutofill": {
+    "message": "Да не се попълва автоматично"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Показване на идентичности като предложения"
@@ -3240,6 +3279,9 @@
   "decryptionError": {
     "message": "Грешка при дешифриране"
   },
+  "errorGettingAutoFillData": {
+    "message": "Грешка при получаването на данните за автоматично попълване"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Битоурден не може да дешифрира елементите от трезора посочени по-долу."
   },
@@ -4010,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Автоматичното попълване при зареждане на страницата използва настройката си по подразбиране.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Автоматичното попълване не може да бъде извършено"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "По подразбиране е зададена настройката „Точно съвпадение“. Текущият уеб сайт не съвпада точно със запазените данни за вход в този запис."
+  },
+  "okay": {
+    "message": "Добре"
   },
   "toggleSideNavigation": {
     "message": "Превключване на страничната навигация"
@@ -5721,5 +5772,11 @@
   "settingDisabledByPolicy": {
     "message": "Тази настройка е изключена съгласно политиката на организацията Ви.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Пощенски код"
+  },
+  "cardNumberLabel": {
+    "message": "Номер на картата"
   }
 }

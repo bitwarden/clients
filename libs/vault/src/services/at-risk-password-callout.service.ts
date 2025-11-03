@@ -45,6 +45,8 @@ export class AtRiskPasswordCalloutService {
           return (
             t.type === SecurityTaskType.UpdateAtRiskCredential &&
             associatedCipher &&
+            associatedCipher.edit &&
+            associatedCipher.viewPassword &&
             !associatedCipher.isDeleted
           );
         });
