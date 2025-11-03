@@ -9,6 +9,7 @@ import {
   lastValueFrom,
   Observable,
   Subject,
+  zip,
 } from "rxjs";
 import {
   concatMap,
@@ -25,6 +26,7 @@ import {
 } from "rxjs/operators";
 
 import {
+  AutomaticUserConfirmationService,
   CollectionData,
   CollectionDetailsResponse,
   CollectionService,
@@ -54,7 +56,9 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -102,6 +106,10 @@ import {
   getNestedCollectionTree,
   getFlatCollectionTree,
 } from "../../admin-console/organizations/collections";
+import {
+  AutoConfirmPolicy,
+  AutoConfirmPolicyDialogComponent,
+} from "../../admin-console/organizations/policies";
 import {
   CollectionDialogAction,
   CollectionDialogTabType,
@@ -328,6 +336,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private policyService: PolicyService,
     private unifiedUpgradePromptService: UnifiedUpgradePromptService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
+    private autoConfirmService: AutomaticUserConfirmationService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -629,6 +639,26 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         },
       );
     void this.unifiedUpgradePromptService.displayUpgradePromptConditionally();
+
+    zip([
+      this.configService.getFeatureFlag$(FeatureFlag.AutoConfirm),
+      this.userId$.pipe(switchMap((userId) => this.autoConfirmService.configuration$(userId))),
+      this.organizations$.pipe(map((organizations) => organizations[0])),
+    ])
+      .pipe(
+        filter(
+          ([enabled, autoConfirmState, organization]) =>
+            enabled &&
+            autoConfirmState.showSetupDialog &&
+            !!organization &&
+            organization.canManageUsers,
+        ),
+        first(),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(([enabled, autoConfirmState, organization]) =>
+        this.openAutoConfirmFeatureDialog(organization),
+      );
   }
 
   ngOnDestroy() {
@@ -1546,6 +1576,16 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     const _cipher = await this.cipherService.get(uuidAsString(cipher.id), activeUserId);
     const cipherView = await this.cipherService.decrypt(_cipher, activeUserId);
     return cipherView.login?.password;
+  }
+
+  private openAutoConfirmFeatureDialog(organization: Organization) {
+    AutoConfirmPolicyDialogComponent.open(this.dialogService, {
+      data: {
+        policy: new AutoConfirmPolicy(),
+        organizationId: organization.id,
+        firstTimeDialog: true,
+      },
+    });
   }
 }
 

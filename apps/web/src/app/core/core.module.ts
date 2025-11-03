@@ -9,6 +9,10 @@ import {
   DefaultCollectionAdminService,
   OrganizationUserApiService,
   CollectionService,
+  AutomaticUserConfirmationService,
+  DefaultAutomaticUserConfirmationService,
+  OrganizationUserService,
+  DefaultOrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth/device-management/default-device-management-component.service";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
@@ -43,7 +47,10 @@ import {
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  InternalOrganizationServiceAbstraction,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
   InternalPolicyService,
@@ -332,6 +339,29 @@ const safeProviders: SafeProvider[] = [
       EncryptService,
       CollectionService,
       OrganizationService,
+    ],
+  }),
+  safeProvider({
+    provide: OrganizationUserService,
+    useClass: DefaultOrganizationUserService,
+    deps: [
+      KeyServiceAbstraction,
+      EncryptService,
+      OrganizationUserApiService,
+      AccountService,
+      I18nServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: AutomaticUserConfirmationService,
+    useClass: DefaultAutomaticUserConfirmationService,
+    deps: [
+      ConfigService,
+      ApiService,
+      OrganizationUserService,
+      StateProvider,
+      InternalOrganizationServiceAbstraction,
+      OrganizationUserApiService,
     ],
   }),
   safeProvider({

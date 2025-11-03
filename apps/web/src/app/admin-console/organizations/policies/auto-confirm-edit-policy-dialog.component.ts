@@ -8,10 +8,13 @@ import {
   TemplateRef,
   viewChild,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import { Router } from "@angular/router";
 import {
   combineLatest,
+  filter,
+  first,
   firstValueFrom,
   map,
   Observable,
@@ -20,8 +23,10 @@ import {
   startWith,
   switchMap,
   tap,
+  zip,
 } from "rxjs";
 
+import { AutomaticUserConfirmationService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -116,6 +121,7 @@ export class AutoConfirmPolicyDialogComponent
     private organizationService: OrganizationService,
     private policyService: PolicyService,
     private router: Router,
+    private autoConfirmService: AutomaticUserConfirmationService,
   ) {
     super(
       data,
@@ -131,6 +137,18 @@ export class AutoConfirmPolicyDialogComponent
     );
 
     this.firstTimeDialog.set(data.firstTimeDialog ?? false);
+    const userId$ = this.accountService.activeAccount$.pipe(getUserId);
+
+    zip([userId$.pipe(switchMap((userId) => autoConfirmService.configuration$(userId))), userId$])
+      .pipe(
+        first(),
+        filter(([state]) => state.showSetupDialog),
+        switchMap(([autoConfirmState, userId]) =>
+          this.autoConfirmService.upsert(userId, { ...autoConfirmState, showSetupDialog: false }),
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
   }
 
   /**
