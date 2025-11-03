@@ -362,7 +362,7 @@ describe("UserVerificationService", () => {
         expect(result).toEqual({
           policyOptions: null,
           masterKey: "masterKey",
-          kdfConfig: "kdfConfig",
+          masterPassword: "password",
           email: "email",
         });
       });
@@ -422,7 +422,7 @@ describe("UserVerificationService", () => {
         expect(result).toEqual({
           policyOptions: "MasterPasswordPolicyOptions",
           masterKey: "masterKey",
-          kdfConfig: "kdfConfig",
+          masterPassword: "password",
           email: "email",
         });
       });
