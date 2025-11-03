@@ -235,10 +235,11 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
           await using ref = await sdk.take();
 
-          const ciphersClient = await ref.value.vault().await.ciphers();
-          const result: DecryptCipherListResult = await ciphersClient.decrypt_list_with_failures(
-            ciphers.map((cipher) => cipher.toSdkCipher()),
-          ).transfer;
+          const result: DecryptCipherListResult = await ref.value
+            .vault()
+            .await.ciphers()
+            .await.decrypt_list_with_failures(ciphers.map((cipher) => cipher.toSdkCipher())).await
+            .transfer;
 
           const decryptedCiphers = result.successes;
           const failedCiphers: Cipher[] = result.failures

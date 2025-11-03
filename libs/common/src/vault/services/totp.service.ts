@@ -40,9 +40,8 @@ export class TotpService implements TotpServiceAbstraction {
           return this.remoteSdkService.remoteClient$.pipe(
             switchMap(async (sdk) => {
               await using ref = await sdk!.take();
-              const totp = await ref.value.vault().await.totp();
               // Transfer the TOTP response
-              return totp.generate_totp(key).transfer;
+              return await ref.value.vault().await.totp().await.generate_totp(key).await.transfer;
             }),
             shareReplay({ bufferSize: 1, refCount: true }),
           );
