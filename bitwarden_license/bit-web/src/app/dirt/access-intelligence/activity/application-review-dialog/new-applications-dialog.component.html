@@ -1,0 +1,97 @@
+<bit-dialog [dialogSize]="'large'">
+  <span bitDialogTitle>
+    {{
+      currentView() === DialogView.SelectApplications
+        ? ("prioritizeCriticalApplications" | i18n)
+        : ("assignTasksToMembers" | i18n)
+    }}
+  </span>
+
+  <div bitDialogContent>
+    @if (currentView() === DialogView.SelectApplications) {
+      <div>
+        <p bitTypography="body1" class="tw-mb-5">
+          {{ "selectCriticalApplicationsDescription" | i18n }}
+        </p>
+
+        <div class="tw-flex tw-items-center tw-gap-2.5 tw-mb-5">
+          <i class="bwi bwi-star-f tw-text-xl" aria-hidden="true"></i>
+          <p bitTypography="helper" class="tw-text-muted tw-mb-0">
+            {{ "clickIconToMarkAppAsCritical" | i18n }}
+          </p>
+        </div>
+
+        <dirt-review-applications-view
+          [applications]="getApplications()"
+          [selectedApplications]="selectedApplications()"
+          (onToggleSelection)="toggleSelection($event)"
+          (onToggleAll)="toggleAll()"
+        ></dirt-review-applications-view>
+      </div>
+    }
+
+    @if (currentView() === DialogView.AssignTasks) {
+      <dirt-assign-tasks-view
+        [criticalApplicationsCount]="selectedApplications().size"
+        [totalApplicationsCount]="this.dialogParams.newApplications.length"
+        [atRiskCriticalMembersCount]="atRiskCriticalMembersCount()"
+      >
+      </dirt-assign-tasks-view>
+    }
+  </div>
+
+  @if (currentView() === DialogView.SelectApplications) {
+    <ng-container bitDialogFooter>
+      <button
+        type="button"
+        bitButton
+        size="small"
+        buttonType="primary"
+        (click)="handleMarkAsCritical()"
+        [disabled]="markingAsCritical()"
+        [loading]="markingAsCritical()"
+        [attr.aria-label]="'markAsCritical' | i18n"
+      >
+        {{ "markAsCritical" | i18n }}
+      </button>
+      <button
+        type="button"
+        bitButton
+        size="small"
+        buttonType="secondary"
+        [bitDialogClose]="false"
+        [attr.aria-label]="'cancel' | i18n"
+      >
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  }
+  @if (currentView() == DialogView.AssignTasks) {
+    <!-- Footer: Action Buttons -->
+    <ng-container bitDialogFooter>
+      <button
+        type="button"
+        bitButton
+        size="small"
+        buttonType="primary"
+        (click)="handleAssignTasks()"
+        [disabled]="saving()"
+        [loading]="saving()"
+        [attr.aria-label]="'assignTasks' | i18n"
+      >
+        {{ "assignTasks" | i18n }}
+      </button>
+      <button
+        type="button"
+        bitButton
+        size="small"
+        buttonType="secondary"
+        (click)="onBack()"
+        [disabled]="saving()"
+        [attr.aria-label]="'back' | i18n"
+      >
+        {{ "back" | i18n }}
+      </button>
+    </ng-container>
+  }
+</bit-dialog>

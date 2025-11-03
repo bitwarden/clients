@@ -68,7 +68,7 @@ async fn main() {
     #[cfg(target_os = "windows")]
     let should_foreground = windows::allow_foreground();
 
-    let sock_path = desktop_core::ipc::path("bitwarden");
+    let sock_path = desktop_core::ipc::path("bw");
 
     let log_path = {
         let mut path = sock_path.clone();

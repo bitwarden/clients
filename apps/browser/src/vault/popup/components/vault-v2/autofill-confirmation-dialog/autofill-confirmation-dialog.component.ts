@@ -19,6 +19,7 @@ import {
 export interface AutofillConfirmationDialogParams {
   savedUrls?: string[];
   currentUrl: string;
+  viewOnly?: boolean;
 }
 
 export const AutofillConfirmationDialogResult = Object.freeze({
@@ -50,12 +51,14 @@ export class AutofillConfirmationDialogComponent {
   currentUrl: string = "";
   savedUrls: string[] = [];
   savedUrlsExpanded = false;
+  viewOnly: boolean = false;
 
   constructor(
     @Inject(DIALOG_DATA) protected params: AutofillConfirmationDialogParams,
     private dialogRef: DialogRef,
   ) {
     this.currentUrl = Utils.getHostname(params.currentUrl);
+    this.viewOnly = params.viewOnly ?? false;
     this.savedUrls =
       params.savedUrls?.map((url) => Utils.getHostname(url) ?? "").filter(Boolean) ?? [];
   }

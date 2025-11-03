@@ -20,6 +20,7 @@ import { Environment, EnvironmentService } from "../platform/abstractions/enviro
 import { LogService } from "../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
 
+import { InsecureUrlNotAllowedError } from "./api-errors";
 import { ApiService, HttpOperations } from "./api.service";
 
 describe("ApiService", () => {
@@ -411,4 +412,39 @@ describe("ApiService", () => {
       ).rejects.toMatchObject(error);
     },
   );
+
+  it("throws error when trying to fetch an insecure URL", async () => {
+    environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+      of({
+        getApiUrl: () => "http://example.com",
+      } satisfies Partial<Environment> as Environment),
+    );
+
+    httpOperations.createRequest.mockImplementation((url, request) => {
+      return {
+        url: url,
+        cache: request.cache,
+        credentials: request.credentials,
+        method: request.method,
+        mode: request.mode,
+        signal: request.signal ?? undefined,
+        headers: new Headers(request.headers),
+      } satisfies Partial<Request> as unknown as Request;
+    });
+
+    const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+    nativeFetch.mockImplementation((request) => {
+      return Promise.resolve({
+        ok: true,
+        status: 204,
+        headers: new Headers(),
+      } satisfies Partial<Response> as Response);
+    });
+    sut.nativeFetch = nativeFetch;
+
+    await expect(
+      async () => await sut.send("GET", "/something", null, true, true, null),
+    ).rejects.toThrow(InsecureUrlNotAllowedError);
+    expect(nativeFetch).not.toHaveBeenCalled();
+  });
 });
