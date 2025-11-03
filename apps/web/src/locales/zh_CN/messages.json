@@ -172,8 +172,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "在 $ORG NAME$ 中未发现任何应用程序",
+  "noApplicationsInOrgTitle": {
+    "message": "No applications found for $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -181,8 +181,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "当用户保存登录信息时，应用程序会出现在这里，显示所有存在风险的密码。标记关键应用程序并通知用户更新密码。"
+  "noApplicationsInOrgDescription": {
+    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  },
+  "benefit1Title": {
+    "message": "Prioritize risks"
+  },
+  "benefit1Description": {
+    "message": "Focus on applications that matter the most"
+  },
+  "benefit2Title": {
+    "message": "Guide remediation"
+  },
+  "benefit2Description": {
+    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  },
+  "benefit3Title": {
+    "message": "Monitor progress"
+  },
+  "benefit3Description": {
+    "message": "Track changes over time to show security improvements"
+  },
+  "noReportRunTitle": {
+    "message": "Run your first report to see applications"
+  },
+  "noReportRunDescription": {
+    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
   },
   "noCriticalApplicationsTitle": {
     "message": "您还没有将任何应用程序标记为关键"
@@ -327,6 +351,27 @@
   },
   "markAsCriticalPlaceholder": {
     "message": "标记为关键功能将在未来更新中实现"
+  },
+  "applicationReviewSaved": {
+    "message": "Application review saved"
+  },
+  "applicationsMarkedAsCritical": {
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "newApplicationsReviewed": {
+    "message": "New applications reviewed"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Error saving review status"
+  },
+  "pleaseTryAgain": {
+    "message": "Please try again"
   },
   "unmarkAsCritical": {
     "message": "取消标记为关键"
@@ -657,7 +702,7 @@
     "message": "通过在父文件夹名后面添加「/」来嵌套文件夹。示例：Social/Forums"
   },
   "deleteFolderPermanently": {
-    "message": "确定要永久删除这个文件夹吗？"
+    "message": "确定要永久删除此文件夹吗？"
   },
   "baseDomain": {
     "message": "基础域名",
@@ -1313,6 +1358,9 @@
   },
   "useSingleSignOn": {
     "message": "使用单点登录"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
   },
   "welcomeBack": {
     "message": "欢迎回来"
@@ -2054,7 +2102,7 @@
     "message": "继续操作将使您退出当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
   },
   "changePasswordWarning": {
-    "message": "更改密码后，您需要使用新密码登录。其他设备上的活动会话将在一小时内注销。"
+    "message": "更改密码后，您需要使用新密码登录。在其他设备上的活动会话将在一小时内注销。"
   },
   "emailChanged": {
     "message": "电子邮箱已保存"
@@ -3508,7 +3556,7 @@
     }
   },
   "trialConfirmationEmail": {
-    "message": "我们已经发送了一封确认邮件到您团队的计费电子邮箱 "
+    "message": "我们已经发送了一封确认电子邮件到您团队的计费电子邮箱 "
   },
   "monthly": {
     "message": "每月"
@@ -4449,8 +4497,8 @@
   "inviteAccepted": {
     "message": "邀请已接受"
   },
-  "inviteAcceptedDesc": {
-    "message": "管理员确认您的成员资格后，您就可以访问此组织了。届时我们会向您发送一封电子邮件。"
+  "invitationAcceptedDesc": {
+    "message": "成功接受了您的邀请。"
   },
   "inviteInitAcceptedDesc": {
     "message": "您现在可以访问这个组织了。"
@@ -4886,10 +4934,10 @@
     "message": "筛选"
   },
   "vaultTimeout": {
-    "message": "密码库超时时间"
+    "message": "密码库超时"
   },
   "vaultTimeout1": {
-    "message": "超时"
+    "message": "超时时间"
   },
   "vaultTimeoutDesc": {
     "message": "选择您的密码库何时执行密码库超时动作。"
@@ -5433,7 +5481,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSendPermanentConfirmation": {
-    "message": "您确定要永久删除这个 Send 吗？",
+    "message": "确定要永久删除此 Send 吗？",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
@@ -5695,7 +5743,7 @@
     "description": "This will be used as a hyperlink"
   },
   "organizationDataOwnershipWarningTitle": {
-    "message": "您确定要继续吗？"
+    "message": "确定要继续吗？"
   },
   "organizationDataOwnershipWarning1": {
     "message": "成员仍可以访问"
@@ -5714,63 +5762,63 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "availableNow": {
-    "message": "Available now"
+    "message": "目前可用"
   },
   "autoConfirm": {
-    "message": "Automatic confirmation of new users"
+    "message": "自动确认新用户"
   },
   "autoConfirmDescription": {
-    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
+    "message": "当管理员的设备解锁时，邀请加入组织的新用户将被自动确认。",
     "description": "This is the description of the policy as it appears in the 'Policies' page"
   },
   "howToTurnOnAutoConfirm": {
-    "message": "How to turn on automatic user confirmation"
+    "message": "如何启用自动用户确认"
   },
   "autoConfirmStep1": {
-    "message": "Open your Bitwarden extension."
+    "message": "打开您的 Bitwarden 扩展。"
   },
   "autoConfirmStep2a": {
-    "message": "Select",
+    "message": "选择",
     "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
   },
   "autoConfirmStep2b": {
-    "message": " Turn on.",
+    "message": "启用。",
     "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
   },
   "autoConfirmExtensionOpened": {
-    "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
+    "message": "成功打开 Bitwarden 浏览器扩展。您现在可以激活自动用户确认设置。"
   },
   "autoConfirmPolicyEditDescription": {
-    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "message": "当管理员的设备解锁时，邀请加入组织的新用户将被自动确认。启用此策略前，请审查并同意：",
     "description": "This is the description of the policy as it appears inside the policy edit dialog"
   },
   "autoConfirmAcceptSecurityRiskTitle": {
-    "message": "Potential security risk. "
+    "message": "潜在的安全风险。"
   },
   "autoConfirmAcceptSecurityRiskDescription": {
-    "message": "Automatic user confirmation could pose a security risk to your organization’s data."
+    "message": "自动用户确认可能对您的组织数据带来安全风险。"
   },
   "autoConfirmAcceptSecurityRiskLearnMore": {
-    "message": "Learn about the risks",
+    "message": "进一步了解此风险",
     "description": "The is the link copy for the first check box option in the edit policy dialog"
   },
   "autoConfirmSingleOrgRequired": {
-    "message": "Single organization policy required. "
+    "message": "要求单一组织策略。"
   },
   "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
+    "message": "属于多个组织的任何人，他们的访问权限将被撤销，直到他们离开其他组织。"
   },
   "autoConfirmSingleOrgExemption": {
-    "message": "Single organization policy will extend to all roles. "
+    "message": "单一组织策略将扩展到所有角色。"
   },
   "autoConfirmNoEmergencyAccess": {
-    "message": "No emergency access. "
+    "message": "没有紧急访问权限。"
   },
   "autoConfirmNoEmergencyAccessDescription": {
-    "message": "Emergency Access will be removed."
+    "message": "紧急访问权限将被移除。"
   },
   "autoConfirmCheckBoxLabel": {
-    "message": "I accept these risks and policy updates"
+    "message": "我接受这些风险和策略更新"
   },
   "personalOwnership": {
     "message": "禁用个人密码库"
@@ -5982,7 +6030,7 @@
     "message": "通过 SSO 集成、事件日志和访问轮换，保持机器和人类对机密访问权限的严格控制。"
   },
   "tryItNow": {
-    "message": "立即试用"
+    "message": "立即体验"
   },
   "sendRequest": {
     "message": "发送请求"
@@ -6141,7 +6189,7 @@
     }
   },
   "eventResetSsoLink": {
-    "message": "重置用户 $ID$ 的 SSO 链接",
+    "message": "重置了用户 $ID$ 的 SSO 链接",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6492,17 +6540,32 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "您的组织更新了您的解密选项。要访问您的密码库，请设置一个主密码。"
   },
-  "maximumVaultTimeout": {
-    "message": "密码库超时时间"
+  "sessionTimeoutPolicyTitle": {
+    "message": "会话超时"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "为成员配置最大密码库超时时间。"
+  "sessionTimeoutPolicyDescription": {
+    "message": "为除所有者以外的所有成员设置最大会话超时。"
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "最大密码库超时时间"
+  "maximumAllowedTimeout": {
+    "message": "最大允许的超时"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "无效的最大密码库超时时间。"
+  "maximumAllowedTimeoutRequired": {
+    "message": "必须填写最大允许的超时。"
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "时间无效。请更改至少一个值。"
+  },
+  "sessionTimeoutAction": {
+    "message": "会话超时动作"
+  },
+  "immediately": {
+    "message": "立即"
+  },
+  "onSystemLock": {
+    "message": "系统锁定时"
+  },
+  "onAppRestart": {
+    "message": "App 重启时"
   },
   "hours": {
     "message": "小时"
@@ -6510,8 +6573,23 @@
   "minutes": {
     "message": "分钟"
   },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "确定要将所有成员的最大允许的超时设置为「从不」吗？"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "此选项将把成员的加密密钥保存在他们的设备上。若选择此选项，请确保他们的设备已受到充分保护。"
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "进一步了解设备保护"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "「系统锁定时」只适用于浏览器和桌面 App"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "由于不支持该选项，移动端和网页 App 将使用「App 重启时」作为其最大允许的超时。"
+  },
   "vaultTimeoutPolicyInEffect": {
-    "message": "您的组织策略已将您最大允许的密码库超时时间设置为 $HOURS$ 小时 $MINUTES$ 分钟。",
+    "message": "您的组织策略已将您最大允许的密码库超时设置为 $HOURS$ 小时 $MINUTES$ 分钟。",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -6537,7 +6615,7 @@
     }
   },
   "vaultTimeoutPolicyWithActionInEffect": {
-    "message": "您的组织策略正在影响您的密码库超时时间。最大允许的密码库超时时间是 $HOURS$ 小时 $MINUTES$ 分钟。您的密码库超时动作被设置为 $ACTION$。",
+    "message": "您的组织策略正在影响您的密码库超时。最大允许的密码库超时为 $HOURS$ 小时 $MINUTES$ 分钟。您的密码库超时动作被设置为 $ACTION$。",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -6554,7 +6632,7 @@
     }
   },
   "vaultTimeoutActionPolicyInEffect": {
-    "message": "您的组织策略已将您的密码库超时动作设置为 $ACTION$。",
+    "message": "您的组织策略已将您的密码库超时动作设置为「$ACTION$」。",
     "placeholders": {
       "action": {
         "content": "$1",
@@ -6563,10 +6641,10 @@
     }
   },
   "vaultTimeoutToLarge": {
-    "message": "您的密码库超时时间超出了您的组织设置的限制。"
+    "message": "您的密码库超时超出了您的组织设置的限制。"
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "自定义超时时间最小为 1 分钟。"
+    "message": "自定义超时最少为 1 分钟。"
   },
   "vaultTimeoutRangeError": {
     "message": "密码库超时不在允许的范围内。"
@@ -7246,7 +7324,7 @@
     "description": "This is used by screen readers to indicate the organization that is currently being shown to the user."
   },
   "accountLoggedInAsName": {
-    "message": "账户：已登录为 $NAME$",
+    "message": "账户：已以 $NAME$ 身份登录",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -11487,7 +11565,7 @@
     "message": "您无法在没有浏览器扩展的情况下自动填充密码"
   },
   "cannotAutofillPasswordsWithoutExtensionDesc": {
-    "message": "您确定现在不添加该扩展吗？"
+    "message": "确定现在不添加此扩展吗？"
   },
   "skipToWebApp": {
     "message": "跳转到网页 App"
@@ -11911,30 +11989,39 @@
     "message": "查看商业方案"
   },
   "updateEncryptionSettings": {
-    "message": "Update encryption settings"
+    "message": "更新加密设置"
   },
   "updateYourEncryptionSettings": {
-    "message": "Update your encryption settings"
+    "message": "更新您的加密设置"
   },
   "updateSettings": {
-    "message": "Update settings"
+    "message": "更新设置"
   },
   "algorithm": {
-    "message": "Algorithm"
+    "message": "算法"
   },
   "encryptionKeySettingsHowShouldWeEncryptYourData": {
-    "message": "Choose how Bitwarden should encrypt your vault data. All options are secure, but stronger methods offer better protection - especially against brute-force attacks. Bitwarden recommends the default setting for most users."
+    "message": "选择 Bitwarden 加密您的密码库数据的方式。所有选项都是安全的，但更强大的方式提供了更好的保护 - 特别是针对暴力攻击。Bitwarden 建议大多数用户使用默认设置。"
   },
   "encryptionKeySettingsIncreaseImproveSecurity": {
-    "message": "Increasing the values above the default will improve security, but your vault may take longer to unlock as a result."
+    "message": "将值增加为高于默认值将提高安全性，但您的密码库相应需要更长时间才能解锁。"
   },
   "encryptionKeySettingsAlgorithmPopoverTitle": {
-    "message": "About encryption algorithms"
+    "message": "关于加密算法"
   },
   "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
-    "message": "PBKDF2-SHA256 is a well-tested encryption method that balances security and performance. Good for all users."
+    "message": "PBKDF2-SHA256 是一种经过充分测试的加密方式，可以平衡安全性和性能。适合于所有用户。"
   },
   "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
-    "message": "Argon2id offers stronger protection against modern attacks. Best for advanced users with powerful devices."
+    "message": "Argon2id 为现代攻击提供了更强大的保护。最适合拥有强大设备的高级用户。"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / 邮政编码"
+  },
+  "cardNumberLabel": {
+    "message": "卡号"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "开始免费家庭版试用"
   }
 }
