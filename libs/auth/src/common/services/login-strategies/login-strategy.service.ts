@@ -335,7 +335,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     }
   }
 
-  async makePrePasswordLoginMasterKey(masterPassword: string, email: string): Promise<MasterKey> {
+  async makePasswordPreLoginMasterKey(masterPassword: string, email: string): Promise<MasterKey> {
     email = email.trim().toLowerCase();
 
     if (await this.configService.getFeatureFlag(FeatureFlag.PM23801_PrefetchPasswordPrelogin)) {

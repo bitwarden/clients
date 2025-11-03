@@ -79,7 +79,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
     const { email, masterPassword, twoFactor } = credentials;
 
     const data = new PasswordLoginStrategyData();
-    data.masterKey = await this.loginStrategyService.makePrePasswordLoginMasterKey(
+    data.masterKey = await this.loginStrategyService.makePasswordPreLoginMasterKey(
       masterPassword,
       email,
     );

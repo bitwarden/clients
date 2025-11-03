@@ -180,7 +180,7 @@ describe("LoginStrategyService", () => {
 
         await sut.getPasswordPrelogin(email);
 
-        await sut.makePrePasswordLoginMasterKey("pw", email);
+        await sut.makePasswordPreLoginMasterKey("pw", email);
 
         expect(apiService.postPrelogin).toHaveBeenCalledTimes(1);
         const calls = keyService.makeMasterKey.mock.calls as any[];
@@ -203,7 +203,7 @@ describe("LoginStrategyService", () => {
 
         void sut.getPasswordPrelogin(email);
 
-        const makeKeyPromise = sut.makePrePasswordLoginMasterKey("pw", email);
+        const makeKeyPromise = sut.makePasswordPreLoginMasterKey("pw", email);
 
         // Resolve after makePrePasswordLoginMasterKey has started awaiting
         resolveFn!(
@@ -235,7 +235,7 @@ describe("LoginStrategyService", () => {
         );
         keyService.makeMasterKey.mockResolvedValue({} as any);
 
-        await sut.makePrePasswordLoginMasterKey("pw", email);
+        await sut.makePasswordPreLoginMasterKey("pw", email);
 
         expect(apiService.postPrelogin).toHaveBeenCalledTimes(1);
         expect(keyService.makeMasterKey).toHaveBeenCalledWith(
@@ -271,7 +271,7 @@ describe("LoginStrategyService", () => {
         );
         keyService.makeMasterKey.mockResolvedValue({} as any);
 
-        await sut.makePrePasswordLoginMasterKey("pw", emailUsed);
+        await sut.makePasswordPreLoginMasterKey("pw", emailUsed);
 
         expect(apiService.postPrelogin).toHaveBeenCalledTimes(2);
         const calls = keyService.makeMasterKey.mock.calls as any[];
@@ -314,7 +314,7 @@ describe("LoginStrategyService", () => {
           }),
         );
 
-        await sut.makePrePasswordLoginMasterKey("pwB", emailB);
+        await sut.makePasswordPreLoginMasterKey("pwB", emailB);
 
         // Ensure B's Argon2 config is used and stale A doesn't overwrite
         const calls = keyService.makeMasterKey.mock.calls as any[];
@@ -354,7 +354,7 @@ describe("LoginStrategyService", () => {
           }),
         );
 
-        await sut.makePrePasswordLoginMasterKey("pw", email);
+        await sut.makePasswordPreLoginMasterKey("pw", email);
 
         expect(apiService.postPrelogin).toHaveBeenCalledTimes(2);
         const calls = keyService.makeMasterKey.mock.calls as any[];
@@ -382,7 +382,7 @@ describe("LoginStrategyService", () => {
         );
         keyService.makeMasterKey.mockResolvedValue({} as any);
 
-        await sut.makePrePasswordLoginMasterKey("pw", email);
+        await sut.makePasswordPreLoginMasterKey("pw", email);
 
         expect(apiService.postPrelogin).toHaveBeenCalledTimes(2);
         const calls = keyService.makeMasterKey.mock.calls as any[];
@@ -411,7 +411,7 @@ describe("LoginStrategyService", () => {
         );
         keyService.makeMasterKey.mockResolvedValue({} as any);
 
-        await sut.makePrePasswordLoginMasterKey("pw", email);
+        await sut.makePasswordPreLoginMasterKey("pw", email);
 
         expect(apiService.postPrelogin).toHaveBeenCalledTimes(2);
         const calls = keyService.makeMasterKey.mock.calls as any[];
@@ -430,7 +430,7 @@ describe("LoginStrategyService", () => {
         keyService.makeMasterKey.mockResolvedValue({} as any);
 
         void sut.getPasswordPrelogin(email);
-        const makeKey = sut.makePrePasswordLoginMasterKey("pw", email);
+        const makeKey = sut.makePasswordPreLoginMasterKey("pw", email);
 
         rejectFn(err);
 
@@ -466,7 +466,7 @@ describe("LoginStrategyService", () => {
         keyService.makeMasterKey.mockResolvedValue({} as any);
 
         await sut.getPasswordPrelogin(email);
-        await sut.makePrePasswordLoginMasterKey("pw", email);
+        await sut.makePasswordPreLoginMasterKey("pw", email);
 
         // Called twice: once for prefetch, once for legacy path in makePrePasswordLoginMasterKey
         expect(apiService.postPrelogin).toHaveBeenCalledTimes(2);
