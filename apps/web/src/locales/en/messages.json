@@ -5832,8 +5832,8 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Single organization policy required. "
   },
-  "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "All members must only belong to this organization to activate this automation."
   },
   "autoConfirmSingleOrgExemption": {
     "message": "Single organization policy will extend to all roles. "
