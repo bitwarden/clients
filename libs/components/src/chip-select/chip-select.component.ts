@@ -11,6 +11,8 @@ import {
   viewChild,
   viewChildren,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  inject,
 } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
@@ -46,6 +48,8 @@ export type ChipSelectOption<T> = Option<T> & {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
+  private readonly cdr = inject(ChangeDetectorRef);
+
   readonly menu = viewChild(MenuComponent);
   readonly menuItems = viewChildren(MenuItemDirective);
   readonly chipSelectButton = viewChild<ElementRef<HTMLButtonElement>>("chipSelectButton");
@@ -251,6 +255,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
   writeValue(obj: T): void {
     this.selectedOption = this.findOption(this.rootTree, obj);
     this.setOrResetRenderedOptions();
+    this.cdr.markForCheck();
   }
 
   /** Implemented as part of NG_VALUE_ACCESSOR */
