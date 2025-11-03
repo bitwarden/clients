@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { combineLatest, concatMap, firstValueFrom, map } from "rxjs";
+import { combineLatest, concatMap, firstValueFrom } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -78,12 +78,6 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
         }),
       ),
     );
-  }
-
-  async lock(userId?: UserId): Promise<void> {
-    const lockingUserId =
-      userId ?? (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id))));
-    await this.lockService.lock(lockingUserId);
   }
 
   private async shouldLock(

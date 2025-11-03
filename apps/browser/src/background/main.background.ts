@@ -1315,9 +1315,10 @@ export default class MainBackground {
     this.commandsBackground = new CommandsBackground(
       this,
       this.platformUtilsService,
-      this.vaultTimeoutService,
       this.authService,
       () => this.generatePasswordToClipboard(),
+      this.accountService,
+      this.lockService,
     );
 
     this.taskService = new DefaultTaskService(
@@ -1402,6 +1403,7 @@ export default class MainBackground {
       this.serverNotificationsService,
       this.accountService,
       this.vaultTimeoutSettingsService,
+      this.lockService,
       logoutService,
     );
 
