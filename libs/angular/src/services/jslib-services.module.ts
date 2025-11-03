@@ -9,7 +9,9 @@ import {
   CollectionService,
   DefaultCollectionService,
   DefaultOrganizationUserApiService,
+  DefaultOrganizationUserService,
   OrganizationUserApiService,
+  OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import {
   ChangePasswordService,
@@ -966,7 +968,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SignalRConnectionService,
     useClass: SignalRConnectionService,
-    deps: [ApiServiceAbstraction, LogService],
+    deps: [ApiServiceAbstraction, LogService, PlatformUtilsServiceAbstraction],
   }),
   safeProvider({
     provide: WebPushConnectionService,
@@ -1122,6 +1124,17 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
+    provide: OrganizationUserService,
+    useClass: DefaultOrganizationUserService,
+    deps: [
+      KeyService,
+      EncryptService,
+      OrganizationUserApiService,
+      AccountService,
+      I18nServiceAbstraction,
+    ],
+  }),
+  safeProvider({
     provide: OrganizationServiceAbstraction,
     useExisting: InternalOrganizationServiceAbstraction,
   }),
@@ -1210,7 +1223,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AnonymousHubServiceAbstraction,
     useClass: AnonymousHubService,
-    deps: [EnvironmentService, AuthRequestServiceAbstraction],
+    deps: [EnvironmentService, AuthRequestServiceAbstraction, PlatformUtilsServiceAbstraction],
   }),
   safeProvider({
     provide: ValidationServiceAbstraction,

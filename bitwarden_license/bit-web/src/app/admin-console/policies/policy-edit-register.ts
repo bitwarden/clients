@@ -4,12 +4,12 @@ import {
 } from "@bitwarden/web-vault/app/admin-console/organizations/policies";
 
 import { FreeFamiliesSponsorshipPolicy } from "../../billing/policies/free-families-sponsorship.component";
+import { SessionTimeoutPolicy } from "../../key-management/policies/session-timeout.component";
 
 import {
   ActivateAutofillPolicy,
   AutomaticAppLoginPolicy,
   DisablePersonalVaultExportPolicy,
-  MaximumVaultTimeoutPolicy,
 } from "./policy-edit-definitions";
 
 /**
@@ -18,7 +18,7 @@ import {
  * It will not appear in the web vault when running in OSS mode.
  */
 const policyEditRegister: BasePolicyEditDefinition[] = [
-  new MaximumVaultTimeoutPolicy(),
+  new SessionTimeoutPolicy(),
   new DisablePersonalVaultExportPolicy(),
   new FreeFamiliesSponsorshipPolicy(),
   new ActivateAutofillPolicy(),
