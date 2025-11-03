@@ -451,6 +451,7 @@ export default class AutofillService implements AutofillServiceInterface {
           cipher: options.cipher,
           tabUrl: tab.url,
           defaultUriMatch: defaultUriMatch,
+          focusedFieldOpid: options.focusedFieldOpid,
         });
 
         if (!fillScript || !fillScript.script || !fillScript.script.length) {
@@ -837,7 +838,7 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     const passwords: AutofillField[] = [];
-    const usernames: AutofillField[] = [];
+    const usernames = new Map<string, AutofillField>();
     const totps: AutofillField[] = [];
     let pf: AutofillField = null;
     let username: AutofillField = null;
@@ -871,6 +872,17 @@ export default class AutofillService implements AutofillServiceInterface {
     const prioritizedPasswordFields =
       loginPasswordFields.length > 0 ? loginPasswordFields : registrationPasswordFields;
 
+    const focusedField =
+      options.focusedFieldOpid && login.username
+        ? pageDetails.fields.find((f) => f.opid === options.focusedFieldOpid)
+        : undefined;
+
+    const focusedUsernameField =
+      focusedField &&
+      ["email", "tel", "text"].some((t) => t === focusedField.type) &&
+      AutofillService.fieldIsFuzzyMatch(focusedField, AutoFillConstants.UsernameFieldNames) &&
+      focusedField;
+
     for (const formKey in pageDetails.forms) {
       // eslint-disable-next-line
       if (!pageDetails.forms.hasOwnProperty(formKey)) {
@@ -882,10 +894,14 @@ export default class AutofillService implements AutofillServiceInterface {
         passwords.push(pf);
 
         if (login.username) {
-          username = this.findUsernameField(pageDetails, pf, false, false, false);
+          if (focusedUsernameField) {
+            username = focusedUsernameField;
+          } else {
+            username = this.findUsernameField(pageDetails, pf, false, false, false);
+          }
 
           if (username) {
-            usernames.push(username);
+            usernames.set(username.opid, username);
           }
         }
 
@@ -906,10 +922,14 @@ export default class AutofillService implements AutofillServiceInterface {
       passwords.push(pf);
 
       if (login.username && pf.elementNumber > 0) {
-        username = this.findUsernameField(pageDetails, pf, false, false, true);
+        if (focusedUsernameField) {
+          username = focusedUsernameField;
+        } else {
+          username = this.findUsernameField(pageDetails, pf, false, false, true);
+        }
 
         if (username) {
-          usernames.push(username);
+          usernames.set(username.opid, username);
         }
       }
 
@@ -951,7 +971,7 @@ export default class AutofillService implements AutofillServiceInterface {
             totps.push(field);
             return;
           case isFillableUsernameField:
-            usernames.push(field);
+            usernames.set(field.opid, field);
             return;
           default:
             return;
@@ -960,7 +980,9 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     const formElementsSet = new Set<string>();
-    usernames.forEach((u) => {
+    const usernamesToFill = focusedUsernameField ? [focusedUsernameField] : [...usernames.values()];
+
+    usernamesToFill.forEach((u) => {
       // eslint-disable-next-line
       if (filledFields.hasOwnProperty(u.opid)) {
         return;
