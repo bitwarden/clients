@@ -10,6 +10,11 @@ import { LogService } from "@bitwarden/logging";
 
 import { createNewSummaryData } from "../../helpers";
 import {
+  validateApplicationHealthReportDetailArray,
+  validateOrganizationReportApplicationArray,
+  validateOrganizationReportSummary,
+} from "../../helpers/type-guards/risk-insights-type-guards";
+import {
   ApplicationHealthReportDetail,
   DecryptedReportData,
   EncryptedDataWithKey,
@@ -17,12 +22,6 @@ import {
   OrganizationReportApplication,
   OrganizationReportSummary,
 } from "../../models";
-
-import {
-  validateApplicationHealthReportDetailArray,
-  validateOrganizationReportApplicationArray,
-  validateOrganizationReportSummary,
-} from "./risk-insights-type-guards";
 
 export class RiskInsightsEncryptionService {
   constructor(

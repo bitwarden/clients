@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { debounceTime } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
@@ -10,7 +10,10 @@ import {
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { createNewSummaryData } from "@bitwarden/bit-common/dirt/reports/risk-insights/helpers";
-import { OrganizationReportSummary } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
+import {
+  OrganizationReportSummary,
+  ReportStatus,
+} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
@@ -53,6 +56,7 @@ export class AllApplicationsComponent implements OnInit {
   noItemsIcon = Security;
   protected markingAsCritical = false;
   protected applicationSummary: OrganizationReportSummary = createNewSummaryData();
+  protected ReportStatusEnum = ReportStatus;
 
   destroyRef = inject(DestroyRef);
 
@@ -61,6 +65,7 @@ export class AllApplicationsComponent implements OnInit {
     protected activatedRoute: ActivatedRoute,
     protected toastService: ToastService,
     protected dataService: RiskInsightsDataService,
+    private router: Router,
     // protected allActivitiesService: AllActivitiesService,
   ) {
     this.searchControl.valueChanges
@@ -78,20 +83,7 @@ export class AllApplicationsComponent implements OnInit {
         this.dataSource.data = [];
       },
     });
-
-    // TODO
-    // this.applicationSummary = this.reportService.generateApplicationsSummary(data);
-    // this.allActivitiesService.setAllAppsReportSummary(this.applicationSummary);
   }
-
-  goToCreateNewLoginItem = async () => {
-    // TODO: implement
-    this.toastService.showToast({
-      variant: "warning",
-      title: "",
-      message: "Not yet implemented",
-    });
-  };
 
   isMarkedAsCriticalItem(applicationName: string) {
     return this.selectedUrls.has(applicationName);

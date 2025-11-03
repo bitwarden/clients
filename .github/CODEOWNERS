@@ -29,8 +29,9 @@ libs/common/src/auth @bitwarden/team-auth-dev
 ## Tools team files ##
 apps/browser/src/tools @bitwarden/team-tools-dev
 apps/cli/src/tools @bitwarden/team-tools-dev
-apps/desktop/src/app/tools @bitwarden/team-tools-dev
+apps/desktop/desktop_native/bitwarden_chromium_import_helper @bitwarden/team-tools-dev
 apps/desktop/desktop_native/chromium_importer @bitwarden/team-tools-dev
+apps/desktop/src/app/tools @bitwarden/team-tools-dev
 apps/web/src/app/tools @bitwarden/team-tools-dev
 libs/angular/src/tools @bitwarden/team-tools-dev
 libs/common/src/models/export @bitwarden/team-tools-dev
