@@ -39,7 +39,8 @@ describe("AutofillOptionsComponent", () => {
 
   beforeEach(async () => {
     getInitialCipherView.mockClear();
-    cipherFormContainer = mock<CipherFormContainer>({ getInitialCipherView, formStatusChange$ });
+    cipherFormContainer = mock<CipherFormContainer>({ getInitialCipherView });
+    cipherFormContainer.formStatusChange$ = formStatusChange$.asObservable();
     liveAnnouncer = mock<LiveAnnouncer>();
     platformUtilsService = mock<PlatformUtilsService>();
     domainSettingsService = mock<DomainSettingsService>();
@@ -264,6 +265,23 @@ describe("AutofillOptionsComponent", () => {
     fixture.detectChanges();
 
     expect(component.autofillOptionsForm.value.uris.length).toEqual(1);
+  });
+
+  it("does not emit events when status changes to prevent a `valueChanges` call", () => {
+    fixture.detectChanges();
+
+    const enable = jest.spyOn(component.autofillOptionsForm, "enable");
+    const disable = jest.spyOn(component.autofillOptionsForm, "disable");
+
+    formStatusChange$.next("disabled");
+    fixture.detectChanges();
+
+    expect(disable).toHaveBeenCalledWith({ emitEvent: false });
+
+    formStatusChange$.next("enabled");
+    fixture.detectChanges();
+
+    expect(enable).toHaveBeenCalledWith({ emitEvent: false });
   });
 
   describe("Drag & Drop Functionality", () => {
