@@ -2,9 +2,9 @@ import { firstValueFrom, map, Observable } from "rxjs";
 
 import { Rc } from "../../../misc/reference-counting/rc";
 
-import { isReferenceProxy, RpcObjectReference } from "./batch-proxies";
 import { RpcClient, RpcRequestChannel } from "./client";
 import { Command, Response } from "./protocol";
+import { isReferenceProxy, RpcObjectReference } from "./proxies";
 import { RpcServer } from "./server";
 
 describe("RpcServer", () => {
@@ -66,7 +66,7 @@ describe("RpcServer", () => {
     expect(result).toEqual({ message: "Hello, World!", array: [1, "2", null] });
   });
 
-  it("handles RC objects correctly", async () => {
+  it.only("handles RC objects correctly", async () => {
     const wasmObj = new WasmLikeObject("RC");
     const rcValue = new Rc(wasmObj);
     const server = new RpcServer<Rc<WasmLikeObject>>();

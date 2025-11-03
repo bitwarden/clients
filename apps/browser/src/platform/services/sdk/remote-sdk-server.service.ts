@@ -62,8 +62,8 @@ export class RemoteSdkServerService {
       "sdk.request",
       (message: any, sender: chrome.runtime.MessageSender, sendResponse: any) => {
         if (isRemoteSdkRequest(message)) {
-          void this.server.handle(message.command).then((response) => {
-            sendResponse(response);
+          void this.server.handle(JSON.parse(message.command)).then((response) => {
+            sendResponse(JSON.stringify(response));
           });
           return true; // Indicate that we will send a response asynchronously
         }

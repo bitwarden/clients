@@ -35,12 +35,12 @@ export class BrowserRemoteSdkService implements RemoteSdkService {
       );
     },
     sendCommand: async (command) => {
-      this.logService.debug("[RemoteSdkService]: Sending command", command);
-      const response = (await BrowserApi.sendMessageWithResponse("sdk.request", {
+      const jsonResponse = (await BrowserApi.sendMessageWithResponse("sdk.request", {
         type: "RemoteSdkRequest",
-        command,
-      } satisfies RemoteSdkRequest)) as Response;
-      this.logService.debug("[RemoteSdkService]: Received response", response);
+        command: JSON.stringify(command),
+      } satisfies RemoteSdkRequest)) as string;
+      this.logService.debug("[RemoteSdkService]: Request:", command, "Response:", jsonResponse);
+      const response = JSON.parse(jsonResponse) as Response;
       return response;
     },
   });

@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 
-import { ProxyInfo, RpcObjectReference } from "./batch-proxies";
+import { ProxyInfo, RpcObjectReference } from "./proxies";
 import { RpcRequestChannel } from "./client";
 import { Command, Response } from "./protocol";
 

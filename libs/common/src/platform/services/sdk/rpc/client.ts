@@ -1,9 +1,8 @@
 import { map, Observable } from "rxjs";
 
-import { Remote } from "../remote";
-
-import { RpcObjectReference } from "./batch-proxies";
 import { Command, Response } from "./protocol";
+import { RpcObjectReference } from "./proxies";
+import { Remote } from "./remote";
 
 export interface RpcRequestChannel {
   sendCommand(command: Command): Promise<Response>;

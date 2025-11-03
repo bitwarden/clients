@@ -1,4 +1,4 @@
-import { executeBatchCommands } from "./batch-executor";
+import { executeBatchCommands } from "./executor";
 import { RpcError } from "./error";
 import { BatchCommand, serializeSymbol } from "./protocol";
 import { ReferenceStore } from "./reference-store";

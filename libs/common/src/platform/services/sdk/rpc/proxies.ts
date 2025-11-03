@@ -1,215 +1,173 @@
-import { chain } from "../chainable-promise";
-
 import { RpcRequestChannel } from "./client";
-import { Command, PropertySymbol, ReferenceId, Response, serializeSymbol } from "./protocol";
+import { RpcError } from "./error";
+import { ReferenceId, PropertySymbol, BatchCommand, serializeSymbol } from "./protocol";
+
+export type BatchingProxy<T> = {
+  [ProxyInfo]: T & {
+    proxyType: "RpcObjectReference" | "RpcPendingObjectReference";
+  };
+};
+
+export const ProxyInfo = Symbol("ProxyInfo");
+
+export function isProxy(obj: any): obj is BatchingProxy<any> {
+  return obj && typeof obj === "function" && obj[ProxyInfo] !== undefined;
+}
+
+export function isReferenceProxy(obj: any): obj is BatchingProxy<RpcObjectReference> {
+  return isProxy(obj) && obj[ProxyInfo].proxyType === "RpcObjectReference";
+}
+
+export function isPendingReferenceProxy(obj: any): obj is BatchingProxy<RpcPendingObjectReference> {
+  return isProxy(obj) && obj[ProxyInfo].proxyType === "RpcPendingObjectReference";
+}
 
 /**
  * A reference to a remote object.
  */
-export class RpcObjectReference {
-  static create(
-    channel: RpcRequestChannel,
-    referenceId: ReferenceId,
-    objectType?: string,
-  ): RpcObjectReference & { by_value(): Promise<any> } {
-    return ProxiedReference(channel, new RpcObjectReference(referenceId, objectType)) as any;
-  }
+export type RpcObjectReference = {
+  referenceId: ReferenceId;
+  objectType?: string;
+};
 
-  private constructor(
-    public referenceId: ReferenceId,
-    public objectType?: string,
-  ) {}
+export function RpcObjectReference(channel: RpcRequestChannel, reference: RpcObjectReference) {
+  const target = () => {};
+  Object.defineProperty(target, "name", { value: `RpcObjectReference`, configurable: true });
+  (target as any)[ProxyInfo] = { ...reference, proxyType: "RpcObjectReference" };
+
+  return new Proxy(
+    target,
+    proxyHandler(target, channel, reference, []),
+  ) as any as BatchingProxy<RpcObjectReference>;
 }
 
-function ProxiedReference(
+/**
+ * A pending reference to a remote object.
+ */
+export type RpcPendingObjectReference = {
+  reference: RpcObjectReference;
+  commands: BatchCommand[];
+};
+
+export function RpcPendingObjectReference(
+  channel: RpcRequestChannel,
+  reference: RpcPendingObjectReference,
+) {
+  const target = () => {};
+  Object.defineProperty(target, "name", {
+    value: `RpcPendingObjectReference(${reference.reference.objectType}.${commandsToString(reference.commands)})`,
+    configurable: true,
+  });
+  (target as any)[ProxyInfo] = { ...reference, proxyType: "RpcPendingObjectReference" };
+
+  return new Proxy(
+    target,
+    proxyHandler(target, channel, reference.reference, reference.commands),
+  ) as any as BatchingProxy<RpcPendingObjectReference>;
+}
+
+function proxyHandler(
+  target: any,
   channel: RpcRequestChannel,
   reference: RpcObjectReference,
-): RpcObjectReference & { by_value(): Promise<any> } {
-  return new Proxy(reference as any, {
-    get(target, property: string | PropertySymbol) {
-      if (property === "then") {
-        // Allow awaiting the proxy itself
+  commands: BatchCommand[],
+): any {
+  return {
+    get(target: any, property: string | PropertySymbol) {
+      if ((property as any) === ProxyInfo) {
+        return (target as any)[ProxyInfo];
+      }
+
+      if (property === "then" && commands.length === 0) {
+        // This means we awaited a RpcObjectReference which resolves to itself
+        // We don't support transfering references to Promises themselves, we'll
+        // automatically await them before returning
         return undefined;
       }
 
-      if (property === "by_value") {
-        return async () => {
-          const result = await sendAndUnwrap(channel, {
-            method: "by_value",
-            referenceId: reference.referenceId,
-          } as Command);
-          if (result.type !== "value") {
-            throw new Error(
-              `[RPC] by_value() expected a value but got a reference for ${reference.objectType}`,
-            );
-          }
-          return result.value;
-        };
+      if (property === "then" && commands.length > 0) {
+        return BatchCommandExecutor(channel, reference.referenceId, commands);
       }
 
-      // console.log(`Accessing ${reference.objectType}.${String(propertyName)}`);
-      return RpcPropertyReference(channel, { objectReference: target as any, property });
+      if (property === "await") {
+        return RpcPendingObjectReference(channel, {
+          reference,
+          commands: [...commands, { method: "await" }],
+        });
+      }
+
+      if (property === "transfer") {
+        return RpcPendingObjectReference(channel, {
+          reference,
+          commands: [...commands, { method: "transfer" }],
+        });
+      }
+
+      return RpcPendingObjectReference(channel, {
+        reference,
+        commands:
+          typeof property === "string"
+            ? [...commands, { method: "get", propertyName: property }]
+            : [...commands, { method: "get", propertySymbol: serializeSymbol(property) }],
+      });
     },
-  }) as any;
+
+    apply(_target: any, _thisArg: any, argArray?: any): any {
+      return RpcPendingObjectReference(channel, {
+        reference,
+        commands: [...commands, { method: "apply", args: argArray }],
+      });
+    },
+  } satisfies ProxyHandler<any>;
 }
 
-/**
- * A reference to a specific property on a remote object.
- */
-type RpcPropertyReference = {
-  objectReference: RpcObjectReference;
-  property: string | PropertySymbol;
-};
+function BatchCommandExecutor(
+  channel: RpcRequestChannel,
+  referenceId: ReferenceId,
+  commands: BatchCommand[],
+): (onFulfilled: (value: any) => void, onRejected: (reason: any) => void) => void {
+  const command = {
+    method: "batch",
+    referenceId,
+    commands: commands.filter((cmd) => cmd.method !== "await"),
+  } as const;
 
-/**
- * A reference to a specific property on a remote object.
- */
-// export class RpcPropertyReference {
-//   static create(
-//     channel: RpcRequestChannel,
-//     objectReference: RpcObjectReference,
-//     propertyName: string,
-//   ): RpcPropertyReference {
-//     return ProxiedReferenceProperty(
-//       channel,
-//       new RpcPropertyReference(objectReference, propertyName),
-//     );
-//   }
+  return (onFulfilled, onRejected) => {
+    (async () => {
+      const result = await channel.sendCommand(command);
 
-//   private constructor(
-//     public objectReference: RpcObjectReference,
-//     public propertyName: string,
-//   ) {}
-// }
-
-/**
- * A sub-proxy for a specific property of a proxied reference
- * This is because we need to handle property accesses differently than method calls
- * but we don't know which type it is until it gets consumed.
- *
- * If this references a method then the `apply` trap will be called on this proxy.
- * If this references a property then they'll try to await the value, triggering the `get` trap
- * when they access the `then` property.
- */
-function RpcPropertyReference(channel: RpcRequestChannel, reference: RpcPropertyReference) {
-  const target = () => {};
-  Object.defineProperty(target, "name", { value: `RpcPropertyReference`, configurable: true });
-  (target as any).objectReference = reference.objectReference;
-  (target as any).property = reference.property;
-
-  return new Proxy(target, {
-    get(_target, propertyName: string) {
-      // console.log(
-      //   `Accessing ${reference.objectReference.objectType}.${reference.propertyName}.${propertyName}`,
-      // );
-
-      // Allow Function.prototype.call/apply/bind to be used by TS helpers and wrappers (e.g., disposables, chainable await)
-      if (propertyName === "call") {
-        return Function.prototype.call;
-      }
-      if (propertyName === "apply") {
-        return Function.prototype.apply;
-      }
-      if (propertyName === "bind") {
-        return Function.prototype.bind;
+      if (result === null || result === undefined) {
+        throw new RpcError("RPC returned null or undefined response");
       }
 
-      if (propertyName !== "then") {
-        // Support chained call like: (await obj.prop).method() AND obj.prop.method()
-        // by lazily resolving obj.prop first, then invoking method/property on the resolved reference.
-        return (...argArray: unknown[]) => {
-          const p = (async () => {
-            // First resolve the original referenced property value via GET
-            const getResult = await sendAndUnwrap(channel, buildGetCommand(reference));
-            if (getResult.type !== "reference") {
-              throw new Error(
-                `Cannot access property '${propertyName}' on non-reference value returned by remote property`,
-              );
-            }
-
-            // Now perform the requested operation on the resolved reference
-            const callResult = await sendAndUnwrap(
-              channel,
-              buildCallCommand(getResult.referenceId, propertyName, argArray),
-            );
-            if (callResult.type === "value") {
-              return callResult.value;
-            }
-            return RpcObjectReference.create(
-              channel,
-              callResult.referenceId,
-              callResult.objectType,
-            );
-          })();
-          return chain(p as Promise<any>);
-        };
+      if (result.status === "error") {
+        throw result.error;
       }
 
-      return (onFulfilled: (value: any) => void, onRejected: (error: any) => void) => {
-        (async () => {
-          const result = await sendAndUnwrap(channel, buildGetCommand(reference));
-          return unwrapResult(channel, result);
-        })().then(onFulfilled, onRejected);
-      };
-    },
-    apply(_target, _thisArg, argArray: unknown[]) {
-      // console.log(`Calling ${reference.objectReference.objectType}.${reference.propertyName}`);
+      if (result.result.type === "value") {
+        return result.result.value;
+      }
 
-      const command = buildCallCommand(
-        reference.objectReference.referenceId,
-        reference.property,
-        argArray,
-      );
-      const p = (async () => {
-        const result = await sendAndUnwrap(channel, command);
-        if (result.type === "value") {
-          return result.value;
-        }
-        return RpcObjectReference.create(channel, result.referenceId, result.objectType);
-      })();
-      return chain(p as Promise<any>);
-    },
-  });
-}
-
-// Helpers
-function buildGetCommand(reference: RpcPropertyReference): Command {
-  if (typeof reference.property === "string") {
-    return {
-      method: "get",
-      referenceId: reference.objectReference.referenceId,
-      propertyName: reference.property,
-    };
-  }
-  return {
-    method: "get",
-    referenceId: reference.objectReference.referenceId,
-    propertySymbol: serializeSymbol(reference.property),
+      return RpcObjectReference(channel, {
+        referenceId: result.result.referenceId,
+        objectType: result.result.objectType,
+      });
+    })().then(onFulfilled, onRejected);
   };
 }
 
-function buildCallCommand(
-  referenceId: ReferenceId,
-  property: string | PropertySymbol,
-  args: unknown[],
-): Command {
-  if (typeof property === "string") {
-    return { method: "call", referenceId, propertyName: property, args };
-  }
-  return { method: "call", referenceId, propertySymbol: serializeSymbol(property), args };
-}
+function commandsToString(commands: BatchCommand[]): string {
+  return commands
+    .map((cmd) => {
+      if (cmd.method === "get") {
+        const prop = (cmd as any).propertyName ?? (cmd as any).propertySymbol;
+        return `${String(prop)}`;
+      } else if (cmd.method === "apply") {
+        const prop = (cmd as any).propertyName ?? (cmd as any).propertySymbol;
+        return `${String(prop)}()`;
+      }
 
-async function sendAndUnwrap(channel: RpcRequestChannel, command: Command) {
-  const response: Response = await channel.sendCommand(command);
-  if (response.status === "error") {
-    throw new Error(`RPC Error: ${response.error}`);
-  }
-  return response.result;
-}
-
-function unwrapResult(channel: RpcRequestChannel, result: any) {
-  if (result.type === "value") {
-    return result.value;
-  }
-  return RpcObjectReference.create(channel, result.referenceId, result.objectType);
+      return "???";
+    })
+    .join(".");
 }

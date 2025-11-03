@@ -233,12 +233,12 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
             throw new Error("SDK is undefined");
           }
 
-          using ref = await sdk.take();
+          await using ref = await sdk.take();
 
           const ciphersClient = await ref.value.vault().await.ciphers();
-          const result: DecryptCipherListResult = await ciphersClient
-            .decrypt_list_with_failures(ciphers.map((cipher) => cipher.toSdkCipher()))
-            .await.by_value();
+          const result: DecryptCipherListResult = await ciphersClient.decrypt_list_with_failures(
+            ciphers.map((cipher) => cipher.toSdkCipher()),
+          ).transfer;
 
           const decryptedCiphers = result.successes;
           const failedCiphers: Cipher[] = result.failures
