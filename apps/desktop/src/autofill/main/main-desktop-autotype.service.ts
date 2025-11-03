@@ -79,6 +79,17 @@ export class MainDesktopAutotypeService {
     }
   }
 
+  dispose() {
+    ipcMain.removeHandler(AUTOTYPE_IPC_CHANNELS.INIT);
+    ipcMain.removeHandler(AUTOTYPE_IPC_CHANNELS.INITIALIZED);
+    ipcMain.removeAllListeners(AUTOTYPE_IPC_CHANNELS.TOGGLE);
+    ipcMain.removeAllListeners(AUTOTYPE_IPC_CHANNELS.CONFIGURE);
+    ipcMain.removeAllListeners(AUTOTYPE_IPC_CHANNELS.EXECUTE);
+
+    // Also unregister the global shortcut
+    this.disableAutotype();
+  }
+
   // Register the current keyboard shortcut if not already registered.
   private enableAutotype() {
     const formattedKeyboardShortcut = this.autotypeKeyboardShortcut.getElectronFormat();

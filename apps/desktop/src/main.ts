@@ -312,7 +312,7 @@ export class Main {
     );
 
     app.on("will-quit", () => {
-      this.mainDesktopAutotypeService.disableAutotype();
+      this.mainDesktopAutotypeService.dispose();
     });
   }
 
