@@ -1,6 +1,10 @@
 import { EVENTS, TYPE_CHECK } from "@bitwarden/common/autofill/constants";
 
-import AutofillScript, { AutofillInsertActions, FillScript } from "../models/autofill-script";
+import AutofillScript, {
+  AutofillInsertActions,
+  FillScript,
+  FillScriptActionTypes,
+} from "../models/autofill-script";
 import { FormFieldElement } from "../types";
 import {
   currentlyInSandboxedIframe,
@@ -114,21 +118,26 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
   /**
    * Runs the autofill action based on the action type and the opid.
    * Each action is subsequently delayed by 20 milliseconds.
-   * @param {"click_on_opid" | "focus_by_opid" | "fill_by_opid"} action
-   * @param {string} opid
-   * @param {string} value
+   * @param {FillScript} [action, opid, value]
    * @returns {Promise<void>}
    * @private
    */
   private runFillScriptAction = ([action, opid, value]: FillScript): Promise<void> => {
-    if (!opid || !value || !this.autofillInsertActions[action]) {
+    if (!opid || !this.autofillInsertActions[action]) {
       return Promise.resolve();
     }
 
     const delayActionsInMilliseconds = 20;
     return new Promise((resolve) =>
       setTimeout(() => {
-        this.autofillInsertActions[action]({ opid, value });
+        if (action === FillScriptActionTypes.fill_by_opid && !!value?.length) {
+          this.autofillInsertActions.fill_by_opid({ opid, value });
+        } else if (action === FillScriptActionTypes.click_on_opid) {
+          this.autofillInsertActions.click_on_opid({ opid });
+        } else if (action === FillScriptActionTypes.focus_by_opid) {
+          this.autofillInsertActions.focus_by_opid({ opid });
+        }
+
         resolve();
       }, delayActionsInMilliseconds),
     );

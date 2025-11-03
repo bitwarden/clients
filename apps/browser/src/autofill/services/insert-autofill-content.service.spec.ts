@@ -2,7 +2,7 @@ import { mock } from "jest-mock-extended";
 
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
-import AutofillScript, { FillScript, FillScriptActions } from "../models/autofill-script";
+import AutofillScript, { FillScript, FillScriptActionTypes } from "../models/autofill-script";
 import { mockQuerySelectorAllDefinedCall } from "../spec/testing-utils";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
 
@@ -94,9 +94,9 @@ describe("InsertAutofillContentService", () => {
     );
     fillScript = {
       script: [
-        ["click_on_opid", "username"],
-        ["focus_by_opid", "username"],
-        ["fill_by_opid", "username", "test"],
+        [FillScriptActionTypes.click_on_opid, "username"],
+        [FillScriptActionTypes.focus_by_opid, "username"],
+        [FillScriptActionTypes.fill_by_opid, "username", "test"],
       ],
       properties: {
         delay_between_operations: 20,
@@ -372,7 +372,7 @@ describe("InsertAutofillContentService", () => {
     });
 
     it("returns early if no opid is provided", async () => {
-      const action = "fill_by_opid";
+      const action = FillScriptActionTypes.fill_by_opid;
       const opid = "";
       const value = "value";
       const scriptAction: FillScript = [action, opid, value];
@@ -385,27 +385,49 @@ describe("InsertAutofillContentService", () => {
     });
 
     describe("given a valid fill script action and opid", () => {
-      const fillScriptActions: FillScriptActions[] = [
-        "fill_by_opid",
-        "click_on_opid",
-        "focus_by_opid",
-      ];
-      fillScriptActions.forEach((action) => {
-        it(`triggers a ${action} action`, () => {
-          const opid = "opid";
-          const value = "value";
-          const scriptAction: FillScript = [action, opid, value];
-          jest.spyOn(insertAutofillContentService["autofillInsertActions"], action);
+      it(`triggers a fill_by_opid action`, () => {
+        const action = FillScriptActionTypes.fill_by_opid;
+        const opid = "opid";
+        const value = "value";
+        const scriptAction: FillScript = [action, opid, value];
+        jest.spyOn(insertAutofillContentService["autofillInsertActions"], action);
 
-          void insertAutofillContentService["runFillScriptAction"](scriptAction);
-          jest.advanceTimersByTime(20);
+        void insertAutofillContentService["runFillScriptAction"](scriptAction);
+        jest.advanceTimersByTime(20);
 
-          expect(
-            insertAutofillContentService["autofillInsertActions"][action],
-          ).toHaveBeenCalledWith({
-            opid,
-            value,
-          });
+        expect(insertAutofillContentService["autofillInsertActions"][action]).toHaveBeenCalledWith({
+          opid,
+          value,
+        });
+      });
+
+      it(`triggers a click_on_opid action`, () => {
+        const action = FillScriptActionTypes.click_on_opid;
+        const opid = "opid";
+        const value = "value";
+        const scriptAction: FillScript = [action, opid, value];
+        jest.spyOn(insertAutofillContentService["autofillInsertActions"], action);
+
+        void insertAutofillContentService["runFillScriptAction"](scriptAction);
+        jest.advanceTimersByTime(20);
+
+        expect(insertAutofillContentService["autofillInsertActions"][action]).toHaveBeenCalledWith({
+          opid,
+        });
+      });
+
+      it(`triggers a focus_by_opid action`, () => {
+        const action = FillScriptActionTypes.focus_by_opid;
+        const opid = "opid";
+        const value = "value";
+        const scriptAction: FillScript = [action, opid, value];
+        jest.spyOn(insertAutofillContentService["autofillInsertActions"], action);
+
+        void insertAutofillContentService["runFillScriptAction"](scriptAction);
+        jest.advanceTimersByTime(20);
+
+        expect(insertAutofillContentService["autofillInsertActions"][action]).toHaveBeenCalledWith({
+          opid,
         });
       });
     });
