@@ -1,4 +1,3 @@
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
   concatMap,
@@ -8,7 +7,9 @@ import {
   map,
   Observable,
   of,
+  Subject,
   switchMap,
+  takeUntil,
 } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -32,6 +33,7 @@ import { UserId } from "@bitwarden/user-core";
 import { AutotypeConfig } from "../models/autotype-configure";
 
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
+import { OnDestroy } from "@angular/core";
 
 export const defaultWindowsAutotypeKeyboardShortcut: string[] = ["Control", "Shift", "B"];
 
@@ -54,7 +56,7 @@ export const AUTOTYPE_KEYBOARD_SHORTCUT = new KeyDefinition<string[]>(
   { deserializer: (b) => b },
 );
 
-export class DesktopAutotypeService {
+export class DesktopAutotypeService implements OnDestroy {
   private readonly autotypeEnabledState = this.globalStateProvider.get(AUTOTYPE_ENABLED);
   private readonly autotypeKeyboardShortcut = this.globalStateProvider.get(
     AUTOTYPE_KEYBOARD_SHORTCUT,
@@ -65,6 +67,8 @@ export class DesktopAutotypeService {
 
   // The keyboard shortcut from the user settings menu
   autotypeKeyboardShortcut$: Observable<string[]> = of(defaultWindowsAutotypeKeyboardShortcut);
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private accountService: AccountService,
@@ -79,11 +83,13 @@ export class DesktopAutotypeService {
   ) {
     this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$.pipe(
       map((enabled) => enabled ?? false),
+      takeUntil(this.destroy$),
       // distinctUntilChanged(), // Only emit when the result changes
     );
 
     this.autotypeKeyboardShortcut$ = this.autotypeKeyboardShortcut.state$.pipe(
       map((shortcut) => shortcut ?? defaultWindowsAutotypeKeyboardShortcut),
+      takeUntil(this.destroy$),
     );
 
     ipc.autofill.listenAutotypeRequest(async (windowTitle, callback) => {
@@ -126,7 +132,7 @@ export class DesktopAutotypeService {
             this.logService.error("Failed to set Autotype enabled state.");
           }
         }),
-        takeUntilDestroyed(),
+        takeUntil(this.destroy$),
       )
       .subscribe();
 
@@ -139,7 +145,7 @@ export class DesktopAutotypeService {
           };
           ipc.autofill.configureAutotype(config);
         }),
-        takeUntilDestroyed(),
+        takeUntil(this.destroy$),
       )
       .subscribe();
 
@@ -148,7 +154,7 @@ export class DesktopAutotypeService {
         concatMap(async (enabled) => {
           ipc.autofill.toggleAutotype(enabled);
         }),
-        takeUntilDestroyed(),
+        takeUntil(this.destroy$),
       )
       .subscribe();
   }
@@ -177,6 +183,7 @@ export class DesktopAutotypeService {
         // hasPremium,
       ),
       distinctUntilChanged(), // Only emit when the boolean result changes
+      takeUntil(this.destroy$),
     );
   }
 
@@ -220,5 +227,10 @@ export class DesktopAutotypeService {
     });
 
     return possibleCiphers;
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
