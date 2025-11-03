@@ -376,17 +376,8 @@
   "selectCriticalApplicationsDescription": {
     "message": "Select which applications are most critical to your organization, then assign security tasks to members to resolve risks."
   },
-  "atRiskItems": {
-    "message": "At-risk items"
-  },
   "clickIconToMarkAppAsCritical": {
     "message": "Click the star icon to mark an app as critical"
-  },
-  "totalItems": {
-    "message": "Total items"
-  },
-  "membersAffected": {
-    "message": "Members affected"
   },
   "markAsCriticalPlaceholder": {
     "message": "Mark as critical functionality will be implemented in a future update"
