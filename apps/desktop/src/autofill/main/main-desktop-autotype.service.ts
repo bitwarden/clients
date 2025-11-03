@@ -18,9 +18,7 @@ export class MainDesktopAutotypeService {
     private windowMain: WindowMain,
   ) {
     this.autotypeKeyboardShortcut = new AutotypeKeyboardShortcut();
-  }
 
-  init() {
     ipcMain.handle(AUTOTYPE_IPC_CHANNELS.INIT, () => {
       this.init();
     });
@@ -28,7 +26,9 @@ export class MainDesktopAutotypeService {
     ipcMain.handle(AUTOTYPE_IPC_CHANNELS.INITIALIZED, () => {
       return this.isInitialized;
     });
+  }
 
+  init() {
     ipcMain.on(AUTOTYPE_IPC_CHANNELS.TOGGLE, (_event, enable: boolean) => {
       if (enable) {
         this.enableAutotype();
