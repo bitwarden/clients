@@ -111,9 +111,16 @@ export class RiskInsightsOrchestratorService {
         ) || [];
       return newApplications;
     }),
-    distinctUntilChanged(
-      (prev, curr) => prev.length === curr.length && prev.every((app, i) => app === curr[i]),
-    ),
+    distinctUntilChanged((prev, curr) => {
+      if (prev.length !== curr.length) {
+        return false;
+      }
+      return prev.every(
+        (app, i) =>
+          app.applicationName === curr[i].applicationName &&
+          app.atRiskPasswordCount === curr[i].atRiskPasswordCount,
+      );
+    }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 

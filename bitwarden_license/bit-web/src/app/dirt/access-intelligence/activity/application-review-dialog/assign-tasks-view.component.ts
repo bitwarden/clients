@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, input } from "@angular/core";
+import { Component, input, ChangeDetectionStrategy } from "@angular/core";
 
 import { ButtonModule, IconTileComponent, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -17,9 +17,8 @@ import { AccessIntelligenceSecurityTasksService } from "../../shared/security-ta
  * Without these providers, Angular would throw NullInjectorError when trying to inject
  * DefaultAdminTaskService, which is required by AccessIntelligenceSecurityTasksService.
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "dirt-assign-tasks-view",
   templateUrl: "./assign-tasks-view.component.html",
   imports: [CommonModule, ButtonModule, TypographyModule, I18nPipe, IconTileComponent],
@@ -29,26 +28,4 @@ export class AssignTasksViewComponent {
   readonly criticalApplicationsCount = input.required<number>();
   readonly totalApplicationsCount = input.required<number>();
   readonly atRiskCriticalMembersCount = input.required<number>();
-
-  // async ngOnInit(): Promise<void> {
-  //   // Get unique members with at-risk passwords and total applications from report summary
-  //   // Uses the same pattern as all-activity.component.ts
-  //   // await this.loadReportSummary();
-  // }
-
-  // /**
-  //  * Loads the count of unique members with at-risk passwords and total applications.
-  //  * Uses the same pattern as all-activity.component.ts
-  //  */
-  // private async loadReportSummary(): Promise<void> {
-  //   try {
-  //     const summary = await firstValueFrom(this.allActivitiesService.reportSummary$);
-  //     this.criticalAppsAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
-  //     this.totalApplicationsCount = summary.totalApplicationCount;
-  //   } catch (error) {
-  //     this.logService.error("[AssignTasksView] Failed to load report summary", error);
-  //     this.criticalAppsAtRiskMemberCount = 0;
-  //     this.totalApplicationsCount = 0;
-  //   }
-  // }
 }

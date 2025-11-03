@@ -128,14 +128,13 @@ export class NewApplicationsDialogComponent {
    */
   toggleSelection(applicationName: string) {
     this.selectedApplications.update((current) => {
-      if (!current.has(applicationName)) {
-        const temp = new Set(current);
-        temp.add(applicationName);
-        return temp;
+      const temp = new Set(current);
+      if (temp.has(applicationName)) {
+        temp.delete(applicationName);
       } else {
-        const temp = [...current].filter((a) => a != applicationName);
-        return new Set(temp);
+        temp.add(applicationName);
       }
+      return temp;
     });
   }
 
