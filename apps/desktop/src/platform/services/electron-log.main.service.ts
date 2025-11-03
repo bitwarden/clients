@@ -22,7 +22,7 @@ export class ElectronLogMainService extends BaseLogService {
       return;
     }
 
-    log.transports.file.level = "info";
+    log.transports.file.level = "debug";
     if (this.logDir != null) {
       log.transports.file.resolvePathFn = () => path.join(this.logDir, "app.log");
     }

@@ -7,18 +7,18 @@
 
 use windows_core::*;
 
-use crate::util::{debug_log, delay_load, WindowsString};
 use crate::com_buffer::ComBuffer;
+use crate::util::{debug_log, delay_load, WindowsString};
 
 /// Windows WebAuthn Authenticator Options structure
 /// Header File Name: _EXPERIMENTAL_WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ExperimentalWebAuthnCtapCborAuthenticatorOptions {
-    pub version: u32,                 // DWORD dwVersion
-    pub user_presence: i32,           // LONG lUp: +1=TRUE, 0=Not defined, -1=FALSE
-    pub user_verification: i32,       // LONG lUv: +1=TRUE, 0=Not defined, -1=FALSE
-    pub require_resident_key: i32,    // LONG lRequireResidentKey: +1=TRUE, 0=Not defined, -1=FALSE
+    pub version: u32,              // DWORD dwVersion
+    pub user_presence: i32,        // LONG lUp: +1=TRUE, 0=Not defined, -1=FALSE
+    pub user_verification: i32,    // LONG lUv: +1=TRUE, 0=Not defined, -1=FALSE
+    pub require_resident_key: i32, // LONG lRequireResidentKey: +1=TRUE, 0=Not defined, -1=FALSE
 }
 
 /// Used when adding a Windows plugin authenticator (stable API).
@@ -27,15 +27,15 @@ pub struct ExperimentalWebAuthnCtapCborAuthenticatorOptions {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct WebAuthnPluginAddAuthenticatorOptions {
-    pub authenticator_name: *const u16,           // LPCWSTR
-    pub rclsid: *const GUID,                       // REFCLSID (changed from string)
-    pub rpid: *const u16,                          // LPCWSTR (optional)
-    pub light_theme_logo_svg: *const u16,         // LPCWSTR (optional, base64 SVG)
-    pub dark_theme_logo_svg: *const u16,          // LPCWSTR (optional, base64 SVG)
+    pub authenticator_name: *const u16,   // LPCWSTR
+    pub rclsid: *const GUID,              // REFCLSID (changed from string)
+    pub rpid: *const u16,                 // LPCWSTR (optional)
+    pub light_theme_logo_svg: *const u16, // LPCWSTR (optional, base64 SVG)
+    pub dark_theme_logo_svg: *const u16,  // LPCWSTR (optional, base64 SVG)
     pub cbor_authenticator_info_byte_count: u32,
-    pub cbor_authenticator_info: *const u8,        // const BYTE*
-    pub supported_rp_ids_count: u32,               // NEW in stable
-    pub supported_rp_ids: *const *const u16,       // NEW in stable: array of LPCWSTR
+    pub cbor_authenticator_info: *const u8,  // const BYTE*
+    pub supported_rp_ids_count: u32,         // NEW in stable
+    pub supported_rp_ids: *const *const u16, // NEW in stable: array of LPCWSTR
 }
 
 /// Used as a response type when adding a Windows plugin authenticator (stable API).
@@ -56,13 +56,13 @@ pub struct WebAuthnPluginAddAuthenticatorResponse {
 #[derive(Debug, Copy, Clone)]
 pub struct WebAuthnPluginCredentialDetails {
     pub credential_id_byte_count: u32,
-    pub credential_id_pointer: *const u8,  // Changed to const in stable
-    pub rpid: *const u16,  // Changed to const (LPCWSTR)
-    pub rp_friendly_name: *const u16,  // Changed to const (LPCWSTR)
+    pub credential_id_pointer: *const u8, // Changed to const in stable
+    pub rpid: *const u16,                 // Changed to const (LPCWSTR)
+    pub rp_friendly_name: *const u16,     // Changed to const (LPCWSTR)
     pub user_id_byte_count: u32,
-    pub user_id_pointer: *const u8,  // Changed to const
-    pub user_name: *const u16,  // Changed to const (LPCWSTR)
-    pub user_display_name: *const u16,  // Changed to const (LPCWSTR)
+    pub user_id_pointer: *const u8,    // Changed to const
+    pub user_name: *const u16,         // Changed to const (LPCWSTR)
+    pub user_display_name: *const u16, // Changed to const (LPCWSTR)
 }
 
 // Keep experimental version for internal use
@@ -78,7 +78,8 @@ impl WebAuthnPluginCredentialDetails {
         user_display_name: String,
     ) -> Self {
         // Allocate credential_id bytes with COM
-        let (credential_id_pointer, credential_id_byte_count) = ComBuffer::from_buffer(&credential_id);
+        let (credential_id_pointer, credential_id_byte_count) =
+            ComBuffer::from_buffer(&credential_id);
 
         // Allocate user_id bytes with COM
         let (user_id_pointer, user_id_byte_count) = ComBuffer::from_buffer(&user_id);
@@ -139,23 +140,25 @@ impl ExperimentalWebAuthnPluginCredentialDetailsList {
         credentials: Vec<ExperimentalWebAuthnPluginCredentialDetails>,
     ) -> Self {
         // Convert credentials to COM-allocated pointers
-        let credential_pointers: Vec<*mut ExperimentalWebAuthnPluginCredentialDetails> = credentials
-            .into_iter()
-            .map(|cred| {
-                // Use COM allocation for each credential struct
-                ComBuffer::with_object(cred)
-            })
-            .collect();
+        let credential_pointers: Vec<*mut ExperimentalWebAuthnPluginCredentialDetails> =
+            credentials
+                .into_iter()
+                .map(|cred| {
+                    // Use COM allocation for each credential struct
+                    ComBuffer::with_object(cred)
+                })
+                .collect();
 
         let credentials_len = credential_pointers.len();
 
         // Allocate the array of pointers using COM as well
         let credentials_pointer = if credentials_len > 0 {
-            let pointer_array_bytes = credential_pointers.len() * std::mem::size_of::<*mut ExperimentalWebAuthnPluginCredentialDetails>();
+            let pointer_array_bytes = credential_pointers.len()
+                * std::mem::size_of::<*mut ExperimentalWebAuthnPluginCredentialDetails>();
             let (ptr, _) = ComBuffer::from_buffer(unsafe {
                 std::slice::from_raw_parts(
                     credential_pointers.as_ptr() as *const u8,
-                    pointer_array_bytes
+                    pointer_array_bytes,
                 )
             });
             ptr as *mut *mut ExperimentalWebAuthnPluginCredentialDetails
@@ -177,9 +180,9 @@ impl ExperimentalWebAuthnPluginCredentialDetailsList {
 // Stable API function signatures - now use REFCLSID and flat arrays
 pub type WebAuthNPluginAuthenticatorAddCredentialsFnDeclaration =
     unsafe extern "cdecl" fn(
-        rclsid: *const GUID,  // Changed from string to GUID reference
+        rclsid: *const GUID, // Changed from string to GUID reference
         cCredentialDetails: u32,
-        pCredentialDetails: *const WebAuthnPluginCredentialDetails,  // Flat array, not list
+        pCredentialDetails: *const WebAuthnPluginCredentialDetails, // Flat array, not list
     ) -> HRESULT;
 
 pub type WebAuthNPluginAuthenticatorRemoveCredentialsFnDeclaration =
@@ -192,8 +195,8 @@ pub type WebAuthNPluginAuthenticatorRemoveCredentialsFnDeclaration =
 pub type WebAuthNPluginAuthenticatorGetAllCredentialsFnDeclaration =
     unsafe extern "cdecl" fn(
         rclsid: *const GUID,
-        pcCredentialDetails: *mut u32,  // Out param for count
-        ppCredentialDetailsArray: *mut *mut WebAuthnPluginCredentialDetails,  // Out param for array
+        pcCredentialDetails: *mut u32, // Out param for count
+        ppCredentialDetailsArray: *mut *mut WebAuthnPluginCredentialDetails, // Out param for array
     ) -> HRESULT;
 
 pub type WebAuthNPluginAuthenticatorFreeCredentialDetailsArrayFnDeclaration =
@@ -203,9 +206,7 @@ pub type WebAuthNPluginAuthenticatorFreeCredentialDetailsArrayFnDeclaration =
     );
 
 pub type WebAuthNPluginAuthenticatorRemoveAllCredentialsFnDeclaration =
-    unsafe extern "cdecl" fn(
-        rclsid: *const GUID,
-    ) -> HRESULT;
+    unsafe extern "cdecl" fn(rclsid: *const GUID) -> HRESULT;
 
 pub fn add_credentials(
     clsid_guid: GUID,
@@ -245,7 +246,7 @@ pub fn add_credentials(
 
             debug_log("API call succeeded");
             Ok(())
-        },
+        }
         None => {
             debug_log("Failed to load WebAuthNPluginAuthenticatorAddCredentials function from webauthn.dll");
             Err(String::from("Error: Can't complete add_credentials(), as the function WebAuthNPluginAuthenticatorAddCredentials can't be loaded."))
@@ -440,9 +441,7 @@ fn free_credential_details_array(
     }
 }
 
-pub fn remove_all_credentials(
-    clsid_guid: GUID,
-) -> std::result::Result<(), String> {
+pub fn remove_all_credentials(clsid_guid: GUID) -> std::result::Result<(), String> {
     debug_log("Loading WebAuthNPluginAuthenticatorRemoveAllCredentials function...");
 
     let result = unsafe {
@@ -470,7 +469,7 @@ pub fn remove_all_credentials(
 
             debug_log("API call succeeded");
             Ok(())
-        },
+        }
         None => {
             debug_log("Failed to load WebAuthNPluginAuthenticatorRemoveAllCredentials function from webauthn.dll");
             Err(String::from("Error: Can't complete remove_all_credentials(), as the function WebAuthNPluginAuthenticatorRemoveAllCredentials can't be loaded."))

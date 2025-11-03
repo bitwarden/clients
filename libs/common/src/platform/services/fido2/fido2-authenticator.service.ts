@@ -32,6 +32,7 @@ import { compareCredentialIds, parseCredentialId } from "./credential-id-utils";
 import { p1363ToDer } from "./ecdsa-utils";
 import { Fido2Utils } from "./fido2-utils";
 import { guidToStandardFormat } from "./guid-utils";
+import { PrimarySecondaryStorageService } from "../../storage/primary-secondary-storage.service";
 
 // AAGUID: d548826e-79b4-db40-a3d8-11116f7e8349
 export const AAGUID = new Uint8Array([
@@ -62,12 +63,15 @@ export class Fido2AuthenticatorService<ParentWindowReference>
     window: ParentWindowReference,
     abortController?: AbortController,
   ): Promise<Fido2AuthenticatorMakeCredentialResult> {
+    this.logService.debug("[Fido2AuthenticatorService] makeCredential")
+    this.logService.debug("[Fido2AuthenticatorService] create new session")
     const userInterfaceSession = await this.userInterface.newSession(
       params.fallbackSupported,
       window,
       abortController,
     );
 
+    this.logService.debug("[Fido2AuthenticatorService] try create new credential")
     try {
       if (params.credTypesAndPubKeyAlgs.every((p) => p.alg !== Fido2AlgorithmIdentifier.ES256)) {
         const requestedAlgorithms = params.credTypesAndPubKeyAlgs.map((p) => p.alg).join(", ");
@@ -101,6 +105,7 @@ export class Fido2AuthenticatorService<ParentWindowReference>
         throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.Unknown);
       }
 
+      this.logService.debug("Ensuring unlocked vault before creating credential")
       await userInterfaceSession.ensureUnlockedVault();
 
       // Avoid syncing if we did it reasonably soon as the only reason for syncing is to validate excludeCredentials
@@ -128,6 +133,8 @@ export class Fido2AuthenticatorService<ParentWindowReference>
       let userVerified = false;
       let credentialId: string;
       let pubKeyDer: ArrayBuffer;
+
+      this.logService.debug("[Fido2AuthenticatorService] Prompting user to confirm creating credential")
       const response = await userInterfaceSession.confirmNewCredential({
         credentialName: params.rpEntity.name,
         userName: params.userEntity.name,
@@ -435,15 +442,29 @@ export class Fido2AuthenticatorService<ParentWindowReference>
     credentials: PublicKeyCredentialDescriptor[],
     rpId: string,
   ): Promise<CipherView[]> {
+    this.logService.debug("[findCredentialsById]:", credentials, rpId)
     if (credentials.length === 0) {
       return [];
     }
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
+    this.logService.debug("[findCredentialsById] ciphers:", ciphers)
     return ciphers.filter(
-      (cipher) =>
-        !cipher.isDeleted &&
+      (cipher) => {
+        this.logService.debug(cipher.id,
+          !cipher.isDeleted,
+          cipher.type === CipherType.Login,
+          cipher.login.hasFido2Credentials,
+          cipher.login.fido2Credentials[0].rpId === rpId,
+          credentials.some((credential) => {
+            let credId = cipher.login.fido2Credentials[0].credentialId
+            let parsedCredId = parseCredentialId(credId)
+            this.logService.debug(credential.id, credential.id.byteLength, typeof(credential.id), credId, parsedCredId, parsedCredId.byteLength, typeof(parsedCredId))
+            return compareCredentialIds(credential.id, parsedCredId)
+          }),
+        )
+        return !cipher.isDeleted &&
         cipher.type === CipherType.Login &&
         cipher.login.hasFido2Credentials &&
         cipher.login.fido2Credentials[0].rpId === rpId &&
@@ -452,13 +473,16 @@ export class Fido2AuthenticatorService<ParentWindowReference>
             credential.id,
             parseCredentialId(cipher.login.fido2Credentials[0].credentialId),
           ),
-        ),
+        )
+      }
     );
   }
 
   private async findCredentialsByRp(rpId: string): Promise<CipherView[]> {
+    this.logService.debug("[findCredentialByRp]:", rpId)
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
+    this.logService.debug("[findCredentialsByRp] ciphers:", ciphers)
     return ciphers.filter(
       (cipher) =>
         !cipher.isDeleted &&

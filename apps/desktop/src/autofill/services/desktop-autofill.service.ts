@@ -92,7 +92,7 @@ export class DesktopAutofillService implements OnDestroy {
     // }
 
     let fido2Credentials: NativeAutofillFido2Credential[];
-    let passwordCredentials: NativeAutofillPasswordCredential[];
+    let passwordCredentials: NativeAutofillPasswordCredential[] = [];
 
     fido2Credentials = (await getCredentialsForAutofill(cipherViews)).map((credential) => ({
       type: "fido2",
@@ -229,7 +229,7 @@ export class DesktopAutofillService implements OnDestroy {
 
     ipc.autofill.listenPasskeyAssertion(async (clientId, sequenceNumber, request, callback) => {
       this.logService.warning("listenPasskeyAssertion", clientId, sequenceNumber, request);
-
+      // II: Stopped here!
       const controller = new AbortController();
       void this.fido2AuthenticatorService
         .getAssertion(
@@ -278,6 +278,7 @@ export class DesktopAutofillService implements OnDestroy {
     request: autofill.PasskeyRegistrationRequest,
     response: Fido2AuthenticatorMakeCredentialResult,
   ): autofill.PasskeyRegistrationResponse {
+    this.logService.debug("converting registrationResponse to Windows format")
     return {
       rpId: request.rpId,
       clientDataHash: request.clientDataHash,

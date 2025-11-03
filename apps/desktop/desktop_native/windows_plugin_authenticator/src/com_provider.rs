@@ -126,16 +126,16 @@ pub unsafe fn parse_credential_list(credential_list: &WEBAUTHN_CREDENTIAL_LIST) 
             ));
             continue;
         }
-
         // Extract credential ID bytes
+        // For some reason, we're getting hex strings from Windows instead of bytes.
         let credential_id_slice =
             std::slice::from_raw_parts(credential.pbId, credential.cbId as usize);
 
-        allowed_credentials.push(credential_id_slice.to_vec());
         debug_log(&format!(
-            "Parsed credential {}: {} bytes",
-            i, credential.cbId
+            "Parsed credential {}: {} bytes, {:?}",
+            i, credential.cbId, &credential_id_slice,
         ));
+        allowed_credentials.push(credential_id_slice.to_vec());
     }
 
     debug_log(&format!(

@@ -142,10 +142,10 @@ fn send_assertion_request(
     };
 
     debug_log(&format!(
-        "Assertion request data - RP ID: {}, Client data hash: {} bytes, Allowed credentials: {}",
-        request.rpid,
-        request.client_data_hash.len(),
-        request.allowed_credentials.len()
+        "Assertion request data - RP ID: {}, Client data hash: {} bytes, Allowed credentials: {:?}",
+        passkey_request.rp_id,
+        passkey_request.client_data_hash.len(),
+        passkey_request.allowed_credentials,
     ));
 
     debug_log(format!(
@@ -219,11 +219,17 @@ unsafe fn create_get_assertion_response(
         ));
     }
 
+    // [5] numberOfCredentials (optional)
+    cbor_response.push((
+        ciborium::Value::Integer(5.into()),
+        ciborium::Value::Integer(1.into()),
+    ));
+
     let cbor_value = ciborium::Value::Map(cbor_response);
 
     // Encode to CBOR with error handling
     let mut cbor_data = Vec::new();
-    cbor_data.push(0); // CTAP_STATUS_OK
+    // cbor_data.push(0x00); // CTAP2_OK
     if let Err(e) = ciborium::ser::into_writer(&cbor_value, &mut cbor_data) {
         debug_log(&format!(
             "ERROR: Failed to encode CBOR assertion response: {:?}",
@@ -231,6 +237,11 @@ unsafe fn create_get_assertion_response(
         ));
         return Err(HRESULT(-1));
     }
+
+    debug_log(&format!(
+        "Formatted CBOR assertion response: {:?}",
+        cbor_data
+    ));
 
     let response_len = cbor_data.len();
 
@@ -357,9 +368,8 @@ pub unsafe fn experimental_plugin_get_assertion(
             };
 
             debug_log(&format!(
-                "Get assertion request - RP: {}, Allowed credentials: {}",
-                rpid,
-                allowed_credentials.len()
+                "Get assertion request - RP: {}, Allowed credentials: {:?}",
+                rpid, allowed_credentials
             ));
 
             // Send assertion request
@@ -433,4 +443,31 @@ pub unsafe fn experimental_plugin_get_assertion(
 }
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+    use std::ptr::slice_from_raw_parts;
+
+    use super::create_get_assertion_response;
+
+    #[test]
+    fn test_create_native_assertion_response() {
+        let credential_id = vec![1, 2, 3, 4];
+        let authenticator_data = vec![5, 6, 7, 8];
+        let signature = vec![9, 10, 11, 12];
+        let user_handle = vec![13, 14, 15, 16];
+        let slice = unsafe {
+            let response = *create_get_assertion_response(
+                credential_id,
+                authenticator_data,
+                signature,
+                user_handle,
+            )
+            .unwrap();
+            &*slice_from_raw_parts(
+                response.encoded_response_pointer,
+                response.encoded_response_byte_count as usize,
+            )
+        };
+        // CTAP2_OK, Map(5 elements)
+        assert_eq!([0x00, 0xa5], slice[..2]);
+    }
+}

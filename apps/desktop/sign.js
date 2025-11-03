@@ -18,5 +18,21 @@ exports.default = async function (configuration) {
         stdio: "inherit",
       },
     );
+  } else if (process.env.ELECTRON_BUILDER_SIGN_CERT) {
+    const certFile = process.env.ELECTRON_BUILDER_SIGN_CERT
+    const certPw = process.env.ELECTRON_BUILDER_SIGN_CERT_PW
+    console.log(`[*] Signing file: ${configuration.path} with ${certFile}`);
+    require("child_process").execSync(
+      "signtool.exe sign" +
+      " /fd SHA256" +
+      " /a" +
+      ` /f "${certFile}"` +
+      ` /p "${process.env.ELECTRON_BUILDER_SIGN_CERT_PW}"` +
+      ` "${configuration.path}"`,
+      {
+        stdio: "inherit",
+      },
+    ); 
   }
 };
+

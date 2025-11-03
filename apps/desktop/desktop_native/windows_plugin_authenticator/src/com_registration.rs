@@ -276,27 +276,27 @@ mod tests {
         // Verify it's a map with expected keys
         if let Value::Map(map) = decoded.unwrap() {
             assert!(
-                map.contains_key(&Value::Integer(1.into())),
+                map.iter().any(|(k, _)| k == &Value::Integer(1.into())),
                 "Should contain versions (key 1)"
             );
             assert!(
-                map.contains_key(&Value::Integer(2.into())),
+                map.iter().any(|(k, _)| k == &Value::Integer(2.into())),
                 "Should contain extensions (key 2)"
             );
             assert!(
-                map.contains_key(&Value::Integer(3.into())),
+                map.iter().any(|(k, _)| k == &Value::Integer(3.into())),
                 "Should contain aaguid (key 3)"
             );
             assert!(
-                map.contains_key(&Value::Integer(4.into())),
+                map.iter().any(|(k, _)| k == &Value::Integer(4.into())),
                 "Should contain options (key 4)"
             );
             assert!(
-                map.contains_key(&Value::Integer(9.into())),
+                map.iter().any(|(k, _)| k == &Value::Integer(9.into())),
                 "Should contain transports (key 9)"
             );
             assert!(
-                map.contains_key(&Value::Integer(10.into())),
+                map.iter().any(|(k, _)| k == &Value::Integer(10.into())),
                 "Should contain algorithms (key 10)"
             );
         } else {

@@ -56,7 +56,7 @@ pub async fn on_request(
                             match serde_json::from_str(&result) {
                                 Ok(resp) => resp,
                                 Err(e) => windows_plugin_authenticator::PasskeyResponse::Error {
-                                    message: format!("JSON parse error: {}", e),
+                                    message: format!("JSON parse error: {}\nJSON: {}", e, &result),
                                 },
                             };
                         let _ = event.response_sender.send(response);

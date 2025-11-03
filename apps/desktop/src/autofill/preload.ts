@@ -32,6 +32,7 @@ export default {
       ) => {
         const { clientId, sequenceNumber, request } = data;
         fn(clientId, sequenceNumber, request, (error, response) => {
+          console.log("autofill.passkeyRegistration IPC response", error, response)
           if (error) {
             ipcRenderer.send("autofill.completeError", {
               clientId,

@@ -943,9 +943,11 @@ pub mod passkey_authenticator {
     #[napi(object)]
     #[derive(serde::Serialize, serde::Deserialize)]
     pub struct SyncedCredential {
+        /// base64url-encoded credential ID.
         pub credential_id: String, // base64url encoded
         pub rp_id: String,
         pub user_name: String,
+        /// base64url-encoded user ID.
         pub user_handle: String, // base64url encoded
     }
 

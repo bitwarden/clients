@@ -18,7 +18,16 @@ export class NativeAutofillWindowsMain {
   ) {}
 
   initWindows() {
-    passkey_authenticator.register();
+    try {
+      passkey_authenticator.register();
+    }
+    catch (err) {
+      this.logService.error("Failed to register windows passkey plugin:", err)
+      return JSON.stringify({
+        "type": "error",
+        "message": "Failed to register windows passkey plugin"
+      })
+    }
     void passkey_authenticator.onRequest(async (error, event) => {
       this.logService.info("Passkey request received:", { error, event });
 
@@ -241,6 +250,7 @@ export class NativeAutofillWindowsMain {
         _event: any,
         params: RunCommandParams<C>,
       ): Promise<RunCommandResult<C>> => {
+        this.logService.debug("Received event (windows):", "autofill.runCommand", params)
         return this.runCommand(params);
       },
     );

@@ -29,20 +29,33 @@ export class NativeAutofillMain {
 
   async init() {
     const enableWindowsPasskeyProvider = true;
+    this.logService.debug("Windows passkey provider enabled: " + enableWindowsPasskeyProvider)
     if (enableWindowsPasskeyProvider) {
-      this.windowsMain.initWindows();
-      this.windowsMain.setupWindowsRendererIPCHandlers();
-    }
+      let err = this.windowsMain.initWindows();
+      if (err) {
+        this.logService.debug("Error occurred while initialized windows plugin:", err)
+        throw err
+      }
+      this.logService.debug("Windows passkey provider initialized: " + enableWindowsPasskeyProvider)
 
+      this.logService.debug("Setting up windows renderers")
+      this.windowsMain.setupWindowsRendererIPCHandlers();
+      this.logService.debug("Setting up windows renderers done.")
+    }
+    this.logService.debug("Set up autofill IPC handlers: ")
+
+    /*
     ipcMain.handle(
       "autofill.runCommand",
       <C extends CommandDefinition>(
         _event: any,
         params: RunCommandParams<C>,
       ): Promise<RunCommandResult<C>> => {
+        this.logService.debug("Received event:", "autofill.runCommand", params)
         return this.runCommand(params);
       },
     );
+    */
 
     this.ipcServer = await autofill.IpcServer.listen(
       "af",
@@ -87,6 +100,7 @@ export class NativeAutofillMain {
       },
     );
 
+    /*
     ipcMain.on("autofill.completePasskeyRegistration", (event, data) => {
       this.logService.warning("autofill.completePasskeyRegistration", data);
       const { clientId, sequenceNumber, response } = data;
@@ -104,6 +118,7 @@ export class NativeAutofillMain {
       const { clientId, sequenceNumber, error } = data;
       this.ipcServer.completeError(clientId, sequenceNumber, String(error));
     });
+    */
   }
 
   private async runCommand<C extends CommandDefinition>(

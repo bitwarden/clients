@@ -213,9 +213,11 @@ export declare namespace passkey_authenticator {
     requestJson: string
   }
   export interface SyncedCredential {
+    /** base64url-encoded credential ID. */
     credentialId: string
     rpId: string
     userName: string
+    /** base64url-encoded user ID. */
     userHandle: string
   }
   export interface PasskeySyncRequest {

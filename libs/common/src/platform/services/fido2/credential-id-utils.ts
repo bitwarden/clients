@@ -9,7 +9,9 @@ export function parseCredentialId(encodedCredentialId: string): ArrayBuffer {
       return Fido2Utils.stringToBuffer(encodedCredentialId.slice(4));
     }
 
-    return guidToRawFormat(encodedCredentialId).buffer;
+    let arr = guidToRawFormat(encodedCredentialId);
+    console.log("guidToRawFormat output:", arr)
+    return arr.buffer;
   } catch {
     return undefined;
   }
@@ -19,12 +21,14 @@ export function parseCredentialId(encodedCredentialId: string): ArrayBuffer {
  * Compares two credential IDs for equality.
  */
 export function compareCredentialIds(a: ArrayBuffer, b: ArrayBuffer): boolean {
+  console.log("compareCredentialIds:", a, b)
   if (a.byteLength !== b.byteLength) {
     return false;
   }
 
   const viewA = new Uint8Array(a);
   const viewB = new Uint8Array(b);
+  console.log("Comparing credential IDs:", viewA, viewB)
 
   for (let i = 0; i < viewA.length; i++) {
     if (viewA[i] !== viewB[i]) {
