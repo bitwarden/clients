@@ -105,7 +105,7 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
     }
   }
 
-  async isRunningMigrations(): Promise<boolean> {
+  isRunningMigrations(): boolean {
     return this.isRunningMigration;
   }
 }

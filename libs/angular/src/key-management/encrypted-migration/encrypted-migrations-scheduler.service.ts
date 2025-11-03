@@ -104,7 +104,7 @@ export class DefaultEncryptedMigrationsSchedulerService
       return;
     }
 
-    if (this.isMigrating || (await this.encryptedMigrator.isRunningMigrations())) {
+    if (this.isMigrating || this.encryptedMigrator.isRunningMigrations()) {
       this.logService.info(
         `[EncryptedMigrationsScheduler] Skipping migration check for user ${userId} because migrations are already in progress`,
       );

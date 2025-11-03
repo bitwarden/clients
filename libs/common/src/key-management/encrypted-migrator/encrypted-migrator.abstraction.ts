@@ -28,5 +28,5 @@ export abstract class EncryptedMigrator {
   /**
    * Indicates whether migrations are currently running.
    */
-  abstract isRunningMigrations(): Promise<boolean>;
+  abstract isRunningMigrations(): boolean;
 }
