@@ -59,6 +59,14 @@ export class ActivityCardComponent {
   @Input() iconClass: string | null = null;
 
   /**
+   * CSS class for icon color (e.g., "tw-text-success", "tw-text-muted").
+   * Defaults to "tw-text-muted" if not provided.
+   */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() iconColorClass: string = "tw-text-muted";
+
+  /**
    * Button text. If provided, a button will be displayed instead of a navigation link.
    */
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals

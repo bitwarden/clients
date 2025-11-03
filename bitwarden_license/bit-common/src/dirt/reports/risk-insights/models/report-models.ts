@@ -15,7 +15,7 @@ import { ExposedPasswordDetail, WeakPasswordDetail } from "./password-health";
  */
 export type MemberDetails = {
   userGuid: string;
-  userName?: string;
+  userName: string | null;
   email: string;
   cipherId: string;
 };
@@ -55,7 +55,6 @@ export type OrganizationReportSummary = {
   totalCriticalMemberCount: number;
   totalCriticalAtRiskMemberCount: number;
   totalCriticalAtRiskApplicationCount: number;
-  newApplications: string[];
 };
 
 /**
@@ -99,6 +98,15 @@ export type ReportResult = CipherView & {
   scoreKey: number;
 };
 
+export const ReportStatus = Object.freeze({
+  Initializing: 1,
+  Loading: 2,
+  Complete: 3,
+  Error: 4,
+} as const);
+
+export type ReportStatus = (typeof ReportStatus)[keyof typeof ReportStatus];
+
 export interface RiskInsightsData {
   id: OrganizationReportId;
   creationDate: Date;
@@ -109,10 +117,9 @@ export interface RiskInsightsData {
 }
 
 export interface ReportState {
-  loading: boolean;
+  status: ReportStatus;
   error: string | null;
   data: RiskInsightsData | null;
-  organizationId?: string;
 }
 
 // TODO Make Versioned models for structure changes
