@@ -172,8 +172,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "V $ORG NAME$ nebyly nalezeny žádné aplikace",
+  "noApplicationsInOrgTitle": {
+    "message": "Pro $ORG NAME$ nebyly nalezeny žádné aplikace",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -181,8 +181,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "Jakmile uživatelé uloží přihlašovací údaje, zobrazí se zde aplikace, které zobrazují všechna ohrožená hesla. Označte kritické aplikace a upozorněte uživatele, aby hesla aktualizovali."
+  "noApplicationsInOrgDescription": {
+    "message": "Importujte přihlašovací údaje Vaší organizace a začněte sledovat bezpečnostní rizika spojená s přihlašovacími údaji. Po importu získáte přístup k:"
+  },
+  "benefit1Title": {
+    "message": "Upřednostnit rizika"
+  },
+  "benefit1Description": {
+    "message": "Zaměřit se na aplikace, na které záleží nejvíce"
+  },
+  "benefit2Title": {
+    "message": "Průvodce nápravou"
+  },
+  "benefit2Description": {
+    "message": "Přiřadit ohroženým členům řízené úkoly, aby střídali používání ohrožených přihlašovacích údajů"
+  },
+  "benefit3Title": {
+    "message": "Sledovat průběh"
+  },
+  "benefit3Description": {
+    "message": "Sleduje změny v průběhu času pro zobrazení zlepšení zabezpečení."
+  },
+  "noReportRunTitle": {
+    "message": "Spustit první hlášení pro zobrazení aplikací"
+  },
+  "noReportRunDescription": {
+    "message": "Vygenerujte zprávu o rizicích, abyste mohli analyzovat aplikace Vaší organizace a identifikovat riziková hesla, která vyžadují pozornost. Spuštěním první zprávy:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Neoznačili jste žádné aplikace jako kritické"
@@ -327,6 +351,27 @@
   },
   "markAsCriticalPlaceholder": {
     "message": "Funkce označení jako kritické bude implementována v budoucí aktualizaci"
+  },
+  "applicationReviewSaved": {
+    "message": "Kontrola aplikace uložena"
+  },
+  "applicationsMarkedAsCritical": {
+    "message": "$COUNT$ aplikací označeno jako kritické",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "newApplicationsReviewed": {
+    "message": "Nové aplikace zkontrolovány"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Chyba při ukládání stavu kontroly"
+  },
+  "pleaseTryAgain": {
+    "message": "Zkuste to znovu"
   },
   "unmarkAsCritical": {
     "message": "Zrušit označení jako kritické"
@@ -1313,6 +1358,9 @@
   },
   "useSingleSignOn": {
     "message": "Použít jednotné přihlášení"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Vaše organizace vyžaduje jednotné přihlášení."
   },
   "welcomeBack": {
     "message": "Vítejte zpět"
@@ -4449,8 +4497,8 @@
   "inviteAccepted": {
     "message": "Pozvánka byla přijata"
   },
-  "inviteAcceptedDesc": {
-    "message": "K této organizaci můžete přistupovat, jakmile správce potvrdí Vaše členství. Až se tak stane, pošleme Vám e-mail."
+  "invitationAcceptedDesc": {
+    "message": "Vaše pozvánka byla úspěšně přijata."
   },
   "inviteInitAcceptedDesc": {
     "message": "Nyní můžete přistupovat k této organizaci."
@@ -6492,23 +6540,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "Vaše organizace aktualizovala možnosti dešifrování. Nastavte hlavní heslo pro přístup k Vašemu trezoru."
   },
-  "maximumVaultTimeout": {
-    "message": "Časový limit trezoru"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Časový limit relace"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Nastaví maximální časový limit trezoru pro všechny uživatele."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Nastavte maximální časový limit relace pro všechny členy kromě vlastníků."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Maximální časový limit trezoru"
+  "maximumAllowedTimeout": {
+    "message": "Maximální povolený časový limit"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "Neplatný maximální časový limit trezoru."
+  "maximumAllowedTimeoutRequired": {
+    "message": "Je vyžadován maximální povolený časový limit."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Čas je neplatný. Změňte alespoň jednu hodnotu."
+  },
+  "sessionTimeoutAction": {
+    "message": "Akce časového limitu relace"
+  },
+  "immediately": {
+    "message": "Okamžitě"
+  },
+  "onSystemLock": {
+    "message": "Při uzamknutí systému"
+  },
+  "onAppRestart": {
+    "message": "Při restartu aplikace"
   },
   "hours": {
     "message": "Hodiny"
   },
   "minutes": {
     "message": "Minuty"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Jste si jisti, že chcete povolit maximální časový limit \"Nikdy\" pro všechny členy?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "Tato volba uloží šifrovací klíče Vašich členů do jejich zařízení. Pokud zvolíte tuto volbu, ujistěte se, že jsou jejich zařízení náležitě chráněna."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Další informace o ochraně zařízení"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "Volba \"Při uzamknutí systému\" se bude vztahovat jen na prohlížeč a desktopovou aplikaci"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "Mobilní a webová aplikace bude používat \"Při restartu aplikace\" jako maximální povolený časový limit, protože tato volba není podporována."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Zásady Vaší organizace nastavily maximální povolený časový limit trezoru na $HOURS$ hodin a $MINUTES$ minut.",
@@ -11936,5 +12014,14 @@
   },
   "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
     "message": "Argon2id nabízí silnější ochranu proti moderním útokům. Nejlepší pro pokročilé uživatele s výkonnými zařízeními."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / PSČ"
+  },
+  "cardNumberLabel": {
+    "message": "Číslo karty"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Zahájit bezplatnou zkušební verzi pro rodiny"
   }
 }
