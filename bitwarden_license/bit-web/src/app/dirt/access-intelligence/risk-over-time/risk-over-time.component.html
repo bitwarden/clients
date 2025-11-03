@@ -23,7 +23,7 @@
       <!-- Period Dropdown -->
       <div class="tw-relative">
         <select
-          class="tw-px-3 tw-py-1 tw-rounded-full tw-border tw-border-gray-400 dark:tw-border-gray-600 tw-flex tw-items-center tw-gap-2 hover:tw-bg-gray-50 dark:hover:tw-bg-gray-700 tw-bg-white dark:tw-bg-gray-800 tw-text-gray-600 dark:tw-text-gray-400 tw-text-sm tw-leading-tight tw-appearance-none tw-pr-8 tw-cursor-pointer focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-primary-600"
+          class="tw-px-3 tw-py-1 tw-rounded-full tw-border tw-border-secondary-300 tw-flex tw-items-center tw-gap-2 hover:tw-bg-secondary-100 tw-bg-background tw-text-muted tw-text-sm tw-leading-tight tw-appearance-none tw-pr-8 tw-cursor-pointer focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-primary-600"
           [value]="selectedPeriod"
           (change)="onPeriodChange($event)"
         >
@@ -37,7 +37,7 @@
           stroke-width="0"
           viewBox="0 0 20 20"
           aria-hidden="true"
-          class="tw-absolute tw-right-2 tw-top-1/2 tw-transform tw--translate-y-1/2 tw-w-3.5 tw-h-3.5 tw-text-gray-600 dark:tw-text-gray-400 tw-pointer-events-none"
+          class="tw-absolute tw-right-2 tw-top-1/2 tw-transform tw--translate-y-1/2 tw-size-3.5 tw-text-muted tw-pointer-events-none"
           height="1em"
           width="1em"
           xmlns="http://www.w3.org/2000/svg"
@@ -73,14 +73,14 @@
     <div class="tw-flex tw-gap-3 tw-items-center">
       <div class="tw-flex tw-items-center tw-gap-1.5 tw-pl-1 tw-pr-2 tw-py-0.5 tw-rounded-lg">
         <div
-          class="tw-w-2.5 tw-h-2.5 tw-rounded-full"
+          class="tw-size-2.5 tw-rounded-full"
           [ngClass]="currentPeriodColor()"
           [style.background-color]="currentPeriodStrokeColor()"
         ></div>
         <span class="tw-text-main tw-text-xs">{{ "currentPeriod" | i18n }}</span>
       </div>
       <div class="tw-flex tw-items-center tw-gap-1.5 tw-pl-1 tw-pr-2 tw-py-0.5 tw-rounded-lg">
-        <div class="tw-w-2.5 tw-h-2.5 tw-rounded-full tw-bg-secondary-300"></div>
+        <div class="tw-size-2.5 tw-rounded-full tw-bg-secondary-300"></div>
         <span class="tw-text-main tw-text-xs">{{ "previousPeriod" | i18n }}</span>
       </div>
     </div>
@@ -122,7 +122,7 @@
           [attr.x]="yAxisX - 10"
           [attr.y]="label.y + 4"
           text-anchor="end"
-          class="tw-text-xs tw-fill-muted"
+          class="tw-text-xs tw-fill-current tw-text-muted"
         >
           {{ label.value }}
         </text>
@@ -206,7 +206,7 @@
           "
           [attr.y]="chartHeight - chartPadding.bottom + 20"
           text-anchor="middle"
-          class="tw-text-xs tw-fill-main tw-select-none"
+          class="tw-text-xs tw-fill-current tw-text-main tw-select-none"
         >
           {{ label }}
         </text>
@@ -224,14 +224,14 @@
       <div class="tw-flex tw-flex-col tw-gap-1">
         <div class="tw-flex tw-items-center tw-gap-2">
           <div
-            class="tw-w-2.5 tw-h-2.5 tw-rounded-full"
+            class="tw-size-2.5 tw-rounded-full"
             [style.background-color]="currentPeriodStrokeColor()"
           ></div>
           <span class="tw-text-xs tw-text-muted">{{ "currentPeriod" | i18n }}:</span>
           <span class="tw-text-xs tw-font-semibold tw-text-main">{{ tooltip.currentValue }}</span>
         </div>
         <div class="tw-flex tw-items-center tw-gap-2">
-          <div class="tw-w-2.5 tw-h-2.5 tw-rounded-full tw-bg-secondary-300"></div>
+          <div class="tw-size-2.5 tw-rounded-full tw-bg-secondary-300"></div>
           <span class="tw-text-xs tw-text-muted">{{ "previousPeriod" | i18n }}:</span>
           <span class="tw-text-xs tw-font-semibold tw-text-main">{{ tooltip.previousValue }}</span>
         </div>
