@@ -20,10 +20,12 @@
         *ngIf="showSubscription$ | async"
       ></bit-nav-item>
       <bit-nav-item [text]="'domainRules' | i18n" route="settings/domain-rules"></bit-nav-item>
-      <bit-nav-item
-        [text]="'emergencyAccess' | i18n"
-        route="settings/emergency-access"
-      ></bit-nav-item>
+      @if (showEmergencyAccess()) {
+        <bit-nav-item
+          [text]="'emergencyAccess' | i18n"
+          route="settings/emergency-access"
+        ></bit-nav-item>
+      }
       <billing-free-families-nav-item></billing-free-families-nav-item>
     </bit-nav-group>
   </app-side-nav>
