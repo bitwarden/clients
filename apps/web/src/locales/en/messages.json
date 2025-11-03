@@ -239,6 +239,9 @@
     "message": "Unselect application"
   },
   "applicationsMarkedAsCriticalSuccess": {
+    "message": "Applications marked as critical"
+  },
+  "criticalApplicationsMarkedSuccess": {
     "message": "$COUNT$ applications marked as critical",
     "placeholders": {
       "count": {
@@ -368,7 +371,7 @@
     "message": "Select which applications are most critical to your organization, then assign security tasks to members to resolve risks."
   },
   "clickIconToMarkAppAsCritical": {
-    "message": "Click the icon to mark an app as critical"
+    "message": "Click the star icon to mark an app as critical"
   },
   "markAsCriticalPlaceholder": {
     "message": "Mark as critical functionality will be implemented in a future update"
