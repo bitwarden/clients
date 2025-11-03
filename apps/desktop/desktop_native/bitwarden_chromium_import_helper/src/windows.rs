@@ -385,8 +385,8 @@ mod windows_binary {
             encrypted_aes_key, iv, ciphertext
         );
 
-        let xor_key = b"\xCC\xF8\xA1\xCE\xC5\x66\x05\xB8\x51\x75\x52\xBA\x1A\x2D\x06\x1C\x03\xA2\x9E\x90\x27\x4F\xB2\xFC\xF5\x9B\xA4\xB7\x5C\x39\x23\x90";
-        let mut plain_aes_key = {
+        // First, decrypt the AES key with CNG API
+        let decrypted_aes_key: Vec<u8> = {
             let system_token = start_impersonating()?;
             defer! {
                 dbg_log!("Stopping impersonation");
@@ -394,14 +394,25 @@ mod windows_binary {
             }
             decrypt_with_cng(&encrypted_aes_key)?
         };
-        plain_aes_key
-            .iter_mut()
-            .zip(xor_key)
-            .for_each(|(a, b)| *a ^= b);
-        let cipher = Aes256Gcm::new(plain_aes_key.as_slice().into());
+
+        const GOOGLE_XOR_KEY: [u8; 32] = [
+            0xCC, 0xF8, 0xA1, 0xCE, 0xC5, 0x66, 0x05, 0xB8, 0x51, 0x75, 0x52, 0xBA, 0x1A, 0x2D,
+            0x06, 0x1C, 0x03, 0xA2, 0x9E, 0x90, 0x27, 0x4F, 0xB2, 0xFC, 0xF5, 0x9B, 0xA4, 0xB7,
+            0x5C, 0x39, 0x23, 0x90,
+        ];
+
+        // XOR the decrypted AES key with the hardcoded key
+        let aes_key: Vec<u8> = decrypted_aes_key
+            .into_iter()
+            .zip(GOOGLE_XOR_KEY)
+            .map(|(a, b)| a ^ b)
+            .collect();
+
+        // Decrypt the actual ABE key with the decrypted AES key
+        let cipher = Aes256Gcm::new(aes_key.as_slice().into());
         let key = cipher
             .decrypt((&iv).into(), ciphertext.as_ref())
-            .map_err(|e| anyhow!("Failed to decrypt v20 key with CNG API: {}", e))?;
+            .map_err(|e| anyhow!("Failed to decrypt v20 key with AES-GCM: {}", e))?;
 
         Ok(key)
     }
