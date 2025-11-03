@@ -1,4 +1,4 @@
-@if (dataService.isLoading$ | async) {
+@if ((dataService.reportStatus$ | async) == ReportStatusEnum.Loading) {
   <dirt-risk-insights-loading></dirt-risk-insights-loading>
 } @else {
   <ul
@@ -45,10 +45,19 @@
     <li class="tw-col-span-1">
       <dirt-activity-card
         [title]="'applicationsNeedingReview' | i18n"
-        [cardMetrics]="'newApplicationsWithCount' | i18n: newApplicationsCount"
-        [metricDescription]="'newApplicationsDescription' | i18n"
-        [iconClass]="'bwi-exclamation-triangle'"
-        [buttonText]="'reviewNow' | i18n"
+        [cardMetrics]="
+          isAllCaughtUp
+            ? ('allCaughtUp' | i18n)
+            : ('newApplicationsWithCount' | i18n: newApplicationsCount)
+        "
+        [metricDescription]="
+          isAllCaughtUp
+            ? ('noNewApplicationsToReviewAtThisTime' | i18n)
+            : ('newApplicationsDescription' | i18n)
+        "
+        [iconClass]="isAllCaughtUp ? 'bwi-check-circle' : 'bwi-exclamation-triangle'"
+        [iconColorClass]="isAllCaughtUp ? 'tw-text-success' : 'tw-text-muted'"
+        [buttonText]="isAllCaughtUp ? '' : ('reviewNow' | i18n)"
         [buttonType]="'primary'"
         (buttonClick)="onReviewNewApplications()"
       >
