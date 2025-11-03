@@ -1,5 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, OnDestroy, OnInit, inject } from "@angular/core";
+import {
+  Component,
+  DestroyRef,
+  OnDestroy,
+  OnInit,
+  inject,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, EMPTY } from "rxjs";
@@ -15,14 +22,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import {
-  AsyncActionsModule,
-  ButtonModule,
-  DrawerBodyComponent,
-  DrawerComponent,
-  DrawerHeaderComponent,
-  TabsModule,
-} from "@bitwarden/components";
+import { AsyncActionsModule, ButtonModule, DialogService, TabsModule } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { AllActivityComponent } from "./activity/all-activity.component";
@@ -30,11 +30,11 @@ import { AllApplicationsComponent } from "./all-applications/all-applications.co
 import { CriticalApplicationsComponent } from "./critical-applications/critical-applications.component";
 import { EmptyStateCardComponent } from "./empty-state-card.component";
 import { RiskInsightsTabType } from "./models/risk-insights.models";
+import { RiskInsightsDrawerDialogComponent } from "./shared/risk-insights-drawer-dialog.component";
 import { ApplicationsLoadingComponent } from "./shared/risk-insights-loading.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./risk-insights.component.html",
   imports: [
     AllApplicationsComponent,
@@ -46,9 +46,6 @@ import { ApplicationsLoadingComponent } from "./shared/risk-insights-loading.com
     JslibModule,
     HeaderModule,
     TabsModule,
-    DrawerComponent,
-    DrawerBodyComponent,
-    DrawerHeaderComponent,
     AllActivityComponent,
     ApplicationsLoadingComponent,
   ],
@@ -88,6 +85,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     protected dataService: RiskInsightsDataService,
     protected i18nService: I18nService,
+    protected dialogService: DialogService,
   ) {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllApps;
@@ -136,7 +134,13 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     this.dataService.drawerDetails$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((details) => {
-        this._isDrawerOpen = details.open;
+        if (details.activeDrawerType !== DrawerType.None) {
+          this.dialogService.openDrawer(RiskInsightsDrawerDialogComponent, {
+            data: details,
+          });
+        } else {
+          this.dialogService.closeAll();
+        }
       });
   }
 
@@ -160,37 +164,6 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       queryParams: { tabIndex: newIndex },
       queryParamsHandling: "merge",
     });
-
-    // close drawer when tabs are changed
-    this.dataService.closeDrawer();
-  }
-
-  // Get a list of drawer types
-  get drawerTypes(): typeof DrawerType {
-    return DrawerType;
-  }
-
-  /**
-   * Special case getter for syncing drawer state from service to component.
-   * This allows the template to use two-way binding while staying reactive.
-   */
-  get isDrawerOpen() {
-    return this._isDrawerOpen;
-  }
-
-  /**
-   * Special case setter for syncing drawer state from component to service.
-   * When the drawer component closes the drawer, this syncs the state back to the service.
-   */
-  set isDrawerOpen(value: boolean) {
-    if (this._isDrawerOpen !== value) {
-      this._isDrawerOpen = value;
-
-      // Close the drawer in the service if the drawer component closed the drawer
-      if (!value) {
-        this.dataService.closeDrawer();
-      }
-    }
   }
 
   // Empty state methods
