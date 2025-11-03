@@ -140,7 +140,7 @@ describe("MinimumKdfMigration", () => {
 
       // Verify the PBKDF2KdfConfig has the correct iteration count
       const kdfConfigArg = (mockChangeKdfService.updateUserKdfParams as jest.Mock).mock.calls[0][1];
-      expect(kdfConfigArg.iterations).toBe(PBKDF2KdfConfig.ITERATIONS.min);
+      expect(kdfConfigArg.iterations).toBe(PBKDF2KdfConfig.ITERATIONS.defaultValue);
     });
 
     it("should throw error when userId is null", async () => {

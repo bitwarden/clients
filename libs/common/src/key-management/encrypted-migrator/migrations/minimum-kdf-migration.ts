@@ -54,7 +54,7 @@ export class MinimumKdfMigration implements EncryptedMigration {
     const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
     if (
       kdfConfig.kdfType !== KdfType.PBKDF2_SHA256 ||
-      kdfConfig.iterations >= PBKDF2KdfConfig.ITERATIONS.defaultValue
+      kdfConfig.iterations >= PBKDF2KdfConfig.ITERATIONS.min
     ) {
       return "noMigrationNeeded";
     }
