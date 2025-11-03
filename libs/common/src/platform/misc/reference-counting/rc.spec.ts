@@ -48,6 +48,15 @@ describe("Rc", () => {
     expect(rc["refCount"]).toBe(0);
   });
 
+  it("should asynchronously decrease refCount when reference goes out of scope", async () => {
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      await using reference = rc.take();
+    }
+
+    expect(rc["refCount"]).toBe(0);
+  });
+
   it("should not free value when refCount reaches 0 if not marked for disposal", () => {
     // eslint-disable-next-line @bitwarden/platform/required-using
     const reference = rc.take();

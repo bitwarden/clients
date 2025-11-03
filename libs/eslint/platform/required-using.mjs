@@ -56,8 +56,14 @@ export default {
 
     return {
       VariableDeclarator(node) {
-        // Skip if `using` is already present
-        if (node.parent.type === "VariableDeclaration" && node.parent.kind === "using") {
+        // Skip if `using` or `await using` is already present
+        if (
+          node.parent.type === "VariableDeclaration" &&
+          (node.parent.kind === "using" ||
+            node.parent.kind === "await using" ||
+            // Some parsers represent `await using` as kind: 'using' with an `await: true` flag
+            node.parent.await === true)
+        ) {
           return;
         }
 

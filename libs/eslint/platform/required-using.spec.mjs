@@ -34,6 +34,13 @@ ruleTester.run("required-using", rule.default, {
         using client = rc.take();
       `,
     },
+    {
+      name: "Direct async declaration with `using`",
+      code: `
+        ${setup}
+        await using client = rc.take();
+      `,
+    },
     // {
     //   name: "Function reference with `using`",
     //   code: `

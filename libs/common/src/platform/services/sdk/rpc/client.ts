@@ -2,8 +2,8 @@ import { map, Observable } from "rxjs";
 
 import { Remote } from "../remote";
 
+import { RpcObjectReference } from "./batch-proxies";
 import { Command, Response } from "./protocol";
-import { RpcObjectReference } from "./proxies";
 
 export interface RpcRequestChannel {
   sendCommand(command: Command): Promise<Response>;
@@ -24,11 +24,10 @@ export class RpcClient<T> {
           throw new Error(`Expected reference result for root object`);
         }
 
-        return RpcObjectReference.create(
-          this.channel,
-          response.result.referenceId,
-          response.result.objectType,
-        ) as Remote<T>;
+        return RpcObjectReference(this.channel, {
+          referenceId: response.result.referenceId,
+          objectType: response.result.objectType,
+        }) as any as Remote<T>;
       }),
     );
   }

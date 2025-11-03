@@ -9,6 +9,18 @@ export type BatchingProxy<T> = {
 
 export const ProxyInfo = Symbol("ProxyInfo");
 
+export function isProxy(obj: any): obj is BatchingProxy<any> {
+  return obj && typeof obj === "function" && obj[ProxyInfo] !== undefined;
+}
+
+export function isReferenceProxy(obj: any): obj is BatchingProxy<RpcObjectReference> {
+  return isProxy(obj) && obj[ProxyInfo].proxyType === "RpcObjectReference";
+}
+
+export function isPendingReferenceProxy(obj: any): obj is BatchingProxy<RpcPendingObjectReference> {
+  return isProxy(obj) && obj[ProxyInfo].proxyType === "RpcPendingObjectReference";
+}
+
 /**
  * A reference to a remote object.
  */
@@ -116,7 +128,7 @@ function BatchCommandExecutor(
   const command = {
     method: "batch",
     referenceId,
-    commands,
+    commands: commands.filter((cmd) => cmd.method !== "await"),
   } as const;
 
   return (onFulfilled, onRejected) => {

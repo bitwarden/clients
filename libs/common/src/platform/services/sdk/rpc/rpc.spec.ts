@@ -2,9 +2,9 @@ import { firstValueFrom, map, Observable } from "rxjs";
 
 import { Rc } from "../../../misc/reference-counting/rc";
 
+import { isReferenceProxy, RpcObjectReference } from "./batch-proxies";
 import { RpcClient, RpcRequestChannel } from "./client";
 import { Command, Response } from "./protocol";
-import { RpcObjectReference } from "./proxies";
 import { RpcServer } from "./server";
 
 describe("RpcServer", () => {
@@ -48,17 +48,19 @@ describe("RpcServer", () => {
     const wasmObj = await remoteInstance.getWasmGreeting("Wasm World");
     const greeting = await wasmObj.greet();
 
-    expect(wasmObj).toBeInstanceOf(RpcObjectReference);
+    expect(isReferenceProxy(wasmObj)).toBe(true);
     expect(greeting).toBe("Hello, Wasm World!");
   });
 
   it("returns plain objects by value", async () => {
     const remoteInstance = await firstValueFrom(client.getRoot());
 
+    // TODO: Fix generics not being passed through properly
+    // Currently result: unknown
     const result = await remoteInstance.echo({
       message: "Hello, World!",
       array: [1, "2", null],
-    });
+    }).transfer;
 
     expect(result).not.toBeInstanceOf(RpcObjectReference);
     expect(result).toEqual({ message: "Hello, World!", array: [1, "2", null] });
@@ -74,7 +76,7 @@ describe("RpcServer", () => {
     const remoteRc = await firstValueFrom(client.getRoot());
 
     {
-      using ref = await remoteRc.take();
+      await using ref = await remoteRc.take();
       const remoteWasmObj = ref.value;
       const greeting = await remoteWasmObj.testClass().await.greet("RC");
       expect(greeting).toBe("Hello, RC!");

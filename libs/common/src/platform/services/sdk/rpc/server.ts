@@ -1,6 +1,7 @@
 import { map, Observable, ReplaySubject } from "rxjs";
 
-import { Command, deserializeSymbol, Response, Result } from "./protocol";
+import { executeBatchCommands } from "./batch-executor";
+import { Command, Response, Result } from "./protocol";
 import { ReferenceStore } from "./reference-store";
 
 export class RpcServer<T> {
@@ -16,69 +17,82 @@ export class RpcServer<T> {
   constructor() {}
 
   async handle(command: Command): Promise<Response> {
-    if (command.method === "get") {
+    if (command.method === "batch") {
       const target = this.references.get<any>(command.referenceId);
       if (!target) {
         return { status: "error", error: `[RPC] Reference ID ${command.referenceId} not found` };
       }
 
       try {
-        const propertyKey =
-          (command as any).propertyName ?? deserializeSymbol((command as any).propertySymbol);
-        const propertyValue = target[propertyKey];
-        if (typeof propertyValue === "function") {
-          return { status: "error", error: `[RPC] Property ${String(propertyKey)} is a function` };
-        } else {
-          return { status: "success", result: this.convertToReturnable(propertyValue) };
-        }
+        return await executeBatchCommands(target, command.commands, this.references);
       } catch (error) {
         return { status: "error", error };
       }
     }
 
-    if (command.method === "by_value") {
-      const target = this.references.get<any>(command.referenceId);
-      if (!target) {
-        return { status: "error", error: `[RPC] Reference ID ${command.referenceId} not found` };
-      }
+    // if (command.method === "get") {
+    //   const target = this.references.get<any>(command.referenceId);
+    //   if (!target) {
+    //     return { status: "error", error: `[RPC] Reference ID ${command.referenceId} not found` };
+    //   }
 
-      // try {
-      // Not a dependable check
-      //   if (!isSerializable(target)) {
-      //     return {
-      //       status: "error",
-      //       error: `[RPC] by_value() not supported for non-serializable object of type ${target?.constructor?.name}`,
-      //     };
-      //   }
-      return { status: "success", result: { type: "value", value: target } };
-      // } catch (error) {
-      //   return { status: "error", error };
-      // }
-    }
+    //   try {
+    //     const propertyKey =
+    //       (command as any).propertyName ?? deserializeSymbol((command as any).propertySymbol);
+    //     const propertyValue = target[propertyKey];
+    //     if (typeof propertyValue === "function") {
+    //       return { status: "error", error: `[RPC] Property ${String(propertyKey)} is a function` };
+    //     } else {
+    //       return { status: "success", result: this.convertToReturnable(propertyValue) };
+    //     }
+    //   } catch (error) {
+    //     return { status: "error", error };
+    //   }
+    // }
 
-    if (command.method === "call") {
-      const target = this.references.get<any>(command.referenceId);
-      if (!target) {
-        return { status: "error", error: `[RPC] Reference ID ${command.referenceId} not found` };
-      }
+    // if (command.method === "by_value") {
+    //   const target = this.references.get<any>(command.referenceId);
+    //   if (!target) {
+    //     return { status: "error", error: `[RPC] Reference ID ${command.referenceId} not found` };
+    //   }
 
-      try {
-        const propertyKey =
-          (command as any).propertyName ?? deserializeSymbol((command as any).propertySymbol);
-        const method = target[propertyKey];
-        if (typeof method !== "function") {
-          return {
-            status: "error",
-            error: `[RPC] Property ${String(propertyKey)} is not a function of ${target.constructor.name}`,
-          };
-        }
+    //   // try {
+    //   // Not a dependable check
+    //   //   if (!isSerializable(target)) {
+    //   //     return {
+    //   //       status: "error",
+    //   //       error: `[RPC] by_value() not supported for non-serializable object of type ${target?.constructor?.name}`,
+    //   //     };
+    //   //   }
+    //   return { status: "success", result: { type: "value", value: target } };
+    //   // } catch (error) {
+    //   //   return { status: "error", error };
+    //   // }
+    // }
 
-        const result = await method.apply(target, command.args);
-        return { status: "success", result: this.convertToReturnable(result) };
-      } catch (error) {
-        return { status: "error", error };
-      }
-    }
+    // if (command.method === "call") {
+    //   const target = this.references.get<any>(command.referenceId);
+    //   if (!target) {
+    //     return { status: "error", error: `[RPC] Reference ID ${command.referenceId} not found` };
+    //   }
+
+    //   try {
+    //     const propertyKey =
+    //       (command as any).propertyName ?? deserializeSymbol((command as any).propertySymbol);
+    //     const method = target[propertyKey];
+    //     if (typeof method !== "function") {
+    //       return {
+    //         status: "error",
+    //         error: `[RPC] Property ${String(propertyKey)} is not a function of ${target.constructor.name}`,
+    //       };
+    //     }
+
+    //     const result = await method.apply(target, command.args);
+    //     return { status: "success", result: this.convertToReturnable(result) };
+    //   } catch (error) {
+    //     return { status: "error", error };
+    //   }
+    // }
 
     return { status: "error", error: `Unknown command method: ${command.method}` };
   }

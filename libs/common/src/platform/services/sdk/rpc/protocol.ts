@@ -33,15 +33,15 @@ export type Result =
 
 // A list of supported property symbols and their wire names
 const PropertySymbolMap = {
-  [Symbol.dispose]: "dispose",
+  [Symbol.asyncDispose]: "asyncDispose",
 } as const;
 
 // Build reverse lookup that includes symbol keys (Object.entries omits symbols)
 const SymbolToString = new Map<symbol, SerializedPropertySymbol>([
-  [Symbol.dispose, PropertySymbolMap[Symbol.dispose]],
+  [Symbol.asyncDispose, PropertySymbolMap[Symbol.asyncDispose]],
 ]);
 const StringToSymbol = new Map<SerializedPropertySymbol, symbol>([
-  [PropertySymbolMap[Symbol.dispose], Symbol.dispose],
+  [PropertySymbolMap[Symbol.asyncDispose], Symbol.asyncDispose],
 ]);
 
 export function deserializeSymbol(name: SerializedPropertySymbol): symbol {

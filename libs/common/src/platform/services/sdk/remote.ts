@@ -1,11 +1,11 @@
 import { ChainablePromise } from "./chainable-promise";
 
 export type Remote<T> = {
-  [K in keyof T]: RemoteProperty<T[K]>;
-};
+  [K in keyof T as K extends typeof Symbol.dispose ? never : K]: RemoteProperty<T[K]>;
+} & (typeof Symbol.dispose extends keyof T ? { [Symbol.asyncDispose](): Promise<void> } : object);
 
 type Resolved<T> = T extends Promise<infer U> ? U : T;
-type HasFree<T> = T extends { free(): void } ? true : false;
+// type HasFree<T> = T extends { free(): void } ? true : false;
 
 /**
  * Maps remote object fields to RPC-exposed types.
@@ -22,17 +22,29 @@ type HasFree<T> = T extends { free(): void } ? true : false;
  */
 export type RemoteProperty<T> = T extends (...args: any[]) => any
   ? RemoteFunction<T>
-  : HasFree<Resolved<T>> extends true
-    ? RemoteReference<Resolved<T>>
-    : Promise<Resolved<T>>;
+  : RemoteReference<Resolved<T>>;
+// : HasFree<Resolved<T>> extends true
+//   ? RemoteReference<Resolved<T>>
+//   : Promise<Resolved<T>>;
 
-export type RemoteReference<T> = Remote<T> & {
+export type Transfer<T> = {
   /**
    * Force a by-value snapshot transfer of this remote reference. Resolves to a serializable value.
    * If the object is not serializable at runtime, this will throw.
    */
-  by_value(): Promise<T>;
+  transfer: Promise<T>;
 };
+
+export type RemoteReference<T> = Remote<T> &
+  Transfer<T> & {
+    /**
+     * Force a by-value snapshot transfer of this remote reference. Resolves to a serializable value.
+     * If the object is not serializable at runtime, this will throw.
+     *
+     * OLD: Remove
+     */
+    by_value(): Promise<T>;
+  };
 
 /**
  * RemoteFunction arguments must be Serializable at compile time. For non-serializable
@@ -40,9 +52,10 @@ export type RemoteReference<T> = Remote<T> & {
  */
 export type RemoteFunction<T extends (...args: any[]) => any> = (
   ...args: Parameters<T>
-) => Resolved<ReturnType<T>> extends object
-  ? ChainablePromise<RemoteReference<Resolved<ReturnType<T>>>>
-  : Promise<Resolved<ReturnType<T>>>;
+) => ChainablePromise<RemoteReference<Resolved<ReturnType<T>>>> & Transfer<Resolved<ReturnType<T>>>;
+// ) => Resolved<ReturnType<T>> extends object
+//   ? ChainablePromise<RemoteReference<Resolved<ReturnType<T>>>>
+//   : Promise<Resolved<ReturnType<T>>>;
 
 // Serializable type rules to mirror `isSerializable` from rpc/server.ts
 // - Primitives: string | number | boolean | null

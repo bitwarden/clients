@@ -73,4 +73,9 @@ export class Ref<T extends Freeable> implements UsingRequired {
   [Symbol.dispose]() {
     this.release();
   }
+
+  [Symbol.asyncDispose](): Promise<void> {
+    this.release();
+    return Promise.resolve();
+  }
 }
