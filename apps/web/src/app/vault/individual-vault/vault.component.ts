@@ -23,6 +23,7 @@ import {
   take,
   takeUntil,
   tap,
+  withLatestFrom,
 } from "rxjs/operators";
 
 import {
@@ -642,25 +643,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       );
     void this.unifiedUpgradePromptService.displayUpgradePromptConditionally();
 
-    zip([
-      this.configService.getFeatureFlag$(FeatureFlag.AutoConfirm),
-      this.userId$.pipe(switchMap((userId) => this.autoConfirmService.configuration$(userId))),
-      this.organizations$.pipe(map((organizations) => organizations[0])),
-    ])
-      .pipe(
-        filter(
-          ([enabled, autoConfirmState, organization]) =>
-            enabled &&
-            autoConfirmState.showSetupDialog &&
-            !!organization &&
-            organization.canManageUsers,
-        ),
-        first(),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(([enabled, autoConfirmState, organization]) =>
-        this.openAutoConfirmFeatureDialog(organization),
-      );
+    this.setupAutoConfirm();
   }
 
   ngOnDestroy() {
@@ -1588,6 +1571,39 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         firstTimeDialog: true,
       },
     });
+  }
+
+  private setupAutoConfirm() {
+    zip([
+      this.organizations$.pipe(map((organizations) => organizations[0])),
+      this.configService.getFeatureFlag$(FeatureFlag.AutoConfirm),
+      this.userId$.pipe(switchMap((userId) => this.autoConfirmService.configuration$(userId))),
+      this.userId$.pipe(
+        switchMap((userId) => this.policyService.policies$(userId)),
+        withLatestFrom(this.organizations$.pipe(map((organizations) => organizations[0]))),
+        map(([policies, organization]) =>
+          policies.some(
+            (p) =>
+              p.type === PolicyType.AutoConfirm &&
+              p.enabled &&
+              p.organizationId === organization.id,
+          ),
+        ),
+      ),
+    ])
+      .pipe(
+        filter(
+          ([organization, flagEnabled, autoConfirmState, policyEnabled]) =>
+            flagEnabled &&
+            !policyEnabled &&
+            autoConfirmState.showSetupDialog &&
+            !!organization &&
+            organization.canManageUsers,
+        ),
+        first(),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(([organization]) => this.openAutoConfirmFeatureDialog(organization));
   }
 }
 

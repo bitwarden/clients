@@ -38,7 +38,7 @@
   <div class="tw-flex tw-flex-col">
     @let showBadge = firstTimeDialog();
     @if (showBadge) {
-      <span bitBadge variant="info" class="tw-w-28 tw-my-2"> {{ "availableNow" | i18n }}</span>
+      <span bitBadge variant="info" class="tw-w-[99px] tw-my-2"> {{ "availableNow" | i18n }}</span>
     }
     <span>
       {{ (firstTimeDialog ? "autoConfirm" : "editPolicy") | i18n }}
