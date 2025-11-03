@@ -87,7 +87,7 @@ export abstract class LoginStrategy {
     protected KdfConfigService: KdfConfigService,
     protected environmentService: EnvironmentService,
     protected configService: ConfigService,
-  ) { }
+  ) {}
 
   abstract exportCache(): CacheData;
 
