@@ -10,6 +10,7 @@ import {
   input,
   viewChild,
   viewChildren,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
@@ -17,7 +18,7 @@ import { compareValues } from "@bitwarden/common/platform/misc/compare-values";
 
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
-import { MenuComponent, MenuItemDirective, MenuModule } from "../menu";
+import { MenuComponent, MenuItemDirective, MenuModule, MenuTriggerForDirective } from "../menu";
 import { Option } from "../select/option";
 import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
@@ -44,11 +45,13 @@ export type ChipSelectOption<T> = Option<T> & {
       multi: true,
     },
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
   readonly menu = viewChild(MenuComponent);
   readonly menuItems = viewChildren(MenuItemDirective);
   readonly chipSelectButton = viewChild<ElementRef<HTMLButtonElement>>("chipSelectButton");
+  readonly menuTrigger = viewChild(MenuTriggerForDirective);
 
   /** Text to show when there is no selected option */
   readonly placeholderText = input.required<string>();
@@ -105,8 +108,11 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
     effect(() => {
       // Trigger effect when menuItems changes
       const items = this.menuItems();
-      if (items.length > 0) {
-        this.menu()?.keyManager?.setFirstItemActive();
+      const currentMenu = this.menu();
+      const trigger = this.menuTrigger();
+      // Only focus if menu is actually open to prevent running during initialization
+      if (items.length > 0 && trigger?.isOpen) {
+        currentMenu?.keyManager?.setFirstItemActive();
       }
     });
   }
