@@ -8,4 +8,3 @@ export {
   VaultTimeoutOption,
   VaultTimeoutStringType,
 } from "./types/vault-timeout.type";
-export { MaximumVaultTimeoutPolicyData } from "./types/maximum-vault-timeout-policy.type";

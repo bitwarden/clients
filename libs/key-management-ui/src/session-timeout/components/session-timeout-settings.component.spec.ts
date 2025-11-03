@@ -7,8 +7,8 @@ import { BehaviorSubject, filter, firstValueFrom, of } from "rxjs";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { MaximumSessionTimeoutPolicyData } from "@bitwarden/common/key-management/session-timeout";
 import {
-  MaximumVaultTimeoutPolicyData,
   VaultTimeout,
   VaultTimeoutAction,
   VaultTimeoutOption,
@@ -79,8 +79,9 @@ describe("SessionTimeoutSettingsComponent", () => {
     mockVaultTimeoutSettingsService.availableVaultTimeoutActions$.mockImplementation(() =>
       of([VaultTimeoutAction.Lock, VaultTimeoutAction.LogOut]),
     );
-    mockSessionTimeoutSettingsComponentService.availableTimeoutOptions$ =
-      availableTimeoutOptions$.asObservable();
+    mockSessionTimeoutSettingsComponentService.policyFilteredTimeoutOptions$.mockImplementation(
+      (userId) => availableTimeoutOptions$.asObservable(),
+    );
     mockPolicyService.policiesByType$.mockImplementation(() => of([]));
 
     await TestBed.configureTestingModule({
@@ -229,7 +230,7 @@ describe("SessionTimeoutSettingsComponent", () => {
     }));
 
     it("should disable timeout action control when policy enforces action", fakeAsync(() => {
-      const policyData: MaximumVaultTimeoutPolicyData = {
+      const policyData: MaximumSessionTimeoutPolicyData = {
         minutes: 15,
         action: VaultTimeoutAction.LogOut,
       };
@@ -273,7 +274,7 @@ describe("SessionTimeoutSettingsComponent", () => {
 
       expect(component.formGroup.controls.timeoutAction.enabled).toBe(true);
 
-      const policyData: MaximumVaultTimeoutPolicyData = {
+      const policyData: MaximumSessionTimeoutPolicyData = {
         minutes: 15,
         action: VaultTimeoutAction.LogOut,
       };

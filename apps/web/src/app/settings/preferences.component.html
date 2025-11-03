@@ -17,12 +17,12 @@
         {{ "vaultTimeoutActionPolicyInEffect" | i18n: (policy.action | i18n) }}
       </span>
     </bit-callout>
-    <bit-session-timeout-input
+    <bit-session-timeout-input-legacy
       [vaultTimeoutOptions]="vaultTimeoutOptions"
       [formControl]="form.controls.vaultTimeout"
       ngDefaultControl
     >
-    </bit-session-timeout-input>
+    </bit-session-timeout-input-legacy>
     <ng-container *ngIf="availableVaultTimeoutActions$ | async as availableVaultTimeoutActions">
       <bit-radio-group
         formControlName="vaultTimeoutAction"

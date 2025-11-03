@@ -21,6 +21,7 @@ import { LogService } from "../../../platform/abstractions/log.service";
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
 import { PinStateServiceAbstraction } from "../../pin/pin-state.service.abstraction";
+import { SessionTimeoutTypeService } from "../../session-timeout";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../abstractions/vault-timeout-settings.service";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
 import { VaultTimeout, VaultTimeoutStringType } from "../types/vault-timeout.type";
@@ -43,6 +44,7 @@ describe("VaultTimeoutSettingsService", () => {
   const mockUserId = Utils.newGuid() as UserId;
   let stateProvider: FakeStateProvider;
   let logService: MockProxy<LogService>;
+  let sessionTimeoutTypeService: MockProxy<SessionTimeoutTypeService>;
 
   beforeEach(() => {
     accountService = mockAccountServiceWith(mockUserId);
@@ -65,6 +67,7 @@ describe("VaultTimeoutSettingsService", () => {
     stateProvider = new FakeStateProvider(accountService);
 
     logService = mock<LogService>();
+    sessionTimeoutTypeService = mock<SessionTimeoutTypeService>();
 
     const defaultVaultTimeout: VaultTimeout = 15; // default web vault timeout
     vaultTimeoutSettingsService = createVaultTimeoutSettingsService(defaultVaultTimeout);
@@ -386,6 +389,7 @@ describe("VaultTimeoutSettingsService", () => {
       stateProvider,
       logService,
       defaultVaultTimeout,
+      sessionTimeoutTypeService,
     );
   }
 });

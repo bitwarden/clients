@@ -1,14 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import {
-  EMPTY,
-  Observable,
   catchError,
   combineLatest,
   defer,
   distinctUntilChanged,
+  EMPTY,
   firstValueFrom,
   from,
+  map,
+  Observable,
   shareReplay,
   switchMap,
   tap,
@@ -23,7 +24,6 @@ import { BiometricStateService, KeyService } from "@bitwarden/key-management";
 
 import { PolicyService } from "../../../admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "../../../admin-console/enums";
-import { Policy } from "../../../admin-console/models/domain/policy";
 import { getFirstPolicy } from "../../../admin-console/services/policy/default-policy.service";
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { TokenService } from "../../../auth/abstractions/token.service";
@@ -31,9 +31,15 @@ import { LogService } from "../../../platform/abstractions/log.service";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { PinStateServiceAbstraction } from "../../pin/pin-state.service.abstraction";
+import { MaximumSessionTimeoutPolicyData, SessionTimeoutTypeService } from "../../session-timeout";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../abstractions/vault-timeout-settings.service";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
-import { VaultTimeout, VaultTimeoutStringType } from "../types/vault-timeout.type";
+import {
+  isVaultTimeoutTypeNumeric,
+  VaultTimeout,
+  VaultTimeoutNumberType,
+  VaultTimeoutStringType,
+} from "../types/vault-timeout.type";
 
 import { VAULT_TIMEOUT, VAULT_TIMEOUT_ACTION } from "./vault-timeout-settings.state";
 
@@ -49,6 +55,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     private stateProvider: StateProvider,
     private logService: LogService,
     private defaultVaultTimeout: VaultTimeout,
+    private sessionTimeoutTypeService: SessionTimeoutTypeService,
   ) {}
 
   async setVaultTimeoutOptions(
@@ -131,11 +138,25 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
 
     return combineLatest([
       this.stateProvider.getUserState$(VAULT_TIMEOUT, userId),
-      this.getMaxVaultTimeoutPolicyByUserId$(userId),
+      this.getMaxSessionTimeoutPolicyDataByUserId$(userId),
     ]).pipe(
-      switchMap(([currentVaultTimeout, maxVaultTimeoutPolicy]) => {
-        return from(this.determineVaultTimeout(currentVaultTimeout, maxVaultTimeoutPolicy)).pipe(
+      switchMap(([currentVaultTimeout, maxSessionTimeoutPolicyData]) => {
+        this.logService.debug(
+          "[VaultTimeoutSettingsService] Current vault timeout is %o for user id %s, max session policy %o",
+          currentVaultTimeout,
+          userId,
+          maxSessionTimeoutPolicyData,
+        );
+        return from(
+          this.determineVaultTimeout(currentVaultTimeout, maxSessionTimeoutPolicyData),
+        ).pipe(
           tap((vaultTimeout: VaultTimeout) => {
+            this.logService.debug(
+              "[VaultTimeoutSettingsService] Determined vault timeout is %o for user id %s",
+              vaultTimeout,
+              userId,
+            );
+
             // As a side effect, set the new value determined by determineVaultTimeout into state if it's different from the current
             if (vaultTimeout !== currentVaultTimeout) {
               return this.stateProvider.setUserState(VAULT_TIMEOUT, vaultTimeout, userId);
@@ -155,28 +176,64 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
 
   private async determineVaultTimeout(
     currentVaultTimeout: VaultTimeout | null,
-    maxVaultTimeoutPolicy: Policy | null,
+    maxSessionTimeoutPolicyData: MaximumSessionTimeoutPolicyData | null,
   ): Promise<VaultTimeout | null> {
     // if current vault timeout is null, apply the client specific default
     currentVaultTimeout = currentVaultTimeout ?? this.defaultVaultTimeout;
 
     // If no policy applies, return the current vault timeout
-    if (!maxVaultTimeoutPolicy) {
+    if (maxSessionTimeoutPolicyData == null) {
       return currentVaultTimeout;
     }
 
-    // User is subject to a max vault timeout policy
-    const maxVaultTimeoutPolicyData = maxVaultTimeoutPolicy.data;
-
-    // If the current vault timeout is not numeric, change it to the policy compliant value
-    if (typeof currentVaultTimeout === "string") {
-      return maxVaultTimeoutPolicyData.minutes;
+    switch (maxSessionTimeoutPolicyData.type) {
+      case "immediately":
+        if (await this.sessionTimeoutTypeService.isAvailable(VaultTimeoutNumberType.Immediately)) {
+          return VaultTimeoutNumberType.Immediately;
+        }
+        return VaultTimeoutNumberType.OnMinute;
+      case "custom":
+      case null:
+      case undefined:
+        if (currentVaultTimeout === VaultTimeoutNumberType.Immediately) {
+          return currentVaultTimeout;
+        }
+        if (isVaultTimeoutTypeNumeric(currentVaultTimeout)) {
+          return Math.min(currentVaultTimeout as number, maxSessionTimeoutPolicyData.minutes);
+        }
+        return maxSessionTimeoutPolicyData.minutes;
+      case "onSystemLock":
+        if (
+          currentVaultTimeout === VaultTimeoutStringType.Never ||
+          currentVaultTimeout === VaultTimeoutStringType.OnRestart ||
+          currentVaultTimeout === VaultTimeoutStringType.OnIdle ||
+          currentVaultTimeout === VaultTimeoutStringType.OnSleep
+        ) {
+          if (await this.sessionTimeoutTypeService.isAvailable(VaultTimeoutStringType.OnLocked)) {
+            return VaultTimeoutStringType.OnLocked;
+          }
+          return VaultTimeoutStringType.OnRestart;
+        }
+        break;
+      case "onAppRestart":
+        if (
+          currentVaultTimeout === VaultTimeoutStringType.Never ||
+          currentVaultTimeout === VaultTimeoutStringType.OnLocked ||
+          currentVaultTimeout === VaultTimeoutStringType.OnIdle ||
+          currentVaultTimeout === VaultTimeoutStringType.OnSleep
+        ) {
+          return VaultTimeoutStringType.OnRestart;
+        }
+        break;
+      case "never":
+        if (
+          currentVaultTimeout === VaultTimeoutStringType.Never &&
+          !(await this.sessionTimeoutTypeService.isAvailable(VaultTimeoutStringType.Never))
+        ) {
+          return VaultTimeoutStringType.OnRestart;
+        }
     }
-
-    // For numeric vault timeouts, ensure they are smaller than maximum allowed value according to policy
-    const policyCompliantTimeout = Math.min(currentVaultTimeout, maxVaultTimeoutPolicyData.minutes);
-
-    return policyCompliantTimeout;
+    return currentVaultTimeout;
   }
 
   private async setVaultTimeoutAction(userId: UserId, action: VaultTimeoutAction): Promise<void> {
@@ -198,14 +255,14 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
 
     return combineLatest([
       this.stateProvider.getUserState$(VAULT_TIMEOUT_ACTION, userId),
-      this.getMaxVaultTimeoutPolicyByUserId$(userId),
+      this.getMaxSessionTimeoutPolicyDataByUserId$(userId),
     ]).pipe(
-      switchMap(([currentVaultTimeoutAction, maxVaultTimeoutPolicy]) => {
+      switchMap(([currentVaultTimeoutAction, maxSessionTimeoutPolicyData]) => {
         return from(
           this.determineVaultTimeoutAction(
             userId,
             currentVaultTimeoutAction,
-            maxVaultTimeoutPolicy,
+            maxSessionTimeoutPolicyData,
           ),
         ).pipe(
           tap((vaultTimeoutAction: VaultTimeoutAction) => {
@@ -235,7 +292,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
   private async determineVaultTimeoutAction(
     userId: string,
     currentVaultTimeoutAction: VaultTimeoutAction | null,
-    maxVaultTimeoutPolicy: Policy | null,
+    maxSessionTimeoutPolicyData: MaximumSessionTimeoutPolicyData | null,
   ): Promise<VaultTimeoutAction> {
     const availableVaultTimeoutActions = await this.getAvailableVaultTimeoutActions(userId);
     if (availableVaultTimeoutActions.length === 1) {
@@ -243,11 +300,13 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     }
 
     if (
-      maxVaultTimeoutPolicy?.data?.action &&
-      availableVaultTimeoutActions.includes(maxVaultTimeoutPolicy.data.action)
+      maxSessionTimeoutPolicyData?.action &&
+      availableVaultTimeoutActions.includes(
+        maxSessionTimeoutPolicyData.action as VaultTimeoutAction,
+      )
     ) {
-      // return policy defined vault timeout action
-      return maxVaultTimeoutPolicy.data.action;
+      // return policy defined session timeout action
+      return maxSessionTimeoutPolicyData.action as VaultTimeoutAction;
     }
 
     // No policy applies from here on
@@ -262,14 +321,17 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     return currentVaultTimeoutAction;
   }
 
-  private getMaxVaultTimeoutPolicyByUserId$(userId: UserId): Observable<Policy | null> {
+  private getMaxSessionTimeoutPolicyDataByUserId$(
+    userId: UserId,
+  ): Observable<MaximumSessionTimeoutPolicyData | null> {
     if (!userId) {
-      throw new Error("User id required. Cannot get max vault timeout policy.");
+      throw new Error("User id required. Cannot get max session timeout policy.");
     }
 
-    return this.policyService
-      .policiesByType$(PolicyType.MaximumVaultTimeout, userId)
-      .pipe(getFirstPolicy);
+    return this.policyService.policiesByType$(PolicyType.MaximumVaultTimeout, userId).pipe(
+      getFirstPolicy,
+      map((policy) => (policy?.data as MaximumSessionTimeoutPolicyData) ?? null),
+    );
   }
 
   private async getAvailableVaultTimeoutActions(userId?: string): Promise<VaultTimeoutAction[]> {

@@ -1,7 +1,13 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  input,
+  OnInit,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
   ControlValueAccessor,
@@ -13,26 +19,31 @@ import {
   ReactiveFormsModule,
   ValidationErrors,
   Validator,
+  Validators,
 } from "@angular/forms";
-import { filter, map, Observable, Subject, switchMap, takeUntil } from "rxjs";
+import { filter, map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
+  MaximumSessionTimeoutPolicyData,
+  SessionTimeoutTypeService,
+} from "@bitwarden/common/key-management/session-timeout";
+import {
   VaultTimeout,
-  VaultTimeoutAction,
   VaultTimeoutOption,
-  VaultTimeoutSettingsService,
+  VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
+import { VaultTimeoutNumberType } from "@bitwarden/common/key-management/vault-timeout/types/vault-timeout.type";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FormFieldModule, SelectModule } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 
-type VaultTimeoutForm = FormGroup<{
+type SessionTimeoutForm = FormGroup<{
   vaultTimeout: FormControl<VaultTimeout | null>;
   custom: FormGroup<{
     hours: FormControl<number | null>;
@@ -40,10 +51,8 @@ type VaultTimeoutForm = FormGroup<{
   }>;
 }>;
 
-type VaultTimeoutFormValue = VaultTimeoutForm["value"];
+type SessionTimeoutFormValue = SessionTimeoutForm["value"];
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-session-timeout-input",
   templateUrl: "session-timeout-input.component.html",
@@ -60,99 +69,90 @@ type VaultTimeoutFormValue = VaultTimeoutForm["value"];
       useExisting: SessionTimeoutInputComponent,
     },
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SessionTimeoutInputComponent
-  implements ControlValueAccessor, Validator, OnInit, OnDestroy, OnChanges
-{
-  static CUSTOM_VALUE = -100;
-  static MIN_CUSTOM_MINUTES = 0;
-  form: VaultTimeoutForm = this.formBuilder.group({
-    vaultTimeout: [null],
+export class SessionTimeoutInputComponent implements ControlValueAccessor, Validator, OnInit {
+  static readonly MIN_CUSTOM_MINUTES = 0;
+
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly policyService = inject(PolicyService);
+  private readonly i18nService = inject(I18nService);
+  private readonly accountService = inject(AccountService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly sessionTimeoutTypeService = inject(SessionTimeoutTypeService);
+  private readonly logService = inject(LogService);
+
+  readonly availableTimeoutOptions = input.required<VaultTimeoutOption[]>();
+
+  protected maxSessionTimeoutPolicyData: MaximumSessionTimeoutPolicyData | null = null;
+  protected policyTimeoutMessage$!: Observable<string | null>;
+
+  readonly form: SessionTimeoutForm = this.formBuilder.group({
+    vaultTimeout: [null as VaultTimeout | null],
     custom: this.formBuilder.group({
-      hours: [null],
-      minutes: [null],
+      hours: [null as number | null, [Validators.required, Validators.min(0)]],
+      minutes: [
+        null as number | null,
+        [Validators.required, Validators.min(0), Validators.max(59)],
+      ],
     }),
   });
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() vaultTimeoutOptions: VaultTimeoutOption[];
+  private onChange: ((vaultTimeout: VaultTimeout) => void) | null = null;
+  private validatorChange: (() => void) | null = null;
 
-  vaultTimeoutPolicy: Policy;
-  vaultTimeoutPolicyHours: number;
-  vaultTimeoutPolicyMinutes: number;
-
-  protected readonly VaultTimeoutAction = VaultTimeoutAction;
-
-  protected canLockVault$: Observable<boolean>;
-  private onChange: (vaultTimeout: VaultTimeout) => void;
-  private validatorChange: () => void;
-  private destroy$ = new Subject<void>();
-
-  constructor(
-    private formBuilder: FormBuilder,
-    private policyService: PolicyService,
-    private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-    private i18nService: I18nService,
-    private accountService: AccountService,
-  ) {}
-
-  get showCustom() {
-    return this.form.get("vaultTimeout").value === SessionTimeoutInputComponent.CUSTOM_VALUE;
+  get isCustomTimeoutType(): boolean {
+    return this.form.controls.vaultTimeout.value === VaultTimeoutStringType.Custom;
   }
 
-  get exceedsMinimumTimeout(): boolean {
-    return (
-      !this.showCustom ||
-      this.customTimeInMinutes() > SessionTimeoutInputComponent.MIN_CUSTOM_MINUTES
-    );
+  get customMinutesMin(): number {
+    return this.form.controls.custom.controls.hours.value === 0 ? 1 : 0;
   }
 
-  get exceedsMaximumTimeout(): boolean {
+  get exceedsPolicyMaximumTimeout(): boolean {
     return (
-      this.showCustom &&
+      this.isCustomTimeoutType &&
       this.customTimeInMinutes() >
-        this.vaultTimeoutPolicyMinutes + 60 * this.vaultTimeoutPolicyHours
+        this.maxSessionTimeoutPolicyMinutes + 60 * this.maxSessionTimeoutPolicyHours
     );
   }
 
-  get filteredVaultTimeoutOptions(): VaultTimeoutOption[] {
-    // by policy max value
-    if (this.vaultTimeoutPolicy == null || this.vaultTimeoutPolicy.data == null) {
-      return this.vaultTimeoutOptions;
-    }
+  ngOnInit(): void {
+    const maximumSessionTimeoutPolicyData$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policiesByType$(PolicyType.MaximumVaultTimeout, userId),
+      ),
+      getFirstPolicy,
+      filter((policy) => policy != null),
+      map((policy) => policy.data as MaximumSessionTimeoutPolicyData),
+    );
 
-    return this.vaultTimeoutOptions.filter((option) => {
-      if (typeof option.value === "number") {
-        return option.value <= this.vaultTimeoutPolicy.data.minutes;
-      }
+    this.policyTimeoutMessage$ = maximumSessionTimeoutPolicyData$.pipe(
+      switchMap((policyData) => this.getPolicyTimeoutMessage(policyData)),
+    );
 
-      return false;
-    });
-  }
-
-  async ngOnInit() {
-    this.accountService.activeAccount$
-      .pipe(
-        getUserId,
-        switchMap((userId) =>
-          this.policyService.policiesByType$(PolicyType.MaximumVaultTimeout, userId),
-        ),
-        getFirstPolicy,
-        filter((policy) => policy != null),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((policy) => {
-        this.vaultTimeoutPolicy = policy;
-        this.applyVaultTimeoutPolicy();
-      });
-    this.form.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((value: VaultTimeoutFormValue) => {
-        if (this.onChange) {
-          this.onChange(this.getVaultTimeout(value));
+    maximumSessionTimeoutPolicyData$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((policyData) => {
+        this.maxSessionTimeoutPolicyData = policyData;
+        // Re-validate custom form group with new policy data
+        this.form.controls.custom.updateValueAndValidity();
+        // Trigger validator change when policy data changes
+        if (this.validatorChange) {
+          this.validatorChange();
         }
       });
+
+    // Subscribe to form value changes
+    this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+      if (this.onChange && this.form.valid) {
+        const vaultTimeout = this.getVaultTimeout(value);
+        if (vaultTimeout != null) {
+          this.onChange(vaultTimeout);
+        }
+      }
+    });
 
     // Assign the current value to the custom fields
     // so that if the user goes from a numeric value to custom
@@ -160,11 +160,11 @@ export class SessionTimeoutInputComponent
     // ex: user picks 5 min, goes to custom, we want to show 0 hr, 5 min in the custom fields
     this.form.controls.vaultTimeout.valueChanges
       .pipe(
-        filter((value) => value !== SessionTimeoutInputComponent.CUSTOM_VALUE),
-        takeUntil(this.destroy$),
+        filter((value) => value !== VaultTimeoutStringType.Custom),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((value) => {
-        const current = typeof value === "string" ? 0 : Math.max(value, 0);
+        const current = typeof value === "string" ? 0 : Math.max(value ?? 0, 0);
 
         // This cannot emit an event b/c it would cause form.valueChanges to fire again
         // and we are already handling that above so just silently update
@@ -179,76 +179,74 @@ export class SessionTimeoutInputComponent
           { emitEvent: false },
         );
       });
-
-    this.canLockVault$ = this.vaultTimeoutSettingsService
-      .availableVaultTimeoutActions$()
-      .pipe(map((actions) => actions.includes(VaultTimeoutAction.Lock)));
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+  get maxSessionTimeoutPolicyHours(): number {
+    return Math.floor((this.maxSessionTimeoutPolicyData?.minutes ?? 0) / 60);
   }
 
-  ngOnChanges() {
-    if (
-      !this.vaultTimeoutOptions.find((p) => p.value === SessionTimeoutInputComponent.CUSTOM_VALUE)
-    ) {
-      this.vaultTimeoutOptions.push({
-        name: this.i18nService.t("custom"),
-        value: SessionTimeoutInputComponent.CUSTOM_VALUE,
-      });
-    }
+  get maxSessionTimeoutPolicyMinutes(): number {
+    return (this.maxSessionTimeoutPolicyData?.minutes ?? 0) % 60;
   }
 
-  getVaultTimeout(value: VaultTimeoutFormValue) {
-    if (value.vaultTimeout !== SessionTimeoutInputComponent.CUSTOM_VALUE) {
-      return value.vaultTimeout;
-    }
-
-    return value.custom.hours * 60 + value.custom.minutes;
-  }
-
-  writeValue(value: number): void {
+  writeValue(value: VaultTimeout): void {
     if (value == null) {
       return;
     }
 
-    if (this.vaultTimeoutOptions.every((p) => p.value !== value)) {
+    // Normalize the custom numeric value to preset (i.e. 1 minute), otherwise set as custom
+    const options = this.availableTimeoutOptions();
+    const matchingOption = options.some((opt) => opt.value === value);
+    if (!matchingOption) {
+      this.logService.debug(
+        `[SessionTimeoutInputComponent] form control write value as custom ${value}`,
+      );
       this.form.setValue({
-        vaultTimeout: SessionTimeoutInputComponent.CUSTOM_VALUE,
+        vaultTimeout: VaultTimeoutStringType.Custom,
         custom: {
-          hours: Math.floor(value / 60),
-          minutes: value % 60,
+          hours: Math.floor((value as number) / 60),
+          minutes: (value as number) % 60,
         },
       });
       return;
     }
 
+    this.logService.debug(
+      `[SessionTimeoutInputComponent] form control write value as preset ${value}`,
+    );
+
+    // For string values (e.g., "onLocked", "never"), set directly
     this.form.patchValue({
       vaultTimeout: value,
     });
   }
 
-  registerOnChange(onChange: any): void {
+  registerOnChange(onChange: (vaultTimeout: VaultTimeout) => void): void {
     this.onChange = onChange;
   }
 
-  registerOnTouched(onTouched: any): void {
+  registerOnTouched(_onTouched: () => void): void {
     // Empty
   }
 
-  setDisabledState?(isDisabled: boolean): void {
+  setDisabledState?(_isDisabled: boolean): void {
     // Empty
   }
 
-  validate(control: AbstractControl): ValidationErrors {
-    if (this.vaultTimeoutPolicy && this.vaultTimeoutPolicy?.data?.minutes < control.value) {
-      return { policyError: true };
+  validate(_: AbstractControl): ValidationErrors | null {
+    // Check if internal form fields are valid (hours/minutes within range)
+    if (this.isCustomTimeoutType && this.form.controls.custom.invalid) {
+      return { invalidFields: true };
     }
 
-    if (!this.exceedsMinimumTimeout) {
+    if (this.isBelowMinimumTimeout) {
       return { minTimeoutError: true };
+    }
+
+    if (this.maxSessionTimeoutPolicyData != null) {
+      if (this.exceedsPolicyMaximumTimeout) {
+        return { maxTimeoutError: true };
+      }
     }
 
     return null;
@@ -258,32 +256,71 @@ export class SessionTimeoutInputComponent
     this.validatorChange = fn;
   }
 
-  private customTimeInMinutes() {
-    return this.form.value.custom.hours * 60 + this.form.value.custom.minutes;
+  private get isBelowMinimumTimeout(): boolean {
+    return (
+      this.isCustomTimeoutType &&
+      this.customTimeInMinutes() <= SessionTimeoutInputComponent.MIN_CUSTOM_MINUTES
+    );
   }
 
-  private applyVaultTimeoutPolicy() {
-    this.vaultTimeoutPolicyHours = Math.floor(this.vaultTimeoutPolicy.data.minutes / 60);
-    this.vaultTimeoutPolicyMinutes = this.vaultTimeoutPolicy.data.minutes % 60;
+  private getVaultTimeout(value: SessionTimeoutFormValue): VaultTimeout | null {
+    if (value.vaultTimeout !== VaultTimeoutStringType.Custom) {
+      return value.vaultTimeout ?? null;
+    }
 
-    this.vaultTimeoutOptions = this.vaultTimeoutOptions.filter((vaultTimeoutOption) => {
-      // Always include the custom option
-      if (vaultTimeoutOption.value === SessionTimeoutInputComponent.CUSTOM_VALUE) {
-        return true;
+    const hours = value.custom?.hours ?? 0;
+    const minutes = value.custom?.minutes ?? 0;
+    return hours * 60 + minutes;
+  }
+
+  private customTimeInMinutes(): number {
+    const hours = this.form.value.custom?.hours ?? 0;
+    const minutes = this.form.value.custom?.minutes ?? 0;
+    return hours * 60 + minutes;
+  }
+
+  private async getPolicyTimeoutMessage(
+    policyData: MaximumSessionTimeoutPolicyData,
+  ): Promise<string | null> {
+    const type = policyData.type;
+
+    switch (type) {
+      case "immediately": {
+        if (await this.sessionTimeoutTypeService.isAvailable(VaultTimeoutNumberType.Immediately)) {
+          return this.i18nService.t("sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately");
+        } else {
+          return this.i18nService.t(
+            "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes",
+            0,
+            1,
+          );
+        }
       }
-
-      if (typeof vaultTimeoutOption.value === "number") {
-        // Include numeric values that are less than or equal to the policy minutes
-        return vaultTimeoutOption.value <= this.vaultTimeoutPolicy.data.minutes;
+      case "onSystemLock": {
+        if (await this.sessionTimeoutTypeService.isAvailable(VaultTimeoutStringType.OnLocked)) {
+          return this.i18nService.t("sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked");
+        } else {
+          return this.i18nService.t("sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart");
+        }
       }
-
-      // Exclude all string cases when there's a numeric policy defined
-      return false;
-    });
-
-    // Only call validator change if it's been set
-    if (this.validatorChange) {
-      this.validatorChange();
+      case "onAppRestart":
+        return this.i18nService.t("sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart");
+      case "never":
+        if (await this.sessionTimeoutTypeService.isAvailable(VaultTimeoutStringType.Never)) {
+          return null;
+        } else {
+          return this.i18nService.t("sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart");
+        }
+      case "custom":
+      default: {
+        const hours = Math.floor(policyData.minutes / 60);
+        const minutes = policyData.minutes % 60;
+        return this.i18nService.t(
+          "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes",
+          hours,
+          minutes,
+        );
+      }
     }
   }
 }
