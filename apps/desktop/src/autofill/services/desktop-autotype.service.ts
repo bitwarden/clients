@@ -1,3 +1,4 @@
+import { Injectable, OnDestroy } from "@angular/core";
 import {
   combineLatest,
   concatMap,
@@ -11,7 +12,6 @@ import {
   switchMap,
   takeUntil,
 } from "rxjs";
-import { Injectable, OnDestroy } from "@angular/core";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -32,6 +32,7 @@ import { LogService } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
 
 import { AutotypeConfig } from "../models/autotype-configure";
+
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
 
 export const defaultWindowsAutotypeKeyboardShortcut: string[] = ["Control", "Shift", "B"];
@@ -64,6 +65,9 @@ export class DesktopAutotypeService implements OnDestroy {
     AUTOTYPE_KEYBOARD_SHORTCUT,
   );
 
+  // if the user's account is Premium
+  private readonly isPremiumAccount$: Observable<boolean> = of(false);
+
   // The enabled/disabled state from the user settings menu
   autotypeEnabledUserSetting$: Observable<boolean> = of(false);
 
@@ -87,6 +91,14 @@ export class DesktopAutotypeService implements OnDestroy {
       map((enabled) => enabled ?? false),
       takeUntil(this.destroy$),
       // distinctUntilChanged(), // Only emit when the result changes
+    );
+
+    this.isPremiumAccount$ = this.accountService.activeAccount$.pipe(
+      filter((account): account is Account => !!account),
+      switchMap((account) =>
+        this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+      ),
+      takeUntil(this.destroy$),
     );
 
     this.autotypeKeyboardShortcut$ = this.autotypeKeyboardShortcut.state$.pipe(
@@ -170,6 +182,7 @@ export class DesktopAutotypeService implements OnDestroy {
       this.configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype),
       // if there is an active account with an unlocked vault
       this.authService.activeAccountStatus$,
+      this.isPremiumAccount$,
       // if the user's account is Premium
       // this.accountService.activeAccount$.pipe(
       //   filter((account): account is Account => !!account),
@@ -179,10 +192,12 @@ export class DesktopAutotypeService implements OnDestroy {
       // ),
     ]).pipe(
       map(
-        // ([settingsEnabled, ffEnabled, authStatus, hasPremium]) =>
-        ([settingsEnabled, ffEnabled, authStatus]) =>
-          settingsEnabled && ffEnabled && authStatus === AuthenticationStatus.Unlocked,
-        // hasPremium,
+        ([settingsEnabled, ffEnabled, authStatus, isPremiumAcct]) =>
+          // ([settingsEnabled, ffEnabled, authStatus]) =>
+          settingsEnabled &&
+          ffEnabled &&
+          authStatus === AuthenticationStatus.Unlocked &&
+          isPremiumAcct,
       ),
       distinctUntilChanged(), // Only emit when the boolean result changes
       takeUntil(this.destroy$),
