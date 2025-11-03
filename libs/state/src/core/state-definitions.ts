@@ -107,6 +107,10 @@ export const NEW_WEB_LAYOUT_BANNER_DISK = new StateDefinition("newWebLayoutBanne
   web: "disk-local",
 });
 
+// DIRT
+
+export const PHISHING_DETECTION_DISK = new StateDefinition("phishingDetection", "disk");
+
 // Platform
 
 export const APPLICATION_ID_DISK = new StateDefinition("applicationId", "disk", {

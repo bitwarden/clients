@@ -3,19 +3,11 @@
   {{ (hideIcon ? "createSend" : "new") | i18n }}
 </button>
 <bit-menu #itemOptions>
-  <a
-    bitMenuItem
-    [routerLink]="buildRouterLink(sendType.Text)"
-    [queryParams]="buildQueryParams(sendType.Text)"
-  >
+  <a bitMenuItem [routerLink]="buildRouterLink()" [queryParams]="buildQueryParams(sendType.Text)">
     <i class="bwi bwi-file-text" slot="start" aria-hidden="true"></i>
     {{ "sendTypeText" | i18n }}
   </a>
-  <a
-    bitMenuItem
-    [routerLink]="buildRouterLink(sendType.File)"
-    [queryParams]="buildQueryParams(sendType.File)"
-  >
+  <a bitMenuItem (click)="sendFileClick()">
     <div class="tw-flex tw-items-center tw-gap-2">
       <i class="bwi bwi-file" slot="start" aria-hidden="true"></i>
       {{ "sendTypeFile" | i18n }}
