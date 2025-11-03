@@ -21,6 +21,11 @@ export class MainDesktopAutotypeService {
   }
 
   init() {
+    if (this.isInitialized) {
+      this.logService.warning("MainDesktopAutotypeService already initialized.");
+      return;
+    }
+
     ipcMain.handle(AUTOTYPE_IPC_CHANNELS.INIT, () => {
       this.init();
     });
