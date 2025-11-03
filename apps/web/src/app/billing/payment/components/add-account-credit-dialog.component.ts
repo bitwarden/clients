@@ -58,7 +58,7 @@ const positiveNumberValidator =
   template: `
     <form [formGroup]="formGroup" [bitSubmit]="submit">
       <bit-dialog>
-        <span bitDialogTitle class="tw-font-semibold">
+        <span bitDialogTitle class="tw-font-medium">
           {{ "addCredit" | i18n }}
         </span>
         <div bitDialogContent>
