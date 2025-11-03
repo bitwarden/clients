@@ -16,6 +16,7 @@ import { getById } from "@bitwarden/common/platform/misc";
 import { DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
+import { RiskOverTimeComponent } from "../risk-over-time/risk-over-time.component";
 import { ApplicationsLoadingComponent } from "../shared/risk-insights-loading.component";
 
 import { ActivityCardComponent } from "./activity-card.component";
@@ -31,6 +32,7 @@ import { NewApplicationsDialogComponent } from "./new-applications-dialog.compon
     SharedModule,
     ActivityCardComponent,
     PasswordChangeMetricComponent,
+    RiskOverTimeComponent,
   ],
   templateUrl: "./all-activity.component.html",
 })

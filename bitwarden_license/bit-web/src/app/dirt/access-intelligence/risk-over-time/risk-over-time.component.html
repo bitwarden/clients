@@ -1,0 +1,258 @@
+<div
+  class="tw-box-border tw-bg-background tw-text-main tw-border-solid tw-border tw-border-secondary-300 tw-rounded-xl tw-p-6 tw-flex tw-flex-col tw-gap-6 tw-h-full"
+>
+  <!-- Header Section -->
+  <div class="tw-flex tw-flex-col">
+    <!-- Title and Download Button Row -->
+    <div class="tw-flex tw-justify-between tw-items-start">
+      <div class="tw-text-main tw-text-sm tw-font-semibold">{{ "riskOverTime" | i18n }}</div>
+      <button
+        type="button"
+        bitIconButton="bwi-download"
+        buttonType="main"
+        size="small"
+        label="{{ 'downloadChart' | i18n }}"
+        (click)="downloadChartAsSVG()"
+      ></button>
+    </div>
+
+    <!-- Chart Title and Period Selector -->
+    <div class="tw-flex tw-justify-between tw-items-end">
+      <div class="tw-text-main tw-text-2xl tw-font-semibold">{{ chartTitle() }}</div>
+
+      <!-- Period Dropdown -->
+      <div class="tw-relative">
+        <select
+          class="tw-px-3 tw-py-1 tw-rounded-full tw-border tw-border-gray-400 dark:tw-border-gray-600 tw-flex tw-items-center tw-gap-2 hover:tw-bg-gray-50 dark:hover:tw-bg-gray-700 tw-bg-white dark:tw-bg-gray-800 tw-text-gray-600 dark:tw-text-gray-400 tw-text-sm tw-leading-tight tw-appearance-none tw-pr-8 tw-cursor-pointer focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-primary-600"
+          [value]="selectedPeriod"
+          (change)="onPeriodChange($event)"
+        >
+          <option *ngFor="let option of periodOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+        <svg
+          stroke="currentColor"
+          fill="currentColor"
+          stroke-width="0"
+          viewBox="0 0 20 20"
+          aria-hidden="true"
+          class="tw-absolute tw-right-2 tw-top-1/2 tw-transform tw--translate-y-1/2 tw-w-3.5 tw-h-3.5 tw-text-gray-600 dark:tw-text-gray-400 tw-pointer-events-none"
+          height="1em"
+          width="1em"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+            clip-rule="evenodd"
+          ></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Buttons and Legend -->
+  <div class="tw-flex tw-justify-between tw-items-center">
+    <!-- Toggle Group -->
+    <bit-toggle-group [(selected)]="selectedMetric" (selectedChange)="onMetricChange($event)">
+      <bit-toggle [value]="RiskMetricType.Applications">
+        {{ "application" | i18n }}
+      </bit-toggle>
+
+      <bit-toggle [value]="RiskMetricType.Items">
+        {{ "item" | i18n }}
+      </bit-toggle>
+
+      <bit-toggle [value]="RiskMetricType.Members">
+        {{ "member" | i18n }}
+      </bit-toggle>
+    </bit-toggle-group>
+
+    <!-- Legend -->
+    <div class="tw-flex tw-gap-3 tw-items-center">
+      <div class="tw-flex tw-items-center tw-gap-1.5 tw-pl-1 tw-pr-2 tw-py-0.5 tw-rounded-lg">
+        <div
+          class="tw-w-2.5 tw-h-2.5 tw-rounded-full"
+          [ngClass]="currentPeriodColor()"
+          [style.background-color]="currentPeriodStrokeColor()"
+        ></div>
+        <span class="tw-text-main tw-text-xs">{{ "currentPeriod" | i18n }}</span>
+      </div>
+      <div class="tw-flex tw-items-center tw-gap-1.5 tw-pl-1 tw-pr-2 tw-py-0.5 tw-rounded-lg">
+        <div class="tw-w-2.5 tw-h-2.5 tw-rounded-full tw-bg-secondary-300"></div>
+        <span class="tw-text-main tw-text-xs">{{ "previousPeriod" | i18n }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="tw-relative tw-w-full" *ngIf="chartData() && !isLoading() && !hasError()">
+    <svg
+      #chartSvg
+      [attr.width]="chartWidth"
+      [attr.height]="chartHeight"
+      class="tw-max-w-full"
+      (mousemove)="onChartMouseMove($event)"
+      (mouseleave)="onChartMouseLeave()"
+    >
+      <defs>
+        <!-- Gradient for current period area -->
+        <linearGradient id="currentGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" [attr.stop-color]="currentPeriodStrokeColor()" stop-opacity="0.08" />
+          <stop offset="40%" [attr.stop-color]="currentPeriodStrokeColor()" stop-opacity="0.02" />
+          <stop offset="100%" [attr.stop-color]="currentPeriodStrokeColor()" stop-opacity="0" />
+        </linearGradient>
+      </defs>
+
+      <!-- Y-axis line -->
+      <line
+        [attr.x1]="yAxisX"
+        [attr.y1]="chartPadding.top"
+        [attr.x2]="yAxisX"
+        [attr.y2]="chartHeight - chartPadding.bottom"
+        stroke="#D1D5DB"
+        stroke-width="1"
+      />
+
+      <!-- Y-axis labels -->
+      <g>
+        <text
+          *ngFor="let label of yAxisLabels"
+          [attr.x]="yAxisX - 10"
+          [attr.y]="label.y + 4"
+          text-anchor="end"
+          class="tw-text-xs tw-fill-muted"
+        >
+          {{ label.value }}
+        </text>
+      </g>
+
+      <!-- X-axis line -->
+      <line
+        [attr.x1]="yAxisX"
+        [attr.y1]="chartHeight - chartPadding.bottom"
+        [attr.x2]="chartWidth - chartPadding.right"
+        [attr.y2]="chartHeight - chartPadding.bottom"
+        stroke="#D1D5DB"
+        stroke-width="1"
+      />
+
+      <!-- Previous period line -->
+      <path
+        [attr.d]="getLinePath(chartData()!.previousPeriod)"
+        fill="none"
+        stroke="#9AA5B1"
+        stroke-width="2"
+        stroke-dasharray="2 2"
+        class="tw-transition-all"
+      />
+
+      <!-- Current period area -->
+      <path
+        [attr.d]="getAreaPath(chartData()!.currentPeriod)"
+        fill="url(#currentGradient)"
+        class="tw-transition-all"
+      />
+
+      <!-- Current period line -->
+      <path
+        [attr.d]="getLinePath(chartData()!.currentPeriod)"
+        fill="none"
+        [attr.stroke]="currentPeriodStrokeColor()"
+        stroke-width="3"
+        class="tw-transition-all"
+      />
+
+      <!-- Hover indicator line -->
+      <line
+        *ngIf="hoveredDataPoint()"
+        [attr.x1]="hoveredDataPoint()!.x"
+        [attr.y1]="chartPadding.top"
+        [attr.x2]="hoveredDataPoint()!.x"
+        [attr.y2]="chartHeight - chartPadding.bottom"
+        class="tw-stroke-secondary-300"
+        stroke-width="1"
+      />
+
+      <!-- Hover circles on data points -->
+      <ng-container *ngIf="hoveredDataPoint()">
+        <circle
+          *ngFor="let point of getDataPoints(chartData()!.currentPeriod); let i = index"
+          [class.tw-hidden]="i !== hoveredDataPoint()!.index"
+          [attr.cx]="point.x"
+          [attr.cy]="point.y"
+          r="4"
+          [attr.fill]="currentPeriodStrokeColor()"
+          class="tw-transition-all"
+        />
+        <circle
+          *ngFor="let point of getDataPoints(chartData()!.previousPeriod); let i = index"
+          [class.tw-hidden]="i !== hoveredDataPoint()!.index"
+          [attr.cx]="point.x"
+          [attr.cy]="point.y"
+          r="4"
+          fill="#9AA5B1"
+          class="tw-transition-all"
+        />
+      </ng-container>
+
+      <!-- X-axis labels -->
+      <g>
+        <text
+          *ngFor="let label of xAxisLabels; let i = index"
+          [attr.x]="
+            yAxisX + i * ((chartWidth - yAxisX - chartPadding.right) / (xAxisLabels.length - 1))
+          "
+          [attr.y]="chartHeight - chartPadding.bottom + 20"
+          text-anchor="middle"
+          class="tw-text-xs tw-fill-main tw-select-none"
+        >
+          {{ label }}
+        </text>
+      </g>
+    </svg>
+
+    <!-- Tooltip -->
+    <div
+      *ngIf="hoveredDataPoint() && getTooltipData() as tooltip"
+      class="tw-absolute tw-bg-background tw-border tw-border-secondary-300 tw-rounded-lg tw-shadow-lg tw-p-3 tw-pointer-events-none tw-z-10"
+      [style.left.px]="getTooltipPosition()!.x + 10"
+      [style.top.px]="getTooltipPosition()!.y"
+    >
+      <div class="tw-text-xs tw-font-semibold tw-text-main tw-mb-2">{{ tooltip.label }}</div>
+      <div class="tw-flex tw-flex-col tw-gap-1">
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <div
+            class="tw-w-2.5 tw-h-2.5 tw-rounded-full"
+            [style.background-color]="currentPeriodStrokeColor()"
+          ></div>
+          <span class="tw-text-xs tw-text-muted">{{ "currentPeriod" | i18n }}:</span>
+          <span class="tw-text-xs tw-font-semibold tw-text-main">{{ tooltip.currentValue }}</span>
+        </div>
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <div class="tw-w-2.5 tw-h-2.5 tw-rounded-full tw-bg-secondary-300"></div>
+          <span class="tw-text-xs tw-text-muted">{{ "previousPeriod" | i18n }}:</span>
+          <span class="tw-text-xs tw-font-semibold tw-text-main">{{ tooltip.previousValue }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="tw-flex tw-justify-center tw-items-center tw-h-64">
+    <i
+      class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
+      [attr.aria-label]="'loading' | i18n"
+    ></i>
+  </div>
+
+  <!-- Error State -->
+  <div
+    *ngIf="hasError() && !isLoading()"
+    class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-h-64 tw-text-muted tw-gap-2"
+  >
+    <i class="bwi bwi-error bwi-2x tw-text-danger"></i>
+    <span>{{ "errorLoadingData" | i18n }}</span>
+  </div>
+</div>

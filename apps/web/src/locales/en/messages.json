@@ -20,6 +20,45 @@
   "riskInsights": {
     "message": "Risk Insights"
   },
+  "riskOverTime": {
+    "message": "Risk over time"
+  },
+  "applicationsAtRiskOverTime": {
+    "message": "Applications at-risk over time"
+  },
+  "itemsAtRiskOverTime": {
+    "message": "Items at-risk over time"
+  },
+  "membersAtRiskOverTime": {
+    "message": "Members at-risk over time"
+  },
+  "currentPeriod": {
+    "message": "Current year"
+  },
+  "previousPeriod": {
+    "message": "Previous year"
+  },
+  "last3Months": {
+    "message": "Last 3 months"
+  },
+  "last6Months": {
+    "message": "Last 6 months"
+  },
+  "last12Months": {
+    "message": "Last 12 months"
+  },
+  "loadingRiskData": {
+    "message": "Loading risk data..."
+  },
+  "downloadChart": {
+    "message": "Download chart as SVG"
+  },
+  "downloadAsSVG": {
+    "message": "Download as SVG"
+  },
+  "errorLoadingData": {
+    "message": "Error loading data"
+  },
   "passwordRisk": {
     "message": "Password Risk"
   },
