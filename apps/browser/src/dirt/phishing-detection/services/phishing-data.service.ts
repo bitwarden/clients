@@ -67,7 +67,7 @@ export class PhishingDataService {
 
   private _triggerUpdate$ = new Subject<void>();
   update$ = this._triggerUpdate$.pipe(
-    startWith(), // Always emit once
+    startWith(undefined), // Always emit once
     tap(() => this.logService.info(`[PhishingDataService] Update triggered...`)),
     switchMap(() =>
       this._cachedState.state$.pipe(
