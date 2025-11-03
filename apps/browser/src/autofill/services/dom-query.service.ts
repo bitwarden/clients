@@ -273,7 +273,7 @@ export class DomQueryService implements DomQueryServiceInterface {
         ? NodeFilter.FILTER_REJECT
         : NodeFilter.FILTER_ACCEPT,
     );
-    let currentNode = treeWalker?.currentNode;
+    let currentNode: Node | null = treeWalker?.currentNode;
 
     while (currentNode) {
       if (filterCallback(currentNode)) {
@@ -299,11 +299,7 @@ export class DomQueryService implements DomQueryServiceInterface {
         );
       }
 
-      const nextNode = treeWalker.nextNode();
-
-      if (nextNode) {
-        currentNode = nextNode;
-      }
+      currentNode = treeWalker?.nextNode();
     }
   }
 }
