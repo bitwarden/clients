@@ -72,17 +72,6 @@ export type OrganizationReportApplication = {
 };
 
 /**
- * Detailed information for a new (unreviewed) application.
- * Used by the new applications dialog to display metrics per application.
- */
-export type NewApplicationDetail = {
-  applicationName: string;
-  atRiskPasswordCount: number;
-  passwordCount: number;
-  atRiskMemberCount: number;
-};
-
-/**
  * Report details for an application
  * uri. Has the at risk, password, and member information
  */
