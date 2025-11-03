@@ -74,6 +74,8 @@ export class DesktopAutotypeService implements OnDestroy {
   // The keyboard shortcut from the user settings menu
   autotypeKeyboardShortcut$: Observable<string[]> = of(defaultWindowsAutotypeKeyboardShortcut);
 
+  private autotypeRequestListener?: () => void;
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -106,16 +108,6 @@ export class DesktopAutotypeService implements OnDestroy {
       map((shortcut) => shortcut ?? defaultWindowsAutotypeKeyboardShortcut),
       takeUntil(this.destroy$),
     );
-
-    ipc.autofill.listenAutotypeRequest(async (windowTitle, callback) => {
-      const possibleCiphers = await this.matchCiphersToWindowTitle(windowTitle);
-      const firstCipher = possibleCiphers?.at(0);
-
-      return callback(null, {
-        username: firstCipher?.login?.username,
-        password: firstCipher?.login?.password,
-      });
-    });
   }
 
   async init() {
@@ -127,6 +119,18 @@ export class DesktopAutotypeService implements OnDestroy {
     if (!(await ipc.autofill.autotypeIsInitialized())) {
       await ipc.autofill.initAutotype();
     }
+
+    this.autotypeRequestListener = ipc.autofill.listenAutotypeRequest(
+      async (windowTitle, callback) => {
+        const possibleCiphers = await this.matchCiphersToWindowTitle(windowTitle);
+        const firstCipher = possibleCiphers?.at(0);
+
+        return callback(null, {
+          username: firstCipher?.login?.username,
+          password: firstCipher?.login?.password,
+        });
+      },
+    );
 
     // If `autotypeDefaultPolicy` is `true` for a user's organization, and the
     // user has never changed their local autotype setting (`autotypeEnabledState`),
