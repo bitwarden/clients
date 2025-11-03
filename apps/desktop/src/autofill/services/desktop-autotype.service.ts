@@ -79,6 +79,7 @@ export class DesktopAutotypeService {
   ) {
     this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$.pipe(
       map((enabled) => enabled ?? false),
+      // distinctUntilChanged(), // Only emit when the result changes
     );
 
     this.autotypeKeyboardShortcut$ = this.autotypeKeyboardShortcut.state$.pipe(
@@ -162,19 +163,18 @@ export class DesktopAutotypeService {
       // if there is an active account with an unlocked vault
       this.authService.activeAccountStatus$,
       // if the user's account is Premium
-      this.accountService.activeAccount$.pipe(
-        filter((account): account is Account => !!account),
-        switchMap((account) =>
-          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-        ),
-      ),
+      // this.accountService.activeAccount$.pipe(
+      //   filter((account): account is Account => !!account),
+      //   switchMap((account) =>
+      //     this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+      //   ),
+      // ),
     ]).pipe(
       map(
-        ([settingsEnabled, ffEnabled, authStatus, hasPremium]) =>
-          settingsEnabled &&
-          ffEnabled &&
-          authStatus === AuthenticationStatus.Unlocked &&
-          hasPremium,
+        // ([settingsEnabled, ffEnabled, authStatus, hasPremium]) =>
+        ([settingsEnabled, ffEnabled, authStatus]) =>
+          settingsEnabled && ffEnabled && authStatus === AuthenticationStatus.Unlocked,
+        // hasPremium,
       ),
       distinctUntilChanged(), // Only emit when the boolean result changes
     );
