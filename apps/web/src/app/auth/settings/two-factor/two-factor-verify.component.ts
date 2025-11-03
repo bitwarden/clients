@@ -4,12 +4,12 @@ import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
+import { TwoFactorEmailResponse } from "@bitwarden/common/auth/models/response/two-factor-email.response";
 import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { TwoFactorResponse } from "@bitwarden/common/auth/types/two-factor-response";
-import { Verification } from "@bitwarden/common/auth/types/verification";
+import { Verification, VerificationWithSecret } from "@bitwarden/common/auth/types/verification";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
@@ -47,7 +47,7 @@ export class TwoFactorVerifyComponent {
   organizationId: string;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() onAuthed = new EventEmitter<AuthResponse<TwoFactorResponse>>();
+  @Output() onAuthed = new EventEmitter<AuthResponse<TwoFactorEmailResponse>>();
 
   formPromise: Promise<TwoFactorResponse> | undefined;
 
@@ -69,24 +69,19 @@ export class TwoFactorVerifyComponent {
 
   submit = async () => {
     try {
-      let hashedSecret = "";
       if (!this.formGroup.value.secret) {
         throw new Error("Secret is required");
       }
 
       const secret = this.formGroup.value.secret!;
       this.formPromise = this.userVerificationService.buildRequest(secret).then((request) => {
-        hashedSecret =
-          secret.type === VerificationType.MasterPassword
-            ? request.masterPasswordHash
-            : request.otp;
         return this.apiCall(request);
       });
 
       const response = await this.formPromise;
       this.dialogRef.close({
         response: response,
-        secret: hashedSecret,
+        secret: (secret as VerificationWithSecret).secret,
         verificationType: secret.type,
       });
     } catch (e) {
