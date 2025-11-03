@@ -153,6 +153,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
 import { OrganizationSponsorshipApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-sponsorship-api.service.abstraction";
+import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import { AccountBillingApiService } from "@bitwarden/common/billing/services/account/account-billing-api.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { BillingApiService } from "@bitwarden/common/billing/services/billing-api.service";
@@ -160,6 +161,7 @@ import { OrganizationBillingApiService } from "@bitwarden/common/billing/service
 import { DefaultOrganizationMetadataService } from "@bitwarden/common/billing/services/organization/organization-metadata.service";
 import { OrganizationSponsorshipApiService } from "@bitwarden/common/billing/services/organization/organization-sponsorship-api.service";
 import { OrganizationBillingService } from "@bitwarden/common/billing/services/organization-billing.service";
+import { DefaultSubscriptionPricingService } from "@bitwarden/common/billing/services/subscription-pricing.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import {
   DefaultKeyGenerationService,
@@ -970,7 +972,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SignalRConnectionService,
     useClass: SignalRConnectionService,
-    deps: [ApiServiceAbstraction, LogService],
+    deps: [ApiServiceAbstraction, LogService, PlatformUtilsServiceAbstraction],
   }),
   safeProvider({
     provide: WebPushConnectionService,
@@ -1237,7 +1239,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AnonymousHubServiceAbstraction,
     useClass: AnonymousHubService,
-    deps: [EnvironmentService, AuthRequestServiceAbstraction],
+    deps: [EnvironmentService, AuthRequestServiceAbstraction, PlatformUtilsServiceAbstraction],
   }),
   safeProvider({
     provide: ValidationServiceAbstraction,
@@ -1468,6 +1470,11 @@ const safeProviders: SafeProvider[] = [
     provide: BillingAccountProfileStateService,
     useClass: DefaultBillingAccountProfileStateService,
     deps: [StateProvider, PlatformUtilsServiceAbstraction, ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: SubscriptionPricingServiceAbstraction,
+    useClass: DefaultSubscriptionPricingService,
+    deps: [BillingApiServiceAbstraction, ConfigService, I18nServiceAbstraction, LogService],
   }),
   safeProvider({
     provide: OrganizationManagementPreferencesService,

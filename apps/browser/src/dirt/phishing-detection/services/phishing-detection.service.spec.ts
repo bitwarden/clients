@@ -1,48 +1,36 @@
 import { of } from "rxjs";
 
-import { AuditService } from "@bitwarden/common/abstractions/audit.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
-import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling/task-scheduler.service";
 
+import { PhishingDataService } from "./phishing-data.service";
 import { PhishingDetectionService } from "./phishing-detection.service";
 
 describe("PhishingDetectionService", () => {
   let accountService: AccountService;
-  let auditService: AuditService;
   let billingAccountProfileStateService: BillingAccountProfileStateService;
   let configService: ConfigService;
-  let eventCollectionService: EventCollectionService;
   let logService: LogService;
-  let storageService: AbstractStorageService;
-  let taskSchedulerService: TaskSchedulerService;
+  let phishingDataService: PhishingDataService;
 
   beforeEach(() => {
     accountService = { getAccount$: jest.fn(() => of(null)) } as any;
-    auditService = { getKnownPhishingDomains: jest.fn() } as any;
     billingAccountProfileStateService = {} as any;
     configService = { getFeatureFlag$: jest.fn(() => of(false)) } as any;
-    eventCollectionService = {} as any;
     logService = { info: jest.fn(), debug: jest.fn(), warning: jest.fn(), error: jest.fn() } as any;
-    storageService = { get: jest.fn(), save: jest.fn() } as any;
-    taskSchedulerService = { registerTaskHandler: jest.fn(), setInterval: jest.fn() } as any;
+    phishingDataService = {} as any;
   });
 
   it("should initialize without errors", () => {
     expect(() => {
       PhishingDetectionService.initialize(
         accountService,
-        auditService,
         billingAccountProfileStateService,
         configService,
-        eventCollectionService,
         logService,
-        storageService,
-        taskSchedulerService,
+        phishingDataService,
       );
     }).not.toThrow();
   });
@@ -66,13 +54,10 @@ describe("PhishingDetectionService", () => {
     // Run the initialization
     PhishingDetectionService.initialize(
       accountService,
-      auditService,
       billingAccountProfileStateService,
       configService,
-      eventCollectionService,
       logService,
-      storageService,
-      taskSchedulerService,
+      phishingDataService,
     );
   });
 
@@ -105,23 +90,10 @@ describe("PhishingDetectionService", () => {
     // Run the initialization
     PhishingDetectionService.initialize(
       accountService,
-      auditService,
       billingAccountProfileStateService,
       configService,
-      eventCollectionService,
       logService,
-      storageService,
-      taskSchedulerService,
+      phishingDataService,
     );
   });
-
-  it("should detect phishing domains", () => {
-    PhishingDetectionService["_knownPhishingDomains"].add("phishing.com");
-    const url = new URL("https://phishing.com");
-    expect(PhishingDetectionService.isPhishingDomain(url)).toBe(true);
-    const safeUrl = new URL("https://safe.com");
-    expect(PhishingDetectionService.isPhishingDomain(safeUrl)).toBe(false);
-  });
-
-  // Add more tests for other methods as needed
 });

@@ -69,6 +69,7 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -336,6 +337,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private unifiedUpgradePromptService: UnifiedUpgradePromptService,
     private autoConfirmService: AutomaticUserConfirmationService,
     private configService: ConfigService,
+    private premiumUpgradePromptService: PremiumUpgradePromptService,
   ) {}
 
   async ngOnInit() {
@@ -897,7 +899,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
 
     if (cipher.organizationId == null && !this.canAccessPremium) {
-      this.messagingService.send("premiumRequired");
+      await this.premiumUpgradePromptService.promptForPremium();
       return;
     } else if (cipher.organizationId != null) {
       const org = await firstValueFrom(
