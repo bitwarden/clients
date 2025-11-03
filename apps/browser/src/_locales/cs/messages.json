@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Použít jednotné přihlášení"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Vaše organizace vyžaduje jednotné přihlášení."
+  },
   "welcomeBack": {
     "message": "Vítejte zpět"
   },
@@ -588,6 +591,9 @@
   "view": {
     "message": "Zobrazit"
   },
+  "viewAll": {
+    "message": "Zobrazit vše"
+  },
   "viewLogin": {
     "message": "Zobrazit přihlašovací údaje"
   },
@@ -1027,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Položka byla uložena"
+  },
+  "savedWebsite": {
+    "message": "Uložená webová stránka"
+  },
+  "savedWebsites": {
+    "message": "Uložené webové stránky ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Opravdu chcete položku přesunout do koše?"
@@ -1676,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Vypnout automatické vyplňování"
   },
+  "confirmAutofill": {
+    "message": "Potvrdit automatické vyplňování"
+  },
+  "confirmAutofillDesc": {
+    "message": "Tato stránka neodpovídá Vašim uloženým přihlašovacím údajům. Před vyplněním přihlašovacích údajů se ujistěte, že se jedná o důvěryhodný web."
+  },
   "showInlineMenuLabel": {
     "message": "Zobrazit návrhy automatického vyplňování v polích formuláře"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Jak Bitwarden chrání Vaše data před phishingem?"
+  },
+  "currentWebsite": {
+    "message": "Aktuální webová stránka"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Automatické vyplňování a přidání této stránky"
+  },
+  "autofillWithoutAdding": {
+    "message": "Automatické vyplňování bez přidání"
+  },
+  "doNotAutofill": {
+    "message": "Nevyplňovat automaticky"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Zobrazit identity jako návrhy"
@@ -3240,6 +3279,9 @@
   "decryptionError": {
     "message": "Chyba dešifrování"
   },
+  "errorGettingAutoFillData": {
+    "message": "Chyba při načítání dat automatického vyplňování"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden nemohl dešifrovat níže uvedené položky v trezoru."
   },
@@ -4010,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Automatické vyplnění při načítání stránky bylo nastaveno na výchozí nastavení.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Nelze automaticky vyplňovat"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Výchozí shoda je nastavena na \"Přesná shoda\". Aktuální web neodpovídá přesně uloženým přihlašovacím údajům pro tuto položku."
+  },
+  "okay": {
+    "message": "OK"
   },
   "toggleSideNavigation": {
     "message": "Přepnout boční navigaci"
@@ -5721,5 +5772,11 @@
   "settingDisabledByPolicy": {
     "message": "Toto nastavení je zakázáno zásadami Vaší organizace.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / PSČ"
+  },
+  "cardNumberLabel": {
+    "message": "Číslo karty"
   }
 }

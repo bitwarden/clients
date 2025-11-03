@@ -5,6 +5,7 @@ import { firstValueFrom } from "rxjs";
 
 import {
   AllActivitiesService,
+  ReportStatus,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -41,8 +42,13 @@ export class AllActivityComponent implements OnInit {
   newApplicationsCount = 0;
   newApplications: string[] = [];
   passwordChangeMetricHasProgressBar = false;
+  allAppsHaveReviewDate = false;
+  isAllCaughtUp = false;
+  hasLoadedApplicationData = false;
 
   destroyRef = inject(DestroyRef);
+
+  protected ReportStatusEnum = ReportStatus;
 
   constructor(
     private accountService: AccountService,
@@ -69,8 +75,14 @@ export class AllActivityComponent implements OnInit {
           this.totalCriticalAppsAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
           this.totalCriticalAppsCount = summary.totalCriticalApplicationCount;
           this.totalCriticalAppsAtRiskCount = summary.totalCriticalAtRiskApplicationCount;
-          this.newApplications = summary.newApplications;
-          this.newApplicationsCount = summary.newApplications.length;
+        });
+
+      this.dataService.newApplications$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((newApps) => {
+          this.newApplications = newApps;
+          this.newApplicationsCount = newApps.length;
+          this.updateIsAllCaughtUp();
         });
 
       this.allActivitiesService.passwordChangeProgressMetricHasProgressBar$
@@ -78,7 +90,37 @@ export class AllActivityComponent implements OnInit {
         .subscribe((hasProgressBar) => {
           this.passwordChangeMetricHasProgressBar = hasProgressBar;
         });
+
+      this.dataService.enrichedReportData$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((enrichedData) => {
+          if (enrichedData?.applicationData && enrichedData.applicationData.length > 0) {
+            this.hasLoadedApplicationData = true;
+            // Check if all apps have a review date (not null and not undefined)
+            this.allAppsHaveReviewDate = enrichedData.applicationData.every(
+              (app) => app.reviewedDate !== null && app.reviewedDate !== undefined,
+            );
+          } else {
+            this.hasLoadedApplicationData = enrichedData !== null;
+            this.allAppsHaveReviewDate = false;
+          }
+          this.updateIsAllCaughtUp();
+        });
     }
+  }
+
+  /**
+   * Updates the isAllCaughtUp flag based on current state.
+   * Only shows "All caught up!" when:
+   * - Data has been loaded (hasLoadedApplicationData is true)
+   * - No new applications need review
+   * - All apps have a review date
+   */
+  private updateIsAllCaughtUp(): void {
+    this.isAllCaughtUp =
+      this.hasLoadedApplicationData &&
+      this.newApplicationsCount === 0 &&
+      this.allAppsHaveReviewDate;
   }
 
   /**
