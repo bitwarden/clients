@@ -7344,6 +7344,9 @@
   "accessDenied": {
     "message": "Access denied. You do not have permission to view this page."
   },
+  "noPageAccess": {
+    "message": "You do not have access to this page"
+  },
   "masterPassword": {
     "message": "Master password"
   },
