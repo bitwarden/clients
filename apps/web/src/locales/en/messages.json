@@ -272,7 +272,7 @@
     "message": "Members with access to at-risk items for critical applications"
   },
   "membersWithAtRiskPasswords": {
-    "message": "members with at-risk passwords"
+    "message": "Members with at-risk passwords"
   },
   "membersWillReceiveNotification": {
     "message": "Members will receive a notification to resolve at-risk logins through the browser extension."

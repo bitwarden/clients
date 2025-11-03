@@ -1,8 +1,14 @@
 import { CommonModule } from "@angular/common";
-import { Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
-import { ButtonModule, IconTileComponent, TypographyModule } from "@bitwarden/components";
+import {
+  ButtonModule,
+  CalloutComponent,
+  IconTileComponent,
+  TypographyModule,
+} from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { DarkImageSourceDirective } from "@bitwarden/vault";
 
 import { DefaultAdminTaskService } from "../../../../vault/services/default-admin-task.service";
 import { AccessIntelligenceSecurityTasksService } from "../../shared/security-tasks.service";
@@ -17,12 +23,19 @@ import { AccessIntelligenceSecurityTasksService } from "../../shared/security-ta
  * Without these providers, Angular would throw NullInjectorError when trying to inject
  * DefaultAdminTaskService, which is required by AccessIntelligenceSecurityTasksService.
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "dirt-assign-tasks-view",
   templateUrl: "./assign-tasks-view.component.html",
-  imports: [CommonModule, ButtonModule, TypographyModule, I18nPipe, IconTileComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    CommonModule,
+    ButtonModule,
+    TypographyModule,
+    I18nPipe,
+    IconTileComponent,
+    DarkImageSourceDirective,
+    CalloutComponent,
+  ],
   providers: [AccessIntelligenceSecurityTasksService, DefaultAdminTaskService],
 })
 export class AssignTasksViewComponent {
