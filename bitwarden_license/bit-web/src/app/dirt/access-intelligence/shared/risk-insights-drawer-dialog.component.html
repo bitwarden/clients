@@ -73,7 +73,7 @@
           : "atRiskApplicationsDescriptionNone"
         ) | i18n
       }}</span>
-      <ng-container *ngIf="drawerDetails.atRiskAppDetails.length > 0">
+      <ng-container *ngIf="drawerDetails.atRiskAppDetails?.length > 0">
         <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
           <div bitTypography="body2" class="tw-text-sm tw-font-bold">
             {{ "application" | i18n }}
