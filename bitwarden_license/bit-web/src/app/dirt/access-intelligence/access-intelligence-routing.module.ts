@@ -8,6 +8,7 @@ import { RiskInsightsComponent } from "./risk-insights.component";
 const routes: Routes = [
   {
     path: "",
+    // TODO: Update useRiskInsights property name to useAccessIntelligence after backend API update
     canActivate: [
       organizationPermissionsGuard((org) => org.useRiskInsights && org.canAccessReports),
     ],
@@ -20,6 +21,7 @@ const routes: Routes = [
     path: "risk-insights",
     redirectTo: "",
     pathMatch: "full",
+    // Backwards compatibility: redirect old "risk-insights" route to new base route
   },
 ];
 

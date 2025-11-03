@@ -17,9 +17,6 @@
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
-  "riskInsights": {
-    "message": "Risk Insights"
-  },
   "passwordRisk": {
     "message": "Password Risk"
   },
@@ -4420,7 +4417,7 @@
   },
 
   "generatingYourAccessIntelligence": {
-    "message": "Loading Access Intelligence..."
+    "message": "Generating your Access Intelligence..."
   },
   "riskInsightsRunReport": {
     "message": "Run report"
