@@ -6,7 +6,7 @@
     <dirt-risk-insights-loading></dirt-risk-insights-loading>
   } @else {
     <!-- Check final states after initial calls have been completed -->
-    @if (!(dataService.hasReportData$ | async) && isRiskInsightsActivityTabFeatureEnabled) {
+    @if (isRiskInsightsActivityTabFeatureEnabled && !(dataService.hasReportData$ | async)) {
       <!-- Show empty state only when feature flag is enabled and there's no report data -->
       <div class="tw-flex tw-justify-center tw-items-center tw-min-h-[70vh] tw-w-full">
         @if (!hasCiphers) {
