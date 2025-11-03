@@ -44,6 +44,9 @@ export class AllActivityComponent implements OnInit {
   newApplicationsCount = 0;
   newApplications: ApplicationHealthReportDetail[] = [];
   passwordChangeMetricHasProgressBar = false;
+  allAppsHaveReviewDate = false;
+  isAllCaughtUp = false;
+  hasLoadedApplicationData = false;
 
   destroyRef = inject(DestroyRef);
 
@@ -81,6 +84,7 @@ export class AllActivityComponent implements OnInit {
         .subscribe((newApps) => {
           this.newApplications = newApps;
           this.newApplicationsCount = newApps.length;
+          this.updateIsAllCaughtUp();
         });
 
       this.allActivitiesService.passwordChangeProgressMetricHasProgressBar$
@@ -88,7 +92,37 @@ export class AllActivityComponent implements OnInit {
         .subscribe((hasProgressBar) => {
           this.passwordChangeMetricHasProgressBar = hasProgressBar;
         });
+
+      this.dataService.enrichedReportData$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((enrichedData) => {
+          if (enrichedData?.applicationData && enrichedData.applicationData.length > 0) {
+            this.hasLoadedApplicationData = true;
+            // Check if all apps have a review date (not null and not undefined)
+            this.allAppsHaveReviewDate = enrichedData.applicationData.every(
+              (app) => app.reviewedDate !== null && app.reviewedDate !== undefined,
+            );
+          } else {
+            this.hasLoadedApplicationData = enrichedData !== null;
+            this.allAppsHaveReviewDate = false;
+          }
+          this.updateIsAllCaughtUp();
+        });
     }
+  }
+
+  /**
+   * Updates the isAllCaughtUp flag based on current state.
+   * Only shows "All caught up!" when:
+   * - Data has been loaded (hasLoadedApplicationData is true)
+   * - No new applications need review
+   * - All apps have a review date
+   */
+  private updateIsAllCaughtUp(): void {
+    this.isAllCaughtUp =
+      this.hasLoadedApplicationData &&
+      this.newApplicationsCount === 0 &&
+      this.allAppsHaveReviewDate;
   }
 
   /**

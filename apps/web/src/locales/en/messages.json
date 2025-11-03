@@ -364,6 +364,12 @@
   "reviewNow": {
     "message": "Review now"
   },
+  "allCaughtUp": {
+    "message": "All caught up!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "No new applications to review at this time"
+  },
   "prioritizeCriticalApplications": {
     "message": "Prioritize critical applications"
   },
@@ -5893,6 +5899,19 @@
     "message": "Always show member’s email address with recipients when creating or editing a Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "uriMatchDetectionPolicy": {
+    "message": "Default URI match detection"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Determine when logins are suggested for autofill. Admins and owners are exempt from this policy."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Default URI match detection"
+  },
+    "invalidUriMatchDefaultPolicySetting": {
+    "message": "Please select a valid URI match detection option.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
+  },
   "modifiedPolicyId": {
     "message": "Modified policy $ID$.",
     "placeholders": {
@@ -9671,7 +9690,7 @@
     "message": "Common formats",
     "description": "Label indicating the most common import formats"
   },
-     "uriMatchDefaultStrategyHint": {
+    "uriMatchDefaultStrategyHint": {
     "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
