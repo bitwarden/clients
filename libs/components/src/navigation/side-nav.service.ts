@@ -10,32 +10,27 @@ export class SideNavService {
   open$ = this._open$.asObservable();
 
   private isSmallScreen$ = media("(max-width: 768px)");
+  private _userToggledClosed$ = new BehaviorSubject<boolean>(false);
+  userToggledClosed$ = this._userToggledClosed$.asObservable();
 
-  private _isResponsive$ = new BehaviorSubject<boolean>(true);
-  isResponsive$ = this._isResponsive$.asObservable();
-
-  isOverlay$ = combineLatest([this.open$, this.isSmallScreen$, this.isResponsive$]).pipe(
-    map(([open, isSmallScreen, isResponsive]) => {
-      return open && isSmallScreen && isResponsive;
-    }),
+  isOverlay$ = combineLatest([this.open$, this.isSmallScreen$]).pipe(
+    map(([open, isSmallScreen]) => open && isSmallScreen),
   );
 
   constructor() {
-    combineLatest([this.isSmallScreen$, this.isResponsive$])
+    combineLatest([this.isSmallScreen$, this.userToggledClosed$])
       .pipe(takeUntilDestroyed())
-      .subscribe(([isSmallScreen, isResponsive]) => {
-        if (isSmallScreen && isResponsive) {
+      .subscribe(([isSmallScreen, userToggledClosed]) => {
+        if (isSmallScreen) {
           this.setClose();
+        } else if (!userToggledClosed) {
+          this.setOpen();
         }
       });
   }
 
   get open() {
     return this._open$.getValue();
-  }
-
-  setIsResponsive(isResponsive: boolean) {
-    this._isResponsive$.next(isResponsive);
   }
 
   setOpen() {
@@ -48,6 +43,8 @@ export class SideNavService {
 
   toggle() {
     const curr = this._open$.getValue();
+    this._userToggledClosed$.next(curr);
+
     if (curr) {
       this.setClose();
     } else {

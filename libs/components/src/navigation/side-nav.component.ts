@@ -1,6 +1,6 @@
 import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, inject, input, viewChild, OnInit } from "@angular/core";
+import { Component, ElementRef, inject, input, viewChild } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -18,18 +18,11 @@ export type SideNavVariant = "primary" | "secondary";
   templateUrl: "side-nav.component.html",
   imports: [CommonModule, CdkTrapFocus, NavDividerComponent, BitIconButtonComponent, I18nPipe],
 })
-export class SideNavComponent implements OnInit {
+export class SideNavComponent {
   readonly variant = input<SideNavVariant>("primary");
-  /**
-   * Only used in storybook due to complications with chromatic screenshot testing. In production, the side nav should always responsive and will collapse on smaller screens.
-   */
-  readonly isResponsive = input<boolean>(true);
-  private readonly toggleButton = viewChild("toggleButton", { read: ElementRef });
-  private readonly sideNavService = inject(SideNavService);
 
-  ngOnInit() {
-    this.sideNavService.setIsResponsive(this.isResponsive());
-  }
+  private readonly toggleButton = viewChild("toggleButton", { read: ElementRef });
+  protected sideNavService = inject(SideNavService);
 
   protected handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Escape") {
