@@ -1,5 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, Inject, inject, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  Inject,
+  inject,
+  signal,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { from, switchMap } from "rxjs";
 
@@ -11,6 +18,7 @@ import {
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { getUniqueMembers } from "@bitwarden/bit-common/dirt/reports/risk-insights/helpers";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   ButtonModule,
@@ -58,11 +66,10 @@ export const NewApplicationsDialogResultType = Object.freeze({
 export type NewApplicationsDialogResultType =
   (typeof NewApplicationsDialogResultType)[keyof typeof NewApplicationsDialogResultType];
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "dirt-new-applications-dialog",
   templateUrl: "./new-applications-dialog.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     ButtonModule,
@@ -101,6 +108,7 @@ export class NewApplicationsDialogComponent {
     private toastService: ToastService,
     private i18nService: I18nService,
     private accessIntelligenceSecurityTasksService: AccessIntelligenceSecurityTasksService,
+    private logService: LogService,
   ) {}
 
   /**
@@ -118,8 +126,8 @@ export class NewApplicationsDialogComponent {
     );
   }
 
-  getApplicationNames() {
-    return this.dialogParams.newApplications.map((application) => application.applicationName);
+  getApplications() {
+    return this.dialogParams.newApplications;
   }
 
   /**
@@ -138,7 +146,25 @@ export class NewApplicationsDialogComponent {
     });
   }
 
+  /**
+   * Toggles the selection state of all applications.
+   * If all are selected, unselect all. Otherwise, select all.
+   */
+  toggleAll() {
+    const allApplicationNames = this.dialogParams.newApplications.map((app) => app.applicationName);
+    const allSelected = this.selectedApplications().size === allApplicationNames.length;
+
+    this.selectedApplications.update(() => {
+      return allSelected ? new Set() : new Set(allApplicationNames);
+    });
+  }
+
   handleMarkAsCritical() {
+    if (this.markingAsCritical() || this.saving()) {
+      return; // Prevent action if already processing
+    }
+    this.markingAsCritical.set(true);
+
     const onlyNewCriticalApplications = this.dialogParams.newApplications.filter((newApp) =>
       this.selectedApplications().has(newApp.applicationName),
     );
@@ -149,6 +175,7 @@ export class NewApplicationsDialogComponent {
     this.atRiskCriticalMembersCount.set(atRiskCriticalMembersCount);
 
     this.currentView.set(DialogView.AssignTasks);
+    this.markingAsCritical.set(false);
   }
 
   /**
@@ -208,7 +235,11 @@ export class NewApplicationsDialogComponent {
           this.saving.set(false);
           this.handleAssigningCompleted();
         },
-        error: () => {
+        error: (error: unknown) => {
+          this.logService.error(
+            "[NewApplicationsDialog] Failed to save application review or assign tasks",
+            error,
+          );
           this.saving.set(false);
           this.toastService.showToast({
             variant: "error",

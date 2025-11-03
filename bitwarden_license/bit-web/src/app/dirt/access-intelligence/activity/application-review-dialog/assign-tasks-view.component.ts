@@ -1,8 +1,14 @@
 import { CommonModule } from "@angular/common";
-import { Component, input, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
-import { ButtonModule, IconTileComponent, TypographyModule } from "@bitwarden/components";
+import {
+  ButtonModule,
+  CalloutComponent,
+  IconTileComponent,
+  TypographyModule,
+} from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { DarkImageSourceDirective } from "@bitwarden/vault";
 
 import { DefaultAdminTaskService } from "../../../../vault/services/default-admin-task.service";
 import { AccessIntelligenceSecurityTasksService } from "../../shared/security-tasks.service";
@@ -21,7 +27,15 @@ import { AccessIntelligenceSecurityTasksService } from "../../shared/security-ta
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "dirt-assign-tasks-view",
   templateUrl: "./assign-tasks-view.component.html",
-  imports: [CommonModule, ButtonModule, TypographyModule, I18nPipe, IconTileComponent],
+  imports: [
+    CommonModule,
+    ButtonModule,
+    TypographyModule,
+    I18nPipe,
+    IconTileComponent,
+    DarkImageSourceDirective,
+    CalloutComponent,
+  ],
   providers: [AccessIntelligenceSecurityTasksService, DefaultAdminTaskService],
 })
 export class AssignTasksViewComponent {
