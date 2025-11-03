@@ -6,8 +6,10 @@ import { Observable, fromEvent, map, startWith } from "rxjs";
   providedIn: "root",
 })
 export class SideNavService {
-  private readonly _open = signal<boolean>(!window.matchMedia("(max-width: 768px)").matches);
-  readonly open = this._open.asReadonly();
+  /**
+   * Whether the side navigation is open or closed.
+   */
+  readonly open = signal<boolean>(!window.matchMedia("(max-width: 768px)").matches);
 
   private isSmallScreen$ = media("(max-width: 768px)");
   private readonly isSmallScreen = toSignal(this.isSmallScreen$, { requireSync: true });
@@ -17,21 +19,13 @@ export class SideNavService {
   constructor() {
     this.isSmallScreen$.pipe(takeUntilDestroyed()).subscribe((isSmallScreen) => {
       if (isSmallScreen) {
-        this.setClose();
+        this.open.set(false);
       }
     });
   }
 
-  setOpen() {
-    this._open.set(true);
-  }
-
-  setClose() {
-    this._open.set(false);
-  }
-
   toggle() {
-    this._open.update((curr) => !curr);
+    this.open.update((curr) => !curr);
   }
 }
 

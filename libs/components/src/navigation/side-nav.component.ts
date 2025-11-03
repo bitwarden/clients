@@ -40,7 +40,7 @@ export class SideNavComponent {
 
   protected readonly handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Escape") {
-      this.sideNavService.setClose();
+      this.sideNavService.open.set(false);
       this.toggleButton()?.nativeElement.focus();
       return false;
     }

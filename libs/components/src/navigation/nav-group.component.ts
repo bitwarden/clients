@@ -93,7 +93,7 @@ export class NavGroupComponent extends NavBaseComponent {
   protected handleMainContentClicked() {
     if (!this.sideNavService.open()) {
       if (!this.route()) {
-        this.sideNavService.setOpen();
+        this.sideNavService.open.set(true);
       }
       this.open.set(true);
     } else {
