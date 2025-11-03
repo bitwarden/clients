@@ -159,7 +159,7 @@ describe("DefaultEncryptedMigrationsSchedulerService", () => {
 
       expect(mockEncryptedMigrator.runMigrations).toHaveBeenCalledWith(mockUserId, null);
       expect(mockLogService.error).toHaveBeenCalledWith(
-        "[EncryptedMigrationsInitiator] Error during migration without interaction",
+        "[EncryptedMigrationsScheduler] Error during migration without interaction",
         mockError,
       );
     });
@@ -183,7 +183,7 @@ describe("DefaultEncryptedMigrationsSchedulerService", () => {
         ENCRYPTED_MIGRATION_DISMISSED,
       );
       expect(mockLogService.info).toHaveBeenCalledWith(
-        "[EncryptedMigrationsInitiator] Migration prompt dismissed recently, skipping for now.",
+        "[EncryptedMigrationsScheduler] Migration prompt dismissed recently, skipping for now.",
       );
       expect(PromptMigrationPasswordComponent.open).not.toHaveBeenCalled();
     });
@@ -254,7 +254,7 @@ describe("DefaultEncryptedMigrationsSchedulerService", () => {
         mockMasterPassword,
       );
       expect(mockLogService.error).toHaveBeenCalledWith(
-        "[EncryptedMigrationsInitiator] Error during migration prompt",
+        "[EncryptedMigrationsScheduler] Error during migration prompt",
         mockError,
       );
       expect(mockToastService.showToast).toHaveBeenCalledWith({
