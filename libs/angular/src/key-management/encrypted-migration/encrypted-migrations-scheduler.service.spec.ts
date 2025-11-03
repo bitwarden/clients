@@ -1,3 +1,4 @@
+import { Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -45,6 +46,7 @@ describe("DefaultEncryptedMigrationsSchedulerService", () => {
   const mockToastService = mock<ToastService>();
   const mockI18nService = mock<I18nService>();
   const mockLogService = mock<LogService>();
+  const mockRouter = mock<Router>();
 
   const mockUserId = "test-user-id" as UserId;
   const mockMasterPassword = "test-master-password";
@@ -75,6 +77,7 @@ describe("DefaultEncryptedMigrationsSchedulerService", () => {
       mockDialogService,
       mockToastService,
       mockI18nService,
+      mockRouter,
     );
   });
 
