@@ -1,47 +1,36 @@
-@if (
-  {
-    open: sideNavService.open$ | async,
-    isOverlay: sideNavService.isOverlay$ | async,
-  };
-  as data
-) {
-  <nav
-    id="bit-side-nav"
-    class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-screen tw-flex-col tw-overscroll-none tw-overflow-auto tw-bg-background-alt3 tw-outline-none"
-    [ngClass]="{ 'tw-w-60': data.open }"
-    [ngStyle]="
-      variant() === 'secondary' && {
-        '--color-text-alt2': 'var(--color-text-main)',
-        '--color-background-alt3': 'var(--color-secondary-100)',
-        '--color-background-alt4': 'var(--color-secondary-300)',
-        '--color-hover-contrast': 'var(--color-hover-default)',
-      }
-    "
-    [cdkTrapFocus]="data.isOverlay"
-    [attr.role]="data.isOverlay ? 'dialog' : null"
-    [attr.aria-modal]="data.isOverlay ? 'true' : null"
-    (keydown)="handleKeyDown($event)"
-  >
-    <ng-content></ng-content>
-    <div class="tw-sticky tw-bottom-0 tw-left-0 tw-z-20 tw-mt-auto tw-w-full tw-bg-background-alt3">
-      <bit-nav-divider></bit-nav-divider>
-      @if (data.open) {
-        <ng-content select="[slot=footer]"></ng-content>
-      }
-      <div class="tw-mx-0.5 tw-my-4 tw-w-[3.75rem]">
-        <button
-          #toggleButton
-          type="button"
-          class="tw-mx-auto tw-block tw-max-w-fit"
-          [bitIconButton]="data.open ? 'bwi-angle-left' : 'bwi-angle-right'"
-          buttonType="nav-contrast"
-          size="small"
-          (click)="sideNavService.toggle()"
-          [label]="'toggleSideNavigation' | i18n"
-          [attr.aria-expanded]="data.open"
-          aria-controls="bit-side-nav"
-        ></button>
-      </div>
+<nav
+  id="bit-side-nav"
+  class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-screen tw-flex-col tw-overscroll-none tw-overflow-auto tw-bg-background-alt3 tw-outline-none"
+  [class.tw-w-60]="sideNavService.open()"
+  [style]="
+    variant() === 'secondary'
+      ? '--color-text-alt2: var(--color-text-main); --color-background-alt3: var(--color-secondary-100); --color-background-alt4: var(--color-secondary-300); --color-hover-contrast: var(--color-hover-default);'
+      : ''
+  "
+  [cdkTrapFocus]="sideNavService.isOverlay()"
+  [attr.role]="sideNavService.isOverlay() ? 'dialog' : null"
+  [attr.aria-modal]="sideNavService.isOverlay() ? 'true' : null"
+  (keydown)="handleKeyDown($event)"
+>
+  <ng-content></ng-content>
+  <div class="tw-sticky tw-bottom-0 tw-left-0 tw-z-20 tw-mt-auto tw-w-full tw-bg-background-alt3">
+    <bit-nav-divider></bit-nav-divider>
+    @if (sideNavService.open()) {
+      <ng-content select="[slot=footer]"></ng-content>
+    }
+    <div class="tw-mx-0.5 tw-my-4 tw-w-[3.75rem]">
+      <button
+        #toggleButton
+        type="button"
+        class="tw-mx-auto tw-block tw-max-w-fit"
+        [bitIconButton]="sideNavService.open() ? 'bwi-angle-left' : 'bwi-angle-right'"
+        buttonType="nav-contrast"
+        size="small"
+        (click)="sideNavService.toggle()"
+        [label]="'toggleSideNavigation' | i18n"
+        [attr.aria-expanded]="sideNavService.open()"
+        aria-controls="bit-side-nav"
+      ></button>
     </div>
-  </nav>
-}
+  </div>
+</nav>
