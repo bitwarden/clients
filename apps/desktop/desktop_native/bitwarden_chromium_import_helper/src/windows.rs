@@ -253,26 +253,24 @@ mod windows_binary {
     //
 
     fn decode_abe_key_blob(blob_data: &[u8]) -> Result<Vec<u8>> {
-        let header_len = u32::from_le_bytes(blob_data[0..4].try_into()?) as usize;
-        // Ignore the header
-
+        // Parse and skip the header
+        let header_len = u32::from_le_bytes(get_safe(blob_data, 0, 4)?.try_into()?) as usize;
         debug!("ABE key blob header length: {}", header_len);
 
+        // Parse content length
         let content_len_offset = 4 + header_len;
         let content_len =
-            u32::from_le_bytes(blob_data[content_len_offset..content_len_offset + 4].try_into()?)
-                as usize;
-
+            u32::from_le_bytes(get_safe(blob_data, content_len_offset, 4)?.try_into()?) as usize;
         debug!("ABE key blob content length: {}", content_len);
 
-        if content_len < 1 {
+        if content_len < 32 {
             return Err(anyhow!(
-                "Corrupted ABE key blob: content length is less than 1"
+                "Corrupted ABE key blob: content length is less than 32"
             ));
         }
 
         let content_offset = content_len_offset + 4;
-        let content = &blob_data[content_offset..content_offset + content_len];
+        let content = get_safe(blob_data, content_offset, content_len)?;
 
         // When the size is exactly 32 bytes, it's a plain key. It's used in unbranded Chromium builds, Brave, possibly Edge
         if content_len == 32 {
@@ -280,7 +278,6 @@ mod windows_binary {
         }
 
         let version = content[0];
-
         debug!("ABE key blob version: {}", version);
 
         let key_blob = &content[1..];
@@ -295,6 +292,18 @@ mod windows_binary {
         }
     }
 
+    fn get_safe(data: &[u8], start: usize, len: usize) -> Result<&[u8]> {
+        let end = start + len;
+        data.get(start..end).ok_or_else(|| {
+            anyhow!(
+                "Corrupted ABE key blob: expected bytes {}..{}, got {}",
+                start,
+                end,
+                data.len()
+            )
+        })
+    }
+
     // TODO: DRY up with decrypt_abe_key_blob_chrome_chacha20
     fn decrypt_abe_key_blob_chrome_aes(blob: &[u8]) -> Result<Vec<u8>> {
         if blob.len() < 60 {
@@ -306,6 +315,11 @@ mod windows_binary {
 
         let iv: [u8; 12] = blob[0..12].try_into()?;
         let ciphertext: [u8; 48] = blob[12..12 + 48].try_into()?;
+
+        debug!(
+            "Google ABE v1 (AES flavor) detected: {:?} {:?}",
+            iv, ciphertext
+        );
 
         const GOOGLE_AES_KEY: &[u8] = &[
             0xB3, 0x1C, 0x6E, 0x24, 0x1A, 0xC8, 0x46, 0x72, 0x8D, 0xA9, 0xC1, 0xFA, 0xC4, 0x93,
@@ -342,6 +356,11 @@ mod windows_binary {
         let iv: [u8; 12] = blob[0..12].try_into()?;
         let ciphertext: [u8; 48] = blob[12..12 + 48].try_into()?;
 
+        debug!(
+            "Google ABE v2 (ChaCha20 flavor) detected: {:?} {:?}",
+            iv, ciphertext
+        );
+
         let decrypted = cipher
             .decrypt((&iv).into(), ciphertext.as_ref())
             .map_err(|e| anyhow!("Failed to decrypt v20 key with Google ChaCha20 key: {}", e))?;
@@ -362,7 +381,7 @@ mod windows_binary {
         let ciphertext: [u8; 48] = blob[44..44 + 48].try_into()?;
 
         debug!(
-            "Google ABE CNG flavor detected: {:?} {:?} {:?}",
+            "Google ABE v3 (CNG flavor) detected: {:?} {:?} {:?}",
             encrypted_aes_key, iv, ciphertext
         );
 
