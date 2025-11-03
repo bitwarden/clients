@@ -93,6 +93,7 @@ export class AllApplicationsComponent implements OnInit {
 
   markAppsAsCritical = async () => {
     this.markingAsCritical = true;
+    const count = this.selectedUrls.size;
 
     this.dataService
       .saveCriticalApplications(Array.from(this.selectedUrls))
@@ -102,7 +103,7 @@ export class AllApplicationsComponent implements OnInit {
           this.toastService.showToast({
             variant: "success",
             title: "",
-            message: this.i18nService.t("applicationsMarkedAsCriticalSuccess"),
+            message: this.i18nService.t("criticalApplicationsMarkedSuccess", count.toString()),
           });
           this.selectedUrls.clear();
           this.markingAsCritical = false;
