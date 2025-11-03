@@ -1,5 +1,5 @@
-import { executeBatchCommands } from "./executor";
 import { RpcError } from "./error";
+import { executeBatchCommands } from "./executor";
 import { BatchCommand, serializeSymbol } from "./protocol";
 import { ReferenceStore } from "./reference-store";
 
@@ -126,7 +126,7 @@ describe("Batch executor", () => {
 
   it("calls method fetched using symbol property", async () => {
     const commands: BatchCommand[] = [
-      { method: "get", propertySymbol: serializeSymbol(Symbol.dispose) },
+      { method: "get", propertySymbol: serializeSymbol(Symbol.asyncDispose) },
       { method: "apply", args: [] },
     ];
 

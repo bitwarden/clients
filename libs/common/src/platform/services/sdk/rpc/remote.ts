@@ -18,7 +18,7 @@ export type Transfer<T> = {
    * Force a by-value snapshot transfer of this remote reference. Resolves to a serializable value.
    * If the object is not serializable at runtime, this will throw.
    */
-  transfer: Promise<T>;
+  transfer: Resolved<T>;
 };
 
 export type RemoteReference<T> = Remote<T> & Transfer<T>;
