@@ -9,11 +9,25 @@
 
   <div bitDialogContent>
     @if (currentView() === DialogView.SelectApplications) {
-      <dirt-review-applications-view
-        [applications]="getApplicationNames()"
-        [selectedApplications]="selectedApplications()"
-        (onToggleSelection)="toggleSelection($event)"
-      ></dirt-review-applications-view>
+      <div>
+        <p bitTypography="body1" class="tw-mb-5">
+          {{ "selectCriticalApplicationsDescription" | i18n }}
+        </p>
+
+        <div class="tw-flex tw-items-center tw-gap-2.5 tw-mb-5">
+          <i class="bwi bwi-star-f tw-text-xl" aria-hidden="true"></i>
+          <p bitTypography="helper" class="tw-text-muted tw-mb-0">
+            {{ "clickIconToMarkAppAsCritical" | i18n }}
+          </p>
+        </div>
+
+        <dirt-review-applications-view
+          [applications]="getApplications()"
+          [selectedApplications]="selectedApplications()"
+          (onToggleSelection)="toggleSelection($event)"
+          (onToggleAll)="toggleAll()"
+        ></dirt-review-applications-view>
+      </div>
     }
 
     @if (currentView() === DialogView.AssignTasks) {

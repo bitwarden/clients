@@ -126,8 +126,8 @@ export class NewApplicationsDialogComponent {
     );
   }
 
-  getApplicationNames() {
-    return this.dialogParams.newApplications.map((application) => application.applicationName);
+  getApplications() {
+    return this.dialogParams.newApplications;
   }
 
   /**
@@ -144,6 +144,19 @@ export class NewApplicationsDialogComponent {
         const temp = [...current].filter((a) => a != applicationName);
         return new Set(temp);
       }
+    });
+  }
+
+  /**
+   * Toggles the selection state of all applications.
+   * If all are selected, unselect all. Otherwise, select all.
+   */
+  toggleAll() {
+    const allApplicationNames = this.dialogParams.newApplications.map((app) => app.applicationName);
+    const allSelected = this.selectedApplications().size === allApplicationNames.length;
+
+    this.selectedApplications.update(() => {
+      return allSelected ? new Set() : new Set(allApplicationNames);
     });
   }
 
