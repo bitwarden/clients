@@ -140,6 +140,35 @@ describe("Batch executor", () => {
     });
     expect(target.dispose).toHaveBeenCalled();
   });
+
+  it("is compatible with complex command sequences", async () => {
+    const commands: BatchCommand[] = [
+      { method: "get", propertyName: "child" },
+      { method: "get", propertyName: "getTestObject" },
+      { method: "apply", args: ["complex"] },
+      { method: "get", propertyName: "name" },
+    ];
+
+    const response = await executeBatchCommands(target, commands, referenceStore);
+    expect(response).toEqual({
+      status: "success",
+      result: {
+        type: "value",
+        value: "complex",
+      },
+    });
+  });
+
+  it("returns error when a command fails", async () => {
+    const commands: BatchCommand[] = [
+      { method: "get", propertyName: "nonExistentProperty" }, // This returns undefined
+      { method: "get", propertyName: "nonExistentProperty" }, // Trying to get property of undefined
+    ];
+
+    const response = await executeBatchCommands(target, commands, referenceStore);
+    expect(response.status).toBe("error");
+    expect((response as any).error).toBeInstanceOf(Error);
+  });
 });
 
 class TestTarget {
