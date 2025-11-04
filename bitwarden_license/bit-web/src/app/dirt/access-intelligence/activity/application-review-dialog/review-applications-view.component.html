@@ -1,0 +1,83 @@
+<div class="tw-space-y-3">
+  <bit-search
+    [placeholder]="'searchApps' | i18n"
+    [(ngModel)]="searchText"
+    (ngModelChange)="onSearchTextChanged($event)"
+  ></bit-search>
+
+  <div class="tw-overflow-x-auto">
+    <table class="tw-w-full tw-border-collapse">
+      <thead>
+        <tr class="tw-border-b tw-border-secondary-300">
+          <th bitTypography="body2" class="tw-text-left tw-py-3 tw-px-2 tw-w-12">
+            <button
+              type="button"
+              class="tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer"
+              (click)="toggleAll()"
+              [attr.aria-label]="isAllSelected() ? ('unselectAll' | i18n) : ('selectAll' | i18n)"
+            >
+              <i
+                class="bwi tw-text-muted"
+                [ngClass]="isAllSelected() ? 'bwi-star-f' : 'bwi-star'"
+                aria-hidden="true"
+              ></i>
+            </button>
+          </th>
+          <th bitTypography="body2" class="tw-text-left tw-py-3 tw-px-2 tw-font-semibold">
+            {{ "application" | i18n }}
+          </th>
+          <th bitTypography="body2" class="tw-text-right tw-py-3 tw-px-2 tw-font-semibold">
+            {{ "atRiskPasswords" | i18n }}
+          </th>
+          <th bitTypography="body2" class="tw-text-right tw-py-3 tw-px-2 tw-font-semibold">
+            {{ "totalPasswords" | i18n }}
+          </th>
+          <th bitTypography="body2" class="tw-text-right tw-py-3 tw-px-2 tw-font-semibold">
+            {{ "atRiskMembers" | i18n }}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (app of filteredApplications(); track app.applicationName) {
+          <tr class="tw-border-b tw-border-secondary-300 hover:tw-bg-background-alt">
+            <td class="tw-py-3 tw-px-2">
+              <button
+                type="button"
+                class="tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer"
+                (click)="toggleSelection(app.applicationName)"
+                [attr.aria-label]="
+                  selectedApplications().has(app.applicationName)
+                    ? ('unselectApplication' | i18n)
+                    : ('selectApplication' | i18n)
+                "
+              >
+                <i
+                  class="bwi tw-text-muted"
+                  [ngClass]="
+                    selectedApplications().has(app.applicationName) ? 'bwi-star-f' : 'bwi-star'
+                  "
+                  aria-hidden="true"
+                ></i>
+              </button>
+            </td>
+            <td bitTypography="body1" class="tw-py-3 tw-px-2">
+              <div class="tw-flex tw-items-center tw-gap-2">
+                <i class="bwi bwi-globe tw-text-muted" aria-hidden="true"></i>
+                <span>{{ app.applicationName }}</span>
+              </div>
+            </td>
+            <td bitTypography="body1" class="tw-py-3 tw-px-2 tw-text-right">
+              {{ app.atRiskPasswordCount }}
+            </td>
+            <td bitTypography="body1" class="tw-py-3 tw-px-2 tw-text-right">
+              {{ app.passwordCount }}
+            </td>
+            <td bitTypography="body1" class="tw-py-3 tw-px-2 tw-text-right">
+              {{ app.atRiskMemberCount }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
