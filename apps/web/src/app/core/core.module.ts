@@ -14,6 +14,7 @@ import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
+import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   CLIENT_TYPE,
@@ -129,6 +130,7 @@ import {
   WebSetInitialPasswordService,
 } from "../auth";
 import { WebSsoComponentService } from "../auth/core/services/login/web-sso-component.service";
+import { WebPremiumInterestStateService } from "../billing/services/premium-interest/web-premium-interest-state.service";
 import { HtmlStorageService } from "../core/html-storage.service";
 import { I18nService } from "../core/i18n.service";
 import { WebFileDownloadService } from "../core/web-file-download.service";
@@ -420,6 +422,11 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsService,
       Router,
     ],
+  }),
+  safeProvider({
+    provide: PremiumInterestStateService,
+    useClass: WebPremiumInterestStateService,
+    deps: [StateProvider],
   }),
 ];
 
