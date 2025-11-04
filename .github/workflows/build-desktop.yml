@@ -199,6 +199,8 @@ jobs:
           npm --version
           snap --version
           snapcraft --version || echo 'snapcraft unavailable'
+          echo "=== Installed snaps ==="
+          snap list
 
       - name: Install Node dependencies
         run: npm ci
@@ -345,8 +347,9 @@ jobs:
       - name: Set up Snap
         run: sudo snap install snapcraft --classic
 
-      - name: Install content snaps required by electron-builder
+      - name: Install snaps required by snapcraft in destructive mode
         run: |
+          sudo snap install core22 || echo "core22 installation failed, continuing anyway"
           sudo snap install gtk-common-themes || echo "gtk-common-themes installation failed, continuing anyway"
           sudo snap install gnome-3-28-1804 || echo "gnome-3-28-1804 installation failed, continuing anyway"
 
@@ -356,6 +359,8 @@ jobs:
           npm --version
           snap --version
           snapcraft --version || echo 'snapcraft unavailable'
+          echo "=== Installed snaps ==="
+          snap list
 
       - name: Install Node dependencies
         run: npm ci
@@ -414,6 +419,22 @@ jobs:
 
       - name: Build application
         run: npm run dist:lin:arm64
+
+      - name: Upload snapcraft logs on failure
+        if: failure()
+        run: |
+          echo "=== Snapcraft logs ==="
+          if [ -d /home/runner/.local/state/snapcraft/log ]; then
+            for log in /home/runner/.local/state/snapcraft/log/*.log; do
+              if [ -f "$log" ]; then
+                echo "--- Log: $log ---"
+                # Print last 100 lines only to avoid exposing too much
+                tail -n 100 "$log"
+              fi
+            done
+          else
+            echo "No snapcraft logs found"
+          fi
 
       - name: Upload .deb artifact
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
