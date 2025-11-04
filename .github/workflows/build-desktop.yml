@@ -342,7 +342,8 @@ jobs:
       - name: Set up environment
         run: |
           sudo apt-get update
-          sudo apt-get -y install pkg-config libxss-dev rpm musl-dev musl-tools flatpak flatpak-builder squashfs-tools
+          sudo apt-get -y install pkg-config libxss-dev rpm musl-dev musl-tools flatpak flatpak-builder squashfs-tools ruby ruby-dev rubygems build-essential
+          sudo gem install --no-document fpm
 
       - name: Set up Snap
         run: sudo snap install snapcraft --classic
