@@ -1,4 +1,14 @@
-import { combineLatest, concatMap, delay, EMPTY, map, Subject, switchMap, takeUntil } from "rxjs";
+import {
+  combineLatest,
+  concatMap,
+  delay,
+  distinctUntilChanged,
+  EMPTY,
+  map,
+  Subject,
+  switchMap,
+  takeUntil,
+} from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -49,12 +59,13 @@ export class PhishingDetectionService {
             this._cleanup();
             return EMPTY;
           }
-          return billingAccountProfileStateService
-            .hasPremiumFromAnySource$(account.id)
-            .pipe(map((hasPremium) => ({ hasPremium, featureEnabled })));
+          return billingAccountProfileStateService.hasPremiumFromAnySource$(account.id).pipe(
+            map((hasPremium) => hasPremium && featureEnabled),
+            distinctUntilChanged(), // Prevent re-triggering setup when switching between multiple accounts with access
+          );
         }),
-        concatMap(async ({ hasPremium, featureEnabled }) => {
-          if (!hasPremium || !featureEnabled) {
+        concatMap(async (activeUserHasAccess) => {
+          if (!activeUserHasAccess) {
             logService.info(
               "[PhishingDetectionService] User does not have access to phishing detection service.",
             );

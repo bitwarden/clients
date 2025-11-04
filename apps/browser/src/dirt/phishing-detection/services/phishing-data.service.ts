@@ -5,6 +5,7 @@ import {
   firstValueFrom,
   map,
   retry,
+  share,
   startWith,
   Subject,
   switchMap,
@@ -103,6 +104,7 @@ export class PhishingDataService {
         ),
       ),
     ),
+    share(),
   );
 
   constructor(
