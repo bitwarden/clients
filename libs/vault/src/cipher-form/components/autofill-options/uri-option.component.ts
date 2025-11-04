@@ -124,7 +124,7 @@ export class UriOptionComponent implements ControlValueAccessor {
     }
 
     this.uriMatchOptions[0].label = this.i18nService.t(
-      "defaultLabel",
+      "defaultLabelWithValue",
       this.uriMatchOptions.find((o) => o.value === value)?.label,
     );
   }
