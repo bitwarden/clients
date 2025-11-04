@@ -1,0 +1,78 @@
+<div class="tw-flex tw-flex-col tw-gap-6">
+  <!-- Two-column layout: Left panel (stats) and Right panel (browser extension mockup) -->
+  <div class="tw-flex tw-flex-col md:tw-flex-row tw-gap-6">
+    <!-- Left Panel -->
+    <div class="tw-flex tw-flex-col tw-gap-4 tw-flex-1">
+      <!-- Task Summary Info Card -->
+      <bit-callout type="info" [title]="'taskSummary' | i18n" class="tw-mb-6">
+        <strong>{{ atRiskCriticalMembersCount() }}</strong>
+        {{ "membersWithAtRiskPasswords" | i18n }}
+        for
+        <strong>{{ criticalApplicationsCount() }}</strong>
+        {{ "criticalApplications" | i18n }}
+      </bit-callout>
+
+      <!-- Stat Box: Members with At-Risk Passwords -->
+      <div class="tw-flex tw-items-start tw-gap-3">
+        <bit-icon-tile
+          icon="bwi-users"
+          variant="primary"
+          size="large"
+          shape="circle"
+          aria-hidden="true"
+        ></bit-icon-tile>
+        <div class="tw-flex tw-flex-col">
+          <span bitTypography="h2" class="tw-font-bold tw-mb-1">
+            {{ atRiskCriticalMembersCount() }}
+          </span>
+          <span bitTypography="body2" class="tw-text-muted">
+            {{ "membersWithAtRiskPasswords" | i18n }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Stat Box: Critical Applications At-Risk -->
+      <div class="tw-flex tw-items-start tw-gap-3">
+        <bit-icon-tile
+          icon="bwi-desktop"
+          variant="warning"
+          size="large"
+          shape="circle"
+          aria-hidden="true"
+        ></bit-icon-tile>
+        <div class="tw-flex tw-flex-col">
+          <div class="tw-flex tw-items-baseline tw-gap-2 tw-mb-1">
+            <span bitTypography="h2" class="tw-font-bold tw-text-main">
+              {{ criticalApplicationsCount() }}
+            </span>
+            <span bitTypography="body1" class="tw-text-muted">
+              of {{ totalApplicationsCount() }} total
+            </span>
+          </div>
+          <span bitTypography="body2" class="tw-text-muted">
+            {{ "criticalApplications" | i18n }} at-risk
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel: Browser Extension Video -->
+    <div class="tw-flex tw-flex-col tw-gap-4 tw-flex-1">
+      <video
+        class="tw-w-full tw-rounded-lg"
+        autoplay
+        loop
+        muted
+        playsinline
+        src="/videos/access-intelligence-assign-tasks.mp4"
+        appDarkImgSrc="/videos/access-intelligence-assign-tasks-dark.mp4"
+        aria-hidden="true"
+      ></video>
+
+      <!-- Description Text -->
+      <div bitTypography="helper" class="tw-text-muted">
+        {{ "membersWillReceiveNotification" | i18n }}
+      </div>
+    </div>
+  </div>
+</div>
