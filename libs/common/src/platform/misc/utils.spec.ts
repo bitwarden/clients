@@ -699,8 +699,7 @@ describe("Utils Service", () => {
     });
 
     it("should return true if an invalid pattern is found", () => {
-      const urlString =
-        "https://www.example.com/api/testing/../../organizationId=70d708c9%5c%2e%2e%5c%2e%2e%5";
+      const urlString = "https://www.example.com/api/%2e%2e/secret";
 
       const actual = Utils.invalidUrlPatterns(urlString);
 
@@ -708,8 +707,7 @@ describe("Utils Service", () => {
     });
 
     it("should return true if an invalid pattern is found in a param", () => {
-      const urlString =
-        "https://www.example.com/api/history?someToken=70d708c9%5c%2e%2e%5c%2e%2e%5";
+      const urlString = "https://www.example.com/api/history?someToken=../secret";
 
       const actual = Utils.invalidUrlPatterns(urlString);
 

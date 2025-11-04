@@ -620,16 +620,16 @@ export class Utils {
   static invalidUrlPatterns(url: string): boolean {
     const invalidUrlPatterns = ["..", "%2e", "\\", "%5c"];
 
-    const lowerCaseUrl: string = url.toLocaleLowerCase();
+    const decodedUrl = decodeURIComponent(url.toLocaleLowerCase());
 
     // Check URL for invalidUrl patterns across entire URL
-    if (invalidUrlPatterns.some((p) => lowerCaseUrl.includes(p))) {
+    if (invalidUrlPatterns.some((p) => decodedUrl.includes(p))) {
       return true;
     }
 
     // Check for additional invalid patterns inside URL params
-    if (lowerCaseUrl.includes("?")) {
-      const hasInvalidParams = this.validateQueryParameters(lowerCaseUrl);
+    if (decodedUrl.includes("?")) {
+      const hasInvalidParams = this.validateQueryParameters(decodedUrl);
       if (hasInvalidParams) {
         return true;
       }
