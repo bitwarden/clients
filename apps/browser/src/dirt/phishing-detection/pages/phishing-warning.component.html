@@ -9,7 +9,7 @@
   <p bitTypography="body1">{{ "phishingPageSummary" | i18n }}</p>
 
   <bit-callout class="tw-mb-0" type="danger" icon="bwi-globe" [title]="null">
-    <span class="tw-font-mono tw-break-all">{{ phishingHost$ | async }}</span>
+    <span class="tw-font-mono tw-break-all">{{ phishingHostname$ | async }}</span>
   </bit-callout>
 
   <bit-callout class="tw-mt-2" [icon]="null" type="default">

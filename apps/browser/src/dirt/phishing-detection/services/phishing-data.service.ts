@@ -133,7 +133,6 @@ export class PhishingDataService {
     const domains = await firstValueFrom(this._domains$);
     const result = domains.has(url.hostname);
     if (result) {
-      this.logService.debug("[PhishingDataService] Caught phishing domain:", url.hostname);
       return true;
     }
     return false;
