@@ -86,7 +86,10 @@ export class AutoConfirmPolicyDialogComponent
     switchMap((userId) => this.policyService.policies$(userId)),
     map((policies) => policies.find((p) => p.type === PolicyType.AutoConfirm)?.enabled ?? false),
   );
-  protected managePolicies$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+  // Users with manage policies custom permission should not see the dialog's second step since
+  // they do not have permission to configure the setting. This will only allow them to configure
+  // the policy.
+  protected managePoliciesOnly$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) => this.organizationService.organizations$(userId)),
     getById(this.data.organizationId),
@@ -163,7 +166,7 @@ export class AutoConfirmPolicyDialogComponent
   }
 
   private buildMultiStepSubmit(singleOrgPolicyEnabled: boolean): Observable<MultiStepSubmit[]> {
-    return this.managePolicies$.pipe(
+    return this.managePoliciesOnly$.pipe(
       map((managePoliciesOnly) => {
         const submitSteps = [
           {
