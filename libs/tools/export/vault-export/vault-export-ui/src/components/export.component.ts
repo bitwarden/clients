@@ -342,7 +342,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private observeFormSelections(): void {
-    // Step 1: Update _organizationId$ when vault selection changes
+    // Update organizationId when vault selection changes
     // In Admin Console context, organizationId is already set via @Input
     // In Password Manager context, user changes vaultSelector which updates _organizationId$
     this.exportForm.controls.vaultSelector.valueChanges
