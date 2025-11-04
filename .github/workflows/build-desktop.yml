@@ -348,9 +348,11 @@ jobs:
       - name: Install LXD
         run: |
           sudo snap install lxd
-          getent group lxd | grep -qwF "$USER" || sudo usermod -aG lxd "$USER"
-          newgrp lxd
-          groups $USER
+          getent group lxd || sudo groupadd --system lxd
+          sudo usermod -aG lxd "$USER"
+          sudo lxd init --minimal
+          sudo lxd waitready --timeout=30
+          sudo lxc list
 
       - name: Print environment
         run: |
