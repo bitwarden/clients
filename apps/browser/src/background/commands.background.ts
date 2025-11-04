@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { Observable } from "rxjs";
+
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ExtensionCommand, ExtensionCommandType } from "@bitwarden/common/autofill/constants";
@@ -23,7 +25,7 @@ export default class CommandsBackground {
     private platformUtilsService: PlatformUtilsService,
     private vaultTimeoutService: VaultTimeoutService,
     private authService: AuthService,
-    private generatePasswordToClipboard: () => Promise<void>,
+    private generatePasswordToClipboard: () => Observable<string>,
   ) {
     this.isSafari = this.platformUtilsService.isSafari();
     this.isVivaldi = this.platformUtilsService.isVivaldi();
@@ -48,8 +50,8 @@ export default class CommandsBackground {
 
   private async processCommand(command: string, sender?: chrome.runtime.MessageSender) {
     switch (command) {
-      case "generate_password":
-        await this.generatePasswordToClipboard();
+      case ExtensionCommand.GeneratePassword:
+        this.generatePasswordToClipboard();
         break;
       case ExtensionCommand.AutofillLogin:
         await this.triggerAutofillCommand(
@@ -69,10 +71,10 @@ export default class CommandsBackground {
           ExtensionCommand.AutofillIdentity,
         );
         break;
-      case "open_popup":
+      case ExtensionCommand.OpenPopup:
         await this.openPopup();
         break;
-      case "lock_vault":
+      case ExtensionCommand.LockVault:
         await this.vaultTimeoutService.lock();
         break;
       default:
