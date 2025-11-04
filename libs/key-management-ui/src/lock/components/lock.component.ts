@@ -16,7 +16,7 @@ import {
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { LogoutService } from "@bitwarden/auth/common";
+import { LogoutService, UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -178,6 +178,7 @@ export class LockComponent implements OnInit, OnDestroy {
     private lockComponentService: LockComponentService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private configService: ConfigService,
+    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     // desktop deps
     private broadcasterService: BroadcasterService,
   ) {}
@@ -276,7 +277,26 @@ export class LockComponent implements OnInit, OnDestroy {
       this.lockComponentService.getAvailableUnlockOptions$(activeAccount.id),
     );
 
-    this.setDefaultActiveUnlockOption(this.unlockOptions);
+    const canUsePassword = await firstValueFrom(
+      this.userDecryptionOptionsService.hasMasterPassword$,
+    );
+    const canUsePin =
+      (await this.pinService.isPinSet(activeAccount.id)) &&
+      (await this.pinService.isPinDecryptionAvailable(activeAccount.id));
+    const canUseBiometrics =
+      (await this.biometricService.getBiometricsStatusForUser(activeAccount.id)) in
+      [
+        BiometricsStatus.Available,
+        BiometricsStatus.HardwareUnavailable,
+        BiometricsStatus.NotEnabledInConnectedDesktopApp,
+      ];
+    if (!canUsePassword && !canUsePin && !canUseBiometrics) {
+      // User has no available unlock options, force logout. This happens for TDE users without a masterpassword, that don't have a persistent unlock method set.
+      this.logService.warning("[LockComponent] User cannot unlock again. Logging out!");
+      await this.logoutService.logout(activeAccount.id);
+    }
+
+    await this.setDefaultActiveUnlockOption(this.unlockOptions);
 
     if (this.unlockOptions?.biometrics.enabled) {
       await this.handleBiometricsUnlockEnabled();
@@ -299,7 +319,11 @@ export class LockComponent implements OnInit, OnDestroy {
     });
   }
 
-  private setDefaultActiveUnlockOption(unlockOptions: UnlockOptions | null) {
+  private async setDefaultActiveUnlockOption(unlockOptions: UnlockOptions | null) {
+    const biometricsStatus = await this.biometricService.getBiometricsStatusForUser(
+      this.activeAccount.id,
+    );
+
     // Priorities should be Biometrics > Pin > Master Password for speed
     if (unlockOptions?.biometrics.enabled) {
       this.activeUnlockOption = UnlockOption.Biometrics;
@@ -307,6 +331,14 @@ export class LockComponent implements OnInit, OnDestroy {
       this.activeUnlockOption = UnlockOption.Pin;
     } else if (unlockOptions?.masterPassword.enabled) {
       this.activeUnlockOption = UnlockOption.MasterPassword;
+      // If biometrics is temporarily unavailable for masterpassword-less users, but they have biometrics configured,
+      // then show the biometrics screen so the user knows why they can't unlock, and to give them the option to log out.
+    } else if (
+      biometricsStatus === BiometricsStatus.HardwareUnavailable ||
+      biometricsStatus === BiometricsStatus.DesktopDisconnected ||
+      biometricsStatus === BiometricsStatus.NotEnabledInConnectedDesktopApp
+    ) {
+      this.activeUnlockOption = UnlockOption.Biometrics;
     }
   }
 
