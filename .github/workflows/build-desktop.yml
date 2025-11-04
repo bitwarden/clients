@@ -345,14 +345,11 @@ jobs:
       - name: Check LXD Version
         run: lxd --version || true
 
-      - name: Install LXD
-        run: |
-          sudo snap install lxd
-          getent group lxd || sudo groupadd --system lxd
-          sudo usermod -aG lxd "$USER"
-          sudo lxd init --minimal
-          sudo lxd waitready --timeout=30
-          sudo lxc list
+      - name: Setup LXD
+        uses: canonical/setup-lxd@a3c85fc6fb7fff43fcfeae87659e41a8f635b7dd # v0.1.3
+        with:
+          channel: latest/stable
+          group: lxd
 
       - name: Print environment
         run: |
