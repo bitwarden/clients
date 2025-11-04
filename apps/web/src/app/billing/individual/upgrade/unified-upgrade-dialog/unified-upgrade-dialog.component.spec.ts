@@ -4,13 +4,13 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock } from "jest-mock-extended";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
-import { UserId } from "@bitwarden/common/types/guid";
-import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
-
 import {
   PersonalSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierIds,
-} from "../../../types/subscription-pricing-tier";
+} from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { UserId } from "@bitwarden/common/types/guid";
+import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
+
 import {
   UpgradeAccountComponent,
   UpgradeAccountStatus,
@@ -26,26 +26,30 @@ import {
   UnifiedUpgradeDialogStep,
 } from "./unified-upgrade-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-upgrade-account",
   template: "",
   standalone: true,
 })
 class MockUpgradeAccountComponent {
-  dialogTitleMessageOverride = input<string | null>(null);
-  hideContinueWithoutUpgradingButton = input<boolean>(false);
+  readonly dialogTitleMessageOverride = input<string | null>(null);
+  readonly hideContinueWithoutUpgradingButton = input<boolean>(false);
   planSelected = output<PersonalSubscriptionPricingTierId>();
   closeClicked = output<UpgradeAccountStatus>();
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-upgrade-payment",
   template: "",
   standalone: true,
 })
 class MockUpgradePaymentComponent {
-  selectedPlanId = input<PersonalSubscriptionPricingTierId | null>(null);
-  account = input<Account | null>(null);
+  readonly selectedPlanId = input<PersonalSubscriptionPricingTierId | null>(null);
+  readonly account = input<Account | null>(null);
   goBack = output<void>();
   complete = output<UpgradePaymentResult>();
 }

@@ -18,4 +18,7 @@ export abstract class DesktopBiometricsService extends BiometricsService {
   /* Enables the v2 biometrics re-write. This will stay enabled until the application is restarted. */
   abstract enableWindowsV2Biometrics(): Promise<void>;
   abstract isWindowsV2BiometricsEnabled(): Promise<boolean>;
+  /* Enables the v2 biometrics re-write. This will stay enabled until the application is restarted. */
+  abstract enableLinuxV2Biometrics(): Promise<void>;
+  abstract isLinuxV2BiometricsEnabled(): Promise<boolean>;
 }

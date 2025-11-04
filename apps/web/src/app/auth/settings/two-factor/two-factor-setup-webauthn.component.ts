@@ -43,6 +43,8 @@ interface Key {
   removePromise: Promise<TwoFactorWebAuthnResponse> | null;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-setup-webauthn",
   templateUrl: "two-factor-setup-webauthn.component.html",

@@ -771,6 +771,9 @@
   "useSingleSignOn": {
     "message": "Single sign-on gebruiken"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "Opslaan"
   },
@@ -1851,6 +1854,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bij herstart vergrendelen met hoofdwachtwoord"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Hoofdwachtwoord of pincode vereisen bij herstart van de app"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Hoofdwachtwoord vereisen bij herstart van de app"
   },
   "deleteAccount": {
     "message": "Account verwijderen"
@@ -4167,7 +4176,7 @@
   "itemWasSentToArchive": {
     "message": "Item naar archief verzonden"
   },
-  "itemUnarchived": {
+  "itemWasUnarchived": {
     "message": "Item uit het archief gehaald"
   },
   "archiveItem": {
@@ -4175,5 +4184,11 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Gearchiveerde items worden uitgesloten van algemene zoekresultaten en automatische invulsuggesties. Weet je zeker dat je dit item wilt archiveren?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "Postcode"
+  },
+  "cardNumberLabel": {
+    "message": "Kaartnummer"
   }
 }

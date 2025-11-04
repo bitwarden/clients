@@ -1,9 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant } from "@bitwarden/components";
-
-import { ApplicationHealthReportDetail } from "./report-models";
 
 /**
  * Weak password details containing the score
@@ -30,37 +27,3 @@ export type ExposedPasswordDetail = {
   cipherId: string;
   exposedXTimes: number;
 } | null;
-
-export type LEGACY_MemberDetailsFlat = {
-  userGuid: string;
-  userName: string;
-  email: string;
-  cipherId: string;
-};
-
-export type LEGACY_ApplicationHealthReportDetailWithCriticalFlag = ApplicationHealthReportDetail & {
-  isMarkedAsCritical: boolean;
-};
-
-export type LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher =
-  LEGACY_ApplicationHealthReportDetailWithCriticalFlag & {
-    ciphers: CipherView[];
-  };
-
-export type LEGACY_CipherHealthReportDetail = CipherView & {
-  reusedPasswordCount: number;
-  weakPasswordDetail: WeakPasswordDetail;
-  exposedPasswordDetail: ExposedPasswordDetail;
-  cipherMembers: LEGACY_MemberDetailsFlat[];
-  trimmedUris: string[];
-};
-
-export type LEGACY_CipherHealthReportUriDetail = {
-  cipherId: string;
-  reusedPasswordCount: number;
-  weakPasswordDetail: WeakPasswordDetail;
-  exposedPasswordDetail: ExposedPasswordDetail;
-  cipherMembers: LEGACY_MemberDetailsFlat[];
-  trimmedUri: string;
-  cipher: CipherView;
-};

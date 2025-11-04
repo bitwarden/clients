@@ -771,6 +771,9 @@
   "useSingleSignOn": {
     "message": "Използване на еднократна идентификация"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "Подаване"
   },
@@ -1851,6 +1854,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Заключване с главната парола при повторно пускане"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Изискване на главната парола или ПИН код при повторно пускане на приложението"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Изискване на главната парола при повторно пускане на приложението"
   },
   "deleteAccount": {
     "message": "Изтриване на регистрацията"
@@ -4167,7 +4176,7 @@
   "itemWasSentToArchive": {
     "message": "Елементът беше преместен в архива"
   },
-  "itemUnarchived": {
+  "itemWasUnarchived": {
     "message": "Елементът беше изваден от архива"
   },
   "archiveItem": {
@@ -4175,5 +4184,11 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Архивираните елементи са изключени от общите резултати при търсене и от предложенията за автоматично попълване. Наистина ли искате да архивирате този елемент?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "Пощенски код"
+  },
+  "cardNumberLabel": {
+    "message": "Номер на картата"
   }
 }

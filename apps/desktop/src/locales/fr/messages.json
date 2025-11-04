@@ -771,6 +771,9 @@
   "useSingleSignOn": {
     "message": "Utiliser l'authentification unique"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "Soumettre"
   },
@@ -1826,7 +1829,7 @@
     "message": "Code PIN invalide."
   },
   "tooManyInvalidPinEntryAttemptsLoggingOut": {
-    "message": "Trop de tentatives de saisie du code PIN incorrectes. Déconnexion."
+    "message": "Trop de tentatives de saisie du code NIP incorrectes. Déconnexion."
   },
   "unlockWithWindowsHello": {
     "message": "Déverrouiller avec Windows Hello"
@@ -1851,6 +1854,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Verrouiller avec le mot de passe principal au redémarrage"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Exiger un mot de passe principal ou un code NIP au redémarrage de l'application"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Exiger un mot de passe principal redémarrage de l'application"
   },
   "deleteAccount": {
     "message": "Supprimer le compte"
@@ -2440,10 +2449,10 @@
     "message": "Essayez de nouveau"
   },
   "verificationRequiredForActionSetPinToContinue": {
-    "message": "Vérification requise pour cette action. Définissez un code PIN pour continuer."
+    "message": "Vérification requise pour cette action. Définissez un code NIP pour continuer."
   },
   "setPin": {
-    "message": "Définir un code PIN"
+    "message": "Définir un code NIP"
   },
   "verifyWithBiometrics": {
     "message": "Vérifier par biométrie"
@@ -2461,7 +2470,7 @@
     "message": "Utiliser le mot de passe principal"
   },
   "usePin": {
-    "message": "Utiliser le code PIN"
+    "message": "Utiliser le code NIP"
   },
   "useBiometrics": {
     "message": "Utiliser la biométrie"
@@ -2550,7 +2559,7 @@
     }
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "Minimum custom timeout is 1 minute."
+    "message": "Le délai d'expiration personnalisé minimum est de 1 minute."
   },
   "inviteAccepted": {
     "message": "Invitation acceptée"
@@ -3577,7 +3586,7 @@
     "message": "Code incorrect"
   },
   "incorrectPin": {
-    "message": "Code PIN incorrect"
+    "message": "Code NIP incorrect"
   },
   "multifactorAuthenticationFailed": {
     "message": "Authentification multifacteur échouée"
@@ -4153,7 +4162,7 @@
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Désarchiver"
   },
   "itemsInArchive": {
     "message": "Éléments dans l'archive"
@@ -4165,15 +4174,21 @@
     "message": "Les éléments archivés apparaîtront ici et seront exclus des résultats de recherche généraux et des suggestions de remplissage automatique."
   },
   "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+    "message": "L'élément a été envoyé à l'archive"
   },
-  "itemUnarchived": {
-    "message": "Item was unarchived"
+  "itemWasUnarchived": {
+    "message": "L'élément a été désarchivé"
   },
   "archiveItem": {
     "message": "Archiver l'élément"
   },
   "archiveItemConfirmDesc": {
     "message": "Les éléments archivés sont exclus des résultats de recherche généraux et des suggestions de remplissage automatique. Êtes-vous sûr de vouloir archiver cet élément ?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Code postal"
+  },
+  "cardNumberLabel": {
+    "message": "Numéro de carte"
   }
 }

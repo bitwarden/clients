@@ -1,31 +1,39 @@
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { combineLatest, firstValueFrom, map, Observable, of, shareReplay, switchMap } from "rxjs";
+import { ActivatedRoute, Router } from "@angular/router";
+import {
+  combineLatest,
+  firstValueFrom,
+  from,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  switchMap,
+} from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
+import {
+  PersonalSubscriptionPricingTier,
+  PersonalSubscriptionPricingTierIds,
+} from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import {
-  DialogService,
-  ToastService,
-  SectionComponent,
   BadgeModule,
-  TypographyModule,
+  DialogService,
   LinkModule,
+  SectionComponent,
+  TypographyModule,
 } from "@bitwarden/components";
 import { PricingCardComponent } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { SubscriptionPricingService } from "../../services/subscription-pricing.service";
 import { BitwardenSubscriber, mapAccountToSubscriber } from "../../types";
-import {
-  PersonalSubscriptionPricingTier,
-  PersonalSubscriptionPricingTierIds,
-} from "../../types/subscription-pricing-tier";
 import {
   UnifiedUpgradeDialogComponent,
   UnifiedUpgradeDialogParams,
@@ -34,6 +42,15 @@ import {
   UnifiedUpgradeDialogStep,
 } from "../upgrade/unified-upgrade-dialog/unified-upgrade-dialog.component";
 
+const RouteParams = {
+  callToAction: "callToAction",
+} as const;
+const RouteParamValues = {
+  upgradeToPremium: "upgradeToPremium",
+} as const;
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./premium-vnext.component.html",
   standalone: true,
@@ -51,6 +68,7 @@ export class PremiumVNextComponent {
   protected hasPremiumFromAnyOrganization$: Observable<boolean>;
   protected hasPremiumPersonally$: Observable<boolean>;
   protected shouldShowNewDesign$: Observable<boolean>;
+  protected shouldShowUpgradeDialogOnInit$: Observable<boolean>;
   protected personalPricingTiers$: Observable<PersonalSubscriptionPricingTier[]>;
   protected premiumCardData$: Observable<{
     tier: PersonalSubscriptionPricingTier | undefined;
@@ -62,21 +80,20 @@ export class PremiumVNextComponent {
     price: number;
     features: string[];
   }>;
-
   protected subscriber!: BitwardenSubscriber;
   protected isSelfHost = false;
   private destroyRef = inject(DestroyRef);
 
   constructor(
     private accountService: AccountService,
-    private i18nService: I18nService,
     private apiService: ApiService,
     private dialogService: DialogService,
     private platformUtilsService: PlatformUtilsService,
     private syncService: SyncService,
-    private toastService: ToastService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private subscriptionPricingService: SubscriptionPricingService,
+    private subscriptionPricingService: SubscriptionPricingServiceAbstraction,
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
   ) {
     this.isSelfHost = this.platformUtilsService.isSelfHost();
 
@@ -106,6 +123,34 @@ export class PremiumVNextComponent {
       this.hasPremiumFromAnyOrganization$,
       this.hasPremiumPersonally$,
     ]).pipe(map(([hasOrgPremium, hasPersonalPremium]) => !hasOrgPremium && !hasPersonalPremium));
+
+    // redirect to user subscription page if they already have premium personally
+    // redirect to individual vault if they already have premium from an org
+    combineLatest([this.hasPremiumFromAnyOrganization$, this.hasPremiumPersonally$])
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        switchMap(([hasPremiumFromOrg, hasPremiumPersonally]) => {
+          if (hasPremiumPersonally) {
+            return from(this.navigateToSubscriptionPage());
+          }
+          if (hasPremiumFromOrg) {
+            return from(this.navigateToIndividualVault());
+          }
+          return of(true);
+        }),
+      )
+      .subscribe();
+
+    this.shouldShowUpgradeDialogOnInit$ = combineLatest([
+      this.hasPremiumFromAnyOrganization$,
+      this.hasPremiumPersonally$,
+      this.activatedRoute.queryParams,
+    ]).pipe(
+      map(([hasOrgPremium, hasPersonalPremium, queryParams]) => {
+        const cta = queryParams[RouteParams.callToAction];
+        return !hasOrgPremium && !hasPersonalPremium && cta === RouteParamValues.upgradeToPremium;
+      }),
+    );
 
     this.personalPricingTiers$ =
       this.subscriptionPricingService.getPersonalSubscriptionPricingTiers$();
@@ -139,7 +184,23 @@ export class PremiumVNextComponent {
       }),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
+
+    this.shouldShowUpgradeDialogOnInit$
+      .pipe(
+        switchMap(async (shouldShowUpgradeDialogOnInit) => {
+          if (shouldShowUpgradeDialogOnInit) {
+            from(this.openUpgradeDialog("Premium"));
+          }
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
+
+  private navigateToSubscriptionPage = (): Promise<boolean> =>
+    this.router.navigate(["../user-subscription"], { relativeTo: this.activatedRoute });
+
+  private navigateToIndividualVault = (): Promise<boolean> => this.router.navigate(["/vault"]);
 
   finalizeUpgrade = async () => {
     await this.apiService.refreshIdentityToken();

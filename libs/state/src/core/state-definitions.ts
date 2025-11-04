@@ -36,9 +36,11 @@ export const DELETE_MANAGED_USER_WARNING = new StateDefinition(
     web: "disk-local",
   },
 );
+export const AUTO_CONFIRM = new StateDefinition("autoConfirm", "disk");
 
 // Billing
 export const BILLING_DISK = new StateDefinition("billing", "disk");
+export const BILLING_MEMORY = new StateDefinition("billing", "memory");
 
 // Auth
 
@@ -105,6 +107,10 @@ export const AUTOTYPE_SETTINGS_DISK = new StateDefinition("autotypeSettings", "d
 export const NEW_WEB_LAYOUT_BANNER_DISK = new StateDefinition("newWebLayoutBanner", "disk", {
   web: "disk-local",
 });
+
+// DIRT
+
+export const PHISHING_DETECTION_DISK = new StateDefinition("phishingDetection", "disk");
 
 // Platform
 
@@ -217,3 +223,4 @@ export const VAULT_BROWSER_INTRO_CAROUSEL = new StateDefinition(
   "vaultBrowserIntroCarousel",
   "disk",
 );
+export const VAULT_AT_RISK_PASSWORDS_MEMORY = new StateDefinition("vaultAtRiskPasswords", "memory");

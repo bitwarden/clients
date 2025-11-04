@@ -42,6 +42,8 @@ import {
   EmergencyAccessTakeoverDialogResultType,
 } from "./takeover/emergency-access-takeover-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "emergency-access.component.html",
   imports: [SharedModule, HeaderModule, PremiumBadgeComponent],
@@ -92,15 +94,6 @@ export class EmergencyAccessComponent implements OnInit {
     this.trustedContacts = await this.emergencyAccessService.getEmergencyAccessTrusted();
     this.grantedContacts = await this.emergencyAccessService.getEmergencyAccessGranted();
     this.loaded = true;
-  }
-
-  async premiumRequired() {
-    const canAccessPremium = await firstValueFrom(this.canAccessPremium$);
-
-    if (!canAccessPremium) {
-      this.messagingService.send("premiumRequired");
-      return;
-    }
   }
 
   edit = async (details: GranteeEmergencyAccess) => {
