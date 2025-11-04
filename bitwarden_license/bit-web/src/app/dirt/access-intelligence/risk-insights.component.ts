@@ -152,6 +152,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.dataService.destroy();
+    this.currentDialogRef?.close();
   }
 
   /**
