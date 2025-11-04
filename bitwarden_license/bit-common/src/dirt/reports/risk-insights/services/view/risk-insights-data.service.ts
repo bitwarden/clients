@@ -11,6 +11,8 @@ import {
   RiskInsightsEnrichedData,
   ReportStatus,
   ReportProgress,
+  ApplicationHealthReportDetail,
+  OrganizationReportApplication,
 } from "../../models";
 import { RiskInsightsOrchestratorService } from "../domain/risk-insights-orchestrator.service";
 
@@ -40,7 +42,7 @@ export class RiskInsightsDataService {
   readonly reportProgress$: Observable<ReportProgress | null> = of(null);
 
   // New applications that need review (reviewedDate === null)
-  readonly newApplications$: Observable<string[]> = of([]);
+  readonly newApplications$: Observable<ApplicationHealthReportDetail[]> = of([]);
 
   // ------------------------- Drawer Variables ---------------------
   // Drawer variables unified into a single BehaviorSubject
@@ -260,7 +262,7 @@ export class RiskInsightsDataService {
     return this.orchestrator.removeCriticalApplication$(hostname);
   }
 
-  saveApplicationReviewStatus(selectedCriticalApps: string[]) {
+  saveApplicationReviewStatus(selectedCriticalApps: OrganizationReportApplication[]) {
     return this.orchestrator.saveApplicationReviewStatus$(selectedCriticalApps);
   }
 }
