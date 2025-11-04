@@ -916,7 +916,9 @@ export default class AutofillService implements AutofillServiceInterface {
       withoutForm: boolean,
     ): AutofillField | null => {
       // Use focused username if it matches this password, otherwise fall back to finding username before password
-      if (focusedUsernameField && passwordMatchesFocused(pf)) {return focusedUsernameField;}
+      if (focusedUsernameField && passwordMatchesFocused(pf)) {
+        return focusedUsernameField;
+      }
       return this.findUsernameField(pageDetails, pf, false, false, withoutForm);
     };
 
