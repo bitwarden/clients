@@ -65,17 +65,19 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
       // Run all migrations sequentially in the order they were registered
       this.logService.mark("[Encrypted Migrator] Start");
       this.logService.info(`[Encrypted Migrator] Starting migrations for user: ${userId}`);
+      let ranMigration = false;
       for (const { name, migration } of this.migrations) {
         if ((await migration.needsMigration(userId)) !== "noMigrationNeeded") {
           this.logService.info(`[Encrypted Migrator] Running migration: ${name}`);
           const start = performance.now();
           await migration.runMigrations(userId, masterPassword);
           this.logService.measure(start, "[Encrypted Migrator]", name, "ExecutionTime");
+          ranMigration = true;
         }
       }
       this.logService.mark("[Encrypted Migrator] Finish");
-      this.logService.info(`[Encrypted Migrator] Completed migrations for user: ${userId}`);
-      if (this.migrations.length > 0) {
+      this.logService.info(`[Encrypted Miigrator] Completed migrations for user: ${userId}`);
+      if (ranMigration) {
         await this.syncService.fullSync(true);
       }
     } catch (error) {
