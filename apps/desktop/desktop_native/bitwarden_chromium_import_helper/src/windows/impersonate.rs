@@ -13,7 +13,8 @@ use windows::{
     },
 };
 
-use crate::{config::*, dbg_log};
+use super::config::SYSTEM_PROCESS_NAMES;
+use crate::dbg_log;
 
 #[link(name = "ntdll")]
 unsafe extern "system" {

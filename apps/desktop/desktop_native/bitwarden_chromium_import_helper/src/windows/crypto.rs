@@ -17,11 +17,8 @@ use windows::{
     },
 };
 
-use crate::{
-    config::*,
-    dbg_log,
-    impersonate::{start_impersonating, stop_impersonating},
-};
+use super::impersonate::{start_impersonating, stop_impersonating};
+use crate::dbg_log;
 
 //
 // Base64

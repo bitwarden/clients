@@ -3,13 +3,13 @@ use tracing_subscriber::{
     fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter, Layer as _,
 };
 
-use crate::config::*;
+use super::config::{ENABLE_DEVELOPER_LOGGING, LOG_FILENAME};
 
 // Macro wrapper around debug! that compiles to no-op when ENABLE_DEVELOPER_LOGGING is false
 #[macro_export]
 macro_rules! dbg_log {
     ($($arg:tt)*) => {
-        if ENABLE_DEVELOPER_LOGGING {
+        if $crate::windows::config::ENABLE_DEVELOPER_LOGGING {
             tracing::debug!($($arg)*);
         }
     };
