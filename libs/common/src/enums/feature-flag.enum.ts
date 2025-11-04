@@ -84,7 +84,7 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.CreateDefaultLocation]: FALSE,
-  [FeatureFlag.AutoConfirm]: FALSE,
+  [FeatureFlag.AutoConfirm]: true,
 
   /* Autofill */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,

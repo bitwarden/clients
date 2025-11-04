@@ -1,6 +1,7 @@
 import { Injectable, NgModule } from "@angular/core";
 import { ActivatedRouteSnapshot, RouteReuseStrategy, RouterModule, Routes } from "@angular/router";
 
+import { organizationPolicyGuard } from "@bitwarden/angular/admin-console/guards";
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
 import { AuthRoute } from "@bitwarden/angular/auth/constants";
 import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/environment-selector/environment-selector.component";
@@ -42,6 +43,7 @@ import {
   TwoFactorAuthComponent,
   TwoFactorAuthGuard,
 } from "@bitwarden/auth/angular";
+import { canAccessAutoConfirm } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { LockComponent, ConfirmKeyConnectorDomainComponent } from "@bitwarden/key-management-ui";
 
@@ -312,6 +314,12 @@ const routes: Routes = [
     path: "appearance",
     component: AppearanceV2Component,
     canActivate: [authGuard],
+    data: { elevation: 1 } satisfies RouteDataProperties,
+  },
+  {
+    path: "admin",
+    component: AppearanceV2Component,
+    canActivate: [authGuard, organizationPolicyGuard(canAccessAutoConfirm)],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
