@@ -1,6 +1,7 @@
+import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -45,20 +46,23 @@ describe("CipherViewComponent", () => {
 
   // Mock data
   let mockCipherView: CipherView;
+  let featureFlagEnabled$: BehaviorSubject<boolean>;
+  let hasPremiumFromAnySource$: BehaviorSubject<boolean>;
+  let activeAccount$: BehaviorSubject<Account>;
 
   beforeEach(async () => {
     // Setup mock observables
-    const activeAccount$ = new BehaviorSubject({
+    activeAccount$ = new BehaviorSubject({
       id: "test-user-id",
       email: "test@example.com",
     } as Account);
 
-    const hasPremiumFromAnySource$ = new BehaviorSubject(true);
+    featureFlagEnabled$ = new BehaviorSubject(false);
+    hasPremiumFromAnySource$ = new BehaviorSubject(true);
 
     // Create service mocks
-    mockAccountService = mock<AccountService>({
-      activeAccount$,
-    });
+    mockAccountService = mock<AccountService>();
+    mockAccountService.activeAccount$ = activeAccount$;
 
     mockOrganizationService = mock<OrganizationService>();
     mockCollectionService = mock<CollectionService>();
@@ -74,12 +78,13 @@ describe("CipherViewComponent", () => {
     mockLogService = mock<LogService>();
     mockCipherRiskService = mock<CipherRiskService>();
 
-    mockBillingAccountProfileStateService = mock<BillingAccountProfileStateService>({
-      hasPremiumFromAnySource$: () => hasPremiumFromAnySource$,
-    });
+    mockBillingAccountProfileStateService = mock<BillingAccountProfileStateService>();
+    mockBillingAccountProfileStateService.hasPremiumFromAnySource$ = jest
+      .fn()
+      .mockReturnValue(hasPremiumFromAnySource$);
 
     mockConfigService = mock<ConfigService>();
-    mockConfigService.getFeatureFlag$ = jest.fn().mockReturnValue(of(false));
+    mockConfigService.getFeatureFlag$ = jest.fn().mockReturnValue(featureFlagEnabled$);
 
     // Setup mock cipher view
     mockCipherView = new CipherView();
@@ -107,15 +112,24 @@ describe("CipherViewComponent", () => {
         },
         { provide: ConfigService, useValue: mockConfigService },
       ],
-    }).compileComponents();
+      schemas: [NO_ERRORS_SCHEMA],
+    })
+      // Override the component template to avoid rendering child components
+      // Allows testing component logic without
+      // needing to provide dependencies for all child components.
+      .overrideComponent(CipherViewComponent, {
+        set: {
+          template: "<div>{{ passwordIsAtRisk() }}</div>",
+          imports: [],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(CipherViewComponent);
     component = fixture.componentInstance;
   });
 
   describe("passwordIsAtRisk signal", () => {
-    let hasPremiumFromAnySource$: BehaviorSubject<boolean>;
-
     // Helper to create a cipher view with login credentials
     const createLoginCipherView = (): CipherView => {
       const cipher = new CipherView();
@@ -130,91 +144,143 @@ describe("CipherViewComponent", () => {
     };
 
     beforeEach(() => {
-      // Setup premium status observable
-      hasPremiumFromAnySource$ = new BehaviorSubject(true);
+      // Reset observables to default values for this test suite
+      featureFlagEnabled$.next(true);
+      hasPremiumFromAnySource$.next(true);
 
-      // Setup feature flag to return true by default
-      mockConfigService.getFeatureFlag$ = jest.fn().mockReturnValue(of(true));
+      // Setup default mock for computeCipherRiskForUser (individual tests can override)
+      mockCipherRiskService.computeCipherRiskForUser = jest.fn().mockResolvedValue({
+        password_strength: 4,
+        exposed_result: { type: "NotFound" },
+        reuse_count: 1,
+      });
 
-      mockBillingAccountProfileStateService.hasPremiumFromAnySource$ = jest
-        .fn()
-        .mockReturnValue(hasPremiumFromAnySource$);
+      // Recreate the fixture for each test in this suite.
+      // This ensures that the signal's observable subscribes with the correct
+      // initial state
+      fixture = TestBed.createComponent(CipherViewComponent);
+      component = fixture.componentInstance;
     });
 
-    it("should return false when feature flag is disabled", fakeAsync(() => {
-      mockConfigService.getFeatureFlag$ = jest.fn().mockReturnValue(of(false));
+    it("returns false when feature flag is disabled", fakeAsync(() => {
+      featureFlagEnabled$.next(false);
 
       const cipher = createLoginCipherView();
       fixture.componentRef.setInput("cipher", cipher);
+      fixture.detectChanges();
       tick();
 
+      expect(mockCipherRiskService.computeCipherRiskForUser).not.toHaveBeenCalled();
       expect(component.passwordIsAtRisk()).toBe(false);
     }));
 
-    it("should return false when cipher has no login password", fakeAsync(() => {
+    it("returns false when cipher has no login password", fakeAsync(() => {
       const cipher = createLoginCipherView();
       cipher.login = {} as any; // No password
 
       fixture.componentRef.setInput("cipher", cipher);
+      fixture.detectChanges();
       tick();
 
+      expect(mockCipherRiskService.computeCipherRiskForUser).not.toHaveBeenCalled();
       expect(component.passwordIsAtRisk()).toBe(false);
     }));
 
-    it("should return false when user does not have edit access", fakeAsync(() => {
+    it("returns false when user does not have edit access", fakeAsync(() => {
       const cipher = createLoginCipherView();
       cipher.edit = false;
 
       fixture.componentRef.setInput("cipher", cipher);
+      fixture.detectChanges();
       tick();
 
+      expect(mockCipherRiskService.computeCipherRiskForUser).not.toHaveBeenCalled();
       expect(component.passwordIsAtRisk()).toBe(false);
     }));
 
-    it("should return false when cipher is deleted", fakeAsync(() => {
+    it("returns false when cipher is deleted", fakeAsync(() => {
       const cipher = createLoginCipherView();
       cipher.deletedDate = new Date();
 
       fixture.componentRef.setInput("cipher", cipher);
+      fixture.detectChanges();
       tick();
 
+      expect(mockCipherRiskService.computeCipherRiskForUser).not.toHaveBeenCalled();
       expect(component.passwordIsAtRisk()).toBe(false);
     }));
 
-    it("should return false for organization-owned ciphers", fakeAsync(() => {
+    it("returns false for organization-owned ciphers", fakeAsync(() => {
       const cipher = createLoginCipherView();
       cipher.organizationId = "org-id";
 
       fixture.componentRef.setInput("cipher", cipher);
+      fixture.detectChanges();
       tick();
 
+      expect(mockCipherRiskService.computeCipherRiskForUser).not.toHaveBeenCalled();
       expect(component.passwordIsAtRisk()).toBe(false);
     }));
 
-    it("should return false when user is not premium", fakeAsync(() => {
+    it("returns false when user is not premium", fakeAsync(() => {
       hasPremiumFromAnySource$.next(false);
 
       const cipher = createLoginCipherView();
       fixture.componentRef.setInput("cipher", cipher);
+      fixture.detectChanges();
       tick();
 
+      expect(mockCipherRiskService.computeCipherRiskForUser).not.toHaveBeenCalled();
       expect(component.passwordIsAtRisk()).toBe(false);
     }));
 
-    it("should start with false value when all conditions are met", fakeAsync(() => {
-      const mockCipherRiskResult = {
-        password_strength: 4,
+    it("returns true when password is weak", fakeAsync(() => {
+      // Setup mock to return weak password
+      const mockRiskyResult = {
+        password_strength: 2, // Weak password (< 3)
         exposed_result: { type: "NotFound" },
         reuse_count: 1,
       };
-      mockCipherRiskService.computeCipherRiskForUser = jest
-        .fn()
-        .mockResolvedValue(mockCipherRiskResult);
+      mockCipherRiskService.computeCipherRiskForUser = jest.fn().mockResolvedValue(mockRiskyResult);
 
       const cipher = createLoginCipherView();
       fixture.componentRef.setInput("cipher", cipher);
+      fixture.detectChanges();
 
-      // Should have initial value of false (from initialValue in toSignal config)
+      // Initial value should be false (from startWith(false))
+      expect(component.passwordIsAtRisk()).toBe(false);
+
+      // Wait for async operations to complete
+      tick();
+      fixture.detectChanges();
+
+      // After async completes, should reflect the weak password
+      expect(mockCipherRiskService.computeCipherRiskForUser).toHaveBeenCalled();
+      expect(component.passwordIsAtRisk()).toBe(true);
+    }));
+
+    it("returns false when password is strong and not exposed", fakeAsync(() => {
+      // Setup mock to return safe password
+      const mockSafeResult = {
+        password_strength: 4, // Strong password
+        exposed_result: { type: "NotFound" }, // Not exposed
+        reuse_count: 1, // Not reused
+      };
+      mockCipherRiskService.computeCipherRiskForUser = jest.fn().mockResolvedValue(mockSafeResult);
+
+      const cipher = createLoginCipherView();
+      fixture.componentRef.setInput("cipher", cipher);
+      fixture.detectChanges();
+
+      // Initial value should be false
+      expect(component.passwordIsAtRisk()).toBe(false);
+
+      // Wait for async operations to complete
+      tick();
+      fixture.detectChanges();
+
+      // Should remain false for safe password
+      expect(mockCipherRiskService.computeCipherRiskForUser).toHaveBeenCalled();
       expect(component.passwordIsAtRisk()).toBe(false);
     }));
   });
