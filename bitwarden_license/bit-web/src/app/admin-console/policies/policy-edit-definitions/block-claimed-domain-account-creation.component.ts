@@ -1,8 +1,9 @@
 import { Component } from "@angular/core";
-import { of } from "rxjs";
+import { map, Observable } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   BasePolicyEditDefinition,
@@ -17,8 +18,10 @@ export class BlockClaimedDomainAccountCreationPolicy extends BasePolicyEditDefin
   component = BlockClaimedDomainAccountCreationPolicyComponent;
   showDescription = false; // Description is shown in the component template with inline link
 
-  display(organization: Organization, configService: ConfigService) {
-    return of(organization.useOrganizationDomains);
+  override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
+    return configService
+      .getFeatureFlag$(FeatureFlag.BlockClaimedDomainAccountCreation)
+      .pipe(map((enabled) => enabled && organization.useOrganizationDomains));
   }
 }
 
