@@ -9,7 +9,9 @@ import {
   CollectionService,
   DefaultCollectionService,
   DefaultOrganizationUserApiService,
+  DefaultOrganizationUserService,
   OrganizationUserApiService,
+  OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import {
   ChangePasswordService,
@@ -149,6 +151,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
 import { OrganizationSponsorshipApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-sponsorship-api.service.abstraction";
+import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import { AccountBillingApiService } from "@bitwarden/common/billing/services/account/account-billing-api.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { BillingApiService } from "@bitwarden/common/billing/services/billing-api.service";
@@ -156,6 +159,7 @@ import { OrganizationBillingApiService } from "@bitwarden/common/billing/service
 import { DefaultOrganizationMetadataService } from "@bitwarden/common/billing/services/organization/organization-metadata.service";
 import { OrganizationSponsorshipApiService } from "@bitwarden/common/billing/services/organization/organization-sponsorship-api.service";
 import { OrganizationBillingService } from "@bitwarden/common/billing/services/organization-billing.service";
+import { DefaultSubscriptionPricingService } from "@bitwarden/common/billing/services/subscription-pricing.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import {
   DefaultKeyGenerationService,
@@ -376,6 +380,8 @@ import { DefaultSetInitialPasswordService } from "../auth/password-management/se
 import { SetInitialPasswordService } from "../auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { DeviceTrustToastService as DeviceTrustToastServiceAbstraction } from "../auth/services/device-trust-toast.service.abstraction";
 import { DeviceTrustToastService } from "../auth/services/device-trust-toast.service.implementation";
+import { NoopPremiumInterestStateService } from "../billing/services/premium-interest/noop-premium-interest-state.service";
+import { PremiumInterestStateService } from "../billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { FormValidationErrorsService as FormValidationErrorsServiceAbstraction } from "../platform/abstractions/form-validation-errors.service";
 import { DocumentLangSetter } from "../platform/i18n";
 import { FormValidationErrorsService } from "../platform/services/form-validation-errors.service";
@@ -966,7 +972,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SignalRConnectionService,
     useClass: SignalRConnectionService,
-    deps: [ApiServiceAbstraction, LogService],
+    deps: [ApiServiceAbstraction, LogService, PlatformUtilsServiceAbstraction],
   }),
   safeProvider({
     provide: WebPushConnectionService,
@@ -1122,6 +1128,17 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
+    provide: OrganizationUserService,
+    useClass: DefaultOrganizationUserService,
+    deps: [
+      KeyService,
+      EncryptService,
+      OrganizationUserApiService,
+      AccountService,
+      I18nServiceAbstraction,
+    ],
+  }),
+  safeProvider({
     provide: OrganizationServiceAbstraction,
     useExisting: InternalOrganizationServiceAbstraction,
   }),
@@ -1210,7 +1227,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AnonymousHubServiceAbstraction,
     useClass: AnonymousHubService,
-    deps: [EnvironmentService, AuthRequestServiceAbstraction],
+    deps: [EnvironmentService, AuthRequestServiceAbstraction, PlatformUtilsServiceAbstraction],
   }),
   safeProvider({
     provide: ValidationServiceAbstraction,
@@ -1441,6 +1458,11 @@ const safeProviders: SafeProvider[] = [
     provide: BillingAccountProfileStateService,
     useClass: DefaultBillingAccountProfileStateService,
     deps: [StateProvider, PlatformUtilsServiceAbstraction, ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: SubscriptionPricingServiceAbstraction,
+    useClass: DefaultSubscriptionPricingService,
+    deps: [BillingApiServiceAbstraction, ConfigService, I18nServiceAbstraction, LogService],
   }),
   safeProvider({
     provide: OrganizationManagementPreferencesService,
@@ -1702,6 +1724,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: NewDeviceVerificationComponentService,
     useClass: DefaultNewDeviceVerificationComponentService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: PremiumInterestStateService,
+    useClass: NoopPremiumInterestStateService,
     deps: [],
   }),
 ];

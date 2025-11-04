@@ -1,4 +1,4 @@
-import { catchError, EMPTY, from, map, Observable, switchMap, throwError } from "rxjs";
+import { catchError, EMPTY, from, map, Observable, of, switchMap, throwError } from "rxjs";
 
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrganizationId, OrganizationReportId, UserId } from "@bitwarden/common/types/guid";
@@ -9,6 +9,7 @@ import {
   isSaveRiskInsightsReportResponse,
   SaveRiskInsightsReportResponse,
 } from "../../models/api-models.types";
+import { RiskInsightsMetrics } from "../../models/domain/risk-insights-metrics";
 import {
   ApplicationHealthReportDetail,
   OrganizationReportSummary,
@@ -27,6 +28,13 @@ export class RiskInsightsReportService {
     private riskInsightsEncryptionService: RiskInsightsEncryptionService,
   ) {}
 
+  filterApplicationsByCritical(
+    report: ApplicationHealthReportDetail[],
+    applicationData: OrganizationReportApplication[],
+  ): ApplicationHealthReportDetail[] {
+    return report.filter((application) => this.isCriticalApplication(application, applicationData));
+  }
+
   /**
    * Report data for the aggregation of uris to like uris and getting password/member counts,
    * members, and at risk statuses.
@@ -44,53 +52,61 @@ export class RiskInsightsReportService {
   }
 
   /**
+   *
+   * @param applications The list of application health report details to map ciphers to
+   * @param organizationId
+   * @returns
+   */
+  getApplicationCipherMap(
+    ciphers: CipherView[],
+    applications: ApplicationHealthReportDetail[],
+  ): Map<string, CipherView[]> {
+    const cipherMap = new Map<string, CipherView[]>();
+    applications.forEach((app) => {
+      const filteredCiphers = ciphers.filter((c) => app.cipherIds.includes(c.id));
+      cipherMap.set(app.applicationName, filteredCiphers);
+    });
+    return cipherMap;
+  }
+
+  /**
    * Gets the summary from the application health report. Returns total members and applications as well
    * as the total at risk members and at risk applications
    * @param reports The previously calculated application health report data
    * @returns A summary object containing report totals
    */
-  getApplicationsSummary(reports: ApplicationHealthReportDetail[]): OrganizationReportSummary {
-    const totalMembers = reports.flatMap((x) => x.memberDetails);
-    const uniqueMembers = getUniqueMembers(totalMembers);
+  getApplicationsSummary(
+    reports: ApplicationHealthReportDetail[],
+    applicationData: OrganizationReportApplication[],
+  ): OrganizationReportSummary {
+    const totalUniqueMembers = getUniqueMembers(reports.flatMap((x) => x.memberDetails));
+    const atRiskUniqueMembers = getUniqueMembers(reports.flatMap((x) => x.atRiskMemberDetails));
 
-    const atRiskMembers = reports.flatMap((x) => x.atRiskMemberDetails);
-    const uniqueAtRiskMembers = getUniqueMembers(atRiskMembers);
-
-    // TODO: Replace with actual new applications detection logic (PM-26185)
-    const dummyNewApplications = [
-      "github.com",
-      "google.com",
-      "stackoverflow.com",
-      "gitlab.com",
-      "bitbucket.org",
-      "npmjs.com",
-      "docker.com",
-      "aws.amazon.com",
-      "azure.microsoft.com",
-      "jenkins.io",
-      "terraform.io",
-      "kubernetes.io",
-      "atlassian.net",
-    ];
+    const criticalReports = this.filterApplicationsByCritical(reports, applicationData);
+    const criticalUniqueMembers = getUniqueMembers(criticalReports.flatMap((x) => x.memberDetails));
+    const criticalAtRiskUniqueMembers = getUniqueMembers(
+      criticalReports.flatMap((x) => x.atRiskMemberDetails),
+    );
 
     return {
-      totalMemberCount: uniqueMembers.length,
-      totalAtRiskMemberCount: uniqueAtRiskMembers.length,
+      totalMemberCount: totalUniqueMembers.length,
+      totalAtRiskMemberCount: atRiskUniqueMembers.length,
       totalApplicationCount: reports.length,
       totalAtRiskApplicationCount: reports.filter((app) => app.atRiskPasswordCount > 0).length,
-      totalCriticalMemberCount: 0,
-      totalCriticalAtRiskMemberCount: 0,
-      totalCriticalApplicationCount: 0,
-      totalCriticalAtRiskApplicationCount: 0,
-      newApplications: dummyNewApplications,
+      totalCriticalMemberCount: criticalUniqueMembers.length,
+      totalCriticalAtRiskMemberCount: criticalAtRiskUniqueMembers.length,
+      totalCriticalApplicationCount: criticalReports.length,
+      totalCriticalAtRiskApplicationCount: criticalReports.filter(
+        (app) => app.atRiskPasswordCount > 0,
+      ).length,
     };
   }
 
   /**
-   * Generate a snapshot of applications and related data associated to this report
+   * Get information associated to the report applications that can be modified
    *
    * @param reports
-   * @returns A list of applications with a critical marking flag
+   * @returns A list of applications with a critical marking flag and review date
    */
   getOrganizationApplications(
     reports: ApplicationHealthReportDetail[],
@@ -110,7 +126,7 @@ export class RiskInsightsReportService {
       });
     }
 
-    // No previous applications, return all as non-critical with current date
+    // No previous applications, return all as non-critical with no review date
     return reports.map(
       (report): OrganizationReportApplication => ({
         applicationName: report.applicationName,
@@ -130,12 +146,12 @@ export class RiskInsightsReportService {
   getRiskInsightsReport$(
     organizationId: OrganizationId,
     userId: UserId,
-  ): Observable<RiskInsightsData> {
+  ): Observable<RiskInsightsData | null> {
     return this.riskInsightsApiService.getRiskInsightsReport$(organizationId).pipe(
       switchMap((response) => {
         if (!response) {
           // Return an empty report and summary if response is falsy
-          return EMPTY;
+          return of(null as unknown as RiskInsightsData);
         }
         if (!response.contentEncryptionKey || response.contentEncryptionKey.data == "") {
           return throwError(() => new Error("Report key not found"));
@@ -186,6 +202,15 @@ export class RiskInsightsReportService {
     );
   }
 
+  isCriticalApplication(
+    application: ApplicationHealthReportDetail,
+    applicationData: OrganizationReportApplication[],
+  ): boolean {
+    return applicationData.some(
+      (a) => a.applicationName == application.applicationName && a.isCritical,
+    );
+  }
+
   /**
    * Encrypts the risk insights report data for a specific organization.
    * @param organizationId The ID of the organization.
@@ -197,6 +222,7 @@ export class RiskInsightsReportService {
     report: ApplicationHealthReportDetail[],
     summary: OrganizationReportSummary,
     applications: OrganizationReportApplication[],
+    metrics: RiskInsightsMetrics,
     encryptionParameters: {
       organizationId: OrganizationId;
       userId: UserId;
@@ -230,6 +256,7 @@ export class RiskInsightsReportService {
               summaryData: encryptedSummaryData.toSdk(),
               applicationData: encryptedApplicationData.toSdk(),
               contentEncryptionKey: contentEncryptionKey.toSdk(),
+              metrics: metrics.toRiskInsightsMetricsData(),
             },
           },
           // Keep the original EncString alongside the SDK payload so downstream can return the EncString type.
@@ -272,24 +299,6 @@ export class RiskInsightsReportService {
     });
 
     return applicationMap;
-  }
-
-  /**
-   *
-   * @param applications The list of application health report details to map ciphers to
-   * @param organizationId
-   * @returns
-   */
-  getApplicationCipherMap(
-    ciphers: CipherView[],
-    applications: ApplicationHealthReportDetail[],
-  ): Map<string, CipherView[]> {
-    const cipherMap = new Map<string, CipherView[]>();
-    applications.forEach((app) => {
-      const filteredCiphers = ciphers.filter((c) => app.cipherIds.includes(c.id));
-      cipherMap.set(app.applicationName, filteredCiphers);
-    });
-    return cipherMap;
   }
 
   // --------------------------- Aggregation methods ---------------------------

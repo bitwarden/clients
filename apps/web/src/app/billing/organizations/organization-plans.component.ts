@@ -31,6 +31,7 @@ import { ProviderOrganizationCreateRequest } from "@bitwarden/common/admin-conso
 import { ProviderResponse } from "@bitwarden/common/admin-console/models/response/provider/provider.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { PlanSponsorshipType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { BillingResponse } from "@bitwarden/common/billing/models/response/billing.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
@@ -41,13 +42,14 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import {
   OrganizationSubscriptionPlan,
+  OrganizationSubscriptionPurchase,
   SubscriberBillingClient,
   TaxClient,
 } from "@bitwarden/web-vault/app/billing/clients";
@@ -477,7 +479,10 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   get passwordManagerSubtotal() {
-    let subTotal = this.selectedPlan.PasswordManager.basePrice;
+    const basePriceAfterDiscount = this.acceptingSponsorship
+      ? Math.max(this.selectedPlan.PasswordManager.basePrice - this.discount, 0)
+      : this.selectedPlan.PasswordManager.basePrice;
+    let subTotal = basePriceAfterDiscount;
     if (
       this.selectedPlan.PasswordManager.hasAdditionalSeatsOption &&
       this.formGroup.controls.additionalSeats.value
@@ -488,18 +493,18 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       );
     }
     if (
-      this.selectedPlan.PasswordManager.hasAdditionalStorageOption &&
-      this.formGroup.controls.additionalStorage.value
-    ) {
-      subTotal += this.additionalStorageTotal(this.selectedPlan);
-    }
-    if (
       this.selectedPlan.PasswordManager.hasPremiumAccessOption &&
       this.formGroup.controls.premiumAccessAddon.value
     ) {
       subTotal += this.selectedPlan.PasswordManager.premiumAccessOptionPrice;
     }
-    return subTotal - this.discount;
+    if (
+      this.selectedPlan.PasswordManager.hasAdditionalStorageOption &&
+      this.formGroup.controls.additionalStorage.value
+    ) {
+      subTotal += this.additionalStorageTotal(this.selectedPlan);
+    }
+    return subTotal;
   }
 
   get secretsManagerSubtotal() {
@@ -654,7 +659,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
         orgId = this.selfHosted
           ? await this.createSelfHosted(key, collectionCt, orgKeys)
-          : await this.createCloudHosted(key, collectionCt, orgKeys, orgKey[1]);
+          : await this.createCloudHosted(key, collectionCt, orgKeys, orgKey[1], activeUserId);
 
         this.toastService.showToast({
           variant: "success",
@@ -670,7 +675,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         });
       }
 
-      await this.apiService.refreshIdentityToken();
       await this.syncService.fullSync(true);
 
       if (!this.acceptingSponsorship && !this.isInTrialFlow) {
@@ -706,54 +710,90 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     }
   }
 
+  private getPlanFromLegacyEnum(): OrganizationSubscriptionPlan {
+    switch (this.formGroup.value.plan) {
+      case PlanType.FamiliesAnnually:
+        return { tier: "families", cadence: "annually" };
+      case PlanType.TeamsMonthly:
+        return { tier: "teams", cadence: "monthly" };
+      case PlanType.TeamsAnnually:
+        return { tier: "teams", cadence: "annually" };
+      case PlanType.EnterpriseMonthly:
+        return { tier: "enterprise", cadence: "monthly" };
+      case PlanType.EnterpriseAnnually:
+        return { tier: "enterprise", cadence: "annually" };
+    }
+  }
+
+  private buildTaxPreviewRequest(
+    additionalStorage: number,
+    sponsored: boolean,
+  ): OrganizationSubscriptionPurchase {
+    const passwordManagerSeats = this.selectedPlan.PasswordManager.hasAdditionalSeatsOption
+      ? this.formGroup.value.additionalSeats
+      : 1;
+
+    return {
+      ...this.getPlanFromLegacyEnum(),
+      passwordManager: {
+        seats: passwordManagerSeats,
+        additionalStorage,
+        sponsored,
+      },
+      secretsManager: this.formGroup.value.secretsManager.enabled
+        ? {
+            seats: this.secretsManagerForm.value.userSeats,
+            additionalServiceAccounts: this.secretsManagerForm.value.additionalServiceAccounts,
+            standalone: false,
+          }
+        : undefined,
+    };
+  }
+
   private async refreshSalesTax(): Promise<void> {
     if (this.billingFormGroup.controls.billingAddress.invalid) {
       return;
     }
 
-    const getPlanFromLegacyEnum = (): OrganizationSubscriptionPlan => {
-      switch (this.formGroup.value.plan) {
-        case PlanType.FamiliesAnnually:
-          return { tier: "families", cadence: "annually" };
-        case PlanType.TeamsMonthly:
-          return { tier: "teams", cadence: "monthly" };
-        case PlanType.TeamsAnnually:
-          return { tier: "teams", cadence: "annually" };
-        case PlanType.EnterpriseMonthly:
-          return { tier: "enterprise", cadence: "monthly" };
-        case PlanType.EnterpriseAnnually:
-          return { tier: "enterprise", cadence: "annually" };
-      }
-    };
-
     const billingAddress = getBillingAddressFromForm(this.billingFormGroup.controls.billingAddress);
 
-    const passwordManagerSeats =
-      this.formGroup.value.productTier === ProductTierType.Families
-        ? 1
-        : this.formGroup.value.additionalSeats;
+    // should still be taxed. We mark the plan as NOT sponsored when there is additional storage
+    // so the server calculates tax, but we'll adjust the calculation to only tax the storage.
+    const hasPaidStorage = (this.formGroup.value.additionalStorage || 0) > 0;
+    const sponsoredForTaxPreview = this.acceptingSponsorship && !hasPaidStorage;
 
-    const taxAmounts = await this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
-      {
-        ...getPlanFromLegacyEnum(),
-        passwordManager: {
-          seats: passwordManagerSeats,
-          additionalStorage: this.formGroup.value.additionalStorage,
-          sponsored: false,
-        },
-        secretsManager: this.formGroup.value.secretsManager.enabled
-          ? {
-              seats: this.secretsManagerForm.value.userSeats,
-              additionalServiceAccounts: this.secretsManagerForm.value.additionalServiceAccounts,
-              standalone: false,
-            }
-          : undefined,
-      },
-      billingAddress,
-    );
+    if (this.acceptingSponsorship && hasPaidStorage) {
+      // For sponsored plans with paid storage, calculate tax only on storage
+      // by comparing tax on base+storage vs tax on base only
+      //TODO: Move this logic to PreviewOrganizationTaxCommand - https://bitwarden.atlassian.net/browse/PM-27585
+      const [baseTaxAmounts, fullTaxAmounts] = await Promise.all([
+        this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
+          this.buildTaxPreviewRequest(0, false),
+          billingAddress,
+        ),
+        this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
+          this.buildTaxPreviewRequest(this.formGroup.value.additionalStorage, false),
+          billingAddress,
+        ),
+      ]);
 
-    this.estimatedTax = taxAmounts.tax;
-    this.total = taxAmounts.total;
+      // Tax on storage = Tax on (base + storage) - Tax on (base only)
+      this.estimatedTax = fullTaxAmounts.tax - baseTaxAmounts.tax;
+    } else {
+      const taxAmounts = await this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
+        this.buildTaxPreviewRequest(this.formGroup.value.additionalStorage, sponsoredForTaxPreview),
+        billingAddress,
+      );
+
+      this.estimatedTax = taxAmounts.tax;
+    }
+
+    const subtotal =
+      this.passwordManagerSubtotal +
+      (this.planOffersSecretsManager && this.secretsManagerForm.value.enabled
+        ? this.secretsManagerSubtotal
+        : 0);
+    this.total = subtotal + this.estimatedTax;
   }
 
   private async updateOrganization() {
@@ -808,6 +848,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     collectionCt: string,
     orgKeys: [string, EncString],
     orgKey: SymmetricCryptoKey,
+    activeUserId: UserId,
   ): Promise<string> {
     const request = new OrganizationCreateRequest();
     request.key = key;
@@ -855,7 +896,14 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         this.formGroup.controls.clientOwnerEmail.value,
         request,
       );
-      const providerKey = await this.keyService.getProviderKey(this.providerId);
+
+      const providerKey = await firstValueFrom(
+        this.keyService
+          .providerKeys$(activeUserId)
+          .pipe(map((providerKeys) => providerKeys?.[this.providerId as ProviderId] ?? null)),
+      );
+      assertNonNullish(providerKey, "Provider key not found");
+
       providerRequest.organizationCreateRequest.key = (
         await this.encryptService.wrapSymmetricKey(orgKey, providerKey)
       ).encryptedString;

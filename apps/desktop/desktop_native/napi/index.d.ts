@@ -133,7 +133,6 @@ export declare namespace biometrics_v2 {
 
 export declare namespace chromium_importer {
   export function getAvailableProfiles(browser: string): Array<ProfileInfo>
-  export function getInstalledBrowsers(): Array<string>
   /** Returns OS aware metadata describing supported Chromium based importers as a JSON string. */
   export function getMetadata(): Record<string, NativeImporterMetadata>
   export function importLogins(browser: string, profileId: string): Promise<Array<LoginImportResult>>
@@ -151,6 +150,11 @@ export declare namespace chromium_importer {
   export interface LoginImportResult {
     login?: Login
     failure?: LoginImportFailure
+  }
+  export interface NativeImporterMetadata {
+    id: string
+    loaders: Array<string>
+    instructions: string
   }
   export interface ProfileInfo {
     id: string

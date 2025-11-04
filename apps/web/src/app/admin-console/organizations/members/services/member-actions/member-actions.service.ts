@@ -5,6 +5,7 @@ import {
   OrganizationUserApiService,
   OrganizationUserBulkResponse,
   OrganizationUserConfirmRequest,
+  OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import {
   OrganizationUserType,
@@ -21,7 +22,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
-import { OrganizationUserService } from "../organization-user/organization-user.service";
 
 export interface MemberActionResult {
   success: boolean;
@@ -129,7 +129,7 @@ export class MemberActionsService {
         await firstValueFrom(this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation))
       ) {
         await firstValueFrom(
-          this.organizationUserService.confirmUser(organization, user, publicKey),
+          this.organizationUserService.confirmUser(organization, user.id, publicKey),
         );
       } else {
         const request = await firstValueFrom(

@@ -451,9 +451,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
           "tw-border-solid",
           "tw-border-primary-600",
           "hover:tw-border-primary-700",
-          "focus:tw-border-2",
-          "focus:tw-border-primary-700",
-          "focus:tw-rounded-lg",
+          "tw-border-2",
+          "!tw-border-primary-700",
+          "tw-rounded-lg",
         ];
       }
       case PlanCardState.NotSelected: {
@@ -670,6 +670,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     if (this.selectedPlan.PasswordManager.hasPremiumAccessOption) {
       subTotal += this.selectedPlan.PasswordManager.premiumAccessOptionPrice;
     }
+    if (this.selectedPlan.PasswordManager.hasAdditionalStorageOption) {
+      subTotal += this.additionalStorageTotal(this.selectedPlan);
+    }
     return subTotal - this.discount;
   }
 
@@ -707,18 +710,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     }
 
     if (this.organization.useSecretsManager) {
-      return (
-        this.passwordManagerSubtotal +
-        this.additionalStorageTotal(this.selectedPlan) +
-        this.secretsManagerSubtotal() +
-        this.estimatedTax
-      );
+      return this.passwordManagerSubtotal + this.secretsManagerSubtotal() + this.estimatedTax;
     }
-    return (
-      this.passwordManagerSubtotal +
-      this.additionalStorageTotal(this.selectedPlan) +
-      this.estimatedTax
-    );
+    return this.passwordManagerSubtotal + this.estimatedTax;
   }
 
   get teamsStarterPlanIsAvailable() {
@@ -801,7 +795,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
           : this.i18nService.t("organizationUpgraded"),
       });
 
-      await this.apiService.refreshIdentityToken();
       await this.syncService.fullSync(true);
 
       if (!this.acceptingSponsorship && !this.isInTrialFlow) {

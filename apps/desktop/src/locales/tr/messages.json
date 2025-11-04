@@ -771,6 +771,9 @@
   "useSingleSignOn": {
     "message": "Çoklu oturum açma kullan"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Kuruluşunuz çoklu oturum açma gerektiriyor."
+  },
   "submit": {
     "message": "Gönder"
   },
@@ -4181,5 +4184,11 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / posta kodu"
+  },
+  "cardNumberLabel": {
+    "message": "Kart numarası"
   }
 }

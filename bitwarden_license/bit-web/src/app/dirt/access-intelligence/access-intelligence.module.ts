@@ -30,12 +30,14 @@ import { LogService } from "@bitwarden/logging";
 import { DefaultAdminTaskService } from "../../vault/services/default-admin-task.service";
 
 import { AccessIntelligenceRoutingModule } from "./access-intelligence-routing.module";
+import { NewApplicationsDialogComponent } from "./activity/application-review-dialog/new-applications-dialog.component";
 import { RiskInsightsComponent } from "./risk-insights.component";
 import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.service";
 
 @NgModule({
-  imports: [RiskInsightsComponent, AccessIntelligenceRoutingModule],
+  imports: [RiskInsightsComponent, AccessIntelligenceRoutingModule, NewApplicationsDialogComponent],
   providers: [
+    safeProvider(DefaultAdminTaskService),
     safeProvider({
       provide: MemberCipherDetailsApiService,
       useClass: MemberCipherDetailsApiService,

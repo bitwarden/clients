@@ -78,40 +78,37 @@ export class NativeMessagingMain {
       this.ipcServer.stop();
     }
 
-    this.ipcServer = await ipc.NativeIpcServer.listen(
-      "bitwarden",
-      (error: Error | null, msg: ipc.IpcMessage) => {
-        switch (msg.kind) {
-          case ipc.IpcMessageType.Connected: {
-            this.connected.push(msg.clientId);
-            this.logService.info("Native messaging client " + msg.clientId + " has connected");
-            break;
-          }
-          case ipc.IpcMessageType.Disconnected: {
-            const index = this.connected.indexOf(msg.clientId);
-            if (index > -1) {
-              this.connected.splice(index, 1);
-            }
-
-            this.logService.info("Native messaging client " + msg.clientId + " has disconnected");
-            break;
-          }
-          case ipc.IpcMessageType.Message:
-            try {
-              const msgJson = JSON.parse(msg.message);
-              this.logService.debug("Native messaging message:", msgJson);
-              this.windowMain.win?.webContents.send("nativeMessaging", msgJson);
-            } catch (e) {
-              this.logService.warning("Error processing message:", e, msg.message);
-            }
-            break;
-
-          default:
-            this.logService.warning("Unknown message type:", msg.kind, msg.message);
-            break;
+    this.ipcServer = await ipc.NativeIpcServer.listen("bw", (error, msg) => {
+      switch (msg.kind) {
+        case ipc.IpcMessageType.Connected: {
+          this.connected.push(msg.clientId);
+          this.logService.info("Native messaging client " + msg.clientId + " has connected");
+          break;
         }
-      },
-    );
+        case ipc.IpcMessageType.Disconnected: {
+          const index = this.connected.indexOf(msg.clientId);
+          if (index > -1) {
+            this.connected.splice(index, 1);
+          }
+
+          this.logService.info("Native messaging client " + msg.clientId + " has disconnected");
+          break;
+        }
+        case ipc.IpcMessageType.Message:
+          try {
+            const msgJson = JSON.parse(msg.message);
+            this.logService.debug("Native messaging message:", msgJson);
+            this.windowMain.win?.webContents.send("nativeMessaging", msgJson);
+          } catch (e) {
+            this.logService.warning("Error processing message:", e, msg.message);
+          }
+          break;
+
+        default:
+          this.logService.warning("Unknown message type:", msg.kind, msg.message);
+          break;
+      }
+    });
 
     this.logService.info("Native messaging server started at:", this.ipcServer.getPath());
 
