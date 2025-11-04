@@ -160,6 +160,11 @@ export default tseslint.config(
               // allow module index import
               except: ["**/state/index.ts"],
             },
+            {
+              target: ["libs/**/*"],
+              from: ["apps/**/*"],
+              message: "Libs should not import app-specific code.",
+            },
           ],
         },
       ],
@@ -688,6 +693,12 @@ function buildNoRestrictedImports(additionalForbiddenPatterns = [], skipPlatform
   return [
     "error",
     {
+      paths: [
+        {
+          name: "@bitwarden/commercial-sdk-internal",
+          message: "Use @bitwarden/sdk-internal instead.",
+        },
+      ],
       patterns: [
         ...(skipPlatform ? [] : ["**/platform/**/internal", "**/platform/messaging/**"]),
         "**/src/**/*", // Prevent relative imports across libs.

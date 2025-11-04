@@ -3,7 +3,6 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import {
   first,
-  firstValueFrom,
   lastValueFrom,
   Observable,
   Subject,
@@ -261,13 +260,6 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
     if (result) {
       const recoverComp = TwoFactorRecoveryComponent.open(this.dialogService, { data: result });
       await lastValueFrom(recoverComp.closed);
-    }
-  }
-
-  async premiumRequired() {
-    if (!(await firstValueFrom(this.canAccessPremium$))) {
-      this.messagingService.send("premiumRequired");
-      return;
     }
   }
 

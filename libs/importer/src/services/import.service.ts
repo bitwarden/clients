@@ -8,6 +8,7 @@ import {
   CollectionService,
   CollectionWithIdRequest,
   CollectionView,
+  CollectionTypes,
 } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -101,7 +102,7 @@ import {
   ImportType,
   regularImportOptions,
 } from "../models/import-options";
-import { ImportResult } from "../models/import-result";
+import { CollectionRelationship, FolderRelationship, ImportResult } from "../models/import-result";
 import { ImportApiServiceAbstraction } from "../services/import-api.service.abstraction";
 import { ImportServiceAbstraction } from "../services/import.service.abstraction";
 
@@ -473,19 +474,20 @@ export class ImportService implements ImportServiceAbstraction {
 
   private async setImportTarget(
     importResult: ImportResult,
-    organizationId: string,
+    organizationId: OrganizationId | undefined,
     importTarget: FolderView | CollectionView,
   ) {
     if (!importTarget) {
       return;
     }
 
+    // Importing into an organization
     if (organizationId) {
       if (!(importTarget instanceof CollectionView)) {
         throw new Error(this.i18nService.t("errorAssigningTargetCollection"));
       }
 
-      const noCollectionRelationShips: [number, number][] = [];
+      const noCollectionRelationShips: CollectionRelationship[] = [];
       importResult.ciphers.forEach((c, index) => {
         if (
           !Array.isArray(importResult.collectionRelationships) ||
@@ -495,15 +497,28 @@ export class ImportService implements ImportServiceAbstraction {
         }
       });
 
-      const collections: CollectionView[] = [...importResult.collections];
-      importResult.collections = [importTarget as CollectionView];
+      // My Items collections do not support collection nesting.
+      // Flatten all ciphers from nested collections into the import target.
+      if (importTarget.type === CollectionTypes.DefaultUserCollection) {
+        importResult.collections = [importTarget];
+
+        const flattenRelationships: CollectionRelationship[] = [];
+        importResult.ciphers.forEach((c, index) => {
+          flattenRelationships.push([index, 0]);
+        });
+        importResult.collectionRelationships = flattenRelationships;
+        return;
+      }
+
+      const collections = [...importResult.collections];
+      importResult.collections = [importTarget];
       collections.map((x) => {
         const f = new CollectionView(x);
         f.name = `${importTarget.name}/${x.name}`;
         importResult.collections.push(f);
       });
 
-      const relationships: [number, number][] = [...importResult.collectionRelationships];
+      const relationships = [...importResult.collectionRelationships];
       importResult.collectionRelationships = [...noCollectionRelationShips];
       relationships.map((x) => {
         importResult.collectionRelationships.push([x[0], x[1] + 1]);
@@ -512,11 +527,12 @@ export class ImportService implements ImportServiceAbstraction {
       return;
     }
 
+    // Importing into personal vault
     if (!(importTarget instanceof FolderView)) {
       throw new Error(this.i18nService.t("errorAssigningTargetFolder"));
     }
 
-    const noFolderRelationShips: [number, number][] = [];
+    const noFolderRelationShips: FolderRelationship[] = [];
     importResult.ciphers.forEach((c, index) => {
       if (Utils.isNullOrEmpty(c.folderId)) {
         c.folderId = importTarget.id;
@@ -524,8 +540,8 @@ export class ImportService implements ImportServiceAbstraction {
       }
     });
 
-    const folders: FolderView[] = [...importResult.folders];
-    importResult.folders = [importTarget as FolderView];
+    const folders = [...importResult.folders];
+    importResult.folders = [importTarget];
     folders.map((x) => {
       const newFolderName = `${importTarget.name}/${x.name}`;
       const f = new FolderView();
@@ -533,7 +549,7 @@ export class ImportService implements ImportServiceAbstraction {
       importResult.folders.push(f);
     });
 
-    const relationships: [number, number][] = [...importResult.folderRelationships];
+    const relationships = [...importResult.folderRelationships];
     importResult.folderRelationships = [...noFolderRelationShips];
     relationships.map((x) => {
       importResult.folderRelationships.push([x[0], x[1] + 1]);

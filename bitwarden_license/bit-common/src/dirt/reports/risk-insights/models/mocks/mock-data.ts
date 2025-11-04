@@ -77,7 +77,6 @@ export const mockSummaryData: OrganizationReportSummary = {
   totalCriticalAtRiskMemberCount: 1,
   totalCriticalApplicationCount: 1,
   totalCriticalAtRiskApplicationCount: 1,
-  newApplications: [],
 };
 export const mockApplicationData: OrganizationReportApplication[] = [
   {
@@ -93,8 +92,8 @@ export const mockApplicationData: OrganizationReportApplication[] = [
 ];
 
 export const mockEnrichedReportData: ApplicationHealthReportDetailEnriched[] = [
-  { ...mockApplication1, isMarkedAsCritical: true, ciphers: [] },
-  { ...mockApplication2, isMarkedAsCritical: false, ciphers: [] },
+  { ...mockApplication1, isMarkedAsCritical: true },
+  { ...mockApplication2, isMarkedAsCritical: false },
 ];
 
 export const mockCipherViews: CipherView[] = [

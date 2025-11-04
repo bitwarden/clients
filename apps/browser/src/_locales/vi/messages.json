@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Dùng đăng nhập một lần"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Chào mừng bạn trở lại"
   },
@@ -588,6 +591,9 @@
   "view": {
     "message": "Xem"
   },
+  "viewAll": {
+    "message": "View all"
+  },
   "viewLogin": {
     "message": "Xem đăng nhập"
   },
@@ -1027,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Đã lưu mục"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Bạn có chắc muốn cho nó vào thùng rác?"
@@ -1676,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Tắt tự động điền"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "Hiển thị các gợi ý tự động điền trên các trường biểu mẫu"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Hiển thị danh tính dưới dạng gợi ý"
@@ -3240,6 +3279,9 @@
   "decryptionError": {
     "message": "Lỗi giải mã"
   },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden không thể giải mã các mục trong kho lưu trữ được liệt kê bên dưới."
   },
@@ -4010,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Tự động điền khi tải trang được đặt thành mặc định trong cài đặt.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "Ẩn/hiện thanh điều hướng bên"
@@ -5580,30 +5631,30 @@
     "message": "Chào mừng đến với kho lưu trữ của bạn!"
   },
   "phishingPageTitleV2": {
-    "message": "Phishing attempt detected"
+    "message": "Đã phát hiện nỗ lực lừa đảo"
   },
   "phishingPageSummary": {
-    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+    "message": "Trang web bạn đang cố gắng truy cập là một trang độc hại đã được báo cáo và có nguy cơ bảo mật."
   },
   "phishingPageCloseTabV2": {
-    "message": "Close this tab"
+    "message": "Đóng thẻ này"
   },
   "phishingPageContinueV2": {
-    "message": "Continue to this site (not recommended)"
+    "message": "Tiếp tục truy cập trang web này (không khuyến khích)"
   },
   "phishingPageExplanation1": {
-    "message": "This site was found in ",
+    "message": "Trang web này được tìm thấy trong ",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
   },
   "phishingPageExplanation2": {
-    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "message": ", một danh sách nguồn mở các trang lừa đảo đã biết được sử dụng để đánh cắp thông tin cá nhân và nhạy cảm.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
   },
   "phishingPageLearnMore": {
-    "message": "Learn more about phishing detection"
+    "message": "Tìm hiểu thêm về phát hiện lừa đảo"
   },
   "protectedBy": {
-    "message": "Protected by $PRODUCT$",
+    "message": "Được bảo vệ bởi $PRODUCT$",
     "placeholders": {
       "product": {
         "content": "$1",
@@ -5716,10 +5767,16 @@
     "message": "Xác nhận tên miền Key Connector"
   },
   "atRiskLoginsSecured": {
-    "message": "Great job securing your at-risk logins!"
+    "message": "Thật tuyệt khi bảo vệ các đăng nhập có nguy cơ của bạn!"
   },
   "settingDisabledByPolicy": {
-    "message": "This setting is disabled by your organization's policy.",
+    "message": "Cài đặt này bị vô hiệu hóa bởi chính sách tổ chức của bạn.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

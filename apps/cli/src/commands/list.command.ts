@@ -102,7 +102,7 @@ export class ListCommand {
           if (options.folderId === "notnull" && c.folderId != null) {
             return true;
           }
-          const folderId = options.folderId === "null" ? null : options.folderId;
+          const folderId = options.folderId === "null" ? undefined : options.folderId;
           if (folderId === c.folderId) {
             return true;
           }
@@ -112,7 +112,8 @@ export class ListCommand {
           if (options.organizationId === "notnull" && c.organizationId != null) {
             return true;
           }
-          const organizationId = options.organizationId === "null" ? null : options.organizationId;
+          const organizationId =
+            options.organizationId === "null" ? undefined : options.organizationId;
           if (organizationId === c.organizationId) {
             return true;
           }
