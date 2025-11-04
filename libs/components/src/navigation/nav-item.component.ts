@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, HostListener, Optional, input } from "@angular/core";
+import { Component, HostListener, Optional, input, model } from "@angular/core";
 import { RouterLinkActive, RouterModule } from "@angular/router";
 import { BehaviorSubject, map } from "rxjs";
 
@@ -11,6 +11,7 @@ import { SideNavService } from "./side-nav.service";
 // Resolves a circular dependency between `NavItemComponent` and `NavItemGroup` when using standalone components.
 export abstract class NavGroupAbstraction {
   abstract setOpen(open: boolean): void;
+  abstract treeDepth: ReturnType<typeof model<number>>;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -92,8 +93,7 @@ export class NavItemComponent extends NavBaseComponent {
     super();
 
     // Set tree depth based on parent's depth
-    // Cast to NavBaseComponent to access treeDepth
-    if (this.parentNavGroup && this.parentNavGroup instanceof NavBaseComponent) {
+    if (this.parentNavGroup) {
       this.treeDepth.set(this.parentNavGroup.treeDepth() + 1);
     }
   }

@@ -1,6 +1,5 @@
 import { CommonModule } from "@angular/common";
 import {
-  AfterContentInit,
   booleanAttribute,
   Component,
   EventEmitter,
@@ -34,7 +33,8 @@ import { SideNavService } from "./side-nav.service";
   ],
   imports: [CommonModule, NavItemComponent, IconButtonModule, I18nPipe],
 })
-export class NavGroupComponent extends NavBaseComponent implements AfterContentInit {
+export class NavGroupComponent extends NavBaseComponent {
+  // Query direct children for hideIfEmpty functionality
   readonly nestedNavComponents = contentChildren(NavBaseComponent, { descendants: false });
 
   readonly sideNavOpen = toSignal(this.sideNavService.open$);
@@ -97,18 +97,6 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
   @Output()
   openChange = new EventEmitter<boolean>();
 
-  private initNestedStyles() {
-    if (this.variant() !== "tree") {
-      return;
-    }
-    // Set depth for direct children
-    // NavGroups set their own depth in constructor, but NavItems need it set here
-    const parentDepth = this.treeDepth();
-    this.nestedNavComponents().forEach((navGroupOrItem) => {
-      navGroupOrItem.treeDepth.set(parentDepth + 1);
-    });
-  }
-
   constructor(
     protected sideNavService: SideNavService,
     @Optional() @SkipSelf() private parentNavGroup: NavGroupComponent,
@@ -116,6 +104,7 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
     super();
 
     // Set tree depth based on parent's depth
+    // Both NavGroups and NavItems use constructor-based depth initialization
     if (this.parentNavGroup) {
       this.treeDepth.set(this.parentNavGroup.treeDepth() + 1);
     }
@@ -144,9 +133,5 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
       this.toggle();
     }
     this.mainContentClicked.emit();
-  }
-
-  ngAfterContentInit(): void {
-    this.initNestedStyles();
   }
 }
