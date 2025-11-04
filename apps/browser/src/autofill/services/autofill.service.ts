@@ -923,6 +923,9 @@ export default class AutofillService implements AutofillServiceInterface {
     };
 
     if (focusedUsernameField && !prioritizedPasswordFields.some(passwordMatchesFocused)) {
+      if (Object.prototype.hasOwnProperty.call(filledFields, focusedUsernameField.opid)) {
+        return fillScript;
+      }
       filledFields[focusedUsernameField.opid] = focusedUsernameField;
       AutofillService.fillByOpid(fillScript, focusedUsernameField, login.username);
       if (options.autoSubmitLogin && focusedUsernameField.form) {
@@ -1037,8 +1040,7 @@ export default class AutofillService implements AutofillServiceInterface {
     const usernamesToFill = focusedUsernameField ? [focusedUsernameField] : [...usernames.values()];
 
     usernamesToFill.forEach((u) => {
-      // eslint-disable-next-line
-      if (filledFields.hasOwnProperty(u.opid)) {
+      if (Object.prototype.hasOwnProperty.call(filledFields, u.opid)) {
         return;
       }
 
