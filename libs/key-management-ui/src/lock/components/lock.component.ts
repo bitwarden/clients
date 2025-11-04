@@ -322,9 +322,10 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   private async setDefaultActiveUnlockOption(unlockOptions: UnlockOptions | null) {
-    const biometricsStatus = await this.biometricService.getBiometricsStatusForUser(
-      this.activeAccount.id,
-    );
+    const biometricsStatus: BiometricsStatus | null =
+      this.activeAccount != null
+        ? await this.biometricService.getBiometricsStatusForUser(this.activeAccount.id)
+        : null;
 
     // Priorities should be Biometrics > Pin > Master Password for speed
     if (unlockOptions?.biometrics.enabled) {
