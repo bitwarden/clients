@@ -201,7 +201,7 @@ fn get_profile_info(local_state: &LocalState) -> Vec<ProfileInfo> {
         .info_cache
         .iter()
         .map(|(folder, info)| ProfileInfo {
-            name: if !info.name.is_empty() {
+            name: if !info.name.trim().is_empty() {
                 info.name.clone()
             } else {
                 folder.clone()
