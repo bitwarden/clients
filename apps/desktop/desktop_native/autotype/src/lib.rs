@@ -1,5 +1,3 @@
-#![warn(clippy::pedantic)]
-
 use anyhow::Result;
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
