@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Observable } from "rxjs";
 
 import type { CipherRiskOptions, CipherRiskResult } from "@bitwarden/sdk-internal";
 
@@ -533,6 +533,57 @@ describe("DefaultCipherRiskService", () => {
 
       // Verify password_reuse_map was called twice (fresh computation each time)
       expect(mockCipherRiskClient.password_reuse_map).toHaveBeenCalledTimes(2);
+    });
+
+    it("should wait for a decrypted vault before computing risk", async () => {
+      const mockClient = sdkService.simulate.userLogin(mockUserId);
+      const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
+
+      const cipher = new CipherView();
+      cipher.id = mockCipherId1;
+      cipher.type = CipherType.Login;
+      cipher.login = new LoginView();
+      cipher.login.password = "password1";
+
+      // Simulate the observable emitting null (undecrypted vault) first, then the decrypted ciphers
+      const cipherViewsSubject = new BehaviorSubject<CipherView[] | null>(null);
+      mockCipherService.cipherViews$.mockReturnValue(
+        cipherViewsSubject as Observable<CipherView[]>,
+      );
+
+      mockCipherRiskClient.password_reuse_map.mockReturnValue({});
+      mockCipherRiskClient.compute_risk.mockResolvedValue([
+        {
+          id: mockCipherId1 as any,
+          password_strength: 4,
+          exposed_result: { type: "NotChecked" },
+          reuse_count: 1,
+        },
+      ]);
+
+      // Initiate the async call but don't await yet
+      const computePromise = cipherRiskService.computeCipherRiskForUser(
+        asUuid<CipherId>(mockCipherId1),
+        mockUserId,
+        true,
+      );
+
+      // Simulate a tick to allow the service to process the null emission
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      // Now emit the actual decrypted ciphers
+      cipherViewsSubject.next([cipher]);
+
+      const result = await computePromise;
+
+      expect(mockCipherRiskClient.compute_risk).toHaveBeenCalledWith(
+        [expect.objectContaining({ password: "password1" })],
+        {
+          passwordMap: expect.any(Object),
+          checkExposed: true,
+        },
+      );
+      expect(result).toEqual(expect.objectContaining({ id: expect.anything() }));
     });
   });
 });

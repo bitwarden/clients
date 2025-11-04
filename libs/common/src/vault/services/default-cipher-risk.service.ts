@@ -1,6 +1,7 @@
 import { firstValueFrom, switchMap } from "rxjs";
 
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   CipherLoginDetails,
   CipherRiskOptions,
@@ -52,7 +53,9 @@ export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
     checkExposed: boolean = true,
   ): Promise<CipherRiskResult> {
     // Get all ciphers for the user
-    const allCiphers = await firstValueFrom(this.cipherService.cipherViews$(userId));
+    const allCiphers = await firstValueFrom(
+      this.cipherService.cipherViews$(userId).pipe(filterOutNullish()),
+    );
 
     // Find the specific cipher
     const targetCipher = allCiphers?.find((c) => asUuid<CipherId>(c.id) === cipherId);
