@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::LazyLock;
 
@@ -150,7 +151,7 @@ pub(crate) struct LocalState {
 
 #[derive(serde::Deserialize, Clone)]
 struct AllProfiles {
-    info_cache: Vec<(String, OneProfile)>,
+    info_cache: HashMap<String, OneProfile>,
 }
 
 #[derive(serde::Deserialize, Clone)]
@@ -190,6 +191,8 @@ fn load_local_state(browser_dir: &Path) -> Result<LocalState> {
     let local_state = std::fs::read_to_string(browser_dir.join("Local State"))
         .map_err(|e| anyhow!("Failed to read local state file: {}", e))?;
 
+    println!("Local State content: {}", &local_state);
+
     serde_json::from_str(&local_state)
         .map_err(|e| anyhow!("Failed to parse local state JSON: {}", e))
 }
@@ -199,13 +202,13 @@ fn get_profile_info(local_state: &LocalState) -> Vec<ProfileInfo> {
         .profile
         .info_cache
         .iter()
-        .map(|(name, info)| ProfileInfo {
+        .map(|(folder, info)| ProfileInfo {
             name: if !info.name.is_empty() {
                 info.name.clone()
             } else {
                 String::from("Default")
             },
-            folder: name.clone(),
+            folder: folder.clone(),
             account_name: info.gaia_id.clone(),
             account_email: info.user_name.clone(),
         })
@@ -372,7 +375,7 @@ mod tests {
                     },
                 )
             })
-            .collect::<Vec<_>>();
+            .collect::<HashMap<_, _>>();
 
         LocalState {
             profile: AllProfiles { info_cache },
@@ -398,18 +401,20 @@ mod tests {
         ]);
         let infos = get_profile_info(&local_state);
         assert_eq!(infos.len(), 2);
-        assert_eq!(infos[0].name, "User 1");
-        assert_eq!(infos[0].folder, "Profile 1");
-        assert_eq!(infos[0].account_name.as_deref(), Some("Account 1"));
+
+        let profile1 = infos.iter().find(|p| p.folder == "Profile 1").unwrap();
+        assert_eq!(profile1.name, "User 1");
+        assert_eq!(profile1.account_name.as_deref(), Some("Account 1"));
         assert_eq!(
-            infos[0].account_email.as_deref(),
+            profile1.account_email.as_deref(),
             Some("email1@example.com")
         );
-        assert_eq!(infos[1].name, "User 2");
-        assert_eq!(infos[1].folder, "Profile 2");
-        assert_eq!(infos[1].account_name.as_deref(), Some("Account 2"));
+
+        let profile2 = infos.iter().find(|p| p.folder == "Profile 2").unwrap();
+        assert_eq!(profile2.name, "User 2");
+        assert_eq!(profile2.account_name.as_deref(), Some("Account 2"));
         assert_eq!(
-            infos[1].account_email.as_deref(),
+            profile2.account_email.as_deref(),
             Some("email2@example.com")
         );
     }
@@ -447,10 +452,16 @@ mod tests {
         ]);
         let infos = get_profile_info(&local_state);
         assert_eq!(infos.len(), 3);
-        assert_eq!(infos[0].name, "N1");
-        assert_eq!(infos[1].name, "Default");
-        assert_eq!(infos[2].name, "N3");
-        assert_eq!(infos[2].account_name.as_deref(), Some("A3"));
-        assert_eq!(infos[2].account_email, None);
+
+        let p1 = infos.iter().find(|p| p.folder == "P1").unwrap();
+        assert_eq!(p1.name, "N1");
+
+        let p2 = infos.iter().find(|p| p.folder == "P2").unwrap();
+        assert_eq!(p2.name, "Default");
+
+        let p3 = infos.iter().find(|p| p.folder == "P3").unwrap();
+        assert_eq!(p3.name, "N3");
+        assert_eq!(p3.account_name.as_deref(), Some("A3"));
+        assert_eq!(p3.account_email, None);
     }
 }
