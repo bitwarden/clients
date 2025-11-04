@@ -21,6 +21,9 @@ export class PopupPageComponent {
 
   readonly disablePadding = input(false, { transform: booleanAttribute });
 
+  /** Hides any overflow within the page content */
+  readonly hideOverflow = input(false, { transform: booleanAttribute });
+
   protected readonly scrolled = signal(false);
   isScrolled = this.scrolled.asReadonly();
 
