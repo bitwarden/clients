@@ -664,8 +664,8 @@ export class LoginComponent implements OnInit, OnDestroy {
           void this.loginStrategyService.getPasswordPrelogin(email);
         }
       }
-    } catch {
-      /* empty */
+    } catch (error) {
+      this.logService.error("Failed to prefetch prelogin data.", error);
     }
   }
 
