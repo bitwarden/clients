@@ -128,8 +128,7 @@ export const LongHostname: Story = {
     moduleMetadata({
       providers: [
         mockActivatedRoute({
-          phishingHost:
-            "very-long-suspicious-phishing-domain-name-that-might-wrap.malicious-example.com",
+          phishingHost: "verylongsuspiciousphishingdomainnamethatmightwrapmaliciousexample.com",
         }),
       ],
     }),
