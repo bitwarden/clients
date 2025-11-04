@@ -1,0 +1,12 @@
+<p bitTypography="body1">
+  {{ "blockClaimedDomainAccountCreationDesc" | i18n }}
+</p>
+
+<bit-callout type="info" title="{{ 'prerequisite' | i18n }}">
+  {{ "blockClaimedDomainAccountCreationPrerequisite" | i18n }}
+</bit-callout>
+
+<bit-form-control>
+  <input type="checkbox" id="enabled" bitCheckbox [formControl]="enabled" />
+  <bit-label>{{ "turnOn" | i18n }}</bit-label>
+</bit-form-control>

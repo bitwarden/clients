@@ -12072,5 +12072,14 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Start free Families trial"
+  },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Block account creation for claimed domains"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "A domain must be claimed before activating this policy."
   }
 }
