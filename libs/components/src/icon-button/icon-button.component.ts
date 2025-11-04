@@ -1,11 +1,24 @@
 import { NgClass } from "@angular/common";
-import { Component, computed, effect, ElementRef, HostBinding, input, model } from "@angular/core";
+import {
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  HostBinding,
+  inject,
+  input,
+  model,
+} from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
 
+import { AriaDisableDirective } from "../a11y";
 import { setA11yTitleAndAriaLabel } from "../a11y/set-a11y-title-and-aria-label";
 import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
 import { FocusableElement } from "../shared/focusable-element";
+import { SpinnerComponent } from "../spinner";
+import { TooltipDirective } from "../tooltip";
+import { ariaDisableElement } from "../utils";
 
 export type IconButtonType = "primary" | "danger" | "contrast" | "main" | "muted" | "nav-contrast";
 
@@ -69,6 +82,8 @@ const sizes: Record<IconButtonSize, string[]> = {
 
   * Similar to the main button components, spacing between multiple icon buttons should be .5rem.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "button[bitIconButton]:not(button[bitButton])",
   templateUrl: "icon-button.component.html",
@@ -76,9 +91,8 @@ const sizes: Record<IconButtonSize, string[]> = {
     { provide: ButtonLikeAbstraction, useExisting: BitIconButtonComponent },
     { provide: FocusableElement, useExisting: BitIconButtonComponent },
   ],
-  imports: [NgClass],
+  imports: [NgClass, SpinnerComponent],
   host: {
-    "[attr.disabled]": "disabledAttr()",
     /**
      * When the `bitIconButton` input is dynamic from a consumer, Angular doesn't put the
      * `bitIconButton` attribute into the DOM. We use the attribute as a css selector in
@@ -87,6 +101,10 @@ const sizes: Record<IconButtonSize, string[]> = {
      */
     "[attr.bitIconButton]": "icon()",
   },
+  hostDirectives: [
+    AriaDisableDirective,
+    { directive: TooltipDirective, inputs: ["tooltipPosition"] },
+  ],
 })
 export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableElement {
   readonly icon = model.required<string>({ alias: "bitIconButton" });
@@ -94,6 +112,9 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
   readonly buttonType = input<IconButtonType>("main");
 
   readonly size = model<IconButtonSize>("default");
+
+  private elementRef = inject(ElementRef);
+  private tooltip = inject(TooltipDirective, { host: true, optional: true });
 
   /**
    * label input will be used to set the `aria-label` attributes on the button.
@@ -105,7 +126,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
 
   @HostBinding("class") get classList() {
     return [
-      "tw-font-semibold",
+      "tw-font-medium",
       "tw-leading-[0px]",
       "tw-border-none",
       "tw-transition",
@@ -118,7 +139,11 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
       .concat(sizes[this.size()])
       .concat(
         this.showDisabledStyles() || this.disabled()
-          ? ["disabled:tw-opacity-60", "disabled:hover:!tw-bg-transparent"]
+          ? [
+              "aria-disabled:tw-opacity-60",
+              "aria-disabled:hover:!tw-bg-transparent",
+              "tw-cursor-default",
+            ]
           : [],
       );
   }
@@ -127,9 +152,9 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     return [this.icon(), "!tw-m-0"];
   }
 
-  protected disabledAttr = computed(() => {
+  protected readonly disabledAttr = computed(() => {
     const disabled = this.disabled() != null && this.disabled() !== false;
-    return disabled || this.loading() ? true : null;
+    return disabled || this.loading();
   });
 
   /**
@@ -140,7 +165,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
    * We can't use `disabledAttr` for this, because it returns `true` when `loading` is `true`.
    * We only want to show disabled styles during loading if `showLoadingStyles` is `true`.
    */
-  protected showDisabledStyles = computed(() => {
+  protected readonly showDisabledStyles = computed(() => {
     return this.showLoadingStyle() || (this.disabledAttr() && this.loading() === false);
   });
 
@@ -158,7 +183,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
    * This pattern of converting a signal to an observable and back to a signal is not
    * recommended. TODO -- find better way to use debounce with signals (CL-596)
    */
-  protected showLoadingStyle = toSignal(
+  protected readonly showLoadingStyle = toSignal(
     toObservable(this.loading).pipe(debounce((isLoading) => interval(isLoading ? 75 : 0))),
   );
 
@@ -168,15 +193,25 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     return this.elementRef.nativeElement;
   }
 
-  constructor(private elementRef: ElementRef) {
-    const originalTitle = this.elementRef.nativeElement.getAttribute("title");
+  constructor() {
+    const element = this.elementRef.nativeElement;
+
+    ariaDisableElement(element, this.disabledAttr);
+
+    const originalTitle = element.getAttribute("title");
 
     effect(() => {
       setA11yTitleAndAriaLabel({
         element: this.elementRef.nativeElement,
-        title: originalTitle ?? this.label(),
+        title: undefined,
         label: this.label(),
       });
+
+      const tooltipContent: string = originalTitle || this.label();
+
+      if (tooltipContent) {
+        this.tooltip?.tooltipContent.set(tooltipContent);
+      }
     });
   }
 }

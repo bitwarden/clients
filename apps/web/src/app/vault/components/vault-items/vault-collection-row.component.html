@@ -13,27 +13,41 @@
 </td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-min-w-fit">
   <div aria-hidden="true">
-    <i class="bwi bwi-fw bwi-lg bwi-collection-shared"></i>
+    <i
+      [class]="
+        'bwi bwi-fw bwi-lg ' +
+        (collection.type === DefaultCollectionType ? 'bwi-user' : 'bwi-collection-shared')
+      "
+    ></i>
   </div>
 </td>
 <td bitCell [ngClass]="RowHeightClass">
-  <button
-    bitLink
-    [disabled]="disabled"
-    type="button"
-    class="tw-flex tw-w-full tw-text-start tw-leading-snug"
-    linkType="secondary"
-    title="{{ 'viewCollectionWithName' | i18n: collection.name }}"
-    [routerLink]="[]"
-    [queryParams]="{ collectionId: collection.id }"
-    queryParamsHandling="merge"
-    appStopProp
-  >
-    <span class="tw-truncate tw-mr-1">{{ collection.name }}</span>
-    <div>
-      <span *ngIf="showAddAccess" bitBadge variant="warning">{{ "addAccess" | i18n }}</span>
-    </div>
-  </button>
+  <div class="tw-flex">
+    <button
+      bitLink
+      [disabled]="disabled"
+      type="button"
+      class="tw-flex tw-text-start tw-leading-snug tw-truncate"
+      linkType="secondary"
+      title="{{ 'viewCollectionWithName' | i18n: collection.name }}"
+      [routerLink]="[]"
+      [queryParams]="{ collectionId: collection.id }"
+      queryParamsHandling="merge"
+      appStopProp
+    >
+      <span class="tw-truncate tw-mr-1">{{ collection.name }}</span>
+    </button>
+    @if (showAddAccess) {
+      <button
+        bitBadge
+        type="button"
+        (click)="addAccess(CollectionPermission.Manage)"
+        variant="warning"
+      >
+        {{ "addAccess" | i18n }}
+      </button>
+    }
+  </div>
 </td>
 <td bitCell [ngClass]="RowHeightClass" *ngIf="showOwner" class="tw-hidden lg:tw-table-cell">
   <app-org-badge

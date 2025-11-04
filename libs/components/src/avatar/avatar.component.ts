@@ -1,17 +1,16 @@
 import { NgClass } from "@angular/common";
-import { Component, OnChanges, input } from "@angular/core";
-import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
+import { Component, computed, input } from "@angular/core";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 type SizeTypes = "xlarge" | "large" | "default" | "small" | "xsmall";
 
 const SizeClasses: Record<SizeTypes, string[]> = {
-  xlarge: ["tw-h-24", "tw-w-24"],
-  large: ["tw-h-16", "tw-w-16"],
-  default: ["tw-h-10", "tw-w-10"],
-  small: ["tw-h-7", "tw-w-7"],
-  xsmall: ["tw-h-6", "tw-w-6"],
+  xlarge: ["tw-h-24", "tw-w-24", "tw-min-w-24"],
+  large: ["tw-h-16", "tw-w-16", "tw-min-w-16"],
+  default: ["tw-h-10", "tw-w-10", "tw-min-w-10"],
+  small: ["tw-h-7", "tw-w-7", "tw-min-w-7"],
+  xsmall: ["tw-h-6", "tw-w-6", "tw-min-w-6"],
 };
 
 /**
@@ -20,14 +19,38 @@ const SizeClasses: Record<SizeTypes, string[]> = {
   * A variance in color across the avatar component is important as it is used in Account Switching as a
   * visual indicator to recognize which of a personal or work account a user is logged into.
 */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-avatar",
-  template: `@if (src) {
-    <img [src]="src" title="{{ title() || text() }}" [ngClass]="classList" />
-  }`,
+  template: `
+    <span [title]="title() || text()">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        pointer-events="none"
+        [style.backgroundColor]="backgroundColor()"
+        [ngClass]="classList()"
+        attr.viewBox="0 0 {{ svgSize }} {{ svgSize }}"
+      >
+        <text
+          text-anchor="middle"
+          y="50%"
+          x="50%"
+          dy="0.35em"
+          pointer-events="auto"
+          [attr.fill]="textColor()"
+          [style.fontWeight]="svgFontWeight"
+          [style.fontSize.px]="svgFontSize"
+          font-family='Inter,"Helvetica Neue",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"'
+        >
+          {{ displayChars() }}
+        </text>
+      </svg>
+    </span>
+  `,
   imports: [NgClass],
 })
-export class AvatarComponent implements OnChanges {
+export class AvatarComponent {
   readonly border = input(false);
   readonly color = input<string>();
   readonly id = input<string>();
@@ -35,36 +58,40 @@ export class AvatarComponent implements OnChanges {
   readonly title = input<string>();
   readonly size = input<SizeTypes>("default");
 
-  private svgCharCount = 2;
-  private svgFontSize = 20;
-  private svgFontWeight = 300;
-  private svgSize = 48;
-  src?: SafeResourceUrl;
+  protected readonly svgCharCount = 2;
+  protected readonly svgFontSize = 20;
+  protected readonly svgFontWeight = 300;
+  protected readonly svgSize = 48;
 
-  constructor(public sanitizer: DomSanitizer) {}
-
-  ngOnChanges() {
-    this.generate();
-  }
-
-  get classList() {
-    return ["tw-rounded-full", "tw-inline"]
+  protected readonly classList = computed(() => {
+    return ["tw-rounded-full"]
       .concat(SizeClasses[this.size()] ?? [])
       .concat(this.border() ? ["tw-border", "tw-border-solid", "tw-border-secondary-600"] : []);
-  }
+  });
 
-  private generate() {
-    const color = this.color();
-    const text = this.text();
+  protected readonly backgroundColor = computed(() => {
     const id = this.id();
-    if (!text && !color && !id) {
-      throw new Error("Must supply `text`, `color`, or `id` input.");
+    const upperCaseText = this.text()?.toUpperCase() ?? "";
+
+    if (!Utils.isNullOrWhitespace(this.color())) {
+      return this.color()!;
     }
-    let chars: string | null = null;
-    const upperCaseText = text?.toUpperCase() ?? "";
 
-    chars = this.getFirstLetters(upperCaseText, this.svgCharCount);
+    if (!Utils.isNullOrWhitespace(id)) {
+      return Utils.stringToColor(id!.toString());
+    }
 
+    return Utils.stringToColor(upperCaseText);
+  });
+
+  protected readonly textColor = computed(() => {
+    return Utils.pickTextColorBasedOnBgColor(this.backgroundColor(), 135, true);
+  });
+
+  protected readonly displayChars = computed(() => {
+    const upperCaseText = this.text()?.toUpperCase() ?? "";
+
+    let chars = this.getFirstLetters(upperCaseText, this.svgCharCount);
     if (chars == null) {
       chars = this.unicodeSafeSubstring(upperCaseText, this.svgCharCount);
     }
@@ -75,30 +102,10 @@ export class AvatarComponent implements OnChanges {
       chars = emojiMatch[0];
     }
 
-    let svg: HTMLElement;
-    let hexColor = color ?? "";
-    if (!Utils.isNullOrWhitespace(hexColor)) {
-      svg = this.createSvgElement(this.svgSize, hexColor);
-    } else if (!Utils.isNullOrWhitespace(id ?? "")) {
-      hexColor = Utils.stringToColor(id!.toString());
-      svg = this.createSvgElement(this.svgSize, hexColor);
-    } else {
-      hexColor = Utils.stringToColor(upperCaseText);
-      svg = this.createSvgElement(this.svgSize, hexColor);
-    }
+    return chars;
+  });
 
-    const charObj = this.createTextElement(chars, hexColor);
-    svg.appendChild(charObj);
-    const html = window.document.createElement("div").appendChild(svg).outerHTML;
-    const svgHtml = window.btoa(unescape(encodeURIComponent(html)));
-
-    // This is safe because the only user provided value, chars is set using `textContent`
-    this.src = this.sanitizer.bypassSecurityTrustResourceUrl(
-      "data:image/svg+xml;base64," + svgHtml,
-    );
-  }
-
-  private getFirstLetters(data: string, count: number): string | null {
+  private getFirstLetters(data: string, count: number): string | undefined {
     const parts = data.split(" ");
     if (parts.length > 1) {
       let text = "";
@@ -107,39 +114,7 @@ export class AvatarComponent implements OnChanges {
       }
       return text;
     }
-    return null;
-  }
-
-  private createSvgElement(size: number, color: string): HTMLElement {
-    const svgTag = window.document.createElement("svg");
-    svgTag.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-    svgTag.setAttribute("pointer-events", "none");
-    svgTag.setAttribute("width", size.toString());
-    svgTag.setAttribute("height", size.toString());
-    svgTag.style.backgroundColor = color;
-    svgTag.style.width = size + "px";
-    svgTag.style.height = size + "px";
-    return svgTag;
-  }
-
-  private createTextElement(character: string, color: string): HTMLElement {
-    const textTag = window.document.createElement("text");
-    textTag.setAttribute("text-anchor", "middle");
-    textTag.setAttribute("y", "50%");
-    textTag.setAttribute("x", "50%");
-    textTag.setAttribute("dy", "0.35em");
-    textTag.setAttribute("pointer-events", "auto");
-    textTag.setAttribute("fill", Utils.pickTextColorBasedOnBgColor(color, 135, true));
-    textTag.setAttribute(
-      "font-family",
-      'Roboto,"Helvetica Neue",Helvetica,Arial,' +
-        'sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',
-    );
-    // Warning do not use innerHTML here, characters are user provided
-    textTag.textContent = character;
-    textTag.style.fontWeight = this.svgFontWeight.toString();
-    textTag.style.fontSize = this.svgFontSize + "px";
-    return textTag;
+    return undefined;
   }
 
   private unicodeSafeSubstring(str: string, count: number) {

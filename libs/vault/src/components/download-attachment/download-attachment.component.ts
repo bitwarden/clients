@@ -6,6 +6,7 @@ import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { DECRYPT_ERROR } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -16,6 +17,8 @@ import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.v
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { AsyncActionsModule, IconButtonModule, ToastService } from "@bitwarden/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-download-attachment",
   templateUrl: "./download-attachment.component.html",
@@ -23,18 +26,28 @@ import { AsyncActionsModule, IconButtonModule, ToastService } from "@bitwarden/c
 })
 export class DownloadAttachmentComponent {
   /** Attachment to download */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) attachment: AttachmentView;
 
   /** The cipher associated with the attachment */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) cipher: CipherView;
 
   // When in view mode, we will want to check for the master password reprompt
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() checkPwReprompt?: boolean = false;
 
   // Required for fetching attachment data when viewed from cipher via emergency access
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() emergencyAccessId?: EmergencyAccessId;
 
   /** When owners/admins can mange all items and when accessing from the admin console, use the admin endpoint */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() admin?: boolean = false;
 
   constructor(
@@ -45,6 +58,10 @@ export class DownloadAttachmentComponent {
     private stateProvider: StateProvider,
     private cipherService: CipherService,
   ) {}
+
+  protected get isDecryptionFailure(): boolean {
+    return this.attachment.fileName === DECRYPT_ERROR;
+  }
 
   /** Download the attachment */
   download = async () => {
@@ -87,6 +104,9 @@ export class DownloadAttachmentComponent {
         this.attachment,
         response,
         userId,
+        // When the emergency access ID is present, the cipher is being viewed via emergency access.
+        // Force legacy decryption in these cases.
+        this.emergencyAccessId ? true : false,
       );
 
       this.fileDownloadService.download({

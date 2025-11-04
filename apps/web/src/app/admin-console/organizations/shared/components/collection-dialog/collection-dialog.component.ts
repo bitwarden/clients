@@ -34,7 +34,6 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
@@ -93,6 +92,7 @@ export interface CollectionDialogParams {
   initialTab?: CollectionDialogTabType;
   parentCollectionId?: string;
   showOrgSelector?: boolean;
+  initialPermission?: CollectionPermission;
   /**
    * Flag to limit the nested collections to only those the user has explicit CanManage access too.
    */
@@ -116,6 +116,8 @@ export enum CollectionDialogAction {
   Upgrade = "upgrade",
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "collection-dialog.component.html",
   imports: [SharedModule, AccessSelectorModule, SelectModule],
@@ -143,6 +145,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected showDeleteButton = false;
   protected showAddAccessWarning = false;
   protected buttonDisplayName: ButtonType = ButtonType.Save;
+  protected initialPermission: CollectionPermission;
   private orgExceedingCollectionLimit!: Organization;
 
   constructor(
@@ -162,6 +165,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
   ) {
     this.tabIndex = params.initialTab ?? CollectionDialogTabType.Info;
+    this.initialPermission = params.initialPermission ?? CollectionPermission.View;
   }
 
   async ngOnInit() {
@@ -188,22 +192,16 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       await this.loadOrg(this.params.organizationId);
     }
 
-    const isBreadcrumbEventLogsEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.PM12276_BreadcrumbEventLogs),
+    this.organizationSelected.setAsyncValidators(
+      freeOrgCollectionLimitValidator(
+        this.organizations$,
+        this.collectionService
+          .encryptedCollections$(userId)
+          .pipe(map((collections) => collections ?? [])),
+        this.i18nService,
+      ),
     );
-
-    if (isBreadcrumbEventLogsEnabled) {
-      this.organizationSelected.setAsyncValidators(
-        freeOrgCollectionLimitValidator(
-          this.organizations$,
-          this.collectionService
-            .encryptedCollections$(userId)
-            .pipe(map((collections) => collections ?? [])),
-          this.i18nService,
-        ),
-      );
-      this.formGroup.updateValueAndValidity();
-    }
+    this.formGroup.updateValueAndValidity();
 
     this.organizationSelected.valueChanges
       .pipe(
@@ -398,15 +396,31 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       }
       return;
     }
+    if (
+      this.editMode &&
+      !this.collection?.canEditName(this.organization) &&
+      this.formGroup.controls.name.dirty
+    ) {
+      throw new Error("Cannot change readonly field: Name");
+    }
 
     const parent = this.formGroup.controls.parent?.value;
-    const collectionView = new CollectionAdminView({
-      id: this.params.collectionId as CollectionId,
-      organizationId: this.formGroup.controls.selectedOrg.value,
-      name: parent
-        ? `${parent}/${this.formGroup.controls.name.value}`
-        : this.formGroup.controls.name.value,
-    });
+
+    // Clone the current collection
+    const collectionView = Object.assign(
+      new CollectionAdminView({
+        id: "" as CollectionId,
+        organizationId: "" as OrganizationId,
+        name: "",
+      }),
+      this.collection,
+    );
+
+    collectionView.name = parent
+      ? `${parent}/${this.formGroup.controls.name.value}`
+      : this.formGroup.controls.name.value;
+    collectionView.id = this.params.collectionId as CollectionId;
+    collectionView.organizationId = this.formGroup.controls.selectedOrg.value;
     collectionView.externalId = this.formGroup.controls.externalId.value;
     collectionView.groups = this.formGroup.controls.access.value
       .filter((v) => v.type === AccessItemType.Group)
@@ -416,7 +430,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       .map(convertToSelectionView);
 
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const savedCollection = await this.collectionAdminService.save(collectionView, userId);
+
+    const collectionResponse = this.editMode
+      ? await this.collectionAdminService.update(collectionView, userId)
+      : await this.collectionAdminService.create(collectionView, userId);
 
     this.toastService.showToast({
       variant: "success",
@@ -426,7 +443,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       ),
     });
 
-    this.close(CollectionDialogAction.Saved, savedCollection);
+    this.close(CollectionDialogAction.Saved, collectionResponse);
   };
 
   protected delete = async () => {
@@ -483,14 +500,23 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
   private handleFormGroupReadonly(readonly: boolean) {
     if (readonly) {
+      this.formGroup.controls.access.disable();
       this.formGroup.controls.name.disable();
       this.formGroup.controls.parent.disable();
-      this.formGroup.controls.access.disable();
-    } else {
+      return;
+    }
+
+    this.formGroup.controls.access.enable();
+
+    if (!this.editMode) {
       this.formGroup.controls.name.enable();
       this.formGroup.controls.parent.enable();
-      this.formGroup.controls.access.enable();
+      return;
     }
+
+    const canEditName = this.collection.canEditName(this.organization);
+    this.formGroup.controls.name[canEditName ? "enable" : "disable"]();
+    this.formGroup.controls.parent[canEditName ? "enable" : "disable"]();
   }
 
   private close(action: CollectionDialogAction, collection?: CollectionResponse | CollectionView) {

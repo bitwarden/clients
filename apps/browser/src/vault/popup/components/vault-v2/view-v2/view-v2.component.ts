@@ -76,6 +76,8 @@ type LoadAction =
   | typeof COPY_VERIFICATION_CODE_ID
   | typeof UPDATE_PASSWORD;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-view-v2",
   templateUrl: "view-v2.component.html",
@@ -194,18 +196,14 @@ export class ViewV2Component {
   }
 
   setHeader(type: CipherType) {
-    switch (type) {
-      case CipherType.Login:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeLogin"));
-      case CipherType.Card:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeCard"));
-      case CipherType.Identity:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeIdentity"));
-      case CipherType.SecureNote:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("note"));
-      case CipherType.SshKey:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeSshkey"));
-    }
+    const translation = {
+      [CipherType.Login]: "viewItemHeaderLogin",
+      [CipherType.Card]: "viewItemHeaderCard",
+      [CipherType.Identity]: "viewItemHeaderIdentity",
+      [CipherType.SecureNote]: "viewItemHeaderNote",
+      [CipherType.SshKey]: "viewItemHeaderSshKey",
+    };
+    return this.i18nService.t(translation[type]);
   }
 
   async getCipherData(id: string, userId: UserId) {
@@ -329,8 +327,9 @@ export class ViewV2Component {
       case UPDATE_PASSWORD: {
         const repromptSuccess = await this.passwordRepromptService.showPasswordPrompt();
 
+        const tab = await BrowserApi.getTab(senderTabId);
         await sendExtensionMessage("bgHandleReprompt", {
-          tab: await chrome.tabs.get(senderTabId),
+          tab,
           success: repromptSuccess,
         });
 

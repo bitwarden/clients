@@ -5,9 +5,6 @@
 // fingerprint dialog
 export * from "./fingerprint-dialog/fingerprint-dialog.component";
 
-// icons
-export * from "./icons";
-
 // input password
 export * from "./input-password/input-password.component";
 export * from "./input-password/password-input-result";
@@ -62,6 +59,8 @@ export * from "./two-factor-auth";
 
 // device verification
 export * from "./new-device-verification/new-device-verification.component";
+export * from "./new-device-verification/new-device-verification-component.service";
+export * from "./new-device-verification/default-new-device-verification-component.service";
 
 // validators
 export * from "./validators/compare-inputs.validator";

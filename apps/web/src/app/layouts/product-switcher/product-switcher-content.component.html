@@ -14,7 +14,7 @@
         [routerLink]="product.appRoute"
         [ngClass]="
           product.isActive
-            ? 'tw-bg-primary-600 tw-font-bold !tw-text-contrast tw-ring-offset-2 hover:tw-bg-primary-600'
+            ? 'tw-bg-primary-600 tw-font-medium !tw-text-contrast tw-ring-offset-2 hover:tw-bg-primary-600'
             : ''
         "
         class="tw-group/product-link tw-flex tw-h-24 tw-w-28 tw-flex-col tw-items-center tw-justify-center tw-rounded tw-p-1 tw-text-primary-600 tw-outline-none hover:tw-bg-background-alt hover:tw-text-primary-700 hover:tw-no-underline focus-visible:!tw-ring-2 focus-visible:!tw-ring-primary-700"
@@ -31,7 +31,7 @@
     <!-- Other options -->
     <section
       *ngIf="products.other.length > 0"
-      class="tw-mt-4 tw-flex tw-w-full tw-flex-col tw-gap-2 tw-border-0 tw-border-t tw-border-solid tw-border-t-text-muted tw-p-2 tw-pb-0"
+      class="tw-mt-4 tw-flex tw-w-full tw-flex-col tw-gap-2 tw-border-0 tw-border-t tw-border-solid tw-border-t-secondary-100 tw-p-2 tw-pb-0"
     >
       <span class="tw-mb-1 tw-text-xs tw-text-muted">{{ "moreFromBitwarden" | i18n }}</span>
       <span *ngFor="let product of products.other">

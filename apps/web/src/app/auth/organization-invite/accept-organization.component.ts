@@ -2,17 +2,23 @@
 // @ts-strict-ignore
 import { Component } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationInvite } from "@bitwarden/common/auth/services/organization-invite/organization-invite";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 
 import { BaseAcceptComponent } from "../../common/base.accept.component";
 
 import { AcceptOrganizationInviteService } from "./accept-organization.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "accept-organization.component.html",
   standalone: false,
@@ -29,26 +35,31 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
     protected authService: AuthService,
     private acceptOrganizationInviteService: AcceptOrganizationInviteService,
     private organizationInviteService: OrganizationInviteService,
+    private accountService: AccountService,
+    private toastService: ToastService,
   ) {
     super(router, platformUtilsService, i18nService, route, authService);
   }
 
   async authedHandler(qParams: Params): Promise<void> {
     const invite = this.fromParams(qParams);
-    const success = await this.acceptOrganizationInviteService.validateAndAcceptInvite(invite);
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const success = await this.acceptOrganizationInviteService.validateAndAcceptInvite(
+      invite,
+      activeUserId,
+    );
 
     if (!success) {
       return;
     }
 
-    this.platformUtilService.showToast(
-      "success",
-      this.i18nService.t("inviteAccepted"),
-      invite.initOrganization
+    this.toastService.showToast({
+      message: invite.initOrganization
         ? this.i18nService.t("inviteInitAcceptedDesc")
-        : this.i18nService.t("inviteAcceptedDesc"),
-      { timeout: 10000 },
-    );
+        : this.i18nService.t("invitationAcceptedDesc"),
+      variant: "success",
+      timeout: 10000,
+    });
 
     await this.router.navigate(["/vault"]);
   }

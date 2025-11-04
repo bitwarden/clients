@@ -114,7 +114,6 @@ export function createGenerateFillScriptOptionsMock(customFields = {}): Generate
   return {
     skipUsernameOnlyFill: false,
     onlyEmptyFields: false,
-    onlyVisibleFields: false,
     fillNewPassword: false,
     allowTotpAutofill: false,
     autoSubmitLogin: false,

@@ -3,6 +3,7 @@
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -83,7 +84,8 @@ export class SendEditCommand {
       return Response.error("Premium status is required to use this feature.");
     }
 
-    let sendView = await send.decrypt();
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    let sendView = await send.decrypt(activeUserId);
     sendView = SendResponse.toView(req, sendView);
 
     try {

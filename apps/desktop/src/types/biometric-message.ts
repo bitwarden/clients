@@ -13,6 +13,15 @@ export enum BiometricAction {
 
   GetShouldAutoprompt = "getShouldAutoprompt",
   SetShouldAutoprompt = "setShouldAutoprompt",
+
+  EnrollPersistent = "enrollPersistent",
+  HasPersistentKey = "hasPersistentKey",
+
+  EnableWindowsV2 = "enableWindowsV2",
+  IsWindowsV2Enabled = "isWindowsV2Enabled",
+
+  EnableLinuxV2 = "enableLinuxV2",
+  IsLinuxV2Enabled = "isLinuxV2Enabled",
 }
 
 export type BiometricMessage =
@@ -22,7 +31,15 @@ export type BiometricMessage =
       key: string;
     }
   | {
-      action: Exclude<BiometricAction, BiometricAction.SetKeyForUser>;
+      action: BiometricAction.EnrollPersistent;
+      userId: string;
+      key: string;
+    }
+  | {
+      action: Exclude<
+        BiometricAction,
+        BiometricAction.SetKeyForUser | BiometricAction.EnrollPersistent
+      >;
       userId?: string;
       data?: any;
     };

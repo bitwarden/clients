@@ -38,7 +38,16 @@
 
     <div class="tw-grid tw-gap-3">
       <!-- Continue button -->
-      <button type="button" bitButton block buttonType="primary" (click)="continuePressed()">
+      <button
+        type="button"
+        bitButton
+        block
+        buttonType="primary"
+        (click)="continuePressed()"
+        [bitTooltip]="ssoRequired ? ('yourOrganizationRequiresSingleSignOn' | i18n) : ''"
+        [addTooltipToDescribedby]="ssoRequired"
+        [disabled]="ssoRequired"
+      >
         {{ "continue" | i18n }}
       </button>
 
@@ -52,6 +61,9 @@
           block
           buttonType="secondary"
           (click)="handleLoginWithPasskeyClick()"
+          [bitTooltip]="ssoRequired ? ('yourOrganizationRequiresSingleSignOn' | i18n) : ''"
+          [addTooltipToDescribedby]="ssoRequired"
+          [disabled]="ssoRequired"
         >
           <i class="bwi bwi-passkey tw-mr-1" aria-hidden="true"></i>
           {{ "logInWithPasskey" | i18n }}
@@ -59,7 +71,13 @@
       </ng-container>
 
       <!-- Button to Login with SSO -->
-      <button type="button" bitButton block buttonType="secondary" (click)="handleSsoClick()">
+      <button
+        type="button"
+        bitButton
+        block
+        [buttonType]="ssoRequired ? 'primary' : 'secondary'"
+        (click)="handleSsoClick()"
+      >
         <i class="bwi bwi-provider tw-mr-1" aria-hidden="true"></i>
         {{ "useSingleSignOn" | i18n }}
       </button>

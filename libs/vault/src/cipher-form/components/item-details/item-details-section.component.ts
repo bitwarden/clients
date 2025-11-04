@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
-import { concatMap, firstValueFrom, map } from "rxjs";
+import { concatMap, distinctUntilChanged, firstValueFrom, map } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -37,6 +37,8 @@ import {
 } from "../../abstractions/cipher-form-config.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-item-details-section",
   templateUrl: "./item-details-section.component.html",
@@ -82,9 +84,15 @@ export class ItemDetailsSectionComponent implements OnInit {
 
   protected userId: UserId;
 
+  protected favoriteButtonDisabled = false;
+
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true })
   config: CipherFormConfig;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   originalCipherView: CipherView;
 
@@ -123,7 +131,7 @@ export class ItemDetailsSectionComponent implements OnInit {
       this.itemDetailsForm.controls.organizationId.disabled ||
       (!this.allowPersonalOwnership &&
         this.config.originalCipher &&
-        this.itemDetailsForm.controls.organizationId.value === null)
+        this.itemDetailsForm.controls.organizationId.value == null)
     );
   }
 
@@ -184,6 +192,11 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   get showOwnership() {
+    // Don't show ownership field for archived ciphers
+    if (this.originalCipherView?.isArchived) {
+      return false;
+    }
+
     // Show ownership field when editing with available orgs
     const isEditingWithOrgs = this.organizations.length > 0 && this.config.mode === "edit";
 
@@ -223,13 +236,13 @@ export class ItemDetailsSectionComponent implements OnInit {
       });
       await this.updateCollectionOptions(this.initialValues?.collectionIds);
     }
+
     this.setFormState();
-    if (!this.allowOwnershipChange) {
-      this.itemDetailsForm.controls.organizationId.disable();
-    }
+
     this.itemDetailsForm.controls.organizationId.valueChanges
       .pipe(
         takeUntilDestroyed(this.destroyRef),
+        distinctUntilChanged(),
         concatMap(async () => {
           await this.updateCollectionOptions();
           this.setFormState();
@@ -239,18 +252,28 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   /**
-   * When the cipher does not belong to an organization but the user's organization
-   * requires all ciphers to be owned by an organization, disable the entire form
-   * until the user selects an organization.
+   * Updates the global form and organizationId control states.
    */
   private setFormState() {
     if (this.config.originalCipher && !this.allowPersonalOwnership) {
-      if (this.itemDetailsForm.controls.organizationId.value === null) {
+      // When editing a cipher and the user cannot have personal ownership
+      // and the cipher is is not within the organization - force the user to
+      // move the cipher within the organization first before editing any other field
+      if (this.itemDetailsForm.controls.organizationId.value == null) {
         this.cipherFormContainer.disableFormFields();
         this.itemDetailsForm.controls.organizationId.enable();
+        this.favoriteButtonDisabled = true;
       } else {
+        // The "after" from the above: When editing a cipher and the user cannot have personal ownership
+        // and the organization is populated - re-enable the global form.
         this.cipherFormContainer.enableFormFields();
+        this.favoriteButtonDisabled = false;
+        this.setCollectionControlState();
       }
+    } else if (!this.allowOwnershipChange) {
+      // When the user cannot change the organization field, disable the organizationId control.
+      // This could be because they aren't a part of an organization
+      this.itemDetailsForm.controls.organizationId.disable({ emitEvent: false });
     }
   }
 
@@ -296,16 +319,18 @@ export class ItemDetailsSectionComponent implements OnInit {
   private async initFromExistingCipher(prefillCipher: CipherView) {
     const { name, folderId, collectionIds } = prefillCipher;
 
-    this.itemDetailsForm.setValue({
+    this.itemDetailsForm.patchValue({
       name: name ? name : (this.initialValues?.name ?? ""),
-      organizationId: prefillCipher.organizationId, // We do not allow changing ownership of an existing cipher.
+      // We do not allow changing ownership of an existing cipher.
+      // Angular forms do not support `undefined` as a value for a form control,
+      // force `null` if `organizationId` is undefined.
+      organizationId: prefillCipher.organizationId ?? null,
       folderId: folderId ? folderId : (this.initialValues?.folderId ?? null),
       collectionIds: [],
       favorite: prefillCipher.favorite,
     });
 
     const orgId = this.itemDetailsForm.controls.organizationId.value as OrganizationId;
-    const organization = this.organizations.find((o) => o.id === orgId);
     const initializedWithCachedCipher = this.cipherFormContainer.initializedWithCachedCipher();
 
     // Configure form for clone mode.
@@ -327,9 +352,7 @@ export class ItemDetailsSectionComponent implements OnInit {
 
     await this.updateCollectionOptions(prefillCollections);
 
-    if (!organization?.canEditAllCiphers && !prefillCipher.canAssignToCollections) {
-      this.itemDetailsForm.controls.collectionIds.disable();
-    }
+    this.setCollectionControlState();
 
     if (this.partialEdit) {
       this.itemDetailsForm.disable();
@@ -344,19 +367,31 @@ export class ItemDetailsSectionComponent implements OnInit {
             c.readOnly &&
             this.originalCipherView.collectionIds.includes(c.id as CollectionId),
         );
-
-        // When Owners/Admins access setting is turned on.
-        // Disable Collections Options if Owner/Admin does not have Edit/Manage permissions on item
-        // Disable Collections Options if Custom user does not have Edit/Manage permissions on item
-        if (
-          (organization?.allowAdminAccessToAllCollectionItems &&
-            (!this.originalCipherView.viewPassword || !this.originalCipherView.edit)) ||
-          (organization?.type === OrganizationUserType.Custom &&
-            !this.originalCipherView.viewPassword)
-        ) {
-          this.itemDetailsForm.controls.collectionIds.disable();
-        }
       }
+    }
+  }
+
+  private setCollectionControlState() {
+    const initialCipherView = this.cipherFormContainer.getInitialCipherView();
+    const orgId = this.itemDetailsForm.controls.organizationId.value as OrganizationId;
+    const organization = this.organizations.find((o) => o.id === orgId);
+    if (!organization || !initialCipherView) {
+      return;
+    }
+    // Disable the collection control if either of the following apply:
+    // 1. The organization does not allow editing all ciphers and the existing cipher cannot be assigned to
+    // collections
+    // 2. When Owners/Admins access setting is turned on.
+    // AND either:
+    //   a. Disable Collections Options if Owner/Admin does not have Edit/Manage permissions on item
+    //   b. Disable Collections Options if Custom user does not have Edit/Manage permissions on item
+    if (
+      (!organization.canEditAllCiphers && !initialCipherView.canAssignToCollections) ||
+      (organization.allowAdminAccessToAllCollectionItems &&
+        (!initialCipherView.viewPassword || !initialCipherView.edit)) ||
+      (organization.type === OrganizationUserType.Custom && !initialCipherView.viewPassword)
+    ) {
+      this.itemDetailsForm.controls.collectionIds.disable();
     }
   }
 
@@ -381,6 +416,17 @@ export class ItemDetailsSectionComponent implements OnInit {
       this.showCollectionsControl = true;
     }
 
+    /**
+     * Determine if the the cipher is only assigned to shared collections.
+     * i.e. The cipher is not assigned to a default collections.
+     * Note: `.every` will return true for an empty array
+     */
+    const cipherIsOnlyInOrgCollections =
+      (this.originalCipherView?.collectionIds ?? []).length > 0 &&
+      this.originalCipherView.collectionIds.every(
+        (cId) =>
+          this.collections.find((c) => c.id === cId)?.type === CollectionTypes.SharedCollection,
+      );
     this.collectionOptions = this.collections
       .filter((c) => {
         // The collection belongs to the organization
@@ -398,10 +444,17 @@ export class ItemDetailsSectionComponent implements OnInit {
           return true;
         }
 
+        // When the cipher is only assigned to shared collections, do not allow a user to
+        // move it back to a default collection. Exclude the default collection from the list.
+        if (cipherIsOnlyInOrgCollections && c.type === CollectionTypes.DefaultUserCollection) {
+          return false;
+        }
+
         // Non-admins can only select assigned collections that are not read only. (Non-AC)
         return c.assigned && !c.readOnly;
       })
       .sort((a, b) => {
+        // Show default collection first
         const aIsDefaultCollection = a.type === CollectionTypes.DefaultUserCollection ? -1 : 0;
         const bIsDefaultCollection = b.type === CollectionTypes.DefaultUserCollection ? -1 : 0;
         return aIsDefaultCollection - bIsDefaultCollection;

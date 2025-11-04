@@ -4,13 +4,18 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { debounceTime, fromEvent } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { DarkImageSourceDirective } from "@bitwarden/vault";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-add-extension-videos",
   templateUrl: "./add-extension-videos.component.html",
-  imports: [CommonModule, JslibModule],
+  imports: [CommonModule, JslibModule, DarkImageSourceDirective],
 })
 export class AddExtensionVideosComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChildren("video", { read: ElementRef }) protected videoElements!: QueryList<
     ElementRef<HTMLVideoElement>
   >;

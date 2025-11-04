@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { filter, firstValueFrom, interval, of, switchMap, takeWhile, timeout } from "rxjs";
 
 import { ScrollOptions } from "./abstractions/browser-popup-utils.abstractions";
 import { BrowserApi } from "./browser-api";
@@ -17,7 +18,7 @@ export const PopupWidthOptions = Object.freeze({
 type PopupWidthOptions = typeof PopupWidthOptions;
 export type PopupWidthOption = keyof PopupWidthOptions;
 
-class BrowserPopupUtils {
+export default class BrowserPopupUtils {
   /**
    * Identifies if the popup is within the sidebar.
    *
@@ -213,6 +214,27 @@ class BrowserPopupUtils {
   }
 
   /**
+   * Waits for all browser action popups to close, polling up to the specified timeout.
+   * Used before extension reload to prevent zombie popups with invalidated contexts.
+   *
+   * @param timeoutMs - Maximum time to wait in milliseconds. Defaults to 1 second.
+   * @returns Promise that resolves when all popups are closed or timeout is reached.
+   */
+  static async waitForAllPopupsClose(timeoutMs = 1000): Promise<void> {
+    await firstValueFrom(
+      interval(100).pipe(
+        switchMap(() => BrowserApi.isPopupOpen()),
+        takeWhile((isOpen) => isOpen, true),
+        filter((isOpen) => !isOpen),
+        timeout({
+          first: timeoutMs,
+          with: () => of(true),
+        }),
+      ),
+    );
+  }
+
+  /**
    * Identifies if a single action window is open based on the passed popoutKey.
    * Will focus the existing window, and close any other windows that might exist
    * with the same popout key.
@@ -288,5 +310,3 @@ class BrowserPopupUtils {
     return parsedUrl.toString();
   }
 }
-
-export default BrowserPopupUtils;

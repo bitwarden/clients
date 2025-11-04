@@ -2,12 +2,14 @@ import { CommonModule } from "@angular/common";
 import { Component, input } from "@angular/core";
 import { RouterLinkActive, RouterLink } from "@angular/router";
 
-import { Icon } from "../icon";
+import { BitwardenShield, Icon } from "@bitwarden/assets/svg";
+
 import { BitIconComponent } from "../icon/icon.component";
-import { BitwardenShield } from "../icon/logos";
 
 import { SideNavService } from "./side-nav.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-nav-logo",
   templateUrl: "./nav-logo.component.html",

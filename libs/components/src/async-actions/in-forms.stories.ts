@@ -39,6 +39,8 @@ const template = `
     <button class="tw-me-2" type="button" buttonType="muted" bitIconButton="bwi-star" label="Delete" bitFormButton [bitAction]="delete">Delete</button>
   </form>`;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-promise-example",
   template,
@@ -84,6 +86,8 @@ class PromiseExampleComponent {
   };
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-observable-example",
   template,
@@ -148,6 +152,7 @@ export default {
               required: "required",
               inputRequired: "Input is required.",
               inputEmail: "Input is not an email-address.",
+              loading: "Loading",
             });
           },
         },

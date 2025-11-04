@@ -1,4 +1,7 @@
-import { input, HostBinding, Directive } from "@angular/core";
+import { input, HostBinding, Directive, inject, ElementRef, booleanAttribute } from "@angular/core";
+
+import { AriaDisableDirective } from "../a11y";
+import { ariaDisableElement } from "../utils";
 
 export type LinkType = "primary" | "secondary" | "contrast" | "light";
 
@@ -22,7 +25,7 @@ const commonStyles = [
   "tw-leading-none",
   "tw-px-0",
   "tw-py-0.5",
-  "tw-font-semibold",
+  "tw-font-medium",
   "tw-bg-transparent",
   "tw-border-0",
   "tw-border-none",
@@ -58,6 +61,11 @@ const commonStyles = [
   "before:tw-transition",
   "focus-visible:before:tw-ring-2",
   "focus-visible:tw-z-10",
+  "aria-disabled:tw-no-underline",
+  "aria-disabled:tw-pointer-events-none",
+  "aria-disabled:!tw-text-secondary-300",
+  "aria-disabled:hover:!tw-text-secondary-300",
+  "aria-disabled:hover:tw-no-underline",
 ];
 
 @Directive()
@@ -86,11 +94,21 @@ export class AnchorLinkDirective extends LinkDirective {
 
 @Directive({
   selector: "button[bitLink]",
+  hostDirectives: [AriaDisableDirective],
 })
 export class ButtonLinkDirective extends LinkDirective {
+  private el = inject(ElementRef<HTMLButtonElement>);
+
+  readonly disabled = input(false, { transform: booleanAttribute });
+
   @HostBinding("class") get classList() {
     return ["before:-tw-inset-y-[0.25rem]"]
       .concat(commonStyles)
       .concat(linkStyles[this.linkType()] ?? []);
+  }
+
+  constructor() {
+    super();
+    ariaDisableElement(this.el.nativeElement, this.disabled);
   }
 }

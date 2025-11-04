@@ -55,6 +55,8 @@ const hoverStyles: Record<BadgeVariant, string[]> = {
   * > `NOTE:` The `disabled` state only applies to buttons.
   *
 */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "span[bitBadge], a[bitBadge], button[bitBadge]",
   providers: [{ provide: FocusableElement, useExisting: BadgeComponent }],

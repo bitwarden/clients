@@ -150,7 +150,7 @@ describe("Browser Utils Service", () => {
         callback(undefined);
       });
 
-      const isViewOpen = await browserPlatformUtilsService.isViewOpen();
+      const isViewOpen = await browserPlatformUtilsService.isPopupOpen();
 
       expect(isViewOpen).toBe(false);
     });
@@ -160,24 +160,24 @@ describe("Browser Utils Service", () => {
         callback(message.command === "checkVaultPopupHeartbeat");
       });
 
-      const isViewOpen = await browserPlatformUtilsService.isViewOpen();
+      const isViewOpen = await browserPlatformUtilsService.isPopupOpen();
 
       expect(isViewOpen).toBe(true);
     });
 
     it("returns false if special error is sent", async () => {
       chrome.runtime.sendMessage = jest.fn().mockImplementation((message, callback) => {
-        chrome.runtime.lastError = new Error(
+        (chrome.runtime.lastError as any) = new Error(
           "Could not establish connection. Receiving end does not exist.",
         );
         callback(undefined);
       });
 
-      const isViewOpen = await browserPlatformUtilsService.isViewOpen();
+      const isViewOpen = await browserPlatformUtilsService.isPopupOpen();
 
       expect(isViewOpen).toBe(false);
 
-      chrome.runtime.lastError = null;
+      (chrome.runtime.lastError as any) = null;
     });
   });
 
@@ -354,6 +354,33 @@ describe("Browser Utils Service", () => {
       const result = await browserPlatformUtilsService.readFromClipboard();
 
       expect(result).toBe("");
+    });
+  });
+
+  describe("isChromium", () => {
+    const chromiumDevices: DeviceType[] = [
+      DeviceType.ChromeExtension,
+      DeviceType.EdgeExtension,
+      DeviceType.OperaExtension,
+      DeviceType.VivaldiExtension,
+    ];
+
+    const nonChromiumDevices: DeviceType[] = [
+      DeviceType.FirefoxExtension,
+      DeviceType.SafariExtension,
+    ];
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    test.each(chromiumDevices)("returns true when getDevice() is %s", (deviceType) => {
+      jest.spyOn(browserPlatformUtilsService, "getDevice").mockReturnValue(deviceType);
+      expect(browserPlatformUtilsService.isChromium()).toBe(true);
+    });
+
+    test.each(nonChromiumDevices)("returns false when getDevice() is %s", (deviceType) => {
+      jest.spyOn(browserPlatformUtilsService, "getDevice").mockReturnValue(deviceType);
+      expect(browserPlatformUtilsService.isChromium()).toBe(false);
     });
   });
 });

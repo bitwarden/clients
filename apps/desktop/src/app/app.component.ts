@@ -47,6 +47,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   VaultTimeout,
   VaultTimeoutAction,
@@ -62,7 +63,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -77,6 +78,7 @@ import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwarden/vault";
 
 import { DeleteAccountComponent } from "../auth/delete-account.component";
+import { DesktopAutotypeDefaultSettingPolicy } from "../autofill/services/desktop-autotype-policy.service";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
 
@@ -89,6 +91,8 @@ const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
 const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-root",
   styles: [],
@@ -113,14 +117,26 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
   standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("settings", { read: ViewContainerRef, static: true }) settingsRef: ViewContainerRef;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("premium", { read: ViewContainerRef, static: true }) premiumRef: ViewContainerRef;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("passwordHistory", { read: ViewContainerRef, static: true })
   passwordHistoryRef: ViewContainerRef;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("exportVault", { read: ViewContainerRef, static: true })
   exportVaultModalRef: ViewContainerRef;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("appGenerator", { read: ViewContainerRef, static: true })
   generatorModalRef: ViewContainerRef;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("loginApproval", { read: ViewContainerRef, static: true })
   loginApprovalModalRef: ViewContainerRef;
 
@@ -155,7 +171,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private messagingService: MessagingService,
     private collectionService: CollectionService,
     private searchService: SearchService,
-    private notificationsService: NotificationsService,
+    private notificationsService: ServerNotificationsService,
     private platformUtilsService: PlatformUtilsService,
     private systemService: SystemService,
     private processReloadService: ProcessReloadServiceAbstraction,
@@ -176,7 +192,9 @@ export class AppComponent implements OnInit, OnDestroy {
     private readonly destroyRef: DestroyRef,
     private readonly documentLangSetter: DocumentLangSetter,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private pinService: PinServiceAbstraction,
     private readonly tokenService: TokenService,
+    private desktopAutotypeDefaultSettingPolicy: DesktopAutotypeDefaultSettingPolicy,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -295,16 +313,26 @@ export class AppComponent implements OnInit, OnDestroy {
             await this.openModal<SettingsComponent>(SettingsComponent, this.settingsRef);
             break;
           case "openPremium":
-            await this.openModal<PremiumComponent>(PremiumComponent, this.premiumRef);
+            this.dialogService.open(PremiumComponent);
             break;
           case "showFingerprintPhrase": {
             const activeUserId = await firstValueFrom(
-              this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+              getUserId(this.accountService.activeAccount$),
             );
             const publicKey = await firstValueFrom(this.keyService.userPublicKey$(activeUserId));
-            const fingerprint = await this.keyService.getFingerprint(activeUserId, publicKey);
-            const dialogRef = FingerprintDialogComponent.open(this.dialogService, { fingerprint });
-            await firstValueFrom(dialogRef.closed);
+            if (publicKey == null) {
+              this.logService.error(
+                "[AppComponent] No public key available for the user: " +
+                  activeUserId +
+                  " fingerprint can't be displayed.",
+              );
+            } else {
+              const fingerprint = await this.keyService.getFingerprint(activeUserId, publicKey);
+              const dialogRef = FingerprintDialogComponent.open(this.dialogService, {
+                fingerprint,
+              });
+              await firstValueFrom(dialogRef.closed);
+            }
             break;
           }
           case "deleteAccount":
@@ -680,8 +708,8 @@ export class AppComponent implements OnInit, OnDestroy {
       await this.keyService.clearKeys(userBeingLoggedOut);
       await this.cipherService.clear(userBeingLoggedOut);
       await this.folderService.clear(userBeingLoggedOut);
-      await this.vaultTimeoutSettingsService.clear(userBeingLoggedOut);
       await this.biometricStateService.logout(userBeingLoggedOut);
+      await this.pinService.logout(userBeingLoggedOut);
 
       await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut);
 

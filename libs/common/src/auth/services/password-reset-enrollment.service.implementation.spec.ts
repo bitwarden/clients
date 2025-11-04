@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -103,7 +103,7 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
       };
       activeAccountSubject.next(Object.assign(user1AccountInfo, { id: "userId" as UserId }));
 
-      keyService.getUserKey.mockResolvedValue({ key: "key" } as any);
+      keyService.userKey$.mockReturnValue(of({ key: "key" } as any));
       encryptService.encapsulateKeyUnsigned.mockResolvedValue(encryptedKey as any);
 
       await service.enroll("orgId");

@@ -34,26 +34,30 @@ describe("Button", () => {
     expect(buttonDebugElement.nativeElement.disabled).toBeFalsy();
   });
 
-  it("should be disabled when disabled is true", () => {
+  it("should be aria-disabled and not html attribute disabled when disabled is true", () => {
     testAppComponent.disabled = true;
     fixture.detectChanges();
-
-    expect(buttonDebugElement.nativeElement.disabled).toBeTruthy();
+    expect(buttonDebugElement.attributes["aria-disabled"]).toBe("true");
+    expect(buttonDebugElement.nativeElement.disabled).toBeFalsy();
     // Anchor tags cannot be disabled.
   });
 
-  it("should be disabled when attribute disabled is true", () => {
-    expect(disabledButtonDebugElement.nativeElement.disabled).toBeTruthy();
+  it("should be aria-disabled not html attribute disabled when attribute disabled is true", () => {
+    fixture.detectChanges();
+    expect(disabledButtonDebugElement.attributes["aria-disabled"]).toBe("true");
+    expect(disabledButtonDebugElement.nativeElement.disabled).toBeFalsy();
   });
 
   it("should be disabled when loading is true", () => {
     testAppComponent.loading = true;
     fixture.detectChanges();
 
-    expect(buttonDebugElement.nativeElement.disabled).toBeTruthy();
+    expect(buttonDebugElement.attributes["aria-disabled"]).toBe("true");
   });
 });
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "test-app",
   template: `

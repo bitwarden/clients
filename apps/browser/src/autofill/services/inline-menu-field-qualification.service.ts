@@ -16,6 +16,7 @@ import {
   SubmitChangePasswordButtonNames,
   SubmitLoginButtonNames,
 } from "./autofill-constants";
+import AutofillService from "./autofill.service";
 
 export class InlineMenuFieldQualificationService
   implements InlineMenuFieldQualificationServiceInterface
@@ -36,7 +37,6 @@ export class InlineMenuFieldQualificationService
   private newPasswordAutoCompleteValue = "new-password";
   private autofillFieldKeywordsMap: AutofillKeywordsMap = new WeakMap();
   private submitButtonKeywordsMap: SubmitButtonKeywordsMap = new WeakMap();
-  private autocompleteDisabledValues = new Set(["off", "false"]);
   private accountCreationFieldKeywords = [
     "register",
     "registration",
@@ -418,10 +418,8 @@ export class InlineMenuFieldQualificationService
       }
 
       // If a single username field or less is present on the page, then we can assume that the
-      // provided field is for a login form. This will only be the case if the field does not
-      // explicitly have its autocomplete attribute set to "off" or "false".
-
-      return !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues);
+      // provided field is for a login form.
+      return true;
     }
 
     // If the field has a form parent and there are multiple visible password fields
@@ -441,9 +439,8 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    // If the field has a form parent and no username field exists and the field has an
-    // autocomplete attribute set to "off" or "false", this is not a password field
-    return !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues);
+    // If the field has a form parent and a username field exists this is a password field
+    return true;
   }
 
   /**
@@ -511,20 +508,12 @@ export class InlineMenuFieldQualificationService
       }
 
       // If the page does not contain any password fields, it might be part of a multistep login form.
-      // That will only be the case if the field does not explicitly have its autocomplete attribute
-      // set to "off" or "false".
-      return !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues);
+      return true;
     }
 
     // If the field is structured within a form, but no password fields are present in the form,
     // we need to consider whether the field is part of a multistep login form.
     if (passwordFieldsInPageDetails.length === 0) {
-      // If the field's autocomplete is set to a disabled value, we should assume that the field is
-      // not part of a login form.
-      if (this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues)) {
-        return false;
-      }
-
       // If the form that contains a single field, we should assume that it is part
       // of a multistep login form.
       const fieldsWithinForm = pageDetails.fields.filter(
@@ -560,8 +549,7 @@ export class InlineMenuFieldQualificationService
     }
 
     // If no visible password fields are found, this field might be part of a multipart form.
-    // Check for an invalid autocompleteType to determine if the field is part of a login form.
-    return !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues);
+    return true;
   }
 
   /**
@@ -1071,6 +1059,10 @@ export class InlineMenuFieldQualificationService
    * @param field - The field to validate
    */
   isTotpField = (field: AutofillField): boolean => {
+    if (AutofillService.fieldIsFuzzyMatch(field, [...AutoFillConstants.RecoveryCodeFieldNames])) {
+      return false;
+    }
+
     if (this.fieldContainsAutocompleteValues(field, this.totpFieldAutocompleteValue)) {
       return true;
     }

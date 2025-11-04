@@ -213,15 +213,30 @@ export class DefaultCollectionService implements CollectionService {
     );
   }
 
+  // Transforms the input CollectionViews into TreeNodes
   getAllNested(collections: CollectionView[]): TreeNode<CollectionView>[] {
-    const nodes: TreeNode<CollectionView>[] = [];
-    collections.forEach((c) => {
-      const collectionCopy = Object.assign(new CollectionView({ ...c }), c);
+    const groupedByOrg = this.groupByOrganization(collections);
 
-      const parts = c.name != null ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
-      ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, undefined, NestingDelimiter);
+    const all: TreeNode<CollectionView>[] = [];
+    for (const group of groupedByOrg.values()) {
+      const nodes: TreeNode<CollectionView>[] = [];
+      for (const c of group) {
+        const collectionCopy = Object.assign(new CollectionView({ ...c, name: c.name }), c);
+        const parts = c.name ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
+        ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, undefined, NestingDelimiter);
+      }
+      all.push(...nodes);
+    }
+    return all;
+  }
+
+  groupByOrganization(collections: CollectionView[]): Map<OrganizationId, CollectionView[]> {
+    const groupedByOrg = new Map<OrganizationId, CollectionView[]>();
+    collections.map((c) => {
+      const key = c.organizationId;
+      (groupedByOrg.get(key) ?? groupedByOrg.set(key, []).get(key)!).push(c);
     });
-    return nodes;
+    return groupedByOrg;
   }
 
   /**

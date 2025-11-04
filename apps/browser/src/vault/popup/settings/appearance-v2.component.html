@@ -45,7 +45,10 @@
     <bit-card>
       <bit-form-control>
         <input bitCheckbox formControlName="enableFavicon" type="checkbox" />
-        <bit-label>{{ "enableFavicon" | i18n }}</bit-label>
+        <bit-label>
+          {{ "showIconsChangePasswordUrls" | i18n }}
+          <vault-permit-cipher-details-popover></vault-permit-cipher-details-popover>
+        </bit-label>
       </bit-form-control>
       <bit-form-control>
         <input bitCheckbox formControlName="showQuickCopyActions" type="checkbox" />

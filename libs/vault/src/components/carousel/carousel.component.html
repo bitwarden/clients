@@ -6,18 +6,40 @@
   #container
 >
   <vault-carousel-content [content]="slides.get(selectedIndex)?.content"></vault-carousel-content>
-  <div
-    class="tw-w-full tw-flex tw-gap-2 tw-justify-center tw-mt-auto tw-pt-4"
-    role="tablist"
-    (keydown)="keyManager.onKeydown($event)"
-    #carouselButtonWrapper
-  >
-    <vault-carousel-button
-      *ngFor="let slide of slides; let i = index"
-      [slide]="slide"
-      [isActive]="i === selectedIndex"
-      (onClick)="selectSlide(i)"
-    ></vault-carousel-button>
+  <div class="tw-w-full tw-flex tw-justify-between tw-mt-auto tw-px-4 tw-pb-2 tw-pt-4">
+    <button
+      type="button"
+      bitIconButton="bwi-angle-left"
+      class="tw-size-6 tw-p-0 tw-flex tw-items-center tw-justify-center"
+      size="small"
+      [attr.label]="'back' | i18n"
+      (click)="prevSlide()"
+      [disabled]="selectedIndex <= 0"
+      appA11yTitle="{{ 'back' | i18n }}"
+    ></button>
+    <div
+      class="tw-w-full tw-flex tw-gap-2 tw-justify-center tw-mt-auto"
+      role="tablist"
+      (keydown)="keyManager.onKeydown($event)"
+      #carouselButtonWrapper
+    >
+      <vault-carousel-button
+        *ngFor="let slide of slides; let i = index"
+        [slide]="slide"
+        [isActive]="i === selectedIndex"
+        (onClick)="selectSlide(i)"
+      ></vault-carousel-button>
+    </div>
+    <button
+      type="button"
+      bitIconButton="bwi-angle-right"
+      class="tw-size-6 tw-p-0 tw-flex tw-items-center tw-justify-center"
+      [attr.label]="'next' | i18n"
+      size="small"
+      (click)="nextSlide()"
+      [disabled]="selectedIndex >= slides.length - 1"
+      appA11yTitle="{{ 'next' | i18n }}"
+    ></button>
   </div>
   <div class="tw-absolute tw-invisible" #tempSlideContainer *ngIf="minHeight === null">
     <ng-template cdkPortalOutlet></ng-template>

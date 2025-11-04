@@ -1,0 +1,27 @@
+/**
+ * This file contains CSS variables that can be used across frontend systems.
+ * This allows us to share styling between Angular, content scripts and more.
+ */
+
+/**
+ * Font faces
+ */
+@font-face {
+  font-family: Inter;
+  src:
+    url("~@bitwarden/components/src/webfonts/inter.woff2") format("woff2 supports variations"),
+    url("~@bitwarden/components/src/webfonts/inter.woff2") format("woff2-variations");
+  font-display: swap;
+  font-weight: 100 900;
+}
+
+/**
+ * CSS variables
+ */
+:root {
+  --font-sans:
+    Inter, "Helvetica Neue", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: Menlo, SFMono-Regular, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}

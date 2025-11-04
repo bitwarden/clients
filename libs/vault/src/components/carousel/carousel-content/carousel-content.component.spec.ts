@@ -5,6 +5,8 @@ import { By } from "@angular/platform-browser";
 
 import { VaultCarouselContentComponent } from "./carousel-content.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-test-template-ref",
   imports: [VaultCarouselContentComponent],
@@ -17,6 +19,8 @@ import { VaultCarouselContentComponent } from "./carousel-content.component";
 })
 class TestTemplateRefComponent implements OnInit {
   // Test template content by creating a wrapping component and then pass a portal to the carousel content component.
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("template", { static: true }) template!: TemplateRef<any>;
   portal!: TemplatePortal;
 

@@ -24,6 +24,8 @@ import {
 
 import { VaultAutosizeReadOnlyTextArea } from "../../directives/readonly-textarea.directive";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-custom-fields-v2",
   templateUrl: "custom-fields-v2.component.html",
@@ -42,9 +44,11 @@ import { VaultAutosizeReadOnlyTextArea } from "../../directives/readonly-textare
   ],
 })
 export class CustomFieldV2Component implements OnInit, OnChanges {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) cipher!: CipherView;
   fieldType = FieldType;
-  fieldOptions: Map<number, LinkedMetadata> | null = null;
+  fieldOptions: Map<number, LinkedMetadata> | undefined;
 
   /** Indexes of hidden fields that are revealed */
   revealedHiddenFields: number[] = [];
@@ -124,7 +128,7 @@ export class CustomFieldV2Component implements OnInit, OnChanges {
       case CipherType.Identity:
         return IdentityView.prototype.linkedFieldOptions;
       default:
-        return null;
+        return undefined;
     }
   }
 }
