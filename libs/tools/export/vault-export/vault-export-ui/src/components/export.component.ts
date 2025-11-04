@@ -356,7 +356,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
         // Admin Console: organizationId is already set via @Input, no update needed
       });
 
-    // Step 2: Set up dynamic format options based on the organizationId observable
+    // Set up dynamic format options based on the organizationId observable
     // This is the single source of truth for both export contexts
     this.formatOptions$ = this._organizationId$.pipe(
       map((organizationId) => {
