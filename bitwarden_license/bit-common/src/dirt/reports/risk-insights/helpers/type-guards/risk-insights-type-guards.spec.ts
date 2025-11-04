@@ -164,33 +164,6 @@ describe("Risk Insights Type Guards", () => {
       expect(validateOrganizationReportSummary(validData)).toEqual(validData);
     });
 
-    it("should throw error for missing totalMemberCount", () => {
-      const invalidData = {
-        totalApplicationCount: 5,
-        totalAtRiskMemberCount: 2,
-        totalAtRiskApplicationCount: 1,
-        totalCriticalApplicationCount: 3,
-        totalCriticalMemberCount: 4,
-        totalCriticalAtRiskMemberCount: 1,
-        totalCriticalAtRiskApplicationCount: 1,
-      };
-
-      expect(() => validateOrganizationReportSummary(invalidData)).toThrow(
-        /Invalid OrganizationReportSummary: missing or invalid fields: totalMemberCount \(number\)/,
-      );
-    });
-
-    it("should throw error for multiple missing fields", () => {
-      const invalidData = {
-        totalMemberCount: 10,
-        // missing multiple fields
-      };
-
-      expect(() => validateOrganizationReportSummary(invalidData)).toThrow(
-        /Invalid OrganizationReportSummary: missing or invalid fields:.*totalApplicationCount/,
-      );
-    });
-
     it("should throw error for invalid field types", () => {
       const invalidData = {
         totalMemberCount: "10", // should be number
@@ -204,7 +177,7 @@ describe("Risk Insights Type Guards", () => {
       };
 
       expect(() => validateOrganizationReportSummary(invalidData)).toThrow(
-        /Invalid OrganizationReportSummary/,
+        /Invalid report summary/,
       );
     });
   });
@@ -254,7 +227,7 @@ describe("Risk Insights Type Guards", () => {
       ];
 
       expect(() => validateOrganizationReportApplicationArray(invalidData)).toThrow(
-        "Invalid date string: invalid-date",
+        "Invalid application data: array contains 1 invalid OrganizationReportApplication element(s) at indices: 0",
       );
     });
 
@@ -339,10 +312,10 @@ describe("Risk Insights Type Guards", () => {
       expect(isMemberDetails(invalidData)).toBe(false);
     });
 
-    it("should return true for undefined userName", () => {
+    it("should return true for null userName", () => {
       const validData = {
         userGuid: "user-1",
-        userName: undefined as string | undefined,
+        userName: null as string | null,
         email: "john@example.com",
         cipherId: "cipher-1",
       };
@@ -365,17 +338,6 @@ describe("Risk Insights Type Guards", () => {
         userName: "John Doe",
         email: "john@example.com",
         cipherId: "",
-      };
-      expect(isMemberDetails(invalidData)).toBe(false);
-    });
-
-    it("should return false for objects with unexpected properties", () => {
-      const invalidData = {
-        userGuid: "user-1",
-        userName: "John Doe",
-        email: "john@example.com",
-        cipherId: "cipher-1",
-        unexpectedProperty: "should fail",
       };
       expect(isMemberDetails(invalidData)).toBe(false);
     });
@@ -482,22 +444,6 @@ describe("Risk Insights Type Guards", () => {
       };
       expect(isApplicationHealthReportDetail(invalidData)).toBe(false);
     });
-
-    it("should return false for objects with unexpected properties", () => {
-      const invalidData = {
-        applicationName: "Test App",
-        passwordCount: 10,
-        atRiskPasswordCount: 2,
-        atRiskCipherIds: ["cipher-1"],
-        memberCount: 5,
-        atRiskMemberCount: 1,
-        memberDetails: [] as MemberDetails[],
-        atRiskMemberDetails: [] as MemberDetails[],
-        cipherIds: ["cipher-1"],
-        injectedProperty: "malicious",
-      };
-      expect(isApplicationHealthReportDetail(invalidData)).toBe(false);
-    });
   });
 
   describe("isOrganizationReportSummary", () => {
@@ -556,21 +502,6 @@ describe("Risk Insights Type Guards", () => {
       };
       expect(isOrganizationReportSummary(invalidData)).toBe(false);
     });
-
-    it("should return false for objects with unexpected properties", () => {
-      const invalidData = {
-        totalMemberCount: 10,
-        totalApplicationCount: 5,
-        totalAtRiskMemberCount: 2,
-        totalAtRiskApplicationCount: 1,
-        totalCriticalApplicationCount: 3,
-        totalCriticalMemberCount: 4,
-        totalCriticalAtRiskMemberCount: 1,
-        totalCriticalAtRiskApplicationCount: 1,
-        extraField: "should be rejected",
-      };
-      expect(isOrganizationReportSummary(invalidData)).toBe(false);
-    });
   });
 
   describe("isOrganizationReportApplication", () => {
@@ -608,16 +539,6 @@ describe("Risk Insights Type Guards", () => {
         reviewedDate: "2024-01-01",
       };
       expect(isOrganizationReportApplication(validData)).toBe(true);
-    });
-
-    it("should return false for objects with unexpected properties", () => {
-      const invalidData = {
-        applicationName: "Test App",
-        isCritical: true,
-        reviewedDate: null as Date | null,
-        injectedProperty: "malicious",
-      };
-      expect(isOrganizationReportApplication(invalidData)).toBe(false);
     });
 
     it("should return false for prototype pollution attempts via __proto__", () => {

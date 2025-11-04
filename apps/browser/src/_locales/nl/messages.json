@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Single sign-on gebruiken"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Welkom terug"
   },
@@ -588,6 +591,9 @@
   "view": {
     "message": "Weergeven"
   },
+  "viewAll": {
+    "message": "Alles weergeven"
+  },
   "viewLogin": {
     "message": "Login bekijken"
   },
@@ -1027,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Item is bewerkt"
+  },
+  "savedWebsite": {
+    "message": "Opgeslagen website"
+  },
+  "savedWebsites": {
+    "message": "Opgeslagen websites ( $COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Weet je zeker dat je dit naar de prullenbak wilt verplaatsen?"
@@ -1676,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Automatisch invullen uitschakelen"
   },
+  "confirmAutofill": {
+    "message": "Automatisch aanvullen bevestigen"
+  },
+  "confirmAutofillDesc": {
+    "message": "Deze website komt past niet bij je opgeslagen inloggegevens. Verzeker jezelf ervan dat het een vertrouwde website is, voordat je je inloggegevens invult."
+  },
   "showInlineMenuLabel": {
     "message": "Suggesties voor automatisch invullen op formuliervelden weergeven"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Hoe beschermt Bitwarden je gegevens tegen phishing?"
+  },
+  "currentWebsite": {
+    "message": "Huidige website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Automatisch invullen en deze website toevoegen"
+  },
+  "autofillWithoutAdding": {
+    "message": "Automatisch invullen zonder toevoegen"
+  },
+  "doNotAutofill": {
+    "message": "Niet automatisch invullen"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Identiteiten als suggesties weergeven"
@@ -3240,6 +3279,9 @@
   "decryptionError": {
     "message": "Ontsleutelingsfout"
   },
+  "errorGettingAutoFillData": {
+    "message": "Fout bij ophalen van gegevens voor automatisch vullen"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden kon de onderstaande kluisitem(s) niet ontsleutelen."
   },
@@ -4010,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Automatisch invullen bij het laden van een pagina ingesteld op de standaardinstelling.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Kan niet automatisch invullen"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Standaard overeenkomst is ingesteld op 'Exacte Match'. De huidige website komt niet precies overeen met de opgeslagen inloggegevens voor dit item."
+  },
+  "okay": {
+    "message": "OK"
   },
   "toggleSideNavigation": {
     "message": "Zijnavigatie schakelen"
@@ -5721,5 +5772,11 @@
   "settingDisabledByPolicy": {
     "message": "Deze instelling is uitgeschakeld door het beleid van uw organisatie.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Postcode"
+  },
+  "cardNumberLabel": {
+    "message": "Kaartnummer"
   }
 }

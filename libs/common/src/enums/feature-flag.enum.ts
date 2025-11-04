@@ -30,6 +30,7 @@ export enum FeatureFlag {
   PM24996_ImplementUpgradeFromFreeDialog = "pm-24996-implement-upgrade-from-free-dialog",
   PM24033PremiumUpgradeNewDesign = "pm-24033-updat-premium-subscription-page",
   PM26793_FetchPremiumPriceFromPricingService = "pm-26793-fetch-premium-price-from-pricing-service",
+  PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog = "pm-23713-premium-badge-opens-new-premium-upgrade-dialog",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -37,6 +38,7 @@ export enum FeatureFlag {
   ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
   PM25174_DisableType0Decryption = "pm-25174-disable-type-0-decryption",
   WindowsBiometricsV2 = "pm-25373-windows-biometrics-v2",
+  LinuxBiometricsV2 = "pm-26340-linux-biometrics-v2",
   UnlockWithMasterPasswordUnlockData = "pm-23246-unlock-with-master-password-unlock-data",
   NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
 
@@ -117,6 +119,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog]: FALSE,
   [FeatureFlag.PM24033PremiumUpgradeNewDesign]: FALSE,
   [FeatureFlag.PM26793_FetchPremiumPriceFromPricingService]: FALSE,
+  [FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
@@ -124,6 +127,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ForceUpdateKDFSettings]: FALSE,
   [FeatureFlag.PM25174_DisableType0Decryption]: FALSE,
   [FeatureFlag.WindowsBiometricsV2]: FALSE,
+  [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.UnlockWithMasterPasswordUnlockData]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
 
