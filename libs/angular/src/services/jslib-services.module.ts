@@ -380,6 +380,8 @@ import { DefaultSetInitialPasswordService } from "../auth/password-management/se
 import { SetInitialPasswordService } from "../auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { DeviceTrustToastService as DeviceTrustToastServiceAbstraction } from "../auth/services/device-trust-toast.service.abstraction";
 import { DeviceTrustToastService } from "../auth/services/device-trust-toast.service.implementation";
+import { NoopPremiumInterestStateService } from "../billing/services/premium-interest/noop-premium-interest-state.service";
+import { PremiumInterestStateService } from "../billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { FormValidationErrorsService as FormValidationErrorsServiceAbstraction } from "../platform/abstractions/form-validation-errors.service";
 import { DocumentLangSetter } from "../platform/i18n";
 import { FormValidationErrorsService } from "../platform/services/form-validation-errors.service";
@@ -1722,6 +1724,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: NewDeviceVerificationComponentService,
     useClass: DefaultNewDeviceVerificationComponentService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: PremiumInterestStateService,
+    useClass: NoopPremiumInterestStateService,
     deps: [],
   }),
 ];
