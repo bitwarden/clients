@@ -346,8 +346,11 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
         } else if (this.passwordPrelogin.promise != null) {
           try {
             await this.passwordPrelogin.promise;
-          } catch {
-            // swallow; fall back to fetching
+          } catch (error) {
+            this.logService.error(
+              "Failed to prefetch prelogin data, falling back to fetching now.",
+              error,
+            );
           }
           kdfConfig = this.passwordPrelogin.kdfConfig;
         }
