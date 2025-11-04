@@ -81,7 +81,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   protected emptyStateVideoSrc: string | null = "/videos/risk-insights-mark-as-critical.mp4";
 
   protected IMPORT_ICON = "bwi bwi-download";
-  protected currentDialogRef: DialogRef<unknown, RiskInsightsDrawerDialogComponent>;
+  protected currentDialogRef: DialogRef<unknown, RiskInsightsDrawerDialogComponent> | null = null;
 
   // TODO: See https://github.com/bitwarden/clients/pull/16832#discussion_r2474523235
 
