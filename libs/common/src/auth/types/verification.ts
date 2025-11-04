@@ -1,4 +1,4 @@
-import { MasterKey } from "../../key-management/types/master-key";
+import { MasterKey } from "../../types/key";
 import { VerificationType } from "../enums/verification-type";
 import { MasterPasswordPolicyResponse } from "../models/response/master-password-policy.response";
 
