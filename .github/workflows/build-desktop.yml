@@ -8,27 +8,27 @@ on:
   pull_request:
     types: [opened, synchronize]
     branches-ignore:
-      - 'l10n_master'
-      - 'cf-pages'
+      - "l10n_master"
+      - "cf-pages"
     paths:
-      - 'apps/desktop/**'
-      - 'libs/**'
-      - '*'
-      - '!*.md'
-      - '!*.txt'
-      - '.github/workflows/build-desktop.yml'
+      - "apps/desktop/**"
+      - "libs/**"
+      - "*"
+      - "!*.md"
+      - "!*.txt"
+      - ".github/workflows/build-desktop.yml"
   push:
     branches:
-      - 'main'
-      - 'rc'
-      - 'hotfix-rc-desktop'
+      - "main"
+      - "rc"
+      - "hotfix-rc-desktop"
     paths:
-      - 'apps/desktop/**'
-      - 'libs/**'
-      - '*'
-      - '!*.md'
-      - '!*.txt'
-      - '.github/workflows/build-desktop.yml'
+      - "apps/desktop/**"
+      - "libs/**"
+      - "*"
+      - "!*.md"
+      - "!*.txt"
+      - ".github/workflows/build-desktop.yml"
   workflow_call:
     inputs: {}
   workflow_dispatch:
@@ -181,14 +181,17 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Set up environment
         run: |
           sudo apt-get update
           sudo apt-get -y install pkg-config libxss-dev rpm musl-dev musl-tools flatpak flatpak-builder
+
+      - name: Set up Snap
+        run: sudo snap install snapcraft --classic
 
       - name: Print environment
         run: |
@@ -301,7 +304,6 @@ jobs:
           path: apps/desktop/dist/com.bitwarden.desktop.flatpak
           if-no-files-found: error
 
-
   linux-arm64:
     name: Linux ARM64 Build
     # Note, before updating the ubuntu version of the workflow, ensure the snap base image
@@ -328,8 +330,8 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Set up environment
@@ -339,6 +341,10 @@ jobs:
 
       - name: Set up Snap
         run: sudo snap install snapcraft --classic
+
+      - name: Install LXD
+        run: |
+          sudo snap install lxd
 
       - name: Print environment
         run: |
@@ -453,8 +459,8 @@ jobs:
     needs:
       - setup
     permissions:
-        contents: read
-        id-token: write
+      contents: read
+      id-token: write
     defaults:
       run:
         shell: pwsh
@@ -473,8 +479,8 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Install AST
@@ -712,8 +718,8 @@ jobs:
     runs-on: windows-2022
     needs: setup
     permissions:
-        contents: read
-        id-token: write
+      contents: read
+      id-token: write
     defaults:
       run:
         shell: pwsh
@@ -731,8 +737,8 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Install AST
@@ -940,15 +946,14 @@ jobs:
           path: apps/desktop/dist/nsis-web/${{ needs.setup.outputs.release_channel }}.yml
           if-no-files-found: error
 
-
   macos-build:
     name: MacOS Build
     runs-on: macos-13
     needs:
       - setup
     permissions:
-        contents: read
-        id-token: write
+      contents: read
+      id-token: write
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -966,8 +971,8 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Set up Node-gyp
@@ -1152,7 +1157,6 @@ jobs:
       - name: Build application (dev)
         run: npm run build
 
-
   browser-build:
     name: Browser Build
     needs: setup
@@ -1164,7 +1168,6 @@ jobs:
       pull-requests: write
       id-token: write
 
-
   macos-package-github:
     name: MacOS Package GitHub Release Assets
     runs-on: macos-13
@@ -1174,8 +1177,8 @@ jobs:
       - macos-build
       - setup
     permissions:
-        contents: read
-        id-token: write
+      contents: read
+      id-token: write
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -1193,8 +1196,8 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Set up Node-gyp
@@ -1425,7 +1428,6 @@ jobs:
           path: apps/desktop/dist/${{ needs.setup.outputs.release_channel }}-mac.yml
           if-no-files-found: error
 
-
   macos-package-mas:
     name: MacOS Package Prod Release Asset
     runs-on: macos-13
@@ -1435,8 +1437,8 @@ jobs:
       - macos-build
       - setup
     permissions:
-        contents: read
-        id-token: write
+      contents: read
+      id-token: write
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -1454,8 +1456,8 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Set up Node-gyp
@@ -1766,9 +1768,9 @@ jobs:
       - macos-package-github
       - macos-package-mas
     permissions:
-        contents: write
-        pull-requests: write
-        id-token: write
+      contents: write
+      pull-requests: write
+      id-token: write
     runs-on: ubuntu-22.04
     steps:
       - name: Check out repo
@@ -1806,7 +1808,6 @@ jobs:
           upload_sources: true
           upload_translations: false
 
-
   check-failures:
     name: Check for failures
     if: always()
@@ -1822,8 +1823,8 @@ jobs:
       - macos-package-mas
       - crowdin-push
     permissions:
-        contents: read
-        id-token: write
+      contents: read
+      id-token: write
     steps:
       - name: Check if any job failed
         if: |
@@ -1858,4 +1859,3 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ steps.retrieve-secrets.outputs.devops-alerts-slack-webhook-url }}
         with:
           status: ${{ job.status }}
-
