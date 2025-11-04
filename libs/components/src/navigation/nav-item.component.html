@@ -37,11 +37,13 @@
             class="tw-gap-2 tw-flex tw-items-center tw-font-medium tw-h-full"
             [ngClass]="{ 'tw-justify-center': !open }"
           >
-            <i
-              class="!tw-m-0 tw-w-4 tw-shrink-0 bwi bwi-fw tw-text-alt2 {{ icon() }}"
-              [attr.aria-hidden]="open"
-              [attr.aria-label]="text()"
-            ></i>
+            @if (icon()) {
+              <i
+                class="!tw-m-0 tw-w-4 tw-shrink-0 bwi bwi-fw tw-text-alt2 {{ icon() }}"
+                [attr.aria-hidden]="open"
+                [attr.aria-label]="text()"
+              ></i>
+            }
             @if (open) {
               <span class="tw-truncate">{{ text() }}</span>
             }
