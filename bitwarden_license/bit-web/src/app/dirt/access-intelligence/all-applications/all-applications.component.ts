@@ -85,6 +85,15 @@ export class AllApplicationsComponent implements OnInit {
     });
   }
 
+  goToCreateNewLoginItem = async () => {
+    // TODO: implement
+    this.toastService.showToast({
+      variant: "warning",
+      title: "",
+      message: "Not yet implemented",
+    });
+  };
+
   isMarkedAsCriticalItem(applicationName: string) {
     return this.selectedUrls.has(applicationName);
   }
