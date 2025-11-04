@@ -69,15 +69,15 @@ pub(super) fn type_input(input: &[u16], keyboard_shortcut: &[KeyboardShortcutInp
 // Add key "down" and "up" inputs for the input
 // (currently in this form: {username}/t{password})
 fn add_input(input: &[u16], keyboard_inputs: &mut Vec<INPUT>) {
-    const TAB_KEY: u8 = 9;
+    const TAB_KEY: u16 = 9;
 
     for i in input {
-        let next_down_input = if *i == TAB_KEY.into() {
+        let next_down_input = if *i == TAB_KEY {
             build_virtual_key_input(InputKeyPress::Down, *i)
         } else {
             build_unicode_input(InputKeyPress::Down, *i)
         };
-        let next_up_input = if *i == TAB_KEY.into() {
+        let next_up_input = if *i == TAB_KEY {
             build_virtual_key_input(InputKeyPress::Up, *i)
         } else {
             build_unicode_input(InputKeyPress::Up, *i)
