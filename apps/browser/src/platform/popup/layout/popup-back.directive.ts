@@ -13,6 +13,6 @@ export class PopupBackBrowserDirective extends BitActionDirective {
   // Override the required input to make it optional since we set it automatically
   override readonly handler = model<FunctionReturningAwaitable>(
     () => this.routerCacheService.back(),
-    { alias: "popupBackAction" },
+    { alias: "bitAction" },
   );
 }
