@@ -60,7 +60,6 @@ export class UpgradeNavButtonComponent {
     const result = await lastValueFrom(dialogRef.closed);
 
     if (result?.status === UnifiedUpgradeDialogStatus.UpgradedToPremium) {
-      await this.apiService.refreshIdentityToken();
       await this.syncService.fullSync(true);
     } else if (result?.status === UnifiedUpgradeDialogStatus.UpgradedToFamilies) {
       const redirectUrl = `/organizations/${result.organizationId}/vault`;
