@@ -43,6 +43,7 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserKey } from "@bitwarden/common/types/key";
 import {
+  TooltipDirective,
   AsyncActionsModule,
   AnonLayoutWrapperDataService,
   ButtonModule,
@@ -100,6 +101,7 @@ const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
     AsyncActionsModule,
     IconButtonModule,
     MasterPasswordLockComponent,
+    TooltipDirective,
   ],
 })
 export class LockComponent implements OnInit, OnDestroy {

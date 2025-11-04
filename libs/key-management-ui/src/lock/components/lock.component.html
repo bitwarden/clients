@@ -16,6 +16,7 @@
       [disabled]="unlockingViaBiometrics || !biometricsAvailable"
       [loading]="unlockingViaBiometrics"
       block
+      [bitTooltip]="biometricUnavailabilityReason"
       (click)="unlockViaBiometrics()"
     >
       <span> {{ biometricUnlockBtnText | i18n }}</span>
