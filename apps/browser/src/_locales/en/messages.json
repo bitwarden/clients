@@ -4742,6 +4742,9 @@
   "adminConsole": {
     "message": "Admin Console"
   },
+  "admin" :{
+    "message": "Admin"
+  },
   "accountSecurity": {
     "message": "Account security"
   },

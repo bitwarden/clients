@@ -11,9 +11,11 @@ import {
   switchMap,
 } from "rxjs";
 
+import { AutomaticUserConfirmationService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BadgeComponent, ItemModule } from "@bitwarden/components";
 
@@ -75,10 +77,16 @@ export class SettingsV2Component implements OnInit {
     ),
   );
 
+  showAdminSettingsLink$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => this.autoConfimService.canManageAutoConfirm$(userId)),
+  );
+
   constructor(
     private readonly nudgesService: NudgesService,
     private readonly accountService: AccountService,
     private readonly autofillBrowserSettingsService: AutofillBrowserSettingsService,
+    private readonly autoConfimService: AutomaticUserConfirmationService,
   ) {}
 
   async ngOnInit() {

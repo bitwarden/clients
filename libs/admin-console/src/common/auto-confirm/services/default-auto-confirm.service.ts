@@ -5,9 +5,7 @@ import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { OrganizationId } from "@bitwarden/common/types/guid";
 import { StateProvider } from "@bitwarden/state";
 import { UserId } from "@bitwarden/user-core";
 
@@ -43,17 +41,13 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
     });
   }
 
-  canManageAutoConfirm$(userId: UserId, organizationId: OrganizationId): Observable<boolean> {
+  canManageAutoConfirm$(userId: UserId): Observable<boolean> {
     return combineLatest([
       this.configService.getFeatureFlag$(FeatureFlag.AutoConfirm),
-      this.organizationService.organizations$(userId).pipe(getById(organizationId)),
-    ]).pipe(
-      map(
-        ([enabled, organization]) =>
-          (enabled && organization?.canManageUsers && organization?.useAutomaticUserConfirmation) ??
-          false,
-      ),
-    );
+      this.organizationService
+        .organizations$(userId)
+        .pipe(map((organizations) => organizations[0])),
+    ]).pipe(map(([enabled, organization]) => enabled && organization?.canManageAutoConfirm));
   }
 
   async autoConfirmUser(
@@ -62,7 +56,7 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
     organization: Organization,
   ): Promise<void> {
     await firstValueFrom(
-      this.canManageAutoConfirm$(userId, organization.id).pipe(
+      this.canManageAutoConfirm$(userId).pipe(
         map((canManage) => {
           if (!canManage) {
             throw new Error("Cannot automatically confirm user (insufficient permissions)");

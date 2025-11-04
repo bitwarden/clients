@@ -69,6 +69,17 @@
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
     </bit-item>
+
+    @if (showAdminSettingsLink$ | async) {
+      <bit-item>
+        <a bit-item-content routerLink="/admin">
+          <i slot="start" class="bwi bwi-business" aria-hidden="true"></i>
+          {{ "admin" | i18n }}
+          <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+        </a>
+      </bit-item>
+    }
+
     <bit-item>
       <a bit-item-content routerLink="/about">
         <i slot="start" class="bwi bwi-info-circle" aria-hidden="true"></i>
