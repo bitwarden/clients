@@ -908,7 +908,7 @@ jobs:
 
   macos-build:
     name: MacOS Build
-    runs-on: macos-13
+    runs-on: macos-15
     needs:
       - setup
     permissions:
@@ -936,7 +936,7 @@ jobs:
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Set up Node-gyp
-        run: python3 -m pip install setuptools
+        run: python3 -m pip install setuptools --break-system-packages
 
       - name: Print environment
         run: |
@@ -1132,7 +1132,7 @@ jobs:
 
   macos-package-github:
     name: MacOS Package GitHub Release Assets
-    runs-on: macos-13
+    runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     needs:
       - browser-build
@@ -1163,7 +1163,7 @@ jobs:
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Set up Node-gyp
-        run: python3 -m pip install setuptools
+        run: python3 -m pip install setuptools --break-system-packages
 
       - name: Print environment
         run: |
@@ -1393,7 +1393,7 @@ jobs:
 
   macos-package-mas:
     name: MacOS Package Prod Release Asset
-    runs-on: macos-13
+    runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     needs:
       - browser-build
@@ -1424,7 +1424,7 @@ jobs:
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Set up Node-gyp
-        run: python3 -m pip install setuptools
+        run: python3 -m pip install setuptools --break-system-packages
 
       - name: Print environment
         run: |
