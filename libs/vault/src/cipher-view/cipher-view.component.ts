@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, of, switchMap, map, catchError, from, Observable } from "rxjs";
+import { combineLatest, of, switchMap, map, catchError, from, Observable, startWith } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -257,7 +257,10 @@ export class CipherViewComponent {
         }
         return this.switchPremium$(
           userId,
-          () => from(this.checkIfPasswordIsAtRisk(cipher.id as CipherId, userId as UserId)),
+          () =>
+            from(this.checkIfPasswordIsAtRisk(cipher.id as CipherId, userId as UserId)).pipe(
+              startWith(false),
+            ),
           () => of(false),
         );
       }),
