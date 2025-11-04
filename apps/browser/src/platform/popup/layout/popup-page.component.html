@@ -1,7 +1,7 @@
 <ng-content select="[slot=header]"></ng-content>
 <main class="tw-flex-1 tw-overflow-hidden tw-flex tw-flex-col tw-relative tw-bg-background-alt">
   <ng-content select="[slot=full-width-notice]"></ng-content>
-  <!-- 
+  <!--
     x padding on this container is designed to always be a minimum of 0.75rem (equivalent to tailwind's tw-px-3), or 0.5rem (equivalent
     to tailwind's tw-px-2) in compact mode, but stretch to fill the remainder of the container when the content reaches a maximum of
     640px in width (equivalent to tailwind's `sm` breakpoint)
@@ -10,14 +10,14 @@
     #nonScrollable
     class="tw-transition-colors tw-duration-200 tw-border-0 tw-border-b tw-border-solid tw-py-3 bit-compact:tw-py-2 tw-px-[max(0.75rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] bit-compact:tw-px-[max(0.5rem,calc((100%-(var(--tw-sm-breakpoint)))/2))]"
     [ngClass]="{
-      'tw-invisible !tw-p-0 !tw-border-none': loading || nonScrollable.childElementCount === 0,
+      'tw-invisible !tw-p-0 !tw-border-none': loading() || nonScrollable.childElementCount === 0,
       'tw-border-secondary-300': scrolled(),
       'tw-border-transparent': !scrolled(),
     }"
   >
     <ng-content select="[slot=above-scroll-area]"></ng-content>
   </div>
-  <!-- 
+  <!--
     x padding on this container is designed to always be a minimum of 0.75rem (equivalent to tailwind's tw-px-3), or 0.5rem (equivalent
     to tailwind's tw-px-2) in compact mode, but stretch to fill the remainder of the container when the content reaches a maximum of
     640px in width (equivalent to tailwind's `sm` breakpoint)
@@ -27,9 +27,9 @@
     data-testid="popup-layout-scroll-region"
     (scroll)="handleScroll($event)"
     [ngClass]="{
-      'tw-invisible': loading,
+      'tw-invisible': loading(),
       'tw-py-3 bit-compact:tw-py-2 tw-px-[max(0.75rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] bit-compact:tw-px-[max(0.5rem,calc((100%-(var(--tw-sm-breakpoint)))/2))]':
-        !disablePadding,
+        !disablePadding(),
     }"
     bitScrollLayoutHost
   >
@@ -37,9 +37,9 @@
   </div>
   <span
     class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-text-main"
-    [ngClass]="{ 'tw-invisible': !loading }"
+    [ngClass]="{ 'tw-invisible': !loading() }"
   >
-    <i class="bwi bwi-spinner bwi-lg bwi-spin" [attr.aria-label]="loadingText"></i>
+    <i class="bwi bwi-spinner bwi-lg bwi-spin" [attr.aria-label]="loadingText()"></i>
   </span>
 </main>
 <ng-content select="[slot=footer]"></ng-content>
