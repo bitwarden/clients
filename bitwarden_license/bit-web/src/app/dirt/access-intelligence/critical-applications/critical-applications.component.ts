@@ -15,6 +15,8 @@ import {
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { createNewSummaryData } from "@bitwarden/bit-common/dirt/reports/risk-insights/helpers";
 import { OrganizationReportSummary } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { NoItemsModule, SearchModule, TableDataSource, ToastService } from "@bitwarden/components";
@@ -24,7 +26,6 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
 import { DefaultAdminTaskService } from "../../../vault/services/default-admin-task.service";
-import { RiskInsightsTabType } from "../models/risk-insights.models";
 import { AppTableRowScrollableComponent } from "../shared/app-table-row-scrollable.component";
 import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks.service";
 
@@ -49,6 +50,7 @@ export class CriticalApplicationsComponent implements OnInit {
   protected enableRequestPasswordChange = false;
   protected organizationId: OrganizationId;
   noItemsIcon = Security;
+  private isRiskInsightsActivityTabFeatureEnabled = false;
 
   protected dataSource = new TableDataSource<ApplicationHealthReportDetailEnriched>();
   protected applicationSummary = {} as OrganizationReportSummary;
@@ -65,6 +67,7 @@ export class CriticalApplicationsComponent implements OnInit {
     protected reportService: RiskInsightsReportService,
     protected i18nService: I18nService,
     private accessIntelligenceSecurityTasksService: AccessIntelligenceSecurityTasksService,
+    private configService: ConfigService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
@@ -72,6 +75,14 @@ export class CriticalApplicationsComponent implements OnInit {
   }
 
   async ngOnInit() {
+    // Subscribe to feature flag
+    this.configService
+      .getFeatureFlag$(FeatureFlag.PM22887_RiskInsightsActivityTab)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((isEnabled) => {
+        this.isRiskInsightsActivityTabFeatureEnabled = isEnabled; // TODO: Remove this hard coded value
+      });
+
     this.dataService.criticalReportResults$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (criticalReport) => {
         this.dataSource.data = criticalReport?.reportData ?? [];
@@ -100,13 +111,12 @@ export class CriticalApplicationsComponent implements OnInit {
   }
 
   goToAllAppsTab = async () => {
-    await this.router.navigate(
-      [`organizations/${this.organizationId}/access-intelligence/risk-insights`],
-      {
-        queryParams: { tabIndex: RiskInsightsTabType.AllApps },
-        queryParamsHandling: "merge",
-      },
-    );
+    // If activity tab is enabled, All Apps is tab 1, otherwise it's tab 0
+    const allAppsTabIndex = this.isRiskInsightsActivityTabFeatureEnabled ? 1 : 0; //TODO: change this logic when feature flag is implemented?
+    await this.router.navigate([], {
+      relativeTo: this.activatedRoute.parent,
+      queryParams: { tabIndex: allAppsTabIndex },
+    });
   };
 
   removeCriticalApplication = async (hostname: string) => {
