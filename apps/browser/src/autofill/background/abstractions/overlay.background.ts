@@ -12,7 +12,6 @@ import { LockedVaultPendingNotificationsData } from "./notification.background";
 
 export type TabId = NonNullable<chrome.tabs.Tab["id"]>;
 export type FrameId = NonNullable<chrome.runtime.MessageSender["frameId"]>;
-
 export type PageDetailsForTab = Record<TabId, Map<FrameId, PageDetail>>;
 
 export type SubFrameOffsetData = {
@@ -208,10 +207,8 @@ export type BuildCipherDataParams = {
   identityData?: { fullName: string; username?: string };
 };
 
-export type BackgroundMessageParam<
-  T extends OverlayBackgroundExtensionMessage = OverlayBackgroundExtensionMessage,
-> = {
-  message: T;
+export type BackgroundMessageParam = {
+  message: OverlayBackgroundExtensionMessage;
 };
 
 export type BackgroundSenderParam = {
@@ -221,9 +218,7 @@ export type BackgroundSenderParam = {
   };
 };
 
-export type BackgroundOnMessageHandlerParams<
-  T extends OverlayBackgroundExtensionMessage = OverlayBackgroundExtensionMessage,
-> = BackgroundMessageParam<T> & BackgroundSenderParam;
+export type BackgroundOnMessageHandlerParams = BackgroundMessageParam & BackgroundSenderParam;
 
 export type OverlayBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
@@ -269,8 +264,8 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   fido2AbortRequest: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
 };
 
-export type PortMessageParam<T extends OverlayPortMessage = OverlayPortMessage> = {
-  message: T;
+export type PortMessageParam = {
+  message: OverlayPortMessage;
 };
 
 export type PortConnectionParam = {
@@ -279,20 +274,14 @@ export type PortConnectionParam = {
   };
 };
 
-export type PortOnMessageHandlerParams<T extends OverlayPortMessage = OverlayPortMessage> =
-  PortMessageParam<T> & PortConnectionParam;
+export type PortOnMessageHandlerParams = PortMessageParam & PortConnectionParam;
 
 export type InlineMenuButtonPortMessageHandlers = {
   [key: string]: CallableFunction;
   triggerDelayedAutofillInlineMenuClosure: () => void;
   autofillInlineMenuButtonClicked: ({ port }: PortConnectionParam) => void;
   autofillInlineMenuBlurred: () => void;
-  redirectAutofillInlineMenuFocusOut: ({
-    message,
-    port,
-  }: PortOnMessageHandlerParams<
-    OverlayPortMessage & { command: string; direction?: string }
-  >) => void;
+  redirectAutofillInlineMenuFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
   updateAutofillInlineMenuColorScheme: () => void;
 };
 
@@ -301,32 +290,11 @@ export type InlineMenuListPortMessageHandlers = {
   checkAutofillInlineMenuButtonFocused: ({ port }: PortConnectionParam) => void;
   autofillInlineMenuBlurred: ({ port }: PortConnectionParam) => void;
   unlockVault: ({ port }: PortConnectionParam) => void;
-  fillAutofillInlineMenuCipher: ({
-    message,
-    port,
-  }: PortOnMessageHandlerParams<OverlayPortMessage & { command: string }>) => void;
-  addNewVaultItem: ({
-    message,
-    port,
-  }: PortOnMessageHandlerParams<
-    OverlayPortMessage & { command: string; addNewCipherType?: CipherType }
-  >) => void;
-  viewSelectedCipher: ({
-    message,
-    port,
-  }: PortOnMessageHandlerParams<
-    OverlayPortMessage & { command: string; viewsCipherData?: InlineMenuCipherData }
-  >) => void;
-  redirectAutofillInlineMenuFocusOut: ({
-    message,
-    port,
-  }: PortOnMessageHandlerParams<
-    OverlayPortMessage & { command: string; direction?: string }
-  >) => void;
-  updateAutofillInlineMenuListHeight: ({
-    message,
-    port,
-  }: PortOnMessageHandlerParams<OverlayPortMessage & { command: string; height?: number }>) => void;
+  fillAutofillInlineMenuCipher: ({ message, port }: PortOnMessageHandlerParams) => void;
+  addNewVaultItem: ({ message, port }: PortOnMessageHandlerParams) => void;
+  viewSelectedCipher: ({ message, port }: PortOnMessageHandlerParams) => void;
+  redirectAutofillInlineMenuFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
+  updateAutofillInlineMenuListHeight: ({ message, port }: PortOnMessageHandlerParams) => void;
   refreshGeneratedPassword: () => Promise<void>;
   fillGeneratedPassword: ({ port }: PortConnectionParam) => Promise<void>;
   refreshOverlayCiphers: () => Promise<void>;
