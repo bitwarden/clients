@@ -110,6 +110,15 @@ export class AutofillOptionsComponent implements OnInit {
   ) {
     this.cipherFormContainer.registerChildForm("autoFillOptions", this.autofillOptionsForm);
 
+    this.cipherFormContainer.formStatusChange$.pipe(takeUntilDestroyed()).subscribe((status) => {
+      // Disable adding new URIs when the cipher form is disabled
+      if (status === "disabled") {
+        this.autofillOptionsForm.disable();
+      } else if (!this.isPartialEdit) {
+        this.autofillOptionsForm.enable();
+      }
+    });
+
     this.autofillOptionsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       this.cipherFormContainer.patchCipher((cipher) => {
         cipher.login.uris = value.uris?.map((uri: UriField) =>
@@ -136,15 +145,6 @@ export class AutofillOptionsComponent implements OnInit {
       .subscribe(() => {
         this.uriOptions?.last?.focusInput();
       });
-
-    this.cipherFormContainer.formStatusChange$.pipe(takeUntilDestroyed()).subscribe((status) => {
-      // Disable adding new URIs when the cipher form is disabled
-      if (status === "disabled") {
-        this.autofillOptionsForm.disable();
-      } else if (!this.isPartialEdit) {
-        this.autofillOptionsForm.enable();
-      }
-    });
   }
 
   ngOnInit() {
