@@ -189,12 +189,12 @@ fn build_input(key_press: InputKeyPress, character: u16, is_virtual: bool) -> IN
     }
 }
 
-/// A function for easily building keyboard unicode INPUT structs used in `SendInput()`.
+/// A function for easily building keyboard unicode `INPUT` structs used in `SendInput()`.
 fn build_unicode_input(key_press: InputKeyPress, character: u16) -> INPUT {
     build_input(key_press, character, IS_REAL_KEY)
 }
 
-/// A function for easily building keyboard virtual-key INPUT structs used in `SendInput()`.
+/// A function for easily building keyboard virtual-key `INPUT` structs used in `SendInput()`.
 fn build_virtual_key_input(key_press: InputKeyPress, character: u16) -> INPUT {
     build_input(key_press, character, IS_VIRTUAL_KEY)
 }
