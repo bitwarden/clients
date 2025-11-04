@@ -88,16 +88,16 @@ fn add_input(input: &[u16], keyboard_inputs: &mut Vec<INPUT>) {
     }
 }
 
-impl TryFrom<&String> for KeyboardShortcutInput {
+impl TryFrom<&str> for KeyboardShortcutInput {
     type Error = anyhow::Error;
 
-    fn try_from(key: &String) -> std::result::Result<Self, Self::Error> {
+    fn try_from(key: &str) -> std::result::Result<Self, Self::Error> {
         const SHIFT_KEY: u16 = 0x10;
         const CONTROL_KEY: u16 = 0x11;
         const ALT_KEY: u16 = 0x12;
         const LEFT_WINDOWS_KEY: u16 = 0x5B;
 
-        let input = match key.as_str() {
+        let input = match key {
             SHIFT_KEY_STR => build_virtual_key_input(InputKeyPress::Up, SHIFT_KEY),
             CONTROL_KEY_STR => build_virtual_key_input(InputKeyPress::Up, CONTROL_KEY),
             ALT_KEY_STR => build_virtual_key_input(InputKeyPress::Up, ALT_KEY),

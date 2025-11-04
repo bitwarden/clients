@@ -55,7 +55,7 @@ pub fn type_input(input: &[u16], keyboard_shortcut: Vec<String>) -> Result<()> {
     // if any key is not a valid keyboard shortcut input
     let keyboard_shortcut: Vec<KeyboardShortcutInput> = keyboard_shortcut
         .iter()
-        .map(TryInto::try_into)
+        .map(|s| KeyboardShortcutInput::try_from(s.as_str()))
         .try_collect()?;
 
     type_input::type_input(input, &keyboard_shortcut)
