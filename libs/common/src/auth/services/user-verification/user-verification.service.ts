@@ -236,7 +236,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     );
     await this.masterPasswordService.setMasterKeyHash(localKeyHash, userId);
     await this.masterPasswordService.setMasterKey(masterKey, userId);
-    return { policyOptions, masterKey, masterPassword: verification.secret, email };
+    return { policyOptions, masterKey, email };
   }
 
   private async verifyUserByPIN(verification: PinVerification, userId: UserId): Promise<boolean> {

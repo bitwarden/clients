@@ -362,7 +362,6 @@ describe("UserVerificationService", () => {
         expect(result).toEqual({
           policyOptions: null,
           masterKey: "masterKey",
-          masterPassword: "password",
           email: "email",
         });
       });
@@ -422,7 +421,6 @@ describe("UserVerificationService", () => {
         expect(result).toEqual({
           policyOptions: "MasterPasswordPolicyOptions",
           masterKey: "masterKey",
-          masterPassword: "password",
           email: "email",
         });
       });

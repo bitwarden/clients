@@ -1,5 +1,4 @@
-import { MasterKey } from "@bitwarden/common/types/key";
-
+import { MasterKey } from "../../key-management/types/master-key";
 import { VerificationType } from "../enums/verification-type";
 import { MasterPasswordPolicyResponse } from "../models/response/master-password-policy.response";
 
@@ -26,7 +25,6 @@ export function verificationHasSecret(
 export type ServerSideVerification = OtpVerification | MasterPasswordVerification;
 
 export type MasterPasswordVerificationResponse = {
-  masterPassword: string;
   /** @deprecated */
   masterKey: MasterKey;
   email: string;
