@@ -40,7 +40,7 @@ pub fn get_foreground_window_title() -> Result<String> {
     window_title::get_foreground_window_title()
 }
 
-/// `KeyboardShortcut` is an `INPUT` of one of the valid shortcut keys:
+/// `KeyboardShortcutInput` is an `INPUT` of one of the valid shortcut keys:
 ///     - Control
 ///     - Alt
 ///     - Super
