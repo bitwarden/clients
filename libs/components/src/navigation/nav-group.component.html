@@ -22,13 +22,7 @@
         [ngClass]="{
           'tw-transform tw-rotate-[90deg]': variantValue === 'tree' && !open(),
         }"
-        [bitIconButton]="
-          open() && variantValue !== 'tree'
-            ? 'bwi-angle-up'
-            : !open() && variantValue !== 'tree'
-              ? 'bwi-angle-down'
-              : 'bwi-up-solid'
-        "
+        [bitIconButton]="toggleButtonIcon()"
         [buttonType]="'nav-contrast'"
         (click)="toggle($event)"
         size="small"

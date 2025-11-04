@@ -22,6 +22,18 @@ export abstract class NavGroupAbstraction {
   imports: [CommonModule, IconButtonModule, RouterModule],
 })
 export class NavItemComponent extends NavBaseComponent {
+  /**
+   * Base padding for tree variant items (in rem)
+   * This provides the initial indentation for tree items before depth-based padding
+   */
+  protected readonly TREE_BASE_PADDING = 2.5;
+
+  /**
+   * Padding increment per tree depth level (in rem)
+   * Each nested level adds this amount of padding to visually indicate hierarchy
+   */
+  protected readonly TREE_DEPTH_PADDING = 1.5;
+
   /** Forces active styles to be shown, regardless of the `routerLinkActiveOptions` */
   readonly forceActiveStyles = input<boolean>(false);
 

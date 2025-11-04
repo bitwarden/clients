@@ -4,7 +4,9 @@
     <div
       [ngStyle]="{
         'padding-inline-start': open
-          ? (variant() === 'tree' ? 2.5 : 0) + treeDepth() * 1.5 + 'rem'
+          ? (variant() === 'tree' ? TREE_BASE_PADDING : 0) +
+            treeDepth() * TREE_DEPTH_PADDING +
+            'rem'
           : '0',
       }"
       class="tw-relative tw-rounded-md tw-h-10"
@@ -14,6 +16,7 @@
           : 'tw-bg-background-alt3 hover:tw-bg-hover-contrast',
         fvwStyles$ | async,
       ]"
+      [attr.aria-level]="variant() === 'tree' ? treeDepth() + 1 : null"
     >
       <div class="tw-relative tw-flex tw-items-center tw-h-full">
         @if (open) {

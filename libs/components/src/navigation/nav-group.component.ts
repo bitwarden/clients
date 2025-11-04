@@ -49,6 +49,18 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
   });
 
   /**
+   * Determines the appropriate icon for the toggle button based on variant and open state.
+   * - Tree variant: Always uses 'bwi-up-solid'
+   * - Default variant: Uses 'bwi-angle-up' when open, 'bwi-angle-down' when closed
+   */
+  readonly toggleButtonIcon = computed(() => {
+    if (this.variant() === "tree") {
+      return "bwi-up-solid";
+    }
+    return this.open() ? "bwi-angle-up" : "bwi-angle-down";
+  });
+
+  /**
    * Allow overriding of the RouterLink['ariaCurrentWhenActive'] property.
    *
    * By default, assuming that the nav group navigates to its first child page instead of its
@@ -104,9 +116,9 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
   setOpen(isOpen: boolean) {
     this.open.set(isOpen);
     this.openChange.emit(this.open());
-    // FIXME: Remove when updating file. Eslint update
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    this.open() && this.parentNavGroup?.setOpen(this.open());
+    if (this.open()) {
+      this.parentNavGroup?.setOpen(this.open());
+    }
   }
 
   protected toggle(event?: MouseEvent) {
