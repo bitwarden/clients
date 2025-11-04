@@ -915,7 +915,7 @@ export default class AutofillService implements AutofillServiceInterface {
       pf: AutofillField,
       withoutForm: boolean,
     ): AutofillField | null => {
-      // Use focused username if it matches this password, otherwise fall back to finding username before password
+      // use focused username if it matches this password, otherwise fall back to finding username field before password
       if (focusedUsernameField && passwordMatchesFocused(pf)) {
         return focusedUsernameField;
       }
@@ -923,18 +923,17 @@ export default class AutofillService implements AutofillServiceInterface {
     };
 
     if (focusedUsernameField && !prioritizedPasswordFields.some(passwordMatchesFocused)) {
-      if (Object.prototype.hasOwnProperty.call(filledFields, focusedUsernameField.opid)) {
-        return fillScript;
+      if (!Object.prototype.hasOwnProperty.call(filledFields, focusedUsernameField.opid)) {
+        filledFields[focusedUsernameField.opid] = focusedUsernameField;
+        AutofillService.fillByOpid(fillScript, focusedUsernameField, login.username);
+        if (options.autoSubmitLogin && focusedUsernameField.form) {
+          fillScript.autosubmit = [focusedUsernameField.form];
+        }
+        return AutofillService.setFillScriptForFocus(
+          { [focusedUsernameField.opid]: focusedUsernameField },
+          fillScript,
+        );
       }
-      filledFields[focusedUsernameField.opid] = focusedUsernameField;
-      AutofillService.fillByOpid(fillScript, focusedUsernameField, login.username);
-      if (options.autoSubmitLogin && focusedUsernameField.form) {
-        fillScript.autosubmit = [focusedUsernameField.form];
-      }
-      return AutofillService.setFillScriptForFocus(
-        { [focusedUsernameField.opid]: focusedUsernameField },
-        fillScript,
-      );
     }
 
     for (const formKey in pageDetails.forms) {
@@ -971,8 +970,8 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     if (passwordFields.length && !passwords.length) {
-      // password fields exist but weren't processed in forms. Use matching password if focused or first.
-      // for username, use focused field if it matches, otherwise find input field just before password.
+      // in the event that password fields exist but weren't processed within form elements.
+      // select matching password if focused, otherwise first in prioritized list. for username, use focused field if it matches, otherwise find field before password.
       const passwordFieldToUse = focusedField
         ? prioritizedPasswordFields.find(passwordMatchesFocused) || prioritizedPasswordFields[0]
         : prioritizedPasswordFields[0];
