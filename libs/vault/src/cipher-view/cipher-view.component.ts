@@ -252,7 +252,7 @@ export class CipherViewComponent {
       this.configService.getFeatureFlag$(FeatureFlag.RiskInsightsForPremium),
     ]).pipe(
       switchMap(([userId, cipher, featureEnabled]) => {
-        if (!featureEnabled || !cipher.hasLoginPassword || !cipher.edit) {
+        if (!featureEnabled || !cipher.hasLoginPassword || !cipher.edit || cipher.organizationId) {
           return of(false);
         }
         return this.switchPremium$(
