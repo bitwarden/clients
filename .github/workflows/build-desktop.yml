@@ -345,8 +345,10 @@ jobs:
       - name: Set up Snap
         run: sudo snap install snapcraft --classic
 
-      - name: Install gtk-common-themes
-        run: sudo snap install gtk-common-themes || echo "gtk-common-themes installation failed, continuing anyway"
+      - name: Install content snaps required by electron-builder
+        run: |
+          sudo snap install gtk-common-themes || echo "gtk-common-themes installation failed, continuing anyway"
+          sudo snap install gnome-3-28-1804 || echo "gnome-3-28-1804 installation failed, continuing anyway"
 
       - name: Print environment
         run: |
