@@ -548,7 +548,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     const isEmailValid = this.validateEmail();
 
     if (isEmailValid) {
-      await this.makePreloginCall();
+      await this.makePasswordPreloginCall();
 
       await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY);
     }
@@ -652,7 +652,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     history.back();
   }
 
-  private async makePreloginCall() {
+  private async makePasswordPreloginCall() {
     // Prefetch prelogin KDF config when enabled
     try {
       const flagEnabled = await this.configService.getFeatureFlag(
