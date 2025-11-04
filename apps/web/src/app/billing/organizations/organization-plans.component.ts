@@ -11,10 +11,9 @@ import {
 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { Subject, firstValueFrom, takeUntil } from "rxjs";
+import { firstValueFrom, merge, Subject, takeUntil } from "rxjs";
 import { debounceTime, map, switchMap } from "rxjs/operators";
 
-import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
@@ -32,37 +31,37 @@ import { ProviderOrganizationCreateRequest } from "@bitwarden/common/admin-conso
 import { ProviderResponse } from "@bitwarden/common/admin-console/models/response/provider/provider.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
-import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
-import {
-  PaymentMethodType,
-  PlanSponsorshipType,
-  PlanType,
-  ProductTierType,
-} from "@bitwarden/common/billing/enums";
-import { TaxInformation } from "@bitwarden/common/billing/models/domain";
-import { ExpandedTaxInfoUpdateRequest } from "@bitwarden/common/billing/models/request/expanded-tax-info-update.request";
-import { PreviewOrganizationInvoiceRequest } from "@bitwarden/common/billing/models/request/preview-organization-invoice.request";
-import { UpdatePaymentMethodRequest } from "@bitwarden/common/billing/models/request/update-payment-method.request";
+import { assertNonNullish } from "@bitwarden/common/auth/utils";
+import { PlanSponsorshipType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { BillingResponse } from "@bitwarden/common/billing/models/response/billing.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import {
+  OrganizationSubscriptionPlan,
+  OrganizationSubscriptionPurchase,
+  SubscriberBillingClient,
+  TaxClient,
+} from "@bitwarden/web-vault/app/billing/clients";
+import {
+  EnterBillingAddressComponent,
+  EnterPaymentMethodComponent,
+  getBillingAddressFromForm,
+} from "@bitwarden/web-vault/app/billing/payment/components";
+import { tokenizablePaymentMethodToLegacyEnum } from "@bitwarden/web-vault/app/billing/payment/types";
 
 import { OrganizationCreateModule } from "../../admin-console/organizations/create/organization-create.module";
 import { BillingSharedModule, secretsManagerSubscribeFormFactory } from "../shared";
-import { PaymentComponent } from "../shared/payment/payment.component";
 
 interface OnSuccessArgs {
   organizationId: string;
@@ -75,24 +74,47 @@ const Allowed2020PlansForLegacyProviders = [
   PlanType.EnterpriseMonthly2020,
 ];
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-organization-plans",
   templateUrl: "organization-plans.component.html",
-  imports: [BillingSharedModule, OrganizationCreateModule],
+  imports: [
+    BillingSharedModule,
+    OrganizationCreateModule,
+    EnterPaymentMethodComponent,
+    EnterBillingAddressComponent,
+  ],
+  providers: [SubscriberBillingClient, TaxClient],
 })
 export class OrganizationPlansComponent implements OnInit, OnDestroy {
-  @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
-  @ViewChild(ManageTaxInformationComponent) taxComponent: ManageTaxInformationComponent;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @ViewChild(EnterPaymentMethodComponent) enterPaymentMethodComponent!: EnterPaymentMethodComponent;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() organizationId?: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showFree = true;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showCancel = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() acceptingSponsorship = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() planSponsorshipType?: PlanSponsorshipType;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() currentPlan: PlanResponse;
 
   selectedFile: File;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get productTier(): ProductTierType {
     return this._productTier;
@@ -105,8 +127,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
   private _productTier = ProductTierType.Free;
 
-  protected taxInformation: TaxInformation;
-
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get plan(): PlanType {
     return this._plan;
@@ -116,13 +138,25 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     this._plan = plan;
     this.formGroup?.controls?.plan?.setValue(plan);
   }
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() enableSecretsManagerByDefault: boolean;
 
   private _plan = PlanType.Free;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() providerId?: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() preSelectedProductTier?: ProductTierType;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onSuccess = new EventEmitter<OnSuccessArgs>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onCanceled = new EventEmitter<void>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onTrialBillingSuccess = new EventEmitter();
 
   loading = true;
@@ -135,10 +169,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
   secretsManagerSubscription = secretsManagerSubscribeFormFactory(this.formBuilder);
 
-  selfHostedForm = this.formBuilder.group({
-    file: [null, [Validators.required]],
-  });
-
   formGroup = this.formBuilder.group({
     name: [""],
     billingEmail: ["", [Validators.email]],
@@ -150,6 +180,11 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     plan: [this.plan],
     productTier: [this.productTier],
     secretsManager: this.secretsManagerSubscription,
+  });
+
+  billingFormGroup = this.formBuilder.group({
+    paymentMethod: EnterPaymentMethodComponent.getFormGroup(),
+    billingAddress: EnterBillingAddressComponent.getFormGroup(),
   });
 
   passwordManagerPlans: PlanResponse[];
@@ -179,10 +214,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     private organizationApiService: OrganizationApiServiceAbstraction,
     private providerApiService: ProviderApiServiceAbstraction,
     private toastService: ToastService,
-    private configService: ConfigService,
-    private billingApiService: BillingApiServiceAbstraction,
-    private taxService: TaxServiceAbstraction,
     private accountService: AccountService,
+    private subscriberBillingClient: SubscriberBillingClient,
+    private taxClient: TaxClient,
   ) {
     this.selfHosted = this.platformUtilsService.isSelfHost();
   }
@@ -199,9 +233,14 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       );
       this.billing = await this.organizationApiService.getBilling(this.organizationId);
       this.sub = await this.organizationApiService.getSubscription(this.organizationId);
-      this.taxInformation = await this.organizationApiService.getTaxInfo(this.organizationId);
-    } else if (!this.selfHosted) {
-      this.taxInformation = await this.apiService.getTaxInfo();
+      const billingAddress = await this.subscriberBillingClient.getBillingAddress({
+        type: "organization",
+        data: this.organization,
+      });
+      this.billingFormGroup.controls.billingAddress.patchValue({
+        ...billingAddress,
+        taxId: billingAddress?.taxId?.value,
+      });
     }
 
     if (!this.selfHosted) {
@@ -268,15 +307,17 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
     this.loading = false;
 
-    this.formGroup.valueChanges.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(() => {
-      this.refreshSalesTax();
-    });
-
-    this.secretsManagerForm.valueChanges
-      .pipe(debounceTime(1000), takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.refreshSalesTax();
-      });
+    merge(
+      this.formGroup.valueChanges,
+      this.billingFormGroup.valueChanges,
+      this.secretsManagerForm.valueChanges,
+    )
+      .pipe(
+        debounceTime(1000),
+        switchMap(async () => await this.refreshSalesTax()),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
 
     if (this.enableSecretsManagerByDefault && this.selectedSecretsManagerPlan) {
       this.secretsManagerSubscription.patchValue({
@@ -438,7 +479,10 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   get passwordManagerSubtotal() {
-    let subTotal = this.selectedPlan.PasswordManager.basePrice;
+    const basePriceAfterDiscount = this.acceptingSponsorship
+      ? Math.max(this.selectedPlan.PasswordManager.basePrice - this.discount, 0)
+      : this.selectedPlan.PasswordManager.basePrice;
+    let subTotal = basePriceAfterDiscount;
     if (
       this.selectedPlan.PasswordManager.hasAdditionalSeatsOption &&
       this.formGroup.controls.additionalSeats.value
@@ -449,18 +493,18 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       );
     }
     if (
-      this.selectedPlan.PasswordManager.hasAdditionalStorageOption &&
-      this.formGroup.controls.additionalStorage.value
-    ) {
-      subTotal += this.additionalStorageTotal(this.selectedPlan);
-    }
-    if (
       this.selectedPlan.PasswordManager.hasPremiumAccessOption &&
       this.formGroup.controls.premiumAccessAddon.value
     ) {
       subTotal += this.selectedPlan.PasswordManager.premiumAccessOptionPrice;
     }
-    return subTotal - this.discount;
+    if (
+      this.selectedPlan.PasswordManager.hasAdditionalStorageOption &&
+      this.formGroup.controls.additionalStorage.value
+    ) {
+      subTotal += this.additionalStorageTotal(this.selectedPlan);
+    }
+    return subTotal;
   }
 
   get secretsManagerSubtotal() {
@@ -587,34 +631,13 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     this.changedProduct();
   }
 
-  protected changedCountry(): void {
-    this.paymentComponent.showBankAccount = this.taxInformation?.country === "US";
-    if (
-      !this.paymentComponent.showBankAccount &&
-      this.paymentComponent.selected === PaymentMethodType.BankAccount
-    ) {
-      this.paymentComponent.select(PaymentMethodType.Card);
-    }
-  }
-
-  protected onTaxInformationChanged(event: TaxInformation): void {
-    this.taxInformation = event;
-    this.changedCountry();
-    this.refreshSalesTax();
-  }
-
   protected cancel(): void {
     this.onCanceled.emit();
   }
 
-  protected setSelectedFile(event: Event): void {
-    const fileInputEl = <HTMLInputElement>event.target;
-    this.selectedFile = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
-  }
-
   submit = async () => {
-    if (this.taxComponent && !this.taxComponent.validate()) {
-      this.taxComponent.markAllAsTouched();
+    this.formGroup.markAllAsTouched();
+    if (this.formGroup.invalid) {
       return;
     }
 
@@ -636,7 +659,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
         orgId = this.selfHosted
           ? await this.createSelfHosted(key, collectionCt, orgKeys)
-          : await this.createCloudHosted(key, collectionCt, orgKeys, orgKey[1]);
+          : await this.createCloudHosted(key, collectionCt, orgKeys, orgKey[1], activeUserId);
 
         this.toastService.showToast({
           variant: "success",
@@ -652,7 +675,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         });
       }
 
-      await this.apiService.refreshIdentityToken();
       await this.syncService.fullSync(true);
 
       if (!this.acceptingSponsorship && !this.isInTrialFlow) {
@@ -688,46 +710,90 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     }
   }
 
-  private refreshSalesTax(): void {
-    if (!this.taxComponent.validate()) {
+  private getPlanFromLegacyEnum(): OrganizationSubscriptionPlan {
+    switch (this.formGroup.value.plan) {
+      case PlanType.FamiliesAnnually:
+        return { tier: "families", cadence: "annually" };
+      case PlanType.TeamsMonthly:
+        return { tier: "teams", cadence: "monthly" };
+      case PlanType.TeamsAnnually:
+        return { tier: "teams", cadence: "annually" };
+      case PlanType.EnterpriseMonthly:
+        return { tier: "enterprise", cadence: "monthly" };
+      case PlanType.EnterpriseAnnually:
+        return { tier: "enterprise", cadence: "annually" };
+    }
+  }
+
+  private buildTaxPreviewRequest(
+    additionalStorage: number,
+    sponsored: boolean,
+  ): OrganizationSubscriptionPurchase {
+    const passwordManagerSeats = this.selectedPlan.PasswordManager.hasAdditionalSeatsOption
+      ? this.formGroup.value.additionalSeats
+      : 1;
+
+    return {
+      ...this.getPlanFromLegacyEnum(),
+      passwordManager: {
+        seats: passwordManagerSeats,
+        additionalStorage,
+        sponsored,
+      },
+      secretsManager: this.formGroup.value.secretsManager.enabled
+        ? {
+            seats: this.secretsManagerForm.value.userSeats,
+            additionalServiceAccounts: this.secretsManagerForm.value.additionalServiceAccounts,
+            standalone: false,
+          }
+        : undefined,
+    };
+  }
+
+  private async refreshSalesTax(): Promise<void> {
+    if (this.billingFormGroup.controls.billingAddress.invalid) {
       return;
     }
 
-    const request: PreviewOrganizationInvoiceRequest = {
-      organizationId: this.organizationId,
-      passwordManager: {
-        additionalStorage: this.formGroup.controls.additionalStorage.value,
-        plan: this.formGroup.controls.plan.value,
-        sponsoredPlan: this.planSponsorshipType,
-        seats: this.formGroup.controls.additionalSeats.value,
-      },
-      taxInformation: {
-        postalCode: this.taxInformation.postalCode,
-        country: this.taxInformation.country,
-        taxId: this.taxInformation.taxId,
-      },
-    };
+    const billingAddress = getBillingAddressFromForm(this.billingFormGroup.controls.billingAddress);
 
-    if (this.secretsManagerForm.controls.enabled.value === true) {
-      request.secretsManager = {
-        seats: this.secretsManagerForm.controls.userSeats.value,
-        additionalMachineAccounts: this.secretsManagerForm.controls.additionalServiceAccounts.value,
-      };
+    // should still be taxed. We mark the plan as NOT sponsored when there is additional storage
+    // so the server calculates tax, but we'll adjust the calculation to only tax the storage.
+    const hasPaidStorage = (this.formGroup.value.additionalStorage || 0) > 0;
+    const sponsoredForTaxPreview = this.acceptingSponsorship && !hasPaidStorage;
+
+    if (this.acceptingSponsorship && hasPaidStorage) {
+      // For sponsored plans with paid storage, calculate tax only on storage
+      // by comparing tax on base+storage vs tax on base only
+      //TODO: Move this logic to PreviewOrganizationTaxCommand - https://bitwarden.atlassian.net/browse/PM-27585
+      const [baseTaxAmounts, fullTaxAmounts] = await Promise.all([
+        this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
+          this.buildTaxPreviewRequest(0, false),
+          billingAddress,
+        ),
+        this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
+          this.buildTaxPreviewRequest(this.formGroup.value.additionalStorage, false),
+          billingAddress,
+        ),
+      ]);
+
+      // Tax on storage = Tax on (base + storage) - Tax on (base only)
+      this.estimatedTax = fullTaxAmounts.tax - baseTaxAmounts.tax;
+    } else {
+      const taxAmounts = await this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
+        this.buildTaxPreviewRequest(this.formGroup.value.additionalStorage, sponsoredForTaxPreview),
+        billingAddress,
+      );
+
+      this.estimatedTax = taxAmounts.tax;
     }
 
-    this.taxService
-      .previewOrganizationInvoice(request)
-      .then((invoice) => {
-        this.estimatedTax = invoice.taxAmount;
-        this.total = invoice.totalAmount;
-      })
-      .catch((error) => {
-        this.toastService.showToast({
-          title: "",
-          variant: "error",
-          message: this.i18nService.t(error.message),
-        });
-      });
+    const subtotal =
+      this.passwordManagerSubtotal +
+      (this.planOffersSecretsManager && this.secretsManagerForm.value.enabled
+        ? this.secretsManagerSubtotal
+        : 0);
+    this.total = subtotal + this.estimatedTax;
   }
 
   private async updateOrganization() {
@@ -738,21 +804,24 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       this.selectedPlan.PasswordManager.hasPremiumAccessOption &&
       this.formGroup.controls.premiumAccessAddon.value;
     request.planType = this.selectedPlan.type;
-    request.billingAddressCountry = this.taxInformation?.country;
-    request.billingAddressPostalCode = this.taxInformation?.postalCode;
+    request.billingAddressCountry = this.billingFormGroup.value.billingAddress.country;
+    request.billingAddressPostalCode = this.billingFormGroup.value.billingAddress.postalCode;
 
     // Secrets Manager
     this.buildSecretsManagerRequest(request);
 
     if (this.upgradeRequiresPaymentMethod) {
-      const updatePaymentMethodRequest = new UpdatePaymentMethodRequest();
-      updatePaymentMethodRequest.paymentSource = await this.paymentComponent.tokenize();
-      updatePaymentMethodRequest.taxInformation = ExpandedTaxInfoUpdateRequest.From(
-        this.taxInformation,
-      );
-      await this.billingApiService.updateOrganizationPaymentMethod(
-        this.organizationId,
-        updatePaymentMethodRequest,
+      if (this.billingFormGroup.invalid) {
+        return;
+      }
+      const paymentMethod = await this.enterPaymentMethodComponent.tokenize();
+      await this.subscriberBillingClient.updatePaymentMethod(
+        { type: "organization", data: this.organization },
+        paymentMethod,
+        {
+          country: this.billingFormGroup.value.billingAddress.country,
+          postalCode: this.billingFormGroup.value.billingAddress.postalCode,
+        },
       );
     }
 
@@ -779,6 +848,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     collectionCt: string,
     orgKeys: [string, EncString],
     orgKey: SymmetricCryptoKey,
+    activeUserId: UserId,
   ): Promise<string> {
     const request = new OrganizationCreateRequest();
     request.key = key;
@@ -791,23 +861,31 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     if (this.selectedPlan.type === PlanType.Free) {
       request.planType = PlanType.Free;
     } else {
-      const { type, token } = await this.paymentComponent.tokenize();
+      if (this.billingFormGroup.invalid) {
+        return;
+      }
 
-      request.paymentToken = token;
-      request.paymentMethodType = type;
+      const paymentMethod = await this.enterPaymentMethodComponent.tokenize();
+
+      const billingAddress = getBillingAddressFromForm(
+        this.billingFormGroup.controls.billingAddress,
+      );
+
+      request.paymentToken = paymentMethod.token;
+      request.paymentMethodType = tokenizablePaymentMethodToLegacyEnum(paymentMethod.type);
       request.additionalSeats = this.formGroup.controls.additionalSeats.value;
       request.additionalStorageGb = this.formGroup.controls.additionalStorage.value;
       request.premiumAccessAddon =
         this.selectedPlan.PasswordManager.hasPremiumAccessOption &&
         this.formGroup.controls.premiumAccessAddon.value;
       request.planType = this.selectedPlan.type;
-      request.billingAddressPostalCode = this.taxInformation?.postalCode;
-      request.billingAddressCountry = this.taxInformation?.country;
-      request.taxIdNumber = this.taxInformation?.taxId;
-      request.billingAddressLine1 = this.taxInformation?.line1;
-      request.billingAddressLine2 = this.taxInformation?.line2;
-      request.billingAddressCity = this.taxInformation?.city;
-      request.billingAddressState = this.taxInformation?.state;
+      request.billingAddressPostalCode = billingAddress.postalCode;
+      request.billingAddressCountry = billingAddress.country;
+      request.taxIdNumber = billingAddress.taxId?.value;
+      request.billingAddressLine1 = billingAddress.line1;
+      request.billingAddressLine2 = billingAddress.line2;
+      request.billingAddressCity = billingAddress.city;
+      request.billingAddressState = billingAddress.state;
     }
 
     // Secrets Manager
@@ -818,7 +896,14 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         this.formGroup.controls.clientOwnerEmail.value,
         request,
       );
-      const providerKey = await this.keyService.getProviderKey(this.providerId);
+
+      const providerKey = await firstValueFrom(
+        this.keyService
+          .providerKeys$(activeUserId)
+          .pipe(map((providerKeys) => providerKeys?.[this.providerId as ProviderId] ?? null)),
+      );
+      assertNonNullish(providerKey, "Provider key not found");
+
       providerRequest.organizationCreateRequest.key = (
         await this.encryptService.wrapSymmetricKey(orgKey, providerKey)
       ).encryptedString;

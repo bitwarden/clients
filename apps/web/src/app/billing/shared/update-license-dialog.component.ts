@@ -10,6 +10,8 @@ import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { UpdateLicenseDialogResult } from "./update-license-types";
 import { UpdateLicenseComponent } from "./update-license.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "update-license-dialog.component.html",
   standalone: false,

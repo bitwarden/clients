@@ -30,6 +30,7 @@ import { ValidationService } from "@bitwarden/common/platform/abstractions/valid
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -73,6 +74,9 @@ describe("SettingsComponent", () => {
   const desktopAutotypeService = mock<DesktopAutotypeService>();
   const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
   const configService = mock<ConfigService>();
+  const userVerificationService = mock<UserVerificationService>();
+
+  const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64));
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -92,6 +96,7 @@ describe("SettingsComponent", () => {
     };
 
     i18nService.supportedTranslationLocales = [];
+    i18nService.t.mockImplementation((key: string) => key);
 
     await TestBed.configureTestingModule({
       imports: [],
@@ -124,7 +129,7 @@ describe("SettingsComponent", () => {
         { provide: PolicyService, useValue: policyService },
         { provide: StateService, useValue: mock<StateService>() },
         { provide: ThemeStateService, useValue: themeStateService },
-        { provide: UserVerificationService, useValue: mock<UserVerificationService>() },
+        { provide: UserVerificationService, useValue: userVerificationService },
         { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
         { provide: ValidationService, useValue: validationService },
         { provide: MessagingService, useValue: messagingService },
@@ -153,6 +158,7 @@ describe("SettingsComponent", () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
 
+    desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
     vaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockReturnValue(
       of(VaultTimeoutStringType.OnLocked),
     );
@@ -183,6 +189,7 @@ describe("SettingsComponent", () => {
     policyService.policiesByType$.mockReturnValue(of([null]));
     desktopAutotypeService.resolvedAutotypeEnabled$ = of(false);
     desktopAutotypeService.autotypeEnabledUserSetting$ = of(false);
+    desktopAutotypeService.autotypeKeyboardShortcut$ = of(["Control", "Shift", "B"]);
     billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
     configService.getFeatureFlag$.mockReturnValue(of(true));
   });
@@ -295,43 +302,81 @@ describe("SettingsComponent", () => {
     describe("windows desktop", () => {
       beforeEach(() => {
         platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+        desktopBiometricsService.isWindowsV2BiometricsEnabled.mockResolvedValue(true);
 
         // Recreate component to apply the correct device
         fixture = TestBed.createComponent(SettingsComponent);
         component = fixture.componentInstance;
       });
 
-      it("require password or pin on app start not visible when RemoveUnlockWithPin policy is disabled and pin set and windows desktop", async () => {
-        const policy = new Policy();
-        policy.type = PolicyType.RemoveUnlockWithPin;
-        policy.enabled = false;
-        policyService.policiesByType$.mockReturnValue(of([policy]));
-        pinServiceAbstraction.isPinSet.mockResolvedValue(true);
+      test.each([true, false])(
+        `correct message display for require MP/PIN on app restart when pin is set, windows desktop, and policy is %s`,
+        async (policyEnabled) => {
+          const policy = new Policy();
+          policy.type = PolicyType.RemoveUnlockWithPin;
+          policy.enabled = policyEnabled;
+          policyService.policiesByType$.mockReturnValue(of([policy]));
+          platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+          pinServiceAbstraction.isPinSet.mockResolvedValue(true);
 
-        await component.ngOnInit();
-        fixture.detectChanges();
+          await component.ngOnInit();
+          fixture.detectChanges();
 
-        const requirePasswordOnStartLabelElement = fixture.debugElement.query(
-          By.css("label[for='requirePasswordOnStart']"),
-        );
-        expect(requirePasswordOnStartLabelElement).toBeNull();
+          const textNodes = checkRequireMasterPasswordOnAppRestartElement(fixture);
+
+          if (policyEnabled) {
+            expect(textNodes).toContain("requireMasterPasswordOnAppRestart");
+          } else {
+            expect(textNodes).toContain("requireMasterPasswordOrPinOnAppRestart");
+          }
+        },
+      );
+
+      describe("users without a master password", () => {
+        beforeEach(() => {
+          userVerificationService.hasMasterPassword.mockResolvedValue(false);
+        });
+
+        it("displays require MP/PIN on app restart checkbox when pin is set", async () => {
+          pinServiceAbstraction.isPinSet.mockResolvedValue(true);
+
+          await component.ngOnInit();
+          fixture.detectChanges();
+
+          checkRequireMasterPasswordOnAppRestartElement(fixture);
+        });
+
+        it("does not display require MP/PIN on app restart checkbox when pin is not set", async () => {
+          pinServiceAbstraction.isPinSet.mockResolvedValue(false);
+
+          await component.ngOnInit();
+          fixture.detectChanges();
+
+          const requireMasterPasswordOnAppRestartLabelElement = fixture.debugElement.query(
+            By.css("label[for='requireMasterPasswordOnAppRestart']"),
+          );
+          expect(requireMasterPasswordOnAppRestartLabelElement).toBeNull();
+        });
       });
 
-      it("require password on app start not visible when RemoveUnlockWithPin policy is enabled and pin set and windows desktop", async () => {
-        const policy = new Policy();
-        policy.type = PolicyType.RemoveUnlockWithPin;
-        policy.enabled = true;
-        policyService.policiesByType$.mockReturnValue(of([policy]));
-        pinServiceAbstraction.isPinSet.mockResolvedValue(true);
-
-        await component.ngOnInit();
-        fixture.detectChanges();
-
-        const requirePasswordOnStartLabelElement = fixture.debugElement.query(
-          By.css("label[for='requirePasswordOnStart']"),
+      function checkRequireMasterPasswordOnAppRestartElement(
+        fixture: ComponentFixture<SettingsComponent>,
+      ) {
+        const requireMasterPasswordOnAppRestartLabelElement = fixture.debugElement.query(
+          By.css("label[for='requireMasterPasswordOnAppRestart']"),
         );
-        expect(requirePasswordOnStartLabelElement).toBeNull();
-      });
+        expect(requireMasterPasswordOnAppRestartLabelElement).not.toBeNull();
+        expect(requireMasterPasswordOnAppRestartLabelElement.children).toHaveLength(1);
+        expect(requireMasterPasswordOnAppRestartLabelElement.children[0].name).toBe("input");
+        expect(requireMasterPasswordOnAppRestartLabelElement.children[0].attributes).toMatchObject({
+          id: "requireMasterPasswordOnAppRestart",
+          type: "checkbox",
+        });
+        const textNodes = requireMasterPasswordOnAppRestartLabelElement.childNodes
+          .filter((node) => node.nativeNode.nodeType === Node.TEXT_NODE)
+          .map((node) => node.nativeNode.wholeText?.trim());
+        return textNodes;
+      }
     });
   });
 
@@ -361,7 +406,7 @@ describe("SettingsComponent", () => {
         await component.updatePinHandler(true);
 
         expect(component.form.controls.pin.value).toBe(false);
-        expect(vaultTimeoutSettingsService.clear).not.toHaveBeenCalled();
+        expect(pinServiceAbstraction.unsetPin).not.toHaveBeenCalled();
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
 
@@ -377,7 +422,7 @@ describe("SettingsComponent", () => {
           await component.updatePinHandler(true);
 
           expect(component.form.controls.pin.value).toBe(dialogResult);
-          expect(vaultTimeoutSettingsService.clear).not.toHaveBeenCalled();
+          expect(pinServiceAbstraction.unsetPin).not.toHaveBeenCalled();
           expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
         },
       );
@@ -389,8 +434,146 @@ describe("SettingsComponent", () => {
         await component.updatePinHandler(false);
 
         expect(component.form.controls.pin.value).toBe(false);
-        expect(vaultTimeoutSettingsService.clear).toHaveBeenCalled();
+        expect(pinServiceAbstraction.unsetPin).toHaveBeenCalled();
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
+      });
+
+      describe("when windows biometric v2 feature flag is enabled", () => {
+        beforeEach(() => {
+          keyService.userKey$ = jest.fn().mockReturnValue(of(mockUserKey));
+        });
+
+        test.each([false, true])(
+          "enrolls persistent biometric if needed, enrolled is %s",
+          async (enrolled) => {
+            desktopBiometricsService.hasPersistentKey.mockResolvedValue(enrolled);
+
+            await component.ngOnInit();
+            component.isWindowsV2BiometricsEnabled = true;
+            component.isWindows = true;
+            component.form.value.requireMasterPasswordOnAppRestart = true;
+            component.userHasMasterPassword = false;
+            component.supportsBiometric = true;
+            component.form.value.biometric = true;
+
+            await component.updatePinHandler(false);
+
+            expect(component.form.controls.requireMasterPasswordOnAppRestart.value).toBe(false);
+            expect(component.form.controls.pin.value).toBe(false);
+            expect(pinServiceAbstraction.unsetPin).toHaveBeenCalled();
+            expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
+
+            if (enrolled) {
+              expect(desktopBiometricsService.enrollPersistent).not.toHaveBeenCalled();
+            } else {
+              expect(desktopBiometricsService.enrollPersistent).toHaveBeenCalledWith(
+                mockUserId,
+                mockUserKey,
+              );
+            }
+          },
+        );
+
+        test.each([
+          {
+            userHasMasterPassword: true,
+            supportsBiometric: false,
+            biometric: false,
+            requireMasterPasswordOnAppRestart: false,
+          },
+          {
+            userHasMasterPassword: true,
+            supportsBiometric: false,
+            biometric: false,
+            requireMasterPasswordOnAppRestart: true,
+          },
+          {
+            userHasMasterPassword: true,
+            supportsBiometric: false,
+            biometric: true,
+            requireMasterPasswordOnAppRestart: false,
+          },
+          {
+            userHasMasterPassword: true,
+            supportsBiometric: false,
+            biometric: true,
+            requireMasterPasswordOnAppRestart: true,
+          },
+          {
+            userHasMasterPassword: true,
+            supportsBiometric: true,
+            biometric: false,
+            requireMasterPasswordOnAppRestart: false,
+          },
+          {
+            userHasMasterPassword: true,
+            supportsBiometric: true,
+            biometric: false,
+            requireMasterPasswordOnAppRestart: true,
+          },
+          {
+            userHasMasterPassword: false,
+            supportsBiometric: false,
+            biometric: false,
+            requireMasterPasswordOnAppRestart: false,
+          },
+          {
+            userHasMasterPassword: false,
+            supportsBiometric: false,
+            biometric: false,
+            requireMasterPasswordOnAppRestart: true,
+          },
+          {
+            userHasMasterPassword: false,
+            supportsBiometric: false,
+            biometric: true,
+            requireMasterPasswordOnAppRestart: false,
+          },
+          {
+            userHasMasterPassword: false,
+            supportsBiometric: false,
+            biometric: true,
+            requireMasterPasswordOnAppRestart: true,
+          },
+          {
+            userHasMasterPassword: false,
+            supportsBiometric: true,
+            biometric: false,
+            requireMasterPasswordOnAppRestart: false,
+          },
+          {
+            userHasMasterPassword: false,
+            supportsBiometric: true,
+            biometric: false,
+            requireMasterPasswordOnAppRestart: true,
+          },
+        ])(
+          "does not enroll persistent biometric when conditions are not met: userHasMasterPassword=$userHasMasterPassword, supportsBiometric=$supportsBiometric, biometric=$biometric, requireMasterPasswordOnAppRestart=$requireMasterPasswordOnAppRestart",
+          async ({
+            userHasMasterPassword,
+            supportsBiometric,
+            biometric,
+            requireMasterPasswordOnAppRestart,
+          }) => {
+            desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
+
+            await component.ngOnInit();
+            component.isWindowsV2BiometricsEnabled = true;
+            component.isWindows = true;
+            component.form.value.requireMasterPasswordOnAppRestart =
+              requireMasterPasswordOnAppRestart;
+            component.userHasMasterPassword = userHasMasterPassword;
+            component.supportsBiometric = supportsBiometric;
+            component.form.value.biometric = biometric;
+
+            await component.updatePinHandler(false);
+
+            expect(component.form.controls.pin.value).toBe(false);
+            expect(pinServiceAbstraction.unsetPin).toHaveBeenCalled();
+            expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
+            expect(desktopBiometricsService.enrollPersistent).not.toHaveBeenCalled();
+          },
+        );
       });
     });
   });
@@ -473,22 +656,92 @@ describe("SettingsComponent", () => {
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
 
-      it("handles windows case", async () => {
-        desktopBiometricsService.getBiometricsStatus.mockResolvedValue(BiometricsStatus.Available);
-        desktopBiometricsService.getBiometricsStatusForUser.mockResolvedValue(
-          BiometricsStatus.Available,
-        );
+      describe("windows test cases", () => {
+        beforeEach(() => {
+          platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+          component.isWindows = true;
+          component.isLinux = false;
 
-        component.isWindows = true;
-        component.isLinux = false;
-        await component.updateBiometricHandler(true);
+          desktopBiometricsService.getBiometricsStatus.mockResolvedValue(
+            BiometricsStatus.Available,
+          );
+          desktopBiometricsService.getBiometricsStatusForUser.mockResolvedValue(
+            BiometricsStatus.Available,
+          );
+        });
 
-        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true);
-        expect(component.form.controls.autoPromptBiometrics.value).toBe(false);
-        expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(false);
-        expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
-        expect(component.form.controls.biometric.value).toBe(true);
-        expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
+        it("handles windows case", async () => {
+          await component.updateBiometricHandler(true);
+
+          expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true);
+          expect(component.form.controls.autoPromptBiometrics.value).toBe(false);
+          expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(false);
+          expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
+          expect(component.form.controls.biometric.value).toBe(true);
+          expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
+        });
+
+        describe("when windows v2 biometrics is enabled", () => {
+          beforeEach(() => {
+            component.isWindowsV2BiometricsEnabled = true;
+
+            keyService.userKey$ = jest.fn().mockReturnValue(of(mockUserKey));
+          });
+
+          it("when the user doesn't have a master password or a PIN set, allows biometric unlock on app restart", async () => {
+            component.userHasMasterPassword = false;
+            component.userHasPinSet = false;
+            desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
+
+            await component.updateBiometricHandler(true);
+
+            expect(keyService.userKey$).toHaveBeenCalledWith(mockUserId);
+            expect(desktopBiometricsService.enrollPersistent).toHaveBeenCalledWith(
+              mockUserId,
+              mockUserKey,
+            );
+            expect(component.form.controls.requireMasterPasswordOnAppRestart.value).toBe(false);
+
+            expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true);
+            expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true);
+            expect(component.form.controls.autoPromptBiometrics.value).toBe(false);
+            expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(false);
+            expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
+            expect(component.form.controls.biometric.value).toBe(true);
+            expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
+          });
+
+          test.each([
+            [true, true],
+            [true, false],
+            [false, true],
+          ])(
+            "when the userHasMasterPassword is %s and userHasPinSet is %s, require master password/PIN on app restart is the default setting",
+            async (userHasMasterPassword, userHasPinSet) => {
+              component.userHasMasterPassword = userHasMasterPassword;
+              component.userHasPinSet = userHasPinSet;
+
+              await component.updateBiometricHandler(true);
+
+              expect(desktopBiometricsService.enrollPersistent).not.toHaveBeenCalled();
+              expect(component.form.controls.requireMasterPasswordOnAppRestart.value).toBe(true);
+              expect(desktopBiometricsService.deleteBiometricUnlockKeyForUser).toHaveBeenCalledWith(
+                mockUserId,
+              );
+              expect(
+                desktopBiometricsService.setBiometricProtectedUnlockKeyForUser,
+              ).toHaveBeenCalledWith(mockUserId, mockUserKey);
+
+              expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true);
+              expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true);
+              expect(component.form.controls.autoPromptBiometrics.value).toBe(false);
+              expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(false);
+              expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
+              expect(component.form.controls.biometric.value).toBe(true);
+              expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
+            },
+          );
+        });
       });
 
       it("handles linux case", async () => {
@@ -548,6 +801,57 @@ describe("SettingsComponent", () => {
         expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenLastCalledWith(false);
         expect(keyService.refreshAdditionalKeys).toHaveBeenCalled();
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
+      });
+    });
+  });
+
+  describe("updateRequireMasterPasswordOnAppRestartHandler", () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+
+      keyService.userKey$ = jest.fn().mockReturnValue(of(mockUserKey));
+    });
+
+    test.each([true, false])(`handles thrown errors when updated to %s`, async (update) => {
+      const error = new Error("Test error");
+      jest.spyOn(component, "updateRequireMasterPasswordOnAppRestart").mockRejectedValue(error);
+
+      await component.ngOnInit();
+      await component.updateRequireMasterPasswordOnAppRestartHandler(update, mockUserId);
+
+      expect(logService.error).toHaveBeenCalled();
+      expect(validationService.showError).toHaveBeenCalledWith(error);
+    });
+
+    describe("when updating to true", () => {
+      it("calls the biometrics service to clear and reset biometric key", async () => {
+        await component.ngOnInit();
+        await component.updateRequireMasterPasswordOnAppRestartHandler(true, mockUserId);
+
+        expect(keyService.userKey$).toHaveBeenCalledWith(mockUserId);
+        expect(desktopBiometricsService.deleteBiometricUnlockKeyForUser).toHaveBeenCalledWith(
+          mockUserId,
+        );
+        expect(desktopBiometricsService.setBiometricProtectedUnlockKeyForUser).toHaveBeenCalledWith(
+          mockUserId,
+          mockUserKey,
+        );
+      });
+    });
+
+    describe("when updating to false", () => {
+      it("doesn't enroll persistent biometric if already enrolled", async () => {
+        biometricStateService.hasPersistentKey.mockResolvedValue(false);
+
+        await component.ngOnInit();
+        await component.updateRequireMasterPasswordOnAppRestartHandler(false, mockUserId);
+
+        expect(keyService.userKey$).toHaveBeenCalledWith(mockUserId);
+        expect(desktopBiometricsService.enrollPersistent).toHaveBeenCalledWith(
+          mockUserId,
+          mockUserKey,
+        );
+        expect(component.form.controls.requireMasterPasswordOnAppRestart.value).toBe(false);
       });
     });
   });
@@ -628,7 +932,6 @@ describe("SettingsComponent", () => {
     });
 
     it("should not save vault timeout when vault timeout is invalid", async () => {
-      i18nService.t.mockReturnValue("Number too large test error");
       component["form"].controls.vaultTimeout.setErrors({}, { emitEvent: false });
       await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT, 999_999_999);
 
@@ -638,11 +941,6 @@ describe("SettingsComponent", () => {
         DEFAULT_VAULT_TIMEOUT_ACTION,
       );
       expect(component["form"].getRawValue().vaultTimeout).toEqual(DEFAULT_VAULT_TIMEOUT);
-      expect(platformUtilsService.showToast).toHaveBeenCalledWith(
-        "error",
-        null,
-        "Number too large test error",
-      );
     });
   });
 

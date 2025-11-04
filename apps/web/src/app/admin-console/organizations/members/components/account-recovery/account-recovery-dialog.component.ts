@@ -61,6 +61,8 @@ export type AccountRecoveryDialogResultType =
  * given organization user. An admin will access this form when they want to
  * reset a user's password and log them out of sessions.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   standalone: true,
   selector: "app-account-recovery-dialog",
@@ -76,6 +78,8 @@ export type AccountRecoveryDialogResultType =
   ],
 })
 export class AccountRecoveryDialogComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(InputPasswordComponent)
   inputPasswordComponent: InputPasswordComponent | undefined = undefined;
 

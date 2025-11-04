@@ -15,13 +15,19 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { TotpInfo } from "@bitwarden/common/vault/services/totp.service";
 import { TypographyModule } from "@bitwarden/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "[bitTotpCountdown]",
   templateUrl: "totp-countdown.component.html",
   imports: [CommonModule, TypographyModule],
 })
 export class BitTotpCountdownComponent implements OnInit, OnChanges {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) cipher!: CipherView;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() sendCopyCode = new EventEmitter();
 
   /**

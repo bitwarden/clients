@@ -14,8 +14,12 @@ export type SubmitPaymentMethodDialogResult =
   | { type: "error" }
   | { type: "success"; paymentMethod: MaskedPaymentMethod };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({ template: "" })
 export abstract class SubmitPaymentMethodDialogComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(EnterPaymentMethodComponent)
   private enterPaymentMethodComponent!: EnterPaymentMethodComponent;
   protected formGroup = EnterPaymentMethodComponent.getFormGroup();
@@ -37,6 +41,10 @@ export abstract class SubmitPaymentMethodDialogComponent {
     }
 
     const paymentMethod = await this.enterPaymentMethodComponent.tokenize();
+    if (!paymentMethod) {
+      return;
+    }
+
     const billingAddress =
       this.formGroup.value.type !== "payPal"
         ? this.formGroup.controls.billingAddress.getRawValue()

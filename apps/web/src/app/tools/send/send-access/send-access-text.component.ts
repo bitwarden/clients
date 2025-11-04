@@ -10,6 +10,8 @@ import { ToastService } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send-access-text",
   templateUrl: "send-access-text.component.html",
@@ -34,6 +36,8 @@ export class SendAccessTextComponent {
     return this._send;
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() set send(value: SendAccessView) {
     this._send = value;
     this.showText = this.send.text != null ? !this.send.text.hidden : true;

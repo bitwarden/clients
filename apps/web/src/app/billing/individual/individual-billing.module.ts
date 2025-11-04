@@ -1,5 +1,11 @@
 import { NgModule } from "@angular/core";
 
+import { PricingCardComponent } from "@bitwarden/pricing";
+import {
+  EnterBillingAddressComponent,
+  EnterPaymentMethodComponent,
+} from "@bitwarden/web-vault/app/billing/payment/components";
+
 import { HeaderModule } from "../../layouts/header/header.module";
 import { BillingSharedModule } from "../shared";
 
@@ -10,7 +16,14 @@ import { SubscriptionComponent } from "./subscription.component";
 import { UserSubscriptionComponent } from "./user-subscription.component";
 
 @NgModule({
-  imports: [IndividualBillingRoutingModule, BillingSharedModule, HeaderModule],
+  imports: [
+    IndividualBillingRoutingModule,
+    BillingSharedModule,
+    HeaderModule,
+    EnterPaymentMethodComponent,
+    EnterBillingAddressComponent,
+    PricingCardComponent,
+  ],
   declarations: [
     SubscriptionComponent,
     BillingHistoryViewComponent,

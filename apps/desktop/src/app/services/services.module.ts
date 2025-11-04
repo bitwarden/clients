@@ -37,7 +37,10 @@ import {
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { PolicyService as PolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import {
+  PolicyService as PolicyServiceAbstraction,
+  InternalPolicyService,
+} from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import {
   AccountService,
   AccountService as AccountServiceAbstraction,
@@ -112,6 +115,7 @@ import { DesktopLoginComponentService } from "../../auth/login/desktop-login-com
 import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
+import { DesktopAutotypeDefaultSettingPolicy } from "../../autofill/services/desktop-autotype-policy.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
@@ -302,7 +306,6 @@ const safeProviders: SafeProvider[] = [
     provide: KeyServiceAbstraction,
     useClass: ElectronKeyService,
     deps: [
-      PinServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
       KeyGenerationService,
       CryptoFunctionServiceAbstraction,
@@ -464,7 +467,13 @@ const safeProviders: SafeProvider[] = [
       GlobalStateProvider,
       PlatformUtilsServiceAbstraction,
       BillingAccountProfileStateService,
+      DesktopAutotypeDefaultSettingPolicy,
     ],
+  }),
+  safeProvider({
+    provide: DesktopAutotypeDefaultSettingPolicy,
+    useClass: DesktopAutotypeDefaultSettingPolicy,
+    deps: [AccountServiceAbstraction, AuthServiceAbstraction, InternalPolicyService, ConfigService],
   }),
 ];
 

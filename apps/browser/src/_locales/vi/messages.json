@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Dùng đăng nhập một lần"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Chào mừng bạn trở lại"
   },
@@ -550,11 +553,46 @@
   "resetSearch": {
     "message": "Đặt lại tìm kiếm"
   },
+  "archiveNoun": {
+    "message": "Lưu trữ",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Lưu trữ",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Hủy lưu trữ"
+  },
+  "itemsInArchive": {
+    "message": "Các mục trong kho lưu trữ"
+  },
+  "noItemsInArchive": {
+    "message": "Không có mục nào trong kho lưu trữ"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Các mục đã lưu trữ sẽ hiển thị ở đây và sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
+  },
+  "itemWasSentToArchive": {
+    "message": "Mục đã được chuyển vào kho lưu trữ"
+  },
+  "itemUnarchived": {
+    "message": "Mục đã được bỏ lưu trữ"
+  },
+  "archiveItem": {
+    "message": "Lưu trữ mục"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Các mục đã lưu trữ sẽ bị loại khỏi kết quả tìm kiếm chung và gợi ý tự động điền. Bạn có chắc chắn muốn lưu trữ mục này không?"
+  },
   "edit": {
     "message": "Sửa"
   },
   "view": {
     "message": "Xem"
+  },
+  "viewAll": {
+    "message": "View all"
   },
   "viewLogin": {
     "message": "Xem đăng nhập"
@@ -700,6 +738,15 @@
   },
   "invalidMasterPassword": {
     "message": "Mật khẩu chính không hợp lệ"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Mật khẩu chính không hợp lệ. Xác nhận email của bạn là chính xác và tài khoản được tạo trên $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Đóng kho sau"
@@ -986,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Đã lưu mục"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Bạn có chắc muốn cho nó vào thùng rác?"
@@ -1507,6 +1566,15 @@
   "readSecurityKey": {
     "message": "Đọc khóa bảo mật"
   },
+  "readingPasskeyLoading": {
+    "message": "Đang đọc mã khoá..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Xác thực mã khóa thất bại"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Dùng phương thức đăng nhập khác"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Đang chờ tương tác với khóa bảo mật..."
   },
@@ -1626,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Tắt tự động điền"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "Hiển thị các gợi ý tự động điền trên các trường biểu mẫu"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Hiển thị danh tính dưới dạng gợi ý"
@@ -1755,7 +1844,7 @@
     "message": "Nhấp bên ngoài popup để xem mã xác thực trong email của bạn sẽ làm cho popup này đóng lại. Bạn có muốn mở popup này trong một cửa sổ mới để nó không bị đóng?"
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Hiển thị biểu tượng trang web và truy xuất các URL đổi mật khẩu"
   },
   "cardholderName": {
     "message": "Tên chủ thẻ"
@@ -1920,79 +2009,79 @@
     "message": "Ghi chú"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "Đăng nhập mới",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "Thẻ mới",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "Danh tính mới",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "Ghi chú mới",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "Khóa SSH mới",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
+    "message": "Send văn bản mới",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "Send tập tin mới",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "Chỉnh sửa đăng nhập",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "Chỉnh sửa thẻ",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "Chỉnh sửa danh tính",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "Chỉnh sửa ghi chú",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "Sửa khóa SSH",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+    "message": "Sửa Send văn bản",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+    "message": "Sửa Send tập tin",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "Xem đăng nhập",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "Xem thẻ",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "Xem danh tính",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "Xem ghi chú",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "Xem khóa SSH",
     "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
@@ -3166,11 +3255,32 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Chỉ kho lưu trữ tổ chức liên kết với $ORGANIZATION$ sẽ được xuất.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Chỉ kho lưu trữ tổ chức liên kết với $ORGANIZATION$ được xuất. Bộ sưu tập mục của tôi sẽ không được bao gồm.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Lỗi"
   },
   "decryptionError": {
     "message": "Lỗi giải mã"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden không thể giải mã các mục trong kho lưu trữ được liệt kê bên dưới."
@@ -3942,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Tự động điền khi tải trang được đặt thành mặc định trong cài đặt.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "Ẩn/hiện thanh điều hướng bên"
@@ -5511,17 +5630,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Chào mừng đến với kho lưu trữ của bạn!"
   },
-  "phishingPageTitle": {
-    "message": "Phishing website"
+  "phishingPageTitleV2": {
+    "message": "Đã phát hiện nỗ lực lừa đảo"
   },
-  "phishingPageCloseTab": {
-    "message": "Close tab"
+  "phishingPageSummary": {
+    "message": "Trang web bạn đang cố gắng truy cập là một trang độc hại đã được báo cáo và có nguy cơ bảo mật."
   },
-  "phishingPageContinue": {
-    "message": "Continue"
+  "phishingPageCloseTabV2": {
+    "message": "Đóng thẻ này"
   },
-  "phishingPageLearnWhy": {
-    "message": "Why are you seeing this?"
+  "phishingPageContinueV2": {
+    "message": "Tiếp tục truy cập trang web này (không khuyến khích)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Trang web này được tìm thấy trong ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", một danh sách nguồn mở các trang lừa đảo đã biết được sử dụng để đánh cắp thông tin cá nhân và nhạy cảm.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Tìm hiểu thêm về phát hiện lừa đảo"
+  },
+  "protectedBy": {
+    "message": "Được bảo vệ bởi $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Tự động điền các mục cho trang hiện tại"
@@ -5599,10 +5738,10 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Về cài đặt này"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden sẽ sử dụng URI đăng nhập đã lưu để xác định biểu tượng hoặc URL đổi mật khẩu nào cần dùng nhằm cải thiện trải nghiệm của bạn. Không có thông tin nào được thu thập hay lưu lại khi bạn sử dụng dịch vụ này."
   },
   "noPermissionsViewPage": {
     "message": "Bạn không có quyền truy cập vào trang này. Hãy thử đăng nhập bằng tài khoản khác."
@@ -5626,5 +5765,18 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Xác nhận tên miền Key Connector"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Thật tuyệt khi bảo vệ các đăng nhập có nguy cơ của bạn!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Cài đặt này bị vô hiệu hóa bởi chính sách tổ chức của bạn.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

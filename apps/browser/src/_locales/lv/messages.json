@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Izmantot vienoto pieteikšanos"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Tava apvienība pieprasa vienoto pieteikšanos."
+  },
   "welcomeBack": {
     "message": "Laipni lūdzam atpakaļ"
   },
@@ -550,11 +553,46 @@
   "resetSearch": {
     "message": "Atiestatīt meklēšanu"
   },
+  "archiveNoun": {
+    "message": "Arhīvs",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Arhivēt",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Atcelt arhivēšanu"
+  },
+  "itemsInArchive": {
+    "message": "Vienumi arhīvā"
+  },
+  "noItemsInArchive": {
+    "message": "Arhīvā nav vienumu"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Šeit parādīsies arhivētie vienumi, un tie netiks iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos."
+  },
+  "itemWasSentToArchive": {
+    "message": "Vienums tika ievietots arhīvā"
+  },
+  "itemUnarchived": {
+    "message": "Vienums tika izņemts no arhīva"
+  },
+  "archiveItem": {
+    "message": "Arhivēt vienumu"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Arhivētie vienumi netiek iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos. Vai tiešām ahrivēt šo vienumu?"
+  },
   "edit": {
     "message": "Labot"
   },
   "view": {
     "message": "Skatīt"
+  },
+  "viewAll": {
+    "message": "Apskatīt visu"
   },
   "viewLogin": {
     "message": "Apskatīt pieteikšanās vienumu"
@@ -700,6 +738,15 @@
   },
   "invalidMasterPassword": {
     "message": "Nederīga galvenā parole"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Nederīga galvenā parole. Jāpārliecinās, ka e-pasta adrese ir pareiza un konts tika izveidots $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Glabātavas noildze"
@@ -986,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Vienums labots"
+  },
+  "savedWebsite": {
+    "message": "Saglabāta tīmekļvietne"
+  },
+  "savedWebsites": {
+    "message": "Saglabātas tīmekļvietnes ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Vai tiešām pārvietot uz atkritni?"
@@ -1507,6 +1566,15 @@
   "readSecurityKey": {
     "message": "Nolasīt drošības atslēgu"
   },
+  "readingPasskeyLoading": {
+    "message": "Nolasa piekļuves atslēgu..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Autentificēšanās ar piekļuves atslēgu neizdevās"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Jāizmanto cits pieteikšanās veids"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Gaida mijiedarbību ar drošības atslēgu..."
   },
@@ -1626,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Izslēgt automātisko aizpildi"
   },
+  "confirmAutofill": {
+    "message": "Apstiprināt automātisko aizpildi"
+  },
+  "confirmAutofillDesc": {
+    "message": "Šī vietne neatbilst saglabātā pieteikšanās vienumam. Pirms pieteikšanās datu aizpildīšanas jāpārliecinās, ka tā ir uzticama."
+  },
   "showInlineMenuLabel": {
     "message": "Rādīt automātiskās aizpildes ieteikumuis veidlapu laukos"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Kā Bitwarden aizsargā datus no pikšķerēšanas?"
+  },
+  "currentWebsite": {
+    "message": "Pašreizējā tīmekļvietne"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Automātiski aizpildīt un pievienot šo tīmekļvietni"
+  },
+  "autofillWithoutAdding": {
+    "message": "Automātiski aizpildīt bez pievienošanas"
+  },
+  "doNotAutofill": {
+    "message": "Neaizpildīt automātiski"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Attēlot identitātes kā ieteikumus"
@@ -3166,11 +3255,32 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Tiks izgūta tikai apvienības glabātava, kas ir saistīta ar $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Tiks izgūta tikai apvienības glabātava, kas ir saistīta ar $ORGANIZATION$. Mani vienumu krājumi netiks iekļauti.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Kļūda"
   },
   "decryptionError": {
     "message": "Atšifrēšanas kļūda"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Kļūda automātiskās aizpildes datu iegūšanā"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden nevarēja atšifrēt zemāk uzskaitītos glabātavas vienumus."
@@ -3942,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Automātiskā aizpilde lapas ielādes brīdī iestatīta izmantot noklusējuma iestatījumu.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Nevar automātiski aizpildīt"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Noklusējuma atbilstības noteikšana ir iestatīta uz “Pilnīga atbilstība”. Pašreizējā tīmekļvietne pilnībā neabilst saglabātajai pieteikšanās informācijai šajā vienumā."
+  },
+  "okay": {
+    "message": "Labi"
   },
   "toggleSideNavigation": {
     "message": "Pārslēgt sānu pārvietošanās joslu"
@@ -5511,17 +5630,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Laipni lūdzam Tavā glabātavā!"
   },
-  "phishingPageTitle": {
-    "message": "Pikšķerēšanas tīmekļvietne"
+  "phishingPageTitleV2": {
+    "message": "Noteikts pikšķerēšanas mēģinājums"
   },
-  "phishingPageCloseTab": {
-    "message": "Aizvērt cilni"
+  "phishingPageSummary": {
+    "message": "Vietne, kuru mēģini apmeklēt, ir zināma ļaunprātīga vietne un drošības risks."
   },
-  "phishingPageContinue": {
-    "message": "Turpināt"
+  "phishingPageCloseTabV2": {
+    "message": "Aizvērt šo cilni"
   },
-  "phishingPageLearnWhy": {
-    "message": "Kāpēc šis ir redzams?"
+  "phishingPageContinueV2": {
+    "message": "Turpināt šīs vietnes apmeklēšanu (nav ieteicams)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Šī vietne tika atrasta ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", atvērta pirmkoda saraksts ar zināmām pikšķerēšanas vietnēm, kuras tiek izmantotas personīgas un jūtīgas informācijas zagšanai.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Uzzināt vairāk par pikšķerēšanas noteikšanu"
+  },
+  "protectedBy": {
+    "message": "Aizsargā $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Automātiska pašreizējās lapas vienumu aizpildīšana"
@@ -5626,5 +5765,18 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Apstiprināt Key Connector domēnu"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Labs darbs riskam pakļauto pieteikšanās vienumu drošības uzlabošanā!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Šis iestatījums ir atspējots apvienības pamatnostādnēs.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Pasta indekss"
+  },
+  "cardNumberLabel": {
+    "message": "Kartes numurs"
   }
 }

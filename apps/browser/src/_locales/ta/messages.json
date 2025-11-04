@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "ஒற்றை உள்நுழைவைப் பயன்படுத்தவும்"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "மீண்டும் வருக"
   },
@@ -550,11 +553,46 @@
   "resetSearch": {
     "message": "தேடலை மீட்டமை"
   },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
   "edit": {
     "message": "திருத்து"
   },
   "view": {
     "message": "காண்"
+  },
+  "viewAll": {
+    "message": "View all"
   },
   "viewLogin": {
     "message": "உள்நுழைவைக் காண்க"
@@ -700,6 +738,15 @@
   },
   "invalidMasterPassword": {
     "message": "தவறான முதன்மை கடவுச்சொல்"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "வால்ட் காலக்கெடு"
@@ -986,6 +1033,18 @@
   },
   "editedItem": {
     "message": "உருப்படி சேமிக்கப்பட்டது"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "நீங்கள் உண்மையிலேயே குப்பைக்கு அனுப்ப விரும்புகிறீர்களா?"
@@ -1507,6 +1566,15 @@
   "readSecurityKey": {
     "message": "பாதுகாப்பு விசையைப் படி"
   },
+  "readingPasskeyLoading": {
+    "message": "Reading passkey..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey authentication failed"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Use a different log in method"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "பாதுகாப்பு விசை தொடர்புகொள்ளக் காத்திருக்கிறது..."
   },
@@ -1626,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "ஆட்டோஃபில்லை முடக்கு"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "படிவப் புலங்களில் ஆட்டோஃபில் பரிந்துரைகளைக் காட்டு"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "பரிந்துரைகளாக அடையாளங்களைக் காட்டு"
@@ -3166,11 +3255,32 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "பிழை"
   },
   "decryptionError": {
     "message": "குறியாக்கம் நீக்கப் பிழை"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden கீழே பட்டியலிடப்பட்ட பெட்டக பொருளை குறியாக்கம் நீக்க முடியவில்லை."
@@ -3942,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "பக்க ஏற்றத்தில் தானியங்கு நிரப்புதல் இயல்புநிலை அமைப்பைப் பயன்படுத்த அமைக்கப்பட்டுள்ளது.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "பக்க வழிசெலுத்தலை மாற்று"
@@ -5511,17 +5630,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "உங்கள் சேமிப்பு பெட்டகத்திற்கு நல்வரவு!"
   },
-  "phishingPageTitle": {
-    "message": "Phishing website"
+  "phishingPageTitleV2": {
+    "message": "Phishing attempt detected"
   },
-  "phishingPageCloseTab": {
-    "message": "Close tab"
+  "phishingPageSummary": {
+    "message": "The site you are attempting to visit is a known malicious site and a security risk."
   },
-  "phishingPageContinue": {
-    "message": "Continue"
+  "phishingPageCloseTabV2": {
+    "message": "Close this tab"
   },
-  "phishingPageLearnWhy": {
-    "message": "Why are you seeing this?"
+  "phishingPageContinueV2": {
+    "message": "Continue to this site (not recommended)"
+  },
+  "phishingPageExplanation1": {
+    "message": "This site was found in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Learn more about phishing detection"
+  },
+  "protectedBy": {
+    "message": "Protected by $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "தற்போதைய பக்கத்திற்கான தானாக நிரப்பு பொருள்கள்"
@@ -5626,5 +5765,18 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Key Connector டொமைனை உறுதிப்படுத்து"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "This setting is disabled by your organization's policy.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

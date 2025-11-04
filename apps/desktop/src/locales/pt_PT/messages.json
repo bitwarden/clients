@@ -771,6 +771,9 @@
   "useSingleSignOn": {
     "message": "Utilizar início de sessão único"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "A sua organização exige o início de sessão único."
+  },
   "submit": {
     "message": "Submeter"
   },
@@ -1222,6 +1225,15 @@
   "invalidMasterPassword": {
     "message": "Palavra-passe mestra inválida"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Palavra-passe mestra inválida. Confirme se o seu e-mail está correto e se a sua conta foi criada em $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "A verificação de dois passos torna a sua conta mais segura, exigindo que verifique o seu início de sessão com outro dispositivo, como uma chave de segurança, aplicação de autenticação, SMS, chamada telefónica ou e-mail. A verificação de dois passos pode ser configurada em bitwarden.com. Pretende visitar o site agora?"
   },
@@ -1283,7 +1295,7 @@
     "message": "Na suspensão do sistema"
   },
   "onLocked": {
-    "message": "No bloqueio do sistema"
+    "message": "Ao bloquear o sistema"
   },
   "onRestart": {
     "message": "Ao reiniciar"
@@ -1369,13 +1381,13 @@
     "message": "Idioma"
   },
   "languageDesc": {
-    "message": "Alterar o idioma utilizado pela aplicação. É necessário reiniciar."
+    "message": "Altere o idioma utilizado pela aplicação. É necessário reiniciar."
   },
   "theme": {
     "message": "Tema"
   },
   "themeDesc": {
-    "message": "Altere o tema de cores da aplicação."
+    "message": "Altere o tema da aplicação."
   },
   "dark": {
     "message": "Escuro",
@@ -1842,6 +1854,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bloquear com a palavra-passe mestra ao reiniciar"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Exigir a palavra-passe mestra ou PIN ao reiniciar a app"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Exigir a palavra-passe mestra ao reiniciar a app"
   },
   "deleteAccount": {
     "message": "Eliminar conta"
@@ -2540,6 +2558,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "O tempo limite mínimo personalizado é de 1 minuto."
+  },
   "inviteAccepted": {
     "message": "Convite aceite"
   },
@@ -2651,6 +2672,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Apenas o cofre da organização associado a $ORGANIZATION$ será exportado.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Apenas o cofre da organização associado a $ORGANIZATION$ será exportado. As coleções dos meus itens não serão incluídas.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -4080,11 +4119,17 @@
   "showLess": {
     "message": "Mostrar menos"
   },
-  "enableAutotype": {
-    "message": "Ativar digitação automática"
-  },
   "enableAutotypeDescription": {
     "message": "O Bitwarden não valida a introdução de localizações. Certifique-se de que está na janela e no campo corretos antes de utilizar o atalho."
+  },
+  "typeShortcut": {
+    "message": "Introduzir atalho"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Inclua um ou dois dos seguintes modificadores: Ctrl, Alt, Win, ou Shift, e uma letra."
+  },
+  "invalidShortcut": {
+    "message": "Atalho inválido"
   },
   "moreBreadcrumbs": {
     "message": "Mais da navegação estrutural",
@@ -4099,13 +4144,51 @@
   "confirm": {
     "message": "Confirmar"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Ativar o atalho de introdução automática"
+  "enableAutotypeShortcutPreview": {
+    "message": "Ativar o atalho de digitação automática (Pré-visualização da funcionalidade)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Certifique-se de que está no campo correto antes de utilizar o atalho para evitar preencher dados no local errado."
   },
   "editShortcut": {
     "message": "Editar atalho"
+  },
+  "archiveNoun": {
+    "message": "Arquivo",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Arquivar",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Desarquivar"
+  },
+  "itemsInArchive": {
+    "message": "Itens no arquivo"
+  },
+  "noItemsInArchive": {
+    "message": "Nenhum item no arquivo"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Os itens arquivados aparecerão aqui e serão excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático."
+  },
+  "itemWasSentToArchive": {
+    "message": "O item foi movido para o arquivo"
+  },
+  "itemWasUnarchived": {
+    "message": "O item foi desarquivado"
+  },
+  "archiveItem": {
+    "message": "Arquivar item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Os itens arquivados são excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático. Tem a certeza de que pretende arquivar este item?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "Código postal"
+  },
+  "cardNumberLabel": {
+    "message": "Número do cartão"
   }
 }

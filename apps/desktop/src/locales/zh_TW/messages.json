@@ -470,10 +470,10 @@
     "message": "如果您想自動填充表單的復選框，例如「記住電子郵件」，請使用復選框"
   },
   "linkedHelpText": {
-    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+    "message": "使用連結欄位若您在特定網站上遇到自動填入問題。"
   },
   "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+    "message": "填入欄位的 html id、名稱、標籤或預留字元"
   },
   "folder": {
     "message": "資料夾"
@@ -576,7 +576,7 @@
     "message": "複製驗證碼 (TOTP)"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "複製 $FIELD$，$CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -703,10 +703,10 @@
     "message": "附件已儲存"
   },
   "addAttachment": {
-    "message": "Add attachment"
+    "message": "新增附件"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "Maximum file size is 500 MB"
+    "message": "最大檔案大小為 500MB"
   },
   "file": {
     "message": "檔案"
@@ -770,6 +770,9 @@
   },
   "useSingleSignOn": {
     "message": "使用單一登入"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
   },
   "submit": {
     "message": "送出"
@@ -1021,16 +1024,16 @@
     "message": "選取兩步驟登入方式"
   },
   "selfHostedEnvironment": {
-    "message": "自我裝載環境"
+    "message": "自行部署環境"
   },
   "selfHostedBaseUrlHint": {
-    "message": "指定您自建的 Bitwarden 伺服器的網域 URL。例如：https://bitwarden.company.com"
+    "message": "指定您自架的 Bitwarden 伺服器的網域 URL。例如：https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
     "message": "適用於進階設定。您可以單獨指定各個服務的網域 URL。"
   },
   "selfHostedEnvFormInvalid": {
-    "message": "您必須新增伺服器網域 URL 或至少一個自定義環境。"
+    "message": "您必須新增伺服器網域 URL 或至少一個自訂環境。"
   },
   "customEnvironment": {
     "message": "自訂環境"
@@ -1045,7 +1048,7 @@
     "message": "驗證工作階段因時間過久已逾時。請重試登入。"
   },
   "selfHostBaseUrl": {
-    "message": "自建伺服器 URL",
+    "message": "自架伺服器 URL",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
@@ -1222,6 +1225,15 @@
   "invalidMasterPassword": {
     "message": "無效的主密碼"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "主密碼無效。請確認你的電子郵件正確，且帳號是於 $HOST$ 建立的。",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "兩步驟登入需要您從其他裝置（例如安全鑰匙、驗證器程式、SMS、手機或電子郵件）來驗證您的登入，這使您的帳戶更加安全。兩步驟登入可以在 bitwarden.com 網頁版密碼庫啟用。現在要前往嗎？"
   },
@@ -1229,7 +1241,7 @@
     "message": "兩步驟登入"
   },
   "vaultTimeoutHeader": {
-    "message": "Vault timeout"
+    "message": "密碼庫逾時時間"
   },
   "vaultTimeout": {
     "message": "密碼庫逾時時間"
@@ -1238,7 +1250,7 @@
     "message": "逾時"
   },
   "vaultTimeoutAction1": {
-    "message": "Timeout action"
+    "message": "逾時後動作"
   },
   "vaultTimeoutDesc": {
     "message": "選擇密碼庫何時執行密碼庫逾時動作。"
@@ -1303,7 +1315,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "顯示網站圖示並取得變更密碼網址"
   },
   "enableMinToTray": {
     "message": "最小化至系統匣圖示"
@@ -1843,6 +1855,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "重啟後使用主密碼鎖定"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "要求在重新啟動應用程式時輸入密碼或 PIN 碼"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "在應用程式重啟時重新詢問主密碼"
+  },
   "deleteAccount": {
     "message": "刪除帳戶"
   },
@@ -1969,7 +1987,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
-    "message": "out of $TOTAL$",
+    "message": "$TOTAL$ 不足",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -1981,7 +1999,7 @@
     "message": "信用卡資料"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ details",
+    "message": "$BRAND$ 詳細資訊",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -1990,7 +2008,7 @@
     }
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Learn more about authenticators"
+    "message": "了解更多驗證程式"
   },
   "copyTOTP": {
     "message": "複製驗證器金鑰 (TOTP)"
@@ -1999,23 +2017,23 @@
     "message": "無縫兩步驟驗證"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden 可以儲存並填入兩步驟驗證碼。複製金鑰並貼上到此欄位。"
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden 可以儲存並填入兩步驟驗證碼。選擇相機圖示來截取此網站的驗證器QR code，或手動複製金鑰並貼上到此欄位。"
   },
   "premium": {
-    "message": "Premium",
+    "message": "進階版",
     "description": "Premium membership"
   },
   "freeOrgsCannotUseAttachments": {
-    "message": "Free organizations cannot use attachments"
+    "message": "免費組織無法使用附檔"
   },
   "singleFieldNeedsAttention": {
-    "message": "1 field needs your attention."
+    "message": "您需注意上方的 1 個欄位。"
   },
   "multipleFieldsNeedAttention": {
-    "message": "$COUNT$ fields need your attention.",
+    "message": "您需注意上方的 $COUNT$ 個欄位。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2024,10 +2042,10 @@
     }
   },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "過期的信用卡"
   },
   "cardExpiredMessage": {
-    "message": "If you've renewed it, update the card's information"
+    "message": "如果您已續期，請更新信用卡資訊"
   },
   "verificationRequired": {
     "message": "需要驗證",
@@ -2085,19 +2103,19 @@
     "message": "新的主密碼不符合原則要求。"
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "獲得來自 Bitwarden 的公告、建議及研究資訊電子郵件。"
   },
   "unsubscribe": {
-    "message": "Unsubscribe"
+    "message": "取消訂閱"
   },
   "atAnyTime": {
-    "message": "at any time."
+    "message": "在任何時間。"
   },
   "byContinuingYouAgreeToThe": {
-    "message": "By continuing, you agree to the"
+    "message": "若是繼續，則代表您同意"
   },
   "and": {
-    "message": "and"
+    "message": "和"
   },
   "acceptPolicies": {
     "message": "選中此選取框，即表示您同意下列條款："
@@ -2109,7 +2127,7 @@
     "message": "允許瀏覽器整合"
   },
   "enableBrowserIntegrationDesc1": {
-    "message": "Used to allow biometric unlock in browsers that are not Safari."
+    "message": "用於在非 Safari 的瀏覽器中啟用生物辨識解鎖。"
   },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "允許 DuckDuckGo 瀏覽器整合"
@@ -2121,10 +2139,10 @@
     "message": "不支援瀏覽器整合"
   },
   "browserIntegrationErrorTitle": {
-    "message": "Error enabling browser integration"
+    "message": "啟用瀏覽器整合時發生錯誤"
   },
   "browserIntegrationErrorDesc": {
-    "message": "An error has occurred while enabling browser integration."
+    "message": "啟用瀏覽器整合時發生錯誤。"
   },
   "browserIntegrationMasOnlyDesc": {
     "message": "很遺憾，目前僅 Mac App Store 版本支援瀏覽器整合功能。"
@@ -2178,16 +2196,16 @@
     "message": "需先在桌面應用程式設定中設定生物特徵辨識，才能使用瀏覽器的生物特徵辨識功能。"
   },
   "biometricsManualSetupTitle": {
-    "message": "Automatic setup not available"
+    "message": "無法使用自動設定"
   },
   "biometricsManualSetupDesc": {
-    "message": "Due to the installation method, biometrics support could not be automatically enabled. Would you like to open the documentation on how to do this manually?"
+    "message": "由於安裝方式的限制，無法自動啟用生物辨識功能。是否要開啟相關文件以了解如何手動設定？"
   },
   "personalOwnershipSubmitError": {
     "message": "由於生效中的某個企業原則，您不可將項目儲存至您的個人密碼庫。請將所有權變更為組織帳號，並選擇可用的分類。"
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
-    "message": "Your new password cannot be the same as your current password."
+    "message": "你的新密碼不能與目前的密碼相同。"
   },
   "hintEqualsPassword": {
     "message": "密碼提示不能與您的密碼相同。"
@@ -2199,13 +2217,13 @@
     "message": "某個組織政策已禁止您將項目匯入至您的個人密碼庫。"
   },
   "personalDetails": {
-    "message": "Personal details"
+    "message": "個人詳細資訊"
   },
   "identification": {
-    "message": "Identification"
+    "message": "身分"
   },
   "contactInfo": {
-    "message": "Contact information"
+    "message": "聯絡資訊"
   },
   "allSends": {
     "message": "所有 Send",
@@ -2371,10 +2389,10 @@
     "message": "驗證 WebAuthn"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "讀取安全金鑰"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Awaiting security key interaction..."
+    "message": "等待安全金鑰操作中……"
   },
   "hideEmail": {
     "message": "對收件人隱藏我的電子郵件位址。"
@@ -2386,7 +2404,7 @@
     "message": "需要驗證電子郵件"
   },
   "emailVerifiedV2": {
-    "message": "Email verified"
+    "message": "電子郵件已驗證"
   },
   "emailVerificationRequiredDesc": {
     "message": "必須驗證您的電子郵件才能使用此功能。"
@@ -2401,7 +2419,7 @@
     "message": "此操作受到保護。若要繼續，請重新輸入您的主密碼以驗證您的身份。"
   },
   "masterPasswordSuccessfullySet": {
-    "message": "Master password successfully set"
+    "message": "主密碼設定成功"
   },
   "updatedMasterPassword": {
     "message": "已更新主密碼"
@@ -2416,16 +2434,16 @@
     "message": "您的主密碼不符合一個或多個組織政策規定。您必須立即更新您的主密碼才能存取密碼庫。進行此動作將登出您目前的工作階段，需要您重新登入。其他裝置上的工作階段可能持續長達一小時。"
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "變更密碼後，你需要使用新密碼重新登入。其他裝置上的工作階段會在一小時內登出。"
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "變更你的主密碼以完成帳號復原。"
   },
   "updateMasterPasswordSubtitle": {
-    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
+    "message": "你的主密碼不符合此組織的要求。請變更主密碼以繼續。"
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "您的組織停用了信任裝置加密。若要存取您的密碼庫，請設定主密碼。"
   },
   "tryAgain": {
     "message": "再試一次"
@@ -2458,7 +2476,7 @@
     "message": "使用生物辨識"
   },
   "enterVerificationCodeSentToEmail": {
-    "message": "Enter the verification code that was sent to your email."
+    "message": "輸入傳送到你的電子郵件的驗證碼。"
   },
   "resendCode": {
     "message": "重新傳送驗證碼"
@@ -2470,7 +2488,7 @@
     "message": "分鐘"
   },
   "vaultTimeoutPolicyInEffect1": {
-    "message": "$HOURS$ hour(s) and $MINUTES$ minute(s) maximum.",
+    "message": "最多 $HOURS$ 小時 $MINUTES$ 分鐘",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2512,10 +2530,10 @@
     "message": "您的密碼庫逾時時間超過組織設定的限制。"
   },
   "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
+    "message": "企業政策已套用至您的逾時選項中"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "message": "您的組織政策已限定您密碼庫逾時的時間長度。密碼庫逾時時間最高可以設定到 $HOURS$ 小時 $MINUTES$ 分鐘。",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2528,7 +2546,7 @@
     }
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "message": "逾時時間超出了您組織設定的此限制：最多 $HOURS$ 小時 $MINUTES$ 分鐘",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2539,6 +2557,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "自訂逾時時間最小為 1 分鐘。"
   },
   "inviteAccepted": {
     "message": "邀請已接受"
@@ -2565,13 +2586,13 @@
     "message": "主密碼已移除"
   },
   "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+    "message": "以下組織的成員已不再需要主密碼。請與你的組織管理員確認下方的網域。"
   },
   "organizationName": {
     "message": "機構名稱"
   },
   "keyConnectorDomain": {
-    "message": "Key Connector domain"
+    "message": "Key Connector 網域"
   },
   "leaveOrganization": {
     "message": "離開組織"
@@ -2634,7 +2655,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "message": "只會匯出與 $EMAIL$ 關聯的個人密碼庫（包含附件）。組織密碼庫的項目不包含在內。",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2654,11 +2675,29 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "只會匯出與 $ORGANIZATION$ 相關的組織密碼庫。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "只會匯出與 $ORGANIZATION$ 相關的組織保險庫，「我的項目」集合將不會包含在內。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "locked": {
     "message": "已鎖定"
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "您的密碼庫已被鎖定"
   },
   "unlocked": {
     "message": "已解鎖"
@@ -2680,10 +2719,10 @@
     "message": "產生使用者名稱"
   },
   "generateEmail": {
-    "message": "Generate email"
+    "message": "生成電子郵件"
   },
   "usernameGenerator": {
-    "message": "Username generator"
+    "message": "使用者名稱產生器"
   },
   "generatePassword": {
     "message": "產生密碼"
@@ -2692,19 +2731,19 @@
     "message": "產生密碼片語"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "已產生密碼"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "已產生密碼"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "已產生使用者名稱"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "已產生電子郵件"
   },
   "spinboxBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$.",
+    "message": "值必須介於 $MIN$ 及 $MAX$。",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2718,7 +2757,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "message": " 使用 $RECOMMENDED$ 或更多個字元產生更強的密碼。",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2728,7 +2767,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "message": " 使用 $RECOMMENDED$ 或更多個單字產生強的密碼短語。",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2754,7 +2793,7 @@
     "message": "使用您的網域設定的 Catch-all 收件匣。"
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "使用此電子郵件"
   },
   "useThisPassword": {
     "message": "使用此密碼"
@@ -2797,11 +2836,11 @@
     "description": "Labels the domain name email forwarder service option"
   },
   "forwarderDomainNameHint": {
-    "message": "Choose a domain that is supported by the selected service",
+    "message": "選擇一個所選服務支援的網域",
     "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
-    "message": "$SERVICENAME$ error: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ 錯誤：$ERRORMESSAGE$",
     "description": "Reports an error returned by a forwarding service to the user.",
     "placeholders": {
       "servicename": {
@@ -2819,7 +2858,7 @@
     "description": "Displayed with the address on the forwarding service's configuration screen."
   },
   "forwarderGeneratedByWithWebsite": {
-    "message": "Website: $WEBSITE$. Generated by Bitwarden.",
+    "message": "網站：$WEBSITE$。透過 Bitwarden 產生。",
     "description": "Displayed with the address on the forwarding service's configuration screen.",
     "placeholders": {
       "WEBSITE": {
@@ -2829,7 +2868,7 @@
     }
   },
   "forwaderInvalidToken": {
-    "message": "Invalid $SERVICENAME$ API token",
+    "message": "無效的 $SERVICENAME$ API 權杖",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -2839,7 +2878,7 @@
     }
   },
   "forwaderInvalidTokenWithMessage": {
-    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
+    "message": "無效的 $SERVICENAME$ API 權杖：$ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -2853,7 +2892,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ 拒絕了你的請求。請聯絡你的服務提供者以取得協助。",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -2863,7 +2902,7 @@
     }
   },
   "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ 拒絕了你的請求：$ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -2877,7 +2916,7 @@
     }
   },
   "forwarderNoAccountId": {
-    "message": "Unable to obtain $SERVICENAME$ masked email account ID.",
+    "message": "無法獲得 $SERVICENAME$ 的轉送電子郵件帳號。",
     "description": "Displayed when the forwarding service fails to return an account ID.",
     "placeholders": {
       "servicename": {
@@ -2887,7 +2926,7 @@
     }
   },
   "forwarderNoDomain": {
-    "message": "Invalid $SERVICENAME$ domain.",
+    "message": "無效的 $SERVICENAME$ 網域。",
     "description": "Displayed when the domain is empty or domain authorization failed at the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -2897,7 +2936,7 @@
     }
   },
   "forwarderNoUrl": {
-    "message": "Invalid $SERVICENAME$ url.",
+    "message": "無效的 $SERVICENAME$ URI。",
     "description": "Displayed when the url of the forwarding service wasn't supplied.",
     "placeholders": {
       "servicename": {
@@ -2907,7 +2946,7 @@
     }
   },
   "forwarderUnknownError": {
-    "message": "Unknown $SERVICENAME$ error occurred.",
+    "message": "發生未知的 $SERVICENAME$ 錯誤。",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
     "placeholders": {
       "servicename": {
@@ -2917,7 +2956,7 @@
     }
   },
   "forwarderUnknownForwarder": {
-    "message": "Unknown forwarder: '$SERVICENAME$'.",
+    "message": "未知的轉送服務提供商：$SERVICENAME$。",
     "description": "Displayed when the forwarding service is not supported.",
     "placeholders": {
       "servicename": {
@@ -2976,7 +3015,7 @@
     "message": "登入已啟動"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "已傳送請求"
   },
   "notificationSentDevice": {
     "message": "已傳送通知至您的裝置。"
@@ -2985,13 +3024,13 @@
     "message": "已傳送通知至您的裝置"
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the "
+    "message": "在你的裝置或其他裝置上解鎖 Bitwarden"
   },
   "notificationSentDeviceAnchor": {
     "message": "網頁應用程式"
   },
   "notificationSentDevicePart2": {
-    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "在核准前請確保您的指紋短語與下面完全相符。"
   },
   "needAnotherOptionV1": {
     "message": "需要另一個選項嗎？"
@@ -3003,7 +3042,7 @@
     "message": "指紋短語"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "You will be notified once the request is approved"
+    "message": "一旦您的請求被通過，您會獲得通知。"
   },
   "needAnotherOption": {
     "message": "必須先在 Bitwarden 應用程式設定中開啟，才可以使用裝置登入。要改用其他選項嗎？"
@@ -3022,7 +3061,7 @@
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "來自 $EMAIL$ 的存取嘗試",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3031,7 +3070,7 @@
     }
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "登入請求已由 $DEVICE$ 上的 $EMAIL$ 批准",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3044,21 +3083,21 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "您拒絕了來自其他裝置的登入嘗試。如果這是您本人，請嘗試再次使用該裝置登入。"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "網路應用程式"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "行動裝置",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "擴充套件",
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Desktop",
+    "message": "電腦版應用程式",
     "description": "Desktop app"
   },
   "cli": {
@@ -3069,13 +3108,13 @@
     "description": "Software Development Kit"
   },
   "server": {
-    "message": "Server"
+    "message": "伺服器"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "已要求登入"
   },
   "deviceType": {
-    "message": "裝置類別"
+    "message": "裝置類型"
   },
   "ipAddress": {
     "message": "IP 位址"
@@ -3084,10 +3123,10 @@
     "message": "時間"
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "確認訪問"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "拒絕訪問權限"
   },
   "justNow": {
     "message": "剛剛"
@@ -3108,7 +3147,7 @@
     "message": "此請求已失效。"
   },
   "confirmAccessAttempt": {
-    "message": "Confirm access attempt for $EMAIL$",
+    "message": "確認 $EMAIL$ 的存取嘗試",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3120,28 +3159,28 @@
     "message": "已要求登入"
   },
   "accountAccessRequested": {
-    "message": "Account access requested"
+    "message": "帳號存取請求"
   },
   "creatingAccountOn": {
-    "message": "Creating account on"
+    "message": "建立帳號於"
   },
   "checkYourEmail": {
-    "message": "Check your email"
+    "message": "檢查您的電子郵件"
   },
   "followTheLinkInTheEmailSentTo": {
-    "message": "Follow the link in the email sent to"
+    "message": "跟隨電子郵件中的連結"
   },
   "andContinueCreatingYourAccount": {
-    "message": "and continue creating your account."
+    "message": "並繼續建立您的帳號"
   },
   "noEmail": {
-    "message": "No email?"
+    "message": "沒有電子郵件？"
   },
   "goBack": {
     "message": "返回"
   },
   "toEditYourEmailAddress": {
-    "message": "to edit your email address."
+    "message": "來編輯您的電子郵件位址。"
   },
   "exposedMasterPassword": {
     "message": "已洩露的主密碼"
@@ -3165,13 +3204,13 @@
     "message": "重要："
   },
   "accessing": {
-    "message": "Accessing"
+    "message": "正在存取"
   },
   "accessTokenUnableToBeDecrypted": {
-    "message": "You have been logged out because your access token could not be decrypted. Please log in again to resolve this issue."
+    "message": "由於無法解密你的存取權杖，你已被登出。請重新登入以解決此問題。"
   },
   "refreshTokenSecureStorageRetrievalFailure": {
-    "message": "You have been logged out because your refresh token could not be retrieved. Please log in again to resolve this issue."
+    "message": "由於無法取得你的重新整理權杖，你已被登出。請重新登入以解決此問題。"
   },
   "masterPasswordHint": {
     "message": "若您忘記主密碼，將會無法找回！"
@@ -3192,7 +3231,7 @@
     "message": "建議設定更新"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "記住此裝置來讓未來的登入體驗更簡易"
   },
   "deviceApprovalRequired": {
     "message": "裝置需要取得核准。請在下面選擇一個核准選項："
@@ -3216,10 +3255,10 @@
     "message": "要求管理員核准"
   },
   "unableToCompleteLogin": {
-    "message": "Unable to complete login"
+    "message": "無法完成登入"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+    "message": "你需要在受信任的裝置上登入，或請管理員為你指派密碼。"
   },
   "region": {
     "message": "區域"
@@ -3262,7 +3301,7 @@
     "message": "裝置已信任"
   },
   "trustOrganization": {
-    "message": "Trust organization"
+    "message": "目前組織"
   },
   "trust": {
     "message": "信任"
@@ -3274,16 +3313,16 @@
     "message": "機構不被信任"
   },
   "emergencyAccessTrustWarning": {
-    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+    "message": "為了保護你的帳號安全，僅在你已授予此使用者緊急存取權，且其指紋與其帳號中顯示的指紋相符時才確認。"
   },
   "orgTrustWarning": {
-    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+    "message": "為了保護你的帳號安全，僅在你是此組織的成員、已啟用帳號復原功能，且下方顯示的指紋與組織的指紋相符時才繼續。"
   },
   "orgTrustWarning1": {
-    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+    "message": "此組織有企業政策，會將你加入帳號復原功能。加入後，組織管理員可變更你的密碼。僅在你確認此組織身份，且下方顯示的指紋詞句與該組織的指紋相符時才繼續。"
   },
   "trustUser": {
-    "message": "Trust user"
+    "message": "信任使用者"
   },
   "inputRequired": {
     "message": "必須輸入內容。"
@@ -3450,13 +3489,13 @@
     "message": "您的帳號要求使用 Duo 兩步驟驗證登入。"
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+    "message": "您的帳號需要使用 Duo 兩步驟登入。請依照以下步驟完成登入。"
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Follow the steps below to finish logging in."
+    "message": "請依照以下步驟完成登入"
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Follow the steps below to finish logging in with your security key."
+    "message": "請依照以下步驟使用你的安全金鑰完成登入。"
   },
   "launchDuo": {
     "message": "使用瀏覽器啟動 Duo"
@@ -3486,10 +3525,10 @@
     "message": "選擇一個分類"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "若你希望將匯入檔案的內容移至集合，請選擇此選項"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "若你希望將匯入檔案的內容移至資料夾，請選擇此選項"
   },
   "importUnassignedItemsError": {
     "message": "檔案包含未指派項目。"
@@ -3586,10 +3625,10 @@
     "message": "請使用您的公司憑證繼續登入。"
   },
   "importDirectlyFromBrowser": {
-    "message": "Import directly from browser"
+    "message": "從瀏覽器直接匯入"
   },
   "browserProfile": {
-    "message": "Browser Profile"
+    "message": "瀏覽器設定檔"
   },
   "seeDetailedInstructions": {
     "message": "請參閱我們說明網站上的詳細說明於",
@@ -3615,27 +3654,27 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "URI 匹配偵測是 Bitwarden 用來識別自動填入建議的方式。",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "「正則表達式」是進階選項，可能會增加憑證外洩的風險。",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "「開頭為」是進階選項，可能會增加憑證外洩的風險。",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "深入了解匹配偵測",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "進階選項",
     "description": "Advanced option placeholder for uri option component"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "警告",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
@@ -3709,14 +3748,14 @@
     "message": "無法找到可用於 SSO 登入的空閒連接埠。"
   },
   "securePasswordGenerated": {
-    "message": "Secure password generated! Don't forget to also update your password on the website."
+    "message": "已產生安全的密碼！請不要忘記同時更新您網站上的密碼。"
   },
   "useGeneratorHelpTextPartOne": {
-    "message": "Use the generator",
+    "message": "使用產生器",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "to create a strong unique password",
+    "message": "來產生高強度且唯一的密碼",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "biometricsStatusHelptextUnlockNeeded": {
@@ -3750,19 +3789,19 @@
     "message": "項目名稱"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "登入資訊"
   },
   "additionalOptions": {
-    "message": "Additional options"
+    "message": "額外選項"
   },
   "itemHistory": {
     "message": "項目歷史記錄"
   },
   "lastEdited": {
-    "message": "Last edited"
+    "message": "最後編輯"
   },
   "upload": {
-    "message": "Upload"
+    "message": "上傳"
   },
   "authorize": {
     "message": "授權"
@@ -3774,25 +3813,25 @@
     "message": "確認 SSH 密鑰使用"
   },
   "agentForwardingWarningTitle": {
-    "message": "Warning: Agent Forwarding"
+    "message": "警告：代理轉送"
   },
   "agentForwardingWarningText": {
-    "message": "This request comes from a remote device that you are logged into"
+    "message": "此請求來自你已登入的遠端裝置"
   },
   "sshkeyApprovalMessageInfix": {
     "message": "正在請求存取權限到"
   },
   "sshkeyApprovalMessageSuffix": {
-    "message": "in order to"
+    "message": "用於"
   },
   "sshActionLogin": {
-    "message": "authenticate to a server"
+    "message": "驗證伺服器  "
   },
   "sshActionSign": {
-    "message": "sign a message"
+    "message": "簽署訊息"
   },
   "sshActionGitSign": {
-    "message": "sign a git commit"
+    "message": "簽署 git 提交"
   },
   "unknownApplication": {
     "message": "應用程式"
@@ -3807,40 +3846,40 @@
     "message": "從剪貼簿中匯入密鑰"
   },
   "sshKeyImported": {
-    "message": "SSH key imported successfully"
+    "message": "SSH 密鑰成功匯入"
   },
   "fileSavedToDevice": {
     "message": "檔案已儲存到裝置。在您的裝置上管理下載檔案。"
   },
   "allowScreenshots": {
-    "message": "Allow screen capture"
+    "message": "允許螢幕擷取"
   },
   "allowScreenshotsDesc": {
-    "message": "Allow the Bitwarden desktop application to be captured in screenshots and viewed in remote desktop sessions. Disabling this will prevent access on some external displays."
+    "message": "允許 Bitwarden 桌面應用程式可被截圖或在遠端桌面工作階段中顯示。停用此功能將會限制在部分外接螢幕上的存取。"
   },
   "confirmWindowStillVisibleTitle": {
-    "message": "Confirm window still visible"
+    "message": "確認視窗仍可見"
   },
   "confirmWindowStillVisibleContent": {
-    "message": "Please confirm that the window is still visible."
+    "message": "請確認視窗仍然可見。"
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
-    "message": "Extension update required"
+    "message": "必須更新擴充套件"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
-    "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
+    "message": "你使用的瀏覽器擴充功能版本已過期。請更新擴充功能，或在桌面應用程式設定中停用瀏覽器整合的指紋驗證。"
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "變更有風險的密碼"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "此登入資訊存在風險，且缺少網站。請新增網站並變更密碼以提升安全性。"
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "缺少網站"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "message": "若您只有檢視權限，無法移除集合 $COLLECTIONS$。",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -3849,120 +3888,120 @@
     }
   },
   "move": {
-    "message": "Move"
+    "message": "移動"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "新增資料夾"
   },
   "folderName": {
-    "message": "Folder Name"
+    "message": "資料夾名稱"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "在資料夾名稱後面使用「/」來建立樹狀結構。\n例如：社交網路/論壇"
   },
   "sendsTitleNoItems": {
-    "message": "Send sensitive information safely",
+    "message": "安全傳送機密的資訊",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "message": "安全的和任何人及任何平臺分享檔案及資料。您的資料會受到端對端加密的保護。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "generatorNudgeTitle": {
-    "message": "Quickly create passwords"
+    "message": "快速建立密碼"
   },
   "generatorNudgeBodyOne": {
-    "message": "Easily create strong and unique passwords by clicking on",
+    "message": "點擊即可輕鬆產生強且唯一的密碼。",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyTwo": {
-    "message": "to help you keep your logins secure.",
+    "message": "協助你維持登入資訊的安全。",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyAria": {
-    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "message": "點擊「產生密碼」按鈕即可輕鬆建立強且唯一的密碼，協助你確保登入資訊的安全。",
     "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
-    "message": "Save time with autofill"
+    "message": "使用自動填入節省時間"
   },
   "newLoginNudgeBodyOne": {
-    "message": "Include a",
+    "message": "包含",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyBold": {
-    "message": "Website",
+    "message": "網頁",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyTwo": {
-    "message": "so this login appears as an autofill suggestion.",
+    "message": "讓此登入顯示為自動填入建議。",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
-    "message": "Seamless online checkout"
+    "message": "流暢的線上結帳體驗"
   },
   "newCardNudgeBody": {
-    "message": "With cards, easily autofill payment forms securely and accurately."
+    "message": "使用卡片功能，安全且精準地自動填入付款表單。"
   },
   "newIdentityNudgeTitle": {
-    "message": "Simplify creating accounts"
+    "message": "簡化帳號建立流程 "
   },
   "newIdentityNudgeBody": {
-    "message": "With identities, quickly autofill long registration or contact forms."
+    "message": "使用身份資訊，快速自動填入冗長的註冊或聯絡表單。"
   },
   "newNoteNudgeTitle": {
-    "message": "Keep your sensitive data safe"
+    "message": "保護你的敏感資料安全"
   },
   "newNoteNudgeBody": {
-    "message": "With notes, securely store sensitive data like banking or insurance details."
+    "message": "使用備註功能，安全儲存銀行或保險等敏感資料。"
   },
   "newSshNudgeTitle": {
-    "message": "Developer-friendly SSH access"
+    "message": "開發者友善的 SSH 存取"
   },
   "newSshNudgeBodyOne": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "message": "儲存你的金鑰並透過 SSH 代理程式進行快速、加密的驗證。",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "newSshNudgeBodyTwo": {
-    "message": "Learn more about SSH agent",
+    "message": "深入了解 SSH 代理程式",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "關於此設定"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden 會使用已儲存的登入 URI 來判斷應顯示的圖示或變更密碼網址，以改善你的使用體驗。使用此服務時，不會收集或儲存任何資訊。"
   },
   "assignToCollections": {
-    "message": "Assign to collections"
+    "message": "指派至集合"
   },
   "assignToTheseCollections": {
-    "message": "Assign to these collections"
+    "message": "指派至這些集合"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "Only organization members with access to these collections will be able to see the item."
+    "message": "只有可以檢視集合的組織成員才能看到其中的項目。"
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+    "message": "只有可以檢視集合的組織成員才能看到其中的項目。"
   },
   "noCollectionsAssigned": {
-    "message": "No collections have been assigned"
+    "message": "尚未指派任何集合"
   },
   "assign": {
-    "message": "Assign"
+    "message": "指定"
   },
   "bulkCollectionAssignmentDialogDescription": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+    "message": "只有可以檢視集合的組織成員才能看到其中的項目。"
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
+    "message": "您已經選擇 $TOTAL_COUNT$ 個項目。由於您沒有編輯權限，無法更新其中的 $READONLY_COUNT$ 個項目。",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -3974,10 +4013,10 @@
     }
   },
   "selectCollectionsToAssign": {
-    "message": "Select collections to assign"
+    "message": "選擇要指派的集合"
   },
   "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ 會被永久移到選擇的組織。您將不再擁有這些項目。",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -3986,7 +4025,7 @@
     }
   },
   "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ 會被永久移到 $ORG$。您將不再擁有這些項目。",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -3999,10 +4038,10 @@
     }
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+    "message": "1 個項目會被永久移到選擇的組織。您將不再擁有此項目。"
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "message": "1 個項目會被永久移到 $ORG$。您將不再擁有此項目。",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -4011,13 +4050,13 @@
     }
   },
   "successfullyAssignedCollections": {
-    "message": "Successfully assigned collections"
+    "message": "指派集合成功"
   },
   "nothingSelected": {
-    "message": "You have not selected anything."
+    "message": "您沒有選擇任何項目。"
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "項目已移到 $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4026,7 +4065,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "項目已移到 $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4035,7 +4074,7 @@
     }
   },
   "movedItemsToOrg": {
-    "message": "Selected items moved to $ORGNAME$",
+    "message": "將已選取項目移動至 $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4075,37 +4114,81 @@
     }
   },
   "showMore": {
-    "message": "Show more"
+    "message": "顯示更多"
   },
   "showLess": {
-    "message": "Show less"
-  },
-  "enableAutotype": {
-    "message": "Enable Autotype"
+    "message": "顯示較少"
   },
   "enableAutotypeDescription": {
-    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+    "message": "Bitwarden 不會驗證輸入位置，請在使用快捷鍵前確認你位於正確的視窗與欄位中。"
+  },
+  "typeShortcut": {
+    "message": "輸入快捷鍵"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "請包含以下修飾鍵之一或兩個：Ctrl、Alt、Win 或 Shift，再加上一個字母。"
+  },
+  "invalidShortcut": {
+    "message": "無效的捷徑"
   },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "更多導覽階層",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "next": {
-    "message": "Next"
+    "message": "下一步"
   },
   "confirmKeyConnectorDomain": {
-    "message": "Confirm Key Connector domain"
+    "message": "確認 Key Connector 網域"
   },
   "confirm": {
-    "message": "Confirm"
+    "message": "確認"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+  "enableAutotypeShortcutPreview": {
+    "message": "啟用自動輸入快捷鍵（功能預覽）"
   },
-  "enableAutotypeDescriptionTransitionKey": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  "enableAutotypeShortcutDescription": {
+    "message": "請在使用快捷鍵前確認位於正確的欄位中，以避免將資料填入錯誤"
   },
   "editShortcut": {
-    "message": "Edit shortcut"
+    "message": "編輯捷徑"
+  },
+  "archiveNoun": {
+    "message": "封存",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "封存",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "取消封存"
+  },
+  "itemsInArchive": {
+    "message": "封存中的項目"
+  },
+  "noItemsInArchive": {
+    "message": "封存中沒有項目"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "封存的項目會顯示在此處，且不會出現在一般搜尋結果或自動填入建議中。"
+  },
+  "itemWasSentToArchive": {
+    "message": "項目已移至封存"
+  },
+  "itemWasUnarchived": {
+    "message": "項目取消封存"
+  },
+  "archiveItem": {
+    "message": "封存項目"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "封存的項目將不會出現在一般搜尋結果或自動填入建議中。確定要封存此項目嗎？"
+  },
+  "zipPostalCodeLabel": {
+    "message": "郵編 / 郵政代碼"
+  },
+  "cardNumberLabel": {
+    "message": "支付卡號碼"
   }
 }

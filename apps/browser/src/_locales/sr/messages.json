@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Употребити једнократну пријаву"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Добродошли назад"
   },
@@ -550,11 +553,46 @@
   "resetSearch": {
     "message": "Ресетовати претрагу"
   },
+  "archiveNoun": {
+    "message": "Архива",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Архива",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Врати из архиве"
+  },
+  "itemsInArchive": {
+    "message": "Ставке у архиви"
+  },
+  "noItemsInArchive": {
+    "message": "Нема ставка у архиви"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Архивиране ставке ће се овде појавити и бити искључени из општих резултата претраге и сугестија о ауто-пуњењу."
+  },
+  "itemWasSentToArchive": {
+    "message": "Ставка је послата у архиву"
+  },
+  "itemUnarchived": {
+    "message": "Ставка враћена из архиве"
+  },
+  "archiveItem": {
+    "message": "Архивирај ставку"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Архивиране ставке су искључене из општих резултата претраге и предлога за ауто попуњавање. Јесте ли сигурни да желите да архивирате ову ставку?"
+  },
   "edit": {
     "message": "Уреди"
   },
   "view": {
     "message": "Приказ"
+  },
+  "viewAll": {
+    "message": "View all"
   },
   "viewLogin": {
     "message": "Преглед пријаве"
@@ -700,6 +738,15 @@
   },
   "invalidMasterPassword": {
     "message": "Погрешна главна лозинка"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Неважећа главна лозинка. Потврдите да је ваш имејл тачан и ваш рачун је креиран на $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Тајмаут сефа"
@@ -986,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Ставка уређена"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Сигурно послати ову ставку у отпад?"
@@ -1507,6 +1566,15 @@
   "readSecurityKey": {
     "message": "Читај сигурносни кључ"
   },
+  "readingPasskeyLoading": {
+    "message": "Читање притупачног кључа..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Потврда приступачног кључа"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Користи други начин пријављивања"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Чека се интеракција сигурносног кључа..."
   },
@@ -1626,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Угасити ауто-пуњење"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "Прикажи предлоге за ауто-попуњавање у пољима обрасца"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Приказати идентитете као предлоге"
@@ -1755,7 +1844,7 @@
     "message": "Ако кликнете изван искачућег прозора да бисте проверили имејл за верификациони код, овај прозор ће се затворити. Да ли желите да отворите овај прозор у новом прозору да се не би затворио?"
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Прикажи иконе веб локација и преузмите линкове промене лозинке"
   },
   "cardholderName": {
     "message": "Име Власника Картице"
@@ -1920,79 +2009,79 @@
     "message": "Белешка"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "Ново пријављивање",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "Нова картица",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "Нови идентитет",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "Нова белешка",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "Нов SSH кљич",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
+    "message": "Нови текст Send",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "Нова датотека Send",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "Уреди пријаву",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "Уреди картицу",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "Уреди идентитет",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "Уреди белешку",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "Уреди SSH кључ",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+    "message": "Уреди текст Send",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+    "message": "Уреди датотеку Send",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "Преглед пријаве",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "Преглед картице",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "Преглед идентитета",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "Преглед белешке",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "Преглед SSH кључа",
     "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
@@ -3166,11 +3255,32 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Извешће се само сеф организације повезана са $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Извешће се само сеф организације повезан са $ORGANIZATION$. Колекције мојих предмета неће бити укључене.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Грешка"
   },
   "decryptionError": {
     "message": "Грешка при декрипцији"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden није могао да декриптује ставке из трезора наведене испод."
@@ -3942,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Ауто-попуњавање при учитавању странице је подешено да користи подразумевано подешавање.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "Укључите бочну навигацију"
@@ -5511,17 +5630,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Добродошли у ваш сеф!"
   },
-  "phishingPageTitle": {
-    "message": "Phishing website"
+  "phishingPageTitleV2": {
+    "message": "Откривен је покушај „пецања“"
   },
-  "phishingPageCloseTab": {
-    "message": "Close tab"
+  "phishingPageSummary": {
+    "message": "Сајт који покушавате да посетите је позната злонамерна локација и представља безбедносни ризик."
   },
-  "phishingPageContinue": {
-    "message": "Continue"
+  "phishingPageCloseTabV2": {
+    "message": "Затвори ову картицу"
   },
-  "phishingPageLearnWhy": {
-    "message": "Why are you seeing this?"
+  "phishingPageContinueV2": {
+    "message": "Настави до овог сајта (не препоручује се)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Овај сајт је нађен у ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", листа отвореног кода познатих сајтова за крађу идентитета који се користе за крађу личних и осетљивих информација.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Сазнајте више о откривању „пецања“"
+  },
+  "protectedBy": {
+    "message": "Заштићено са $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Ауто-пуњење предмета за тренутну страницу"
@@ -5599,10 +5738,10 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "О овом подешавању"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden ће користити сачуване URI-јеве за пријаву да би одредио коју икону или URL за промену лозинке треба користити како би побољшао ваше искуство. Никакви подаци нису сакупљени нити сачувани приликом коришћења ове услуге."
   },
   "noPermissionsViewPage": {
     "message": "Немате дозволе за преглед ове странице. Покушајте да се пријавите са другим налогом."
@@ -5626,5 +5765,18 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Потврдите домен конектора кључа"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "This setting is disabled by your organization's policy.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

@@ -18,6 +18,8 @@ import { CipherReportComponent } from "./cipher-report.component";
 
 type ReportResult = CipherView & { exposedXTimes: number };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-exposed-passwords-report",
   templateUrl: "exposed-passwords-report.component.html",
@@ -89,6 +91,9 @@ export class ExposedPasswordsReportComponent extends CipherReportComponent imple
 
   private async isPasswordExposed(cv: CipherView): Promise<ReportResult | null> {
     const { login } = cv;
+    if (login.password == null) {
+      return null;
+    }
     return await this.auditService.passwordLeaked(login.password).then((exposedCount) => {
       if (exposedCount > 0) {
         return { ...cv, exposedXTimes: exposedCount } as ReportResult;

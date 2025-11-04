@@ -771,6 +771,9 @@
   "useSingleSignOn": {
     "message": "Використати єдиний вхід"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "Відправити"
   },
@@ -1221,6 +1224,15 @@
   },
   "invalidMasterPassword": {
     "message": "Неправильний головний пароль"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "twoStepLoginConfirmation": {
     "message": "Двоетапна перевірка дає змогу надійніше захистити ваш обліковий запис, вимагаючи підтвердження входу з використанням іншого пристрою, наприклад, за допомогою ключа безпеки, програми автентифікації, SMS, телефонного виклику, або е-пошти. Ви можете налаштувати двоетапну перевірку в сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
@@ -1842,6 +1854,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Блокувати головним паролем при перезапуску"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Require master password or PIN on app restart"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Require master password on app restart"
   },
   "deleteAccount": {
     "message": "Видалити обліковий запис"
@@ -2540,6 +2558,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum custom timeout is 1 minute."
+  },
   "inviteAccepted": {
     "message": "Запрошення прийнято"
   },
@@ -2654,6 +2675,24 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "locked": {
     "message": "Заблоковано"
   },
@@ -2751,7 +2790,7 @@
     "message": "Адреса е-пошти Catch-all"
   },
   "catchallEmailDesc": {
-    "message": "Використовуйте свою скриньку вхідних Catch-All власного домену."
+    "message": "Використовуйте можливості Catch-All власного домену."
   },
   "useThisEmail": {
     "message": "Використати цю е-пошту"
@@ -4080,11 +4119,17 @@
   "showLess": {
     "message": "Згорнути"
   },
-  "enableAutotype": {
-    "message": "Увімкнути автовведення"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden не перевіряє місця введення. Переконайтеся, що у вас відкрите правильне вікно і вибрано потрібне поле, перш ніж застосувати комбінацію клавіш."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "Інші елементи",
@@ -4099,13 +4144,51 @@
   "confirm": {
     "message": "Confirm"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
   },
   "editShortcut": {
     "message": "Edit shortcut"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

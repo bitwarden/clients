@@ -771,6 +771,9 @@
   "useSingleSignOn": {
     "message": "Использовать единый вход"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "Отправить"
   },
@@ -1221,6 +1224,15 @@
   },
   "invalidMasterPassword": {
     "message": "Неверный мастер-пароль"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Неверный мастер-пароль. Подтвердите, что ваш адрес email указан верно и ваш аккаунт был создан на $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "twoStepLoginConfirmation": {
     "message": "Двухэтапная аутентификация делает аккаунт более защищенным, поскольку требуется подтверждение входа при помощи другого устройства, например, ключа безопасности, приложения-аутентификатора, SMS, телефонного звонка или электронной почты. Двухэтапная аутентификация включается на bitwarden.com. Перейти на сайт сейчас?"
@@ -1842,6 +1854,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Блокировать мастер-паролем при перезапуске"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Требовать мастер-пароль или PIN при перезапуске приложения"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Требовать мастер-пароль при перезапуске приложения"
   },
   "deleteAccount": {
     "message": "Удалить аккаунт"
@@ -2540,6 +2558,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Минимальный пользовательский тайм-аут составляет 1 минуту."
+  },
   "inviteAccepted": {
     "message": "Приглашение принято"
   },
@@ -2651,6 +2672,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Будет экспортировано только хранилище организации, связанное с $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Будет экспортировано только хранилище организации, связанное с $ORGANIZATION$. Коллекции Мои элементы включены не будут.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -3834,10 +3873,10 @@
     "message": "Изменить пароль, подверженный риску"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Этот логин подвержен риску и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Отсутствует сайт"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Вы не можете удалить коллекции с правами только на просмотр: $COLLECTIONS$",
@@ -4080,14 +4119,20 @@
   "showLess": {
     "message": "Меньше"
   },
-  "enableAutotype": {
-    "message": "Включить автоввод"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden не проверяет местоположение ввода, поэтому, прежде чем использовать ярлык, убедитесь, что вы находитесь в нужном окне и поле."
   },
+  "typeShortcut": {
+    "message": "Введите сочетание клавиш"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Включите один или два из следующих модификаторов: Ctrl, Alt, Win или Shift и букву."
+  },
+  "invalidShortcut": {
+    "message": "Недопустимое сочетание клавиш"
+  },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Дополнительная навигация",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "next": {
@@ -4099,13 +4144,51 @@
   "confirm": {
     "message": "Подтвердить"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Включить ярлык автоввода"
+  "enableAutotypeShortcutPreview": {
+    "message": "Включить сочетание клавиш ввода (предварительная версия функции)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Прежде чем использовать ярлык, убедитесь, что вы поставили курсор в нужное поле, чтобы избежать ввода данных в неправильное место."
   },
   "editShortcut": {
     "message": "Изменить ярлык"
+  },
+  "archiveNoun": {
+    "message": "Архив",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Архивировать",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Разархивировать"
+  },
+  "itemsInArchive": {
+    "message": "Элементы в архиве"
+  },
+  "noItemsInArchive": {
+    "message": "В архиве нет элементов"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Архивированные элементы появятся здесь и будут исключены из общих результатов поиска и предложений автозаполнения."
+  },
+  "itemWasSentToArchive": {
+    "message": "Элемент был отправлен в архив"
+  },
+  "itemWasUnarchived": {
+    "message": "Элемент был разархивирован"
+  },
+  "archiveItem": {
+    "message": "Архивировать элемент"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать этот элемент?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "Почтовый индекс"
+  },
+  "cardNumberLabel": {
+    "message": "Номер карты"
   }
 }

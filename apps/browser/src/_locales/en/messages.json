@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Use single sign-on"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Welcome back"
   },
@@ -550,10 +553,15 @@
   "resetSearch": {
     "message": "Reset search"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
   },
-  "unarchive": {
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
     "message": "Unarchive"
   },
   "itemsInArchive": {
@@ -565,11 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemSentToArchive": {
-    "message": "Item sent to archive"
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
   },
-  "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
+  "itemUnarchived": {
+    "message": "Item was unarchived"
   },
   "archiveItem": {
     "message": "Archive item"
@@ -582,6 +590,9 @@
   },
   "view": {
     "message": "View"
+  },
+  "viewAll": {
+    "message": "View all"
   },
   "viewLogin": {
     "message": "View login"
@@ -727,6 +738,15 @@
   },
   "invalidMasterPassword": {
     "message": "Invalid master password"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Vault timeout"
@@ -1013,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Item saved"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Do you really want to send to the trash?"
@@ -1491,12 +1523,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Ask for biometrics on launch"
   },
-  "premiumRequired": {
-    "message": "Premium required"
-  },
-  "premiumRequiredDesc": {
-    "message": "A Premium membership is required to use this feature."
-  },
   "authenticationTimeout": {
     "message": "Authentication timeout"
   },
@@ -1533,6 +1559,15 @@
   },
   "readSecurityKey": {
     "message": "Read security key"
+  },
+  "readingPasskeyLoading": {
+    "message": "Reading passkey..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey authentication failed"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Use a different log in method"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Awaiting security key interaction..."
@@ -1600,6 +1635,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "You must add either the base Server URL or at least one custom environment."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
+  },
   "customEnvironment": {
     "message": "Custom environment"
   },
@@ -1653,8 +1691,29 @@
   "turnOffAutofill": {
     "message": "Turn off autofill"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "Show autofill suggestions on form fields"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Display identities as suggestions"
@@ -3193,11 +3252,32 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Error"
   },
   "decryptionError": {
     "message": "Decryption error"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden could not decrypt the vault item(s) listed below."
@@ -3970,6 +4050,15 @@
     "message": "Autofill on page load set to use default setting.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
+  },
   "toggleSideNavigation": {
     "message": "Toggle side navigation"
   },
@@ -4418,7 +4507,7 @@
     "message": "Common formats",
     "description": "Label indicating the most common import formats"
   },
-   "uriMatchDefaultStrategyHint": {
+  "uriMatchDefaultStrategyHint": {
     "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
@@ -5548,17 +5637,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Welcome to your vault!"
   },
-  "phishingPageTitle":{
-    "message": "Phishing website"
+  "phishingPageTitleV2":{
+    "message": "Phishing attempt detected"
   },
-  "phishingPageCloseTab": {
-    "message": "Close tab"
+  "phishingPageSummary": {
+    "message": "The site you are attempting to visit is a known malicious site and a security risk."
   },
-  "phishingPageContinue": {
-    "message": "Continue"
+  "phishingPageCloseTabV2": {
+    "message": "Close this tab"
   },
-  "phishingPageLearnWhy": {
-    "message": "Why are you seeing this?"
+  "phishingPageContinueV2": {
+    "message": "Continue to this site (not recommended)"
+  },
+  "phishingPageExplanation1": {
+    "message": "This site was found in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore" : {
+    "message": "Learn more about phishing detection"
+  },
+  "protectedBy": {
+    "message": "Protected by $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"
@@ -5663,5 +5772,42 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Confirm Key Connector domain"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "settingDisabledByPolicy": {
+    "message": "This setting is disabled by your organization's policy.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

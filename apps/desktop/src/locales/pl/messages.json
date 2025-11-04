@@ -771,6 +771,9 @@
   "useSingleSignOn": {
     "message": "Użyj logowania jednokrotnego"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "Wyślij"
   },
@@ -1222,6 +1225,15 @@
   "invalidMasterPassword": {
     "message": "Hasło główne jest nieprawidłowe"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Logowanie dwustopniowe zwiększa bezpieczeństwo konta, wymagając weryfikacji logowania za pomocą innego urządzenia, takiego jak klucz bezpieczeństwa, aplikacja uwierzytelniająca, wiadomość SMS, połączenie telefoniczne lub wiadomość e-mail. Logowanie dwustopniowe możesz skonfigurować w sejfie internetowym bitwarden.com. Czy chcesz przejść do strony?"
   },
@@ -1303,7 +1315,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Pokaż ikony stron internetowych i pobierz adresy URL do zmiany hasła"
   },
   "enableMinToTray": {
     "message": "Minimalizuj do zasobnika systemowego"
@@ -1706,7 +1718,7 @@
     "description": "ex. Date this item was created"
   },
   "datePasswordUpdated": {
-    "message": "Hasło zostało zaktualizowane",
+    "message": "Ostatnia aktualizacja hasła",
     "description": "ex. Date this password was updated"
   },
   "exportFrom": {
@@ -1842,6 +1854,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Zablokuj hasłem głównym po uruchomieniu ponownym"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Wymagaj hasła głównego lub PIN po uruchomieniu aplikacji"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Wymagaj hasła głównego po uruchomieniu aplikacji"
   },
   "deleteAccount": {
     "message": "Usuń konto"
@@ -2540,6 +2558,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimalny niestandardowy czas to 1 minuta."
+  },
   "inviteAccepted": {
     "message": "Zaproszenie zostało zaakceptowane"
   },
@@ -2651,6 +2672,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Tylko sejf organizacji $ORGANIZATION$ zostanie wyeksportowany.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Tylko sejf organizacji $ORGANIZATION$ zostanie wyeksportowany. Twoje kolekcje nie zostaną uwzględnione.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -3586,10 +3625,10 @@
     "message": "Kontynuuj logowanie przy użyciu danych firmowych."
   },
   "importDirectlyFromBrowser": {
-    "message": "Import directly from browser"
+    "message": "Importuj bezpośrednio z przeglądarki"
   },
   "browserProfile": {
-    "message": "Browser Profile"
+    "message": "Profil przeglądarki"
   },
   "seeDetailedInstructions": {
     "message": "Zobacz szczegółowe instrukcje na naszej stronie pomocy pod adresem",
@@ -3774,7 +3813,7 @@
     "message": "Potwierdź użycie klucza SSH"
   },
   "agentForwardingWarningTitle": {
-    "message": "Warning: Agent Forwarding"
+    "message": "Ostrzeżenie: Przekazywanie agenta"
   },
   "agentForwardingWarningText": {
     "message": "Żądanie pochodzi ze zdalnego zalogowanego urządzenia"
@@ -3834,10 +3873,10 @@
     "message": "Zmień zagrożone hasło"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Dane logowania są zagrożone i nie zawierają strony internetowej. Dodaj stronę internetową i zmień hasło."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Brak strony internetowej"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nie możesz usunąć następujących kolekcji z uprawnieniami tylko do odczytu: $COLLECTIONS$",
@@ -3935,10 +3974,10 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "O ustawieniu"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden użyje zapisanych adresów URL danych logowania, aby określić, która ikona lub adres URL zmiany hasła powinien zostać użyty w celu poprawy komfortu użytkowania. Usługa nie zapisuje żadnych danych."
   },
   "assignToCollections": {
     "message": "Przypisz do kolekcji"
@@ -4080,11 +4119,17 @@
   "showLess": {
     "message": "Pokaż mniej"
   },
-  "enableAutotype": {
-    "message": "Enable Autotype"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+  },
+  "typeShortcut": {
+    "message": "Rodzaj skrótu"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Skrót jest nieprawidłowy"
   },
   "moreBreadcrumbs": {
     "message": "Więcej nawigacji",
@@ -4099,13 +4144,51 @@
   "confirm": {
     "message": "Potwierdź"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
   },
   "editShortcut": {
     "message": "Edytuj skrót"
+  },
+  "archiveNoun": {
+    "message": "Archiwum",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archiwizuj",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Usuń z archiwum"
+  },
+  "itemsInArchive": {
+    "message": "Elementy w archiwum"
+  },
+  "noItemsInArchive": {
+    "message": "Brak elementów w archiwum"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Zarchiwizowane elementy pojawią się tutaj i zostaną wykluczone z wyników wyszukiwania i sugestii autouzupełniania."
+  },
+  "itemWasSentToArchive": {
+    "message": "Element został przeniesiony do archiwum"
+  },
+  "itemWasUnarchived": {
+    "message": "Element został usunięty z archiwum"
+  },
+  "archiveItem": {
+    "message": "Archiwizuj element"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Zarchiwizowane elementy są wykluczone z wyników wyszukiwania i sugestii autouzupełniania. Czy na pewno chcesz archiwizować element?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "Kod pocztowy"
+  },
+  "cardNumberLabel": {
+    "message": "Numer karty"
   }
 }

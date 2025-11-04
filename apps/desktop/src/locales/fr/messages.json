@@ -771,6 +771,9 @@
   "useSingleSignOn": {
     "message": "Utiliser l'authentification unique"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "Soumettre"
   },
@@ -1221,6 +1224,15 @@
   },
   "invalidMasterPassword": {
     "message": "Mot de passe principal invalide"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Mot de passe principal invalide. Confirmez que votre adresse courriel est correcte et que votre compte a été créé sur $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "twoStepLoginConfirmation": {
     "message": "L'authentification à deux facteurs rend votre compte plus sûr en vous demandant de vérifier votre connexion avec un autre dispositif tel qu'une clé de sécurité, une application d'authentification, un SMS, un appel téléphonique ou un courriel. L'authentification à deux facteurs peut être configurée sur le coffre web de bitwarden.com. Voulez-vous visiter le site web maintenant ?"
@@ -1817,7 +1829,7 @@
     "message": "Code PIN invalide."
   },
   "tooManyInvalidPinEntryAttemptsLoggingOut": {
-    "message": "Trop de tentatives de saisie du code PIN incorrectes. Déconnexion."
+    "message": "Trop de tentatives de saisie du code NIP incorrectes. Déconnexion."
   },
   "unlockWithWindowsHello": {
     "message": "Déverrouiller avec Windows Hello"
@@ -1842,6 +1854,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Verrouiller avec le mot de passe principal au redémarrage"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Exiger un mot de passe principal ou un code NIP au redémarrage de l'application"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Exiger un mot de passe principal redémarrage de l'application"
   },
   "deleteAccount": {
     "message": "Supprimer le compte"
@@ -2431,10 +2449,10 @@
     "message": "Essayez de nouveau"
   },
   "verificationRequiredForActionSetPinToContinue": {
-    "message": "Vérification requise pour cette action. Définissez un code PIN pour continuer."
+    "message": "Vérification requise pour cette action. Définissez un code NIP pour continuer."
   },
   "setPin": {
-    "message": "Définir un code PIN"
+    "message": "Définir un code NIP"
   },
   "verifyWithBiometrics": {
     "message": "Vérifier par biométrie"
@@ -2452,7 +2470,7 @@
     "message": "Utiliser le mot de passe principal"
   },
   "usePin": {
-    "message": "Utiliser le code PIN"
+    "message": "Utiliser le code NIP"
   },
   "useBiometrics": {
     "message": "Utiliser la biométrie"
@@ -2539,6 +2557,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Le délai d'expiration personnalisé minimum est de 1 minute."
   },
   "inviteAccepted": {
     "message": "Invitation acceptée"
@@ -2651,6 +2672,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Seul le coffre de l'organisation associé à $ORGANIZATION$ sera exporté.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Seul le coffre de l'organisation associé à $ORGANIZATION$ sera exporté. Mes éléments de mes collections ne seront pas inclus.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -3547,7 +3586,7 @@
     "message": "Code incorrect"
   },
   "incorrectPin": {
-    "message": "Code PIN incorrect"
+    "message": "Code NIP incorrect"
   },
   "multifactorAuthenticationFailed": {
     "message": "Authentification multifacteur échouée"
@@ -4080,11 +4119,17 @@
   "showLess": {
     "message": "Afficher moins"
   },
-  "enableAutotype": {
-    "message": "Activer le type automatique"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden ne valide pas les emplacements d'entrée, assurez-vous d'être dans la bonne fenêtre et le bon champ avant d'utiliser le raccourci."
+  },
+  "typeShortcut": {
+    "message": "Saisir le raccourci"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Inclure un ou deux des modificateurs suivants : Ctrl, Alt, Win, ou Shift, et une lettre."
+  },
+  "invalidShortcut": {
+    "message": "Raccourci invalide"
   },
   "moreBreadcrumbs": {
     "message": "Plus de fil d'Ariane",
@@ -4099,13 +4144,51 @@
   "confirm": {
     "message": "Confirmer"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+  "enableAutotypeShortcutPreview": {
+    "message": "Activer le raccourci autotype (aperçu de la fonctionnalité)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  "enableAutotypeShortcutDescription": {
+    "message": "Assurez-vous d'être dans le bon champ avant d'utiliser le raccourci pour éviter de remplir les données au mauvais endroit."
   },
   "editShortcut": {
     "message": "Modifier le raccourci"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archiver",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Désarchiver"
+  },
+  "itemsInArchive": {
+    "message": "Éléments dans l'archive"
+  },
+  "noItemsInArchive": {
+    "message": "Aucun élément dans l'archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Les éléments archivés apparaîtront ici et seront exclus des résultats de recherche généraux et des suggestions de remplissage automatique."
+  },
+  "itemWasSentToArchive": {
+    "message": "L'élément a été envoyé à l'archive"
+  },
+  "itemWasUnarchived": {
+    "message": "L'élément a été désarchivé"
+  },
+  "archiveItem": {
+    "message": "Archiver l'élément"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Les éléments archivés sont exclus des résultats de recherche généraux et des suggestions de remplissage automatique. Êtes-vous sûr de vouloir archiver cet élément ?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Code postal"
+  },
+  "cardNumberLabel": {
+    "message": "Numéro de carte"
   }
 }

@@ -38,6 +38,8 @@ import { ImportType } from "../../models";
 
 type ProfileOption = { id: string; name: string };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "import-chrome",
   templateUrl: "import-chrome.component.html",
@@ -70,14 +72,20 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
 
   profileList: ProfileOption[] = [];
 
-  format = input.required<ImportType>();
+  readonly format = input.required<ImportType>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   onLoadProfilesFromBrowser: (browser: string) => Promise<ProfileOption[]>;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   onImportFromBrowser: (browser: string, profile: string) => Promise<any[]>;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() csvDataLoaded = new EventEmitter<string>();
 
   constructor(
@@ -114,7 +122,11 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
           this.formGroup.controls.profile.value,
         );
         if (logins.length === 0) {
-          throw "nothing to import";
+          return {
+            errors: {
+              message: this.i18nService.t("importNothingError"),
+            },
+          };
         }
         const chromeLogins: ChromeLogin[] = [];
         for (const l of logins) {

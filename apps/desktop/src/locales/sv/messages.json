@@ -771,6 +771,9 @@
   "useSingleSignOn": {
     "message": "Använd Single Sign-On"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "Skicka"
   },
@@ -1221,6 +1224,15 @@
   },
   "invalidMasterPassword": {
     "message": "Ogiltigt huvudlösenord"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Ogiltigt huvudlösenord. Bekräfta att din e-postadress är korrekt och ditt konto skapades på $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "twoStepLoginConfirmation": {
     "message": "Tvåstegsverifiering gör ditt konto säkrare genom att kräva att du verifierar din inloggning med en annan enhet, t.ex. en säkerhetsnyckel, autentiseringsapp, SMS, telefonsamtal eller e-post. Tvåstegsverifiering kan aktiveras i Bitwardens webbvalv. Vill du besöka webbplatsen nu?"
@@ -1842,6 +1854,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lås med huvudlösenord vid omstart"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Kräv huvudlösenord eller PIN-kod vid omstart av appen"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Kräv huvudlösenord vid omstart av appen"
   },
   "deleteAccount": {
     "message": "Radera konto"
@@ -2540,6 +2558,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minsta anpassade tidsgräns är 1 minut."
+  },
   "inviteAccepted": {
     "message": "Inbjudan accepterad"
   },
@@ -2651,6 +2672,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Endast organisationsvalvet som är associerat med $ORGANIZATION$ kommer att exporteras.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Endast organisationsvalvet som associeras med $ORGANIZATION$ kommer att exporteras. Mina objektsamlingar kommer inte att inkluderas.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -4080,11 +4119,17 @@
   "showLess": {
     "message": "Visa mindre"
   },
-  "enableAutotype": {
-    "message": "Aktivera automatisk inmatning"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden validerar inte inmatningsplatser, så se till att du är i rätt fönster och fält innan du använder genvägen."
+  },
+  "typeShortcut": {
+    "message": "Inmatningsgenväg"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Inkludera en eller två av följande modifierare: Ctrl, Alt, Win, eller Skift och en bokstav."
+  },
+  "invalidShortcut": {
+    "message": "Ogiltig genväg"
   },
   "moreBreadcrumbs": {
     "message": "Fler länkstigar",
@@ -4099,13 +4144,51 @@
   "confirm": {
     "message": "Bekräfta"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Aktivera genväg för automatisk inmatning"
+  "enableAutotypeShortcutPreview": {
+    "message": "Aktivera inmatningsgenväg (förhandsvisning av funktion)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Försäkra dig om att du befinner dig i rätt fält innan du använder genvägen för att undvika att fylla i data på fel ställe."
   },
   "editShortcut": {
     "message": "Redigera genväg"
+  },
+  "archiveNoun": {
+    "message": "Arkiv",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Arkivera",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Avarkivera"
+  },
+  "itemsInArchive": {
+    "message": "Objekt i arkivet"
+  },
+  "noItemsInArchive": {
+    "message": "Inga objekt i arkivet"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Arkiverade objekt kommer att visas här och kommer att uteslutas från allmänna sökresultat och förslag för autofyll."
+  },
+  "itemWasSentToArchive": {
+    "message": "Objektet skickades till arkivet"
+  },
+  "itemWasUnarchived": {
+    "message": "Objektet har avarkiverats"
+  },
+  "archiveItem": {
+    "message": "Arkivera objekt"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Arkiverade objekt är uteslutna från allmänna sökresultat och förslag för autofyll. Är du säker på att du vill arkivera detta objekt?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

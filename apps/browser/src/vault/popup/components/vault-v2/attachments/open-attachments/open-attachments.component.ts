@@ -19,12 +19,15 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { BadgeModule, ItemModule, ToastService, TypographyModule } from "@bitwarden/components";
 import { CipherFormContainer } from "@bitwarden/vault";
 
 import BrowserPopupUtils from "../../../../../../platform/browser/browser-popup-utils";
 import { FilePopoutUtilsService } from "../../../../../../tools/popup/services/file-popout-utils.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-open-attachments",
   templateUrl: "./open-attachments.component.html",
@@ -39,6 +42,8 @@ import { FilePopoutUtilsService } from "../../../../../../tools/popup/services/f
 })
 export class OpenAttachmentsComponent implements OnInit {
   /** Cipher `id` */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) cipherId: CipherId;
 
   /** True when the attachments window should be opened in a popout */
@@ -63,6 +68,7 @@ export class OpenAttachmentsComponent implements OnInit {
     private filePopoutUtilsService: FilePopoutUtilsService,
     private accountService: AccountService,
     private cipherFormContainer: CipherFormContainer,
+    private premiumUpgradeService: PremiumUpgradePromptService,
   ) {
     this.accountService.activeAccount$
       .pipe(
@@ -111,7 +117,7 @@ export class OpenAttachmentsComponent implements OnInit {
   /** Routes the user to the attachments screen, if available */
   async openAttachments() {
     if (!this.canAccessAttachments) {
-      await this.router.navigate(["/premium"]);
+      await this.premiumUpgradeService.promptForPremium();
       return;
     }
 

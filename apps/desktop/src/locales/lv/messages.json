@@ -771,6 +771,9 @@
   "useSingleSignOn": {
     "message": "Izmantot vienoto pieteikšanos"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "Iesniegt"
   },
@@ -1222,6 +1225,15 @@
   "invalidMasterPassword": {
     "message": "Nederīga galvenā parole"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Nederīga galvenā parole. Jāpārliecinās, ka e-pasta adrese ir pareiza un konts tika izveidots $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Divpakāpju pieteikšanās padara kontu krietni drošāku, pieprasot apstiprināt pieteikšanos ar tādu citu ierīču vai pakalpojumu starpniecību kā drošības atslēga, autentificētāja lietotne, īsziņa, tālruņa zvans vai e-pasts. Divpakāpju pieteikšanos var iespējot bitwarden.com tīmekļa glabātavā. Vai tagad apmeklēt tīmekļvietni?"
   },
@@ -1369,7 +1381,7 @@
     "message": "Valoda"
   },
   "languageDesc": {
-    "message": "Mainīt lietotnes valodu. Ir nepieciešama pārsāknēšana."
+    "message": "Mainīt lietotnes valodu. Ir nepieciešama atkārtota palaišana."
   },
   "theme": {
     "message": "Izskats"
@@ -1405,7 +1417,7 @@
     "message": "Pārsāknēt, lai atjauninātu"
   },
   "restartToUpdateDesc": {
-    "message": "Versija $VERSION_NUM$ ir gatava uzstādīšanai. Ir jāpārsāknē lietotne, lai pabeigtu uzstādīšanu. Vai pārsāknēt un atjaunināt tagad?",
+    "message": "Versija $VERSION_NUM$ ir gatava uzstādīšanai. Lietotne ir jāpalaiž no jauna, lai pabeigtu uzstādīšanu. Vai palaist no jauna un atjaunināt tagad?",
     "placeholders": {
       "version_num": {
         "content": "$1",
@@ -1842,6 +1854,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Aizslēgt ar galveno paroli pēc pārsāknēšanas"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Pieprasīt galveno paroli vai PIN pēc lietotnes atkārtotas palaišanas"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Pieprasīt galveno paroli pēc lietotnes atkārtotas palaišanas"
   },
   "deleteAccount": {
     "message": "Izdzēst kontu"
@@ -2540,6 +2558,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Mazākā pieļaujamā pielāgotā noildze ir 1 minūte."
+  },
   "inviteAccepted": {
     "message": "Uzaicinājums apstiprināts"
   },
@@ -2651,6 +2672,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -4080,11 +4119,17 @@
   "showLess": {
     "message": "Rādīt mazāk"
   },
-  "enableAutotype": {
-    "message": "Iespējot automātisko ievadi"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden nepārbauda ievades atrašanās vietas, jāpārliecinās, ka atrodies pareizajā logā un laukā, pirms saīsnes izmantošanas."
+  },
+  "typeShortcut": {
+    "message": "Ievadīt īsinājumtaustiņus"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Jāiekļauj viens vai divi no šiem taustiņiem - Ctrl, Alt, Win vai Shift - un burts."
+  },
+  "invalidShortcut": {
+    "message": "Nederīgi īsinājumtaustiņi"
   },
   "moreBreadcrumbs": {
     "message": "Vairāk norāžu",
@@ -4099,13 +4144,51 @@
   "confirm": {
     "message": "Apstiprināt"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Iespējot automātiskās ievades saīsni"
+  "enableAutotypeShortcutPreview": {
+    "message": "Iespējot automātiskās ievades īsinājumtaustiņus (iespējas priekšskatījums)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Jāpārliecinās, ka pirms saīsnes izmantošanas kursors ir pareizajā laukā, lai izvairītos no datu ievadīšanas nepareizā vietā."
   },
   "editShortcut": {
     "message": "Labot saīsni"
+  },
+  "archiveNoun": {
+    "message": "Arhīvs",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Arhivēt",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Atcelt arhivēšanu"
+  },
+  "itemsInArchive": {
+    "message": "Vienumi arhīvā"
+  },
+  "noItemsInArchive": {
+    "message": "Arhīvā nav vienumu"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Šeit parādīsies arhivētie vienumi, un tie netiks iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos."
+  },
+  "itemWasSentToArchive": {
+    "message": "Vienums tika ievietots arhīvā"
+  },
+  "itemWasUnarchived": {
+    "message": "Vienums tika izņemts no arhīva"
+  },
+  "archiveItem": {
+    "message": "Arhivēt vienumu"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Arhivētie vienumi netiek iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos. Vai tiešām ahrivēt šo vienumu?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Pasta indekss"
+  },
+  "cardNumberLabel": {
+    "message": "Kartes numurs"
   }
 }

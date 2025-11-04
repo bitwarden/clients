@@ -1,7 +1,7 @@
 {
   "name": "@bitwarden/cli",
   "description": "A secure and free password manager for all of your devices.",
-  "version": "2025.9.0",
+  "version": "2025.11.0",
   "keywords": [
     "bitwarden",
     "password",
@@ -13,7 +13,7 @@
   "homepage": "https://bitwarden.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bitwarden/clients"
+    "url": "git+https://github.com/bitwarden/clients.git"
   },
   "license": "SEE LICENSE IN LICENSE.txt",
   "scripts": {

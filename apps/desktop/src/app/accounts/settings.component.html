@@ -83,6 +83,31 @@
               </div>
               <div
                 class="form-group"
+                *ngIf="
+                  supportsBiometric &&
+                  form.value.biometric &&
+                  isWindows &&
+                  (userHasMasterPassword || (form.value.pin && userHasPinSet)) &&
+                  isWindowsV2BiometricsEnabled
+                "
+              >
+                <div class="checkbox form-group-child">
+                  <label for="requireMasterPasswordOnAppRestart">
+                    <input
+                      id="requireMasterPasswordOnAppRestart"
+                      type="checkbox"
+                      formControlName="requireMasterPasswordOnAppRestart"
+                    />
+                    @if (pinEnabled$ | async) {
+                      {{ "requireMasterPasswordOrPinOnAppRestart" | i18n }}
+                    } @else {
+                      {{ "requireMasterPasswordOnAppRestart" | i18n }}
+                    }
+                  </label>
+                </div>
+              </div>
+              <div
+                class="form-group"
                 *ngIf="supportsBiometric && this.form.value.biometric && this.isMac"
               >
                 <div class="checkbox form-group-child">
@@ -340,15 +365,26 @@
                       (change)="saveEnableAutotype()"
                     />
                     <div class="tw-flex tw-items-center tw-gap-2">
-                      {{ "enableAutotypeTransitionKey" | i18n }}
+                      {{ "enableAutotypeShortcutPreview" | i18n }}
+                      <div>
+                        <code>{{ form.value.autotypeShortcut }}</code>
+                      </div>
                       <app-premium-badge></app-premium-badge>
                     </div>
                   </label>
                 </div>
                 <small class="help-block" *ngIf="form.value.enableAutotype">
                   <b>{{ "important" | i18n }}</b>
-                  {{ "enableAutotypeDescriptionTransitionKey" | i18n }}
-                  <b>{{ "editShortcut" | i18n }}</b></small
+                  {{ "enableAutotypeShortcutDescription" | i18n }}
+                  <a
+                    class="settings-link"
+                    tabindex="0"
+                    *ngIf="this.form.value.enableAutotype"
+                    (click)="saveAutotypeShortcut()"
+                    (keydown.enter)="saveAutotypeShortcut(); $event.preventDefault()"
+                  >
+                    {{ "editShortcut" | i18n }}
+                  </a></small
                 >
               </div>
               <div class="form-group">

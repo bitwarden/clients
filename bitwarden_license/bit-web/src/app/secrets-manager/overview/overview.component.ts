@@ -23,8 +23,6 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -77,6 +75,8 @@ type OrganizationTasks = {
   createServiceAccount: boolean;
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-overview",
   templateUrl: "./overview.component.html",
@@ -117,7 +117,6 @@ export class OverviewComponent implements OnInit, OnDestroy {
     private smOnboardingTasksService: SMOnboardingTasksService,
     private logService: LogService,
     private router: Router,
-    private configService: ConfigService,
   ) {}
 
   ngOnInit() {
@@ -218,13 +217,12 @@ export class OverviewComponent implements OnInit, OnDestroy {
   }
 
   async navigateToPaymentMethod() {
-    const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
-      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
+    await this.router.navigate(
+      ["organizations", `${this.organizationId}`, "billing", "payment-details"],
+      {
+        state: { launchPaymentModalAutomatically: true },
+      },
     );
-    const route = managePaymentDetailsOutsideCheckout ? "payment-details" : "payment-method";
-    await this.router.navigate(["organizations", `${this.organizationId}`, "billing", route], {
-      state: { launchPaymentModalAutomatically: true },
-    });
   }
 
   ngOnDestroy(): void {
