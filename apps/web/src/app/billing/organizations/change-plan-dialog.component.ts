@@ -570,6 +570,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
           plan.productTier === ProductTierType.TeamsStarter ||
           (this.selectedInterval === PlanInterval.Annually && plan.isAnnual) ||
           (this.selectedInterval === PlanInterval.Monthly && !plan.isAnnual)) &&
+        (plan.productTier !== ProductTierType.Families || plan.type === this._familyPlan) &&
         (!this.currentPlan || this.currentPlan.upgradeSortOrder < plan.upgradeSortOrder) &&
         this.planIsEnabled(plan),
     );

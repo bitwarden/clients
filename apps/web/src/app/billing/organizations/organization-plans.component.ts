@@ -405,6 +405,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
           plan.productTier === ProductTierType.TeamsStarter) &&
         (!this.currentPlan || this.currentPlan.upgradeSortOrder < plan.upgradeSortOrder) &&
         (!this.hasProvider || plan.productTier !== ProductTierType.TeamsStarter) &&
+        (plan.productTier !== ProductTierType.Families || plan.type === this._familyPlan) &&
         ((!this.isProviderQualifiedFor2020Plan() && this.planIsEnabled(plan)) ||
           (this.isProviderQualifiedFor2020Plan() &&
             Allowed2020PlansForLegacyProviders.includes(plan.type))),
@@ -421,6 +422,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       this.passwordManagerPlans?.filter(
         (plan) =>
           plan.productTier === selectedProductTierType &&
+          (plan.productTier !== ProductTierType.Families || plan.type === this._familyPlan) &&
           ((!this.isProviderQualifiedFor2020Plan() && this.planIsEnabled(plan)) ||
             (this.isProviderQualifiedFor2020Plan() &&
               Allowed2020PlansForLegacyProviders.includes(plan.type))),
