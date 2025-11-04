@@ -277,14 +277,10 @@ mod tests {
     #[test]
     #[serial]
     fn keyboard_shortcut_conversion_succeeds() {
-        let keyboard_shortcut = [
-            CONTROL_KEY_STR.to_string(),
-            SHIFT_KEY_STR.to_string(),
-            "B".to_string(),
-        ];
+        let keyboard_shortcut = [CONTROL_KEY_STR, SHIFT_KEY_STR, "B"];
         let _: Vec<KeyboardShortcutInput> = keyboard_shortcut
             .iter()
-            .map(|s| s.try_into())
+            .map(|s| KeyboardShortcutInput::try_from(*s))
             .try_collect()
             .unwrap();
     }
@@ -293,14 +289,10 @@ mod tests {
     #[serial]
     #[should_panic = "Letter is not ASCII Alphabetic ([a-z][A-Z]): '1'"]
     fn keyboard_shortcut_conversion_fails_invalid_key() {
-        let keyboard_shortcut = [
-            CONTROL_KEY_STR.to_string(),
-            SHIFT_KEY_STR.to_string(),
-            "1".to_string(),
-        ];
+        let keyboard_shortcut = [CONTROL_KEY_STR, SHIFT_KEY_STR, "1"];
         let _: Vec<KeyboardShortcutInput> = keyboard_shortcut
             .iter()
-            .map(|s| s.try_into())
+            .map(|s| KeyboardShortcutInput::try_from(*s))
             .try_collect()
             .unwrap();
     }

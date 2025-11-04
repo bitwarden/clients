@@ -30,6 +30,6 @@ pub fn get_foreground_window_title() -> Result<String> {
 /// This function returns an `anyhow::Error` if there is any
 /// issue in typing the input. Detailed reasons will
 /// vary based on platform implementation.
-pub fn type_input(input: &[u16], keyboard_shortcut: Vec<String>) -> Result<()> {
+pub fn type_input(input: &[u16], keyboard_shortcut: &[String]) -> Result<()> {
     windowing::type_input(input, keyboard_shortcut)
 }

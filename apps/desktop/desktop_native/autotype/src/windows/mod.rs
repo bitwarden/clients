@@ -16,7 +16,7 @@ const WIN32_SUCCESS: WIN32_ERROR = WIN32_ERROR(0);
 /// win32 errors.
 #[cfg_attr(test, mockall::automock)]
 trait ErrorOperations {
-    /// https://learn.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-setlasterror
+    /// <https://learn.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-setlasterror>
     fn set_last_error(err: u32) {
         debug!(err, "Calling SetLastError");
         unsafe {
@@ -24,7 +24,7 @@ trait ErrorOperations {
         }
     }
 
-    /// https://learn.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-getlasterror
+    /// <https://learn.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-getlasterror>
     fn get_last_error() -> WIN32_ERROR {
         let last_err = unsafe { GetLastError() };
         debug!("GetLastError(): {}", last_err.to_hresult().message());
@@ -48,7 +48,7 @@ pub fn get_foreground_window_title() -> Result<String> {
 ///     - \[a-z\]\[A-Z\]
 struct KeyboardShortcutInput(INPUT);
 
-pub fn type_input(input: &[u16], keyboard_shortcut: Vec<String>) -> Result<()> {
+pub fn type_input(input: &[u16], keyboard_shortcut: &[String]) -> Result<()> {
     debug!(?keyboard_shortcut, "Using keyboard shortcut.");
 
     // convert the raw string input to Windows input and error
