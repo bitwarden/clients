@@ -493,7 +493,6 @@ describe("LockComponent", () => {
     const mockMasterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
     const masterPasswordVerificationResponse: MasterPasswordVerificationResponse = {
       masterKey: mockMasterKey,
-      masterPassword: "test-password",
       email: "test-email@example.com",
       policyOptions: null,
     };
