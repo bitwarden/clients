@@ -11,9 +11,14 @@ export const premiumInterestRedirectGuard: CanActivateFn = async () => {
   const premiumInterestStateService = inject(PremiumInterestStateService);
 
   const currentAcct = await firstValueFrom(accountService.activeAccount$);
-  const userId = currentAcct.id;
 
-  const intendsToSetupPremium = await premiumInterestStateService.getPremiumInterest(userId);
+  if (!currentAcct) {
+    return router.createUrlTree(["/login"]);
+  }
+
+  const intendsToSetupPremium = await premiumInterestStateService.getPremiumInterest(
+    currentAcct.id,
+  );
 
   if (intendsToSetupPremium) {
     return router.createUrlTree(["/settings/subscription/premium"]);
