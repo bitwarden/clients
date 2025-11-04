@@ -7,6 +7,7 @@ import { mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
+import { LoginUriApi } from "../api/login-uri.api";
 import { LoginUriData } from "../data/login-uri.data";
 
 import { LoginUri } from "./login-uri";
@@ -31,6 +32,9 @@ describe("LoginUri", () => {
       uri: undefined,
       uriChecksum: undefined,
     });
+    expect(data.uri).toBeUndefined();
+    expect(data.uriChecksum).toBeUndefined();
+    expect(data.match).toBeUndefined();
   });
 
   it("Convert", () => {
@@ -59,6 +63,23 @@ describe("LoginUri", () => {
       _uri: "uri",
       match: 3,
     });
+  });
+
+  it("handle null match", () => {
+    const apiData = Object.assign(new LoginUriApi(), {
+      uri: "testUri",
+      uriChecksum: "testChecksum",
+      match: null,
+    });
+
+    const loginUriData = new LoginUriData(apiData);
+
+    // The data model stores it as-is (null or undefined)
+    expect(loginUriData.match).toBeNull();
+
+    // But the domain model converts null to undefined
+    const loginUri = new LoginUri(loginUriData);
+    expect(loginUri.match).toBeUndefined();
   });
 
   describe("validateChecksum", () => {
@@ -118,7 +139,7 @@ describe("LoginUri", () => {
   });
 
   describe("SDK Login Uri Mapping", () => {
-    it("should map to SDK login uri", () => {
+    it("maps to SDK login uri", () => {
       const loginUri = new LoginUri(data);
       const sdkLoginUri = loginUri.toSdkLoginUri();
 

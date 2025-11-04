@@ -20,12 +20,11 @@ serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
 tracing = { workspace = true }
-tracing-oslog = "0.3.0"
 tracing-subscriber = { workspace = true }
 uniffi = { workspace = true, features = ["cli"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-oslog = { workspace = true }
+tracing-oslog = "0.3.0"
 
 [build-dependencies]
 uniffi = { workspace = true, features = ["build"] }

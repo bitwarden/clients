@@ -155,7 +155,7 @@
     }
   },
   "newPasswordsAtRisk": {
-    "message": "$COUNT$ new passwords at-risk",
+    "message": "$COUNT$ mật khẩu mới có rủi ro",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -172,8 +172,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "Không tìm thấy ứng dụng nào trong $ORG NAME$",
+  "noApplicationsInOrgTitle": {
+    "message": "No applications found for $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -181,8 +181,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "Khi người dùng lưu thông tin đăng nhập, các ứng dụng sẽ hiển thị tại đây, bao gồm cả các mật khẩu có nguy cơ bị lộ. Đánh dấu các ứng dụng quan trọng và thông báo cho người dùng cập nhật mật khẩu."
+  "noApplicationsInOrgDescription": {
+    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  },
+  "benefit1Title": {
+    "message": "Prioritize risks"
+  },
+  "benefit1Description": {
+    "message": "Focus on applications that matter the most"
+  },
+  "benefit2Title": {
+    "message": "Guide remediation"
+  },
+  "benefit2Description": {
+    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  },
+  "benefit3Title": {
+    "message": "Monitor progress"
+  },
+  "benefit3Description": {
+    "message": "Track changes over time to show security improvements"
+  },
+  "noReportRunTitle": {
+    "message": "Run your first report to see applications"
+  },
+  "noReportRunDescription": {
+    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Bạn chưa đánh dấu ứng dụng nào là quan trọng"
@@ -327,6 +351,27 @@
   },
   "markAsCriticalPlaceholder": {
     "message": "Chức năng đánh dấu là quan trọng sẽ được triển khai trong bản cập nhật sau"
+  },
+  "applicationReviewSaved": {
+    "message": "Application review saved"
+  },
+  "applicationsMarkedAsCritical": {
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "newApplicationsReviewed": {
+    "message": "New applications reviewed"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Error saving review status"
+  },
+  "pleaseTryAgain": {
+    "message": "Please try again"
   },
   "unmarkAsCritical": {
     "message": "Bỏ đánh dấu là nghiêm trọng"
@@ -1313,6 +1358,9 @@
   },
   "useSingleSignOn": {
     "message": "Dùng đăng nhập một lần"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
   },
   "welcomeBack": {
     "message": "Chào mừng bạn trở lại"
@@ -4449,8 +4497,8 @@
   "inviteAccepted": {
     "message": "Đã chấp nhận lời mời"
   },
-  "inviteAcceptedDesc": {
-    "message": "Bạn có thể truy cập tổ chức này sau khi quản trị viên xác nhận tư cách thành viên của bạn. Chúng tôi sẽ gửi email cho bạn khi được xác nhận."
+  "invitationAcceptedDesc": {
+    "message": "Successfully accepted your invitation."
   },
   "inviteInitAcceptedDesc": {
     "message": "Bạn hiện có thể truy cập tổ chức này."
@@ -5714,63 +5762,63 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "availableNow": {
-    "message": "Available now"
+    "message": "Khả dụng bây giờ"
   },
   "autoConfirm": {
-    "message": "Automatic confirmation of new users"
+    "message": "Tự động xác nhận người dùng mới"
   },
   "autoConfirmDescription": {
-    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
+    "message": "Người dùng mới được mời vào tổ chức sẽ tự động được xác nhận khi thiết bị của quản trị viên đang mở khóa.",
     "description": "This is the description of the policy as it appears in the 'Policies' page"
   },
   "howToTurnOnAutoConfirm": {
-    "message": "How to turn on automatic user confirmation"
+    "message": "Cách bật xác nhận người dùng tự động"
   },
   "autoConfirmStep1": {
-    "message": "Open your Bitwarden extension."
+    "message": "Mở tiện ích mở rộng Bitwarden của bạn."
   },
   "autoConfirmStep2a": {
-    "message": "Select",
+    "message": "Chọn",
     "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
   },
   "autoConfirmStep2b": {
-    "message": " Turn on.",
+    "message": " Bật.",
     "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
   },
   "autoConfirmExtensionOpened": {
-    "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
+    "message": "Đã mở tiện ích mở rộng Bitwarden trong trình duyệt. Giờ bạn có thể bật tùy chọn xác nhận người dùng tự động."
   },
   "autoConfirmPolicyEditDescription": {
-    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "message": "Người dùng mới được mời vào tổ chức sẽ tự động được xác nhận khi thiết bị của quản trị viên đang mở khóa. Trước khi bật chính sách này, hãy đọc kỹ và đồng ý với các điều sau: ",
     "description": "This is the description of the policy as it appears inside the policy edit dialog"
   },
   "autoConfirmAcceptSecurityRiskTitle": {
-    "message": "Potential security risk. "
+    "message": "Nguy cơ bảo mật tiềm ẩn. "
   },
   "autoConfirmAcceptSecurityRiskDescription": {
-    "message": "Automatic user confirmation could pose a security risk to your organization’s data."
+    "message": "Tính năng xác nhận người dùng tự động có thể làm tăng rủi ro bảo mật cho dữ liệu của tổ chức bạn."
   },
   "autoConfirmAcceptSecurityRiskLearnMore": {
-    "message": "Learn about the risks",
+    "message": "Tìm hiểu về các rủi ro",
     "description": "The is the link copy for the first check box option in the edit policy dialog"
   },
   "autoConfirmSingleOrgRequired": {
-    "message": "Single organization policy required. "
+    "message": "Chính sách một tổ chức là bắt buộc. "
   },
   "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
+    "message": "Bất kỳ ai thuộc nhiều hơn một tổ chức sẽ bị thu hồi quyền truy cập cho đến khi họ rời khỏi các tổ chức khác."
   },
   "autoConfirmSingleOrgExemption": {
-    "message": "Single organization policy will extend to all roles. "
+    "message": "Chính sách một tổ chức sẽ áp dụng cho tất cả các vai trò. "
   },
   "autoConfirmNoEmergencyAccess": {
-    "message": "No emergency access. "
+    "message": "Không có quyền truy cập khẩn cấp. "
   },
   "autoConfirmNoEmergencyAccessDescription": {
-    "message": "Emergency Access will be removed."
+    "message": "Quyền truy cập khẩn cấp sẽ bị xóa."
   },
   "autoConfirmCheckBoxLabel": {
-    "message": "I accept these risks and policy updates"
+    "message": "Tôi chấp nhận những rủi ro và cập nhật chính sách này"
   },
   "personalOwnership": {
     "message": "Xóa kho lưu trữ riêng lẻ"
@@ -6492,23 +6540,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "Tổ chức của bạn đã cập nhật tùy chọn giải mã. Vui lòng đặt mật khẩu chính để truy cập vào kho lưu trữ của bạn."
   },
-  "maximumVaultTimeout": {
-    "message": "Thời gian chờ của kho"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Session timeout"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Đặt thời gian chờ tối đa cho kho dành cho các thành viên."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Set a maximum session timeout for all members except owners."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Thời gian chờ tối đa của kho"
+  "maximumAllowedTimeout": {
+    "message": "Maximum allowed timeout"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "Thời gian chờ tối đa của kho không hợp lệ."
+  "maximumAllowedTimeoutRequired": {
+    "message": "Maximum allowed timeout is required."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Time is invalid. Change at least one value."
+  },
+  "sessionTimeoutAction": {
+    "message": "Session timeout action"
+  },
+  "immediately": {
+    "message": "Immediately"
+  },
+  "onSystemLock": {
+    "message": "On system lock"
+  },
+  "onAppRestart": {
+    "message": "On app restart"
   },
   "hours": {
     "message": "Giờ"
   },
   "minutes": {
     "message": "Phút"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Are you certain you want to allow a maximum timeout of \"Never\" for all members?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "This option will save your members' encryption keys on their devices. If you choose this option, ensure that their devices are adequately protected."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Learn more about device protection"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "\"System lock\" will only apply to the browser and desktop app"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "The mobile and web app will use \"on app restart\" as their maximum allowed timeout, since the option is not supported."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Chính sách của tổ chức bạn đã đặt thời gian chờ tối đa của kho là $HOURS$ giờ và $MINUTES$ phút.",
@@ -11069,13 +11147,13 @@
     "message": "Đã xác nhận tên miền"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Đã thêm mục vào yêu thích"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Đã xóa mục khỏi yêu thích"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Sao chép ghi chú"
   },
   "organizationNameMaxLength": {
     "message": "Tên tổ chức không được vượt quá 50 ký tự."
@@ -11902,39 +11980,48 @@
     "message": "Chúng tôi gặp lỗi khi xử lý nâng cấp của bạn. Vui lòng thử lại."
   },
   "bitwardenFreeplanMessage": {
-    "message": "You have the Bitwarden Free plan"
+    "message": "Bạn đang sử dụng gói Bitwarden Miễn phí"
   },
   "upgradeCompleteSecurity": {
-    "message": "Upgrade for complete security"
+    "message": "Nâng cấp để tăng cường bảo mật toàn diện"
   },
   "viewbusinessplans": {
-    "message": "View business plans"
+    "message": "Xem các gói doanh nghiệp"
   },
   "updateEncryptionSettings": {
-    "message": "Update encryption settings"
+    "message": "Cập nhật cài đặt mã hóa"
   },
   "updateYourEncryptionSettings": {
-    "message": "Update your encryption settings"
+    "message": "Cập nhật cài đặt mã hóa của bạn"
   },
   "updateSettings": {
-    "message": "Update settings"
+    "message": "Cập nhật cài đặt"
   },
   "algorithm": {
-    "message": "Algorithm"
+    "message": "Thuật toán"
   },
   "encryptionKeySettingsHowShouldWeEncryptYourData": {
-    "message": "Choose how Bitwarden should encrypt your vault data. All options are secure, but stronger methods offer better protection - especially against brute-force attacks. Bitwarden recommends the default setting for most users."
+    "message": "Chọn cách Bitwarden mã hóa dữ liệu trong kho của bạn. Mọi tùy chọn đều an toàn, nhưng những phương pháp mạnh hơn sẽ giúp bảo vệ tốt hơn - đặc biệt là trước các cuộc tấn công brute-force. Bitwarden khuyến nghị giữ cài đặt mặc định cho hầu hết người dùng."
   },
   "encryptionKeySettingsIncreaseImproveSecurity": {
-    "message": "Increasing the values above the default will improve security, but your vault may take longer to unlock as a result."
+    "message": "Tăng các giá trị cao hơn mức mặc định sẽ giúp tăng cường bảo mật, nhưng đồng thời kho của bạn có thể mất nhiều thời gian hơn để mở khóa."
   },
   "encryptionKeySettingsAlgorithmPopoverTitle": {
-    "message": "About encryption algorithms"
+    "message": "Về các thuật toán mã hóa"
   },
   "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
-    "message": "PBKDF2-SHA256 is a well-tested encryption method that balances security and performance. Good for all users."
+    "message": "PBKDF2-SHA256 là phương pháp mã hóa đã được kiểm chứng, cân bằng tốt giữa tính bảo mật và hiệu suất. Phù hợp cho mọi người dùng."
   },
   "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
-    "message": "Argon2id offers stronger protection against modern attacks. Best for advanced users with powerful devices."
+    "message": "Argon2id mang đến khả năng bảo vệ mạnh hơn trước các hình thức tấn công hiện đại, phù hợp nhất cho người dùng nâng cao với thiết bị mạnh mẽ."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Số thẻ"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Start free Families trial"
   }
 }
