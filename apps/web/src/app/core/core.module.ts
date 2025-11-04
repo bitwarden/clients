@@ -14,6 +14,7 @@ import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
+import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   CLIENT_TYPE,
@@ -57,6 +58,7 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { NoopAuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/noop-auth-request-answering.service";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
@@ -96,6 +98,7 @@ import { NoopSdkLoadService } from "@bitwarden/common/platform/services/sdk/noop
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
+import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
 import {
   DefaultThemeStateService,
   ThemeStateService,
@@ -129,6 +132,7 @@ import {
   WebSetInitialPasswordService,
 } from "../auth";
 import { WebSsoComponentService } from "../auth/core/services/login/web-sso-component.service";
+import { WebPremiumInterestStateService } from "../billing/services/premium-interest/web-premium-interest-state.service";
 import { HtmlStorageService } from "../core/html-storage.service";
 import { I18nService } from "../core/i18n.service";
 import { WebFileDownloadService } from "../core/web-file-download.service";
@@ -410,7 +414,21 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: PremiumUpgradePromptService,
     useClass: WebVaultPremiumUpgradePromptService,
-    deps: [DialogService, Router],
+    deps: [
+      DialogService,
+      ConfigService,
+      AccountService,
+      ApiService,
+      SyncService,
+      BillingAccountProfileStateService,
+      PlatformUtilsService,
+      Router,
+    ],
+  }),
+  safeProvider({
+    provide: PremiumInterestStateService,
+    useClass: WebPremiumInterestStateService,
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: AuthRequestAnsweringService,

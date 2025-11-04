@@ -41,13 +41,11 @@ interprocess = "=2.2.1"
 keytar = "=0.1.6"
 libc = "=0.2.172"
 linux-keyutils = "=0.2.4"
-log = "=0.4.25"
 memsec = "=0.7.0"
 napi = "=2.16.17"
 napi-build = "=2.2.0"
 napi-derive = "=2.16.13"
 oo7 = "=0.4.3"
-oslog = "=0.2.0"
 pin-project = "=1.1.10"
 pkcs8 = "=0.10.2"
 rand = "=0.9.1"
@@ -60,7 +58,6 @@ security-framework-sys = "=2.15.0"
 serde = "=1.0.209"
 serde_json = "=1.0.127"
 sha2 = "=0.10.8"
-simplelog = "=0.12.2"
 ssh-encoding = "=0.2.0"
 ssh-key = { version = "=0.6.7", default-features = false }
 sysinfo = "=0.35.0"
@@ -86,10 +83,13 @@ zbus_polkit = "=5.0.0"
 zeroizing-alloc = "=0.1.0"
 
 [workspace.lints.clippy]
+disallowed-macros = "deny"
+
 # Dis-allow println and eprintln, which are typically used in debugging.
 # Use `tracing` and `tracing-subscriber` crates for observability needs.
 print_stderr = "deny"
 print_stdout = "deny"
+
 string_slice = "warn"
 unused_async = "deny"
 unwrap_used = "deny"

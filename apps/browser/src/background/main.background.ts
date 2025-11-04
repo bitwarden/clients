@@ -293,6 +293,7 @@ import { AutofillBadgeUpdaterService } from "../autofill/services/autofill-badge
 import AutofillService from "../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { SafariApp } from "../browser/safariApp";
+import { PhishingDataService } from "../dirt/phishing-detection/services/phishing-data.service";
 import { PhishingDetectionService } from "../dirt/phishing-detection/services/phishing-detection.service";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
@@ -490,6 +491,9 @@ export default class MainBackground {
 
   private popupViewCacheBackgroundService: PopupViewCacheBackgroundService;
   private popupRouterCacheBackgroundService: PopupRouterCacheBackgroundService;
+
+  // DIRT
+  private phishingDataService: PhishingDataService;
 
   constructor() {
     // Services
@@ -1451,15 +1455,20 @@ export default class MainBackground {
 
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
 
+    this.phishingDataService = new PhishingDataService(
+      this.apiService,
+      this.taskSchedulerService,
+      this.globalStateProvider,
+      this.logService,
+      this.platformUtilsService,
+    );
+
     PhishingDetectionService.initialize(
       this.accountService,
-      this.auditService,
       this.billingAccountProfileStateService,
       this.configService,
-      this.eventCollectionService,
       this.logService,
-      this.storageService,
-      this.taskSchedulerService,
+      this.phishingDataService,
     );
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
