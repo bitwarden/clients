@@ -440,11 +440,11 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     this.authenticationTimeoutSubject.next(false);
     await this.clearSessionTimeout();
 
-    // Clear prelogin cache
+    // Increment to invalidate any in-flight requests
+    this.passwordPrelogin.version++;
     this.passwordPrelogin.email = null;
     this.passwordPrelogin.kdfConfig = null;
     this.passwordPrelogin.promise = null;
-    this.passwordPrelogin.version = 0;
   }
 
   private async startSessionTimeout(): Promise<void> {
