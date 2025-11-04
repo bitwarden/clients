@@ -342,9 +342,14 @@ jobs:
       - name: Set up Snap
         run: sudo snap install snapcraft --classic
 
+      - name: Check LXD Version
+        run: lxd --version || true
+
       - name: Install LXD
         run: |
           sudo snap install lxd
+          getent group lxd | grep -qwF "$USER" || sudo usermod -aG lxd "$USER"
+          newgrp lxd
 
       - name: Print environment
         run: |
