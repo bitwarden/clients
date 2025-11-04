@@ -21,7 +21,7 @@
         bitInput
         appAutofocus
         (input)="onEmailInput($event)"
-        (keyup.enter)="continuePressed()"
+        (keyup.enter)="ssoRequired ? handleSsoClick() : continuePressed()"
       />
     </bit-form-field>
 
