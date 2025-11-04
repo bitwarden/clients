@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
@@ -17,18 +15,18 @@ import { SecureNoteData } from "./secure-note.data";
 import { SshKeyData } from "./ssh-key.data";
 
 export class CipherData {
-  id: string;
-  organizationId: string;
-  folderId: string;
-  edit: boolean;
-  viewPassword: boolean;
-  permissions: CipherPermissionsApi;
-  organizationUseTotp: boolean;
-  favorite: boolean;
+  id: string = "";
+  organizationId?: string;
+  folderId?: string;
+  edit: boolean = false;
+  viewPassword: boolean = true;
+  permissions?: CipherPermissionsApi;
+  organizationUseTotp: boolean = false;
+  favorite: boolean = false;
   revisionDate: string;
-  type: CipherType;
-  name: string;
-  notes: string;
+  type: CipherType = CipherType.Login;
+  name: string = "";
+  notes?: string;
   login?: LoginData;
   secureNote?: SecureNoteData;
   card?: CardData;
@@ -39,13 +37,14 @@ export class CipherData {
   passwordHistory?: PasswordHistoryData[];
   collectionIds?: string[];
   creationDate: string;
-  deletedDate: string | undefined;
-  archivedDate: string | undefined;
-  reprompt: CipherRepromptType;
-  key: string;
+  deletedDate?: string;
+  archivedDate?: string;
+  reprompt: CipherRepromptType = CipherRepromptType.None;
+  key?: string;
 
   constructor(response?: CipherResponse, collectionIds?: string[]) {
     if (response == null) {
+      this.creationDate = this.revisionDate = new Date().toISOString();
       return;
     }
 
@@ -101,7 +100,9 @@ export class CipherData {
 
   static fromJSON(obj: Jsonify<CipherData>) {
     const result = Object.assign(new CipherData(), obj);
-    result.permissions = CipherPermissionsApi.fromJSON(obj.permissions);
+    if (obj.permissions != null) {
+      result.permissions = CipherPermissionsApi.fromJSON(obj.permissions);
+    }
     return result;
   }
 }
