@@ -320,7 +320,6 @@ jobs:
       # Snapcraft environment variables to bypass LXD requirement on ARM64
       SNAPCRAFT_BUILD_ENVIRONMENT: host
       USE_SYSTEM_FPM: true
-      SNAPCRAFT_DESTRUCTIVE_MODE: 1
     defaults:
       run:
         working-directory: apps/desktop
@@ -345,6 +344,9 @@ jobs:
 
       - name: Set up Snap
         run: sudo snap install snapcraft --classic
+
+      - name: Install gtk-common-themes
+        run: sudo snap install gtk-common-themes || echo "gtk-common-themes installation failed, continuing anyway"
 
       - name: Print environment
         run: |
