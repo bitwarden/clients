@@ -285,13 +285,11 @@ export class LockComponent implements OnInit, OnDestroy {
     const canUsePin =
       (await this.pinService.isPinSet(activeAccount.id)) &&
       (await this.pinService.isPinDecryptionAvailable(activeAccount.id));
-    const canUseBiometrics =
-      (await this.biometricService.getBiometricsStatusForUser(activeAccount.id)) in
-      [
-        BiometricsStatus.Available,
-        BiometricsStatus.HardwareUnavailable,
-        BiometricsStatus.NotEnabledInConnectedDesktopApp,
-      ];
+    const canUseBiometrics = [
+      BiometricsStatus.Available,
+      BiometricsStatus.HardwareUnavailable,
+      BiometricsStatus.NotEnabledInConnectedDesktopApp,
+    ].includes(await this.biometricService.getBiometricsStatusForUser(activeAccount.id));
     if (!canUsePassword && !canUsePin && !canUseBiometrics) {
       // User has no available unlock options, force logout. This happens for TDE users without a masterpassword, that don't have a persistent unlock method set.
       this.logService.warning("[LockComponent] User cannot unlock again. Logging out!");
@@ -337,13 +335,11 @@ export class LockComponent implements OnInit, OnDestroy {
       // If biometrics is temporarily unavailable for masterpassword-less users, but they have biometrics configured,
       // then show the biometrics screen so the user knows why they can't unlock, and to give them the option to log out.
     } else if (
-      biometricsStatus != null &&
-      biometricsStatus in
-        [
-          BiometricsStatus.HardwareUnavailable,
-          BiometricsStatus.DesktopDisconnected,
-          BiometricsStatus.NotEnabledInConnectedDesktopApp,
-        ]
+      [
+        BiometricsStatus.HardwareUnavailable,
+        BiometricsStatus.DesktopDisconnected,
+        BiometricsStatus.NotEnabledInConnectedDesktopApp,
+      ].includes(biometricsStatus)
     ) {
       this.activeUnlockOption = UnlockOption.Biometrics;
     }
