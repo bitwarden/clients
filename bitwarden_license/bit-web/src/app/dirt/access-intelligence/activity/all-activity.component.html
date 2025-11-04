@@ -56,7 +56,7 @@
             : ('newApplicationsDescription' | i18n)
         "
         [iconClass]="isAllCaughtUp ? 'bwi-check-circle' : 'bwi-exclamation-triangle'"
-        [iconColorClass]="isAllCaughtUp ? 'tw-text-success' : 'tw-text-muted'"
+        [iconColorClass]="isAllCaughtUp ? 'tw-text-success' : 'tw-text-warning'"
         [buttonText]="isAllCaughtUp ? '' : ('reviewNow' | i18n)"
         [buttonType]="'primary'"
         (buttonClick)="onReviewNewApplications()"

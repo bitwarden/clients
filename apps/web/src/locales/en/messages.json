@@ -347,7 +347,7 @@
     "message": "Total applications"
   },
   "applicationsNeedingReview": {
-    "message": "Applications needing review"
+    "message": "Review new applications"
   },
   "newApplicationsWithCount": {
     "message": "$COUNT$ new applications",
