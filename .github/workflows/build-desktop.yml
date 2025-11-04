@@ -311,7 +311,7 @@ jobs:
     # The snap base for desktop is defined in `apps/desktop/electron-builder.json`
     # We intentionally keep this runner on the oldest supported OS in GitHub Actions
     # for maximum compatibility across GLIBC versions
-    runs-on: ubuntu-22.04-arm
+    runs-on: ubuntu-24.04-arm
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -350,7 +350,7 @@ jobs:
           sudo snap install lxd
           getent group lxd | grep -qwF "$USER" || sudo usermod -aG lxd "$USER"
           newgrp lxd
-          groups
+          groups $USER
 
       - name: Print environment
         run: |
