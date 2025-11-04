@@ -1564,6 +1564,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   private async openAutoConfirmFeatureDialog(organization: Organization) {
+    if (this.autoConfirmDialogRef) {
+      return;
+    }
+
     this.autoConfirmDialogRef = AutoConfirmPolicyDialogComponent.open(this.dialogService, {
       data: {
         policy: new AutoConfirmPolicy(),
@@ -1600,7 +1604,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     zip([organization$, featureFlag$, autoConfirmState$, policyEnabled$, this.userId$])
       .pipe(
-        map(async ([organization, flagEnabled, autoConfirmState, policyEnabled, userId]) => {
+        first(),
+        switchMap(async ([organization, flagEnabled, autoConfirmState, policyEnabled, userId]) => {
           const showDialog =
             flagEnabled &&
             !policyEnabled &&
