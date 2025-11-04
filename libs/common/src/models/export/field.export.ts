@@ -24,24 +24,24 @@ export class FieldExport {
 
   static toDomain(req: FieldExport, domain = new FieldDomain()) {
     domain.type = req.type;
-    domain.value = req.value != null ? new EncString(req.value) : null;
-    domain.name = req.name != null ? new EncString(req.name) : null;
+    domain.value = new EncString(req.value ?? "");
+    domain.name = new EncString(req.name ?? "");
     domain.linkedId = req.linkedId;
     return domain;
   }
 
-  name: string;
-  value: string;
-  type: FieldType;
-  linkedId: LinkedIdType;
+  name: string = "";
+  value: string = "";
+  type: FieldType = FieldType.Text;
+  linkedId?: LinkedIdType;
 
   constructor(o?: FieldView | FieldDomain) {
     if (o == null) {
       return;
     }
 
-    this.name = safeGetString(o.name);
-    this.value = safeGetString(o.value);
+    this.name = safeGetString(o.name ?? "") ?? "";
+    this.value = safeGetString(o.value ?? "") ?? "";
     this.type = o.type;
     this.linkedId = o.linkedId;
   }

@@ -1,12 +1,10 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Folder as FolderDomain } from "../../vault/models/domain/folder";
 import { FolderView } from "../../vault/models/view/folder.view";
 
 import { FolderExport } from "./folder.export";
 
 export class FolderWithIdExport extends FolderExport {
-  id: string;
+  id: string = "";
 
   static toView(req: FolderWithIdExport, view = new FolderView()) {
     view.id = req.id;

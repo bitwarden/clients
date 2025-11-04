@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { EncString } from "../../key-management/crypto/models/enc-string";
 import { Login as LoginDomain } from "../../vault/models/domain/login";
 import { LoginView } from "../../vault/models/view/login.view";
@@ -36,19 +34,19 @@ export class LoginExport {
     if (req.uris != null) {
       domain.uris = req.uris.map((u) => LoginUriExport.toDomain(u));
     }
-    domain.username = req.username != null ? new EncString(req.username) : null;
-    domain.password = req.password != null ? new EncString(req.password) : null;
-    domain.totp = req.totp != null ? new EncString(req.totp) : null;
+    domain.username = new EncString(req.username ?? "");
+    domain.password = new EncString(req.password ?? "");
+    domain.totp = new EncString(req.totp ?? "");
     // Fido2credentials are currently not supported for exports.
 
     return domain;
   }
 
-  uris: LoginUriExport[];
-  username: string;
-  password: string;
-  totp: string;
-  fido2Credentials: Fido2CredentialExport[];
+  uris: LoginUriExport[] = [];
+  username: string = "";
+  password: string = "";
+  totp: string = "";
+  fido2Credentials: Fido2CredentialExport[] = [];
 
   constructor(o?: LoginView | LoginDomain) {
     if (o == null) {
@@ -63,8 +61,8 @@ export class LoginExport {
       this.fido2Credentials = o.fido2Credentials.map((key) => new Fido2CredentialExport(key));
     }
 
-    this.username = safeGetString(o.username);
-    this.password = safeGetString(o.password);
-    this.totp = safeGetString(o.totp);
+    this.username = safeGetString(o.username ?? "") ?? "";
+    this.password = safeGetString(o.password ?? "") ?? "";
+    this.totp = safeGetString(o.totp ?? "") ?? "";
   }
 }

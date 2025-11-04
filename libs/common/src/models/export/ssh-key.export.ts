@@ -1,6 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-
 import { EncString } from "../../key-management/crypto/models/enc-string";
 import { SshKey as SshKeyDomain } from "../../vault/models/domain/ssh-key";
 import { SshKeyView as SshKeyView } from "../../vault/models/view/ssh-key.view";
@@ -30,17 +27,17 @@ export class SshKeyExport {
     return domain;
   }
 
-  privateKey: string;
-  publicKey: string;
-  keyFingerprint: string;
+  privateKey: string = "";
+  publicKey: string = "";
+  keyFingerprint: string = "";
 
   constructor(o?: SshKeyView | SshKeyDomain) {
     if (o == null) {
       return;
     }
 
-    this.privateKey = safeGetString(o.privateKey);
-    this.publicKey = safeGetString(o.publicKey);
-    this.keyFingerprint = safeGetString(o.keyFingerprint);
+    this.privateKey = safeGetString(o.privateKey ?? "") ?? "";
+    this.publicKey = safeGetString(o.publicKey ?? "") ?? "";
+    this.keyFingerprint = safeGetString(o.keyFingerprint ?? "") ?? "";
   }
 }
