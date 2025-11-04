@@ -953,6 +953,7 @@ pub mod logging {
     use std::fmt::Write;
     use std::sync::OnceLock;
 
+    use napi::bindgen_prelude::FnArgs;
     use napi::threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode};
     use tracing::Level;
     use tracing_subscriber::fmt::format::{DefaultVisitor, Writer};
@@ -963,7 +964,7 @@ pub mod logging {
         Layer,
     };
 
-    struct JsLogger(OnceLock<ThreadsafeFunction<(LogLevel, String)>>);
+    struct JsLogger(OnceLock<ThreadsafeFunction<FnArgs<(LogLevel, String)>>>);
     static JS_LOGGER: JsLogger = JsLogger(OnceLock::new());
 
     #[napi]
@@ -1035,13 +1036,13 @@ pub mod logging {
             let msg = (event.metadata().level().into(), buffer);
 
             if let Some(logger) = JS_LOGGER.0.get() {
-                let _ = logger.call(Ok(msg), ThreadsafeFunctionCallMode::NonBlocking);
+                let _ = logger.call(Ok(msg.into()), ThreadsafeFunctionCallMode::NonBlocking);
             };
         }
     }
 
     #[napi]
-    pub fn init_napi_log(js_log_fn: ThreadsafeFunction<(LogLevel, String)>) {
+    pub fn init_napi_log(js_log_fn: ThreadsafeFunction<FnArgs<(LogLevel, String)>>) {
         let _ = JS_LOGGER.0.set(js_log_fn);
 
         let filter = EnvFilter::builder()
