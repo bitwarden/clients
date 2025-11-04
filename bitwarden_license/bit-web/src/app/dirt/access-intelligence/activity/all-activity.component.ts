@@ -41,12 +41,15 @@ export class AllActivityComponent implements OnInit {
   totalCriticalAppsAtRiskMemberCount = 0;
   totalCriticalAppsCount = 0;
   totalCriticalAppsAtRiskCount = 0;
+  totalApplicationCount = 0;
   newApplicationsCount = 0;
   newApplications: ApplicationHealthReportDetail[] = [];
   passwordChangeMetricHasProgressBar = false;
   allAppsHaveReviewDate = false;
+  noAppsHaveReviewDate = false;
   isAllCaughtUp = false;
   hasLoadedApplicationData = false;
+  showNeedsReviewState = false;
 
   destroyRef = inject(DestroyRef);
 
@@ -77,6 +80,8 @@ export class AllActivityComponent implements OnInit {
           this.totalCriticalAppsAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
           this.totalCriticalAppsCount = summary.totalCriticalApplicationCount;
           this.totalCriticalAppsAtRiskCount = summary.totalCriticalAtRiskApplicationCount;
+          this.totalApplicationCount = summary.totalApplicationCount;
+          this.updateShowNeedsReviewState();
         });
 
       this.dataService.newApplications$
@@ -102,11 +107,17 @@ export class AllActivityComponent implements OnInit {
             this.allAppsHaveReviewDate = enrichedData.applicationData.every(
               (app) => app.reviewedDate !== null && app.reviewedDate !== undefined,
             );
+            // Check if NO apps have a review date (all are null or undefined)
+            this.noAppsHaveReviewDate = enrichedData.applicationData.every(
+              (app) => app.reviewedDate === null || app.reviewedDate === undefined,
+            );
           } else {
             this.hasLoadedApplicationData = enrichedData !== null;
             this.allAppsHaveReviewDate = false;
+            this.noAppsHaveReviewDate = false;
           }
           this.updateIsAllCaughtUp();
+          this.updateShowNeedsReviewState();
         });
     }
   }
@@ -123,6 +134,18 @@ export class AllActivityComponent implements OnInit {
       this.hasLoadedApplicationData &&
       this.newApplicationsCount === 0 &&
       this.allAppsHaveReviewDate;
+  }
+
+  /**
+   * Updates the showNeedsReviewState flag based on current state.
+   * This state is shown when:
+   * - Data has been loaded
+   * - There are applications (totalApplicationCount > 0)
+   * - ALL apps do NOT have a review date (noAppsHaveReviewDate is true)
+   */
+  private updateShowNeedsReviewState(): void {
+    this.showNeedsReviewState =
+      this.hasLoadedApplicationData && this.totalApplicationCount > 0 && this.noAppsHaveReviewDate;
   }
 
   /**

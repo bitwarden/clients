@@ -42,22 +42,38 @@
       </dirt-activity-card>
     </li>
 
-    <li class="tw-col-span-1">
+    <li class="tw-col-span-1" [ngClass]="{ 'tw-col-span-2': showNeedsReviewState }">
       <dirt-activity-card
         [title]="'applicationsNeedingReview' | i18n"
         [cardMetrics]="
           isAllCaughtUp
             ? ('allCaughtUp' | i18n)
-            : ('newApplicationsWithCount' | i18n: newApplicationsCount)
+            : showNeedsReviewState
+              ? ('organizationHasItemsSavedForApplications' | i18n: totalApplicationCount)
+              : ('newApplicationsWithCount' | i18n: newApplicationsCount)
         "
         [metricDescription]="
           isAllCaughtUp
             ? ('noNewApplicationsToReviewAtThisTime' | i18n)
-            : ('newApplicationsDescription' | i18n)
+            : showNeedsReviewState
+              ? ('reviewApplicationsToSecureItems' | i18n)
+              : ('newApplicationsDescription' | i18n)
         "
         [iconClass]="isAllCaughtUp ? 'bwi-check-circle' : 'bwi-exclamation-triangle'"
-        [iconColorClass]="isAllCaughtUp ? 'tw-text-success' : 'tw-text-muted'"
-        [buttonText]="isAllCaughtUp ? '' : ('reviewNow' | i18n)"
+        [iconColorClass]="
+          isAllCaughtUp
+            ? 'tw-text-success'
+            : showNeedsReviewState
+              ? 'tw-text-warning'
+              : 'tw-text-muted'
+        "
+        [buttonText]="
+          isAllCaughtUp
+            ? ''
+            : showNeedsReviewState
+              ? ('reviewApplications' | i18n)
+              : ('reviewNow' | i18n)
+        "
         [buttonType]="'primary'"
         (buttonClick)="onReviewNewApplications()"
       >
