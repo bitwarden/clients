@@ -311,12 +311,16 @@ jobs:
     # The snap base for desktop is defined in `apps/desktop/electron-builder.json`
     # We intentionally keep this runner on the oldest supported OS in GitHub Actions
     # for maximum compatibility across GLIBC versions
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-22.04-arm
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       NODE_OPTIONS: --max_old_space_size=4096
+      # Snapcraft environment variables to bypass LXD requirement on ARM64
+      SNAPCRAFT_BUILD_ENVIRONMENT: host
+      USE_SYSTEM_FPM: true
+      SNAPCRAFT_DESTRUCTIVE_MODE: 1
     defaults:
       run:
         working-directory: apps/desktop
@@ -337,19 +341,10 @@ jobs:
       - name: Set up environment
         run: |
           sudo apt-get update
-          sudo apt-get -y install pkg-config libxss-dev rpm musl-dev musl-tools flatpak flatpak-builder
+          sudo apt-get -y install pkg-config libxss-dev rpm musl-dev musl-tools flatpak flatpak-builder squashfs-tools
 
       - name: Set up Snap
         run: sudo snap install snapcraft --classic
-
-      - name: Check LXD Version
-        run: lxd --version || true
-
-      - name: Setup LXD
-        uses: canonical/setup-lxd@a3c85fc6fb7fff43fcfeae87659e41a8f635b7dd # v0.1.3
-        with:
-          channel: latest/stable
-          group: lxd
 
       - name: Print environment
         run: |
