@@ -3,28 +3,28 @@ import { RotateableKeySet } from "../../models/rotateable-key-set";
 
 export abstract class RotateableKeySetService {
   /**
-   * Create a new rotatable key set for the provided rotateableKey, using the provided external key.
+   * Create a new rotatable key set for the provided downstreamKey, using the provided upstream key.
    * For more information on rotatable key sets, see {@link RotateableKeySet}
-   * @param rotateableKey The symmetric key to be contained within the `RotateableKeySet`.
-   * @param externalKey The `ExternalKey` used to encrypt {@link RotateableKeySet.encryptedPrivateKey}
-   * @returns RotateableKeySet containing the provided symmetric rotateableKey.
+   * @param upstreamKey The `UpstreamKey` used to encrypt {@link RotateableKeySet.encryptedPrivateKey}
+   * @param downstreamKey The symmetric key to be contained within the `RotateableKeySet`.
+   * @returns RotateableKeySet containing the provided symmetric downstreamKey.
    */
-  abstract createKeySet<ExternalKey extends SymmetricCryptoKey>(
-    rotateableKey: SymmetricCryptoKey,
-    externalKey: ExternalKey,
-  ): Promise<RotateableKeySet<ExternalKey>>;
+  abstract createKeySet<UpstreamKey extends SymmetricCryptoKey>(
+    upstreamKey: UpstreamKey,
+    downstreamKey: SymmetricCryptoKey,
+  ): Promise<RotateableKeySet<UpstreamKey>>;
 
   /**
    * Rotates the provided `RotateableKeySet` with the new key.
    *
    * @param keySet The current `RotateableKeySet` to be rotated.
-   * @param oldRotateableKey The current rotateableKey used to decrypt the `PublicKey`.
-   * @param newRotateableKey The new rotateableKey to encrypt the `PublicKey`.
-   * @returns The updated `RotateableKeySet` that contains the new rotateableKey.
+   * @param oldDownstreamKey The current downstreamKey used to decrypt the `PublicKey`.
+   * @param newDownstreamKey The new downstreamKey to encrypt the `PublicKey`.
+   * @returns The updated `RotateableKeySet` that contains the new downstreamKey.
    */
-  abstract rotateKeySet<ExternalKey extends SymmetricCryptoKey>(
-    keySet: RotateableKeySet<ExternalKey>,
-    oldRotateableKey: SymmetricCryptoKey,
-    newRotateableKey: SymmetricCryptoKey,
-  ): Promise<RotateableKeySet<ExternalKey>>;
+  abstract rotateKeySet<UpstreamKey extends SymmetricCryptoKey>(
+    keySet: RotateableKeySet<UpstreamKey>,
+    oldDownstreamKey: SymmetricCryptoKey,
+    newDownstreamKey: SymmetricCryptoKey,
+  ): Promise<RotateableKeySet<UpstreamKey>>;
 }

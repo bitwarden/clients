@@ -180,7 +180,7 @@ export class WebauthnLoginAdminService
       const symmetricPrfKey =
         await this.webAuthnLoginPrfKeyService.createSymmetricKeyFromPrf(prfResult);
       const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-      return await this.rotateableKeySetService.createKeySet(userKey, symmetricPrfKey);
+      return await this.rotateableKeySetService.createKeySet(symmetricPrfKey, userKey);
     } catch (error) {
       this.logService?.error(error);
       return undefined;
@@ -204,7 +204,7 @@ export class WebauthnLoginAdminService
     request.token = credential.createOptions.token;
     request.name = name;
     request.supportsPrf = credential.supportsPrf;
-    request.encryptedUserKey = prfKeySet?.encryptedRotateableKey.encryptedString;
+    request.encryptedUserKey = prfKeySet?.encapsulatedDownstreamKey.encryptedString;
     request.encryptedPublicKey = prfKeySet?.encryptedPublicKey.encryptedString;
     request.encryptedPrivateKey = prfKeySet?.encryptedPrivateKey.encryptedString;
     await this.apiService.saveCredential(request);
@@ -235,14 +235,14 @@ export class WebauthnLoginAdminService
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
     const prfKeySet: PrfKeySet = await this.rotateableKeySetService.createKeySet(
-      userKey,
       assertionOptions.prfKey,
+      userKey,
     );
 
     const request = new EnableCredentialEncryptionRequest();
     request.token = assertionOptions.token;
     request.deviceResponse = assertionOptions.deviceResponse;
-    request.encryptedUserKey = prfKeySet.encryptedRotateableKey.encryptedString;
+    request.encryptedUserKey = prfKeySet.encapsulatedDownstreamKey.encryptedString;
     request.encryptedPublicKey = prfKeySet.encryptedPublicKey.encryptedString;
     request.encryptedPrivateKey = prfKeySet.encryptedPrivateKey.encryptedString;
     await this.apiService.updateCredential(request);
@@ -339,7 +339,7 @@ export class WebauthnLoginAdminService
           const request = new WebauthnRotateCredentialRequest(
             response.id,
             rotatedKeyset.encryptedPublicKey,
-            rotatedKeyset.encryptedRotateableKey,
+            rotatedKeyset.encapsulatedDownstreamKey,
           );
           return request;
         }),

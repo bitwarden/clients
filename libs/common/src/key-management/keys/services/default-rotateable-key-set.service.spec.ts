@@ -25,21 +25,21 @@ describe("DefaultRotateableKeySetService", () => {
 
   describe("createKeySet", () => {
     test.each([null, undefined])(
-      "throws error when rotateableKey parameter is %s",
-      async (rotateableKey) => {
+      "throws error when downstreamKey parameter is %s",
+      async (downstreamKey) => {
         const externalKey = createSymmetricKey();
-        await expect(service.createKeySet(rotateableKey as any, externalKey)).rejects.toThrow(
-          "failed to create key set: rotateableKey is required",
+        await expect(service.createKeySet(externalKey, downstreamKey as any)).rejects.toThrow(
+          "failed to create key set: downstreamKey is required",
         );
       },
     );
 
     test.each([null, undefined])(
-      "throws error when externalKey parameter is %s",
-      async (externalKey) => {
+      "throws error when upstreamKey parameter is %s",
+      async (upstreamKey) => {
         const userKey = createSymmetricKey();
-        await expect(service.createKeySet(userKey, externalKey as any)).rejects.toThrow(
-          "failed to create key set: externalKey is required",
+        await expect(service.createKeySet(upstreamKey as any, userKey)).rejects.toThrow(
+          "failed to create key set: upstreamKey is required",
         );
       },
     );
@@ -54,7 +54,7 @@ describe("DefaultRotateableKeySetService", () => {
       encryptService.encapsulateKeyUnsigned.mockResolvedValue(encryptedUserKey);
       encryptService.wrapEncapsulationKey.mockResolvedValue(encryptedPublicKey);
 
-      const result = await service.createKeySet(userKey, externalKey);
+      const result = await service.createKeySet(externalKey, userKey);
 
       expect(result).toEqual(
         new RotateableKeySet(encryptedUserKey, encryptedPublicKey, encryptedPrivateKey),
@@ -80,64 +80,64 @@ describe("DefaultRotateableKeySetService", () => {
     const dataValidationTests = [
       {
         keySet: null as any as RotateableKeySet,
-        oldRotateableKey: createSymmetricKey(),
-        newRotateableKey: createSymmetricKey(),
+        oldDownstreamKey: createSymmetricKey(),
+        newDownstreamKey: createSymmetricKey(),
         expectedError: "failed to rotate key set: keySet is required",
       },
       {
         keySet: undefined as any as RotateableKeySet,
-        oldRotateableKey: createSymmetricKey(),
-        newRotateableKey: createSymmetricKey(),
+        oldDownstreamKey: createSymmetricKey(),
+        newDownstreamKey: createSymmetricKey(),
         expectedError: "failed to rotate key set: keySet is required",
       },
       {
         keySet: keySet,
-        oldRotateableKey: null,
-        newRotateableKey: createSymmetricKey(),
-        expectedError: "failed to rotate key set: oldRotateableKey is required",
+        oldDownstreamKey: null,
+        newDownstreamKey: createSymmetricKey(),
+        expectedError: "failed to rotate key set: oldDownstreamKey is required",
       },
       {
         keySet: keySet,
-        oldRotateableKey: undefined,
-        newRotateableKey: createSymmetricKey(),
-        expectedError: "failed to rotate key set: oldRotateableKey is required",
+        oldDownstreamKey: undefined,
+        newDownstreamKey: createSymmetricKey(),
+        expectedError: "failed to rotate key set: oldDownstreamKey is required",
       },
       {
         keySet: keySet,
-        oldRotateableKey: createSymmetricKey(),
-        newRotateableKey: null,
-        expectedError: "failed to rotate key set: newRotateableKey is required",
+        oldDownstreamKey: createSymmetricKey(),
+        newDownstreamKey: null,
+        expectedError: "failed to rotate key set: newDownstreamKey is required",
       },
       {
         keySet: keySet,
-        oldRotateableKey: createSymmetricKey(),
-        newRotateableKey: undefined,
-        expectedError: "failed to rotate key set: newRotateableKey is required",
+        oldDownstreamKey: createSymmetricKey(),
+        newDownstreamKey: undefined,
+        expectedError: "failed to rotate key set: newDownstreamKey is required",
       },
     ];
 
     test.each(dataValidationTests)(
       "should throw error when required parameter is missing",
-      async ({ keySet, oldRotateableKey, newRotateableKey, expectedError }) => {
+      async ({ keySet, oldDownstreamKey, newDownstreamKey, expectedError }) => {
         await expect(
-          service.rotateKeySet(keySet, oldRotateableKey as any, newRotateableKey as any),
+          service.rotateKeySet(keySet, oldDownstreamKey as any, newDownstreamKey as any),
         ).rejects.toThrow(expectedError);
       },
     );
 
     it("throws an error if the public key cannot be decrypted", async () => {
-      const oldRotateableKey = createSymmetricKey();
-      const newRotateableKey = createSymmetricKey();
+      const oldDownstreamKey = createSymmetricKey();
+      const newDownstreamKey = createSymmetricKey();
 
       encryptService.unwrapEncapsulationKey.mockResolvedValue(null as any);
 
       await expect(
-        service.rotateKeySet(keySet, oldRotateableKey, newRotateableKey),
+        service.rotateKeySet(keySet, oldDownstreamKey, newDownstreamKey),
       ).rejects.toThrow("failed to rotate key set: could not decrypt public key");
 
       expect(encryptService.unwrapEncapsulationKey).toHaveBeenCalledWith(
         keySet.encryptedPublicKey,
-        oldRotateableKey,
+        oldDownstreamKey,
       );
 
       expect(encryptService.wrapEncapsulationKey).not.toHaveBeenCalled();
@@ -145,8 +145,8 @@ describe("DefaultRotateableKeySetService", () => {
     });
 
     it("rotates the key set", async () => {
-      const oldRotateableKey = createSymmetricKey();
-      const newRotateableKey = new SymmetricCryptoKey(new Uint8Array(64));
+      const oldDownstreamKey = createSymmetricKey();
+      const newDownstreamKey = new SymmetricCryptoKey(new Uint8Array(64));
       const publicKey = Utils.fromB64ToArray("decryptedPublicKey");
       const newEncryptedPublicKey = new EncString("newEncPublicKey");
       const newEncryptedRotateableKey = new EncString("newEncUserKey");
@@ -155,7 +155,7 @@ describe("DefaultRotateableKeySetService", () => {
       encryptService.wrapEncapsulationKey.mockResolvedValue(newEncryptedPublicKey);
       encryptService.encapsulateKeyUnsigned.mockResolvedValue(newEncryptedRotateableKey);
 
-      const result = await service.rotateKeySet(keySet, oldRotateableKey, newRotateableKey);
+      const result = await service.rotateKeySet(keySet, oldDownstreamKey, newDownstreamKey);
 
       expect(result).toEqual(
         new RotateableKeySet(
@@ -166,11 +166,11 @@ describe("DefaultRotateableKeySetService", () => {
       );
       expect(encryptService.unwrapEncapsulationKey).toHaveBeenCalledWith(
         keySet.encryptedPublicKey,
-        oldRotateableKey,
+        oldDownstreamKey,
       );
-      expect(encryptService.wrapEncapsulationKey).toHaveBeenCalledWith(publicKey, newRotateableKey);
+      expect(encryptService.wrapEncapsulationKey).toHaveBeenCalledWith(publicKey, newDownstreamKey);
       expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(
-        newRotateableKey,
+        newDownstreamKey,
         publicKey,
       );
     });

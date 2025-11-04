@@ -134,7 +134,7 @@ describe("WebauthnAdminService", () => {
       const request = new EnableCredentialEncryptionRequest();
       request.token = assertionOptions.token;
       request.deviceResponse = assertionOptions.deviceResponse;
-      request.encryptedUserKey = prfKeySet.encryptedRotateableKey.encryptedString;
+      request.encryptedUserKey = prfKeySet.encapsulatedDownstreamKey.encryptedString;
       request.encryptedPublicKey = prfKeySet.encryptedPublicKey.encryptedString;
       request.encryptedPrivateKey = prfKeySet.encryptedPrivateKey.encryptedString;
 
@@ -148,7 +148,7 @@ describe("WebauthnAdminService", () => {
       await service.enableCredentialEncryption(assertionOptions, mockUserId);
 
       // Assert
-      expect(createKeySetMock).toHaveBeenCalledWith(mockUserKey, assertionOptions.prfKey);
+      expect(createKeySetMock).toHaveBeenCalledWith(assertionOptions.prfKey, mockUserKey);
       expect(updateCredentialMock).toHaveBeenCalledWith(request);
     });
 

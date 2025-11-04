@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { PrfKey } from "../../../types/key";
 import { EncString } from "../../crypto/models/enc-string";
@@ -7,28 +5,28 @@ import { EncString } from "../../crypto/models/enc-string";
 declare const tag: unique symbol;
 
 /**
- * A set of keys where a symmetric `RotateableKey` is protected by an encrypted public/private key-pair.
- * The `RotateableKey` is used to encrypt/decrypt data, while the public/private key-pair is
- * used to rotate the `RotateableKey`.
+ * A set of keys where a symmetric `DownstreamKey` is protected by an encrypted public/private key-pair.
+ * The `DownstreamKey` is used to encrypt/decrypt data, while the public/private key-pair is
+ * used to rotate the `DownstreamKey`.
  *
- * The `PrivateKey` is protected by an `ExternalKey`, such as a `DeviceKey`, or `PrfKey`,
- * and the `PublicKey` is protected by the `RotateableKey`. This setup allows:
+ * The `PrivateKey` is protected by an `UpstreamKey`, such as a `DeviceKey`, or `PrfKey`,
+ * and the `PublicKey` is protected by the `DownstreamKey`. This setup allows:
  *
- *   - Access to `RotateableKey` by knowing the `ExternalKey`
- *   - Rotation to a new `RotateableKey` by knowing the current `RotateableKey`,
- *     without needing access to the `ExternalKey`
+ *   - Access to `DownstreamKey` by knowing the `UpstreamKey`
+ *   - Rotation to a new `DownstreamKey` by knowing the current `DownstreamKey`,
+ *     without needing access to the `UpstreamKey`
  */
-export class RotateableKeySet<ExternalKey extends SymmetricCryptoKey = SymmetricCryptoKey> {
-  private readonly [tag]: ExternalKey;
+export class RotateableKeySet<UpstreamKey extends SymmetricCryptoKey = SymmetricCryptoKey> {
+  private readonly [tag]!: UpstreamKey;
 
   constructor(
-    /** PublicKey encrypted RotateableKey */
-    readonly encryptedRotateableKey: EncString,
+    /** `DownstreamKey` protected by publicKey */
+    readonly encapsulatedDownstreamKey: EncString,
 
-    /** RotateableKey encrypted PublicKey */
+    /** DownstreamKey encrypted PublicKey */
     readonly encryptedPublicKey: EncString,
 
-    /** ExternalKey encrypted PrivateKey */
+    /** UpstreamKey encrypted PrivateKey */
     readonly encryptedPrivateKey?: EncString,
   ) {}
 }

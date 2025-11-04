@@ -241,7 +241,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
 
           const request = new OtherDeviceKeysUpdateRequest();
           request.encryptedPublicKey = newRotateableKeySet.encryptedPublicKey.encryptedString;
-          request.encryptedUserKey = newRotateableKeySet.encryptedRotateableKey.encryptedString;
+          request.encryptedUserKey = newRotateableKeySet.encapsulatedDownstreamKey.encryptedString;
           request.deviceId = device.id;
           return request;
         })

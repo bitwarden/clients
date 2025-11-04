@@ -15,64 +15,64 @@ export class DefaultRotateableKeySetService implements RotateableKeySetService {
     private encryptService: EncryptService,
   ) {}
 
-  async createKeySet<ExternalKey extends SymmetricCryptoKey>(
-    rotateableKey: SymmetricCryptoKey,
-    externalKey: ExternalKey,
-  ): Promise<RotateableKeySet<ExternalKey>> {
-    if (!rotateableKey) {
-      throw new Error("failed to create key set: rotateableKey is required");
+  async createKeySet<UpstreamKey extends SymmetricCryptoKey>(
+    upstreamKey: UpstreamKey,
+    downstreamKey: SymmetricCryptoKey,
+  ): Promise<RotateableKeySet<UpstreamKey>> {
+    if (!upstreamKey) {
+      throw new Error("failed to create key set: upstreamKey is required");
     }
-    if (!externalKey) {
-      throw new Error("failed to create key set: externalKey is required");
+    if (!downstreamKey) {
+      throw new Error("failed to create key set: downstreamKey is required");
     }
 
-    const [publicKey, encryptedPrivateKey] = await this.keyService.makeKeyPair(externalKey);
+    const [publicKey, encryptedPrivateKey] = await this.keyService.makeKeyPair(upstreamKey);
 
     const rawPublicKey = Utils.fromB64ToArray(publicKey);
     const encryptedRotateableKey = await this.encryptService.encapsulateKeyUnsigned(
-      rotateableKey,
+      downstreamKey,
       rawPublicKey,
     );
     const encryptedPublicKey = await this.encryptService.wrapEncapsulationKey(
       rawPublicKey,
-      rotateableKey,
+      downstreamKey,
     );
     return new RotateableKeySet(encryptedRotateableKey, encryptedPublicKey, encryptedPrivateKey);
   }
 
-  async rotateKeySet<ExternalKey extends SymmetricCryptoKey>(
-    keySet: RotateableKeySet<ExternalKey>,
-    oldRotateableKey: SymmetricCryptoKey,
-    newRotateableKey: SymmetricCryptoKey,
-  ): Promise<RotateableKeySet<ExternalKey>> {
+  async rotateKeySet<UpstreamKey extends SymmetricCryptoKey>(
+    keySet: RotateableKeySet<UpstreamKey>,
+    oldDownstreamKey: SymmetricCryptoKey,
+    newDownstreamKey: SymmetricCryptoKey,
+  ): Promise<RotateableKeySet<UpstreamKey>> {
     // validate parameters
     if (!keySet) {
       throw new Error("failed to rotate key set: keySet is required");
     }
-    if (!oldRotateableKey) {
-      throw new Error("failed to rotate key set: oldRotateableKey is required");
+    if (!oldDownstreamKey) {
+      throw new Error("failed to rotate key set: oldDownstreamKey is required");
     }
-    if (!newRotateableKey) {
-      throw new Error("failed to rotate key set: newRotateableKey is required");
+    if (!newDownstreamKey) {
+      throw new Error("failed to rotate key set: newDownstreamKey is required");
     }
 
     const publicKey = await this.encryptService.unwrapEncapsulationKey(
       keySet.encryptedPublicKey,
-      oldRotateableKey,
+      oldDownstreamKey,
     );
     if (publicKey == null) {
       throw new Error("failed to rotate key set: could not decrypt public key");
     }
     const newEncryptedPublicKey = await this.encryptService.wrapEncapsulationKey(
       publicKey,
-      newRotateableKey,
+      newDownstreamKey,
     );
     const newEncryptedRotateableKey = await this.encryptService.encapsulateKeyUnsigned(
-      newRotateableKey,
+      newDownstreamKey,
       publicKey,
     );
 
-    const newRotateableKeySet = new RotateableKeySet<ExternalKey>(
+    const newRotateableKeySet = new RotateableKeySet<UpstreamKey>(
       newEncryptedRotateableKey,
       newEncryptedPublicKey,
       keySet.encryptedPrivateKey,
