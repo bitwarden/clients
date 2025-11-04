@@ -631,7 +631,10 @@ pub mod autostart {
 #[napi]
 pub mod autofill {
     use desktop_core::ipc::server::{Message, MessageType};
-    use napi::threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode};
+    use napi::{
+        bindgen_prelude::FnArgs,
+        threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode},
+    };
     use serde::{de::DeserializeOwned, Deserialize, Serialize};
     use tracing::error;
 
@@ -757,23 +760,21 @@ pub mod autofill {
             #[napi(
                 ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void"
             )]
-            registration_callback: ThreadsafeFunction<(
-                u32,
-                u32,
-                PasskeyRegistrationRequest,
-            )>,
+            registration_callback: ThreadsafeFunction<
+                FnArgs<(u32, u32, PasskeyRegistrationRequest)>,
+            >,
             #[napi(
                 ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void"
             )]
-            assertion_callback: ThreadsafeFunction<(u32, u32, PasskeyAssertionRequest)>,
+            assertion_callback: ThreadsafeFunction<
+                FnArgs<(u32, u32, PasskeyAssertionRequest)>,
+            >,
             #[napi(
                 ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void"
             )]
-            assertion_without_user_interface_callback: ThreadsafeFunction<(
-                u32,
-                u32,
-                PasskeyAssertionWithoutUserInterfaceRequest,
-            )>,
+            assertion_without_user_interface_callback: ThreadsafeFunction<
+                FnArgs<(u32, u32, PasskeyAssertionWithoutUserInterfaceRequest)>,
+            >,
         ) -> napi::Result<Self> {
             let (send, mut recv) = tokio::sync::mpsc::channel::<Message>(32);
             tokio::spawn(async move {
@@ -798,7 +799,7 @@ pub mod autofill {
                                 Ok(msg) => {
                                     let value = msg
                                         .value
-                                        .map(|value| (client_id, msg.sequence_number, value))
+                                        .map(|value| (client_id, msg.sequence_number, value).into())
                                         .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
 
                                     assertion_callback
@@ -817,7 +818,7 @@ pub mod autofill {
                                 Ok(msg) => {
                                     let value = msg
                                         .value
-                                        .map(|value| (client_id, msg.sequence_number, value))
+                                        .map(|value| (client_id, msg.sequence_number, value).into())
                                         .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
 
                                     assertion_without_user_interface_callback
@@ -835,7 +836,7 @@ pub mod autofill {
                                 Ok(msg) => {
                                     let value = msg
                                         .value
-                                        .map(|value| (client_id, msg.sequence_number, value))
+                                        .map(|value| (client_id, msg.sequence_number, value).into())
                                         .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
                                     registration_callback
                                         .call(value, ThreadsafeFunctionCallMode::NonBlocking);
