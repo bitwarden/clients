@@ -1,3 +1,4 @@
+import { animate, style, transition, trigger } from "@angular/animations";
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, OnDestroy, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -53,6 +54,14 @@ import { ApplicationsLoadingComponent } from "./shared/risk-insights-loading.com
     AllActivityComponent,
     ApplicationsLoadingComponent,
     PageLoadingComponent,
+  ],
+  animations: [
+    trigger("fadeIn", [
+      transition(":enter", [
+        style({ opacity: 0 }),
+        animate("300ms 100ms ease-in", style({ opacity: 1 })),
+      ]),
+    ]),
   ],
 })
 export class RiskInsightsComponent implements OnInit, OnDestroy {
