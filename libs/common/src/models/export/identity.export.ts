@@ -72,47 +72,47 @@ export class IdentityExport {
     return domain;
   }
 
-  title: string = "";
-  firstName: string = "";
-  middleName: string = "";
-  lastName: string = "";
-  address1: string = "";
-  address2: string = "";
-  address3: string = "";
-  city: string = "";
-  state: string = "";
-  postalCode: string = "";
-  country: string = "";
-  company: string = "";
-  email: string = "";
-  phone: string = "";
-  ssn: string = "";
-  username: string = "";
-  passportNumber: string = "";
-  licenseNumber: string = "";
+  title?: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  address1?: string;
+  address2?: string;
+  address3?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+  company?: string;
+  email?: string;
+  phone?: string;
+  ssn?: string;
+  username?: string;
+  passportNumber?: string;
+  licenseNumber?: string;
 
   constructor(o?: IdentityView | IdentityDomain) {
     if (o == null) {
       return;
     }
 
-    this.title = safeGetString(o.title ?? "") ?? "";
-    this.firstName = safeGetString(o.firstName ?? "") ?? "";
-    this.middleName = safeGetString(o.middleName ?? "") ?? "";
-    this.lastName = safeGetString(o.lastName ?? "") ?? "";
-    this.address1 = safeGetString(o.address1 ?? "") ?? "";
-    this.address2 = safeGetString(o.address2 ?? "") ?? "";
-    this.address3 = safeGetString(o.address3 ?? "") ?? "";
-    this.city = safeGetString(o.city ?? "") ?? "";
-    this.state = safeGetString(o.state ?? "") ?? "";
-    this.postalCode = safeGetString(o.postalCode ?? "") ?? "";
-    this.country = safeGetString(o.country ?? "") ?? "";
-    this.company = safeGetString(o.company ?? "") ?? "";
-    this.email = safeGetString(o.email ?? "") ?? "";
-    this.phone = safeGetString(o.phone ?? "") ?? "";
-    this.ssn = safeGetString(o.ssn ?? "") ?? "";
-    this.username = safeGetString(o.username ?? "") ?? "";
-    this.passportNumber = safeGetString(o.passportNumber ?? "") ?? "";
-    this.licenseNumber = safeGetString(o.licenseNumber ?? "") ?? "";
+    this.title = safeGetString(o.title);
+    this.firstName = safeGetString(o.firstName);
+    this.middleName = safeGetString(o.middleName);
+    this.lastName = safeGetString(o.lastName);
+    this.address1 = safeGetString(o.address1);
+    this.address2 = safeGetString(o.address2);
+    this.address3 = safeGetString(o.address3);
+    this.city = safeGetString(o.city);
+    this.state = safeGetString(o.state);
+    this.postalCode = safeGetString(o.postalCode);
+    this.country = safeGetString(o.country);
+    this.company = safeGetString(o.company);
+    this.email = safeGetString(o.email);
+    this.phone = safeGetString(o.phone);
+    this.ssn = safeGetString(o.ssn);
+    this.username = safeGetString(o.username);
+    this.passportNumber = safeGetString(o.passportNumber);
+    this.licenseNumber = safeGetString(o.licenseNumber);
   }
 }

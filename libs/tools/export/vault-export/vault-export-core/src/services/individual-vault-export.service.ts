@@ -254,7 +254,7 @@ export class IndividualVaultExportService
       }
       const cipher = new CipherWithIdExport();
       cipher.build(c);
-      cipher.collectionIds = null;
+      cipher.collectionIds = [];
       jsonDoc.items.push(cipher);
     });
 
@@ -316,7 +316,7 @@ export class IndividualVaultExportService
       }
       const cipher = new CipherWithIdExport();
       cipher.build(c);
-      cipher.collectionIds = null;
+      cipher.collectionIds = [];
       jsonDoc.items.push(cipher);
     });
 

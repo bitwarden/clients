@@ -31,11 +31,6 @@ export class CipherExport {
     req.notes = "Some notes about this item.";
     req.favorite = false;
     req.fields = [];
-    req.login = null;
-    req.secureNote = null;
-    req.card = null;
-    req.identity = null;
-    req.sshKey = null;
     req.reprompt = CipherRepromptType.None;
     req.passwordHistory = [];
     req.creationDate = new Date();
@@ -170,35 +165,35 @@ export class CipherExport {
   }
 
   type: CipherType = CipherType.Login;
-  folderId: string = "";
-  organizationId: string = "";
+  folderId?: string;
+  organizationId?: string;
   collectionIds: string[] = [];
   name: string = "";
-  notes: string = "";
+  notes?: string;
   favorite: boolean = false;
   fields: FieldExport[] = [];
-  login: LoginExport | null = null;
-  secureNote: SecureNoteExport | null = null;
-  card: CardExport | null = null;
-  identity: IdentityExport | null = null;
-  sshKey: SshKeyExport | null = null;
+  login?: LoginExport;
+  secureNote?: SecureNoteExport;
+  card?: CardExport;
+  identity?: IdentityExport;
+  sshKey?: SshKeyExport;
   reprompt: CipherRepromptType = CipherRepromptType.None;
   passwordHistory: PasswordHistoryExport[] = [];
   revisionDate: Date;
   creationDate: Date;
   deletedDate: Date;
   archivedDate: Date;
-  key: string = "";
+  key?: string;
 
   // Use build method instead of ctor so that we can control order of JSON stringify for pretty print
   build(o: CipherView | CipherDomain) {
-    this.organizationId = o.organizationId ?? "";
-    this.folderId = o.folderId ?? "";
+    this.organizationId = o.organizationId;
+    this.folderId = o.folderId;
     this.type = o.type;
     this.reprompt = o.reprompt;
 
-    this.name = safeGetString(o.name) ?? "";
-    this.notes = safeGetString(o.notes ?? "") ?? "";
+    this.name = safeGetString(o.name);
+    this.notes = safeGetString(o.notes);
     if ("key" in o) {
       this.key = o.key?.encryptedString ?? "";
     }

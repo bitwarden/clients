@@ -36,23 +36,23 @@ export class CardExport {
     return domain;
   }
 
-  cardholderName: string = "";
-  brand: string = "";
-  number: string = "";
-  expMonth: string = "";
-  expYear: string = "";
-  code: string = "";
+  cardholderName?: string;
+  brand?: string;
+  number?: string;
+  expMonth?: string;
+  expYear?: string;
+  code?: string;
 
   constructor(o?: CardView | CardDomain) {
     if (o == null) {
       return;
     }
 
-    this.cardholderName = safeGetString(o.cardholderName ?? "") ?? "";
-    this.brand = safeGetString(o.brand ?? "") ?? "";
-    this.number = safeGetString(o.number ?? "") ?? "";
-    this.expMonth = safeGetString(o.expMonth ?? "") ?? "";
-    this.expYear = safeGetString(o.expYear ?? "") ?? "";
-    this.code = safeGetString(o.code ?? "") ?? "";
+    this.cardholderName = safeGetString(o.cardholderName);
+    this.brand = safeGetString(o.brand);
+    this.number = safeGetString(o.number);
+    this.expMonth = safeGetString(o.expMonth);
+    this.expYear = safeGetString(o.expYear);
+    this.code = safeGetString(o.code);
   }
 }

@@ -40,8 +40,8 @@ export class FieldExport {
       return;
     }
 
-    this.name = safeGetString(o.name ?? "") ?? "";
-    this.value = safeGetString(o.value ?? "") ?? "";
+    this.name = safeGetString(o.name);
+    this.value = safeGetString(o.value);
     this.type = o.type;
     this.linkedId = o.linkedId;
   }

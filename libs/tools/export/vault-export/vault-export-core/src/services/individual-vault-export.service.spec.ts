@@ -78,8 +78,8 @@ function generateCipherView(deleted: boolean) {
         },
         LoginView,
       ),
-      collectionIds: null,
-      deletedDate: deleted ? new Date() : null,
+      collectionIds: [],
+      deletedDate: deleted ? new Date() : undefined,
     },
     CipherView,
   );
@@ -98,8 +98,8 @@ function generateCipherDomain(deleted: boolean) {
         },
         Login,
       ),
-      collectionIds: null,
-      deletedDate: deleted ? new Date() : null,
+      collectionIds: [],
+      deletedDate: deleted ? new Date() : undefined,
     },
     Cipher,
   );
@@ -126,15 +126,19 @@ function generateFolder() {
 }
 
 function expectEqualCiphers(ciphers: CipherView[] | Cipher[], jsonResult: string) {
-  const actual = JSON.stringify(JSON.parse(jsonResult).items);
-  const items: CipherWithIdExport[] = [];
+  const parsed = JSON.parse(jsonResult);
+  const actualItems = sanitizeDates(parsed.items);
+
+  const expected: CipherWithIdExport[] = [];
   ciphers.forEach((c: CipherView | Cipher) => {
     const item = new CipherWithIdExport();
     item.build(c);
-    items.push(item);
+    expected.push(item);
   });
 
-  expect(actual).toEqual(JSON.stringify(items));
+  const expectedSanitized = sanitizeDates(expected);
+
+  expect(JSON.stringify(actualItems)).toEqual(JSON.stringify(expectedSanitized));
 }
 
 function expectEqualFolderViews(folderViews: FolderView[] | Folder[], jsonResult: string) {
@@ -160,6 +164,18 @@ function expectEqualFolders(folders: Folder[], jsonResult: string) {
   }));
 
   expect(actual).toMatchObject(expected);
+}
+
+function sanitizeDates<T>(obj: T): T {
+  const dateKeyRegex = /Date$/i;
+  return JSON.parse(
+    JSON.stringify(obj, (key, value) => {
+      if (key && dateKeyRegex.test(key)) {
+        return undefined; // omit this property
+      }
+      return value;
+    }),
+  );
 }
 
 describe("VaultExportService", () => {

@@ -82,11 +82,11 @@ export class Fido2CredentialExport {
   keyCurve: string = "";
   keyValue: string = "";
   rpId: string = "";
-  userHandle: string = "";
-  userName: string = "";
+  userHandle?: string;
+  userName?: string;
   counter: string = "";
-  rpName: string = "";
-  userDisplayName: string = "";
+  rpName?: string;
+  userDisplayName?: string;
   discoverable: string = "";
   creationDate: Date = new Date();
 
@@ -100,18 +100,18 @@ export class Fido2CredentialExport {
       return;
     }
 
-    this.credentialId = safeGetString(o.credentialId) ?? "";
-    this.keyType = safeGetString(o.keyType) ?? "";
-    this.keyAlgorithm = safeGetString(o.keyAlgorithm) ?? "";
-    this.keyCurve = safeGetString(o.keyCurve) ?? "";
-    this.keyValue = safeGetString(o.keyValue) ?? "";
-    this.rpId = safeGetString(o.rpId) ?? "";
-    this.userHandle = safeGetString(o.userHandle ?? "") ?? "";
-    this.userName = safeGetString(o.userName ?? "") ?? "";
-    this.counter = safeGetString(String(o.counter)) ?? "";
-    this.rpName = safeGetString(o.rpName ?? "") ?? "";
-    this.userDisplayName = safeGetString(o.userDisplayName ?? "") ?? "";
-    this.discoverable = safeGetString(String(o.discoverable)) ?? "";
+    this.credentialId = safeGetString(o.credentialId);
+    this.keyType = safeGetString(o.keyType);
+    this.keyAlgorithm = safeGetString(o.keyAlgorithm);
+    this.keyCurve = safeGetString(o.keyCurve);
+    this.keyValue = safeGetString(o.keyValue);
+    this.rpId = safeGetString(o.rpId);
+    this.userHandle = safeGetString(o.userHandle);
+    this.userName = safeGetString(o.userName);
+    this.counter = safeGetString(String(o.counter));
+    this.rpName = safeGetString(o.rpName);
+    this.userDisplayName = safeGetString(o.userDisplayName);
+    this.discoverable = safeGetString(String(o.discoverable));
     this.creationDate = o.creationDate;
   }
 }

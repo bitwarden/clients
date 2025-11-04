@@ -1,12 +1,12 @@
 import { EncString } from "../../key-management/crypto/models/enc-string";
 
-export function safeGetString(value: string | EncString) {
-  if (value == null) {
-    return null;
+export function safeGetString(value?: string | EncString) {
+  if (!value) {
+    return "";
   }
 
   if (typeof value == "string") {
     return value;
   }
-  return value?.encryptedString;
+  return value?.encryptedString ?? "";
 }

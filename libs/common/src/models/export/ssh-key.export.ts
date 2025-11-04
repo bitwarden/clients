@@ -36,8 +36,8 @@ export class SshKeyExport {
       return;
     }
 
-    this.privateKey = safeGetString(o.privateKey ?? "") ?? "";
-    this.publicKey = safeGetString(o.publicKey ?? "") ?? "";
-    this.keyFingerprint = safeGetString(o.keyFingerprint ?? "") ?? "";
+    this.privateKey = safeGetString(o.privateKey);
+    this.publicKey = safeGetString(o.publicKey);
+    this.keyFingerprint = safeGetString(o.keyFingerprint);
   }
 }

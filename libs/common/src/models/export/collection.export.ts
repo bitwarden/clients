@@ -43,12 +43,12 @@ export class CollectionExport {
 
   organizationId: OrganizationId;
   name: string;
-  externalId: string;
+  externalId?: string;
 
   // Use build method instead of ctor so that we can control order of JSON stringify for pretty print
   build(o: CollectionView | CollectionDomain) {
     this.organizationId = o.organizationId;
-    this.name = safeGetString(o.name) ?? "";
-    this.externalId = o.externalId ?? "";
+    this.name = safeGetString(o.name);
+    this.externalId = o.externalId;
   }
 }
