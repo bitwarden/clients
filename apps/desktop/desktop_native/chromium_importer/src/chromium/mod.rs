@@ -191,8 +191,6 @@ fn load_local_state(browser_dir: &Path) -> Result<LocalState> {
     let local_state = std::fs::read_to_string(browser_dir.join("Local State"))
         .map_err(|e| anyhow!("Failed to read local state file: {}", e))?;
 
-    println!("Local State content: {}", &local_state);
-
     serde_json::from_str(&local_state)
         .map_err(|e| anyhow!("Failed to parse local state JSON: {}", e))
 }
@@ -206,7 +204,7 @@ fn get_profile_info(local_state: &LocalState) -> Vec<ProfileInfo> {
             name: if !info.name.is_empty() {
                 info.name.clone()
             } else {
-                String::from("Default")
+                folder.clone()
             },
             folder: folder.clone(),
             account_name: info.gaia_id.clone(),
@@ -429,7 +427,7 @@ mod tests {
         )]);
         let infos = get_profile_info(&local_state);
         assert_eq!(infos.len(), 1);
-        assert_eq!(infos[0].name, "Default");
+        assert_eq!(infos[0].name, "ProfileX");
         assert_eq!(infos[0].folder, "ProfileX");
     }
 
@@ -457,7 +455,7 @@ mod tests {
         assert_eq!(p1.name, "N1");
 
         let p2 = infos.iter().find(|p| p.folder == "P2").unwrap();
-        assert_eq!(p2.name, "Default");
+        assert_eq!(p2.name, "P2");
 
         let p3 = infos.iter().find(|p| p.folder == "P3").unwrap();
         assert_eq!(p3.name, "N3");
