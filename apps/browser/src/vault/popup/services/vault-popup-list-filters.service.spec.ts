@@ -437,7 +437,7 @@ describe("VaultPopupListFiltersService", () => {
 
   describe("folders$", () => {
     it('returns no folders when "No Folder" is the only option', (done) => {
-      folderViews$.next([{ id: null, name: "No Folder" }]);
+      folderViews$.next([{ id: "", name: "No Folder" }]);
 
       service.folders$.subscribe((folders) => {
         expect(folders).toEqual([]);
@@ -447,7 +447,7 @@ describe("VaultPopupListFiltersService", () => {
 
     it('moves "No Folder" to the end of the list', (done) => {
       folderViews$.next([
-        { id: null, name: "No Folder" },
+        { id: "", name: "No Folder" },
         { id: "2345", name: "Folder 2" },
         { id: "1234", name: "Folder 1" },
       ]);

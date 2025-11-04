@@ -58,7 +58,7 @@ export class FolderAddEditComponent implements OnInit {
 
   async submit(): Promise<boolean> {
     this.folder.name = this.formGroup.controls.name.value;
-    if (this.folder.name == null || this.folder.name === "") {
+    if (this.folder.name === "") {
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("errorOccurred"),

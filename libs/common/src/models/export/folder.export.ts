@@ -5,6 +5,8 @@ import { FolderView } from "../../vault/models/view/folder.view";
 import { safeGetString } from "./utils";
 
 export class FolderExport {
+  name: string = "";
+
   static template(): FolderExport {
     const req = new FolderExport();
     req.name = "Folder name";
@@ -17,14 +19,12 @@ export class FolderExport {
   }
 
   static toDomain(req: FolderExport, domain = new FolderDomain()) {
-    domain.name = new EncString(req.name ?? "");
+    domain.name = new EncString(req.name);
     return domain;
   }
 
-  name: string = "";
-
   // Use build method instead of ctor so that we can control order of JSON stringify for pretty print
   build(o: FolderView | FolderDomain) {
-    this.name = safeGetString(o.name ?? "") ?? "";
+    this.name = safeGetString(o.name) ?? "";
   }
 }
