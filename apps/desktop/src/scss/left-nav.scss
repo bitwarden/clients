@@ -72,7 +72,7 @@
 
   &.active {
     .filter-button {
-      font-weight: bold;
+      font-weight: 500;
       @include themify($themes) {
         color: themed("primaryColor");
       }
@@ -114,7 +114,7 @@
       .filter-button {
         @include themify($themes) {
           color: themed("primaryColor");
-          font-weight: bold;
+          font-weight: 500;
         }
         max-width: 90%;
       }
