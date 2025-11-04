@@ -33,6 +33,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -113,6 +115,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private policyService: PolicyService,
     private policyApiService: PolicyApiServiceAbstraction,
     private organizationMetadataService: OrganizationMetadataServiceAbstraction,
+    private configService: ConfigService,
   ) {
     super(
       apiService,
@@ -203,6 +206,13 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
   override async load(organization: Organization) {
     await super.load(organization);
+  }
+
+  async onSelectAllChange(checked: boolean) {
+    const isBatchingEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.BulkMemberActionsBatching,
+    );
+    this.dataSource.checkAllFilteredUsers(checked, isBatchingEnabled);
   }
 
   async getUsers(organization: Organization): Promise<OrganizationUserView[]> {

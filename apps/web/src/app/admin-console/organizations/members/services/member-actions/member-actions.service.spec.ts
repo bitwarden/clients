@@ -4,6 +4,7 @@ import { of } from "rxjs";
 import {
   OrganizationUserApiService,
   OrganizationUserBulkResponse,
+  OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import {
   OrganizationUserType,
@@ -22,7 +23,6 @@ import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
-import { OrganizationUserService } from "../organization-user/organization-user.service";
 
 import { MemberActionsService } from "./member-actions.service";
 
@@ -310,11 +310,12 @@ describe("MemberActionsService", () => {
   describe("bulkReinvite", () => {
     const userIds = [newGuid(), newGuid(), newGuid()];
 
-    it("should successfully reinvite multiple users", async () => {
+    it("should successfully reinvite multiple users when batching is disabled", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
       const mockResponse = {
         data: userIds.map((id) => ({
           id,
-          error: null,
+          error: null as any,
         })),
         continuationToken: null,
       } as ListResponse<OrganizationUserBulkResponse>;
@@ -330,9 +331,11 @@ describe("MemberActionsService", () => {
         organizationId,
         userIds,
       );
+      expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledTimes(1);
     });
 
-    it("should handle bulk reinvite errors", async () => {
+    it("should handle bulk reinvite errors when batching is disabled", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
       const errorMessage = "Bulk reinvite failed";
       organizationUserApiService.postManyOrganizationUserReinvite.mockRejectedValue(
         new Error(errorMessage),
@@ -343,6 +346,107 @@ describe("MemberActionsService", () => {
       expect(result.successful).toBeUndefined();
       expect(result.failed).toHaveLength(3);
       expect(result.failed[0]).toEqual({ id: userIds[0], error: errorMessage });
+    });
+
+    it("should batch reinvite requests when batching is enabled and user count exceeds batch size", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      // Create 750 user IDs to test batching (should create 2 batches: 500 + 250)
+      const manyUserIds = Array.from({ length: 750 }, () => newGuid());
+
+      const batch1Response = {
+        data: manyUserIds.slice(0, 500).map((id) => ({
+          id,
+          error: null as any,
+        })),
+        continuationToken: null,
+      } as ListResponse<OrganizationUserBulkResponse>;
+
+      const batch2Response = {
+        data: manyUserIds.slice(500).map((id) => ({
+          id,
+          error: null as any,
+        })),
+        continuationToken: null,
+      } as ListResponse<OrganizationUserBulkResponse>;
+
+      organizationUserApiService.postManyOrganizationUserReinvite
+        .mockResolvedValueOnce(batch1Response)
+        .mockResolvedValueOnce(batch2Response);
+
+      const result = await service.bulkReinvite(mockOrganization, manyUserIds);
+
+      // Verify the API was called twice (once for each batch)
+      expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledTimes(2);
+      expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenNthCalledWith(
+        1,
+        organizationId,
+        manyUserIds.slice(0, 500),
+      );
+      expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenNthCalledWith(
+        2,
+        organizationId,
+        manyUserIds.slice(500),
+      );
+
+      // Verify results are aggregated correctly
+      expect(result.successful?.data).toHaveLength(750);
+      expect(result.failed).toHaveLength(0);
+    });
+
+    it("should handle partial batch failures when batching is enabled", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      // Create 750 user IDs to test batching (should create 2 batches: 500 + 250)
+      const manyUserIds = Array.from({ length: 750 }, () => newGuid());
+
+      const batch1Response = {
+        data: manyUserIds.slice(0, 500).map((id) => ({
+          id,
+          error: null as any,
+        })),
+        continuationToken: null,
+      } as ListResponse<OrganizationUserBulkResponse>;
+
+      const errorMessage = "Second batch failed";
+
+      organizationUserApiService.postManyOrganizationUserReinvite
+        .mockResolvedValueOnce(batch1Response)
+        .mockRejectedValueOnce(new Error(errorMessage));
+
+      const result = await service.bulkReinvite(mockOrganization, manyUserIds);
+
+      // Verify both batches were attempted
+      expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledTimes(2);
+
+      // Verify partial success: first batch succeeded, second batch failed
+      expect(result.successful?.data).toHaveLength(500);
+      expect(result.failed).toHaveLength(250);
+      expect(result.failed[0].error).toBe(errorMessage);
+    });
+
+    it("should not batch when batching is enabled but user count is below batch size", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      const mockResponse = {
+        data: userIds.map((id) => ({
+          id,
+          error: null as any,
+        })),
+        continuationToken: null,
+      } as ListResponse<OrganizationUserBulkResponse>;
+      organizationUserApiService.postManyOrganizationUserReinvite.mockResolvedValue(mockResponse);
+
+      const result = await service.bulkReinvite(mockOrganization, userIds);
+
+      // Should only call once since we have fewer than 500 users
+      expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledTimes(1);
+      expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledWith(
+        organizationId,
+        userIds,
+      );
+      expect(result.successful?.data).toHaveLength(3);
+      expect(result.failed).toHaveLength(0);
     });
   });
 

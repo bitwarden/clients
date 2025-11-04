@@ -91,7 +91,7 @@
                   type="checkbox"
                   bitCheckbox
                   class="tw-mr-1"
-                  (change)="dataSource.checkAllFilteredUsers($any($event.target).checked)"
+                  (change)="onSelectAllChange($any($event.target).checked)"
                   id="selectAll"
                 />
                 <label class="tw-mb-0 !tw-font-bold !tw-text-muted" for="selectAll">{{

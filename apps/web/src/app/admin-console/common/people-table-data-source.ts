@@ -92,8 +92,9 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
   /**
    * Check all filtered users (i.e. those rows that are currently visible)
    * @param select check the filtered users (true) or uncheck the filtered users (false)
+   * @param removeBatchLimit optional parameter to remove the 500 user limit (for feature flag testing)
    */
-  checkAllFilteredUsers(select: boolean) {
+  checkAllFilteredUsers(select: boolean, removeBatchLimit = false) {
     if (select) {
       // Reset checkbox selection first so we know nothing else is selected
       this.uncheckAllUsers();
@@ -101,8 +102,11 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
 
     const filteredUsers = this.filteredData;
 
-    const selectCount =
-      filteredUsers.length > MaxCheckedCount ? MaxCheckedCount : filteredUsers.length;
+    // If removeBatchLimit is true, select all users; otherwise apply the MaxCheckedCount limit
+    const selectCount = removeBatchLimit
+      ? filteredUsers.length
+      : Math.min(filteredUsers.length, MaxCheckedCount);
+
     for (let i = 0; i < selectCount; i++) {
       this.checkUser(filteredUsers[i], select);
     }
