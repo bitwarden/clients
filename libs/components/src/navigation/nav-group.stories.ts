@@ -141,8 +141,8 @@ export const Tree: StoryObj<NavGroupComponent> = {
     template: /*html*/ `
       <bit-side-nav>
         <bit-nav-group text="Tree example" icon="bwi-collection-shared" [open]="true">
-          <bit-nav-item text="Level 1 - no children" route="t2" icon="bwi-collection-shared" variant="tree"></bit-nav-item>
-          <bit-nav-group text="Level 1 - with children" route="t3" icon="bwi-collection-shared" variant="tree" [open]="true">
+          <bit-nav-item text="Level 1 - no children" route="t2" icon="bwi-collection-shared" [variant]="'tree'"></bit-nav-item>
+          <bit-nav-group text="Level 1 - with children" route="t3" icon="bwi-collection-shared" [variant]="'tree'" [open]="true">
             <bit-nav-group text="Level 2 - with children" route="t4" icon="bwi-collection-shared" variant="tree" [open]="true">
               <bit-nav-item text="Level 3 - no children, no icon" route="t5" variant="tree"></bit-nav-item>
               <bit-nav-group text="Level 3 - with children" route="t6" icon="bwi-collection-shared" variant="tree" [open]="true">

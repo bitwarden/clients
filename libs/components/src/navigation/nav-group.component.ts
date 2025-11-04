@@ -35,7 +35,7 @@ import { SideNavService } from "./side-nav.service";
   imports: [CommonModule, NavItemComponent, IconButtonModule, I18nPipe],
 })
 export class NavGroupComponent extends NavBaseComponent implements AfterContentInit {
-  readonly nestedNavComponents = contentChildren(NavBaseComponent, { descendants: true });
+  readonly nestedNavComponents = contentChildren(NavBaseComponent, { descendants: false });
 
   readonly sideNavOpen = toSignal(this.sideNavService.open$);
 
@@ -101,8 +101,11 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
     if (this.variant() !== "tree") {
       return;
     }
-    [...this.nestedNavComponents()].forEach((navGroupOrItem) => {
-      navGroupOrItem.treeDepth.set(navGroupOrItem.treeDepth() + 1);
+    // Set depth for direct children
+    // NavGroups set their own depth in constructor, but NavItems need it set here
+    const parentDepth = this.treeDepth();
+    this.nestedNavComponents().forEach((navGroupOrItem) => {
+      navGroupOrItem.treeDepth.set(parentDepth + 1);
     });
   }
 
@@ -111,6 +114,11 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
     @Optional() @SkipSelf() private parentNavGroup: NavGroupComponent,
   ) {
     super();
+
+    // Set tree depth based on parent's depth
+    if (this.parentNavGroup) {
+      this.treeDepth.set(this.parentNavGroup.treeDepth() + 1);
+    }
   }
 
   setOpen(isOpen: boolean) {
