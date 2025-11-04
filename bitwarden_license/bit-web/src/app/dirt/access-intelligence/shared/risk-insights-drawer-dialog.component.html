@@ -1,7 +1,9 @@
 @if (isActiveDrawerType(drawerTypes.OrgAtRiskMembers)) {
   <bit-dialog dialogSize="large" disablePadding="false">
     <ng-container bitDialogTitle>
-      <span>{{ "atRiskMembersWithCount" | i18n: drawerDetails.atRiskMemberDetails?.length }}</span>
+      <span>{{
+        "atRiskMembersWithCount" | i18n: drawerDetails.atRiskMemberDetails?.length ?? 0
+      }}</span>
     </ng-container>
     <ng-container bitDialogContent>
       <span bitTypography="body1" class="tw-text-muted tw-text-sm">{{
@@ -63,7 +65,7 @@
   <bit-dialog dialogSize="large" disablePadding="false">
     <ng-container bitDialogTitle>
       <span>{{
-        "atRiskApplicationsWithCount" | i18n: drawerDetails.atRiskAppDetails?.length
+        "atRiskApplicationsWithCount" | i18n: drawerDetails.atRiskAppDetails?.length ?? 0
       }}</span>
     </ng-container>
     <ng-container bitDialogContent>
@@ -84,12 +86,10 @@
             </div>
           </div>
           @for (app of drawerDetails.atRiskAppDetails; track app.applicationName) {
-            <ng-container *ngFor="let app of drawerDetails.atRiskAppDetails">
-              <div class="tw-flex tw-justify-between tw-mt-2">
-                <div>{{ app.applicationName }}</div>
-                <div>{{ app.atRiskPasswordCount }}</div>
-              </div>
-            </ng-container>
+            <div class="tw-flex tw-justify-between tw-mt-2">
+              <div>{{ app.applicationName }}</div>
+              <div>{{ app.atRiskPasswordCount }}</div>
+            </div>
           }
         </ng-container>
       }

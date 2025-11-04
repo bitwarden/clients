@@ -148,6 +148,11 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
           this.currentDialogRef?.close();
         }
       });
+
+    // if any dialogs are open close it
+    // this happens when navigating between orgs
+    // or just navigating away from the page and back
+    this.currentDialogRef?.close();
   }
 
   ngOnDestroy(): void {
