@@ -171,6 +171,16 @@ describe("CipherViewComponent", () => {
       expect(component.passwordIsAtRisk()).toBe(false);
     }));
 
+    it("should return false when cipher is deleted", fakeAsync(() => {
+      const cipher = createLoginCipherView();
+      cipher.deletedDate = new Date();
+
+      fixture.componentRef.setInput("cipher", cipher);
+      tick();
+
+      expect(component.passwordIsAtRisk()).toBe(false);
+    }));
+
     it("should return false for organization-owned ciphers", fakeAsync(() => {
       const cipher = createLoginCipherView();
       cipher.organizationId = "org-id";
