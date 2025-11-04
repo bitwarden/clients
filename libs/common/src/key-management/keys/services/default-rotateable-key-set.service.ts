@@ -1,23 +1,20 @@
-import { inject, Injectable } from "@angular/core";
-
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { RotateableKeySet } from "@bitwarden/common/key-management/keys/models/rotateable-key-set";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
-@Injectable({ providedIn: "root" })
-export class RotateableKeySetService {
-  private readonly keyService = inject(KeyService);
-  private readonly encryptService = inject(EncryptService);
+import { Utils } from "../../../platform/misc/utils";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { EncryptService } from "../../crypto/abstractions/encrypt.service";
+import { RotateableKeySet } from "../models/rotateable-key-set";
 
-  /**
-   * Create a new rotatable key set for the provided rotateableKey, using the provided external key.
-   * For more information on rotatable key sets, see {@link RotateableKeySet}
-   * @param rotateableKey The symmetric key to be contained within the `RotateableKeySet`.
-   * @param externalKey The `ExternalKey` used to encrypt {@link RotateableKeySet.encryptedPrivateKey}
-   * @returns RotateableKeySet containing the provided symmetric rotateableKey.
-   */
+import { RotateableKeySetService } from "./abstractions/rotateable-key-set.service";
+
+export class DefaultRotateableKeySetService implements RotateableKeySetService {
+  constructor(
+    private keyService: KeyService,
+    private encryptService: EncryptService,
+  ) {}
+
   async createKeySet<ExternalKey extends SymmetricCryptoKey>(
     rotateableKey: SymmetricCryptoKey,
     externalKey: ExternalKey,
@@ -43,14 +40,6 @@ export class RotateableKeySetService {
     return new RotateableKeySet(encryptedRotateableKey, encryptedPublicKey, encryptedPrivateKey);
   }
 
-  /**
-   * Rotates the provided `RotateableKeySet` with the new key.
-   *
-   * @param keySet The current `RotateableKeySet` to be rotated.
-   * @param oldRotateableKey The current rotateableKey used to decrypt the `PublicKey`.
-   * @param newRotateableKey The new rotateableKey to encrypt the `PublicKey`.
-   * @returns The updated `RotateableKeySet` that contains the new rotateableKey.
-   */
   async rotateKeySet<ExternalKey extends SymmetricCryptoKey>(
     keySet: RotateableKeySet<ExternalKey>,
     oldRotateableKey: SymmetricCryptoKey,

@@ -1,31 +1,26 @@
-import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { RotateableKeySet } from "@bitwarden/common/key-management/keys/models/rotateable-key-set";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
-import { RotateableKeySetService } from "./rotateable-key-set.service";
+import { Utils } from "../../../platform/misc/utils";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { EncryptService } from "../../crypto/abstractions/encrypt.service";
+import { EncString } from "../../crypto/models/enc-string";
+import { RotateableKeySet } from "../models/rotateable-key-set";
 
-describe("RotateableKeySetService", () => {
-  let testBed!: TestBed;
+import { DefaultRotateableKeySetService } from "./default-rotateable-key-set.service";
+
+describe("DefaultRotateableKeySetService", () => {
   let keyService!: MockProxy<KeyService>;
   let encryptService!: MockProxy<EncryptService>;
-  let service!: RotateableKeySetService;
+  let service!: DefaultRotateableKeySetService;
 
   beforeEach(() => {
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
-    testBed = TestBed.configureTestingModule({
-      providers: [
-        { provide: KeyService, useValue: keyService },
-        { provide: EncryptService, useValue: encryptService },
-      ],
-    });
-    service = testBed.inject(RotateableKeySetService);
+    service = new DefaultRotateableKeySetService(keyService, encryptService);
   });
 
   describe("createKeySet", () => {
@@ -84,13 +79,13 @@ describe("RotateableKeySetService", () => {
     );
     const dataValidationTests = [
       {
-        keySet: null,
+        keySet: null as any as RotateableKeySet,
         oldRotateableKey: createSymmetricKey(),
         newRotateableKey: createSymmetricKey(),
         expectedError: "failed to rotate key set: keySet is required",
       },
       {
-        keySet: undefined,
+        keySet: undefined as any as RotateableKeySet,
         oldRotateableKey: createSymmetricKey(),
         newRotateableKey: createSymmetricKey(),
         expectedError: "failed to rotate key set: keySet is required",
@@ -125,7 +120,7 @@ describe("RotateableKeySetService", () => {
       "should throw error when required parameter is missing",
       async ({ keySet, oldRotateableKey, newRotateableKey, expectedError }) => {
         await expect(
-          service.rotateKeySet(keySet as any, oldRotateableKey as any, newRotateableKey as any),
+          service.rotateKeySet(keySet, oldRotateableKey as any, newRotateableKey as any),
         ).rejects.toThrow(expectedError);
       },
     );

@@ -20,12 +20,12 @@ import { WebAuthnLoginCredentialAssertionOptionsView } from "@bitwarden/common/a
 import { WebAuthnLoginCredentialAssertionView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion.view";
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { PrfKeySet } from "@bitwarden/common/key-management/keys/models/rotateable-key-set";
+import { RotateableKeySetService } from "@bitwarden/common/key-management/keys/services/abstractions/rotateable-key-set.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { KeyService, UserKeyRotationDataProvider } from "@bitwarden/key-management";
 
-import { RotateableKeySetService } from "../../../../key-management/services/rotateable-key-set.service";
 import { CredentialCreateOptionsView } from "../../views/credential-create-options.view";
 import { PendingWebauthnLoginCredentialView } from "../../views/pending-webauthn-login-credential.view";
 import { WebauthnLoginCredentialView } from "../../views/webauthn-login-credential.view";
