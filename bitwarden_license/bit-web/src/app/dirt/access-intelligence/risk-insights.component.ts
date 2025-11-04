@@ -30,6 +30,7 @@ import { AllApplicationsComponent } from "./all-applications/all-applications.co
 import { CriticalApplicationsComponent } from "./critical-applications/critical-applications.component";
 import { EmptyStateCardComponent } from "./empty-state-card.component";
 import { RiskInsightsTabType } from "./models/risk-insights.models";
+import { PageLoadingComponent } from "./shared/page-loading.component";
 import { ApplicationsLoadingComponent } from "./shared/risk-insights-loading.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -51,6 +52,7 @@ import { ApplicationsLoadingComponent } from "./shared/risk-insights-loading.com
     DrawerHeaderComponent,
     AllActivityComponent,
     ApplicationsLoadingComponent,
+    PageLoadingComponent,
   ],
 })
 export class RiskInsightsComponent implements OnInit, OnDestroy {

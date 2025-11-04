@@ -1,9 +1,10 @@
 <ng-container>
   @let status = dataService.reportStatus$ | async;
   @let hasCiphers = dataService.hasCiphers$ | async;
+  @let isGeneratingReport = dataService.isGeneratingReport$ | async;
   @if (status == ReportStatusEnum.Initializing || hasCiphers === null) {
-    <!-- Show loading state when initializing risk insights -->
-    <dirt-risk-insights-loading></dirt-risk-insights-loading>
+    <!-- Show page loading state when initializing risk insights (quick page load) -->
+    <dirt-page-loading></dirt-page-loading>
   } @else {
     <!-- Check final states after initial calls have been completed -->
     @if (!(dataService.hasReportData$ | async)) {
@@ -76,28 +77,33 @@
           }
         </div>
 
-        <div class="tw-flex-1 tw-flex tw-flex-col">
-          <bit-tab-group [(selectedIndex)]="tabIndex" (selectedIndexChange)="onTabChange($event)">
-            @if (isRiskInsightsActivityTabFeatureEnabled) {
-              <bit-tab label="{{ 'activity' | i18n }}">
-                <dirt-all-activity></dirt-all-activity>
+        @if (status == ReportStatusEnum.Loading && isGeneratingReport) {
+          <!-- Show detailed progress when generating report (longer operation) -->
+          <dirt-risk-insights-loading></dirt-risk-insights-loading>
+        } @else {
+          <div class="tw-flex-1 tw-flex tw-flex-col">
+            <bit-tab-group [(selectedIndex)]="tabIndex" (selectedIndexChange)="onTabChange($event)">
+              @if (isRiskInsightsActivityTabFeatureEnabled) {
+                <bit-tab label="{{ 'activity' | i18n }}">
+                  <dirt-all-activity></dirt-all-activity>
+                </bit-tab>
+              }
+              <bit-tab label="{{ 'allApplicationsWithCount' | i18n: appsCount }}">
+                <dirt-all-applications></dirt-all-applications>
               </bit-tab>
-            }
-            <bit-tab label="{{ 'allApplicationsWithCount' | i18n: appsCount }}">
-              <dirt-all-applications></dirt-all-applications>
-            </bit-tab>
-            <bit-tab>
-              <ng-template bitTabLabel>
-                <i class="bwi bwi-star"></i>
-                {{
-                  "criticalApplicationsWithCount"
-                    | i18n: (dataService.criticalReportResults$ | async)?.reportData?.length ?? 0
-                }}
-              </ng-template>
-              <dirt-critical-applications></dirt-critical-applications>
-            </bit-tab>
-          </bit-tab-group>
-        </div>
+              <bit-tab>
+                <ng-template bitTabLabel>
+                  <i class="bwi bwi-star"></i>
+                  {{
+                    "criticalApplicationsWithCount"
+                      | i18n: (dataService.criticalReportResults$ | async)?.reportData?.length ?? 0
+                  }}
+                </ng-template>
+                <dirt-critical-applications></dirt-critical-applications>
+              </bit-tab>
+            </bit-tab-group>
+          </div>
+        }
       </div>
     }
   }

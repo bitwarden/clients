@@ -4421,6 +4421,30 @@
   "generatingYourRiskInsights": {
     "message": "Generating your Risk Insights..."
   },
+  "fetchingMemberData": {
+    "message": "Fetching member data..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "Analyzing password health..."
+  },
+  "calculatingRiskScores": {
+    "message": "Calculating risk scores..."
+  },
+  "generatingReportData": {
+    "message": "Generating report data..."
+  },
+  "savingReport": {
+    "message": "Saving report..."
+  },
+  "compilingInsights": {
+    "message": "Compiling insights..."
+  },
+  "loadingProgress": {
+    "message": "Loading progress"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "This might take a few minutes."
+  },
   "riskInsightsRunReport": {
     "message": "Run report"
   },
