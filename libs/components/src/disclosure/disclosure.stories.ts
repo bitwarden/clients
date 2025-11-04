@@ -42,7 +42,7 @@ export const DisclosureWithIconButton: Story = {
     template: /*html*/ `
       <button type="button" label="Settings" bitIconButton="bwi-sliders" buttonType="muted" [bitDisclosureTriggerFor]="disclosureRef">
       </button>
-      <bit-disclosure #disclosureRef class="tw-text-main tw-block" open>click button to hide this content</bit-disclosure>
+      <bit-disclosure #disclosureRef class="tw-text-main tw-block">click button to hide this content</bit-disclosure>
     `,
   }),
 };
