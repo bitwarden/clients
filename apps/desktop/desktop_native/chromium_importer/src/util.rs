@@ -41,7 +41,8 @@ pub(crate) fn decrypt_aes_128_cbc(key: &[u8], iv: &[u8], ciphertext: &[u8]) -> R
         .map_err(|e| anyhow!("Failed to decrypt: {}", e))
 }
 
-/// Derives a PBKDF2 key from the static "saltysalt" salt with the given password and iteration count.
+/// Derives a PBKDF2 key from the static "saltysalt" salt with the given password and iteration
+/// count.
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 pub(crate) fn derive_saltysalt(password: &[u8], iterations: u32) -> Result<Vec<u8>> {
     use pbkdf2::{hmac::Hmac, pbkdf2};

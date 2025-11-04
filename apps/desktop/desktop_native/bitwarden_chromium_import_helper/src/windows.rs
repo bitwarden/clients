@@ -1,8 +1,4 @@
 mod windows_binary {
-    use anyhow::{anyhow, Result};
-    use base64::{engine::general_purpose, Engine as _};
-    use clap::Parser;
-    use scopeguard::defer;
     use std::{
         ffi::OsString,
         os::windows::{ffi::OsStringExt as _, io::AsRawHandle},
@@ -10,6 +6,12 @@ mod windows_binary {
         ptr,
         time::Duration,
     };
+
+    use anyhow::{anyhow, Result};
+    use base64::{engine::general_purpose, Engine as _};
+    use chromium_importer::chromium::{verify_signature, ADMIN_TO_USER_PIPE_NAME};
+    use clap::Parser;
+    use scopeguard::defer;
     use sysinfo::System;
     use tokio::{
         io::{AsyncReadExt, AsyncWriteExt},
@@ -44,8 +46,6 @@ mod windows_binary {
         },
     };
 
-    use chromium_importer::chromium::{verify_signature, ADMIN_TO_USER_PIPE_NAME};
-
     #[derive(Parser)]
     #[command(name = "bitwarden_chromium_import_helper")]
     #[command(about = "Admin tool for ABE service management")]
@@ -55,10 +55,11 @@ mod windows_binary {
         encrypted: String,
     }
 
-    // Enable this to log to a file. The way this executable is used, it's not easy to debug and the stdout gets lost.
-    // This is intended for development time only. All the logging is wrapped in `dbg_log!`` macro that compiles to
-    // no-op when logging is disabled. This is needed to avoid any sensitive data being logged in production. Normally
-    // all the logging code is present in the release build and could be enabled via RUST_LOG environment variable.
+    // Enable this to log to a file. The way this executable is used, it's not easy to debug and the
+    // stdout gets lost. This is intended for development time only. All the logging is wrapped
+    // in `dbg_log!`` macro that compiles to no-op when logging is disabled. This is needed to
+    // avoid any sensitive data being logged in production. Normally all the logging code is
+    // present in the release build and could be enabled via RUST_LOG environment variable.
     // We don't want that!
     const ENABLE_DEVELOPER_LOGGING: bool = false;
     const LOG_FILENAME: &str = "c:\\path\\to\\log.txt"; // This is an example filename, replace it with you own
@@ -245,7 +246,8 @@ mod windows_binary {
         // Need to enable SE_DEBUG_PRIVILEGE to enumerate and open SYSTEM processes
         enable_debug_privilege()?;
 
-        // Find a SYSTEM process and get its token. Not every SYSTEM process allows token duplication, so try several.
+        // Find a SYSTEM process and get its token. Not every SYSTEM process allows token
+        // duplication, so try several.
         let (token, pid, name) = find_system_process_with_token(get_system_pid_list())?;
 
         // Impersonate the SYSTEM process
@@ -413,11 +415,12 @@ mod windows_binary {
             system_decrypted_base64
         };
 
-        // This is just to check that we're decrypting Chrome keys and not something else sent to us by a malicious actor.
-        // Now that we're back from SYSTEM, we need to decrypt one more time just to verify.
-        // Chrome keys are double encrypted: once at SYSTEM level and once at USER level.
-        // When the decryption fails, it means that we're decrypting something unexpected.
-        // We don't send this result back since the library will decrypt again at USER level.
+        // This is just to check that we're decrypting Chrome keys and not something else sent to us
+        // by a malicious actor. Now that we're back from SYSTEM, we need to decrypt one
+        // more time just to verify. Chrome keys are double encrypted: once at SYSTEM level
+        // and once at USER level. When the decryption fails, it means that we're decrypting
+        // something unexpected. We don't send this result back since the library will
+        // decrypt again at USER level.
 
         _ = decrypt_data_base64(&system_decrypted_base64, false).map_err(|e| {
             dbg_log!("User level decryption check failed: {}", e);
@@ -430,7 +433,8 @@ mod windows_binary {
     }
 
     fn init_logging(log_path: &Path, file_level: LevelFilter) {
-        // We only log to a file. It's impossible to see stdout/stderr when this exe is launched from ShellExecuteW.
+        // We only log to a file. It's impossible to see stdout/stderr when this exe is launched
+        // from ShellExecuteW.
         match std::fs::File::create(log_path) {
             Ok(file) => {
                 let file_filter = EnvFilter::builder()

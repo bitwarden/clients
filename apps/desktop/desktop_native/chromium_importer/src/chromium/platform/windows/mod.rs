@@ -1,16 +1,19 @@
+use std::path::{Path, PathBuf};
+
 use aes_gcm::{aead::Aead, Aes256Gcm, Key, KeyInit, Nonce};
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use base64::{engine::general_purpose::STANDARD as BASE64_STANDARD, Engine as _};
 use chacha20poly1305::ChaCha20Poly1305;
-use std::path::{Path, PathBuf};
 use windows::Win32::{
     Foundation::{LocalFree, HLOCAL},
     Security::Cryptography::{CryptUnprotectData, CRYPT_INTEGER_BLOB},
 };
 
-use crate::chromium::{BrowserConfig, CryptoService, LocalState};
-use crate::util;
+use crate::{
+    chromium::{BrowserConfig, CryptoService, LocalState},
+    util,
+};
 mod abe;
 mod abe_config;
 mod signature;
@@ -101,7 +104,8 @@ impl CryptoService for WindowsCryptoService {
         let (version, no_prefix) =
             util::split_encrypted_string_and_validate(encrypted, &["v10", "v20"])?;
 
-        // v10 is already stripped; Windows Chrome uses AES-GCM: [12 bytes IV][ciphertext][16 bytes auth tag]
+        // v10 is already stripped; Windows Chrome uses AES-GCM: [12 bytes IV][ciphertext][16 bytes
+        // auth tag]
         const IV_SIZE: usize = 12;
         const TAG_SIZE: usize = 16;
         const MIN_LENGTH: usize = IV_SIZE + TAG_SIZE;
@@ -232,7 +236,8 @@ impl WindowsCryptoService {
         let content_offset = content_len_offset + 4;
         let content = &blob_data[content_offset..content_offset + content_len];
 
-        // When the size is exactly 32 bytes, it's a plain key. It's used in unbranded Chromium builds, Brave, possibly Edge
+        // When the size is exactly 32 bytes, it's a plain key. It's used in unbranded Chromium
+        // builds, Brave, possibly Edge
         if content_len == 32 {
             return Ok(content.to_vec());
         }
@@ -319,7 +324,8 @@ impl WindowsCryptoService {
         // TODO: Decrypt the AES key using CNG APIs
         // TODO: Implement this in the future once we run into a browser that uses this scheme
 
-        // There's no way to test this at the moment. This encryption scheme is not used in any of the browsers I've tested.
+        // There's no way to test this at the moment. This encryption scheme is not used in any of
+        // the browsers I've tested.
         Err(anyhow!("Google ABE CNG flavor is not supported yet"))
     }
 }
@@ -406,8 +412,8 @@ fn get_dist_admin_exe_path(current_exe_full_path: &Path) -> Result<PathBuf> {
     Ok(admin_exe)
 }
 
-// Try to find bitwarden_chromium_import_helper.exe in debug build folders. This might not cover all the cases.
-// Tested on `npm run electron` from apps/desktop and apps/desktop/desktop_native.
+// Try to find bitwarden_chromium_import_helper.exe in debug build folders. This might not cover all
+// the cases. Tested on `npm run electron` from apps/desktop and apps/desktop/desktop_native.
 fn get_debug_admin_exe_path() -> Result<PathBuf> {
     let current_dir = std::env::current_dir()?;
     let folder_name = current_dir
