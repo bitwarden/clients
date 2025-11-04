@@ -8,13 +8,10 @@ import {
   TemplateRef,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import { Router } from "@angular/router";
 import {
   combineLatest,
-  filter,
-  first,
   firstValueFrom,
   map,
   Observable,
@@ -23,7 +20,6 @@ import {
   startWith,
   switchMap,
   tap,
-  zip,
 } from "rxjs";
 
 import { AutomaticUserConfirmationService } from "@bitwarden/admin-console/common";
@@ -137,18 +133,6 @@ export class AutoConfirmPolicyDialogComponent
     );
 
     this.firstTimeDialog.set(data.firstTimeDialog ?? false);
-    const userId$ = this.accountService.activeAccount$.pipe(getUserId);
-
-    zip([userId$.pipe(switchMap((userId) => autoConfirmService.configuration$(userId))), userId$])
-      .pipe(
-        first(),
-        filter(([state]) => state.showSetupDialog),
-        switchMap(([autoConfirmState, userId]) =>
-          this.autoConfirmService.upsert(userId, { ...autoConfirmState, showSetupDialog: false }),
-        ),
-        takeUntilDestroyed(),
-      )
-      .subscribe();
   }
 
   /**
@@ -223,6 +207,17 @@ export class AutoConfirmPolicyDialogComponent
       this.data.policy.type,
       autoConfirmRequest,
     );
+
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    const currentAutoConfirmState = await firstValueFrom(
+      this.autoConfirmService.configuration$(userId),
+    );
+
+    await this.autoConfirmService.upsert(userId, {
+      ...currentAutoConfirmState,
+      showSetupDialog: false,
+    });
 
     this.toastService.showToast({
       variant: "success",

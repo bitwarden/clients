@@ -4,3 +4,4 @@ export { BasePolicyEditDefinition, BasePolicyEditComponent } from "./base-policy
 export { POLICY_EDIT_REGISTER } from "./policy-register-token";
 export { AutoConfirmPolicyDialogComponent } from "./auto-confirm-edit-policy-dialog.component";
 export { AutoConfirmPolicy } from "./policy-edit-definitions";
+export { PolicyEditDialogResult } from "./policy-edit-dialog.component";

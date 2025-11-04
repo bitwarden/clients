@@ -36,7 +36,7 @@ export const DELETE_MANAGED_USER_WARNING = new StateDefinition(
     web: "disk-local",
   },
 );
-export const AUTO_CONFIRM = new StateDefinition("autoConfirm", "disk");
+export const AUTO_CONFIRM = new StateDefinition("autoConfirm", "disk", { web: "disk-local" });
 
 // Billing
 export const BILLING_DISK = new StateDefinition("billing", "disk");

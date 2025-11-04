@@ -23,7 +23,6 @@ import {
   take,
   takeUntil,
   tap,
-  withLatestFrom,
 } from "rxjs/operators";
 
 import {
@@ -110,6 +109,7 @@ import {
 import {
   AutoConfirmPolicy,
   AutoConfirmPolicyDialogComponent,
+  PolicyEditDialogResult,
 } from "../../admin-console/organizations/policies";
 import {
   CollectionDialogAction,
@@ -222,6 +222,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private destroy$ = new Subject<void>();
 
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
+  private autoConfirmDialogRef?: DialogRef<PolicyEditDialogResult> | undefined;
+
   protected showAddCipherBtn: boolean = false;
 
   organizations$ = this.accountService.activeAccount$
@@ -1561,47 +1563,65 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     return cipherView.login?.password;
   }
 
-  private openAutoConfirmFeatureDialog(organization: Organization) {
-    AutoConfirmPolicyDialogComponent.open(this.dialogService, {
+  private async openAutoConfirmFeatureDialog(organization: Organization) {
+    this.autoConfirmDialogRef = AutoConfirmPolicyDialogComponent.open(this.dialogService, {
       data: {
         policy: new AutoConfirmPolicy(),
         organizationId: organization.id,
         firstTimeDialog: true,
       },
     });
+
+    await lastValueFrom(this.autoConfirmDialogRef.closed);
+    this.autoConfirmDialogRef = undefined;
   }
 
   private setupAutoConfirm() {
-    zip([
-      this.organizations$.pipe(map((organizations) => organizations[0])),
-      this.configService.getFeatureFlag$(FeatureFlag.AutoConfirm),
-      this.userId$.pipe(switchMap((userId) => this.autoConfirmService.configuration$(userId))),
+    // if the policy is enabled, then the user may only belong to one organization at most.
+    const organization$ = this.organizations$.pipe(map((organizations) => organizations[0]));
+
+    const featureFlag$ = this.configService.getFeatureFlag$(FeatureFlag.AutoConfirm);
+
+    const autoConfirmState$ = this.userId$.pipe(
+      switchMap((userId) => this.autoConfirmService.configuration$(userId)),
+    );
+
+    const policyEnabled$ = combineLatest([
       this.userId$.pipe(
         switchMap((userId) => this.policyService.policies$(userId)),
-        withLatestFrom(this.organizations$.pipe(map((organizations) => organizations[0]))),
-        map(([policies, organization]) =>
-          policies.some(
-            (p) =>
-              p.type === PolicyType.AutoConfirm &&
-              p.enabled &&
-              p.organizationId === organization.id,
-          ),
-        ),
+        map((policies) => policies.find((p) => p.type === PolicyType.AutoConfirm && p.enabled)),
       ),
-    ])
+      organization$,
+    ]).pipe(
+      map(
+        ([policy, organization]) => (policy && policy.organizationId === organization?.id) ?? false,
+      ),
+    );
+
+    zip([organization$, featureFlag$, autoConfirmState$, policyEnabled$, this.userId$])
       .pipe(
-        filter(
-          ([organization, flagEnabled, autoConfirmState, policyEnabled]) =>
+        map(async ([organization, flagEnabled, autoConfirmState, policyEnabled, userId]) => {
+          const showDialog =
             flagEnabled &&
             !policyEnabled &&
             autoConfirmState.showSetupDialog &&
             !!organization &&
-            organization.canManageUsers,
-        ),
-        first(),
+            (organization.canManageUsers || organization.canManagePolicies);
+
+          if (showDialog) {
+            await this.openAutoConfirmFeatureDialog(organization);
+
+            await this.autoConfirmService.upsert(userId, {
+              ...autoConfirmState,
+              showSetupDialog: false,
+            });
+          }
+        }),
         takeUntil(this.destroy$),
       )
-      .subscribe(([organization]) => this.openAutoConfirmFeatureDialog(organization));
+      .subscribe({
+        error: (err: unknown) => this.logService.error("Failed to update auto-confirm state", err),
+      });
   }
 }
 
