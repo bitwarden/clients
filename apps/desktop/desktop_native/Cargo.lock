@@ -608,7 +608,6 @@ dependencies = [
  "async-trait",
  "base64",
  "cbc",
- "chacha20poly1305",
  "dirs",
  "hex",
  "oo7",
@@ -621,7 +620,6 @@ dependencies = [
  "sha1",
  "tokio",
  "tracing",
- "tracing-subscriber",
  "verifysign",
  "windows 0.61.1",
 ]
