@@ -215,6 +215,7 @@ export class NewApplicationsDialogComponent {
                 isMarkedAsCritical: updatedStateApplicationData.some(
                   (a) => a.applicationName == application.applicationName && a.isCritical,
                 ),
+                ciphers: [], // explicitly ignore ciphers at this stage
               }),
             ) || [];
           return from(

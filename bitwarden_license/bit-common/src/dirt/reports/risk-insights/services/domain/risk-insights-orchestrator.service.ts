@@ -235,6 +235,7 @@ export class RiskInsightsOrchestratorService {
               application,
               updatedApplicationData,
             ),
+            ciphers: [], // explicitly ignore ciphers at this stage
           }),
         );
 
@@ -367,6 +368,7 @@ export class RiskInsightsOrchestratorService {
               application,
               updatedApplicationData,
             ),
+            ciphers: [], // explicitly ignore ciphers at this stage
           }),
         );
 
@@ -502,6 +504,7 @@ export class RiskInsightsOrchestratorService {
               application,
               updatedApplicationData,
             ),
+            ciphers: [], // explicitly ignore ciphers at this stage
           }),
         );
         // For now, merge the report with the critical marking flag to make the enriched type
@@ -659,6 +662,7 @@ export class RiskInsightsOrchestratorService {
               application,
               updatedApplicationData,
             ),
+            ciphers: [], // explicitly ignore ciphers at this stage
           }),
         );
 
@@ -952,8 +956,8 @@ export class RiskInsightsOrchestratorService {
    */
   private _setupEnrichedReportData() {
     // Setup the enriched report data pipeline
-    const enrichmentSubscription = combineLatest([this.rawReportData$]).pipe(
-      switchMap(([rawReportData]) => {
+    const enrichmentSubscription = combineLatest([this.rawReportData$, this._ciphers$]).pipe(
+      switchMap(([rawReportData, ciphers]) => {
         this.logService.debug(
           "[RiskInsightsOrchestratorService] Enriching report data with ciphers and critical app status",
         );
@@ -964,6 +968,7 @@ export class RiskInsightsOrchestratorService {
         const enrichedReports: ApplicationHealthReportDetailEnriched[] = rawReports.map((app) => ({
           ...app,
           isMarkedAsCritical: this.reportService.isCriticalApplication(app, criticalAppsData),
+          ciphers: ciphers?.filter((cipher) => app.cipherIds.includes(cipher.id)) ?? [],
         }));
 
         const enrichedData = {
