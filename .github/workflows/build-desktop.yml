@@ -350,6 +350,7 @@ jobs:
           sudo snap install lxd
           getent group lxd | grep -qwF "$USER" || sudo usermod -aG lxd "$USER"
           newgrp lxd
+          groups
 
       - name: Print environment
         run: |
