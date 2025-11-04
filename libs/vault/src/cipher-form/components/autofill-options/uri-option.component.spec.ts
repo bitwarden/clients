@@ -77,19 +77,19 @@ describe("UriOptionComponent", () => {
     component.defaultMatchDetection = UriMatchStrategy.Domain;
     fixture.detectChanges();
 
-    expect(component["uriMatchOptions"][0].label).toBe("defaultLabel baseDomain");
+    expect(component["uriMatchOptions"][0].label).toBe("defaultLabelWithValue baseDomain");
   });
 
   it("should update the default uri match strategy label", () => {
     component.defaultMatchDetection = UriMatchStrategy.Exact;
     fixture.detectChanges();
 
-    expect(component["uriMatchOptions"][0].label).toBe("defaultLabel exact");
+    expect(component["uriMatchOptions"][0].label).toBe("defaultLabelWithValue exact");
 
     component.defaultMatchDetection = UriMatchStrategy.StartsWith;
     fixture.detectChanges();
 
-    expect(component["uriMatchOptions"][0].label).toBe("defaultLabel startsWith");
+    expect(component["uriMatchOptions"][0].label).toBe("defaultLabelWithValue startsWith");
   });
 
   it("should focus the uri input when focusInput is called", () => {

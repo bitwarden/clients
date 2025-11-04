@@ -47,11 +47,14 @@ import {
   TwoFactorAuthGuard,
   NewDeviceVerificationComponent,
 } from "@bitwarden/auth/angular";
+import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { LockComponent } from "@bitwarden/key-management-ui";
+import { premiumInterestRedirectGuard } from "@bitwarden/web-vault/app/vault/guards/premium-interest-redirect/premium-interest-redirect.guard";
 
 import { flagEnabled, Flags } from "../utils/flags";
 
+import { organizationPolicyGuard } from "./admin-console/organizations/guards/org-policy.guard";
 import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/manage/verify-recover-delete-org.component";
 import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizations/sponsorships/families-for-enterprise-setup.component";
@@ -87,7 +90,6 @@ import { SendComponent } from "./tools/send/send.component";
 import { BrowserExtensionPromptInstallComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt-install.component";
 import { BrowserExtensionPromptComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt.component";
 import { SetupExtensionComponent } from "./vault/components/setup-extension/setup-extension.component";
-import { premiumSetupIntentRedirectGuard } from "./vault/guards/premium-setup-intent-redirect/premium-setup-intent-redirect.guard";
 import { setupExtensionRedirectGuard } from "./vault/guards/setup-extension-redirect.guard";
 import { VaultModule } from "./vault/individual-vault/vault.module";
 
@@ -629,7 +631,7 @@ const routes: Routes = [
     children: [
       {
         path: "vault",
-        canActivate: [premiumSetupIntentRedirectGuard, setupExtensionRedirectGuard],
+        canActivate: [premiumInterestRedirectGuard, setupExtensionRedirectGuard],
         loadChildren: () => VaultModule,
       },
       {
@@ -688,11 +690,13 @@ const routes: Routes = [
               {
                 path: "",
                 component: EmergencyAccessComponent,
+                canActivate: [organizationPolicyGuard(canAccessEmergencyAccess)],
                 data: { titleId: "emergencyAccess" } satisfies RouteDataProperties,
               },
               {
                 path: ":id",
                 component: EmergencyAccessViewComponent,
+                canActivate: [organizationPolicyGuard(canAccessEmergencyAccess)],
                 data: { titleId: "emergencyAccess" } satisfies RouteDataProperties,
               },
             ],
