@@ -57,8 +57,8 @@ pub(super) fn type_input(input: &[u16], keyboard_shortcut: &[KeyboardShortcutInp
         Vec::with_capacity(keyboard_shortcut.len() + (input.len() * 2));
 
     // insert the keyboard shortcut
-    for input in keyboard_shortcut {
-        keyboard_inputs.push(input.0);
+    for shortcut in keyboard_shortcut {
+        keyboard_inputs.push(shortcut.0);
     }
 
     add_input(input, &mut keyboard_inputs);
