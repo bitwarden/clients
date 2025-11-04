@@ -304,23 +304,7 @@ mod windows_binary {
         })
     }
 
-    // TODO: DRY up with decrypt_abe_key_blob_chrome_chacha20
     fn decrypt_abe_key_blob_chrome_aes(blob: &[u8]) -> Result<Vec<u8>> {
-        if blob.len() < 60 {
-            return Err(anyhow!(
-                "Corrupted ABE key blob: expected at least 60 bytes, got {} bytes",
-                blob.len()
-            ));
-        }
-
-        let iv: [u8; 12] = blob[0..12].try_into()?;
-        let ciphertext: [u8; 48] = blob[12..12 + 48].try_into()?;
-
-        debug!(
-            "Google ABE v1 (AES flavor) detected: {:?} {:?}",
-            iv, ciphertext
-        );
-
         const GOOGLE_AES_KEY: &[u8] = &[
             0xB3, 0x1C, 0x6E, 0x24, 0x1A, 0xC8, 0x46, 0x72, 0x8D, 0xA9, 0xC1, 0xFA, 0xC4, 0x93,
             0x66, 0x51, 0xCF, 0xFB, 0x94, 0x4D, 0x14, 0x3A, 0xB8, 0x16, 0x27, 0x6B, 0xCC, 0x6D,
@@ -329,21 +313,10 @@ mod windows_binary {
         let aes_key = Key::<Aes256Gcm>::from_slice(GOOGLE_AES_KEY);
         let cipher = Aes256Gcm::new(aes_key);
 
-        let decrypted = cipher
-            .decrypt((&iv).into(), ciphertext.as_ref())
-            .map_err(|e| anyhow!("Failed to decrypt v20 key with Google AES key: {}", e))?;
-
-        Ok(decrypted)
+        decrypt_abe_key_blob_with_aead(blob, &cipher, "v1 (AES flavor)")
     }
 
     fn decrypt_abe_key_blob_chrome_chacha20(blob: &[u8]) -> Result<Vec<u8>> {
-        if blob.len() < 60 {
-            return Err(anyhow!(
-                "Corrupted ABE key blob: expected at least 60 bytes, got {} bytes",
-                blob.len()
-            ));
-        }
-
         const GOOGLE_CHACHA20_KEY: &[u8] = &[
             0xE9, 0x8F, 0x37, 0xD7, 0xF4, 0xE1, 0xFA, 0x43, 0x3D, 0x19, 0x30, 0x4D, 0xC2, 0x25,
             0x80, 0x42, 0x09, 0x0E, 0x2D, 0x1D, 0x7E, 0xEA, 0x76, 0x70, 0xD4, 0x1F, 0x73, 0x8D,
@@ -353,17 +326,28 @@ mod windows_binary {
         let chacha20_key = chacha20poly1305::Key::from_slice(GOOGLE_CHACHA20_KEY);
         let cipher = ChaCha20Poly1305::new(chacha20_key);
 
-        let iv: [u8; 12] = blob[0..12].try_into()?;
-        let ciphertext: [u8; 48] = blob[12..12 + 48].try_into()?;
+        decrypt_abe_key_blob_with_aead(blob, &cipher, "v2 (ChaCha20 flavor)")
+    }
 
-        debug!(
-            "Google ABE v2 (ChaCha20 flavor) detected: {:?} {:?}",
-            iv, ciphertext
-        );
+    fn decrypt_abe_key_blob_with_aead<C>(blob: &[u8], cipher: &C, version: &str) -> Result<Vec<u8>>
+    where
+        C: Aead,
+    {
+        if blob.len() < 60 {
+            return Err(anyhow!(
+                "Corrupted ABE key blob: expected at least 60 bytes, got {} bytes",
+                blob.len()
+            ));
+        }
+
+        let iv = &blob[0..12];
+        let ciphertext = &blob[12..12 + 48];
+
+        debug!("Google ABE {} detected: {:?} {:?}", version, iv, ciphertext);
 
         let decrypted = cipher
-            .decrypt((&iv).into(), ciphertext.as_ref())
-            .map_err(|e| anyhow!("Failed to decrypt v20 key with Google ChaCha20 key: {}", e))?;
+            .decrypt(iv.into(), ciphertext)
+            .map_err(|e| anyhow!("Failed to decrypt v20 key with {}: {}", version, e))?;
 
         Ok(decrypted)
     }
