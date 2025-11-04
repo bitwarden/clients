@@ -190,9 +190,6 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install pkg-config libxss-dev rpm musl-dev musl-tools flatpak flatpak-builder
 
-      - name: Set up Snap
-        run: sudo snap install snapcraft --classic
-
       - name: Print environment
         run: |
           node --version
