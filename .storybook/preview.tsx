@@ -4,7 +4,7 @@ import { componentWrapperDecorator } from "@storybook/angular";
 import type { Preview } from "@storybook/angular";
 
 import docJson from "../documentation.json";
-import { provideNoopAnimations } from "@angular/platform-browser/animations";
+
 setCompodocJson(docJson);
 
 const wrapperDecorator = componentWrapperDecorator((story) => {
