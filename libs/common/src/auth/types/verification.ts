@@ -1,4 +1,3 @@
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 import { MasterKey } from "@bitwarden/common/types/key";
 
 import { VerificationType } from "../enums/verification-type";
