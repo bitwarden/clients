@@ -6,6 +6,7 @@ import { LogService } from "@bitwarden/logging";
 import { WindowMain } from "../../main/window.main";
 import { stringIsNotUndefinedNullAndEmpty } from "../../utils";
 import { AutotypeConfig } from "../models/autotype-configure";
+import { AutotypeVaultData } from "../models/autotype-vault-data";
 import { AUTOTYPE_IPC_CHANNELS } from "../models/ipc-channels";
 import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
 
@@ -49,18 +50,12 @@ export class MainDesktopAutotypeService {
       this.setKeyboardShortcut(newKeyboardShortcut);
     });
 
-    ipcMain.on(AUTOTYPE_IPC_CHANNELS.EXECUTE, (_event, data) => {
-      const { response } = data;
-
+    ipcMain.on(AUTOTYPE_IPC_CHANNELS.EXECUTE, (_event, vaultData: AutotypeVaultData) => {
       if (
-        stringIsNotUndefinedNullAndEmpty(response.username) &&
-        stringIsNotUndefinedNullAndEmpty(response.password)
+        stringIsNotUndefinedNullAndEmpty(vaultData.username) &&
+        stringIsNotUndefinedNullAndEmpty(vaultData.password)
       ) {
-        this.doAutotype(
-          response.username,
-          response.password,
-          this.autotypeKeyboardShortcut.getArrayFormat(),
-        );
+        this.doAutotype(vaultData, this.autotypeKeyboardShortcut.getArrayFormat());
       }
     });
 
@@ -137,8 +132,9 @@ export class MainDesktopAutotypeService {
     }
   }
 
-  private doAutotype(username: string, password: string, keyboardShortcut: string[]) {
-    const inputPattern = username + "\t" + password;
+  private doAutotype(vaultData: AutotypeVaultData, keyboardShortcut: string[]) {
+    const TAB = "\t";
+    const inputPattern = vaultData.username + TAB + vaultData.password;
     const inputArray = new Array<number>(inputPattern.length);
 
     for (let i = 0; i < inputPattern.length; i++) {

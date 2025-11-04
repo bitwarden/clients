@@ -6,6 +6,7 @@ import { Command } from "../platform/main/autofill/command";
 import { RunCommandParams, RunCommandResult } from "../platform/main/autofill/native-autofill.main";
 
 import { AutotypeConfig } from "./models/autotype-configure";
+import { AutotypeVaultData } from "./models/autotype-vault-data";
 import { AUTOTYPE_IPC_CHANNELS } from "./models/ipc-channels";
 
 export default {
@@ -145,10 +146,7 @@ export default {
   listenAutotypeRequest: (
     fn: (
       windowTitle: string,
-      completeCallback: (
-        error: Error | null,
-        response: { username?: string; password?: string },
-      ) => void,
+      completeCallback: (error: Error | null, response: AutotypeVaultData | null) => void,
     ) => void,
   ) => {
     ipcRenderer.on(
@@ -161,7 +159,7 @@ export default {
       ) => {
         const { windowTitle } = data;
 
-        fn(windowTitle, (error, response) => {
+        fn(windowTitle, (error, vaultData) => {
           if (error) {
             ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR, {
               windowTitle,
@@ -170,10 +168,9 @@ export default {
             return;
           }
 
-          ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.EXECUTE, {
-            windowTitle,
-            response,
-          });
+          if (vaultData !== null) {
+            ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.EXECUTE, vaultData);
+          }
         });
       },
     );
