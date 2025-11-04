@@ -335,6 +335,7 @@ export class LockComponent implements OnInit, OnDestroy {
       // If biometrics is temporarily unavailable for masterpassword-less users, but they have biometrics configured,
       // then show the biometrics screen so the user knows why they can't unlock, and to give them the option to log out.
     } else if (
+      biometricsStatus != null &&
       [
         BiometricsStatus.HardwareUnavailable,
         BiometricsStatus.DesktopDisconnected,
