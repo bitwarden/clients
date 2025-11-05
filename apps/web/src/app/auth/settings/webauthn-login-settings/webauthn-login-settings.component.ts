@@ -31,7 +31,7 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
   protected readonly MaxCredentialCount = WebauthnLoginAdminService.MaxCredentialCount;
   protected readonly WebauthnLoginCredentialPrfStatus = WebauthnLoginCredentialPrfStatus;
 
-  protected credentials: WebauthnLoginCredentialView[];
+  protected credentials?: WebauthnLoginCredentialView[];
   protected loading = true;
 
   constructor(
@@ -39,9 +39,7 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private policyService: PolicyService,
     private accountService: AccountService,
-  ) {
-    this.credentials = [];
-  }
+  ) {}
 
   @HostBinding("attr.aria-busy")
   get ariaBusy() {
@@ -57,6 +55,9 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
   }
 
   get limitReached() {
+    if (!this.credentials) {
+      return false;
+    }
     return this.credentials.length >= this.MaxCredentialCount;
   }
 
