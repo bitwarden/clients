@@ -73,8 +73,7 @@ impl ExperimentalWebAuthnPluginCredentialDetails {
         user_display_name: String,
     ) -> Self {
         // Convert credential_id bytes to hex string, then allocate with COM
-        let credential_id_string = hex::encode(&credential_id);
-        let (credential_id_pointer, credential_id_byte_count) = ComBuffer::from_buffer(credential_id_string.as_bytes());
+        let (credential_id_pointer, credential_id_byte_count) = ComBuffer::from_buffer(credential_id);
 
         // Convert user_id bytes to hex string, then allocate with COM
         let user_id_string = hex::encode(&user_id);

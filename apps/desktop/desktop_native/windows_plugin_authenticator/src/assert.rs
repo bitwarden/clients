@@ -148,6 +148,10 @@ fn send_assertion_request(
         request.allowed_credentials.len()
     ));
 
+    debug_log(format!(
+        "Allowed credentials: {:?}",
+        passkey_request.allowed_credentials
+    ));
     match serde_json::to_string(&passkey_request) {
         Ok(request_json) => {
             debug_log(&format!("Sending assertion request: {}", request_json));
@@ -219,6 +223,7 @@ unsafe fn create_get_assertion_response(
 
     // Encode to CBOR with error handling
     let mut cbor_data = Vec::new();
+    cbor_data.push(0); // CTAP_STATUS_OK
     if let Err(e) = ciborium::ser::into_writer(&cbor_value, &mut cbor_data) {
         debug_log(&format!(
             "ERROR: Failed to encode CBOR assertion response: {:?}",
@@ -426,3 +431,6 @@ pub unsafe fn experimental_plugin_get_assertion(
         }
     }
 }
+
+#[cfg(test)]
+mod tests {}
