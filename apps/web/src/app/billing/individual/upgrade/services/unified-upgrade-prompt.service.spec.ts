@@ -7,6 +7,7 @@ import { AccountService, Account } from "@bitwarden/common/auth/abstractions/acc
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
 import { DialogRef, DialogService } from "@bitwarden/components";
@@ -17,7 +18,10 @@ import {
   UnifiedUpgradeDialogStatus,
 } from "../unified-upgrade-dialog/unified-upgrade-dialog.component";
 
-import { UnifiedUpgradePromptService } from "./unified-upgrade-prompt.service";
+import {
+  UnifiedUpgradePromptService,
+  PREMIUM_MODAL_DISMISSED_KEY,
+} from "./unified-upgrade-prompt.service";
 
 describe("UnifiedUpgradePromptService", () => {
   let sut: UnifiedUpgradePromptService;
@@ -31,6 +35,7 @@ describe("UnifiedUpgradePromptService", () => {
   const mockDialogOpen = jest.spyOn(UnifiedUpgradeDialogComponent, "open");
   const mockPlatformUtilsService = mock<PlatformUtilsService>();
   const mockStateProvider = mock<StateProvider>();
+  const mockLogService = mock<LogService>();
 
   /**
    * Creates a mock DialogRef that implements the required properties for testing
@@ -62,6 +67,7 @@ describe("UnifiedUpgradePromptService", () => {
       mockOrganizationService,
       mockPlatformUtilsService,
       mockStateProvider,
+      mockLogService,
     );
   }
 
@@ -306,7 +312,7 @@ describe("UnifiedUpgradePromptService", () => {
 
       // Assert
       expect(mockStateProvider.setUserState).toHaveBeenCalledWith(
-        expect.anything(),
+        PREMIUM_MODAL_DISMISSED_KEY,
         true,
         mockAccount.id,
       );

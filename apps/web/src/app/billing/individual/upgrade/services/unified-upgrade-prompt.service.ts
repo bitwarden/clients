@@ -8,11 +8,12 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
-import { BILLING_MEMORY, StateProvider, UserKeyDefinition } from "@bitwarden/state";
+import { BILLING_DISK, StateProvider, UserKeyDefinition } from "@bitwarden/state";
 
 import {
   UnifiedUpgradeDialogComponent,
@@ -22,7 +23,7 @@ import {
 
 // State key for tracking premium modal dismissal
 export const PREMIUM_MODAL_DISMISSED_KEY = new UserKeyDefinition<boolean>(
-  BILLING_MEMORY,
+  BILLING_DISK,
   "premiumModalDismissed",
   {
     deserializer: (value: boolean) => value,
@@ -45,6 +46,7 @@ export class UnifiedUpgradePromptService {
     private organizationService: OrganizationService,
     private platformUtilsService: PlatformUtilsService,
     private stateProvider: StateProvider,
+    private logService: LogService,
   ) {}
 
   private shouldShowPrompt$: Observable<boolean> = this.accountService.activeAccount$.pipe(
@@ -62,10 +64,7 @@ export class UnifiedUpgradePromptService {
         this.isProfileLessThanFiveMinutesOld(account.id),
       );
       const hasOrganizations$ = from(this.hasOrganizations(account.id));
-      const hasDismissedModal$ = this.stateProvider.getUserState$(
-        PREMIUM_MODAL_DISMISSED_KEY,
-        account.id,
-      );
+      const hasDismissedModal$ = this.hasDismissedModal$(account.id);
 
       return combineLatest([
         isProfileLessThanFiveMinutesOld$,
@@ -146,7 +145,13 @@ export class UnifiedUpgradePromptService {
 
     // Save dismissal state when the modal is closed without upgrading
     if (result?.status === UnifiedUpgradeDialogStatus.Closed) {
-      await this.stateProvider.setUserState(PREMIUM_MODAL_DISMISSED_KEY, true, account.id);
+      try {
+        await this.stateProvider.setUserState(PREMIUM_MODAL_DISMISSED_KEY, true, account.id);
+      } catch (error) {
+        // Log the error but don't block the dialog from closing
+        // The modal will still close properly even if persistence fails
+        this.logService.error("Failed to save premium modal dismissal state:", error);
+      }
     }
 
     // Return the result or null if the dialog was dismissed without a result
@@ -179,5 +184,16 @@ export class UnifiedUpgradePromptService {
     );
 
     return memberOrganizations.length > 0;
+  }
+
+  /**
+   * Checks if the user has previously dismissed the premium modal
+   * @param userId User ID to check
+   * @returns Observable that emits true if modal was dismissed, false otherwise
+   */
+  private hasDismissedModal$(userId: UserId): Observable<boolean> {
+    return this.stateProvider
+      .getUserState$(PREMIUM_MODAL_DISMISSED_KEY, userId)
+      .pipe(map((dismissed) => dismissed ?? false));
   }
 }
