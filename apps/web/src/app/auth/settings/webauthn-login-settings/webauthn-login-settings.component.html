@@ -33,7 +33,7 @@
 
 <table *ngIf="hasCredentials" class="tw-mb-5">
   <tr *ngFor="let credential of credentials">
-    <td class="tw-p-2 tw-pl-0 tw-font-semibold">{{ credential.name }}</td>
+    <td class="tw-p-2 tw-pl-0 tw-font-medium">{{ credential.name }}</td>
     <td class="tw-p-2 tw-pr-10 tw-text-left">
       <ng-container *ngIf="credential.prfStatus === WebauthnLoginCredentialPrfStatus.Enabled">
         <i class="bwi bwi-lock-encrypted"></i>

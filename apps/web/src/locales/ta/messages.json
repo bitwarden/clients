@@ -172,8 +172,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "$ORG NAME$ இல் எந்தப் பயன்பாடுகளும் கண்டறியப்படவில்லை",
+  "noApplicationsInOrgTitle": {
+    "message": "No applications found for $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -181,8 +181,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "பயனர்கள் உள்நுழைவுகளை சேமிக்கும்போது, ​​பயன்பாடுகள் இங்கே தோன்றி, எந்தவொரு ஆபத்தான கடவுச்சொற்களையும் காண்பிக்கும். முக்கியமான பயன்பாடுகளைக் குறியிட்டு, கடவுச்சொற்களைப் புதுப்பிக்க பயனர்களுக்குத் தெரிவிக்கவும்."
+  "noApplicationsInOrgDescription": {
+    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  },
+  "benefit1Title": {
+    "message": "Prioritize risks"
+  },
+  "benefit1Description": {
+    "message": "Focus on applications that matter the most"
+  },
+  "benefit2Title": {
+    "message": "Guide remediation"
+  },
+  "benefit2Description": {
+    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  },
+  "benefit3Title": {
+    "message": "Monitor progress"
+  },
+  "benefit3Description": {
+    "message": "Track changes over time to show security improvements"
+  },
+  "noReportRunTitle": {
+    "message": "Run your first report to see applications"
+  },
+  "noReportRunDescription": {
+    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
   },
   "noCriticalApplicationsTitle": {
     "message": "You haven’t marked any applications as critical"
@@ -327,6 +351,27 @@
   },
   "markAsCriticalPlaceholder": {
     "message": "Mark as critical functionality will be implemented in a future update"
+  },
+  "applicationReviewSaved": {
+    "message": "Application review saved"
+  },
+  "applicationsMarkedAsCritical": {
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "newApplicationsReviewed": {
+    "message": "New applications reviewed"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Error saving review status"
+  },
+  "pleaseTryAgain": {
+    "message": "Please try again"
   },
   "unmarkAsCritical": {
     "message": "முக்கியமானதாக இருந்து குறியீட்டை நீக்கு"
@@ -1313,6 +1358,9 @@
   },
   "useSingleSignOn": {
     "message": "ஒற்றை உள்நுழைவைப் பயன்படுத்து"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
   },
   "welcomeBack": {
     "message": "மீண்டும் வருக"
@@ -4449,8 +4497,8 @@
   "inviteAccepted": {
     "message": "அழைப்பு ஏற்கப்பட்டது"
   },
-  "inviteAcceptedDesc": {
-    "message": "ஒரு நிர்வாகி உங்கள் உறுப்பினரை உறுதிப்படுத்தியவுடன் இந்த நிறுவனத்தை நீங்கள் அணுகலாம். அது நடக்கும்போது நாங்கள் உங்களுக்கு ஒரு மின்னஞ்சல் அனுப்புவோம்."
+  "invitationAcceptedDesc": {
+    "message": "Successfully accepted your invitation."
   },
   "inviteInitAcceptedDesc": {
     "message": "நீங்கள் இப்போது இந்த நிறுவனத்தை அணுகலாம்."
@@ -6492,23 +6540,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "உங்கள் நிறுவனம் உங்கள் குறியாக்க நீக்குதல் விருப்பங்களை புதுப்பித்துள்ளது. உங்கள் பெட்டகத்தை அணுக ஒரு மாஸ்டர் கடவுச்சொல்லை அமைக்கவும்."
   },
-  "maximumVaultTimeout": {
-    "message": "பெட்டக காலக்கெடு"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Session timeout"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "உறுப்பினர்களுக்கான அதிகபட்ச பெட்டக காலக்கெடுவை அமைக்கவும்."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Set a maximum session timeout for all members except owners."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "அதிகபட்ச பெட்டக காலக்கெடு"
+  "maximumAllowedTimeout": {
+    "message": "Maximum allowed timeout"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "செல்லாத அதிகபட்ச பெட்டக காலக்கெடு."
+  "maximumAllowedTimeoutRequired": {
+    "message": "Maximum allowed timeout is required."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Time is invalid. Change at least one value."
+  },
+  "sessionTimeoutAction": {
+    "message": "Session timeout action"
+  },
+  "immediately": {
+    "message": "Immediately"
+  },
+  "onSystemLock": {
+    "message": "On system lock"
+  },
+  "onAppRestart": {
+    "message": "On app restart"
   },
   "hours": {
     "message": "மணிநேரம்"
   },
   "minutes": {
     "message": "நிமிடங்கள்"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Are you certain you want to allow a maximum timeout of \"Never\" for all members?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "This option will save your members' encryption keys on their devices. If you choose this option, ensure that their devices are adequately protected."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Learn more about device protection"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "\"System lock\" will only apply to the browser and desktop app"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "The mobile and web app will use \"on app restart\" as their maximum allowed timeout, since the option is not supported."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "உங்கள் நிறுவன கொள்கைகள் உங்கள் அதிகபட்ச அனுமதிக்கப்பட்ட பெட்டக காலக்கெடுவை $HOURS$ மணிநேரங்கள் மற்றும் $MINUTES$ நிமிடங்களுக்கு அமைத்துள்ளன.",
@@ -11936,5 +12014,14 @@
   },
   "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
     "message": "Argon2id offers stronger protection against modern attacks. Best for advanced users with powerful devices."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Start free Families trial"
   }
 }
