@@ -289,8 +289,8 @@ export class LockComponent implements OnInit, OnDestroy {
       ...BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES,
     ].includes(await this.biometricService.getBiometricsStatusForUser(activeAccount.id));
     if (
-      !this.unlockOptions.masterPassword.enabled &&
-      !this.unlockOptions.pin.enabled &&
+      !this.unlockOptions?.masterPassword.enabled &&
+      !this.unlockOptions?.pin.enabled &&
       !canUseBiometrics
     ) {
       // User has no available unlock options, force logout. This happens for TDE users without a masterpassword, that don't have a persistent unlock method set.
