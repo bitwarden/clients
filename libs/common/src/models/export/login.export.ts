@@ -61,8 +61,8 @@ export class LoginExport {
       this.fido2Credentials = o.fido2Credentials.map((key) => new Fido2CredentialExport(key));
     }
 
-    this.username = safeGetString(o.username);
-    this.password = safeGetString(o.password);
-    this.totp = safeGetString(o.totp);
+    this.username = safeGetString(o.username) ?? "";
+    this.password = safeGetString(o.password) ?? "";
+    this.totp = safeGetString(o.totp) ?? "";
   }
 }

@@ -34,7 +34,7 @@ export class LoginUriExport {
       return;
     }
 
-    this.uri = safeGetString(o.uri);
+    this.uri = safeGetString(o.uri) ?? "";
     if ("uriChecksum" in o) {
       this.uriChecksum = o.uriChecksum?.encryptedString;
     }

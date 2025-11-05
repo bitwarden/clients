@@ -32,7 +32,7 @@ export class PasswordHistoryExport {
       return;
     }
 
-    this.password = safeGetString(o.password);
+    this.password = safeGetString(o.password) ?? "";
     this.lastUsedDate = o.lastUsedDate ?? new Date();
   }
 }
