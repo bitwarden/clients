@@ -1,6 +1,7 @@
 use hex;
 use serde_json;
 
+use crate::com_registration::parse_clsid_to_guid_str;
 use crate::ipc::send_passkey_request;
 use crate::types::*;
 use crate::util::{debug_log, wstr_to_string};
@@ -57,8 +58,9 @@ pub fn sync_credentials_to_windows(
         plugin_clsid
     ));
 
-    // Format CLSID with curly braces to match Windows registration format
-    let formatted_clsid = format!("{{{}}}", plugin_clsid);
+    // Parse CLSID string to GUID
+    let clsid_guid = parse_clsid_to_guid_str(plugin_clsid)
+        .map_err(|e| format!("Failed to parse CLSID: {}", e))?;
 
     if credentials.is_empty() {
         debug_log("[SYNC_TO_WIN] No credentials to sync, proceeding with empty sync");
@@ -79,10 +81,10 @@ pub fn sync_credentials_to_windows(
             hex::encode(&cred.user_handle)
         };
 
-        debug_log(&format!("[SYNC_TO_WIN] Converting credential {}: RP ID: {}, User: {}, Credential ID: {} ({} bytes), User ID: {} ({} bytes)", 
+        debug_log(&format!("[SYNC_TO_WIN] Converting credential {}: RP ID: {}, User: {}, Credential ID: {} ({} bytes), User ID: {} ({} bytes)",
             i + 1, cred.rp_id, cred.user_name, truncated_cred_id, cred.credential_id.len(), truncated_user_id, cred.user_handle.len()));
 
-        let win_cred = ExperimentalWebAuthnPluginCredentialDetails::create_from_bytes(
+        let win_cred = WebAuthnPluginCredentialDetails::create_from_bytes(
             cred.credential_id.clone(), // Pass raw bytes
             cred.rp_id.clone(),
             cred.rp_id.clone(),       // Use RP ID as friendly name for now
@@ -98,15 +100,9 @@ pub fn sync_credentials_to_windows(
         ));
     }
 
-    // Create credentials list
-    let credentials_list = ExperimentalWebAuthnPluginCredentialDetailsList::create(
-        formatted_clsid.clone(),
-        win_credentials,
-    );
-
     // First try to remove all existing credentials for this plugin
     debug_log("Attempting to remove all existing credentials before sync...");
-    match remove_all_credentials(formatted_clsid.clone()) {
+    match remove_all_credentials(clsid_guid) {
         Ok(()) => {
             debug_log("Successfully removed existing credentials");
         }
@@ -129,7 +125,7 @@ pub fn sync_credentials_to_windows(
         Ok(())
     } else {
         debug_log("Adding new credentials to Windows...");
-        match add_credentials(credentials_list) {
+        match add_credentials(clsid_guid, win_credentials) {
             Ok(()) => {
                 debug_log("Successfully synced credentials to Windows");
                 Ok(())
@@ -152,90 +148,35 @@ pub fn get_credentials_from_windows(plugin_clsid: &str) -> Result<Vec<SyncedCred
         plugin_clsid
     ));
 
-    // Format CLSID with curly braces to match Windows registration format
-    let formatted_clsid = format!("{{{}}}", plugin_clsid);
+    // Parse CLSID string to GUID
+    let clsid_guid = parse_clsid_to_guid_str(plugin_clsid)
+        .map_err(|e| format!("Failed to parse CLSID: {}", e))?;
 
-    match get_all_credentials(formatted_clsid) {
-        Ok(Some(credentials_list)) => {
+    match get_all_credentials(clsid_guid) {
+        Ok(credentials) => {
             debug_log(&format!(
                 "Retrieved {} credentials from Windows",
-                credentials_list.credential_count
+                credentials.len()
             ));
 
             let mut bitwarden_credentials = Vec::new();
 
             // Convert Windows credentials to Bitwarden format
-            unsafe {
-                let credentials_array = std::slice::from_raw_parts(
-                    credentials_list.credentials,
-                    credentials_list.credential_count as usize,
-                );
+            for cred in credentials {
+                let synced_cred = SyncedCredential {
+                    credential_id: cred.credential_id,
+                    rp_id: cred.rpid,
+                    user_name: cred.user_name,
+                    user_handle: cred.user_id,
+                };
 
-                for &cred_ptr in credentials_array {
-                    if !cred_ptr.is_null() {
-                        let cred = &*cred_ptr;
+                debug_log(&format!("Converted Windows credential: RP ID: {}, User: {}, Credential ID: {} bytes",
+                    synced_cred.rp_id, synced_cred.user_name, synced_cred.credential_id.len()));
 
-                        // Convert credential data back to Bitwarden format
-                        let credential_id = if cred.credential_id_byte_count > 0
-                            && !cred.credential_id_pointer.is_null()
-                        {
-                            let id_slice = std::slice::from_raw_parts(
-                                cred.credential_id_pointer,
-                                cred.credential_id_byte_count as usize,
-                            );
-                            // Assume it's hex-encoded, try to decode
-                            hex::decode(std::str::from_utf8(id_slice).unwrap_or(""))
-                                .unwrap_or_else(|_| id_slice.to_vec())
-                        } else {
-                            Vec::new()
-                        };
-
-                        let rp_id = if !cred.rpid.is_null() {
-                            wstr_to_string(cred.rpid).unwrap_or_default()
-                        } else {
-                            String::new()
-                        };
-
-                        let user_name = if !cred.user_name.is_null() {
-                            wstr_to_string(cred.user_name).unwrap_or_default()
-                        } else {
-                            String::new()
-                        };
-
-                        let user_id =
-                            if cred.user_id_byte_count > 0 && !cred.user_id_pointer.is_null() {
-                                // Convert from UTF-8 bytes back to Vec<u8>
-                                let user_id_slice = std::slice::from_raw_parts(
-                                    cred.user_id_pointer,
-                                    cred.user_id_byte_count as usize,
-                                );
-                                // Try to decode as hex string, or use raw bytes
-                                let user_id_str = std::str::from_utf8(user_id_slice).unwrap_or("");
-                                hex::decode(user_id_str).unwrap_or_else(|_| user_id_slice.to_vec())
-                            } else {
-                                Vec::new()
-                            };
-
-                        let synced_cred = SyncedCredential {
-                            credential_id,
-                            rp_id,
-                            user_name,
-                            user_handle: user_id,
-                        };
-
-                        debug_log(&format!("Converted Windows credential: RP ID: {}, User: {}, Credential ID: {} bytes", 
-                            synced_cred.rp_id, synced_cred.user_name, synced_cred.credential_id.len()));
-
-                        bitwarden_credentials.push(synced_cred);
-                    }
-                }
+                bitwarden_credentials.push(synced_cred);
             }
 
             Ok(bitwarden_credentials)
-        }
-        Ok(None) => {
-            debug_log("No credentials found in Windows");
-            Ok(Vec::new())
         }
         Err(e) => {
             debug_log(&format!(

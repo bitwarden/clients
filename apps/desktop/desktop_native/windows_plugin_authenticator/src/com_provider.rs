@@ -37,13 +37,13 @@ pub struct ExperimentalWebAuthnPluginOperationRequest {
     pub encoded_request_pointer: *mut u8,
 }
 
-/// Used when creating and asserting credentials with EXPERIMENTAL2 interface.
-/// Header File Name: _EXPERIMENTAL2_WEBAUTHN_PLUGIN_OPERATION_REQUEST
-/// Header File Usage: EXPERIMENTAL_MakeCredential()
-///                    EXPERIMENTAL_GetAssertion()
+/// Used when creating and asserting credentials with stable interface.
+/// Header File Name: _WEBAUTHN_PLUGIN_OPERATION_REQUEST
+/// Header File Usage: MakeCredential()
+///                    GetAssertion()
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct Experimental2WebAuthnPluginOperationRequest {
+pub struct WebAuthnPluginOperationRequest {
     pub window_handle: windows::Win32::Foundation::HWND,
     pub transaction_id: windows_core::GUID,
     pub request_signature_byte_count: u32,
@@ -53,73 +53,44 @@ pub struct Experimental2WebAuthnPluginOperationRequest {
     pub encoded_request_pointer: *mut u8,
 }
 
-
 /// Used as a response when creating and asserting credentials.
-/// Header File Name: _EXPERIMENTAL_WEBAUTHN_PLUGIN_OPERATION_RESPONSE
-/// Header File Usage: EXPERIMENTAL_PluginMakeCredential()
-///                    EXPERIMENTAL_PluginGetAssertion()
+/// Header File Name: _WEBAUTHN_PLUGIN_OPERATION_RESPONSE
+/// Header File Usage: MakeCredential()
+///                    GetAssertion()
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct ExperimentalWebAuthnPluginOperationResponse {
+pub struct WebAuthnPluginOperationResponse {
     pub encoded_response_byte_count: u32,
     pub encoded_response_pointer: *mut u8,
 }
 
 /// Used to cancel an operation.
-/// Header File Name: _EXPERIMENTAL_WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST
-/// Header File Usage: EXPERIMENTAL_PluginCancelOperation()
+/// Header File Name: _WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST
+/// Header File Usage: CancelOperation()
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct ExperimentalWebAuthnPluginCancelOperationRequest {
+pub struct WebAuthnPluginCancelOperationRequest {
     pub transaction_id: windows_core::GUID,
     pub request_signature_byte_count: u32,
     pub request_signature_pointer: *mut u8,
 }
 
-#[interface("e6466e9a-b2f3-47c5-b88d-89bc14a8d998")]
-pub unsafe trait EXPERIMENTAL_IPluginAuthenticator: windows_core::IUnknown {
-    fn EXPERIMENTAL_PluginMakeCredential(
-        &self,
-        request: *const ExperimentalWebAuthnPluginOperationRequest,
-        response: *mut *mut ExperimentalWebAuthnPluginOperationResponse,
-    ) -> HRESULT;
-    fn EXPERIMENTAL_PluginGetAssertion(
-        &self,
-        request: *const ExperimentalWebAuthnPluginOperationRequest,
-        response: *mut *mut ExperimentalWebAuthnPluginOperationResponse,
-    ) -> HRESULT;
-    fn EXPERIMENTAL_PluginCancelOperation(
-        &self,
-        request: *const ExperimentalWebAuthnPluginCancelOperationRequest,
-    ) -> HRESULT;
-    fn EXPERIMENTAL_GetLockStatus(
-        &self,
-        lock_status: *mut PluginLockStatus,
-    ) -> HRESULT;
-}
-
+// Stable IPluginAuthenticator interface
 #[interface("d26bcf6f-b54c-43ff-9f06-d5bf148625f7")]
-pub unsafe trait EXPERIMENTAL2_IPluginAuthenticator: windows_core::IUnknown {
-    fn EXPERIMENTAL_MakeCredential(
+pub unsafe trait IPluginAuthenticator: windows_core::IUnknown {
+    fn MakeCredential(
         &self,
-        request: *const Experimental2WebAuthnPluginOperationRequest,
-        response: *mut *mut ExperimentalWebAuthnPluginOperationResponse,
+        request: *const WebAuthnPluginOperationRequest,
+        response: *mut WebAuthnPluginOperationResponse,
     ) -> HRESULT;
-    fn EXPERIMENTAL_GetAssertion(
+    fn GetAssertion(
         &self,
-        request: *const Experimental2WebAuthnPluginOperationRequest,
-        response: *mut *mut ExperimentalWebAuthnPluginOperationResponse,
+        request: *const WebAuthnPluginOperationRequest,
+        response: *mut WebAuthnPluginOperationResponse,
     ) -> HRESULT;
-    fn EXPERIMENTAL_CancelOperation(
-        &self,
-        request: *const ExperimentalWebAuthnPluginCancelOperationRequest,
-    ) -> HRESULT;
-    fn EXPERIMENTAL_GetLockStatus(
-        &self,
-        lock_status: *mut PluginLockStatus,
-    ) -> HRESULT;
+    fn CancelOperation(&self, request: *const WebAuthnPluginCancelOperationRequest) -> HRESULT;
+    fn GetLockStatus(&self, lock_status: *mut PluginLockStatus) -> HRESULT;
 }
-
 
 pub unsafe fn parse_credential_list(credential_list: &WEBAUTHN_CREDENTIAL_LIST) -> Vec<Vec<u8>> {
     let mut allowed_credentials = Vec::new();
@@ -174,57 +145,20 @@ pub unsafe fn parse_credential_list(credential_list: &WEBAUTHN_CREDENTIAL_LIST) 
     allowed_credentials
 }
 
-#[implement(EXPERIMENTAL_IPluginAuthenticator, EXPERIMENTAL2_IPluginAuthenticator)]
+#[implement(IPluginAuthenticator)]
 pub struct PluginAuthenticatorComObject;
 
 #[implement(IClassFactory)]
 pub struct Factory;
 
-impl EXPERIMENTAL_IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
-    unsafe fn EXPERIMENTAL_PluginMakeCredential(
+impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
+    unsafe fn MakeCredential(
         &self,
-        request: *const ExperimentalWebAuthnPluginOperationRequest,
-        response: *mut *mut ExperimentalWebAuthnPluginOperationResponse,
+        request: *const WebAuthnPluginOperationRequest,
+        response: *mut WebAuthnPluginOperationResponse,
     ) -> HRESULT {
-        experimental_plugin_make_credential(request, response)
-    }
-
-    unsafe fn EXPERIMENTAL_PluginGetAssertion(
-        &self,
-        request: *const ExperimentalWebAuthnPluginOperationRequest,
-        response: *mut *mut ExperimentalWebAuthnPluginOperationResponse,
-    ) -> HRESULT {
-        experimental_plugin_get_assertion(request, response)
-    }
-
-    unsafe fn EXPERIMENTAL_PluginCancelOperation(
-        &self,
-        _request: *const ExperimentalWebAuthnPluginCancelOperationRequest,
-    ) -> HRESULT {
-        debug_log("EXPERIMENTAL_PluginCancelOperation() called");
-        HRESULT(0)
-    }
-
-    unsafe fn EXPERIMENTAL_GetLockStatus(
-        &self,
-        lock_status: *mut PluginLockStatus,
-    ) -> HRESULT {
-        debug_log("EXPERIMENTAL_GetLockStatus() called");
-        if lock_status.is_null() {
-            return HRESULT(-2147024809); // E_INVALIDARG
-        }
-        *lock_status = PluginLockStatus::PluginUnlocked;
-        HRESULT(0)
-    }
-}
-
-impl EXPERIMENTAL2_IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
-    unsafe fn EXPERIMENTAL_MakeCredential(
-        &self,
-        request: *const Experimental2WebAuthnPluginOperationRequest,
-        response: *mut *mut ExperimentalWebAuthnPluginOperationResponse,
-    ) -> HRESULT {
-        debug_log("EXPERIMENTAL2_MakeCredential() called");
+        debug_log("MakeCredential() called");
+        // Convert to legacy format for internal processing
         let legacy_request = ExperimentalWebAuthnPluginOperationRequest {
             window_handle: (*request).window_handle,
             transaction_id: (*request).transaction_id,
@@ -233,15 +167,27 @@ impl EXPERIMENTAL2_IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Im
             encoded_request_byte_count: (*request).encoded_request_byte_count,
             encoded_request_pointer: (*request).encoded_request_pointer,
         };
-        experimental_plugin_make_credential(&legacy_request, response)
+
+        let mut legacy_response: *mut ExperimentalWebAuthnPluginOperationResponse = ptr::null_mut();
+        let result = experimental_plugin_make_credential(&legacy_request, &mut legacy_response);
+
+        if result.is_ok() && !legacy_response.is_null() {
+            // Copy response data
+            (*response).encoded_response_byte_count =
+                (*legacy_response).encoded_response_byte_count;
+            (*response).encoded_response_pointer = (*legacy_response).encoded_response_pointer;
+        }
+
+        result
     }
 
-    unsafe fn EXPERIMENTAL_GetAssertion(
+    unsafe fn GetAssertion(
         &self,
-        request: *const Experimental2WebAuthnPluginOperationRequest,
-        response: *mut *mut ExperimentalWebAuthnPluginOperationResponse,
+        request: *const WebAuthnPluginOperationRequest,
+        response: *mut WebAuthnPluginOperationResponse,
     ) -> HRESULT {
-        debug_log("EXPERIMENTAL2_GetAssertion() called");
+        debug_log("GetAssertion() called");
+        // Convert to legacy format for internal processing
         let legacy_request = ExperimentalWebAuthnPluginOperationRequest {
             window_handle: (*request).window_handle,
             transaction_id: (*request).transaction_id,
@@ -250,22 +196,30 @@ impl EXPERIMENTAL2_IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Im
             encoded_request_byte_count: (*request).encoded_request_byte_count,
             encoded_request_pointer: (*request).encoded_request_pointer,
         };
-        experimental_plugin_get_assertion(&legacy_request, response)
+
+        let mut legacy_response: *mut ExperimentalWebAuthnPluginOperationResponse = ptr::null_mut();
+        let result = experimental_plugin_get_assertion(&legacy_request, &mut legacy_response);
+
+        if result.is_ok() && !legacy_response.is_null() {
+            // Copy response data
+            (*response).encoded_response_byte_count =
+                (*legacy_response).encoded_response_byte_count;
+            (*response).encoded_response_pointer = (*legacy_response).encoded_response_pointer;
+        }
+
+        result
     }
 
-    unsafe fn EXPERIMENTAL_CancelOperation(
+    unsafe fn CancelOperation(
         &self,
-        _request: *const ExperimentalWebAuthnPluginCancelOperationRequest,
+        _request: *const WebAuthnPluginCancelOperationRequest,
     ) -> HRESULT {
-        debug_log("EXPERIMENTAL2_CancelOperation() called");
+        debug_log("CancelOperation() called");
         HRESULT(0)
     }
 
-    unsafe fn EXPERIMENTAL_GetLockStatus(
-        &self,
-        lock_status: *mut PluginLockStatus,
-    ) -> HRESULT {
-        debug_log("EXPERIMENTAL2_GetLockStatus() called");
+    unsafe fn GetLockStatus(&self, lock_status: *mut PluginLockStatus) -> HRESULT {
+        debug_log("GetLockStatus() called");
         if lock_status.is_null() {
             return HRESULT(-2147024809); // E_INVALIDARG
         }
@@ -273,7 +227,6 @@ impl EXPERIMENTAL2_IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Im
         HRESULT(0)
     }
 }
-
 
 impl IClassFactory_Impl for Factory_Impl {
     fn CreateInstance(

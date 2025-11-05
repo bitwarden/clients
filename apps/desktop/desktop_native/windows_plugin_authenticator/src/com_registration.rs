@@ -34,10 +34,10 @@ fn parse_uuid_to_bytes(uuid_str: &str) -> Result<Vec<u8>, String> {
         .collect()
 }
 
-/// Converts the CLSID constant string to a GUID
-fn parse_clsid_to_guid() -> Result<GUID, String> {
+/// Converts a CLSID string to a GUID
+pub(crate) fn parse_clsid_to_guid_str(clsid_str: &str) -> Result<GUID, String> {
     // Remove hyphens and parse as hex
-    let clsid_clean = CLSID.replace("-", "");
+    let clsid_clean = clsid_str.replace("-", "");
     if clsid_clean.len() != 32 {
         return Err("Invalid CLSID format".to_string());
     }
@@ -47,6 +47,11 @@ fn parse_clsid_to_guid() -> Result<GUID, String> {
         .map_err(|_| "Failed to parse CLSID as hex".to_string())?;
 
     Ok(GUID::from_u128(clsid_u128))
+}
+
+/// Converts the CLSID constant string to a GUID
+fn parse_clsid_to_guid() -> Result<GUID, String> {
+    parse_clsid_to_guid_str(CLSID)
 }
 
 /// Generates CBOR-encoded authenticator info according to FIDO CTAP2 specifications
@@ -174,41 +179,35 @@ pub fn add_authenticator() -> std::result::Result<(), String> {
     let authenticator_name: HSTRING = AUTHENTICATOR_NAME.into();
     let authenticator_name_ptr = PCWSTR(authenticator_name.as_ptr()).as_ptr();
 
-    let clsid: HSTRING = format!("{{{}}}", CLSID).into();
-    let clsid_ptr = PCWSTR(clsid.as_ptr()).as_ptr();
+    // Parse CLSID into GUID structure
+    let clsid_guid = parse_clsid_to_guid()
+        .map_err(|e| format!("Failed to parse CLSID to GUID: {}", e))?;
 
     let relying_party_id: HSTRING = RPID.into();
     let relying_party_id_ptr = PCWSTR(relying_party_id.as_ptr()).as_ptr();
 
     // Generate CBOR authenticator info dynamically
-    let mut authenticator_info_bytes = generate_cbor_authenticator_info()
+    let authenticator_info_bytes = generate_cbor_authenticator_info()
         .map_err(|e| format!("Failed to generate authenticator info: {}", e))?;
 
-    let add_authenticator_options = ExperimentalWebAuthnPluginAddAuthenticatorOptions {
+    let add_authenticator_options = WebAuthnPluginAddAuthenticatorOptions {
         authenticator_name: authenticator_name_ptr,
-        plugin_clsid: clsid_ptr,
+        rclsid: &clsid_guid,  // Changed to GUID reference
         rpid: relying_party_id_ptr,
-        light_theme_logo: ptr::null(),
-        dark_theme_logo: ptr::null(),
+        light_theme_logo_svg: ptr::null(),  // Renamed field
+        dark_theme_logo_svg: ptr::null(),   // Renamed field
         cbor_authenticator_info_byte_count: authenticator_info_bytes.len() as u32,
-        cbor_authenticator_info: authenticator_info_bytes.as_mut_ptr(),
+        cbor_authenticator_info: authenticator_info_bytes.as_ptr(),  // Use as_ptr() not as_mut_ptr()
+        supported_rp_ids_count: 0,  // NEW field: 0 means all RPs supported
+        supported_rp_ids: ptr::null(),  // NEW field
     };
 
-    let plugin_signing_public_key_byte_count: u32 = 0;
-    let mut plugin_signing_public_key: c_uchar = 0;
-    let plugin_signing_public_key_ptr = &mut plugin_signing_public_key;
-
-    let mut add_response = ExperimentalWebAuthnPluginAddAuthenticatorResponse {
-        plugin_operation_signing_key_byte_count: plugin_signing_public_key_byte_count,
-        plugin_operation_signing_key: plugin_signing_public_key_ptr,
-    };
-    let mut add_response_ptr: *mut ExperimentalWebAuthnPluginAddAuthenticatorResponse =
-        &mut add_response;
+    let mut add_response_ptr: *mut WebAuthnPluginAddAuthenticatorResponse = ptr::null_mut();
 
     let result = unsafe {
-        delay_load::<EXPERIMENTAL_WebAuthNPluginAddAuthenticatorFnDeclaration>(
+        delay_load::<WebAuthNPluginAddAuthenticatorFnDeclaration>(
             s!("webauthn.dll"),
-            s!("EXPERIMENTAL_WebAuthNPluginAddAuthenticator"),
+            s!("WebAuthNPluginAddAuthenticator"),  // Stable function name
         )
     };
 
@@ -218,24 +217,45 @@ pub fn add_authenticator() -> std::result::Result<(), String> {
 
             if result.is_err() {
                 return Err(format!(
-                    "Error: Error response from EXPERIMENTAL_WebAuthNPluginAddAuthenticator()\n{}",
+                    "Error: Error response from WebAuthNPluginAddAuthenticator()\n{}",
                     result.message()
                 ));
+            }
+
+            // Free the response if needed
+            if !add_response_ptr.is_null() {
+                free_add_authenticator_response(add_response_ptr);
             }
 
             Ok(())
         },
         None => {
-            Err(String::from("Error: Can't complete add_authenticator(), as the function EXPERIMENTAL_WebAuthNPluginAddAuthenticator can't be found."))
+            Err(String::from("Error: Can't complete add_authenticator(), as the function WebAuthNPluginAddAuthenticator can't be found."))
         }
     }
 }
 
-type EXPERIMENTAL_WebAuthNPluginAddAuthenticatorFnDeclaration = unsafe extern "cdecl" fn(
-    pPluginAddAuthenticatorOptions: *const ExperimentalWebAuthnPluginAddAuthenticatorOptions,
-    ppPluginAddAuthenticatorResponse: *mut *mut ExperimentalWebAuthnPluginAddAuthenticatorResponse,
-)
-    -> HRESULT;
+fn free_add_authenticator_response(response: *mut WebAuthnPluginAddAuthenticatorResponse) {
+    let result = unsafe {
+        delay_load::<WebAuthNPluginFreeAddAuthenticatorResponseFnDeclaration>(
+            s!("webauthn.dll"),
+            s!("WebAuthNPluginFreeAddAuthenticatorResponse"),
+        )
+    };
+
+    if let Some(api) = result {
+        unsafe { api(response) };
+    }
+}
+
+type WebAuthNPluginAddAuthenticatorFnDeclaration = unsafe extern "cdecl" fn(
+    pPluginAddAuthenticatorOptions: *const WebAuthnPluginAddAuthenticatorOptions,
+    ppPluginAddAuthenticatorResponse: *mut *mut WebAuthnPluginAddAuthenticatorResponse,
+) -> HRESULT;
+
+type WebAuthNPluginFreeAddAuthenticatorResponseFnDeclaration = unsafe extern "cdecl" fn(
+    pPluginAddAuthenticatorResponse: *mut WebAuthnPluginAddAuthenticatorResponse,
+);
 
 #[cfg(test)]
 mod tests {
