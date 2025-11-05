@@ -86,8 +86,8 @@ export class CipherExport {
 
     view.creationDate = req.creationDate ? new Date(req.creationDate) : view.creationDate;
     view.revisionDate = req.revisionDate ? new Date(req.revisionDate) : view.revisionDate;
-    view.deletedDate = req.deletedDate ? new Date(req.deletedDate) : view.deletedDate;
-    view.archivedDate = req.archivedDate ? new Date(req.archivedDate) : view.archivedDate;
+    view.deletedDate = req.deletedDate ? new Date(req.deletedDate) : undefined;
+    view.archivedDate = req.archivedDate ? new Date(req.archivedDate) : undefined;
     return view;
   }
 
@@ -131,8 +131,8 @@ export class CipherExport {
       domain.passwordHistory = req.passwordHistory.map((ph) => PasswordHistoryExport.toDomain(ph));
     }
 
-    domain.creationDate = req.creationDate ? new Date(req.creationDate) : new Date();
-    domain.revisionDate = req.revisionDate ? new Date(req.revisionDate) : new Date();
+    domain.creationDate = req.creationDate ? new Date(req.creationDate) : domain.creationDate;
+    domain.revisionDate = req.revisionDate ? new Date(req.revisionDate) : domain.revisionDate;
     domain.deletedDate = req.deletedDate ? new Date(req.deletedDate) : undefined;
     domain.archivedDate = req.archivedDate ? new Date(req.archivedDate) : undefined;
     return domain;
