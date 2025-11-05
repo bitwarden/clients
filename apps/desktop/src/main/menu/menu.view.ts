@@ -110,7 +110,7 @@ export class ViewMenu implements IMenubarMenu {
       label: this.localize("zoomOut"),
       click: async () => {
         const currentZoom = this._windowMain.win.webContents.zoomFactor;
-        const newZoom = Math.max(0.25, currentZoom - 0.1);
+        const newZoom = Math.max(0.2, currentZoom - 0.1);
         this._windowMain.win.webContents.zoomFactor = newZoom;
         await this._windowMain.saveZoomFactor(newZoom);
       },
