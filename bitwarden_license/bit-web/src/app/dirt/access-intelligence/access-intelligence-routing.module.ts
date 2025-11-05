@@ -9,9 +9,7 @@ const routes: Routes = [
   { path: "", pathMatch: "full", redirectTo: "risk-insights" },
   {
     path: "risk-insights",
-    canActivate: [
-      organizationPermissionsGuard((org) => org.useRiskInsights && org.canAccessReports),
-    ],
+    canActivate: [organizationPermissionsGuard((org) => org.canAccessReports)],
     component: RiskInsightsComponent,
     data: {
       titleId: "RiskInsights",

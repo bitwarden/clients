@@ -172,8 +172,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "Няма намерени приложения в $ORG NAME$",
+  "noApplicationsInOrgTitle": {
+    "message": "No applications found for $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -181,8 +181,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "Когато потребителите запазват данните си за вписване, тук ще се появяват приложения, а също и ще се показват паролите в риск. Можете да отбелязвате важните приложения и да напомняте на потребителите да сменят паролите си."
+  "noApplicationsInOrgDescription": {
+    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  },
+  "benefit1Title": {
+    "message": "Prioritize risks"
+  },
+  "benefit1Description": {
+    "message": "Focus on applications that matter the most"
+  },
+  "benefit2Title": {
+    "message": "Guide remediation"
+  },
+  "benefit2Description": {
+    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  },
+  "benefit3Title": {
+    "message": "Monitor progress"
+  },
+  "benefit3Description": {
+    "message": "Track changes over time to show security improvements"
+  },
+  "noReportRunTitle": {
+    "message": "Run your first report to see applications"
+  },
+  "noReportRunDescription": {
+    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Не сте отбелязали нито едно приложение като важно"
@@ -327,6 +351,27 @@
   },
   "markAsCriticalPlaceholder": {
     "message": "Функционалността за отбелязване на нещо като важно ще бъде добавена в бъдеща версия"
+  },
+  "applicationReviewSaved": {
+    "message": "Application review saved"
+  },
+  "applicationsMarkedAsCritical": {
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "newApplicationsReviewed": {
+    "message": "New applications reviewed"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Error saving review status"
+  },
+  "pleaseTryAgain": {
+    "message": "Please try again"
   },
   "unmarkAsCritical": {
     "message": "Премахване от важните"
@@ -1313,6 +1358,9 @@
   },
   "useSingleSignOn": {
     "message": "Използване на еднократна идентификация"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
   },
   "welcomeBack": {
     "message": "Добре дошли отново"
@@ -4449,8 +4497,8 @@
   "inviteAccepted": {
     "message": "Поканата е приета"
   },
-  "inviteAcceptedDesc": {
-    "message": "Ще имате достъп до организацията, след като администраторът ѝ потвърди членството ви. Ще ви изпратим електронно писмо, когато това се случи."
+  "invitationAcceptedDesc": {
+    "message": "Поканата е приета успешно."
   },
   "inviteInitAcceptedDesc": {
     "message": "Вече имате достъп до тази организация."
@@ -6492,23 +6540,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "Вашата организация е променила настройките за шифроване. Задайте главна парола, за да получите достъп до трезора си."
   },
-  "maximumVaultTimeout": {
-    "message": "Време за достъп"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Време на давност за сесията"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Настройте максимално време за достъп до трезора, което ще важи за всички потребители."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Задайте максимално време на давност на сесиите за достъп за всички членове, без собствениците."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Максимално време за достъп до трезора"
+  "maximumAllowedTimeout": {
+    "message": "Максимално допустимо време на достъп"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "Неправилно максимално време за достъп."
+  "maximumAllowedTimeoutRequired": {
+    "message": "Максималното допустимо време е задължително."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Времето е зададено грешно. Променете поне една стойност."
+  },
+  "sessionTimeoutAction": {
+    "message": "Действие при изтичане на времето за сесията"
+  },
+  "immediately": {
+    "message": "Незабавно"
+  },
+  "onSystemLock": {
+    "message": "При заключване на системата"
+  },
+  "onAppRestart": {
+    "message": "При рестартиране на приложението"
   },
   "hours": {
     "message": "Часа"
   },
   "minutes": {
     "message": "Минути"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Наистина ли искате да разрешите максималното време за достъп да бъде „Безкрайно“ за всички членове?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "Така ключовете за шифроване на членовете ще бъдат запазени на техните устройства. Ако изберете това, уверете се, че устройствата им са защитени адекватно."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Научете повече относно защитата на устройствата"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "„Заключването на системата“ ще се прилага само за браузъра и приложението за компютър"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "Мобилното приложение и това по уеб ще ползват настройката „При рестартиране на приложението€ като максимално разрешено време за достъп, тъй като другата не се поддържа."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Настройките на организацията Ви влияят върху времето за достъп до трезора Ви. Максималното разрешено време за достъп е $HOURS$ час(а) и $MINUTES$ минути",
@@ -11936,5 +12014,14 @@
   },
   "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
     "message": "Argon2id предлага по-добра защита срещу съвременните атаки. Подходящ за напреднали потребители с по-мощни устройства."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Пощенски код"
+  },
+  "cardNumberLabel": {
+    "message": "Номер на картата"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Започнете безплатния пробен период на Семейния план"
   }
 }

@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "使用單一登入"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "歡迎回來"
   },
@@ -588,6 +591,9 @@
   "view": {
     "message": "檢視"
   },
+  "viewAll": {
+    "message": "檢視全部"
+  },
   "viewLogin": {
     "message": "檢視登入"
   },
@@ -1027,6 +1033,18 @@
   },
   "editedItem": {
     "message": "項目已儲存"
+  },
+  "savedWebsite": {
+    "message": "已儲存的網站"
+  },
+  "savedWebsites": {
+    "message": "已儲存的網站（$COUNT$）",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "確定要刪除此項目嗎？"
@@ -1676,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "停用自動填入"
   },
+  "confirmAutofill": {
+    "message": "確認自動填入"
+  },
+  "confirmAutofillDesc": {
+    "message": "此網站與您儲存的登入資料不相符。在填入登入憑證前，請確認這是受信任的網站。"
+  },
   "showInlineMenuLabel": {
     "message": "在表單欄位上顯示自動填入選單"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Bitwarden 如何保護您的資料免於網路釣魚攻擊？"
+  },
+  "currentWebsite": {
+    "message": "目網站"
+  },
+  "autofillAndAddWebsite": {
+    "message": "自動填充並新增此網站"
+  },
+  "autofillWithoutAdding": {
+    "message": "自動填入但不新增"
+  },
+  "doNotAutofill": {
+    "message": "不要自動填入"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "顯示身分建議"
@@ -3240,6 +3279,9 @@
   "decryptionError": {
     "message": "解密發生錯誤"
   },
+  "errorGettingAutoFillData": {
+    "message": "取得自動填入資料時發生錯誤"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden 無法解密您密碼庫中下面的項目。"
   },
@@ -4010,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "將頁面載入時使用自動填入功能設定為預設。",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "無法自動填入"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "預設比對方式為「完全相符」。目前的網站與此項目的已儲存登入資料不完全相符。"
+  },
+  "okay": {
+    "message": "確定"
   },
   "toggleSideNavigation": {
     "message": "切換側邊欄"
@@ -5721,5 +5772,11 @@
   "settingDisabledByPolicy": {
     "message": "此設定已被你的組織原則停用。",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "郵編 / 郵政代碼"
+  },
+  "cardNumberLabel": {
+    "message": "支付卡號碼"
   }
 }

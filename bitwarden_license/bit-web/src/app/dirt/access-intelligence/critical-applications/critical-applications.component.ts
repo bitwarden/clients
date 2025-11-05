@@ -46,7 +46,6 @@ import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks
 })
 export class CriticalApplicationsComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
-  protected loading = false;
   protected enableRequestPasswordChange = false;
   protected organizationId: OrganizationId;
   noItemsIcon = Security;
