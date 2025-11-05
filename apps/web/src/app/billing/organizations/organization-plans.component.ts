@@ -720,21 +720,21 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getPlanFromLegacyEnum(): OrganizationSubscriptionPlan  {
-      switch (this.formGroup.value.plan) {
-        case PlanType.FamiliesAnnually:
-        case PlanType.FamiliesAnnually2025:
-          return { tier: "families", cadence: "annually" };
-        case PlanType.TeamsMonthly:
-          return { tier: "teams", cadence: "monthly" };
-        case PlanType.TeamsAnnually:
-          return { tier: "teams", cadence: "annually" };
-        case PlanType.EnterpriseMonthly:
-          return { tier: "enterprise", cadence: "monthly" };
-        case PlanType.EnterpriseAnnually:
-          return { tier: "enterprise", cadence: "annually" };
-      }
+  private getPlanFromLegacyEnum(): OrganizationSubscriptionPlan {
+    switch (this.formGroup.value.plan) {
+      case PlanType.FamiliesAnnually:
+      case PlanType.FamiliesAnnually2025:
+        return { tier: "families", cadence: "annually" };
+      case PlanType.TeamsMonthly:
+        return { tier: "teams", cadence: "monthly" };
+      case PlanType.TeamsAnnually:
+        return { tier: "teams", cadence: "annually" };
+      case PlanType.EnterpriseMonthly:
+        return { tier: "enterprise", cadence: "monthly" };
+      case PlanType.EnterpriseAnnually:
+        return { tier: "enterprise", cadence: "annually" };
     }
+  }
 
   private buildTaxPreviewRequest(
     additionalStorage: number,
