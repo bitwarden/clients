@@ -14,13 +14,6 @@ import { SshKeyExport } from "./ssh-key.export";
 import { safeGetString } from "./utils";
 
 export class CipherExport {
-  constructor() {
-    this.archivedDate = new Date();
-    this.creationDate = new Date();
-    this.deletedDate = new Date();
-    this.revisionDate = new Date();
-  }
-
   static template(): CipherExport {
     const req = new CipherExport();
     req.organizationId = "";
@@ -33,10 +26,6 @@ export class CipherExport {
     req.fields = [];
     req.reprompt = CipherRepromptType.None;
     req.passwordHistory = [];
-    req.creationDate = new Date();
-    req.revisionDate = new Date();
-    req.deletedDate = new Date();
-    req.archivedDate = new Date();
     return req;
   }
 
@@ -110,11 +99,11 @@ export class CipherExport {
     if (domain.organizationId == null) {
       domain.organizationId = req.organizationId;
     }
-    domain.name = new EncString(req.name ? req.name : "");
-    domain.notes = new EncString(req.notes ? req.notes : "");
+    domain.name = new EncString(req.name ?? "");
+    domain.notes = new EncString(req.notes ?? "");
     domain.favorite = req.favorite;
     domain.reprompt = req.reprompt ?? CipherRepromptType.None;
-    domain.key = new EncString(req.key ? req.key : "");
+    domain.key = new EncString(req.key ?? "");
 
     if (req.fields != null) {
       domain.fields = req.fields.map((f) => FieldExport.toDomain(f));
@@ -159,8 +148,8 @@ export class CipherExport {
 
     domain.creationDate = req.creationDate ? new Date(req.creationDate) : new Date();
     domain.revisionDate = req.revisionDate ? new Date(req.revisionDate) : new Date();
-    domain.deletedDate = req.deletedDate ? new Date(req.deletedDate) : new Date();
-    domain.archivedDate = req.archivedDate ? new Date(req.archivedDate) : new Date();
+    domain.deletedDate = req.deletedDate ? new Date(req.deletedDate) : undefined;
+    domain.archivedDate = req.archivedDate ? new Date(req.archivedDate) : undefined;
     return domain;
   }
 
@@ -179,10 +168,10 @@ export class CipherExport {
   sshKey?: SshKeyExport;
   reprompt: CipherRepromptType = CipherRepromptType.None;
   passwordHistory: PasswordHistoryExport[] = [];
-  revisionDate: Date;
-  creationDate: Date;
-  deletedDate: Date;
-  archivedDate: Date;
+  revisionDate: Date = new Date();
+  creationDate: Date = new Date();
+  deletedDate?: Date;
+  archivedDate?: Date;
   key?: string;
 
   // Use build method instead of ctor so that we can control order of JSON stringify for pretty print
@@ -192,7 +181,7 @@ export class CipherExport {
     this.type = o.type;
     this.reprompt = o.reprompt;
 
-    this.name = safeGetString(o.name);
+    this.name = safeGetString(o.name) ?? "";
     this.notes = safeGetString(o.notes);
     if ("key" in o) {
       this.key = o.key?.encryptedString ?? "";
@@ -228,7 +217,7 @@ export class CipherExport {
 
     this.creationDate = o.creationDate;
     this.revisionDate = o.revisionDate;
-    this.deletedDate = o.deletedDate ?? new Date();
-    this.archivedDate = o.archivedDate ?? new Date();
+    this.deletedDate = o.deletedDate;
+    this.archivedDate = o.archivedDate;
   }
 }
