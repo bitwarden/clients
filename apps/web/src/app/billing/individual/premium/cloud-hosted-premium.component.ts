@@ -226,7 +226,10 @@ export class CloudHostedPremiumComponent {
     const formData = new FormData();
     formData.append("paymentMethodType", paymentMethodType.toString());
     formData.append("paymentToken", paymentToken);
-    formData.append("additionalStorageGb", this.formGroup.value.additionalStorage.toString());
+    formData.append(
+      "additionalStorageGb",
+      (this.formGroup.value.additionalStorage ?? 0).toString(),
+    );
     formData.append("country", this.formGroup.value.billingAddress.country);
     formData.append("postalCode", this.formGroup.value.billingAddress.postalCode);
 

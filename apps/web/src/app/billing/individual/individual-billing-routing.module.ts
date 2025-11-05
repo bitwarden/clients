@@ -26,6 +26,22 @@ const routes: Routes = [
         component: UserSubscriptionComponent,
         data: { titleId: "premiumMembership" },
       },
+      /**
+       * Three-Route Matching Strategy for /premium:
+       *
+       * Routes are evaluated in order using canMatch guards. The first route that matches will be selected.
+       *
+       * 1. Self-Hosted Environment → SelfHostedPremiumComponent
+       *    - Matches when platformUtilsService.isSelfHost() === true
+       *
+       * 2. Cloud-Hosted + Feature Flag Enabled → CloudHostedPremiumVNextComponent
+       *    - Only evaluated if Route 1 doesn't match (not self-hosted)
+       *    - Matches when PM24033PremiumUpgradeNewDesign feature flag === true
+       *
+       * 3. Cloud-Hosted + Feature Flag Disabled → CloudHostedPremiumComponent (Fallback)
+       *    - No canMatch guard, so this always matches as the fallback route
+       *    - Used when neither Route 1 nor Route 2 match
+       */
       // Route 1: Self-Hosted -> SelfHostedPremiumComponent
       {
         path: "premium",
@@ -46,11 +62,10 @@ const routes: Routes = [
         canMatch: [
           () => {
             const configService = inject(ConfigService);
-            const platformUtilsService = inject(PlatformUtilsService);
 
             return configService
               .getFeatureFlag$(FeatureFlag.PM24033PremiumUpgradeNewDesign)
-              .pipe(map((flagValue) => flagValue === true && !platformUtilsService.isSelfHost()));
+              .pipe(map((flagValue) => flagValue === true));
           },
         ],
       },

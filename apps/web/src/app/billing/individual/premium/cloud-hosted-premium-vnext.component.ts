@@ -21,7 +21,6 @@ import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import {
   BadgeModule,
@@ -81,22 +80,18 @@ export class CloudHostedPremiumVNextComponent {
     features: string[];
   }>;
   protected subscriber!: BitwardenSubscriber;
-  protected isSelfHost = false;
   private destroyRef = inject(DestroyRef);
 
   constructor(
     private accountService: AccountService,
     private apiService: ApiService,
     private dialogService: DialogService,
-    private platformUtilsService: PlatformUtilsService,
     private syncService: SyncService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private subscriptionPricingService: SubscriptionPricingServiceAbstraction,
     private router: Router,
     private activatedRoute: ActivatedRoute,
   ) {
-    this.isSelfHost = this.platformUtilsService.isSelfHost();
-
     this.hasPremiumFromAnyOrganization$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
         account
@@ -187,10 +182,12 @@ export class CloudHostedPremiumVNextComponent {
 
     this.shouldShowUpgradeDialogOnInit$
       .pipe(
-        switchMap(async (shouldShowUpgradeDialogOnInit) => {
+        switchMap((shouldShowUpgradeDialogOnInit) => {
           if (shouldShowUpgradeDialogOnInit) {
-            from(this.openUpgradeDialog("Premium"));
+            return from(this.openUpgradeDialog("Premium"));
           }
+          // Return an Observable that completes immediately when dialog should not be shown
+          return of(void 0);
         }),
         takeUntilDestroyed(this.destroyRef),
       )
