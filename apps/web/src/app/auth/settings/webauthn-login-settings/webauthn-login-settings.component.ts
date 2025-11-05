@@ -57,9 +57,6 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
   }
 
   get limitReached() {
-    if (!this.credentials) {
-      throw new Error("");
-    }
     return this.credentials.length >= this.MaxCredentialCount;
   }
 
