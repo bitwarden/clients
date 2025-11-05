@@ -855,21 +855,10 @@ export default class AutofillService implements AutofillServiceInterface {
       options.onlyEmptyFields,
       options.fillNewPassword,
     );
-
-    const loginPasswordFields: AutofillField[] = [];
-    const registrationPasswordFields: AutofillField[] = [];
-
-    passwordFields.forEach((passField) => {
-      if (this.isRegistrationPasswordField(pageDetails, passField)) {
-        registrationPasswordFields.push(passField);
-      } else {
-        loginPasswordFields.push(passField);
-      }
-    });
-
-    // Prefer login fields over registration fields
-    const prioritizedPasswordFields =
-      loginPasswordFields.length > 0 ? loginPasswordFields : registrationPasswordFields;
+    const prioritizedPasswordFields = this.getPrioritizedPasswordFields(
+      pageDetails,
+      passwordFields,
+    );
 
     for (const formKey in pageDetails.forms) {
       // eslint-disable-next-line
@@ -2263,6 +2252,115 @@ export default class AutofillService implements AutofillServiceInterface {
     });
 
     return arr;
+  }
+
+  /**
+   * Determines which of the available password fields should be autofilled.
+   * @param {AutofillPageDetails} pageDetails
+   * @param {AutofillField[]} passwordFields
+   * @returns {boolean}
+   * @private
+   */
+  private getPrioritizedPasswordFields(
+    pageDetails: AutofillPageDetails,
+    passwordFields: AutofillField[],
+  ): AutofillField[] {
+    const isPasswordResetForm = passwordFields.every((passwordField) =>
+      this.isPasswordResetFormField(pageDetails, passwordField),
+    );
+    if (isPasswordResetForm && passwordFields.length > 0) {
+      const focusedPassword = passwordFields.at(0);
+      if (this.isOldPasswordField(pageDetails, focusedPassword)) {
+        return [focusedPassword];
+      }
+    }
+
+    const loginPasswordFields: AutofillField[] = [];
+    const registrationPasswordFields: AutofillField[] = [];
+    passwordFields.forEach((passField) => {
+      if (this.isRegistrationPasswordField(pageDetails, passField)) {
+        registrationPasswordFields.push(passField);
+      } else {
+        loginPasswordFields.push(passField);
+      }
+    });
+
+    // Prefer login fields over registration fields
+    return loginPasswordFields.length > 0 ? loginPasswordFields : registrationPasswordFields;
+  }
+
+  /**
+   * Determines if a password field in a password reset form is the old/current password field.
+   * @param {AutofillPageDetails} pageDetails
+   * @param {AutofillField} passwordField
+   * @returns {boolean}
+   * @private
+   */
+  private isOldPasswordField(
+    pageDetails: AutofillPageDetails,
+    passwordField: AutofillField,
+  ): boolean {
+    if (!pageDetails.forms) {
+      return false;
+    }
+
+    const form = passwordField.form
+      ? pageDetails.forms[passwordField.form]
+      : Object.values(pageDetails.forms)[0];
+    if (!form) {
+      return false;
+    }
+
+    const formIdentifierValues = [
+      passwordField?.htmlID?.toLowerCase?.(),
+      passwordField?.htmlName?.toLowerCase?.(),
+    ].filter(Boolean);
+
+    return formIdentifierValues.some((value) =>
+      AutoFillConstants.PasswordResetOldPasswordKeywords.some((keyword) => value.includes(keyword)),
+    );
+  }
+
+  /**
+   * Determines if a password field is part of a password reset form.
+   * @param {AutofillPageDetails} pageDetails
+   * @param {AutofillField} passwordField
+   * @returns {boolean}
+   * @private
+   */
+  private isPasswordResetFormField(
+    pageDetails: AutofillPageDetails,
+    passwordField: AutofillField,
+  ): boolean {
+    if (!pageDetails.forms) {
+      return false;
+    }
+
+    const form = passwordField.form
+      ? pageDetails.forms[passwordField.form]
+      : Object.values(pageDetails.forms)[0];
+    if (!form) {
+      return false;
+    }
+
+    const formIdentifierValues = [
+      form.htmlAction.toLowerCase(),
+      form.htmlID?.toLowerCase?.(),
+      form.htmlName?.toLowerCase?.(),
+    ].filter(Boolean);
+
+    const fieldIdentifierValues = [
+      passwordField?.htmlID?.toLowerCase?.(),
+      passwordField?.htmlName?.toLowerCase?.(),
+    ].filter(Boolean);
+
+    const isPasswordResetForm = formIdentifierValues.some((value) =>
+      AutoFillConstants.PasswordResetFormKeywords.some((keyword) => value.includes(keyword)),
+    );
+    const fieldIsPartOfPasswordResetForm = fieldIdentifierValues.some((value) =>
+      AutoFillConstants.PasswordResetFieldKeywords.some((keyword) => value.includes(keyword)),
+    );
+    return isPasswordResetForm || fieldIsPartOfPasswordResetForm;
   }
 
   /**

@@ -67,6 +67,12 @@ export class AutoFillConstants {
     "create",
   ];
 
+  static readonly PasswordResetFormKeywords: string[] = ["password"];
+
+  static readonly PasswordResetFieldKeywords: string[] = ["old", "current", "new"];
+
+  static readonly PasswordResetOldPasswordKeywords: string[] = ["old", "current"];
+
   static readonly NewsletterFormNames: string[] = ["newsletter"];
 
   static readonly FieldIgnoreList: string[] = ["captcha", "findanything", "forgot"];
