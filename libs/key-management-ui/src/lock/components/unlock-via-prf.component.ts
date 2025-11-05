@@ -12,6 +12,7 @@ import { AsyncActionsModule, ButtonModule, DialogService } from "@bitwarden/comp
 
 import { WebAuthnPrfUnlockService } from "../services/webauthn-prf-unlock.service";
 
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-unlock-via-prf",
   standalone: true,
