@@ -294,6 +294,7 @@ export class LockComponent implements OnInit, OnDestroy {
       // User has no available unlock options, force logout. This happens for TDE users without a masterpassword, that don't have a persistent unlock method set.
       this.logService.warning("[LockComponent] User cannot unlock again. Logging out!");
       await this.logoutService.logout(activeAccount.id);
+      return;
     }
 
     await this.setDefaultActiveUnlockOption(this.unlockOptions);
