@@ -12,11 +12,23 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
+import { BILLING_MEMORY, StateProvider, UserKeyDefinition } from "@bitwarden/state";
 
 import {
   UnifiedUpgradeDialogComponent,
   UnifiedUpgradeDialogResult,
+  UnifiedUpgradeDialogStatus,
 } from "../unified-upgrade-dialog/unified-upgrade-dialog.component";
+
+// State key for tracking premium modal dismissal
+export const PREMIUM_MODAL_DISMISSED_KEY = new UserKeyDefinition<boolean>(
+  BILLING_MEMORY,
+  "premiumModalDismissed",
+  {
+    deserializer: (value: boolean) => value,
+    clearOn: [],
+  },
+);
 
 @Injectable({
   providedIn: "root",
@@ -32,6 +44,7 @@ export class UnifiedUpgradePromptService {
     private dialogService: DialogService,
     private organizationService: OrganizationService,
     private platformUtilsService: PlatformUtilsService,
+    private stateProvider: StateProvider,
   ) {}
 
   private shouldShowPrompt$: Observable<boolean> = this.accountService.activeAccount$.pipe(
@@ -45,22 +58,39 @@ export class UnifiedUpgradePromptService {
         return of(false);
       }
 
-      const isProfileLessThanFiveMinutesOld = from(
+      const isProfileLessThanFiveMinutesOld$ = from(
         this.isProfileLessThanFiveMinutesOld(account.id),
       );
-      const hasOrganizations = from(this.hasOrganizations(account.id));
+      const hasOrganizations$ = from(this.hasOrganizations(account.id));
+      const hasDismissedModal$ = this.stateProvider.getUserState$(
+        PREMIUM_MODAL_DISMISSED_KEY,
+        account.id,
+      );
 
       return combineLatest([
-        isProfileLessThanFiveMinutesOld,
-        hasOrganizations,
+        isProfileLessThanFiveMinutesOld$,
+        hasOrganizations$,
         this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
         this.configService.getFeatureFlag$(FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog),
+        hasDismissedModal$,
       ]).pipe(
-        map(([isProfileLessThanFiveMinutesOld, hasOrganizations, hasPremium, isFlagEnabled]) => {
-          return (
-            isProfileLessThanFiveMinutesOld && !hasOrganizations && !hasPremium && isFlagEnabled
-          );
-        }),
+        map(
+          ([
+            isProfileLessThanFiveMinutesOld,
+            hasOrganizations,
+            hasPremium,
+            isFlagEnabled,
+            hasDismissed,
+          ]) => {
+            return (
+              isProfileLessThanFiveMinutesOld &&
+              !hasOrganizations &&
+              !hasPremium &&
+              isFlagEnabled &&
+              !hasDismissed
+            );
+          },
+        ),
       );
     }),
     take(1),
@@ -113,6 +143,11 @@ export class UnifiedUpgradePromptService {
 
     const result = await firstValueFrom(this.unifiedUpgradeDialogRef.closed);
     this.unifiedUpgradeDialogRef = null;
+
+    // Save dismissal state when the modal is closed without upgrading
+    if (result?.status === UnifiedUpgradeDialogStatus.Closed) {
+      await this.stateProvider.setUserState(PREMIUM_MODAL_DISMISSED_KEY, true, account.id);
+    }
 
     // Return the result or null if the dialog was dismissed without a result
     return result || null;

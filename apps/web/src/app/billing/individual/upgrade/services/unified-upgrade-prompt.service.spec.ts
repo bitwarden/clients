@@ -10,6 +10,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
 import { DialogRef, DialogService } from "@bitwarden/components";
+import { StateProvider } from "@bitwarden/state";
 
 import {
   UnifiedUpgradeDialogComponent,
@@ -29,6 +30,7 @@ describe("UnifiedUpgradePromptService", () => {
   const mockOrganizationService = mock<OrganizationService>();
   const mockDialogOpen = jest.spyOn(UnifiedUpgradeDialogComponent, "open");
   const mockPlatformUtilsService = mock<PlatformUtilsService>();
+  const mockStateProvider = mock<StateProvider>();
 
   /**
    * Creates a mock DialogRef that implements the required properties for testing
@@ -59,6 +61,7 @@ describe("UnifiedUpgradePromptService", () => {
       mockDialogService,
       mockOrganizationService,
       mockPlatformUtilsService,
+      mockStateProvider,
     );
   }
 
@@ -72,6 +75,7 @@ describe("UnifiedUpgradePromptService", () => {
       mockAccountService.activeAccount$ = accountSubject.asObservable();
       mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+      mockStateProvider.getUserState$.mockReturnValue(of(false));
 
       setupTestService();
     });
@@ -82,6 +86,7 @@ describe("UnifiedUpgradePromptService", () => {
 
   describe("displayUpgradePromptConditionally", () => {
     beforeEach(() => {
+      accountSubject.next(mockAccount); // Reset account to mockAccount
       mockAccountService.activeAccount$ = accountSubject.asObservable();
       mockDialogOpen.mockReset();
       mockReset(mockDialogService);
@@ -90,11 +95,16 @@ describe("UnifiedUpgradePromptService", () => {
       mockReset(mockVaultProfileService);
       mockReset(mockSyncService);
       mockReset(mockOrganizationService);
+      mockReset(mockStateProvider);
 
       // Mock sync service methods
       mockSyncService.fullSync.mockResolvedValue(true);
       mockSyncService.lastSync$.mockReturnValue(of(new Date()));
       mockReset(mockPlatformUtilsService);
+
+      // Default: modal has not been dismissed
+      mockStateProvider.getUserState$.mockReturnValue(of(false));
+      mockStateProvider.setUserState.mockResolvedValue(undefined);
     });
     it("should subscribe to account and feature flag observables when checking display conditions", async () => {
       // Arrange
@@ -255,6 +265,72 @@ describe("UnifiedUpgradePromptService", () => {
       // Assert
       expect(result).toBeNull();
       expect(mockDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("should not show dialog when user has previously dismissed the modal", async () => {
+      // Arrange
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+      mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+      mockOrganizationService.memberOrganizations$.mockReturnValue(of([]));
+      const recentDate = new Date();
+      recentDate.setMinutes(recentDate.getMinutes() - 3); // 3 minutes old
+      mockVaultProfileService.getProfileCreationDate.mockResolvedValue(recentDate);
+      mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
+      mockStateProvider.getUserState$.mockReturnValue(of(true)); // User has dismissed
+      setupTestService();
+
+      // Act
+      const result = await sut.displayUpgradePromptConditionally();
+
+      // Assert
+      expect(result).toBeNull();
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("should save dismissal state when user closes the dialog", async () => {
+      // Arrange
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+      mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+      mockOrganizationService.memberOrganizations$.mockReturnValue(of([]));
+      const recentDate = new Date();
+      recentDate.setMinutes(recentDate.getMinutes() - 3); // 3 minutes old
+      mockVaultProfileService.getProfileCreationDate.mockResolvedValue(recentDate);
+      mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
+
+      const expectedResult = { status: UnifiedUpgradeDialogStatus.Closed };
+      mockDialogOpenMethod(createMockDialogRef(expectedResult));
+      setupTestService();
+
+      // Act
+      await sut.displayUpgradePromptConditionally();
+
+      // Assert
+      expect(mockStateProvider.setUserState).toHaveBeenCalledWith(
+        expect.anything(),
+        true,
+        mockAccount.id,
+      );
+    });
+
+    it("should not save dismissal state when user upgrades to premium", async () => {
+      // Arrange
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+      mockBillingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+      mockOrganizationService.memberOrganizations$.mockReturnValue(of([]));
+      const recentDate = new Date();
+      recentDate.setMinutes(recentDate.getMinutes() - 3); // 3 minutes old
+      mockVaultProfileService.getProfileCreationDate.mockResolvedValue(recentDate);
+      mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
+
+      const expectedResult = { status: UnifiedUpgradeDialogStatus.UpgradedToPremium };
+      mockDialogOpenMethod(createMockDialogRef(expectedResult));
+      setupTestService();
+
+      // Act
+      await sut.displayUpgradePromptConditionally();
+
+      // Assert
+      expect(mockStateProvider.setUserState).not.toHaveBeenCalled();
     });
   });
 });
