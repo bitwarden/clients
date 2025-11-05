@@ -55,19 +55,25 @@ describe("premiumInterestRedirectGuard", () => {
   });
 
   it("redirects to premium subscription page when user intends to setup premium", async () => {
+    const urlTree = { toString: () => "/settings/subscription/premium" };
+    createUrlTree.mockReturnValueOnce(urlTree);
     getPremiumInterest.mockResolvedValueOnce(true);
 
-    await runPremiumInterestGuard();
+    const result = await runPremiumInterestGuard();
 
     expect(createUrlTree).toHaveBeenCalledWith(["/settings/subscription/premium"]);
+    expect(result).toBe(urlTree);
   });
 
   it("redirects to login when active account is missing", async () => {
+    const urlTree = { toString: () => "/login" };
+    createUrlTree.mockReturnValueOnce(urlTree);
     activeAccount$.next(null);
 
-    await runPremiumInterestGuard();
+    const result = await runPremiumInterestGuard();
 
     expect(createUrlTree).toHaveBeenCalledWith(["/login"]);
+    expect(result).toBe(urlTree);
   });
 
   it("returns `true` and logs error when getPremiumInterest throws an error", async () => {
