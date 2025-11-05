@@ -6,6 +6,7 @@ import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { LockService } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -16,7 +17,6 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   VaultTimeoutSettingsService,
-  VaultTimeoutService,
   VaultTimeoutStringType,
   VaultTimeoutAction,
 } from "@bitwarden/common/key-management/vault-timeout";
@@ -63,6 +63,7 @@ describe("AccountSecurityComponent", () => {
   const validationService = mock<ValidationService>();
   const dialogService = mock<DialogService>();
   const platformUtilsService = mock<PlatformUtilsService>();
+  const lockService = mock<LockService>();
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -83,7 +84,6 @@ describe("AccountSecurityComponent", () => {
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: UserVerificationService, useValue: mock<UserVerificationService>() },
-        { provide: VaultTimeoutService, useValue: mock<VaultTimeoutService>() },
         { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
         { provide: StateProvider, useValue: mock<StateProvider>() },
         { provide: CipherService, useValue: mock<CipherService>() },
@@ -92,6 +92,7 @@ describe("AccountSecurityComponent", () => {
         { provide: OrganizationService, useValue: mock<OrganizationService>() },
         { provide: CollectionService, useValue: mock<CollectionService>() },
         { provide: ValidationService, useValue: validationService },
+        { provide: LockService, useValue: lockService },
       ],
     })
       .overrideComponent(AccountSecurityComponent, {
