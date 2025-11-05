@@ -736,8 +736,6 @@ export class AppComponent implements OnInit, OnDestroy {
       }
     }
 
-    await this.updateAppMenu();
-
     // This must come last otherwise the logout will prematurely trigger
     // a process reload before all the state service user data can be cleaned up
     this.authService.logOut(async () => {}, userBeingLoggedOut);
