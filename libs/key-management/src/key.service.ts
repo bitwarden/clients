@@ -192,17 +192,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return (await firstValueFrom(this.stateProvider.getUserState$(USER_KEY, userId))) != null;
   }
 
-  async makeUserKey(masterKey: MasterKey | null): Promise<[UserKey, EncString]> {
-    if (masterKey == null) {
-      const userId = await firstValueFrom(this.stateProvider.activeUserId$);
-      if (userId == null) {
-        throw new Error("No active user id found.");
-      }
-
-      masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-    }
-    if (masterKey == null) {
-      throw new Error("No Master Key found.");
+  async makeUserKey(masterKey: MasterKey): Promise<[UserKey, EncString]> {
+    if (!masterKey) {
+      throw new Error("MasterKey is required");
     }
 
     const newUserKey = await this.keyGenerationService.createKey(512);
