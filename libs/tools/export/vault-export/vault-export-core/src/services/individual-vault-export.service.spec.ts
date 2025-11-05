@@ -126,19 +126,15 @@ function generateFolder() {
 }
 
 function expectEqualCiphers(ciphers: CipherView[] | Cipher[], jsonResult: string) {
-  const parsed = JSON.parse(jsonResult);
-  const actualItems = sanitizeDates(parsed.items);
-
-  const expected: CipherWithIdExport[] = [];
+  const actual = JSON.stringify(JSON.parse(jsonResult).items);
+  const items: CipherWithIdExport[] = [];
   ciphers.forEach((c: CipherView | Cipher) => {
     const item = new CipherWithIdExport();
     item.build(c);
-    expected.push(item);
+    items.push(item);
   });
 
-  const expectedSanitized = sanitizeDates(expected);
-
-  expect(JSON.stringify(actualItems)).toEqual(JSON.stringify(expectedSanitized));
+  expect(actual).toEqual(JSON.stringify(items));
 }
 
 function expectEqualFolderViews(folderViews: FolderView[] | Folder[], jsonResult: string) {
@@ -164,18 +160,6 @@ function expectEqualFolders(folders: Folder[], jsonResult: string) {
   }));
 
   expect(actual).toMatchObject(expected);
-}
-
-function sanitizeDates<T>(obj: T): T {
-  const dateKeyRegex = /Date$/i;
-  return JSON.parse(
-    JSON.stringify(obj, (key, value) => {
-      if (key && dateKeyRegex.test(key)) {
-        return undefined; // omit this property
-      }
-      return value;
-    }),
-  );
 }
 
 describe("VaultExportService", () => {

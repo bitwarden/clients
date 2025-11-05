@@ -51,24 +51,24 @@ export class IdentityExport {
   }
 
   static toDomain(req: IdentityExport, domain = new IdentityDomain()) {
-    domain.title = new EncString(req.title ?? "");
-    domain.firstName = new EncString(req.firstName ?? "");
-    domain.middleName = new EncString(req.middleName ?? "");
-    domain.lastName = new EncString(req.lastName ?? "");
-    domain.address1 = new EncString(req.address1 ?? "");
-    domain.address2 = new EncString(req.address2 ?? "");
-    domain.address3 = new EncString(req.address3 ?? "");
-    domain.city = new EncString(req.city ?? "");
-    domain.state = new EncString(req.state ?? "");
-    domain.postalCode = new EncString(req.postalCode ?? "");
-    domain.country = new EncString(req.country ?? "");
-    domain.company = new EncString(req.company ?? "");
-    domain.email = new EncString(req.email ?? "");
-    domain.phone = new EncString(req.phone ?? "");
-    domain.ssn = new EncString(req.ssn ?? "");
-    domain.username = new EncString(req.username ?? "");
-    domain.passportNumber = new EncString(req.passportNumber ?? "");
-    domain.licenseNumber = new EncString(req.licenseNumber ?? "");
+    domain.title = req.title ? new EncString(req.title) : undefined;
+    domain.firstName = req.firstName ? new EncString(req.firstName) : undefined;
+    domain.middleName = req.middleName ? new EncString(req.middleName) : undefined;
+    domain.lastName = req.lastName ? new EncString(req.lastName) : undefined;
+    domain.address1 = req.address1 ? new EncString(req.address1) : undefined;
+    domain.address2 = req.address2 ? new EncString(req.address2) : undefined;
+    domain.address3 = req.address3 ? new EncString(req.address3) : undefined;
+    domain.city = req.city ? new EncString(req.city) : undefined;
+    domain.state = req.state ? new EncString(req.state) : undefined;
+    domain.postalCode = req.postalCode ? new EncString(req.postalCode) : undefined;
+    domain.country = req.country ? new EncString(req.country) : undefined;
+    domain.company = req.company ? new EncString(req.company) : undefined;
+    domain.email = req.email ? new EncString(req.email) : undefined;
+    domain.phone = req.phone ? new EncString(req.phone) : undefined;
+    domain.ssn = req.ssn ? new EncString(req.ssn) : undefined;
+    domain.username = req.username ? new EncString(req.username) : undefined;
+    domain.passportNumber = req.passportNumber ? new EncString(req.passportNumber) : undefined;
+    domain.licenseNumber = req.licenseNumber ? new EncString(req.licenseNumber) : undefined;
     return domain;
   }
 

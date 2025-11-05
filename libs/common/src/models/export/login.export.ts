@@ -34,9 +34,9 @@ export class LoginExport {
     if (req.uris != null) {
       domain.uris = req.uris.map((u) => LoginUriExport.toDomain(u));
     }
-    domain.username = new EncString(req.username);
-    domain.password = new EncString(req.password);
-    domain.totp = new EncString(req.totp ?? "");
+    domain.username = req.username ? new EncString(req.username) : undefined;
+    domain.password = req.password ? new EncString(req.password) : undefined;
+    domain.totp = req.totp ? new EncString(req.totp) : undefined;
     // Fido2credentials are currently not supported for exports.
 
     return domain;

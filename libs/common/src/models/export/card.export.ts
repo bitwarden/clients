@@ -27,12 +27,12 @@ export class CardExport {
   }
 
   static toDomain(req: CardExport, domain = new CardDomain()) {
-    domain.cardholderName = new EncString(req.cardholderName ?? "");
-    domain.brand = new EncString(req.brand ?? "");
-    domain.number = new EncString(req.number ?? "");
-    domain.expMonth = new EncString(req.expMonth ?? "");
-    domain.expYear = new EncString(req.expYear ?? "");
-    domain.code = new EncString(req.code ?? "");
+    domain.cardholderName = req.cardholderName ? new EncString(req.cardholderName) : undefined;
+    domain.brand = req.brand ? new EncString(req.brand) : undefined;
+    domain.number = req.number ? new EncString(req.number) : undefined;
+    domain.expMonth = req.expMonth ? new EncString(req.expMonth) : undefined;
+    domain.expYear = req.expYear ? new EncString(req.expYear) : undefined;
+    domain.code = req.code ? new EncString(req.code) : undefined;
     return domain;
   }
 
