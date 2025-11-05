@@ -29,14 +29,14 @@ describe("PhishingDetectionService", () => {
 
   it("should initialize without errors", () => {
     expect(() => {
-      PhishingDetectionService.initialize$(
+      PhishingDetectionService.initialize(
         accountService,
         billingAccountProfileStateService,
         configService,
         logService,
         phishingDataService,
         messageListener,
-      ).subscribe();
+      );
     }).not.toThrow();
   });
 
@@ -57,14 +57,14 @@ describe("PhishingDetectionService", () => {
       });
 
     // Run the initialization
-    PhishingDetectionService.initialize$(
+    PhishingDetectionService.initialize(
       accountService,
       billingAccountProfileStateService,
       configService,
       logService,
       phishingDataService,
       messageListener,
-    ).subscribe();
+    );
   });
 
   it("should not enable phishing detection for non-premium account", (done) => {
@@ -94,13 +94,13 @@ describe("PhishingDetectionService", () => {
       });
 
     // Run the initialization
-    PhishingDetectionService.initialize$(
+    PhishingDetectionService.initialize(
       accountService,
       billingAccountProfileStateService,
       configService,
       logService,
       phishingDataService,
       messageListener,
-    ).subscribe();
+    );
   });
 });

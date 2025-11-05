@@ -1463,14 +1463,14 @@ export default class MainBackground {
       this.platformUtilsService,
     );
 
-    PhishingDetectionService.initialize$(
+    PhishingDetectionService.initialize(
       this.accountService,
       this.billingAccountProfileStateService,
       this.configService,
       this.logService,
       this.phishingDataService,
       messageListener,
-    ).subscribe();
+    );
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
     this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);

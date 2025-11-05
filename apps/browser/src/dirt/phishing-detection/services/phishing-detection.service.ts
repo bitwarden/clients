@@ -54,7 +54,9 @@ export class PhishingDetectionService {
 
   private static _ignoredHostnames = new Set<string>();
 
-  static initialize$(
+  private static _didInit = false;
+
+  static initialize(
     accountService: AccountService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
     configService: ConfigService,
@@ -66,35 +68,44 @@ export class PhishingDetectionService {
     this._phishingDataService = phishingDataService;
     this._messageListener = messageListener;
 
+    if (this._didInit) {
+      logService.debug("[PhishingDetectionService] Initialize already called. Aborting.");
+      return;
+    }
+
     logService.debug("[PhishingDetectionService] Initialize called. Checking prerequisites...");
 
-    return combineLatest([
+    combineLatest([
       accountService.activeAccount$,
       configService.getFeatureFlag$(FeatureFlag.PhishingDetection),
-    ]).pipe(
-      switchMap(([account, featureEnabled]) => {
-        if (!account) {
-          logService.debug("[PhishingDetectionService] No active account.");
-          this._cleanup();
-          return EMPTY;
-        }
-        return billingAccountProfileStateService.hasPremiumFromAnySource$(account.id).pipe(
-          map((hasPremium) => hasPremium && featureEnabled),
-          distinctUntilChanged(), // Prevent re-triggering setup when switching between multiple accounts with access
-        );
-      }),
-      concatMap(async (activeUserHasAccess) => {
-        if (!activeUserHasAccess) {
-          logService.debug(
-            "[PhishingDetectionService] User does not have access to phishing detection service.",
+    ])
+      .pipe(
+        switchMap(([account, featureEnabled]) => {
+          if (!account) {
+            logService.debug("[PhishingDetectionService] No active account.");
+            this._cleanup();
+            return EMPTY;
+          }
+          return billingAccountProfileStateService.hasPremiumFromAnySource$(account.id).pipe(
+            map((hasPremium) => hasPremium && featureEnabled),
+            distinctUntilChanged(), // Prevent re-triggering setup when switching between multiple accounts with access
           );
-          this._cleanup();
-        } else {
-          logService.debug("[PhishingDetectionService] Enabling phishing detection service");
-          await this._setup();
-        }
-      }),
-    );
+        }),
+        concatMap(async (activeUserHasAccess) => {
+          if (!activeUserHasAccess) {
+            logService.debug(
+              "[PhishingDetectionService] User does not have access to phishing detection service.",
+            );
+            this._cleanup();
+          } else {
+            logService.debug("[PhishingDetectionService] Enabling phishing detection service");
+            await this._setup();
+          }
+        }),
+      )
+      .subscribe();
+
+    this._didInit = true;
   }
 
   /**
