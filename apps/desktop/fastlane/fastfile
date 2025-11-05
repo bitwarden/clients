@@ -21,7 +21,7 @@ platform :mac do
       .split('.')
       .map(&:strip)
       .reject(&:empty?)
-      .map { |item| "• #{item}" }
+      .map { |item| "• #{item.gsub(/\A(?:•|\u2022)\s*/, '')}" }
       .join("\n")
     
     UI.message("Original changelog: #{changelog[0,100]}#{changelog.length > 100 ? '...' : ''}")
