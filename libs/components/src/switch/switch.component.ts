@@ -58,9 +58,9 @@ export class SwitchComponent implements ControlValueAccessor, AfterViewInit {
 
   private readonly hintComponent = contentChild<BitHintComponent>(BitHintComponent);
 
-  private disabledReasonTextId = `bit-switch-disabled-text-${nextId++}`;
+  protected readonly disabledReasonTextId = `bit-switch-disabled-text-${nextId++}`;
 
-  private readonly describedByIds = computed(() => {
+  protected readonly describedByIds = computed(() => {
     const ids: string[] = [];
 
     if (this.disabledReasonText() && this.disabled()) {
