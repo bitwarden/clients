@@ -1,6 +1,6 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
   <bit-dialog dialogSize="large" [loading]="loading">
-    <span bitDialogTitle class="tw-font-semibold">
+    <span bitDialogTitle class="tw-font-medium">
       {{ "newClientOrganization" | i18n }}
     </span>
     <div bitDialogContent>
@@ -22,16 +22,16 @@
             <div class="tw-relative">
               <div
                 *ngIf="planCard.selected"
-                class="tw-bg-primary-600 tw-text-center !tw-text-contrast tw-text-sm tw-font-bold tw-py-1 group-hover/plan-card-container:tw-bg-primary-700"
+                class="tw-bg-primary-600 tw-text-center !tw-text-contrast tw-text-sm tw-font-medium tw-py-1 group-hover/plan-card-container:tw-bg-primary-700"
               >
                 {{ "selected" | i18n }}
               </div>
               <div class="tw-pl-5 tw-py-4 tw-pr-4" [ngClass]="{ 'tw-pt-10': !planCard.selected }">
-                <h3 class="tw-text-2xl tw-font-bold tw-uppercase">{{ planCard.name }}</h3>
-                <span class="tw-text-2xl tw-font-semibold">{{
+                <h3 class="tw-text-2xl tw-font-medium tw-uppercase">{{ planCard.name }}</h3>
+                <span class="tw-text-2xl tw-font-medium">{{
                   planCard.getMonthlyCost() | currency: "$"
                 }}</span>
-                <span class="tw-text-sm tw-font-bold"
+                <span class="tw-text-sm tw-font-medium"
                   >/ {{ planCard.getTimePerMemberLabel() | i18n }}</span
                 >
               </div>
