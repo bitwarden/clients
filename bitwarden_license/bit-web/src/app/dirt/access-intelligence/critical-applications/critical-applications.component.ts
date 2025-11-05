@@ -1,10 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { debounceTime, EMPTY, map, switchMap } from "rxjs";
+import { combineLatest, debounceTime, EMPTY, map, switchMap } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
@@ -28,9 +28,8 @@ import { RiskInsightsTabType } from "../models/risk-insights.models";
 import { AppTableRowScrollableComponent } from "../shared/app-table-row-scrollable.component";
 import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks.service";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "dirt-critical-applications",
   templateUrl: "./critical-applications.component.html",
   imports: [
@@ -72,18 +71,34 @@ export class CriticalApplicationsComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.dataService.criticalReportResults$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (criticalReport) => {
-        this.dataSource.data = criticalReport?.reportData ?? [];
-        this.applicationSummary = criticalReport?.summaryData ?? createNewSummaryData();
-        this.enableRequestPasswordChange = criticalReport?.summaryData?.totalAtRiskMemberCount > 0;
-      },
-      error: () => {
-        this.dataSource.data = [];
-        this.applicationSummary = createNewSummaryData();
-        this.enableRequestPasswordChange = false;
-      },
-    });
+    combineLatest([this.dataService.criticalReportResults$, this.dataService.ciphers$])
+      .pipe(
+        map(([report, ciphers]) => {
+          if (!report) {
+            return null;
+          }
+          const reportWithCiphers = (report?.reportData ?? []).map((app) => ({
+            ...app,
+            ciphers: ciphers.filter((cipher) => app.cipherIds.includes(cipher.id)),
+          }));
+          return { ...report, reportData: reportWithCiphers };
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (criticalReport) => {
+          this.dataSource.data = criticalReport?.reportData ?? [];
+          this.applicationSummary = criticalReport?.summaryData ?? createNewSummaryData();
+          this.enableRequestPasswordChange =
+            criticalReport?.summaryData?.totalAtRiskMemberCount > 0;
+        },
+        error: () => {
+          this.dataSource.data = [];
+          this.applicationSummary = createNewSummaryData();
+          this.enableRequestPasswordChange = false;
+        },
+      });
+
     this.activatedRoute.paramMap
       .pipe(
         takeUntilDestroyed(this.destroyRef),

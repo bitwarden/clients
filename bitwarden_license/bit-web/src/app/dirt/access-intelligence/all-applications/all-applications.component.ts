@@ -1,8 +1,8 @@
-import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { debounceTime } from "rxjs";
+import { combineLatest, debounceTime, of, switchMap } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
@@ -16,6 +16,7 @@ import {
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   IconButtonModule,
   NoItemsModule,
@@ -31,9 +32,8 @@ import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pip
 import { AppTableRowScrollableComponent } from "../shared/app-table-row-scrollable.component";
 import { ApplicationsLoadingComponent } from "../shared/risk-insights-loading.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "dirt-all-applications",
   templateUrl: "./all-applications.component.html",
   imports: [
@@ -49,7 +49,9 @@ import { ApplicationsLoadingComponent } from "../shared/risk-insights-loading.co
   ],
 })
 export class AllApplicationsComponent implements OnInit {
-  protected dataSource = new TableDataSource<ApplicationHealthReportDetailEnriched>();
+  protected dataSource = new TableDataSource<
+    ApplicationHealthReportDetailEnriched & { ciphers: CipherView[] }
+  >();
   protected selectedUrls: Set<string> = new Set<string>();
   protected searchControl = new FormControl("", { nonNullable: true });
   protected organization = new Organization();
@@ -74,15 +76,31 @@ export class AllApplicationsComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.dataService.enrichedReportData$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (report) => {
-        this.applicationSummary = report?.summaryData ?? createNewSummaryData();
-        this.dataSource.data = report?.reportData ?? [];
-      },
-      error: () => {
-        this.dataSource.data = [];
-      },
-    });
+    combineLatest([this.dataService.enrichedReportData$, this.dataService.ciphers$])
+      .pipe(
+        switchMap(([report, ciphers]) => {
+          if (!report) {
+            return null;
+          }
+
+          // Map ciphers to each application
+          const reportWithCiphers = report.reportData.map((app) => ({
+            ...app,
+            ciphers: ciphers.filter((cipher) => app.cipherIds.includes(cipher.id)),
+          }));
+          return of({ ...report, reportData: reportWithCiphers });
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (report) => {
+          this.applicationSummary = report?.summaryData ?? createNewSummaryData();
+          this.dataSource.data = report?.reportData ?? [];
+        },
+        error: () => {
+          this.dataSource.data = [];
+        },
+      });
   }
 
   isMarkedAsCriticalItem(applicationName: string) {

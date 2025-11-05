@@ -2,6 +2,7 @@ import { BehaviorSubject, firstValueFrom, Observable, of, Subject } from "rxjs";
 import { distinctUntilChanged, map } from "rxjs/operators";
 
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { getAtRiskApplicationList, getAtRiskMemberList } from "../../helpers";
 import {
@@ -38,6 +39,7 @@ export class RiskInsightsDataService {
   readonly isGeneratingReport$: Observable<boolean> = of(false);
   readonly criticalReportResults$: Observable<RiskInsightsEnrichedData | null> = of(null);
   readonly hasCiphers$: Observable<boolean | null> = of(null);
+  readonly ciphers$: Observable<CipherView[]> = of([]);
 
   // New applications that need review (reviewedDate === null)
   readonly newApplications$: Observable<ApplicationHealthReportDetail[]> = of([]);
@@ -64,6 +66,7 @@ export class RiskInsightsDataService {
     this.newApplications$ = this.orchestrator.newApplications$;
 
     this.hasCiphers$ = this.orchestrator.hasCiphers$.pipe(distinctUntilChanged());
+    this.ciphers$ = this.orchestrator.ciphers$;
 
     // Expose the loading state
     this.reportStatus$ = this.reportState$.pipe(
