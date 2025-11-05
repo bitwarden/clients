@@ -16,7 +16,6 @@ export class BlockClaimedDomainAccountCreationPolicy extends BasePolicyEditDefin
   description = "blockClaimedDomainAccountCreationDesc";
   type = PolicyType.BlockClaimedDomainAccountCreation;
   component = BlockClaimedDomainAccountCreationPolicyComponent;
-  showDescription = false; // Description is shown in the component template with inline link
 
   override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
     return configService
