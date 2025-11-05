@@ -144,7 +144,7 @@ describe("BrowserPopupUtils", () => {
         os: "linux",
         arch: "x86-64",
         nacl_arch: "x86-64",
-      })
+      });
       jest.spyOn(BrowserApi, "getWindow").mockResolvedValueOnce({
         id: 1,
         left: 100,
