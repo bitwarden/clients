@@ -155,7 +155,7 @@
     }
   },
   "newPasswordsAtRisk": {
-    "message": "$COUNT$ new passwords at-risk",
+    "message": "$COUNT$ sandi baru berisiko",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -172,8 +172,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "Tidak menemukan aplikasi di $ORG NAME$",
+  "noApplicationsInOrgTitle": {
+    "message": "No applications found for $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -181,8 +181,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "Setelah pengguna menyimpan login, aplikasi akan muncul di sini menampilkan sandi yang berisiko. Tandai aplikasi penting dan peringatkan pengguna untuk memperbarui sandi."
+  "noApplicationsInOrgDescription": {
+    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  },
+  "benefit1Title": {
+    "message": "Prioritize risks"
+  },
+  "benefit1Description": {
+    "message": "Focus on applications that matter the most"
+  },
+  "benefit2Title": {
+    "message": "Guide remediation"
+  },
+  "benefit2Description": {
+    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  },
+  "benefit3Title": {
+    "message": "Monitor progress"
+  },
+  "benefit3Description": {
+    "message": "Track changes over time to show security improvements"
+  },
+  "noReportRunTitle": {
+    "message": "Run your first report to see applications"
+  },
+  "noReportRunDescription": {
+    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Anda belum menandai aplikasi apa pun sebagai penting"
@@ -327,6 +351,27 @@
   },
   "markAsCriticalPlaceholder": {
     "message": "Fungsi tandai sebagai penting akan diterapkan pada pembaruan mendatang"
+  },
+  "applicationReviewSaved": {
+    "message": "Application review saved"
+  },
+  "applicationsMarkedAsCritical": {
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "newApplicationsReviewed": {
+    "message": "New applications reviewed"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Error saving review status"
+  },
+  "pleaseTryAgain": {
+    "message": "Please try again"
   },
   "unmarkAsCritical": {
     "message": "Batalkan sebagai penting"
@@ -911,7 +956,7 @@
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "File Kirim baru",
+    "message": "Berkas Kirim baru",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -1107,7 +1152,7 @@
     "message": "Brankas Saya"
   },
   "allVaults": {
-    "message": "Semua Vault"
+    "message": "Semua Brankas"
   },
   "vault": {
     "message": "Brankas"
@@ -1116,7 +1161,7 @@
     "message": "Brankas"
   },
   "vaultItems": {
-    "message": "Item Brankas"
+    "message": "Item brankas"
   },
   "filter": {
     "message": "Filter"
@@ -1314,6 +1359,9 @@
   "useSingleSignOn": {
     "message": "Gunakan masuk tunggal"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Selamat datang kembali"
   },
@@ -1354,7 +1402,7 @@
     "message": "Gunakan untuk enkripsi brankas"
   },
   "useForVaultEncryptionInfo": {
-    "message": "Masuk dan buka kunci di perangkat yang didukung tanpa sandi utama Anda. Ikuti petunjuk dari peramban Anda untuk menyelesaikan pengaturan."
+    "message": "Masuk dan buka kunci di perangkat yang didukung tanpa sandi utama Anda. Ikuti petunjuk dari peramban Anda untuk menyelesaikan setelan."
   },
   "useForVaultEncryptionErrorReadingPasskey": {
     "message": "Terjadi kesalahan saat membaca kunci sandi. Coba lagi atau hapus centang opsi ini."
@@ -1492,7 +1540,7 @@
     "message": "Petunjuk sandi utama"
   },
   "masterPassHintText": {
-    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "message": "Jika Anda lupa sandi, petunjuk sandi dapat dikirim ke email Anda. Maksimum karakter $CURRENT$/$MAXIMUM$.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -2220,7 +2268,7 @@
     "message": "Impor Data"
   },
   "onboardingImportDataDetailsPartOne": {
-    "message": "If you don't have any data to import, you can create a ",
+    "message": "Jika Anda tidak memiliki data untuk diimpor, Anda dapat membuat ",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLink": {
@@ -2232,11 +2280,11 @@
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsPartTwoNoOrgs": {
-    "message": " instead.",
+    "message": " saja.",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
   },
   "onboardingImportDataDetailsPartTwoWithOrgs": {
-    "message": " instead. You may need to wait until your administrator confirms your organization membership.",
+    "message": " saja. Anda mungkin perlu menunggu hingga administrator mengonfirmasi keanggotaan organisasi Anda.",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
@@ -2249,7 +2297,7 @@
     "message": "Data telah berhasil diimpor ke lemari besi Anda."
   },
   "importSuccessNumberOfItems": {
-    "message": "A total of $AMOUNT$ items were imported.",
+    "message": "Sebanyak $AMOUNT$ item diimpor.",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -2258,7 +2306,7 @@
     }
   },
   "dataExportSuccess": {
-    "message": "Data successfully exported"
+    "message": "Data berhasil diekspor"
   },
   "importWarning": {
     "message": "Anda mengimpor data ke $ORGANIZATION$. Data Anda dapat dibagikan dengan anggota organisasi ini. Apakah Anda ingin melanjutkan?",
@@ -2279,10 +2327,10 @@
     "message": "Tidak dapat mendekripsi file yang diekspor. Kunci enkripsi Anda tidak cocok dengan kunci enkripsi yang digunakan untuk menekspor data terkait."
   },
   "destination": {
-    "message": "Destination"
+    "message": "Tujuan"
   },
   "learnAboutImportOptions": {
-    "message": "Learn about your import options"
+    "message": "Pelajari tentang pilihan impor Anda"
   },
   "selectImportFolder": {
     "message": "Pilih folder"
@@ -2291,13 +2339,13 @@
     "message": "Pilih koleksi"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Pilih opsi ini jika Anda ingin konten file yang diimpor dipindahkan ke koleksi"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Pilih opsi ini jika Anda ingin konten file yang diimpor dipindahkan ke folder"
   },
   "importUnassignedItemsError": {
-    "message": "File contains unassigned items."
+    "message": "Berkas berisi item yang belum ditetapkan."
   },
   "selectFormat": {
     "message": "Pilih format file impor"
@@ -2343,7 +2391,7 @@
     "message": "Ubah bahasa yang digunakan oleh brankas web."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Tampilkan ikon situs web dan ambil URL perubahan sandi"
   },
   "default": {
     "message": "Bawaan"
@@ -2391,23 +2439,23 @@
     "message": "Login dua-langkah"
   },
   "twoStepLoginEnforcement": {
-    "message": "Two-step Login Enforcement"
+    "message": "Penegakan Login Dua Langkah"
   },
   "twoStepLoginDesc": {
     "message": "Amankan akun Anda dengan meminta langkah tambahan saat masuk."
   },
   "twoStepLoginTeamsDesc": {
-    "message": "Enable two-step login for your organization."
+    "message": "Aktifkan login dua langkah untuk organisasi Anda."
   },
   "twoStepLoginEnterpriseDescStart": {
-    "message": "Enforce Bitwarden Two-step Login options for members by using the ",
+    "message": "Terapkan opsi Login Dua Langkah Bitwarden untuk anggota dengan menggunakan ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
   "twoStepLoginPolicy": {
-    "message": "Two-step Login Policy"
+    "message": "Kebijakan Login Dua Langkah"
   },
   "twoStepLoginOrganizationDuoDesc": {
-    "message": "To enforce Two-step Login through Duo, use the options below."
+    "message": "Untuk menerapkan Login Dua Langkah melalui Duo, gunakan opsi di bawah ini."
   },
   "twoStepLoginOrganizationSsoDesc": {
     "message": "If you have setup SSO or plan to, Two-step Login may already be enforced through your Identity Provider."
@@ -4449,8 +4497,8 @@
   "inviteAccepted": {
     "message": "Undangan Diterima"
   },
-  "inviteAcceptedDesc": {
-    "message": "Anda dapat mengakses organisasi ini setelah administrator mengonfirmasi keanggotaan Anda. Kami akan mengirimi Anda email jika itu terjadi."
+  "invitationAcceptedDesc": {
+    "message": "Successfully accepted your invitation."
   },
   "inviteInitAcceptedDesc": {
     "message": "Anda sekarang dapat mengakses organisasi ini."
@@ -5375,14 +5423,14 @@
     "message": "Pemilik dan Administrator Organisasi dibebaskan dari penegakan kebijakan ini."
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "Batasi tampilan"
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Tidak seorang pun dapat melihat Kirim ini setelah batas tercapai.",
     "description": "Displayed under the limit views field on Send"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "$ACCESSCOUNT$ tampilan tersisa",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -5392,11 +5440,11 @@
     }
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Detail Kirim",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
-    "message": "Text to share"
+    "message": "Teks untuk dibagikan"
   },
   "sendTypeFile": {
     "message": "Berkas"
@@ -5405,7 +5453,7 @@
     "message": "Teks"
   },
   "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
+    "message": "Tambahkan sandi opsional bagi penerima untuk mengakses Kirim ini.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
@@ -5515,11 +5563,11 @@
     "message": "Download attachments"
   },
   "sendAccessPasswordTitle": {
-    "message": "Enter the password to view this Send",
+    "message": "Masukkan sandi untuk melihat Kirim ini",
     "description": "Title of the Send password authentication screen."
   },
   "sendAccessContentTitle": {
-    "message": "View Send",
+    "message": "Lihat Kirim",
     "description": "Title of the Send view content screen."
   },
   "sendAccessUnavailable": {
@@ -5730,47 +5778,47 @@
     "message": "Open your Bitwarden extension."
   },
   "autoConfirmStep2a": {
-    "message": "Select",
+    "message": "Pilih",
     "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
   },
   "autoConfirmStep2b": {
-    "message": " Turn on.",
+    "message": " Aktifkan.",
     "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
   },
   "autoConfirmExtensionOpened": {
-    "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
+    "message": "Ekstensi peramban Bitwarden berhasil dibuka. Anda sekarang dapat mengaktifkan pengaturan konfirmasi pengguna otomatis."
   },
   "autoConfirmPolicyEditDescription": {
-    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "message": "Pengguna baru yang diundang ke organisasi akan otomatis dikonfirmasi saat perangkat admin dibuka kuncinya. Sebelum mengaktifkan kebijakan ini, harap tinjau dan setujui hal-hal berikut: ",
     "description": "This is the description of the policy as it appears inside the policy edit dialog"
   },
   "autoConfirmAcceptSecurityRiskTitle": {
-    "message": "Potential security risk. "
+    "message": "Potensi risiko keamanan. "
   },
   "autoConfirmAcceptSecurityRiskDescription": {
-    "message": "Automatic user confirmation could pose a security risk to your organization’s data."
+    "message": "Konfirmasi pengguna otomatis dapat menimbulkan risiko keamanan terhadap data organisasi Anda."
   },
   "autoConfirmAcceptSecurityRiskLearnMore": {
-    "message": "Learn about the risks",
+    "message": "Pelajari tentang risikonya",
     "description": "The is the link copy for the first check box option in the edit policy dialog"
   },
   "autoConfirmSingleOrgRequired": {
-    "message": "Single organization policy required. "
+    "message": "Diperlukan kebijakan organisasi tunggal. "
   },
   "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
+    "message": "Siapa pun yang menjadi bagian dari lebih dari satu organisasi akan dicabut aksesnya hingga mereka meninggalkan organisasi lain."
   },
   "autoConfirmSingleOrgExemption": {
-    "message": "Single organization policy will extend to all roles. "
+    "message": "Kebijakan organisasi tunggal akan diperluas ke semua peran. "
   },
   "autoConfirmNoEmergencyAccess": {
-    "message": "No emergency access. "
+    "message": "Tidak ada akses darurat. "
   },
   "autoConfirmNoEmergencyAccessDescription": {
-    "message": "Emergency Access will be removed."
+    "message": "Akses Darurat akan dihapus."
   },
   "autoConfirmCheckBoxLabel": {
-    "message": "I accept these risks and policy updates"
+    "message": "Saya menerima risiko dan pembaruan kebijakan ini"
   },
   "personalOwnership": {
     "message": "Kepemilikan Pribadi"
@@ -6049,7 +6097,7 @@
     }
   },
   "viewSend": {
-    "message": "View Send",
+    "message": "Lihat Kirim",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -6492,23 +6540,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
   },
-  "maximumVaultTimeout": {
-    "message": "Batas Waktu Brankas"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Session timeout"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Set a maximum vault timeout for members."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Set a maximum session timeout for all members except owners."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Batas waktu Maksimal Brankas"
+  "maximumAllowedTimeout": {
+    "message": "Maximum allowed timeout"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "Batas waktu Maksimal Brankas tidak valid."
+  "maximumAllowedTimeoutRequired": {
+    "message": "Maximum allowed timeout is required."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Time is invalid. Change at least one value."
+  },
+  "sessionTimeoutAction": {
+    "message": "Session timeout action"
+  },
+  "immediately": {
+    "message": "Immediately"
+  },
+  "onSystemLock": {
+    "message": "On system lock"
+  },
+  "onAppRestart": {
+    "message": "On app restart"
   },
   "hours": {
     "message": "Jam"
   },
   "minutes": {
     "message": "Menit"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Are you certain you want to allow a maximum timeout of \"Never\" for all members?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "This option will save your members' encryption keys on their devices. If you choose this option, ensure that their devices are adequately protected."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Learn more about device protection"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "\"System lock\" will only apply to the browser and desktop app"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "The mobile and web app will use \"on app restart\" as their maximum allowed timeout, since the option is not supported."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
@@ -10612,10 +10690,10 @@
     "message": "Learn more about Bitwarden's API"
   },
   "fileSends": {
-    "message": "File Sends"
+    "message": "Berkas Kirim"
   },
   "textSends": {
-    "message": "Text Sends"
+    "message": "Teks Kirim"
   },
   "includesXMembers": {
     "message": "for $COUNT$ member",
@@ -11936,5 +12014,14 @@
   },
   "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
     "message": "Argon2id offers stronger protection against modern attacks. Best for advanced users with powerful devices."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Start free Families trial"
   }
 }

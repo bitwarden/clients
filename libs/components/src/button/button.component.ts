@@ -69,7 +69,7 @@ const buttonStyles: Record<ButtonType, string[]> = {
 export class ButtonComponent implements ButtonLikeAbstraction {
   @HostBinding("class") get classList() {
     return [
-      "tw-font-semibold",
+      "tw-font-medium",
       "tw-rounded-full",
       "tw-transition",
       "tw-border-2",
@@ -92,7 +92,6 @@ export class ButtonComponent implements ButtonLikeAbstraction {
               "hover:!tw-text-muted",
               "aria-disabled:tw-cursor-not-allowed",
               "hover:tw-no-underline",
-              "aria-disabled:tw-pointer-events-none",
             ]
           : [],
       )
