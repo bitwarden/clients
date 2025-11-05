@@ -1310,6 +1310,12 @@
   "exportFrom": {
     "message": "Export from"
   },
+  "export": {
+    "message": "Export"
+  },
+  "import": {
+    "message": "Import"
+  },
   "exportVault": {
     "message": "Export vault"
   },
