@@ -5,9 +5,10 @@ import {
   EMPTY,
   filter,
   map,
+  merge,
+  of,
   Subject,
   switchMap,
-  takeUntil,
   tap,
 } from "rxjs";
 
@@ -44,16 +45,8 @@ export const PHISHING_DETECTION_CANCEL_COMMAND = new CommandDefinition<{
 }>("phishing-detection-cancel");
 
 export class PhishingDetectionService {
-  private static _destroy$ = new Subject<void>();
-
-  private static _logService: LogService;
-  private static _phishingDataService: PhishingDataService;
-  private static _messageListener: MessageListener;
-
   private static _tabUpdated$ = new Subject<PhishingDetectionNavigationEvent>();
-
   private static _ignoredHostnames = new Set<string>();
-
   private static _didInit = false;
 
   static initialize(
@@ -64,10 +57,6 @@ export class PhishingDetectionService {
     phishingDataService: PhishingDataService,
     messageListener: MessageListener,
   ) {
-    this._logService = logService;
-    this._phishingDataService = phishingDataService;
-    this._messageListener = messageListener;
-
     if (this._didInit) {
       logService.debug("[PhishingDetectionService] Initialize already called. Aborting.");
       return;
@@ -75,110 +64,107 @@ export class PhishingDetectionService {
 
     logService.debug("[PhishingDetectionService] Initialize called. Checking prerequisites...");
 
-    combineLatest([
+    BrowserApi.addListener(chrome.tabs.onUpdated, this._handleTabUpdated.bind(this));
+
+    const onContinueCommand$ = messageListener.messages$(PHISHING_DETECTION_CONTINUE_COMMAND).pipe(
+      tap((message) =>
+        logService.debug(`[PhishingDetectionService] user selected continue for ${message.url}`),
+      ),
+      concatMap(async (message) => {
+        const url = new URL(message.url);
+        this._ignoredHostnames.add(url.hostname);
+        await BrowserApi.navigateTabToUrl(message.tabId, url);
+      }),
+    );
+
+    const onTabUpdated$ = this._tabUpdated$.pipe(
+      filter(
+        (navEvent) =>
+          navEvent.changeInfo.status === "complete" &&
+          !!navEvent.tab.url &&
+          !this._isExtensionPage(navEvent.tab.url),
+      ),
+      distinctUntilChanged(
+        (prev, curr) => prev.tab.url === curr.tab.url && prev.tabId === curr.tabId,
+      ),
+      tap((event) => logService.debug(`[PhishingDetectionService] processing event:`, event)),
+      concatMap(async ({ tabId, tab }) => {
+        if (!tab.url) {
+          return;
+        }
+        const tabUrl = new URL(tab.url);
+        if (this._ignoredHostnames.has(tabUrl.hostname)) {
+          // The next time this host is visited, block again
+          this._ignoredHostnames.delete(tabUrl.hostname);
+          return;
+        }
+        const isPhishing = await phishingDataService.isPhishingDomain(tabUrl);
+        if (!isPhishing) {
+          return;
+        }
+
+        const phishingWarningPage = new URL(
+          BrowserApi.getRuntimeURL("popup/index.html#/security/phishing-warning") +
+            `?phishingUrl=${tabUrl.toString()}`,
+        );
+        await BrowserApi.navigateTabToUrl(tabId, phishingWarningPage);
+      }),
+    );
+
+    const onCancelCommand$ = messageListener
+      .messages$(PHISHING_DETECTION_CANCEL_COMMAND)
+      .pipe(switchMap((message) => BrowserApi.closeTab(message.tabId)));
+
+    const activeAccountHasAccess$ = combineLatest([
       accountService.activeAccount$,
       configService.getFeatureFlag$(FeatureFlag.PhishingDetection),
-    ])
+    ]).pipe(
+      switchMap(([account, featureEnabled]) => {
+        if (!account) {
+          logService.debug("[PhishingDetectionService] No active account.");
+          return of(false);
+        }
+        return billingAccountProfileStateService
+          .hasPremiumFromAnySource$(account.id)
+          .pipe(map((hasPremium) => hasPremium && featureEnabled));
+      }),
+    );
+
+    const initSub = activeAccountHasAccess$
       .pipe(
-        switchMap(([account, featureEnabled]) => {
-          if (!account) {
-            logService.debug("[PhishingDetectionService] No active account.");
-            this._cleanup();
-            return EMPTY;
-          }
-          return billingAccountProfileStateService.hasPremiumFromAnySource$(account.id).pipe(
-            map((hasPremium) => hasPremium && featureEnabled),
-            distinctUntilChanged(), // Prevent re-triggering setup when switching between multiple accounts with access
-          );
-        }),
-        concatMap(async (activeUserHasAccess) => {
+        distinctUntilChanged(),
+        switchMap((activeUserHasAccess) => {
           if (!activeUserHasAccess) {
             logService.debug(
               "[PhishingDetectionService] User does not have access to phishing detection service.",
             );
-            this._cleanup();
+            return EMPTY;
           } else {
             logService.debug("[PhishingDetectionService] Enabling phishing detection service");
-            await this._setup();
+            return merge(
+              phishingDataService.update$,
+              onContinueCommand$,
+              onTabUpdated$,
+              onCancelCommand$,
+            );
           }
         }),
       )
       .subscribe();
 
     this._didInit = true;
-  }
+    return () => {
+      initSub.unsubscribe();
+      this._didInit = false;
 
-  /**
-   * Sets up listeners for messages from the web page and web navigation events
-   */
-  private static _setup(): void {
-    this._phishingDataService.update$.pipe(takeUntil(this._destroy$)).subscribe();
-
-    BrowserApi.addListener(chrome.tabs.onUpdated, this._handleTabUpdated.bind(this));
-
-    this._messageListener
-      .messages$(PHISHING_DETECTION_CONTINUE_COMMAND)
-      .pipe(
-        tap((message) =>
-          this._logService.debug(
-            `[PhishingDetectionService] user selected continue for ${message.url}`,
-          ),
-        ),
-        concatMap(async (message) => {
-          const url = new URL(message.url);
-          this._ignoredHostnames.add(url.hostname);
-          await BrowserApi.navigateTabToUrl(message.tabId, url);
-        }),
-        takeUntil(this._destroy$),
-      )
-      .subscribe();
-
-    this._tabUpdated$
-      .pipe(
-        filter(
-          (navEvent) =>
-            navEvent.changeInfo.status === "complete" &&
-            !!navEvent.tab.url &&
-            !this._isExtensionPage(navEvent.tab.url),
-        ),
-        distinctUntilChanged(
-          (prev, curr) => prev.tab.url === curr.tab.url && prev.tabId === curr.tabId,
-        ),
-        tap((event) =>
-          this._logService.debug(`[PhishingDetectionService] processing event:`, event),
-        ),
-        concatMap(async ({ tabId, tab }) => {
-          if (!tab.url) {
-            return;
-          }
-          const tabUrl = new URL(tab.url);
-          if (this._ignoredHostnames.has(tabUrl.hostname)) {
-            // The next time this host is visited, block again
-            this._ignoredHostnames.delete(tabUrl.hostname);
-            return;
-          }
-          const isPhishing = await this._phishingDataService.isPhishingDomain(tabUrl);
-          if (!isPhishing) {
-            return;
-          }
-
-          const phishingWarningPage = new URL(
-            BrowserApi.getRuntimeURL("popup/index.html#/security/phishing-warning") +
-              `?phishingUrl=${tabUrl.toString()}`,
-          );
-          await BrowserApi.navigateTabToUrl(tabId, phishingWarningPage);
-        }),
-        takeUntil(this._destroy$),
-      )
-      .subscribe();
-
-    this._messageListener
-      .messages$(PHISHING_DETECTION_CANCEL_COMMAND)
-      .pipe(
-        switchMap((message) => BrowserApi.closeTab(message.tabId)),
-        takeUntil(this._destroy$),
-      )
-      .subscribe();
+      // Manually type cast to satisfy the listener signature due to the mixture
+      // of static and instance methods in this class. To be fixed when refactoring
+      // this class to be instance-based while providing a singleton instance in usage
+      BrowserApi.removeListener(
+        chrome.tabs.onUpdated,
+        PhishingDetectionService._handleTabUpdated as (...args: readonly unknown[]) => unknown,
+      );
+    };
   }
 
   private static _handleTabUpdated(
@@ -199,26 +185,6 @@ export class PhishingDetectionService {
       url.startsWith("moz-extension://") ||
       url.startsWith("safari-extension://") ||
       url.startsWith("safari-web-extension://")
-    );
-  }
-
-  /**
-   * Cleans up the phishing detection service
-   * Unsubscribes from all subscriptions and clears caches
-   */
-  private static _cleanup() {
-    this._destroy$.next();
-    this._destroy$.complete();
-    this._destroy$ = new Subject<void>();
-
-    this._ignoredHostnames.clear();
-
-    // Manually type cast to satisfy the listener signature due to the mixture
-    // of static and instance methods in this class. To be fixed when refactoring
-    // this class to be instance-based while providing a singleton instance in usage
-    BrowserApi.removeListener(
-      chrome.tabs.onUpdated,
-      PhishingDetectionService._handleTabUpdated as (...args: readonly unknown[]) => unknown,
     );
   }
 }
