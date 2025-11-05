@@ -30,6 +30,7 @@ export enum FeatureFlag {
   PM24996_ImplementUpgradeFromFreeDialog = "pm-24996-implement-upgrade-from-free-dialog",
   PM24033PremiumUpgradeNewDesign = "pm-24033-updat-premium-subscription-page",
   PM26793_FetchPremiumPriceFromPricingService = "pm-26793-fetch-premium-price-from-pricing-service",
+  PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog = "pm-23713-premium-badge-opens-new-premium-upgrade-dialog",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -57,6 +58,7 @@ export enum FeatureFlag {
   PM22136_SdkCipherEncryption = "pm-22136-sdk-cipher-encryption",
   CipherKeyEncryption = "cipher-key-encryption",
   AutofillConfirmation = "pm-25083-autofill-confirm-from-search",
+  RiskInsightsForPremium = "pm-23904-risk-insights-for-premium",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -105,6 +107,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
   [FeatureFlag.AutofillConfirmation]: FALSE,
+  [FeatureFlag.RiskInsightsForPremium]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM22110_DisableAlternateLoginMethods]: FALSE,
@@ -118,6 +121,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog]: FALSE,
   [FeatureFlag.PM24033PremiumUpgradeNewDesign]: FALSE,
   [FeatureFlag.PM26793_FetchPremiumPriceFromPricingService]: FALSE,
+  [FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
