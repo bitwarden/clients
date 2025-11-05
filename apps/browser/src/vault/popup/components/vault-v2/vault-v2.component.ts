@@ -10,7 +10,6 @@ import {
   map,
   Observable,
   shareReplay,
-  startWith,
   switchMap,
   take,
 } from "rxjs";
@@ -41,11 +40,13 @@ import { PopOutComponent } from "../../../../platform/popup/components/pop-out.c
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
 import { IntroCarouselService } from "../../services/intro-carousel.service";
-import { VaultPopupCopyButtonsService } from "../../services/vault-popup-copy-buttons.service";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
+import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
 import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-password-callout.component";
+import { VaultFadeInOutSkeletonComponent } from "../vault-fade-in-skeleton/vault-fade-in-skeleton.component";
+import { VaultLoadingSkeletonComponent } from "../vault-loading-skeleton/vault-loading-skeleton.component";
 
 import { BlockedInjectionBanner } from "./blocked-injection-banner/blocked-injection-banner.component";
 import {
@@ -55,6 +56,7 @@ import {
 import { VaultHeaderV2Component } from "./vault-header/vault-header-v2.component";
 
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
+
 
 const VaultState = {
   Empty: 0,
@@ -88,6 +90,8 @@ type VaultState = UnionOfValues<typeof VaultState>;
     SpotlightComponent,
     RouterModule,
     TypographyModule,
+    VaultLoadingSkeletonComponent,
+    VaultFadeInOutSkeletonComponent,
   ],
 })
 export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
@@ -111,17 +115,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
   protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
-
-  protected loading$ = combineLatest([
-    this.vaultPopupItemsService.loading$,
-    this.allFilters$,
-    // Added as a dependency to avoid flashing the copyActions on slower devices
-    this.vaultCopyButtonsService.showQuickCopyActions$,
-  ]).pipe(
-    map(([itemsLoading, filters]) => itemsLoading || !filters),
-    shareReplay({ bufferSize: 1, refCount: true }),
-    startWith(true),
-  );
+  protected loading$ = this.vaultPopupLoadingService.loading$;
 
   protected newItemItemValues$: Observable<NewItemInitialValues> =
     this.vaultPopupListFiltersService.filters$.pipe(
@@ -150,11 +144,11 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private vaultPopupItemsService: VaultPopupItemsService,
     private vaultPopupListFiltersService: VaultPopupListFiltersService,
     private vaultScrollPositionService: VaultPopupScrollPositionService,
+    private vaultPopupLoadingService: VaultPopupLoadingService,
     private accountService: AccountService,
     private destroyRef: DestroyRef,
     private cipherService: CipherService,
     private dialogService: DialogService,
-    private vaultCopyButtonsService: VaultPopupCopyButtonsService,
     private introCarouselService: IntroCarouselService,
     private nudgesService: NudgesService,
     private router: Router,
