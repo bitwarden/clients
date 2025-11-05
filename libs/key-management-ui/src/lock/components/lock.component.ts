@@ -288,6 +288,7 @@ export class LockComponent implements OnInit, OnDestroy {
     const canUseBiometrics = [
       BiometricsStatus.Available,
       BiometricsStatus.HardwareUnavailable,
+      BiometricsStatus.DesktopDisconnected,
       BiometricsStatus.NotEnabledInConnectedDesktopApp,
     ].includes(await this.biometricService.getBiometricsStatusForUser(activeAccount.id));
     if (!canUsePassword && !canUsePin && !canUseBiometrics) {
