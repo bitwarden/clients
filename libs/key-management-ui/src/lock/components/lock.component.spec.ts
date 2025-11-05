@@ -11,7 +11,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LogoutService } from "@bitwarden/auth/common";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -57,6 +57,7 @@ import {
 import {
   LockComponentService,
   UnlockOption,
+  UnlockOptionValue,
   UnlockOptions,
 } from "../services/lock-component.service";
 
@@ -805,6 +806,252 @@ describe("LockComponent", () => {
       });
       expect(mockLogoutService.logout).not.toHaveBeenCalled();
       expect(mockRouter.navigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("setDefaultActiveUnlockOption", () => {
+    it.each([
+      [
+        "biometrics enabled",
+        {
+          biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+          pin: { enabled: false },
+          masterPassword: { enabled: false },
+        } as UnlockOptions,
+        UnlockOption.Biometrics,
+      ],
+      [
+        "biometrics disabled, pin enabled",
+        {
+          biometrics: { enabled: false, biometricsStatus: BiometricsStatus.NotEnabledLocally },
+          pin: { enabled: true },
+          masterPassword: { enabled: false },
+        } as UnlockOptions,
+        UnlockOption.Pin,
+      ],
+      [
+        "biometrics and pin disabled, masterPassword enabled",
+        {
+          biometrics: { enabled: false, biometricsStatus: BiometricsStatus.NotEnabledLocally },
+          pin: { enabled: false },
+          masterPassword: { enabled: true },
+        } as UnlockOptions,
+        UnlockOption.MasterPassword,
+      ],
+      [
+        "hardware unavailable, no other options",
+        {
+          biometrics: { enabled: false, biometricsStatus: BiometricsStatus.HardwareUnavailable },
+          pin: { enabled: false },
+          masterPassword: { enabled: false },
+        } as UnlockOptions,
+        UnlockOption.Biometrics,
+      ],
+      [
+        "desktop disconnected, no other options",
+        {
+          biometrics: { enabled: false, biometricsStatus: BiometricsStatus.DesktopDisconnected },
+          pin: { enabled: false },
+          masterPassword: { enabled: false },
+        } as UnlockOptions,
+        UnlockOption.Biometrics,
+      ],
+      [
+        "not enabled in connected desktop app, no other options",
+        {
+          biometrics: {
+            enabled: false,
+            biometricsStatus: BiometricsStatus.NotEnabledInConnectedDesktopApp,
+          },
+          pin: { enabled: false },
+          masterPassword: { enabled: false },
+        } as UnlockOptions,
+        UnlockOption.Biometrics,
+      ],
+      [
+        "biometrics over pin priority",
+        {
+          biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+          pin: { enabled: true },
+          masterPassword: { enabled: false },
+        } as UnlockOptions,
+        UnlockOption.Biometrics,
+      ],
+      [
+        "biometrics over masterPassword priority",
+        {
+          biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+          pin: { enabled: false },
+          masterPassword: { enabled: true },
+        } as UnlockOptions,
+        UnlockOption.Biometrics,
+      ],
+      [
+        "pin over masterPassword priority",
+        {
+          biometrics: { enabled: false, biometricsStatus: BiometricsStatus.NotEnabledLocally },
+          pin: { enabled: true },
+          masterPassword: { enabled: true },
+        } as UnlockOptions,
+        UnlockOption.Pin,
+      ],
+      [
+        "all options enabled",
+        {
+          biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+          pin: { enabled: true },
+          masterPassword: { enabled: true },
+        } as UnlockOptions,
+        UnlockOption.Biometrics,
+      ],
+    ])(
+      "should set active unlock option to $1 when %s",
+      async (
+        description: string,
+        unlockOptions: UnlockOptions,
+        expectedOption: UnlockOptionValue,
+      ) => {
+        await component["setDefaultActiveUnlockOption"](unlockOptions);
+
+        expect(component.activeUnlockOption).toBe(expectedOption);
+      },
+    );
+  });
+
+  describe("handleActiveAccountChange", () => {
+    const mockActiveAccount: Account = {
+      id: userId,
+      email: "test@example.com",
+      name: "Test User",
+    } as Account;
+
+    beforeEach(async () => {
+      component.activeAccount = mockActiveAccount;
+    });
+
+    it("should return early when account already has user key", async () => {
+      mockKeyService.hasUserKey.mockResolvedValue(true);
+
+      await component["handleActiveAccountChange"](mockActiveAccount);
+
+      expect(mockKeyService.hasUserKey).toHaveBeenCalledWith(userId);
+      expect(mockAnonLayoutWrapperDataService.setAnonLayoutWrapperData).not.toHaveBeenCalled();
+    });
+
+    it("should set email as page subtitle when account is unlocked", async () => {
+      mockKeyService.hasUserKey.mockResolvedValue(false);
+      mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(
+        of({
+          biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+          pin: { enabled: false },
+          masterPassword: { enabled: false },
+        } as UnlockOptions),
+      );
+      mockBiometricService.getBiometricsStatusForUser.mockResolvedValue(BiometricsStatus.Available);
+
+      await component["handleActiveAccountChange"](mockActiveAccount);
+
+      expect(mockAnonLayoutWrapperDataService.setAnonLayoutWrapperData).toHaveBeenCalledWith({
+        pageSubtitle: mockActiveAccount.email,
+      });
+    });
+
+    it("should logout user when no unlock options are available", async () => {
+      mockKeyService.hasUserKey.mockResolvedValue(false);
+      mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(
+        of({
+          biometrics: { enabled: false, biometricsStatus: BiometricsStatus.UnlockNeeded },
+          pin: { enabled: false },
+          masterPassword: { enabled: false },
+        } as UnlockOptions),
+      );
+      mockBiometricService.getBiometricsStatusForUser.mockResolvedValue(
+        BiometricsStatus.UnlockNeeded,
+      );
+
+      await component["handleActiveAccountChange"](mockActiveAccount);
+
+      expect(mockLogService.warning).toHaveBeenCalledWith(
+        "[LockComponent] User cannot unlock again. Logging out!",
+      );
+      expect(mockLogoutService.logout).toHaveBeenCalledWith(userId);
+    });
+
+    it("should not logout when master password is enabled", async () => {
+      mockKeyService.hasUserKey.mockResolvedValue(false);
+      mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(
+        of({
+          biometrics: { enabled: false, biometricsStatus: BiometricsStatus.UnlockNeeded },
+          pin: { enabled: false },
+          masterPassword: { enabled: true },
+        } as UnlockOptions),
+      );
+      mockBiometricService.getBiometricsStatusForUser.mockResolvedValue(
+        BiometricsStatus.UnlockNeeded,
+      );
+
+      await component["handleActiveAccountChange"](mockActiveAccount);
+
+      expect(mockLogoutService.logout).not.toHaveBeenCalled();
+      expect(component.activeUnlockOption).toBe(UnlockOption.MasterPassword);
+    });
+
+    it("should not logout when pin is enabled", async () => {
+      mockKeyService.hasUserKey.mockResolvedValue(false);
+      mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(
+        of({
+          biometrics: { enabled: false, biometricsStatus: BiometricsStatus.UnlockNeeded },
+          pin: { enabled: true },
+          masterPassword: { enabled: false },
+        } as UnlockOptions),
+      );
+      mockBiometricService.getBiometricsStatusForUser.mockResolvedValue(
+        BiometricsStatus.UnlockNeeded,
+      );
+
+      await component["handleActiveAccountChange"](mockActiveAccount);
+
+      expect(mockLogoutService.logout).not.toHaveBeenCalled();
+      expect(component.activeUnlockOption).toBe(UnlockOption.Pin);
+    });
+
+    it("should not logout when biometrics is available", async () => {
+      mockKeyService.hasUserKey.mockResolvedValue(false);
+      mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(
+        of({
+          biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+          pin: { enabled: false },
+          masterPassword: { enabled: false },
+        } as UnlockOptions),
+      );
+      mockBiometricService.getBiometricsStatusForUser.mockResolvedValue(BiometricsStatus.Available);
+
+      await component["handleActiveAccountChange"](mockActiveAccount);
+
+      expect(mockLogoutService.logout).not.toHaveBeenCalled();
+      expect(component.activeUnlockOption).toBe(UnlockOption.Biometrics);
+    });
+
+    it("should not logout when biometrics is temporarily unavailable but no other options", async () => {
+      mockKeyService.hasUserKey.mockResolvedValue(false);
+      mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(
+        of({
+          biometrics: {
+            enabled: false,
+            biometricsStatus: BiometricsStatus.HardwareUnavailable,
+          },
+          pin: { enabled: false },
+          masterPassword: { enabled: false },
+        } as UnlockOptions),
+      );
+      mockBiometricService.getBiometricsStatusForUser.mockResolvedValue(
+        BiometricsStatus.HardwareUnavailable,
+      );
+
+      await component["handleActiveAccountChange"](mockActiveAccount);
+
+      expect(mockLogoutService.logout).not.toHaveBeenCalled();
+      expect(component.activeUnlockOption).toBe(UnlockOption.Biometrics);
     });
   });
 });
