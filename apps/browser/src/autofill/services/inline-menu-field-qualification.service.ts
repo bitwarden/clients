@@ -210,10 +210,7 @@ export class InlineMenuFieldQualificationService
   }
 
   constructor() {
-    void Promise.all([
-      sendExtensionMessage("getInlineMenuFieldQualificationFeatureFlag"),
-      sendExtensionMessage("getUserPremiumStatus"),
-    ]).then(([fieldQualificationFlag, premiumStatus]) => {
+    void sendExtensionMessage("getUserPremiumStatus").then((premiumStatus) => {
       this.premiumEnabled = !!premiumStatus?.result;
     });
   }
