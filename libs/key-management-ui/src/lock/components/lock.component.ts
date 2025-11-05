@@ -323,11 +323,6 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   private async setDefaultActiveUnlockOption(unlockOptions: UnlockOptions | null) {
-    const biometricsStatus: BiometricsStatus | null =
-      this.activeAccount != null
-        ? await this.biometricService.getBiometricsStatusForUser(this.activeAccount.id)
-        : null;
-
     // Priorities should be Biometrics > Pin > Master Password for speed
     if (unlockOptions?.biometrics.enabled) {
       this.activeUnlockOption = UnlockOption.Biometrics;
@@ -336,8 +331,10 @@ export class LockComponent implements OnInit, OnDestroy {
     } else if (unlockOptions?.masterPassword.enabled) {
       this.activeUnlockOption = UnlockOption.MasterPassword;
     } else if (
-      biometricsStatus != null &&
-      BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES.includes(biometricsStatus)
+      unlockOptions != null &&
+      BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES.includes(
+        unlockOptions.biometrics.biometricsStatus,
+      )
     ) {
       // If biometrics is temporarily unavailable for masterpassword-less users, but they have biometrics configured,
       // then show the biometrics screen so the user knows why they can't unlock, and to give them the option to log out.
