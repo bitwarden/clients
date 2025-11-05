@@ -61,7 +61,9 @@ describe("premiumInterestRedirectGuard", () => {
 
     const result = await runPremiumInterestGuard();
 
-    expect(createUrlTree).toHaveBeenCalledWith(["/settings/subscription/premium"]);
+    expect(createUrlTree).toHaveBeenCalledWith(["/settings/subscription/premium"], {
+      queryParams: { callToAction: "upgradeToPremium" },
+    });
     expect(result).toBe(urlTree);
   });
 
