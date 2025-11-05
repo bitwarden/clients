@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, HostBinding, OnDestroy, OnInit } from "@angular/core";
 import { Subject, switchMap, takeUntil } from "rxjs";
 
@@ -33,7 +31,7 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
   protected readonly MaxCredentialCount = WebauthnLoginAdminService.MaxCredentialCount;
   protected readonly WebauthnLoginCredentialPrfStatus = WebauthnLoginCredentialPrfStatus;
 
-  protected credentials?: WebauthnLoginCredentialView[];
+  protected credentials: WebauthnLoginCredentialView[];
   protected loading = true;
 
   constructor(
@@ -41,7 +39,9 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private policyService: PolicyService,
     private accountService: AccountService,
-  ) {}
+  ) {
+    this.credentials = [];
+  }
 
   @HostBinding("attr.aria-busy")
   get ariaBusy() {
@@ -57,7 +57,10 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
   }
 
   get limitReached() {
-    return this.credentials?.length >= this.MaxCredentialCount;
+    if (!this.credentials) {
+      throw new Error("");
+    }
+    return this.credentials.length >= this.MaxCredentialCount;
   }
 
   requireSsoPolicyEnabled = false;
