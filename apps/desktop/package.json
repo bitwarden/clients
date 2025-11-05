@@ -28,7 +28,7 @@
     "build:macos-extension:mas": "./desktop_native/macos_provider/build.sh && node scripts/build-macos-extension.js mas",
     "build:macos-extension:masdev": "./desktop_native/macos_provider/build.sh && node scripts/build-macos-extension.js mas-dev",
     "build:main": "cross-env NODE_ENV=production webpack --config webpack.config.js --config-name main",
-    "build:main:dev": "npm run build-native && cross-env NODE_ENV=development webpack --config webpack.config.js --config-name main",
+    "build:main:dev": "cross-env NODE_ENV=development webpack --config webpack.config.js --config-name main",
     "build:main:watch": "npm run build-native && cross-env NODE_ENV=development webpack --config webpack.config.js --config-name main --watch",
     "build:renderer": "cross-env NODE_ENV=production webpack --config webpack.config.js --config-name renderer",
     "build:renderer:dev": "cross-env NODE_ENV=development webpack --config webpack.config.js --config-name renderer",
