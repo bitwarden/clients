@@ -57,29 +57,6 @@ export class BrowserApi {
     return true;
   }
 
-  static isCurrentExtensionUrl(url: string) {
-    if (!url) {
-      return false;
-    }
-
-    try {
-      const extensionUrl =
-        (typeof chrome !== "undefined" && chrome.runtime?.getURL("")) ||
-        (typeof browser !== "undefined" && browser.runtime?.getURL("")) ||
-        "";
-
-      if (!extensionUrl) {
-        return false;
-      }
-
-      return url.startsWith(extensionUrl);
-    } catch (error) {
-      if (error instanceof Error) {
-        return false;
-      }
-    }
-  }
-
   /**
    * Gets all open browser windows, including their tabs.
    *
