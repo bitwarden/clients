@@ -50,7 +50,12 @@ export class BrowserApi {
     }
 
     // these are all properties on externally initiated messages, not internal ones
-    if (sender.tab || sender.documentId || sender.documentLifecycle || sender.frameId) {
+    if (
+      "tab" in sender ||
+      "documentId" in sender ||
+      "documentLifecycle" in sender ||
+      "frameId" in sender
+    ) {
       return false;
     }
 
