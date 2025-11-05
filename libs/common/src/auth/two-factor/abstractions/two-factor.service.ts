@@ -35,13 +35,13 @@ export interface TwoFactorProviderDetails {
    * Display name for the provider, localized via {@link TwoFactorService.init}.
    * Examples: "Authenticator App", "Email", "YubiKey".
    */
-  name: string;
+  name: string | null;
 
   /**
    * User-facing description explaining what this provider is and how it works.
    * Localized via {@link TwoFactorService.init}.
    */
-  description: string;
+  description: string | null;
 
   /**
    * Selection priority during login when multiple providers are available.
@@ -87,16 +87,16 @@ export const TwoFactorProviders: Partial<Record<TwoFactorProviderType, TwoFactor
   {
     [TwoFactorProviderType.Authenticator]: {
       type: TwoFactorProviderType.Authenticator,
-      name: null as string,
-      description: null as string,
+      name: null,
+      description: null,
       priority: 1,
       sort: 2,
       premium: false,
     },
     [TwoFactorProviderType.Yubikey]: {
       type: TwoFactorProviderType.Yubikey,
-      name: null as string,
-      description: null as string,
+      name: null,
+      description: null,
       priority: 3,
       sort: 4,
       premium: true,
@@ -104,7 +104,7 @@ export const TwoFactorProviders: Partial<Record<TwoFactorProviderType, TwoFactor
     [TwoFactorProviderType.Duo]: {
       type: TwoFactorProviderType.Duo,
       name: "Duo",
-      description: null as string,
+      description: null,
       priority: 2,
       sort: 5,
       premium: true,
@@ -112,23 +112,23 @@ export const TwoFactorProviders: Partial<Record<TwoFactorProviderType, TwoFactor
     [TwoFactorProviderType.OrganizationDuo]: {
       type: TwoFactorProviderType.OrganizationDuo,
       name: "Duo (Organization)",
-      description: null as string,
+      description: null,
       priority: 10,
       sort: 6,
       premium: false,
     },
     [TwoFactorProviderType.Email]: {
       type: TwoFactorProviderType.Email,
-      name: null as string,
-      description: null as string,
+      name: null,
+      description: null,
       priority: 0,
       sort: 1,
       premium: false,
     },
     [TwoFactorProviderType.WebAuthn]: {
       type: TwoFactorProviderType.WebAuthn,
-      name: null as string,
-      description: null as string,
+      name: null,
+      description: null,
       priority: 4,
       sort: 3,
       premium: false,
