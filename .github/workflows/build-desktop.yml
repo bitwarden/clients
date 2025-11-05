@@ -8,27 +8,27 @@ on:
   pull_request:
     types: [opened, synchronize]
     branches-ignore:
-      - "l10n_master"
-      - "cf-pages"
+      - 'l10n_master'
+      - 'cf-pages'
     paths:
-      - "apps/desktop/**"
-      - "libs/**"
-      - "*"
-      - "!*.md"
-      - "!*.txt"
-      - ".github/workflows/build-desktop.yml"
+      - 'apps/desktop/**'
+      - 'libs/**'
+      - '*'
+      - '!*.md'
+      - '!*.txt'
+      - '.github/workflows/build-desktop.yml'
   push:
     branches:
-      - "main"
-      - "rc"
-      - "hotfix-rc-desktop"
+      - 'main'
+      - 'rc'
+      - 'hotfix-rc-desktop'
     paths:
-      - "apps/desktop/**"
-      - "libs/**"
-      - "*"
-      - "!*.md"
-      - "!*.txt"
-      - ".github/workflows/build-desktop.yml"
+      - 'apps/desktop/**'
+      - 'libs/**'
+      - '*'
+      - '!*.md'
+      - '!*.txt'
+      - '.github/workflows/build-desktop.yml'
   workflow_call:
     inputs: {}
   workflow_dispatch:
@@ -199,8 +199,6 @@ jobs:
           npm --version
           snap --version
           snapcraft --version || echo 'snapcraft unavailable'
-          echo "=== Installed snaps ==="
-          snap list
 
       - name: Install Node dependencies
         run: npm ci
@@ -350,18 +348,16 @@ jobs:
 
       - name: Install snaps required by snapcraft in destructive mode
         run: |
-          sudo snap install core22 || echo "core22 installation failed, continuing anyway"
-          sudo snap install gtk-common-themes || echo "gtk-common-themes installation failed, continuing anyway"
-          sudo snap install gnome-3-28-1804 || echo "gnome-3-28-1804 installation failed, continuing anyway"
+          sudo snap install core22
+          sudo snap install gtk-common-themes
+          sudo snap install gnome-3-28-1804
 
       - name: Print environment
         run: |
           node --version
           npm --version
           snap --version
-          snapcraft --version || echo 'snapcraft unavailable'
-          echo "=== Installed snaps ==="
-          snap list
+          snapcraft --version
 
       - name: Install Node dependencies
         run: npm ci
