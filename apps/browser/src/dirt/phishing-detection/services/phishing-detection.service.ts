@@ -139,6 +139,8 @@ export class PhishingDetectionService {
           }
           const tabUrl = new URL(tab.url);
           if (this._ignoredHostnames.has(tabUrl.hostname)) {
+            // The next time this host is visited, block again
+            this._ignoredHostnames.delete(tabUrl.hostname);
             return;
           }
           const isPhishing = await this._phishingDataService.isPhishingDomain(tabUrl);
