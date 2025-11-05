@@ -9431,9 +9431,6 @@
   "loggedInExclamation": {
     "message": "Logged in!"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "assignCollectionAccess": {
     "message": "Assign collection access"
   },
