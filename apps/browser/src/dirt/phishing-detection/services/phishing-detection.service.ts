@@ -84,28 +84,31 @@ export class PhishingDetectionService {
           !!navEvent.tab.url &&
           !this._isExtensionPage(navEvent.tab.url),
       ),
+      map(({ tab, tabId }) => {
+        const url = new URL(tab.url!);
+        return { tabId, url, ignored: this._ignoredHostnames.has(url.hostname) };
+      }),
       distinctUntilChanged(
-        (prev, curr) => prev.tab.url === curr.tab.url && prev.tabId === curr.tabId,
+        (prev, curr) =>
+          prev.url.toString() === curr.url.toString() &&
+          prev.tabId === curr.tabId &&
+          prev.ignored === curr.ignored,
       ),
       tap((event) => logService.debug(`[PhishingDetectionService] processing event:`, event)),
-      concatMap(async ({ tabId, tab }) => {
-        if (!tab.url) {
-          return;
-        }
-        const tabUrl = new URL(tab.url);
-        if (this._ignoredHostnames.has(tabUrl.hostname)) {
+      concatMap(async ({ tabId, url, ignored }) => {
+        if (ignored) {
           // The next time this host is visited, block again
-          this._ignoredHostnames.delete(tabUrl.hostname);
+          this._ignoredHostnames.delete(url.hostname);
           return;
         }
-        const isPhishing = await phishingDataService.isPhishingDomain(tabUrl);
+        const isPhishing = await phishingDataService.isPhishingDomain(url);
         if (!isPhishing) {
           return;
         }
 
         const phishingWarningPage = new URL(
           BrowserApi.getRuntimeURL("popup/index.html#/security/phishing-warning") +
-            `?phishingUrl=${tabUrl.toString()}`,
+            `?phishingUrl=${url.toString()}`,
         );
         await BrowserApi.navigateTabToUrl(tabId, phishingWarningPage);
       }),
