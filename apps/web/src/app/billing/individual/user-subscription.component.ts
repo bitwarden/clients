@@ -45,7 +45,7 @@ export class UserSubscriptionComponent implements OnInit {
   reinstatePromise: Promise<any>;
 
   protected enableDiscountDisplay$ = this.configService.getFeatureFlag$(
-    FeatureFlag.Milestone_2_flag,
+    FeatureFlag.PM23341_Milestone_2,
   );
 
   constructor(
