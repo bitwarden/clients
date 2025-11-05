@@ -27,7 +27,6 @@ import { DefaultSubscriptionPricingService } from "@bitwarden/common/billing/ser
 import { PersonalSubscriptionPricingTierIds } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ToastService } from "@bitwarden/components";
 import { SubscriberBillingClient, TaxClient } from "@bitwarden/web-vault/app/billing/clients";
@@ -45,11 +44,11 @@ import { mapAccountToSubscriber } from "@bitwarden/web-vault/app/billing/types";
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  templateUrl: "./premium.component.html",
+  templateUrl: "./cloud-hosted-premium.component.html",
   standalone: false,
   providers: [SubscriberBillingClient, TaxClient],
 })
-export class PremiumComponent {
+export class CloudHostedPremiumComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(EnterPaymentMethodComponent) enterPaymentMethodComponent!: EnterPaymentMethodComponent;
@@ -121,7 +120,6 @@ export class PremiumComponent {
   );
 
   protected cloudWebVaultURL: string;
-  protected isSelfHost = false;
   protected readonly familyPlanMaxUserCount = 6;
 
   constructor(
@@ -130,7 +128,6 @@ export class PremiumComponent {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private environmentService: EnvironmentService,
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
     private router: Router,
     private syncService: SyncService,
     private toastService: ToastService,
@@ -139,8 +136,6 @@ export class PremiumComponent {
     private taxClient: TaxClient,
     private subscriptionPricingService: DefaultSubscriptionPricingService,
   ) {
-    this.isSelfHost = this.platformUtilsService.isSelfHost();
-
     this.hasPremiumFromAnyOrganization$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
         this.billingAccountProfileStateService.hasPremiumFromAnyOrganization$(account.id),
@@ -239,12 +234,4 @@ export class PremiumComponent {
     await this.finalizeUpgrade();
     await this.postFinalizeUpgrade();
   };
-
-  protected get premiumURL(): string {
-    return `${this.cloudWebVaultURL}/#/settings/subscription/premium`;
-  }
-
-  protected async onLicenseFileSelectedChanged(): Promise<void> {
-    await this.postFinalizeUpgrade();
-  }
 }

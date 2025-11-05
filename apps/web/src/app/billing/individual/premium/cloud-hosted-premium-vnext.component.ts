@@ -52,7 +52,7 @@ const RouteParamValues = {
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  templateUrl: "./premium-vnext.component.html",
+  templateUrl: "./cloud-hosted-premium-vnext.component.html",
   standalone: true,
   imports: [
     CommonModule,
@@ -64,7 +64,7 @@ const RouteParamValues = {
     PricingCardComponent,
   ],
 })
-export class PremiumVNextComponent {
+export class CloudHostedPremiumVNextComponent {
   protected hasPremiumFromAnyOrganization$: Observable<boolean>;
   protected hasPremiumPersonally$: Observable<boolean>;
   protected shouldShowNewDesign$: Observable<boolean>;
