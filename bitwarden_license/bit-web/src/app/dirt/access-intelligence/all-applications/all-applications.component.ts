@@ -80,13 +80,13 @@ export class AllApplicationsComponent implements OnInit {
       .pipe(
         switchMap(([report, ciphers]) => {
           if (!report) {
-            return null;
+            return of(null);
           }
 
           // Map ciphers to each application
           const reportWithCiphers = report.reportData.map((app) => ({
             ...app,
-            ciphers: ciphers.filter((cipher) => app.cipherIds.includes(cipher.id)),
+            ciphers: ciphers?.filter((cipher) => app.cipherIds.includes(cipher.id)) ?? [],
           }));
           return of({ ...report, reportData: reportWithCiphers });
         }),

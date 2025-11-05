@@ -39,7 +39,7 @@ export class RiskInsightsDataService {
   readonly isGeneratingReport$: Observable<boolean> = of(false);
   readonly criticalReportResults$: Observable<RiskInsightsEnrichedData | null> = of(null);
   readonly hasCiphers$: Observable<boolean | null> = of(null);
-  readonly ciphers$: Observable<CipherView[]> = of([]);
+  readonly ciphers$: Observable<CipherView[] | null> = of(null);
 
   // New applications that need review (reviewedDate === null)
   readonly newApplications$: Observable<ApplicationHealthReportDetail[]> = of([]);

@@ -84,7 +84,7 @@ export class RiskInsightsOrchestratorService {
   // ------------------------- Cipher data -------------------------
   private _ciphersSubject = new BehaviorSubject<CipherView[] | null>(null);
   private _ciphers$ = this._ciphersSubject.asObservable();
-  get ciphers$(): Observable<CipherView[]> {
+  get ciphers$(): Observable<CipherView[] | null> {
     return this._ciphers$;
   }
 
