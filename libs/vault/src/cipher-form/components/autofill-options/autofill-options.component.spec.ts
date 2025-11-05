@@ -43,7 +43,7 @@ describe("AutofillOptionsComponent", () => {
     liveAnnouncer = mock<LiveAnnouncer>();
     platformUtilsService = mock<PlatformUtilsService>();
     domainSettingsService = mock<DomainSettingsService>();
-    domainSettingsService.defaultUriMatchStrategy$ = new BehaviorSubject(null);
+    domainSettingsService.resolvedDefaultUriMatchStrategy$ = new BehaviorSubject(null);
 
     autofillSettingsService = mock<AutofillSettingsServiceAbstraction>();
     autofillSettingsService.autofillOnPageLoadDefault$ = new BehaviorSubject(false);
@@ -201,12 +201,12 @@ describe("AutofillOptionsComponent", () => {
 
   it("updates the default autofill on page load label", () => {
     fixture.detectChanges();
-    expect(component["autofillOptions"][0].label).toEqual("defaultLabel no");
+    expect(component["autofillOptions"][0].label).toEqual("defaultLabelWithValue no");
 
     (autofillSettingsService.autofillOnPageLoadDefault$ as BehaviorSubject<boolean>).next(true);
     fixture.detectChanges();
 
-    expect(component["autofillOptions"][0].label).toEqual("defaultLabel yes");
+    expect(component["autofillOptions"][0].label).toEqual("defaultLabelWithValue yes");
   });
 
   it("hides the autofill on page load field when the setting is disabled", () => {

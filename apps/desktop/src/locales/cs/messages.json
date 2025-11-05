@@ -771,6 +771,9 @@
   "useSingleSignOn": {
     "message": "Použít jednotné přihlášení"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "Odeslat"
   },
@@ -1852,6 +1855,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Zamknout trezor při restartu pomocí hlavního hesla"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Vyžadovat hlavní heslo nebo PIN při restartu aplikace"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Vyžadovat hlavní heslo při restartu aplikace"
+  },
   "deleteAccount": {
     "message": "Smazat účet"
   },
@@ -2548,6 +2557,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimální vlastní časový limit je 1 minuta."
   },
   "inviteAccepted": {
     "message": "Pozvánka byla přijata"
@@ -4149,7 +4161,7 @@
     "message": "Archivovat",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Odebrat z archivu"
   },
   "itemsInArchive": {
@@ -4161,10 +4173,10 @@
   "noItemsInArchiveDesc": {
     "message": "Zde se zobrazí archivované položky a budou vyloučeny z obecných výsledků vyhledávání a návrhů automatického vyplňování."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Položka byla přesunuta do archivu"
   },
-  "itemRemovedFromArchive": {
+  "itemWasUnarchived": {
     "message": "Položka byla odebrána z archivu"
   },
   "archiveItem": {
@@ -4172,5 +4184,11 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tuto položku archivovat?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / PSČ"
+  },
+  "cardNumberLabel": {
+    "message": "Číslo karty"
   }
 }

@@ -26,6 +26,8 @@ import { DialogRef } from "../dialog.service";
 import { DialogCloseDirective } from "../directives/dialog-close.directive";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-dialog",
   templateUrl: "./dialog.component.html",
@@ -47,8 +49,8 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
 })
 export class DialogComponent {
   private readonly destroyRef = inject(DestroyRef);
-  private scrollableBody = viewChild.required(CdkScrollable);
-  private scrollBottom = viewChild.required<ElementRef<HTMLDivElement>>("scrollBottom");
+  private readonly scrollableBody = viewChild.required(CdkScrollable);
+  private readonly scrollBottom = viewChild.required<ElementRef<HTMLDivElement>>("scrollBottom");
 
   protected dialogRef = inject(DialogRef, { optional: true });
   protected bodyHasScrolledFrom = hasScrolledFrom(this.scrollableBody);

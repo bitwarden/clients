@@ -90,8 +90,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Přiřadit úkoly členů ke sledování průběhu"
   },
-  "onceYouReviewApplications": {
-    "message": "Jakmile zkontrolujete a označíte aplikace jako kritické, zobrazí se zde."
+  "onceYouReviewApps": {
+    "message": "Jakmile zkontrolujete aplikace a označíte je jako kritické, můžete přidělit členům úkoly k řešení ohrožených položek a sledovat průběh zde"
   },
   "sendReminders": {
     "message": "Odeslat připomenutí"
@@ -154,6 +154,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ nových ohrožených hesel",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Obeznámení členové ($COUNT$)",
     "placeholders": {
@@ -163,8 +172,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "V $ORG NAME$ nebyly nalezeny žádné aplikace",
+  "noApplicationsInOrgTitle": {
+    "message": "Pro $ORG NAME$ nebyly nalezeny žádné aplikace",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -172,8 +181,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "Jakmile uživatelé uloží přihlašovací údaje, zobrazí se zde aplikace, které zobrazují všechna ohrožená hesla. Označte kritické aplikace a upozorněte uživatele, aby hesla aktualizovali."
+  "noApplicationsInOrgDescription": {
+    "message": "Importujte přihlašovací údaje Vaší organizace a začněte sledovat bezpečnostní rizika spojená s přihlašovacími údaji. Po importu získáte přístup k:"
+  },
+  "benefit1Title": {
+    "message": "Upřednostnit rizika"
+  },
+  "benefit1Description": {
+    "message": "Zaměřit se na aplikace, na které záleží nejvíce"
+  },
+  "benefit2Title": {
+    "message": "Průvodce nápravou"
+  },
+  "benefit2Description": {
+    "message": "Přiřadit ohroženým členům řízené úkoly, aby střídali používání ohrožených přihlašovacích údajů"
+  },
+  "benefit3Title": {
+    "message": "Sledovat průběh"
+  },
+  "benefit3Description": {
+    "message": "Sleduje změny v průběhu času pro zobrazení zlepšení zabezpečení."
+  },
+  "noReportRunTitle": {
+    "message": "Spustit první hlášení pro zobrazení aplikací"
+  },
+  "noReportRunDescription": {
+    "message": "Vygenerujte zprávu o rizicích, abyste mohli analyzovat aplikace Vaší organizace a identifikovat riziková hesla, která vyžadují pozornost. Spuštěním první zprávy:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Neoznačili jste žádné aplikace jako kritické"
@@ -318,6 +351,27 @@
   },
   "markAsCriticalPlaceholder": {
     "message": "Funkce označení jako kritické bude implementována v budoucí aktualizaci"
+  },
+  "applicationReviewSaved": {
+    "message": "Kontrola aplikace uložena"
+  },
+  "applicationsMarkedAsCritical": {
+    "message": "$COUNT$ aplikací označeno jako kritické",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "newApplicationsReviewed": {
+    "message": "Nové aplikace zkontrolovány"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Chyba při ukládání stavu kontroly"
+  },
+  "pleaseTryAgain": {
+    "message": "Zkuste to znovu"
   },
   "unmarkAsCritical": {
     "message": "Zrušit označení jako kritické"
@@ -1305,6 +1359,9 @@
   "useSingleSignOn": {
     "message": "Použít jednotné přihlášení"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Vaše organizace vyžaduje jednotné přihlášení."
+  },
   "welcomeBack": {
     "message": "Vítejte zpět"
   },
@@ -2080,9 +2137,6 @@
   "encKeySettings": {
     "message": "Nastavení šifrovacího klíče"
   },
-  "kdfAlgorithm": {
-    "message": "Algoritmus KDF"
-  },
   "kdfIterations": {
     "message": "Iterace KDF"
   },
@@ -2116,9 +2170,6 @@
   },
   "argon2Desc": {
     "message": "Vyšší hodnota iterací KDF, paměti a paralelity pomáhá chránit Vaše hlavní heslo před útokem hrubou silou (brute force attack)."
-  },
-  "changeKdf": {
-    "message": "Změnit KDF"
   },
   "encKeySettingsChanged": {
     "message": "Nastavení šifrovacího klíče bylo uloženo"
@@ -4446,8 +4497,8 @@
   "inviteAccepted": {
     "message": "Pozvánka byla přijata"
   },
-  "inviteAcceptedDesc": {
-    "message": "K této organizaci můžete přistupovat, jakmile správce potvrdí Vaše členství. Až se tak stane, pošleme Vám e-mail."
+  "invitationAcceptedDesc": {
+    "message": "Vaše pozvánka byla úspěšně přijata."
   },
   "inviteInitAcceptedDesc": {
     "message": "Nyní můžete přistupovat k této organizaci."
@@ -5710,6 +5761,65 @@
     "message": "Více informací o ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
+  "availableNow": {
+    "message": "Nyní k dispozici"
+  },
+  "autoConfirm": {
+    "message": "Automatické potvrzení nových uživatelů"
+  },
+  "autoConfirmDescription": {
+    "message": "Noví uživatelé pozvaní do organizace budou automaticky potvrzeni při odemknutí zařízení správce.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "Jak zapnout automatické potvrzení uživatele"
+  },
+  "autoConfirmStep1": {
+    "message": "Otevřete rozšíření Bitwarden."
+  },
+  "autoConfirmStep2a": {
+    "message": "Vyberte",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Zapnout.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Rozšíření prohlížeče Bitwarden bylo úspěšně otevřeno. Nyní můžete aktivovat automatické potvrzení uživatele."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "Noví uživatelé pozvaní do organizace budou automaticky potvrzeni při odemknutí zařízení správce. Před zapnutím této zásady zkontrolujte a odsouhlaste následující: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potenciální bezpečnostní riziko. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Automatické potvrzení uživatele by mohlo představovat bezpečnostní riziko pro data Vaší organizace."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Více o rizicích",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Vyžadují se jednotné zásady organizace. "
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "Kdokoli, kdo je členem více než jedné organizace, bude mít přístup odvolán do té doby, než opustí ostatní organizace."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Jednotné zásady organizace se budou vztahovat na všechny role. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "Žádný nouzový přístup. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Nouzový přístup bude odebrán."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "Přijímám tato rizika a aktualizace zásad"
+  },
   "personalOwnership": {
     "message": "Odebrat osobní trezor"
   },
@@ -6430,23 +6540,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "Vaše organizace aktualizovala možnosti dešifrování. Nastavte hlavní heslo pro přístup k Vašemu trezoru."
   },
-  "maximumVaultTimeout": {
-    "message": "Časový limit trezoru"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Časový limit relace"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Nastaví maximální časový limit trezoru pro všechny uživatele."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Nastavte maximální časový limit relace pro všechny členy kromě vlastníků."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Maximální časový limit trezoru"
+  "maximumAllowedTimeout": {
+    "message": "Maximální povolený časový limit"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "Neplatný maximální časový limit trezoru."
+  "maximumAllowedTimeoutRequired": {
+    "message": "Je vyžadován maximální povolený časový limit."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Čas je neplatný. Změňte alespoň jednu hodnotu."
+  },
+  "sessionTimeoutAction": {
+    "message": "Akce časového limitu relace"
+  },
+  "immediately": {
+    "message": "Okamžitě"
+  },
+  "onSystemLock": {
+    "message": "Při uzamknutí systému"
+  },
+  "onAppRestart": {
+    "message": "Při restartu aplikace"
   },
   "hours": {
     "message": "Hodiny"
   },
   "minutes": {
     "message": "Minuty"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Jste si jisti, že chcete povolit maximální časový limit \"Nikdy\" pro všechny členy?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "Tato volba uloží šifrovací klíče Vašich členů do jejich zařízení. Pokud zvolíte tuto volbu, ujistěte se, že jsou jejich zařízení náležitě chráněna."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Další informace o ochraně zařízení"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "Volba \"Při uzamknutí systému\" se bude vztahovat jen na prohlížeč a desktopovou aplikaci"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "Mobilní a webová aplikace bude používat \"Při restartu aplikace\" jako maximální povolený časový limit, protože tato volba není podporována."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Zásady Vaší organizace nastavily maximální povolený časový limit trezoru na $HOURS$ hodin a $MINUTES$ minut.",
@@ -10361,26 +10501,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Vypnuto"
   },
-  "higherKDFIterations": {
-    "message": "Více iterací KDF Vám může pomoci ochránit hlavní heslo před útočníkem, který by ho vylákal hrubou silou."
-  },
-  "incrementsOf100,000": {
-    "message": "přírůstky po 100 000"
-  },
-  "smallIncrements": {
-    "message": "malé přírůstky"
-  },
   "kdfIterationRecommends": {
     "message": "Doporučujeme 600 000 nebo více"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "U starších zařízení může příliš vysoké nastavení KDF vést k problémům s výkonem. Zvyšte hodnotu v $VALUE$ a otestujte svá zařízení.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Pro obnovení předplatného se obraťte na zákaznickou podporu."
@@ -11024,6 +11146,15 @@
   "domainClaimed": {
     "message": "Doména uplatněna"
   },
+  "itemAddedToFavorites": {
+    "message": "Položka byla přidána do oblíbených"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Položka byla odebrána z oblíbených"
+  },
+  "copyNote": {
+    "message": "Kopírovat poznámku"
+  },
   "organizationNameMaxLength": {
     "message": "Název organizace nesmí přesáhnout 50 znaků."
   },
@@ -11294,11 +11425,46 @@
     "message": "Archivovat",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Odebrat z archivu"
+  },
+  "itemsInArchive": {
+    "message": "Položky v archivu"
+  },
   "noItemsInArchive": {
     "message": "Žádné položky v archivu"
   },
-  "archivedItemsDescription": {
+  "noItemsInArchiveDesc": {
     "message": "Zde se zobrazí archivované položky a budou vyloučeny z obecných výsledků vyhledávání a návrhů automatického vyplňování."
+  },
+  "itemWasSentToArchive": {
+    "message": "Položka byla přesunuta do archivu"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Položky byly přesunuty do archivu"
+  },
+  "itemUnarchived": {
+    "message": "Položka byla odebrána z archivu"
+  },
+  "bulkArchiveItems": {
+    "message": "Archivované položky"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Položky odebrané z archivu"
+  },
+  "archiveItem": {
+    "message": "Archivovat položku",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tuto položku archivovat?"
+  },
+  "archiveBulkItems": {
+    "message": "Archivovat položky",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tyto položky archivovat?"
   },
   "businessUnit": {
     "message": "Obchodní jednotka"
@@ -11801,7 +11967,61 @@
   "continueWithoutUpgrading": {
     "message": "Pokračovat bez aktualizace"
   },
+  "upgradeYourPlan": {
+    "message": "Aktualizovat plán"
+  },
+  "upgradeNow": {
+    "message": "Aktualizovat nyní"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Vyplněním tohoto formuláře vytvoříte novou organizaci Rodin. Můžete vylepšit svou bezplatnou organizaci z konzole správce."
+  },
   "upgradeErrorMessage": {
     "message": "Při zpracování aktualizace došlo k chybě. Zkuste to znovu."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "Máte bezplatný plán Bitwarden"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Aktualizujte pro úplné zabezpečení"
+  },
+  "viewbusinessplans": {
+    "message": "Zobrazit obchodní plány"
+  },
+  "updateEncryptionSettings": {
+    "message": "Aktualizovat nastavení šifrování"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Aktualizujte nastavení šifrování"
+  },
+  "updateSettings": {
+    "message": "Aktualizovat nastavení"
+  },
+  "algorithm": {
+    "message": "Algoritmus"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Vyberte, jak by Bitwarden měl šifrovat Vaše data trezoru. Všechny volby jsou bezpečné, ale silnější metody poskytují lepší ochranu - zejména proti útokům silou. Bitwarden doporučuje výchozí nastavení pro většinu uživatelů."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Zvýšení hodnot nad výchozím nastavením zvýší zabezpečení, ale odemknutí Vašeho trezoru může trvat déle."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "O šifrovacích algoritmech"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 je dobře testovaná šifrovací metoda, která vyvažuje bezpečnost a výkon. Dobré pro všechny uživatele."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id nabízí silnější ochranu proti moderním útokům. Nejlepší pro pokročilé uživatele s výkonnými zařízeními."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / PSČ"
+  },
+  "cardNumberLabel": {
+    "message": "Číslo karty"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Zahájit bezplatnou zkušební verzi pro rodiny"
   }
 }

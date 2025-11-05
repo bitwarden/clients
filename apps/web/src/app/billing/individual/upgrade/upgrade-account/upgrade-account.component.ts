@@ -2,22 +2,23 @@ import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, OnInit, computed, input, output, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { catchError, of } from "rxjs";
 
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
-import { ButtonType, DialogModule } from "@bitwarden/components";
-import { PricingCardComponent } from "@bitwarden/pricing";
-
-import { SharedModule } from "../../../../shared";
-import { BillingServicesModule } from "../../../services";
-import { SubscriptionPricingService } from "../../../services/subscription-pricing.service";
+import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierIds,
   SubscriptionCadence,
   SubscriptionCadenceIds,
-} from "../../../types/subscription-pricing-tier";
+} from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
+import { ButtonType, DialogModule, ToastService } from "@bitwarden/components";
+import { PricingCardComponent } from "@bitwarden/pricing";
+
+import { SharedModule } from "../../../../shared";
+import { BillingServicesModule } from "../../../services";
 
 export const UpgradeAccountStatus = {
   Closed: "closed",
@@ -39,6 +40,8 @@ type CardDetails = {
   features: string[];
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-upgrade-account",
   imports: [
@@ -52,11 +55,11 @@ type CardDetails = {
   templateUrl: "./upgrade-account.component.html",
 })
 export class UpgradeAccountComponent implements OnInit {
-  dialogTitleMessageOverride = input<string | null>(null);
-  hideContinueWithoutUpgradingButton = input<boolean>(false);
+  readonly dialogTitleMessageOverride = input<string | null>(null);
+  readonly hideContinueWithoutUpgradingButton = input<boolean>(false);
   planSelected = output<PersonalSubscriptionPricingTierId>();
   closeClicked = output<UpgradeAccountStatus>();
-  protected loading = signal(true);
+  protected readonly loading = signal(true);
   protected premiumCardDetails!: CardDetails;
   protected familiesCardDetails!: CardDetails;
 
@@ -64,20 +67,32 @@ export class UpgradeAccountComponent implements OnInit {
   protected premiumPlanType = PersonalSubscriptionPricingTierIds.Premium;
   protected closeStatus = UpgradeAccountStatus.Closed;
 
-  protected dialogTitle = computed(() => {
+  protected readonly dialogTitle = computed(() => {
     return this.dialogTitleMessageOverride() || "individualUpgradeWelcomeMessage";
   });
 
   constructor(
     private i18nService: I18nService,
-    private subscriptionPricingService: SubscriptionPricingService,
+    private subscriptionPricingService: SubscriptionPricingServiceAbstraction,
+    private toastService: ToastService,
     private destroyRef: DestroyRef,
   ) {}
 
   ngOnInit(): void {
     this.subscriptionPricingService
       .getPersonalSubscriptionPricingTiers$()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        catchError((error: unknown) => {
+          this.toastService.showToast({
+            variant: "error",
+            title: "",
+            message: this.i18nService.t("unexpectedError"),
+          });
+          this.loading.set(false);
+          return of([]);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe((plans) => {
         this.setupCardDetails(plans);
         this.loading.set(false);
@@ -117,7 +132,7 @@ export class UpgradeAccountComponent implements OnInit {
       },
       button: {
         text: this.i18nService.t(
-          this.isFamiliesPlan(tier.id) ? "upgradeToFamilies" : "upgradeToPremium",
+          this.isFamiliesPlan(tier.id) ? "startFreeFamiliesTrial" : "upgradeToPremium",
         ),
         type: buttonType,
       },

@@ -771,6 +771,9 @@
   "useSingleSignOn": {
     "message": "Egyszeri bejelentkezés használata"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "Beküldés"
   },
@@ -1852,6 +1855,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Lezárás mesterjelszóval újraindításkor"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Mesterjelszó vagy PIN kód szükséges az alkalmazás indításakor."
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Mesterjelszó szükséges az alkalmazás indításakor."
+  },
   "deleteAccount": {
     "message": "Fiók törlése"
   },
@@ -2548,6 +2557,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "A minimális egyedi időkifutás 1 perc."
   },
   "inviteAccepted": {
     "message": "A meghívás elfogadásra került."
@@ -4149,7 +4161,7 @@
     "message": "Archívum",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Visszavétel archívumból"
   },
   "itemsInArchive": {
@@ -4161,16 +4173,22 @@
   "noItemsInArchiveDesc": {
     "message": "Az archivált elemek itt jelennek meg és kizárásra kerülnek az általános keresési eredményekből és az automatikus kitöltési javaslatokból."
   },
-  "itemSentToArchive": {
-    "message": "Archívumba küldött elemek száma"
+  "itemWasSentToArchive": {
+    "message": "Az elem az archivumba került."
   },
-  "itemRemovedFromArchive": {
-    "message": "Az elem kikerült az archívumból."
+  "itemWasUnarchived": {
+    "message": "Az elem visszavéelre került az archivumból."
   },
   "archiveItem": {
     "message": "Elem archiválása"
   },
   "archiveItemConfirmDesc": {
     "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "Irányítószám"
+  },
+  "cardNumberLabel": {
+    "message": "Kártya szám"
   }
 }

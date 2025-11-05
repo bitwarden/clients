@@ -771,6 +771,9 @@
   "useSingleSignOn": {
     "message": "Dùng đăng nhập một lần"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "Gửi"
   },
@@ -1244,7 +1247,7 @@
     "message": "Đóng kho sau"
   },
   "vaultTimeout1": {
-    "message": "Quá hạn"
+    "message": "Thời gian chờ"
   },
   "vaultTimeoutAction1": {
     "message": "Hành động sau khi đóng kho"
@@ -1851,6 +1854,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Khóa bằng mật khẩu chính khi khởi động lại"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Yêu cầu mật khẩu chính hoặc mã PIN khi khởi động lại ứng dụng"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Yêu cầu mật khẩu chính khi khởi động lại ứng dụng"
   },
   "deleteAccount": {
     "message": "Xóa tài khoản"
@@ -2548,6 +2557,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Thời gian đóng kho tùy chỉnh tối thiểu là 1 phút."
   },
   "inviteAccepted": {
     "message": "Đã chấp nhận lời mời"
@@ -4136,7 +4148,7 @@
     "message": "Bật phím tắt tự động nhập (Xem trước tính năng)"
   },
   "enableAutotypeShortcutDescription": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+    "message": "Hãy đảm bảo bạn đang ở đúng trường trước khi sử dụng phím tắt để tránh điền dữ liệu vào sai chỗ."
   },
   "editShortcut": {
     "message": "Chỉnh sửa phím tắt"
@@ -4149,7 +4161,7 @@
     "message": "Lưu trữ",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Hủy lưu trữ"
   },
   "itemsInArchive": {
@@ -4161,16 +4173,22 @@
   "noItemsInArchiveDesc": {
     "message": "Các mục đã lưu trữ sẽ hiển thị ở đây và sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
   },
-  "itemSentToArchive": {
-    "message": "Mục đã được gửi đến kho lưu trữ"
+  "itemWasSentToArchive": {
+    "message": "Mục đã được chuyển vào kho lưu trữ"
   },
-  "itemRemovedFromArchive": {
-    "message": "Mục đã được gỡ khỏi kho lưu trữ"
+  "itemWasUnarchived": {
+    "message": "Mục đã được bỏ lưu trữ"
   },
   "archiveItem": {
     "message": "Lưu trữ mục"
   },
   "archiveItemConfirmDesc": {
     "message": "Các mục đã lưu trữ sẽ bị loại khỏi kết quả tìm kiếm chung và gợi ý tự động điền. Bạn có chắc chắn muốn lưu trữ mục này không?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

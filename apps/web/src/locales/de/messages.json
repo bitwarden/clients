@@ -90,8 +90,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Mitglieder Aufgaben zuweisen, um den Fortschritt zu überwachen"
   },
-  "onceYouReviewApplications": {
-    "message": "Sobald du Anwendungen überprüft und als kritisch markiert hast, werden sie hier angezeigt."
+  "onceYouReviewApps": {
+    "message": "Sobald du die Anwendungen überprüft und als kritisch markiert hast, kannst du Mitgliedern Aufgaben zuweisen, um gefährdete Einträge zu beheben und den Fortschritt hier überwachen"
   },
   "sendReminders": {
     "message": "Erinnerungen senden"
@@ -154,6 +154,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ neue gefährdete Passwörter",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Benachrichtigte Mitglieder ($COUNT$)",
     "placeholders": {
@@ -163,8 +172,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "Keine Anwendungen in $ORG NAME$ gefunden",
+  "noApplicationsInOrgTitle": {
+    "message": "No applications found for $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -172,8 +181,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "Während Benutzer Zugangsdaten speichern, werden hier Anwendungen angezeigt, die alle gefährdeten Passwörter anzeigen. Markiere kritische Anwendungen und benachrichtige Benutzer, um Passwörter zu ändern."
+  "noApplicationsInOrgDescription": {
+    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  },
+  "benefit1Title": {
+    "message": "Prioritize risks"
+  },
+  "benefit1Description": {
+    "message": "Focus on applications that matter the most"
+  },
+  "benefit2Title": {
+    "message": "Guide remediation"
+  },
+  "benefit2Description": {
+    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  },
+  "benefit3Title": {
+    "message": "Monitor progress"
+  },
+  "benefit3Description": {
+    "message": "Track changes over time to show security improvements"
+  },
+  "noReportRunTitle": {
+    "message": "Run your first report to see applications"
+  },
+  "noReportRunDescription": {
+    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Du hast keine Anwendung als kritisch markiert"
@@ -318,6 +351,27 @@
   },
   "markAsCriticalPlaceholder": {
     "message": "Die Funktion \"Als kritisch markieren\" wird in einer zukünftigen Aktualisierung implementiert"
+  },
+  "applicationReviewSaved": {
+    "message": "Application review saved"
+  },
+  "applicationsMarkedAsCritical": {
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "newApplicationsReviewed": {
+    "message": "New applications reviewed"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Error saving review status"
+  },
+  "pleaseTryAgain": {
+    "message": "Please try again"
   },
   "unmarkAsCritical": {
     "message": "Markierung als kritisch aufheben"
@@ -1305,6 +1359,9 @@
   "useSingleSignOn": {
     "message": "Single Sign-on verwenden"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Willkommen zurück"
   },
@@ -2080,9 +2137,6 @@
   "encKeySettings": {
     "message": "Verschlüsselungsschlüssel-Einstellungen"
   },
-  "kdfAlgorithm": {
-    "message": "KDF-Algorithmus"
-  },
   "kdfIterations": {
     "message": "KDF-Iterationen"
   },
@@ -2116,9 +2170,6 @@
   },
   "argon2Desc": {
     "message": "Höhere KDF-Iterationen, -Speicher und -Parallelität helfen dabei, dein Master-Passwort besser vor Brute-Force-Angriffen zu schützen."
-  },
-  "changeKdf": {
-    "message": "KDF ändern"
   },
   "encKeySettingsChanged": {
     "message": "Verschlüsselungsschlüssel-Einstellungen wurden geändert"
@@ -4446,8 +4497,8 @@
   "inviteAccepted": {
     "message": "Einladung angenommen"
   },
-  "inviteAcceptedDesc": {
-    "message": "Du kannst der Organisation beitreten, sobald ein Administrator deine Mitgliedschaft bestätigt hat. Wir werden dich dann per E-Mail benachrichtigen."
+  "invitationAcceptedDesc": {
+    "message": "Deine Einladung wurde erfolgreich angenommen."
   },
   "inviteInitAcceptedDesc": {
     "message": "Du kannst nun auf diese Organisation zugreifen."
@@ -5710,6 +5761,65 @@
     "message": "Erfahre mehr über den ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
+  "availableNow": {
+    "message": "Jetzt verfügbar"
+  },
+  "autoConfirm": {
+    "message": "Automatische Bestätigung neuer Benutzer"
+  },
+  "autoConfirmDescription": {
+    "message": "Neue Benutzer, die in die Organisation eingeladen werden, werden automatisch bestätigt, wenn das Gerät eines Administrators entsperrt wird.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "So aktivierst du die automatische Benutzerbestätigung"
+  },
+  "autoConfirmStep1": {
+    "message": "Öffne deine Bitwarden-Erweiterung."
+  },
+  "autoConfirmStep2a": {
+    "message": "Wähle",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Aktivieren.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Die Bitwarden Browser-Erweiterung wurde erfolgreich geöffnet. Du kannst nun die automatische Benutzerbestätigung aktivieren."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "Neue Benutzer, die zur Organisation eingeladen werden, werden automatisch bestätigt, wenn das Gerät eines Administrators entsperrt wird. Bevor du diese Richtlinie aktivierst, lies bitte Folgendes durch und stimme zu: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potenzielles Sicherheitsrisiko. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Eine automatische Benutzerbestätigung könnte ein Sicherheitsrisiko für die Daten deines Unternehmens darstellen."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Erfahre mehr über die Risiken",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Richtlinie einer einzelnen Organisation erforderlich. "
+  },
+  "autoConfirmSingleOrgRequiredDescription": {
+    "message": "Jeder, der mehr als einer Organisation angehört, verliert seinen Zugriff, bis er aus den anderen Organisationen austritt."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Die Richtlinie für einzelne Organisationen wird für alle Rollen gelten. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "Kein Notfallzugriff. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Der Notfallzugriff wird entfernt."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "Ich akzeptiere diese Risiken und Richtlinien-Aktualisierungen"
+  },
   "personalOwnership": {
     "message": "Persönlichen Tresor entfernen"
   },
@@ -6430,23 +6540,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "Deine Organisation hat deine Entschlüsselungsoptionen aktualisiert. Bitte lege ein Master-Passwort fest, um auf deinen Tresor zuzugreifen."
   },
-  "maximumVaultTimeout": {
-    "message": "Tresor-Timeout"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Sitzungs-Timeout"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Konfiguriere ein maximales Tresor-Timeout für alle Benutzer."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Lege ein maximales Sitzungs-Timeout für alle Mitglieder außer für Eigentümer fest."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Maximales Tresor-Timeout"
+  "maximumAllowedTimeout": {
+    "message": "Maximal zulässiges Timeout"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "Ungültiger maximaler Tresor-Timeout."
+  "maximumAllowedTimeoutRequired": {
+    "message": "Ein maximal zulässiges Timeout ist erforderlich."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Die Zeit ist ungültig. Ändere mindestens einen Wert."
+  },
+  "sessionTimeoutAction": {
+    "message": "Aktion bei Sitzungs-Timeout"
+  },
+  "immediately": {
+    "message": "Sofort"
+  },
+  "onSystemLock": {
+    "message": "Wenn System gesperrt"
+  },
+  "onAppRestart": {
+    "message": "Beim Neustart der App"
   },
   "hours": {
     "message": "Stunden"
   },
   "minutes": {
     "message": "Minuten"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Bist du sicher, dass du für alle Mitglieder ein maximales Timeout von \"Nie\" zulassen möchtest?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "Mit dieser Option werden die Verschlüsselungsschlüssel deiner Mitglieder auf deren Geräten gespeichert. Wenn du diese Option wählst, stelle sicher, dass deren Geräte ausreichend geschützt sind."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Erfahre mehr über den Geräteschutz"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "\"Wenn System gesperrt\" gilt nur für die Browser-Erweiterung und die Desktop-App"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "Die Smartphone und Web-App verwenden \"Beim Neustart der App\" als maximal zulässiges Timeout, da die Option nicht unterstützt wird."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Deine Unternehmensrichtlinien haben das maximal zulässige Tresor-Timeout auf $HOURS$ Stunde(n) und $MINUTES$ Minute(n) festgelegt.",
@@ -10361,26 +10501,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Aus"
   },
-  "higherKDFIterations": {
-    "message": "Höhere KDF-Iterationen können helfen, dein Master-Passwort vor Brute-Force-Attacken durch einen Angreifer zu schützen."
-  },
-  "incrementsOf100,000": {
-    "message": "Schritten von 100.000"
-  },
-  "smallIncrements": {
-    "message": "kleinen Schritten"
-  },
   "kdfIterationRecommends": {
     "message": "Wir empfehlen 600.000 oder mehr"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "Auf älteren Geräten kann es durch zu hohe KDF-Iterationen zu Leistungsproblemen kommen. Erhöhe den Wert in $VALUE$ und teste es auf deinen Geräten.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Kontaktiere den Kundensupport, um dein Abonnement wiederherzustellen."
@@ -11024,6 +11146,15 @@
   "domainClaimed": {
     "message": "Domain beansprucht"
   },
+  "itemAddedToFavorites": {
+    "message": "Eintrag zu Favoriten hinzugefügt"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Eintrag aus Favoriten entfernt"
+  },
+  "copyNote": {
+    "message": "Notiz kopieren"
+  },
   "organizationNameMaxLength": {
     "message": "Der Name der Organisation darf 50 Zeichen nicht überschreiten."
   },
@@ -11294,11 +11425,46 @@
     "message": "Archivieren",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Nicht mehr archivieren"
+  },
+  "itemsInArchive": {
+    "message": "Einträge im Archiv"
+  },
   "noItemsInArchive": {
     "message": "Keine Einträge im Archiv"
   },
-  "archivedItemsDescription": {
-    "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Auto-Ausfüllen-Vorschlägen ausgeschlossen."
+  "noItemsInArchiveDesc": {
+    "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen."
+  },
+  "itemWasSentToArchive": {
+    "message": "Eintrag wurde ins Archiv verschoben"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Einträge wurden ins Archiv verschoben"
+  },
+  "itemUnarchived": {
+    "message": "Eintrag wird nicht mehr archiviert"
+  },
+  "bulkArchiveItems": {
+    "message": "Einträge archiviert"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Eintrag nicht mehr archiviert"
+  },
+  "archiveItem": {
+    "message": "Eintrag archivieren",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen. Bist du sicher, dass du diesen Eintrag archivieren möchtest?"
+  },
+  "archiveBulkItems": {
+    "message": "Einträge archivieren",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen. Bist du sicher, dass du diese Einträge archivieren möchtest?"
   },
   "businessUnit": {
     "message": "Geschäftsbereich"
@@ -11801,7 +11967,61 @@
   "continueWithoutUpgrading": {
     "message": "Fortfahren, ohne ein Upgrade durchzuführen"
   },
+  "upgradeYourPlan": {
+    "message": "Tarif upgraden"
+  },
+  "upgradeNow": {
+    "message": "Jetzt upgraden"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Durch das Ausfüllen dieses Formulars wird eine neue Families-Organisation erstellt. Du kannst deine kostenlose Organisation über die Administrator-Konsole upgraden."
+  },
   "upgradeErrorMessage": {
     "message": "Bei der Verarbeitung deines Upgrades ist ein Fehler aufgetreten. Bitte versuche es erneut."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "Du nutzt den Bitwarden Free-Tarif"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade für umfassende Sicherheit"
+  },
+  "viewbusinessplans": {
+    "message": "Unternehmens-Tarife anzeigen"
+  },
+  "updateEncryptionSettings": {
+    "message": "Verschlüsselungseinstellungen aktualisieren"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Aktualisiere deine Verschlüsselungseinstellungen"
+  },
+  "updateSettings": {
+    "message": "Einstellungen aktualisieren"
+  },
+  "algorithm": {
+    "message": "Algorithmus"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Wähle aus, wie Bitwarden deine Tresordaten verschlüsseln soll. Alle Optionen sind sicher, aber stärkere Methoden bieten besseren Schutz - vor allem gegen Brute-Force-Angriffe. Bitwarden empfiehlt die Standardeinstellung für die meisten Benutzer."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Die Erhöhung der Werte über den Standard hinaus wird die Sicherheit verbessern, aber es kann dann länger dauern, bis dein Tresor entsperrt wird."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "Über Verschlüsselungsalgorithmen"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 ist eine bewährte Verschlüsselungsmethode, die Sicherheit und Leistung in einem ausgewogenen Verhältnis vereint. Gut für alle Benutzer."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id bietet einen stärkeren Schutz gegen moderne Attacken. Am besten geeignet für fortgeschrittene Benutzer mit leistungsstarken Geräten."
+  },
+  "zipPostalCodeLabel": {
+    "message": "PLZ / Postleitzahl"
+  },
+  "cardNumberLabel": {
+    "message": "Kartennummer"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Start free Families trial"
   }
 }
