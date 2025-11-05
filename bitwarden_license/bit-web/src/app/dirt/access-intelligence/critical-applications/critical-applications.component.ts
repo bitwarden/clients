@@ -78,10 +78,15 @@ export class CriticalApplicationsComponent implements OnInit {
           if (!report) {
             return null;
           }
-          const reportWithCiphers = (report?.reportData ?? []).map((app) => ({
+
+          const cipherMap = new Map(ciphers?.map((c) => [c.id, c]));
+          const reportWithCiphers = report.reportData.map((app) => ({
             ...app,
-            ciphers: ciphers?.filter((cipher) => app.cipherIds.includes(cipher.id)) ?? [],
+            ciphers: app.cipherIds
+              .map((id) => cipherMap?.get(id))
+              .filter((c): c is CipherView => c !== undefined),
           }));
+
           return { ...report, reportData: reportWithCiphers };
         }),
         takeUntilDestroyed(this.destroyRef),

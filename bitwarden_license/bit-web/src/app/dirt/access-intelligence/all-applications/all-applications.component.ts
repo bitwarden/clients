@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, debounceTime, of, switchMap } from "rxjs";
+import { combineLatest, debounceTime, map } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
@@ -78,9 +78,9 @@ export class AllApplicationsComponent implements OnInit {
   async ngOnInit() {
     combineLatest([this.dataService.enrichedReportData$, this.dataService.ciphers$])
       .pipe(
-        switchMap(([report, ciphers]) => {
+        map(([report, ciphers]) => {
           if (!report) {
-            return of(null);
+            return null;
           }
 
           // Map ciphers to each application
@@ -92,7 +92,7 @@ export class AllApplicationsComponent implements OnInit {
               .filter((c): c is CipherView => c !== undefined),
           }));
 
-          return of({ ...report, reportData: reportWithCiphers });
+          return { ...report, reportData: reportWithCiphers };
         }),
         takeUntilDestroyed(this.destroyRef),
       )

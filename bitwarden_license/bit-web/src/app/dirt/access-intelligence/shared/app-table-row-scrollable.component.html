@@ -47,6 +47,8 @@
       >
         @if (row.ciphers?.[0]) {
           <app-vault-icon [cipher]="row.ciphers[0]"></app-vault-icon>
+        } @else {
+          <i class="bwi bwi-globe tw-text-muted"></i>
         }
       </td>
       <td
