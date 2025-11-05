@@ -31,12 +31,8 @@ futures = { workspace = true }
 homedir = { workspace = true }
 interprocess = { workspace = true, features = ["tokio"] }
 memsec = { workspace = true, features = ["alloc_ext"] }
-pin-project = { workspace = true }
 rand = { workspace = true }
-scopeguard = { workspace = true }
 secmem-proc = { workspace = true }
-serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true }
 sha2 = { workspace = true }
 ssh-key = { workspace = true, features = [
     "encryption",
@@ -53,6 +49,10 @@ typenum = { workspace = true }
 zeroizing-alloc = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
+pin-project = { workspace = true }
+scopeguard = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
 widestring = { workspace = true, optional = true }
 windows = { workspace = true, features = [
     "Foundation",
@@ -79,11 +79,10 @@ security-framework-sys = { workspace = true, optional = true }
 desktop_objc = { path = "../objc" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-oo7 = { workspace = true }
+ashpd = { workspace = true }
 libc = { workspace = true }
 linux-keyutils = { workspace = true }
-ashpd = { workspace = true }
-
+oo7 = { workspace = true }
 zbus = { workspace = true, optional = true }
 zbus_polkit = { workspace = true, optional = true }
 

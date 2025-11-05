@@ -7,10 +7,8 @@ publish = { workspace = true }
 
 [dependencies]
 aes = { workspace = true }
-aes-gcm = "=0.10.3"
 anyhow = { workspace = true }
 async-trait = "=0.1.88"
-base64 = { workspace = true }
 cbc = { workspace = true, features = ["alloc"] }
 dirs = { workspace = true }
 hex = { workspace = true }
@@ -20,13 +18,13 @@ rusqlite = { version = "=0.37.0", features = ["bundled"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 sha1 = "=0.10.6"
-tokio = { workspace = true, features = ["full"] }
-tracing = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 security-framework = { workspace = true }
 
 [target.'cfg(target_os = "windows")'.dependencies]
+aes-gcm = "=0.10.3"
+base64 = { workspace = true }
 chacha20poly1305 = { workspace = true }
 windows = { workspace = true, features = [
     "Wdk_System_SystemServices",
@@ -43,6 +41,8 @@ windows = { workspace = true, features = [
     "Win32_UI_WindowsAndMessaging",
 ] }
 verifysign = "=0.2.4"
+tokio = { workspace = true, features = ["full"] }
+tracing = { workspace = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 oo7 = { workspace = true }
