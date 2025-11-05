@@ -80,7 +80,7 @@ export class CriticalApplicationsComponent implements OnInit {
       .getFeatureFlag$(FeatureFlag.PM22887_RiskInsightsActivityTab)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((isEnabled) => {
-        this.isRiskInsightsActivityTabFeatureEnabled = isEnabled; // TODO: Remove this hard coded value
+        this.isRiskInsightsActivityTabFeatureEnabled = isEnabled;
       });
 
     this.dataService.criticalReportResults$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
