@@ -8,6 +8,7 @@ import {
   map,
   merge,
   Observable,
+  of,
   Subject,
   switchMap,
   tap,
@@ -16,9 +17,8 @@ import { take } from "rxjs/operators";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { OrganizationBillingClient } from "@bitwarden/web-vault/app/billing/clients";
@@ -48,21 +48,23 @@ export class OrganizationWarningsService {
 
   private refreshFreeTrialWarningTrigger = new Subject<void>();
   private refreshTaxIdWarningTrigger = new Subject<void>();
+  private refreshInactiveSubscriptionWarningTrigger = new Subject<void>();
 
   private taxIdWarningRefreshedSubject = new BehaviorSubject<TaxIdWarningType | null>(null);
   taxIdWarningRefreshed$ = this.taxIdWarningRefreshedSubject.asObservable();
 
   constructor(
-    private configService: ConfigService,
     private dialogService: DialogService,
     private i18nService: I18nService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private organizationBillingClient: OrganizationBillingClient,
+    private platformUtilsService: PlatformUtilsService,
     private router: Router,
   ) {}
 
   getFreeTrialWarning$ = (
     organization: Organization,
+    includeOrganizationNameInMessaging = false,
   ): Observable<OrganizationFreeTrialWarning | null> =>
     merge(
       this.getWarning$(organization, (response) => response.freeTrial),
@@ -80,20 +82,30 @@ export class OrganizationWarningsService {
         if (remainingTrialDays >= 2) {
           return {
             organization,
-            message: this.i18nService.t("freeTrialEndPromptCount", remainingTrialDays),
+            message: includeOrganizationNameInMessaging
+              ? this.i18nService.t(
+                  "freeTrialEndPromptMultipleDays",
+                  organization.name,
+                  remainingTrialDays,
+                )
+              : this.i18nService.t("freeTrialEndPromptCount", remainingTrialDays),
           };
         }
 
         if (remainingTrialDays == 1) {
           return {
             organization,
-            message: this.i18nService.t("freeTrialEndPromptTomorrowNoOrgName"),
+            message: includeOrganizationNameInMessaging
+              ? this.i18nService.t("freeTrialEndPromptTomorrow", organization.name)
+              : this.i18nService.t("freeTrialEndPromptTomorrowNoOrgName"),
           };
         }
 
         return {
           organization,
-          message: this.i18nService.t("freeTrialEndingTodayWithoutOrgName"),
+          message: includeOrganizationNameInMessaging
+            ? this.i18nService.t("freeTrialEndPromptToday", organization.name)
+            : this.i18nService.t("freeTrialEndingTodayWithoutOrgName"),
         };
       }),
     );
@@ -156,12 +168,24 @@ export class OrganizationWarningsService {
 
   refreshFreeTrialWarning = () => this.refreshFreeTrialWarningTrigger.next();
 
+  refreshInactiveSubscriptionWarning = () => this.refreshInactiveSubscriptionWarningTrigger.next();
+
   refreshTaxIdWarning = () => this.refreshTaxIdWarningTrigger.next();
 
   showInactiveSubscriptionDialog$ = (organization: Organization): Observable<void> =>
-    this.getWarning$(organization, (response) => response.inactiveSubscription).pipe(
-      filter((warning) => warning !== null),
+    merge(
+      this.getWarning$(organization, (response) => response.inactiveSubscription),
+      this.refreshInactiveSubscriptionWarningTrigger.pipe(
+        switchMap(() =>
+          this.getWarning$(organization, (response) => response.inactiveSubscription, true),
+        ),
+      ),
+    ).pipe(
       switchMap(async (warning) => {
+        if (!warning) {
+          return;
+        }
+
         switch (warning.resolution) {
           case "contact_provider": {
             await this.dialogService.openSimpleDialog({
@@ -185,14 +209,8 @@ export class OrganizationWarningsService {
               cancelButtonText: this.i18nService.t("close"),
             });
             if (confirmed) {
-              const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
-                FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
-              );
-              const route = managePaymentDetailsOutsideCheckout
-                ? "payment-details"
-                : "payment-method";
               await this.router.navigate(
-                ["organizations", `${organization.id}`, "billing", route],
+                ["organizations", `${organization.id}`, "billing", "payment-details"],
                 {
                   state: { launchPaymentModalAutomatically: true },
                 },
@@ -266,12 +284,17 @@ export class OrganizationWarningsService {
     organization: Organization,
     extract: (response: OrganizationWarningsResponse) => T | null | undefined,
     bypassCache: boolean = false,
-  ): Observable<T | null> =>
-    this.readThroughWarnings$(organization, bypassCache).pipe(
+  ): Observable<T | null> => {
+    if (this.platformUtilsService.isSelfHost()) {
+      return of(null);
+    }
+
+    return this.readThroughWarnings$(organization, bypassCache).pipe(
       map((response) => {
         const value = extract(response);
         return value ? value : null;
       }),
       take(1),
     );
+  };
 }

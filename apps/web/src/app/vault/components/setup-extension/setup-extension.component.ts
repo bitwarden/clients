@@ -36,11 +36,14 @@ export const SetupExtensionState = {
   Loading: "loading",
   NeedsExtension: "needs-extension",
   Success: "success",
+  AlreadyInstalled: "already-installed",
   ManualOpen: "manual-open",
 } as const;
 
 type SetupExtensionState = UnionOfValues<typeof SetupExtensionState>;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-setup-extension",
   templateUrl: "./setup-extension.component.html",
@@ -99,9 +102,10 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
     this.webBrowserExtensionInteractionService.extensionInstalled$
       .pipe(takeUntilDestroyed(this.destroyRef), startWith(null), pairwise())
       .subscribe(([previousState, currentState]) => {
-        // Initial state transitioned to extension installed, redirect the user
+        // User landed on the page and the extension is already installed, show already installed state
         if (previousState === null && currentState) {
-          void this.router.navigate(["/vault"]);
+          void this.dismissExtensionPage();
+          this.state = SetupExtensionState.AlreadyInstalled;
         }
 
         // Extension was not installed and now it is, show success state
@@ -162,7 +166,6 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
           key: "somethingWentWrong",
         },
         pageIcon: BrowserExtensionIcon,
-        hideIcon: false,
         hideCardWrapper: false,
         maxWidth: "md",
       });

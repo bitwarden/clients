@@ -23,6 +23,8 @@ import { AccountFingerprintComponent } from "../../../shared/components/account-
 
 import { ChangeAvatarDialogComponent } from "./change-avatar-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-profile",
   templateUrl: "profile.component.html",
@@ -56,7 +58,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.profile = await this.apiService.getProfile();
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.fingerprintMaterial = userId;
-    const publicKey = await firstValueFrom(this.keyService.userPublicKey$(userId));
+    const publicKey = (await firstValueFrom(
+      this.keyService.userPublicKey$(userId),
+    )) as UserPublicKey;
     if (publicKey == null) {
       this.logService.error(
         "[ProfileComponent] No public key available for the user: " +

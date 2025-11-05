@@ -83,6 +83,8 @@ type View = {
 
 type GetWarning$ = () => Observable<TaxIdWarningType | null>;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-tax-id-warning",
   template: `
@@ -90,12 +92,7 @@ type GetWarning$ = () => Observable<TaxIdWarningType | null>;
       @let view = view$ | async;
 
       @if (view) {
-        <bit-banner
-          id="tax-id-warning-banner"
-          class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
-          bannerType="warning"
-          (onClose)="trackDismissal()"
-        >
+        <bit-banner id="tax-id-warning-banner" bannerType="warning" (onClose)="trackDismissal()">
           {{ view.message }}
           <a
             bitLink
@@ -113,8 +110,14 @@ type GetWarning$ = () => Observable<TaxIdWarningType | null>;
   imports: [BannerModule, SharedModule],
 })
 export class TaxIdWarningComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) subscriber!: NonIndividualSubscriber;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) getWarning$!: GetWarning$;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() billingAddressUpdated = new EventEmitter<void>();
 
   protected enableTaxIdWarning$ = this.configService.getFeatureFlag$(

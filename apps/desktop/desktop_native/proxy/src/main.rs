@@ -2,8 +2,11 @@ use std::path::Path;
 
 use desktop_core::ipc::{MESSAGE_CHANNEL_BUFFER, NATIVE_MESSAGING_BUFFER_SIZE};
 use futures::{FutureExt, SinkExt, StreamExt};
-use log::*;
 use tokio_util::codec::LengthDelimitedCodec;
+use tracing::{debug, error, info, level_filters::LevelFilter};
+use tracing_subscriber::{
+    fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter, Layer as _,
+};
 
 #[cfg(target_os = "windows")]
 mod windows;
@@ -11,30 +14,38 @@ mod windows;
 #[cfg(target_os = "macos")]
 embed_plist::embed_info_plist!("../../../resources/info.desktop_proxy.plist");
 
+const ENV_VAR_PROXY_LOG_LEVEL: &str = "PROXY_LOG_LEVEL";
+
 fn init_logging(log_path: &Path, console_level: LevelFilter, file_level: LevelFilter) {
-    use simplelog::{ColorChoice, CombinedLogger, Config, SharedLogger, TermLogger, TerminalMode};
+    let console_filter = EnvFilter::builder()
+        .with_default_directive(console_level.into())
+        .with_env_var(ENV_VAR_PROXY_LOG_LEVEL)
+        .from_env_lossy();
 
-    let config = Config::default();
-
-    let mut loggers: Vec<Box<dyn SharedLogger>> = Vec::new();
-    loggers.push(TermLogger::new(
-        console_level,
-        config.clone(),
-        TerminalMode::Stderr,
-        ColorChoice::Auto,
-    ));
+    let console_layer = fmt::layer()
+        .with_writer(std::io::stderr)
+        .with_filter(console_filter);
 
     match std::fs::File::create(log_path) {
         Ok(file) => {
-            loggers.push(simplelog::WriteLogger::new(file_level, config, file));
-        }
-        Err(e) => {
-            eprintln!("Can't create file: {e}");
-        }
-    }
+            let file_filter = EnvFilter::builder()
+                .with_default_directive(file_level.into())
+                .from_env_lossy();
 
-    if let Err(e) = CombinedLogger::init(loggers) {
-        eprintln!("Failed to initialize logger: {e}");
+            let file_layer = fmt::layer()
+                .with_writer(file)
+                .with_ansi(false)
+                .with_filter(file_filter);
+
+            tracing_subscriber::registry()
+                .with(console_layer)
+                .with(file_layer)
+                .init();
+        }
+        Err(error) => {
+            tracing_subscriber::registry().with(console_layer).init();
+            error!(%error, ?log_path, "Could not create log file.");
+        }
     }
 }
 
@@ -57,7 +68,7 @@ async fn main() {
     #[cfg(target_os = "windows")]
     let should_foreground = windows::allow_foreground();
 
-    let sock_path = desktop_core::ipc::path("bitwarden");
+    let sock_path = desktop_core::ipc::path("bw");
 
     let log_path = {
         let mut path = sock_path.clone();
@@ -65,12 +76,7 @@ async fn main() {
         path
     };
 
-    let level = std::env::var("PROXY_LOG_LEVEL")
-        .ok()
-        .and_then(|s| s.parse().ok())
-        .unwrap_or(LevelFilter::Info);
-
-    init_logging(&log_path, level, LevelFilter::Info);
+    init_logging(&log_path, LevelFilter::INFO, LevelFilter::INFO);
 
     info!("Starting Bitwarden IPC Proxy.");
 
@@ -88,7 +94,7 @@ async fn main() {
     // - Origin of the extension that started it (in the form `chrome-extension://[ID]`).
 
     let args: Vec<_> = std::env::args().skip(1).collect();
-    info!("Process args: {:?}", args);
+    info!(?args, "Process args");
 
     // Setup two channels, one for sending messages to the desktop application (`out`) and one for receiving messages from the desktop application (`in`)
     let (in_send, in_recv) = tokio::sync::mpsc::channel(MESSAGE_CHANNEL_BUFFER);
@@ -123,12 +129,12 @@ async fn main() {
                         info!("IPC client finished successfully.");
                         std::process::exit(0);
                     }
-                    Ok(Err(e)) => {
-                        error!("IPC client connection error: {}", e);
+                    Ok(Err(error)) => {
+                        error!(error, "IPC client connection error.");
                         std::process::exit(1);
                     }
-                    Err(e) => {
-                        error!("IPC client spawn error: {}", e);
+                    Err(error) => {
+                        error!(%error, "IPC client spawn error.");
                         std::process::exit(1);
                     }
                 }
@@ -138,7 +144,7 @@ async fn main() {
             msg = out_recv.recv() => {
                 match msg {
                     Some(msg) => {
-                        debug!("OUT: {}", msg);
+                        debug!(msg, "OUT");
                         stdout.send(msg.into()).await.unwrap();
                     }
                     None => {
@@ -155,12 +161,12 @@ async fn main() {
 
                 match msg {
                     Some(Ok(msg)) => {
-                        let m = String::from_utf8(msg.to_vec()).unwrap();
-                        debug!("IN: {}", m);
-                        in_send.send(m).await.unwrap();
+                        let msg = String::from_utf8(msg.to_vec()).unwrap();
+                        debug!(msg, "IN");
+                        in_send.send(msg).await.unwrap();
                     }
-                    Some(Err(e)) => {
-                        error!("Error parsing input: {}", e);
+                    Some(Err(error)) => {
+                        error!(%error, "Error parsing input.");
                         std::process::exit(1);
                     }
                     None => {

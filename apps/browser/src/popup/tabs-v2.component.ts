@@ -17,6 +17,8 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 
 import { NavButton } from "../platform/popup/layout/popup-tab-navigation.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-tabs-v2",
   templateUrl: "./tabs-v2.component.html",

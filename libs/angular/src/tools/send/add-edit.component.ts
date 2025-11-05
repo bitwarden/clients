@@ -11,6 +11,7 @@ import {
   BehaviorSubject,
   concatMap,
   switchMap,
+  tap,
 } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -33,6 +34,7 @@ import { SendTextView } from "@bitwarden/common/tools/send/models/view/send-text
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 // Value = hours
@@ -56,11 +58,21 @@ interface DatePresetSelectOption {
 
 @Directive()
 export class AddEditComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() sendId: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() type: SendType;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onSavedSend = new EventEmitter<SendView>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onDeletedSend = new EventEmitter<SendView>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onCancelled = new EventEmitter<SendView>();
 
   deletionDatePresets: DatePresetSelectOption[] = [
@@ -134,6 +146,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
     protected accountService: AccountService,
     protected toastService: ToastService,
+    protected premiumUpgradePromptService: PremiumUpgradePromptService,
   ) {
     this.typeOptions = [
       { name: i18nService.t("sendTypeFile"), value: SendType.File, premium: true },
@@ -182,10 +195,15 @@ export class AddEditComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.formGroup.controls.type.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((val) => {
-      this.type = val;
-      this.typeChanged();
-    });
+    this.formGroup.controls.type.valueChanges
+      .pipe(
+        tap((val) => {
+          this.type = val;
+        }),
+        switchMap(() => this.typeChanged()),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
 
     this.formGroup.controls.selectedDeletionDatePreset.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -260,12 +278,19 @@ export class AddEditComponent implements OnInit, OnDestroy {
       });
 
       if (this.editMode) {
-        this.sendService
-          .get$(this.sendId)
+        this.accountService.activeAccount$
           .pipe(
-            //Promise.reject will complete the BehaviourSubject, if desktop starts relying only on BehaviourSubject, this should be changed.
-            concatMap((s) =>
-              s instanceof Send ? s.decrypt() : Promise.reject(new Error("Failed to load send.")),
+            getUserId,
+            switchMap((userId) =>
+              this.sendService
+                .get$(this.sendId)
+                .pipe(
+                  concatMap((s) =>
+                    s instanceof Send
+                      ? s.decrypt(userId)
+                      : Promise.reject(new Error("Failed to load send.")),
+                  ),
+                ),
             ),
             takeUntil(this.destroy$),
           )
@@ -409,11 +434,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return false;
   }
 
-  typeChanged() {
+  async typeChanged() {
     if (this.type === SendType.File && !this.alertShown) {
       if (!this.canAccessPremium) {
         this.alertShown = true;
-        this.messagingService.send("premiumRequired");
+        await this.premiumUpgradePromptService.promptForPremium();
       } else if (!this.emailVerified) {
         this.alertShown = true;
         this.messagingService.send("emailVerificationRequired");

@@ -31,7 +31,9 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Lint filenames (no capital characters)
         run: |
@@ -49,6 +51,7 @@ jobs:
             ! -path "*/Cargo.toml" \
             ! -path "*/Cargo.lock" \
             ! -path "./apps/desktop/macos/*" \
+            ! -path "*/CLAUDE.md" \
             > tmp.txt
           diff <(sort .github/whitelist-capital-letters.txt) <(sort tmp.txt)
 
@@ -57,10 +60,10 @@ jobs:
         run: |
           NODE_NVMRC=$(cat .nvmrc)
           NODE_VERSION=${NODE_NVMRC/v/''}
-          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
+          echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -71,6 +74,9 @@ jobs:
 
       - name: Lint unowned dependencies
         run: npm run lint:dep-ownership
+
+      - name: Lint sdk-internal versions
+        run: npm run lint:sdk-internal-versions
 
       - name: Run linter
         run: npm run lint
@@ -88,7 +94,9 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Check Rust version
         run: rustup --version
@@ -109,3 +117,12 @@ jobs:
       - name: Cargo sort
         working-directory: ./apps/desktop/desktop_native
         run: cargo sort --workspace --check
+
+      - name: Install cargo-deny
+        uses: taiki-e/install-action@81ee1d48d9194cdcab880cbdc7d36e87d39874cb # v2.62.45
+        with:
+          tool: cargo-deny@0.18.5
+
+      - name: Run cargo deny
+        working-directory: ./apps/desktop/desktop_native
+        run: cargo deny --log-level error --all-features check all

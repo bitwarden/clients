@@ -1,11 +1,8 @@
-import { Observable } from "rxjs";
-
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { UserId } from "@bitwarden/user-core";
 
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
 import { InitiationPath } from "../../models/request/reference-event.request";
 import { PaymentMethodType, PlanType } from "../enums";
-import { PaymentSourceResponse } from "../models/response/payment-source.response";
 
 export type OrganizationInformation = {
   name: string;
@@ -47,26 +44,24 @@ export type SubscriptionInformation = {
 };
 
 export abstract class OrganizationBillingServiceAbstraction {
-  abstract getPaymentSource(organizationId: string): Promise<PaymentSourceResponse>;
-
   abstract purchaseSubscription(
     subscription: SubscriptionInformation,
+    activeUserId: UserId,
   ): Promise<OrganizationResponse>;
 
   abstract purchaseSubscriptionNoPaymentMethod(
     subscription: SubscriptionInformation,
+    activeUserId: UserId,
   ): Promise<OrganizationResponse>;
 
-  abstract startFree(subscription: SubscriptionInformation): Promise<OrganizationResponse>;
+  abstract startFree(
+    subscription: SubscriptionInformation,
+    activeUserId: UserId,
+  ): Promise<OrganizationResponse>;
 
   abstract restartSubscription(
     organizationId: string,
     subscription: SubscriptionInformation,
+    activeUserId: UserId,
   ): Promise<void>;
-
-  /**
-   * Determines if breadcrumbing policies is enabled for the organizations meeting certain criteria.
-   * @param organization
-   */
-  abstract isBreadcrumbingPoliciesEnabled$(organization: Organization): Observable<boolean>;
 }

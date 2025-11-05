@@ -7,7 +7,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -80,7 +79,6 @@ export default class RuntimeBackground {
         BiometricsCommands.UnlockWithBiometricsForUser,
         BiometricsCommands.GetBiometricsStatusForUser,
         BiometricsCommands.CanEnableBiometricUnlock,
-        "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
         "getUserPremiumStatus",
       ];
 
@@ -147,6 +145,7 @@ export default class RuntimeBackground {
             if (totpCode != null) {
               this.platformUtilsService.copyToClipboard(totpCode);
             }
+            await this.main.updateOverlayCiphers();
             break;
           }
           case ExtensionCommand.AutofillCard: {
@@ -205,11 +204,6 @@ export default class RuntimeBackground {
       case BiometricsCommands.CanEnableBiometricUnlock: {
         return await this.main.biometricsService.canEnableBiometricUnlock();
       }
-      case "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag": {
-        return await this.configService.getFeatureFlag(
-          FeatureFlag.UseTreeWalkerApiForPageDetailsCollection,
-        );
-      }
       case "getUserPremiumStatus": {
         const activeUserId = await firstValueFrom(
           this.accountService.activeAccount$.pipe(map((a) => a?.id)),
@@ -263,12 +257,20 @@ export default class RuntimeBackground {
         this.lockedVaultPendingNotifications.push(msg.data);
         break;
       case "lockVault":
-        await this.main.vaultTimeoutService.lock(msg.userId);
+        await this.lockService.lock(msg.userId);
         break;
       case "lockAll":
         {
           await this.lockService.lockAll();
           this.messagingService.send("lockAllFinished", { requestId: msg.requestId });
+        }
+        break;
+      case "lockUser":
+        {
+          await this.lockService.lock(msg.userId);
+          this.messagingService.send("lockUserFinished", {
+            requestId: msg.requestId,
+          });
         }
         break;
       case "logout":

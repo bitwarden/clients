@@ -703,10 +703,10 @@
     "message": "Privitak spremljen"
   },
   "addAttachment": {
-    "message": "Add attachment"
+    "message": "Dodaj privitak"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "Maximum file size is 500 MB"
+    "message": "Najveća veličina datoteke je 500 MB"
   },
   "file": {
     "message": "Datoteka"
@@ -770,6 +770,9 @@
   },
   "useSingleSignOn": {
     "message": "Jedinstvena prijava (SSO)"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
   },
   "submit": {
     "message": "Pošalji"
@@ -959,9 +962,6 @@
   },
   "insertU2f": {
     "message": "Umetni svoj sigurnosni ključ u USB priključak računala. Ako ima tipku, dodirni ju."
-  },
-  "recoveryCodeDesc": {
-    "message": "Izgubljen je pristup uređaju za dvostruku autentifikaciju? Koristi svoj kôd za oporavak za onemogućavanje svih pružatelja usluga dvostruke autentifikacije na tvojem računu."
   },
   "recoveryCodeTitle": {
     "message": "Kôd za oporavak"
@@ -1225,6 +1225,15 @@
   "invalidMasterPassword": {
     "message": "Neispravna glavna lozinka"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Nevažeća glavna lozinka. Provjeri je li tvoja adresa e-pošta ispravna i je li račun kreiran na $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Prijava dvostrukom autentifikacijom čini tvoj račun još sigurnijim tako što će zahtijevati potvrdu prijave drugim uređajem kao što je sigurnosni ključ, autentifikatorska aplikacija, SMS, poziv ili e-pošta. Prijavu dvostrukom autentifikacijom možeš omogućiti na web trezoru. Želiš li sada posjetiti bitwarden.com?"
   },
@@ -1306,7 +1315,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Prikaži ikonu web mjesta i dohvati URL za promjenu lozinke"
   },
   "enableMinToTray": {
     "message": "Minimiziraj u područje obavijesti"
@@ -1845,6 +1854,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Zaključaj glavnom lozinkom kod svakog pokretanja"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Traži glavnu lozinku ili PIN kod ponovnog pokretanja aplikacije"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Traži glavnu lozinku kod ponovnog pokretanja aplikacije"
   },
   "deleteAccount": {
     "message": "Obriši račun"
@@ -2543,6 +2558,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Najmanje prilagođeno vrijeme je 1 minuta."
+  },
   "inviteAccepted": {
     "message": "Pozivnica prihvaćena"
   },
@@ -2654,6 +2672,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Izvezt će se samo trezor organizacije povezan s $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Izvezt će se samo trezor organizacije povezan s $ORGANIZATION$. Zbirka mojih stavki neće biti uključena.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -3489,10 +3525,10 @@
     "message": "Odaberi zbirku"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Odaberi ovu opciju ako sadržaj uvezene datoteke želiš premjestiti u zbirku"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Odaberi ovu opciju ako sadržaj uvezene datoteke želiš premjestiti u mapu"
   },
   "importUnassignedItemsError": {
     "message": "Datoteka sadrži nedodijeljene stavke."
@@ -3587,6 +3623,12 @@
   },
   "awaitingSSODesc": {
     "message": "Prijavi se koristeći pristupne podatke svoje tvrtke."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Uvezi direktno iz preglednika"
+  },
+  "browserProfile": {
+    "message": "Profil preglednika"
   },
   "seeDetailedInstructions": {
     "message": "Detaljne upute za pomoć pronađi na našoj stranici za pomoć na",
@@ -3830,6 +3872,12 @@
   "changeAtRiskPassword": {
     "message": "Promijeni rizičnu lozinku"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Ova prijava je ugrožena i nedostaje joj web-stranica. Dodaj web-stranicu i promijeni lozinku za veću sigurnost."
+  },
+  "missingWebsite": {
+    "message": "Nedostaje web-stranica"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "S dopuštenjima samo za prikaz ne možeš ukloniti zbirke: $COLLECTIONS$",
     "placeholders": {
@@ -3926,10 +3974,10 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "O ovoj postavci"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden će koristiti spremljene URI-je za prijavu kako bi identificirao ikonu ili URL za promjenu lozinke koji treba koristiti za poboljšanje tvojeg iskustva. Nikakvi podaci se ne prikupljaju, niti spremaju kada koristiš ovu uslugu."
   },
   "assignToCollections": {
     "message": "Dodijeli zbirkama"
@@ -4071,14 +4119,76 @@
   "showLess": {
     "message": "Pokaži manje"
   },
-  "enableAutotype": {
-    "message": "Omogući automatski unos"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden ne provjerava lokacije unosa, prije korištenja prečaca provjeri da si u pravom prozoru i polju."
   },
+  "typeShortcut": {
+    "message": "Vrsta prečaca"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Uključi jedan ili dva modifikatora: Ctrl, Alt, Win ili Shift i slovo."
+  },
+  "invalidShortcut": {
+    "message": "Nevažeći prečac"
+  },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Više mrvica",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Sljedeće"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potvrdi domenu kontektora ključa"
+  },
+  "confirm": {
+    "message": "Potvrdi"
+  },
+  "enableAutotypeShortcutPreview": {
+    "message": "Uključi prečac Autotype (Pretpregled značajke)"
+  },
+  "enableAutotypeShortcutDescription": {
+    "message": "Prije korištenja prečaca provjeri jesi li u ispravnom polju kako podaci ne bi bili uneseni na pogrešno mjesto."
+  },
+  "editShortcut": {
+    "message": "Uredi prečac"
+  },
+  "archiveNoun": {
+    "message": "Arhiva",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Arhiviraj",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Poništi arhiviranje"
+  },
+  "itemsInArchive": {
+    "message": "Stavke u arhivi"
+  },
+  "noItemsInArchive": {
+    "message": "Nema stavki u arhivi"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Arhivirane stavke biti će prikazane ovdje i biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune."
+  },
+  "itemWasSentToArchive": {
+    "message": "Stavka poslana u arhivu"
+  },
+  "itemWasUnarchived": {
+    "message": "Stavka vraćena iz arhive"
+  },
+  "archiveItem": {
+    "message": "Arhiviraj stavku"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Arhivirane stavke biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune. Sigurno želiš arhivirati?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

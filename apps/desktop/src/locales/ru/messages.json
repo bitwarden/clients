@@ -771,6 +771,9 @@
   "useSingleSignOn": {
     "message": "Использовать единый вход"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "Отправить"
   },
@@ -959,9 +962,6 @@
   },
   "insertU2f": {
     "message": "Вставьте ключ безопасности в USB-порт компьютера. Если у ключа есть кнопка, нажмите ее."
-  },
-  "recoveryCodeDesc": {
-    "message": "Потеряли доступ ко всем вариантам двухэтапной аутентификации? Используйте код восстановления, чтобы отключить двухэтапную аутентификацию для вашего аккаунта."
   },
   "recoveryCodeTitle": {
     "message": "Код восстановления"
@@ -1224,6 +1224,15 @@
   },
   "invalidMasterPassword": {
     "message": "Неверный мастер-пароль"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Неверный мастер-пароль. Подтвердите, что ваш адрес email указан верно и ваш аккаунт был создан на $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "twoStepLoginConfirmation": {
     "message": "Двухэтапная аутентификация делает аккаунт более защищенным, поскольку требуется подтверждение входа при помощи другого устройства, например, ключа безопасности, приложения-аутентификатора, SMS, телефонного звонка или электронной почты. Двухэтапная аутентификация включается на bitwarden.com. Перейти на сайт сейчас?"
@@ -1845,6 +1854,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Блокировать мастер-паролем при перезапуске"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Требовать мастер-пароль или PIN при перезапуске приложения"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Требовать мастер-пароль при перезапуске приложения"
   },
   "deleteAccount": {
     "message": "Удалить аккаунт"
@@ -2543,6 +2558,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Минимальный пользовательский тайм-аут составляет 1 минуту."
+  },
   "inviteAccepted": {
     "message": "Приглашение принято"
   },
@@ -2654,6 +2672,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Будет экспортировано только хранилище организации, связанное с $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Будет экспортировано только хранилище организации, связанное с $ORGANIZATION$. Коллекции Мои элементы включены не будут.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -3588,6 +3624,12 @@
   "awaitingSSODesc": {
     "message": "Пожалуйста, продолжите вход, используя учетные данные вашей компании."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Импорт непосредственно из браузера"
+  },
+  "browserProfile": {
+    "message": "Профиль браузера"
+  },
   "seeDetailedInstructions": {
     "message": "Подробные инструкции см. на нашем справочном сайте по адресу",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3830,6 +3872,12 @@
   "changeAtRiskPassword": {
     "message": "Изменить пароль, подверженный риску"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Этот логин подвержен риску и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
+  },
+  "missingWebsite": {
+    "message": "Отсутствует сайт"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Вы не можете удалить коллекции с правами только на просмотр: $COLLECTIONS$",
     "placeholders": {
@@ -4071,14 +4119,76 @@
   "showLess": {
     "message": "Меньше"
   },
-  "enableAutotype": {
-    "message": "Включить автоввод"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden не проверяет местоположение ввода, поэтому, прежде чем использовать ярлык, убедитесь, что вы находитесь в нужном окне и поле."
   },
+  "typeShortcut": {
+    "message": "Введите сочетание клавиш"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Включите один или два из следующих модификаторов: Ctrl, Alt, Win или Shift и букву."
+  },
+  "invalidShortcut": {
+    "message": "Недопустимое сочетание клавиш"
+  },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Дополнительная навигация",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Далее"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Подтвердите домен соединителя ключей"
+  },
+  "confirm": {
+    "message": "Подтвердить"
+  },
+  "enableAutotypeShortcutPreview": {
+    "message": "Включить сочетание клавиш ввода (предварительная версия функции)"
+  },
+  "enableAutotypeShortcutDescription": {
+    "message": "Прежде чем использовать ярлык, убедитесь, что вы поставили курсор в нужное поле, чтобы избежать ввода данных в неправильное место."
+  },
+  "editShortcut": {
+    "message": "Изменить ярлык"
+  },
+  "archiveNoun": {
+    "message": "Архив",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Архивировать",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Разархивировать"
+  },
+  "itemsInArchive": {
+    "message": "Элементы в архиве"
+  },
+  "noItemsInArchive": {
+    "message": "В архиве нет элементов"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Архивированные элементы появятся здесь и будут исключены из общих результатов поиска и предложений автозаполнения."
+  },
+  "itemWasSentToArchive": {
+    "message": "Элемент был отправлен в архив"
+  },
+  "itemWasUnarchived": {
+    "message": "Элемент был разархивирован"
+  },
+  "archiveItem": {
+    "message": "Архивировать элемент"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать этот элемент?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "Почтовый индекс"
+  },
+  "cardNumberLabel": {
+    "message": "Номер карты"
   }
 }

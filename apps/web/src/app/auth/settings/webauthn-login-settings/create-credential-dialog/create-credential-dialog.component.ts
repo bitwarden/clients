@@ -4,7 +4,10 @@ import { Component, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { firstValueFrom, map, Observable } from "rxjs";
 
-import { CreatePasskeyFailedIcon, CreatePasskeyIcon } from "@bitwarden/assets/svg";
+import {
+  TwoFactorAuthSecurityKeyFailedIcon,
+  TwoFactorAuthSecurityKeyIcon,
+} from "@bitwarden/assets/svg";
 import { PrfKeySet } from "@bitwarden/auth/common";
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -29,6 +32,8 @@ type Step =
   | "credentialCreationFailed"
   | "credentialNaming";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "create-credential-dialog.component.html",
   standalone: false,
@@ -37,8 +42,8 @@ export class CreateCredentialDialogComponent implements OnInit {
   protected readonly NameMaxCharacters = 50;
   protected readonly CreateCredentialDialogResult = CreateCredentialDialogResult;
   protected readonly Icons = {
-    CreatePasskeyIcon,
-    CreatePasskeyFailedIcon,
+    TwoFactorAuthSecurityKeyIcon,
+    TwoFactorAuthSecurityKeyFailedIcon,
   };
 
   protected currentStep: Step = "userVerification";

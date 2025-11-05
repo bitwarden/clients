@@ -2,9 +2,13 @@ import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import { VaultCarouselSlideComponent } from "./carousel-slide/carousel-slide.component";
 import { VaultCarouselComponent } from "./carousel.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-test-carousel-slide",
   imports: [VaultCarouselComponent, VaultCarouselSlideComponent],
@@ -33,6 +37,7 @@ describe("VaultCarouselComponent", () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [VaultCarouselComponent, VaultCarouselSlideComponent],
+      providers: [{ provide: I18nService, useValue: { t: (key: string) => key } }],
     }).compileComponents();
   });
 
@@ -48,7 +53,7 @@ describe("VaultCarouselComponent", () => {
 
   it("shows the active slides content", () => {
     // Set the second slide as active
-    fixture.debugElement.queryAll(By.css("button"))[1].nativeElement.click();
+    fixture.debugElement.queryAll(By.css("button"))[2].nativeElement.click();
     fixture.detectChanges();
 
     const heading = fixture.debugElement.query(By.css("h1")).nativeElement;
@@ -63,10 +68,37 @@ describe("VaultCarouselComponent", () => {
   it('emits "slideChange" event when slide changes', () => {
     jest.spyOn(component.slideChange, "emit");
 
-    const thirdSlideButton = fixture.debugElement.queryAll(By.css("button"))[2];
+    const thirdSlideButton = fixture.debugElement.queryAll(By.css("button"))[3];
 
     thirdSlideButton.nativeElement.click();
 
     expect(component.slideChange.emit).toHaveBeenCalledWith(2);
+  });
+
+  it('advances to the next slide when the "next" button is pressed', () => {
+    const middleSlideButton = fixture.debugElement.queryAll(By.css("button"))[2];
+    const nextButton = fixture.debugElement.queryAll(By.css("button"))[4];
+
+    middleSlideButton.nativeElement.click();
+
+    jest.spyOn(component.slideChange, "emit");
+
+    nextButton.nativeElement.click();
+
+    expect(component.slideChange.emit).toHaveBeenCalledWith(2);
+  });
+
+  it('advances to the previous slide when the "back" button is pressed', async () => {
+    const middleSlideButton = fixture.debugElement.queryAll(By.css("button"))[2];
+    const backButton = fixture.debugElement.queryAll(By.css("button"))[0];
+
+    middleSlideButton.nativeElement.click();
+    await new Promise((r) => setTimeout(r, 100)); // Give time for the DOM to update.
+
+    jest.spyOn(component.slideChange, "emit");
+
+    backButton.nativeElement.click();
+
+    expect(component.slideChange.emit).toHaveBeenCalledWith(0);
   });
 });

@@ -14,8 +14,10 @@
     <div
       class="tw-flex tw-bg-background-alt tw-flex-col tw-justify-center tw-items-center tw-gap-2 tw-h-full tw-px-5"
     >
-      <bit-icon [icon]="sendCreatedIcon"></bit-icon>
-      <h3 tabindex="0" appAutofocus class="tw-font-semibold">
+      <div class="tw-size-[95px] tw-content-center">
+        <bit-icon [icon]="sendCreatedIcon"></bit-icon>
+      </div>
+      <h3 tabindex="0" appAutofocus class="tw-font-medium">
         {{ "createdSendSuccessfully" | i18n }}
       </h3>
       <p class="tw-text-center">

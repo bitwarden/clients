@@ -5,6 +5,7 @@
 @import "./popover/popover.component.css";
 @import "./toast/toast.tokens.css";
 @import "./toast/toastr.css";
+@import "./tooltip/tooltip.component.css";
 @import "./search/search.component.css";
 
 @tailwind base;
@@ -51,10 +52,6 @@
   --color-notification-100: 255 225 247;
   --color-notification-600: 192 17 118;
 
-  /*art styles deprecated, use 'illustration' instead*/
-  --color-art-primary: 2 15 102;
-  --color-art-accent: 44 221 223;
-
   --color-text-main: 27 32 41;
   --color-text-muted: 96 109 145;
   --color-text-contrast: 255 255 255;
@@ -65,6 +62,7 @@
   --color-hover-contrast: rgb(255 255 255 / 0.15);
 
   --color-marketing-logo: 23 93 220;
+  --color-bw-blue: 23 93 220;
 
   --tw-ring-offset-color: #ffffff;
 
@@ -122,10 +120,6 @@
   --color-notification-100: 117 37 83;
   --color-notification-600: 255 143 208;
 
-  /*art styles deprecated, use 'illustration' instead*/
-  --color-art-primary: 243 246 249;
-  --color-art-accent: 44 221 233;
-
   --color-text-main: 243 246 249;
   --color-text-muted: 136 152 181;
   --color-text-contrast: 18 26 39;
@@ -136,6 +130,7 @@
   --color-hover-contrast: rgb(0 0 0 / 0.15);
 
   --color-marketing-logo: 255 255 255;
+  --color-bw-blue: 23 93 220;
 
   --tw-ring-offset-color: #1f242e;
 

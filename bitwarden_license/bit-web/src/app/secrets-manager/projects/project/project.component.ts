@@ -34,6 +34,8 @@ import {
 } from "../dialog/project-dialog.component";
 import { ProjectService } from "../project.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-project",
   templateUrl: "./project.component.html",
@@ -67,9 +69,10 @@ export class ProjectComponent implements OnInit, OnDestroy {
     );
 
     this.project$ = combineLatest([this.route.params, currentProjectEdited]).pipe(
-      switchMap(([params, _]) => this.projectService.getByProjectId(params.projectId)),
+      switchMap(([params, currentProj]) =>
+        this.projectService.getByProjectId(params.projectId, currentProj != null),
+      ),
     );
-
     const projectId$ = this.route.params.pipe(map((p) => p.projectId));
     const organization$ = this.route.params.pipe(
       concatMap((params) =>

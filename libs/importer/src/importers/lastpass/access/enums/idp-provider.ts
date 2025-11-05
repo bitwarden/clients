@@ -1,10 +1,16 @@
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum IdpProvider {
-  Azure = 0,
-  OktaAuthServer = 1,
-  OktaNoAuthServer = 2,
-  Google = 3,
-  PingOne = 4,
-  OneLogin = 5,
-}
+/**
+ * Represents the different identity providers supported for authentication.
+ */
+export const IdpProvider = Object.freeze({
+  Azure: 0,
+  OktaAuthServer: 1,
+  OktaNoAuthServer: 2,
+  Google: 3,
+  PingOne: 4,
+  OneLogin: 5,
+} as const);
+
+/**
+ * Type representing valid identity provider values.
+ */
+export type IdpProvider = (typeof IdpProvider)[keyof typeof IdpProvider];

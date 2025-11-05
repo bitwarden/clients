@@ -123,6 +123,10 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return this.getDevice() === DeviceType.SafariExtension;
   }
 
+  isChromium(): boolean {
+    return this.isChrome() || this.isEdge() || this.isOpera() || this.isVivaldi();
+  }
+
   /**
    * Safari previous to version 16.1 had a bug which caused artifacts on hover in large extension popups.
    * https://bugs.webkit.org/show_bug.cgi?id=218704
