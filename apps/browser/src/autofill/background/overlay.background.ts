@@ -53,6 +53,7 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 // eslint-disable-next-line no-restricted-imports
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
+import { ExtensionUrlTokenService } from "../../platform/services/extension-url-token.service";
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -236,6 +237,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private accountService: AccountService,
     private generatePasswordCallback: () => Promise<string>,
     private addPasswordCallback: (password: string) => Promise<void>,
+    private extensionUrlTokenService: ExtensionUrlTokenService,
   ) {
     this.initOverlayEventObservables();
   }
@@ -2947,7 +2949,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     this.postMessageToPort(port, {
       command: `initAutofillInlineMenu${isInlineMenuListPort ? "List" : "Button"}`,
-      iframeUrl: chrome.runtime.getURL(
+      iframeUrl: this.extensionUrlTokenService.createTokenUrl(
         `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.html`,
       ),
       pageTitle: chrome.i18n.getMessage(

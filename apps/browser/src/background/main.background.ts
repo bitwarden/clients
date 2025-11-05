@@ -317,6 +317,7 @@ import BrowserInitialInstallService from "../platform/services/browser-initial-i
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
 import BrowserMemoryStorageService from "../platform/services/browser-memory-storage.service";
 import { BrowserScriptInjectorService } from "../platform/services/browser-script-injector.service";
+import { ExtensionUrlTokenService } from "../platform/services/extension-url-token.service";
 import I18nService from "../platform/services/i18n.service";
 import { LocalBackedSessionStorageService } from "../platform/services/local-backed-session-storage.service";
 import { BackgroundPlatformUtilsService } from "../platform/services/platform-utils/background-platform-utils.service";
@@ -452,6 +453,7 @@ export default class MainBackground {
   syncServiceListener: SyncServiceListener;
   browserInitialInstallService: BrowserInitialInstallService;
   backgroundSyncService: BackgroundSyncService;
+  extensionUrlTokenService: ExtensionUrlTokenService;
 
   webPushConnectionService: WorkerWebPushConnectionService | UnsupportedWebPushConnectionService;
   themeStateService: DefaultThemeStateService;
@@ -1139,6 +1141,8 @@ export default class MainBackground {
     );
 
     this.browserInitialInstallService = new BrowserInitialInstallService(this.stateProvider);
+
+    this.extensionUrlTokenService = new ExtensionUrlTokenService();
 
     if (BrowserApi.isManifestVersion(3)) {
       const registration = (self as unknown as { registration: ServiceWorkerRegistration })
@@ -1962,6 +1966,7 @@ export default class MainBackground {
       this.accountService,
       () => this.generatePassword(),
       (password) => this.addPasswordToHistory(password),
+      this.extensionUrlTokenService,
     );
 
     this.autofillBadgeUpdaterService = new AutofillBadgeUpdaterService(

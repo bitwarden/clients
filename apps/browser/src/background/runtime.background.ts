@@ -80,6 +80,9 @@ export default class RuntimeBackground {
         BiometricsCommands.GetBiometricsStatusForUser,
         BiometricsCommands.CanEnableBiometricUnlock,
         "getUserPremiumStatus",
+        "createTokenExtensionUrl",
+        "validateExtensionUrl",
+        "revokeExtensionUrlToken",
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
@@ -212,6 +215,16 @@ export default class RuntimeBackground {
           this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
         );
         return result;
+      }
+      case "createTokenExtensionUrl": {
+        return this.main.extensionUrlTokenService.createTokenUrl(msg.path);
+      }
+      case "validateExtensionUrl": {
+        return this.main.extensionUrlTokenService.validateUrl(msg.url);
+      }
+      case "revokeExtensionUrlToken": {
+        this.main.extensionUrlTokenService.revokeToken(msg.url);
+        return true;
       }
     }
   }

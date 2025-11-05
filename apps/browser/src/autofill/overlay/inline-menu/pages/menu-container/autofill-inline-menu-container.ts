@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { validateExtensionUrl } from "@bitwarden/browser/platform/utils/extension-url-token.utils";
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import { setElementStyles } from "../../../../utils";
@@ -60,7 +61,14 @@ export class AutofillInlineMenuContainer {
    *
    * @param message - The message containing the iframe url and page title.
    */
-  private handleInitInlineMenuIframe(message: InitAutofillInlineMenuElementMessage) {
+  private async handleInitInlineMenuIframe(message: InitAutofillInlineMenuElementMessage) {
+    const isValidUrl = await validateExtensionUrl(message.iframeUrl);
+    if (!isValidUrl) {
+      // eslint-disable-next-line no-console
+      console.error("Token not found");
+      return;
+    }
+
     this.defaultIframeAttributes.src = message.iframeUrl;
     this.defaultIframeAttributes.title = message.pageTitle;
     this.portName = message.portName;
