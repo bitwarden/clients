@@ -8,9 +8,7 @@ import { RiskInsightsComponent } from "./risk-insights.component";
 const routes: Routes = [
   {
     path: "",
-    canActivate: [
-      organizationPermissionsGuard((org) => org.useAccessIntelligence && org.canAccessReports),
-    ],
+    canActivate: [organizationPermissionsGuard((org) => org.canAccessReports)],
     component: RiskInsightsComponent,
     data: {
       titleId: "accessIntelligence",
