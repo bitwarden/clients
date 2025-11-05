@@ -4,6 +4,7 @@ import { BehaviorSubject } from "rxjs";
 
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { premiumInterestRedirectGuard } from "./premium-interest-redirect.guard";
 
@@ -18,10 +19,12 @@ describe("premiumInterestRedirectGuard", () => {
   const activeAccount$ = new BehaviorSubject<Account | null>(account);
   const createUrlTree = jest.fn();
   const getPremiumInterest = jest.fn().mockResolvedValue(false);
+  const logError = jest.fn();
 
   beforeEach(() => {
     getPremiumInterest.mockClear();
     createUrlTree.mockClear();
+    logError.mockClear();
     activeAccount$.next(account);
 
     TestBed.configureTestingModule({
@@ -32,6 +35,7 @@ describe("premiumInterestRedirectGuard", () => {
           provide: PremiumInterestStateService,
           useValue: { getPremiumInterest },
         },
+        { provide: LogService, useValue: { error: logError } },
       ],
     });
   });
@@ -64,5 +68,13 @@ describe("premiumInterestRedirectGuard", () => {
     await runPremiumInterestGuard();
 
     expect(createUrlTree).toHaveBeenCalledWith(["/login"]);
+  });
+
+  it("returns `true` and logs error when getPremiumInterest throws an error", async () => {
+    const error = new Error("Premium interest check failed");
+    getPremiumInterest.mockRejectedValueOnce(error);
+
+    expect(await runPremiumInterestGuard()).toBe(true);
+    expect(logError).toHaveBeenCalledWith("Error in premiumInterestRedirectGuard", error);
   });
 });
