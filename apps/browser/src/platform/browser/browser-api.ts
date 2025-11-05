@@ -32,6 +32,54 @@ export class BrowserApi {
     return BrowserApi.manifestVersion === expectedVersion;
   }
 
+  static senderIsInternal(sender: chrome.runtime.MessageSender | null): boolean {
+    if (!sender?.url) {
+      return false;
+    }
+    const extensionUrl =
+      (typeof chrome !== "undefined" && chrome.runtime?.getURL("")) ||
+      (typeof browser !== "undefined" && browser.runtime?.getURL("")) ||
+      "";
+
+    if (!extensionUrl) {
+      return false;
+    }
+
+    if (!sender.url.startsWith(extensionUrl)) {
+      return false;
+    }
+
+    // these are all properties on externally initiated messages, not internal ones
+    if (sender.tab || sender.documentId || sender.documentLifecycle || sender.frameId) {
+      return false;
+    }
+
+    return true;
+  }
+
+  static isCurrentExtensionUrl(url: string) {
+    if (!url) {
+      return false;
+    }
+
+    try {
+      const extensionUrl =
+        (typeof chrome !== "undefined" && chrome.runtime?.getURL("")) ||
+        (typeof browser !== "undefined" && browser.runtime?.getURL("")) ||
+        "";
+
+      if (!extensionUrl) {
+        return false;
+      }
+
+      return url.startsWith(extensionUrl);
+    } catch (error) {
+      if (error instanceof Error) {
+        return false;
+      }
+    }
+  }
+
   /**
    * Gets all open browser windows, including their tabs.
    *
