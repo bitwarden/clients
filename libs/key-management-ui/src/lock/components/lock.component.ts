@@ -16,7 +16,7 @@ import {
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { LogoutService, UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/auth/common";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -86,6 +86,12 @@ type AfterUnlockActions = {
 /// The minimum amount of time to wait after a process reload for a biometrics auto prompt to be possible
 /// Fixes safari autoprompt behavior
 const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
+
+const BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES = [
+  BiometricsStatus.HardwareUnavailable,
+  BiometricsStatus.DesktopDisconnected,
+  BiometricsStatus.NotEnabledInConnectedDesktopApp,
+];
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -180,7 +186,6 @@ export class LockComponent implements OnInit, OnDestroy {
     private lockComponentService: LockComponentService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private configService: ConfigService,
-    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     // desktop deps
     private broadcasterService: BroadcasterService,
   ) {}
@@ -279,19 +284,15 @@ export class LockComponent implements OnInit, OnDestroy {
       this.lockComponentService.getAvailableUnlockOptions$(activeAccount.id),
     );
 
-    const canUsePassword = await firstValueFrom(
-      this.userDecryptionOptionsService.hasMasterPassword$,
-    );
-    const canUsePin =
-      (await this.pinService.isPinSet(activeAccount.id)) &&
-      (await this.pinService.isPinDecryptionAvailable(activeAccount.id));
     const canUseBiometrics = [
       BiometricsStatus.Available,
-      BiometricsStatus.HardwareUnavailable,
-      BiometricsStatus.DesktopDisconnected,
-      BiometricsStatus.NotEnabledInConnectedDesktopApp,
+      ...BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES,
     ].includes(await this.biometricService.getBiometricsStatusForUser(activeAccount.id));
-    if (!canUsePassword && !canUsePin && !canUseBiometrics) {
+    if (
+      !this.unlockOptions.masterPassword.enabled &&
+      !this.unlockOptions.pin.enabled &&
+      !canUseBiometrics
+    ) {
       // User has no available unlock options, force logout. This happens for TDE users without a masterpassword, that don't have a persistent unlock method set.
       this.logService.warning("[LockComponent] User cannot unlock again. Logging out!");
       await this.logoutService.logout(activeAccount.id);
@@ -338,11 +339,7 @@ export class LockComponent implements OnInit, OnDestroy {
       // then show the biometrics screen so the user knows why they can't unlock, and to give them the option to log out.
     } else if (
       biometricsStatus != null &&
-      [
-        BiometricsStatus.HardwareUnavailable,
-        BiometricsStatus.DesktopDisconnected,
-        BiometricsStatus.NotEnabledInConnectedDesktopApp,
-      ].includes(biometricsStatus)
+      BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES.includes(biometricsStatus)
     ) {
       this.activeUnlockOption = UnlockOption.Biometrics;
     }

@@ -8,7 +8,7 @@ import { firstValueFrom, interval, map, of, takeWhile, timeout } from "rxjs";
 import { ZXCVBNResult } from "zxcvbn";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { LogoutService, UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/auth/common";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -93,7 +93,6 @@ describe("LockComponent", () => {
   const mockAnonLayoutWrapperDataService = mock<AnonLayoutWrapperDataService>();
   const mockBroadcasterService = mock<BroadcasterService>();
   const mockConfigService = mock<ConfigService>();
-  const mockUserDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
 
   beforeEach(async () => {
     jest.resetAllMocks();
@@ -112,7 +111,6 @@ describe("LockComponent", () => {
     mockDeviceTrustService.trustDeviceIfRequired.mockResolvedValue();
     mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded.mockResolvedValue();
     mockAnonLayoutWrapperDataService.setAnonLayoutWrapperData.mockImplementation(() => {});
-    mockUserDecryptionOptionsService.hasMasterPassword$ = of(true);
 
     await TestBed.configureTestingModule({
       imports: [
@@ -153,10 +151,6 @@ describe("LockComponent", () => {
         { provide: AnonLayoutWrapperDataService, useValue: mockAnonLayoutWrapperDataService },
         { provide: BroadcasterService, useValue: mockBroadcasterService },
         { provide: ConfigService, useValue: mockConfigService },
-        {
-          provide: UserDecryptionOptionsServiceAbstraction,
-          useValue: mockUserDecryptionOptionsService,
-        },
       ],
     })
       .overrideProvider(DialogService, { useValue: mockDialogService })
