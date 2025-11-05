@@ -2,10 +2,9 @@ import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit, signal } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
 
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { PersonalSubscriptionPricingTierId } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
@@ -96,7 +95,6 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
     private dialogRef: DialogRef<UnifiedUpgradeDialogResult>,
     @Inject(DIALOG_DATA) private params: UnifiedUpgradeDialogParams,
     private router: Router,
-    private accountService: AccountService,
     private premiumInterestStateService: PremiumInterestStateService,
   ) {}
 
@@ -116,10 +114,7 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
   }
   protected async onCloseClicked(): Promise<void> {
     // Clear premium interest when user closes/abandons modal
-    const account = await firstValueFrom(this.accountService.activeAccount$);
-    if (account) {
-      await this.premiumInterestStateService.clearPremiumInterest(account.id);
-    }
+    await this.premiumInterestStateService.clearPremiumInterest(this.params.account.id);
     this.close({ status: UnifiedUpgradeDialogStatus.Closed });
   }
 
@@ -141,10 +136,7 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
       this.selectedPlan.set(null);
     } else {
       // Clear premium interest when backing out of dialog completely
-      const account = await firstValueFrom(this.accountService.activeAccount$);
-      if (account) {
-        await this.premiumInterestStateService.clearPremiumInterest(account.id);
-      }
+      await this.premiumInterestStateService.clearPremiumInterest(this.params.account.id);
       this.close({ status: UnifiedUpgradeDialogStatus.Closed });
     }
   }
@@ -169,16 +161,13 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
 
     // Check premium interest and route to vault for marketing-initiated premium upgrades
     if (status === UnifiedUpgradeDialogStatus.UpgradedToPremium) {
-      const account = await firstValueFrom(this.accountService.activeAccount$);
-      if (account) {
-        const hasPremiumInterest = await this.premiumInterestStateService.getPremiumInterest(
-          account.id,
-        );
-        if (hasPremiumInterest) {
-          await this.premiumInterestStateService.clearPremiumInterest(account.id);
-          await this.router.navigate(["/vault"]);
-          return; // Exit early, don't use redirectOnCompletion
-        }
+      const hasPremiumInterest = await this.premiumInterestStateService.getPremiumInterest(
+        this.params.account.id,
+      );
+      if (hasPremiumInterest) {
+        await this.premiumInterestStateService.clearPremiumInterest(this.params.account.id);
+        await this.router.navigate(["/vault"]);
+        return; // Exit early, don't use redirectOnCompletion
       }
     }
 
