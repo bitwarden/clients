@@ -17,6 +17,7 @@ import { createNewSummaryData } from "@bitwarden/bit-common/dirt/reports/risk-in
 import { OrganizationReportSummary } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { NoItemsModule, SearchModule, TableDataSource, ToastService } from "@bitwarden/components";
 import { CardComponent } from "@bitwarden/dirt-card";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
@@ -49,7 +50,9 @@ export class CriticalApplicationsComponent implements OnInit {
   protected organizationId: OrganizationId;
   noItemsIcon = Security;
 
-  protected dataSource = new TableDataSource<ApplicationHealthReportDetailEnriched>();
+  protected dataSource = new TableDataSource<
+    ApplicationHealthReportDetailEnriched & { ciphers: CipherView[] }
+  >();
   protected applicationSummary = {} as OrganizationReportSummary;
 
   protected selectedIds: Set<number> = new Set<number>();
