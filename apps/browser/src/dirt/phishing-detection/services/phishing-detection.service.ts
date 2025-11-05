@@ -141,6 +141,9 @@ export class PhishingDetectionService {
             !!navEvent.tab.url &&
             !this._isExtensionPage(navEvent.tab.url),
         ),
+        distinctUntilChanged(
+          (prev, curr) => prev.tab.url === curr.tab.url && prev.tabId === curr.tabId,
+        ),
         tap((event) =>
           this._logService.debug(`[PhishingDetectionService] processing event:`, event),
         ),
