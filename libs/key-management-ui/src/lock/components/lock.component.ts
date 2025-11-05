@@ -335,12 +335,12 @@ export class LockComponent implements OnInit, OnDestroy {
       this.activeUnlockOption = UnlockOption.Pin;
     } else if (unlockOptions?.masterPassword.enabled) {
       this.activeUnlockOption = UnlockOption.MasterPassword;
-      // If biometrics is temporarily unavailable for masterpassword-less users, but they have biometrics configured,
-      // then show the biometrics screen so the user knows why they can't unlock, and to give them the option to log out.
     } else if (
       biometricsStatus != null &&
       BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES.includes(biometricsStatus)
     ) {
+      // If biometrics is temporarily unavailable for masterpassword-less users, but they have biometrics configured,
+      // then show the biometrics screen so the user knows why they can't unlock, and to give them the option to log out.
       this.activeUnlockOption = UnlockOption.Biometrics;
     }
   }
