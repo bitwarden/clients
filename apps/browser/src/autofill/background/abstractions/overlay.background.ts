@@ -11,8 +11,12 @@ import { PageDetail } from "../../services/abstractions/autofill.service";
 import { LockedVaultPendingNotificationsData } from "./notification.background";
 
 export type TabId = NonNullable<chrome.tabs.Tab["id"]>;
+
 export type FrameId = NonNullable<chrome.runtime.MessageSender["frameId"]>;
-export type PageDetailsForTab = Record<TabId, Map<FrameId, PageDetail>>;
+
+type PageDetailsByFrame = Map<FrameId, PageDetail>;
+
+export type PageDetailsForTab = Record<TabId, PageDetailsByFrame>;
 
 export type SubFrameOffsetData = {
   top: number;
@@ -25,7 +29,9 @@ export type SubFrameOffsetData = {
   hasParentFrame?: boolean;
 } | null;
 
-export type SubFrameOffsetsForTab = Record<TabId, Map<FrameId, SubFrameOffsetData>>;
+type SubFrameOffsetsByFrame = Map<FrameId, SubFrameOffsetData>;
+
+export type SubFrameOffsetsForTab = Record<TabId, SubFrameOffsetsByFrame>;
 
 export type UpdateOverlayCiphersParams = {
   updateAllCipherTypes: boolean;
@@ -214,7 +220,7 @@ export type BackgroundMessageParam = {
 export type BackgroundSenderParam = {
   sender: chrome.runtime.MessageSender & {
     tab: NonNullable<chrome.runtime.MessageSender["tab"]>;
-    frameId: NonNullable<chrome.runtime.MessageSender["frameId"]>;
+    frameId: FrameId;
   };
 };
 
