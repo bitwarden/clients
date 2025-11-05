@@ -181,8 +181,8 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: "npm"
-          cache-dependency-path: "**/package-lock.json"
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Set up environment
@@ -335,8 +335,8 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: "npm"
-          cache-dependency-path: "**/package-lock.json"
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Set up environment
@@ -474,8 +474,8 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: "npm"
-          cache-dependency-path: "**/package-lock.json"
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Install AST
@@ -732,8 +732,8 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: "npm"
-          cache-dependency-path: "**/package-lock.json"
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Install AST
@@ -966,8 +966,8 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: "npm"
-          cache-dependency-path: "**/package-lock.json"
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Set up Node-gyp
@@ -1191,8 +1191,8 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: "npm"
-          cache-dependency-path: "**/package-lock.json"
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Set up Node-gyp
@@ -1451,8 +1451,8 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: "npm"
-          cache-dependency-path: "**/package-lock.json"
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Set up Node-gyp
