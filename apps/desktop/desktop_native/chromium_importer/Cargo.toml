@@ -7,7 +7,7 @@ publish = { workspace = true }
 
 [dependencies]
 aes = { workspace = true }
-aes-gcm = "=0.10.3"
+aes-gcm = { workspace = true }
 anyhow = { workspace = true }
 async-trait = "=0.1.88"
 base64 = { workspace = true }

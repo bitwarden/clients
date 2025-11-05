@@ -202,7 +202,7 @@ fn run() -> Result<String> {
     Ok(encode_base64(&key))
 }
 
-pub async fn main() {
+pub(crate) async fn main() {
     init_logging();
 
     let mut client = match open_and_validate_pipe_server(ADMIN_TO_USER_PIPE_NAME).await {

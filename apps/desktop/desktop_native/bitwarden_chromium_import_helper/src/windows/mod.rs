@@ -4,4 +4,4 @@ mod impersonate;
 mod log;
 mod main;
 
-pub use main::main;
+pub(crate) use main::main;

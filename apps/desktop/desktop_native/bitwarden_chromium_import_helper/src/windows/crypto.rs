@@ -3,7 +3,6 @@ use anyhow::{anyhow, Result};
 use base64::{engine::general_purpose, Engine as _};
 use chacha20poly1305::ChaCha20Poly1305;
 use scopeguard::defer;
-use std::ptr;
 use tracing::debug;
 use windows::{
     core::w,
@@ -65,9 +64,10 @@ pub(crate) fn decrypt_with_dpapi_as_user(encrypted: &[u8], expect_appb: bool) ->
 }
 
 fn decrypt_with_dpapi(data: &[u8], expect_appb: bool) -> Result<Vec<u8>> {
-    if expect_appb && !data.starts_with(b"APPB") {
-        dbg_log!("Decoded data does not start with 'APPB'");
-        return Err(anyhow!("Decoded data does not start with 'APPB'"));
+    if expect_appb && (data.len() < 5 || !data.starts_with(b"APPB")) {
+        const ERR_MSG: &str = "Ciphertext is too short or does not start with 'APPB'";
+        dbg_log!("{}", ERR_MSG);
+        return Err(anyhow!(ERR_MSG));
     }
 
     let data = if expect_appb { &data[4..] } else { data };
@@ -77,10 +77,7 @@ fn decrypt_with_dpapi(data: &[u8], expect_appb: bool) -> Result<Vec<u8>> {
         pbData: data.as_ptr() as *mut u8,
     };
 
-    let mut out_blob = CRYPT_INTEGER_BLOB {
-        cbData: 0,
-        pbData: ptr::null_mut(),
-    };
+    let mut out_blob = CRYPT_INTEGER_BLOB::default();
 
     let result = unsafe {
         CryptUnprotectData(
