@@ -6,14 +6,16 @@ import { canAccessVaultTab } from "@bitwarden/common/admin-console/abstractions/
 import { organizationPermissionsGuard } from "../guards/org-permissions.guard";
 
 import { VaultComponent } from "./vault.component";
+
 const routes: Routes = [
   {
-    path: "",
-    component: VaultComponent,
-    canActivate: [organizationPermissionsGuard(canAccessVaultTab)],
     data: { titleId: "vaults" },
+    path: "",
+    canActivate: [organizationPermissionsGuard(canAccessVaultTab)],
+    component: VaultComponent,
   },
 ];
+
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, map } from "rxjs";
@@ -11,17 +9,36 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ImportCollectionServiceAbstraction } from "@bitwarden/importer-core";
-import { ImportComponent } from "@bitwarden/importer-ui";
+import { isId, OrganizationId } from "@bitwarden/common/types/guid";
+import {
+  DefaultImportMetadataService,
+  ImportCollectionServiceAbstraction,
+  ImportMetadataServiceAbstraction,
+} from "@bitwarden/importer-core";
+import {
+  ImportComponent,
+  ImporterProviders,
+  SYSTEM_SERVICE_PROVIDER,
+} from "@bitwarden/importer-ui";
+import { safeProvider } from "@bitwarden/ui-common";
 
-import { LooseComponentsModule, SharedModule } from "../../shared";
+import { HeaderModule } from "../../layouts/header/header.module";
+import { SharedModule } from "../../shared";
 
 import { ImportCollectionAdminService } from "./import-collection-admin.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "org-import.component.html",
-  imports: [SharedModule, ImportComponent, LooseComponentsModule],
+  imports: [SharedModule, ImportComponent, HeaderModule],
   providers: [
+    ...ImporterProviders,
+    safeProvider({
+      provide: ImportMetadataServiceAbstraction,
+      useClass: DefaultImportMetadataService,
+      deps: [SYSTEM_SERVICE_PROVIDER],
+    }),
     {
       provide: ImportCollectionServiceAbstraction,
       useClass: ImportCollectionAdminService,
@@ -30,7 +47,7 @@ import { ImportCollectionAdminService } from "./import-collection-admin.service"
   ],
 })
 export class OrgImportComponent implements OnInit {
-  protected routeOrgId: string = null;
+  protected routeOrgId: OrganizationId | undefined = undefined;
   protected loading = false;
   protected disabled = false;
 
@@ -42,7 +59,16 @@ export class OrgImportComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.routeOrgId = this.route.snapshot.paramMap.get("organizationId");
+    const orgIdParam = this.route.snapshot.paramMap.get("organizationId");
+    if (orgIdParam === undefined) {
+      throw new Error("`organizationId` is a required route parameter");
+    }
+
+    if (!isId<OrganizationId>(orgIdParam)) {
+      throw new Error("Invalid OrganizationId provided in route parameter `organizationId`");
+    }
+
+    this.routeOrgId = orgIdParam;
   }
 
   /**

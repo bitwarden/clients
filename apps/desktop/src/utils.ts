@@ -20,11 +20,7 @@ export function invokeMenu(menu: RendererMenuItem[]) {
 }
 
 export function isDev() {
-  // ref: https://github.com/sindresorhus/electron-is-dev
-  if ("ELECTRON_IS_DEV" in process.env) {
-    return parseInt(process.env.ELECTRON_IS_DEV, 10) === 1;
-  }
-  return process.defaultApp || /node_modules[\\/]electron[\\/]/.test(process.execPath);
+  return BIT_ENVIRONMENT === "development";
 }
 
 export function isLinux() {
@@ -57,7 +53,8 @@ export function isWindowsStore() {
   if (
     windows &&
     !windowsStore &&
-    process.resourcesPath?.indexOf("8bitSolutionsLLC.bitwardendesktop_") > -1
+    (process.resourcesPath?.indexOf("8bitSolutionsLLC.bitwardendesktop_") > -1 ||
+      process.resourcesPath?.indexOf("8bitSolutionsLLC.BitwardenBeta_") > -1)
   ) {
     windowsStore = true;
   }

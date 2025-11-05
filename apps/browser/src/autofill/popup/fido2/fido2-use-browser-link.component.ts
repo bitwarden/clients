@@ -1,8 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { animate, state, style, transition, trigger } from "@angular/animations";
-import { A11yModule } from "@angular/cdk/a11y";
-import { ConnectedPosition, CdkOverlayOrigin, CdkConnectedOverlay } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { firstValueFrom } from "rxjs";
@@ -13,70 +10,34 @@ import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { MenuModule } from "@bitwarden/components";
 
 import { fido2PopoutSessionData$ } from "../../../vault/popup/utils/fido2-popout-session-data";
 import { BrowserFido2UserInterfaceSession } from "../../fido2/services/browser-fido2-user-interface.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-fido2-use-browser-link",
   templateUrl: "fido2-use-browser-link.component.html",
-  imports: [A11yModule, CdkConnectedOverlay, CdkOverlayOrigin, CommonModule, JslibModule],
-  animations: [
-    trigger("transformPanel", [
-      state(
-        "void",
-        style({
-          opacity: 0,
-        }),
-      ),
-      transition(
-        "void => open",
-        animate(
-          "100ms linear",
-          style({
-            opacity: 1,
-          }),
-        ),
-      ),
-      transition("* => void", animate("100ms linear", style({ opacity: 0 }))),
-    ]),
-  ],
+  imports: [CommonModule, JslibModule, MenuModule],
 })
 export class Fido2UseBrowserLinkComponent {
   showOverlay = false;
-  isOpen = false;
-  overlayPosition: ConnectedPosition[] = [
-    {
-      originX: "start",
-      originY: "bottom",
-      overlayX: "start",
-      overlayY: "top",
-      offsetY: 5,
-    },
-  ];
 
   protected fido2PopoutSessionData$ = fido2PopoutSessionData$();
 
   constructor(
-    private domainSettingsService: DomainSettingsService,
-    private platformUtilsService: PlatformUtilsService,
-    private i18nService: I18nService,
+    private readonly domainSettingsService: DomainSettingsService,
+    private readonly platformUtilsService: PlatformUtilsService,
+    private readonly i18nService: I18nService,
   ) {}
-
-  toggle() {
-    this.isOpen = !this.isOpen;
-  }
-
-  close() {
-    this.isOpen = false;
-  }
 
   /**
    * Aborts the current FIDO2 session and fallsback to the browser.
    * @param excludeDomain - Identifies if the domain should be excluded from future FIDO2 prompts.
    */
   protected async abort(excludeDomain = true) {
-    this.close();
     const sessionData = await firstValueFrom(this.fido2PopoutSessionData$);
 
     if (!excludeDomain) {

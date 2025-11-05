@@ -12,6 +12,8 @@ import { I18nMockService } from "../utils/i18n-mock.service";
 import { NavGroupComponent } from "./nav-group.component";
 import { NavigationModule } from "./navigation.module";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "",
 })
@@ -39,6 +41,7 @@ export default {
               toggleCollapse: "toggle collapse",
               toggleSideNavigation: "Toggle side navigation",
               skipToContent: "Skip to content",
+              loading: "Loading",
             });
           },
         },
@@ -63,7 +66,6 @@ export default {
       type: "figma",
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-40145&t=b5tDKylm5sWm2yKo-4",
     },
-    chromatic: { viewports: [640, 1280] },
   },
 } as Meta;
 

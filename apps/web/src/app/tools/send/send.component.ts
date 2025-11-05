@@ -4,6 +4,7 @@ import { Component, NgZone, OnInit, OnDestroy } from "@angular/core";
 import { lastValueFrom } from "rxjs";
 
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
+import { NoSendsIcon } from "@bitwarden/assets/svg";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -26,7 +27,6 @@ import {
 } from "@bitwarden/components";
 import {
   DefaultSendFormConfigService,
-  NoSendsIcon,
   SendFormConfig,
   SendAddEditDialogComponent,
   SendItemDialogResult,
@@ -39,6 +39,8 @@ import { NewSendDropdownComponent } from "./new-send/new-send-dropdown.component
 
 const BroadcasterSubscriptionId = "SendComponent";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send",
   imports: [SharedModule, SearchModule, NoItemsModule, HeaderModule, NewSendDropdownComponent],

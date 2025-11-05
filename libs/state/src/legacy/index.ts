@@ -1,2 +1,1 @@
-export { StateService } from "./state.service";
-export { DefaultStateService } from "./default-state.service";
+export { StateService, RequiredUserId } from "./state.service";

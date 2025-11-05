@@ -34,14 +34,22 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { DialogService } from "@bitwarden/components";
+import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
 import { HeaderModule } from "../layouts/header/header.module";
 import { SharedModule } from "../shared";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-preferences",
   templateUrl: "preferences.component.html",
-  imports: [SharedModule, HeaderModule, VaultTimeoutInputComponent],
+  imports: [
+    SharedModule,
+    HeaderModule,
+    VaultTimeoutInputComponent,
+    PermitCipherDetailsPopoverComponent,
+  ],
 })
 export class PreferencesComponent implements OnInit, OnDestroy {
   // For use in template

@@ -22,6 +22,7 @@
         }"
         [attr.data-testid]="field.value.name + '-entry'"
         cdkDrag
+        [cdkDragDisabled]="!canEdit(field.value.type)"
         #customFieldRow
       >
         <!-- Text Field -->
@@ -93,6 +94,7 @@
           bitIconButton="bwi-pencil-square"
           class="tw-self-center tw-mt-2"
           data-testid="edit-custom-field-button"
+          [disabled]="parentFormDisabled"
           *ngIf="canEdit(field.value.type)"
         ></button>
 
@@ -104,7 +106,8 @@
           [label]="'reorderToggleButton' | i18n: field.value.name"
           (keydown)="handleKeyDown($event, field.value.name, i)"
           data-testid="reorder-toggle-button"
-          *ngIf="canEdit(field.value.type)"
+          [disabled]="parentFormDisabled"
+          *ngIf="canEdit(field.value.type) && fields.controls.length > 1"
         ></button>
       </div>
 
@@ -113,7 +116,8 @@
         bitLink
         linkType="primary"
         (click)="openAddEditCustomFieldDialog()"
-        *ngIf="!isPartialEdit"
+        data-testid="add-field-button"
+        *ngIf="!isPartialEdit && !parentFormDisabled"
       >
         <i class="bwi bwi-plus tw-font-bold" aria-hidden="true"></i>
         {{ "addField" | i18n }}

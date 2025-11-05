@@ -2,10 +2,13 @@ import { ChangeDetectorRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { mock } from "jest-mock-extended";
+import { Observable, of } from "rxjs";
 
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
@@ -23,6 +26,10 @@ describe("CipherFormComponent", () => {
 
   const decryptCipher = jest.fn().mockResolvedValue(new CipherView());
 
+  const mockAccountService = mock<AccountService>();
+  const mockCipherArchiveService = mock<CipherArchiveService>();
+  const mockAddEditFormService = { saveCipher: jest.fn(), decryptCipher };
+
   beforeEach(async () => {
     decryptCipher.mockClear();
 
@@ -32,13 +39,15 @@ describe("CipherFormComponent", () => {
         { provide: ChangeDetectorRef, useValue: {} },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: ToastService, useValue: { showToast: jest.fn() } },
-        { provide: CipherFormService, useValue: { saveCipher: jest.fn(), decryptCipher } },
+        { provide: CipherFormService, useValue: mockAddEditFormService },
         {
           provide: CipherFormCacheService,
           useValue: { init: jest.fn(), getCachedCipherView: jest.fn() },
         },
-        { provide: ViewCacheService, useValue: { signal: jest.fn(() => () => null) } },
+        { provide: ViewCacheService, useValue: { signal: jest.fn(() => (): any => null) } },
         { provide: ConfigService, useValue: mock<ConfigService>() },
+        { provide: AccountService, useValue: mockAccountService },
+        { provide: CipherArchiveService, useValue: mockCipherArchiveService },
       ],
     }).compileComponents();
   });
@@ -51,6 +60,29 @@ describe("CipherFormComponent", () => {
 
   it("should create the component", () => {
     expect(component).toBeTruthy();
+  });
+
+  describe("submit", () => {
+    beforeEach(() => {
+      component.config = { mode: "edit" } as CipherFormConfig;
+
+      component["updatedCipherView"] = new CipherView();
+      component["updatedCipherView"].archivedDate = new Date();
+    });
+
+    it("should remove archivedDate when user cannot archive and cipher is archived", async () => {
+      mockAccountService.activeAccount$ = of({ id: "user-id" }) as Observable<Account | null>;
+      mockCipherArchiveService.userCanArchive$.mockReturnValue(of(false));
+      mockAddEditFormService.saveCipher = jest.fn().mockResolvedValue(new CipherView());
+
+      const originalArchivedDate = component["updatedCipherView"]?.archivedDate;
+      expect(originalArchivedDate).not.toBeNull();
+
+      await component.submit();
+
+      expect(component["updatedCipherView"]?.archivedDate).toBeNull();
+      expect(mockCipherArchiveService.userCanArchive$).toHaveBeenCalledWith("user-id");
+    });
   });
 
   describe("website", () => {
@@ -120,6 +152,44 @@ describe("CipherFormComponent", () => {
       await component.ngOnInit();
 
       expect(component["updatedCipherView"]?.login.fido2Credentials).toBeNull();
+    });
+
+    it("clears archiveDate on updatedCipherView", async () => {
+      cipherView.archivedDate = new Date();
+      decryptCipher.mockResolvedValue(cipherView);
+
+      await component.ngOnInit();
+
+      expect(component["updatedCipherView"]?.archivedDate).toBeNull();
+    });
+  });
+
+  describe("enableFormFields", () => {
+    beforeEach(() => {
+      // disable the form so enabling occurs
+      component.disableFormFields();
+    });
+
+    it("only enables the form when it is disabled", () => {
+      jest.spyOn(component["cipherForm"], "enable");
+      component.enableFormFields();
+
+      expect(component["cipherForm"].enable).toHaveBeenCalled();
+
+      component.enableFormFields();
+      component.enableFormFields();
+
+      // enable is only called once
+      expect(component["cipherForm"].enable).toHaveBeenCalledTimes(1);
+    });
+
+    it("emits formStatusChange$", (done) => {
+      component.formStatusChange$.subscribe((status) => {
+        expect(status).toBe("enabled");
+        done();
+      });
+
+      component.enableFormFields();
     });
   });
 });

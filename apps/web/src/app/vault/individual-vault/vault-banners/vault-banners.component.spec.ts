@@ -8,6 +8,7 @@ import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -29,13 +30,13 @@ describe("VaultBannersComponent", () => {
   let messageSubject: Subject<{ command: string }>;
   const premiumBanner$ = new BehaviorSubject<boolean>(false);
   const pendingAuthRequest$ = new BehaviorSubject<boolean>(false);
+  const PM24996_ImplementUpgradeFromFreeDialogFlag$ = new BehaviorSubject<boolean>(false);
   const mockUserId = Utils.newGuid() as UserId;
 
   const bannerService = mock<VaultBannersService>({
     shouldShowPremiumBanner$: jest.fn((userId: UserId) => premiumBanner$),
     shouldShowUpdateBrowserBanner: jest.fn(),
     shouldShowVerifyEmailBanner: jest.fn(),
-    shouldShowLowKDFBanner: jest.fn(),
     shouldShowPendingAuthRequestBanner: jest.fn((userId: UserId) =>
       Promise.resolve(pendingAuthRequest$.value),
     ),
@@ -48,7 +49,6 @@ describe("VaultBannersComponent", () => {
     messageSubject = new Subject<{ command: string }>();
     bannerService.shouldShowUpdateBrowserBanner.mockResolvedValue(false);
     bannerService.shouldShowVerifyEmailBanner.mockResolvedValue(false);
-    bannerService.shouldShowLowKDFBanner.mockResolvedValue(false);
     pendingAuthRequest$.next(false);
     premiumBanner$.next(false);
 
@@ -90,7 +90,14 @@ describe("VaultBannersComponent", () => {
         },
         {
           provide: ConfigService,
-          useValue: mock<ConfigService>(),
+          useValue: mock<ConfigService>({
+            getFeatureFlag$: jest.fn((flag: FeatureFlag) => {
+              if (flag === FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog) {
+                return PM24996_ImplementUpgradeFromFreeDialogFlag$;
+              }
+              return new BehaviorSubject(false);
+            }),
+          }),
         },
       ],
     })
@@ -106,8 +113,14 @@ describe("VaultBannersComponent", () => {
   });
 
   describe("premiumBannerVisible$", () => {
-    it("shows premium banner", async () => {
+    beforeEach(() => {
+      // Reset feature flag to default (false) before each test
+      PM24996_ImplementUpgradeFromFreeDialogFlag$.next(false);
+    });
+
+    it("shows premium banner when shouldShowPremiumBanner is true and feature flag is off", async () => {
       premiumBanner$.next(true);
+      PM24996_ImplementUpgradeFromFreeDialogFlag$.next(false);
 
       fixture.detectChanges();
 
@@ -115,8 +128,29 @@ describe("VaultBannersComponent", () => {
       expect(banner.componentInstance.bannerType()).toBe("premium");
     });
 
-    it("dismisses premium banner", async () => {
+    it("hides premium banner when feature flag is enabled", async () => {
+      premiumBanner$.next(true);
+      PM24996_ImplementUpgradeFromFreeDialogFlag$.next(true);
+
+      fixture.detectChanges();
+
+      const banner = fixture.debugElement.query(By.directive(BannerComponent));
+      expect(banner).toBeNull();
+    });
+
+    it("dismisses premium banner when shouldShowPremiumBanner is false", async () => {
       premiumBanner$.next(false);
+      PM24996_ImplementUpgradeFromFreeDialogFlag$.next(false);
+
+      fixture.detectChanges();
+
+      const banner = fixture.debugElement.query(By.directive(BannerComponent));
+      expect(banner).toBeNull();
+    });
+
+    it("hides premium banner when both shouldShowPremiumBanner is false and feature flag is enabled", async () => {
+      premiumBanner$.next(false);
+      PM24996_ImplementUpgradeFromFreeDialogFlag$.next(true);
 
       fixture.detectChanges();
 
@@ -136,11 +170,6 @@ describe("VaultBannersComponent", () => {
         name: "VerifyEmail",
         method: bannerService.shouldShowVerifyEmailBanner,
         banner: VisibleVaultBanner.VerifyEmail,
-      },
-      {
-        name: "LowKDF",
-        method: bannerService.shouldShowLowKDFBanner,
-        banner: VisibleVaultBanner.KDFSettings,
       },
     ].forEach(({ name, method, banner }) => {
       describe(name, () => {

@@ -16,6 +16,13 @@ import { lastValueFrom, firstValueFrom } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import {
+  TwoFactorAuthAuthenticatorIcon,
+  TwoFactorAuthEmailIcon,
+  TwoFactorAuthWebAuthnIcon,
+  TwoFactorAuthSecurityKeyIcon,
+  TwoFactorAuthDuoIcon,
+} from "@bitwarden/assets/svg";
+import {
   LoginStrategyServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
   TrustedDeviceUserDecryptionOption,
@@ -31,6 +38,7 @@ import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-p
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -48,14 +56,6 @@ import {
   FormFieldModule,
   ToastService,
 } from "@bitwarden/components";
-
-import {
-  TwoFactorAuthAuthenticatorIcon,
-  TwoFactorAuthEmailIcon,
-  TwoFactorAuthWebAuthnIcon,
-  TwoFactorAuthSecurityKeyIcon,
-  TwoFactorAuthDuoIcon,
-} from "../icons/two-factor-auth";
 
 import { TwoFactorAuthAuthenticatorComponent } from "./child-components/two-factor-auth-authenticator/two-factor-auth-authenticator.component";
 import { TwoFactorAuthDuoComponent } from "./child-components/two-factor-auth-duo/two-factor-auth-duo.component";
@@ -75,6 +75,8 @@ import {
   TwoFactorOptionsDialogResult,
 } from "./two-factor-options.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-auth",
   templateUrl: "two-factor-auth.component.html",
@@ -99,6 +101,8 @@ import {
   ],
 })
 export class TwoFactorAuthComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("continueButton", { read: ElementRef, static: false }) continueButton:
     | ElementRef
     | undefined = undefined;
@@ -114,6 +118,8 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   twoFactorProviders: Map<TwoFactorProviderType, { [key: string]: string }> | null = null;
   selectedProviderData: { [key: string]: string } | undefined;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("duoComponent") duoComponent!: TwoFactorAuthDuoComponent;
 
   form = this.formBuilder.group({
@@ -167,6 +173,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private twoFactorAuthComponentCacheService: TwoFactorAuthComponentCacheService,
     private authService: AuthService,
+    private keyConnectorService: KeyConnectorService,
   ) {}
 
   async ngOnInit() {
@@ -454,6 +461,15 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
         this.orgSsoIdentifier,
         userId,
       );
+    }
+
+    if (
+      (await firstValueFrom(
+        this.keyConnectorService.requiresDomainConfirmation$(authResult.userId),
+      )) != null
+    ) {
+      await this.router.navigate(["confirm-key-connector-domain"]);
+      return;
     }
 
     const userDecryptionOpts = await firstValueFrom(

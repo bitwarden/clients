@@ -4,15 +4,22 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { combineLatest, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { NoResults, NoSendsIcon } from "@bitwarden/assets/svg";
+import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/vault/popup/services/browser-premium-upgrade-prompt.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { ButtonModule, CalloutModule, Icons, NoItemsModule } from "@bitwarden/components";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import {
+  ButtonModule,
+  CalloutModule,
+  NoItemsModule,
+  TypographyModule,
+} from "@bitwarden/components";
 import {
   NewSendDropdownComponent,
-  NoSendsIcon,
   SendItemsService,
   SendListFiltersComponent,
   SendListFiltersService,
@@ -32,8 +39,16 @@ export enum SendState {
   NoResults,
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "send-v2.component.html",
+  providers: [
+    {
+      provide: PremiumUpgradePromptService,
+      useClass: BrowserPremiumUpgradePromptService,
+    },
+  ],
   imports: [
     CalloutModule,
     PopupPageComponent,
@@ -48,6 +63,7 @@ export enum SendState {
     SendListItemsContainerComponent,
     SendListFiltersComponent,
     SendSearchComponent,
+    TypographyModule,
   ],
 })
 export class SendV2Component implements OnDestroy {
@@ -59,7 +75,7 @@ export class SendV2Component implements OnDestroy {
   protected sendsLoading$ = this.sendItemsService.loading$;
   protected title: string = "allSends";
   protected noItemIcon = NoSendsIcon;
-  protected noResultsIcon = Icons.NoResults;
+  protected noResultsIcon = NoResults;
 
   protected sendsDisabled = false;
 

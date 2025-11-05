@@ -8,6 +8,7 @@ import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-p
 import { EmailTokenRequest } from "@bitwarden/common/auth/models/request/email-token.request";
 import { EmailRequest } from "@bitwarden/common/auth/models/request/email.request";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -16,6 +17,8 @@ import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { SharedModule } from "../../../shared";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-change-email",
   templateUrl: "change-email.component.html",
@@ -37,6 +40,7 @@ export class ChangeEmailComponent implements OnInit {
   constructor(
     private accountService: AccountService,
     private apiService: ApiService,
+    private twoFactorApiService: TwoFactorApiService,
     private i18nService: I18nService,
     private keyService: KeyService,
     private messagingService: MessagingService,
@@ -48,7 +52,7 @@ export class ChangeEmailComponent implements OnInit {
   async ngOnInit() {
     this.userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
-    const twoFactorProviders = await this.apiService.getTwoFactorProviders();
+    const twoFactorProviders = await this.twoFactorApiService.getTwoFactorProviders();
     this.showTwoFactorEmailWarning = twoFactorProviders.data.some(
       (p) => p.type === TwoFactorProviderType.Email && p.enabled,
     );

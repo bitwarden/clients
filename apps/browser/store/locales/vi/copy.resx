@@ -127,46 +127,44 @@
     <value>Được công nhận là trình quản lý mật khẩu tốt nhất bởi PCMag, WIRED, The Verge, CNET, G2 và nhiều trang web khác! 
 
 BẢO VỆ CUỘC SỐNG SỐ CỦA BẠN 
-Bảo vệ cuộc sống số của bạn và ngăn chặn rò rỉ dữ liệu bằng cách tạo và lưu trữ mật khẩu duy nhất, mạnh mẽ cho mỗi tài khoản. Lưu trữ mọi thứ trong kho mật khẩu được mã hóa end-to-end mà chỉ bạn có thể truy cập.
+Bảo vệ cuộc sống số của bạn và ngăn chặn rò rỉ dữ liệu bằng cách tạo và lưu trữ mật khẩu mạnh, độc nhất cho từng tài khoản. Quản lý tất cả trong một kho mật khẩu được mã hóa đầu cuối mà chỉ bạn mới có quyền truy cập.
 
-TRUY CẬP DỮ LIỆU CỦA BẠN BẤT CỨ ĐÂU, BẤT CỨ KHI NÀO, TRÊN BẤT CỨ THIẾT BỊ NÀO
-Quản lý, lưu trữ, bảo vệ và chia sẻ mật khẩu không giới hạn trên mọi thiết bị mà không có bất kỳ hạn chế nào.
+TRUY CẬP DỮ LIỆU Ở BẤT CỨ ĐÂU, BẤT CỨ LÚC NÀO, TRÊN BẤT KỲ THIẾT BỊ NÀO
+Dễ dàng quản lý, lưu trữ, bảo mật và chia sẻ mật khẩu không giới hạn trên mọi thiết bị mà không có bất kỳ hạn chế nào.
 
 MỌI NGƯỜI ĐỀU NÊN CÓ CÔNG CỤ ĐỂ BẢO VỆ BẢN THÂN TRỰC TUYẾN
-Sử dụng Bitwarden miễn phí mà không có quảng cáo hoặc bán dữ liệu. Bitwarden tin rằng mọi người đều nên có khả năng bảo vệ an toàn khi trực tuyến. Các gói cao cấp cung cấp quyền truy cập vào các tính năng nâng cao.
+Sử dụng Bitwarden miễn phí, không quảng cáo, không bán dữ liệu. Bitwarden tin rằng mọi người đều xứng đáng được bảo vệ an toàn khi trực tuyến. Các gói cao cấp cung cấp quyền truy cập vào các tính năng nâng cao.
 
-TĂNG CƯỜNG KHẢ NĂNG CHO ĐỘI NGŨ CỦA BẠN VỚI BITWARDEN
-Các gói dành cho Đội ngũ và Doanh nghiệp đi kèm với các tính năng chuyên nghiệp cho doanh nghiệp. Một số ví dụ bao gồm tích hợp Đăng nhập một lần, tự lưu trữ, tích hợp danh bạ và cấp phép SCIM, chính sách toàn cầu, truy cập API, nhật ký sự kiện và nhiều hơn nữa.
+TRAO QUYỀN CHO ĐỘI NGŨ CỦA BẠN VỚI BITWARDEN
+Các gói dành cho Đội ngũ và Doanh nghiệp đi kèm với các tính năng chuyên nghiệp cho doanh nghiệp. Một số ví dụ bao gồm tích hợp Đăng nhập một lần, tự triển khai, tích hợp danh bạ và cấp phép SCIM, chính sách toàn cầu, truy cập API, nhật ký sự kiện và nhiều hơn nữa.
 
-Sử dụng Bitwarden để bảo vệ nhân viên của bạn và chia sẻ thông tin nhạy cảm với đồng nghiệp.
+Hãy dùng Bitwarden để bảo mật cho nhân viên và chia sẻ thông tin nhạy cảm với đồng nghiệp.
 
-
-Thêm những lý do để chọn Bitwarden:
+Thêm lý do để chọn Bitwarden:
 
 Mã hóa hàng đầu thế giới
-Mật khẩu được bảo vệ bằng mã hóa end-to-end tiên tiến (AES-256 bit, salted hashtag và PBKDF2 SHA-256) để dữ liệu của bạn luôn an toàn và riêng tư.
+Mật khẩu được bảo vệ bằng mã hóa đầu cuối tiên tiến (AES-256 bit, salted hashing và PBKDF2 SHA-256) giúp dữ liệu của bạn luôn an toàn và riêng tư.
 
 Kiểm toán bảo mật bởi bên thứ ba
-Bitwarden thường xuyên thực hiện các cuộc kiểm toán bảo mật toàn diện bởi các công ty bảo mật uy tín. Các cuộc kiểm toán hàng năm này bao gồm đánh giá mã nguồn và thử nghiệm xâm nhập trên các tài sản trí tuệ (IP), máy chủ và ứng dụng web của Bitwarden.
+Bitwarden thường xuyên thực hiện các cuộc kiểm toán bảo mật toàn diện bởi các công ty bảo mật hàng đầu. Các cuộc kiểm toán hàng năm này bao gồm đánh giá mã nguồn và thử nghiệm xâm nhập trên hệ thống IP, máy chủ và ứng dụng web của Bitwarden.
 
 Xác thực hai yếu tố (2FA) nâng cao
 Bảo vệ đăng nhập của bạn bằng ứng dụng xác thực bên thứ ba, mã xác thực qua email hoặc thông tin xác thực FIDO2 WebAuthn như khóa bảo mật phần cứng hoặc mã khóa.
 
 Bitwarden Send
-Chuyển dữ liệu trực tiếp cho người khác trong khi duy trì bảo mật mã hóa đầu cuối và hạn chế rủi ro lộ thông tin.
+Chuyển dữ liệu trực tiếp cho người khác trong khi vẫn duy trì bảo mật mã hóa đầu cuối và hạn chế rủi ro lộ thông tin.
 
-Trình tạo mật khẩu tích hợp
+Trình tạo tích hợp
 Tạo mật khẩu dài, phức tạp và duy nhất cùng tên người dùng riêng biệt cho mỗi trang web bạn truy cập. Tích hợp với các nhà cung cấp địa chỉ email ẩn danh để tăng cường bảo mật.
 
-Dịch thuật toàn cầu
+Bản dịch toàn cầu
 Bitwarden được bản địa hoa tới hơn 60 ngôn ngữ, được thực hiện bởi cộng đồng toàn cầu thông qua Crowdin.
 
 Ứng dụng đa nền tảng
-Bảo mật và chia sẻ dữ liệu nhạy cảm trong kho Bitwarden của bạn từ bất kỳ trình duyệt, thiết bị di động hoặc hệ điều hành máy tính nào và nhiều hơn nữa.
+Bảo mật và chia sẻ dữ liệu nhạy cảm trong kho Bitwarden của bạn từ bất kỳ trình duyệt, thiết bị di động hoặc hệ điều hành máy tính nào và hơn thế nữa.
 
 Bitwarden bảo mật hơn cả mật khẩu
-Giải pháp quản lý thông tin đăng nhập được mã hóa đầu cuối của Bitwarden giúp các tổ chức bảo mật mọi thứ, bao gồm bí mật của nhà phát triển và trải nghiệm khóa truy cập. Truy cập Bitwarden.com để tìm hiểu thêm về Trình bảo vệ Bí mật Bitwarden và Bitwarden Passwordless.dev!
-</value>
+Các giải pháp quản lý thông tin xác thực được mã hóa đầu cuối từ Bitwarden giúp các tổ chức bảo mật mọi thứ, bao gồm bí mật của nhà phát triển và trải nghiệm mã khóa. Truy cập Bitwarden.com để tìm hiểu thêm về Trình quản lý Bí mật Bitwarden và Bitwarden Passwordless.dev!</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
     <value>Ở nhà, ở cơ quan hay khi di chuyển, Bitwarden sẽ bảo vệ tất cả mật khẩu, mã khóa và thông tin cá nhân của bạn.</value>

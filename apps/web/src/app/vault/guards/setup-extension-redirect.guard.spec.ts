@@ -4,8 +4,6 @@ import { BehaviorSubject } from "rxjs";
 
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
 
@@ -27,26 +25,17 @@ describe("setupExtensionRedirectGuard", () => {
   const extensionInstalled$ = new BehaviorSubject<boolean>(false);
   const state$ = new BehaviorSubject<boolean>(false);
   const createUrlTree = jest.fn();
-  const getFeatureFlag = jest.fn().mockImplementation((key) => {
-    if (key === FeatureFlag.PM19315EndUserActivationMvp) {
-      return Promise.resolve(true);
-    }
-
-    return Promise.resolve(false);
-  });
   const getProfileCreationDate = jest.fn().mockResolvedValue(seventeenDaysAgo);
 
   beforeEach(() => {
     Utils.isMobileBrowser = false;
 
-    getFeatureFlag.mockClear();
     getProfileCreationDate.mockClear();
     createUrlTree.mockClear();
 
     TestBed.configureTestingModule({
       providers: [
         { provide: Router, useValue: { createUrlTree } },
-        { provide: ConfigService, useValue: { getFeatureFlag } },
         { provide: AccountService, useValue: { activeAccount$ } },
         { provide: StateProvider, useValue: { getUser: () => ({ state$ }) } },
         { provide: WebBrowserInteractionService, useValue: { extensionInstalled$ } },
@@ -81,12 +70,6 @@ describe("setupExtensionRedirectGuard", () => {
     expect(await setupExtensionGuard()).toBe(true);
   });
 
-  it("returns `true` when the feature flag is disabled", async () => {
-    getFeatureFlag.mockResolvedValueOnce(false);
-
-    expect(await setupExtensionGuard()).toBe(true);
-  });
-
   it("returns `true` when the user is on a mobile device", async () => {
     Utils.isMobileBrowser = true;
 
@@ -95,13 +78,6 @@ describe("setupExtensionRedirectGuard", () => {
 
   it("returns `true` when the user has dismissed the extension page", async () => {
     state$.next(true);
-
-    expect(await setupExtensionGuard()).toBe(true);
-  });
-
-  it("returns `true` when the user has the extension installed", async () => {
-    state$.next(false);
-    extensionInstalled$.next(true);
 
     expect(await setupExtensionGuard()).toBe(true);
   });

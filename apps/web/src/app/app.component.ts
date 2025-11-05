@@ -30,25 +30,11 @@ import { SearchService } from "@bitwarden/common/vault/abstractions/search.servi
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 
-import { PolicyListService } from "./admin-console/core/policy-list.service";
-import {
-  DisableSendPolicy,
-  MasterPasswordPolicy,
-  PasswordGeneratorPolicy,
-  OrganizationDataOwnershipPolicy,
-  vNextOrganizationDataOwnershipPolicy,
-  RequireSsoPolicy,
-  ResetPasswordPolicy,
-  SendOptionsPolicy,
-  SingleOrgPolicy,
-  TwoFactorAuthenticationPolicy,
-  RemoveUnlockWithPinPolicy,
-  RestrictedItemTypesPolicy,
-} from "./admin-console/organizations/policies";
-
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-root",
   templateUrl: "app.component.html",
@@ -79,7 +65,6 @@ export class AppComponent implements OnDestroy, OnInit {
     private serverNotificationsService: ServerNotificationsService,
     private stateService: StateService,
     private eventUploadService: EventUploadService,
-    protected policyListService: PolicyListService,
     protected configService: ConfigService,
     private dialogService: DialogService,
     private biometricStateService: BiometricStateService,
@@ -162,18 +147,6 @@ export class AppComponent implements OnDestroy, OnInit {
             }
             break;
           }
-          case "premiumRequired": {
-            const premiumConfirmed = await this.dialogService.openSimpleDialog({
-              title: { key: "premiumRequired" },
-              content: { key: "premiumRequiredDesc" },
-              acceptButtonText: { key: "upgrade" },
-              type: "success",
-            });
-            if (premiumConfirmed) {
-              await this.router.navigate(["settings/subscription/premium"]);
-            }
-            break;
-          }
           case "emailVerificationRequired": {
             const emailVerificationConfirmed = await this.dialogService.openSimpleDialog({
               title: { key: "emailVerificationRequired" },
@@ -238,21 +211,6 @@ export class AppComponent implements OnDestroy, OnInit {
         }
       });
     });
-
-    this.policyListService.addPolicies([
-      new TwoFactorAuthenticationPolicy(),
-      new MasterPasswordPolicy(),
-      new RemoveUnlockWithPinPolicy(),
-      new ResetPasswordPolicy(),
-      new PasswordGeneratorPolicy(),
-      new SingleOrgPolicy(),
-      new RequireSsoPolicy(),
-      new OrganizationDataOwnershipPolicy(),
-      new vNextOrganizationDataOwnershipPolicy(),
-      new DisableSendPolicy(),
-      new SendOptionsPolicy(),
-      new RestrictedItemTypesPolicy(),
-    ]);
   }
 
   ngOnDestroy() {

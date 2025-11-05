@@ -80,6 +80,12 @@ export class DefaultTaskService implements TaskService {
     );
   });
 
+  completedTasks$ = perUserCache$((userId) => {
+    return this.tasks$(userId).pipe(
+      map((tasks) => tasks.filter((t) => t.status === SecurityTaskStatus.Completed)),
+    );
+  });
+
   async refreshTasks(userId: UserId): Promise<void> {
     await this.fetchTasksFromApi(userId);
   }

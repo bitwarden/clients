@@ -1,3 +1,4 @@
+import { MemberDecryptionType } from "../../../auth/enums/sso";
 import { ProductTierType } from "../../../billing/enums";
 import { BaseResponse } from "../../../models/response/base.response";
 import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
@@ -22,6 +23,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
   useSecretsManager: boolean;
   usePasswordManager: boolean;
   useActivateAutofillPolicy: boolean;
+  useAutomaticUserConfirmation: boolean;
   selfHost: boolean;
   usersGetPremium: boolean;
   seats: number;
@@ -58,6 +60,8 @@ export class ProfileOrganizationResponse extends BaseResponse {
   useRiskInsights: boolean;
   useAdminSponsoredFamilies: boolean;
   isAdminInitiated: boolean;
+  ssoEnabled: boolean;
+  ssoMemberDecryptionType?: MemberDecryptionType;
 
   constructor(response: any) {
     super(response);
@@ -79,6 +83,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.useSecretsManager = this.getResponseProperty("UseSecretsManager");
     this.usePasswordManager = this.getResponseProperty("UsePasswordManager");
     this.useActivateAutofillPolicy = this.getResponseProperty("UseActivateAutofillPolicy");
+    this.useAutomaticUserConfirmation = this.getResponseProperty("UseAutomaticUserConfirmation");
     this.selfHost = this.getResponseProperty("SelfHost");
     this.usersGetPremium = this.getResponseProperty("UsersGetPremium");
     this.seats = this.getResponseProperty("Seats");
@@ -127,5 +132,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.useRiskInsights = this.getResponseProperty("UseRiskInsights");
     this.useAdminSponsoredFamilies = this.getResponseProperty("UseAdminSponsoredFamilies");
     this.isAdminInitiated = this.getResponseProperty("IsAdminInitiated");
+    this.ssoEnabled = this.getResponseProperty("SsoEnabled") ?? false;
+    this.ssoMemberDecryptionType = this.getResponseProperty("SsoMemberDecryptionType");
   }
 }

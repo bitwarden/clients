@@ -141,8 +141,24 @@ function buildRegisterContentScriptsPolyfill() {
     return [possibleArray];
   }
 
-  function arrayOrUndefined(value?: number) {
-    return value === undefined ? undefined : [value];
+  function createTarget(
+    tabId: number,
+    frameId: number | undefined,
+    allFrames: boolean,
+  ): chrome.scripting.InjectionTarget {
+    if (frameId === undefined) {
+      return {
+        tabId,
+        frameIds: undefined,
+        allFrames: allFrames,
+      };
+    } else {
+      return {
+        tabId,
+        frameIds: [frameId],
+        allFrames: undefined,
+      };
+    }
   }
 
   async function insertCSS(
@@ -170,15 +186,17 @@ function buildRegisterContentScriptsPolyfill() {
         }
 
         if (gotScripting) {
-          return chrome.scripting.insertCSS({
-            target: {
-              tabId,
-              frameIds: arrayOrUndefined(frameId),
-              allFrames: frameId === undefined ? allFrames : undefined,
-            },
-            files: "file" in content ? [content.file] : undefined,
-            css: "code" in content ? content.code : undefined,
-          });
+          if ("file" in content) {
+            return chrome.scripting.insertCSS({
+              target: createTarget(tabId, frameId, allFrames),
+              files: [content.file],
+            });
+          } else {
+            return chrome.scripting.insertCSS({
+              target: createTarget(tabId, frameId, allFrames),
+              css: content.code,
+            });
+          }
         }
 
         return chromeProxy.tabs.insertCSS(tabId, {
@@ -226,11 +244,7 @@ function buildRegisterContentScriptsPolyfill() {
     if (gotScripting) {
       assertNoCode(normalizedFiles);
       const injection = chrome.scripting.executeScript({
-        target: {
-          tabId,
-          frameIds: arrayOrUndefined(frameId),
-          allFrames: frameId === undefined ? allFrames : undefined,
-        },
+        target: createTarget(tabId, frameId, allFrames),
         files: normalizedFiles.map(({ file }: { file: string }) => file),
       });
 
@@ -397,7 +411,7 @@ function buildRegisterContentScriptsPolyfill() {
     };
     const tabListener = async (
       tabId: number,
-      { status }: chrome.tabs.TabChangeInfo,
+      { status }: chrome.tabs.OnUpdatedInfo,
       { url }: chrome.tabs.Tab,
     ) => {
       if (status === "loading" && url) {

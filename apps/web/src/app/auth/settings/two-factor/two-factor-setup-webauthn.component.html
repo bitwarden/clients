@@ -13,17 +13,14 @@
       >
         {{ "twoStepLoginProviderEnabled" | i18n }}
       </bit-callout>
-      <bit-callout type="warning">
-        <p bitTypography="body1">{{ "twoFactorWebAuthnWarning1" | i18n }}</p>
-      </bit-callout>
       <img class="tw-float-right tw-ml-5 mfaType7" alt="FIDO2 WebAuthn logo" />
       <ul class="bwi-ul">
         <li *ngFor="let k of keys; let i = index" #removeKeyBtn [appApiAction]="k.removePromise">
           <i class="bwi bwi-li bwi-key"></i>
-          <span *ngIf="!k.configured || !k.name" bitTypography="body1" class="tw-font-bold">
+          <span *ngIf="!k.configured || !k.name" bitTypography="body1" class="tw-font-medium">
             {{ "webAuthnkeyX" | i18n: (i + 1).toString() }}
           </span>
-          <span *ngIf="k.configured && k.name" bitTypography="body1" class="tw-font-bold">
+          <span *ngIf="k.configured && k.name" bitTypography="body1" class="tw-font-medium">
             {{ k.name }}
           </span>
           <ng-container *ngIf="k.configured && !$any(removeKeyBtn).loading">

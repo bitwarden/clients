@@ -3,7 +3,6 @@ import * as JSZip from "jszip";
 import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
@@ -13,7 +12,7 @@ import {
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-ids.export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CipherId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, emptyGuid, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -175,13 +174,12 @@ describe("VaultExportService", () => {
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
-  let accountService: MockProxy<AccountService>;
   let apiService: MockProxy<ApiService>;
   let restrictedSubject: BehaviorSubject<RestrictedCipherType[]>;
   let restrictedItemTypesService: Partial<RestrictedItemTypesService>;
   let fetchMock: jest.Mock;
 
-  const userId = "" as UserId;
+  const userId = emptyGuid as UserId;
 
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
@@ -191,7 +189,6 @@ describe("VaultExportService", () => {
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     kdfConfigService = mock<KdfConfigService>();
-    accountService = mock<AccountService>();
     apiService = mock<ApiService>();
 
     keyService.userKey$.mockReturnValue(new BehaviorSubject("mockOriginalUserKey" as any));
@@ -201,14 +198,6 @@ describe("VaultExportService", () => {
       isCipherRestricted: jest.fn().mockReturnValue(false),
       isCipherRestricted$: jest.fn().mockReturnValue(of(false)),
     };
-
-    const accountInfo: AccountInfo = {
-      email: "",
-      emailVerified: true,
-      name: undefined,
-    };
-    const activeAccount = { id: userId, ...accountInfo };
-    accountService.activeAccount$ = new BehaviorSubject(activeAccount);
 
     fetchMock = jest.fn().mockResolvedValue({});
     global.fetch = fetchMock;
@@ -236,7 +225,6 @@ describe("VaultExportService", () => {
       encryptService,
       cryptoFunctionService,
       kdfConfigService,
-      accountService,
       apiService,
       restrictedItemTypesService as RestrictedItemTypesService,
     );
@@ -245,7 +233,7 @@ describe("VaultExportService", () => {
   it("exports unencrypted user ciphers", async () => {
     cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews.slice(0, 1));
 
-    const actual = await exportService.getExport("json");
+    const actual = await exportService.getExport(userId, "json");
     expect(typeof actual.data).toBe("string");
     const exportedData = actual as ExportedVaultAsString;
     expectEqualCiphers(UserCipherViews.slice(0, 1), exportedData.data);
@@ -254,7 +242,7 @@ describe("VaultExportService", () => {
   it("exports encrypted json user ciphers", async () => {
     cipherService.getAll.mockResolvedValue(UserCipherDomains.slice(0, 1));
 
-    const actual = await exportService.getExport("encrypted_json");
+    const actual = await exportService.getExport(userId, "encrypted_json");
     expect(typeof actual.data).toBe("string");
     const exportedData = actual as ExportedVaultAsString;
     expectEqualCiphers(UserCipherDomains.slice(0, 1), exportedData.data);
@@ -263,7 +251,7 @@ describe("VaultExportService", () => {
   it("does not unencrypted export trashed user items", async () => {
     cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews);
 
-    const actual = await exportService.getExport("json");
+    const actual = await exportService.getExport(userId, "json");
     expect(typeof actual.data).toBe("string");
     const exportedData = actual as ExportedVaultAsString;
     expectEqualCiphers(UserCipherViews.slice(0, 2), exportedData.data);
@@ -272,7 +260,7 @@ describe("VaultExportService", () => {
   it("does not encrypted export trashed user items", async () => {
     cipherService.getAll.mockResolvedValue(UserCipherDomains);
 
-    const actual = await exportService.getExport("encrypted_json");
+    const actual = await exportService.getExport(userId, "encrypted_json");
     expect(typeof actual.data).toBe("string");
     const exportedData = actual as ExportedVaultAsString;
     expectEqualCiphers(UserCipherDomains.slice(0, 2), exportedData.data);
@@ -291,7 +279,7 @@ describe("VaultExportService", () => {
     const testCiphers = [UserCipherViews[0], cardCipher, UserCipherViews[1]];
     cipherService.getAllDecrypted.mockResolvedValue(testCiphers);
 
-    const actual = await exportService.getExport("json");
+    const actual = await exportService.getExport(userId, "json");
     expect(typeof actual.data).toBe("string");
     const exportedData = actual as ExportedVaultAsString;
 
@@ -311,7 +299,7 @@ describe("VaultExportService", () => {
     const testCiphers = [UserCipherDomains[0], cardCipher, UserCipherDomains[1]];
     cipherService.getAll.mockResolvedValue(testCiphers);
 
-    const actual = await exportService.getExport("encrypted_json");
+    const actual = await exportService.getExport(userId, "encrypted_json");
     expect(typeof actual.data).toBe("string");
     const exportedData = actual as ExportedVaultAsString;
 
@@ -323,7 +311,7 @@ describe("VaultExportService", () => {
       cipherService.getAllDecrypted.mockResolvedValue([]);
       folderService.getAllDecryptedFromState.mockResolvedValue([]);
 
-      const exportedVault = await exportService.getExport("zip");
+      const exportedVault = await exportService.getExport(userId, "zip");
 
       expect(exportedVault.type).toBe("application/zip");
       const exportZip = exportedVault as ExportedVaultAsBlob;
@@ -348,14 +336,14 @@ describe("VaultExportService", () => {
       cipherService.getAllDecrypted.mockResolvedValue([cipherView, orgCipherView]);
       folderService.getAllDecryptedFromState.mockResolvedValue([]);
 
-      const exportedVault = await exportService.getExport("zip");
+      const exportedVault = await exportService.getExport(userId, "zip");
 
       const zip = await JSZip.loadAsync(exportedVault.data);
       const data = await zip.file("data.json")?.async("string");
       const exportData: BitwardenJsonExport = JSON.parse(data);
       expect(exportData.items.length).toBe(1);
       expect(exportData.items[0].id).toBe("mock-id");
-      expect(exportData.items[0].organizationId).toBe(null);
+      expect(exportData.items[0].organizationId).toBeUndefined();
     });
 
     it.each([[400], [401], [404], [500]])(
@@ -380,7 +368,7 @@ describe("VaultExportService", () => {
         global.Request = jest.fn(() => {}) as any;
 
         await expect(async () => {
-          await exportService.getExport("zip");
+          await exportService.getExport(userId, "zip");
         }).rejects.toThrow("Error downloading attachment");
       },
     );
@@ -408,7 +396,7 @@ describe("VaultExportService", () => {
       global.Request = jest.fn(() => {}) as any;
 
       await expect(async () => {
-        await exportService.getExport("zip");
+        await exportService.getExport(userId, "zip");
       }).rejects.toThrow("Error decrypting attachment");
     });
 
@@ -434,7 +422,7 @@ describe("VaultExportService", () => {
       ) as any;
       global.Request = jest.fn(() => {}) as any;
 
-      const exportedVault = await exportService.getExport("zip");
+      const exportedVault = await exportService.getExport(userId, "zip");
 
       expect(exportedVault.type).toBe("application/zip");
       const exportZip = exportedVault as ExportedVaultAsBlob;
@@ -464,7 +452,7 @@ describe("VaultExportService", () => {
         jest.spyOn(Utils, "fromBufferToB64").mockReturnValue(salt);
         cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews.slice(0, 1));
 
-        exportedVault = await exportService.getPasswordProtectedExport(password);
+        exportedVault = await exportService.getPasswordProtectedExport(userId, password);
         exportString = exportedVault.data;
         exportObject = JSON.parse(exportString);
       });
@@ -491,7 +479,7 @@ describe("VaultExportService", () => {
 
       it("has a mac property", async () => {
         encryptService.encryptString.mockResolvedValue(mac);
-        exportedVault = await exportService.getPasswordProtectedExport(password);
+        exportedVault = await exportService.getPasswordProtectedExport(userId, password);
         exportString = exportedVault.data;
         exportObject = JSON.parse(exportString);
 
@@ -500,7 +488,7 @@ describe("VaultExportService", () => {
 
       it("has data property", async () => {
         encryptService.encryptString.mockResolvedValue(data);
-        exportedVault = await exportService.getPasswordProtectedExport(password);
+        exportedVault = await exportService.getPasswordProtectedExport(userId, password);
         exportString = exportedVault.data;
         exportObject = JSON.parse(exportString);
 
@@ -508,7 +496,7 @@ describe("VaultExportService", () => {
       });
 
       it("encrypts the data property", async () => {
-        const unEncryptedExportVault = await exportService.getExport();
+        const unEncryptedExportVault = await exportService.getExport(userId);
 
         const unEncryptedExportString = unEncryptedExportVault.data;
         expect(exportObject.data).not.toEqual(unEncryptedExportString);
@@ -520,7 +508,7 @@ describe("VaultExportService", () => {
     cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews.slice(0, 1));
     folderService.folderViews$.mockReturnValue(of(UserFolderViews));
 
-    const actual = await exportService.getExport("json");
+    const actual = await exportService.getExport(userId, "json");
 
     expect(typeof actual.data).toBe("string");
     const exportedData = actual as ExportedVaultAsString;
@@ -531,7 +519,7 @@ describe("VaultExportService", () => {
     cipherService.getAll.mockResolvedValue(UserCipherDomains.slice(0, 1));
     folderService.folders$.mockReturnValue(of(UserFolders));
 
-    const actual = await exportService.getExport("encrypted_json");
+    const actual = await exportService.getExport(userId, "encrypted_json");
 
     expect(typeof actual.data).toBe("string");
     const exportedData = actual as ExportedVaultAsString;

@@ -3,14 +3,9 @@
     <bit-tab-link [route]="(hasPremium$ | async) ? 'user-subscription' : 'premium'">{{
       "subscription" | i18n
     }}</bit-tab-link>
-    @let paymentMethodPageData = paymentDetailsPageData$ | async;
-    <bit-tab-link [route]="paymentMethodPageData.route">{{
-      paymentMethodPageData.textKey | i18n
-    }}</bit-tab-link>
+    <bit-tab-link route="payment-details">{{ "paymentDetails" | i18n }}</bit-tab-link>
     <bit-tab-link route="billing-history">{{ "billingHistory" | i18n }}</bit-tab-link>
   </bit-tab-nav-bar>
 </app-header>
 
-<bit-container>
-  <router-outlet></router-outlet>
-</bit-container>
+<router-outlet></router-outlet>

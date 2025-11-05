@@ -4,7 +4,7 @@ import { NgModule } from "@angular/core";
 // eslint-disable-next-line no-restricted-imports
 import { BannerModule } from "../../../../../../libs/components/src/banner/banner.module";
 import { UserVerificationModule } from "../../auth/shared/components/user-verification";
-import { LooseComponentsModule } from "../../shared";
+import { HeaderModule } from "../../layouts/header/header.module";
 import { BillingSharedModule } from "../shared";
 
 import { AdjustSubscription } from "./adjust-subscription.component";
@@ -17,7 +17,6 @@ import { OrganizationBillingRoutingModule } from "./organization-billing-routing
 import { OrganizationPlansComponent } from "./organization-plans.component";
 import { OrganizationSubscriptionCloudComponent } from "./organization-subscription-cloud.component";
 import { OrganizationSubscriptionSelfhostComponent } from "./organization-subscription-selfhost.component";
-import { OrganizationPaymentMethodComponent } from "./payment-method/organization-payment-method.component";
 import { SecretsManagerAdjustSubscriptionComponent } from "./sm-adjust-subscription.component";
 import { SecretsManagerSubscribeStandaloneComponent } from "./sm-subscribe-standalone.component";
 import { SubscriptionHiddenComponent } from "./subscription-hidden.component";
@@ -29,7 +28,7 @@ import { SubscriptionStatusComponent } from "./subscription-status.component";
     UserVerificationModule,
     BillingSharedModule,
     OrganizationPlansComponent,
-    LooseComponentsModule,
+    HeaderModule,
     BannerModule,
   ],
   declarations: [
@@ -45,7 +44,6 @@ import { SubscriptionStatusComponent } from "./subscription-status.component";
     SecretsManagerSubscribeStandaloneComponent,
     SubscriptionHiddenComponent,
     SubscriptionStatusComponent,
-    OrganizationPaymentMethodComponent,
   ],
 })
 export class OrganizationBillingModule {}

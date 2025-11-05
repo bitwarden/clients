@@ -23,9 +23,10 @@ import { IconModule } from "@bitwarden/components";
      [SVG Formatter Beautifier](https://codebeautify.org/svg-formatter-beautifier) to make applying
      classes easier.
 
-2. **Rename the file** as a `<name>.icon.ts` TypeScript file.
+2. **Rename the file** as a `<name>.icon.ts` TypeScript file and place it in the `libs/assets/svg`
+   lib.
 
-3. **Import** `svgIcon` from `@bitwarden/components`.
+3. **Import** `svgIcon` from `./icon-service`.
 
 4. **Define and export** a `const` to represent your `svgIcon`.
 
@@ -74,16 +75,19 @@ import { IconModule } from "@bitwarden/components";
    [viewBox](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/viewBox) attribute in order
    to allow the SVG to scale to fit its container.
    - **Note:** Scaling is required for any SVG used as an
-     [AnonLayout](?path=/docs/auth-anon-layout--docs) `pageIcon`.
+     [AnonLayout](?path=/docs/component-library-anon-layout--docs) `pageIcon`.
 
-7. **Import your SVG const** anywhere you want to use the SVG.
+7. **Replace any generic `clipPath` ids** (such as `id="a"`) with a unique id, and update the
+   referencing element to use the new id (such as `clip-path="url(#unique-id-here)"`).
+
+8. **Import your SVG const** anywhere you want to use the SVG.
    - **Angular Component Example:**
      - **TypeScript:**
 
        ```typescript
        import { Component } from "@angular/core";
-       import { ExampleIcon } from "your/path/here";
        import { IconModule } from '@bitwarden/components';
+       import { ExampleIcon, Example2Icon } from "@bitwarden/assets/svg";
 
        @Component({
          selector: "app-example",
@@ -112,5 +116,5 @@ import { IconModule } from "@bitwarden/components";
        <bit-icon [icon]="Icons.ExampleIcon" [ariaLabel]="Your custom label text here"></bit-icon>
        ```
 
-8. **Ensure your SVG renders properly** according to Figma in both light and dark modes on a client
+9. **Ensure your SVG renders properly** according to Figma in both light and dark modes on a client
    which supports multiple style modes.

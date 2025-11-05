@@ -1,19 +1,21 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
-import { Router } from "@angular/router";
 import { firstValueFrom, Observable, of, switchMap } from "rxjs";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { BadgeModule, ButtonModule, DialogService, MenuModule } from "@bitwarden/components";
+import { ButtonModule, DialogService, MenuModule } from "@bitwarden/components";
 import { DefaultSendFormConfigService, SendAddEditDialogComponent } from "@bitwarden/send-ui";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-new-send-dropdown",
   templateUrl: "new-send-dropdown.component.html",
-  imports: [JslibModule, CommonModule, ButtonModule, MenuModule, BadgeModule],
+  imports: [JslibModule, CommonModule, ButtonModule, MenuModule, PremiumBadgeComponent],
   providers: [DefaultSendFormConfigService],
 })
 /**
@@ -21,6 +23,8 @@ import { DefaultSendFormConfigService, SendAddEditDialogComponent } from "@bitwa
  */
 export class NewSendDropdownComponent {
   /** If true, the plus icon will be hidden */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() hideIcon: boolean = false;
 
   /** SendType provided for the markup to pass back the selected type of Send */
@@ -30,7 +34,6 @@ export class NewSendDropdownComponent {
   protected canAccessPremium$: Observable<boolean>;
 
   constructor(
-    private router: Router,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private accountService: AccountService,
     private dialogService: DialogService,
@@ -47,16 +50,16 @@ export class NewSendDropdownComponent {
 
   /**
    * Opens the SendAddEditComponent for a new Send with the provided type.
-   * If has user does not have premium access and the type is File, the user will be redirected to the premium settings page.
+   * If has user does not have premium access and the type is File do nothing the PremiumBadgeComponent will handle the flow.
    * @param type The type of Send to create.
    */
   async createSend(type: SendType) {
     if (!(await firstValueFrom(this.canAccessPremium$)) && type === SendType.File) {
-      return await this.router.navigate(["settings/subscription/premium"]);
+      return;
     }
 
     const formConfig = await this.addEditFormConfigService.buildConfig("add", undefined, type);
 
-    await SendAddEditDialogComponent.open(this.dialogService, { formConfig });
+    SendAddEditDialogComponent.open(this.dialogService, { formConfig });
   }
 }

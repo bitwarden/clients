@@ -1,0 +1,48 @@
+import { Meta, Canvas, Source, Primary, Controls, Title, Description } from "@storybook/addon-docs";
+
+import * as stories from "./tooltip.stories";
+
+<Meta of={stories} />
+
+```ts
+import { TooltipDirective } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+### Tooltip usage
+
+The `TooltipComponent` can't be used on its own. It must be applied via the `TooltipDirective`.
+
+The `IconButtonComponent` will automatically apply a tooltip based on the component's `label` input.
+
+#### Adding the tooltip to the host element's `aria-describedby` list
+
+The `addTooltipToDescribedby="true"` model input can be used to add the tooltip id to the list of
+the host element's `aria-describedby` element IDs.
+
+NOTE: This behavior is not always necessary and could be redundant if the host element's aria
+attributes already convey the same message as the tooltip. Use only when the tooltip is extra,
+non-essential contextual information.
+
+<Primary />
+<Controls />
+
+## Stories
+
+### All available positions
+
+<Canvas of={stories.AllPositions} />
+
+### Used with a long content
+
+<Canvas of={stories.LongContent} />
+
+### On disabled element
+
+<Canvas of={stories.OnDisabledButton} />
+
+### On a Button
+
+<Canvas of={stories.OnNonIconButton} />
