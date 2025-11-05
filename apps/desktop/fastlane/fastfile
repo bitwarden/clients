@@ -24,8 +24,10 @@ platform :mac do
       .map { |item| "• #{item.gsub(/\A(?:•|\u2022)\s*/, '')}" }
       .join("\n")
     
-    UI.message("Original changelog: #{changelog[0,100]}#{changelog.length > 100 ? '...' : ''}")
-    UI.message("Formatted changelog: #{formatted_changelog[0,100]}#{formatted_changelog.length > 100 ? '...' : ''}")
+    UI.message("Original changelog: ")
+    UI.message("#{changelog}")
+    UI.message("Formatted changelog: ")
+    UI.message("#{formatted_changelog}")
     
     # Create release notes directories and files for all locales
     APP_CONFIG[:locales].each do |locale|
