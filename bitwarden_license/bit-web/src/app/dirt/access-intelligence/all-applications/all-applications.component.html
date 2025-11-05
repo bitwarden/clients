@@ -2,7 +2,8 @@
   <dirt-risk-insights-loading></dirt-risk-insights-loading>
 } @else {
   @let drawerDetails = dataService.drawerDetails$ | async;
-  @if (!dataSource.data.length) {
+  @let hasCiphers = dataService.hasCiphers$ | async;
+  @if (!dataSource.data.length && !hasCiphers) {
     <div class="tw-mt-4">
       <bit-no-items [icon]="noItemsIcon" class="tw-text-main">
         <ng-container slot="title">
