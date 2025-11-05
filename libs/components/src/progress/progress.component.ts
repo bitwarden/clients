@@ -51,7 +51,7 @@ export class ProgressComponent {
       "tw-items-center",
       "tw-whitespace-nowrap",
       "tw-text-xs",
-      "tw-font-semibold",
+      "tw-font-medium",
       "tw-text-contrast",
       "tw-transition-all",
     ]
