@@ -108,7 +108,7 @@ jobs:
           artifacts: "apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-amd64.deb,
             apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-arm64.deb,
             apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-x86_64.rpm,
-            apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-arm64.rpm,
+            apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-aarch64.rpm,
             apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-x64.freebsd,
             apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-arm64.freebsd,
             apps/desktop/artifacts/bitwarden_${{ env.PKG_VERSION }}_amd64.snap,

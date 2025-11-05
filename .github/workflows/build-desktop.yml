@@ -479,6 +479,19 @@ jobs:
           path: apps/desktop/dist/bitwarden_desktop_arm64.tar.gz
           if-no-files-found: error
 
+      - name: Build flatpak
+        working-directory: apps/desktop
+        run: |
+          sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          sudo npm run pack:lin:flatpak
+
+      - name: Upload flatpak artifact
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: com.bitwarden.desktop-arm64.flatpak
+          path: apps/desktop/dist/com.bitwarden.desktop.flatpak
+          if-no-files-found: error
+
   windows:
     name: Windows Build
     runs-on: windows-2022
