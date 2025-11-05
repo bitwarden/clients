@@ -1,3 +1,14 @@
+import { Card } from "@bitwarden/common/vault/models/domain/card";
+import { Identity } from "@bitwarden/common/vault/models/domain/identity";
+import { Login } from "@bitwarden/common/vault/models/domain/login";
+import { SecureNote } from "@bitwarden/common/vault/models/domain/secure-note";
+import { SshKey } from "@bitwarden/common/vault/models/domain/ssh-key";
+import { CardView } from "@bitwarden/common/vault/models/view/card.view";
+import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
+import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
+import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
+
 import { EncString } from "../../key-management/crypto/models/enc-string";
 import { CipherRepromptType } from "../../vault/enums/cipher-reprompt-type";
 import { CipherType } from "../../vault/enums/cipher-type";
@@ -51,34 +62,21 @@ export class CipherExport {
 
     switch (req.type) {
       case CipherType.Login:
-        if (!req.login) {
-          break;
-        }
-        view.login = LoginExport.toView(req.login);
+        view.login = req.login ? LoginExport.toView(req.login) : new LoginView();
         break;
       case CipherType.SecureNote:
-        if (!req.secureNote) {
-          break;
-        }
-        view.secureNote = SecureNoteExport.toView(req.secureNote);
+        view.secureNote = req.secureNote
+          ? SecureNoteExport.toView(req.secureNote)
+          : new SecureNoteView();
         break;
       case CipherType.Card:
-        if (!req.card) {
-          break;
-        }
-        view.card = CardExport.toView(req.card);
+        view.card = req.card ? CardExport.toView(req.card) : new CardView();
         break;
       case CipherType.Identity:
-        if (!req.identity) {
-          break;
-        }
-        view.identity = IdentityExport.toView(req.identity);
+        view.identity = req.identity ? IdentityExport.toView(req.identity) : new IdentityView();
         break;
       case CipherType.SshKey:
-        if (!req.sshKey) {
-          break;
-        }
-        view.sshKey = SshKeyExport.toView(req.sshKey);
+        view.sshKey = req.sshKey ? SshKeyExport.toView(req.sshKey) : new SshKeyView();
         break;
     }
 
@@ -100,10 +98,10 @@ export class CipherExport {
       domain.organizationId = req.organizationId;
     }
     domain.name = new EncString(req.name ?? "");
-    domain.notes = new EncString(req.notes ?? "");
+    domain.notes = req.notes ? new EncString(req.notes) : undefined;
     domain.favorite = req.favorite;
     domain.reprompt = req.reprompt ?? CipherRepromptType.None;
-    domain.key = new EncString(req.key ?? "");
+    domain.key = req.key ? new EncString(req.key) : undefined;
 
     if (req.fields != null) {
       domain.fields = req.fields.map((f) => FieldExport.toDomain(f));
@@ -111,34 +109,21 @@ export class CipherExport {
 
     switch (req.type) {
       case CipherType.Login:
-        if (!req.login) {
-          break;
-        }
-        domain.login = LoginExport.toDomain(req.login);
+        domain.login = req.login ? LoginExport.toDomain(req.login) : new Login();
         break;
       case CipherType.SecureNote:
-        if (!req.secureNote) {
-          break;
-        }
-        domain.secureNote = SecureNoteExport.toDomain(req.secureNote);
+        domain.secureNote = req.secureNote
+          ? SecureNoteExport.toDomain(req.secureNote)
+          : new SecureNote();
         break;
       case CipherType.Card:
-        if (!req.card) {
-          break;
-        }
-        domain.card = CardExport.toDomain(req.card);
+        domain.card = req.card ? CardExport.toDomain(req.card) : new Card();
         break;
       case CipherType.Identity:
-        if (!req.identity) {
-          break;
-        }
-        domain.identity = IdentityExport.toDomain(req.identity);
+        domain.identity = req.identity ? IdentityExport.toDomain(req.identity) : new Identity();
         break;
       case CipherType.SshKey:
-        if (!req.sshKey) {
-          break;
-        }
-        domain.sshKey = SshKeyExport.toDomain(req.sshKey);
+        domain.sshKey = req.sshKey ? SshKeyExport.toDomain(req.sshKey) : new SshKey();
         break;
     }
 
