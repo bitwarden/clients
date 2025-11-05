@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
@@ -47,7 +45,7 @@ import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks
 export class CriticalApplicationsComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   protected enableRequestPasswordChange = false;
-  protected organizationId: OrganizationId;
+  protected organizationId: OrganizationId = "" as OrganizationId;
   noItemsIcon = Security;
 
   protected dataSource = new TableDataSource<
@@ -82,7 +80,7 @@ export class CriticalApplicationsComponent implements OnInit {
           }
           const reportWithCiphers = (report?.reportData ?? []).map((app) => ({
             ...app,
-            ciphers: ciphers.filter((cipher) => app.cipherIds.includes(cipher.id)),
+            ciphers: ciphers?.filter((cipher) => app.cipherIds.includes(cipher.id)) ?? [],
           }));
           return { ...report, reportData: reportWithCiphers };
         }),
@@ -93,7 +91,7 @@ export class CriticalApplicationsComponent implements OnInit {
           this.dataSource.data = criticalReport?.reportData ?? [];
           this.applicationSummary = criticalReport?.summaryData ?? createNewSummaryData();
           this.enableRequestPasswordChange =
-            criticalReport?.summaryData?.totalAtRiskMemberCount > 0;
+            (criticalReport?.summaryData?.totalAtRiskMemberCount ?? 0) > 0;
         },
         error: () => {
           this.dataSource.data = [];
