@@ -106,15 +106,11 @@ jobs:
           RELEASE_CHANNEL: ${{ steps.release_channel.outputs.channel }}
         with:
           artifacts: "apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-amd64.deb,
-            apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-arm64.deb,
             apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-x86_64.rpm,
-            apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-aarch64.rpm,
             apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-x64.freebsd,
-            apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-arm64.freebsd,
             apps/desktop/artifacts/bitwarden_${{ env.PKG_VERSION }}_amd64.snap,
             apps/desktop/artifacts/bitwarden_${{ env.PKG_VERSION }}_arm64.snap,
             apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-x86_64.AppImage,
-            apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-arm64.AppImage,
             apps/desktop/artifacts/Bitwarden-Portable-${{ env.PKG_VERSION }}.exe,
             apps/desktop/artifacts/Bitwarden-Installer-${{ env.PKG_VERSION }}.exe,
             apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-ia32-store.appx,

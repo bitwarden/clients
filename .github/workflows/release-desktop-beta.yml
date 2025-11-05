@@ -250,34 +250,6 @@ jobs:
       - name: Build application
         run: npm run dist:lin:arm64
 
-      - name: Upload .deb artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
-        with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.deb
-          path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.deb
-          if-no-files-found: error
-
-      - name: Upload .rpm artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
-        with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-aarch64.rpm
-          path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-aarch64.rpm
-          if-no-files-found: error
-
-      - name: Upload .freebsd artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
-        with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.freebsd
-          path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.freebsd
-          if-no-files-found: error
-
-      - name: Upload .AppImage artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
-        with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.AppImage
-          path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.AppImage
-          if-no-files-found: error
-
       - name: Upload .snap artifact
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
