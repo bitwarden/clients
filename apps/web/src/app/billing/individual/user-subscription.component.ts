@@ -8,6 +8,8 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { SubscriptionResponse } from "@bitwarden/common/billing/models/response/subscription.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -42,6 +44,10 @@ export class UserSubscriptionComponent implements OnInit {
   cancelPromise: Promise<any>;
   reinstatePromise: Promise<any>;
 
+  protected enableDiscountDisplay$ = this.configService.getFeatureFlag$(
+    FeatureFlag.Milestone_2_flag,
+  );
+
   constructor(
     private apiService: ApiService,
     private platformUtilsService: PlatformUtilsService,
@@ -54,6 +60,7 @@ export class UserSubscriptionComponent implements OnInit {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
     private accountService: AccountService,
+    private configService: ConfigService,
   ) {
     this.selfHosted = this.platformUtilsService.isSelfHost();
   }
@@ -185,6 +192,45 @@ export class UserSubscriptionComponent implements OnInit {
 
   get nextInvoice() {
     return this.sub != null ? this.sub.upcomingInvoice : null;
+  }
+
+  get subscriptionAmount(): number {
+    if (!this.subscription?.items || this.subscription.items.length === 0) {
+      return 0;
+    }
+
+    return this.subscription.items.reduce(
+      (sum, item) => sum + (item.amount || 0) * (item.quantity || 0),
+      0,
+    );
+  }
+
+  get discountedSubscriptionAmount(): number {
+    const baseAmount = this.subscriptionAmount;
+
+    if (baseAmount === 0) {
+      return this.nextInvoice?.amount ?? 0;
+    }
+
+    const discount = this.sub?.customerDiscount;
+
+    if (!discount || !discount.active) {
+      return baseAmount;
+    }
+
+    if (discount.percentOff != null && discount.percentOff > 0) {
+      const percentValue =
+        discount.percentOff < 1 ? discount.percentOff * 100 : discount.percentOff;
+      const discountAmount = baseAmount * (percentValue / 100);
+      return baseAmount - discountAmount;
+    }
+
+    if (discount.amountOff != null && discount.amountOff > 0) {
+      const discountedAmount = baseAmount - discount.amountOff;
+      return Math.max(0, discountedAmount);
+    }
+
+    return baseAmount;
   }
 
   get storagePercentage() {

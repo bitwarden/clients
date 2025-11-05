@@ -3202,8 +3202,17 @@
   "nextCharge": {
     "message": "Next charge"
   },
+  "nextChargeHeader": {
+    "message": "Next Charge"
+  },
+   "plan": {
+    "message": "Plan"
+  },
   "details": {
     "message": "Details"
+  },
+  "discount": {
+    "message": "discount"
   },
   "downloadLicense": {
     "message": "Download license"

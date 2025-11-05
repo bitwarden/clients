@@ -30,6 +30,7 @@ export enum FeatureFlag {
   PM24996_ImplementUpgradeFromFreeDialog = "pm-24996-implement-upgrade-from-free-dialog",
   PM24033PremiumUpgradeNewDesign = "pm-24033-updat-premium-subscription-page",
   PM26793_FetchPremiumPriceFromPricingService = "pm-26793-fetch-premium-price-from-pricing-service",
+  Milestone_2_flag = "milestone-2-flag",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -117,6 +118,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog]: FALSE,
   [FeatureFlag.PM24033PremiumUpgradeNewDesign]: FALSE,
   [FeatureFlag.PM26793_FetchPremiumPriceFromPricingService]: FALSE,
+  [FeatureFlag.Milestone_2_flag]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,

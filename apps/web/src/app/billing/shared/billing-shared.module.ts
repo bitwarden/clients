@@ -11,6 +11,7 @@ import { SharedModule } from "../../shared";
 
 import { AdjustStorageDialogComponent } from "./adjust-storage-dialog/adjust-storage-dialog.component";
 import { BillingHistoryComponent } from "./billing-history.component";
+import { DiscountBadgeComponent } from "./discount-badge/discount-badge.component";
 import { OffboardingSurveyComponent } from "./offboarding-survey.component";
 import { PlanCardComponent } from "./plan-card/plan-card.component";
 import { PricingSummaryComponent } from "./pricing-summary/pricing-summary.component";
@@ -41,6 +42,7 @@ import { UpdateLicenseComponent } from "./update-license.component";
     TrialPaymentDialogComponent,
     PlanCardComponent,
     PricingSummaryComponent,
+    DiscountBadgeComponent,
   ],
   exports: [
     SharedModule,
@@ -51,6 +53,7 @@ import { UpdateLicenseComponent } from "./update-license.component";
     OffboardingSurveyComponent,
     IndividualSelfHostingLicenseUploaderComponent,
     OrganizationSelfHostingLicenseUploaderComponent,
+    DiscountBadgeComponent,
   ],
 })
 export class BillingSharedModule {}

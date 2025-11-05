@@ -8,6 +8,7 @@ export class SubscriptionResponse extends BaseResponse {
   maxStorageGb: number;
   subscription: BillingSubscriptionResponse;
   upcomingInvoice: BillingSubscriptionUpcomingInvoiceResponse;
+  customerDiscount: BillingCustomerDiscountResponse;
   license: any;
   expiration: string;
 
@@ -20,11 +21,14 @@ export class SubscriptionResponse extends BaseResponse {
     this.expiration = this.getResponseProperty("Expiration");
     const subscription = this.getResponseProperty("Subscription");
     const upcomingInvoice = this.getResponseProperty("UpcomingInvoice");
+    const customerDiscount = this.getResponseProperty("CustomerDiscount");
     this.subscription = subscription == null ? null : new BillingSubscriptionResponse(subscription);
     this.upcomingInvoice =
       upcomingInvoice == null
         ? null
         : new BillingSubscriptionUpcomingInvoiceResponse(upcomingInvoice);
+    this.customerDiscount =
+      customerDiscount == null ? null : new BillingCustomerDiscountResponse(customerDiscount);
   }
 }
 
@@ -94,5 +98,22 @@ export class BillingSubscriptionUpcomingInvoiceResponse extends BaseResponse {
     super(response);
     this.date = this.getResponseProperty("Date");
     this.amount = this.getResponseProperty("Amount");
+  }
+}
+
+export class BillingCustomerDiscountResponse extends BaseResponse {
+  id: string;
+  active: boolean;
+  percentOff?: number;
+  amountOff?: number;
+  appliesTo: string[];
+
+  constructor(response: any) {
+    super(response);
+    this.id = this.getResponseProperty("Id");
+    this.active = this.getResponseProperty("Active");
+    this.percentOff = this.getResponseProperty("PercentOff");
+    this.amountOff = this.getResponseProperty("AmountOff");
+    this.appliesTo = this.getResponseProperty("AppliesTo") || [];
   }
 }
