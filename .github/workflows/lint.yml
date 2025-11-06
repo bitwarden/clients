@@ -98,12 +98,27 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@6d653acede28d24f02e3cd41383119e8b1b35921
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+
+      - name: Install Rust nightly
+        uses: dtolnay/rust-toolchain@6d653acede28d24f02e3cd41383119e8b1b35921
+        with:
+          toolchain: nightly
+          components: rustfmt
+
       - name: Check Rust version
         run: rustup --version
 
+      - name: Cache cargo registry
+        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+
       - name: Run cargo fmt
         working-directory: ./apps/desktop/desktop_native
-        run: cargo fmt --check
+        run: cargo +nightly fmt --check
 
       - name: Run Clippy
         working-directory: ./apps/desktop/desktop_native
@@ -117,6 +132,13 @@ jobs:
       - name: Cargo sort
         working-directory: ./apps/desktop/desktop_native
         run: cargo sort --workspace --check
+
+      - name: Install cargo-udeps
+        run: cargo install cargo-udeps --version 0.1.57 --locked
+
+      - name: Cargo udeps
+        working-directory: ./apps/desktop/desktop_native
+        run: cargo +nightly udeps --workspace --all-features
 
       - name: Install cargo-deny
         uses: taiki-e/install-action@81ee1d48d9194cdcab880cbdc7d36e87d39874cb # v2.62.45
