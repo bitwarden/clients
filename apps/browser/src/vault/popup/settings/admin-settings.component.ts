@@ -4,13 +4,10 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom, lastValueFrom, Observable, switchMap, withLatestFrom } from "rxjs";
 
-import {
-  AutoConfirmState,
-  AutomaticUserConfirmationService,
-} from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
+import { AutoConfirmState, AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
@@ -23,7 +20,7 @@ import {
   DialogRef,
   DialogService,
   FormFieldModule,
-  SwitchModule,
+  SwitchComponent,
 } from "@bitwarden/components";
 import { UserId } from "@bitwarden/user-core";
 
@@ -38,7 +35,7 @@ import { UserId } from "@bitwarden/user-core";
     PopOutComponent,
     FormFieldModule,
     ReactiveFormsModule,
-    SwitchModule,
+    SwitchComponent,
     CardComponent,
     SpotlightComponent,
   ],

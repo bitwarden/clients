@@ -1,8 +1,7 @@
 import { inject, Injectable } from "@angular/core";
 import { combineLatest, Observable, of, switchMap } from "rxjs";
 
-// eslint-disable-next-line no-restricted-imports
-import { AutomaticUserConfirmationService } from "@bitwarden/admin-console/common";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { UserId } from "@bitwarden/user-core";
 
 import { DefaultSingleNudgeService } from "../default-single-nudge.service";

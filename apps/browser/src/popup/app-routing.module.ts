@@ -1,7 +1,6 @@
 import { Injectable, NgModule } from "@angular/core";
 import { ActivatedRouteSnapshot, RouteReuseStrategy, RouterModule, Routes } from "@angular/router";
 
-import { canAccessAutoConfirmSettings } from "@bitwarden/angular/admin-console/guards";
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
 import { AuthRoute } from "@bitwarden/angular/auth/constants";
 import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/environment-selector/environment-selector.component";
@@ -43,6 +42,7 @@ import {
   TwoFactorAuthComponent,
   TwoFactorAuthGuard,
 } from "@bitwarden/auth/angular";
+import { canAccessAutoConfirmSettings } from "@bitwarden/auto-confirm";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { LockComponent, ConfirmKeyConnectorDomainComponent } from "@bitwarden/key-management-ui";
 

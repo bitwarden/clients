@@ -1,5 +1,9 @@
 import { combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
+import {
+  OrganizationUserApiService,
+  OrganizationUserService,
+} from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -9,7 +13,6 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/state";
 import { UserId } from "@bitwarden/user-core";
 
-import { OrganizationUserApiService, OrganizationUserService } from "../../organization-user";
 import { AutomaticUserConfirmationService } from "../abstractions/auto-confirm.service.abstraction";
 import { AUTO_CONFIRM_STATE, AutoConfirmState } from "../models/auto-confirm-state.model";
 

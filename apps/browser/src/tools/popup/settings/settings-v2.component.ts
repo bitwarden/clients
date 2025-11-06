@@ -11,9 +11,9 @@ import {
   switchMap,
 } from "rxjs";
 
-import { AutomaticUserConfirmationService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { UserId } from "@bitwarden/common/types/guid";

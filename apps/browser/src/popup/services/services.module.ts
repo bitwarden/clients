@@ -4,9 +4,7 @@ import { APP_INITIALIZER, NgModule, NgZone } from "@angular/core";
 import { merge, of, Subject } from "rxjs";
 
 import {
-  AutomaticUserConfirmationService,
   CollectionService,
-  DefaultAutomaticUserConfirmationService,
   OrganizationUserApiService,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
@@ -43,6 +41,10 @@ import {
   SsoUrlService,
   LogoutService,
 } from "@bitwarden/auth/common";
+import {
+  AutomaticUserConfirmationService,
+  DefaultAutomaticUserConfirmationService,
+} from "@bitwarden/auto-confirm";
 import { ExtensionNewDeviceVerificationComponentService } from "@bitwarden/browser/auth/services/new-device-verification/extension-new-device-verification-component.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
