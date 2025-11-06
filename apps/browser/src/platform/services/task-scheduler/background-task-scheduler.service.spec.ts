@@ -5,7 +5,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
 import { GlobalState, StateProvider } from "@bitwarden/common/platform/state";
 
-import { createPortSpyMock } from "../../../autofill/spec/autofill-mocks";
+import {
+  createInternalPortSpyMock,
+  createPortSpyMock,
+} from "../../../autofill/spec/autofill-mocks";
 import {
   flushPromises,
   sendPortMessage,
@@ -35,7 +38,7 @@ describe("BackgroundTaskSchedulerService", () => {
     stateProvider = mock<StateProvider>({
       getGlobal: jest.fn(() => globalStateMock),
     });
-    portMock = createPortSpyMock(BrowserTaskSchedulerPortName);
+    portMock = createInternalPortSpyMock(BrowserTaskSchedulerPortName);
     backgroundTaskSchedulerService = new BackgroundTaskSchedulerService(logService, stateProvider);
     jest.spyOn(globalThis, "setTimeout");
   });
