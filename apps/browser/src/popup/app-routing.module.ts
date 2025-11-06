@@ -55,7 +55,6 @@ import { AutofillComponent } from "../autofill/popup/settings/autofill.component
 import { BlockedDomainsComponent } from "../autofill/popup/settings/blocked-domains.component";
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
-import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
 import { PhishingWarning } from "../dirt/phishing-detection/pages/phishing-warning.component";
 import { ProtectedByComponent } from "../dirt/phishing-detection/pages/protected-by-component";
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
@@ -301,12 +300,6 @@ const routes: Routes = [
     component: ExcludedDomainsComponent,
     canActivate: [authGuard],
     data: { elevation: 2 } satisfies RouteDataProperties,
-  },
-  {
-    path: "premium",
-    component: PremiumV2Component,
-    canActivate: [authGuard],
-    data: { elevation: 3 } satisfies RouteDataProperties,
   },
   {
     path: "appearance",
