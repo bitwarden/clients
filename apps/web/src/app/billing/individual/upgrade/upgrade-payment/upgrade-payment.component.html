@@ -1,6 +1,6 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
   <bit-dialog dialogSize="large" [loading]="loading()">
-    <span bitDialogTitle class="tw-font-semibold">{{ upgradeToMessage }}</span>
+    <span bitDialogTitle class="tw-font-medium">{{ upgradeToMessage }}</span>
     <ng-container bitDialogContent>
       <section>
         @if (isFamiliesPlan) {

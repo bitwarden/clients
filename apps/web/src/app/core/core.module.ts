@@ -14,6 +14,7 @@ import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
+import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   CLIENT_TYPE,
@@ -79,6 +80,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
+import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 // eslint-disable-next-line no-restricted-imports -- Needed for DI
 import {
@@ -129,6 +131,7 @@ import {
   WebSetInitialPasswordService,
 } from "../auth";
 import { WebSsoComponentService } from "../auth/core/services/login/web-sso-component.service";
+import { WebPremiumInterestStateService } from "../billing/services/premium-interest/web-premium-interest-state.service";
 import { HtmlStorageService } from "../core/html-storage.service";
 import { I18nService } from "../core/i18n.service";
 import { WebFileDownloadService } from "../core/web-file-download.service";
@@ -141,6 +144,7 @@ import { WebEnvironmentService } from "../platform/web-environment.service";
 import { WebMigrationRunner } from "../platform/web-migration-runner";
 import { WebSdkLoadService } from "../platform/web-sdk-load.service";
 import { WebStorageServiceProvider } from "../platform/web-storage-service.provider";
+import { WebSystemService } from "../platform/web-system.service";
 
 import { EventService } from "./event.service";
 import { InitService } from "./init.service";
@@ -420,6 +424,16 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsService,
       Router,
     ],
+  }),
+  safeProvider({
+    provide: PremiumInterestStateService,
+    useClass: WebPremiumInterestStateService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: SystemService,
+    useClass: WebSystemService,
+    deps: [],
   }),
 ];
 
