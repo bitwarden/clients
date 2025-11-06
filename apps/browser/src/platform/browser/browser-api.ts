@@ -71,7 +71,7 @@ export class BrowserApi {
     }
 
     // We only send messages from the top-level frame, but frameId is only set if tab is set, which for popups it is not.
-    if ("frameId" in sender && sender.frameId != 0) {
+    if ("frameId" in sender && sender.frameId !== 0) {
       logger?.warning("[BrowserApi] Message sender is not from the top-level frame");
       return false;
     }
