@@ -230,3 +230,4 @@ libs/pricing @bitwarden/team-billing-dev
 .claude/ @bitwarden/team-ai-sme
 .github/workflows/respond.yml @bitwarden/team-ai-sme
 .github/workflows/review-code.yml @bitwarden/team-ai-sme
+libs/auto-confirm @bitwarden/team-admin-console-dev
