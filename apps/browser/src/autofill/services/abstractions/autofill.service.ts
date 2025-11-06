@@ -62,28 +62,38 @@ export const COLLECT_PAGE_DETAILS_RESPONSE_COMMAND =
   );
 
 export abstract class AutofillService {
+  /** Non-null asserted. */
   collectPageDetailsFromTab$!: (tab: chrome.tabs.Tab) => Observable<PageDetail[]>;
+  /** Non-null asserted. */
   loadAutofillScriptsOnInstall!: () => Promise<void>;
+  /** Non-null asserted. */
   reloadAutofillScripts!: () => Promise<void>;
+  /** Non-null asserted. */
   injectAutofillScripts!: (
     tab: chrome.tabs.Tab,
     frameId?: number,
     triggeringOnPageLoad?: boolean,
   ) => Promise<void>;
+  /** Non-null asserted. */
   getFormsWithPasswordFields!: (pageDetails: AutofillPageDetails) => FormData[];
+  /** Non-null asserted. */
   doAutoFill!: (options: AutoFillOptions) => Promise<string | null>;
+  /** Non-null asserted. */
   doAutoFillOnTab!: (
     pageDetails: PageDetail[],
     tab: chrome.tabs.Tab,
     fromCommand: boolean,
     autoSubmitLogin?: boolean,
   ) => Promise<string | null>;
+  /** Non-null asserted. */
   doAutoFillActiveTab!: (
     pageDetails: PageDetail[],
     fromCommand: boolean,
     cipherType?: CipherType,
   ) => Promise<string | null>;
+  /** Non-null asserted. */
   setAutoFillOnPageLoadOrgPolicy!: () => Promise<void>;
+  /** Non-null asserted. */
   isPasswordRepromptRequired!: (
     cipher: CipherView,
     tab: chrome.tabs.Tab,

@@ -22,8 +22,12 @@ export type AutofillInsertActions = {
 export default class AutofillScript {
   script: FillScript[] = [];
   properties: AutofillScriptProperties = {};
+  /** Non-null asserted. */
   autosubmit!: string[] | null; // Appears to be unused, read but not written
+  /** Non-null asserted. */
   savedUrls!: string[];
+  /** Non-null asserted. */
   untrustedIframe!: boolean;
+  /** Non-null asserted. */
   itemType!: string; // Appears to be unused, read but not written
 }

@@ -12,7 +12,9 @@ export class AutofillInlineMenuContainer {
   private readonly setElementStyles = setElementStyles;
   private readonly extensionOriginsSet: Set<string>;
   private port: chrome.runtime.Port | null = null;
+  /** Non-null asserted. */
   private portName!: string;
+  /** Non-null asserted. */
   private inlineMenuPageIframe!: HTMLIFrameElement;
   private readonly iframeStyles: Partial<CSSStyleDeclaration> = {
     all: "initial",

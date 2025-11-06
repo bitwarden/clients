@@ -5,6 +5,7 @@ import { nodeIsElement } from "../utils";
 import { DomQueryService as DomQueryServiceInterface } from "./abstractions/dom-query.service";
 
 export class DomQueryService implements DomQueryServiceInterface {
+  /** Non-null asserted. */
   private pageContainsShadowDom!: boolean;
   private ignoredTreeWalkerNodes = new Set([
     "svg",

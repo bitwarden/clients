@@ -8,9 +8,13 @@ import {
 
 export class AutofillInlineMenuPageElement extends HTMLElement {
   protected shadowDom: ShadowRoot;
+  /** Non-null asserted. */
   protected messageOrigin!: string;
+  /** Non-null asserted. */
   protected translations!: Record<string, string>;
+  /** Non-null asserted. */
   private portKey!: string;
+  /** Non-null asserted. */
   protected windowMessageHandlers!: AutofillInlineMenuPageElementWindowMessageHandlers;
 
   constructor() {
