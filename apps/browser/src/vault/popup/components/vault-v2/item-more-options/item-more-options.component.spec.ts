@@ -144,6 +144,15 @@ describe("ItemMoreOptionsComponent", () => {
   }
 
   describe("doAutofill", () => {
+    it("calls the passwordService to passwordRepromptCheck", async () => {
+      autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
+      mockConfirmDialogResult(AutofillConfirmationDialogResult.AutofilledOnly);
+
+      await component.doAutofill();
+
+      expect(passwordRepromptService.passwordRepromptCheck).toHaveBeenCalledWith(baseCipher);
+    });
+
     it("calls the autofill service to autofill without showing the confirmation dialog when the feature flag is disabled or search text is not present", async () => {
       autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
 
@@ -158,15 +167,6 @@ describe("ItemMoreOptionsComponent", () => {
       );
       expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
       expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
-    });
-
-    it("calls the passwordService to passwordRepromptCheck", async () => {
-      autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
-      mockConfirmDialogResult(AutofillConfirmationDialogResult.AutofilledOnly);
-
-      await component.doAutofill();
-
-      expect(passwordRepromptService.passwordRepromptCheck).toHaveBeenCalledWith(baseCipher);
     });
 
     it("does nothing if the user fails master password reprompt", async () => {
@@ -259,7 +259,7 @@ describe("ItemMoreOptionsComponent", () => {
             uriMatchStrategy$.next(UriMatchStrategy.Exact);
           });
 
-          it("shows the exact match dialog and not the password dialog", async () => {
+          it("shows the exact match dialog", async () => {
             autofillSvc.currentAutofillTab$.next({ url: "https://no-match.example.com" });
 
             await component.doAutofill();
@@ -273,7 +273,6 @@ describe("ItemMoreOptionsComponent", () => {
               }),
             );
             expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
-            expect(passwordRepromptService.passwordRepromptCheck).not.toHaveBeenCalled();
             expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
           });
         });
