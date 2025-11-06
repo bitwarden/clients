@@ -2219,8 +2219,8 @@
   "tools": {
     "message": "Tools"
   },
-  "importItems": {
-    "message": "Import items"
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Import data"

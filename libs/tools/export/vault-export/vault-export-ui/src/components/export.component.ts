@@ -608,7 +608,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       title: "confirmVaultExport",
       bodyText: confirmDescription,
       confirmButtonOptions: {
-        text: "exportVault",
+        text: "export",
         type: "primary",
       },
     });

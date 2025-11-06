@@ -146,8 +146,8 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
 
   private get syncVault(): MenuItemConstructorOptions {
     return {
-      id: "syncVault",
-      label: this.localize("syncVault"),
+      id: "syncNow",
+      label: this.localize("syncNow"),
       click: () => this.sendMessage("syncVault"),
       enabled: this.hasAuthenticatedAccounts,
     };
@@ -155,8 +155,8 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
 
   private get importVault(): MenuItemConstructorOptions {
     return {
-      id: "importVault",
-      label: this.localize("importItems"),
+      id: "import",
+      label: this.localize("import"),
       click: () => this.sendMessage("importVault"),
       enabled: !this._isLocked,
     };
@@ -164,8 +164,8 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
 
   private get exportVault(): MenuItemConstructorOptions {
     return {
-      id: "exportVault",
-      label: this.localize("exportVault"),
+      id: "export",
+      label: this.localize("export"),
       click: () => this.sendMessage("exportVault"),
       enabled: !this._isLocked,
     };

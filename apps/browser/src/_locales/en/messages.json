@@ -436,8 +436,8 @@
   "sync": {
     "message": "Sync"
   },
-  "syncVaultNow": {
-    "message": "Sync vault now"
+  "syncNow": {
+    "message": "Sync now"
   },
   "lastSync": {
     "message": "Last sync:"

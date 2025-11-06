@@ -57,7 +57,7 @@ const routes: Routes = [
               ),
             canActivate: [organizationPermissionsGuard((org) => org.canAccessImport)],
             data: {
-              titleId: "importItems",
+              titleId: "import",
             },
           },
           {
@@ -68,7 +68,7 @@ const routes: Routes = [
               ),
             canActivate: [organizationPermissionsGuard((org) => org.canAccessExport)],
             data: {
-              titleId: "exportVault",
+              titleId: "export",
             },
           },
         ],
