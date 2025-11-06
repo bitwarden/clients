@@ -32,7 +32,7 @@ export class BrowserApi {
     return BrowserApi.manifestVersion === expectedVersion;
   }
 
-  static senderIsInternal(sender: chrome.runtime.MessageSender | null): boolean {
+  static senderIsInternal(sender: chrome.runtime.MessageSender | undefined): boolean {
     if (!sender?.url) {
       return false;
     }

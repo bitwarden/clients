@@ -125,7 +125,9 @@ export class PopupViewCacheBackgroundService {
     // on popup closed, with 2 minute delay that is cancelled by re-opening the popup
     fromChromeEvent(chrome.runtime.onConnect)
       .pipe(
-        filter(([port]) => port.name === popupClosedPortName),
+        filter(
+          ([port]) => port.name === popupClosedPortName && BrowserApi.senderIsInternal(port.sender),
+        ),
         switchMap(([port]) =>
           fromChromeEvent(port.onDisconnect).pipe(
             delay(
