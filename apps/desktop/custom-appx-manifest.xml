@@ -15,7 +15,7 @@ xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/re
     <!-- use single quotes to avoid double quotes escaping in the publisher value  -->
     <Identity Name="${applicationId}"
         ProcessorArchitecture="${arch}"
-        Publisher='CN=Bitwarden Inc., O=Bitwarden Inc., L=Santa Barbara, ST=California, C=US'
+        Publisher='CN=Bitwarden Inc.'
         Version="${version}" />
     <Properties>
         <DisplayName>Bitwarden</DisplayName>
