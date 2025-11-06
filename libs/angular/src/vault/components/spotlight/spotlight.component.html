@@ -3,20 +3,20 @@
 >
   <div class="tw-flex tw-justify-between tw-items-start tw-flex-grow">
     <div>
-      <h2 bitTypography="h4" class="tw-font-semibold !tw-mb-1">{{ title() }}</h2>
+      <h2 bitTypography="h4" class="tw-font-semibold !tw-mb-1">{{ title }}</h2>
       <p
-        *ngIf="subtitle()"
+        *ngIf="subtitle"
         class="tw-text-main tw-mb-0"
         bitTypography="body2"
-        [innerHTML]="subtitle()"
+        [innerHTML]="subtitle"
       ></p>
-      <ng-content *ngIf="!subtitle()"></ng-content>
+      <ng-content *ngIf="!subtitle"></ng-content>
     </div>
     <button
       type="button"
       bitIconButton="bwi-close"
       size="small"
-      *ngIf="!persistent()"
+      *ngIf="!persistent"
       (click)="handleDismiss()"
       class="-tw-me-2"
       [label]="'close' | i18n"
@@ -28,10 +28,10 @@
     bitButton
     type="button"
     buttonType="primary"
-    *ngIf="buttonText()"
+    *ngIf="buttonText"
     (click)="handleButtonClick($event)"
   >
-    {{ buttonText() }}
-    <i *ngIf="buttonIcon()" [ngClass]="buttonIcon()" class="bwi tw-ml-1" aria-hidden="true"></i>
+    {{ buttonText }}
+    <i *ngIf="buttonIcon" [ngClass]="buttonIcon" class="bwi tw-ml-1" aria-hidden="true"></i>
   </button>
 </div>

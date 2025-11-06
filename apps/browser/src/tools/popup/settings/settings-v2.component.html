@@ -1,19 +1,4 @@
 <popup-page>
-  <bit-spotlight *ngIf="!(hasPremium$ | async)" [persistent]="true">
-    <span class="tw-text-xs"
-      >{{ "unlockFeaturesWithPremium" | i18n }}
-      <button
-        bitLink
-        buttonType="primary"
-        class="!tw-no-underline tw-text-xs !tw-font-bold"
-        type="button"
-        (click)="openUpgradeDialog()"
-        [title]="'upgradeNow' | i18n"
-      >
-        {{ "upgradeNow" | i18n }}
-      </button></span
-    >
-  </bit-spotlight>
   <popup-header slot="header" pageTitle="{{ 'settings' | i18n }}">
     <ng-container slot="end">
       <app-pop-out></app-pop-out>
