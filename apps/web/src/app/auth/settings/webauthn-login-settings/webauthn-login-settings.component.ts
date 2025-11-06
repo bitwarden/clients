@@ -72,7 +72,7 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
   }
 
   get hasCredentials() {
-    return this.credentials?.length ?? 0 > 0;
+    return (this.credentials?.length ?? 0) > 0;
   }
 
   get hasData() {
@@ -80,7 +80,7 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
   }
 
   get limitReached() {
-    return this.credentials?.length ?? 0 >= this.MaxCredentialCount;
+    return (this.credentials?.length ?? 0) >= this.MaxCredentialCount;
   }
 
   ngOnDestroy(): void {
