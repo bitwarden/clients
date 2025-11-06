@@ -5,13 +5,15 @@ import * as DiscountBadgeStories from "./discount-badge.component.stories";
 
 # Discount Badge
 
-A reusable UI component for displaying discount information (percentage or fixed amount) in a badge format.
+A reusable UI component for displaying discount information (percentage or fixed amount) in a badge
+format.
 
 <Canvas of={DiscountBadgeStories.PercentDiscount} />
 
 ## Usage
 
-The discount badge component is designed to be used in billing and subscription interfaces to display discount information.
+The discount badge component is designed to be used in billing and subscription interfaces to
+display discount information.
 
 ```ts
 import { DiscountBadgeComponent, DiscountInfo } from "@bitwarden/pricing";
@@ -25,8 +27,8 @@ import { DiscountBadgeComponent, DiscountInfo } from "@bitwarden/pricing";
 
 ### Inputs
 
-| Input     | Type              | Description                                                                 |
-| --------- | ----------------- | --------------------------------------------------------------------------- |
+| Input      | Type                   | Description                                                                      |
+| ---------- | ---------------------- | -------------------------------------------------------------------------------- |
 | `discount` | `DiscountInfo \| null` | **Optional.** Discount information object. If null or inactive, badge is hidden. |
 
 ### DiscountInfo Interface
@@ -44,7 +46,8 @@ interface DiscountInfo {
 
 ## Behavior
 
-- The badge is only displayed when `discount` is provided, `active` is `true`, and either `percentOff` or `amountOff` is greater than 0.
+- The badge is only displayed when `discount` is provided, `active` is `true`, and either
+  `percentOff` or `amountOff` is greater than 0.
 - If both `percentOff` and `amountOff` are provided, `percentOff` takes precedence.
 - Percentage values can be provided as 0-100 (e.g., `20` for 20%) or 0-1 (e.g., `0.2` for 20%).
 - Amount values are formatted as currency (USD) with 2 decimal places.
@@ -62,4 +65,3 @@ interface DiscountInfo {
 ### Inactive Discount
 
 <Canvas of={DiscountBadgeStories.InactiveDiscount} />
-

@@ -69,7 +69,9 @@
                       (discountedSubscriptionAmount | currency: "$")
                   }}
                 </span>
-                <billing-discount-badge [discount]="getDiscountInfo(sub?.customerDiscount)"></billing-discount-badge>
+                <billing-discount-badge
+                  [discount]="getDiscountInfo(sub?.customerDiscount)"
+                ></billing-discount-badge>
               </div>
             </ng-container>
             <ng-template #noDiscount>

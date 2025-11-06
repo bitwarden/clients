@@ -102,4 +102,3 @@ export class BillingSubscriptionUpcomingInvoiceResponse extends BaseResponse {
     this.amount = this.getResponseProperty("Amount");
   }
 }
-

@@ -127,4 +127,3 @@ export const PercentAndAmountPreferPercent: Story = {
     } as DiscountInfo,
   },
 };
-
