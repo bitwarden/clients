@@ -1,24 +1,27 @@
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
+import { newGuid } from "@bitwarden/guid";
 
 import { ImportResult } from "../../models";
 import { TestData } from "../spec-data/keeper-json/testdata.json";
 
 import { KeeperJsonImporter } from "./keeper-json-importer";
-import { newGuid } from "@bitwarden/guid";
 
 describe("Keeper Json Importer", () => {
   const testDataJson = JSON.stringify(TestData);
 
-  let importer: KeeperJsonImporter;
+  let result: ImportResult;
+  let orgResult: ImportResult;
 
-  beforeEach(() => {
-    // TODO: Should this be just done once for all tests? We're
-    //       importing lots of records every time, just to check one.
-    importer = new KeeperJsonImporter();
+  beforeAll(async () => {
+    const importer = new KeeperJsonImporter();
+    result = await expectParse(importer);
+
+    const orgImporter = new KeeperJsonImporter();
+    orgImporter.organizationId = newGuid() as OrganizationId;
+    orgResult = await expectParse(orgImporter);
   });
 
   // All possible record types
@@ -46,8 +49,6 @@ describe("Keeper Json Importer", () => {
   // 96  wifiCredentials
 
   it("should parse address", async () => {
-    const result = await expectParse();
-
     // Cipher
     const address = getCipher(result, "Home Address");
     expect(address).toBeDefined();
@@ -62,8 +63,6 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should parse bankAccount", async () => {
-    const result = await expectParse();
-
     // Cipher
     const bankAccount = getCipher(result, "Wells Fargo Checking");
     expect(bankAccount).toBeDefined();
@@ -84,8 +83,6 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should parse bankCard", async () => {
-    const result = await expectParse();
-
     // Cipher
     const bankCard = getCipher(result, "Chase Visa");
     expect(bankCard).toBeDefined();
@@ -102,8 +99,6 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should parse birthCertificate", async () => {
-    const result = await expectParse();
-
     // Cipher
     const birthCertificate = getCipher(result, "John Doe Birth Certificate");
     expect(birthCertificate).toBeDefined();
@@ -121,8 +116,6 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should parse contact", async () => {
-    const result = await expectParse();
-
     // Cipher
     const contact = getCipher(result, "Dr. Emily Chen");
     expect(contact).toBeDefined();
@@ -140,8 +133,6 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should parse databaseCredentials", async () => {
-    const result = await expectParse();
-
     // Cipher
     const databaseCredentials = getCipher(result, "Production MySQL Database");
     expect(databaseCredentials).toBeDefined();
@@ -162,8 +153,6 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should parse driverLicense", async () => {
-    const result = await expectParse();
-
     // Cipher
     const driverLicense = getCipher(result, "Oregon Driver's License");
     expect(driverLicense).toBeDefined();
@@ -181,8 +170,6 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should parse encryptedNotes", async () => {
-    const result = await expectParse();
-
     // Cipher
     const encryptedNotes = getCipher(result, "Important Meeting Notes");
     expect(encryptedNotes).toBeDefined();
@@ -200,8 +187,6 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should parse file", async () => {
-    const result = await expectParse();
-
     // Cipher
     const file = getCipher(result, "Project Proposal Document");
     expect(file).toBeDefined();
@@ -217,8 +202,6 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should parse general", async () => {
-    const result = await expectParse();
-
     // Cipher
     const general = getCipher(result, "General Information Record");
     expect(general).toBeDefined();
@@ -238,8 +221,6 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should parse healthInsurance", async () => {
-    const result = await expectParse();
-
     // Cipher
     const healthInsurance = getCipher(result, "Blue Cross Blue Shield");
     expect(healthInsurance).toBeDefined();
@@ -260,8 +241,6 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should parse login", async () => {
-    const result = await expectParse();
-
     // Cipher
     const login = getCipher(result, "Amazon Account");
     expect(login).toBeDefined();
@@ -286,8 +265,6 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should parse membership", async () => {
-    const result = await expectParse();
-
     // Cipher
     const membership = getCipher(result, "LA Fitness Gym");
     expect(membership).toBeDefined();
@@ -305,8 +282,6 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should parse passport", async () => {
-    const result = await expectParse();
-
     // Cipher
     const passport = getCipher(result, "US Passport");
     expect(passport).toBeDefined();
@@ -325,8 +300,6 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should parse photo", async () => {
-    const result = await expectParse();
-
     // Cipher
     const photo = getCipher(result, "Family Vacation 2024");
     expect(photo).toBeDefined();
@@ -340,8 +313,6 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should parse serverCredentials", async () => {
-    const result = await expectParse();
-
     // Cipher
     const serverCredentials = getCipher(result, "Web Server - Production");
     expect(serverCredentials).toBeDefined();
@@ -361,8 +332,6 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should parse softwareLicense", async () => {
-    const result = await expectParse();
-
     // Cipher
     const softwareLicense = getCipher(result, "Adobe Creative Cloud");
     expect(softwareLicense).toBeDefined();
@@ -381,8 +350,6 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should parse sshKeys", async () => {
-    const result = await expectParse();
-
     // Cipher
     const sshKey = getCipher(result, "Production Server SSH Key");
     expect(sshKey).toBeDefined();
@@ -400,8 +367,6 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should parse ssnCard", async () => {
-    const result = await expectParse();
-
     // Cipher
     const ssnCard = getCipher(result, "National Identity Card");
     expect(ssnCard).toBeDefined();
@@ -417,8 +382,6 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should parse wifiCredentials", async () => {
-    const result = await expectParse();
-
     // Cipher
     const wifiCredentials = getCipher(result, "Home Wi-Fi");
     expect(wifiCredentials).toBeDefined();
@@ -434,14 +397,15 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should create folders and assigned ciphers to them", async () => {
-    const result = await expectParse();
-
     const folders = result.folders;
     expect(folders.length).toBe(24);
 
     // Sort names and compare in bulk so we don't depend on specific ordering
     const folderNames = folders.map((f) => f.name).sort((a, b) => a.localeCompare(b));
     expect(folderNames).toEqual(allFolderNames);
+
+    // No collections should be created outside of org context
+    expect(result.collections.length).toBe(0);
 
     // Folder relationships
     assertInFolder(result, "Home Address", "Personal/Finance/Banking");
@@ -467,20 +431,19 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should create collections if part of an organization", async () => {
-    importer.organizationId = newGuid() as OrganizationId;
-    const result = await expectParse();
-
-    const collections = result.collections;
-    const folders = result.collections;
+    const folders = orgResult.collections;
     expect(folders.length).toBe(24);
 
     // Sort names and compare in bulk so we don't depend on specific ordering
     const folderNames = folders.map((f) => f.name).sort((a, b) => a.localeCompare(b));
     expect(folderNames).toEqual(allFolderNames);
+
+    // All folders should have been moved to collections
+    expect(orgResult.folders.length).toBe(0);
   });
 
   // Helpers
-  async function expectParse(): Promise<ImportResult> {
+  async function expectParse(importer: KeeperJsonImporter): Promise<ImportResult> {
     const result = await importer.parse(testDataJson);
     expect(result).toBeDefined();
     expect(result.ciphers).toBeDefined();
