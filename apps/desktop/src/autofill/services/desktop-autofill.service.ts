@@ -99,24 +99,6 @@ export class DesktopAutofillService implements OnDestroy {
       ...credential,
     }));
 
-    // Mock a couple of passkeys for testing purposes
-    fido2Credentials.push({
-      type: "fido2",
-      cipherId: "mock-cipher-id-1",
-      credentialId: "passkey1",
-      rpId: "webauthn.io",
-      userHandle: "passkey1",
-      userName: "Mock passkey1",
-    });
-    fido2Credentials.push({
-      type: "fido2",
-      cipherId: "mock-cipher-id-2",
-      credentialId: "passkey2",
-      rpId: "webauthn.io",
-      userHandle: "passkey2",
-      userName: "Mock passkey2",
-    });
-
     this.logService.info("Found FIDO2 credentials", fido2Credentials.length);
 
     const syncResult = await ipc.autofill.runCommand<NativeAutofillSyncCommand>({
