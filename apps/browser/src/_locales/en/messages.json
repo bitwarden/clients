@@ -455,9 +455,6 @@
   "bitWebVaultApp": {
     "message": "Bitwarden web app"
   },
-  "importItems": {
-    "message": "Import items"
-  },
   "select": {
     "message": "Select"
   },
@@ -1315,9 +1312,6 @@
   },
   "import": {
     "message": "Import"
-  },
-  "exportVault": {
-    "message": "Export vault"
   },
   "fileFormat": {
     "message": "File format"
@@ -4163,10 +4157,6 @@
   },
   "ignore": {
     "message": "Ignore"
-  },
-  "importData": {
-    "message": "Import data",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
   },
   "importError": {
     "message": "Import error"

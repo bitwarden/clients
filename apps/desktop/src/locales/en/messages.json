@@ -1724,9 +1724,6 @@
   "exportFrom": {
     "message": "Export from"
   },
-  "exportVault": {
-    "message": "Export vault"
-  },
   "export": {
     "message": "Export"
   },
@@ -3447,10 +3444,6 @@
   },
   "aliasDomain": {
     "message": "Alias domain"
-  },
-  "importData": {
-    "message": "Import data",
-    "description": "Used for the desktop menu item and the header of the import dialog"
   },
   "importError": {
     "message": "Import error"

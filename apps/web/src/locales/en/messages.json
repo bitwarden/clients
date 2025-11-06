@@ -1888,9 +1888,6 @@
   "exportFrom": {
     "message": "Export from"
   },
-  "exportVault": {
-    "message": "Export vault"
-  },
   "exportSecrets": {
     "message": "Export secrets"
   },
