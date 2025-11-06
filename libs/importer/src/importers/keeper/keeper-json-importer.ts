@@ -5,7 +5,6 @@ import { FieldType } from "@bitwarden/common/vault/enums/field-type.enum";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 
-
 import { ImportResult } from "../../models/import-result";
 import { BaseImporter } from "../base-importer";
 import { Importer } from "../importer";
@@ -26,11 +25,34 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
       return Promise.resolve(result);
     }
 
+    this.parseSharedFolders(keeperExport, result);
+    this.parseRecords(keeperExport, result);
+
+    if (this.organization) {
+      this.moveFoldersToCollections(result);
+    }
+
+    result.success = true;
+    return Promise.resolve(result);
+  }
+
+  private parseSharedFolders(keeperExport: KeeperJsonExport, result: ImportResult) {
+    if (!keeperExport.shared_folders) {
+      return;
+    }
+
+    keeperExport.shared_folders.forEach((folder) => {
+      this.processFolder(result, folder.path ?? "", false);
+    });
+  }
+
+  private parseRecords(keeperExport: KeeperJsonExport, result: ImportResult) {
     keeperExport.records.forEach((record) => {
+      // TODO: This adds a folder/folders to the import result and records a relationship with the to-be-added cipher.
+      //       If for some reason we don't add a cipher later, the whole relationship map becomes invalid.
       this.parseFolders(result, record);
 
       // TODO: Check the $type field to handle other types of records
-
       const cipher = this.initLoginCipher();
       cipher.name = record.title ?? "";
       cipher.login.username = record.login ?? "";
@@ -60,13 +82,6 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
 
       result.ciphers.push(cipher);
     });
-
-    if (this.organization) {
-      this.moveFoldersToCollections(result);
-    }
-
-    result.success = true;
-    return Promise.resolve(result);
   }
 
   private importCustomFields(customFields: CustomFields, cipher: CipherView) {

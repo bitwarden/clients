@@ -8,6 +8,7 @@ import { ImportResult } from "../../models";
 import { TestData } from "../spec-data/keeper-json/testdata.json";
 
 import { KeeperJsonImporter } from "./keeper-json-importer";
+import { newGuid } from "@bitwarden/guid";
 
 describe("Keeper Json Importer", () => {
   const testDataJson = JSON.stringify(TestData);
@@ -425,7 +426,7 @@ describe("Keeper Json Importer", () => {
 
     // Properties
     expect(wifiCredentials.notes).toEqual("My cozy home wi-fi");
-    expect(wifiCredentials.login.password).toEqual("mega-secure-password-123");
+    expect(wifiCredentials.login.password).toEqual("secure-password-123");
 
     // Fields
     expect(wifiCredentials.fields.length).toEqual(1);
@@ -436,68 +437,46 @@ describe("Keeper Json Importer", () => {
     const result = await expectParse();
 
     const folders = result.folders;
-    expect(folders.length).toBe(20);
+    expect(folders.length).toBe(24);
 
     // Sort names and compare in bulk so we don't depend on specific ordering
     const folderNames = folders.map((f) => f.name).sort((a, b) => a.localeCompare(b));
-    expect(folderNames).toEqual([
-      "Clients",
-      "Clients/Enterprise",
-      "Clients/Enterprise/North America",
-      "Clients/Enterprise/North America/TechCorp",
-      "Development",
-      "Development/Name-with-both-slashes",
-      "Development/Name-with-both-slashes/Android",
-      "Development/Name-with-both-slashes/Name-with-forward-slashes",
-      "Development/Name-with-both-slashes/Name-with-forward-slashes/Name-with-backslashes",
-      "Development/Web",
-      "Education",
-      "Personal",
-      "Personal/Finance",
-      "Personal/Finance/Banking",
-      "Personal/Finance/Banking/Accounts",
-      "Work",
-      "Work/Documents",
-      "Work/Projects",
-      "Work/Projects/2025",
-      "Work/Projects/2025/Q4",
-    ]);
-
-    function assertInFolder(cipherName: string, folderName: string) {
-      const cipherIndex = result.ciphers.findIndex((c) => c.name === cipherName);
-      const folderIndex = folders.findIndex((f) => f.name === folderName);
-      expect(result.folderRelationships).toContainEqual([cipherIndex, folderIndex]);
-    }
+    expect(folderNames).toEqual(allFolderNames);
 
     // Folder relationships
-    assertInFolder("Home Address", "Personal/Finance/Banking");
-    assertInFolder("Production Server SSH Key", "Development/Name-with-both-slashes/Android");
-    assertInFolder("Chase Visa", "Work/Projects/2025/Q4");
-    assertInFolder("John Doe Birth Certificate", "Work/Documents");
+    assertInFolder(result, "Home Address", "Personal/Finance/Banking");
+    assertInFolder(
+      result,
+      "Production Server SSH Key",
+      "Development/Name-with-both-slashes/Android",
+    );
+    assertInFolder(result, "Chase Visa", "Work/Projects/2025/Q4");
+    assertInFolder(result, "John Doe Birth Certificate", "Work/Documents");
 
     // In two folders at the same time
     assertInFolder(
+      result,
       "Production MySQL Database",
       "Development/Name-with-both-slashes/Name-with-forward-slashes/Name-with-backslashes",
     );
     assertInFolder(
+      result,
       "Production MySQL Database",
       "Development/Name-with-both-slashes/Name-with-forward-slashes",
     );
   });
 
-  it.skip("should create collections if part of an organization", async () => {
-    importer.organizationId = Utils.newGuid() as OrganizationId;
+  it("should create collections if part of an organization", async () => {
+    importer.organizationId = newGuid() as OrganizationId;
     const result = await expectParse();
 
     const collections = result.collections;
-    expect(collections.length).toBe(2);
-    expect(collections[0].name).toBe("Optional Private Folder 1");
-    expect(collections[1].name).toBe("My Customer 1");
+    const folders = result.collections;
+    expect(folders.length).toBe(24);
 
-    expect(result.collectionRelationships[0]).toEqual([0, 0]);
-    expect(result.collectionRelationships[1]).toEqual([1, 0]);
-    expect(result.collectionRelationships[2]).toEqual([1, 1]);
+    // Sort names and compare in bulk so we don't depend on specific ordering
+    const folderNames = folders.map((f) => f.name).sort((a, b) => a.localeCompare(b));
+    expect(folderNames).toEqual(allFolderNames);
   });
 
   // Helpers
@@ -516,4 +495,37 @@ describe("Keeper Json Importer", () => {
   function getField(cipher: CipherView, name: string): FieldView | undefined {
     return cipher.fields.find((f) => f.name === name);
   }
+
+  function assertInFolder(result: ImportResult, cipherName: string, folderName: string) {
+    const cipherIndex = result.ciphers.findIndex((c) => c.name === cipherName);
+    const folderIndex = result.folders.findIndex((f) => f.name === folderName);
+    expect(result.folderRelationships).toContainEqual([cipherIndex, folderIndex]);
+  }
+
+  const allFolderNames = [
+    "CanManageRecords-CanEdit",
+    "CanManageUsers-ViewOnly",
+    "Clients",
+    "Clients/Enterprise",
+    "Clients/Enterprise/North America",
+    "Clients/Enterprise/North America/TechCorp",
+    "Development",
+    "Development/Name-with-both-slashes",
+    "Development/Name-with-both-slashes/Android",
+    "Development/Name-with-both-slashes/Name-with-forward-slashes",
+    "Development/Name-with-both-slashes/Name-with-forward-slashes/Name-with-backslashes",
+    "Development/Web",
+    "Education",
+    "FullAccess-CanShare",
+    "NoUserPerms-EditAndShare",
+    "Personal",
+    "Personal/Finance",
+    "Personal/Finance/Banking",
+    "Personal/Finance/Banking/Accounts",
+    "Work",
+    "Work/Documents",
+    "Work/Projects",
+    "Work/Projects/2025",
+    "Work/Projects/2025/Q4",
+  ];
 });

@@ -1,59 +1,184 @@
 {
-  "records": [
+  "shared_folders": [
     {
-      "title": "Home Address",
-      "uid": "hOZqFwiN_1uXeU1PXYtzvQ",
-      "notes": "Primary residence - mailing and billing address",
-      "$type": "address",
-      "last_modified": 1760718190,
-      "custom_fields": {
-        "$address": {
-          "street1": "742 Evergreen Terrace",
-          "street2": "Apt 3B",
-          "city": "Springfield",
-          "state": "Oregon",
-          "zip": "97477",
-          "country": "US"
-        }
-      },
-      "folders": [
+      "path": "CanManageRecords-CanEdit",
+      "uid": "6qDHxtPzarYTUT2qUeAbEw",
+      "manage_users": false,
+      "manage_records": true,
+      "can_edit": true,
+      "can_share": false,
+      "permissions": [
         {
-          "folder": "Personal\\Finance\\Banking"
+          "name": "lastpass.ruby+06-november-2025@gmail.com",
+          "manage_users": true,
+          "manage_records": true
         }
       ]
     },
     {
-      "title": "Production Server SSH Key",
-      "uid": "UXCMaub5a8iTgjv36RL5Rw",
-      "login": "deploy_user",
-      "password": "SecurePass#SSH2024",
-      "notes": "SSH key for production server deployment - RSA 4096 bit",
-      "$type": "sshKeys",
-      "last_modified": 1760720727,
+      "path": "CanManageUsers-ViewOnly",
+      "uid": "WcN2l5aiDnh7HkTWMltvaw",
+      "manage_users": true,
+      "manage_records": false,
+      "can_edit": false,
+      "can_share": false,
+      "permissions": [
+        {
+          "name": "lastpass.ruby+06-november-2025@gmail.com",
+          "manage_users": true,
+          "manage_records": true
+        }
+      ]
+    },
+    {
+      "path": "FullAccess-CanShare",
+      "uid": "fe0k0gvf4hlz4O2Q_Chd-A",
+      "manage_users": true,
+      "manage_records": true,
+      "can_edit": false,
+      "can_share": true,
+      "permissions": [
+        {
+          "name": "lastpass.ruby+06-november-2025@gmail.com",
+          "manage_users": true,
+          "manage_records": true
+        }
+      ]
+    },
+    {
+      "path": "NoUserPerms-EditAndShare",
+      "uid": "DV9REMgwvpfhAn24ACGDew",
+      "manage_users": false,
+      "manage_records": false,
+      "can_edit": true,
+      "can_share": true,
+      "permissions": [
+        {
+          "name": "lastpass.ruby+06-november-2025@gmail.com",
+          "manage_users": true,
+          "manage_records": true
+        }
+      ]
+    }
+  ],
+  "records": [
+    {
+      "title": "Family Vacation 2024",
+      "uid": "a9I7CW9cTlbmQcG4pJApVw",
+      "notes": "Summer vacation photos from Hawaii trip - scenic beach views",
+      "$type": "photo",
+      "last_modified": 1762428779,
+      "folders": [
+        {
+          "folder": "Work"
+        }
+      ]
+    },
+    {
+      "title": "Production MySQL Database",
+      "uid": "C5oaP6QaaKEyy0dvqz-Zag",
+      "login": "db_admin",
+      "password": "SecureDb#2024$Pass",
+      "notes": "Production database server for main application - handle with care",
+      "$type": "databaseCredentials",
+      "last_modified": 1762428779,
       "custom_fields": {
-        "$keyPair": {
-          "publicKey": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDExamplePublicKeyData123456789",
-          "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA...ExamplePrivateKeyData...\n-----END RSA PRIVATE KEY-----"
-        },
+        "$text:type": "MySQL",
         "$host": {
-          "hostName": "prod-server.company.com",
-          "port": "22"
+          "hostName": "db.production.company.com",
+          "port": "3306"
         }
       },
       "folders": [
         {
-          "folder": "Development\\Name/with\\\\both/slashes\\Android"
+          "folder": "Development\\Name/with\\\\both/slashes\\Name/with/forward/slashes\\Name\\\\with\\\\backslashes"
+        },
+        {
+          "folder": "Development\\Name/with\\\\both/slashes\\Name/with/forward/slashes"
+        }
+      ]
+    },
+    {
+      "title": "Home Wi-Fi",
+      "uid": "aJ4WKh1LaE1r36-cySijhg",
+      "password": "secure-password-123",
+      "notes": "My cozy home wi-fi",
+      "$type": "wifiCredentials",
+      "last_modified": 1762431492,
+      "custom_fields": {
+        "$text:SSID": "cozy-home-netz"
+      }
+    },
+    {
+      "title": "General Information Record",
+      "uid": "sQvo45TcWZeJdaHWBZ7Kvg",
+      "login": "general_user@example.com",
+      "password": "GeneralPass#2024!Secure",
+      "login_url": "https://general.example.com",
+      "notes": "General purpose record for miscellaneous information and credentials",
+      "$type": "login",
+      "last_modified": 1762428779,
+      "custom_fields": {
+        "$oneTimeCode": "otpauth://totp/totp%40authenticationtest.com?secret=I65VU7K5ZQL7WB4E&issuer=&algorithm=SHA1&digits=6&period=30"
+      },
+      "folders": [
+        {
+          "folder": "Personal\\Finance\\Banking\\Accounts"
+        }
+      ]
+    },
+    {
+      "title": "National Identity Card",
+      "uid": "weeQm7T_UJ15HE_8iUqkRg",
+      "notes": "National identification card - Valid through 2028",
+      "$type": "ssnCard",
+      "last_modified": 1762428779,
+      "custom_fields": {
+        "$accountNumber:identityNumber": "ID-7849521",
+        "$name": {
+          "first": "Sarah",
+          "middle": "Elizabeth",
+          "last": "Johnson"
+        }
+      },
+      "folders": [
+        {
+          "folder": "Development\\Name/with\\\\both/slashes\\Name/with/forward/slashes\\Name\\\\with\\\\backslashes"
+        }
+      ]
+    },
+    {
+      "title": "US Passport",
+      "uid": "zkMYLQF8y9UrT40stDWz8w",
+      "password": "Passport2023!Secure",
+      "notes": "Valid US passport for international travel",
+      "$type": "passport",
+      "last_modified": 1762428779,
+      "custom_fields": {
+        "$accountNumber:passportNumber": "543826194",
+        "$name": {
+          "first": "Jennifer",
+          "middle": "Lynn",
+          "last": "Williams"
+        },
+        "$birthDate": 648597600000,
+        "$expirationDate": 2005596000000,
+        "$date:dateIssued": 1692050400000
+      },
+      "folders": [
+        {
+          "folder": "Development\\Name/with\\\\both/slashes"
         }
       ]
     },
     {
       "title": "Wells Fargo Checking",
-      "uid": "mE2JzdGnoin2_w5GzL9lfg",
+      "uid": "c3UzsqSASkGaIIlv86FVOQ",
       "login": "m.thompson@email.com",
       "password": "BankS3cur3!Pass",
       "notes": "Primary checking account for direct deposit and bill payments",
       "$type": "bankAccount",
-      "last_modified": 1760954383,
+      "last_modified": 1762428779,
       "custom_fields": {
         "$bankAccount": {
           "accountType": "Checking",
@@ -75,128 +200,32 @@
       ]
     },
     {
-      "title": "Adobe Creative Cloud",
-      "uid": "6w0WbGtUj7nrzNBwEF9GHg",
-      "notes": "Annual subscription - full access to Photoshop, Illustrator, Premiere Pro",
-      "$type": "softwareLicense",
-      "last_modified": 1760718781,
+      "title": "LA Fitness Gym",
+      "uid": "x_T8ZOZ-_UGjyDbQJbG_yQ",
+      "password": "FitLife2024!Strong",
+      "notes": "Annual membership - full gym access including pool and classes",
+      "$type": "membership",
+      "last_modified": 1762428779,
       "custom_fields": {
-        "$licenseNumber": "ACDB-7849-2635-1947-8520",
-        "$expirationDate": 1767135600000,
-        "$date:dateActive": 1705273200000
-      },
-      "folders": [
-        {
-          "folder": "Clients\\Enterprise"
-        }
-      ]
-    },
-    {
-      "title": "John Doe Birth Certificate",
-      "uid": "hV4qfljCiHYQwX2C--TKXw",
-      "notes": "Official birth certificate for identification purposes",
-      "$type": "birthCertificate",
-      "last_modified": 1760720345,
-      "custom_fields": {
+        "$accountNumber": "LAF-987654321",
         "$name": {
-          "first": "John",
-          "middle": "Michael",
-          "last": "Doe"
-        },
-        "$birthDate": 642722400000
-      },
-      "folders": [
-        {
-          "folder": "Work\\Documents"
-        }
-      ]
-    },
-    {
-      "title": "Family Vacation 2024",
-      "uid": "DwQpg-ZD8JQ7Yf5f_-Wc5g",
-      "notes": "Summer vacation photos from Hawaii trip - scenic beach views",
-      "$type": "photo",
-      "last_modified": 1760720284,
-      "folders": [
-        {
-          "folder": "Work"
-        }
-      ]
-    },
-    {
-      "title": "Production MySQL Database",
-      "uid": "P4qUSq1Z_hPy3m67IxPtrw",
-      "login": "db_admin",
-      "password": "SecureDb#2024$Pass",
-      "notes": "Production database server for main application - handle with care",
-      "$type": "databaseCredentials",
-      "last_modified": 1760720414,
-      "custom_fields": {
-        "$text:type": "MySQL",
-        "$host": {
-          "hostName": "db.production.company.com",
-          "port": "3306"
-        }
-      },
-      "folders": [
-        {
-          "folder": "Development\\Name/with\\\\both/slashes\\Name/with/forward/slashes\\Name\\\\with\\\\backslashes"
-        },
-        {
-          "folder": "Development\\Name/with\\\\both/slashes\\Name/with/forward/slashes"
-        }
-      ]
-    },
-    {
-      "title": "Dr. Emily Chen",
-      "uid": "dFTcdzEdVWdbEB310Gk49A",
-      "notes": "Primary care physician - office visits and consultations",
-      "$type": "contact",
-      "last_modified": 1760718365,
-      "custom_fields": {
-        "$name": {
-          "first": "Emily",
+          "first": "Lisa",
           "middle": "Marie",
-          "last": "Chen"
-        },
-        "$text:company": "Springfield Medical Center",
-        "$email": "emily.chen@smc.org",
-        "$phone": {
-          "number": "5415558723"
+          "last": "Rodriguez"
         }
       },
       "folders": [
         {
-          "folder": "Work\\Projects"
-        }
-      ]
-    },
-    {
-      "title": "National Identity Card",
-      "uid": "SiL6SEYxeH0ICQlTJTMXzA",
-      "notes": "National identification card - Valid through 2028",
-      "$type": "ssnCard",
-      "last_modified": 1760720635,
-      "custom_fields": {
-        "$accountNumber:identityNumber": "ID-7849521",
-        "$name": {
-          "first": "Sarah",
-          "middle": "Elizabeth",
-          "last": "Johnson"
-        }
-      },
-      "folders": [
-        {
-          "folder": "Development\\Name/with\\\\both/slashes\\Name/with/forward/slashes\\Name\\\\with\\\\backslashes"
+          "folder": "Personal\\Finance\\Banking"
         }
       ]
     },
     {
       "title": "Oregon Driver's License",
-      "uid": "NFSqrNP0iKMBcLer2_761Q",
+      "uid": "CcXjagWjE9IiHbpKizkAKA",
       "notes": "Valid Oregon driver's license - Class C",
       "$type": "driverLicense",
-      "last_modified": 1760718440,
+      "last_modified": 1762428779,
       "custom_fields": {
         "$accountNumber:dlNumber": "DL-7482693",
         "$name": {
@@ -217,11 +246,117 @@
       ]
     },
     {
+      "title": "Production Server SSH Key",
+      "uid": "E1124I_NzDheHSckN3cEQA",
+      "login": "deploy_user",
+      "password": "SecurePass#SSH2024",
+      "notes": "SSH key for production server deployment - RSA 4096 bit",
+      "$type": "sshKeys",
+      "last_modified": 1762428779,
+      "custom_fields": {
+        "$keyPair": {
+          "publicKey": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDExamplePublicKeyData123456789",
+          "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA...ExamplePrivateKeyData...\n-----END RSA PRIVATE KEY-----"
+        },
+        "$host": {
+          "hostName": "prod-server.company.com",
+          "port": "22"
+        }
+      },
+      "folders": [
+        {
+          "folder": "Development\\Name/with\\\\both/slashes\\Android"
+        }
+      ]
+    },
+    {
+      "title": "Home Address",
+      "uid": "1SYWtodrSwLT-NMPbgmOAw",
+      "notes": "Primary residence - mailing and billing address",
+      "$type": "address",
+      "last_modified": 1762428779,
+      "custom_fields": {
+        "$address": {
+          "street1": "742 Evergreen Terrace",
+          "street2": "Apt 3B",
+          "city": "Springfield",
+          "state": "Oregon",
+          "zip": "97477",
+          "country": "US"
+        }
+      },
+      "folders": [
+        {
+          "folder": "Personal\\Finance\\Banking"
+        }
+      ]
+    },
+    {
+      "title": "Important Meeting Notes",
+      "uid": "99LoIjsFFORlHF5_UUHKNQ",
+      "notes": "Confidential meeting with executive team - requires follow-up by end of month",
+      "$type": "encryptedNotes",
+      "last_modified": 1762428779,
+      "custom_fields": {
+        "$note": "Q4 2024 Strategic Planning - Discussed budget allocations, team restructuring, and new product launch timeline",
+        "$date": 1728943200000
+      },
+      "folders": [
+        {
+          "folder": "Personal\\Finance"
+        }
+      ]
+    },
+    {
+      "title": "John Doe Birth Certificate",
+      "uid": "MLzeGEnAH8eDyGwlBTqlWg",
+      "notes": "Official birth certificate for identification purposes",
+      "$type": "birthCertificate",
+      "last_modified": 1762428779,
+      "custom_fields": {
+        "$name": {
+          "first": "John",
+          "middle": "Michael",
+          "last": "Doe"
+        },
+        "$birthDate": 642722400000
+      },
+      "folders": [
+        {
+          "folder": "Work\\Documents"
+        }
+      ]
+    },
+    {
+      "title": "Dr. Emily Chen",
+      "uid": "EeEt6WFPj-6BLXuQ-P9Hmg",
+      "notes": "Primary care physician - office visits and consultations",
+      "$type": "contact",
+      "last_modified": 1762428779,
+      "custom_fields": {
+        "$name": {
+          "first": "Emily",
+          "middle": "Marie",
+          "last": "Chen"
+        },
+        "$text:company": "Springfield Medical Center",
+        "$email": "emily.chen@smc.org",
+        "$phone": {
+          "number": "5415558723"
+        }
+      },
+      "folders": [
+        {
+          "folder": "Work\\Projects"
+        }
+      ]
+    },
+    {
       "title": "Project Proposal Document",
-      "uid": "E7vSjrlwqm4nCfB-PRQZaA",
+      "uid": "W7imwL473cSm6PLxEwDD6A",
       "notes": "Annual project proposal for Q1 2025 business development initiatives",
       "$type": "file",
-      "last_modified": 1760720227,
+      "last_modified": 1762428779,
       "folders": [
         {
           "folder": "Development\\Name/with\\\\both/slashes\\Android"
@@ -230,13 +365,13 @@
     },
     {
       "title": "Blue Cross Blue Shield",
-      "uid": "dH_hbYkfOIUnyrS7CXWFuw",
+      "uid": "omEu7bcqCHfrDS1-tLDjRg",
       "login": "david.martinez@email.com",
       "password": "Health$ecure789",
       "login_url": "https://www.bcbs.com",
       "notes": "PPO plan with nationwide coverage - family deductible $2500",
       "$type": "healthInsurance",
-      "last_modified": 1760718604,
+      "last_modified": 1762428779,
       "custom_fields": {
         "$accountNumber": "BCBS-12345678",
         "$name:insuredsName": {
@@ -252,56 +387,34 @@
       ]
     },
     {
-      "title": "US Passport",
-      "uid": "MVcSPkaQeel1c75E2j48cA",
-      "password": "Passport2023!Secure",
-      "notes": "Valid US passport for international travel",
-      "$type": "passport",
-      "last_modified": 1760718524,
+      "title": "Web Server - Production",
+      "uid": "bTkzcfnjSiYIbvVJnbCnvg",
+      "login": "sysadmin",
+      "password": "Srv#Prod2024!Sec",
+      "notes": "Primary production web server - Apache 2.4.52 - Ubuntu 22.04",
+      "$type": "serverCredentials",
+      "last_modified": 1762428779,
       "custom_fields": {
-        "$accountNumber:passportNumber": "543826194",
-        "$name": {
-          "first": "Jennifer",
-          "middle": "Lynn",
-          "last": "Williams"
-        },
-        "$birthDate": 648597600000,
-        "$expirationDate": 2005596000000,
-        "$date:dateIssued": 1692050400000
-      },
-      "folders": [
-        {
-          "folder": "Development\\Name/with\\\\both/slashes"
+        "$host": {
+          "hostName": "web01.company.com",
+          "port": "22"
         }
-      ]
-    },
-    {
-      "title": "Amazon Account",
-      "uid": "bwK3qyU5fwPegzg7raj0Ig",
-      "login": "john.martinez@email.com",
-      "password": "Sp@rkl3Sun!2024",
-      "login_url": "https://www.amazon.com",
-      "notes": "Primary Amazon account for online shopping and Prime membership",
-      "$type": "login",
-      "last_modified": 1760961162,
-      "custom_fields": {
-        "$oneTimeCode": "otpauth://totp/totp%40authenticationtest.com?secret=I65VU7K5ZQL7WB4E&issuer=&algorithm=SHA1&digits=6&period=30",
-        "$url": ["https://login.amazon.com", "https://logout.amazon.com"],
-        "$url:account": "https://account.amazon.com",
-        "$url:profile url": "https://profile.amazon.com"
       },
       "folders": [
         {
-          "folder": "Education"
+          "folder": "Clients\\Enterprise\\North America\\TechCorp"
+        },
+        {
+          "folder": "Development\\Name/with\\\\both/slashes\\Android"
         }
       ]
     },
     {
       "title": "Chase Visa",
-      "uid": "8ZtwIV-XGCwrLEeWzUGqoA",
+      "uid": "lC3AmTzFJujKhAeASV5cZQ",
       "notes": "Primary credit card for everyday purchases and rewards",
       "$type": "bankCard",
-      "last_modified": 1760718111,
+      "last_modified": 1762428779,
       "custom_fields": {
         "$paymentCard": {
           "cardNumber": "4532123456789010",
@@ -318,90 +431,40 @@
       ]
     },
     {
-      "title": "Home Wi-Fi",
-      "uid": "T0F7BbljmomvlBXmXo9TBw",
-      "password": "mega-secure-password-123",
-      "notes": "My cozy home wi-fi",
-      "$type": "wifiCredentials",
-      "last_modified": 1760952076,
+      "title": "Adobe Creative Cloud",
+      "uid": "HX7eAAQNOPRR1NJD_CLUQA",
+      "notes": "Annual subscription - full access to Photoshop, Illustrator, Premiere Pro",
+      "$type": "softwareLicense",
+      "last_modified": 1762428779,
       "custom_fields": {
-        "$text:SSID": "cozy-home-netz"
-      }
-    },
-    {
-      "title": "Web Server - Production",
-      "uid": "dFCNzzhMt2LcWHCZWXRPOw",
-      "login": "sysadmin",
-      "password": "Srv#Prod2024!Sec",
-      "notes": "Primary production web server - Apache 2.4.52 - Ubuntu 22.04",
-      "$type": "serverCredentials",
-      "last_modified": 1760720483,
-      "custom_fields": {
-        "$host": {
-          "hostName": "web01.company.com",
-          "port": "22"
-        }
+        "$licenseNumber": "ACDB-7849-2635-1947-8520",
+        "$expirationDate": 1767135600000,
+        "$date:dateActive": 1705273200000
       },
       "folders": [
         {
-          "folder": "Development\\Name/with\\\\both/slashes\\Android"
-        },
-        {
-          "folder": "Clients\\Enterprise\\North America\\TechCorp"
+          "folder": "Clients\\Enterprise"
         }
       ]
     },
     {
-      "title": "General Information Record",
-      "uid": "1aw4XOFcnZ17_bYwt8mLGQ",
-      "login": "general_user@example.com",
-      "password": "GeneralPass#2024!Secure",
-      "login_url": "https://general.example.com",
-      "notes": "General purpose record for miscellaneous information and credentials",
-      "last_modified": 1760954394,
+      "title": "Amazon Account",
+      "uid": "fZuZy2b5jZa4xcmbZgs7ng",
+      "login": "john.martinez@email.com",
+      "password": "Sp@rkl3Sun!2024",
+      "login_url": "https://www.amazon.com",
+      "notes": "Primary Amazon account for online shopping and Prime membership",
+      "$type": "login",
+      "last_modified": 1762428779,
       "custom_fields": {
-        "$oneTimeCode": "otpauth://totp/totp%40authenticationtest.com?secret=I65VU7K5ZQL7WB4E&issuer=&algorithm=SHA1&digits=6&period=30"
+        "$oneTimeCode": "otpauth://totp/totp%40authenticationtest.com?secret=I65VU7K5ZQL7WB4E&issuer=&algorithm=SHA1&digits=6&period=30",
+        "$url": ["https://login.amazon.com", "https://logout.amazon.com"],
+        "$url:account": "https://account.amazon.com",
+        "$url:profile url": "https://profile.amazon.com"
       },
       "folders": [
         {
-          "folder": "Personal\\Finance\\Banking\\Accounts"
-        }
-      ]
-    },
-    {
-      "title": "Important Meeting Notes",
-      "uid": "SkusuSOOV1zTh5L7mQPXZA",
-      "notes": "Confidential meeting with executive team - requires follow-up by end of month",
-      "$type": "encryptedNotes",
-      "last_modified": 1760720560,
-      "custom_fields": {
-        "$note": "Q4 2024 Strategic Planning - Discussed budget allocations, team restructuring, and new product launch timeline",
-        "$date": 1728943200000
-      },
-      "folders": [
-        {
-          "folder": "Personal\\Finance"
-        }
-      ]
-    },
-    {
-      "title": "LA Fitness Gym",
-      "uid": "CaHflKwWZZdhSoG0c2NrwA",
-      "password": "FitLife2024!Strong",
-      "notes": "Annual membership - full gym access including pool and classes",
-      "$type": "membership",
-      "last_modified": 1760718685,
-      "custom_fields": {
-        "$accountNumber": "LAF-987654321",
-        "$name": {
-          "first": "Lisa",
-          "middle": "Marie",
-          "last": "Rodriguez"
-        }
-      },
-      "folders": [
-        {
-          "folder": "Personal\\Finance\\Banking"
+          "folder": "Education"
         }
       ]
     }

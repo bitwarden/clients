@@ -33,7 +33,7 @@ handle some of the type conversion manually. Should the conversion types be forc
 
 ### Gotchas, weirdnesses and questions
 
-- [ ] What to di with IDs? Import them as is? Generate new ones? Leave out blank?
+- [ ] What to do with the IDs? Import them as is? Generate new ones? Leave out blank?
 - [ ] Multiple TOTP (currently the first one used, others ignored)
 - [ ] Schema is ignored (probably no use anyway)
 - [ ] Custom fields names/types are not parsed and used as is
@@ -45,7 +45,7 @@ handle some of the type conversion manually. Should the conversion types be forc
 
 ### Missing features
 
-- [ ] Shared folders
+- [x] Shared folders
 - [ ] File attachments
 - [ ] PAM record types
 - [ ] Some more enterprise record types
