@@ -218,7 +218,6 @@ unsafe fn create_get_assertion_response(
 
     // Encode to CBOR with error handling
     let mut cbor_data = Vec::new();
-    // cbor_data.push(0x00); // CTAP2_OK
     if let Err(e) = ciborium::ser::into_writer(&cbor_value, &mut cbor_data) {
         debug_log(&format!(
             "ERROR: Failed to encode CBOR assertion response: {:?}",

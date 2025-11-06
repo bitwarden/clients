@@ -1,13 +1,15 @@
 use serde_json;
 use std::alloc::{alloc, Layout};
-use std::ptr;
+use std::collections::HashMap;
+use std::mem::ManuallyDrop;
+use std::{ptr, slice};
 use windows_core::{s, HRESULT};
 
 use crate::com_provider::{
     parse_credential_list, WebAuthnPluginOperationRequest, WebAuthnPluginOperationResponse,
 };
 use crate::types::*;
-use crate::util::{debug_log, delay_load, wstr_to_string};
+use crate::util::{debug_log, delay_load, wstr_to_string, WindowsString};
 use crate::webauthn::WEBAUTHN_CREDENTIAL_LIST;
 
 /// Windows WebAuthn registration request context  
@@ -78,6 +80,135 @@ pub struct WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST {
     // Add other fields as needed...
 }
 
+struct WEBAUTHN_HMAC_SECRET_SALT {
+    /// Size of pbFirst.
+    cbFirst: u32,
+    // _Field_size_bytes_(cbFirst)
+    /// Required
+    pbFirst: *mut u8,
+
+    /// Size of pbSecond.
+    cbSecond: u32,
+    // _Field_size_bytes_(cbSecond)
+    pbSecond: *mut u8,
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+struct WEBAUTHN_EXTENSION {
+    pwszExtensionIdentifier: *const u16,
+    cbExtension: u32,
+    pvExtension: *mut u8,
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+struct WEBAUTHN_EXTENSIONS {
+    cExtensions: u32,
+    // _Field_size_(cExtensions)
+    pExtensions: *mut WEBAUTHN_EXTENSION,
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+struct WEBAUTHN_CREDENTIAL_ATTESTATION {
+    /// Version of this structure, to allow for modifications in the future.
+    dwVersion: u32,
+
+    /// Attestation format type
+    pwszFormatType: *const u16, // PCWSTR
+
+    /// Size of cbAuthenticatorData.
+    cbAuthenticatorData: u32,
+    /// Authenticator data that was created for this credential.
+    //_Field_size_bytes_(cbAuthenticatorData)
+    pbAuthenticatorData: *mut u8,
+
+    /// Size of CBOR encoded attestation information
+    /// 0 => encoded as CBOR null value.
+    cbAttestation: u32,
+    ///Encoded CBOR attestation information
+    // _Field_size_bytes_(cbAttestation)
+    pbAttestation: *mut u8,
+
+    dwAttestationDecodeType: u32,
+    /// Following depends on the dwAttestationDecodeType
+    ///  WEBAUTHN_ATTESTATION_DECODE_NONE
+    ///      NULL - not able to decode the CBOR attestation information
+    ///  WEBAUTHN_ATTESTATION_DECODE_COMMON
+    ///      PWEBAUTHN_COMMON_ATTESTATION;
+    pvAttestationDecode: *mut u8,
+
+    /// The CBOR encoded Attestation Object to be returned to the RP.
+    cbAttestationObject: u32,
+    // _Field_size_bytes_(cbAttestationObject)
+    pbAttestationObject: *mut u8,
+
+    /// The CredentialId bytes extracted from the Authenticator Data.
+    /// Used by Edge to return to the RP.
+    cbCredentialId: u32,
+    // _Field_size_bytes_(cbCredentialId)
+    pbCredentialId: *mut u8,
+
+    //
+    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_2
+    //
+    /// Since VERSION 2
+    Extensions: WEBAUTHN_EXTENSIONS,
+
+    //
+    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_3
+    //
+    /// One of the WEBAUTHN_CTAP_TRANSPORT_* bits will be set corresponding to
+    /// the transport that was used.
+    dwUsedTransport: u32,
+
+    //
+    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_4
+    //
+    bEpAtt: bool,
+    bLargeBlobSupported: bool,
+    bResidentKey: bool,
+
+    //
+    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_5
+    //
+    bPrfEnabled: bool,
+
+    //
+    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_6
+    //
+    cbUnsignedExtensionOutputs: u32,
+    // _Field_size_bytes_(cbUnsignedExtensionOutputs)
+    pbUnsignedExtensionOutputs: *mut u8,
+
+    //
+    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_7
+    //
+    pHmacSecret: *const WEBAUTHN_HMAC_SECRET_SALT,
+
+    // ThirdPartyPayment Credential or not.
+    bThirdPartyPayment: bool,
+
+    //
+    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_8
+    //
+
+    // Multiple WEBAUTHN_CTAP_TRANSPORT_* bits will be set corresponding to
+    // the transports that are supported.
+    dwTransports: u32,
+
+    // UTF-8 encoded JSON serialization of the client data.
+    cbClientDataJSON: u32,
+    // _Field_size_bytes_(cbClientDataJSON)
+    pbClientDataJSON: *mut u8,
+
+    // UTF-8 encoded JSON serialization of the RegistrationResponse.
+    cbRegistrationResponseJSON: u32,
+    // _Field_size_bytes_(cbRegistrationResponseJSON)
+    pbRegistrationResponseJSON: *mut u8,
+}
+
 // Windows API function signatures
 type WebAuthNDecodeMakeCredentialRequestFn = unsafe extern "stdcall" fn(
     cbEncoded: u32,
@@ -88,6 +219,12 @@ type WebAuthNDecodeMakeCredentialRequestFn = unsafe extern "stdcall" fn(
 type WebAuthNFreeDecodedMakeCredentialRequestFn = unsafe extern "stdcall" fn(
     pMakeCredentialRequest: *mut WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
 );
+
+type WebAuthNEncodeMakeCredentialResponseFn = unsafe extern "stdcall" fn(
+    cbEncoded: *const WEBAUTHN_CREDENTIAL_ATTESTATION,
+    pbEncoded: *mut u32,
+    response_bytes: *mut *mut u8,
+) -> HRESULT;
 
 // RAII wrapper for decoded make credential request
 pub struct DecodedMakeCredentialRequest {
@@ -213,23 +350,113 @@ fn send_registration_request(
     }
 }
 
-/// Creates a WebAuthn make credential response from Bitwarden's registration response
+/// Creates a CTAP make credential response from Bitwarden's WebAuthn registration response
 unsafe fn create_make_credential_response(
     attestation_object: Vec<u8>,
-) -> std::result::Result<*mut WebAuthnPluginOperationResponse, HRESULT> {
+) -> std::result::Result<Vec<u8>, HRESULT> {
+    use ciborium::Value;
     // Use the attestation object directly as the encoded response
-    let response_data = attestation_object;
-    let response_len = response_data.len();
+    let att_obj_items = ciborium::from_reader::<Value, _>(&attestation_object[..])
+        .map_err(|_| HRESULT(-1))?
+        .into_map()
+        .map_err(|_| HRESULT(-1))?;
 
+    let webauthn_att_obj: HashMap<&str, &Value> = att_obj_items
+        .iter()
+        .map(|(k, v)| (k.as_text().unwrap(), v))
+        .collect();
+
+    /*
+    let ctap_attestation_response = ciborium::Value::Map(vec![
+        (Value::Integer(1.into()), webauthn_att_obj["fmt"].clone()),
+        (
+            Value::Integer(2.into()),
+            webauthn_att_obj["authData"].clone(),
+        ),
+        (
+            Value::Integer(3.into()),
+            webauthn_att_obj["attStmt"].clone(),
+        ),
+    ]);
+
+    // Write data into CBOR
+    // let mut response = Vec::new();
+    // ciborium::into_writer(&ctap_attestation_response, &mut response).map_err(|_| HRESULT(-1))?;
+    */
+
+    let webauthn_encode_make_credential_response =
+        delay_load::<WebAuthNEncodeMakeCredentialResponseFn>(
+            s!("webauthn.dll"),
+            s!("WebAuthNEncodeMakeCredentialResponse"),
+        )
+        .unwrap();
+    let mut authenticator_data = vec![1, 2, 3, 4];
+    let att_fmt = webauthn_att_obj
+        .get("fmt")
+        .ok_or(HRESULT(-1))?
+        .as_text()
+        .ok_or(HRESULT(-1))?
+        .to_utf16();
+    let authenticator_data = webauthn_att_obj
+        .get("authData")
+        .ok_or(HRESULT(-1))?
+        .as_bytes()
+        .ok_or(HRESULT(-1))?;
+    let attestation = WEBAUTHN_CREDENTIAL_ATTESTATION {
+        dwVersion: 8,
+        pwszFormatType: att_fmt.as_ptr(),
+        cbAuthenticatorData: authenticator_data.len() as u32,
+        pbAuthenticatorData: authenticator_data.as_ptr() as *mut u8,
+        cbAttestation: 0,
+        pbAttestation: ptr::null_mut(),
+        dwAttestationDecodeType: 0,
+        pvAttestationDecode: ptr::null_mut(),
+        cbAttestationObject: 0,
+        pbAttestationObject: ptr::null_mut(),
+        cbCredentialId: 0,
+        pbCredentialId: ptr::null_mut(),
+        Extensions: WEBAUTHN_EXTENSIONS {
+            cExtensions: 0,
+            pExtensions: ptr::null_mut(),
+        },
+        dwUsedTransport: 0x00000010, // INTERNAL
+        bEpAtt: false,
+        bLargeBlobSupported: false,
+        bResidentKey: false,
+        bPrfEnabled: false,
+        cbUnsignedExtensionOutputs: 0,
+        pbUnsignedExtensionOutputs: ptr::null_mut(),
+        pHmacSecret: ptr::null_mut(),
+        bThirdPartyPayment: false,
+        dwTransports: 0x00000030, // INTERNAL, HYBRID
+        cbClientDataJSON: 0,
+        pbClientDataJSON: ptr::null_mut(),
+        cbRegistrationResponseJSON: 0,
+        pbRegistrationResponseJSON: ptr::null_mut(),
+    };
+    let mut response_len = 0;
+    let mut response_ptr = ptr::null_mut();
+    let result = webauthn_encode_make_credential_response(
+        &attestation,
+        &mut response_len,
+        &mut response_ptr,
+    );
+    if result.is_err() {
+        return Err(result);
+    }
+    let response = Vec::from_raw_parts(response_ptr, response_len as usize, response_len as usize);
+
+    Ok(response)
+    /*
     // Allocate memory for the response data
-    let layout = Layout::from_size_align(response_len, 1).map_err(|_| HRESULT(-1))?;
+    let layout = Layout::from_size_align(response_len as usize, 1).map_err(|_| HRESULT(-1))?;
     let response_ptr = alloc(layout);
     if response_ptr.is_null() {
         return Err(HRESULT(-1));
     }
 
     // Copy response data
-    ptr::copy_nonoverlapping(response_data.as_ptr(), response_ptr, response_len);
+    ptr::copy_nonoverlapping(response, response_ptr, response.len());
 
     // Allocate memory for the response structure
     let response_layout = Layout::new::<WebAuthnPluginOperationResponse>();
@@ -242,12 +469,13 @@ unsafe fn create_make_credential_response(
     ptr::write(
         operation_response_ptr,
         WebAuthnPluginOperationResponse {
-            encoded_response_byte_count: response_len as u32,
+            encoded_response_byte_count: response.len() as u32,
             encoded_response_pointer: response_ptr,
         },
     );
-
+    debug_log(&format!("CTAP-encoded attestation object: {response:?}"));
     Ok(operation_response_ptr)
+    */
 }
 
 /// Implementation of PluginMakeCredential moved from com_provider.rs
@@ -449,14 +677,17 @@ pub unsafe fn plugin_make_credential(
                         client_data_hash: _,
                     } => {
                         debug_log("Creating WebAuthn make credential response");
-
                         match create_make_credential_response(attestation_object) {
-                            Ok(webauthn_response) => {
-                                debug_log("Successfully created WebAuthn response");
+                            Ok(mut webauthn_response) => {
+                                debug_log(&format!(
+                                    "Successfully created WebAuthn response: {webauthn_response:?}"
+                                ));
                                 (*response).encoded_response_byte_count =
-                                    (*webauthn_response).encoded_response_byte_count;
+                                    webauthn_response.len() as u32;
                                 (*response).encoded_response_pointer =
-                                    (*webauthn_response).encoded_response_pointer;
+                                    webauthn_response.as_mut_ptr();
+                                debug_log(&format!("Set pointer, returning HRESULT(0)"));
+                                _ = ManuallyDrop::new(webauthn_response);
                                 HRESULT(0)
                             }
                             Err(e) => {
@@ -489,5 +720,97 @@ pub unsafe fn plugin_make_credential(
             ));
             HRESULT(-1)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::ptr;
+
+    use windows_core::s;
+
+    use crate::{
+        make_credential::{
+            create_make_credential_response, WebAuthNEncodeMakeCredentialResponseFn,
+            WEBAUTHN_CREDENTIAL_ATTESTATION, WEBAUTHN_EXTENSIONS,
+        },
+        util::{delay_load, WindowsString},
+    };
+    #[test]
+    fn test_encode_make_credential_custom() {
+        let webauthn_att_obj = vec![
+            163, 99, 102, 109, 116, 100, 110, 111, 110, 101, 103, 97, 116, 116, 83, 116, 109, 116,
+            160, 104, 97, 117, 116, 104, 68, 97, 116, 97, 68, 1, 2, 3, 4,
+        ];
+        /*
+            148, 116, 166, 234, 146, 19, 201,
+            156, 47, 116, 178, 36, 146, 179, 32, 207, 64, 38, 42, 148, 193, 169, 80, 160, 57, 127,
+            41, 37, 11, 96, 132, 30, 240, 93, 0, 0, 0, 0, 213, 72, 130, 110, 121, 180, 219, 64,
+            163, 216, 17, 17, 111, 126, 131, 73, 0, 16, 41, 58, 58, 242, 229, 31, 75, 22, 168, 253,
+            151, 122, 177, 155, 237, 89, 165, 1, 2, 3, 38, 32, 1, 33, 88, 32, 154, 18, 243, 88, 48,
+            112, 84, 3, 82, 219, 172, 210, 76, 151, 246, 101, 189, 86, 147, 114, 248, 43, 231, 192,
+            202, 190, 92, 37, 216, 45, 202, 250, 34, 88, 32, 28, 36, 149, 44, 106, 229, 243, 164,
+            190, 234, 102, 125, 168, 224, 155, 182, 190, 178, 218, 158, 98, 11, 57, 187, 41, 10,
+            218, 58, 80, 124, 254, 119,
+        ];
+        */
+        let ctap_att_obj = unsafe { create_make_credential_response(webauthn_att_obj).unwrap() };
+        println!("{ctap_att_obj:?}");
+        let expected = vec![163, 1, 100, 110, 111, 110, 101, 2, 68, 1, 2, 3, 4, 3, 160];
+        assert_eq!(expected, ctap_att_obj);
+    }
+
+    #[test]
+    fn test_encode_make_credential() {
+        let response = unsafe {
+            let webauthn_encode_make_credential_response =
+                delay_load::<WebAuthNEncodeMakeCredentialResponseFn>(
+                    s!("webauthn.dll"),
+                    s!("WebAuthNEncodeMakeCredentialResponse"),
+                )
+                .unwrap();
+            let mut authenticator_data = vec![1, 2, 3, 4];
+            let att_fmt = "none".to_utf16();
+            let attestation = WEBAUTHN_CREDENTIAL_ATTESTATION {
+                dwVersion: 8,
+                pwszFormatType: att_fmt.as_ptr(),
+                cbAuthenticatorData: authenticator_data.len() as u32,
+                pbAuthenticatorData: authenticator_data.as_mut_ptr(),
+                cbAttestation: 0,
+                pbAttestation: ptr::null_mut(),
+                dwAttestationDecodeType: 0,
+                pvAttestationDecode: ptr::null_mut(),
+                cbAttestationObject: 0,
+                pbAttestationObject: ptr::null_mut(),
+                cbCredentialId: 0,
+                pbCredentialId: ptr::null_mut(),
+                Extensions: WEBAUTHN_EXTENSIONS {
+                    cExtensions: 0,
+                    pExtensions: ptr::null_mut(),
+                },
+                dwUsedTransport: 0x00000010, // INTERNAL
+                bEpAtt: false,
+                bLargeBlobSupported: false,
+                bResidentKey: false,
+                bPrfEnabled: false,
+                cbUnsignedExtensionOutputs: 0,
+                pbUnsignedExtensionOutputs: ptr::null_mut(),
+                pHmacSecret: ptr::null_mut(),
+                bThirdPartyPayment: false,
+                dwTransports: 0x00000030, // INTERNAL, HYBRID
+                cbClientDataJSON: 0,
+                pbClientDataJSON: ptr::null_mut(),
+                cbRegistrationResponseJSON: 0,
+                pbRegistrationResponseJSON: ptr::null_mut(),
+            };
+            let mut len = 0;
+            let mut response_ptr = ptr::null_mut();
+            let result =
+                webauthn_encode_make_credential_response(&attestation, &mut len, &mut response_ptr);
+            assert!(result.is_ok());
+            Vec::from_raw_parts(response_ptr, len as usize, len as usize)
+        };
+        println!("{response:?}");
+        assert_eq!(165, response[0]);
     }
 }
