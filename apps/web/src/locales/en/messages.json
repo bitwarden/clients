@@ -17,9 +17,6 @@
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
-  "riskInsights": {
-    "message": "Risk Insights"
-  },
   "passwordRisk": {
     "message": "Password Risk"
   },
@@ -4454,8 +4451,9 @@
   "updateBrowser": {
     "message": "Update browser"
   },
-  "generatingYourRiskInsights": {
-    "message": "Generating your Risk Insights..."
+
+  "generatingYourAccessIntelligence": {
+    "message": "Generating your Access Intelligence..."
   },
   "riskInsightsRunReport": {
     "message": "Run report"
