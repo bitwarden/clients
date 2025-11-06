@@ -69,7 +69,7 @@ export class DefaultImportMetadataService implements ImportMetadataServiceAbstra
       return loaders;
     }
 
-    // Special handling for Brave, Chrome, and Edge CSV imports on Windows Desktop
+    // Special handling for Brave and Chrome CSV imports on Windows Desktop
     if (type === "bravecsv" || type === "chromecsv") {
       try {
         const device = this.system.environment.getDevice();
