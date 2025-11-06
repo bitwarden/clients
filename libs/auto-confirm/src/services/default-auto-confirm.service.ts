@@ -50,7 +50,9 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
       this.organizationService
         .organizations$(userId)
         .pipe(map((organizations) => organizations[0])),
-    ]).pipe(map(([enabled, organization]) => enabled && organization?.canManageAutoConfirm));
+    ]).pipe(
+      map(([enabled, organization]) => enabled && (organization?.canManageAutoConfirm ?? false)),
+    );
   }
 
   async autoConfirmUser(

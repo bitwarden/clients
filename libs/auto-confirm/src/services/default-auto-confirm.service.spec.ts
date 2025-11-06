@@ -1,6 +1,11 @@
 import { TestBed } from "@angular/core/testing";
 import { BehaviorSubject, firstValueFrom, of, throwError } from "rxjs";
 
+import {
+  DefaultOrganizationUserService,
+  OrganizationUserApiService,
+  OrganizationUserConfirmRequest,
+} from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
@@ -12,11 +17,6 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeStateProvider, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
-import {
-  DefaultOrganizationUserService,
-  OrganizationUserApiService,
-  OrganizationUserConfirmRequest,
-} from "../../organization-user";
 import { AUTO_CONFIRM_STATE, AutoConfirmState } from "../models/auto-confirm-state.model";
 
 import { DefaultAutomaticUserConfirmationService } from "./default-auto-confirm.service";
@@ -214,7 +214,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
     it("should return true when feature flag is enabled and organization allows management", async () => {
       configService.getFeatureFlag$.mockReturnValue(of(true));
 
-      const canManage$ = service.canManageAutoConfirm$(mockUserId, mockOrganizationId);
+      const canManage$ = service.canManageAutoConfirm$(mockUserId);
       const canManage = await firstValueFrom(canManage$);
 
       expect(canManage).toBe(true);
@@ -223,7 +223,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
     it("should return false when feature flag is disabled", async () => {
       configService.getFeatureFlag$.mockReturnValue(of(false));
 
-      const canManage$ = service.canManageAutoConfirm$(mockUserId, mockOrganizationId);
+      const canManage$ = service.canManageAutoConfirm$(mockUserId);
       const canManage = await firstValueFrom(canManage$);
 
       expect(canManage).toBe(false);
@@ -244,7 +244,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       const organizations$ = new BehaviorSubject<Organization[]>([orgWithoutManageUsers]);
       organizationService.organizations$.mockReturnValue(organizations$);
 
-      const canManage$ = service.canManageAutoConfirm$(mockUserId, mockOrganizationId);
+      const canManage$ = service.canManageAutoConfirm$(mockUserId);
       const canManage = await firstValueFrom(canManage$);
 
       expect(canManage).toBe(false);
@@ -265,7 +265,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       const organizations$ = new BehaviorSubject<Organization[]>([orgWithoutAutoConfirm]);
       organizationService.organizations$.mockReturnValue(organizations$);
 
-      const canManage$ = service.canManageAutoConfirm$(mockUserId, mockOrganizationId);
+      const canManage$ = service.canManageAutoConfirm$(mockUserId);
       const canManage = await firstValueFrom(canManage$);
 
       expect(canManage).toBe(false);
@@ -277,7 +277,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       const organizations$ = new BehaviorSubject<Organization[]>([]);
       organizationService.organizations$.mockReturnValue(organizations$);
 
-      const canManage$ = service.canManageAutoConfirm$(mockUserId, mockOrganizationId);
+      const canManage$ = service.canManageAutoConfirm$(mockUserId);
       const canManage = await firstValueFrom(canManage$);
 
       expect(canManage).toBe(false);
@@ -286,7 +286,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
     it("should use the correct feature flag", async () => {
       configService.getFeatureFlag$.mockReturnValue(of(true));
 
-      const canManage$ = service.canManageAutoConfirm$(mockUserId, mockOrganizationId);
+      const canManage$ = service.canManageAutoConfirm$(mockUserId);
       await firstValueFrom(canManage$);
 
       expect(configService.getFeatureFlag$).toHaveBeenCalledWith(FeatureFlag.AutoConfirm);

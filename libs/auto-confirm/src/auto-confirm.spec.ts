@@ -1,8 +1,12 @@
-import * as lib from "./index";
+import { AutomaticUserConfirmationService } from "./abstractions";
+import { AutoConfirmState } from "./models";
 
 describe("auto-confirm", () => {
-  // This test will fail until something is exported from index.ts
-  it("should work", () => {
-    expect(lib).toBeDefined();
+  it("should export abstractions", () => {
+    expect(AutomaticUserConfirmationService).toBeDefined();
+  });
+
+  it("should export models", () => {
+    expect(AutoConfirmState).toBeDefined();
   });
 });

@@ -12,8 +12,8 @@ import {
   NewItemNudgeService,
   AccountSecurityNudgeService,
   VaultSettingsImportNudgeService,
+  AutoConfirmNudgeService,
 } from "./custom-nudges-services";
-import { AutoConfirmNudgeService } from "./custom-nudges-services/auto-confirm-nudge.service";
 import { DefaultSingleNudgeService, SingleNudgeService } from "./default-single-nudge.service";
 
 export type NudgeStatus = {
