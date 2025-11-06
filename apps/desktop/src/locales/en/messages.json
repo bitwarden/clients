@@ -1752,6 +1752,7 @@
     "message": "Password protected"
   },
   "passwordProtectedOptionDescription": {
+    "message": "Set a file password to encrypt the export and import it to any Bitwarden account using the password for decryption."
   },
   "exportTypeHeading": {
     "message": "Export type"
