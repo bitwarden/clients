@@ -357,8 +357,7 @@ export class NativeAutofillWindowsMain {
 
       passkey_authenticator.syncCredentialsToWindows(mappedCredentials);
 
-      // TODO: Return a meaningful result
-      const res = { value: { added: 999 } } as RunCommandResult<C>;
+      const res = { value: { added: mappedCredentials.length } } as RunCommandResult<C>;
       return res;
     } catch (e) {
       this.logService.error(`Error running autofill command '${command.command}':`, e);
