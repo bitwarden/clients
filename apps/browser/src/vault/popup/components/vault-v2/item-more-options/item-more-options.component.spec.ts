@@ -199,6 +199,15 @@ describe("ItemMoreOptionsComponent", () => {
         passwordRepromptService.passwordRepromptCheck.mockResolvedValue(true);
       });
 
+      it("calls the passwordService to passwordRepromptCheck", async () => {
+        autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
+        mockConfirmDialogResult(AutofillConfirmationDialogResult.AutofilledOnly);
+
+        await component.doAutofill();
+
+        expect(passwordRepromptService.passwordRepromptCheck).toHaveBeenCalledWith(baseCipher);
+      });
+
       it("opens the autofill confirmation dialog with filtered saved URLs when the feature flag is enabled and search text is present", async () => {
         autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com/path" });
         const openSpy = mockConfirmDialogResult(AutofillConfirmationDialogResult.Canceled);
@@ -257,6 +266,15 @@ describe("ItemMoreOptionsComponent", () => {
         describe("when the default URI match strategy is Exact", () => {
           beforeEach(() => {
             uriMatchStrategy$.next(UriMatchStrategy.Exact);
+          });
+
+          it("calls the passwordService to passwordRepromptCheck", async () => {
+            autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
+            mockConfirmDialogResult(AutofillConfirmationDialogResult.AutofilledOnly);
+
+            await component.doAutofill();
+
+            expect(passwordRepromptService.passwordRepromptCheck).toHaveBeenCalledWith(baseCipher);
           });
 
           it("shows the exact match dialog", async () => {
