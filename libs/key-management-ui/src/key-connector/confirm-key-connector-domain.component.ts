@@ -13,6 +13,8 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { BitActionDirective, ButtonModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "confirm-key-connector-domain",
   templateUrl: "confirm-key-connector-domain.component.html",
@@ -24,6 +26,8 @@ export class ConfirmKeyConnectorDomainComponent implements OnInit {
   keyConnectorUrl!: string;
   userId!: UserId;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() onBeforeNavigation: () => Promise<void> = async () => {};
 
   constructor(

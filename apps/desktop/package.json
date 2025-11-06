@@ -1,7 +1,7 @@
 {
   "name": "@bitwarden/desktop",
   "description": "A secure and free password manager for all of your devices.",
-  "version": "2025.10.1",
+  "version": "2025.11.0",
   "keywords": [
     "bitwarden",
     "password",
@@ -49,6 +49,7 @@
     "pack:mac:masdev": "npm run clean:dist && electron-builder --mac mas-dev --universal -p never",
     "pack:mac:masdev:with-extension": "npm run clean:dist && npm run build:macos-extension:masdev && electron-builder --mac mas-dev --universal -p never",
     "pack:win": "npm run clean:dist && electron-builder --win --x64 --arm64 --ia32 -p never -c.win.signtoolOptions.certificateSubjectName=\"8bit Solutions LLC\"",
+    "pack:win:beta": "npm run clean:dist && electron-builder --config electron-builder.beta.json --win --x64 --arm64 --ia32 -p never -c.win.signtoolOptions.certificateSubjectName=\"8bit Solutions LLC\"",
     "pack:win:ci": "npm run clean:dist && electron-builder --win --x64 --arm64 --ia32 -p never",
     "dist:dir": "npm run build && npm run pack:dir",
     "dist:lin": "npm run build && npm run pack:lin",

@@ -1,5 +1,6 @@
 import { CurrencyPipe } from "@angular/common";
 import { Component, computed, input, signal } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
 
 import { TypographyModule, IconButtonModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -16,6 +17,8 @@ export type LineItem = {
  * This component has no external dependencies and performs minimal logic -
  * it only displays data and allows expanding/collapsing of line items.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "billing-cart-summary",
   templateUrl: "./cart-summary.component.html",
@@ -23,13 +26,13 @@ export type LineItem = {
 })
 export class CartSummaryComponent {
   // Required inputs
-  passwordManager = input.required<LineItem>();
-  additionalStorage = input<LineItem>();
-  secretsManager = input<{ seats: LineItem; additionalServiceAccounts?: LineItem }>();
-  estimatedTax = input.required<number>();
+  readonly passwordManager = input.required<LineItem>();
+  readonly additionalStorage = input<LineItem>();
+  readonly secretsManager = input<{ seats: LineItem; additionalServiceAccounts?: LineItem }>();
+  readonly estimatedTax = input.required<number>();
 
   // UI state
-  isExpanded = signal(true);
+  readonly isExpanded = signal(true);
 
   /**
    * Calculates total for password manager line item
@@ -68,6 +71,11 @@ export class CartSummaryComponent {
    * Calculates the total of all line items
    */
   readonly total = computed<number>(() => this.getTotalCost());
+
+  /**
+   * Observable of computed total value
+   */
+  readonly total$ = toObservable(this.total);
 
   /**
    * Toggles the expanded/collapsed state of the cart items

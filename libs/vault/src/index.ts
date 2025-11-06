@@ -1,3 +1,7 @@
+export {
+  AtRiskPasswordCalloutService,
+  AtRiskPasswordCalloutData,
+} from "./services/at-risk-password-callout.service";
 export { PasswordRepromptService } from "./services/password-reprompt.service";
 export { CopyCipherFieldService, CopyAction } from "./services/copy-cipher-field.service";
 export { CopyCipherFieldDirective } from "./components/copy-cipher-field.directive";
@@ -27,3 +31,4 @@ export { SshImportPromptService } from "./services/ssh-import-prompt.service";
 
 export * from "./abstractions/change-login-password.service";
 export * from "./services/default-change-login-password.service";
+export * from "./services/archive-cipher-utilities.service";

@@ -30,7 +30,7 @@ import { TokenService } from "../../../auth/abstractions/token.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
-import { PinServiceAbstraction } from "../../pin/pin.service.abstraction";
+import { PinStateServiceAbstraction } from "../../pin/pin-state.service.abstraction";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../abstractions/vault-timeout-settings.service";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
 import { VaultTimeout, VaultTimeoutStringType } from "../types/vault-timeout.type";
@@ -40,7 +40,7 @@ import { VAULT_TIMEOUT, VAULT_TIMEOUT_ACTION } from "./vault-timeout-settings.st
 export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceAbstraction {
   constructor(
     private accountService: AccountService,
-    private pinService: PinServiceAbstraction,
+    private pinStateService: PinStateServiceAbstraction,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private keyService: KeyService,
     private tokenService: TokenService,
@@ -279,7 +279,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
 
     const canLock =
       (await this.userHasMasterPassword(userId)) ||
-      (await this.pinService.isPinSet(userId as UserId)) ||
+      (await this.pinStateService.isPinSet(userId as UserId)) ||
       (await this.isBiometricLockSet(userId));
 
     if (canLock) {
@@ -287,10 +287,6 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     }
 
     return availableActions;
-  }
-
-  async clear(userId: UserId): Promise<void> {
-    await this.keyService.clearPinKeys(userId);
   }
 
   private async userHasMasterPassword(userId: string): Promise<boolean> {

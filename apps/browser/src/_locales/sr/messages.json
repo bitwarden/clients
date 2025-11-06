@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Употребити једнократну пријаву"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Добродошли назад"
   },
@@ -558,7 +561,7 @@
     "message": "Архива",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Врати из архиве"
   },
   "itemsInArchive": {
@@ -570,11 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Архивиране ставке ће се овде појавити и бити искључени из општих резултата претраге и сугестија о ауто-пуњењу."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Ставка је послата у архиву"
   },
-  "itemRemovedFromArchive": {
-    "message": "Ставка је уклоњена из архиве"
+  "itemUnarchived": {
+    "message": "Ставка враћена из архиве"
   },
   "archiveItem": {
     "message": "Архивирај ставку"
@@ -587,6 +590,9 @@
   },
   "view": {
     "message": "Приказ"
+  },
+  "viewAll": {
+    "message": "View all"
   },
   "viewLogin": {
     "message": "Преглед пријаве"
@@ -1027,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Ставка уређена"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Сигурно послати ову ставку у отпад?"
@@ -1549,13 +1567,13 @@
     "message": "Читај сигурносни кључ"
   },
   "readingPasskeyLoading": {
-    "message": "Reading passkey..."
+    "message": "Читање притупачног кључа..."
   },
   "passkeyAuthenticationFailed": {
-    "message": "Passkey authentication failed"
+    "message": "Потврда приступачног кључа"
   },
   "useADifferentLogInMethod": {
-    "message": "Use a different log in method"
+    "message": "Користи други начин пријављивања"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Чека се интеракција сигурносног кључа..."
@@ -1676,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Угасити ауто-пуњење"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "Прикажи предлоге за ауто-попуњавање у пољима обрасца"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Приказати идентитете као предлоге"
@@ -3240,6 +3279,9 @@
   "decryptionError": {
     "message": "Грешка при декрипцији"
   },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden није могао да декриптује ставке из трезора наведене испод."
   },
@@ -4010,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Ауто-попуњавање при учитавању странице је подешено да користи подразумевано подешавање.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "Укључите бочну навигацију"
@@ -5579,17 +5630,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Добродошли у ваш сеф!"
   },
-  "phishingPageTitle": {
-    "message": "Пронађен злонамеран сајт"
+  "phishingPageTitleV2": {
+    "message": "Откривен је покушај „пецања“"
   },
-  "phishingPageCloseTab": {
-    "message": "Затвори језичак"
+  "phishingPageSummary": {
+    "message": "Сајт који покушавате да посетите је позната злонамерна локација и представља безбедносни ризик."
   },
-  "phishingPageContinue": {
-    "message": "Настави"
+  "phishingPageCloseTabV2": {
+    "message": "Затвори ову картицу"
   },
-  "phishingPageLearnWhy": {
-    "message": "Зашто видите ово?"
+  "phishingPageContinueV2": {
+    "message": "Настави до овог сајта (не препоручује се)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Овај сајт је нађен у ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", листа отвореног кода познатих сајтова за крађу идентитета који се користе за крађу личних и осетљивих информација.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Сазнајте више о откривању „пецања“"
+  },
+  "protectedBy": {
+    "message": "Заштићено са $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Ауто-пуњење предмета за тренутну страницу"
@@ -5694,5 +5765,18 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Потврдите домен конектора кључа"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "This setting is disabled by your organization's policy.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

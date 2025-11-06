@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Çoklu oturum açma kullan"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Tekrar hoş geldiniz"
   },
@@ -558,7 +561,7 @@
     "message": "Arşivle",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Arşivden çıkar"
   },
   "itemsInArchive": {
@@ -570,10 +573,10 @@
   "noItemsInArchiveDesc": {
     "message": "Arşivlenmiş kayıtlar burada görünecek ve genel arama sonuçlarından ile otomatik doldurma önerilerinden hariç tutulacaktır."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Kayıt arşive gönderildi"
   },
-  "itemRemovedFromArchive": {
+  "itemUnarchived": {
     "message": "Kayıt arşivden çıkarıldı"
   },
   "archiveItem": {
@@ -587,6 +590,9 @@
   },
   "view": {
     "message": "Görüntüle"
+  },
+  "viewAll": {
+    "message": "Tümünü göster"
   },
   "viewLogin": {
     "message": "Hesabı göster"
@@ -1027,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Hesap kaydedildi"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Çöp kutusuna göndermek istediğinizden emin misiniz?"
@@ -1676,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Otomatik doldurmayı kapat"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "Form alanlarında otomatik doldurma önerilerini göster"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Kimlikleri öneri olarak göster"
@@ -3240,6 +3279,9 @@
   "decryptionError": {
     "message": "Şifre çözme sorunu"
   },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden aşağıdaki kasa öğelerini deşifre edemedi."
   },
@@ -4010,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Sayfa yüklenince otomatik doldurma, varsayılan ayarı kullanacak şekilde ayarlandı.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "Kenar menüsünü aç/kapat"
@@ -5579,17 +5630,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Kasanıza hoş geldiniz!"
   },
-  "phishingPageTitle": {
-    "message": "Dolandırıcılık web sitesi"
+  "phishingPageTitleV2": {
+    "message": "Dolandırıcılık girişimi tespit edildi"
   },
-  "phishingPageCloseTab": {
-    "message": "Sekmeyi kapat"
+  "phishingPageSummary": {
+    "message": "Girmeye çalıştığınız site kötü amaçlı ve güvenlik riski taşıyan bir sitedir."
   },
-  "phishingPageContinue": {
-    "message": "Devam et"
+  "phishingPageCloseTabV2": {
+    "message": "Bu sekmeyi kapat"
   },
-  "phishingPageLearnWhy": {
-    "message": "Bunu neden görüyorsunuz?"
+  "phishingPageContinueV2": {
+    "message": "Siteye devam et (önerilmez)"
+  },
+  "phishingPageExplanation1": {
+    "message": "This site was found in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Learn more about phishing detection"
+  },
+  "protectedBy": {
+    "message": "Protected by $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Geçerli sayfada kayıtları otomatik doldurun"
@@ -5694,5 +5765,18 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Key Connector alan adını doğrulayın"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "This setting is disabled by your organization's policy.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / posta kodu"
+  },
+  "cardNumberLabel": {
+    "message": "Kart numarası"
   }
 }

@@ -771,6 +771,9 @@
   "useSingleSignOn": {
     "message": "Utilizar início de sessão único"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "A sua organização exige o início de sessão único."
+  },
   "submit": {
     "message": "Submeter"
   },
@@ -1292,7 +1295,7 @@
     "message": "Na suspensão do sistema"
   },
   "onLocked": {
-    "message": "No bloqueio do sistema"
+    "message": "Ao bloquear o sistema"
   },
   "onRestart": {
     "message": "Ao reiniciar"
@@ -1851,6 +1854,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bloquear com a palavra-passe mestra ao reiniciar"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Exigir a palavra-passe mestra ou PIN ao reiniciar a app"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Exigir a palavra-passe mestra ao reiniciar a app"
   },
   "deleteAccount": {
     "message": "Eliminar conta"
@@ -2548,6 +2557,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "O tempo limite mínimo personalizado é de 1 minuto."
   },
   "inviteAccepted": {
     "message": "Convite aceite"
@@ -4149,7 +4161,7 @@
     "message": "Arquivar",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Desarquivar"
   },
   "itemsInArchive": {
@@ -4161,16 +4173,22 @@
   "noItemsInArchiveDesc": {
     "message": "Os itens arquivados aparecerão aqui e serão excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático."
   },
-  "itemSentToArchive": {
-    "message": "Item movido para o arquivo"
+  "itemWasSentToArchive": {
+    "message": "O item foi movido para o arquivo"
   },
-  "itemRemovedFromArchive": {
-    "message": "Item removido do arquivo"
+  "itemWasUnarchived": {
+    "message": "O item foi desarquivado"
   },
   "archiveItem": {
     "message": "Arquivar item"
   },
   "archiveItemConfirmDesc": {
     "message": "Os itens arquivados são excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático. Tem a certeza de que pretende arquivar este item?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "Código postal"
+  },
+  "cardNumberLabel": {
+    "message": "Número do cartão"
   }
 }

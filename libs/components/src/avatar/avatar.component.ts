@@ -19,6 +19,8 @@ const SizeClasses: Record<SizeTypes, string[]> = {
   * A variance in color across the avatar component is important as it is used in Account Switching as a
   * visual indicator to recognize which of a personal or work account a user is logged into.
 */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-avatar",
   template: `
@@ -39,7 +41,7 @@ const SizeClasses: Record<SizeTypes, string[]> = {
           [attr.fill]="textColor()"
           [style.fontWeight]="svgFontWeight"
           [style.fontSize.px]="svgFontSize"
-          font-family='Roboto,"Helvetica Neue",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"'
+          font-family='Inter,"Helvetica Neue",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"'
         >
           {{ displayChars() }}
         </text>

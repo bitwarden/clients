@@ -7,6 +7,7 @@ import { distinctUntilChanged, debounceTime } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultItemsComponent as BaseVaultItemsComponent } from "@bitwarden/angular/vault/components/vault-items.component";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
@@ -20,6 +21,8 @@ import { MenuModule } from "@bitwarden/components";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-items-v2",
   templateUrl: "vault-items-v2.component.html",
@@ -33,8 +36,9 @@ export class VaultItemsV2Component<C extends CipherViewLike> extends BaseVaultIt
     cipherService: CipherService,
     accountService: AccountService,
     restrictedItemTypesService: RestrictedItemTypesService,
+    configService: ConfigService,
   ) {
-    super(searchService, cipherService, accountService, restrictedItemTypesService);
+    super(searchService, cipherService, accountService, restrictedItemTypesService, configService);
 
     this.searchBarService.searchText$
       .pipe(debounceTime(SearchTextDebounceInterval), distinctUntilChanged(), takeUntilDestroyed())
