@@ -34,7 +34,7 @@ function buildNapiModule(target, release = true) {
 function buildProxyBin(target, release = true) {
     const targetArg = target ? `--target ${target}` : "";
     const releaseArg = release ? "--release" : "";
-    const xwin = target.includes('windows') && process.platform !== "win32" ? "xwin" : "";
+    const xwin = target && target.includes('windows') && process.platform !== "win32" ? "xwin" : "";
     child_process.execSync(`cargo ${xwin} build --bin desktop_proxy ${releaseArg} ${targetArg}`, {stdio: 'inherit', cwd: path.join(__dirname, "proxy")});
 
     if (target) {

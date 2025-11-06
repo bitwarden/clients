@@ -11,7 +11,7 @@ $backupDataFile = "C:\temp\bw-data.json"
 $comLogFile = "C:\temp\bitwarden_com_debug.log"
 
 # Build Appx
-npm run build:dev && npm run pack:win:arm64
+npm run build-native && npm run build:dev && npm run pack:win:arm64
 
 # Backup tokens
 Copy-Item -Path "$bwFolder\LocalCache\Roaming\Bitwarden\data.json" -Destination $backupDataFile
