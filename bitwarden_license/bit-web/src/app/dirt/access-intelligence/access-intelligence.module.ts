@@ -20,10 +20,8 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength/password-strength.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
@@ -104,7 +102,7 @@ import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.
     safeProvider({
       provide: AccessIntelligenceSecurityTasksService,
       useClass: AccessIntelligenceSecurityTasksService,
-      deps: [AllActivitiesService, DefaultAdminTaskService, ToastService, I18nService],
+      deps: [DefaultAdminTaskService, SecurityTasksApiService],
     }),
   ],
 })
