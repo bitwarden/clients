@@ -28,7 +28,6 @@ cbc = { workspace = true, features = ["alloc"] }
 chacha20poly1305 = { workspace = true }
 dirs = { workspace = true }
 futures = { workspace = true }
-homedir = { workspace = true }
 interprocess = { workspace = true, features = ["tokio"] }
 memsec = { workspace = true, features = ["alloc_ext"] }
 rand = { workspace = true }
@@ -74,6 +73,7 @@ keytar = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 core-foundation = { workspace = true, optional = true }
+homedir = { workspace = true }
 secmem-proc = { workspace = true }
 security-framework = { workspace = true, optional = true }
 security-framework-sys = { workspace = true, optional = true }
@@ -81,6 +81,7 @@ desktop_objc = { path = "../objc" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 ashpd = { workspace = true }
+homedir = { workspace = true }
 libc = { workspace = true }
 linux-keyutils = { workspace = true }
 oo7 = { workspace = true }

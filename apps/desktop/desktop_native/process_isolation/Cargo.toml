@@ -8,10 +8,8 @@ publish = { workspace = true }
 [lib]
 crate-type = ["cdylib"]
 
-[dependencies]
-libc = { workspace = true }
-
 [target.'cfg(target_os = "linux")'.dependencies]
 ctor = { workspace = true }
 desktop_core = { path = "../core" }
+libc = { workspace = true }
 tracing = { workspace = true }

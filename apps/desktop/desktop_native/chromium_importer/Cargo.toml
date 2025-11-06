@@ -9,18 +9,18 @@ publish = { workspace = true }
 aes = { workspace = true }
 anyhow = { workspace = true }
 async-trait = "=0.1.88"
-cbc = { workspace = true, features = ["alloc"] }
 dirs = { workspace = true }
 hex = { workspace = true }
-pbkdf2 = "=0.12.2"
 rand = { workspace = true }
 rusqlite = { version = "=0.37.0", features = ["bundled"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
-sha1 = "=0.10.6"
 
 [target.'cfg(target_os = "macos")'.dependencies]
+cbc = { workspace = true, features = ["alloc"] }
+pbkdf2 = "=0.12.2"
 security-framework = { workspace = true }
+sha1 = "=0.10.6"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 aes-gcm = { workspace = true }
@@ -35,7 +35,10 @@ tokio = { workspace = true, features = ["full"] }
 tracing = { workspace = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
+cbc = { workspace = true, features = ["alloc"] }
 oo7 = { workspace = true }
+pbkdf2 = "=0.12.2"
+sha1 = "=0.10.6"
 
 [lints]
 workspace = true
