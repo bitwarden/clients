@@ -9,7 +9,7 @@ use chromium_importer::config::{ENABLE_DEVELOPER_LOGGING, LOG_FILENAME};
 #[macro_export]
 macro_rules! dbg_log {
     ($($arg:tt)*) => {
-        if $crate::windows::config::ENABLE_DEVELOPER_LOGGING {
+        if chromium_importer::config::ENABLE_DEVELOPER_LOGGING {
             tracing::debug!($($arg)*);
         }
     };
