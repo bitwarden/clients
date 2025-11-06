@@ -23,20 +23,10 @@ sha1 = "=0.10.6"
 security-framework = { workspace = true }
 
 [target.'cfg(target_os = "windows")'.dependencies]
-aes-gcm = "=0.10.3"
+aes-gcm = { workspace = true }
 base64 = { workspace = true }
-chacha20poly1305 = { workspace = true }
 windows = { workspace = true, features = [
-    "Wdk_System_SystemServices",
     "Win32_Security_Cryptography",
-    "Win32_Security",
-    "Win32_Storage_FileSystem",
-    "Win32_System_IO",
-    "Win32_System_Memory",
-    "Win32_System_Pipes",
-    "Win32_System_ProcessStatus",
-    "Win32_System_Services",
-    "Win32_System_Threading",
     "Win32_UI_Shell",
     "Win32_UI_WindowsAndMessaging",
 ] }

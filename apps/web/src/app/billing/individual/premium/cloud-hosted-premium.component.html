@@ -10,7 +10,7 @@
 } @else {
   <bit-container>
     <bit-section>
-      <h2 *ngIf="!isSelfHost" bitTypography="h2">{{ "goPremium" | i18n }}</h2>
+      <h2 bitTypography="h2">{{ "goPremium" | i18n }}</h2>
       <bit-callout
         type="info"
         *ngIf="hasPremiumFromAnyOrganization$ | async"
@@ -51,7 +51,7 @@
             {{ "premiumSignUpFuture" | i18n }}
           </li>
         </ul>
-        <p bitTypography="body1" [ngClass]="{ 'tw-mb-0': !isSelfHost }">
+        <p bitTypography="body1" class="tw-mb-0">
           {{
             "premiumPriceWithFamilyPlan"
               | i18n: (premiumPrice$ | async | currency: "$") : familyPlanMaxUserCount
@@ -65,24 +65,9 @@
             {{ "bitwardenFamiliesPlan" | i18n }}
           </a>
         </p>
-        <a
-          bitButton
-          href="{{ premiumURL }}"
-          target="_blank"
-          rel="noreferrer"
-          buttonType="secondary"
-          *ngIf="isSelfHost"
-        >
-          {{ "purchasePremium" | i18n }}
-        </a>
       </bit-callout>
     </bit-section>
-    <bit-section *ngIf="isSelfHost">
-      <individual-self-hosting-license-uploader
-        (onLicenseFileUploaded)="onLicenseFileSelectedChanged()"
-      />
-    </bit-section>
-    <form *ngIf="!isSelfHost" [formGroup]="formGroup" [bitSubmit]="submitPayment">
+    <form [formGroup]="formGroup" [bitSubmit]="submitPayment">
       <bit-section>
         <h2 bitTypography="h2">{{ "addons" | i18n }}</h2>
         <div class="tw-grid tw-grid-cols-12 tw-gap-4">
