@@ -100,7 +100,7 @@
         <ng-template #readOnlyPerm>
           <div
             *ngIf="item.readonly || disabled"
-            class="tw-max-w-40 tw-overflow-hidden tw-overflow-ellipsis tw-whitespace-nowrap tw-font-bold tw-text-muted"
+            class="tw-max-w-40 tw-overflow-hidden tw-overflow-ellipsis tw-whitespace-nowrap tw-font-medium tw-text-muted"
             [title]="permissionLabelId(item.readonlyPermission) | i18n"
           >
             {{ permissionLabelId(item.readonlyPermission) | i18n }}
