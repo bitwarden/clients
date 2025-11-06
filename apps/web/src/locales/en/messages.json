@@ -376,6 +376,12 @@
   "selectCriticalApplicationsDescription": {
     "message": "Select which applications are most critical to your organization, then assign security tasks to members to resolve risks."
   },
+  "reviewNewApplications": {
+    "message": "Review new applications"
+  },
+  "reviewNewApplicationsDescription": {
+    "message": "We've highlighted at-risk items for new applications stored in Admin console that have weak, exposed, or reused passwords."
+  },
   "clickIconToMarkAppAsCritical": {
     "message": "Click the star icon to mark an app as critical"
   },
