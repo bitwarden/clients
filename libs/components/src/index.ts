@@ -47,4 +47,3 @@ export * from "./tooltip";
 export * from "./typography";
 export * from "./utils";
 export * from "./stepper";
-export * from "./switch";
