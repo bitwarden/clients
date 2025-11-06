@@ -32,7 +32,6 @@ homedir = { workspace = true }
 interprocess = { workspace = true, features = ["tokio"] }
 memsec = { workspace = true, features = ["alloc_ext"] }
 rand = { workspace = true }
-secmem-proc = { workspace = true }
 sha2 = { workspace = true }
 ssh-key = { workspace = true, features = [
     "encryption",
@@ -51,6 +50,7 @@ zeroizing-alloc = { workspace = true }
 [target.'cfg(windows)'.dependencies]
 pin-project = { workspace = true }
 scopeguard = { workspace = true }
+secmem-proc = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 widestring = { workspace = true, optional = true }
@@ -74,6 +74,7 @@ keytar = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 core-foundation = { workspace = true, optional = true }
+secmem-proc = { workspace = true }
 security-framework = { workspace = true, optional = true }
 security-framework-sys = { workspace = true, optional = true }
 desktop_objc = { path = "../objc" }
