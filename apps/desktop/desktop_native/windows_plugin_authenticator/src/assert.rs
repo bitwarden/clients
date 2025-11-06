@@ -4,8 +4,7 @@ use std::ptr;
 use windows_core::{s, HRESULT};
 
 use crate::com_provider::{
-    parse_credential_list, ExperimentalWebAuthnPluginOperationRequest,
-    ExperimentalWebAuthnPluginOperationResponse,
+    parse_credential_list, WebAuthnPluginOperationRequest, WebAuthnPluginOperationResponse,
 };
 use crate::types::*;
 use crate::util::{debug_log, delay_load, wstr_to_string};
@@ -14,7 +13,7 @@ use crate::webauthn::WEBAUTHN_CREDENTIAL_LIST;
 // Windows API types for WebAuthn (from webauthn.h.sample)
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct EXPERIMENTAL_WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
+pub struct WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
     pub dwVersion: u32,
     pub pwszRpId: *const u16, // PCWSTR
     pub cbRpId: u32,
@@ -29,35 +28,33 @@ pub struct EXPERIMENTAL_WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
     // Add other fields as needed...
 }
 
-pub type PEXPERIMENTAL_WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST =
-    *mut EXPERIMENTAL_WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST;
+pub type PWEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST = *mut WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST;
 
 // Windows API function signatures for decoding get assertion requests
-type EXPERIMENTAL_WebAuthNDecodeGetAssertionRequestFn = unsafe extern "stdcall" fn(
+type WebAuthNDecodeGetAssertionRequestFn = unsafe extern "stdcall" fn(
     cbEncoded: u32,
     pbEncoded: *const u8,
-    ppGetAssertionRequest: *mut PEXPERIMENTAL_WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST,
+    ppGetAssertionRequest: *mut PWEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST,
 ) -> HRESULT;
 
-type EXPERIMENTAL_WebAuthNFreeDecodedGetAssertionRequestFn = unsafe extern "stdcall" fn(
-    pGetAssertionRequest: PEXPERIMENTAL_WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST,
-);
+type WebAuthNFreeDecodedGetAssertionRequestFn =
+    unsafe extern "stdcall" fn(pGetAssertionRequest: PWEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST);
 
 // RAII wrapper for decoded get assertion request
 pub struct DecodedGetAssertionRequest {
-    ptr: PEXPERIMENTAL_WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST,
-    free_fn: Option<EXPERIMENTAL_WebAuthNFreeDecodedGetAssertionRequestFn>,
+    ptr: PWEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST,
+    free_fn: Option<WebAuthNFreeDecodedGetAssertionRequestFn>,
 }
 
 impl DecodedGetAssertionRequest {
     fn new(
-        ptr: PEXPERIMENTAL_WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST,
-        free_fn: Option<EXPERIMENTAL_WebAuthNFreeDecodedGetAssertionRequestFn>,
+        ptr: PWEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST,
+        free_fn: Option<WebAuthNFreeDecodedGetAssertionRequestFn>,
     ) -> Self {
         Self { ptr, free_fn }
     }
 
-    pub fn as_ref(&self) -> &EXPERIMENTAL_WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
+    pub fn as_ref(&self) -> &WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
         unsafe { &*self.ptr }
     }
 }
@@ -82,22 +79,19 @@ unsafe fn decode_get_assertion_request(
     debug_log("Attempting to decode get assertion request using Windows API");
 
     // Load the Windows WebAuthn API function
-    let decode_fn: Option<EXPERIMENTAL_WebAuthNDecodeGetAssertionRequestFn> = delay_load(
-        s!("webauthn.dll"),
-        s!("EXPERIMENTAL_WebAuthNDecodeGetAssertionRequest"),
-    );
+    let decode_fn: Option<WebAuthNDecodeGetAssertionRequestFn> =
+        delay_load(s!("webauthn.dll"), s!("WebAuthNDecodeGetAssertionRequest"));
 
-    let decode_fn = decode_fn
-        .ok_or("Failed to load EXPERIMENTAL_WebAuthNDecodeGetAssertionRequest from webauthn.dll")?;
+    let decode_fn =
+        decode_fn.ok_or("Failed to load WebAuthNDecodeGetAssertionRequest from webauthn.dll")?;
 
     // Load the free function
-    let free_fn: Option<EXPERIMENTAL_WebAuthNFreeDecodedGetAssertionRequestFn> = delay_load(
+    let free_fn: Option<WebAuthNFreeDecodedGetAssertionRequestFn> = delay_load(
         s!("webauthn.dll"),
-        s!("EXPERIMENTAL_WebAuthNFreeDecodedGetAssertionRequest"),
+        s!("WebAuthNFreeDecodedGetAssertionRequest"),
     );
 
-    let mut pp_get_assertion_request: PEXPERIMENTAL_WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST =
-        ptr::null_mut();
+    let mut pp_get_assertion_request: PWEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST = ptr::null_mut();
 
     let result = decode_fn(
         encoded_request.len() as u32,
@@ -107,7 +101,7 @@ unsafe fn decode_get_assertion_request(
 
     if result.is_err() || pp_get_assertion_request.is_null() {
         return Err(format!(
-            "EXPERIMENTAL_WebAuthNDecodeGetAssertionRequest failed with HRESULT: {}",
+            "WebAuthNDecodeGetAssertionRequest failed with HRESULT: {}",
             result.0
         ));
     }
@@ -148,10 +142,6 @@ fn send_assertion_request(
         passkey_request.allowed_credentials,
     ));
 
-    debug_log(format!(
-        "Allowed credentials: {:?}",
-        passkey_request.allowed_credentials
-    ));
     match serde_json::to_string(&passkey_request) {
         Ok(request_json) => {
             debug_log(&format!("Sending assertion request: {}", request_json));
@@ -173,7 +163,7 @@ unsafe fn create_get_assertion_response(
     authenticator_data: Vec<u8>,
     signature: Vec<u8>,
     user_handle: Vec<u8>,
-) -> std::result::Result<*mut ExperimentalWebAuthnPluginOperationResponse, HRESULT> {
+) -> std::result::Result<*mut WebAuthnPluginOperationResponse, HRESULT> {
     // Construct a CTAP2 response with the proper structure
 
     // Create CTAP2 GetAssertion response map according to CTAP2 specification
@@ -256,9 +246,8 @@ unsafe fn create_get_assertion_response(
     ptr::copy_nonoverlapping(cbor_data.as_ptr(), response_ptr, response_len);
 
     // Allocate memory for the response structure
-    let response_layout = Layout::new::<ExperimentalWebAuthnPluginOperationResponse>();
-    let operation_response_ptr =
-        alloc(response_layout) as *mut ExperimentalWebAuthnPluginOperationResponse;
+    let response_layout = Layout::new::<WebAuthnPluginOperationResponse>();
+    let operation_response_ptr = alloc(response_layout) as *mut WebAuthnPluginOperationResponse;
     if operation_response_ptr.is_null() {
         return Err(HRESULT(-1));
     }
@@ -266,7 +255,7 @@ unsafe fn create_get_assertion_response(
     // Initialize the response
     ptr::write(
         operation_response_ptr,
-        ExperimentalWebAuthnPluginOperationResponse {
+        WebAuthnPluginOperationResponse {
             encoded_response_byte_count: response_len as u32,
             encoded_response_pointer: response_ptr,
         },
@@ -275,16 +264,16 @@ unsafe fn create_get_assertion_response(
     Ok(operation_response_ptr)
 }
 
-/// Implementation of EXPERIMENTAL_PluginGetAssertion moved from com_provider.rs
-pub unsafe fn experimental_plugin_get_assertion(
-    request: *const ExperimentalWebAuthnPluginOperationRequest,
-    response: *mut *mut ExperimentalWebAuthnPluginOperationResponse,
+/// Implementation of PluginGetAssertion moved from com_provider.rs
+pub unsafe fn plugin_get_assertion(
+    request: *const WebAuthnPluginOperationRequest,
+    response: *mut WebAuthnPluginOperationResponse,
 ) -> HRESULT {
-    debug_log("EXPERIMENTAL_PluginGetAssertion() called");
+    debug_log("PluginGetAssertion() called");
 
     // Validate input parameters
     if request.is_null() || response.is_null() {
-        debug_log("Invalid parameters passed to EXPERIMENTAL_PluginGetAssertion");
+        debug_log("Invalid parameters passed to PluginGetAssertion");
         return HRESULT(-1);
     }
 
@@ -298,7 +287,6 @@ pub unsafe fn experimental_plugin_get_assertion(
 
     if req.encoded_request_byte_count == 0 || req.encoded_request_pointer.is_null() {
         debug_log("ERROR: No encoded request data provided");
-        *response = ptr::null_mut();
         return HRESULT(-1);
     }
 
@@ -316,14 +304,12 @@ pub unsafe fn experimental_plugin_get_assertion(
             // Extract RP information
             let rpid = if decoded_request.pwszRpId.is_null() {
                 debug_log("ERROR: RP ID is null");
-                *response = ptr::null_mut();
                 return HRESULT(-1);
             } else {
                 match wstr_to_string(decoded_request.pwszRpId) {
                     Ok(id) => id,
                     Err(e) => {
                         debug_log(&format!("ERROR: Failed to decode RP ID: {}", e));
-                        *response = ptr::null_mut();
                         return HRESULT(-1);
                     }
                 }
@@ -334,7 +320,6 @@ pub unsafe fn experimental_plugin_get_assertion(
                 || decoded_request.pbClientDataHash.is_null()
             {
                 debug_log("ERROR: Client data hash is required for assertion");
-                *response = ptr::null_mut();
                 return HRESULT(-1);
             } else {
                 let hash_slice = std::slice::from_raw_parts(
@@ -401,7 +386,10 @@ pub unsafe fn experimental_plugin_get_assertion(
                         ) {
                             Ok(webauthn_response) => {
                                 debug_log("Successfully created WebAuthn assertion response");
-                                *response = webauthn_response;
+                                (*response).encoded_response_byte_count =
+                                    (*webauthn_response).encoded_response_byte_count;
+                                (*response).encoded_response_pointer =
+                                    (*webauthn_response).encoded_response_pointer;
                                 HRESULT(0)
                             }
                             Err(e) => {
@@ -409,25 +397,21 @@ pub unsafe fn experimental_plugin_get_assertion(
                                     "ERROR: Failed to create WebAuthn assertion response: {}",
                                     e
                                 ));
-                                *response = ptr::null_mut();
                                 HRESULT(-1)
                             }
                         }
                     }
                     PasskeyResponse::Error { message } => {
                         debug_log(&format!("Assertion request failed: {}", message));
-                        *response = ptr::null_mut();
                         HRESULT(-1)
                     }
                     _ => {
                         debug_log("ERROR: Unexpected response type for assertion request");
-                        *response = ptr::null_mut();
                         HRESULT(-1)
                     }
                 }
             } else {
                 debug_log("ERROR: No response from assertion request");
-                *response = ptr::null_mut();
                 HRESULT(-1)
             }
         }
@@ -436,7 +420,6 @@ pub unsafe fn experimental_plugin_get_assertion(
                 "ERROR: Failed to decode get assertion request: {}",
                 e
             ));
-            *response = ptr::null_mut();
             HRESULT(-1)
         }
     }

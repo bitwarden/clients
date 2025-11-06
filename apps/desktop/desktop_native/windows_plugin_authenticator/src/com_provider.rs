@@ -1,9 +1,8 @@
-use std::ptr;
 use windows::Win32::System::Com::*;
 use windows_core::{implement, interface, IInspectable, IUnknown, Interface, HRESULT};
 
-use crate::assert::experimental_plugin_get_assertion;
-use crate::make_credential::experimental_plugin_make_credential;
+use crate::assert::plugin_get_assertion;
+use crate::make_credential::plugin_make_credential;
 use crate::util::debug_log;
 use crate::webauthn::WEBAUTHN_CREDENTIAL_LIST;
 
@@ -23,21 +22,6 @@ pub enum PluginLockStatus {
 }
 
 /// Used when creating and asserting credentials.
-/// Header File Name: _EXPERIMENTAL_WEBAUTHN_PLUGIN_OPERATION_REQUEST
-/// Header File Usage: EXPERIMENTAL_PluginMakeCredential()
-///                    EXPERIMENTAL_PluginGetAssertion()
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct ExperimentalWebAuthnPluginOperationRequest {
-    pub window_handle: windows::Win32::Foundation::HWND,
-    pub transaction_id: windows_core::GUID,
-    pub request_signature_byte_count: u32,
-    pub request_signature_pointer: *mut u8,
-    pub encoded_request_byte_count: u32,
-    pub encoded_request_pointer: *mut u8,
-}
-
-/// Used when creating and asserting credentials with stable interface.
 /// Header File Name: _WEBAUTHN_PLUGIN_OPERATION_REQUEST
 /// Header File Usage: MakeCredential()
 ///                    GetAssertion()
@@ -159,26 +143,12 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
     ) -> HRESULT {
         debug_log("MakeCredential() called");
         // Convert to legacy format for internal processing
-        let legacy_request = ExperimentalWebAuthnPluginOperationRequest {
-            window_handle: (*request).window_handle,
-            transaction_id: (*request).transaction_id,
-            request_signature_byte_count: (*request).request_signature_byte_count,
-            request_signature_pointer: (*request).request_signature_pointer,
-            encoded_request_byte_count: (*request).encoded_request_byte_count,
-            encoded_request_pointer: (*request).encoded_request_pointer,
-        };
-
-        let mut legacy_response: *mut ExperimentalWebAuthnPluginOperationResponse = ptr::null_mut();
-        let result = experimental_plugin_make_credential(&legacy_request, &mut legacy_response);
-
-        if result.is_ok() && !legacy_response.is_null() {
-            // Copy response data
-            (*response).encoded_response_byte_count =
-                (*legacy_response).encoded_response_byte_count;
-            (*response).encoded_response_pointer = (*legacy_response).encoded_response_pointer;
+        if request.is_null() || response.is_null() {
+            debug_log("MakeCredential: Invalid request or response pointers passed");
+            return HRESULT(-1);
         }
 
-        result
+        plugin_make_credential(request, response)
     }
 
     unsafe fn GetAssertion(
@@ -187,27 +157,10 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
         response: *mut WebAuthnPluginOperationResponse,
     ) -> HRESULT {
         debug_log("GetAssertion() called");
-        // Convert to legacy format for internal processing
-        let legacy_request = ExperimentalWebAuthnPluginOperationRequest {
-            window_handle: (*request).window_handle,
-            transaction_id: (*request).transaction_id,
-            request_signature_byte_count: (*request).request_signature_byte_count,
-            request_signature_pointer: (*request).request_signature_pointer,
-            encoded_request_byte_count: (*request).encoded_request_byte_count,
-            encoded_request_pointer: (*request).encoded_request_pointer,
-        };
-
-        let mut legacy_response: *mut ExperimentalWebAuthnPluginOperationResponse = ptr::null_mut();
-        let result = experimental_plugin_get_assertion(&legacy_request, &mut legacy_response);
-
-        if result.is_ok() && !legacy_response.is_null() {
-            // Copy response data
-            (*response).encoded_response_byte_count =
-                (*legacy_response).encoded_response_byte_count;
-            (*response).encoded_response_pointer = (*legacy_response).encoded_response_pointer;
+        if request.is_null() || response.is_null() {
+            return HRESULT(-1);
         }
-
-        result
+        plugin_get_assertion(request, response)
     }
 
     unsafe fn CancelOperation(

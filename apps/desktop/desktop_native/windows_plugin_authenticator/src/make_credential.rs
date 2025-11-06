@@ -4,8 +4,7 @@ use std::ptr;
 use windows_core::{s, HRESULT};
 
 use crate::com_provider::{
-    parse_credential_list, ExperimentalWebAuthnPluginOperationRequest,
-    ExperimentalWebAuthnPluginOperationResponse,
+    parse_credential_list, WebAuthnPluginOperationRequest, WebAuthnPluginOperationResponse,
 };
 use crate::types::*;
 use crate::util::{debug_log, delay_load, wstr_to_string};
@@ -222,7 +221,7 @@ fn send_registration_request(
 /// Creates a WebAuthn make credential response from Bitwarden's registration response
 unsafe fn create_make_credential_response(
     attestation_object: Vec<u8>,
-) -> std::result::Result<*mut ExperimentalWebAuthnPluginOperationResponse, HRESULT> {
+) -> std::result::Result<*mut WebAuthnPluginOperationResponse, HRESULT> {
     // Use the attestation object directly as the encoded response
     let response_data = attestation_object;
     let response_len = response_data.len();
@@ -238,9 +237,8 @@ unsafe fn create_make_credential_response(
     ptr::copy_nonoverlapping(response_data.as_ptr(), response_ptr, response_len);
 
     // Allocate memory for the response structure
-    let response_layout = Layout::new::<ExperimentalWebAuthnPluginOperationResponse>();
-    let operation_response_ptr =
-        alloc(response_layout) as *mut ExperimentalWebAuthnPluginOperationResponse;
+    let response_layout = Layout::new::<WebAuthnPluginOperationResponse>();
+    let operation_response_ptr = alloc(response_layout) as *mut WebAuthnPluginOperationResponse;
     if operation_response_ptr.is_null() {
         return Err(HRESULT(-1));
     }
@@ -248,7 +246,7 @@ unsafe fn create_make_credential_response(
     // Initialize the response
     ptr::write(
         operation_response_ptr,
-        ExperimentalWebAuthnPluginOperationResponse {
+        WebAuthnPluginOperationResponse {
             encoded_response_byte_count: response_len as u32,
             encoded_response_pointer: response_ptr,
         },
@@ -257,10 +255,10 @@ unsafe fn create_make_credential_response(
     Ok(operation_response_ptr)
 }
 
-/// Implementation of EXPERIMENTAL_PluginMakeCredential moved from com_provider.rs
-pub unsafe fn experimental_plugin_make_credential(
-    request: *const ExperimentalWebAuthnPluginOperationRequest,
-    response: *mut *mut ExperimentalWebAuthnPluginOperationResponse,
+/// Implementation of PluginMakeCredential moved from com_provider.rs
+pub unsafe fn plugin_make_credential(
+    request: *const WebAuthnPluginOperationRequest,
+    response: *mut WebAuthnPluginOperationResponse,
 ) -> HRESULT {
     debug_log("=== EXPERIMENTAL_PluginMakeCredential() called ===");
 
@@ -460,7 +458,10 @@ pub unsafe fn experimental_plugin_make_credential(
                         match create_make_credential_response(attestation_object) {
                             Ok(webauthn_response) => {
                                 debug_log("Successfully created WebAuthn response");
-                                *response = webauthn_response;
+                                (*response).encoded_response_byte_count =
+                                    (*webauthn_response).encoded_response_byte_count;
+                                (*response).encoded_response_pointer =
+                                    (*webauthn_response).encoded_response_pointer;
                                 HRESULT(0)
                             }
                             Err(e) => {
@@ -468,25 +469,21 @@ pub unsafe fn experimental_plugin_make_credential(
                                     "ERROR: Failed to create WebAuthn response: {}",
                                     e
                                 ));
-                                *response = ptr::null_mut();
                                 HRESULT(-1)
                             }
                         }
                     }
                     PasskeyResponse::Error { message } => {
                         debug_log(&format!("Registration request failed: {}", message));
-                        *response = ptr::null_mut();
                         HRESULT(-1)
                     }
                     _ => {
                         debug_log("ERROR: Unexpected response type for registration request");
-                        *response = ptr::null_mut();
                         HRESULT(-1)
                     }
                 }
             } else {
                 debug_log("ERROR: No response from registration request");
-                *response = ptr::null_mut();
                 HRESULT(-1)
             }
         }
@@ -495,7 +492,6 @@ pub unsafe fn experimental_plugin_make_credential(
                 "ERROR: Failed to decode make credential request: {}",
                 e
             ));
-            *response = ptr::null_mut();
             HRESULT(-1)
         }
     }

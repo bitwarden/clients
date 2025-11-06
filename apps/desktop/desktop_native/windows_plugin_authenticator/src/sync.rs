@@ -4,7 +4,7 @@ use serde_json;
 use crate::com_registration::parse_clsid_to_guid_str;
 use crate::ipc::send_passkey_request;
 use crate::types::*;
-use crate::util::{debug_log, wstr_to_string};
+use crate::util::debug_log;
 use crate::webauthn::*;
 
 /// Helper for sync requests - requests credentials from Electron for a specific RP ID
@@ -170,8 +170,12 @@ pub fn get_credentials_from_windows(plugin_clsid: &str) -> Result<Vec<SyncedCred
                     user_handle: cred.user_id,
                 };
 
-                debug_log(&format!("Converted Windows credential: RP ID: {}, User: {}, Credential ID: {} bytes",
-                    synced_cred.rp_id, synced_cred.user_name, synced_cred.credential_id.len()));
+                debug_log(&format!(
+                    "Converted Windows credential: RP ID: {}, User: {}, Credential ID: {} bytes",
+                    synced_cred.rp_id,
+                    synced_cred.user_name,
+                    synced_cred.credential_id.len()
+                ));
 
                 bitwarden_credentials.push(synced_cred);
             }

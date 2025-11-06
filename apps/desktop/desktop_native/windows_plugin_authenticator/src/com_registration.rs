@@ -1,4 +1,3 @@
-use std::ffi::c_uchar;
 use std::ptr;
 
 use windows::Win32::System::Com::*;
@@ -8,7 +7,6 @@ use crate::com_provider;
 use crate::util::delay_load;
 use crate::webauthn::*;
 use ciborium::value::Value;
-use hex;
 
 const AUTHENTICATOR_NAME: &str = "Bitwarden Desktop";
 const CLSID: &str = "0f7dc5d9-69ce-4652-8572-6877fd695062";
@@ -180,8 +178,8 @@ pub fn add_authenticator() -> std::result::Result<(), String> {
     let authenticator_name_ptr = PCWSTR(authenticator_name.as_ptr()).as_ptr();
 
     // Parse CLSID into GUID structure
-    let clsid_guid = parse_clsid_to_guid()
-        .map_err(|e| format!("Failed to parse CLSID to GUID: {}", e))?;
+    let clsid_guid =
+        parse_clsid_to_guid().map_err(|e| format!("Failed to parse CLSID to GUID: {}", e))?;
 
     let relying_party_id: HSTRING = RPID.into();
     let relying_party_id_ptr = PCWSTR(relying_party_id.as_ptr()).as_ptr();
@@ -192,14 +190,14 @@ pub fn add_authenticator() -> std::result::Result<(), String> {
 
     let add_authenticator_options = WebAuthnPluginAddAuthenticatorOptions {
         authenticator_name: authenticator_name_ptr,
-        rclsid: &clsid_guid,  // Changed to GUID reference
+        rclsid: &clsid_guid, // Changed to GUID reference
         rpid: relying_party_id_ptr,
-        light_theme_logo_svg: ptr::null(),  // Renamed field
-        dark_theme_logo_svg: ptr::null(),   // Renamed field
+        light_theme_logo_svg: ptr::null(), // Renamed field
+        dark_theme_logo_svg: ptr::null(),  // Renamed field
         cbor_authenticator_info_byte_count: authenticator_info_bytes.len() as u32,
-        cbor_authenticator_info: authenticator_info_bytes.as_ptr(),  // Use as_ptr() not as_mut_ptr()
-        supported_rp_ids_count: 0,  // NEW field: 0 means all RPs supported
-        supported_rp_ids: ptr::null(),  // NEW field
+        cbor_authenticator_info: authenticator_info_bytes.as_ptr(), // Use as_ptr() not as_mut_ptr()
+        supported_rp_ids_count: 0, // NEW field: 0 means all RPs supported
+        supported_rp_ids: ptr::null(), // NEW field
     };
 
     let mut add_response_ptr: *mut WebAuthnPluginAddAuthenticatorResponse = ptr::null_mut();
@@ -207,7 +205,7 @@ pub fn add_authenticator() -> std::result::Result<(), String> {
     let result = unsafe {
         delay_load::<WebAuthNPluginAddAuthenticatorFnDeclaration>(
             s!("webauthn.dll"),
-            s!("WebAuthNPluginAddAuthenticator"),  // Stable function name
+            s!("WebAuthNPluginAddAuthenticator"), // Stable function name
         )
     };
 

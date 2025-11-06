@@ -65,9 +65,6 @@ pub struct WebAuthnPluginCredentialDetails {
     pub user_display_name: *const u16, // Changed to const (LPCWSTR)
 }
 
-// Keep experimental version for internal use
-pub type ExperimentalWebAuthnPluginCredentialDetails = WebAuthnPluginCredentialDetails;
-
 impl WebAuthnPluginCredentialDetails {
     pub fn create_from_bytes(
         credential_id: Vec<u8>,
@@ -99,80 +96,6 @@ impl WebAuthnPluginCredentialDetails {
             user_id_pointer: user_id_pointer as *const u8,
             user_name: user_name_ptr as *const u16,
             user_display_name: user_display_name_ptr as *const u16,
-        }
-    }
-}
-
-// Keep backward compat alias
-impl ExperimentalWebAuthnPluginCredentialDetails {
-    pub fn create_from_bytes(
-        credential_id: Vec<u8>,
-        rpid: String,
-        rp_friendly_name: String,
-        user_id: Vec<u8>,
-        user_name: String,
-        user_display_name: String,
-    ) -> Self {
-        WebAuthnPluginCredentialDetails::create_from_bytes(
-            credential_id,
-            rpid,
-            rp_friendly_name,
-            user_id,
-            user_name,
-            user_display_name,
-        )
-    }
-}
-
-/// Represents a list of credentials - kept for backwards compatibility
-/// The stable API takes flat arrays directly, not this list structure
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct ExperimentalWebAuthnPluginCredentialDetailsList {
-    pub plugin_clsid: *mut u16,
-    pub credential_count: u32,
-    pub credentials: *mut *mut ExperimentalWebAuthnPluginCredentialDetails,
-}
-
-impl ExperimentalWebAuthnPluginCredentialDetailsList {
-    pub fn create(
-        clsid: String,
-        credentials: Vec<ExperimentalWebAuthnPluginCredentialDetails>,
-    ) -> Self {
-        // Convert credentials to COM-allocated pointers
-        let credential_pointers: Vec<*mut ExperimentalWebAuthnPluginCredentialDetails> =
-            credentials
-                .into_iter()
-                .map(|cred| {
-                    // Use COM allocation for each credential struct
-                    ComBuffer::with_object(cred)
-                })
-                .collect();
-
-        let credentials_len = credential_pointers.len();
-
-        // Allocate the array of pointers using COM as well
-        let credentials_pointer = if credentials_len > 0 {
-            let pointer_array_bytes = credential_pointers.len()
-                * std::mem::size_of::<*mut ExperimentalWebAuthnPluginCredentialDetails>();
-            let (ptr, _) = ComBuffer::from_buffer(unsafe {
-                std::slice::from_raw_parts(
-                    credential_pointers.as_ptr() as *const u8,
-                    pointer_array_bytes,
-                )
-            });
-            ptr as *mut *mut ExperimentalWebAuthnPluginCredentialDetails
-        } else {
-            std::ptr::null_mut()
-        };
-
-        // Convert CLSID to wide string using trait method
-        let (clsid_ptr, _) = clsid.to_com_utf16();
-
-        Self {
-            plugin_clsid: clsid_ptr,
-            credential_count: credentials_len as u32,
-            credentials: credentials_pointer,
         }
     }
 }
