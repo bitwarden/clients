@@ -13,6 +13,7 @@ import {
   AccountSecurityNudgeService,
   VaultSettingsImportNudgeService,
 } from "./custom-nudges-services";
+import { AutoConfirmNudgeService } from "./custom-nudges-services/auto-confirm-nudge.service";
 import { DefaultSingleNudgeService, SingleNudgeService } from "./default-single-nudge.service";
 
 export type NudgeStatus = {
@@ -37,6 +38,7 @@ export const NudgeType = {
   NewNoteItemStatus: "new-note-item-status",
   NewSshItemStatus: "new-ssh-item-status",
   GeneratorNudgeStatus: "generator-nudge-status",
+  AutoConfirmNudge: "auto-confirm-nudge",
 } as const;
 
 export type NudgeType = UnionOfValues<typeof NudgeType>;
@@ -73,6 +75,7 @@ export class NudgesService {
     [NudgeType.NewIdentityItemStatus]: this.newItemNudgeService,
     [NudgeType.NewNoteItemStatus]: this.newItemNudgeService,
     [NudgeType.NewSshItemStatus]: this.newItemNudgeService,
+    [NudgeType.AutoConfirmNudge]: inject(AutoConfirmNudgeService),
   };
 
   /**
@@ -139,6 +142,7 @@ export class NudgesService {
       NudgeType.EmptyVaultNudge,
       NudgeType.DownloadBitwarden,
       NudgeType.AutofillNudge,
+      NudgeType.AutoConfirmNudge,
     ];
 
     const nudgeTypesWithBadge$ = nudgeTypes.map((nudge) => {

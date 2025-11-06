@@ -74,7 +74,14 @@
       <bit-item>
         <a bit-item-content routerLink="/admin">
           <i slot="start" class="bwi bwi-business" aria-hidden="true"></i>
-          {{ "admin" | i18n }}
+          <div class="tw-flex tw-items-center tw-justify-center">
+            <p class="tw-pr-2">{{ "admin" | i18n }}</p>
+            @if (showAdminBadge$ | async) {
+              <span bitBadge variant="notification" [attr.aria-label]="'nudgeBadgeAria' | i18n"
+                >1</span
+              >
+            }
+          </div>
           <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
         </a>
       </bit-item>

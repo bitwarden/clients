@@ -1,7 +1,7 @@
 import { Injectable, NgModule } from "@angular/core";
 import { ActivatedRouteSnapshot, RouteReuseStrategy, RouterModule, Routes } from "@angular/router";
 
-import { organizationPolicyGuard } from "@bitwarden/angular/admin-console/guards";
+import { canAccessAutoConfirmSettings } from "@bitwarden/angular/admin-console/guards";
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
 import { AuthRoute } from "@bitwarden/angular/auth/constants";
 import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/environment-selector/environment-selector.component";
@@ -43,7 +43,6 @@ import {
   TwoFactorAuthComponent,
   TwoFactorAuthGuard,
 } from "@bitwarden/auth/angular";
-import { canAccessAutoConfirm } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { LockComponent, ConfirmKeyConnectorDomainComponent } from "@bitwarden/key-management-ui";
 
@@ -87,6 +86,7 @@ import {
 } from "../vault/popup/guards/at-risk-passwords.guard";
 import { clearVaultStateGuard } from "../vault/popup/guards/clear-vault-state.guard";
 import { IntroCarouselGuard } from "../vault/popup/guards/intro-carousel.guard";
+import { AdminSettingsComponent } from "../vault/popup/settings/admin-settings.component";
 import { AppearanceV2Component } from "../vault/popup/settings/appearance-v2.component";
 import { ArchiveComponent } from "../vault/popup/settings/archive.component";
 import { DownloadBitwardenComponent } from "../vault/popup/settings/download-bitwarden.component";
@@ -318,8 +318,8 @@ const routes: Routes = [
   },
   {
     path: "admin",
-    component: AppearanceV2Component,
-    canActivate: [authGuard, organizationPolicyGuard(canAccessAutoConfirm)],
+    component: AdminSettingsComponent,
+    canActivate: [authGuard, canAccessAutoConfirmSettings],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {

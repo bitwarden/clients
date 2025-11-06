@@ -1,0 +1,23 @@
+<popup-page [loading]="formLoading">
+  <popup-header slot="header" [pageTitle]="'admin' | i18n" showBackButton>
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+
+  @if (showAutoConfirmSpotlight$ | async) {
+    <bit-spotlight
+      (onDismiss)="dismissSpotlight()"
+      [subtitle]="'autoConfirmOnboardingCallout' | i18n"
+    ></bit-spotlight>
+  }
+
+  <form [formGroup]="adminForm">
+    <bit-card>
+      <bit-switch formControlName="autoConfirm">
+        <bit-label>{{ "automaticUserConfirmation" | i18n }}</bit-label>
+        <bit-hint>{{ "automaticUserConfirmationHint" | i18n }}</bit-hint>
+      </bit-switch>
+    </bit-card>
+  </form>
+</popup-page>

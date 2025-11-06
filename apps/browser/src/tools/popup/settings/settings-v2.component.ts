@@ -64,6 +64,12 @@ export class SettingsV2Component implements OnInit {
     ),
   );
 
+  showAdminBadge$: Observable<boolean> = this.authenticatedAccount$.pipe(
+    switchMap((account) =>
+      this.nudgesService.showNudgeBadge$(NudgeType.AutoConfirmNudge, account.id),
+    ),
+  );
+
   showAutofillBadge$: Observable<boolean> = combineLatest([
     this.autofillBrowserSettingsService.defaultBrowserAutofillDisabled$,
     this.authenticatedAccount$,
