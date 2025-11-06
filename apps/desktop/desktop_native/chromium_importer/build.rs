@@ -7,7 +7,7 @@ fn main() {
         }
 
         if !ENABLE_SIGNATURE_VALIDATION {
-            panic!("ENABLE_SERVER_SIGNATURE_VALIDATION must be true in release builds");
+            panic!("ENABLE_SIGNATURE_VALIDATION must be true in release builds");
         }
     }
 }
