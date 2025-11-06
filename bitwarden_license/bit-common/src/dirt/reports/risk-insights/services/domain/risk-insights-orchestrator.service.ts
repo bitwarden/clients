@@ -32,7 +32,7 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LogService } from "@bitwarden/logging";
@@ -87,6 +87,10 @@ export class RiskInsightsOrchestratorService {
 
   private _hasCiphersSubject$ = new BehaviorSubject<boolean | null>(null);
   hasCiphers$ = this._hasCiphersSubject$.asObservable();
+
+  private _criticalApplicationAtRiskCipherIdsSubject$ = new BehaviorSubject<CipherId[]>([]);
+  readonly criticalApplicationAtRiskCipherIds$ =
+    this._criticalApplicationAtRiskCipherIdsSubject$.asObservable();
 
   // ------------------------- Report Variables ----------------
   private _rawReportDataSubject = new BehaviorSubject<ReportState>({
@@ -1123,8 +1127,40 @@ export class RiskInsightsOrchestratorService {
     this._reportStateSubscription = mergedReportState$
       .pipe(takeUntil(this._destroy$))
       .subscribe((state) => {
+        // Update the raw report data subject
         this._rawReportDataSubject.next(state.reportState);
+
+        // Update the critical application at risk cipher ids for exposure
+        const reportState = state.reportState?.data;
+        if (reportState) {
+          const criticalApplicationAtRiskCipherIds = this._getCriticalApplicationCipherIds(
+            reportState.reportData || [],
+            reportState.applicationData || [],
+          );
+          this._criticalApplicationAtRiskCipherIdsSubject$.next(criticalApplicationAtRiskCipherIds);
+        }
       });
+  }
+
+  // Gets the unique cipher IDs that are marked at risk in critical applications
+  private _getCriticalApplicationCipherIds(
+    applications: ApplicationHealthReportDetail[],
+    applicationData: OrganizationReportApplication[],
+  ): CipherId[] {
+    const foundCipherIds = applications
+      .map((app) => {
+        const isCriticalApplication = this.reportService.isCriticalApplication(
+          app,
+          applicationData,
+        );
+        return isCriticalApplication ? app.atRiskCipherIds : [];
+      })
+      .flat();
+
+    // Use a set to ensure uniqueness
+    const uniqueCipherIds = new Set<CipherId>([...foundCipherIds]);
+
+    return [...uniqueCipherIds];
   }
 
   // Setup the user ID observable to track the current user
