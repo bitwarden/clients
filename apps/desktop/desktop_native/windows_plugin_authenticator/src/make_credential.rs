@@ -62,7 +62,7 @@ pub struct WEBAUTHN_COSE_CREDENTIAL_PARAMETERS {
 // Make Credential Request structure (from sample header)
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct EXPERIMENTAL_WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST {
+pub struct WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST {
     pub dwVersion: u32,
     pub cbRpId: u32,
     pub pbRpId: *const u8,
@@ -74,40 +74,36 @@ pub struct EXPERIMENTAL_WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST {
     pub CredentialList: WEBAUTHN_CREDENTIAL_LIST,
     pub cbCborExtensionsMap: u32,
     pub pbCborExtensionsMap: *const u8,
-    pub pAuthenticatorOptions:
-        *const crate::webauthn::ExperimentalWebAuthnCtapCborAuthenticatorOptions,
+    pub pAuthenticatorOptions: *const crate::webauthn::WebAuthnCtapCborAuthenticatorOptions,
     // Add other fields as needed...
 }
 
-pub type PEXPERIMENTAL_WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST =
-    *mut EXPERIMENTAL_WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST;
-
 // Windows API function signatures
-type EXPERIMENTAL_WebAuthNDecodeMakeCredentialRequestFn = unsafe extern "stdcall" fn(
+type WebAuthNDecodeMakeCredentialRequestFn = unsafe extern "stdcall" fn(
     cbEncoded: u32,
     pbEncoded: *const u8,
-    ppMakeCredentialRequest: *mut PEXPERIMENTAL_WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
+    ppMakeCredentialRequest: *mut *mut WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
 ) -> HRESULT;
 
-type EXPERIMENTAL_WebAuthNFreeDecodedMakeCredentialRequestFn = unsafe extern "stdcall" fn(
-    pMakeCredentialRequest: PEXPERIMENTAL_WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
+type WebAuthNFreeDecodedMakeCredentialRequestFn = unsafe extern "stdcall" fn(
+    pMakeCredentialRequest: *mut WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
 );
 
 // RAII wrapper for decoded make credential request
 pub struct DecodedMakeCredentialRequest {
-    ptr: PEXPERIMENTAL_WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
-    free_fn: Option<EXPERIMENTAL_WebAuthNFreeDecodedMakeCredentialRequestFn>,
+    ptr: *const WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
+    free_fn: Option<WebAuthNFreeDecodedMakeCredentialRequestFn>,
 }
 
 impl DecodedMakeCredentialRequest {
     fn new(
-        ptr: PEXPERIMENTAL_WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
-        free_fn: Option<EXPERIMENTAL_WebAuthNFreeDecodedMakeCredentialRequestFn>,
+        ptr: *const WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
+        free_fn: Option<WebAuthNFreeDecodedMakeCredentialRequestFn>,
     ) -> Self {
         Self { ptr, free_fn }
     }
 
-    pub fn as_ref(&self) -> &EXPERIMENTAL_WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST {
+    pub fn as_ref(&self) -> &WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST {
         unsafe { &*self.ptr }
     }
 }
@@ -118,7 +114,7 @@ impl Drop for DecodedMakeCredentialRequest {
             if let Some(free_fn) = self.free_fn {
                 debug_log("Freeing decoded make credential request");
                 unsafe {
-                    free_fn(self.ptr);
+                    free_fn(self.ptr as *mut WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST);
                 }
             }
         }
@@ -132,38 +128,37 @@ unsafe fn decode_make_credential_request(
     debug_log("Attempting to decode make credential request using Windows API");
 
     // Try to load the Windows API decode function
-    let decode_fn = match delay_load::<EXPERIMENTAL_WebAuthNDecodeMakeCredentialRequestFn>(
+    let decode_fn = match delay_load::<WebAuthNDecodeMakeCredentialRequestFn>(
         s!("webauthn.dll"),
-        s!("EXPERIMENTAL_WebAuthNDecodeMakeCredentialRequest"),
+        s!("WebAuthNDecodeMakeCredentialRequest"),
     ) {
         Some(func) => func,
         None => {
             return Err(
-                "Failed to load EXPERIMENTAL_WebAuthNDecodeMakeCredentialRequest from webauthn.dll"
-                    .to_string(),
+                "Failed to load WebAuthNDecodeMakeCredentialRequest from webauthn.dll".to_string(),
             );
         }
     };
 
     // Try to load the free function (optional, might not be available in all versions)
-    let free_fn = delay_load::<EXPERIMENTAL_WebAuthNFreeDecodedMakeCredentialRequestFn>(
+    let free_fn = delay_load::<WebAuthNFreeDecodedMakeCredentialRequestFn>(
         s!("webauthn.dll"),
-        s!("EXPERIMENTAL_WebAuthNFreeDecodedMakeCredentialRequest"),
+        s!("WebAuthNFreeDecodedMakeCredentialRequest"),
     );
 
     // Prepare parameters for the API call
     let cb_encoded = encoded_request.len() as u32;
     let pb_encoded = encoded_request.as_ptr();
-    let mut pp_make_credential_request: PEXPERIMENTAL_WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST =
+    let mut make_credential_request: *mut WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST =
         std::ptr::null_mut();
 
     // Call the Windows API function
-    let result = decode_fn(cb_encoded, pb_encoded, &mut pp_make_credential_request);
+    let result = decode_fn(cb_encoded, pb_encoded, &mut make_credential_request);
 
     // Check if the call succeeded (following C++ THROW_IF_FAILED pattern)
     if result.is_err() {
         debug_log(&format!(
-            "ERROR: EXPERIMENTAL_WebAuthNDecodeMakeCredentialRequest failed with HRESULT: 0x{:08x}",
+            "ERROR: WebAuthNDecodeMakeCredentialRequest failed with HRESULT: 0x{:08x}",
             result.0
         ));
         return Err(format!(
@@ -172,13 +167,13 @@ unsafe fn decode_make_credential_request(
         ));
     }
 
-    if pp_make_credential_request.is_null() {
+    if make_credential_request.is_null() {
         debug_log("ERROR: Windows API succeeded but returned null pointer");
         return Err("Windows API returned null pointer".to_string());
     }
 
     Ok(DecodedMakeCredentialRequest::new(
-        pp_make_credential_request,
+        make_credential_request,
         free_fn,
     ))
 }
@@ -260,7 +255,7 @@ pub unsafe fn plugin_make_credential(
     request: *const WebAuthnPluginOperationRequest,
     response: *mut WebAuthnPluginOperationResponse,
 ) -> HRESULT {
-    debug_log("=== EXPERIMENTAL_PluginMakeCredential() called ===");
+    debug_log("=== PluginMakeCredential() called ===");
 
     if request.is_null() {
         debug_log("ERROR: NULL request pointer");

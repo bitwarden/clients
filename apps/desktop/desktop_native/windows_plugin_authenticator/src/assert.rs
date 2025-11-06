@@ -23,8 +23,7 @@ pub struct WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
     pub CredentialList: WEBAUTHN_CREDENTIAL_LIST,
     pub cbCborExtensionsMap: u32,
     pub pbCborExtensionsMap: *const u8,
-    pub pAuthenticatorOptions:
-        *const crate::webauthn::ExperimentalWebAuthnCtapCborAuthenticatorOptions,
+    pub pAuthenticatorOptions: *const crate::webauthn::WebAuthnCtapCborAuthenticatorOptions,
     // Add other fields as needed...
 }
 

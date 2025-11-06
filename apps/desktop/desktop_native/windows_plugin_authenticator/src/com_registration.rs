@@ -159,7 +159,7 @@ pub fn register_com_library() -> std::result::Result<(), String> {
         CoRegisterClassObject(
             clsid,
             FACTORY.as_interface_ref(),
-            //FACTORY.as_interface::<pluginauthenticator::EXPERIMENTAL_IPluginAuthenticator>(),
+            //FACTORY.as_interface::<pluginauthenticator::IPluginAuthenticator>(),
             CLSCTX_LOCAL_SERVER,
             REGCLS_MULTIPLEUSE,
         )

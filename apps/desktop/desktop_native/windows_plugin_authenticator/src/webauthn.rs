@@ -11,10 +11,10 @@ use crate::com_buffer::ComBuffer;
 use crate::util::{debug_log, delay_load, WindowsString};
 
 /// Windows WebAuthn Authenticator Options structure
-/// Header File Name: _EXPERIMENTAL_WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS
+/// Header File Name: _WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct ExperimentalWebAuthnCtapCborAuthenticatorOptions {
+pub struct WebAuthnCtapCborAuthenticatorOptions {
     pub version: u32,              // DWORD dwVersion
     pub user_presence: i32,        // LONG lUp: +1=TRUE, 0=Not defined, -1=FALSE
     pub user_verification: i32,    // LONG lUv: +1=TRUE, 0=Not defined, -1=FALSE
