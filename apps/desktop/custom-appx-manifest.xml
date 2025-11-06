@@ -4,19 +4,19 @@
     xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
     xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
     xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
-    xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"> -->
+xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"> -->
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
-xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
-xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
-xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
-IgnorableNamespaces="uap rescap com uap10 build"
-xmlns:build="http://schemas.microsoft.com/developer/appx/2015/build">
+    xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+    xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+    xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+    xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
+    IgnorableNamespaces="uap rescap com uap10 build"
+    xmlns:build="http://schemas.microsoft.com/developer/appx/2015/build">
     <!-- use single quotes to avoid double quotes escaping in the publisher value  -->
     <Identity Name="${applicationId}"
-    ProcessorArchitecture="${arch}"
-    Publisher='${publisher}'
-    Version="${version}" />
+        ProcessorArchitecture="${arch}"
+        Publisher='CN=8bit Solutions LLC'
+        Version="${version}" />
     <Properties>
         <DisplayName>Bitwarden</DisplayName>
         <PublisherDisplayName>Bitwarden Inc</PublisherDisplayName>
@@ -114,7 +114,8 @@ xmlns:build="http://schemas.microsoft.com/developer/appx/2015/build">
                 </uap:Extension>
                 <com:Extension Category="windows.comServer">
                     <com:ComServer>
-                        <com:ExeServer Executable="app\Bitwarden.exe" DisplayName="Bitwarden Passkey Manager">
+                        <com:ExeServer Executable="app\Bitwarden.exe"
+                            DisplayName="Bitwarden Passkey Manager">
                             <com:Class Id="0f7dc5d9-69ce-4652-8572-6877fd695062"
                                 DisplayName="Bitwarden Passkey Manager" />
                         </com:ExeServer>
