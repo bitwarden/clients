@@ -106,14 +106,14 @@ function handleWindowMessageEvent(event: MessageEvent) {
     return;
   }
 
-  // Security: Use event.origin (cannot be spoofed) instead of source.location
-  // Extract hostname from origin for referrer validation in background script
+  // use event.origin instead of source.location
+  // extract hostname from origin for referrer validation in background script
   let referrer: string;
   try {
     const originUrl = new URL(origin);
     referrer = originUrl.hostname;
   } catch {
-    // Fallback to window.location.hostname if origin parsing fails
+    // fallback to window.location.hostname if origin parsing fails
     referrer = window.location.hostname;
   }
 
