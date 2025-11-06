@@ -11,7 +11,7 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit" id="import_form_importForm">
   <bit-section>
     <bit-section-header>
-      <h2 class="tw-font-bold" bitTypography="h6">{{ "destination" | i18n }}</h2>
+      <h2 class="tw-font-medium" bitTypography="h6">{{ "destination" | i18n }}</h2>
     </bit-section-header>
     <bit-card>
       <bit-form-field [hidden]="isFromAC">
@@ -62,7 +62,7 @@
 
   <bit-section>
     <bit-section-header>
-      <h2 class="tw-font-bold" bitTypography="h6">{{ "data" | i18n }}</h2>
+      <h2 class="tw-font-medium" bitTypography="h6">{{ "data" | i18n }}</h2>
     </bit-section-header>
     <bit-card>
       <bit-form-field class="@2xl:tw-w-1/2">
@@ -70,7 +70,7 @@
         <bit-select formControlName="format">
           <bit-option value="" label="-- {{ 'select' | i18n }} --" />
           <bit-option
-            class="tw-font-bold tw-text-muted tw-text-xs"
+            class="tw-font-medium tw-text-muted tw-text-xs"
             value="-"
             label="{{ 'commonImportFormats' | i18n }}"
             disabled
