@@ -37,7 +37,7 @@
     <dd *ngIf="sub.expiration">{{ sub.expiration | date: "mediumDate" }}</dd>
     <dd *ngIf="!sub.expiration">{{ "neverExpires" | i18n }}</dd>
   </dl>
-  <div class="tw-flex tw-max-w-[1340px]" *ngIf="!selfHosted">
+  <div class="tw-flex tw-max-w-[1340px] tw-pt-6" *ngIf="!selfHosted">
     <div class="tw-flex tw-gap-16 tw-justify-between tw-w-full">
       <div class="tw-flex tw-flex-col">
         <div class="tw-font-semibold tw-mb-2">{{ "plan" | i18n }}</div>
