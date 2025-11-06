@@ -16,7 +16,11 @@ import {
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
+import {
+  PersonalSubscriptionPricingTier,
+  PersonalSubscriptionPricingTierIds,
+} from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import {
   BadgeModule,
@@ -28,12 +32,7 @@ import {
 import { PricingCardComponent } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { SubscriptionPricingService } from "../../services/subscription-pricing.service";
 import { BitwardenSubscriber, mapAccountToSubscriber } from "../../types";
-import {
-  PersonalSubscriptionPricingTier,
-  PersonalSubscriptionPricingTierIds,
-} from "../../types/subscription-pricing-tier";
 import {
   UnifiedUpgradeDialogComponent,
   UnifiedUpgradeDialogParams,
@@ -52,7 +51,7 @@ const RouteParamValues = {
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  templateUrl: "./premium-vnext.component.html",
+  templateUrl: "./cloud-hosted-premium-vnext.component.html",
   standalone: true,
   imports: [
     CommonModule,
@@ -64,7 +63,7 @@ const RouteParamValues = {
     PricingCardComponent,
   ],
 })
-export class PremiumVNextComponent {
+export class CloudHostedPremiumVNextComponent {
   protected hasPremiumFromAnyOrganization$: Observable<boolean>;
   protected hasPremiumPersonally$: Observable<boolean>;
   protected shouldShowNewDesign$: Observable<boolean>;
@@ -81,22 +80,18 @@ export class PremiumVNextComponent {
     features: string[];
   }>;
   protected subscriber!: BitwardenSubscriber;
-  protected isSelfHost = false;
   private destroyRef = inject(DestroyRef);
 
   constructor(
     private accountService: AccountService,
     private apiService: ApiService,
     private dialogService: DialogService,
-    private platformUtilsService: PlatformUtilsService,
     private syncService: SyncService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private subscriptionPricingService: SubscriptionPricingService,
+    private subscriptionPricingService: SubscriptionPricingServiceAbstraction,
     private router: Router,
     private activatedRoute: ActivatedRoute,
   ) {
-    this.isSelfHost = this.platformUtilsService.isSelfHost();
-
     this.hasPremiumFromAnyOrganization$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
         account
@@ -187,10 +182,12 @@ export class PremiumVNextComponent {
 
     this.shouldShowUpgradeDialogOnInit$
       .pipe(
-        switchMap(async (shouldShowUpgradeDialogOnInit) => {
+        switchMap((shouldShowUpgradeDialogOnInit) => {
           if (shouldShowUpgradeDialogOnInit) {
-            from(this.openUpgradeDialog("Premium"));
+            return from(this.openUpgradeDialog("Premium"));
           }
+          // Return an Observable that completes immediately when dialog should not be shown
+          return of(void 0);
         }),
         takeUntilDestroyed(this.destroyRef),
       )

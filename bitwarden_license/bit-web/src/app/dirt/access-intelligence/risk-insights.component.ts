@@ -8,6 +8,7 @@ import { map, tap } from "rxjs/operators";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   DrawerType,
+  ReportStatus,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -29,6 +30,7 @@ import { AllApplicationsComponent } from "./all-applications/all-applications.co
 import { CriticalApplicationsComponent } from "./critical-applications/critical-applications.component";
 import { EmptyStateCardComponent } from "./empty-state-card.component";
 import { RiskInsightsTabType } from "./models/risk-insights.models";
+import { ApplicationsLoadingComponent } from "./shared/risk-insights-loading.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -48,41 +50,35 @@ import { RiskInsightsTabType } from "./models/risk-insights.models";
     DrawerBodyComponent,
     DrawerHeaderComponent,
     AllActivityComponent,
+    ApplicationsLoadingComponent,
   ],
 })
 export class RiskInsightsComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
   private _isDrawerOpen: boolean = false;
+  protected ReportStatusEnum = ReportStatus;
 
   tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllApps;
   isRiskInsightsActivityTabFeatureEnabled: boolean = false;
 
   appsCount: number = 0;
-  // Leaving this commented because it's not used but seems important
-  // notifiedMembersCount: number = 0;
 
   private organizationId: OrganizationId = "" as OrganizationId;
 
   dataLastUpdated: Date | null = null;
-  refetching: boolean = false;
 
   // Empty state properties
-  protected hasReportBeenRun = false;
-  protected reportHasLoaded = false;
-  protected hasVaultItems = false;
-  private organizationName = "";
+  protected organizationName = "";
 
   // Empty state computed properties
-  protected shouldShowImportDataState = false;
-  protected emptyStateTitle = "";
-  protected emptyStateDescription = "";
-  protected emptyStateBenefits: [string, string][] = [];
-  protected emptyStateButtonText = "";
-  protected emptyStateButtonIcon = "";
-  protected emptyStateButtonAction: (() => void) | null = null;
+  protected emptyStateBenefits: [string, string][] = [
+    [this.i18nService.t("benefit1Title"), this.i18nService.t("benefit1Description")],
+    [this.i18nService.t("benefit2Title"), this.i18nService.t("benefit2Description")],
+    [this.i18nService.t("benefit3Title"), this.i18nService.t("benefit3Description")],
+  ];
   protected emptyStateVideoSrc: string | null = "/videos/risk-insights-mark-as-critical.mp4";
 
-  private static readonly IMPORT_ICON = "bwi bwi-download";
+  protected IMPORT_ICON = "bwi bwi-download";
 
   // TODO: See https://github.com/bitwarden/clients/pull/16832#discussion_r2474523235
 
@@ -91,7 +87,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     private router: Router,
     private configService: ConfigService,
     protected dataService: RiskInsightsDataService,
-    private i18nService: I18nService,
+    protected i18nService: I18nService,
   ) {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllApps;
@@ -125,28 +121,15 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
 
     // Combine report data, vault items check, organization details, and generation state
     // This declarative pattern ensures proper cleanup and prevents memory leaks
-    combineLatest([
-      this.dataService.enrichedReportData$,
-      this.dataService.hasVaultItems$,
-      this.dataService.organizationDetails$,
-      this.dataService.isGeneratingReport$,
-    ])
+    combineLatest([this.dataService.enrichedReportData$, this.dataService.organizationDetails$])
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(([report, hasVaultItems, orgDetails, isGenerating]) => {
+      .subscribe(([report, orgDetails]) => {
         // Update report state
-        this.reportHasLoaded = true;
-        this.hasReportBeenRun = !!report?.creationDate;
         this.appsCount = report?.reportData.length ?? 0;
         this.dataLastUpdated = report?.creationDate ?? null;
 
-        // Update vault items state
-        this.hasVaultItems = hasVaultItems;
-
         // Update organization name
         this.organizationName = orgDetails?.organizationName ?? "";
-
-        // Update all empty state properties based on current state
-        this.updateEmptyStateProperties(isGenerating);
       });
 
     // Subscribe to drawer state changes
@@ -169,10 +152,6 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     if (this.organizationId) {
       this.dataService.triggerReport();
     }
-  }
-
-  get shouldShowTabs(): boolean {
-    return this.appsCount > 0;
   }
 
   async onTabChange(newIndex: number): Promise<void> {
@@ -228,37 +207,4 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       "import",
     ]);
   };
-
-  /**
-   * Updates all empty state properties based on current state.
-   * Called whenever the underlying data (hasVaultItems, hasReportBeenRun, reportHasLoaded) changes.
-   */
-  private updateEmptyStateProperties(isGenerating: boolean): void {
-    // Calculate boolean flags
-    // Note: We only show empty states when there are NO apps (appsCount === 0)
-    // The template uses @if(shouldShowTabs) to determine whether to show tabs or empty state
-    this.shouldShowImportDataState = !this.hasVaultItems && !isGenerating;
-
-    // Update benefits (constant for all states)
-    this.emptyStateBenefits = [
-      [this.i18nService.t("benefit1Title"), this.i18nService.t("benefit1Description")],
-      [this.i18nService.t("benefit2Title"), this.i18nService.t("benefit2Description")],
-      [this.i18nService.t("benefit3Title"), this.i18nService.t("benefit3Description")],
-    ];
-
-    // Update all state-dependent properties in single if/else
-    if (this.shouldShowImportDataState) {
-      this.emptyStateTitle = this.i18nService.t("noApplicationsInOrgTitle", this.organizationName);
-      this.emptyStateDescription = this.i18nService.t("noApplicationsInOrgDescription");
-      this.emptyStateButtonText = this.i18nService.t("importData");
-      this.emptyStateButtonIcon = RiskInsightsComponent.IMPORT_ICON;
-      this.emptyStateButtonAction = this.goToImportPage;
-    } else {
-      this.emptyStateTitle = this.i18nService.t("noReportRunTitle");
-      this.emptyStateDescription = this.i18nService.t("noReportRunDescription");
-      this.emptyStateButtonText = this.i18nService.t("riskInsightsRunReport");
-      this.emptyStateButtonIcon = "";
-      this.emptyStateButtonAction = this.generateReport.bind(this);
-    }
-  }
 }

@@ -172,8 +172,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "Nem találhatók alkalmazások: $ORG NAME$",
+  "noApplicationsInOrgTitle": {
+    "message": "No applications found for $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -181,8 +181,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "Amint a felhasználók elmentik a bejelentkezéseket, itt megjelennek az alkalmazások és megjelenítik a veszélyeztetett jelszavakat. Jelöljük meg a kritikus alkalmazásokat és értesítsük a felhasználókat a jelszavak frissítéséről."
+  "noApplicationsInOrgDescription": {
+    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  },
+  "benefit1Title": {
+    "message": "Prioritize risks"
+  },
+  "benefit1Description": {
+    "message": "Focus on applications that matter the most"
+  },
+  "benefit2Title": {
+    "message": "Guide remediation"
+  },
+  "benefit2Description": {
+    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  },
+  "benefit3Title": {
+    "message": "Monitor progress"
+  },
+  "benefit3Description": {
+    "message": "Track changes over time to show security improvements"
+  },
+  "noReportRunTitle": {
+    "message": "Run your first report to see applications"
+  },
+  "noReportRunDescription": {
+    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Egyetlen alkalmazás sem lett megjelölve kritikusként."
@@ -327,6 +351,27 @@
   },
   "markAsCriticalPlaceholder": {
     "message": "A kritikus funkcióként megjelölés egy jövőbeli frissítésben lesz megvalósítva."
+  },
+  "applicationReviewSaved": {
+    "message": "Application review saved"
+  },
+  "applicationsMarkedAsCritical": {
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "newApplicationsReviewed": {
+    "message": "New applications reviewed"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Error saving review status"
+  },
+  "pleaseTryAgain": {
+    "message": "Please try again"
   },
   "unmarkAsCritical": {
     "message": "Ktritkus jelölés eltávolítása"
@@ -1313,6 +1358,9 @@
   },
   "useSingleSignOn": {
     "message": "Egyszeri bejelentkezés használata"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
   },
   "welcomeBack": {
     "message": "Üdvözlet újra"
@@ -4449,8 +4497,8 @@
   "inviteAccepted": {
     "message": "A meghívás elfogadásra került."
   },
-  "inviteAcceptedDesc": {
-    "message": "A szervezet elérhető, amikor az adminisztrátor jóváhagyja a tagságot.  Amint ez megtörténik, értesítő email érkezik."
+  "invitationAcceptedDesc": {
+    "message": "A meghívó sikeresen elfogadásra került."
   },
   "inviteInitAcceptedDesc": {
     "message": "Mostantól elérhető ez a szervezet."
@@ -6492,23 +6540,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "A szervezete frissítette a visszafejtési beállításokat. Állítsunk be egy mestarjelszót a széf eléréséhez."
   },
-  "maximumVaultTimeout": {
-    "message": "Széf időkifutás"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Munkamenet időkifutás"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Állítsunk be maximális széf időtúllépést minden felhasználó számára."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Állítsunk be egy maximális munkamenet időtúllépést minden tag számára a tulajdonosokat kivéve."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Maximális széf időkifutás"
+  "maximumAllowedTimeout": {
+    "message": "Maximálisan engedélyezett időkifutás"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "A maximális széf időkifutás érvénytelen."
+  "maximumAllowedTimeoutRequired": {
+    "message": "A maximális megengedett időkifutás megadása szükséges."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Az idő érvénytelen. Legalább egy értéket módosításunk."
+  },
+  "sessionTimeoutAction": {
+    "message": "Munkamenet időkifutási művelet"
+  },
+  "immediately": {
+    "message": "Azonnal"
+  },
+  "onSystemLock": {
+    "message": "Rendszer zárolásakor"
+  },
+  "onAppRestart": {
+    "message": "Alkalmazás újraindításakor"
   },
   "hours": {
     "message": "Óra"
   },
   "minutes": {
     "message": "Perc"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Biztosan szeretnénk minden tag számára engedélyezni a \"Soha\" maximálisi időkifutást?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "Ez az opció elmenti tagjai titkosítási kulcsait az eszközeikre. Ha ezt a lehetőséget választjuk, gondoskodjunk arról, hogy eszközeik megfelelő védelemben részesüljenek."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "További információ az eszköz védelemről"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "A \"rendszerzár\" csak a böngészőre és az asztali alkalmazásra vonatkozik."
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "A mobil- és webalkalmazás az \"alkalmazás újraindításakor“ kifejezést használja a maximális megengedett időkifutásként, mivel az opció nem támogatott."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "A szervezeti házirendek hatással vannak a széf időkorlátjára. A széf időkorlátja legfeljebb $HOURS$ óra és $MINUTES$ perc lehet.",
@@ -11936,5 +12014,14 @@
   },
   "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
     "message": "Az Argon2id erősebb védelmet nyújt a modern támadásokkal szemben. A legjobb a nagy teljesítményű eszközökkel rendelkező haladó felhasználók számára."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Irányítószám"
+  },
+  "cardNumberLabel": {
+    "message": "Kártya szám"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Az ingyenes Családok próbaverzió elindítása"
   }
 }

@@ -10,7 +10,9 @@ use rusqlite::{params, Connection};
 mod platform;
 
 #[cfg(target_os = "windows")]
-pub use platform::ADMIN_TO_USER_PIPE_NAME;
+pub use platform::{
+    verify_signature, ADMIN_TO_USER_PIPE_NAME, EXPECTED_SIGNATURE_SHA256_THUMBPRINT,
+};
 
 pub(crate) use platform::SUPPORTED_BROWSERS as PLATFORM_SUPPORTED_BROWSERS;
 

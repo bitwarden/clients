@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Использовать единый вход"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Ваша организация требует единого входа."
+  },
   "welcomeBack": {
     "message": "С возвращением"
   },
@@ -588,6 +591,9 @@
   "view": {
     "message": "Просмотр"
   },
+  "viewAll": {
+    "message": "Посмотреть все"
+  },
   "viewLogin": {
     "message": "Просмотр логина"
   },
@@ -1027,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Элемент сохранен"
+  },
+  "savedWebsite": {
+    "message": "Сохраненный сайт"
+  },
+  "savedWebsites": {
+    "message": "Сохраненные сайты ( $COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Вы действительно хотите отправить в корзину?"
@@ -1676,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Отключить автозаполнение"
   },
+  "confirmAutofill": {
+    "message": "Подтвердите автозаполнение"
+  },
+  "confirmAutofillDesc": {
+    "message": "Этот сайт не соответствует вашим сохраненным логинам. Прежде чем заполнять логин, убедитесь, что это надежный сайт."
+  },
   "showInlineMenuLabel": {
     "message": "Показывать предположения автозаполнения в полях формы"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Как Bitwarden защищает ваши данные от фишинга?"
+  },
+  "currentWebsite": {
+    "message": "Текущий сайт"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Заполнить и добавить этот сайт"
+  },
+  "autofillWithoutAdding": {
+    "message": "Заполнить без добавления"
+  },
+  "doNotAutofill": {
+    "message": "Не заполнять"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Показывать Личную информацию как предложения"
@@ -3240,6 +3279,9 @@
   "decryptionError": {
     "message": "Ошибка расшифровки"
   },
+  "errorGettingAutoFillData": {
+    "message": "Ошибка получения данных автозаполнения"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden не удалось расшифровать элемент(ы) хранилища, перечисленные ниже."
   },
@@ -4010,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Автозаполнение при загрузке страницы использует настройку по умолчанию.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Не удалось заполнить"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "По умолчанию установлено значение 'Точное соответствие'. Текущий сайт не полностью соответствует сохраненным для этого элемента логинам."
+  },
+  "okay": {
+    "message": "OK"
   },
   "toggleSideNavigation": {
     "message": "Переключить боковую навигацию"
@@ -5526,10 +5577,10 @@
     "message": "Изменить пароль, подверженный риску"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Этот логин подвержен риску и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Отсутствует сайт"
   },
   "settingsVaultOptions": {
     "message": "Настройки хранилища"
@@ -5709,17 +5760,23 @@
     "message": "Далее"
   },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Дополнительная навигация",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "confirmKeyConnectorDomain": {
     "message": "Подтвердите домен соединителя ключей"
   },
   "atRiskLoginsSecured": {
-    "message": "Great job securing your at-risk logins!"
+    "message": "Отличная работа по защите ваших логинов, подверженных риску!"
   },
   "settingDisabledByPolicy": {
     "message": "Этот параметр отключен политикой вашей организации.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Почтовый индекс"
+  },
+  "cardNumberLabel": {
+    "message": "Номер карты"
   }
 }
