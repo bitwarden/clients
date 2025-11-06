@@ -18,7 +18,7 @@
 
     @if (linkURL) {
       <a
-        class="tw-block tw-mb-0 tw-font-bold hover:tw-no-underline focus:tw-outline-none after:tw-content-[''] after:tw-block after:tw-absolute after:tw-size-full after:tw-left-0 after:tw-top-0 after:tw-w-full after:tw-h-40"
+        class="tw-block tw-mb-0 tw-font-medium hover:tw-no-underline focus:tw-outline-none after:tw-content-[''] after:tw-block after:tw-absolute after:tw-size-full after:tw-left-0 after:tw-top-0 after:tw-w-full after:tw-h-40"
         [href]="linkURL"
         rel="noopener noreferrer"
         target="_blank"
@@ -28,7 +28,7 @@
     }
   </div>
   <bit-card-content>
-    <h3 class="tw-text-main tw-m-0 tw-text-lg tw-font-semibold">
+    <h3 class="tw-text-main tw-m-0 tw-text-lg tw-font-medium">
       {{ name }}
       @if (showConnectedBadge()) {
         <span class="tw-ml-3">
@@ -42,7 +42,7 @@
       }
     </h3>
     @if (description) {
-      <p class="tw-mb-0 tw-mt-2 tw-font-semibold">{{ description }}</p>
+      <p class="tw-mb-0 tw-mt-2 tw-font-medium">{{ description }}</p>
     }
     @if (canSetupConnection) {
       <button type="button" class="tw-mt-3" bitButton (click)="setupConnection()">
