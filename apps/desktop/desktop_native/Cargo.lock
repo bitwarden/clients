@@ -1024,6 +1024,7 @@ dependencies = [
  "widestring",
  "windows 0.62.2",
  "windows-future 0.3.2",
+ "windows_plugin_authenticator",
  "zbus",
  "zbus_polkit",
  "zeroizing-alloc",

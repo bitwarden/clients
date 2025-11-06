@@ -75,6 +75,7 @@ windows = { workspace = true, features = [
     "Win32_System_Pipes",
 ], optional = true }
 windows-future = { workspace = true }
+windows_plugin_authenticator = { path = "../windows_plugin_authenticator" }
 
 [target.'cfg(windows)'.dev-dependencies]
 keytar = { workspace = true }

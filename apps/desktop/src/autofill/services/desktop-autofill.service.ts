@@ -130,8 +130,8 @@ export class DesktopAutofillService implements OnDestroy {
       return;
     }
 
-    let fido2Credentials: NativeAutofillFido2Credential[];
-    let passwordCredentials: NativeAutofillPasswordCredential[];
+    let fido2Credentials: NativeAutofillFido2Credential[] = [];
+    let passwordCredentials: NativeAutofillPasswordCredential[] = [];
 
     if (status.value.support.password) {
       passwordCredentials = cipherViews
