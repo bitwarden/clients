@@ -177,11 +177,11 @@ export class MainContextMenuHandler {
 
     try {
       const account = await firstValueFrom(this.accountService.activeAccount$);
-      const hasPremium = account?.id
-        ? await firstValueFrom(
-            this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-          )
-        : false;
+      const hasPremium =
+        !!account?.id &&
+        (await firstValueFrom(
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ));
 
       const isCardRestricted = (
         await firstValueFrom(this.restrictedItemTypesService.restricted$)
@@ -320,11 +320,11 @@ export class MainContextMenuHandler {
       }
 
       const account = await firstValueFrom(this.accountService.activeAccount$);
-      const canAccessPremium = account?.id
-        ? await firstValueFrom(
-            this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-          )
-        : false;
+      const canAccessPremium =
+        !!account?.id &&
+        (await firstValueFrom(
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ));
       if (canAccessPremium && (!cipher || !Utils.isNullOrEmpty(cipher.login?.totp))) {
         await createChildItem(COPY_VERIFICATION_CODE_ID);
       }
