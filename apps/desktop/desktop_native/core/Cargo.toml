@@ -68,9 +68,6 @@ windows = { workspace = true, features = [
 ], optional = true }
 windows-future = { workspace = true }
 
-[target.'cfg(windows)'.dev-dependencies]
-keytar = { workspace = true }
-
 [target.'cfg(target_os = "macos")'.dependencies]
 core-foundation = { workspace = true, optional = true }
 homedir = { workspace = true }
