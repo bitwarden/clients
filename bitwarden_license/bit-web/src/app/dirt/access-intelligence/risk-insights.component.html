@@ -118,11 +118,20 @@
             ) | i18n
           }}</span>
           <ng-container *ngIf="drawerDetails.atRiskMemberDetails.length > 0">
+            <button
+              bitLink
+              type="button"
+              class="tw-my-4 tw-font-bold tw-block"
+              (click)="downloadAtRiskMembers()"
+            >
+              <i class="bwi bwi-download tw-mr-1"></i>
+              {{ "downloadCSV" | i18n }}
+            </button>
             <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
-              <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+              <div bitTypography="body2" class="tw-text-sm tw-font-medium">
                 {{ "email" | i18n }}
               </div>
-              <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+              <div bitTypography="body2" class="tw-text-sm tw-font-medium">
                 {{ "atRiskPasswords" | i18n }}
               </div>
             </div>
@@ -173,11 +182,20 @@
             ) | i18n
           }}</span>
           <ng-container *ngIf="drawerDetails.atRiskAppDetails.length > 0">
+            <button
+              bitLink
+              type="button"
+              class="tw-my-4 tw-font-bold tw-block"
+              (click)="downloadAtRiskApplications()"
+            >
+              <i class="bwi bwi-download tw-mr-1"></i>
+              {{ "downloadCSV" | i18n }}
+            </button>
             <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
-              <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+              <div bitTypography="body2" class="tw-text-sm tw-font-medium">
                 {{ "application" | i18n }}
               </div>
-              <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+              <div bitTypography="body2" class="tw-text-sm tw-font-medium">
                 {{ "atRiskPasswords" | i18n }}
               </div>
             </div>

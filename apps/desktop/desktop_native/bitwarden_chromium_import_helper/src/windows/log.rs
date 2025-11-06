@@ -3,17 +3,7 @@ use tracing_subscriber::{
     fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter, Layer as _,
 };
 
-use super::config::{ENABLE_DEVELOPER_LOGGING, LOG_FILENAME};
-
-// Macro wrapper around debug! that compiles to no-op when ENABLE_DEVELOPER_LOGGING is false
-#[macro_export]
-macro_rules! dbg_log {
-    ($($arg:tt)*) => {
-        if $crate::windows::config::ENABLE_DEVELOPER_LOGGING {
-            tracing::debug!($($arg)*);
-        }
-    };
-}
+use chromium_importer::config::{ENABLE_DEVELOPER_LOGGING, LOG_FILENAME};
 
 pub(crate) fn init_logging() {
     if ENABLE_DEVELOPER_LOGGING {
