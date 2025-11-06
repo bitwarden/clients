@@ -12,24 +12,29 @@ exports.default = async function (configuration) {
     // If signing APPX/MSIX, inspect the manifest Publisher before signing
     if (configuration.path.endsWith(".appx") || configuration.path.endsWith(".msix")) {
       try {
-        const manifestContent = require("child_process").execSync(
-          `powershell -Command "Add-Type -AssemblyName System.IO.Compression.FileSystem; ` +
-            `$zip = [System.IO.Compression.ZipFile]::OpenRead('${configuration.path}'); ` +
-            `$entry = $zip.Entries | Where-Object { $_.FullName -eq 'AppxManifest.xml' }; ` +
-            `$stream = $entry.Open(); ` +
-            `$reader = New-Object System.IO.StreamReader($stream); ` +
-            `$content = $reader.ReadToEnd(); ` +
-            `$reader.Close(); $stream.Close(); $zip.Dispose(); ` +
-            `Write-Output $content"`,
-          { encoding: "utf8" },
-        );
+        const path = require("path");
+        const fs = require("fs");
 
-        // Extract and display the Publisher line
-        const publisherMatch = manifestContent.match(/Publisher='([^']+)'/);
-        if (publisherMatch) {
-          console.log(`[*] APPX Manifest Publisher: ${publisherMatch[1]}`);
-        } else {
-          console.log(`[*] Could not find Publisher in manifest`);
+        // Extract architecture from filename (e.g., "Bitwarden-2025.10.2-x64.appx" -> "x64")
+        const filename = path.basename(configuration.path);
+        const archMatch = filename.match(/-(x64|arm64|ia32)\.(appx|msix)$/);
+
+        if (archMatch) {
+          const arch = archMatch[1];
+          const distDir = path.dirname(configuration.path);
+          const manifestPath = path.join(distDir, `__appx-${arch}`, "AppxManifest.xml");
+
+          if (fs.existsSync(manifestPath)) {
+            const manifestContent = fs.readFileSync(manifestPath, "utf8");
+
+            // Extract and display the Publisher line
+            const publisherMatch = manifestContent.match(/Publisher='([^']+)'/);
+            if (publisherMatch) {
+              console.log(`[*] APPX Manifest Publisher: ${publisherMatch[1]}`);
+            }
+          } else {
+            console.log(`[!] Manifest not found at: ${manifestPath}`);
+          }
         }
       } catch (error) {
         console.log(`[!] Failed to read manifest: ${error.message}`);
