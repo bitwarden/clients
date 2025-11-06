@@ -7,6 +7,7 @@ import { firstValueFrom, lastValueFrom } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { BillingCustomerDiscount } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { SubscriptionResponse } from "@bitwarden/common/billing/models/response/subscription.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -16,6 +17,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { DiscountInfo } from "@bitwarden/pricing";
 
 import {
   AdjustStorageDialogComponent,
@@ -206,31 +208,14 @@ export class UserSubscriptionComponent implements OnInit {
   }
 
   get discountedSubscriptionAmount(): number {
-    const baseAmount = this.subscriptionAmount;
-
-    if (baseAmount === 0) {
-      return this.nextInvoice?.amount ?? 0;
+    // Use the upcoming invoice amount from the server as it already includes discounts,
+    // taxes, prorations, and all other adjustments. Fall back to subscription amount
+    // if upcoming invoice is not available.
+    if (this.nextInvoice?.amount != null) {
+      return this.nextInvoice.amount;
     }
 
-    const discount = this.sub?.customerDiscount;
-
-    if (!discount || !discount.active) {
-      return baseAmount;
-    }
-
-    if (discount.percentOff != null && discount.percentOff > 0) {
-      const percentValue =
-        discount.percentOff < 1 ? discount.percentOff * 100 : discount.percentOff;
-      const discountAmount = baseAmount * (percentValue / 100);
-      return baseAmount - discountAmount;
-    }
-
-    if (discount.amountOff != null && discount.amountOff > 0) {
-      const discountedAmount = baseAmount - discount.amountOff;
-      return Math.max(0, discountedAmount);
-    }
-
-    return baseAmount;
+    return this.subscriptionAmount;
   }
 
   get storagePercentage() {
@@ -262,5 +247,16 @@ export class UserSubscriptionComponent implements OnInit {
 
       return this.subscription.status;
     }
+  }
+
+  getDiscountInfo(discount: BillingCustomerDiscount | null): DiscountInfo | null {
+    if (!discount) {
+      return null;
+    }
+    return {
+      active: discount.active,
+      percentOff: discount.percentOff,
+      amountOff: discount.amountOff,
+    };
   }
 }

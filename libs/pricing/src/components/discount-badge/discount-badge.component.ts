@@ -1,23 +1,36 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 
-import { BillingCustomerDiscountResponse } from "@bitwarden/common/billing/models/response/subscription.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { BadgeModule } from "@bitwarden/components";
+
+/**
+ * Interface for discount information that can be displayed in the discount badge.
+ * This is abstracted from the response class to avoid tight coupling.
+ */
+export interface DiscountInfo {
+  /** Whether the discount is currently active */
+  active: boolean;
+  /** Percentage discount (0-100 or 0-1 scale) */
+  percentOff?: number;
+  /** Fixed amount discount in the base currency */
+  amountOff?: number;
+}
 
 @Component({
-  selector: "app-discount-badge",
+  selector: "billing-discount-badge",
   templateUrl: "./discount-badge.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, BadgeModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DiscountBadgeComponent {
-  readonly customerDiscount = input<BillingCustomerDiscountResponse | null>(null);
+  readonly discount = input<DiscountInfo | null>(null);
 
   private i18nService = inject(I18nService);
 
   getDiscountText(): string | null {
-    const discount = this.customerDiscount();
+    const discount = this.discount();
     if (!discount) {
       return null;
     }
@@ -42,7 +55,7 @@ export class DiscountBadgeComponent {
   }
 
   hasDiscount(): boolean {
-    const discount = this.customerDiscount();
+    const discount = this.discount();
     if (!discount) {
       return false;
     }
@@ -55,3 +68,4 @@ export class DiscountBadgeComponent {
     );
   }
 }
+

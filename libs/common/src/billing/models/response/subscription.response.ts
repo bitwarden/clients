@@ -2,13 +2,15 @@
 // @ts-strict-ignore
 import { BaseResponse } from "../../../models/response/base.response";
 
+import { BillingCustomerDiscount } from "./organization-subscription.response";
+
 export class SubscriptionResponse extends BaseResponse {
   storageName: string;
   storageGb: number;
   maxStorageGb: number;
   subscription: BillingSubscriptionResponse;
   upcomingInvoice: BillingSubscriptionUpcomingInvoiceResponse;
-  customerDiscount: BillingCustomerDiscountResponse;
+  customerDiscount: BillingCustomerDiscount;
   license: any;
   expiration: string;
 
@@ -28,7 +30,7 @@ export class SubscriptionResponse extends BaseResponse {
         ? null
         : new BillingSubscriptionUpcomingInvoiceResponse(upcomingInvoice);
     this.customerDiscount =
-      customerDiscount == null ? null : new BillingCustomerDiscountResponse(customerDiscount);
+      customerDiscount == null ? null : new BillingCustomerDiscount(customerDiscount);
   }
 }
 
@@ -101,19 +103,3 @@ export class BillingSubscriptionUpcomingInvoiceResponse extends BaseResponse {
   }
 }
 
-export class BillingCustomerDiscountResponse extends BaseResponse {
-  id: string;
-  active: boolean;
-  percentOff?: number;
-  amountOff?: number;
-  appliesTo: string[];
-
-  constructor(response: any) {
-    super(response);
-    this.id = this.getResponseProperty("Id");
-    this.active = this.getResponseProperty("Active");
-    this.percentOff = this.getResponseProperty("PercentOff");
-    this.amountOff = this.getResponseProperty("AmountOff");
-    this.appliesTo = this.getResponseProperty("AppliesTo") || [];
-  }
-}
