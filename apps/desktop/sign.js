@@ -8,6 +8,34 @@ exports.default = async function (configuration) {
       configuration.path.endsWith(".msix"))
   ) {
     console.log(`[*] Signing file: ${configuration.path}`);
+
+    // If signing APPX/MSIX, inspect the manifest Publisher before signing
+    if (configuration.path.endsWith(".appx") || configuration.path.endsWith(".msix")) {
+      try {
+        const manifestContent = require("child_process").execSync(
+          `powershell -Command "Add-Type -AssemblyName System.IO.Compression.FileSystem; ` +
+            `$zip = [System.IO.Compression.ZipFile]::OpenRead('${configuration.path}'); ` +
+            `$entry = $zip.Entries | Where-Object { $_.FullName -eq 'AppxManifest.xml' }; ` +
+            `$stream = $entry.Open(); ` +
+            `$reader = New-Object System.IO.StreamReader($stream); ` +
+            `$content = $reader.ReadToEnd(); ` +
+            `$reader.Close(); $stream.Close(); $zip.Dispose(); ` +
+            `Write-Output $content"`,
+          { encoding: "utf8" },
+        );
+
+        // Extract and display the Publisher line
+        const publisherMatch = manifestContent.match(/Publisher='([^']+)'/);
+        if (publisherMatch) {
+          console.log(`[*] APPX Manifest Publisher: ${publisherMatch[1]}`);
+        } else {
+          console.log(`[*] Could not find Publisher in manifest`);
+        }
+      } catch (error) {
+        console.log(`[!] Failed to read manifest: ${error.message}`);
+      }
+    }
+
     require("child_process").execSync(
       `azuresigntool sign -v ` +
         `-kvu ${process.env.SIGNING_VAULT_URL} ` +
