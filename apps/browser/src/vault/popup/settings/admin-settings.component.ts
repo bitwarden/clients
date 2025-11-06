@@ -88,7 +88,11 @@ export class AdminSettingsComponent implements OnInit {
         }),
         withLatestFrom(this.userId$, this.autoConfirmState$),
         switchMap(([newValue, userId, existingSate]) =>
-          this.autoConfirmService.upsert(userId, { ...existingSate, enabled: newValue }),
+          this.autoConfirmService.upsert(userId, {
+            ...existingSate,
+            enabled: newValue,
+            showBrowserNotification: false,
+          }),
         ),
         takeUntilDestroyed(this.destroyRef),
       )

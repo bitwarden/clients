@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { combineLatest, Observable, of, switchMap } from "rxjs";
+import { combineLatest, map, Observable } from "rxjs";
 
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { UserId } from "@bitwarden/user-core";
@@ -15,8 +15,16 @@ export class AutoConfirmNudgeService extends DefaultSingleNudgeService {
     return combineLatest([
       this.getNudgeStatus$(nudgeType, userId),
       this.autoConfirmService.configuration$(userId),
+      this.autoConfirmService.canManageAutoConfirm$(userId),
     ]).pipe(
-      switchMap(([nudgeStatus, autoConfirmState]) => {
+      map(([nudgeStatus, autoConfirmState, canManageAutoConfirm]) => {
+        if (!canManageAutoConfirm) {
+          return {
+            hasBadgeDismissed: true,
+            hasSpotlightDismissed: true,
+          };
+        }
+
         const dismissed = autoConfirmState.showBrowserNotification === false;
 
         const status: NudgeStatus = {
@@ -25,10 +33,10 @@ export class AutoConfirmNudgeService extends DefaultSingleNudgeService {
         };
 
         if (nudgeStatus.hasBadgeDismissed || nudgeStatus.hasSpotlightDismissed) {
-          return of(nudgeStatus);
+          return nudgeStatus;
         }
 
-        return of(status);
+        return status;
       }),
     );
   }
