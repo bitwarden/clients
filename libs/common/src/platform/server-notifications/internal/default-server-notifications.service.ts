@@ -301,9 +301,11 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
             notification.payload.id,
           );
         } else {
-          // This call is necessary for Web, which uses a NoopAuthRequstAnsweringService
+          // This call is necessary for Web, which uses a NoopAuthRequestAnsweringService
           // that does not have a recievedPendingAuthRequest() method
           this.messagingService.send("openLoginApproval", {
+            // Include the authRequestId so the DeviceManagementComponent can upsert the correct device.
+            // This will only matter if the user is on the /device-management screen when the auth request is received.
             notificationId: notification.payload.id,
           });
         }

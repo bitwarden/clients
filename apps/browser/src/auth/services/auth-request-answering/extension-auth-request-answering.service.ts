@@ -54,7 +54,11 @@ export class ExtensionAuthRequestAnsweringService
 
     if (userIsAvailableToViewDialog) {
       // Send message to open dialog immediately for this request
-      this.messagingService.send("openLoginApproval");
+      this.messagingService.send("openLoginApproval", {
+        // Include the authRequestId so the DeviceManagementComponent can upsert the correct device.
+        // This will only matter if the user is on the /device-management screen when the auth request is received.
+        notificationId: authRequestId,
+      });
     } else {
       // Create a system notification
       const accounts = await firstValueFrom(this.accountService.accounts$);
