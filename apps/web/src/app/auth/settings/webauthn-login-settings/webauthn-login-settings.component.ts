@@ -34,34 +34,14 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
   protected credentials?: WebauthnLoginCredentialView[];
   protected loading = true;
 
+  protected requireSsoPolicyEnabled = false;
+
   constructor(
     private webauthnService: WebauthnLoginAdminService,
     private dialogService: DialogService,
     private policyService: PolicyService,
     private accountService: AccountService,
   ) {}
-
-  @HostBinding("attr.aria-busy")
-  get ariaBusy() {
-    return this.loading ? "true" : "false";
-  }
-
-  get hasCredentials() {
-    return this.credentials && this.credentials.length > 0;
-  }
-
-  get hasData() {
-    return this.credentials !== undefined;
-  }
-
-  get limitReached() {
-    if (!this.credentials) {
-      return false;
-    }
-    return this.credentials.length >= this.MaxCredentialCount;
-  }
-
-  requireSsoPolicyEnabled = false;
 
   ngOnInit(): void {
     this.accountService.activeAccount$
@@ -84,6 +64,23 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
     this.webauthnService.loading$
       .pipe(takeUntil(this.destroy$))
       .subscribe((loading) => (this.loading = loading));
+  }
+
+  @HostBinding("attr.aria-busy")
+  get ariaBusy() {
+    return this.loading ? "true" : "false";
+  }
+
+  get hasCredentials() {
+    return this.credentials?.length ?? 0 > 0;
+  }
+
+  get hasData() {
+    return this.credentials !== undefined;
+  }
+
+  get limitReached() {
+    return this.credentials?.length ?? 0 >= this.MaxCredentialCount;
   }
 
   ngOnDestroy(): void {
