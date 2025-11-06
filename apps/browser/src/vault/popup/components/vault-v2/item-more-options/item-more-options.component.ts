@@ -291,7 +291,7 @@ export class ItemMoreOptionsComponent {
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t(
-        this.cipher.favorite ? "itemAddedToFavorites" : "itemRemovedFromFavorites",
+        cipher.favorite ? "itemAddedToFavorites" : "itemRemovedFromFavorites",
       ),
     });
   }
