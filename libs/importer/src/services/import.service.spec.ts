@@ -2,7 +2,11 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import {
+  CollectionService,
+  CollectionTypes,
+  CollectionView,
+} from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
@@ -194,7 +198,7 @@ describe("ImportService", () => {
       );
     });
 
-    it("passing importTarget as null on setImportTarget with organizationId throws error", async () => {
+    it("passing importTarget as undefined on setImportTarget with organizationId throws error", async () => {
       const setImportTargetMethod = importService["setImportTarget"](
         null,
         organizationId,
@@ -204,10 +208,10 @@ describe("ImportService", () => {
       await expect(setImportTargetMethod).rejects.toThrow();
     });
 
-    it("passing importTarget as null on setImportTarget throws error", async () => {
+    it("passing importTarget as undefined on setImportTarget throws error", async () => {
       const setImportTargetMethod = importService["setImportTarget"](
         null,
-        "",
+        undefined,
         new Object() as CollectionView,
       );
 
@@ -239,10 +243,39 @@ describe("ImportService", () => {
       importResult.ciphers.push(createCipher({ name: "cipher2" }));
       importResult.folderRelationships.push([0, 0]);
 
-      await importService["setImportTarget"](importResult, "", mockImportTargetFolder);
+      await importService["setImportTarget"](importResult, undefined, mockImportTargetFolder);
       expect(importResult.folderRelationships.length).toEqual(2);
       expect(importResult.folderRelationships[0]).toEqual([1, 0]);
       expect(importResult.folderRelationships[1]).toEqual([0, 1]);
+    });
+
+    it("If importTarget is of type DefaultUserCollection sets it as new root for all ciphers as nesting is not supported", async () => {
+      importResult.collections.push(mockCollection1);
+      importResult.collections.push(mockCollection2);
+      importResult.ciphers.push(createCipher({ name: "cipher1" }));
+      importResult.ciphers.push(createCipher({ name: "cipher2" }));
+      importResult.ciphers.push(createCipher({ name: "cipher3" }));
+
+      importResult.collectionRelationships.push([0, 0]);
+      importResult.collectionRelationships.push([1, 1]);
+      importResult.collectionRelationships.push([2, 0]);
+
+      mockImportTargetCollection.type = CollectionTypes.DefaultUserCollection;
+      await importService["setImportTarget"](
+        importResult,
+        organizationId,
+        mockImportTargetCollection,
+      );
+      expect(importResult.collections.length).toBe(1);
+      expect(importResult.collections[0]).toBe(mockImportTargetCollection);
+
+      expect(importResult.collectionRelationships.length).toEqual(3);
+      expect(importResult.collectionRelationships[0]).toEqual([0, 0]);
+      expect(importResult.collectionRelationships[1]).toEqual([1, 0]);
+      expect(importResult.collectionRelationships[2]).toEqual([2, 0]);
+
+      expect(importResult.collectionRelationships.map((r) => r[0])).toEqual([0, 1, 2]);
+      expect(importResult.collectionRelationships.every((r) => r[1] === 0)).toBe(true);
     });
   });
 });

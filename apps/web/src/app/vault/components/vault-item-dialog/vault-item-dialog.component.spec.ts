@@ -6,11 +6,14 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogRef, DIALOG_DATA, DialogService, ToastService } from "@bitwarden/components";
@@ -73,6 +76,7 @@ describe("VaultItemDialogComponent", () => {
         { provide: LogService, useValue: {} },
         { provide: CipherService, useValue: {} },
         { provide: AccountService, useValue: { activeAccount$: { pipe: () => ({}) } } },
+        { provide: ConfigService, useValue: { getFeatureFlag: () => Promise.resolve(false) } },
         { provide: Router, useValue: {} },
         { provide: ActivatedRoute, useValue: {} },
         {
@@ -84,6 +88,8 @@ describe("VaultItemDialogComponent", () => {
         { provide: ApiService, useValue: {} },
         { provide: EventCollectionService, useValue: {} },
         { provide: RoutedVaultFilterService, useValue: {} },
+        { provide: SyncService, useValue: {} },
+        { provide: PlatformUtilsService, useValue: {} },
       ],
     }).compileComponents();
 
