@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Result};
 use sysinfo::System;
+use tracing::debug;
 use windows::{
     core::BOOL,
     Wdk::System::SystemServices::SE_DEBUG_PRIVILEGE,
@@ -14,7 +15,6 @@ use windows::{
 };
 
 use super::config::SYSTEM_PROCESS_NAMES;
-use crate::dbg_log;
 
 #[link(name = "ntdll")]
 unsafe extern "system" {
@@ -37,7 +37,7 @@ pub(crate) fn start_impersonating() -> Result<HANDLE> {
     unsafe {
         ImpersonateLoggedOnUser(token)?;
     };
-    dbg_log!("Impersonating system process '{}' (PID: {})", name, pid);
+    debug!("Impersonating system process '{}' (PID: {})", name, pid);
 
     Ok(token)
 }
@@ -56,10 +56,9 @@ fn find_system_process_with_token(
     for (pid, name) in pids {
         match get_system_token_from_pid(pid) {
             Err(_) => {
-                dbg_log!(
+                debug!(
                     "Failed to open process handle '{}' (PID: {}), skipping",
-                    name,
-                    pid
+                    name, pid
                 );
                 continue;
             }
@@ -120,20 +119,20 @@ fn get_process_handle(pid: u32) -> Result<HANDLE> {
 fn enable_debug_privilege() -> Result<()> {
     let mut previous_value = BOOL(0);
     let status = unsafe {
-        dbg_log!("Setting SE_DEBUG_PRIVILEGE to 1 via RtlAdjustPrivilege");
+        debug!("Setting SE_DEBUG_PRIVILEGE to 1 via RtlAdjustPrivilege");
         RtlAdjustPrivilege(SE_DEBUG_PRIVILEGE, BOOL(1), BOOL(0), &mut previous_value)
     };
 
     match status {
         STATUS_SUCCESS => {
-            dbg_log!(
+            debug!(
                 "SE_DEBUG_PRIVILEGE set to 1, was {} before",
                 previous_value.as_bool()
             );
             Ok(())
         }
         _ => {
-            dbg_log!("RtlAdjustPrivilege failed with status: 0x{:X}", status.0);
+            debug!("RtlAdjustPrivilege failed with status: 0x{:X}", status.0);
             Err(anyhow!("Failed to adjust privilege"))
         }
     }

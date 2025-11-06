@@ -17,17 +17,16 @@ use windows::{
 };
 
 use super::impersonate::{start_impersonating, stop_impersonating};
-use crate::dbg_log;
 
 //
 // Base64
 //
 
 pub(crate) fn decode_base64(data_base64: &str) -> Result<Vec<u8>> {
-    dbg_log!("Decoding base64 data: {}", data_base64);
+    debug!("Decoding base64 data: {}", data_base64);
 
     let data = general_purpose::STANDARD.decode(data_base64).map_err(|e| {
-        dbg_log!("Failed to decode base64: {}", e);
+        debug!("Failed to decode base64: {}", e);
         e
     })?;
 
@@ -46,7 +45,7 @@ pub(crate) fn decrypt_with_dpapi_as_system(encrypted: &[u8]) -> Result<Vec<u8>> 
     // Impersonate a SYSTEM process to be able to decrypt data encrypted for the machine
     let system_token = start_impersonating()?;
     defer! {
-        dbg_log!("Stopping impersonation");
+        debug!("Stopping impersonation");
         _ = stop_impersonating(system_token);
     }
 
@@ -55,7 +54,7 @@ pub(crate) fn decrypt_with_dpapi_as_system(encrypted: &[u8]) -> Result<Vec<u8>> 
 
 pub(crate) fn decrypt_with_dpapi_as_user(encrypted: &[u8], expect_appb: bool) -> Result<Vec<u8>> {
     let system_decrypted = decrypt_with_dpapi(encrypted, expect_appb)?;
-    dbg_log!(
+    debug!(
         "Decrypted data with SYSTEM {} bytes",
         system_decrypted.len()
     );
@@ -66,7 +65,7 @@ pub(crate) fn decrypt_with_dpapi_as_user(encrypted: &[u8], expect_appb: bool) ->
 fn decrypt_with_dpapi(data: &[u8], expect_appb: bool) -> Result<Vec<u8>> {
     if expect_appb && (data.len() < 5 || !data.starts_with(b"APPB")) {
         const ERR_MSG: &str = "Ciphertext is too short or does not start with 'APPB'";
-        dbg_log!("{}", ERR_MSG);
+        debug!("{}", ERR_MSG);
         return Err(anyhow!(ERR_MSG));
     }
 
@@ -101,7 +100,7 @@ fn decrypt_with_dpapi(data: &[u8], expect_appb: bool) -> Result<Vec<u8>> {
 
         Ok(decrypted)
     } else {
-        dbg_log!("CryptUnprotectData failed");
+        debug!("CryptUnprotectData failed");
         Err(anyhow!("CryptUnprotectData failed"))
     }
 }
@@ -231,7 +230,7 @@ fn decrypt_abe_key_blob_chrome_cng(blob: &[u8]) -> Result<Vec<u8>> {
     let decrypted_aes_key: Vec<u8> = {
         let system_token = start_impersonating()?;
         defer! {
-            dbg_log!("Stopping impersonation");
+            debug!("Stopping impersonation");
             _ = stop_impersonating(system_token);
         }
         decrypt_with_cng(&encrypted_aes_key)?

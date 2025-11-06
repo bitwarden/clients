@@ -12,7 +12,7 @@ use tokio::{
     net::windows::named_pipe::{ClientOptions, NamedPipeClient},
     time,
 };
-use tracing::error;
+use tracing::{debug, error};
 use windows::Win32::{
     Foundation::{CloseHandle, ERROR_PIPE_BUSY, HANDLE},
     System::{
@@ -34,7 +34,6 @@ use super::{
     },
     log::init_logging,
 };
-use crate::dbg_log;
 
 #[derive(Parser)]
 #[command(name = "bitwarden_chromium_import_helper")]
@@ -49,14 +48,14 @@ async fn open_pipe_client(pipe_name: &'static str) -> Result<NamedPipeClient> {
     for _ in 0..max_attempts {
         match ClientOptions::new().open(pipe_name) {
             Ok(client) => {
-                dbg_log!("Successfully connected to the pipe!");
+                debug!("Successfully connected to the pipe!");
                 return Ok(client);
             }
             Err(e) if e.raw_os_error() == Some(ERROR_PIPE_BUSY.0 as i32) => {
-                dbg_log!("Pipe is busy, retrying in 50ms...");
+                debug!("Pipe is busy, retrying in 50ms...");
             }
             Err(e) => {
-                dbg_log!("Failed to connect to pipe: {}", &e);
+                debug!("Failed to connect to pipe: {}", &e);
                 return Err(e.into());
             }
         }
@@ -95,15 +94,15 @@ fn get_named_pipe_server_pid(client: &NamedPipeClient) -> Result<u32> {
 }
 
 fn resolve_process_executable_path(pid: u32) -> Result<PathBuf> {
-    dbg_log!("Resolving process executable path for PID {}", pid);
+    debug!("Resolving process executable path for PID {}", pid);
 
     // Open the process handle
     let hprocess = unsafe { OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid) }?;
-    dbg_log!("Opened process handle for PID {}", pid);
+    debug!("Opened process handle for PID {}", pid);
 
     // Close when no longer needed
     defer! {
-        dbg_log!("Closing process handle for PID {}", pid);
+        debug!("Closing process handle for PID {}", pid);
         unsafe {
             _ = CloseHandle(hprocess);
         }
@@ -119,7 +118,7 @@ fn resolve_process_executable_path(pid: u32) -> Result<PathBuf> {
             &mut exe_name_length,
         )
     }?;
-    dbg_log!(
+    debug!(
         "QueryFullProcessImageNameW returned {} bytes",
         exe_name_length
     );
@@ -145,24 +144,24 @@ async fn open_and_validate_pipe_server(pipe_name: &'static str) -> Result<NamedP
     let client = open_pipe_client(pipe_name).await?;
 
     let server_pid = get_named_pipe_server_pid(&client)?;
-    dbg_log!("Connected to pipe server PID {}", server_pid);
+    debug!("Connected to pipe server PID {}", server_pid);
 
     // Validate the server end process signature
     let exe_path = resolve_process_executable_path(server_pid)?;
 
-    dbg_log!("Pipe server executable path: {}", exe_path.display());
+    debug!("Pipe server executable path: {}", exe_path.display());
 
     if !verify_signature(&exe_path)? {
         return Err(anyhow!("Pipe server signature is not valid"));
     }
 
-    dbg_log!("Pipe server signature verified for PID {}", server_pid);
+    debug!("Pipe server signature verified for PID {}", server_pid);
 
     Ok(client)
 }
 
 fn run() -> Result<String> {
-    dbg_log!("Starting bitwarden_chromium_import_helper.exe");
+    debug!("Starting bitwarden_chromium_import_helper.exe");
 
     let args = Args::try_parse()?;
 
@@ -170,31 +169,31 @@ fn run() -> Result<String> {
         return Err(anyhow!("Expected to run with admin privileges"));
     }
 
-    dbg_log!("Running as ADMINISTRATOR");
+    debug!("Running as ADMINISTRATOR");
 
     let encrypted = decode_base64(&args.encrypted)?;
-    dbg_log!(
+    debug!(
         "Decoded encrypted data [{}] {:?}",
         encrypted.len(),
         encrypted
     );
 
     let system_decrypted = decrypt_with_dpapi_as_system(&encrypted)?;
-    dbg_log!(
+    debug!(
         "Decrypted data with DPAPI as SYSTEM {} {:?}",
         system_decrypted.len(),
         system_decrypted
     );
 
     let user_decrypted = decrypt_with_dpapi_as_user(&system_decrypted, false)?;
-    dbg_log!(
+    debug!(
         "Decrypted data with DPAPI as USER {} {:?}",
         user_decrypted.len(),
         user_decrypted
     );
 
     let key = decode_abe_key_blob(&user_decrypted)?;
-    dbg_log!("Decoded ABE key blob {} {:?}", key.len(), key);
+    debug!("Decoded ABE key blob {} {:?}", key.len(), key);
 
     Ok(encode_base64(&key))
 }
@@ -215,11 +214,11 @@ pub(crate) async fn main() {
 
     match run() {
         Ok(system_decrypted_base64) => {
-            dbg_log!("Sending response back to user");
+            debug!("Sending response back to user");
             let _ = send_to_user(&mut client, &system_decrypted_base64).await;
         }
         Err(e) => {
-            dbg_log!("Error: {}", e);
+            debug!("Error: {}", e);
             send_error_to_user(&mut client, &format!("{}", e)).await;
         }
     }
