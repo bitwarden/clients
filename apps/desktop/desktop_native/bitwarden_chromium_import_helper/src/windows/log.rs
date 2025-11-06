@@ -5,16 +5,6 @@ use tracing_subscriber::{
 
 use super::config::{ENABLE_DEVELOPER_LOGGING, LOG_FILENAME};
 
-// Macro wrapper around debug! that compiles to no-op when ENABLE_DEVELOPER_LOGGING is false
-#[macro_export]
-macro_rules! dbg_log {
-    ($($arg:tt)*) => {
-        if $crate::windows::config::ENABLE_DEVELOPER_LOGGING {
-            tracing::debug!($($arg)*);
-        }
-    };
-}
-
 pub(crate) fn init_logging() {
     if ENABLE_DEVELOPER_LOGGING {
         // We only log to a file. It's impossible to see stdout/stderr when this exe is launched from ShellExecuteW.
