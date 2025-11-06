@@ -398,7 +398,7 @@ describe("Keeper Json Importer", () => {
 
   it("should create folders and assigned ciphers to them", async () => {
     const folders = result.folders;
-    expect(folders.length).toBe(24);
+    expect(folders.length).toBe(25);
 
     // Sort names and compare in bulk so we don't depend on specific ordering
     const folderNames = folders.map((f) => f.name).sort((a, b) => a.localeCompare(b));
@@ -432,7 +432,7 @@ describe("Keeper Json Importer", () => {
 
   it("should create collections if part of an organization", async () => {
     const folders = orgResult.collections;
-    expect(folders.length).toBe(24);
+    expect(folders.length).toBe(25);
 
     // Sort names and compare in bulk so we don't depend on specific ordering
     const folderNames = folders.map((f) => f.name).sort((a, b) => a.localeCompare(b));
@@ -472,6 +472,7 @@ describe("Keeper Json Importer", () => {
     "Clients/Enterprise",
     "Clients/Enterprise/North America",
     "Clients/Enterprise/North America/TechCorp",
+    "Clients/Enterprise/North America/TechCorp/Shared-Needsted-Deep-Inside-Normal-Folder",
     "Development",
     "Development/Name-with-both-slashes",
     "Development/Name-with-both-slashes/Android",

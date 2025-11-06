@@ -59,6 +59,21 @@
           "manage_records": true
         }
       ]
+    },
+    {
+      "path": "Clients\\Enterprise\\North America\\TechCorp\\Shared-Needsted-Deep-Inside-Normal-Folder",
+      "uid": "VztEEZGdprd5UjrQatEVuA",
+      "manage_users": false,
+      "manage_records": false,
+      "can_edit": false,
+      "can_share": false,
+      "permissions": [
+        {
+          "name": "lastpass.ruby+06-november-2025@gmail.com",
+          "manage_users": true,
+          "manage_records": true
+        }
+      ]
     }
   ],
   "records": [
