@@ -10,7 +10,7 @@ import {
 import { WrappedSigningKey } from "@bitwarden/common/key-management/types";
 import { KeySuffixOptions, HashPurpose } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
   UserKey,
   MasterKey,
@@ -220,13 +220,6 @@ export abstract class KeyService {
     providerOrgs: ProfileProviderOrganizationResponse[],
     userId: UserId,
   ): Promise<void>;
-  /**
-   * Retrieves a stream of the active users organization keys,
-   * will NOT emit any value if there is no active user.
-   *
-   * @deprecated Use {@link orgKeys$} with a required {@link UserId} instead.
-   */
-  abstract activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
 
   /**
    * Returns the organization's symmetric key
@@ -248,17 +241,19 @@ export abstract class KeyService {
 
   /**
    * Stores the provider keys for a given user.
-   * @param orgs The provider orgs for which to save the keys from.
+   * @param providers The provider orgs for which to save the keys from.
    * @param userId The user id of the user for which to store the keys for.
    */
-  abstract setProviderKeys(orgs: ProfileProviderResponse[], userId: UserId): Promise<void>;
+  abstract setProviderKeys(providers: ProfileProviderResponse[], userId: UserId): Promise<void>;
+
   /**
-   *
-   * @throws Error when providerId is null or no active user
-   * @param providerId The desired provider
-   * @returns The provider's symmetric key
+   * Gets an observable of provider keys for the given user.
+   * @param userId The user to get provider keys for.
+   * @return An observable stream of the users providers keys if they are unlocked, or null if the user is not unlocked.
+   * @throws If an invalid user id is passed in.
    */
-  abstract getProviderKey(providerId: string): Promise<ProviderKey | null>;
+  abstract providerKeys$(userId: UserId): Observable<Record<ProviderId, ProviderKey> | null>;
+
   /**
    * Creates a new organization key and encrypts it with the user's public key.
    * This method can also return Provider keys for creating new Provider users.

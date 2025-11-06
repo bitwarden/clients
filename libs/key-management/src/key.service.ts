@@ -68,7 +68,14 @@ import {
 import { KdfConfig } from "./models/kdf-config";
 
 export class DefaultKeyService implements KeyServiceAbstraction {
-  readonly activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
+  /**
+   * Retrieves a stream of the active users organization keys,
+   * will NOT emit any value if there is no active user.
+   *
+   * @deprecated Use {@link orgKeys$} with a required {@link UserId} instead.
+   * TODO to be removed with https://bitwarden.atlassian.net/browse/PM-23623
+   */
+  private readonly activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
 
   constructor(
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -426,20 +433,16 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     });
   }
 
-  // TODO: Deprecate in favor of observable
-  async getProviderKey(providerId: ProviderId): Promise<ProviderKey | null> {
-    if (providerId == null) {
-      return null;
-    }
+  providerKeys$(userId: UserId): Observable<Record<ProviderId, ProviderKey> | null> {
+    return this.userPrivateKey$(userId).pipe(
+      switchMap((userPrivateKey) => {
+        if (userPrivateKey == null) {
+          return of(null);
+        }
 
-    const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
-    if (activeUserId == null) {
-      throw new Error("No active user found.");
-    }
-
-    const providerKeys = await firstValueFrom(this.providerKeys$(activeUserId));
-
-    return providerKeys?.[providerId] ?? null;
+        return this.providerKeysHelper$(userId, userPrivateKey);
+      }),
+    );
   }
 
   private async clearProviderKeys(userId: UserId): Promise<void> {
@@ -827,18 +830,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       new EncString(encryptedPrivateKey),
       key,
     )) as UserPrivateKey;
-  }
-
-  providerKeys$(userId: UserId) {
-    return this.userPrivateKey$(userId).pipe(
-      switchMap((userPrivateKey) => {
-        if (userPrivateKey == null) {
-          return of(null);
-        }
-
-        return this.providerKeysHelper$(userId, userPrivateKey);
-      }),
-    );
   }
 
   /**

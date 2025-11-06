@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { PasswordHistory } from "@bitwarden/sdk-internal";
@@ -11,8 +9,8 @@ import { PasswordHistoryData } from "../data/password-history.data";
 import { PasswordHistoryView } from "../view/password-history.view";
 
 export class Password extends Domain {
-  password: EncString;
-  lastUsedDate: Date;
+  password!: EncString;
+  lastUsedDate!: Date;
 
   constructor(obj?: PasswordHistoryData) {
     super();
@@ -20,18 +18,16 @@ export class Password extends Domain {
       return;
     }
 
-    this.buildDomainModel(this, obj, {
-      password: null,
-    });
+    this.password = new EncString(obj.password);
     this.lastUsedDate = new Date(obj.lastUsedDate);
   }
 
-  decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<PasswordHistoryView> {
+  decrypt(orgId: string | undefined, encKey?: SymmetricCryptoKey): Promise<PasswordHistoryView> {
     return this.decryptObj<Password, PasswordHistoryView>(
       this,
       new PasswordHistoryView(this),
       ["password"],
-      orgId,
+      orgId ?? null,
       encKey,
       "DomainType: PasswordHistory",
     );
@@ -46,18 +42,16 @@ export class Password extends Domain {
     return ph;
   }
 
-  static fromJSON(obj: Partial<Jsonify<Password>>): Password {
+  static fromJSON(obj: Jsonify<Password> | undefined): Password | undefined {
     if (obj == null) {
-      return null;
+      return undefined;
     }
 
-    const password = EncString.fromJSON(obj.password);
-    const lastUsedDate = obj.lastUsedDate == null ? null : new Date(obj.lastUsedDate);
+    const passwordHistory = new Password();
+    passwordHistory.password = EncString.fromJSON(obj.password);
+    passwordHistory.lastUsedDate = new Date(obj.lastUsedDate);
 
-    return Object.assign(new Password(), obj, {
-      password,
-      lastUsedDate,
-    });
+    return passwordHistory;
   }
 
   /**
@@ -76,7 +70,7 @@ export class Password extends Domain {
    * Maps an SDK PasswordHistory object to a Password
    * @param obj - The SDK PasswordHistory object
    */
-  static fromSdkPasswordHistory(obj: PasswordHistory): Password | undefined {
+  static fromSdkPasswordHistory(obj?: PasswordHistory): Password | undefined {
     if (!obj) {
       return undefined;
     }

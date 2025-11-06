@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Jedinstvena prijava (SSO)"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Dobro došli natrag"
   },
@@ -559,7 +562,7 @@
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Poništi arhiviranje"
   },
   "itemsInArchive": {
     "message": "Stavke u arhivi"
@@ -571,10 +574,10 @@
     "message": "Arhivirane stavke biti će prikazane ovdje i biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune."
   },
   "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+    "message": "Stavka poslana u arhivu"
   },
   "itemUnarchived": {
-    "message": "Item was unarchived"
+    "message": "Stavka vraćena iz arhive"
   },
   "archiveItem": {
     "message": "Arhiviraj stavku"
@@ -587,6 +590,9 @@
   },
   "view": {
     "message": "Prikaz"
+  },
+  "viewAll": {
+    "message": "View all"
   },
   "viewLogin": {
     "message": "Prikaži prijavu"
@@ -1027,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Stavka izmijenjena"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Želiš li zaista poslati u smeće?"
@@ -1676,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Isključi auto-ispunu"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "Prikaži prijedloge auto-ispune na poljima obrazaca"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Prikaži identitete kao prijedloge"
@@ -3240,6 +3279,9 @@
   "decryptionError": {
     "message": "Pogreška pri dešifriranju"
   },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden nije mogao dešifrirati sljedeće stavke trezora."
   },
@@ -4010,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Auto-ispuna kod učitavanja stranice koristi zadane postavke.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "U/Isključi bočnu navigaciju"
@@ -5580,30 +5631,30 @@
     "message": "Dobrodošli u svoj trezor!"
   },
   "phishingPageTitleV2": {
-    "message": "Phishing attempt detected"
+    "message": "Otkriven pokušaj phishinga"
   },
   "phishingPageSummary": {
-    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+    "message": "Web-mjesto koje pokušavaš posjetiti poznato je kao zlonamjerno i predstavlja sigurnosni rizik."
   },
   "phishingPageCloseTabV2": {
-    "message": "Close this tab"
+    "message": "Zatvori ovu karticu"
   },
   "phishingPageContinueV2": {
-    "message": "Continue to this site (not recommended)"
+    "message": "Nastavi na web mjesto (nije preporučljivo)"
   },
   "phishingPageExplanation1": {
-    "message": "This site was found in ",
+    "message": "Ovo mjesto je nađeno na ",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
   },
   "phishingPageExplanation2": {
-    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "message": ", popisu otvorenog koda poznatih phishing stranica koje se koriste za krađu osobnih i osjetljivih podataka.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
   },
   "phishingPageLearnMore": {
-    "message": "Learn more about phishing detection"
+    "message": "Saznaj više o otkrivanju phishinga"
   },
   "protectedBy": {
-    "message": "Protected by $PRODUCT$",
+    "message": "Zaštićeno s $PRODUCT$",
     "placeholders": {
       "product": {
         "content": "$1",
@@ -5714,5 +5765,18 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Potvrdi domenu kontektora ključa"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Rizične prijave su osigurane!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Ova je postavka onemogućena pravilima tvoje organizacije.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

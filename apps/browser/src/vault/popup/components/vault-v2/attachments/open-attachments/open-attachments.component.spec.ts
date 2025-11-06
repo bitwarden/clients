@@ -155,11 +155,12 @@ describe("OpenAttachmentsComponent", () => {
   });
 
   it("routes the user to the premium page when they cannot access premium features", async () => {
+    const premiumUpgradeService = TestBed.inject(PremiumUpgradePromptService);
     hasPremiumFromAnySource$.next(false);
 
     await component.openAttachments();
 
-    expect(router.navigate).toHaveBeenCalledWith(["/premium"]);
+    expect(premiumUpgradeService.promptForPremium).toHaveBeenCalled();
   });
 
   it("disables attachments when the edit form is disabled", () => {

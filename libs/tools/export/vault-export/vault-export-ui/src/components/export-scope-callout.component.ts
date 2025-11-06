@@ -13,6 +13,8 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CalloutModule } from "@bitwarden/components";
 import { ExportFormat } from "@bitwarden/vault-export-core";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-export-scope-callout",
   templateUrl: "export-scope-callout.component.html",

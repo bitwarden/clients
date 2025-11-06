@@ -6,16 +6,17 @@ import { By } from "@angular/platform-browser";
 import { BitLabel } from "../form-control/label.component";
 
 import { SwitchComponent } from "./switch.component";
-import { SwitchModule } from "./switch.module";
 
 describe("SwitchComponent", () => {
   let fixture: ComponentFixture<TestHostComponent>;
   let switchComponent: SwitchComponent;
   let inputEl: HTMLInputElement;
 
+  // TODO: Fix this the next time the file is edited.
+  // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
   @Component({
     selector: "test-host",
-    imports: [FormsModule, BitLabel, ReactiveFormsModule, SwitchModule],
+    imports: [FormsModule, BitLabel, ReactiveFormsModule, SwitchComponent],
     template: `
       <form [formGroup]="formObj">
         <bit-switch formControlName="switch">
@@ -70,6 +71,8 @@ describe("SwitchComponent", () => {
   });
 
   it("should update checked when selected input changes outside of a form", async () => {
+    // TODO: Fix this the next time the file is edited.
+    // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
     @Component({
       selector: "test-selected-host",
       template: `<bit-switch [selected]="checked"><bit-label>Element</bit-label></bit-switch>`,

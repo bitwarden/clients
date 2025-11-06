@@ -65,6 +65,7 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -154,6 +155,8 @@ type EmptyStateItem = {
 
 type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault",
   templateUrl: "vault.component.html",
@@ -173,7 +176,11 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
   ],
 })
 export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("vaultFilter", { static: true }) filterComponent: VaultFilterComponent;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("vaultItems", { static: false }) vaultItemsComponent: VaultItemsComponent<C>;
 
   trashCleanupWarning: string = null;
@@ -320,6 +327,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private organizationWarningsService: OrganizationWarningsService,
     private policyService: PolicyService,
     private unifiedUpgradePromptService: UnifiedUpgradePromptService,
+    private premiumUpgradePromptService: PremiumUpgradePromptService,
   ) {}
 
   async ngOnInit() {
@@ -620,7 +628,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.changeDetectorRef.markForCheck();
         },
       );
-    await this.unifiedUpgradePromptService.displayUpgradePromptConditionally();
+    void this.unifiedUpgradePromptService.displayUpgradePromptConditionally();
   }
 
   ngOnDestroy() {
@@ -679,6 +687,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
             await this.bulkUnarchive(event.items);
           }
           break;
+        case "toggleFavorite":
+          await this.handleFavoriteEvent(event.item);
+          break;
+        case "editCipher":
+          await this.editCipher(event.item);
+          break;
       }
     } finally {
       this.processingEvent = false;
@@ -686,6 +700,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   async archive(cipher: C) {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
+
+    if (!repromptPassed) {
+      return;
+    }
+
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "archiveItem" },
       content: { key: "archiveItemConfirmDesc" },
@@ -696,10 +716,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       return;
     }
 
-    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
-    if (!repromptPassed) {
-      return;
-    }
     const activeUserId = await firstValueFrom(this.userId$);
     try {
       await this.cipherArchiveService.archiveWithServer(cipher.id as CipherId, activeUserId);
@@ -718,6 +734,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   async bulkArchive(ciphers: C[]) {
+    if (!(await this.repromptCipher(ciphers))) {
+      return;
+    }
+
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "archiveBulkItems" },
       content: { key: "archiveBulkItemsConfirmDesc" },
@@ -725,10 +745,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     });
 
     if (!confirmed) {
-      return;
-    }
-
-    if (!(await this.repromptCipher(ciphers))) {
       return;
     }
 
@@ -853,7 +869,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
 
     if (cipher.organizationId == null && !this.canAccessPremium) {
-      this.messagingService.send("premiumRequired");
+      await this.premiumUpgradePromptService.promptForPremium();
       return;
     } else if (cipher.organizationId != null) {
       const org = await firstValueFrom(
@@ -1450,6 +1466,27 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         uuidAsString(cipher.id),
       );
     }
+  }
+
+  /**
+   * Toggles the favorite status of the cipher and updates it on the server.
+   */
+  async handleFavoriteEvent(cipher: C) {
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const cipherFullView = await this.cipherService.getFullCipherView(cipher);
+    cipherFullView.favorite = !cipherFullView.favorite;
+    const encryptedCipher = await this.cipherService.encrypt(cipherFullView, activeUserId);
+    await this.cipherService.updateWithServer(encryptedCipher);
+
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t(
+        cipherFullView.favorite ? "itemAddedToFavorites" : "itemRemovedFromFavorites",
+      ),
+    });
+
+    this.refresh();
   }
 
   protected deleteCipherWithServer(id: string, userId: UserId, permanent: boolean) {

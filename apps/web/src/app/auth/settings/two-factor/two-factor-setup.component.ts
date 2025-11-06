@@ -3,7 +3,6 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import {
   first,
-  firstValueFrom,
   lastValueFrom,
   Observable,
   Subject,
@@ -45,6 +44,8 @@ import { TwoFactorSetupWebAuthnComponent } from "./two-factor-setup-webauthn.com
 import { TwoFactorSetupYubiKeyComponent } from "./two-factor-setup-yubikey.component";
 import { TwoFactorVerifyComponent } from "./two-factor-verify.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-setup",
   templateUrl: "two-factor-setup.component.html",
@@ -259,13 +260,6 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
     if (result) {
       const recoverComp = TwoFactorRecoveryComponent.open(this.dialogService, { data: result });
       await lastValueFrom(recoverComp.closed);
-    }
-  }
-
-  async premiumRequired() {
-    if (!(await firstValueFrom(this.canAccessPremium$))) {
-      this.messagingService.send("premiumRequired");
-      return;
     }
   }
 

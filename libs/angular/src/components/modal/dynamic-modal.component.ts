@@ -15,6 +15,8 @@ import {
 
 import { ModalRef } from "./modal.ref";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-modal",
   template: "<ng-template #modalContent></ng-template>",
@@ -23,6 +25,8 @@ import { ModalRef } from "./modal.ref";
 export class DynamicModalComponent implements AfterViewInit, OnDestroy {
   componentRef: ComponentRef<any>;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("modalContent", { read: ViewContainerRef, static: true })
   modalContentRef: ViewContainerRef;
 

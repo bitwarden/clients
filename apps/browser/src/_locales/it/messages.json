@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Usa il Single Sign-On"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Bentornato/a"
   },
@@ -574,7 +577,7 @@
     "message": "Elemento archiviato"
   },
   "itemUnarchived": {
-    "message": "Item was unarchived"
+    "message": "Elemento rimosso dall'archivio"
   },
   "archiveItem": {
     "message": "Archivia elemento"
@@ -587,6 +590,9 @@
   },
   "view": {
     "message": "Visualizza"
+  },
+  "viewAll": {
+    "message": "View all"
   },
   "viewLogin": {
     "message": "Visualizza login"
@@ -1027,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Elemento salvato"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Sei sicuro di voler eliminare questo elemento?"
@@ -1676,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Disattiva il riempimento automatico"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "Mostra suggerimenti di riempimento automatico nei campi del modulo"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Mostra identità come consigli"
@@ -3240,6 +3279,9 @@
   "decryptionError": {
     "message": "Errore di decifrazione"
   },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden non può decifrare gli elementi elencati di seguito."
   },
@@ -4010,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Riempimento automatico al caricamento della pagina impostato con l'impostazione predefinita.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "Attiva/Disattiva navigazione laterale"
@@ -5580,30 +5631,30 @@
     "message": "Benvenuto nella tua cassaforte!"
   },
   "phishingPageTitleV2": {
-    "message": "Phishing attempt detected"
+    "message": "Tentativo di phishing rilevato"
   },
   "phishingPageSummary": {
-    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+    "message": "Stai cercando di visitare un sito dannoso noto che può mettere a rischio la tua sicurezza."
   },
   "phishingPageCloseTabV2": {
-    "message": "Close this tab"
+    "message": "Chiudi tab"
   },
   "phishingPageContinueV2": {
-    "message": "Continue to this site (not recommended)"
+    "message": "Vai al sito (SCONSIGLIATO!)"
   },
   "phishingPageExplanation1": {
-    "message": "This site was found in ",
+    "message": "Questo sito è stato trovato in ",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
   },
   "phishingPageExplanation2": {
-    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "message": ", un elenco open-source di siti di phishing noti per il furto di informazioni personali e sensibili.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
   },
   "phishingPageLearnMore": {
-    "message": "Learn more about phishing detection"
+    "message": "Scopri di più sul rilevamento di phishing"
   },
   "protectedBy": {
-    "message": "Protected by $PRODUCT$",
+    "message": "Protetto da $PRODUCT$",
     "placeholders": {
       "product": {
         "content": "$1",
@@ -5714,5 +5765,18 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Conferma dominio Key Connector"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Questa impostazione è disabilitata dalle restrizioni della tua organizzazione.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

@@ -53,6 +53,8 @@ declare global {
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-setup-authenticator",
   templateUrl: "two-factor-setup-authenticator.component.html",
@@ -76,6 +78,8 @@ export class TwoFactorSetupAuthenticatorComponent
   extends TwoFactorSetupMethodBaseComponent
   implements OnInit, OnDestroy
 {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onChangeStatus = new EventEmitter<boolean>();
   type = TwoFactorProviderType.Authenticator;
   key: string;

@@ -174,6 +174,37 @@ describe("Cipher Service", () => {
 
       expect(spy).toHaveBeenCalled();
     });
+
+    it("should include lastKnownRevisionDate in the upload request", async () => {
+      const fileName = "filename";
+      const fileData = new Uint8Array(10);
+      const testCipher = new Cipher(cipherData);
+      const expectedRevisionDate = "2022-01-31T12:00:00.000Z";
+
+      keyService.getOrgKey.mockReturnValue(
+        Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
+      );
+      keyService.makeDataEncKey.mockReturnValue(
+        Promise.resolve([
+          new SymmetricCryptoKey(new Uint8Array(32)),
+          new EncString("encrypted-key"),
+        ] as any),
+      );
+
+      configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(false));
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.CipherKeyEncryption)
+        .mockResolvedValue(false);
+
+      const uploadSpy = jest.spyOn(cipherFileUploadService, "upload").mockResolvedValue({} as any);
+
+      await cipherService.saveAttachmentRawWithServer(testCipher, fileName, fileData, userId);
+
+      // Verify upload was called with cipher that has revisionDate
+      expect(uploadSpy).toHaveBeenCalled();
+      const cipherArg = uploadSpy.mock.calls[0][0];
+      expect(cipherArg.revisionDate).toEqual(new Date(expectedRevisionDate));
+    });
   });
 
   describe("createWithServer()", () => {
@@ -921,6 +952,77 @@ describe("Cipher Service", () => {
       expect(emissions.length).toBeGreaterThanOrEqual(TEST_BASELINE_EMISSIONS + 1);
 
       sub.unsubscribe();
+    });
+  });
+
+  describe("getCipherForUrl localData application", () => {
+    beforeEach(() => {
+      Object.defineProperty(autofillSettingsService, "autofillOnPageLoadDefault$", {
+        value: of(true),
+        writable: true,
+      });
+    });
+
+    it("should apply localData to ciphers when getCipherForUrl is called via getLastLaunchedForUrl", async () => {
+      const testUrl = "https://test-url.com";
+      const cipherId = "test-cipher-id" as CipherId;
+      const testLocalData = {
+        lastLaunched: Date.now().valueOf(),
+        lastUsedDate: Date.now().valueOf() - 1000,
+      };
+
+      jest.spyOn(cipherService, "localData$").mockReturnValue(of({ [cipherId]: testLocalData }));
+
+      const mockCipherView = new CipherView();
+      mockCipherView.id = cipherId;
+      mockCipherView.localData = null;
+
+      jest.spyOn(cipherService, "getAllDecryptedForUrl").mockResolvedValue([mockCipherView]);
+
+      const result = await cipherService.getLastLaunchedForUrl(testUrl, userId, true);
+
+      expect(result.localData).toEqual(testLocalData);
+    });
+
+    it("should apply localData to ciphers when getCipherForUrl is called via getLastUsedForUrl", async () => {
+      const testUrl = "https://test-url.com";
+      const cipherId = "test-cipher-id" as CipherId;
+      const testLocalData = { lastUsedDate: Date.now().valueOf() - 1000 };
+
+      jest.spyOn(cipherService, "localData$").mockReturnValue(of({ [cipherId]: testLocalData }));
+
+      const mockCipherView = new CipherView();
+      mockCipherView.id = cipherId;
+      mockCipherView.localData = null;
+
+      jest.spyOn(cipherService, "getAllDecryptedForUrl").mockResolvedValue([mockCipherView]);
+
+      const result = await cipherService.getLastUsedForUrl(testUrl, userId, true);
+
+      expect(result.localData).toEqual(testLocalData);
+    });
+
+    it("should not modify localData if it already matches in getCipherForUrl", async () => {
+      const testUrl = "https://test-url.com";
+      const cipherId = "test-cipher-id" as CipherId;
+      const existingLocalData = {
+        lastLaunched: Date.now().valueOf(),
+        lastUsedDate: Date.now().valueOf() - 1000,
+      };
+
+      jest
+        .spyOn(cipherService, "localData$")
+        .mockReturnValue(of({ [cipherId]: existingLocalData }));
+
+      const mockCipherView = new CipherView();
+      mockCipherView.id = cipherId;
+      mockCipherView.localData = existingLocalData;
+
+      jest.spyOn(cipherService, "getAllDecryptedForUrl").mockResolvedValue([mockCipherView]);
+
+      const result = await cipherService.getLastLaunchedForUrl(testUrl, userId, true);
+
+      expect(result.localData).toBe(existingLocalData);
     });
   });
 });
