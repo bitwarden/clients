@@ -1,3 +1,4 @@
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { CdkVirtualScrollableElement, ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import { AfterViewInit, Component, DestroyRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
@@ -5,6 +6,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
 import {
   combineLatest,
+  distinctUntilChanged,
   filter,
   firstValueFrom,
   map,
@@ -12,6 +14,7 @@ import {
   shareReplay,
   switchMap,
   take,
+  tap,
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -21,6 +24,7 @@ import { DeactivatedOrg, NoResults, VaultOpen } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -56,7 +60,6 @@ import {
 import { VaultHeaderV2Component } from "./vault-header/vault-header-v2.component";
 
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
-
 
 const VaultState = {
   Empty: 0,
@@ -115,7 +118,16 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
   protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
-  protected loading$ = this.vaultPopupLoadingService.loading$;
+  protected loading$ = this.vaultPopupLoadingService.loading$.pipe(
+    distinctUntilChanged(),
+    tap((loading) => {
+      if (loading) {
+        void this.liveAnnouncer.announce(this.i18nService.translate("loadingVault"), "polite");
+      } else {
+        void this.liveAnnouncer.announce(this.i18nService.translate("vaultLoaded"), "polite");
+      }
+    }),
+  );
 
   protected newItemItemValues$: Observable<NewItemInitialValues> =
     this.vaultPopupListFiltersService.filters$.pipe(
@@ -152,6 +164,8 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private introCarouselService: IntroCarouselService,
     private nudgesService: NudgesService,
     private router: Router,
+    private liveAnnouncer: LiveAnnouncer,
+    private i18nService: I18nService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
