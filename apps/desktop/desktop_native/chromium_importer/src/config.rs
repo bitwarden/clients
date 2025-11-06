@@ -1,13 +1,10 @@
-// Shared configuration constants used by both build.rs and source code
-// These constants are validated at build time to ensure correct values in release builds
-
 // Enable this to log to a file. The way this executable is used, it's not easy to debug and the stdout gets lost.
 // This is intended for development time only. All the logging is wrapped in `dbg_log!` macro that compiles to
 // no-op when logging is disabled. This is needed to avoid any sensitive data being logged in production.
 pub const ENABLE_DEVELOPER_LOGGING: bool = false;
 
 // The absolute path to log file when developer logging is enabled
-pub(crate) const LOG_FILENAME: &str = "c:\\path\\to\\log.txt";
+pub const LOG_FILENAME: &str = "c:\\path\\to\\log.txt";
 
 // This should be enabled for production
-pub const ENABLE_SERVER_SIGNATURE_VALIDATION: bool = true;
+pub const ENABLE_SIGNATURE_VALIDATION: bool = true;
