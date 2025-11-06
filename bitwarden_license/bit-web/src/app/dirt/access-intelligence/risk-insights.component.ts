@@ -63,7 +63,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
 
   appsCount: number = 0;
 
-  private organizationId: OrganizationId = "" as OrganizationId;
+  protected organizationId: OrganizationId = "" as OrganizationId;
 
   dataLastUpdated: Date | null = null;
 
