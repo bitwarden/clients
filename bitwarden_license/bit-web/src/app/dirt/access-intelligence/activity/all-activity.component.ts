@@ -10,7 +10,6 @@ import {
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
@@ -52,7 +51,6 @@ export class AllActivityComponent implements OnInit {
   protected ReportStatusEnum = ReportStatus;
 
   constructor(
-    private accountService: AccountService,
     protected activatedRoute: ActivatedRoute,
     protected allActivitiesService: AllActivitiesService,
     protected dataService: RiskInsightsDataService,
