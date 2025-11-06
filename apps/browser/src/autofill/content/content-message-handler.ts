@@ -19,8 +19,8 @@ const windowMessageHandlers: ContentMessageWindowEventHandlers = {
   duoResult: ({ data, referrer }: { data: any; referrer: string }) =>
     handleDuoResultMessage(data, referrer),
   [VaultMessages.OpenAtRiskPasswords]: () => handleOpenAtRiskPasswordsMessage(),
-  [VaultMessages.OpenBrowserExtensionToUrl]: ({ data }) =>
-    handleOpenBrowserExtensionToUrlMessage(data),
+  [VaultMessages.OpenBrowserExtensionToUrl]: ({ data, referrer }) =>
+    handleOpenBrowserExtensionToUrlMessage({ url: data.url, referrer }),
 };
 
 /**
@@ -81,8 +81,18 @@ function handleOpenAtRiskPasswordsMessage() {
   sendExtensionRuntimeMessage({ command: VaultMessages.OpenAtRiskPasswords });
 }
 
-function handleOpenBrowserExtensionToUrlMessage({ url }: { url?: ExtensionPageUrls }) {
-  sendExtensionRuntimeMessage({ command: VaultMessages.OpenBrowserExtensionToUrl, url });
+function handleOpenBrowserExtensionToUrlMessage({
+  url,
+  referrer,
+}: {
+  url?: ExtensionPageUrls;
+  referrer?: string;
+}) {
+  sendExtensionRuntimeMessage({
+    command: VaultMessages.OpenBrowserExtensionToUrl,
+    url,
+    referrer,
+  });
 }
 
 /**
@@ -91,12 +101,22 @@ function handleOpenBrowserExtensionToUrlMessage({ url }: { url?: ExtensionPageUr
  * @param event - The window message event
  */
 function handleWindowMessageEvent(event: MessageEvent) {
-  const { source, data } = event;
+  const { source, data, origin } = event;
   if (source !== window || !data?.command) {
     return;
   }
 
-  const referrer = source.location.hostname;
+  // Security: Use event.origin (cannot be spoofed) instead of source.location
+  // Extract hostname from origin for referrer validation in background script
+  let referrer: string;
+  try {
+    const originUrl = new URL(origin);
+    referrer = originUrl.hostname;
+  } catch {
+    // Fallback to window.location.hostname if origin parsing fails
+    referrer = window.location.hostname;
+  }
+
   const handler = windowMessageHandlers[data.command];
   if (handler) {
     handler({ data, referrer });

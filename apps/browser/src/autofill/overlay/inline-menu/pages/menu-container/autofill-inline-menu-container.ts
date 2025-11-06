@@ -1,6 +1,6 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
-import { setElementStyles } from "../../../../utils";
+import { generateRandomChars, setElementStyles } from "../../../../utils";
 import {
   InitAutofillInlineMenuElementMessage,
   AutofillInlineMenuContainerWindowMessageHandlers,
@@ -8,14 +8,37 @@ import {
   AutofillInlineMenuContainerPortMessage,
 } from "../../abstractions/autofill-inline-menu-container";
 
+/**
+ * Whitelist of commands allowed
+ */
+const ALLOWED_BG_COMMANDS = new Set<string>([
+  "unlockVault",
+  "fillGeneratedPassword",
+  "refreshGeneratedPassword",
+  "addNewVaultItem",
+  "fillAutofillInlineMenuCipher",
+  "viewSelectedCipher",
+  "refreshOverlayCiphers",
+  "checkAutofillInlineMenuButtonFocused",
+  "updateAutofillInlineMenuListHeight",
+  "autofillInlineMenuBlurred",
+  "redirectAutofillInlineMenuFocusOut",
+  "autofillInlineMenuButtonClicked",
+  "triggerDelayedAutofillInlineMenuClosure",
+  "updateAutofillInlineMenuColorScheme",
+  "checkInlineMenuButtonFocused",
+]);
+
 export class AutofillInlineMenuContainer {
   private readonly setElementStyles = setElementStyles;
-  private readonly extensionOriginsSet: Set<string>;
   private port: chrome.runtime.Port | null = null;
   /** Non-null asserted. */
   private portName!: string;
   /** Non-null asserted. */
   private inlineMenuPageIframe!: HTMLIFrameElement;
+  private token: string;
+  private isInitialized: boolean = false;
+  private readonly extensionOrigin: string;
   private readonly iframeStyles: Partial<CSSStyleDeclaration> = {
     all: "initial",
     position: "fixed",
@@ -49,11 +72,8 @@ export class AutofillInlineMenuContainer {
   };
 
   constructor() {
-    this.extensionOriginsSet = new Set([
-      chrome.runtime.getURL("").slice(0, -1).toLowerCase(), // Remove the trailing slash and normalize the extension url to lowercase
-      "null",
-    ]);
-
+    this.token = generateRandomChars(32);
+    this.extensionOrigin = chrome.runtime.getURL("").slice(0, -1);
     globalThis.addEventListener("message", this.handleWindowMessage);
   }
 
@@ -63,9 +83,22 @@ export class AutofillInlineMenuContainer {
    * @param message - The message containing the iframe url and page title.
    */
   private handleInitInlineMenuIframe(message: InitAutofillInlineMenuElementMessage) {
+    if (this.isInitialized) {
+      return;
+    }
+
+    if (!this.isExtensionUrl(message.iframeUrl)) {
+      return;
+    }
+
+    if (message.styleSheetUrl && !this.isExtensionUrl(message.styleSheetUrl)) {
+      return;
+    }
+
     this.defaultIframeAttributes.src = message.iframeUrl;
     this.defaultIframeAttributes.title = message.pageTitle;
     this.portName = message.portName;
+    this.isInitialized = true;
 
     this.inlineMenuPageIframe = globalThis.document.createElement("iframe");
     this.setElementStyles(this.inlineMenuPageIframe, this.iframeStyles, true);
@@ -82,13 +115,34 @@ export class AutofillInlineMenuContainer {
   }
 
   /**
+   * validates that a URL is from the extension origin.
+   * prevents loading arbitrary URLs in the iframe.
+   *
+   * @param url - The URL to validate.
+   */
+  private isExtensionUrl(url: string): boolean {
+    if (!url) {
+      return false;
+    }
+    try {
+      const urlObj = new URL(url);
+      return (
+        urlObj.origin === this.extensionOrigin || urlObj.href.startsWith(this.extensionOrigin + "/")
+      );
+    } catch {
+      return false;
+    }
+  }
+
+  /**
    * Sets up the port message listener for the inline menu page.
    *
    * @param message - The message containing the port name.
    */
   private setupPortMessageListener = (message: InitAutofillInlineMenuElementMessage) => {
     this.port = chrome.runtime.connect({ name: this.portName });
-    this.postMessageToInlineMenuPage(message);
+    const initMessage = { ...message, token: this.token };
+    this.postMessageToInlineMenuPageUnsafe(initMessage);
   };
 
   /**
@@ -97,6 +151,18 @@ export class AutofillInlineMenuContainer {
    * @param message - The message to post.
    */
   private postMessageToInlineMenuPage(message: AutofillInlineMenuContainerWindowMessage) {
+    if (this.inlineMenuPageIframe?.contentWindow) {
+      const messageWithToken = { ...message, token: this.token };
+      this.postMessageToInlineMenuPageUnsafe(messageWithToken);
+    }
+  }
+
+  /**
+   * posts a message to the inline menu page iframe without token validation, used internally when we need to send raw postMessage.
+   *
+   * @param message - The message to post.
+   */
+  private postMessageToInlineMenuPageUnsafe(message: Record<string, unknown>) {
     if (this.inlineMenuPageIframe?.contentWindow) {
       this.inlineMenuPageIframe.contentWindow.postMessage(message, "*");
     }
@@ -108,9 +174,15 @@ export class AutofillInlineMenuContainer {
    * @param message - The message to post.
    */
   private postMessageToBackground(message: AutofillInlineMenuContainerPortMessage) {
-    if (this.port) {
-      this.port.postMessage(message);
+    if (!this.port) {
+      return;
     }
+
+    if (message.command && !ALLOWED_BG_COMMANDS.has(message.command)) {
+      return;
+    }
+
+    this.port.postMessage(message);
   }
 
   /**
@@ -124,23 +196,33 @@ export class AutofillInlineMenuContainer {
       return;
     }
 
-    if (
-      this.windowMessageHandlers[
-        message.command as keyof AutofillInlineMenuContainerWindowMessageHandlers
-      ]
-    ) {
-      this.windowMessageHandlers[
-        message.command as keyof AutofillInlineMenuContainerWindowMessageHandlers
-      ](message);
+    if (this.windowMessageHandlers[message.command]) {
+      // only accept init messages from extension origin or parent window
+      if (
+        (message.command === "initAutofillInlineMenuButton" ||
+          message.command === "initAutofillInlineMenuList") &&
+        !this.isMessageFromExtensionOrigin(event) &&
+        !this.isMessageFromParentWindow(event)
+      ) {
+        return;
+      }
+      this.windowMessageHandlers[message.command](message);
       return;
     }
 
     if (this.isMessageFromParentWindow(event)) {
+      // messages from parent window are trusted and forwarded to iframe
       this.postMessageToInlineMenuPage(message);
       return;
     }
 
-    this.postMessageToBackground(message);
+    // messages from iframe to background require object identity verification with a contentWindow check and token auth
+    if (this.isMessageFromInlineMenuPageIframe(event)) {
+      if (this.verifyToken(message)) {
+        this.postMessageToBackground(message);
+      }
+      return;
+    }
   };
 
   /**
@@ -184,10 +266,26 @@ export class AutofillInlineMenuContainer {
     if (!this.inlineMenuPageIframe) {
       return false;
     }
+    // only trust the specific iframe we created
+    return this.inlineMenuPageIframe.contentWindow === event.source;
+  }
 
-    return (
-      this.inlineMenuPageIframe.contentWindow === event.source &&
-      this.extensionOriginsSet.has(event.origin.toLowerCase())
-    );
+  private verifyToken(message: { token?: string }): boolean {
+    return message.token === this.token;
+  }
+
+  /**
+   * validates that a message event is from the extension origin.
+   *
+   */
+  private isMessageFromExtensionOrigin(event: MessageEvent): boolean {
+    try {
+      if (event.origin === "null") {
+        return false;
+      }
+      return event.origin === this.extensionOrigin;
+    } catch {
+      return false;
+    }
   }
 }

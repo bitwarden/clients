@@ -6,11 +6,13 @@ import { AutofillInlineMenuContainer } from "./autofill-inline-menu-container";
 
 describe("AutofillInlineMenuContainer", () => {
   const portKey = "testPortKey";
-  const iframeUrl = "https://example.com";
+  const extensionOrigin = "chrome-extension://test-extension-id";
+  const iframeUrl = `${extensionOrigin}/overlay/menu-list.html`;
   const pageTitle = "Example";
   let autofillInlineMenuContainer: AutofillInlineMenuContainer;
 
   beforeEach(() => {
+    jest.spyOn(chrome.runtime, "getURL").mockReturnValue(`${extensionOrigin}/`);
     autofillInlineMenuContainer = new AutofillInlineMenuContainer();
   });
 
@@ -28,7 +30,7 @@ describe("AutofillInlineMenuContainer", () => {
         portName: AutofillOverlayPort.List,
       };
 
-      postWindowMessage(message);
+      postWindowMessage(message, extensionOrigin);
 
       expect(autofillInlineMenuContainer["defaultIframeAttributes"].src).toBe(message.iframeUrl);
       expect(autofillInlineMenuContainer["defaultIframeAttributes"].title).toBe(message.pageTitle);
@@ -44,15 +46,19 @@ describe("AutofillInlineMenuContainer", () => {
         portName: AutofillOverlayPort.Button,
       };
 
-      postWindowMessage(message);
+      postWindowMessage(message, extensionOrigin);
 
       jest.spyOn(autofillInlineMenuContainer["inlineMenuPageIframe"].contentWindow, "postMessage");
       autofillInlineMenuContainer["inlineMenuPageIframe"].dispatchEvent(new Event("load"));
 
       expect(chrome.runtime.connect).toHaveBeenCalledWith({ name: message.portName });
+      const expectedMessage = expect.objectContaining({
+        ...message,
+        token: expect.any(String),
+      });
       expect(
         autofillInlineMenuContainer["inlineMenuPageIframe"].contentWindow.postMessage,
-      ).toHaveBeenCalledWith(message, "*");
+      ).toHaveBeenCalledWith(expectedMessage, "*");
     });
   });
 
@@ -69,7 +75,7 @@ describe("AutofillInlineMenuContainer", () => {
         portName: AutofillOverlayPort.Button,
       };
 
-      postWindowMessage(message);
+      postWindowMessage(message, extensionOrigin);
 
       iframe = autofillInlineMenuContainer["inlineMenuPageIframe"];
       jest.spyOn(iframe.contentWindow, "postMessage");
@@ -112,7 +118,8 @@ describe("AutofillInlineMenuContainer", () => {
     });
 
     it("posts a message to the background from the inline menu iframe", () => {
-      const message = { command: "checkInlineMenuButtonFocused", portKey };
+      const token = autofillInlineMenuContainer["token"];
+      const message = { command: "checkInlineMenuButtonFocused", portKey, token };
 
       postWindowMessage(message, "null", iframe.contentWindow as any);
 
@@ -124,7 +131,11 @@ describe("AutofillInlineMenuContainer", () => {
 
       postWindowMessage(message);
 
-      expect(iframe.contentWindow.postMessage).toHaveBeenCalledWith(message, "*");
+      const expectedMessage = expect.objectContaining({
+        ...message,
+        token: expect.any(String),
+      });
+      expect(iframe.contentWindow.postMessage).toHaveBeenCalledWith(expectedMessage, "*");
     });
   });
 });
