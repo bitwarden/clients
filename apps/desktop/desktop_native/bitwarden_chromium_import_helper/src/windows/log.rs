@@ -3,7 +3,7 @@ use tracing_subscriber::{
     fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter, Layer as _,
 };
 
-use super::config::{ENABLE_DEVELOPER_LOGGING, LOG_FILENAME};
+use chromium_importer::config::{ENABLE_DEVELOPER_LOGGING, LOG_FILENAME};
 
 pub(crate) fn init_logging() {
     if ENABLE_DEVELOPER_LOGGING {

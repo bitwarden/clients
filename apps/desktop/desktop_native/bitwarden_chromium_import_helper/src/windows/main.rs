@@ -28,7 +28,6 @@ use windows::Win32::{
 use chromium_importer::chromium::{verify_signature, ADMIN_TO_USER_PIPE_NAME};
 
 use super::{
-    config::ENABLE_SERVER_SIGNATURE_VALIDATION,
     crypto::{
         decode_abe_key_blob, decode_base64, decrypt_with_dpapi_as_system,
         decrypt_with_dpapi_as_user, encode_base64,
@@ -144,21 +143,19 @@ fn is_admin() -> bool {
 async fn open_and_validate_pipe_server(pipe_name: &'static str) -> Result<NamedPipeClient> {
     let client = open_pipe_client(pipe_name).await?;
 
-    if ENABLE_SERVER_SIGNATURE_VALIDATION {
-        let server_pid = get_named_pipe_server_pid(&client)?;
-        debug!("Connected to pipe server PID {}", server_pid);
+    let server_pid = get_named_pipe_server_pid(&client)?;
+    debug!("Connected to pipe server PID {}", server_pid);
 
-        // Validate the server end process signature
-        let exe_path = resolve_process_executable_path(server_pid)?;
+    // Validate the server end process signature
+    let exe_path = resolve_process_executable_path(server_pid)?;
 
-        debug!("Pipe server executable path: {}", exe_path.display());
+    debug!("Pipe server executable path: {}", exe_path.display());
 
-        if !verify_signature(&exe_path)? {
-            return Err(anyhow!("Pipe server signature is not valid"));
-        }
-
-        debug!("Pipe server signature verified for PID {}", server_pid);
+    if !verify_signature(&exe_path)? {
+        return Err(anyhow!("Pipe server signature is not valid"));
     }
+
+    debug!("Pipe server signature verified for PID {}", server_pid);
 
     Ok(client)
 }
