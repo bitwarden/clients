@@ -54,7 +54,7 @@ export default {
           provide: MessageSender,
           useValue: {
             // eslint-disable-next-line no-console
-            send: (...args: any[]) => console.log("MessageSender called with:", args),
+            send: (...args: any[]) => console.debug("MessageSender called with:", args),
           } as Partial<MessageSender>,
         },
         {
