@@ -1,5 +1,5 @@
-// Enable this to log to a file. The way this executable is used, it's not easy to debug and the stdout gets lost.
-// This is intended for development time only.
+// Enable this to log to a file. The way this executable is used, it's not easy to debug and the
+// stdout gets lost. This is intended for development time only.
 pub(crate) const ENABLE_DEVELOPER_LOGGING: bool = false;
 pub(crate) const LOG_FILENAME: &str = "c:\\path\\to\\log.txt"; // This is an example filename, replace it with you own
 
