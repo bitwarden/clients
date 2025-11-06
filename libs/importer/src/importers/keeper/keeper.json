@@ -61,6 +61,21 @@
       ]
     },
     {
+      "path": "Empty Folder\\Empty Nested Folder Level 2\\Empty Nested Folder Level 3\\Shared Folder Inside Empty Nested Folder",
+      "uid": "7NUCFWidoEurHXTpmDMGzw",
+      "manage_users": false,
+      "manage_records": false,
+      "can_edit": false,
+      "can_share": false,
+      "permissions": [
+        {
+          "name": "lastpass.ruby+06-november-2025@gmail.com",
+          "manage_users": true,
+          "manage_records": true
+        }
+      ]
+    },
+    {
       "path": "Clients\\Enterprise\\North America\\TechCorp\\Shared-Needsted-Deep-Inside-Normal-Folder",
       "uid": "VztEEZGdprd5UjrQatEVuA",
       "manage_users": false,

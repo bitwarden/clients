@@ -398,7 +398,7 @@ describe("Keeper Json Importer", () => {
 
   it("should create folders and assigned ciphers to them", async () => {
     const folders = result.folders;
-    expect(folders.length).toBe(25);
+    expect(folders.length).toBe(29);
 
     // Sort names and compare in bulk so we don't depend on specific ordering
     const folderNames = folders.map((f) => f.name).sort((a, b) => a.localeCompare(b));
@@ -432,7 +432,7 @@ describe("Keeper Json Importer", () => {
 
   it("should create collections if part of an organization", async () => {
     const folders = orgResult.collections;
-    expect(folders.length).toBe(25);
+    expect(folders.length).toBe(29);
 
     // Sort names and compare in bulk so we don't depend on specific ordering
     const folderNames = folders.map((f) => f.name).sort((a, b) => a.localeCompare(b));
@@ -480,6 +480,10 @@ describe("Keeper Json Importer", () => {
     "Development/Name-with-both-slashes/Name-with-forward-slashes/Name-with-backslashes",
     "Development/Web",
     "Education",
+    "Empty Folder",
+    "Empty Folder/Empty Nested Folder Level 2",
+    "Empty Folder/Empty Nested Folder Level 2/Empty Nested Folder Level 3",
+    "Empty Folder/Empty Nested Folder Level 2/Empty Nested Folder Level 3/Shared Folder Inside Empty Nested Folder",
     "FullAccess-CanShare",
     "NoUserPerms-EditAndShare",
     "Personal",
