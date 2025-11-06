@@ -4,7 +4,7 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { debounceTime, EMPTY, map, switchMap } from "rxjs";
+import { debounceTime, EMPTY, from, map, switchMap, take } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
@@ -64,7 +64,7 @@ export class CriticalApplicationsComponent implements OnInit {
     protected criticalAppsService: CriticalAppsService,
     protected reportService: RiskInsightsReportService,
     protected i18nService: I18nService,
-    private accessIntelligenceSecurityTasksService: AccessIntelligenceSecurityTasksService,
+    private securityTasksService: AccessIntelligenceSecurityTasksService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
@@ -131,10 +131,35 @@ export class CriticalApplicationsComponent implements OnInit {
   };
 
   async requestPasswordChange() {
-    await this.accessIntelligenceSecurityTasksService.assignTasks(
-      this.organizationId,
-      this.dataSource.data,
-    );
+    this.dataService.criticalApplicationAtRiskCipherIds$
+      .pipe(
+        takeUntilDestroyed(this.destroyRef), // Satisfy eslint rule
+        take(1), // Handle unsubscribe for one off operation
+        switchMap((cipherIds) => {
+          return from(
+            this.securityTasksService.requestPasswordChangeForCriticalApplications(
+              this.organizationId,
+              cipherIds,
+            ),
+          );
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.toastService.showToast({
+            message: this.i18nService.t("notifiedMembers"),
+            variant: "success",
+            title: this.i18nService.t("success"),
+          });
+        },
+        error: () => {
+          this.toastService.showToast({
+            message: this.i18nService.t("unexpectedError"),
+            variant: "error",
+            title: this.i18nService.t("error"),
+          });
+        },
+      });
   }
 
   showAppAtRiskMembers = async (applicationName: string) => {
