@@ -23,12 +23,12 @@
               {{ "atRiskPasswords" | i18n }}
             </div>
           </div>
-          <ng-container *ngFor="let member of drawerDetails.atRiskMemberDetails">
+          @for (member of drawerDetails.atRiskMemberDetails; track member.email) {
             <div class="tw-flex tw-justify-between tw-mt-2">
               <div>{{ member.email }}</div>
               <div>{{ member.atRiskPasswordCount }}</div>
             </div>
-          </ng-container>
+          }
         </ng-container>
       }
     </ng-container>
@@ -53,9 +53,9 @@
         }}
       </div>
       <div class="tw-mt-1">
-        <ng-container *ngFor="let member of drawerDetails.appAtRiskMembers?.members">
+        @for (member of drawerDetails.appAtRiskMembers?.members; track $index) {
           <div>{{ member.email }}</div>
-        </ng-container>
+        }
       </div>
     </ng-container>
   </bit-dialog>

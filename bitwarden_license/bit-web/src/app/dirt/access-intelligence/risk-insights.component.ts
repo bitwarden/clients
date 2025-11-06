@@ -10,7 +10,7 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, EMPTY } from "rxjs";
-import { map, tap } from "rxjs/operators";
+import { distinctUntilChanged, map, tap } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -138,7 +138,13 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
 
     // Subscribe to drawer state changes
     this.dataService.drawerDetails$
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        distinctUntilChanged(
+          (prev, curr) =>
+            prev.activeDrawerType === curr.activeDrawerType && prev.invokerId === curr.invokerId,
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe((details) => {
         if (details.activeDrawerType !== DrawerType.None) {
           this.currentDialogRef = this.dialogService.openDrawer(RiskInsightsDrawerDialogComponent, {
