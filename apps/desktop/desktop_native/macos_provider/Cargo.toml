@@ -13,6 +13,9 @@ path = "uniffi-bindgen.rs"
 crate-type = ["staticlib", "cdylib"]
 bench = false
 
+[dependencies]
+uniffi = { workspace = true, features = ["cli"] }
+
 [target.'cfg(target_os = "macos")'.dependencies]
 desktop_core = { path = "../core" }
 futures = { workspace = true }
@@ -22,9 +25,8 @@ tokio = { workspace = true, features = ["sync"] }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 tracing-oslog = "0.3.0"
-uniffi = { workspace = true, features = ["cli"] }
 
-[target.'cfg(target_os = "macos")'.build-dependencies]
+[build-dependencies]
 uniffi = { workspace = true, features = ["build"] }
 
 [lints]
