@@ -1,5 +1,7 @@
-use std::path::{Path, PathBuf};
-use std::sync::LazyLock;
+use std::{
+    path::{Path, PathBuf},
+    sync::LazyLock,
+};
 
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
@@ -9,10 +11,9 @@ use rusqlite::{params, Connection};
 
 mod platform;
 
+pub(crate) use platform::SUPPORTED_BROWSERS as PLATFORM_SUPPORTED_BROWSERS;
 #[cfg(target_os = "windows")]
 pub use platform::{verify_signature, ADMIN_TO_USER_PIPE_NAME};
-
-pub(crate) use platform::SUPPORTED_BROWSERS as PLATFORM_SUPPORTED_BROWSERS;
 
 //
 // Public API
@@ -86,14 +87,15 @@ pub async fn import_logins(
     let local_logins = get_logins(&data_dir, profile_id, "Login Data")
         .map_err(|e| anyhow!("Failed to query logins: {}", e))?;
 
-    // This is not available in all browsers, but there's no harm in trying. If the file doesn't exist we just get an empty vector.
+    // This is not available in all browsers, but there's no harm in trying. If the file doesn't
+    // exist we just get an empty vector.
     let account_logins = get_logins(&data_dir, profile_id, "Login Data For Account")
         .map_err(|e| anyhow!("Failed to query logins: {}", e))?;
 
     // TODO: Do we need a better merge strategy? Maybe ignore duplicates at least?
-    // TODO: Should we also ignore an error from one of the two imports? If one is successful and the other fails,
-    //       should we still return the successful ones? At the moment it doesn't fail for a missing file, only when
-    //       something goes really wrong.
+    // TODO: Should we also ignore an error from one of the two imports? If one is successful and
+    // the other fails,       should we still return the successful ones? At the moment it
+    // doesn't fail for a missing file, only when       something goes really wrong.
     let all_logins = local_logins
         .into_iter()
         .chain(account_logins.into_iter())
