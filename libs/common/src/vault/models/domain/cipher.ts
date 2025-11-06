@@ -1,5 +1,6 @@
 import { Jsonify } from "type-fest";
 
+import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { Cipher as SdkCipher } from "@bitwarden/sdk-internal";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
@@ -123,16 +124,22 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   // We are passing the organizationId into the EncString.decrypt() method here, but because the encKey will always be
   // present and so the organizationId will not be used.
   // We will refactor the EncString.decrypt() in https://bitwarden.atlassian.net/browse/PM-3762 to remove the dependency on the organizationId.
-  async decrypt(encKey: SymmetricCryptoKey): Promise<CipherView> {
+  async decrypt(userKeyOrOrgKey: SymmetricCryptoKey): Promise<CipherView> {
+    assertNonNullish(userKeyOrOrgKey, "userKeyOrOrgKey", "Cipher decryption");
+
     const model = new CipherView(this);
     let bypassValidation = true;
 
+    // By default, the user/organization key is used for decryption
+    let cipherDecryptionKey = userKeyOrOrgKey;
+
+    // If there is a cipher key present, unwrap it and use it for decryption
     if (this.key != null) {
       const encryptService = Utils.getContainerService().getEncryptService();
 
       try {
-        const cipherKey = await encryptService.unwrapSymmetricKey(this.key, encKey);
-        encKey = cipherKey;
+        const cipherKey = await encryptService.unwrapSymmetricKey(this.key, userKeyOrOrgKey);
+        cipherDecryptionKey = cipherKey;
         bypassValidation = false;
       } catch {
         model.name = "[error: cannot decrypt]";
@@ -145,18 +152,17 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       this,
       model,
       ["name", "notes"],
-      this.organizationId ?? null,
-      encKey,
+      null,
+      cipherDecryptionKey,
     );
 
     switch (this.type) {
       case CipherType.Login:
         if (this.login != null) {
           model.login = await this.login.decrypt(
-            this.organizationId,
             bypassValidation,
+            userKeyOrOrgKey,
             `Cipher Id: ${this.id}`,
-            encKey,
           );
         }
         break;
@@ -167,29 +173,17 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
         break;
       case CipherType.Card:
         if (this.card != null) {
-          model.card = await this.card.decrypt(
-            this.organizationId,
-            `Cipher Id: ${this.id}`,
-            encKey,
-          );
+          model.card = await this.card.decrypt(userKeyOrOrgKey, `Cipher Id: ${this.id}`);
         }
         break;
       case CipherType.Identity:
         if (this.identity != null) {
-          model.identity = await this.identity.decrypt(
-            this.organizationId,
-            `Cipher Id: ${this.id}`,
-            encKey,
-          );
+          model.identity = await this.identity.decrypt(userKeyOrOrgKey, `Cipher Id: ${this.id}`);
         }
         break;
       case CipherType.SshKey:
         if (this.sshKey != null) {
-          model.sshKey = await this.sshKey.decrypt(
-            this.organizationId,
-            `Cipher Id: ${this.id}`,
-            encKey,
-          );
+          model.sshKey = await this.sshKey.decrypt(userKeyOrOrgKey, `Cipher Id: ${this.id}`);
         }
         break;
       default:
@@ -200,9 +194,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       const attachments: AttachmentView[] = [];
       for (const attachment of this.attachments) {
         const decryptedAttachment = await attachment.decrypt(
-          this.organizationId,
+          userKeyOrOrgKey,
           `Cipher Id: ${this.id}`,
-          encKey,
         );
         attachments.push(decryptedAttachment);
       }
@@ -212,7 +205,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     if (this.fields != null && this.fields.length > 0) {
       const fields: FieldView[] = [];
       for (const field of this.fields) {
-        const decryptedField = await field.decrypt(this.organizationId, encKey);
+        const decryptedField = await field.decrypt(userKeyOrOrgKey);
         fields.push(decryptedField);
       }
       model.fields = fields;
@@ -221,7 +214,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     if (this.passwordHistory != null && this.passwordHistory.length > 0) {
       const passwordHistory: PasswordHistoryView[] = [];
       for (const ph of this.passwordHistory) {
-        const decryptedPh = await ph.decrypt(this.organizationId, encKey);
+        const decryptedPh = await ph.decrypt(userKeyOrOrgKey);
         passwordHistory.push(decryptedPh);
       }
       model.passwordHistory = passwordHistory;

@@ -31,16 +31,12 @@ export class Card extends Domain {
     this.code = conditionalEncString(obj.code);
   }
 
-  async decrypt(
-    orgId: string | undefined,
-    context = "No Cipher Context",
-    encKey?: SymmetricCryptoKey,
-  ): Promise<CardView> {
+  async decrypt(encKey: SymmetricCryptoKey, context = "No Cipher Context"): Promise<CardView> {
     return this.decryptObj<Card, CardView>(
       this,
       new CardView(),
       ["cardholderName", "brand", "number", "expMonth", "expYear", "code"],
-      orgId ?? null,
+      null,
       encKey,
       "DomainType: Card; " + context,
     );

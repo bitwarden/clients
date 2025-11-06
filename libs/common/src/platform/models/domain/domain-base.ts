@@ -2,6 +2,7 @@ import { ConditionalExcept, ConditionalKeys } from "type-fest";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { View } from "../../../models/view/view";
+import { Utils } from "../../misc/utils";
 
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";
 
@@ -69,23 +70,30 @@ export default class Domain {
     }
   }
 
+  /** @deprecated - Domain encryption must be implemented in the SDK */
   protected async decryptObj<D extends Domain, V extends View>(
     domain: DomainEncryptableKeys<D>,
     viewModel: ViewEncryptableKeys<V>,
     props: EncryptableKeys<D, V>[],
-    orgId: string | null,
-    key: SymmetricCryptoKey | null = null,
+    orgId: null,
+    key: SymmetricCryptoKey | null,
     objectContext: string = "No Domain Context",
   ): Promise<V> {
+    const encryptService = Utils.getContainerService().getEncryptService();
     for (const prop of props) {
-      viewModel[prop] =
-        (await domain[prop]?.decrypt(
-          orgId,
-          key,
-          `Property: ${prop as string}; ObjectContext: ${objectContext}`,
-        )) ?? null;
+      if (domain[prop] == null) {
+        continue;
+      }
+      try {
+        viewModel[prop] = await encryptService.decryptString(domain[prop]!, key!);
+      } catch (e) {
+        throw new Error(
+          `Failed to decrypt property '${String(
+            prop,
+          )}' of domain. Context: ${objectContext}. Error: ${(e as Error).message}`,
+        );
+      }
     }
-
     return viewModel as V;
   }
 }
