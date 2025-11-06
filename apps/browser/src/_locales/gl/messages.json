@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Usar inicio de sesión único"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Benvido de novo"
   },
@@ -550,11 +553,49 @@
   "resetSearch": {
     "message": "Reset search"
   },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
   "edit": {
     "message": "Editar"
   },
   "view": {
     "message": "Ver"
+  },
+  "viewAll": {
+    "message": "View all"
+  },
+  "viewLogin": {
+    "message": "View login"
   },
   "noItemsInList": {
     "message": "Non hai entradas que listar."
@@ -697,6 +738,15 @@
   },
   "invalidMasterPassword": {
     "message": "Contrasinal mestre non válido"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Tempo de espera da caixa forte"
@@ -983,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Entrada gardada"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Seguro que queres envialo ó lixo?"
@@ -1504,6 +1566,15 @@
   "readSecurityKey": {
     "message": "Read security key"
   },
+  "readingPasskeyLoading": {
+    "message": "Reading passkey..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey authentication failed"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Use a different log in method"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Awaiting security key interaction..."
   },
@@ -1521,9 +1592,6 @@
   },
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
-  },
-  "recoveryCodeDesc": {
-    "message": "Perdiche o acceso ós provedores de verificación en dous pasos (2FA)? Emprega o teu código de recuperación para desactivalos."
   },
   "recoveryCodeTitle": {
     "message": "Código de recuperación"
@@ -1626,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Turn off autofill"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "Amosar suxestións de autoenchido en formularios"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Amosar identidades como suxestións"
@@ -1682,9 +1771,6 @@
   },
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Podes apagar o autoenchido para entradas concretas nas súas páxinas de edición."
-  },
-  "itemAutoFillOnPageLoad": {
-    "message": "Autoenchido ó cargar a páxina (se está activado nos Axustes)"
   },
   "autoFillOnPageLoadUseDefault": {
     "message": "Usar axustes por defecto"
@@ -1757,17 +1843,8 @@
   "popup2faCloseMessage": {
     "message": "Se clicas fóra desta ventá emerxente para comprobar o código do correo, cerrarase. Queres convertila nunha nova ventá completa para que non se cerre?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Este navegador non pode procesar peticións U2F nesta ventá emerxente. Queres convertila nunha ventá completa para poder continuar?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
-  },
-  "enableBadgeCounter": {
-    "message": "Amosar contador na icona"
-  },
-  "badgeCounterDesc": {
-    "message": "Indicar cantas credenciais tes gardadas para a web aberta."
   },
   "cardholderName": {
     "message": "Titular da tarxeta"
@@ -1931,32 +2008,81 @@
   "typeNote": {
     "message": "Note"
   },
-  "newItemHeader": {
-    "message": "Novo $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Modificar $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "Ver $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Historial de contrasinais"
@@ -3129,11 +3255,32 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Erro"
   },
   "decryptionError": {
     "message": "Erro de descifrado"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden non puido descifrar os seguintes elementos."
@@ -3517,9 +3664,6 @@
   },
   "autofillPageLoadPolicyActivated": {
     "message": "As directivas da organización activaron o autoenchido ó cargar a páxina."
-  },
-  "howToAutofill": {
-    "message": "Como autoencher"
   },
   "autofillSelectInfoWithCommand": {
     "message": "Selecciona unha entrada desta pantalla, emprega o atallo $COMMAND$, ou explora outras opcións en axustes.",
@@ -3905,17 +4049,18 @@
   "aliasDomain": {
     "message": "Alias do dominio"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "As entradas que requiran volver a inserir o contrasinal mestre non poden ser autoenchidas ó cargar a páxina.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Axuste de autoenchido ó cargar a páxina por defecto.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Desactiva volver a requirir o contrasinal mestre para modificar este campo",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "Activar/desactivar navegación lateral"
@@ -4185,9 +4330,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "A Clave de acceso non se incluirá na entrada clonada. Queres continuar co duplicado?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Verificación requirida polo sitio inicial. Esta función aínda non está implementada para contas sen contrasinal mestre."
   },
   "logInWithPasskeyQuestion": {
     "message": "Iniciar sesión con Clave de acceso?"
@@ -4874,9 +5016,6 @@
       }
     }
   },
-  "enableAnimations": {
-    "message": "Activar animacións"
-  },
   "showAnimations": {
     "message": "Amosar animacións"
   },
@@ -5089,14 +5228,8 @@
   "itemLocation": {
     "message": "Ubicación da entrada"
   },
-  "fileSend": {
-    "message": "Arquivo Send"
-  },
   "fileSends": {
     "message": "Arquivos Send"
-  },
-  "textSend": {
-    "message": "Texto Send"
   },
   "textSends": {
     "message": "Textos Send"
@@ -5157,9 +5290,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "O tempo mínimo personalizado é de 1 minuto."
-  },
-  "additionalContentAvailable": {
-    "message": "Hai dispoñibles contidos adicionais"
   },
   "fileSavedToDevice": {
     "message": "Arquivo gardado no dispositivo. Xestiónao dende as descargas do dispositivo."
@@ -5446,6 +5576,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Vault options"
   },
@@ -5493,6 +5629,38 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Welcome to your vault!"
+  },
+  "phishingPageTitleV2": {
+    "message": "Phishing attempt detected"
+  },
+  "phishingPageSummary": {
+    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+  },
+  "phishingPageCloseTabV2": {
+    "message": "Close this tab"
+  },
+  "phishingPageContinueV2": {
+    "message": "Continue to this site (not recommended)"
+  },
+  "phishingPageExplanation1": {
+    "message": "This site was found in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Learn more about phishing detection"
+  },
+  "protectedBy": {
+    "message": "Protected by $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"
@@ -5588,8 +5756,27 @@
   "showLess": {
     "message": "Show less"
   },
+  "next": {
+    "message": "Next"
+  },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "This setting is disabled by your organization's policy.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

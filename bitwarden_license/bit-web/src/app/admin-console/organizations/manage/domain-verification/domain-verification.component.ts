@@ -13,6 +13,7 @@ import {
   takeUntil,
 } from "rxjs";
 
+import { DomainIcon } from "@bitwarden/assets/svg";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { OrgDomainServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain.service.abstraction";
 import { OrganizationDomainResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain.response";
@@ -32,6 +33,8 @@ import {
   DomainAddEditDialogData,
 } from "./domain-add-edit-dialog/domain-add-edit-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-org-manage-domain-verification",
   templateUrl: "domain-verification.component.html",
@@ -40,6 +43,7 @@ import {
 export class DomainVerificationComponent implements OnInit, OnDestroy {
   private componentDestroyed$ = new Subject<void>();
   private singleOrgPolicyEnabled = false;
+  protected domainIcon = DomainIcon;
 
   loading = true;
 

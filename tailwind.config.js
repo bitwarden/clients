@@ -8,6 +8,7 @@ config.content = [
   "./libs/billing/src/**/*.{html,ts,mdx}",
   "./libs/assets/src/**/*.{html,ts}",
   "./libs/platform/src/**/*.{html,ts,mdx}",
+  "./libs/pricing/src/**/*.{html,ts,mdx}",
   "./libs/tools/send/send-ui/src/*.{html,ts,mdx}",
   "./libs/vault/src/**/*.{html,ts,mdx}",
   "./apps/web/src/**/*.{html,ts,mdx}",

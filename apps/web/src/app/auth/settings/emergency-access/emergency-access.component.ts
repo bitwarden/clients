@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
-import { lastValueFrom, Observable, firstValueFrom, switchMap } from "rxjs";
+import { lastValueFrom, Observable, firstValueFrom, switchMap, map } from "rxjs";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -20,7 +21,6 @@ import { DialogService, ToastService } from "@bitwarden/components";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared/shared.module";
-import { PremiumBadgeComponent } from "../../../vault/components/premium-badge.component";
 import { EmergencyAccessService } from "../../emergency-access";
 import { EmergencyAccessStatusType } from "../../emergency-access/enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../../emergency-access/enums/emergency-access-type";
@@ -42,6 +42,8 @@ import {
   EmergencyAccessTakeoverDialogResultType,
 } from "./takeover/emergency-access-takeover-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "emergency-access.component.html",
   imports: [SharedModule, HeaderModule, PremiumBadgeComponent],
@@ -92,15 +94,6 @@ export class EmergencyAccessComponent implements OnInit {
     this.trustedContacts = await this.emergencyAccessService.getEmergencyAccessTrusted();
     this.grantedContacts = await this.emergencyAccessService.getEmergencyAccessGranted();
     this.loaded = true;
-  }
-
-  async premiumRequired() {
-    const canAccessPremium = await firstValueFrom(this.canAccessPremium$);
-
-    if (!canAccessPremium) {
-      this.messagingService.send("premiumRequired");
-      return;
-    }
   }
 
   edit = async (details: GranteeEmergencyAccess) => {
@@ -165,7 +158,15 @@ export class EmergencyAccessComponent implements OnInit {
       });
       const result = await lastValueFrom(dialogRef.closed);
       if (result === EmergencyAccessConfirmDialogResult.Confirmed) {
-        await this.emergencyAccessService.confirm(contact.id, contact.granteeId, publicKey);
+        const activeUserId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(getUserId),
+        );
+        await this.emergencyAccessService.confirm(
+          contact.id,
+          contact.granteeId,
+          publicKey,
+          activeUserId,
+        );
         updateUser();
         this.toastService.showToast({
           variant: "success",
@@ -176,10 +177,14 @@ export class EmergencyAccessComponent implements OnInit {
       return;
     }
 
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
     this.actionPromise = this.emergencyAccessService.confirm(
       contact.id,
       contact.granteeId,
       publicKey,
+      activeUserId,
     );
     await this.actionPromise;
     updateUser();

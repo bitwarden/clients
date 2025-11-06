@@ -64,6 +64,7 @@ export default {
               toggleSideNavigation: "Toggle side navigation",
               yes: "Yes",
               no: "No",
+              loading: "Loading",
             });
           },
         },
@@ -197,5 +198,14 @@ export const VirtualScrollBlockingDialog: Story = {
     const dialogButton = getAllByLabelText(canvas, "Options")[0];
 
     await userEvent.click(dialogButton);
+  },
+};
+
+export const ResponsiveSidebar: Story = {
+  render: Default.render,
+  parameters: {
+    chromatic: {
+      viewports: [640, 1280],
+    },
   },
 };

@@ -223,7 +223,7 @@
       <h2 bitTypography="h2">{{ "manageSubscription" | i18n }}</h2>
       <p bitTypography="body1" *ngIf="userOrg.isProviderUser; else isOrganizationOwner">
         {{ "manageSubscriptionFromThe" | i18n }}
-        <a [routerLink]="['/providers', userOrg.providerId, 'manage-client-organizations']">{{
+        <a [routerLink]="['/providers', userOrg.providerId, 'billing', 'subscription']">{{
           "providerPortal" | i18n
         }}</a
         >.
@@ -238,7 +238,9 @@
     </ng-container>
     <ng-template #organizationIsNotManagedByConsolidatedBillingMSP>
       <div class="tw-flex tw-flex-col tw-items-center tw-text-info">
-        <bit-icon [icon]="subscriptionHiddenIcon"></bit-icon>
+        <div class="tw-size-56 tw-content-center">
+          <bit-icon [icon]="gearIcon" aria-hidden="true"></bit-icon>
+        </div>
         <p class="tw-font-bold">{{ "billingManagedByProvider" | i18n: userOrg.providerName }}</p>
         <p>{{ "billingContactProviderForAssistance" | i18n }}</p>
       </div>

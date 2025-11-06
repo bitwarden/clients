@@ -20,21 +20,28 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { take } from "rxjs";
 
-import { ButtonModule } from "@bitwarden/components";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { ButtonModule, IconButtonModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { VaultCarouselButtonComponent } from "./carousel-button/carousel-button.component";
 import { VaultCarouselContentComponent } from "./carousel-content/carousel-content.component";
 import { VaultCarouselSlideComponent } from "./carousel-slide/carousel-slide.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-carousel",
   templateUrl: "./carousel.component.html",
   imports: [
     CdkPortalOutlet,
     CommonModule,
+    JslibModule,
+    IconButtonModule,
     ButtonModule,
     VaultCarouselContentComponent,
     VaultCarouselButtonComponent,
+    I18nPipe,
   ],
 })
 export class VaultCarouselComponent implements AfterViewInit {
@@ -45,30 +52,46 @@ export class VaultCarouselComponent implements AfterViewInit {
    * @remarks
    * The label should not include the word "carousel", `aria-roledescription="carousel"` is already included.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) label = "";
 
   /**
    * Emits the index of the newly selected slide.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() slideChange = new EventEmitter<number>();
 
   /** All slides within the carousel. */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ContentChildren(VaultCarouselSlideComponent) slides!: QueryList<VaultCarouselSlideComponent>;
 
   /** All buttons that control the carousel */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChildren(VaultCarouselButtonComponent)
   carouselButtons!: QueryList<VaultCarouselButtonComponent>;
 
   /** Wrapping container for the carousel content and buttons */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("container") carouselContainer!: ElementRef<HTMLElement>;
 
   /** Container for the carousel buttons */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("carouselButtonWrapper") carouselButtonWrapper!: ElementRef<HTMLDivElement>;
 
   /** Temporary container containing `tempSlideOutlet` */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("tempSlideContainer") tempSlideContainer!: ElementRef<HTMLDivElement>;
 
   /** Outlet to temporary render each slide within */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(CdkPortalOutlet) tempSlideOutlet!: CdkPortalOutlet;
 
   /** The currently selected index of the carousel. */
@@ -95,6 +118,18 @@ export class VaultCarouselComponent implements AfterViewInit {
   protected selectSlide(index: number) {
     this.selectedIndex = index;
     this.slideChange.emit(index);
+  }
+
+  protected nextSlide() {
+    if (this.selectedIndex < this.slides.length - 1) {
+      this.selectSlide(this.selectedIndex + 1);
+    }
+  }
+
+  protected prevSlide() {
+    if (this.selectedIndex > 0) {
+      this.selectSlide(this.selectedIndex - 1);
+    }
   }
 
   async ngAfterViewInit() {
