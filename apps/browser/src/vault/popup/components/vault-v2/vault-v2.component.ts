@@ -121,11 +121,8 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   protected loading$ = this.vaultPopupLoadingService.loading$.pipe(
     distinctUntilChanged(),
     tap((loading) => {
-      if (loading) {
-        void this.liveAnnouncer.announce(this.i18nService.translate("loadingVault"), "polite");
-      } else {
-        void this.liveAnnouncer.announce(this.i18nService.translate("vaultLoaded"), "polite");
-      }
+      const key = loading ? "loadingVault" : "vaultLoaded";
+      void this.liveAnnouncer.announce(this.i18nService.translate(key), "polite");
     }),
   );
 
