@@ -5,10 +5,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
 import { GlobalState, StateProvider } from "@bitwarden/common/platform/state";
 
-import {
-  createInternalPortSpyMock,
-  createPortSpyMock,
-} from "../../../autofill/spec/autofill-mocks";
+import { createPortSpyMock } from "../../../autofill/spec/autofill-mocks";
 import {
   flushPromises,
   sendPortMessage,
@@ -21,6 +18,24 @@ import {
 } from "../abstractions/browser-task-scheduler.service";
 
 import { BackgroundTaskSchedulerService } from "./background-task-scheduler.service";
+
+function createInternalPortSpyMock(name: string) {
+  return mock<chrome.runtime.Port>({
+    name,
+    onMessage: {
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+    },
+    onDisconnect: {
+      addListener: jest.fn(),
+    },
+    postMessage: jest.fn(),
+    disconnect: jest.fn(),
+    sender: {
+      url: chrome.runtime.getURL(""),
+    },
+  });
+}
 
 describe("BackgroundTaskSchedulerService", () => {
   let logService: MockProxy<LogService>;

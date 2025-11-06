@@ -290,24 +290,6 @@ export function createPortSpyMock(name: string) {
   });
 }
 
-export function createInternalPortSpyMock(name: string) {
-  return mock<chrome.runtime.Port>({
-    name,
-    onMessage: {
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-    },
-    onDisconnect: {
-      addListener: jest.fn(),
-    },
-    postMessage: jest.fn(),
-    disconnect: jest.fn(),
-    sender: {
-      url: chrome.runtime.getURL(""),
-    },
-  });
-}
-
 export function createMutationRecordMock(customFields = {}): MutationRecord {
   return {
     addedNodes: mock<NodeList>(),
