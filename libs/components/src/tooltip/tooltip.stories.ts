@@ -48,6 +48,10 @@ export default {
       type: "figma",
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?m=auto&node-id=30558-13730&t=4k23PtzCwqDekAZW-1",
     },
+    chromatic: {
+      // Allows 30% difference for the tooltip stories since they are rendered in a portal and may be affected by the environment.
+      diffThreshold: 0.3,
+    },
   },
   argTypes: {
     bitTooltip: {
