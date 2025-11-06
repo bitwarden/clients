@@ -102,11 +102,7 @@ import {
               <div class="tw-flex tw-flex-col">
                 <bit-skeleton edgeShape="box" class="tw-h-6 tw-w-44 tw-mb-4"></bit-skeleton>
                 <bit-skeleton-group class="tw-mb-4">
-                  <bit-skeleton
-                    edgeShape="circle"
-                    class="tw-size-5"
-                    slot="start"
-                  ></bit-skeleton>
+                  <bit-skeleton edgeShape="circle" class="tw-size-5" slot="start"></bit-skeleton>
                   <bit-skeleton edgeShape="box" class="tw-h-9 tw-w-28"></bit-skeleton>
                 </bit-skeleton-group>
                 <bit-skeleton-text [lines]="2" class="tw-w-full tw-mb-4"></bit-skeleton-text>
