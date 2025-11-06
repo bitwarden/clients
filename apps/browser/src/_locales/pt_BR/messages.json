@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Usar autenticação única"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Boas-vindas de volta"
   },
@@ -588,6 +591,9 @@
   "view": {
     "message": "Ver"
   },
+  "viewAll": {
+    "message": "View all"
+  },
   "viewLogin": {
     "message": "Ver credencial"
   },
@@ -1027,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Item salvo"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Você tem certeza que deseja enviar este item para a lixeira?"
@@ -1676,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Desativar o preenchimento automático"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "Mostrar sugestões de preenchimento automático em campos de formulário"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Exibir identidades como sugestões"
@@ -3240,6 +3279,9 @@
   "decryptionError": {
     "message": "Erro ao descriptografar"
   },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "O Bitwarden não conseguiu descriptografar o(s) item(ns) do cofre listado abaixo."
   },
@@ -4010,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "O preenchimento automático ao carregar a página está usando a configuração padrão.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "Habilitar navegação lateral"
@@ -5721,5 +5772,11 @@
   "settingDisabledByPolicy": {
     "message": "Essa configuração está desativada pela política da sua organização.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "CEP / Código postal"
+  },
+  "cardNumberLabel": {
+    "message": "Número do cartão"
   }
 }

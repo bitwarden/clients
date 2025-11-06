@@ -2,22 +2,23 @@ import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, OnInit, computed, input, output, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { catchError, of } from "rxjs";
 
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
-import { ButtonType, DialogModule } from "@bitwarden/components";
-import { PricingCardComponent } from "@bitwarden/pricing";
-
-import { SharedModule } from "../../../../shared";
-import { BillingServicesModule } from "../../../services";
-import { SubscriptionPricingService } from "../../../services/subscription-pricing.service";
+import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierIds,
   SubscriptionCadence,
   SubscriptionCadenceIds,
-} from "../../../types/subscription-pricing-tier";
+} from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
+import { ButtonType, DialogModule, ToastService } from "@bitwarden/components";
+import { PricingCardComponent } from "@bitwarden/pricing";
+
+import { SharedModule } from "../../../../shared";
+import { BillingServicesModule } from "../../../services";
 
 export const UpgradeAccountStatus = {
   Closed: "closed",
@@ -72,14 +73,26 @@ export class UpgradeAccountComponent implements OnInit {
 
   constructor(
     private i18nService: I18nService,
-    private subscriptionPricingService: SubscriptionPricingService,
+    private subscriptionPricingService: SubscriptionPricingServiceAbstraction,
+    private toastService: ToastService,
     private destroyRef: DestroyRef,
   ) {}
 
   ngOnInit(): void {
     this.subscriptionPricingService
       .getPersonalSubscriptionPricingTiers$()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        catchError((error: unknown) => {
+          this.toastService.showToast({
+            variant: "error",
+            title: "",
+            message: this.i18nService.t("unexpectedError"),
+          });
+          this.loading.set(false);
+          return of([]);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe((plans) => {
         this.setupCardDetails(plans);
         this.loading.set(false);
