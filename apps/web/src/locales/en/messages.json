@@ -1903,9 +1903,6 @@
   "confirmMasterPassword": {
     "message": "Confirm master password"
   },
-  "confirmFormat": {
-    "message": "Confirm format"
-  },
   "filePassword": {
     "message": "File password"
   },
