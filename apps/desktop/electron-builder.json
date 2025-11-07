@@ -90,7 +90,7 @@
   },
   "win": {
     "electronUpdaterCompatibility": ">=0.0.1",
-    "target": ["appx"],
+    "target": ["portable", "nsis-web", "appx"],
     "signtoolOptions": {
       "sign": "./sign.js",
       "publisherName": "CN=com.bitwarden.localdevelopment"
