@@ -7,7 +7,7 @@ import {
 } from "@angular/cdk/dialog";
 import { ComponentType, ScrollStrategy } from "@angular/cdk/overlay";
 import { ComponentPortal, Portal } from "@angular/cdk/portal";
-import { Injectable, Injector, TemplateRef, inject } from "@angular/core";
+import { Injectable, Injector, TemplateRef, inject, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
 import { filter, firstValueFrom, map, Observable, Subject, switchMap } from "rxjs";
@@ -18,6 +18,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { DrawerService } from "../drawer/drawer.service";
 
+import { ANIMATION_IN_DURATION, ANIMATION_OUT_DURATION } from "./animations";
 import { SimpleConfigurableDialogComponent } from "./simple-dialog/simple-configurable-dialog/simple-configurable-dialog.component";
 import { SimpleDialogOptions } from "./simple-dialog/types";
 
@@ -132,6 +133,9 @@ export class DialogService {
   private defaultScrollStrategy = new CustomBlockScrollStrategy();
   private activeDrawer: DrawerDialogRef<any, any> | null = null;
 
+  /** Signal to control when focus trap auto-capture should be enabled after animation */
+  readonly animationDone = signal(false);
+
   constructor() {
     /**
      * TODO: This logic should exist outside of `libs/components`.
@@ -177,6 +181,10 @@ export class DialogService {
     };
 
     ref.cdkDialogRefBase = this.dialog.open<R, D, C>(componentOrTemplateRef, _config);
+
+    // Handle focus timing after animation completes
+    this.setupFocusTiming();
+
     return ref;
   }
 
@@ -198,6 +206,10 @@ export class DialogService {
     );
     this.activeDrawer.portal = portal;
     this.drawerService.open(portal);
+
+    // Handle focus timing after animation completes
+    this.setupFocusTiming();
+
     return this.activeDrawer;
   }
 
@@ -253,5 +265,21 @@ export class DialogService {
       ],
       parent: this.injector,
     });
+  }
+
+  /**
+   * Sets up the focus timing for a dialog component after the animation completes.
+   * This ensures the focus trap and autofocus only activate after the entrance animation finishes.
+   */
+  private setupFocusTiming(): void {
+    // Reset the signal to false for the new dialog
+    this.animationDone.set(false);
+
+    const totalDuration = Math.max(ANIMATION_IN_DURATION, ANIMATION_OUT_DURATION);
+
+    // Set to true after animation completes
+    setTimeout(() => {
+      this.animationDone.set(true);
+    }, totalDuration);
   }
 }
