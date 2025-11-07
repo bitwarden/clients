@@ -9,7 +9,7 @@ import {
   input,
   booleanAttribute,
   ElementRef,
-  DestroyRef,
+  signal,
 } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import { combineLatest, switchMap } from "rxjs";
@@ -21,7 +21,7 @@ import { SpinnerComponent } from "../../spinner";
 import { TypographyDirective } from "../../typography/typography.directive";
 import { hasScrollableContent$ } from "../../utils/";
 import { hasScrolledFrom } from "../../utils/has-scrolled-from";
-import { fadeIn } from "../animations";
+import { dialogAnimation } from "../animations";
 import { DialogRef } from "../dialog.service";
 import { DialogCloseDirective } from "../directives/dialog-close.directive";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
@@ -31,7 +31,7 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
 @Component({
   selector: "bit-dialog",
   templateUrl: "./dialog.component.html",
-  animations: [fadeIn],
+  animations: [dialogAnimation],
   host: {
     "(keydown.esc)": "handleEsc($event)",
   },
@@ -48,12 +48,12 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
   ],
 })
 export class DialogComponent {
-  private readonly destroyRef = inject(DestroyRef);
   private readonly scrollableBody = viewChild.required(CdkScrollable);
   private readonly scrollBottom = viewChild.required<ElementRef<HTMLDivElement>>("scrollBottom");
 
   protected dialogRef = inject(DialogRef, { optional: true });
   protected bodyHasScrolledFrom = hasScrolledFrom(this.scrollableBody);
+  protected readonly animationDone = signal(false);
 
   private scrollableBody$ = toObservable(this.scrollableBody);
   private scrollBottom$ = toObservable(this.scrollBottom);
@@ -109,6 +109,10 @@ export class DialogComponent {
       this.dialogRef?.close();
       event.stopPropagation();
     }
+  }
+
+  onAnimationDone() {
+    this.animationDone.set(true);
   }
 
   get width() {
