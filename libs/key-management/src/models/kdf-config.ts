@@ -14,7 +14,7 @@ export type KdfConfig = PBKDF2KdfConfig | Argon2KdfConfig;
  * Password-Based Key Derivation Function 2 (PBKDF2) KDF configuration.
  */
 export class PBKDF2KdfConfig {
-  static ITERATIONS = new RangeWithDefault(600_000, 2_000_000, 600_000);
+  static ITERATIONS = new RangeWithDefault(5_000, 2_000_000, 5_000);
   static PRELOGIN_ITERATIONS_MIN = 5000;
   kdfType: KdfType.PBKDF2_SHA256 = KdfType.PBKDF2_SHA256;
   iterations: number;
