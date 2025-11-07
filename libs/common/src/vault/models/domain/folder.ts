@@ -58,6 +58,10 @@ export class Folder extends Domain {
     if (obj == null) {
       return null;
     }
-    return new Folder({ name: obj.name ?? "", revisionDate: obj.revisionDate, id: obj.id ?? "" });
+    return new Folder({
+      name: EncString.fromJSON(obj.name ?? "").encryptedString ?? "",
+      revisionDate: obj.revisionDate,
+      id: obj.id ?? "",
+    });
   }
 }

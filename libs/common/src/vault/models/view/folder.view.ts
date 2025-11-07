@@ -10,13 +10,14 @@ export class FolderView implements View, ITreeNodeObject {
   name: string = "";
   revisionDate: Date;
 
-  constructor(f?: Folder | DecryptedObject<Folder, "name">) {
+  constructor(f?: Folder | DecryptedObject<Folder, undefined>) {
     if (!f) {
       this.revisionDate = new Date();
       return;
     }
 
-    this.id = f.id;
+    this.id = f.id ?? "";
+    this.name = f.name?.decryptedValue ?? "";
     this.revisionDate = f.revisionDate;
   }
 
