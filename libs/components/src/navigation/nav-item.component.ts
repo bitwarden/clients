@@ -26,22 +26,6 @@ export class NavItemComponent extends NavBaseComponent {
   readonly forceActiveStyles = input<boolean>(false);
 
   /**
-   * Configure whether the `main` content should be autofocused upon navigation. This
-   * provides screenreader users with an accessible indication that the navigation has
-   * ended and that the `main` content has updated.
-   *
-   * Defaults to `true`, assuming nav-item is navigating to a new SPA page that would
-   * otherwise not have any accessible indication of navigation completing.
-   *
-   * Examples of when you might want this to be false:
-   * - Navigating to a fully new app that already has, or should behave as, a full
-   * page load (like a non-SPA page would behave). (The product switcher matches this
-   * use case.)
-   * - Navigating to an external page that opens in a new tab.
-   */
-  readonly focusMainAfterNav = input<boolean>(true);
-
-  /**
    * Is `true` if `to` matches the current route
    */
   private _isActive = false;

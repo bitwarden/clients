@@ -2,9 +2,7 @@ import { A11yModule, CdkTrapFocus } from "@angular/cdk/a11y";
 import { PortalModule } from "@angular/cdk/portal";
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, inject, viewChild } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { NavigationEnd, Router, RouterModule } from "@angular/router";
-import { filter, map } from "rxjs";
+import { RouterModule } from "@angular/router";
 
 import { DrawerHostDirective } from "../drawer/drawer-host.directive";
 import { DrawerService } from "../drawer/drawer.service";
@@ -41,44 +39,6 @@ export class LayoutComponent {
   private readonly mainContent = viewChild.required<ElementRef<HTMLElement>>("main");
   protected focusMainContent() {
     this.mainContent().nativeElement.focus();
-  }
-
-  protected router: Router = inject(Router);
-
-  constructor() {
-    this.router.events
-      .pipe(
-        takeUntilDestroyed(),
-        filter((navEvent) => navEvent instanceof NavigationEnd),
-        map((navEvent) => {
-          const currentNavData = this.router.getCurrentNavigation()?.extras;
-
-          const info = currentNavData?.info as { focusElAfterNav?: string } | undefined;
-
-          return {
-            navEvent,
-            currentNavInfo: info,
-          };
-        }),
-        filter((navEventAndData) => {
-          const info = navEventAndData.currentNavInfo;
-
-          return !!info?.focusElAfterNav;
-        }),
-      )
-      .subscribe((eventShouldFocusElAfterNav) => {
-        const focusElAfterNav = eventShouldFocusElAfterNav.currentNavInfo?.focusElAfterNav;
-
-        if (!focusElAfterNav) {
-          return;
-        }
-
-        const focusEl = document.querySelector<HTMLElement>(focusElAfterNav);
-
-        if (focusEl) {
-          focusEl.focus();
-        }
-      });
   }
 
   /**

@@ -46,7 +46,6 @@
             [ariaCurrentWhenActive]="ariaCurrentWhenActive()"
             (isActiveChange)="setIsActive($event)"
             (click)="mainContentClicked.emit()"
-            [info]="focusMainAfterNav() ? { focusElAfterNav: 'main' } : undefined"
           >
             <ng-container *ngTemplateOutlet="anchorAndButtonContent"></ng-container>
           </a>
