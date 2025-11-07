@@ -69,21 +69,22 @@ export class PasswordChangeMetricComponent implements OnInit {
   readonly uncompletedTasksCount = computed(
     () => this._tasks().filter((task) => task.status == SecurityTaskStatus.Pending).length,
   );
-  readonly completedTasksPercent = computed(() =>
-    Math.round((this.completedTasksCount() / this.tasksCount()) * 100),
-  );
+  readonly completedTasksPercent = computed(() => {
+    const total = this.tasksCount();
+    // Account for case where there are no tasks to avoid NaN
+    return total > 0 ? Math.round((this.completedTasksCount() / total) * 100) : 0;
+  });
 
   readonly atRiskPasswordCount = computed<number>(() => {
     const atRiskIds = this._atRiskCipherIds();
     const tasks = this._tasks();
 
-    // If either is 0
     if (tasks.length === 0) {
       return atRiskIds.length;
     }
 
     const assignedIdSet = new Set(tasks.map((task) => task.cipherId));
-    const unassignedIds = atRiskIds.filter((id) => !assignedIdSet.has(id as CipherId));
+    const unassignedIds = atRiskIds.filter((id) => !assignedIdSet.has(id));
 
     return unassignedIds.length;
   });
@@ -127,7 +128,7 @@ export class PasswordChangeMetricComponent implements OnInit {
       this.riskInsightsDataService.criticalReportResults$.pipe(
         takeUntilDestroyed(this.destroyRef),
         map((report) => {
-          return ((report != null && report?.reportData?.length) || 0) > 0;
+          return report != null && (report.reportData?.length ?? 0) > 0;
         }),
       ),
       {

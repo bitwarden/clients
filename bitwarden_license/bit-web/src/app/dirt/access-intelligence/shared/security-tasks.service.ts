@@ -52,7 +52,7 @@ export class AccessIntelligenceSecurityTasksService {
   ) {
     const distinctCipherIds = Array.from(new Set(criticalApplicationIds));
     const tasks: CreateTasksRequest[] = distinctCipherIds.map((cipherId) => ({
-      cipherId: cipherId as CipherId,
+      cipherId,
       type: SecurityTaskType.UpdateAtRiskCredential,
     }));
 
