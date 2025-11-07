@@ -317,9 +317,6 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       NODE_OPTIONS: --max_old_space_size=4096
-      # Snapcraft environment variables to bypass LXD requirement on ARM64
-      SNAPCRAFT_BUILD_ENVIRONMENT: host
-      USE_SYSTEM_FPM: true
     defaults:
       run:
         working-directory: apps/desktop
@@ -415,6 +412,10 @@ jobs:
           fi
 
       - name: Build application
+        env:
+          # Snapcraft environment variables to bypass LXD requirement on ARM64
+          SNAPCRAFT_BUILD_ENVIRONMENT: host
+          USE_SYSTEM_FPM: true
         run: npm run dist:lin:arm64
 
       - name: Upload .snap artifact
