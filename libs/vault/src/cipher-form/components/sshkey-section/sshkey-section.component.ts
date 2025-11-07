@@ -89,8 +89,11 @@ export class SshKeySectionComponent implements OnInit {
   }
 
   async ngOnInit() {
-    if (this.originalCipherView?.sshKey) {
-      this.setInitialValues();
+    const prefillCipher = this.cipherFormContainer.getInitialCipherView();
+    const sshKeyView = prefillCipher?.sshKey ?? this.originalCipherView?.sshKey;
+
+    if (sshKeyView) {
+      this.setInitialValues(sshKeyView);
     } else {
       await this.generateSshKey();
     }
@@ -114,8 +117,8 @@ export class SshKeySectionComponent implements OnInit {
   }
 
   /** Set form initial form values from the current cipher */
-  private setInitialValues() {
-    const { privateKey, publicKey, keyFingerprint } = this.originalCipherView.sshKey;
+  private setInitialValues(sshKeyView: SshKeyView) {
+    const { privateKey, publicKey, keyFingerprint } = sshKeyView;
 
     this.sshKeyForm.setValue({
       privateKey,

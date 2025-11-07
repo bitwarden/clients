@@ -45,6 +45,11 @@ export interface NewApplicationsDialogData {
    * the route subscription has fired.
    */
   organizationId: OrganizationId;
+  /**
+   * Whether the organization has any existing critical applications.
+   * Used to determine which title and description to show in the dialog.
+   */
+  hasExistingCriticalApplications: boolean;
 }
 
 /**
@@ -128,6 +133,14 @@ export class NewApplicationsDialogComponent {
 
   getApplications() {
     return this.dialogParams.newApplications;
+  }
+
+  /**
+   * Returns true if the organization has no existing critical applications.
+   * Used to conditionally show different titles and descriptions.
+   */
+  protected hasNoCriticalApplications(): boolean {
+    return !this.dialogParams.hasExistingCriticalApplications;
   }
 
   /**
