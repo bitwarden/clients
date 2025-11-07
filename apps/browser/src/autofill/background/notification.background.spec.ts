@@ -1530,5 +1530,26 @@ describe("NotificationBackground", () => {
         expect(environmentServiceSpy).toHaveBeenCalled();
       });
     });
+
+    describe("handleUnlockPopoutClosed", () => {
+      it("sends abandon message when unlock popout is closed and vault is locked", async () => {
+        activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+        chrome.runtime.getURL = jest.fn().mockReturnValue("chrome-extension://id/popup/index.html");
+        const tabsQuerySpy = jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([]);
+        const onRemovedListeners: Array<
+          (tabId: number, removeInfo: chrome.tabs.OnRemovedInfo) => void
+        > = [];
+        chrome.tabs.onRemoved.addListener = jest.fn((listener) => {
+          onRemovedListeners.push(listener);
+        });
+
+        notificationBackground.init();
+        onRemovedListeners[0](1, mock<chrome.tabs.OnRemovedInfo>());
+        await flushPromises();
+
+        expect(tabsQuerySpy).toHaveBeenCalled();
+        expect(messagingService.send).toHaveBeenCalledWith("abandonAutofillPendingNotifications");
+      });
+    });
   });
 });
