@@ -30,6 +30,23 @@
 
   <!-- Show search & filters outside of the scroll area of the page -->
   <ng-container slot="above-scroll-area">
+    <ng-container
+      *ngIf="
+        (showPremiumUpgradeSpotlight$ | async) &&
+        !(showEmptyVaultSpotlight$ | async) &&
+        !(showHasItemsVaultSpotlight$ | async) &&
+        !(hasPremium$ | async) &&
+        (cipherCount$ | async) >= 1 &&
+        (accountAgeInDays$ | async) >= 1
+      "
+    >
+      <bit-spotlight
+        [title]="'upgradeCompleteSecurity' | i18n"
+        [subtitle]="'premiumGivesMoreTools' | i18n"
+        [buttonText]="'explorePremium' | i18n"
+        (onButtonClick)="showPremiumDialog()"
+      ></bit-spotlight>
+    </ng-container>
     <ng-container *ngIf="vaultState === VaultStateEnum.Empty && showEmptyVaultSpotlight$ | async">
       <bit-spotlight
         [title]="'emptyVaultNudgeTitle' | i18n"

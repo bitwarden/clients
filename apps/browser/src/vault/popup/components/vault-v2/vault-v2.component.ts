@@ -7,6 +7,7 @@ import {
   combineLatest,
   filter,
   firstValueFrom,
+  from,
   map,
   Observable,
   shareReplay,
@@ -15,12 +16,15 @@ import {
   take,
 } from "rxjs";
 
+import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
+import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { DeactivatedOrg, NoResults, VaultOpen } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -111,6 +115,31 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
   protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
+  protected showPremiumUpgradeSpotlight$ = this.activeUserId$.pipe(
+    switchMap((userId) => this.nudgesService.showNudgeSpotlight$(NudgeType.PremiumUpgrade, userId)),
+  );
+  protected cipherCount$ = this.vaultPopupItemsService.cipherCount$;
+  protected hasPremium$ = this.activeUserId$.pipe(
+    switchMap((userId) => this.billingAccountService.hasPremiumFromAnySource$(userId)),
+  );
+  protected accountAgeInDays$ = this.activeUserId$.pipe(
+    switchMap((userId) => {
+      const creationDate$ = from(this.vaultProfileService.getProfileCreationDate(userId));
+      return creationDate$.pipe(
+        map((creationDate) => {
+          if (!creationDate) {
+            return null;
+          }
+          const ageInMilliseconds = Date.now() - creationDate.getTime();
+          return Math.floor(ageInMilliseconds / (1000 * 60 * 60 * 24));
+        }),
+      );
+    }),
+  );
+
+  showPremiumDialog() {
+    PremiumUpgradeDialogComponent.open(this.dialogService);
+  }
 
   protected loading$ = combineLatest([
     this.vaultPopupItemsService.loading$,
@@ -158,6 +187,8 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private introCarouselService: IntroCarouselService,
     private nudgesService: NudgesService,
     private router: Router,
+    private vaultProfileService: VaultProfileService,
+    private billingAccountService: BillingAccountProfileStateService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
