@@ -1,21 +1,22 @@
+import { animate, style, transition, trigger } from "@angular/animations";
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, OnInit, inject } from "@angular/core";
+import { Component, DestroyRef, OnDestroy, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { EMPTY, Observable } from "rxjs";
-import { map, switchMap } from "rxjs/operators";
+import { combineLatest, EMPTY, firstValueFrom } from "rxjs";
+import { map, tap } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
-  CriticalAppsService,
+  DrawerType,
+  ReportStatus,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
-import {
-  ApplicationHealthReportDetail,
-  DrawerType,
-  PasswordHealthReportApplicationsResponse,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -25,19 +26,20 @@ import {
   DrawerHeaderComponent,
   TabsModule,
 } from "@bitwarden/components";
+import { ExportHelper } from "@bitwarden/vault-export-core";
+import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
-import { AllApplicationsComponent } from "./all-applications.component";
-import { CriticalApplicationsComponent } from "./critical-applications.component";
+import { AllActivityComponent } from "./activity/all-activity.component";
+import { AllApplicationsComponent } from "./all-applications/all-applications.component";
+import { CriticalApplicationsComponent } from "./critical-applications/critical-applications.component";
+import { EmptyStateCardComponent } from "./empty-state-card.component";
+import { RiskInsightsTabType } from "./models/risk-insights.models";
+import { PageLoadingComponent } from "./shared/page-loading.component";
+import { ApplicationsLoadingComponent } from "./shared/risk-insights-loading.component";
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum RiskInsightsTabType {
-  AllApps = 0,
-  CriticalApps = 1,
-  NotifiedMembers = 2,
-}
-
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./risk-insights.component.html",
   imports: [
@@ -46,44 +48,75 @@ export enum RiskInsightsTabType {
     ButtonModule,
     CommonModule,
     CriticalApplicationsComponent,
+    EmptyStateCardComponent,
     JslibModule,
     HeaderModule,
     TabsModule,
     DrawerComponent,
     DrawerBodyComponent,
     DrawerHeaderComponent,
+    AllActivityComponent,
+    ApplicationsLoadingComponent,
+    PageLoadingComponent,
+  ],
+  animations: [
+    trigger("fadeIn", [
+      transition(":enter", [
+        style({ opacity: 0 }),
+        animate("300ms 100ms ease-in", style({ opacity: 1 })),
+      ]),
+    ]),
   ],
 })
-export class RiskInsightsComponent implements OnInit {
+export class RiskInsightsComponent implements OnInit, OnDestroy {
+  private destroyRef = inject(DestroyRef);
+  private _isDrawerOpen: boolean = false;
+  protected ReportStatusEnum = ReportStatus;
+
   tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllApps;
-
-  dataLastUpdated: Date = new Date();
-
-  criticalApps$: Observable<PasswordHealthReportApplicationsResponse[]> = new Observable();
+  isRiskInsightsActivityTabFeatureEnabled: boolean = false;
 
   appsCount: number = 0;
-  criticalAppsCount: number = 0;
-  notifiedMembersCount: number = 0;
 
-  private organizationId: string | null = null;
-  private destroyRef = inject(DestroyRef);
-  isLoading$: Observable<boolean> = new Observable<boolean>();
-  isRefreshing$: Observable<boolean> = new Observable<boolean>();
-  dataLastUpdated$: Observable<Date | null> = new Observable<Date | null>();
-  refetching: boolean = false;
+  private organizationId: OrganizationId = "" as OrganizationId;
+
+  dataLastUpdated: Date | null = null;
+
+  // Empty state properties
+  protected organizationName = "";
+
+  // Empty state computed properties
+  protected emptyStateBenefits: [string, string][] = [
+    [this.i18nService.t("benefit1Title"), this.i18nService.t("benefit1Description")],
+    [this.i18nService.t("benefit2Title"), this.i18nService.t("benefit2Description")],
+    [this.i18nService.t("benefit3Title"), this.i18nService.t("benefit3Description")],
+  ];
+  protected emptyStateVideoSrc: string | null = "/videos/risk-insights-mark-as-critical.mp4";
+
+  protected IMPORT_ICON = "bwi bwi-download";
+
+  // TODO: See https://github.com/bitwarden/clients/pull/16832#discussion_r2474523235
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private configService: ConfigService,
     protected dataService: RiskInsightsDataService,
-    private criticalAppsService: CriticalAppsService,
+    protected i18nService: I18nService,
+    private fileDownloadService: FileDownloadService,
+    private logService: LogService,
   ) {
-    this.route.queryParams.pipe(takeUntilDestroyed()).subscribe(({ tabIndex }) => {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllApps;
     });
-    const orgId = this.route.snapshot.paramMap.get("organizationId") ?? "";
-    this.criticalApps$ = this.criticalAppsService.getAppsListForOrg(orgId);
+
+    this.configService
+      .getFeatureFlag$(FeatureFlag.PM22887_RiskInsightsActivityTab)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((isEnabled) => {
+        this.isRiskInsightsActivityTabFeatureEnabled = isEnabled;
+        this.tabIndex = 0; // default to first tab
+      });
   }
 
   async ngOnInit() {
@@ -91,36 +124,50 @@ export class RiskInsightsComponent implements OnInit {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         map((params) => params.get("organizationId")),
-        switchMap((orgId: string | null) => {
+        tap((orgId) => {
           if (orgId) {
-            this.organizationId = orgId;
-            this.dataService.fetchApplicationsReport(orgId);
-            this.isLoading$ = this.dataService.isLoading$;
-            this.isRefreshing$ = this.dataService.isRefreshing$;
-            this.dataLastUpdated$ = this.dataService.dataLastUpdated$;
-            return this.dataService.applications$;
+            // Initialize Data Service
+            void this.dataService.initializeForOrganization(orgId as OrganizationId);
+            this.organizationId = orgId as OrganizationId;
           } else {
             return EMPTY;
           }
         }),
       )
-      .subscribe({
-        next: (applications: ApplicationHealthReportDetail[] | null) => {
-          if (applications) {
-            this.appsCount = applications.length;
-          }
-          this.criticalAppsService.setOrganizationId(this.organizationId as OrganizationId);
-        },
+      .subscribe();
+
+    // Combine report data, vault items check, organization details, and generation state
+    // This declarative pattern ensures proper cleanup and prevents memory leaks
+    combineLatest([this.dataService.enrichedReportData$, this.dataService.organizationDetails$])
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(([report, orgDetails]) => {
+        // Update report state
+        this.appsCount = report?.reportData.length ?? 0;
+        this.dataLastUpdated = report?.creationDate ?? null;
+
+        // Update organization name
+        this.organizationName = orgDetails?.organizationName ?? "";
       });
+
+    // Subscribe to drawer state changes
+    this.dataService.drawerDetails$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((details) => {
+        this._isDrawerOpen = details.open;
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.dataService.destroy();
   }
 
   /**
    * Refreshes the data by re-fetching the applications report.
    * This will automatically notify child components subscribed to the RiskInsightsDataService observables.
    */
-  refreshData(): void {
+  generateReport(): void {
     if (this.organizationId) {
-      this.dataService.refreshApplicationsReport(this.organizationId);
+      this.dataService.triggerReport();
     }
   }
 
@@ -139,4 +186,104 @@ export class RiskInsightsComponent implements OnInit {
   get drawerTypes(): typeof DrawerType {
     return DrawerType;
   }
+
+  /**
+   * Special case getter for syncing drawer state from service to component.
+   * This allows the template to use two-way binding while staying reactive.
+   */
+  get isDrawerOpen() {
+    return this._isDrawerOpen;
+  }
+
+  /**
+   * Special case setter for syncing drawer state from component to service.
+   * When the drawer component closes the drawer, this syncs the state back to the service.
+   */
+  set isDrawerOpen(value: boolean) {
+    if (this._isDrawerOpen !== value) {
+      this._isDrawerOpen = value;
+
+      // Close the drawer in the service if the drawer component closed the drawer
+      if (!value) {
+        this.dataService.closeDrawer();
+      }
+    }
+  }
+
+  // Empty state methods
+
+  // TODO: import data button (we have this) OR button for adding new login items
+  // we want to add this new button as a second option on the empty state card
+
+  goToImportPage = () => {
+    void this.router.navigate([
+      "/organizations",
+      this.organizationId,
+      "settings",
+      "tools",
+      "import",
+    ]);
+  };
+
+  /**
+   * downloads at risk members as CSV
+   */
+  downloadAtRiskMembers = async () => {
+    try {
+      const drawerDetails = await firstValueFrom(this.dataService.drawerDetails$);
+
+      // Validate drawer is open and showing the correct drawer type
+      if (
+        !drawerDetails.open ||
+        drawerDetails.activeDrawerType !== DrawerType.OrgAtRiskMembers ||
+        !drawerDetails.atRiskMemberDetails ||
+        drawerDetails.atRiskMemberDetails.length === 0
+      ) {
+        return;
+      }
+
+      this.fileDownloadService.download({
+        fileName: ExportHelper.getFileName("at-risk-members"),
+        blobData: exportToCSV(drawerDetails.atRiskMemberDetails, {
+          email: this.i18nService.t("email"),
+          atRiskPasswordCount: this.i18nService.t("atRiskPasswords"),
+        }),
+        blobOptions: { type: "text/plain" },
+      });
+    } catch (error) {
+      // Log error for debugging
+      this.logService.error("Failed to download at-risk members", error);
+    }
+  };
+
+  /**
+   * downloads at risk applications as CSV
+   */
+  downloadAtRiskApplications = async () => {
+    try {
+      const drawerDetails = await firstValueFrom(this.dataService.drawerDetails$);
+
+      // Validate drawer is open and showing the correct drawer type
+      if (
+        !drawerDetails.open ||
+        drawerDetails.activeDrawerType !== DrawerType.OrgAtRiskApps ||
+        !drawerDetails.atRiskAppDetails ||
+        drawerDetails.atRiskAppDetails.length === 0
+      ) {
+        return;
+      }
+
+      this.fileDownloadService.download({
+        fileName: ExportHelper.getFileName("at-risk-applications"),
+        blobData: exportToCSV(drawerDetails.atRiskAppDetails, {
+          applicationName: this.i18nService.t("application"),
+          atRiskPasswordCount: this.i18nService.t("atRiskPasswords"),
+        }),
+        blobOptions: { type: "text/plain" },
+      });
+    } catch (error) {
+      // Log error for debugging
+      this.logService.error("Failed to download at-risk applications", error);
+    }
+  };
 }

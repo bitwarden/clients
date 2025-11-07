@@ -56,6 +56,34 @@ describe("VaultFilter", () => {
       });
     });
 
+    describe("given a archived cipher", () => {
+      const cipher = createCipher({ archivedDate: new Date() });
+
+      it("should return true when filtering for archive", () => {
+        const filterFunction = createFilterFunction({ status: "archive" });
+
+        const result = filterFunction(cipher);
+
+        expect(result).toBe(true);
+      });
+
+      it("should return false when filtering for favorites", () => {
+        const filterFunction = createFilterFunction({ status: "favorites" });
+
+        const result = filterFunction(cipher);
+
+        expect(result).toBe(false);
+      });
+
+      it("should return false when filtering for trash", () => {
+        const filterFunction = createFilterFunction({ status: "trash" });
+
+        const result = filterFunction(cipher);
+
+        expect(result).toBe(false);
+      });
+    });
+
     describe("given a cipher with type", () => {
       it("should return true when filter matches cipher type", () => {
         const cipher = createCipher({ type: CipherType.Identity });
@@ -103,12 +131,12 @@ describe("VaultFilter", () => {
     });
 
     describe("given a cipher without folder", () => {
-      const cipher = createCipher({ folderId: null });
+      const cipher = createCipher({ folderId: undefined });
 
       it("should return true when filtering on unassigned folder", () => {
         const filterFunction = createFilterFunction({
           selectedFolder: true,
-          selectedFolderId: null,
+          selectedFolderId: undefined,
         });
 
         const result = filterFunction(cipher);
@@ -118,15 +146,18 @@ describe("VaultFilter", () => {
     });
 
     describe("given an organizational cipher (with organization and collections)", () => {
+      const collection1 = "e9652fc0-1fe4-48d5-a3d8-d821e32fbd98";
+      const collection2 = "42a971a5-8c16-48a3-a725-4be27cd99bc9";
+
       const cipher = createCipher({
         organizationId: "organizationId",
-        collectionIds: ["collectionId", "anotherId"],
+        collectionIds: [collection1, collection2],
       });
 
       it("should return true when filter matches collection id", () => {
         const filterFunction = createFilterFunction({
           selectedCollection: true,
-          selectedCollectionId: "collectionId",
+          selectedCollectionId: collection1,
         });
 
         const result = filterFunction(cipher);
@@ -137,7 +168,7 @@ describe("VaultFilter", () => {
       it("should return false when filter does not match collection id", () => {
         const filterFunction = createFilterFunction({
           selectedCollection: true,
-          selectedCollectionId: "nonMatchingId",
+          selectedCollectionId: "1ea7ad96-3fc1-4567-8fe5-91aa9f697fd1",
         });
 
         const result = filterFunction(cipher);
@@ -172,7 +203,7 @@ describe("VaultFilter", () => {
       it("should return true when filtering for unassigned collection", () => {
         const filterFunction = createFilterFunction({
           selectedCollection: true,
-          selectedCollectionId: null,
+          selectedCollectionId: undefined,
         });
 
         const result = filterFunction(cipher);
@@ -192,12 +223,12 @@ describe("VaultFilter", () => {
     });
 
     describe("given an individual cipher (without organization or collection)", () => {
-      const cipher = createCipher({ organizationId: null, collectionIds: [] });
+      const cipher = createCipher({ organizationId: undefined, collectionIds: [] });
 
       it("should return false when filtering for unassigned collection", () => {
         const filterFunction = createFilterFunction({
           selectedCollection: true,
-          selectedCollectionId: null,
+          selectedCollectionId: undefined,
         });
 
         const result = filterFunction(cipher);
@@ -206,7 +237,7 @@ describe("VaultFilter", () => {
       });
 
       it("should return true when filtering for my vault only", () => {
-        const cipher = createCipher({ organizationId: null });
+        const cipher = createCipher({ organizationId: undefined });
         const filterFunction = createFilterFunction({
           myVaultOnly: true,
         });
@@ -227,11 +258,12 @@ function createCipher(options: Partial<CipherView> = {}) {
   const cipher = new CipherView();
 
   cipher.favorite = options.favorite ?? false;
-  cipher.deletedDate = options.deletedDate;
-  cipher.type = options.type;
-  cipher.folderId = options.folderId;
-  cipher.collectionIds = options.collectionIds;
-  cipher.organizationId = options.organizationId;
+  cipher.deletedDate = options.deletedDate ?? null;
+  cipher.archivedDate = options.archivedDate ?? null;
+  cipher.type = options.type ?? CipherType.Login;
+  cipher.folderId = options.folderId ?? undefined;
+  cipher.collectionIds = options.collectionIds ?? [];
+  cipher.organizationId = options.organizationId ?? undefined;
 
   return cipher;
 }

@@ -703,10 +703,10 @@
     "message": "Đã lưu tệp đính kèm"
   },
   "addAttachment": {
-    "message": "Add attachment"
+    "message": "Thêm tệp đính kèm"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "Maximum file size is 500 MB"
+    "message": "Kích thước tối đa của tập tin là 500MB"
   },
   "file": {
     "message": "Tệp"
@@ -770,6 +770,9 @@
   },
   "useSingleSignOn": {
     "message": "Dùng đăng nhập một lần"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
   },
   "submit": {
     "message": "Gửi"
@@ -959,9 +962,6 @@
   },
   "insertU2f": {
     "message": "Cắm khóa bảo mật vào cổng USB của máy tính. Nếu có nút bấm, hãy nhấn vào nó."
-  },
-  "recoveryCodeDesc": {
-    "message": "Bạn đã mất quyền truy cập vào tất cả các dịch vụ xác thực 2 lớp? Sử dụng mã khôi phục để tắt tất cả các phương pháp xác thực hai lớp trong tài khoản của bạn."
   },
   "recoveryCodeTitle": {
     "message": "Mã khôi phục"
@@ -1225,6 +1225,15 @@
   "invalidMasterPassword": {
     "message": "Mật khẩu chính không hợp lệ"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Mật khẩu chính không hợp lệ. Xác nhận email của bạn là chính xác và tài khoản được tạo trên $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Đăng nhập hai bước giúp tài khoản của bạn an toàn hơn bằng cách yêu cầu bạn xác minh việc đăng nhập bằng một thiết bị khác như khóa bảo mật, ứng dụng xác thực, SMS, cuộc gọi điện thoại hoặc email. Đăng nhập hai bước có thể được thiết lập trên bitwarden.com. Bạn có muốn truy cập trang web bây giờ không?"
   },
@@ -1238,7 +1247,7 @@
     "message": "Đóng kho sau"
   },
   "vaultTimeout1": {
-    "message": "Quá hạn"
+    "message": "Thời gian chờ"
   },
   "vaultTimeoutAction1": {
     "message": "Hành động sau khi đóng kho"
@@ -1305,11 +1314,8 @@
     "message": "Tự động xóa mọi thứ đã sao chép khỏi bảng nhớ tạm.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Hiện biểu tượng trang web"
-  },
-  "faviconDesc": {
-    "message": "Hiện logo trang web bên cạnh mỗi đăng nhập."
+  "showIconsChangePasswordUrls": {
+    "message": "Hiển thị biểu tượng trang web và truy xuất các URL đổi mật khẩu"
   },
   "enableMinToTray": {
     "message": "Thu nhỏ vào khay hệ thống"
@@ -1848,6 +1854,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Khóa bằng mật khẩu chính khi khởi động lại"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Yêu cầu mật khẩu chính hoặc mã PIN khi khởi động lại ứng dụng"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Yêu cầu mật khẩu chính khi khởi động lại ứng dụng"
   },
   "deleteAccount": {
     "message": "Xóa tài khoản"
@@ -2546,6 +2558,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Thời gian đóng kho tùy chỉnh tối thiểu là 1 phút."
+  },
   "inviteAccepted": {
     "message": "Đã chấp nhận lời mời"
   },
@@ -2657,6 +2672,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Chỉ kho lưu trữ tổ chức liên kết với $ORGANIZATION$ sẽ được xuất.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Chỉ kho lưu trữ tổ chức liên kết với $ORGANIZATION$ được xuất. Bộ sưu tập mục của tôi sẽ không được bao gồm.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -3492,10 +3525,10 @@
     "message": "Chọn bộ sưu tập"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Chọn tùy chọn này nếu bạn muốn nội dung tệp đã nhập được chuyển vào một bộ sưu tập"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Chọn tùy chọn này nếu bạn muốn nội dung tệp đã nhập được chuyển vào một thư mục"
   },
   "importUnassignedItemsError": {
     "message": "Tập tin chứa các mục không xác định."
@@ -3590,6 +3623,12 @@
   },
   "awaitingSSODesc": {
     "message": "Vui lòng tiếp tục đăng nhập bằng thông tin đăng nhập của công ty bạn."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Nhập trực tiếp từ trình duyệt"
+  },
+  "browserProfile": {
+    "message": "Hồ sơ trình duyệt"
   },
   "seeDetailedInstructions": {
     "message": "Xem hướng dẫn chi tiết trên trang trợ giúp của chúng tôi tại",
@@ -3833,6 +3872,12 @@
   "changeAtRiskPassword": {
     "message": "Thay đổi mật khẩu có rủi ro"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Thông tin đăng nhập này có rủi ro và thiếu một trang web. Hãy thêm trang web và đổi mật khẩu để tăng cường bảo mật."
+  },
+  "missingWebsite": {
+    "message": "Thiếu trang web"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Bạn không thể xóa các bộ sưu tập với quyền chỉ xem: $COLLECTIONS$",
     "placeholders": {
@@ -3927,6 +3972,12 @@
     "message": "Tìm hiểu thêm về SSH agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "Về cài đặt này"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden sẽ sử dụng URI đăng nhập đã lưu để xác định biểu tượng hoặc URL đổi mật khẩu nào cần dùng nhằm cải thiện trải nghiệm của bạn. Không có thông tin nào được thu thập hay lưu lại khi bạn sử dụng dịch vụ này."
   },
   "assignToCollections": {
     "message": "Gán vào bộ sưu tập"
@@ -4068,14 +4119,76 @@
   "showLess": {
     "message": "Thu gọn"
   },
-  "enableAutotype": {
-    "message": "Bật tính năng Tự động nhập liệu"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden không kiểm tra vị trí nhập liệu, hãy đảm bảo bạn đang ở trong đúng cửa sổ và trường nhập liệu trước khi dùng phím tắt."
+  },
+  "typeShortcut": {
+    "message": "Phím tắt nhập liệu"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Bao gồm một hoặc hai trong số các phím bổ trợ sau: Ctrl, Alt, Win hoặc Shift, và một chữ cái."
+  },
+  "invalidShortcut": {
+    "message": "Phím tắt không hợp lệ"
   },
   "moreBreadcrumbs": {
     "message": "Thêm mục điều hướng",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Tiếp theo"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Xác nhận tên miền Key Connector"
+  },
+  "confirm": {
+    "message": "Xác nhận"
+  },
+  "enableAutotypeShortcutPreview": {
+    "message": "Bật phím tắt tự động nhập (Xem trước tính năng)"
+  },
+  "enableAutotypeShortcutDescription": {
+    "message": "Hãy đảm bảo bạn đang ở đúng trường trước khi sử dụng phím tắt để tránh điền dữ liệu vào sai chỗ."
+  },
+  "editShortcut": {
+    "message": "Chỉnh sửa phím tắt"
+  },
+  "archiveNoun": {
+    "message": "Lưu trữ",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Lưu trữ",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Hủy lưu trữ"
+  },
+  "itemsInArchive": {
+    "message": "Các mục trong kho lưu trữ"
+  },
+  "noItemsInArchive": {
+    "message": "Không có mục nào trong kho lưu trữ"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Các mục đã lưu trữ sẽ hiển thị ở đây và sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
+  },
+  "itemWasSentToArchive": {
+    "message": "Mục đã được chuyển vào kho lưu trữ"
+  },
+  "itemWasUnarchived": {
+    "message": "Mục đã được bỏ lưu trữ"
+  },
+  "archiveItem": {
+    "message": "Lưu trữ mục"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Các mục đã lưu trữ sẽ bị loại khỏi kết quả tìm kiếm chung và gợi ý tự động điền. Bạn có chắc chắn muốn lưu trữ mục này không?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

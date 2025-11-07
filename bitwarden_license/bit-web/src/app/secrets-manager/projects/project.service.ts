@@ -27,6 +27,7 @@ import { ProjectResponse } from "./models/responses/project.response";
 export class ProjectService {
   protected _project = new Subject<ProjectView>();
   project$ = this._project.asObservable();
+  private projectCache = new Map<string, Promise<ProjectView>>();
 
   constructor(
     private keyService: KeyService,
@@ -48,10 +49,24 @@ export class ProjectService {
     return await firstValueFrom(this.getOrganizationKey$(organizationId));
   }
 
-  async getByProjectId(projectId: string): Promise<ProjectView> {
-    const r = await this.apiService.send("GET", "/projects/" + projectId, null, true, true);
-    const projectResponse = new ProjectResponse(r);
-    return await this.createProjectView(projectResponse);
+  async getByProjectId(projectId: string, forceRequest: boolean): Promise<ProjectView> {
+    if (forceRequest || !this.projectCache.has(projectId)) {
+      const request = this.apiService
+        .send("GET", `/projects/${projectId}`, null, true, true)
+        .then((r) => {
+          const projectResponse = new ProjectResponse(r);
+          return this.createProjectView(projectResponse);
+        })
+        .catch((err) => {
+          // remove from cache if it failed, so future calls can retry
+          this.projectCache.delete(projectId);
+          throw err;
+        });
+
+      this.projectCache.set(projectId, request);
+    }
+
+    return this.projectCache.get(projectId)!;
   }
 
   async getProjects(organizationId: string): Promise<ProjectListView[]> {

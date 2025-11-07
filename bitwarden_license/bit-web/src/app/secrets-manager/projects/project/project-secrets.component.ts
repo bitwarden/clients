@@ -1,8 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, computed, inject, OnInit, Signal } from "@angular/core";
-import { ActivatedRoute, ROUTER_OUTLET_DATA } from "@angular/router";
-import { combineLatestWith, firstValueFrom, Observable, startWith, switchMap } from "rxjs";
+import { Component, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import {
+  combineLatest,
+  combineLatestWith,
+  filter,
+  firstValueFrom,
+  Observable,
+  startWith,
+  switchMap,
+} from "rxjs";
 
 import {
   getOrganizationById,
@@ -32,7 +40,9 @@ import {
 } from "../../secrets/dialog/secret-view-dialog.component";
 import { SecretService } from "../../secrets/secret.service";
 import { SecretsListComponent } from "../../shared/secrets-list.component";
-
+import { ProjectService } from "../project.service";
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-project-secrets",
   templateUrl: "./project-secrets.component.html",
@@ -45,12 +55,10 @@ export class ProjectSecretsComponent implements OnInit {
   private projectId: string;
   protected project$: Observable<ProjectView>;
   private organizationEnabled: boolean;
-  protected project = inject(ROUTER_OUTLET_DATA) as Signal<ProjectView>;
-  readonly writeAccess = computed(() => this.project().write);
-  readonly projectExists = computed(() => !!this.project());
 
   constructor(
     private route: ActivatedRoute,
+    private projectService: ProjectService,
     private secretService: SecretService,
     private dialogService: DialogService,
     private platformUtilsService: PlatformUtilsService,
@@ -61,9 +69,18 @@ export class ProjectSecretsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    const currentProjectEdited = this.projectService.project$.pipe(
+      filter((p) => p?.id === this.projectId),
+      startWith(null),
+    );
+
+    this.project$ = combineLatest([this.route.params, currentProjectEdited]).pipe(
+      switchMap(([params, _]) => this.projectService.getByProjectId(params.projectId, false)),
+    );
+
     this.secrets$ = this.secretService.secret$.pipe(
       startWith(null),
-      combineLatestWith(this.route.params),
+      combineLatestWith(this.route.params, currentProjectEdited),
       switchMap(async ([_, params]) => {
         this.organizationId = params.organizationId;
         this.projectId = params.projectId;

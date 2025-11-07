@@ -21,6 +21,11 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
+  MasterKeyWrappedUserKey,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
+import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
@@ -41,7 +46,7 @@ import {
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
@@ -56,7 +61,7 @@ const masterPassword = "password";
 const deviceId = Utils.newGuid();
 const accessToken = "ACCESS_TOKEN";
 const refreshToken = "REFRESH_TOKEN";
-const userKey = "USER_KEY";
+const encryptedUserKey = "USER_KEY";
 const privateKey = "PRIVATE_KEY";
 const kdf = 0;
 const kdfIterations = 10000;
@@ -65,6 +70,14 @@ const masterPasswordHash = "MASTER_PASSWORD_HASH";
 const name = "NAME";
 const defaultUserDecryptionOptionsServerResponse: IUserDecryptionOptionsServerResponse = {
   HasMasterPassword: true,
+  MasterPasswordUnlock: {
+    Salt: email,
+    Kdf: {
+      KdfType: kdf,
+      Iterations: kdfIterations,
+    },
+    MasterKeyEncryptedUserKey: encryptedUserKey,
+  },
 };
 
 const decodedToken = {
@@ -86,7 +99,7 @@ export function identityTokenResponseFactory(
     ForcePasswordReset: false,
     Kdf: kdf,
     KdfIterations: kdfIterations,
-    Key: userKey,
+    Key: encryptedUserKey,
     PrivateKey: privateKey,
     ResetMasterPassword: false,
     access_token: accessToken,
@@ -247,6 +260,14 @@ describe("LoginStrategy", () => {
       expect(userDecryptionOptionsService.setUserDecryptionOptions).toHaveBeenCalledWith(
         UserDecryptionOptions.fromResponse(idTokenResponse),
       );
+      expect(masterPasswordService.mock.setMasterPasswordUnlockData).toHaveBeenCalledWith(
+        new MasterPasswordUnlockData(
+          email as MasterPasswordSalt,
+          new PBKDF2KdfConfig(kdfIterations),
+          encryptedUserKey as MasterKeyWrappedUserKey,
+        ),
+        userId,
+      );
       expect(messagingService.send).toHaveBeenCalledWith("loggedIn");
     });
 
@@ -316,7 +337,7 @@ describe("LoginStrategy", () => {
       const tokenResponse = identityTokenResponseFactory();
       tokenResponse.privateKey = null;
       keyService.makeKeyPair.mockResolvedValue(["PUBLIC_KEY", new EncString("PRIVATE_KEY")]);
-      keyService.getUserKey.mockResolvedValue(userKey);
+      keyService.userKey$.mockReturnValue(new BehaviorSubject<UserKey>(userKey).asObservable());
 
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
       masterPasswordService.masterKeySubject.next(masterKey);
@@ -335,9 +356,11 @@ describe("LoginStrategy", () => {
     });
 
     it("throws if userKey is CoseEncrypt0 (V2 encryption) in createKeyPairForOldAccount", async () => {
-      keyService.getUserKey.mockResolvedValue({
-        inner: () => ({ type: 7 }),
-      } as UserKey);
+      keyService.userKey$.mockReturnValue(
+        new BehaviorSubject<UserKey>({
+          inner: () => ({ type: 7 }),
+        } as unknown as UserKey).asObservable(),
+      );
       await expect(passwordLoginStrategy["createKeyPairForOldAccount"](userId)).resolves.toBe(
         undefined,
       );

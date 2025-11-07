@@ -4,7 +4,7 @@ import { Directive, EventEmitter, Input, Output } from "@angular/core";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
 import { ITreeNodeObject } from "@bitwarden/common/vault/models/domain/tree-node";
 
 import { DynamicTreeNode } from "../models/dynamic-tree-node.model";
@@ -13,14 +13,27 @@ import { VaultFilter } from "../models/vault-filter.model";
 
 @Directive()
 export class CollectionFilterComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() hide = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() collapsedFilterNodes: Set<string>;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() collectionNodes: DynamicTreeNode<CollectionView>;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() activeFilter: VaultFilter;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onNodeCollapseStateChange: EventEmitter<ITreeNodeObject> =
     new EventEmitter<ITreeNodeObject>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onFilterChange: EventEmitter<VaultFilter> = new EventEmitter<VaultFilter>();
+  DefaultCollectionType = CollectionTypes.DefaultUserCollection;
 
   readonly collectionsGrouping: TopLevelTreeNode = {
     id: "collections",

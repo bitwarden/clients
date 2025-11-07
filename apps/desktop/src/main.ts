@@ -33,6 +33,7 @@ import {
 } from "@bitwarden/state-internal";
 import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitwarden/storage-core";
 
+import { ChromiumImporterService } from "./app/tools/import/chromium-importer.service";
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
@@ -220,7 +221,7 @@ export class Main {
     );
 
     this.messagingMain = new MessagingMain(this, this.desktopSettingsService);
-    this.updaterMain = new UpdaterMain(this.i18nService, this.windowMain);
+    this.updaterMain = new UpdaterMain(this.i18nService, this.logService, this.windowMain);
 
     const messageSubject = new Subject<Message<Record<string, unknown>>>();
     this.messagingService = MessageSender.combine(
@@ -299,6 +300,8 @@ export class Main {
       this.messagingService,
       this.ssoUrlService,
     );
+
+    new ChromiumImporterService();
 
     this.nativeAutofillMain = new NativeAutofillMain(this.logService, this.windowMain);
     void this.nativeAutofillMain.init();

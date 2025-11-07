@@ -8,6 +8,7 @@ import {
 } from "../../../platform/models/domain/decrypt-parameters";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "../../../types/csprng";
+import { UnsignedPublicKey } from "../../types";
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
 
 export class WebCryptoFunctionService implements CryptoFunctionService {
@@ -309,7 +310,7 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
       "encrypt",
     ]);
     const buffer = await this.subtle.exportKey("spki", impPublicKey);
-    return new Uint8Array(buffer);
+    return new Uint8Array(buffer) as UnsignedPublicKey;
   }
 
   async aesGenerateKey(bitLength = 128 | 192 | 256 | 512): Promise<CsprngArray> {

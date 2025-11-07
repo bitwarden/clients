@@ -1,0 +1,22 @@
+{
+  "extends": "../../apps/browser/tsconfig",
+  "include": [
+    "src",
+
+    "../../apps/browser/src/**/*.d.ts",
+
+    "../../apps/browser/src/autofill/content/*.ts",
+    "../../apps/browser/src/autofill/fido2/content/*.ts",
+    "../../apps/browser/src/autofill/notification/bar.ts",
+    "../../apps/browser/src/autofill/overlay/inline-menu/**/*.ts",
+    "../../apps/browser/src/platform/ipc/content/*.ts",
+    "../../apps/browser/src/platform/offscreen-document/offscreen-document.ts",
+    "../../apps/browser/src/popup/polyfills.ts",
+    "../../apps/browser/src/vault/content/*.ts",
+
+    "../../libs/common/src/autofill/constants",
+    "../../libs/common/custom-matchers.d.ts",
+
+    "../../bitwarden_license/bit-common/src/platform/sdk/sdk-alias.d.ts"
+  ]
+}

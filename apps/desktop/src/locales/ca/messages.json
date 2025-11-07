@@ -771,6 +771,9 @@
   "useSingleSignOn": {
     "message": "Usa inici de sessió únic"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "Envia"
   },
@@ -960,9 +963,6 @@
   "insertU2f": {
     "message": "Introduïu la vostra clau de seguretat al port USB de l'ordinador. Si té un botó, premeu-lo."
   },
-  "recoveryCodeDesc": {
-    "message": "Heu perdut l'accés a tots els vostres proveïdors de dos factors? Utilitzeu el vostre codi de recuperació per desactivar tots els proveïdors de dos factors del vostre compte."
-  },
   "recoveryCodeTitle": {
     "message": "Codi de recuperació"
   },
@@ -1012,16 +1012,16 @@
     "message": "Inici de sessió no disponible"
   },
   "noTwoStepProviders": {
-    "message": "Aquest compte té habilitat l'inici de sessió en dues passes, però aquest navegador web no admet cap dels dos proveïdors configurats."
+    "message": "Aquest compte té habilitat l'inici de sessió en dos passos, però aquest navegador web no admet cap dels dos proveïdors configurats."
   },
   "noTwoStepProviders2": {
     "message": "Afegiu proveïdors addicionals que s'adapten millor als dispositius (com ara una aplicació d'autenticació)."
   },
   "twoStepOptions": {
-    "message": "Opcions d'inici de sessió en dues passes"
+    "message": "Opcions d'inici de sessió en dos passos"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Seleccioneu un mètode d'inici de sessió en dues passes"
+    "message": "Seleccioneu un mètode d'inici de sessió en dos passos"
   },
   "selfHostedEnvironment": {
     "message": "Entorn d'allotjament propi"
@@ -1225,14 +1225,23 @@
   "invalidMasterPassword": {
     "message": "Contrasenya mestra no vàlida"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
-    "message": "L'inici de sessió en dues passes fa que el vostre compte siga més segur, ja que obliga a comprovar el vostre inici de sessió amb un altre dispositiu, com ara una clau de seguretat, una aplicació autenticadora, un SMS, una trucada telefònica o un correu electrònic. Es pot habilitar l'inici de sessió en dues passes a la caixa forta web de bitwarden.com. Voleu visitar el lloc web ara?"
+    "message": "L'inici de sessió en dos passos fa que el vostre compte siga més segur, ja que obliga a comprovar el vostre inici de sessió amb un altre dispositiu, com ara una clau de seguretat, una aplicació autenticadora, un SMS, una trucada telefònica o un correu electrònic. Es pot habilitar l'inici de sessió en dos passos a la caixa forta web de bitwarden.com. Voleu visitar el lloc web ara?"
   },
   "twoStepLogin": {
-    "message": "Inici de sessió en dues passes"
+    "message": "Inici de sessió en dos passos"
   },
   "vaultTimeoutHeader": {
-    "message": "Vault timeout"
+    "message": "Temps d'espera de la caixa forta"
   },
   "vaultTimeout": {
     "message": "Temps d'espera de la caixa forta"
@@ -1241,7 +1250,7 @@
     "message": "Temps d'espera"
   },
   "vaultTimeoutAction1": {
-    "message": "Timeout action"
+    "message": "Acció després del temps d'espera"
   },
   "vaultTimeoutDesc": {
     "message": "Trieu quan es tancarà la vostra caixa forta i feu l'acció seleccionada."
@@ -1305,11 +1314,8 @@
     "message": "Esborra automàticament els valors copiats del porta-retalls.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Mostra les icones del lloc web"
-  },
-  "faviconDesc": {
-    "message": "Mostra una imatge reconeixible al costat de cada inici de sessió."
+  "showIconsChangePasswordUrls": {
+    "message": "Mostra icones de llocs web i recupera les URL de canvi de contrasenya"
   },
   "enableMinToTray": {
     "message": "Minimitza a icona en la safata"
@@ -1849,6 +1855,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Bloqueja amb la contrasenya mestra en reiniciar"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Require master password or PIN on app restart"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Require master password on app restart"
+  },
   "deleteAccount": {
     "message": "Suprimeix el compte"
   },
@@ -1996,7 +2008,7 @@
     }
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Learn more about authenticators"
+    "message": "Més informació sobre els autenticadors"
   },
   "copyTOTP": {
     "message": "Copy Authenticator key (TOTP)"
@@ -2115,7 +2127,7 @@
     "message": "Habilita la integració amb el navegador"
   },
   "enableBrowserIntegrationDesc1": {
-    "message": "Used to allow biometric unlock in browsers that are not Safari."
+    "message": "Es fa servir per permetre el desbloqueig biomètric en navegadors que no són Safari."
   },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "Permet la integració del navegador DuckDuckGo"
@@ -2377,7 +2389,7 @@
     "message": "Autenticar WebAuthn"
   },
   "readSecurityKey": {
-    "message": "Llegeix clau de seguretat"
+    "message": "Llig la clau de seguretat"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "S'està esperant la interacció amb la clau de seguretat..."
@@ -2422,16 +2434,16 @@
     "message": "La vostra contrasenya mestra no compleix una o més de les polítiques de l'organització. Per accedir a la caixa forta, heu d'actualitzar-la ara. Si continueu, es tancarà la sessió actual i us demanarà que torneu a iniciar-la. Les sessions en altres dispositius poden continuar romanent actives fins a una hora."
   },
   "changePasswordWarning": {
-    "message": "En canviar la teva contrasenya, cal iniciar la sessió amb la nova contrasenya. Les sessions actives en altres dispositius es tancaran en una hora."
+    "message": "En canviar la contrasenya, cal iniciar la sessió amb la nova contrasenya. Les sessions actives en altres dispositius es tancaran en una hora."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Canvia la contrasenya mestra per completar el recobrament del compte."
+    "message": "Canvia la contrasenya mestra per completar la recuperació del compte."
   },
   "updateMasterPasswordSubtitle": {
-    "message": "La contrasenya mestra no s'ajusta als requisits de l'organització. Canvia't la contrasenya mestra per continuar."
+    "message": "La contrasenya mestra no s'ajusta als requisits de l'organització. Canvieu-la per continuar."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "La teva organització ha desactivat l'encriptació de dispositius fiables. Fixa una contrasenya mestra per accedir a la teva caixa forta."
+    "message": "L'organització ha desactivat el xifratge de dispositius de confiança. Defineix una contrasenya mestra per accedir a la caixa forta."
   },
   "tryAgain": {
     "message": "Torneu-ho a provar"
@@ -2476,7 +2488,7 @@
     "message": "Minuts"
   },
   "vaultTimeoutPolicyInEffect1": {
-    "message": "$HOURS$ hora(es) i $MINUTES$ minut(s) màxim.",
+    "message": "$HOURS$ hores i $MINUTES$ minuts com a màxim.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2546,6 +2558,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum custom timeout is 1 minute."
+  },
   "inviteAccepted": {
     "message": "Invitació acceptada"
   },
@@ -2571,7 +2586,7 @@
     "message": "S'ha suprimit la contrasenya mestra."
   },
   "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Ja no cal contrasenya mestra per als membres de la següent organització. Confirma'n el domini a sota amb l'administrador de la teva organització."
+    "message": "Ja no cal contrasenya mestra per als membres de la següent organització. Confirmeu el domini següent amb l'administrador de l'organització."
   },
   "organizationName": {
     "message": "Nom de l'organització"
@@ -2640,7 +2655,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Només els objectes individuals de la caixa forta, inclosos adjunts associats amb $EMAIL$, seran exportats. Els objectes de la caixa forta de l'organització no hi seran inclosos",
+    "message": "Només s'exportaran els elements individuals de la caixa forta, inclosos els fitxers adjunts associats amb $EMAIL$. No s'hi inclouran els elements de la caixa forta de l'organització",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2657,6 +2672,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -2766,7 +2799,7 @@
     "message": "Utilitzeu aquesta contrasenya"
   },
   "useThisPassphrase": {
-    "message": "Empra aquesta frase de pas"
+    "message": "Utilitzeu aquesta frase de contrasenya"
   },
   "useThisUsername": {
     "message": "Utilitzeu aquest nom d'usuari"
@@ -2835,7 +2868,7 @@
     }
   },
   "forwaderInvalidToken": {
-    "message": "API token de $SERVICENAME$ invàlid",
+    "message": "Token d'API $SERVICENAME$ no vàlid",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -2893,7 +2926,7 @@
     }
   },
   "forwarderNoDomain": {
-    "message": "Domini de $SERVICENAME$ invàlid.",
+    "message": "Domini de $SERVICENAME$ no vàlid.",
     "description": "Displayed when the domain is empty or domain authorization failed at the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -2997,7 +3030,7 @@
     "message": "aplicació web"
   },
   "notificationSentDevicePart2": {
-    "message": "Assegura't que la frase d'empremta digital encaixa amb la d'aquí sota abans d'aprovar-la."
+    "message": "Assegureu-vos que la frase de l'empremta digital coincideix amb la que hi ha a continuació abans d'aprovar-la."
   },
   "needAnotherOptionV1": {
     "message": "Necessiteu una altra opció?"
@@ -3114,7 +3147,7 @@
     "message": "Aquesta sol·licitud ja no és vàlida."
   },
   "confirmAccessAttempt": {
-    "message": "Confirma l'intent d'accés de $EMAIL$",
+    "message": "Confirmeu l'intent d'accés de $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3126,7 +3159,7 @@
     "message": "S'ha sol·licitat inici de sessió"
   },
   "accountAccessRequested": {
-    "message": "Accés al compte demanat"
+    "message": "S'ha sol·licitat accés al compte"
   },
   "creatingAccountOn": {
     "message": "Creant compte en"
@@ -3459,10 +3492,10 @@
     "message": "Cal l'inici de sessió en dos passos de Duo al vostre compte. Seguiu els passos de sota per finalitzar l'inici de sessió."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Seguiu els passos de sota per finalitzar l'inici de sessió."
+    "message": "Seguiu els passos següents per finalitzar l'inici de sessió."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Seguiu els passos de sota per finalitzar l'inici de sessió amb la clau de seguretat."
+    "message": "Seguiu els passos següents per finalitzar l'inici de sessió amb la clau de seguretat."
   },
   "launchDuo": {
     "message": "Inicia Duo al navegador"
@@ -3591,6 +3624,12 @@
   "awaitingSSODesc": {
     "message": "Continueu iniciant la sessió amb les credencials de la vostra empresa."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
+  },
   "seeDetailedInstructions": {
     "message": "Consulteu les instruccions detallades al nostre lloc d'ajuda a",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3627,7 +3666,7 @@
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "Més sobre la detecció de coincidències",
+    "message": "Més informació sobre la detecció de coincidències",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
@@ -3771,7 +3810,7 @@
     "message": "Denega"
   },
   "sshkeyApprovalTitle": {
-    "message": "Confirma l'ús de la clau SSH"
+    "message": "Confirmeu l'ús de la clau SSH"
   },
   "agentForwardingWarningTitle": {
     "message": "Advertència: Reenviament de l'Agent"
@@ -3832,6 +3871,12 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
@@ -3916,17 +3961,23 @@
     "message": "With notes, securely store sensitive data like banking or insurance details."
   },
   "newSshNudgeTitle": {
-    "message": "Developer-friendly SSH access"
+    "message": "Accés SSH fàcil per a desenvolupadors"
   },
   "newSshNudgeBodyOne": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "message": "Emmagatzemeu les claus i connecteu-vos amb l'agent SSH per a una autenticació ràpida i xifrada.",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "newSshNudgeBodyTwo": {
-    "message": "Learn more about SSH agent",
+    "message": "Més informació sobre l'agent SSH",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "Assigna a col·leccions"
@@ -4068,14 +4119,76 @@
   "showLess": {
     "message": "Show less"
   },
-  "enableAutotype": {
-    "message": "Enable Autotype"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
+  },
+  "enableAutotypeShortcutDescription": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

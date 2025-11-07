@@ -771,6 +771,9 @@
   "useSingleSignOn": {
     "message": "Použít jednotné přihlášení"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "Odeslat"
   },
@@ -959,9 +962,6 @@
   },
   "insertU2f": {
     "message": "Vložte svůj bezpečnostní klíč do USB portu Vašeho počítače a pokud má tlačítko, tak jej stiskněte."
-  },
-  "recoveryCodeDesc": {
-    "message": "Ztratili jste přístup ke všem nastaveným poskytovatelům dvoufázového přihlášení? Použijte obnovovací kód pro vypnutí dvoufázového přihlášení."
   },
   "recoveryCodeTitle": {
     "message": "Kód pro obnovení"
@@ -1225,6 +1225,15 @@
   "invalidMasterPassword": {
     "message": "Chybné hlavní heslo"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Neplatné hlavní heslo. Potvrďte správnost e-mailu a zda byl Váš účet vytvořen na $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Dvoufázové přihlášení činí Váš účet mnohem bezpečnějším díky nutnosti po každém úspěšném přihlášení zadat ověřovací kód získaný z bezpečnostního klíče, aplikace, SMS, telefonního hovoru nebo e-mailu. Dvoufázové přihlášení lze aktivovat na webové stránce bitwarden.com. Chcete tuto stránku nyní otevřít?"
   },
@@ -1305,11 +1314,8 @@
     "message": "Automaticky vymaže zkopírované hodnoty z Vaší schránky.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Zobrazit ikony webových stránek"
-  },
-  "faviconDesc": {
-    "message": "Zobrazí rozeznatelný obrázek vedle každého přihlášení."
+  "showIconsChangePasswordUrls": {
+    "message": "Zobrazit ikony webových stránek a načíst URL adresy pro změnu hesla"
   },
   "enableMinToTray": {
     "message": "Minimalizovat do systémové lišty"
@@ -1848,6 +1854,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Zamknout trezor při restartu pomocí hlavního hesla"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Vyžadovat hlavní heslo nebo PIN při restartu aplikace"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Vyžadovat hlavní heslo při restartu aplikace"
   },
   "deleteAccount": {
     "message": "Smazat účet"
@@ -2546,6 +2558,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimální vlastní časový limit je 1 minuta."
+  },
   "inviteAccepted": {
     "message": "Pozvánka byla přijata"
   },
@@ -2657,6 +2672,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Bude exportován jen trezor organizace přidružený k $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Bude exportován jen trezor organizace přidružený k $ORGANIZATION$. Položky mých sbírek nebudou zahrnuty.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -3591,6 +3624,12 @@
   "awaitingSSODesc": {
     "message": "Pokračujte v přihlášení pomocí přihlašovacích údajů Vaší společnosti."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Importovat přímo z prohlížeče"
+  },
+  "browserProfile": {
+    "message": "Profil prohlížeče"
+  },
   "seeDetailedInstructions": {
     "message": "Podívejte se na podrobné pokyny na našem webu s nápovědou na",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3833,6 +3872,12 @@
   "changeAtRiskPassword": {
     "message": "Změnit ohrožené heslo"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Tyto přihlašovací údaje jsou ohrožené a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
+  },
+  "missingWebsite": {
+    "message": "Chybějící webová stránka"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nemůžete odebrat sbírky s oprávněními jen pro zobrazení: $COLLECTIONS$",
     "placeholders": {
@@ -3927,6 +3972,12 @@
     "message": "Další informace o SSH agentovi",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "O tomto nastavení"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden bude používat uložené přihlašovací URI k identifikaci, která ikona nebo změna adresy URL by měla být použita pro zlepšení Vašeho zážitku. Při používání této služby nejsou shromažďovány ani ukládány žádné informace."
   },
   "assignToCollections": {
     "message": "Přiřadit ke sbírkám"
@@ -4068,14 +4119,76 @@
   "showLess": {
     "message": "Zobrazit méně"
   },
-  "enableAutotype": {
-    "message": "Povolit automatický zápis"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden neověřuje umístění vstupu. Před použitím zkratky se ujistěte, že jste ve správném okně a poli."
+  },
+  "typeShortcut": {
+    "message": "Napsat zkratku"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Zahrňte jeden nebo dva z následujících modifikátorů: Ctrl, Alt, Win nebo Shift a písmeno."
+  },
+  "invalidShortcut": {
+    "message": "Neplatná zkratka"
   },
   "moreBreadcrumbs": {
     "message": "Více...",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Další"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potvrdit doménu Key Connectoru"
+  },
+  "confirm": {
+    "message": "Potvrdit"
+  },
+  "enableAutotypeShortcutPreview": {
+    "message": "Povolit zkratku Autotype (náhled funkce)"
+  },
+  "enableAutotypeShortcutDescription": {
+    "message": "Před použitím zkratky se ujistěte, že jste ve správném poli, abyste se vyhnuli vyplnění dat na nesprávné místo."
+  },
+  "editShortcut": {
+    "message": "Upravit zkratku"
+  },
+  "archiveNoun": {
+    "message": "Archiv",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archivovat",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Odebrat z archivu"
+  },
+  "itemsInArchive": {
+    "message": "Položky v archivu"
+  },
+  "noItemsInArchive": {
+    "message": "Žádné položky v archivu"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Zde se zobrazí archivované položky a budou vyloučeny z obecných výsledků vyhledávání a návrhů automatického vyplňování."
+  },
+  "itemWasSentToArchive": {
+    "message": "Položka byla přesunuta do archivu"
+  },
+  "itemWasUnarchived": {
+    "message": "Položka byla odebrána z archivu"
+  },
+  "archiveItem": {
+    "message": "Archivovat položku"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tuto položku archivovat?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / PSČ"
+  },
+  "cardNumberLabel": {
+    "message": "Číslo karty"
   }
 }

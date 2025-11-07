@@ -1,14 +1,20 @@
 #![cfg(target_os = "macos")]
+#![allow(clippy::disallowed_macros)] // uniffi macros trip up clippy's evaluation
 
 use std::{
     collections::HashMap,
-    sync::{atomic::AtomicU32, Arc, Mutex},
+    sync::{atomic::AtomicU32, Arc, Mutex, Once},
     time::Instant,
 };
 
 use futures::FutureExt;
-use log::{error, info};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use tracing::{error, info};
+use tracing_subscriber::{
+    filter::{EnvFilter, LevelFilter},
+    layer::SubscriberExt,
+    util::SubscriberInitExt,
+};
 
 uniffi::setup_scaffolding!();
 
@@ -20,6 +26,8 @@ use assertion::{
     PreparePasskeyAssertionCallback,
 };
 use registration::{PasskeyRegistrationRequest, PreparePasskeyRegistrationCallback};
+
+static INIT: Once = Once::new();
 
 #[derive(uniffi::Enum, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -61,11 +69,24 @@ pub struct MacOSProviderClient {
 
 #[uniffi::export]
 impl MacOSProviderClient {
+    // FIXME: Remove unwraps! They panic and terminate the whole application.
+    #[allow(clippy::unwrap_used)]
     #[uniffi::constructor]
     pub fn connect() -> Self {
-        let _ = oslog::OsLogger::new("com.bitwarden.desktop.autofill-extension")
-            .level_filter(log::LevelFilter::Trace)
-            .init();
+        INIT.call_once(|| {
+            let filter = EnvFilter::builder()
+                // Everything logs at `INFO`
+                .with_default_directive(LevelFilter::INFO.into())
+                .from_env_lossy();
+
+            tracing_subscriber::registry()
+                .with(filter)
+                .with(tracing_oslog::OsLogger::new(
+                    "com.bitwarden.desktop.autofill-extension",
+                    "default",
+                ))
+                .init();
+        });
 
         let (from_server_send, mut from_server_recv) = tokio::sync::mpsc::channel(32);
         let (to_server_send, to_server_recv) = tokio::sync::mpsc::channel(32);
@@ -76,7 +97,7 @@ impl MacOSProviderClient {
             response_callbacks_queue: Arc::new(Mutex::new(HashMap::new())),
         };
 
-        let path = desktop_core::ipc::path("autofill");
+        let path = desktop_core::ipc::path("af");
 
         let queue = client.response_callbacks_queue.clone();
 
@@ -112,21 +133,21 @@ impl MacOSProviderClient {
                                 match value {
                                     Ok(value) => {
                                         if let Err(e) = cb.complete(value) {
-                                            error!("Error deserializing message: {e}");
+                                            error!(error = %e, "Error deserializing message");
                                         }
                                     }
                                     Err(e) => {
-                                        error!("Error processing message: {e:?}");
+                                        error!(error = ?e, "Error processing message");
                                         cb.error(e)
                                     }
                                 }
                             }
                             None => {
-                                error!("No callback found for sequence number: {sequence_number}")
+                                error!(sequence_number, "No callback found for sequence number")
                             }
                         },
                         Err(e) => {
-                            error!("Error deserializing message: {e}");
+                            error!(error = %e, "Error deserializing message");
                         }
                     };
                 }
@@ -179,6 +200,8 @@ enum SerializedMessage {
 }
 
 impl MacOSProviderClient {
+    // FIXME: Remove unwraps! They panic and terminate the whole application.
+    #[allow(clippy::unwrap_used)]
     fn add_callback(&self, callback: Box<dyn Callback>) -> u32 {
         let sequence_number = self
             .response_callbacks_counter
@@ -192,6 +215,8 @@ impl MacOSProviderClient {
         sequence_number
     }
 
+    // FIXME: Remove unwraps! They panic and terminate the whole application.
+    #[allow(clippy::unwrap_used)]
     fn send_message(
         &self,
         message: impl Serialize + DeserializeOwned,

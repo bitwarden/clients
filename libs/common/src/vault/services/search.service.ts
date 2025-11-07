@@ -9,6 +9,7 @@ import { perUserCache$ } from "@bitwarden/common/vault/utils/observable-utilitie
 import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
+import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import {
   SingleUserState,
   StateProvider,
@@ -261,7 +262,7 @@ export class SearchService implements SearchServiceAbstraction {
     }
 
     const ciphersMap = new Map<string, C>();
-    ciphers.forEach((c) => ciphersMap.set(c.id, c));
+    ciphers.forEach((c) => ciphersMap.set(uuidAsString(c.id), c));
 
     let searchResults: lunr.Index.Result[] = null;
     const isQueryString = query != null && query.length > 1 && query.indexOf(">") === 0;
@@ -295,16 +296,24 @@ export class SearchService implements SearchServiceAbstraction {
     return results;
   }
 
-  searchCiphersBasic<C extends CipherViewLike>(ciphers: C[], query: string, deleted = false) {
+  searchCiphersBasic<C extends CipherViewLike>(
+    ciphers: C[],
+    query: string,
+    deleted = false,
+    archived = false,
+  ) {
     query = SearchService.normalizeSearchQuery(query.trim().toLowerCase());
     return ciphers.filter((c) => {
       if (deleted !== CipherViewLikeUtils.isDeleted(c)) {
         return false;
       }
+      if (archived !== CipherViewLikeUtils.isArchived(c)) {
+        return false;
+      }
       if (c.name != null && c.name.toLowerCase().indexOf(query) > -1) {
         return true;
       }
-      if (query.length >= 8 && c.id.startsWith(query)) {
+      if (query.length >= 8 && uuidAsString(c.id).startsWith(query)) {
         return true;
       }
       const subtitle = CipherViewLikeUtils.subtitle(c);

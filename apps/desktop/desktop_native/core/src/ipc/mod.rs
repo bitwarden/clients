@@ -30,10 +30,12 @@ fn internal_ipc_codec<T: AsyncRead + AsyncWrite>(inner: T) -> Framed<T, LengthDe
 }
 
 /// Resolve the path to the IPC socket.
+// FIXME: Remove unwraps! They panic and terminate the whole application.
+#[allow(clippy::unwrap_used)]
 pub fn path(name: &str) -> std::path::PathBuf {
     #[cfg(target_os = "windows")]
     {
-        // Use a unique IPC pipe //./pipe/xxxxxxxxxxxxxxxxx.app.bitwarden per user.
+        // Use a unique IPC pipe //./pipe/xxxxxxxxxxxxxxxxx.s.bw per user (s for socket).
         // Hashing prevents problems with reserved characters and file length limitations.
         use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
         use sha2::Digest;
@@ -41,7 +43,7 @@ pub fn path(name: &str) -> std::path::PathBuf {
         let hash = sha2::Sha256::digest(home.as_os_str().as_encoded_bytes());
         let hash_b64 = URL_SAFE_NO_PAD.encode(hash.as_slice());
 
-        format!(r"\\.\pipe\{hash_b64}.app.{name}").into()
+        format!(r"\\.\pipe\{hash_b64}.s.{name}").into()
     }
 
     #[cfg(target_os = "macos")]
@@ -63,11 +65,11 @@ pub fn path(name: &str) -> std::path::PathBuf {
                 home.pop();
             }
 
-            let tmp = home.join("Library/Group Containers/LTZ2PFU5D6.com.bitwarden.desktop/tmp");
+            let tmp = home.join("Library/Group Containers/LTZ2PFU5D6.com.bitwarden.desktop");
 
             // The tmp directory might not exist, so create it
             let _ = std::fs::create_dir_all(&tmp);
-            return tmp.join(format!("app.{name}"));
+            return tmp.join(format!("s.{name}"));
         }
     }
 
@@ -79,6 +81,6 @@ pub fn path(name: &str) -> std::path::PathBuf {
 
         // The cache directory might not exist, so create it
         let _ = std::fs::create_dir_all(&path_dir);
-        path_dir.join(format!("app.{name}"))
+        path_dir.join(format!("s.{name}"))
     }
 }
