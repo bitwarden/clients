@@ -52,6 +52,9 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   static readonly QUERY_PARAM_UPGRADE: string = "upgrade";
   static readonly ROUTE_PARAM_ORGANIZATION_ID: string = "organizationId";
 
+  private static readonly PRODUCT_PASSWORD_MANAGER = "passwordManager";
+  private static readonly PRODUCT_SECRETS_MANAGER = "secretsManager";
+
   sub: OrganizationSubscriptionResponse;
   lineItems: BillingSubscriptionItemResponse[] = [];
   organizationId: string;
@@ -173,8 +176,8 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
             const seatPriceTotal = this.sub.plan?.SecretsManager?.seatPrice * item.quantity;
             item.productName =
               itemTotalAmount === seatPriceTotal || item.name.includes("Service Accounts")
-                ? "secretsManager"
-                : "passwordManager";
+                ? OrganizationSubscriptionCloudComponent.PRODUCT_SECRETS_MANAGER
+                : OrganizationSubscriptionCloudComponent.PRODUCT_PASSWORD_MANAGER;
             return item;
           })
           .sort(sortSubscriptionItems);
@@ -216,16 +219,92 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   }
 
   get subscriptionLineItems() {
-    return this.lineItems.map((lineItem: BillingSubscriptionItemResponse) => ({
-      name: lineItem.name,
-      amount: this.discountPrice(lineItem.amount, lineItem.productId),
-      quantity: lineItem.quantity,
-      interval: lineItem.interval,
-      sponsoredSubscriptionItem: lineItem.sponsoredSubscriptionItem,
-      addonSubscriptionItem: lineItem.addonSubscriptionItem,
-      productName: lineItem.productName,
-      productId: lineItem.productId,
-    }));
+    return this.lineItems.map((lineItem: BillingSubscriptionItemResponse) => {
+      // For SM trials with complimentary PM, only apply discount to PM products
+      const shouldApplyDiscount = this.shouldApplyDiscountToLineItem(lineItem);
+
+      return {
+        name: lineItem.name,
+        amount: shouldApplyDiscount
+          ? this.discountPrice(lineItem.amount, lineItem.productId)
+          : lineItem.amount,
+        quantity: lineItem.quantity,
+        interval: lineItem.interval,
+        sponsoredSubscriptionItem: lineItem.sponsoredSubscriptionItem,
+        addonSubscriptionItem: lineItem.addonSubscriptionItem,
+        productName: lineItem.productName,
+        productId: lineItem.productId,
+      };
+    });
+  }
+
+  private shouldApplyDiscountToLineItem(lineItem: BillingSubscriptionItemResponse): boolean {
+    // If no discount, don't apply
+    if (!this.customerDiscount?.active) {
+      return false;
+    }
+
+    // For SM subscriptions with complimentary PM (100% discount)
+    // Only apply discount to PM products, not SM products
+    if (this.userOrg?.useSecretsManager && this.customerDiscount?.percentOff === 100) {
+      return (
+        lineItem.productName === OrganizationSubscriptionCloudComponent.PRODUCT_PASSWORD_MANAGER
+      );
+    }
+
+    // For all other cases, use default discount logic
+    return true;
+  }
+
+  shouldShowFreeForOneYear(productId: string, productName: string): boolean {
+    // Only show "Free for 1 year" for 100% discounts
+    if (!this.customerDiscount?.active || this.customerDiscount?.percentOff !== 100) {
+      return false;
+    }
+
+    // Check if discount applies to this specific product via appliesTo array
+    if (this.customerDiscount?.appliesTo && this.customerDiscount.appliesTo.length > 0) {
+      return this.customerDiscount.appliesTo.includes(productId);
+    }
+
+    // For SM subscriptions with complimentary PM (100% discount)
+    // When appliesTo is empty, assume it's a complimentary PM scenario
+    // Show "Free for 1 year" for PM products only
+    if (
+      this.userOrg?.useSecretsManager &&
+      this.customerDiscount?.percentOff === 100 &&
+      productName === OrganizationSubscriptionCloudComponent.PRODUCT_PASSWORD_MANAGER
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
+  shouldShowDiscountStrikethrough(productId: string, productName: string): boolean {
+    // If no discount, don't show strikethrough
+    if (!this.customerDiscount?.active || !this.customerDiscount?.percentOff) {
+      return false;
+    }
+
+    // Don't show strikethrough for Secrets Manager trial
+    if (this.isSecretsManagerTrial()) {
+      return false;
+    }
+
+    // Don't show strikethrough if we should show "Free for 1 year" instead
+    if (this.shouldShowFreeForOneYear(productId, productName)) {
+      return false;
+    }
+
+    // Only show strikethrough if discount applies to this specific product (for partial discounts)
+    if (this.customerDiscount?.appliesTo && this.customerDiscount.appliesTo.length > 0) {
+      return this.customerDiscount.appliesTo.includes(productId);
+    }
+
+    // If appliesTo is empty or not specified, don't show strikethrough
+    // (we need to know which products the discount applies to)
+    return false;
   }
 
   get nextInvoice() {
@@ -406,6 +485,29 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
         this.sub?.customerDiscount?.appliesTo?.includes(item.productId),
       ) ?? false
     );
+  }
+
+  hasPasswordManagerOnlyDiscount(): boolean {
+    // Only show discount badge for Password Manager-only subscriptions
+    // Not for Secrets Manager subscriptions with complimentary Password Manager
+    if (!this.customerDiscount?.percentOff || this.customerDiscount.percentOff === 0) {
+      return false;
+    }
+
+    // If organization has Secrets Manager, don't show the badge
+    // (it's a bundled subscription, not a Password Manager-only discount)
+    if (this.userOrg?.useSecretsManager) {
+      return false;
+    }
+
+    // Check if discount applies to any Password Manager items
+    const hasPasswordManagerItems = this.lineItems?.some(
+      (item) =>
+        item.productName === OrganizationSubscriptionCloudComponent.PRODUCT_PASSWORD_MANAGER &&
+        this.customerDiscount?.appliesTo?.includes(item.productId),
+    );
+
+    return hasPasswordManagerItems ?? false;
   }
 
   closeChangePlan() {

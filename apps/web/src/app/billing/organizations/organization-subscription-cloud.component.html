@@ -18,7 +18,11 @@
           >{{ "details" | i18n
           }}<span
             class="tw-ml-3"
-            *ngIf="customerDiscount?.percentOff > 0 && !isSecretsManagerTrial()"
+            *ngIf="
+              customerDiscount?.percentOff > 0 &&
+              !isSecretsManagerTrial() &&
+              hasPasswordManagerOnlyDiscount()
+            "
             bitBadge
             variant="success"
             >{{ "providerDiscount" | i18n: customerDiscount?.percentOff }}</span
@@ -39,10 +43,7 @@
                 </td>
                 <td bitCell class="tw-text-right">
                   <ng-container
-                    *ngIf="
-                      sub?.customerDiscount?.appliesTo?.includes(i.productId);
-                      else calculateElse
-                    "
+                    *ngIf="shouldShowFreeForOneYear(i.productId, i.productName); else calculateElse"
                   >
                     {{ "freeForOneYear" | i18n }}
                   </ng-container>
@@ -52,7 +53,7 @@
                         {{ i.quantity * i.amount | currency: "$" }} /{{ i.interval | i18n }}
                       </span>
                       <span
-                        *ngIf="customerDiscount?.percentOff && !isSecretsManagerTrial()"
+                        *ngIf="shouldShowDiscountStrikethrough(i.productId, i.productName)"
                         class="tw-line-through !tw-text-muted"
                         >{{
                           calculateTotalAppliedDiscount(i.quantity * i.amount) | currency: "$"
