@@ -6,6 +6,8 @@ import {
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -24,6 +26,7 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
     private stateProvider: StateProvider,
     private organizationService: InternalOrganizationServiceAbstraction,
     private organizationUserApiService: OrganizationUserApiService,
+    private policyService: PolicyService,
   ) {}
   private autoConfirmState(userId: UserId) {
     return this.stateProvider.getUser(userId, AUTO_CONFIRM_STATE);
@@ -50,8 +53,12 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
       this.organizationService
         .organizations$(userId)
         .pipe(map((organizations) => organizations[0])),
+      this.policyService.policyAppliesToUser$(PolicyType.AutoConfirm, userId),
     ]).pipe(
-      map(([enabled, organization]) => enabled && (organization?.canManageAutoConfirm ?? false)),
+      map(
+        ([enabled, organization, policyEnabled]) =>
+          enabled && policyEnabled && (organization?.canManageAutoConfirm ?? false),
+      ),
     );
   }
 

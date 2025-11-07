@@ -70,7 +70,7 @@
       </a>
     </bit-item>
 
-    @if (showAdminSettingsLink$ | async) {
+    @if (!!showAdminSettingsLink$ && showAdminSettingsLink$ | async) {
       <bit-item>
         <a bit-item-content routerLink="/admin">
           <i slot="start" class="bwi bwi-business" aria-hidden="true"></i>

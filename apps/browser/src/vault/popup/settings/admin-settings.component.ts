@@ -50,8 +50,7 @@ export class AdminSettingsComponent implements OnInit {
   protected adminForm: FormGroup = this.formBuilder.group({
     autoConfirm: false,
   });
-
-  showAutoConfirmSpotlight$: Observable<boolean> = this.userId$.pipe(
+  protected showAutoConfirmSpotlight$: Observable<boolean> = this.userId$.pipe(
     switchMap((userId) =>
       this.nudgesService.showNudgeSpotlight$(NudgeType.AutoConfirmNudge, userId),
     ),
