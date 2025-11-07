@@ -17,7 +17,7 @@ export class SpotlightComponent {
   readonly subtitle = input<string | null>(null);
   // The text to display on the button
   readonly buttonText = input<string | null>(null);
-  // Wheter the component can be dismissed, if true, the component will not show a close button
+  // Whether the component can be dismissed, if true, the component will not show a close button
   readonly persistent = input(false);
   // Optional icon to display on the button
   readonly buttonIcon = input<string | null>(null);
