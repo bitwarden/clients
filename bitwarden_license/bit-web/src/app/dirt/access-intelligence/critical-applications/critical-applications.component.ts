@@ -26,6 +26,7 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
 import { DefaultAdminTaskService } from "../../../vault/services/default-admin-task.service";
+import { RiskInsightsTabType } from "../models/risk-insights.models";
 import { AppTableRowScrollableComponent } from "../shared/app-table-row-scrollable.component";
 import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks.service";
 
@@ -111,8 +112,11 @@ export class CriticalApplicationsComponent implements OnInit {
   }
 
   goToAllAppsTab = async () => {
-    // If activity tab is enabled, All Apps is tab 1, otherwise it's tab 0
-    const allAppsTabIndex = this.isRiskInsightsActivityTabFeatureEnabled ? 1 : 0; //TODO: change this logic when feature flag is implemented?
+    // Use RiskInsightsTabType enum to get the correct tab index
+    // When activity tab is enabled: AllApps = 1, otherwise it becomes 0 (first tab)
+    const allAppsTabIndex = this.isRiskInsightsActivityTabFeatureEnabled
+      ? RiskInsightsTabType.AllApps
+      : 0;
     await this.router.navigate([], {
       relativeTo: this.activatedRoute.parent,
       queryParams: { tabIndex: allAppsTabIndex },
