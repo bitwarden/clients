@@ -8,12 +8,10 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { from, switchMap } from "rxjs";
+import { from, switchMap, take } from "rxjs";
 
 import {
   ApplicationHealthReportDetail,
-  ApplicationHealthReportDetailEnriched,
-  OrganizationReportApplication,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { getUniqueMembers } from "@bitwarden/bit-common/dirt/reports/risk-insights/helpers";
@@ -45,6 +43,11 @@ export interface NewApplicationsDialogData {
    * the route subscription has fired.
    */
   organizationId: OrganizationId;
+  /**
+   * Whether the organization has any existing critical applications.
+   * Used to determine which title and description to show in the dialog.
+   */
+  hasExistingCriticalApplications: boolean;
 }
 
 /**
@@ -93,8 +96,8 @@ export class NewApplicationsDialogComponent {
   protected readonly selectedApplications = signal<Set<string>>(new Set());
 
   // Assign tasks variables
-  readonly criticalApplicationsCount = signal<number>(0);
-  readonly totalApplicationsCount = signal<number>(0);
+  readonly atRiskCriticalApplicationsCount = signal<number>(0);
+  readonly totalCriticalApplicationsCount = signal<number>(0);
   readonly atRiskCriticalMembersCount = signal<number>(0);
   readonly saving = signal<boolean>(false);
 
@@ -128,6 +131,14 @@ export class NewApplicationsDialogComponent {
 
   getApplications() {
     return this.dialogParams.newApplications;
+  }
+
+  /**
+   * Returns true if the organization has no existing critical applications.
+   * Used to conditionally show different titles and descriptions.
+   */
+  protected hasNoCriticalApplications(): boolean {
+    return !this.dialogParams.hasExistingCriticalApplications;
   }
 
   /**
@@ -169,6 +180,15 @@ export class NewApplicationsDialogComponent {
       this.selectedApplications().has(newApp.applicationName),
     );
 
+    // Count only critical applications that have at-risk passwords
+    const atRiskCriticalApplicationsCount = onlyNewCriticalApplications.filter(
+      (app) => app.atRiskPasswordCount > 0,
+    ).length;
+    this.atRiskCriticalApplicationsCount.set(atRiskCriticalApplicationsCount);
+
+    // Total number of selected critical applications
+    this.totalCriticalApplicationsCount.set(onlyNewCriticalApplications.length);
+
     const atRiskCriticalMembersCount = getUniqueMembers(
       onlyNewCriticalApplications.flatMap((x) => x.atRiskMemberDetails),
     ).length;
@@ -187,40 +207,16 @@ export class NewApplicationsDialogComponent {
     }
     this.saving.set(true);
 
-    // Create updated organization report application types with new review date
-    // and critical marking based on selected applications
-    const newReviewDate = new Date();
-    const updatedApplications: OrganizationReportApplication[] =
-      this.dialogParams.newApplications.map((app) => ({
-        applicationName: app.applicationName,
-        isCritical: this.selectedApplications().has(app.applicationName),
-        reviewedDate: newReviewDate,
-      }));
-
     // Save the application review dates and critical markings
-    this.dataService
-      .saveApplicationReviewStatus(updatedApplications)
+    this.dataService.criticalApplicationAtRiskCipherIds$
       .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        switchMap((updatedState) => {
-          // After initial save is complete, created the assigned tasks
-          // for at risk passwords
-          const updatedStateApplicationData = updatedState?.data?.applicationData || [];
-          // Manual enrich for type matching
-          // TODO Consolidate in model updates
-          const manualEnrichedApplications =
-            updatedState?.data?.reportData.map(
-              (application): ApplicationHealthReportDetailEnriched => ({
-                ...application,
-                isMarkedAsCritical: updatedStateApplicationData.some(
-                  (a) => a.applicationName == application.applicationName && a.isCritical,
-                ),
-              }),
-            ) || [];
+        takeUntilDestroyed(this.destroyRef), // Satisfy eslint rule
+        take(1), // Handle unsubscribe for one off operation
+        switchMap((criticalApplicationAtRiskCipherIds) => {
           return from(
-            this.accessIntelligenceSecurityTasksService.assignTasks(
+            this.accessIntelligenceSecurityTasksService.requestPasswordChangeForCriticalApplications(
               this.dialogParams.organizationId,
-              manualEnrichedApplications,
+              criticalApplicationAtRiskCipherIds,
             ),
           );
         }),
