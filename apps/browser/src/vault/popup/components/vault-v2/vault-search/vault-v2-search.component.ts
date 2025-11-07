@@ -56,8 +56,8 @@ export class VaultV2SearchComponent {
       });
   }
 
-  subscribeToApplyFilter(): Subscription {
-    return combineLatest([this.searchText$, this.loading$])
+  subscribeToApplyFilter(): void {
+    combineLatest([this.searchText$, this.loading$])
       .pipe(
         debounce(([_, isLoading]) => {
           // If loading apply immediately to avoid stale searches.
