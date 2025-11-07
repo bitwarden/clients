@@ -93,8 +93,8 @@ export class NewApplicationsDialogComponent {
   protected readonly selectedApplications = signal<Set<string>>(new Set());
 
   // Assign tasks variables
-  readonly criticalApplicationsCount = signal<number>(0);
-  readonly totalApplicationsCount = signal<number>(0);
+  readonly atRiskCriticalApplicationsCount = signal<number>(0);
+  readonly totalCriticalApplicationsCount = signal<number>(0);
   readonly atRiskCriticalMembersCount = signal<number>(0);
   readonly saving = signal<boolean>(false);
 
@@ -168,6 +168,15 @@ export class NewApplicationsDialogComponent {
     const onlyNewCriticalApplications = this.dialogParams.newApplications.filter((newApp) =>
       this.selectedApplications().has(newApp.applicationName),
     );
+
+    // Count only critical applications that have at-risk passwords
+    const atRiskCriticalApplicationsCount = onlyNewCriticalApplications.filter(
+      (app) => app.atRiskPasswordCount > 0,
+    ).length;
+    this.atRiskCriticalApplicationsCount.set(atRiskCriticalApplicationsCount);
+
+    // Total number of selected critical applications
+    this.totalCriticalApplicationsCount.set(onlyNewCriticalApplications.length);
 
     const atRiskCriticalMembersCount = getUniqueMembers(
       onlyNewCriticalApplications.flatMap((x) => x.atRiskMemberDetails),

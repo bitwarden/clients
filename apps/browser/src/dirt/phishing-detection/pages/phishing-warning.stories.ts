@@ -10,6 +10,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { AnonLayoutComponent, I18nMockService } from "@bitwarden/components";
+import { MessageSender } from "@bitwarden/messaging";
 
 import { PhishingWarning } from "./phishing-warning.component";
 import { ProtectedByComponent } from "./protected-by-component";
@@ -50,6 +51,13 @@ export default {
           useClass: MockPlatformUtilsService,
         },
         {
+          provide: MessageSender,
+          useValue: {
+            // eslint-disable-next-line no-console
+            send: (...args: any[]) => console.debug("MessageSender called with:", args),
+          } as Partial<MessageSender>,
+        },
+        {
           provide: I18nService,
           useFactory: () =>
             new I18nMockService({
@@ -79,7 +87,7 @@ export default {
             }).asObservable(),
           },
         },
-        mockActivatedRoute({ phishingHost: "malicious-example.com" }),
+        mockActivatedRoute({ phishingUrl: "http://malicious-example.com" }),
       ],
     }),
   ],
@@ -95,14 +103,7 @@ export default {
       </auth-anon-layout>
     `,
   }),
-  argTypes: {
-    phishingHost: {
-      control: "text",
-      description: "The suspicious host that was blocked",
-    },
-  },
   args: {
-    phishingHost: "malicious-example.com",
     pageIcon: DeactivatedOrg,
   },
 } satisfies Meta<StoryArgs & { pageIcon: any }>;
@@ -110,26 +111,20 @@ export default {
 type Story = StoryObj<StoryArgs & { pageIcon: any }>;
 
 export const Default: Story = {
-  args: {
-    phishingHost: "malicious-example.com",
-  },
   decorators: [
     moduleMetadata({
-      providers: [mockActivatedRoute({ phishingHost: "malicious-example.com" })],
+      providers: [mockActivatedRoute({ phishingUrl: "http://malicious-example.com" })],
     }),
   ],
 };
 
 export const LongHostname: Story = {
-  args: {
-    phishingHost: "very-long-suspicious-phishing-domain-name-that-might-wrap.malicious-example.com",
-  },
   decorators: [
     moduleMetadata({
       providers: [
         mockActivatedRoute({
-          phishingHost:
-            "very-long-suspicious-phishing-domain-name-that-might-wrap.malicious-example.com",
+          phishingUrl:
+            "http://verylongsuspiciousphishingdomainnamethatmightwrapmaliciousexample.com",
         }),
       ],
     }),
