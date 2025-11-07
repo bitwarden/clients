@@ -8,8 +8,8 @@ import { FolderData } from "../data/folder.data";
 import { FolderView } from "../view/folder.view";
 
 export class Folder extends Domain {
-  id: string = "";
-  name: EncString = new EncString("");
+  id?: string;
+  name?: EncString;
   revisionDate: Date;
 
   constructor(obj?: FolderData) {
@@ -41,10 +41,10 @@ export class Folder extends Domain {
     encryptService: EncryptService,
   ): Promise<FolderView> {
     const folderView = new FolderView();
-    folderView.id = this.id;
+    folderView.id = this.id ?? "";
     folderView.revisionDate = this.revisionDate;
     try {
-      folderView.name = await encryptService.decryptString(this.name, key);
+      folderView.name = await encryptService.decryptString(this.name ?? new EncString(""), key);
     } catch (e) {
       // Note: This should be replaced by the owning team with appropriate, domain-specific behavior.
       // eslint-disable-next-line no-console
@@ -58,6 +58,6 @@ export class Folder extends Domain {
     if (obj == null) {
       return null;
     }
-    return new Folder({ name: obj.name, revisionDate: obj.revisionDate, id: obj.id });
+    return new Folder({ name: obj.name ?? "", revisionDate: obj.revisionDate, id: obj.id ?? "" });
   }
 }

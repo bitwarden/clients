@@ -25,6 +25,6 @@ export class FolderExport {
 
   // Use build method instead of ctor so that we can control order of JSON stringify for pretty print
   build(o: FolderView | FolderDomain) {
-    this.name = safeGetString(o.name) ?? "";
+    this.name = safeGetString(o.name ?? "") ?? "";
   }
 }
