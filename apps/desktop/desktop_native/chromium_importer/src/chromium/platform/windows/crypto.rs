@@ -42,12 +42,12 @@ pub fn crypt_unprotect_data(data: &[u8], flags: u32) -> Result<Vec<u8>> {
     let output_slice =
         unsafe { std::slice::from_raw_parts(data_out.pbData, data_out.cbData as usize) };
 
+    // SAFETY: Must copy data before calling LocalFree() below.
+    // Calling to_vec() after LocalFree() causes use-after-free bugs.
     let output = output_slice.to_vec();
 
     unsafe {
-        if !data_out.pbData.is_null() {
-            LocalFree(Some(HLOCAL(data_out.pbData as *mut _)));
-        }
+        LocalFree(Some(HLOCAL(data_out.pbData as *mut _)));
     }
 
     Ok(output)
