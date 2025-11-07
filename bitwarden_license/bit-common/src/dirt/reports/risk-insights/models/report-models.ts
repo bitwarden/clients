@@ -107,6 +107,17 @@ export const ReportStatus = Object.freeze({
 
 export type ReportStatus = (typeof ReportStatus)[keyof typeof ReportStatus];
 
+export const ReportProgress = Object.freeze({
+  FetchingMembers: 1,
+  AnalyzingPasswords: 2,
+  CalculatingRisks: 3,
+  GeneratingReport: 4,
+  Saving: 5,
+  Complete: 6,
+} as const);
+
+export type ReportProgress = (typeof ReportProgress)[keyof typeof ReportProgress];
+
 export interface RiskInsightsData {
   id: OrganizationReportId;
   creationDate: Date;

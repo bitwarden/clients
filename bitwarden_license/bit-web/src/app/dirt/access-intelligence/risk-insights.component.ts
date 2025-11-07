@@ -1,8 +1,9 @@
+import { animate, style, transition, trigger } from "@angular/animations";
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, OnDestroy, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, EMPTY } from "rxjs";
+import { combineLatest, EMPTY, firstValueFrom } from "rxjs";
 import { map, tap } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -13,7 +14,9 @@ import {
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -23,6 +26,8 @@ import {
   DrawerHeaderComponent,
   TabsModule,
 } from "@bitwarden/components";
+import { ExportHelper } from "@bitwarden/vault-export-core";
+import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { AllActivityComponent } from "./activity/all-activity.component";
@@ -30,6 +35,7 @@ import { AllApplicationsComponent } from "./all-applications/all-applications.co
 import { CriticalApplicationsComponent } from "./critical-applications/critical-applications.component";
 import { EmptyStateCardComponent } from "./empty-state-card.component";
 import { RiskInsightsTabType } from "./models/risk-insights.models";
+import { PageLoadingComponent } from "./shared/page-loading.component";
 import { ApplicationsLoadingComponent } from "./shared/risk-insights-loading.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -51,6 +57,15 @@ import { ApplicationsLoadingComponent } from "./shared/risk-insights-loading.com
     DrawerHeaderComponent,
     AllActivityComponent,
     ApplicationsLoadingComponent,
+    PageLoadingComponent,
+  ],
+  animations: [
+    trigger("fadeIn", [
+      transition(":enter", [
+        style({ opacity: 0 }),
+        animate("300ms 100ms ease-in", style({ opacity: 1 })),
+      ]),
+    ]),
   ],
 })
 export class RiskInsightsComponent implements OnInit, OnDestroy {
@@ -88,6 +103,8 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     protected dataService: RiskInsightsDataService,
     protected i18nService: I18nService,
+    private fileDownloadService: FileDownloadService,
+    private logService: LogService,
   ) {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllApps;
@@ -206,5 +223,67 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       "tools",
       "import",
     ]);
+  };
+
+  /**
+   * downloads at risk members as CSV
+   */
+  downloadAtRiskMembers = async () => {
+    try {
+      const drawerDetails = await firstValueFrom(this.dataService.drawerDetails$);
+
+      // Validate drawer is open and showing the correct drawer type
+      if (
+        !drawerDetails.open ||
+        drawerDetails.activeDrawerType !== DrawerType.OrgAtRiskMembers ||
+        !drawerDetails.atRiskMemberDetails ||
+        drawerDetails.atRiskMemberDetails.length === 0
+      ) {
+        return;
+      }
+
+      this.fileDownloadService.download({
+        fileName: ExportHelper.getFileName("at-risk-members"),
+        blobData: exportToCSV(drawerDetails.atRiskMemberDetails, {
+          email: this.i18nService.t("email"),
+          atRiskPasswordCount: this.i18nService.t("atRiskPasswords"),
+        }),
+        blobOptions: { type: "text/plain" },
+      });
+    } catch (error) {
+      // Log error for debugging
+      this.logService.error("Failed to download at-risk members", error);
+    }
+  };
+
+  /**
+   * downloads at risk applications as CSV
+   */
+  downloadAtRiskApplications = async () => {
+    try {
+      const drawerDetails = await firstValueFrom(this.dataService.drawerDetails$);
+
+      // Validate drawer is open and showing the correct drawer type
+      if (
+        !drawerDetails.open ||
+        drawerDetails.activeDrawerType !== DrawerType.OrgAtRiskApps ||
+        !drawerDetails.atRiskAppDetails ||
+        drawerDetails.atRiskAppDetails.length === 0
+      ) {
+        return;
+      }
+
+      this.fileDownloadService.download({
+        fileName: ExportHelper.getFileName("at-risk-applications"),
+        blobData: exportToCSV(drawerDetails.atRiskAppDetails, {
+          applicationName: this.i18nService.t("application"),
+          atRiskPasswordCount: this.i18nService.t("atRiskPasswords"),
+        }),
+        blobOptions: { type: "text/plain" },
+      });
+    } catch (error) {
+      // Log error for debugging
+      this.logService.error("Failed to download at-risk applications", error);
+    }
   };
 }
