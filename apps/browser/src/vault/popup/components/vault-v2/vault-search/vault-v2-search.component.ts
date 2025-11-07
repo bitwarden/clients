@@ -65,7 +65,10 @@ export class VaultV2SearchComponent {
           const delayTime = isLoading ? 0 : SearchTextDebounceInterval;
           return timer(delayTime);
         }),
-        distinctUntilChanged(),
+        distinctUntilChanged(
+          ([prevText, prevLoading], [newText, newLoading]) =>
+            prevText === newText && prevLoading === newLoading,
+        ),
         takeUntilDestroyed(),
       )
       .subscribe(([text]) => {
