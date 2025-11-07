@@ -69,10 +69,10 @@ export class DesktopAutotypeService implements OnDestroy {
   );
 
   // if the user's account is Premium
-  private readonly isPremiumAccount$: Observable<boolean> = of(false);
+  private readonly isPremiumAccount$: Observable<boolean>;
 
   // The enabled/disabled state from the user settings menu
-  autotypeEnabledUserSetting$: Observable<boolean> = of(false);
+  autotypeEnabledUserSetting$: Observable<boolean>;
 
   // The keyboard shortcut from the user settings menu
   autotypeKeyboardShortcut$: Observable<string[]> = of(defaultWindowsAutotypeKeyboardShortcut);
