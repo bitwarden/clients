@@ -23,7 +23,6 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
-import { DefaultAdminTaskService } from "../../../vault/services/default-admin-task.service";
 import { RiskInsightsTabType } from "../models/risk-insights.models";
 import { AppTableRowScrollableComponent } from "../shared/app-table-row-scrollable.component";
 import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks.service";
@@ -42,7 +41,6 @@ import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks
     SharedModule,
     AppTableRowScrollableComponent,
   ],
-  providers: [AccessIntelligenceSecurityTasksService, DefaultAdminTaskService],
 })
 export class CriticalApplicationsComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
@@ -58,13 +56,13 @@ export class CriticalApplicationsComponent implements OnInit {
 
   constructor(
     protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    protected toastService: ToastService,
     protected dataService: RiskInsightsDataService,
     protected criticalAppsService: CriticalAppsService,
-    protected reportService: RiskInsightsReportService,
     protected i18nService: I18nService,
+    protected reportService: RiskInsightsReportService,
+    protected router: Router,
     private securityTasksService: AccessIntelligenceSecurityTasksService,
+    protected toastService: ToastService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())

@@ -46,7 +46,6 @@ export type PasswordChangeView = (typeof PasswordChangeView)[keyof typeof Passwo
   selector: "dirt-password-change-metric",
   imports: [CommonModule, TypographyModule, JslibModule, ProgressModule, ButtonModule],
   templateUrl: "./password-change-metric.component.html",
-  providers: [AccessIntelligenceSecurityTasksService],
 })
 export class PasswordChangeMetricComponent implements OnInit {
   PasswordChangeViewEnum = PasswordChangeView;
@@ -106,8 +105,8 @@ export class PasswordChangeMetricComponent implements OnInit {
     private allActivitiesService: AllActivitiesService,
     private i18nService: I18nService,
     private injector: Injector,
-    protected securityTasksService: AccessIntelligenceSecurityTasksService,
     private riskInsightsDataService: RiskInsightsDataService,
+    protected securityTasksService: AccessIntelligenceSecurityTasksService,
     private toastService: ToastService,
   ) {
     // Setup the _tasks signal by manually passing in the injector

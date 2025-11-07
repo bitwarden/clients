@@ -35,21 +35,36 @@ import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.
 @NgModule({
   imports: [RiskInsightsComponent, AccessIntelligenceRoutingModule, NewApplicationsDialogComponent],
   providers: [
-    safeProvider(DefaultAdminTaskService),
+    safeProvider({
+      provide: CriticalAppsApiService,
+      useClass: CriticalAppsApiService,
+      deps: [ApiService],
+    }),
     safeProvider({
       provide: MemberCipherDetailsApiService,
       useClass: MemberCipherDetailsApiService,
       deps: [ApiService],
     }),
     safeProvider({
-      provide: PasswordHealthService,
-      useClass: PasswordHealthService,
-      deps: [PasswordStrengthServiceAbstraction, AuditService],
-    }),
-    safeProvider({
       provide: RiskInsightsApiService,
       useClass: RiskInsightsApiService,
       deps: [ApiService],
+    }),
+    safeProvider({
+      provide: SecurityTasksApiService,
+      useClass: SecurityTasksApiService,
+      deps: [ApiService],
+    }),
+    safeProvider(DefaultAdminTaskService),
+    safeProvider({
+      provide: AccessIntelligenceSecurityTasksService,
+      useClass: AccessIntelligenceSecurityTasksService,
+      deps: [DefaultAdminTaskService, SecurityTasksApiService],
+    }),
+    safeProvider({
+      provide: PasswordHealthService,
+      useClass: PasswordHealthService,
+      deps: [AuditService, PasswordStrengthServiceAbstraction],
     }),
     safeProvider({
       provide: RiskInsightsReportService,
@@ -85,24 +100,9 @@ import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.
       deps: [KeyService, EncryptService, CriticalAppsApiService],
     }),
     safeProvider({
-      provide: CriticalAppsApiService,
-      useClass: CriticalAppsApiService,
-      deps: [ApiService],
-    }),
-    safeProvider({
       provide: AllActivitiesService,
       useClass: AllActivitiesService,
       deps: [RiskInsightsDataService],
-    }),
-    safeProvider({
-      provide: SecurityTasksApiService,
-      useClass: SecurityTasksApiService,
-      deps: [ApiService],
-    }),
-    safeProvider({
-      provide: AccessIntelligenceSecurityTasksService,
-      useClass: AccessIntelligenceSecurityTasksService,
-      deps: [DefaultAdminTaskService, SecurityTasksApiService],
     }),
   ],
 })
