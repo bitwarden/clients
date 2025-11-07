@@ -46,7 +46,7 @@ pub fn crypt_unprotect_data(data: &[u8], flags: u32) -> Result<Vec<u8>> {
 
     unsafe {
         if !data_out.pbData.is_null() {
-            LocalFree(Some(HLOCAL(out_blob.pbData as *mut _)));
+            LocalFree(Some(HLOCAL(data_out.pbData as *mut _)));
         }
     }
 
