@@ -97,6 +97,8 @@ impl TryFrom<&str> for KeyboardShortcutInput {
         const ALT_KEY: u16 = 0x12;
         const LEFT_WINDOWS_KEY: u16 = 0x5B;
 
+        // the modifier keys are using the Up keypress variant because the user has already
+        // pressed those keys in order to trigger the feature.
         let input = match key {
             SHIFT_KEY_STR => build_virtual_key_input(InputKeyPress::Up, SHIFT_KEY),
             CONTROL_KEY_STR => build_virtual_key_input(InputKeyPress::Up, CONTROL_KEY),
