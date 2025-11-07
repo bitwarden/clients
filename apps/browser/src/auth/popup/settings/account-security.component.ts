@@ -25,6 +25,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { FingerprintDialogComponent, VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
+import { LockService } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
@@ -36,7 +37,6 @@ import {
   VaultTimeout,
   VaultTimeoutAction,
   VaultTimeoutOption,
-  VaultTimeoutService,
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
@@ -78,6 +78,8 @@ import { SetPinComponent } from "../components/set-pin.component";
 
 import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "account-security.component.html",
   imports: [
@@ -141,7 +143,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
-    private vaultTimeoutService: VaultTimeoutService,
+    private lockService: LockService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     public messagingService: MessagingService,
     private environmentService: EnvironmentService,
@@ -172,7 +174,9 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     }
 
     const showOnLocked =
-      !this.platformUtilsService.isFirefox() && !this.platformUtilsService.isSafari();
+      !this.platformUtilsService.isFirefox() &&
+      !this.platformUtilsService.isSafari() &&
+      !(this.platformUtilsService.isOpera() && navigator.platform === "MacIntel");
 
     this.vaultTimeoutOptions = [
       { name: this.i18nService.t("immediately"), value: 0 },
@@ -309,12 +313,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       .pipe(
         concatMap(async (value) => {
           const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
-          const pinKeyEncryptedUserKey =
-            (await this.pinService.getPinKeyEncryptedUserKeyPersistent(userId)) ||
-            (await this.pinService.getPinKeyEncryptedUserKeyEphemeral(userId));
-          await this.pinService.clearPinKeyEncryptedUserKeyPersistent(userId);
-          await this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
-          await this.pinService.storePinKeyEncryptedUserKey(pinKeyEncryptedUserKey, value, userId);
+          const pin = await this.pinService.getPin(userId);
+          await this.pinService.setPin(pin, value ? "EPHEMERAL" : "PERSISTENT", userId);
           this.refreshTimeoutSettings$.next();
         }),
         takeUntil(this.destroy$),
@@ -484,7 +484,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       }
     } else {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      await this.vaultTimeoutSettingsService.clear(userId);
+      await this.pinService.unsetPin(userId);
     }
   }
 
@@ -695,7 +695,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   }
 
   async lock() {
-    await this.vaultTimeoutService.lock();
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    await this.lockService.lock(activeUserId);
   }
 
   async logOut() {

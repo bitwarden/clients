@@ -6,7 +6,7 @@ import {
   filter,
   firstValueFrom,
   fromEvent,
-  fromEventPattern,
+  map,
   merge,
   Observable,
   Subject,
@@ -28,6 +28,7 @@ import {
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
+import { fromChromeEvent } from "../../../platform/browser/from-chrome-event";
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
 import { closeFido2Popout, openFido2Popout } from "../../../vault/popup/utils/vault-popout-window";
@@ -154,9 +155,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   }
 
   static sendMessage(msg: BrowserFido2Message) {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    BrowserApi.sendMessage(BrowserFido2MessageName, msg);
+    void BrowserApi.sendMessage(BrowserFido2MessageName, msg);
   }
 
   static abortPopout(sessionId: string, fallbackRequested = false) {
@@ -205,9 +204,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     fromEvent(abortController.signal, "abort")
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.close();
+        void this.close();
         BrowserFido2UserInterfaceSession.sendMessage({
           type: BrowserFido2MessageTypes.AbortRequest,
           sessionId: this.sessionId,
@@ -223,21 +220,13 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       )
       .subscribe((msg) => {
         if (msg.type === BrowserFido2MessageTypes.AbortResponse) {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.close();
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.abort(msg.fallbackRequested);
+          void this.close();
+          void this.abort(msg.fallbackRequested);
         }
       });
 
-    this.windowClosed$ = fromEventPattern(
-      // FIXME: Make sure that is does not cause a memory leak in Safari or use BrowserApi.AddListener
-      // and test that it doesn't break. Tracking Ticket: https://bitwarden.atlassian.net/browse/PM-4735
-      // eslint-disable-next-line no-restricted-syntax
-      (handler: any) => chrome.windows.onRemoved.addListener(handler),
-      (handler: any) => chrome.windows.onRemoved.removeListener(handler),
+    this.windowClosed$ = fromChromeEvent(chrome.windows.onRemoved).pipe(
+      map(([windowId]) => windowId),
     );
 
     BrowserFido2UserInterfaceSession.sendMessage({
@@ -391,12 +380,8 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         takeUntil(this.destroy$),
       )
       .subscribe(() => {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.close();
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.abort(true);
+        void this.close();
+        void this.abort(true);
       });
 
     await connectPromise;

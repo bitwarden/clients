@@ -21,6 +21,8 @@ let nextId = 0;
 /**
  * Switch component for toggling between two states. Switch actions are meant to take place immediately and are not to be used in a form where saving/submiting actions are required.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-switch",
   providers: [
@@ -46,19 +48,19 @@ export class SwitchComponent implements ControlValueAccessor, AfterViewInit {
   /**
    * Model signal for selected state binding when used outside of a form
    */
-  protected selected = model(false);
+  protected readonly selected = model(false);
 
   /**
    * Model signal for disabled binding when used outside of a form
    */
-  protected disabled = model(false);
-  protected disabledReasonText = input<string | null>(null);
+  protected readonly disabled = model(false);
+  protected readonly disabledReasonText = input<string | null>(null);
 
-  private hintComponent = contentChild<BitHintComponent>(BitHintComponent);
+  private readonly hintComponent = contentChild<BitHintComponent>(BitHintComponent);
 
-  private disabledReasonTextId = `bit-switch-disabled-text-${nextId++}`;
+  protected readonly disabledReasonTextId = `bit-switch-disabled-text-${nextId++}`;
 
-  private describedByIds = computed(() => {
+  protected readonly describedByIds = computed(() => {
     const ids: string[] = [];
 
     if (this.disabledReasonText() && this.disabled()) {

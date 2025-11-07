@@ -42,6 +42,8 @@ export const SetupExtensionState = {
 
 type SetupExtensionState = UnionOfValues<typeof SetupExtensionState>;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-setup-extension",
   templateUrl: "./setup-extension.component.html",
@@ -164,7 +166,6 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
           key: "somethingWentWrong",
         },
         pageIcon: BrowserExtensionIcon,
-        hideIcon: false,
         hideCardWrapper: false,
         maxWidth: "md",
       });

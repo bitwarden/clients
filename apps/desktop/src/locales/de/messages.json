@@ -771,6 +771,9 @@
   "useSingleSignOn": {
     "message": "Single Sign-on verwenden"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "Absenden"
   },
@@ -1852,6 +1855,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Beim Neustart mit Master-Passwort sperren"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Master-Passwort oder PIN beim App-Neustart erfordern"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Master-Passwort beim App-Neustart erfordern"
+  },
   "deleteAccount": {
     "message": "Konto löschen"
   },
@@ -2548,6 +2557,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Das minimal benutzerdefinierte Timeout beträgt 1 Minute."
   },
   "inviteAccepted": {
     "message": "Einladung angenommen"
@@ -4149,8 +4161,8 @@
     "message": "Archivieren",
     "description": "Verb"
   },
-  "unarchive": {
-    "message": "Archivierung aufheben"
+  "unArchive": {
+    "message": "Nicht mehr archivieren"
   },
   "itemsInArchive": {
     "message": "Einträge im Archiv"
@@ -4161,16 +4173,22 @@
   "noItemsInArchiveDesc": {
     "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Auto-Ausfüllen-Vorschlägen ausgeschlossen."
   },
-  "itemSentToArchive": {
-    "message": "Eintrag an das Archiv gesendet"
+  "itemWasSentToArchive": {
+    "message": "Eintrag wurde ins Archiv verschoben"
   },
-  "itemRemovedFromArchive": {
-    "message": "Eintrag aus dem Archiv entfernt"
+  "itemWasUnarchived": {
+    "message": "Eintrag wird nicht mehr archiviert"
   },
   "archiveItem": {
     "message": "Eintrag archivieren"
   },
   "archiveItemConfirmDesc": {
     "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen. Bist du sicher, dass du diesen Eintrag archivieren möchtest?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "PLZ / Postleitzahl"
+  },
+  "cardNumberLabel": {
+    "message": "Kartennummer"
   }
 }

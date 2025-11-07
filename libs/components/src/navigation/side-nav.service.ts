@@ -4,6 +4,8 @@ import { BehaviorSubject, Observable, combineLatest, fromEvent, map, startWith }
 
 import { BREAKPOINTS, isWithinBreakpoint } from "../utils/responsive-utils";
 
+type CollapsePreference = "open" | "closed" | null;
+
 @Injectable({
   providedIn: "root",
 })
@@ -12,17 +14,24 @@ export class SideNavService {
   open$ = this._open$.asObservable();
 
   private isSmallScreen$ = media(`(max-width: ${BREAKPOINTS.md}px)`);
+  private _userCollapsePreference$ = new BehaviorSubject<CollapsePreference>(null);
+  userCollapsePreference$ = this._userCollapsePreference$.asObservable();
 
   isOverlay$ = combineLatest([this.open$, this.isSmallScreen$]).pipe(
     map(([open, isSmallScreen]) => open && isSmallScreen),
   );
 
   constructor() {
-    this.isSmallScreen$.pipe(takeUntilDestroyed()).subscribe((isSmallScreen) => {
-      if (isSmallScreen) {
-        this.setClose();
-      }
-    });
+    combineLatest([this.isSmallScreen$, this.userCollapsePreference$])
+      .pipe(takeUntilDestroyed())
+      .subscribe(([isSmallScreen, userCollapsePreference]) => {
+        if (isSmallScreen) {
+          this.setClose();
+        } else if (userCollapsePreference !== "closed") {
+          // Auto-open when user hasn't set preference (null) or prefers open
+          this.setOpen();
+        }
+      });
   }
 
   get open() {
@@ -39,6 +48,9 @@ export class SideNavService {
 
   toggle() {
     const curr = this._open$.getValue();
+    // Store user's preference based on what state they're toggling TO
+    this._userCollapsePreference$.next(curr ? "closed" : "open");
+
     if (curr) {
       this.setClose();
     } else {

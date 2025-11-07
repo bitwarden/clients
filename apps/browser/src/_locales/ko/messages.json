@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "통합인증(SSO) 사용하기"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "돌아온 것을 환영합니다."
   },
@@ -189,7 +192,7 @@
     "message": "노트 복사"
   },
   "copy": {
-    "message": "Copy",
+    "message": "복사",
     "description": "Copy to clipboard"
   },
   "fill": {
@@ -383,7 +386,7 @@
     "message": "폴더 편집"
   },
   "editFolderWithName": {
-    "message": "Edit folder: $FOLDERNAME$",
+    "message": "폴더 편집: $FOLDERNAME$",
     "placeholders": {
       "foldername": {
         "content": "$1",
@@ -471,10 +474,10 @@
     "message": "패스프레이즈 생성됨"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "사용자 이름 생성"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "이메일 생성"
   },
   "regeneratePassword": {
     "message": "비밀번호 재생성"
@@ -548,39 +551,39 @@
     "message": "보관함 검색"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "검색 초기화"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "보관",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "보관",
     "description": "Verb"
   },
-  "unarchive": {
-    "message": "Unarchive"
+  "unArchive": {
+    "message": "보관 해제"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "보관함의 항목"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "보관함의 항목"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "보관된 항목은 여기에 표시되며 일반 검색 결과 및 자동 완성 제안에서 제외됩니다."
   },
-  "itemSentToArchive": {
-    "message": "Item sent to archive"
+  "itemWasSentToArchive": {
+    "message": "항목이 보관함으로 이동되었습니다"
   },
-  "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
+  "itemUnarchived": {
+    "message": "항목 보관 해제됨"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "항목 보관"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+    "message": "보관된 항목은 일반 검색 결과와 자동 완성 제안에서 제외됩니다. 이 항목을 보관하시겠습니까?"
   },
   "edit": {
     "message": "편집"
@@ -588,8 +591,11 @@
   "view": {
     "message": "보기"
   },
+  "viewAll": {
+    "message": "View all"
+  },
   "viewLogin": {
-    "message": "View login"
+    "message": "로그인 보기"
   },
   "noItemsInList": {
     "message": "항목이 없습니다."
@@ -694,7 +700,7 @@
     "message": "사용하고 있는 웹 브라우저가 쉬운 클립보드 복사를 지원하지 않습니다. 직접 복사하세요."
   },
   "verifyYourIdentity": {
-    "message": "Verify your identity"
+    "message": "신원을 인증하세요"
   },
   "weDontRecognizeThisDevice": {
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
@@ -1028,6 +1034,18 @@
   "editedItem": {
     "message": "항목 편집함"
   },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "deleteItemConfirmation": {
     "message": "정말로 휴지통으로 이동시킬까요?"
   },
@@ -1236,7 +1254,7 @@
     "message": "웹사이트에서 변경 사항이 감지되면 로그인 비밀번호를 업데이트하라는 메시지를 표시합니다. 모든 로그인된 계정에 적용됩니다."
   },
   "enableUsePasskeys": {
-    "message": "패스키를 저장 및 사용할지 묻기"
+    "message": "패스키 저장 및 사용 확인"
   },
   "usePasskeysDesc": {
     "message": "보관함에 새 패스키를 저장하거나 로그인할지 물어봅니다. 모든 로그인된 계정에 적용됩니다."
@@ -1676,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Turn off autofill"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "양식 필드에 자동 완성 제안 표시"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "신원을 제안으로 표시"
@@ -3240,6 +3279,9 @@
   "decryptionError": {
     "message": "Decryption error"
   },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden could not decrypt the vault item(s) listed below."
   },
@@ -3881,7 +3923,7 @@
     "message": "Trust user"
   },
   "sendsTitleNoItems": {
-    "message": "Send sensitive information safely",
+    "message": "민감한 정보 안전하게 보내세요",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
@@ -4010,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "페이지 로드 시 자동 완성이 기본 설정을 사용하도록 설정되었습니다.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "사이드 내비게이션 전환"
@@ -5579,17 +5630,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Welcome to your vault!"
   },
-  "phishingPageTitle": {
-    "message": "Phishing website"
+  "phishingPageTitleV2": {
+    "message": "Phishing attempt detected"
   },
-  "phishingPageCloseTab": {
-    "message": "Close tab"
+  "phishingPageSummary": {
+    "message": "The site you are attempting to visit is a known malicious site and a security risk."
   },
-  "phishingPageContinue": {
-    "message": "Continue"
+  "phishingPageCloseTabV2": {
+    "message": "Close this tab"
   },
-  "phishingPageLearnWhy": {
-    "message": "Why are you seeing this?"
+  "phishingPageContinueV2": {
+    "message": "Continue to this site (not recommended)"
+  },
+  "phishingPageExplanation1": {
+    "message": "This site was found in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Learn more about phishing detection"
+  },
+  "protectedBy": {
+    "message": "Protected by $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"
@@ -5694,5 +5765,18 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Confirm Key Connector domain"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "This setting is disabled by your organization's policy.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

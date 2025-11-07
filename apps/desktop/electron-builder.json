@@ -20,7 +20,7 @@
     "**/node_modules/@bitwarden/desktop-napi/index.js",
     "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node"
   ],
-  "electronVersion": "36.9.3",
+  "electronVersion": "37.7.0",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
@@ -96,6 +96,10 @@
       {
         "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}.exe",
         "to": "desktop_proxy.exe"
+      },
+      {
+        "from": "desktop_native/dist/bitwarden_chromium_import_helper.${platform}-${arch}.exe",
+        "to": "bitwarden_chromium_import_helper.exe"
       }
     ]
   },
@@ -106,6 +110,10 @@
       {
         "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
         "to": "desktop_proxy"
+      },
+      {
+        "from": "desktop_native/dist/libprocess_isolation.so",
+        "to": "libprocess_isolation.so"
       }
     ],
     "target": ["deb", "freebsd", "rpm", "AppImage", "snap"],

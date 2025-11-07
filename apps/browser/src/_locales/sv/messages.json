@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Använd Single Sign-On"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Välkommen tillbaka"
   },
@@ -558,8 +561,8 @@
     "message": "Arkivera",
     "description": "Verb"
   },
-  "unarchive": {
-    "message": "Packa upp"
+  "unArchive": {
+    "message": "Avarkivera"
   },
   "itemsInArchive": {
     "message": "Objekt i arkiv"
@@ -570,11 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Arkiverade objekt kommer att visas här och kommer att uteslutas från allmänna sökresultat och förslag för autofyll."
   },
-  "itemSentToArchive": {
-    "message": "Objekt skickat till arkiv"
+  "itemWasSentToArchive": {
+    "message": "Objektet skickades till arkivet"
   },
-  "itemRemovedFromArchive": {
-    "message": "Objekt borttaget från arkiv"
+  "itemUnarchived": {
+    "message": "Objektet har avarkiverats"
   },
   "archiveItem": {
     "message": "Arkivera objekt"
@@ -587,6 +590,9 @@
   },
   "view": {
     "message": "Visa"
+  },
+  "viewAll": {
+    "message": "View all"
   },
   "viewLogin": {
     "message": "Visa inloggning"
@@ -1027,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Objekt sparat"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Är du säker på att du vill radera detta objekt?"
@@ -1676,8 +1694,29 @@
   "turnOffAutofill": {
     "message": "Stäng av autofyll"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "Visa förslag för autofyll i formulärfält"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Visa identiteter som förslag"
@@ -3240,6 +3279,9 @@
   "decryptionError": {
     "message": "Dekrypteringsfel"
   },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden kunde inte dekryptera valvföremålet/valvföremålen som listas nedan."
   },
@@ -4010,6 +4052,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Aktivera automatisk ifyllnad vid sidhämtning sattes till att använda standardinställningen.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "Växla sidonavigering"
@@ -5579,17 +5630,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Välkommen till ditt valv!"
   },
-  "phishingPageTitle": {
-    "message": "Webbsida för nätfiske"
+  "phishingPageTitleV2": {
+    "message": "Försök till nätfiske upptäcktes"
   },
-  "phishingPageCloseTab": {
-    "message": "Stäng flik"
+  "phishingPageSummary": {
+    "message": "Webbplatsen som du försöker besöka är en känd skadlig webbplats och en säkerhetsrisk."
   },
-  "phishingPageContinue": {
-    "message": "Fortsätt"
+  "phishingPageCloseTabV2": {
+    "message": "Stäng denna flik"
   },
-  "phishingPageLearnWhy": {
-    "message": "Varför ser du detta?"
+  "phishingPageContinueV2": {
+    "message": "Fortsätt till denna webbplats (rekommenderas inte)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Denna webbplats hittades i ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", en öppen källkodslista över kända nätfiskeplatser som används för att stjäla personlig och känslig information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Läs mer om nätfiskedetektering"
+  },
+  "protectedBy": {
+    "message": "Skyddad av $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofyll objekt för den aktuella sidan"
@@ -5694,5 +5765,18 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Bekräfta Key Connector-domän"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Bra jobbat med att säkra upp dina inloggninar i riskzonen!"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Denna inställning är inaktiverad enligt din organisations policy.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

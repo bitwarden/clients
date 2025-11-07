@@ -1,24 +1,35 @@
 // eslint-disable-next-line no-restricted-imports
 import { CommonModule } from "@angular/common";
 // eslint-disable-next-line no-restricted-imports
-import { Component, OnDestroy } from "@angular/core";
+import { Component, inject } from "@angular/core";
 // eslint-disable-next-line no-restricted-imports
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
 import {
   AsyncActionsModule,
   ButtonModule,
   CheckboxModule,
   FormFieldModule,
   IconModule,
+  IconTileComponent,
   LinkModule,
+  CalloutComponent,
+  TypographyModule,
 } from "@bitwarden/components";
+import { MessageSender } from "@bitwarden/messaging";
 
-import { PhishingDetectionService } from "../services/phishing-detection.service";
+import {
+  PHISHING_DETECTION_CANCEL_COMMAND,
+  PHISHING_DETECTION_CONTINUE_COMMAND,
+} from "../services/phishing-detection.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  selector: "dirt-phishing-warning",
   standalone: true,
   templateUrl: "phishing-warning.component.html",
   imports: [
@@ -31,28 +42,36 @@ import { PhishingDetectionService } from "../services/phishing-detection.service
     CheckboxModule,
     ButtonModule,
     RouterModule,
+    IconTileComponent,
+    CalloutComponent,
+    TypographyModule,
   ],
 })
-export class PhishingWarning implements OnDestroy {
-  phishingHost = "";
+export class PhishingWarning {
+  private activatedRoute = inject(ActivatedRoute);
+  private messageSender = inject(MessageSender);
 
-  private destroy$ = new Subject<void>();
+  private phishingUrl$ = this.activatedRoute.queryParamMap.pipe(
+    map((params) => params.get("phishingUrl") || ""),
+  );
+  protected phishingHostname$ = this.phishingUrl$.pipe(map((url) => new URL(url).hostname));
 
-  constructor(private activatedRoute: ActivatedRoute) {
-    this.activatedRoute.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      this.phishingHost = params.get("phishingHost") || "";
+  async closeTab() {
+    const tabId = await this.getTabId();
+    this.messageSender.send(PHISHING_DETECTION_CANCEL_COMMAND, {
+      tabId,
+    });
+  }
+  async continueAnyway() {
+    const url = await firstValueFrom(this.phishingUrl$);
+    const tabId = await this.getTabId();
+    this.messageSender.send(PHISHING_DETECTION_CONTINUE_COMMAND, {
+      tabId,
+      url,
     });
   }
 
-  async closeTab() {
-    await PhishingDetectionService.requestClosePhishingWarningPage();
-  }
-  async continueAnyway() {
-    await PhishingDetectionService.requestContinueToDangerousUrl();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+  private async getTabId() {
+    return BrowserApi.getCurrentTab()?.then((tab) => tab.id);
   }
 }

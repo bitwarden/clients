@@ -18,6 +18,8 @@ export const AtRiskCarouselDialogResult = {
 
 type AtRiskCarouselDialogResult = UnionOfValues<typeof AtRiskCarouselDialogResult>;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-at-risk-carousel-dialog",
   templateUrl: "./at-risk-carousel-dialog.component.html",
@@ -33,6 +35,8 @@ type AtRiskCarouselDialogResult = UnionOfValues<typeof AtRiskCarouselDialogResul
 export class AtRiskCarouselDialogComponent {
   private dialogRef = inject(DialogRef);
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   protected dismissBtnEnabled = signal(false);
 
   protected async dismiss() {

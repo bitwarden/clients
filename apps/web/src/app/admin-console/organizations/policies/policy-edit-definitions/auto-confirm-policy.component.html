@@ -1,0 +1,59 @@
+<ng-container [ngTemplateOutlet]="steps[step]()"></ng-container>
+
+<ng-template #step0>
+  <p class="tw-mb-6">
+    {{ "autoConfirmPolicyEditDescription" | i18n }}
+  </p>
+
+  <ul class="tw-mb-6 tw-pl-6">
+    <li>
+      <span class="tw-font-medium">
+        {{ "autoConfirmAcceptSecurityRiskTitle" | i18n }}
+      </span>
+      {{ "autoConfirmAcceptSecurityRiskDescription" | i18n }}
+      <a bitLink href="https://bitwarden.com/help/automatic-confirmation/" target="_blank">
+        {{ "autoConfirmAcceptSecurityRiskLearnMore" | i18n }}
+        <i class="bwi bwi-external-link bwi-fw"></i>
+      </a>
+    </li>
+
+    <li>
+      @if (singleOrgEnabled$ | async) {
+        <span class="tw-font-medium">
+          {{ "autoConfirmSingleOrgExemption" | i18n }}
+        </span>
+      } @else {
+        <span class="tw-font-medium">
+          {{ "autoConfirmSingleOrgRequired" | i18n }}
+        </span>
+      }
+      {{ "autoConfirmSingleOrgRequiredDesc" | i18n }}
+    </li>
+
+    <li>
+      <span class="tw-font-medium">
+        {{ "autoConfirmNoEmergencyAccess" | i18n }}
+      </span>
+      {{ "autoConfirmNoEmergencyAccessDescription" | i18n }}
+    </li>
+  </ul>
+
+  <input type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
+  <bit-label>{{ "autoConfirmCheckBoxLabel" | i18n }}</bit-label>
+</ng-template>
+
+<ng-template #step1>
+  <div class="tw-flex tw-justify-center tw-mb-6">
+    <bit-icon class="tw-w-[233px]" [icon]="autoConfirmSvg"></bit-icon>
+  </div>
+  <ol>
+    <li>1. {{ "autoConfirmStep1" | i18n }}</li>
+
+    <li>
+      2. {{ "autoConfirmStep2a" | i18n }}
+      <strong>
+        {{ "autoConfirmStep2b" | i18n }}
+      </strong>
+    </li>
+  </ol>
+</ng-template>

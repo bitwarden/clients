@@ -76,6 +76,8 @@ type LoadAction =
   | typeof COPY_VERIFICATION_CODE_ID
   | typeof UPDATE_PASSWORD;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-view-v2",
   templateUrl: "view-v2.component.html",
@@ -328,6 +330,7 @@ export class ViewV2Component {
         const tab = await BrowserApi.getTab(senderTabId);
         await sendExtensionMessage("bgHandleReprompt", {
           tab,
+          cipherId: cipher.id,
           success: repromptSuccess,
         });
 
