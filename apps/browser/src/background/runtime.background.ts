@@ -256,6 +256,11 @@ export default class RuntimeBackground {
       case "addToLockedVaultPendingNotifications":
         this.lockedVaultPendingNotifications.push(msg.data);
         break;
+      case "abandonAutofillPendingNotifications":
+        this.lockedVaultPendingNotifications = this.lockedVaultPendingNotifications.filter(
+          (notification) => notification.target !== "commands.background",
+        );
+        break;
       case "lockVault":
         await this.lockService.lock(msg.userId);
         break;
