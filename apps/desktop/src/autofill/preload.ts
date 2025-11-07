@@ -131,12 +131,6 @@ export default {
       },
     );
   },
-  initAutotype: () => {
-    return ipcRenderer.invoke(AUTOTYPE_IPC_CHANNELS.INIT);
-  },
-  autotypeIsInitialized: () => {
-    return ipcRenderer.invoke(AUTOTYPE_IPC_CHANNELS.INITIALIZED);
-  },
   configureAutotype: (config: AutotypeConfig) => {
     ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.CONFIGURE, config);
   },

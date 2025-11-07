@@ -12,7 +12,6 @@ import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-short
 
 export class MainDesktopAutotypeService {
   autotypeKeyboardShortcut: AutotypeKeyboardShortcut;
-  private isInitialized: boolean = false;
 
   constructor(
     private logService: LogService,
@@ -20,16 +19,10 @@ export class MainDesktopAutotypeService {
   ) {
     this.autotypeKeyboardShortcut = new AutotypeKeyboardShortcut();
 
-    ipcMain.handle(AUTOTYPE_IPC_CHANNELS.INIT, () => {
-      this.init();
-    });
-
-    ipcMain.handle(AUTOTYPE_IPC_CHANNELS.INITIALIZED, () => {
-      return this.isInitialized;
-    });
+    this.registerHandlers();
   }
 
-  init() {
+  registerHandlers() {
     ipcMain.on(AUTOTYPE_IPC_CHANNELS.TOGGLE, (_event, enable: boolean) => {
       if (enable) {
         this.enableAutotype();
@@ -58,8 +51,6 @@ export class MainDesktopAutotypeService {
         this.doAutotype(vaultData, this.autotypeKeyboardShortcut.getArrayFormat());
       }
     });
-
-    this.isInitialized = true;
   }
 
   // Deregister the keyboard shortcut if registered.
@@ -75,8 +66,6 @@ export class MainDesktopAutotypeService {
   }
 
   dispose() {
-    ipcMain.removeHandler(AUTOTYPE_IPC_CHANNELS.INIT);
-    ipcMain.removeHandler(AUTOTYPE_IPC_CHANNELS.INITIALIZED);
     ipcMain.removeAllListeners(AUTOTYPE_IPC_CHANNELS.TOGGLE);
     ipcMain.removeAllListeners(AUTOTYPE_IPC_CHANNELS.CONFIGURE);
     ipcMain.removeAllListeners(AUTOTYPE_IPC_CHANNELS.EXECUTE);

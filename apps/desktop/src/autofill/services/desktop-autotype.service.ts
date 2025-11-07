@@ -117,10 +117,6 @@ export class DesktopAutotypeService implements OnDestroy {
       return;
     }
 
-    if (!(await ipc.autofill.autotypeIsInitialized())) {
-      await ipc.autofill.initAutotype();
-    }
-
     ipc.autofill.listenAutotypeRequest(async (windowTitle, callback) => {
       const possibleCiphers = await this.matchCiphersToWindowTitle(windowTitle);
       const firstCipher = possibleCiphers?.at(0);
