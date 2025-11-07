@@ -10,6 +10,7 @@ import {
   DrawerType,
   RiskInsightsEnrichedData,
   ReportStatus,
+  ReportProgress,
   ApplicationHealthReportDetail,
   OrganizationReportApplication,
 } from "../../models";
@@ -38,6 +39,7 @@ export class RiskInsightsDataService {
   readonly isGeneratingReport$: Observable<boolean> = of(false);
   readonly criticalReportResults$: Observable<RiskInsightsEnrichedData | null> = of(null);
   readonly hasCiphers$: Observable<boolean | null> = of(null);
+  readonly reportProgress$: Observable<ReportProgress | null> = of(null);
 
   // New applications that need review (reviewedDate === null)
   readonly newApplications$: Observable<ApplicationHealthReportDetail[]> = of([]);
@@ -62,6 +64,7 @@ export class RiskInsightsDataService {
     this.enrichedReportData$ = this.orchestrator.enrichedReportData$;
     this.criticalReportResults$ = this.orchestrator.criticalReportResults$;
     this.newApplications$ = this.orchestrator.newApplications$;
+    this.reportProgress$ = this.orchestrator.reportProgress$;
 
     this.hasCiphers$ = this.orchestrator.hasCiphers$.pipe(distinctUntilChanged());
 
