@@ -89,6 +89,8 @@ impl TryFrom<&str> for KeyboardShortcutInput {
     type Error = anyhow::Error;
 
     fn try_from(key: &str) -> std::result::Result<Self, Self::Error> {
+        // the modifier keys are using the Up keypress variant because the user has already
+        // pressed those keys in order to trigger the feature.
         let input = if let Some(numeric_modifier_key) = get_modifier_keys().get(key) {
             build_virtual_key_input(InputKeyPress::Up, *numeric_modifier_key)
         } else {
