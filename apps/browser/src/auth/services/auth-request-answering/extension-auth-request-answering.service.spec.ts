@@ -108,7 +108,9 @@ describe("ExtensionAuthRequestAnsweringService", () => {
 
       // Assert
       expect(messagingService.send).toHaveBeenCalledTimes(1);
-      expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval");
+      expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval", {
+        notificationId: authRequestId,
+      });
     });
 
     it("should not send an 'openLoginApproval' message if the popup is closed", async () => {
