@@ -22,11 +22,6 @@
             <a class="tw-text-primary-600" routerLink="/login">{{ "learnMore" | i18n }}</a>
           </div>
         </ng-container>
-        <ng-container slot="button">
-          <button (click)="goToCreateNewLoginItem()" bitButton buttonType="primary" type="button">
-            {{ "createNewLoginItem" | i18n }}
-          </button>
-        </ng-container>
       </bit-no-items>
     </div>
   } @else {
