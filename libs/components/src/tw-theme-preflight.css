@@ -82,4 +82,12 @@
   th {
     @apply tw-font-medium;
   }
+
+  b {
+    @apply tw-font-medium;
+  }
+
+  strong {
+    @apply tw-font-medium;
+  }
 }
