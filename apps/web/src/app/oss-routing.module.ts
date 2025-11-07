@@ -1,5 +1,5 @@
 import { NgModule } from "@angular/core";
-import { Route, RouterModule, Routes } from "@angular/router";
+import { PreloadAllModules, Route, RouterModule, Routes } from "@angular/router";
 
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
 import { AuthRoute } from "@bitwarden/angular/auth/constants";
@@ -369,6 +369,24 @@ const routes: Routes = [
             path: "",
             component: EnvironmentSelectorComponent,
             outlet: "environment-selector",
+          },
+        ],
+      },
+      {
+        path: "sso-redirecting",
+        canActivate: [unauthGuardFn()],
+        data: {
+          pageTitle: { key: "singleSignOn" },
+          titleId: "enterpriseSingleSignOn",
+          pageIcon: SsoKeyIcon,
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            loadComponent: () =>
+              import("./auth/sso/redirecting-to-idp/redirecting-to-idp.component").then(
+                (m) => m.RedirectingToIdpComponent,
+              ),
           },
         ],
       },
@@ -757,6 +775,7 @@ const routes: Routes = [
     RouterModule.forRoot(routes, {
       useHash: true,
       paramsInheritanceStrategy: "always",
+      preloadingStrategy: PreloadAllModules,
       // enableTracing: true,
     }),
   ],

@@ -323,15 +323,43 @@ export class SsoComponent implements OnInit {
       throw new Error("Client ID is required");
     }
 
-    this.initiateSsoFormPromise = this.apiService.preValidateSso(this.identifier);
-    const response = await this.initiateSsoFormPromise;
+    // TTL cache for prevalidate to avoid repeated network calls
+    const ttlMs = 15 * 60 * 1000; // 15 minutes
+    const cacheKey = `sso_prevalidate_${this.identifier}`;
+    let response: SsoPreValidateResponse | undefined;
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        const parsed = JSON.parse(cached) as { token: string; expiresAt: number };
+        if (parsed && typeof parsed.token === "string" && parsed.expiresAt > Date.now()) {
+          response = new SsoPreValidateResponse({ token: parsed.token });
+        } else {
+          localStorage.removeItem(cacheKey);
+        }
+      }
+    } catch {}
+
+    if (!response) {
+      this.initiateSsoFormPromise = this.apiService.preValidateSso(this.identifier);
+      response = await this.initiateSsoFormPromise;
+      try {
+        localStorage.setItem(
+          cacheKey,
+          JSON.stringify({ token: response.token, expiresAt: Date.now() + ttlMs }),
+        );
+      } catch {}
+    }
 
     const authorizeUrl = await this.buildAuthorizeUrl(
       returnUri,
       includeUserIdentifier,
       response.token,
     );
-    this.platformUtilsService.launchUri(authorizeUrl, { sameWindow: true });
+    // Navigate to a lightweight interstitial to provide user feedback before external redirect
+    await this.router.navigate(["/sso-redirecting"]);
+    setTimeout(() => {
+      this.platformUtilsService.launchUri(authorizeUrl, { sameWindow: true });
+    }, 0);
   }
 
   private async buildAuthorizeUrl(
@@ -357,7 +385,7 @@ export class SsoComponent implements OnInit {
     if (codeChallenge == null) {
       const codeVerifier = await this.passwordGenerationService.generatePassword(passwordOptions);
       const codeVerifierHash = await this.cryptoFunctionService.hash(codeVerifier, "sha256");
-      codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
+      codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash.buffer as ArrayBuffer);
       await this.ssoLoginService.setCodeVerifier(codeVerifier);
     }
 

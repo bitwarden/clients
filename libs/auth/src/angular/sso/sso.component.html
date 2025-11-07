@@ -1,7 +1,7 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit" class="tw-container">
-  <div *ngIf="loggingIn">
-    <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-    {{ "loading" | i18n }}
+  <div *ngIf="loggingIn" class="tw-flex tw-flex-col tw-items-center tw-gap-2" aria-live="polite">
+    <i class="bwi bwi-spinner bwi-spin bwi-3x tw-text-muted" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+    <div>{{ "loading" | i18n }}</div>
   </div>
   <div *ngIf="!loggingIn">
     <bit-form-field>

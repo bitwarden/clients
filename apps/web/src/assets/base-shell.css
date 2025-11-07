@@ -1,0 +1,69 @@
+/* Minimal base styles for SSO connector shell to align visuals with app */
+
+:root {
+  color-scheme: light;
+}
+
+html.theme_light {
+  background-color: #ffffff;
+}
+
+body.layout_frontend {
+  margin: 0;
+  color: #0f172a; /* slate-900 */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, "Helvetica Neue", Arial,
+    "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+/* Utility approximations (subset) */
+.tw-flex { display: flex; }
+.tw-flex-col { flex-direction: column; }
+.tw-min-h\[100vh\] { min-height: 100vh; }
+.tw-pt-5 { padding-top: 1.25rem; }
+.tw-px-5 { padding-left: 1.25rem; padding-right: 1.25rem; }
+.tw-fixed { position: fixed; }
+.tw-relative { position: relative; }
+.tw-grow { flex: 1 1 auto; }
+.tw-justify-center { justify-content: center; }
+.tw-text-muted { color: #6b7280; /* gray-500 */ }
+.tw-hidden { display: none; }
+.md\:tw-block { display: none; }
+
+@media (min-width: 768px) {
+  .md\:tw-block { display: block; }
+}
+
+/* Logo sizing override */
+.!tw-w\[200px\] { width: 200px !important; }
+
+/* Center the spinner in viewport */
+.spinner-container {
+  display: flex;
+  align-items: center;
+  min-height: 60vh;
+}
+
+/* Icon-like spinner fallback */
+.bwi { display: inline-block; box-sizing: border-box; width: 1.5em; height: 1.5em; border-radius: 50%;
+  border: 0.25em solid rgba(0, 0, 0, 0.15); border-top-color: #6b7280; }
+.bwi-2x { width: 2em; height: 2em; border-width: 0.25em; }
+.bwi-3x { width: 3em; height: 3em; border-width: 0.3em; }
+.bwi-spin { animation: bw-spin 0.9s linear infinite; }
+
+@keyframes bw-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Background illustration positioning */
+.tw-relative .tw-hidden svg {
+  position: absolute;
+  z-index: 1;
+  bottom: 0;
+  width: 35%;
+  max-width: 450px;
+  opacity: 0.11;
+}
+.tw-relative .tw-hidden:nth-of-type(1) svg { left: 0; }
+.tw-relative .tw-hidden:nth-of-type(2) svg { right: 0; }
+
+
