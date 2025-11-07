@@ -1,7 +1,9 @@
 use anyhow::Result;
 
+#[cfg(target_os = "windows")]
 mod modifier_keys;
 
+#[cfg(target_os = "windows")]
 pub(crate) use modifier_keys::*;
 
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
