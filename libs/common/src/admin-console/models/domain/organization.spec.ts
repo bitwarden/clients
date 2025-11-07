@@ -79,7 +79,7 @@ describe("Organization", () => {
       limitItemDeletion: false,
       allowAdminAccessToAllCollectionItems: true,
       userIsManagedByOrganization: false,
-      useRiskInsights: false,
+      useAccessIntelligence: false,
       useAdminSponsoredFamilies: false,
       isAdminInitiated: false,
       ssoEnabled: false,
