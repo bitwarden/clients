@@ -8,6 +8,7 @@ import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view"
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
 import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
+import { conditionalEncString } from "@bitwarden/common/vault/utils/domain-utils";
 
 import { EncString } from "../../key-management/crypto/models/enc-string";
 import { CipherRepromptType } from "../../vault/enums/cipher-reprompt-type";
@@ -27,9 +28,7 @@ import { safeGetString } from "./utils";
 export class CipherExport {
   static template(): CipherExport {
     const req = new CipherExport();
-    req.organizationId = "";
     req.collectionIds = [];
-    req.folderId = "";
     req.type = CipherType.Login;
     req.name = "Item name";
     req.notes = "Some notes about this item.";
@@ -54,7 +53,7 @@ export class CipherExport {
     view.notes = req.notes;
     view.favorite = req.favorite;
     view.reprompt = req.reprompt ?? CipherRepromptType.None;
-    view.key = new EncString(req.key ?? "");
+    view.key = conditionalEncString(req.key);
 
     if (req.fields != null) {
       view.fields = req.fields.map((f) => FieldExport.toView(f));
@@ -86,8 +85,8 @@ export class CipherExport {
 
     view.creationDate = req.creationDate ? new Date(req.creationDate) : view.creationDate;
     view.revisionDate = req.revisionDate ? new Date(req.revisionDate) : view.revisionDate;
-    view.deletedDate = req.deletedDate ? new Date(req.deletedDate) : undefined;
-    view.archivedDate = req.archivedDate ? new Date(req.archivedDate) : undefined;
+    view.deletedDate = req.deletedDate ? new Date(req.deletedDate) : view.deletedDate;
+    view.archivedDate = req.archivedDate ? new Date(req.archivedDate) : view.archivedDate;
     return view;
   }
 
@@ -98,10 +97,10 @@ export class CipherExport {
       domain.organizationId = req.organizationId;
     }
     domain.name = new EncString(req.name ?? "");
-    domain.notes = req.notes ? new EncString(req.notes) : undefined;
+    domain.notes = conditionalEncString(req.notes);
     domain.favorite = req.favorite;
     domain.reprompt = req.reprompt ?? CipherRepromptType.None;
-    domain.key = req.key ? new EncString(req.key) : undefined;
+    domain.key = conditionalEncString(req.key);
 
     if (req.fields != null) {
       domain.fields = req.fields.map((f) => FieldExport.toDomain(f));

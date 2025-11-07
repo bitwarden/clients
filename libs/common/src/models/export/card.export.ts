@@ -1,4 +1,5 @@
-import { EncString } from "../../key-management/crypto/models/enc-string";
+import { conditionalEncString } from "@bitwarden/common/vault/utils/domain-utils";
+
 import { Card as CardDomain } from "../../vault/models/domain/card";
 import { CardView } from "../../vault/models/view/card.view";
 
@@ -27,12 +28,12 @@ export class CardExport {
   }
 
   static toDomain(req: CardExport, domain = new CardDomain()) {
-    domain.cardholderName = req.cardholderName ? new EncString(req.cardholderName) : undefined;
-    domain.brand = req.brand ? new EncString(req.brand) : undefined;
-    domain.number = req.number ? new EncString(req.number) : undefined;
-    domain.expMonth = req.expMonth ? new EncString(req.expMonth) : undefined;
-    domain.expYear = req.expYear ? new EncString(req.expYear) : undefined;
-    domain.code = req.code ? new EncString(req.code) : undefined;
+    domain.cardholderName = conditionalEncString(req.cardholderName);
+    domain.brand = conditionalEncString(req.brand);
+    domain.number = conditionalEncString(req.number);
+    domain.expMonth = conditionalEncString(req.expMonth);
+    domain.expYear = conditionalEncString(req.expYear);
+    domain.code = conditionalEncString(req.code);
     return domain;
   }
 

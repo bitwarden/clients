@@ -1,4 +1,5 @@
-import { EncString } from "../../key-management/crypto/models/enc-string";
+import { conditionalEncString } from "@bitwarden/common/vault/utils/domain-utils";
+
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { LoginUri as LoginUriDomain } from "../../vault/models/domain/login-uri";
 import { LoginUriView } from "../../vault/models/view/login-uri.view";
@@ -19,8 +20,8 @@ export class LoginUriExport {
   }
 
   static toDomain(req: LoginUriExport, domain = new LoginUriDomain()) {
-    domain.uri = new EncString(req.uri ?? "");
-    domain.uriChecksum = new EncString(req.uriChecksum ?? "");
+    domain.uri = conditionalEncString(req.uri);
+    domain.uriChecksum = conditionalEncString(req.uriChecksum);
     domain.match = req.match;
     return domain;
   }

@@ -1,7 +1,7 @@
 import { EncString } from "../../key-management/crypto/models/enc-string";
 
 export function safeGetString(value?: string | EncString) {
-  if (!value) {
+  if (value == null) {
     return undefined;
   }
 
