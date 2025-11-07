@@ -1,4 +1,5 @@
-import { EncString } from "../../key-management/crypto/models/enc-string";
+import { conditionalEncString } from "@bitwarden/common/vault/utils/domain-utils";
+
 import { Identity as IdentityDomain } from "../../vault/models/domain/identity";
 import { IdentityView } from "../../vault/models/view/identity.view";
 
@@ -51,24 +52,24 @@ export class IdentityExport {
   }
 
   static toDomain(req: IdentityExport, domain = new IdentityDomain()) {
-    domain.title = req.title ? new EncString(req.title) : undefined;
-    domain.firstName = req.firstName ? new EncString(req.firstName) : undefined;
-    domain.middleName = req.middleName ? new EncString(req.middleName) : undefined;
-    domain.lastName = req.lastName ? new EncString(req.lastName) : undefined;
-    domain.address1 = req.address1 ? new EncString(req.address1) : undefined;
-    domain.address2 = req.address2 ? new EncString(req.address2) : undefined;
-    domain.address3 = req.address3 ? new EncString(req.address3) : undefined;
-    domain.city = req.city ? new EncString(req.city) : undefined;
-    domain.state = req.state ? new EncString(req.state) : undefined;
-    domain.postalCode = req.postalCode ? new EncString(req.postalCode) : undefined;
-    domain.country = req.country ? new EncString(req.country) : undefined;
-    domain.company = req.company ? new EncString(req.company) : undefined;
-    domain.email = req.email ? new EncString(req.email) : undefined;
-    domain.phone = req.phone ? new EncString(req.phone) : undefined;
-    domain.ssn = req.ssn ? new EncString(req.ssn) : undefined;
-    domain.username = req.username ? new EncString(req.username) : undefined;
-    domain.passportNumber = req.passportNumber ? new EncString(req.passportNumber) : undefined;
-    domain.licenseNumber = req.licenseNumber ? new EncString(req.licenseNumber) : undefined;
+    domain.title = conditionalEncString(req.title);
+    domain.firstName = conditionalEncString(req.firstName);
+    domain.middleName = conditionalEncString(req.middleName);
+    domain.lastName = conditionalEncString(req.lastName);
+    domain.address1 = conditionalEncString(req.address1);
+    domain.address2 = conditionalEncString(req.address2);
+    domain.address3 = conditionalEncString(req.address3);
+    domain.city = conditionalEncString(req.city);
+    domain.state = conditionalEncString(req.state);
+    domain.postalCode = conditionalEncString(req.postalCode);
+    domain.country = conditionalEncString(req.country);
+    domain.company = conditionalEncString(req.company);
+    domain.email = conditionalEncString(req.email);
+    domain.phone = conditionalEncString(req.phone);
+    domain.ssn = conditionalEncString(req.ssn);
+    domain.username = conditionalEncString(req.username);
+    domain.passportNumber = conditionalEncString(req.passportNumber);
+    domain.licenseNumber = conditionalEncString(req.licenseNumber);
     return domain;
   }
 

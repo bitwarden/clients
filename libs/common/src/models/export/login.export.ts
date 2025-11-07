@@ -1,4 +1,5 @@
-import { EncString } from "../../key-management/crypto/models/enc-string";
+import { conditionalEncString } from "@bitwarden/common/vault/utils/domain-utils";
+
 import { Login as LoginDomain } from "../../vault/models/domain/login";
 import { LoginView } from "../../vault/models/view/login.view";
 
@@ -34,9 +35,9 @@ export class LoginExport {
     if (req.uris != null) {
       domain.uris = req.uris.map((u) => LoginUriExport.toDomain(u));
     }
-    domain.username = req.username ? new EncString(req.username) : undefined;
-    domain.password = req.password ? new EncString(req.password) : undefined;
-    domain.totp = req.totp ? new EncString(req.totp) : undefined;
+    domain.username = conditionalEncString(req.username);
+    domain.password = conditionalEncString(req.password);
+    domain.totp = conditionalEncString(req.totp);
     // Fido2credentials are currently not supported for exports.
 
     return domain;
