@@ -66,6 +66,11 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
       .subscribe((loading) => (this.loading = loading));
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   @HostBinding("attr.aria-busy")
   get ariaBusy() {
     return this.loading ? "true" : "false";
@@ -81,11 +86,6 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
 
   get limitReached() {
     return (this.credentials?.length ?? 0) >= this.MaxCredentialCount;
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   protected createCredential() {
