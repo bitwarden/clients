@@ -391,5 +391,41 @@ describe("NotificationsService", () => {
         expect(logoutCallback).not.toHaveBeenCalled();
       });
     });
+
+    describe("NotificationType.AuthRequest", () => {
+      it("should call receivedPendingAuthRequest when it exists (Extension/Desktop)", async () => {
+        authRequestAnsweringService.receivedPendingAuthRequest!.mockResolvedValue(undefined as any);
+
+        const notification = new NotificationResponse({
+          type: NotificationType.AuthRequest,
+          payload: { userId: mockUser1, id: "auth-request-123" },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(authRequestAnsweringService.receivedPendingAuthRequest).toHaveBeenCalledWith(
+          mockUser1,
+          "auth-request-123",
+        );
+        expect(messagingService.send).not.toHaveBeenCalled();
+      });
+
+      it("should call messagingService.send when receivedPendingAuthRequest does not exist (Web)", async () => {
+        authRequestAnsweringService.receivedPendingAuthRequest = undefined as any;
+
+        const notification = new NotificationResponse({
+          type: NotificationType.AuthRequest,
+          payload: { userId: mockUser1, id: "auth-request-456" },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval", {
+          notificationId: "auth-request-456",
+        });
+      });
+    });
   });
 });

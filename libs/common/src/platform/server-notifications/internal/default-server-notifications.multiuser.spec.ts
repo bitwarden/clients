@@ -270,13 +270,13 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     // allow async queue to drain
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval", {
-      notificationId: "auth-id-2",
-    });
+    // When authRequestAnsweringService.receivedPendingAuthRequest exists (Extension/Desktop),
+    // only that method is called. messagingService.send is only called for Web (NoopAuthRequestAnsweringService).
     expect(authRequestAnsweringService.receivedPendingAuthRequest).toHaveBeenCalledWith(
       mockUserId2,
       "auth-id-2",
     );
+    expect(messagingService.send).not.toHaveBeenCalled();
 
     subscription.unsubscribe();
   });
