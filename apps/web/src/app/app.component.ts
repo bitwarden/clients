@@ -96,9 +96,14 @@ export class AppComponent implements OnDestroy, OnInit {
      * Or, consumers can use the autofocus directive on an applicable interactive element.
      * The autofocus directive will take precedence over this route focus pipeline.
      *
-     * Example of where you might want to opt out:
+     * Example of where you might want to manually opt out:
      * - Tab component causes a route navigation, but the tab content should be focused,
      * not the whole `main`
+     *
+     * Note that router events that cause a fully new page to load (like switching between
+     * products) will not follow this pipeline. Instead, those will automatically bring
+     * focus to the top of the html document as if it were a full page load. So those links
+     * do not need to manually opt out of this pipeline.
      */
     this.router.events
       .pipe(
