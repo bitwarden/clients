@@ -202,6 +202,10 @@ export class ItemMoreOptionsComponent {
   async doAutofill() {
     const cipher = await this.cipherService.getFullCipherView(this.cipher);
 
+    if (!(await this.passwordRepromptService.passwordRepromptCheck(this.cipher))) {
+      return;
+    }
+
     const uris = cipher.login?.uris ?? [];
     const cipherHasAllExactMatchLoginUris =
       uris.length > 0 && uris.every((u) => u.uri && u.match === UriMatchStrategy.Exact);
@@ -220,10 +224,6 @@ export class ItemMoreOptionsComponent {
         acceptButtonText: { key: "okay" },
         cancelButtonText: null,
       });
-      return;
-    }
-
-    if (!(await this.passwordRepromptService.passwordRepromptCheck(this.cipher))) {
       return;
     }
 
