@@ -60,8 +60,8 @@ export class VaultV2SearchComponent {
     return combineLatest([this.searchText$, this.loading$])
       .pipe(
         debounce(([_, isLoading]) => {
-          // If loading apply immediately to avoid stale searches
-          // after loading completes.
+          // If loading apply immediately to avoid stale searches.
+          // After loading completes, debounce to avoid excessive searches.
           const delayTime = isLoading ? 0 : SearchTextDebounceInterval;
           return timer(delayTime);
         }),
