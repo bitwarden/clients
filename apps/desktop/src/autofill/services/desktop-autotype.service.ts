@@ -102,7 +102,6 @@ export class DesktopAutotypeService implements OnDestroy {
         this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
       ),
       distinctUntilChanged(), // Only emit when the boolean result changes
-      takeUntil(this.destroy$),
     );
 
     this.autotypeKeyboardShortcut$ = this.autotypeKeyboardShortcut.state$.pipe(
