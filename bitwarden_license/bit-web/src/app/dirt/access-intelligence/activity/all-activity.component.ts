@@ -143,6 +143,7 @@ export class AllActivityComponent implements OnInit {
     const dialogRef = NewApplicationsDialogComponent.open(this.dialogService, {
       newApplications: this.newApplications,
       organizationId: organizationId as OrganizationId,
+      hasExistingCriticalApplications: this.totalCriticalAppsCount > 0,
     });
 
     await lastValueFrom(dialogRef.closed);
