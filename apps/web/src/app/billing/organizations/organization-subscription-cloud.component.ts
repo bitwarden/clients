@@ -220,7 +220,6 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
   get subscriptionLineItems() {
     return this.lineItems.map((lineItem: BillingSubscriptionItemResponse) => {
-      // For SM trials with complimentary PM, only apply discount to PM products
       const shouldApplyDiscount = this.shouldApplyDiscountToLineItem(lineItem);
 
       return {
@@ -239,37 +238,28 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   }
 
   private shouldApplyDiscountToLineItem(lineItem: BillingSubscriptionItemResponse): boolean {
-    // If no discount, don't apply
     if (!this.customerDiscount?.active) {
       return false;
     }
 
-    // For SM subscriptions with complimentary PM (100% discount)
-    // Only apply discount to PM products, not SM products
     if (this.userOrg?.useSecretsManager && this.customerDiscount?.percentOff === 100) {
       return (
         lineItem.productName === OrganizationSubscriptionCloudComponent.PRODUCT_PASSWORD_MANAGER
       );
     }
 
-    // For all other cases, use default discount logic
     return true;
   }
 
   shouldShowFreeForOneYear(productId: string, productName: string): boolean {
-    // Only show "Free for 1 year" for 100% discounts
     if (!this.customerDiscount?.active || this.customerDiscount?.percentOff !== 100) {
       return false;
     }
 
-    // Check if discount applies to this specific product via appliesTo array
     if (this.customerDiscount?.appliesTo && this.customerDiscount.appliesTo.length > 0) {
       return this.customerDiscount.appliesTo.includes(productId);
     }
 
-    // For SM subscriptions with complimentary PM (100% discount)
-    // When appliesTo is empty, assume it's a complimentary PM scenario
-    // Show "Free for 1 year" for PM products only
     if (
       this.userOrg?.useSecretsManager &&
       this.customerDiscount?.percentOff === 100 &&
@@ -282,28 +272,22 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   }
 
   shouldShowDiscountStrikethrough(productId: string, productName: string): boolean {
-    // If no discount, don't show strikethrough
     if (!this.customerDiscount?.active || !this.customerDiscount?.percentOff) {
       return false;
     }
 
-    // Don't show strikethrough for Secrets Manager trial
     if (this.isSecretsManagerTrial()) {
       return false;
     }
 
-    // Don't show strikethrough if we should show "Free for 1 year" instead
     if (this.shouldShowFreeForOneYear(productId, productName)) {
       return false;
     }
 
-    // Only show strikethrough if discount applies to this specific product (for partial discounts)
     if (this.customerDiscount?.appliesTo && this.customerDiscount.appliesTo.length > 0) {
       return this.customerDiscount.appliesTo.includes(productId);
     }
 
-    // If appliesTo is empty or not specified, don't show strikethrough
-    // (we need to know which products the discount applies to)
     return false;
   }
 
@@ -488,19 +472,14 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   }
 
   hasPasswordManagerOnlyDiscount(): boolean {
-    // Only show discount badge for Password Manager-only subscriptions
-    // Not for Secrets Manager subscriptions with complimentary Password Manager
     if (!this.customerDiscount?.percentOff || this.customerDiscount.percentOff === 0) {
       return false;
     }
 
-    // If organization has Secrets Manager, don't show the badge
-    // (it's a bundled subscription, not a Password Manager-only discount)
     if (this.userOrg?.useSecretsManager) {
       return false;
     }
 
-    // Check if discount applies to any Password Manager items
     const hasPasswordManagerItems = this.lineItems?.some(
       (item) =>
         item.productName === OrganizationSubscriptionCloudComponent.PRODUCT_PASSWORD_MANAGER &&
