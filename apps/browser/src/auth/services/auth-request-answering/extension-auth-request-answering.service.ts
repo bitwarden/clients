@@ -50,9 +50,10 @@ export class ExtensionAuthRequestAnsweringService
     // Always persist the pending marker for this user to global state.
     await this.pendingAuthRequestsState.add(userId);
 
-    const userIsAvailableToViewDialog = await this.userMeetsConditionsToShowApprovalDialog(userId);
+    const userMeetsConditionsToShowApprovalDialog =
+      await this.userMeetsConditionsToShowApprovalDialog(userId);
 
-    if (userIsAvailableToViewDialog) {
+    if (userMeetsConditionsToShowApprovalDialog) {
       // Send message to open dialog immediately for this request
       this.messagingService.send("openLoginApproval", {
         // Include the authRequestId so the DeviceManagementComponent can upsert the correct device.

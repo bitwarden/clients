@@ -200,18 +200,23 @@ export class AppComponent implements OnInit, OnDestroy {
             if (this.processingPendingAuth) {
               return;
             }
+
             this.processingPendingAuth = true;
+
             try {
               // Always query server for all pending requests and open a dialog for each
               const pendingList = await firstValueFrom(
                 this.authRequestService.getPendingAuthRequests$(),
               );
+
               if (Array.isArray(pendingList) && pendingList.length > 0) {
                 const respondedIds = new Set<string>();
+
                 for (const req of pendingList) {
                   if (req?.id == null) {
                     continue;
                   }
+
                   const dialogRef = LoginApprovalDialogComponent.open(this.dialogService, {
                     notificationId: req.id,
                   });
@@ -220,6 +225,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
                   if (result !== undefined && typeof result === "boolean") {
                     respondedIds.add(req.id);
+
                     if (respondedIds.size === pendingList.length && this.activeUserId != null) {
                       await this.pendingAuthRequestsState.clear(this.activeUserId);
                     }

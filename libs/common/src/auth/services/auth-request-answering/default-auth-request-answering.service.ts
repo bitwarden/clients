@@ -88,7 +88,7 @@ export class DefaultAuthRequestAnsweringService implements AuthRequestAnsweringS
   }
 
   setupUnlockListenersForProcessingAuthRequests(destroy$: Observable<void>): void {
-    // Trigger processing auth requests when the active user is in an unlocked state.
+    // When account switching to a user who is Unlocked, process any pending auth requests.
     this.accountService.activeAccount$
       .pipe(
         map((a) => a?.id), // Extract active userId
@@ -97,15 +97,13 @@ export class DefaultAuthRequestAnsweringService implements AuthRequestAnsweringS
         switchMap((userId) => this.authService.authStatusFor$(userId).pipe(take(1))), // Get current auth status once for new user
         filter((status) => status === AuthenticationStatus.Unlocked), // Only when the new user is Unlocked
         tap(() => {
-          // Trigger processing when switching users while app is visible.
           void this.processPendingAuthRequests();
         }),
         takeUntil(destroy$),
       )
       .subscribe();
 
-    // When the app is already visible and the active account transitions to Unlocked, process any
-    // pending auth requests for the active user. The above subscription does not handle this case.
+    // When the active account transitions TO Unlocked, process any pending auth requests.
     this.authService.activeAccountStatus$
       .pipe(
         startWith(null as unknown as AuthenticationStatus), // Seed previous value to handle initial emission
