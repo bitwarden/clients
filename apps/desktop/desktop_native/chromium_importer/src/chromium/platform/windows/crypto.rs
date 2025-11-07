@@ -1,4 +1,13 @@
-pub fn crypt_unprotect_data(data: &[u8]) -> Result<Vec<u8>> {
+use anyhow::{anyhow, Result};
+use windows::Win32::{
+    Foundation::{LocalFree, HLOCAL},
+    Security::Cryptography::{CryptUnprotectData, CRYPT_INTEGER_BLOB},
+};
+
+/// Rust friendly wrapper around CryptUnprotectData
+///
+/// Decrypts the data passed in using the `CryptUnprotectData` api.
+pub fn crypt_unprotect_data(data: &[u8], flags: u32) -> Result<Vec<u8>> {
     if data.is_empty() {
         return Ok(Vec::new());
     }
@@ -13,11 +22,11 @@ pub fn crypt_unprotect_data(data: &[u8]) -> Result<Vec<u8>> {
     let result = unsafe {
         CryptUnprotectData(
             &data_in,
-            None, // ppszDataDescr: Option<*mut PWSTR>
-            None, // pOptionalEntropy: Option<*const CRYPT_INTEGER_BLOB>
-            None, // pvReserved: Option<*const std::ffi::c_void>
-            None, // pPromptStruct: Option<*const CRYPTPROTECT_PROMPTSTRUCT>
-            0,    // dwFlags: u32
+            None,  // ppszDataDescr: Option<*mut PWSTR>
+            None,  // pOptionalEntropy: Option<*const CRYPT_INTEGER_BLOB>
+            None,  // pvReserved: Option<*const std::ffi::c_void>
+            None,  // pPromptStruct: Option<*const CRYPTPROTECT_PROMPTSTRUCT>
+            flags, // dwFlags: u32
             &mut data_out,
         )
     };
@@ -37,7 +46,7 @@ pub fn crypt_unprotect_data(data: &[u8]) -> Result<Vec<u8>> {
 
     unsafe {
         if !data_out.pbData.is_null() {
-            LocalFree(Some(HLOCAL(data_out.pbData as *mut std::ffi::c_void)));
+            LocalFree(Some(HLOCAL(out_blob.pbData as *mut _)));
         }
     }
 

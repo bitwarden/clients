@@ -3,10 +3,6 @@ use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use base64::{engine::general_purpose::STANDARD as BASE64_STANDARD, Engine as _};
 use std::path::{Path, PathBuf};
-use windows::Win32::{
-    Foundation::{LocalFree, HLOCAL},
-    Security::Cryptography::{CryptUnprotectData, CRYPT_INTEGER_BLOB},
-};
 
 use crate::chromium::{BrowserConfig, CryptoService, LocalState};
 use crate::util;
@@ -168,7 +164,7 @@ impl WindowsCryptoService {
             return Err(anyhow!("Encrypted master key is not encrypted with DPAPI"));
         }
 
-        let key = unprotect_data_win(&key_bytes[5..])
+        let key = crypt_unprotect_data(&key_bytes[5..], 0)
             .map_err(|e| anyhow!("Failed to unprotect the master key: {}", e))?;
 
         Ok(key)
