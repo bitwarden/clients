@@ -26,7 +26,6 @@ import {
 } from "rxjs/operators";
 
 import {
-  AutomaticUserConfirmationService,
   CollectionData,
   CollectionDetailsResponse,
   CollectionService,
@@ -42,6 +41,7 @@ import {
   ItemTypes,
   Icon,
 } from "@bitwarden/assets/svg";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import {

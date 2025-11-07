@@ -732,6 +732,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       InternalOrganizationServiceAbstraction,
       OrganizationUserApiService,
+      PolicyService,
     ],
   }),
 ];

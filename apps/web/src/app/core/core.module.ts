@@ -9,8 +9,6 @@ import {
   DefaultCollectionAdminService,
   OrganizationUserApiService,
   CollectionService,
-  AutomaticUserConfirmationService,
-  DefaultAutomaticUserConfirmationService,
   OrganizationUserService,
   DefaultOrganizationUserService,
 } from "@bitwarden/admin-console/common";
@@ -46,6 +44,10 @@ import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
 } from "@bitwarden/auth/common";
+import {
+  AutomaticUserConfirmationService,
+  DefaultAutomaticUserConfirmationService,
+} from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
@@ -366,6 +368,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       InternalOrganizationServiceAbstraction,
       OrganizationUserApiService,
+      PolicyService,
     ],
   }),
   safeProvider({
