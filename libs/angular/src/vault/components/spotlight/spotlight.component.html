@@ -3,7 +3,7 @@
 >
   <div class="tw-flex tw-justify-between tw-items-start tw-flex-grow">
     <div>
-      <h2 bitTypography="h4" class="tw-font-medium !tw-mb-1">{{ title() }}</h2>
+      <h2 *ngIf="title()" bitTypography="h4" class="tw-font-medium !tw-mb-1">{{ title() }}</h2>
       <p
         *ngIf="subtitle()"
         class="tw-text-main tw-mb-0"
