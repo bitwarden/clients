@@ -1,4 +1,3 @@
-import { Injectable } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 
 import { SecurityTasksApiService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
@@ -8,7 +7,9 @@ import { SecurityTask, SecurityTaskType } from "@bitwarden/common/vault/tasks";
 import { CreateTasksRequest } from "../../../vault/services/abstractions/admin-task.abstraction";
 import { DefaultAdminTaskService } from "../../../vault/services/default-admin-task.service";
 
-@Injectable()
+/**
+ * Service for managing security tasks related to Access Intelligence features
+ */
 export class AccessIntelligenceSecurityTasksService {
   private _tasksSubject$ = new BehaviorSubject<SecurityTask[]>([]);
   tasks$ = this._tasksSubject$.asObservable();
@@ -18,13 +19,25 @@ export class AccessIntelligenceSecurityTasksService {
     private securityTasksApiService: SecurityTasksApiService,
   ) {}
 
+  /**
+   * Gets security task metrics for the given organization
+   *
+   * @param organizationId The organization ID
+   * @returns Metrics about security tasks such as a count of completed and total tasks
+   */
+  getTaskMetrics(organizationId: OrganizationId) {
+    return this.securityTasksApiService.getTaskMetrics(organizationId);
+  }
+
+  /**
+   * Loads security tasks for the given organization and updates the internal tasks subject
+   *
+   * @param organizationId The organization ID
+   */
   async loadTasks(organizationId: OrganizationId): Promise<void> {
     // Loads the tasks to update the service
     const tasks = await this.securityTasksApiService.getAllTasks(organizationId);
     this._tasksSubject$.next(tasks);
-  }
-  getTaskMetrics(organizationId: OrganizationId) {
-    return this.securityTasksApiService.getTaskMetrics(organizationId);
   }
 
   /**
@@ -44,5 +57,7 @@ export class AccessIntelligenceSecurityTasksService {
     }));
 
     await this.adminTaskService.bulkCreateTasks(organizationId, tasks);
+    // Reload tasks after creation
+    await this.loadTasks(organizationId);
   }
 }
