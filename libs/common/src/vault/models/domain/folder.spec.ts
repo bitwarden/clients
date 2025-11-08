@@ -81,7 +81,7 @@ describe("Folder", () => {
       expect(actual?.id).toBe("id");
       expect(actual?.revisionDate).toEqual(revisionDate);
       expect(actual?.name).toBeInstanceOf(EncString);
-      expect((actual?.name as EncString).encryptedString).toBe("name");
+      expect((actual?.name as EncString).encryptedString).toBe("name_fromJSON");
     });
   });
 
