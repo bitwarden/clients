@@ -12,7 +12,7 @@ import { GearIcon } from "@bitwarden/assets/svg";
     <div class="tw-size-56 tw-content-center">
       <bit-icon [icon]="gearIcon" aria-hidden="true"></bit-icon>
     </div>
-    <p class="tw-font-bold">{{ "billingManagedByProvider" | i18n: providerName }}</p>
+    <p class="tw-font-medium">{{ "billingManagedByProvider" | i18n: providerName }}</p>
     <p>{{ "billingContactProviderForAssistance" | i18n }}</p>
   </div>`,
   standalone: false,
