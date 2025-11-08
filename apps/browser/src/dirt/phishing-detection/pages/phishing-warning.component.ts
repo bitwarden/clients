@@ -4,9 +4,10 @@ import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
 // eslint-disable-next-line no-restricted-imports
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { map } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -18,8 +19,12 @@ import {
   CalloutComponent,
   TypographyModule,
 } from "@bitwarden/components";
+import { MessageSender } from "@bitwarden/messaging";
 
-import { PhishingDetectionService } from "../services/phishing-detection.service";
+import {
+  PHISHING_DETECTION_CANCEL_COMMAND,
+  PHISHING_DETECTION_CONTINUE_COMMAND,
+} from "../services/phishing-detection.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -44,14 +49,29 @@ import { PhishingDetectionService } from "../services/phishing-detection.service
 })
 export class PhishingWarning {
   private activatedRoute = inject(ActivatedRoute);
-  protected phishingHost$ = this.activatedRoute.queryParamMap.pipe(
-    map((params) => params.get("phishingHost") || ""),
+  private messageSender = inject(MessageSender);
+
+  private phishingUrl$ = this.activatedRoute.queryParamMap.pipe(
+    map((params) => params.get("phishingUrl") || ""),
   );
+  protected phishingHostname$ = this.phishingUrl$.pipe(map((url) => new URL(url).hostname));
 
   async closeTab() {
-    await PhishingDetectionService.requestClosePhishingWarningPage();
+    const tabId = await this.getTabId();
+    this.messageSender.send(PHISHING_DETECTION_CANCEL_COMMAND, {
+      tabId,
+    });
   }
   async continueAnyway() {
-    await PhishingDetectionService.requestContinueToDangerousUrl();
+    const url = await firstValueFrom(this.phishingUrl$);
+    const tabId = await this.getTabId();
+    this.messageSender.send(PHISHING_DETECTION_CONTINUE_COMMAND, {
+      tabId,
+      url,
+    });
+  }
+
+  private async getTabId() {
+    return BrowserApi.getCurrentTab()?.then((tab) => tab.id);
   }
 }

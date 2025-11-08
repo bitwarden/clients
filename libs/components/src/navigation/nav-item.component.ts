@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, HostListener, Optional, input } from "@angular/core";
+import { Component, HostListener, Optional, input, model } from "@angular/core";
 import { RouterLinkActive, RouterModule } from "@angular/router";
 import { BehaviorSubject, map } from "rxjs";
 
@@ -11,6 +11,7 @@ import { SideNavService } from "./side-nav.service";
 // Resolves a circular dependency between `NavItemComponent` and `NavItemGroup` when using standalone components.
 export abstract class NavGroupAbstraction {
   abstract setOpen(open: boolean): void;
+  abstract treeDepth: ReturnType<typeof model<number>>;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -22,6 +23,18 @@ export abstract class NavGroupAbstraction {
   imports: [CommonModule, IconButtonModule, RouterModule],
 })
 export class NavItemComponent extends NavBaseComponent {
+  /**
+   * Base padding for tree variant items (in rem)
+   * This provides the initial indentation for tree items before depth-based padding
+   */
+  protected readonly TREE_BASE_PADDING = 1.25;
+
+  /**
+   * Padding increment per tree depth level (in rem)
+   * Each nested level adds this amount of padding to visually indicate hierarchy
+   */
+  protected readonly TREE_DEPTH_PADDING = 1.25;
+
   /** Forces active styles to be shown, regardless of the `routerLinkActiveOptions` */
   readonly forceActiveStyles = input<boolean>(false);
 
@@ -78,5 +91,10 @@ export class NavItemComponent extends NavBaseComponent {
     @Optional() private parentNavGroup: NavGroupAbstraction,
   ) {
     super();
+
+    // Set tree depth based on parent's depth
+    if (this.parentNavGroup) {
+      this.treeDepth.set(this.parentNavGroup.treeDepth() + 1);
+    }
   }
 }
