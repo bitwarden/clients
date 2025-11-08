@@ -9,10 +9,6 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import {
-  ButtonLocation,
-  SystemNotificationEvent,
-} from "@bitwarden/common/platform/system-notifications/system-notifications.service";
 import { UserId } from "@bitwarden/user-core";
 
 import { DesktopAuthRequestAnsweringService } from "./desktop-auth-request-answering.service";
@@ -257,24 +253,6 @@ describe("DesktopAuthRequestAnsweringService", () => {
           "close",
         );
       });
-    });
-  });
-
-  describe("handleAuthRequestNotificationClicked()", () => {
-    it("should throw an error", async () => {
-      // Arrange
-      const event: SystemNotificationEvent = {
-        id: "123",
-        buttonIdentifier: ButtonLocation.NotificationButton,
-      };
-
-      // Act
-      const promise = sut.handleAuthRequestNotificationClicked(event);
-
-      // Assert
-      await expect(promise).rejects.toThrow(
-        "handleAuthRequestNotificationClicked() not implemented for this client",
-      );
     });
   });
 });
