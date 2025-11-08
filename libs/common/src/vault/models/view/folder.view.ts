@@ -23,8 +23,8 @@ export class FolderView implements View, ITreeNodeObject {
 
   static fromJSON(obj: Jsonify<FolderView>) {
     const folderView = new FolderView();
-    folderView.id = obj.id;
-    folderView.name = obj.name;
+    folderView.id = obj.id ?? "";
+    folderView.name = obj.name ?? "";
     folderView.revisionDate = new Date(obj.revisionDate);
     return folderView;
   }
