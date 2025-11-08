@@ -60,9 +60,8 @@ describe("Folder", () => {
     it("initializes empty properties when no FolderData is provided", () => {
       const folder = new Folder();
 
-      expect(folder.id).toBe("");
-      expect(folder.name).toBeInstanceOf(EncString);
-      expect((folder.name as EncString).encryptedString).toBe("");
+      expect(folder.id).toBe(undefined);
+      expect(folder.name).toBe(undefined);
       expect(folder.revisionDate).toBeInstanceOf(Date);
     });
   });

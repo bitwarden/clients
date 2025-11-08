@@ -10,20 +10,21 @@ export class FolderView implements View, ITreeNodeObject {
   name: string = "";
   revisionDate: Date;
 
-  constructor(f?: Folder | DecryptedObject<Folder, "name">) {
+  constructor(f?: Folder | DecryptedObject<Folder, undefined>) {
     if (!f) {
       this.revisionDate = new Date();
       return;
     }
 
-    this.id = f.id;
+    this.id = f.id ?? "";
+    this.name = f.name?.decryptedValue ?? "";
     this.revisionDate = f.revisionDate;
   }
 
   static fromJSON(obj: Jsonify<FolderView>) {
     const folderView = new FolderView();
-    folderView.id = obj.id;
-    folderView.name = obj.name;
+    folderView.id = obj.id ?? "";
+    folderView.name = obj.name ?? "";
     folderView.revisionDate = new Date(obj.revisionDate);
     return folderView;
   }
