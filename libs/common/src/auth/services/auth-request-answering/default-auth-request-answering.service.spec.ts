@@ -6,10 +6,6 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import {
-  ButtonLocation,
-  SystemNotificationEvent,
-} from "@bitwarden/common/platform/system-notifications/system-notifications.service";
 import { UserId } from "@bitwarden/user-core";
 
 import { AuthRequestAnsweringService } from "../../abstractions/auth-request-answering/auth-request-answering.service.abstraction";
@@ -31,7 +27,6 @@ describe("DefaultAuthRequestAnsweringService", () => {
 
   const userId = "9f4c3452-6a45-48af-a7d0-74d3e8b65e4c" as UserId;
   const otherUserId = "554c3112-9a75-23af-ab80-8dk3e9bl5i8e" as UserId;
-  const authRequestId = "auth-request-id-123";
 
   beforeEach(() => {
     accountService = mock<AccountService>();
@@ -61,18 +56,6 @@ describe("DefaultAuthRequestAnsweringService", () => {
       messagingService,
       pendingAuthRequestsState,
     );
-  });
-
-  describe("receivedPendingAuthRequest()", () => {
-    it("should throw an error", async () => {
-      // Act
-      const promise = sut.receivedPendingAuthRequest(userId, authRequestId);
-
-      // Assert
-      await expect(promise).rejects.toThrow(
-        "receivedPendingAuthRequest() not implemented for this client",
-      );
-    });
   });
 
   describe("userMeetsConditionsToShowApprovalDialog()", () => {
@@ -128,70 +111,12 @@ describe("DefaultAuthRequestAnsweringService", () => {
     });
   });
 
-  describe("handleAuthRequestNotificationClicked()", () => {
-    it("should throw an error", async () => {
-      // Arrange
-      const event: SystemNotificationEvent = {
-        id: "123",
-        buttonIdentifier: ButtonLocation.NotificationButton,
-      };
-
-      // Act
-      const promise = sut.handleAuthRequestNotificationClicked(event);
-
-      // Assert
-      await expect(promise).rejects.toThrow(
-        "handleAuthRequestNotificationClicked() not implemented for this client",
-      );
-    });
-  });
-
-  describe("processPendingAuthRequests()", () => {
-    it("should send an 'openLoginApproval' message if there is at least one pending auth request for the user in state", async () => {
-      // Arrange
-      const pendingRequests: PendingAuthUserMarker[] = [{ userId, receivedAtMs: Date.now() }];
-      pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequests));
-
-      // Act
-      await sut.processPendingAuthRequests();
-
-      // Assert
-      expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval");
-      expect(messagingService.send).toHaveBeenCalledTimes(1);
-    });
-
-    it("should NOT send a message if there are no pending auth requests in state", async () => {
-      // Arrange
-      const pendingRequests: PendingAuthUserMarker[] = [];
-      pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequests));
-
-      // Act
-      await sut.processPendingAuthRequests();
-
-      // Assert
-      expect(messagingService.send).not.toHaveBeenCalled();
-    });
-
-    it("should NOT send a message if there are no pending auth requests in state for the active user", async () => {
-      // Arrange
-      const pendingRequests: PendingAuthUserMarker[] = [
-        { userId: otherUserId, receivedAtMs: Date.now() },
-      ]; // pending auth marker for a different user
-      pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequests));
-
-      // Act
-      await sut.processPendingAuthRequests();
-
-      // Assert
-      expect(messagingService.send).not.toHaveBeenCalled();
-    });
-  });
-
   describe("setupUnlockListenersForProcessingAuthRequests()", () => {
     let destroy$: Subject<void>;
     let activeAccount$: BehaviorSubject<any>;
     let activeAccountStatus$: BehaviorSubject<AuthenticationStatus>;
     let authStatusForSubjects: Map<UserId, BehaviorSubject<AuthenticationStatus>>;
+    let pendingRequestMarkers: PendingAuthUserMarker[];
 
     beforeEach(() => {
       destroy$ = new Subject<void>();
@@ -203,6 +128,7 @@ describe("DefaultAuthRequestAnsweringService", () => {
       });
       activeAccountStatus$ = new BehaviorSubject(AuthenticationStatus.Locked);
       authStatusForSubjects = new Map();
+      pendingRequestMarkers = [];
 
       accountService.activeAccount$ = activeAccount$;
       authService.activeAccountStatus$ = activeAccountStatus$;
@@ -224,8 +150,9 @@ describe("DefaultAuthRequestAnsweringService", () => {
     describe("active account switching", () => {
       it("should process pending auth requests when switching to an unlocked user", async () => {
         // Arrange
-        const processSpy = jest.spyOn(sut, "processPendingAuthRequests");
         authStatusForSubjects.set(otherUserId, new BehaviorSubject(AuthenticationStatus.Unlocked));
+        pendingRequestMarkers = [{ userId: otherUserId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
 
         // Act
         sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
@@ -240,13 +167,14 @@ describe("DefaultAuthRequestAnsweringService", () => {
 
         // Assert
         await new Promise((resolve) => setTimeout(resolve, 0)); // Allows observable chain to complete before assertion
-        expect(processSpy).toHaveBeenCalledTimes(1);
+        expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval");
       });
 
       it("should NOT process pending auth requests when switching to a locked user", async () => {
         // Arrange
-        const processSpy = jest.spyOn(sut, "processPendingAuthRequests");
         authStatusForSubjects.set(otherUserId, new BehaviorSubject(AuthenticationStatus.Locked));
+        pendingRequestMarkers = [{ userId: otherUserId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
 
         // Act
         sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
@@ -259,13 +187,14 @@ describe("DefaultAuthRequestAnsweringService", () => {
 
         // Assert
         await new Promise((resolve) => setTimeout(resolve, 0));
-        expect(processSpy).not.toHaveBeenCalled();
+        expect(messagingService.send).not.toHaveBeenCalled();
       });
 
       it("should NOT process pending auth requests when switching to a logged out user", async () => {
         // Arrange
-        const processSpy = jest.spyOn(sut, "processPendingAuthRequests");
         authStatusForSubjects.set(otherUserId, new BehaviorSubject(AuthenticationStatus.LoggedOut));
+        pendingRequestMarkers = [{ userId: otherUserId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
 
         // Act
         sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
@@ -278,12 +207,13 @@ describe("DefaultAuthRequestAnsweringService", () => {
 
         // Assert
         await new Promise((resolve) => setTimeout(resolve, 0));
-        expect(processSpy).not.toHaveBeenCalled();
+        expect(messagingService.send).not.toHaveBeenCalled();
       });
 
       it("should NOT process pending auth requests when active account becomes null", async () => {
         // Arrange
-        const processSpy = jest.spyOn(sut, "processPendingAuthRequests");
+        pendingRequestMarkers = [{ userId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
 
         // Act
         sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
@@ -291,15 +221,16 @@ describe("DefaultAuthRequestAnsweringService", () => {
 
         // Assert
         await new Promise((resolve) => setTimeout(resolve, 0));
-        expect(processSpy).not.toHaveBeenCalled();
+        expect(messagingService.send).not.toHaveBeenCalled();
       });
 
       it("should handle multiple user switches correctly", async () => {
         // Arrange
-        const processSpy = jest.spyOn(sut, "processPendingAuthRequests");
         const secondUserId = "second-user-id" as UserId;
         authStatusForSubjects.set(otherUserId, new BehaviorSubject(AuthenticationStatus.Unlocked));
         authStatusForSubjects.set(secondUserId, new BehaviorSubject(AuthenticationStatus.Locked));
+        pendingRequestMarkers = [{ userId: otherUserId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
 
         // Act
         sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
@@ -323,15 +254,16 @@ describe("DefaultAuthRequestAnsweringService", () => {
         await new Promise((resolve) => setTimeout(resolve, 0));
 
         // Assert
-        expect(processSpy).toHaveBeenCalledTimes(1);
+        expect(messagingService.send).toHaveBeenCalledTimes(1);
       });
     });
 
     describe("authentication status transitions", () => {
       it("should process pending auth requests when active account transitions to Unlocked", async () => {
         // Arrange
-        const processSpy = jest.spyOn(sut, "processPendingAuthRequests");
         activeAccountStatus$.next(AuthenticationStatus.Locked);
+        pendingRequestMarkers = [{ userId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
 
         // Act
         sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
@@ -339,13 +271,14 @@ describe("DefaultAuthRequestAnsweringService", () => {
 
         // Assert
         await new Promise((resolve) => setTimeout(resolve, 0));
-        expect(processSpy).toHaveBeenCalledTimes(1);
+        expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval");
       });
 
       it("should process pending auth requests when transitioning from LoggedOut to Unlocked", async () => {
         // Arrange
-        const processSpy = jest.spyOn(sut, "processPendingAuthRequests");
         activeAccountStatus$.next(AuthenticationStatus.LoggedOut);
+        pendingRequestMarkers = [{ userId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
 
         // Act
         sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
@@ -353,32 +286,34 @@ describe("DefaultAuthRequestAnsweringService", () => {
 
         // Assert
         await new Promise((resolve) => setTimeout(resolve, 0));
-        expect(processSpy).toHaveBeenCalledTimes(1);
+        expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval");
       });
 
       it("should NOT process pending auth requests when transitioning from Unlocked to Locked", async () => {
         // Arrange
-        const processSpy = jest.spyOn(sut, "processPendingAuthRequests");
         activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+        pendingRequestMarkers = [{ userId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
 
         // Act
         sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
         await new Promise((resolve) => setTimeout(resolve, 0));
 
-        // Reset spy to ignore the initial trigger (from null -> Unlocked)
-        processSpy.mockClear();
+        // Clear any calls from the initial trigger (from null -> Unlocked)
+        messagingService.send.mockClear();
 
         activeAccountStatus$.next(AuthenticationStatus.Locked);
 
         // Assert
         await new Promise((resolve) => setTimeout(resolve, 0));
-        expect(processSpy).not.toHaveBeenCalled();
+        expect(messagingService.send).not.toHaveBeenCalled();
       });
 
       it("should NOT process pending auth requests when transitioning from Locked to LoggedOut", async () => {
         // Arrange
-        const processSpy = jest.spyOn(sut, "processPendingAuthRequests");
         activeAccountStatus$.next(AuthenticationStatus.Locked);
+        pendingRequestMarkers = [{ userId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
 
         // Act
         sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
@@ -386,32 +321,34 @@ describe("DefaultAuthRequestAnsweringService", () => {
 
         // Assert
         await new Promise((resolve) => setTimeout(resolve, 0));
-        expect(processSpy).not.toHaveBeenCalled();
+        expect(messagingService.send).not.toHaveBeenCalled();
       });
 
       it("should NOT process pending auth requests when staying in Unlocked status", async () => {
         // Arrange
-        const processSpy = jest.spyOn(sut, "processPendingAuthRequests");
         activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+        pendingRequestMarkers = [{ userId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
 
         // Act
         sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
         await new Promise((resolve) => setTimeout(resolve, 0));
 
-        // Reset spy to ignore the initial trigger (from null -> Unlocked)
-        processSpy.mockClear();
+        // Clear any calls from the initial trigger (from null -> Unlocked)
+        messagingService.send.mockClear();
 
         activeAccountStatus$.next(AuthenticationStatus.Unlocked);
 
         // Assert
         await new Promise((resolve) => setTimeout(resolve, 0));
-        expect(processSpy).not.toHaveBeenCalled();
+        expect(messagingService.send).not.toHaveBeenCalled();
       });
 
       it("should handle multiple status transitions correctly", async () => {
         // Arrange
-        const processSpy = jest.spyOn(sut, "processPendingAuthRequests");
         activeAccountStatus$.next(AuthenticationStatus.Locked);
+        pendingRequestMarkers = [{ userId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
 
         // Act
         sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
@@ -429,15 +366,17 @@ describe("DefaultAuthRequestAnsweringService", () => {
         await new Promise((resolve) => setTimeout(resolve, 0));
 
         // Assert
-        expect(processSpy).toHaveBeenCalledTimes(2);
+        expect(messagingService.send).toHaveBeenCalledTimes(2);
+        expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval");
       });
     });
 
     describe("subscription cleanup", () => {
       it("should stop processing when destroy$ emits", async () => {
         // Arrange
-        const processSpy = jest.spyOn(sut, "processPendingAuthRequests");
         authStatusForSubjects.set(otherUserId, new BehaviorSubject(AuthenticationStatus.Unlocked));
+        pendingRequestMarkers = [{ userId: otherUserId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
 
         // Act
         sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
@@ -456,7 +395,7 @@ describe("DefaultAuthRequestAnsweringService", () => {
 
         // Assert
         await new Promise((resolve) => setTimeout(resolve, 0));
-        expect(processSpy).not.toHaveBeenCalled();
+        expect(messagingService.send).not.toHaveBeenCalled();
       });
     });
   });
