@@ -59,7 +59,7 @@ export class Folder extends Domain {
       return null;
     }
     return new Folder({
-      name: EncString.fromJSON(obj.name ?? ""),
+      name: obj.name ?? "",
       revisionDate: obj.revisionDate,
       id: obj.id ?? "",
     });
