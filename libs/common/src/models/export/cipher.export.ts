@@ -168,7 +168,7 @@ export class CipherExport {
     this.name = safeGetString(o.name) ?? "";
     this.notes = safeGetString(o.notes);
     if ("key" in o) {
-      this.key = o.key?.encryptedString ?? "";
+      this.key = o.key?.encryptedString;
     }
 
     this.favorite = o.favorite;
