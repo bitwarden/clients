@@ -1,3 +1,5 @@
+import { conditionalEncString } from "@bitwarden/common/vault/utils/domain-utils";
+
 import { EncString } from "../../key-management/crypto/models/enc-string";
 import { Fido2Credential } from "../../vault/models/domain/fido2-credential";
 import { Fido2CredentialView } from "../../vault/models/view/fido2-credential.view";
@@ -60,18 +62,18 @@ export class Fido2CredentialExport {
    * @returns Fido2Credential - The populated domain, or a new instance if none was provided.
    */
   static toDomain(req: Fido2CredentialExport, domain = new Fido2Credential()) {
-    domain.credentialId = new EncString(req.credentialId ?? "");
-    domain.keyType = new EncString(req.keyType ?? "");
-    domain.keyAlgorithm = new EncString(req.keyAlgorithm ?? "");
-    domain.keyCurve = new EncString(req.keyCurve ?? "");
-    domain.keyValue = new EncString(req.keyValue ?? "");
-    domain.rpId = new EncString(req.rpId ?? "");
-    domain.userHandle = new EncString(req.userHandle ?? "");
-    domain.userName = new EncString(req.userName ?? "");
-    domain.counter = new EncString(req.counter ?? "");
-    domain.rpName = new EncString(req.rpName ?? "");
-    domain.userDisplayName = new EncString(req.userDisplayName ?? "");
-    domain.discoverable = new EncString(req.discoverable ?? "");
+    domain.credentialId = new EncString(req.credentialId);
+    domain.keyType = new EncString(req.keyType);
+    domain.keyAlgorithm = new EncString(req.keyAlgorithm);
+    domain.keyCurve = new EncString(req.keyCurve);
+    domain.keyValue = new EncString(req.keyValue);
+    domain.rpId = new EncString(req.rpId);
+    domain.userHandle = conditionalEncString(req.userHandle);
+    domain.userName = conditionalEncString(req.userName);
+    domain.counter = new EncString(req.counter);
+    domain.rpName = conditionalEncString(req.rpName);
+    domain.userDisplayName = conditionalEncString(req.userDisplayName);
+    domain.discoverable = new EncString(req.discoverable);
     domain.creationDate = req.creationDate;
     return domain;
   }

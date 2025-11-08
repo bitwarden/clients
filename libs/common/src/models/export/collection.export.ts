@@ -33,7 +33,7 @@ export class CollectionExport {
   }
 
   static toDomain(req: CollectionExport, domain: CollectionDomain) {
-    domain.name = new EncString(req.name ?? "");
+    domain.name = new EncString(req.name);
     domain.externalId = req.externalId;
     if (domain.organizationId == null) {
       domain.organizationId = req.organizationId;

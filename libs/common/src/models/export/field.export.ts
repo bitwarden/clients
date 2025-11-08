@@ -1,4 +1,5 @@
-import { EncString } from "../../key-management/crypto/models/enc-string";
+import { conditionalEncString } from "@bitwarden/common/vault/utils/domain-utils";
+
 import { FieldType, LinkedIdType } from "../../vault/enums";
 import { Field as FieldDomain } from "../../vault/models/domain/field";
 import { FieldView } from "../../vault/models/view/field.view";
@@ -24,8 +25,8 @@ export class FieldExport {
 
   static toDomain(req: FieldExport, domain = new FieldDomain()) {
     domain.type = req.type;
-    domain.value = new EncString(req.value ?? "");
-    domain.name = new EncString(req.name ?? "");
+    domain.value = conditionalEncString(req.value);
+    domain.name = conditionalEncString(req.name);
     domain.linkedId = req.linkedId;
     return domain;
   }

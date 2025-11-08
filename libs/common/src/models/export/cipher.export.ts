@@ -96,7 +96,7 @@ export class CipherExport {
     if (domain.organizationId == null) {
       domain.organizationId = req.organizationId;
     }
-    domain.name = new EncString(req.name ?? "");
+    domain.name = new EncString(req.name);
     domain.notes = conditionalEncString(req.notes);
     domain.favorite = req.favorite;
     domain.reprompt = req.reprompt ?? CipherRepromptType.None;

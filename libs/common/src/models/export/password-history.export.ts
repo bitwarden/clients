@@ -14,21 +14,22 @@ export class PasswordHistoryExport {
 
   static toView(req: PasswordHistoryExport, view = new PasswordHistoryView()) {
     view.password = req.password;
-    view.lastUsedDate = req.lastUsedDate ? new Date(req.lastUsedDate) : new Date();
+    view.lastUsedDate = req.lastUsedDate ?? new Date();
     return view;
   }
 
   static toDomain(req: PasswordHistoryExport, domain = new Password()) {
-    domain.password = new EncString(req.password ?? "");
+    domain.password = new EncString(req.password);
     domain.lastUsedDate = req.lastUsedDate ?? new Date();
     return domain;
   }
 
   password: string = "";
-  lastUsedDate: Date = new Date();
+  lastUsedDate: Date;
 
   constructor(o?: PasswordHistoryView | Password) {
     if (o == null) {
+      this.lastUsedDate = new Date();
       return;
     }
 
