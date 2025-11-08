@@ -69,13 +69,14 @@ windows = { workspace = true, features = [
     "Win32_Foundation",
     "Win32_Security_Credentials",
     "Win32_Security_Cryptography",
+    "Win32_System_Com",
+    "Win32_System_LibraryLoader",
     "Win32_System_WinRT",
     "Win32_UI_Input_KeyboardAndMouse",
     "Win32_UI_WindowsAndMessaging",
     "Win32_System_Pipes",
 ], optional = true }
 windows-future = { workspace = true }
-windows_plugin_authenticator = { path = "../windows_plugin_authenticator" }
 
 [target.'cfg(windows)'.dev-dependencies]
 keytar = { workspace = true }
