@@ -1,6 +1,5 @@
 import { Observable } from "rxjs";
 
-import { SystemNotificationEvent } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
 import { UserId } from "@bitwarden/user-core";
 
 export abstract class AuthRequestAnsweringService {
@@ -26,20 +25,6 @@ export abstract class AuthRequestAnsweringService {
    *          an approval dialog immediately.
    */
   abstract userMeetsConditionsToShowApprovalDialog(userId: UserId): Promise<boolean>;
-
-  /**
-   * When a system notification is clicked, this function is used to process that event.
-   * - Implemented in Extension only
-   *
-   * @param event The event passed in. Check initNotificationSubscriptions in main.background.ts.
-   */
-  abstract handleAuthRequestNotificationClicked(event: SystemNotificationEvent): Promise<void>;
-
-  /**
-   * Process notifications that have been received but didn't meet the conditions to display the
-   * approval dialog.
-   */
-  abstract processPendingAuthRequests(): Promise<void>;
 
   /**
    * Sets up listeners for scenarios where the user unlocks and we want to process

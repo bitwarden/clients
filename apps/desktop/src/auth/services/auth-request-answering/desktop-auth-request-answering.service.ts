@@ -8,7 +8,6 @@ import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { SystemNotificationEvent } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
 import { UserId } from "@bitwarden/user-core";
 
 export class DesktopAuthRequestAnsweringService
@@ -38,7 +37,7 @@ export class DesktopAuthRequestAnsweringService
    *                      Desktop notification do not run any auth-request-specific actions.
    *                      All clicks simply open the Desktop window. See electron-main-messaging.service.ts.
    */
-  override async receivedPendingAuthRequest(userId: UserId, authRequestId: string): Promise<void> {
+  async receivedPendingAuthRequest(userId: UserId, authRequestId: string): Promise<void> {
     // Always persist the pending marker for this user to global state.
     await this.pendingAuthRequestsState.add(userId);
 
@@ -66,11 +65,5 @@ export class DesktopAuthRequestAnsweringService
         this.i18nService.t("close"),
       );
     }
-  }
-
-  async handleAuthRequestNotificationClicked(event: SystemNotificationEvent) {
-    // Not implemented for Desktop because click handling is already setup in electron-main-messaging.service.ts.
-    // See click handler in ipcMain.handle("loginRequest"...
-    throw new Error("handleAuthRequestNotificationClicked() not implemented for this client");
   }
 }

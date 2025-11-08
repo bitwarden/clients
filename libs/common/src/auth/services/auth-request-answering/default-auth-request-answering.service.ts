@@ -19,7 +19,6 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { SystemNotificationEvent } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
 import { UserId } from "@bitwarden/user-core";
 
 import { AuthRequestAnsweringService } from "../../abstractions/auth-request-answering/auth-request-answering.service.abstraction";
@@ -38,10 +37,6 @@ export class DefaultAuthRequestAnsweringService implements AuthRequestAnsweringS
     protected readonly pendingAuthRequestsState: PendingAuthRequestsStateService,
   ) {}
 
-  async receivedPendingAuthRequest(userId: UserId, authRequestId: string): Promise<void> {
-    throw new Error("receivedPendingAuthRequest() not implemented for this client");
-  }
-
   async userMeetsConditionsToShowApprovalDialog(userId: UserId): Promise<boolean> {
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     const activeUserId: UserId | null = await firstValueFrom(
@@ -58,33 +53,6 @@ export class DefaultAuthRequestAnsweringService implements AuthRequestAnsweringS
       forceSetPasswordReason === ForceSetPasswordReason.None;
 
     return meetsConditions;
-  }
-
-  async handleAuthRequestNotificationClicked(event: SystemNotificationEvent): Promise<void> {
-    throw new Error("handleAuthRequestNotificationClicked() not implemented for this client");
-  }
-
-  async processPendingAuthRequests(): Promise<void> {
-    // Prune any stale pending requests (older than 15 minutes)
-    // This comes from GlobalSettings.cs
-    //    public TimeSpan UserRequestExpiration { get; set; } = TimeSpan.FromMinutes(15);
-    const fifteenMinutesMs = 15 * 60 * 1000;
-
-    await this.pendingAuthRequestsState.pruneOlderThan(fifteenMinutesMs);
-
-    const pendingAuthRequestsInState: PendingAuthUserMarker[] =
-      (await firstValueFrom(this.pendingAuthRequestsState.getAll$())) ?? [];
-
-    if (pendingAuthRequestsInState.length > 0) {
-      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      const pendingAuthRequestsForActiveUser = pendingAuthRequestsInState.some(
-        (e) => e.userId === activeUserId,
-      );
-
-      if (pendingAuthRequestsForActiveUser) {
-        this.messagingService.send("openLoginApproval");
-      }
-    }
   }
 
   setupUnlockListenersForProcessingAuthRequests(destroy$: Observable<void>): void {
@@ -117,5 +85,32 @@ export class DefaultAuthRequestAnsweringService implements AuthRequestAnsweringS
       .subscribe(() => {
         void this.processPendingAuthRequests();
       });
+  }
+
+  /**
+   * Process notifications that have been received but didn't meet the conditions to display the
+   * approval dialog.
+   */
+  private async processPendingAuthRequests(): Promise<void> {
+    // Prune any stale pending requests (older than 15 minutes)
+    // This comes from GlobalSettings.cs
+    //    public TimeSpan UserRequestExpiration { get; set; } = TimeSpan.FromMinutes(15);
+    const fifteenMinutesMs = 15 * 60 * 1000;
+
+    await this.pendingAuthRequestsState.pruneOlderThan(fifteenMinutesMs);
+
+    const pendingAuthRequestsInState: PendingAuthUserMarker[] =
+      (await firstValueFrom(this.pendingAuthRequestsState.getAll$())) ?? [];
+
+    if (pendingAuthRequestsInState.length > 0) {
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const pendingAuthRequestsForActiveUser = pendingAuthRequestsInState.some(
+        (e) => e.userId === activeUserId,
+      );
+
+      if (pendingAuthRequestsForActiveUser) {
+        this.messagingService.send("openLoginApproval");
+      }
+    }
   }
 }
