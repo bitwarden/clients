@@ -78,6 +78,7 @@ pub fn file_log(msg: &str) {
 }
 
 pub fn debug_log(message: &str) {
+    tracing::debug!(message);
     file_log(message)
 }
 

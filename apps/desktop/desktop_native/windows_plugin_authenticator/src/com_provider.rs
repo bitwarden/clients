@@ -1,7 +1,9 @@
+use windows::Win32::Foundation::S_OK;
 use windows::Win32::System::Com::*;
 use windows_core::{implement, interface, IInspectable, IUnknown, Interface, HRESULT};
 
 use crate::assert::plugin_get_assertion;
+use crate::ipc2::WindowsProviderClient;
 use crate::make_credential::plugin_make_credential;
 use crate::util::debug_log;
 use crate::webauthn::WEBAUTHN_CREDENTIAL_LIST;
@@ -130,7 +132,9 @@ pub unsafe fn parse_credential_list(credential_list: &WEBAUTHN_CREDENTIAL_LIST) 
 }
 
 #[implement(IPluginAuthenticator)]
-pub struct PluginAuthenticatorComObject;
+pub struct PluginAuthenticatorComObject {
+    client: WindowsProviderClient,
+}
 
 #[implement(IClassFactory)]
 pub struct Factory;
@@ -142,13 +146,17 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
         response: *mut WebAuthnPluginOperationResponse,
     ) -> HRESULT {
         debug_log("MakeCredential() called");
+        debug_log("version2");
         // Convert to legacy format for internal processing
         if request.is_null() || response.is_null() {
             debug_log("MakeCredential: Invalid request or response pointers passed");
             return HRESULT(-1);
         }
 
-        plugin_make_credential(request, response)
+        match plugin_make_credential(&self.client, request, response) {
+            Ok(()) => S_OK,
+            Err(err) => err,
+        }
     }
 
     unsafe fn GetAssertion(
@@ -188,7 +196,11 @@ impl IClassFactory_Impl for Factory_Impl {
         iid: *const windows_core::GUID,
         object: *mut *mut core::ffi::c_void,
     ) -> windows_core::Result<()> {
-        let unknown: IInspectable = PluginAuthenticatorComObject.into(); // TODO: IUnknown ?
+        debug_log("Creating COM server instance.");
+        debug_log("Trying to connect to Bitwarden IPC");
+        let client = WindowsProviderClient::connect();
+        debug_log("Connected to Bitwarden IPC");
+        let unknown: IInspectable = PluginAuthenticatorComObject { client }.into(); // TODO: IUnknown ?
         unsafe { unknown.query(iid, object).ok() }
     }
 

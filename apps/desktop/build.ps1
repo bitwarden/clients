@@ -14,7 +14,7 @@ $comLogFile = "C:\temp\bitwarden_com_debug.log"
 npm run build-native && npm run build:dev && npm run pack:win:arm64
 
 # Backup tokens
-Copy-Item -Path "$bwFolder\LocalCache\Roaming\Bitwarden\data.json" -Destination $backupDataFile
+# Copy-Item -Path "$bwFolder\LocalCache\Roaming\Bitwarden\data.json" -Destination $backupDataFile
 
 # Reinstall Appx
 Remove-AppxPackage $package && Add-AppxPackage $appx
@@ -23,5 +23,5 @@ Remove-AppxPackage $package && Add-AppxPackage $appx
 Remove-Item -Path $comLogFile
 
 # Restore tokens
-New-Item -Type Directory -Force -Path "$bwFolder\LocalCache\Roaming\Bitwarden\"
-Copy-Item -Path $backupDataFile -Destination "$bwFolder\LocalCache\Roaming\Bitwarden\data.json"
+# New-Item -Type Directory -Force -Path "$bwFolder\LocalCache\Roaming\Bitwarden\"
+# Copy-Item -Path $backupDataFile -Destination "$bwFolder\LocalCache\Roaming\Bitwarden\data.json"

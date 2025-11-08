@@ -8,6 +8,7 @@ mod com_buffer;
 mod com_provider;
 mod com_registration;
 mod ipc;
+mod ipc2;
 mod make_credential;
 mod sync;
 mod types;
@@ -30,6 +31,7 @@ use crate::util::debug_log;
 /// Handles initialization and registration for the Bitwarden desktop app as a
 /// For now, also adds the authenticator
 pub fn register() -> std::result::Result<(), String> {
+    // TODO: Can we spawn a new named thread for debugging?
     debug_log("register() called...");
 
     let r = com_registration::initialize_com_library();
@@ -43,3 +45,6 @@ pub fn register() -> std::result::Result<(), String> {
 
     Ok(())
 }
+
+/// This sets up IPC so the plugin can request credentials from Electron.
+fn setup_ipc() {}

@@ -193,6 +193,7 @@ export class DesktopAutofillService implements OnDestroy {
   }
 
   listenIpc() {
+    this.logService.debug("Setting up Native -> Electron IPC Handlers")
     ipc.autofill.listenPasskeyRegistration(async (clientId, sequenceNumber, request, callback) => {
       if (!(await this.configService.getFeatureFlag(NativeCredentialSyncFeatureFlag))) {
         this.logService.debug(
@@ -216,6 +217,7 @@ export class DesktopAutofillService implements OnDestroy {
           controller,
         );
 
+        this.logService.debug("Sending registration response to plugin via callback");
         callback(null, this.convertRegistrationResponse(request, response));
       } catch (error) {
         this.logService.error("listenPasskeyRegistration error", error);

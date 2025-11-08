@@ -5162,12 +5162,16 @@ name = "windows_plugin_authenticator"
 version = "0.0.0"
 dependencies = [
  "ciborium",
+ "desktop_core",
+ "futures",
  "hex",
  "reqwest",
  "serde",
  "serde_json",
  "sha2",
  "tokio",
+ "tracing",
+ "tracing-subscriber",
  "windows 0.62.2",
  "windows-core 0.62.2",
 ]

@@ -6,6 +6,8 @@ license = { workspace = true }
 publish = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
+desktop_core = { path = "../core" }
+futures = { workspace = true }
 windows = { workspace = true, features = [
     "Win32_Foundation",
     "Win32_Security",
@@ -17,6 +19,8 @@ hex = { workspace = true }
 reqwest = { version = "0.12", features = ["json", "blocking"] }
 serde_json = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
 ciborium = "0.2"
 sha2 = "0.10"
 tokio = { workspace = true }

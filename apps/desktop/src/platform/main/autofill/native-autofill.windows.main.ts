@@ -28,6 +28,7 @@ export class NativeAutofillWindowsMain {
         "message": "Failed to register windows passkey plugin"
       })
     }
+    /*
     void passkey_authenticator.onRequest(async (error, event) => {
       this.logService.info("Passkey request received:", { error, event });
 
@@ -58,6 +59,7 @@ export class NativeAutofillWindowsMain {
         });
       }
     });
+    */
   }
 
   private async handleAssertionRequest(request: autofill.PasskeyAssertionRequest): Promise<string> {
