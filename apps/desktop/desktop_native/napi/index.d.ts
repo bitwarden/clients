@@ -176,8 +176,8 @@ export declare namespace autofill {
   export interface PasskeyAssertionWithoutUserInterfaceRequest {
     rpId: string
     credentialId: Array<number>
-    userName: string
-    userHandle: Array<number>
+    userName?: string
+    userHandle?: Array<number>
     recordIdentifier?: string
     clientDataHash: Array<number>
     userVerification: UserVerification

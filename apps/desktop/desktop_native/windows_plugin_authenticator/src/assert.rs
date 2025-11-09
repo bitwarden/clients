@@ -7,15 +7,18 @@ use std::{
 };
 use windows_core::{s, HRESULT};
 
-use crate::com_provider::{
-    parse_credential_list, WebAuthnPluginOperationRequest, WebAuthnPluginOperationResponse,
-};
 use crate::ipc2::{
     PasskeyAssertionRequest, PasskeyAssertionResponse, Position, TimedCallback, UserVerification,
     WindowsProviderClient,
 };
 use crate::util::{debug_log, delay_load, wstr_to_string};
 use crate::webauthn::WEBAUTHN_CREDENTIAL_LIST;
+use crate::{
+    com_provider::{
+        parse_credential_list, WebAuthnPluginOperationRequest, WebAuthnPluginOperationResponse,
+    },
+    ipc2::PasskeyAssertionWithoutUserInterfaceRequest,
+};
 
 // Windows API types for WebAuthn (from webauthn.h.sample)
 #[repr(C)]
@@ -134,7 +137,22 @@ fn send_assertion_request(
         .map_err(|err| format!("Failed to serialize assertion request: {err}"))?;
     tracing::debug!(?request_json, "Sending assertion request");
     let callback = Arc::new(TimedCallback::new());
-    ipc_client.prepare_passkey_assertion(request, callback.clone());
+    if request.allowed_credentials.len() == 1 {
+        // copying this into another struct because I'm too lazy to make an enum right now.
+        let request = PasskeyAssertionWithoutUserInterfaceRequest {
+            rp_id: request.rp_id,
+            credential_id: request.allowed_credentials[0].clone(),
+            // user_name: request.user_name,
+            // user_handle: request.,
+            // record_identifier: todo!(),
+            client_data_hash: request.client_data_hash,
+            user_verification: request.user_verification,
+            window_xy: request.window_xy,
+        };
+        ipc_client.prepare_passkey_assertion_without_user_interface(request, callback.clone());
+    } else {
+        ipc_client.prepare_passkey_assertion(request, callback.clone());
+    }
     callback
         .wait_for_response(Duration::from_secs(30))
         .map_err(|_| "Registration request timed out".to_string())?

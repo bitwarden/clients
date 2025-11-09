@@ -18,14 +18,14 @@ pub struct PasskeyAssertionRequest {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PasskeyAssertionWithoutUserInterfaceRequest {
-    rp_id: String,
-    credential_id: Vec<u8>,
-    user_name: String,
-    user_handle: Vec<u8>,
-    record_identifier: Option<String>,
-    client_data_hash: Vec<u8>,
-    user_verification: UserVerification,
-    window_xy: Position,
+    pub rp_id: String,
+    pub credential_id: Vec<u8>,
+    // pub user_name: String,
+    // pub user_handle: Vec<u8>,
+    // pub record_identifier: Option<String>,
+    pub client_data_hash: Vec<u8>,
+    pub user_verification: UserVerification,
+    pub window_xy: Position,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

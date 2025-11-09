@@ -713,8 +713,8 @@ pub mod autofill {
     pub struct PasskeyAssertionWithoutUserInterfaceRequest {
         pub rp_id: String,
         pub credential_id: Vec<u8>,
-        pub user_name: String,
-        pub user_handle: Vec<u8>,
+        pub user_name: Option<String>,
+        pub user_handle: Option<Vec<u8>>,
         pub record_identifier: Option<String>,
         pub client_data_hash: Vec<u8>,
         pub user_verification: UserVerification,
