@@ -90,7 +90,7 @@
   },
   "win": {
     "electronUpdaterCompatibility": ">=0.0.1",
-    "target": ["appx"],
+    "target": ["portable", "nsis-web", "appx"],
     "signtoolOptions": {
       "sign": "./sign.js",
       "publisherName": "CN=com.bitwarden.localdevelopment"
@@ -178,7 +178,7 @@
     "customManifestPath": "./custom-appx-manifest.xml",
     "applicationId": "bitwardendesktop",
     "identityName": "8bitSolutionsLLC.bitwardendesktop",
-    "publisher": "CN=14D52771-DE3C-4886-B8BF-825BA7690418",
+    "publisher": "CN=Bitwarden Inc., O=Bitwarden Inc., L=Santa Barbara, S=California, C=US, SERIALNUMBER=7654941, OID.2.5.4.15=Private Organization, OID.1.3.6.1.4.1.311.60.2.1.2=Delaware, OID.1.3.6.1.4.1.311.60.2.1.3=US",
     "publisherDisplayName": "Bitwarden Inc",
     "languages": [
       "en-US",
