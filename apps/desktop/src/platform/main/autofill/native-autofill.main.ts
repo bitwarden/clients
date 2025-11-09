@@ -1,12 +1,11 @@
 import { ipcMain } from "electron";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { autofill } from "@bitwarden/desktop-napi";
+import { autofill, passkey_authenticator  } from "@bitwarden/desktop-napi";
 
 import { WindowMain } from "../../../main/window.main";
 
 import { CommandDefinition } from "./command";
-import { NativeAutofillWindowsMain } from "./native-autofill.windows.main";
 
 type BufferedMessage = {
   channel: string;
@@ -26,15 +25,10 @@ export class NativeAutofillMain {
   private messageBuffer: BufferedMessage[] = [];
   private listenerReady = false;
 
-  private windowsIpc: NativeAutofillWindowsMain | null
-
   constructor(
     private logService: LogService,
     private windowMain: WindowMain,
   ) {
-    if (process.platform === "win32") {
-      this.windowsIpc = new NativeAutofillWindowsMain(this.logService, this.windowMain);
-    }
   }
 
   /**
@@ -68,8 +62,16 @@ export class NativeAutofillMain {
 
   async init() {
     if (process.platform === "win32") {
-      this.windowsIpc.initWindows();
-      // this.windowsIpc.setupWindowsRendererIPCHandlers();
+      try {
+        passkey_authenticator.register();
+      }
+      catch (err) {
+        this.logService.error("Failed to register windows passkey plugin:", err)
+        return JSON.stringify({
+          "type": "error",
+          "message": "Failed to register windows passkey plugin"
+        })
+      }
     } 
 
     ipcMain.handle(

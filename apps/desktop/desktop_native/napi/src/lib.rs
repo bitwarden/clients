@@ -962,74 +962,11 @@ pub mod autofill {
 
 #[napi]
 pub mod passkey_authenticator {
-    use napi::threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction};
-
-    #[napi(object)]
-    #[derive(Debug)]
-    pub struct PasskeyRequestEvent {
-        pub request_type: String,
-        pub request_json: String,
-    }
-
-    #[napi(object)]
-    #[derive(serde::Serialize, serde::Deserialize)]
-    pub struct SyncedCredential {
-        /// base64url-encoded credential ID.
-        pub credential_id: String, // base64url encoded
-        pub rp_id: String,
-        pub user_name: String,
-        /// base64url-encoded user ID.
-        pub user_handle: String, // base64url encoded
-    }
-
-    #[napi(object)]
-    #[derive(serde::Serialize, serde::Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct PasskeySyncRequest {
-        pub rp_id: String,
-    }
-
-    #[napi(object)]
-    #[derive(serde::Serialize, serde::Deserialize)]
-    #[serde(rename_all = "camelCase")]
-
-    pub struct PasskeySyncResponse {
-        pub credentials: Vec<SyncedCredential>,
-    }
-
-    #[napi(object)]
-    #[derive(serde::Serialize, serde::Deserialize)]
-    #[serde(rename_all = "camelCase")]
-
-    pub struct PasskeyErrorResponse {
-        pub message: String,
-    }
-
     #[napi]
     pub fn register() -> napi::Result<()> {
         crate::passkey_authenticator_internal::register().map_err(|e| {
             napi::Error::from_reason(format!("Passkey registration failed - Error: {e} - {e:?}"))
         })
-    }
-
-    #[napi]
-    pub async fn on_request(
-        #[napi(
-            ts_arg_type = "(error: null | Error, event: PasskeyRequestEvent) => Promise<string>"
-        )]
-        callback: ThreadsafeFunction<PasskeyRequestEvent, CalleeHandled>,
-    ) -> napi::Result<String> {
-        crate::passkey_authenticator_internal::on_request(callback).await
-    }
-
-    #[napi]
-    pub fn sync_credentials_to_windows(credentials: Vec<SyncedCredential>) -> napi::Result<()> {
-        crate::passkey_authenticator_internal::sync_credentials_to_windows(credentials)
-    }
-
-    #[napi]
-    pub fn get_credentials_from_windows() -> napi::Result<Vec<SyncedCredential>> {
-        crate::passkey_authenticator_internal::get_credentials_from_windows()
     }
 }
 

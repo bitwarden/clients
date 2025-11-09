@@ -385,7 +385,7 @@ pub unsafe fn plugin_get_assertion(
         passkey_response.user_handle,
     )
     .map_err(|err| {
-        format!("Failed to create WebAuthn assertion response: {err}");
+        tracing::error!("Failed to create WebAuthn assertion response: {err}");
         HRESULT(-1)
     })?;
     tracing::debug!("Successfully created WebAuthn assertion response");

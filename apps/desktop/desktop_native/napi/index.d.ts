@@ -213,31 +213,7 @@ export declare namespace autofill {
   }
 }
 export declare namespace passkey_authenticator {
-  export interface PasskeyRequestEvent {
-    requestType: string
-    requestJson: string
-  }
-  export interface SyncedCredential {
-    /** base64url-encoded credential ID. */
-    credentialId: string
-    rpId: string
-    userName: string
-    /** base64url-encoded user ID. */
-    userHandle: string
-  }
-  export interface PasskeySyncRequest {
-    rpId: string
-  }
-  export interface PasskeySyncResponse {
-    credentials: Array<SyncedCredential>
-  }
-  export interface PasskeyErrorResponse {
-    message: string
-  }
   export function register(): void
-  export function onRequest(callback: (error: null | Error, event: PasskeyRequestEvent) => Promise<string>): Promise<string>
-  export function syncCredentialsToWindows(credentials: Array<SyncedCredential>): void
-  export function getCredentialsFromWindows(): Array<SyncedCredential>
 }
 export declare namespace logging {
   export const enum LogLevel {
