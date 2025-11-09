@@ -1,5 +1,6 @@
-use windows::Win32::Foundation::S_OK;
+use windows::Win32::Foundation::{RECT, S_OK};
 use windows::Win32::System::Com::*;
+use windows::Win32::UI::WindowsAndMessaging::GetWindowRect;
 use windows_core::{implement, interface, IInspectable, IUnknown, Interface, HRESULT};
 
 use crate::assert::plugin_get_assertion;
@@ -39,6 +40,18 @@ pub struct WebAuthnPluginOperationRequest {
     pub encoded_request_pointer: *mut u8,
 }
 
+impl WebAuthnPluginOperationRequest {
+    pub fn window_coordinates(&self) -> Result<(i32, i32), windows::core::Error> {
+        let mut window: RECT = RECT::default();
+        unsafe {
+            GetWindowRect(self.window_handle, &mut window)?;
+        }
+        // TODO: This isn't quite right, but it's closer than what we had
+        let center_x = (window.right + window.left) / 2;
+        let center_y = (window.bottom + window.top) / 2;
+        Ok((center_x, center_y))
+    }
+}
 /// Used as a response when creating and asserting credentials.
 /// Header File Name: _WEBAUTHN_PLUGIN_OPERATION_RESPONSE
 /// Header File Usage: MakeCredential()

@@ -1,42 +1,20 @@
 use serde_json;
-use std::alloc::{alloc, Layout};
 use std::collections::HashMap;
 use std::mem::ManuallyDrop;
-use std::sync::mpsc::Receiver;
-use std::sync::Mutex;
-use std::sync::{
-    mpsc::{self, Sender},
-    Arc,
-};
+use std::ptr;
+use std::sync::Arc;
 use std::time::Duration;
-use std::{ptr, slice};
 use windows_core::{s, HRESULT};
 
 use crate::com_provider::{
     parse_credential_list, WebAuthnPluginOperationRequest, WebAuthnPluginOperationResponse,
 };
 use crate::ipc2::{
-    self, BitwardenError, PasskeyAssertionRequest, PasskeyAssertionResponse,
-    PasskeyRegistrationRequest, PasskeyRegistrationResponse, Position,
-    PreparePasskeyAssertionCallback, PreparePasskeyRegistrationCallback, TimedCallback,
+    PasskeyRegistrationRequest, PasskeyRegistrationResponse, Position, TimedCallback,
     UserVerification, WindowsProviderClient,
 };
-use crate::types::UserVerificationRequirement;
 use crate::util::{debug_log, delay_load, wstr_to_string, WindowsString};
 use crate::webauthn::WEBAUTHN_CREDENTIAL_LIST;
-
-/// Windows WebAuthn registration request context  
-#[derive(Debug, Clone)]
-pub struct WindowsRegistrationRequest {
-    pub rpid: String,
-    pub user_id: Vec<u8>,
-    pub user_name: String,
-    pub user_display_name: Option<String>,
-    pub client_data_hash: Vec<u8>,
-    pub excluded_credentials: Vec<Vec<u8>>,
-    pub user_verification: UserVerificationRequirement,
-    pub supported_algorithms: Vec<i32>,
-}
 
 // Windows API types for WebAuthn (from webauthn.h.sample)
 #[repr(C)]
@@ -331,34 +309,16 @@ unsafe fn decode_make_credential_request(
 /// Helper for registration requests  
 fn send_registration_request(
     ipc_client: &WindowsProviderClient,
-    transaction_id: &str,
-    request: &WindowsRegistrationRequest,
+    request: PasskeyRegistrationRequest,
 ) -> Result<PasskeyRegistrationResponse, String> {
     debug_log(&format!("Registration request data - RP ID: {}, User ID: {} bytes, User name: {}, Client data hash: {} bytes, Algorithms: {:?}, Excluded credentials: {}", 
-        request.rpid, request.user_id.len(), request.user_name, request.client_data_hash.len(), request.supported_algorithms, request.excluded_credentials.len()));
+        request.rp_id, request.user_handle.len(), request.user_name, request.client_data_hash.len(), request.supported_algorithms, request.excluded_credentials.len()));
 
-    let user_verification = match request.user_verification {
-        UserVerificationRequirement::Discouraged => UserVerification::Discouraged,
-        UserVerificationRequirement::Preferred => UserVerification::Preferred,
-        UserVerificationRequirement::Required => UserVerification::Required,
-    };
-    let passkey_request = PasskeyRegistrationRequest {
-        rp_id: request.rpid.clone(),
-        // transaction_id: transaction_id.to_string(),
-        user_handle: request.user_id.clone(),
-        user_name: request.user_name.clone(),
-        client_data_hash: request.client_data_hash.clone(),
-        user_verification,
-        window_xy: Position { x: 400, y: 400 }, // TODO: Get actual window position
-        supported_algorithms: request.supported_algorithms.clone(),
-        excluded_credentials: request.excluded_credentials.clone(),
-    };
-
-    let request_json = serde_json::to_string(&passkey_request)
+    let request_json = serde_json::to_string(&request)
         .map_err(|err| format!("Failed to serialize registration request: {err}"))?;
     tracing::debug!("Sending registration request: {}", request_json);
     let callback = Arc::new(TimedCallback::new());
-    ipc_client.prepare_passkey_registration(passkey_request, callback.clone());
+    ipc_client.prepare_passkey_registration(request, callback.clone());
     callback
         .wait_for_response(Duration::from_secs(30))
         .map_err(|_| "Registration request timed out".to_string())?
@@ -513,6 +473,8 @@ pub unsafe fn plugin_make_credential(
     let req = &*request;
     let transaction_id = format!("{:?}", req.transaction_id);
 
+    let coords = req.window_coordinates().unwrap_or((400, 400));
+
     if req.encoded_request_byte_count == 0 || req.encoded_request_pointer.is_null() {
         tracing::error!("No encoded request data provided");
         return Err(HRESULT(-1));
@@ -643,12 +605,12 @@ pub unsafe fn plugin_make_credential(
     let user_verification = if !decoded_request.pAuthenticatorOptions.is_null() {
         let auth_options = &*decoded_request.pAuthenticatorOptions;
         match auth_options.user_verification {
-            1 => Some(UserVerificationRequirement::Required),
-            -1 => Some(UserVerificationRequirement::Discouraged),
-            0 | _ => Some(UserVerificationRequirement::Preferred), // Default or undefined
+            1 => UserVerification::Required,
+            -1 => UserVerification::Discouraged,
+            0 | _ => UserVerification::Preferred, // Default or undefined
         }
     } else {
-        None
+        UserVerification::Preferred // Default or undefined
     };
 
     // Extract excluded credentials from credential list
@@ -661,15 +623,19 @@ pub unsafe fn plugin_make_credential(
     }
 
     // Create Windows registration request
-    let registration_request = WindowsRegistrationRequest {
-        rpid: rpid.clone(),
-        user_id: user_info.0,
+    let registration_request = PasskeyRegistrationRequest {
+        rp_id: rpid.clone(),
+        user_handle: user_info.0,
         user_name: user_info.1,
-        user_display_name: user_info.2,
+        // user_display_name: user_info.2,
         client_data_hash,
         excluded_credentials,
-        user_verification: user_verification.unwrap_or_default(),
+        user_verification: user_verification,
         supported_algorithms,
+        window_xy: Position {
+            x: coords.0,
+            y: coords.1,
+        },
     };
 
     debug_log(&format!(
@@ -679,12 +645,10 @@ pub unsafe fn plugin_make_credential(
 
     // Send registration request
     let passkey_response =
-        send_registration_request(ipc_client, &transaction_id, &registration_request).map_err(
-            |err| {
-                tracing::error!("Registration request failed: {err}");
-                HRESULT(-1)
-            },
-        )?;
+        send_registration_request(ipc_client, registration_request).map_err(|err| {
+            tracing::error!("Registration request failed: {err}");
+            HRESULT(-1)
+        })?;
     debug_log(&format!(
         "Registration response received: {:?}",
         passkey_response

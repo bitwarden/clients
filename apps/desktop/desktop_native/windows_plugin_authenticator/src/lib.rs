@@ -14,9 +14,7 @@ mod util;
 mod webauthn;
 
 // Re-export main functionality
-pub use assert::WindowsAssertionRequest;
 pub use com_registration::{add_authenticator, initialize_com_library, register_com_library};
-pub use make_credential::WindowsRegistrationRequest;
 pub use types::UserVerificationRequirement;
 
 /// Handles initialization and registration for the Bitwarden desktop app as a

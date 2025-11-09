@@ -14,7 +14,6 @@ use crate::ipc2::{
     PasskeyAssertionRequest, PasskeyAssertionResponse, Position, TimedCallback, UserVerification,
     WindowsProviderClient,
 };
-use crate::types::UserVerificationRequirement;
 use crate::util::{debug_log, delay_load, wstr_to_string};
 use crate::webauthn::WEBAUTHN_CREDENTIAL_LIST;
 
@@ -119,47 +118,23 @@ unsafe fn decode_get_assertion_request(
     ))
 }
 
-/// Windows WebAuthn assertion request context
-#[derive(Debug, Clone)]
-pub struct WindowsAssertionRequest {
-    pub rpid: String,
-    pub client_data_hash: Vec<u8>,
-    pub allowed_credentials: Vec<Vec<u8>>,
-    pub user_verification: UserVerificationRequirement,
-}
-
 /// Helper for assertion requests
 fn send_assertion_request(
     ipc_client: &WindowsProviderClient,
-    transaction_id: &str,
-    request: &WindowsAssertionRequest,
+    request: PasskeyAssertionRequest,
 ) -> Result<PasskeyAssertionResponse, String> {
-    let user_verification = match request.user_verification {
-        UserVerificationRequirement::Discouraged => UserVerification::Discouraged,
-        UserVerificationRequirement::Preferred => UserVerification::Preferred,
-        UserVerificationRequirement::Required => UserVerification::Required,
-    };
-    let passkey_request = PasskeyAssertionRequest {
-        rp_id: request.rpid.clone(),
-        // transaction_id: transaction_id.to_string(),
-        client_data_hash: request.client_data_hash.clone(),
-        allowed_credentials: request.allowed_credentials.clone(),
-        user_verification,
-        window_xy: Position { x: 400, y: 400 },
-    };
-
     tracing::debug!(
         "Assertion request data - RP ID: {}, Client data hash: {} bytes, Allowed credentials: {:?}",
-        passkey_request.rp_id,
-        passkey_request.client_data_hash.len(),
-        passkey_request.allowed_credentials,
+        request.rp_id,
+        request.client_data_hash.len(),
+        request.allowed_credentials,
     );
 
-    let request_json = serde_json::to_string(&passkey_request)
+    let request_json = serde_json::to_string(&request)
         .map_err(|err| format!("Failed to serialize assertion request: {err}"))?;
     tracing::debug!(?request_json, "Sending assertion request");
     let callback = Arc::new(TimedCallback::new());
-    ipc_client.prepare_passkey_assertion(passkey_request, callback.clone());
+    ipc_client.prepare_passkey_assertion(request, callback.clone());
     callback
         .wait_for_response(Duration::from_secs(30))
         .map_err(|_| "Registration request timed out".to_string())?
@@ -288,6 +263,7 @@ pub unsafe fn plugin_get_assertion(
 
     let req = &*request;
     let transaction_id = format!("{:?}", req.transaction_id);
+    let coords = req.window_coordinates().unwrap_or((400, 400));
 
     debug_log(&format!(
         "Get assertion request - Transaction: {}",
@@ -343,33 +319,38 @@ pub unsafe fn plugin_get_assertion(
     let user_verification = if !decoded_request.pAuthenticatorOptions.is_null() {
         let auth_options = &*decoded_request.pAuthenticatorOptions;
         match auth_options.user_verification {
-            1 => Some(UserVerificationRequirement::Required),
-            -1 => Some(UserVerificationRequirement::Discouraged),
-            0 | _ => Some(UserVerificationRequirement::Preferred), // Default or undefined
+            1 => UserVerification::Required,
+            -1 => UserVerification::Discouraged,
+            0 | _ => UserVerification::Preferred, // Default or undefined
         }
     } else {
-        None
+        UserVerification::Preferred // Default or undefined
     };
 
     // Extract allowed credentials from credential list
     let allowed_credentials = parse_credential_list(&decoded_request.CredentialList);
 
     // Create Windows assertion request
-    let assertion_request = WindowsAssertionRequest {
-        rpid: rpid.clone(),
+    let assertion_request = PasskeyAssertionRequest {
+        rp_id: rpid.clone(),
         client_data_hash,
         allowed_credentials: allowed_credentials.clone(),
-        user_verification: user_verification.unwrap_or_default(),
+        window_xy: Position {
+            x: coords.0,
+            y: coords.1,
+        },
+        user_verification,
     };
 
-    debug_log(&format!(
+    tracing::debug!(
         "Get assertion request - RP: {}, Allowed credentials: {:?}",
-        rpid, allowed_credentials
-    ));
+        rpid,
+        allowed_credentials
+    );
 
     // Send assertion request
-    let passkey_response = send_assertion_request(ipc_client, &transaction_id, &assertion_request)
-        .map_err(|err| {
+    let passkey_response =
+        send_assertion_request(ipc_client, assertion_request).map_err(|err| {
             tracing::error!("Assertion request failed: {err}");
             HRESULT(-1)
         })?;
