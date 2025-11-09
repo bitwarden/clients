@@ -7,12 +7,12 @@ use super::{BitwardenError, Callback, Position, UserVerification};
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PasskeyAssertionRequest {
-    rp_id: String,
-    client_data_hash: Vec<u8>,
-    user_verification: UserVerification,
-    allowed_credentials: Vec<Vec<u8>>,
-    window_xy: Position,
-    //extension_input: Vec<u8>, TODO: Implement support for extensions
+    pub rp_id: String,
+    pub client_data_hash: Vec<u8>,
+    pub user_verification: UserVerification,
+    pub allowed_credentials: Vec<Vec<u8>>,
+    pub window_xy: Position,
+    // pub extension_input: Vec<u8>, TODO: Implement support for extensions
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -28,15 +28,15 @@ pub struct PasskeyAssertionWithoutUserInterfaceRequest {
     window_xy: Position,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PasskeyAssertionResponse {
-    rp_id: String,
-    user_handle: Vec<u8>,
-    signature: Vec<u8>,
-    client_data_hash: Vec<u8>,
-    authenticator_data: Vec<u8>,
-    credential_id: Vec<u8>,
+    pub rp_id: String,
+    pub user_handle: Vec<u8>,
+    pub signature: Vec<u8>,
+    pub client_data_hash: Vec<u8>,
+    pub authenticator_data: Vec<u8>,
+    pub credential_id: Vec<u8>,
 }
 
 pub trait PreparePasskeyAssertionCallback: Send + Sync {

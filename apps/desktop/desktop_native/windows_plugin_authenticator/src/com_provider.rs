@@ -82,7 +82,7 @@ pub unsafe fn parse_credential_list(credential_list: &WEBAUTHN_CREDENTIAL_LIST) 
     let mut allowed_credentials = Vec::new();
 
     if credential_list.cCredentials == 0 || credential_list.ppCredentials.is_null() {
-        debug_log("No credentials in credential list");
+        tracing::debug!("No credentials in credential list");
         return allowed_credentials;
     }
 
@@ -99,7 +99,7 @@ pub unsafe fn parse_credential_list(credential_list: &WEBAUTHN_CREDENTIAL_LIST) 
 
     for (i, &credential_ptr) in credentials_array.iter().enumerate() {
         if credential_ptr.is_null() {
-            debug_log(&format!("WARNING: Credential {} is null, skipping", i));
+            tracing::debug!("WARNING: Credential {} is null, skipping", i);
             continue;
         }
 
@@ -145,11 +145,11 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
         request: *const WebAuthnPluginOperationRequest,
         response: *mut WebAuthnPluginOperationResponse,
     ) -> HRESULT {
-        debug_log("MakeCredential() called");
-        debug_log("version2");
+        tracing::debug!("MakeCredential() called");
+        tracing::debug!("version2");
         // Convert to legacy format for internal processing
         if request.is_null() || response.is_null() {
-            debug_log("MakeCredential: Invalid request or response pointers passed");
+            tracing::debug!("MakeCredential: Invalid request or response pointers passed");
             return HRESULT(-1);
         }
 
@@ -164,23 +164,27 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
         request: *const WebAuthnPluginOperationRequest,
         response: *mut WebAuthnPluginOperationResponse,
     ) -> HRESULT {
-        debug_log("GetAssertion() called");
+        tracing::debug!("GetAssertion() called");
         if request.is_null() || response.is_null() {
             return HRESULT(-1);
         }
-        plugin_get_assertion(request, response)
+
+        match plugin_get_assertion(&self.client, request, response) {
+            Ok(()) => S_OK,
+            Err(err) => err,
+        }
     }
 
     unsafe fn CancelOperation(
         &self,
         _request: *const WebAuthnPluginCancelOperationRequest,
     ) -> HRESULT {
-        debug_log("CancelOperation() called");
+        tracing::debug!("CancelOperation() called");
         HRESULT(0)
     }
 
     unsafe fn GetLockStatus(&self, lock_status: *mut PluginLockStatus) -> HRESULT {
-        debug_log("GetLockStatus() called");
+        tracing::debug!("GetLockStatus() called");
         if lock_status.is_null() {
             return HRESULT(-2147024809); // E_INVALIDARG
         }
@@ -196,10 +200,10 @@ impl IClassFactory_Impl for Factory_Impl {
         iid: *const windows_core::GUID,
         object: *mut *mut core::ffi::c_void,
     ) -> windows_core::Result<()> {
-        debug_log("Creating COM server instance.");
-        debug_log("Trying to connect to Bitwarden IPC");
+        tracing::debug!("Creating COM server instance.");
+        tracing::debug!("Trying to connect to Bitwarden IPC");
         let client = WindowsProviderClient::connect();
-        debug_log("Connected to Bitwarden IPC");
+        tracing::debug!("Connected to Bitwarden IPC");
         let unknown: IInspectable = PluginAuthenticatorComObject { client }.into(); // TODO: IUnknown ?
         unsafe { unknown.query(iid, object).ok() }
     }

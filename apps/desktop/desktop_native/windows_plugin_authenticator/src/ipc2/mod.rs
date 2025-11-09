@@ -2,8 +2,12 @@ use std::{
     collections::HashMap,
     error::Error,
     fmt::Display,
-    sync::{atomic::AtomicU32, Arc, Mutex, Once},
-    time::Instant,
+    sync::{
+        atomic::AtomicU32,
+        mpsc::{self, Receiver, Sender},
+        Arc, Mutex, Once,
+    },
+    time::{Duration, Instant},
 };
 
 use futures::FutureExt;
@@ -306,5 +310,60 @@ impl WindowsProviderClient {
                 }
             }
         }
+    }
+}
+
+pub struct TimedCallback<T> {
+    tx: Mutex<Option<Sender<Result<T, BitwardenError>>>>,
+    rx: Mutex<Receiver<Result<T, BitwardenError>>>,
+}
+
+impl<T> TimedCallback<T> {
+    pub fn new() -> Self {
+        let (tx, rx) = mpsc::channel();
+        Self {
+            tx: Mutex::new(Some(tx)),
+            rx: Mutex::new(rx),
+        }
+    }
+
+    pub fn wait_for_response(
+        &self,
+        timeout: Duration,
+    ) -> Result<Result<T, BitwardenError>, mpsc::RecvTimeoutError> {
+        self.rx.lock().unwrap().recv_timeout(timeout)
+    }
+
+    fn send(&self, response: Result<T, BitwardenError>) {
+        match self.tx.lock().unwrap().take() {
+            Some(tx) => {
+                if let Err(_) = tx.send(response) {
+                    tracing::error!("Windows provider channel closed before receiving IPC response from Electron")
+                }
+            }
+            None => {
+                tracing::error!("Callback channel used before response: multi-threading issue?");
+            }
+        }
+    }
+}
+
+impl PreparePasskeyRegistrationCallback for TimedCallback<PasskeyRegistrationResponse> {
+    fn on_complete(&self, credential: PasskeyRegistrationResponse) {
+        self.send(Ok(credential));
+    }
+
+    fn on_error(&self, error: BitwardenError) {
+        self.send(Err(error))
+    }
+}
+
+impl PreparePasskeyAssertionCallback for TimedCallback<PasskeyAssertionResponse> {
+    fn on_complete(&self, credential: PasskeyAssertionResponse) {
+        self.send(Ok(credential));
+    }
+
+    fn on_error(&self, error: BitwardenError) {
+        self.send(Err(error))
     }
 }

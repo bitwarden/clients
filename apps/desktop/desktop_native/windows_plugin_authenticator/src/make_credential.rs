@@ -18,8 +18,8 @@ use crate::com_provider::{
 use crate::ipc2::{
     self, BitwardenError, PasskeyAssertionRequest, PasskeyAssertionResponse,
     PasskeyRegistrationRequest, PasskeyRegistrationResponse, Position,
-    PreparePasskeyAssertionCallback, PreparePasskeyRegistrationCallback, UserVerification,
-    WindowsProviderClient,
+    PreparePasskeyAssertionCallback, PreparePasskeyRegistrationCallback, TimedCallback,
+    UserVerification, WindowsProviderClient,
 };
 use crate::types::UserVerificationRequirement;
 use crate::util::{debug_log, delay_load, wstr_to_string, WindowsString};
@@ -262,7 +262,7 @@ impl Drop for DecodedMakeCredentialRequest {
     fn drop(&mut self) {
         if !self.ptr.is_null() {
             if let Some(free_fn) = self.free_fn {
-                debug_log("Freeing decoded make credential request");
+                tracing::debug!("Freeing decoded make credential request");
                 unsafe {
                     free_fn(self.ptr as *mut WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST);
                 }
@@ -275,7 +275,7 @@ impl Drop for DecodedMakeCredentialRequest {
 unsafe fn decode_make_credential_request(
     encoded_request: &[u8],
 ) -> Result<DecodedMakeCredentialRequest, String> {
-    debug_log("Attempting to decode make credential request using Windows API");
+    tracing::debug!("Attempting to decode make credential request using Windows API");
 
     // Try to load the Windows API decode function
     let decode_fn = match delay_load::<WebAuthNDecodeMakeCredentialRequestFn>(
@@ -318,7 +318,7 @@ unsafe fn decode_make_credential_request(
     }
 
     if make_credential_request.is_null() {
-        debug_log("ERROR: Windows API succeeded but returned null pointer");
+        tracing::debug!("ERROR: Windows API succeeded but returned null pointer");
         return Err("Windows API returned null pointer".to_string());
     }
 
@@ -356,86 +356,13 @@ fn send_registration_request(
 
     let request_json = serde_json::to_string(&passkey_request)
         .map_err(|err| format!("Failed to serialize registration request: {err}"))?;
-    debug_log(&format!("Sending registration request: {}", request_json));
-    let callback = Arc::new(Callback::new());
+    tracing::debug!("Sending registration request: {}", request_json);
+    let callback = Arc::new(TimedCallback::new());
     ipc_client.prepare_passkey_registration(passkey_request, callback.clone());
     callback
         .wait_for_response(Duration::from_secs(30))
         .map_err(|_| "Registration request timed out".to_string())?
         .map_err(|err| err.to_string())
-
-    /*
-    {
-        Ok(Ok(response)) => {
-            tracing::debug!("Received registration response from Electron: {response:?}");
-            Some(response)
-        }
-        Ok(Err(err)) => {
-            tracing::error!("Registration request failed: {err}");
-            None
-        }
-        Err(_) => {
-            tracing::error!("Timed out waiting for registration response");
-            None
-        }
-    }
-    */
-    // crate::ipc::send_passkey_request(RequestType::Registration, request_json, &request.rpid)
-}
-
-struct Callback<T> {
-    tx: Mutex<Option<Sender<Result<T, BitwardenError>>>>,
-    rx: Mutex<Receiver<Result<T, BitwardenError>>>,
-}
-
-impl<T> Callback<T> {
-    fn new() -> Self {
-        let (tx, rx) = mpsc::channel();
-        Self {
-            tx: Mutex::new(Some(tx)),
-            rx: Mutex::new(rx),
-        }
-    }
-
-    fn wait_for_response(
-        &self,
-        timeout: Duration,
-    ) -> Result<Result<T, BitwardenError>, mpsc::RecvTimeoutError> {
-        self.rx.lock().unwrap().recv_timeout(timeout)
-    }
-
-    fn send(&self, response: Result<T, BitwardenError>) {
-        match self.tx.lock().unwrap().take() {
-            Some(tx) => {
-                if let Err(_) = tx.send(response) {
-                    tracing::error!("Windows provider channel closed before receiving IPC response from Electron")
-                }
-            }
-            None => {
-                tracing::error!("Callback channel used before response: multi-threading issue?");
-            }
-        }
-    }
-}
-
-impl PreparePasskeyRegistrationCallback for Callback<PasskeyRegistrationResponse> {
-    fn on_complete(&self, credential: PasskeyRegistrationResponse) {
-        self.send(Ok(credential));
-    }
-
-    fn on_error(&self, error: BitwardenError) {
-        self.send(Err(error))
-    }
-}
-
-impl PreparePasskeyAssertionCallback for Callback<PasskeyAssertionResponse> {
-    fn on_complete(&self, credential: PasskeyAssertionResponse) {
-        self.send(Ok(credential));
-    }
-
-    fn on_error(&self, error: BitwardenError) {
-        self.send(Err(error))
-    }
 }
 
 /// Creates a CTAP make credential response from Bitwarden's WebAuthn registration response
@@ -560,7 +487,7 @@ unsafe fn create_make_credential_response(
             encoded_response_pointer: response_ptr,
         },
     );
-    debug_log(&format!("CTAP-encoded attestation object: {response:?}"));
+    tracing::debug!("CTAP-encoded attestation object: {response:?}");
     Ok(operation_response_ptr)
     */
 }
@@ -571,15 +498,15 @@ pub unsafe fn plugin_make_credential(
     request: *const WebAuthnPluginOperationRequest,
     response: *mut WebAuthnPluginOperationResponse,
 ) -> Result<(), HRESULT> {
-    debug_log("=== PluginMakeCredential() called ===");
+    tracing::debug!("=== PluginMakeCredential() called ===");
 
     if request.is_null() {
-        debug_log("ERROR: NULL request pointer");
+        tracing::debug!("ERROR: NULL request pointer");
         return Err(HRESULT(-1));
     }
 
     if response.is_null() {
-        debug_log("ERROR: NULL response pointer");
+        tracing::debug!("ERROR: NULL response pointer");
         return Err(HRESULT(-1));
     }
 
@@ -587,7 +514,7 @@ pub unsafe fn plugin_make_credential(
     let transaction_id = format!("{:?}", req.transaction_id);
 
     if req.encoded_request_byte_count == 0 || req.encoded_request_pointer.is_null() {
-        debug_log("ERROR: No encoded request data provided");
+        tracing::debug!("ERROR: No encoded request data provided");
         return Err(HRESULT(-1));
     }
 
@@ -609,24 +536,24 @@ pub unsafe fn plugin_make_credential(
         HRESULT(-1)
     })?;
     let decoded_request = decoded_wrapper.as_ref();
-    debug_log("Successfully decoded make credential request using Windows API");
+    tracing::debug!("Successfully decoded make credential request using Windows API");
 
     // Extract RP information
     if decoded_request.pRpInformation.is_null() {
-        debug_log("ERROR: RP information is null");
+        tracing::debug!("ERROR: RP information is null");
         return Err(HRESULT(-1));
     }
 
     let rp_info = &*decoded_request.pRpInformation;
 
     let rpid = if rp_info.pwszId.is_null() {
-        debug_log("ERROR: RP ID is null");
+        tracing::debug!("ERROR: RP ID is null");
         return Err(HRESULT(-1));
     } else {
         match wstr_to_string(rp_info.pwszId) {
             Ok(id) => id,
             Err(e) => {
-                debug_log(&format!("ERROR: Failed to decode RP ID: {}", e));
+                tracing::debug!("ERROR: Failed to decode RP ID: {}", e);
                 return Err(HRESULT(-1));
             }
         }
@@ -640,14 +567,14 @@ pub unsafe fn plugin_make_credential(
 
     // Extract user information
     if decoded_request.pUserInformation.is_null() {
-        debug_log("ERROR: User information is null");
+        tracing::debug!("ERROR: User information is null");
         return Err(HRESULT(-1));
     }
 
     let user = &*decoded_request.pUserInformation;
 
     let user_id = if user.pbId.is_null() || user.cbId == 0 {
-        debug_log("ERROR: User ID is required for registration");
+        tracing::debug!("ERROR: User ID is required for registration");
         return Err(HRESULT(-1));
     } else {
         let id_slice = std::slice::from_raw_parts(user.pbId, user.cbId as usize);
@@ -655,13 +582,13 @@ pub unsafe fn plugin_make_credential(
     };
 
     let user_name = if user.pwszName.is_null() {
-        debug_log("ERROR: User name is required for registration");
+        tracing::debug!("ERROR: User name is required for registration");
         return Err(HRESULT(-1));
     } else {
         match wstr_to_string(user.pwszName) {
             Ok(name) => name,
             Err(_) => {
-                debug_log("ERROR: Failed to decode user name");
+                tracing::debug!("ERROR: Failed to decode user name");
                 return Err(HRESULT(-1));
             }
         }
@@ -678,7 +605,7 @@ pub unsafe fn plugin_make_credential(
     // Extract client data hash
     let client_data_hash =
         if decoded_request.cbClientDataHash == 0 || decoded_request.pbClientDataHash.is_null() {
-            debug_log("ERROR: Client data hash is required for registration");
+            tracing::debug!("ERROR: Client data hash is required for registration");
             return Err(HRESULT(-1));
         } else {
             let hash_slice = std::slice::from_raw_parts(
@@ -764,10 +691,10 @@ pub unsafe fn plugin_make_credential(
     ));
 
     // Create proper WebAuthn response from passkey_response
-    debug_log("Creating WebAuthn make credential response");
+    tracing::debug!("Creating WebAuthn make credential response");
     let mut webauthn_response =
         create_make_credential_response(passkey_response.attestation_object).map_err(|err| {
-            debug_log(&format!("ERROR: Failed to create WebAuthn response: {err}"));
+            tracing::debug!("ERROR: Failed to create WebAuthn response: {err}");
             HRESULT(-1)
         })?;
     debug_log(&format!(
@@ -775,7 +702,7 @@ pub unsafe fn plugin_make_credential(
     ));
     (*response).encoded_response_byte_count = webauthn_response.len() as u32;
     (*response).encoded_response_pointer = webauthn_response.as_mut_ptr();
-    debug_log(&format!("Set pointer, returning HRESULT(0)"));
+    tracing::debug!("Set pointer, returning HRESULT(0)");
     _ = ManuallyDrop::new(webauthn_response);
     Ok(())
 }
