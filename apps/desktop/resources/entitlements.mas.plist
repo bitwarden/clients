@@ -32,8 +32,9 @@
 		<string>/Library/Application Support/Microsoft Edge Beta/NativeMessagingHosts/</string>
 		<string>/Library/Application Support/Microsoft Edge Dev/NativeMessagingHosts/</string>
 		<string>/Library/Application Support/Microsoft Edge Canary/NativeMessagingHosts/</string>
-        <string>/Library/Application Support/Vivaldi/NativeMessagingHosts/</string>
+		<string>/Library/Application Support/Vivaldi/NativeMessagingHosts/</string>
 		<string>/Library/Application Support/Zen/NativeMessagingHosts/</string>
+		<string>/Library/Application Support/net.imput.helium</string>
 	</array>
 	<key>com.apple.security.cs.allow-jit</key>
 	<true/>
