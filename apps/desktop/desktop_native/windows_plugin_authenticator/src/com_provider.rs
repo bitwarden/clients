@@ -166,10 +166,12 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
             return HRESULT(-1);
         }
 
-        match plugin_make_credential(&self.client, request, response) {
+        let response = match plugin_make_credential(&self.client, request, response) {
             Ok(()) => S_OK,
             Err(err) => err,
-        }
+        };
+        tracing::debug!("MakeCredential() completed");
+        response
     }
 
     unsafe fn GetAssertion(
