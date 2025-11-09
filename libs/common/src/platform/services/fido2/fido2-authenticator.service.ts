@@ -190,7 +190,7 @@ export class Fido2AuthenticatorService<ParentWindowReference>
         }
         const reencrypted = await this.cipherService.encrypt(cipher, activeUserId);
         await this.cipherService.updateWithServer(reencrypted);
-        await this.cipherService.clearCache(activeUserId);
+        // await this.cipherService.clearCache(activeUserId);
         credentialId = fido2Credential.credentialId;
       } catch (error) {
         this.logService?.error(

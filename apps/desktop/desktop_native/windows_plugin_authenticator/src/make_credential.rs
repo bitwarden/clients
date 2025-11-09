@@ -319,10 +319,15 @@ fn send_registration_request(
     tracing::debug!("Sending registration request: {}", request_json);
     let callback = Arc::new(TimedCallback::new());
     ipc_client.prepare_passkey_registration(request, callback.clone());
-    callback
+    let response = callback
         .wait_for_response(Duration::from_secs(30))
         .map_err(|_| "Registration request timed out".to_string())?
-        .map_err(|err| err.to_string())
+        .map_err(|err| err.to_string());
+    if response.is_ok() {
+        tracing::debug!("Requesting credential sync after registering a new credential.");
+        ipc_client.send_native_status("request-sync".to_string(), "".to_string());
+    }
+    response
 }
 
 /// Creates a CTAP make credential response from Bitwarden's WebAuthn registration response
