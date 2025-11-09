@@ -295,7 +295,7 @@ pub unsafe fn plugin_get_assertion(
     ));
 
     if req.encoded_request_byte_count == 0 || req.encoded_request_pointer.is_null() {
-        tracing::debug!("ERROR: No encoded request data provided");
+        tracing::error!("No encoded request data provided");
         return Err(HRESULT(-1));
     }
 
@@ -314,13 +314,13 @@ pub unsafe fn plugin_get_assertion(
 
     // Extract RP information
     let rpid = if decoded_request.pwszRpId.is_null() {
-        tracing::debug!("ERROR: RP ID is null");
+        tracing::error!("RP ID is null");
         return Err(HRESULT(-1));
     } else {
         match wstr_to_string(decoded_request.pwszRpId) {
             Ok(id) => id,
             Err(e) => {
-                tracing::debug!("ERROR: Failed to decode RP ID: {}", e);
+                tracing::error!("Failed to decode RP ID: {}", e);
                 return Err(HRESULT(-1));
             }
         }
@@ -329,7 +329,7 @@ pub unsafe fn plugin_get_assertion(
     // Extract client data hash
     let client_data_hash =
         if decoded_request.cbClientDataHash == 0 || decoded_request.pbClientDataHash.is_null() {
-            tracing::debug!("ERROR: Client data hash is required for assertion");
+            tracing::error!("Client data hash is required for assertion");
             return Err(HRESULT(-1));
         } else {
             let hash_slice = std::slice::from_raw_parts(

@@ -327,7 +327,7 @@ fn sync_credentials_to_windows(
                 Ok(())
             }
             Err(e) => {
-                tracing::debug!("ERROR: Failed to add credentials to Windows: {}", e);
+                tracing::error!("Failed to add credentials to Windows: {}", e);
                 Err(e)
             }
         }

@@ -318,7 +318,7 @@ unsafe fn decode_make_credential_request(
     }
 
     if make_credential_request.is_null() {
-        tracing::debug!("ERROR: Windows API succeeded but returned null pointer");
+        tracing::error!("Windows API succeeded but returned null pointer");
         return Err("Windows API returned null pointer".to_string());
     }
 
@@ -501,12 +501,12 @@ pub unsafe fn plugin_make_credential(
     tracing::debug!("=== PluginMakeCredential() called ===");
 
     if request.is_null() {
-        tracing::debug!("ERROR: NULL request pointer");
+        tracing::error!("NULL request pointer");
         return Err(HRESULT(-1));
     }
 
     if response.is_null() {
-        tracing::debug!("ERROR: NULL response pointer");
+        tracing::error!("NULL response pointer");
         return Err(HRESULT(-1));
     }
 
@@ -514,7 +514,7 @@ pub unsafe fn plugin_make_credential(
     let transaction_id = format!("{:?}", req.transaction_id);
 
     if req.encoded_request_byte_count == 0 || req.encoded_request_pointer.is_null() {
-        tracing::debug!("ERROR: No encoded request data provided");
+        tracing::error!("No encoded request data provided");
         return Err(HRESULT(-1));
     }
 
@@ -540,20 +540,20 @@ pub unsafe fn plugin_make_credential(
 
     // Extract RP information
     if decoded_request.pRpInformation.is_null() {
-        tracing::debug!("ERROR: RP information is null");
+        tracing::error!("RP information is null");
         return Err(HRESULT(-1));
     }
 
     let rp_info = &*decoded_request.pRpInformation;
 
     let rpid = if rp_info.pwszId.is_null() {
-        tracing::debug!("ERROR: RP ID is null");
+        tracing::error!("RP ID is null");
         return Err(HRESULT(-1));
     } else {
         match wstr_to_string(rp_info.pwszId) {
             Ok(id) => id,
             Err(e) => {
-                tracing::debug!("ERROR: Failed to decode RP ID: {}", e);
+                tracing::error!("Failed to decode RP ID: {}", e);
                 return Err(HRESULT(-1));
             }
         }
@@ -567,14 +567,14 @@ pub unsafe fn plugin_make_credential(
 
     // Extract user information
     if decoded_request.pUserInformation.is_null() {
-        tracing::debug!("ERROR: User information is null");
+        tracing::error!("User information is null");
         return Err(HRESULT(-1));
     }
 
     let user = &*decoded_request.pUserInformation;
 
     let user_id = if user.pbId.is_null() || user.cbId == 0 {
-        tracing::debug!("ERROR: User ID is required for registration");
+        tracing::error!("User ID is required for registration");
         return Err(HRESULT(-1));
     } else {
         let id_slice = std::slice::from_raw_parts(user.pbId, user.cbId as usize);
@@ -582,13 +582,13 @@ pub unsafe fn plugin_make_credential(
     };
 
     let user_name = if user.pwszName.is_null() {
-        tracing::debug!("ERROR: User name is required for registration");
+        tracing::error!("User name is required for registration");
         return Err(HRESULT(-1));
     } else {
         match wstr_to_string(user.pwszName) {
             Ok(name) => name,
             Err(_) => {
-                tracing::debug!("ERROR: Failed to decode user name");
+                tracing::error!("Failed to decode user name");
                 return Err(HRESULT(-1));
             }
         }
@@ -605,7 +605,7 @@ pub unsafe fn plugin_make_credential(
     // Extract client data hash
     let client_data_hash =
         if decoded_request.cbClientDataHash == 0 || decoded_request.pbClientDataHash.is_null() {
-            tracing::debug!("ERROR: Client data hash is required for registration");
+            tracing::error!("Client data hash is required for registration");
             return Err(HRESULT(-1));
         } else {
             let hash_slice = std::slice::from_raw_parts(
@@ -694,7 +694,7 @@ pub unsafe fn plugin_make_credential(
     tracing::debug!("Creating WebAuthn make credential response");
     let mut webauthn_response =
         create_make_credential_response(passkey_response.attestation_object).map_err(|err| {
-            tracing::debug!("ERROR: Failed to create WebAuthn response: {err}");
+            tracing::error!("Failed to create WebAuthn response: {err}");
             HRESULT(-1)
         })?;
     debug_log(&format!(
