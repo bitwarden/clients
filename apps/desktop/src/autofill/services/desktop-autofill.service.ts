@@ -223,6 +223,19 @@ export class DesktopAutofillService implements OnDestroy {
         this.logService.error("listenPasskeyRegistration error", error);
         callback(error, null);
       }
+
+      if (process.platform === "win32") {
+        // Windows does not prompt us to sync, so we need to sync immediately
+        // after creating the credential so it shows up in the Windows Hello
+        // credentials list.
+        try {
+          this.logService.info("Initiated FIDO2 sync after makeCredential")
+          this.adHocSync();
+        }
+        catch (error) {
+          this.logService.error("Failed to sync credentials after makeCredential", error);
+        }
+      }
     });
 
     ipc.autofill.listenPasskeyAssertionWithoutUserInterface(
