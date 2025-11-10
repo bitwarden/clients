@@ -1744,7 +1744,11 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultNewDeviceVerificationComponentService,
     deps: [],
   }),
-  safeProvider(IpcSessionRepository),
+  safeProvider({
+    provide: IpcSessionRepository,
+    useClass: IpcSessionRepository,
+    deps: [StateProvider],
+  }),
   safeProvider({
     provide: PremiumInterestStateService,
     useClass: NoopPremiumInterestStateService,
