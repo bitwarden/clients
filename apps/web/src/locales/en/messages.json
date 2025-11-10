@@ -347,6 +347,9 @@
     "message": "Total applications"
   },
   "applicationsNeedingReview": {
+    "message": "Applications needing review"
+  },
+  "newApplicationsCardTitle": {
     "message": "Review new applications"
   },
   "newApplicationsWithCount": {
