@@ -49,9 +49,9 @@ describe("IpcSessionRepository", () => {
     const sessionA = { a: 1 };
     const sessionB = { b: 2 };
     await repository.save("BrowserBackground", sessionA);
-    await repository.save({ Web: 123 } as any, sessionB);
+    await repository.save({ Web: { id: 123 } }, sessionB);
     const resultA = await repository.get("BrowserBackground");
-    const resultB = await repository.get({ Web: 123 } as any);
+    const resultB = await repository.get({ Web: { id: 123 } });
     expect(resultA).toEqual(sessionA);
     expect(resultB).toEqual(sessionB);
   });
