@@ -3765,6 +3765,9 @@
   "devices": {
     "message": "Devices"
   },
+  "triggerTunnelDemo": {
+    "message": "Trigger tunnel demo"
+  },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",
     "placeholders": {
@@ -4744,6 +4747,9 @@
   },
   "accountSecurity": {
     "message": "Account security"
+  },
+  "demoSettings": {
+    "message": "Demo settings"
   },
   "notifications": {
     "message": "Notifications"

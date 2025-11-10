@@ -1,0 +1,28 @@
+<popup-page>
+  <popup-header slot="header" pageTitle="{{ 'demoSettings' | i18n }}" showBackButton>
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+
+  <bit-section>
+    <bit-section-header>
+      <h2 bitTypography="h6">{{ "demoOptions" | i18n }}</h2>
+    </bit-section-header>
+    <bit-card>
+      <p bitTypography="body1">Demo settings content goes here.</p>
+    </bit-card>
+  </bit-section>
+
+  <bit-section>
+    <bit-section-header>
+      <h2 bitTypography="body1">Trigger credential tunnel demo</h2>
+    </bit-section-header>
+    <bit-item>
+      <button bit-item-content type="button" appStopClick routerLink="/tunnel-demo">
+        {{ "triggerTunnelDemo" | i18n }}
+        <i slot="end" class="bwi bwi-chevron-right" aria-hidden="true"></i>
+      </button>
+    </bit-item>
+  </bit-section>
+</popup-page>
