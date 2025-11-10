@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Nemaš dozvolu za uređivanje ove stavke"
+  },
   "welcomeBack": {
     "message": "Dobro došli natrag"
   },
@@ -772,7 +775,7 @@
     "message": "Jedinstvena prijava (SSO)"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Tvoja organizacija zahtijeva jedinstvenu prijavu."
   },
   "submit": {
     "message": "Pošalji"
@@ -1034,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Moraš dodati ili osnovni URL poslužitelja ili barem jedno prilagođeno okruženje."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL mora koristiti HTTPS."
   },
   "customEnvironment": {
     "message": "Prilagođeno okruženje"
@@ -4186,9 +4192,33 @@
     "message": "Arhivirane stavke biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune. Sigurno želiš arhivirati?"
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "Poštanski broj"
   },
   "cardNumberLabel": {
-    "message": "Card number"
+    "message": "Broj kartice"
+  },
+  "upgradeNow": {
+    "message": "Nadogradi sada"
+  },
+  "builtInAuthenticator": {
+    "message": "Ugrađeni autentifikator"
+  },
+  "secureFileStorage": {
+    "message": "Sigurna pohrana datoteka"
+  },
+  "emergencyAccess": {
+    "message": "Pristup u nuždi"
+  },
+  "breachMonitoring": {
+    "message": "Nadzor proboja"
+  },
+  "andMoreFeatures": {
+    "message": "I više!"
+  },
+  "planDescPremium": {
+    "message": "Dovrši online sigurnost"
+  },
+  "upgradeToPremium": {
+    "message": " Nadogradi na Premium"
   }
 }
