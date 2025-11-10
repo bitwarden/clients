@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Приступи интелигенцији"
   },
-  "riskInsights": {
-    "message": "Увид у ризик"
-  },
   "passwordRisk": {
     "message": "Ризик од лозинке"
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "reviewAtRiskPasswords": {
     "message": "Прегледај ризичне лозинке (слабе, изложене или поново коришћене) у апликацијама. Изабери своје најкритичније апликације да би дао приоритет безбедносним радњама како би твоји корисници адресирали ризичне лозинке."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Review at-risk logins"
   },
   "dataLastUpdated": {
     "message": "Подаци су последњи пут ажурирани: $DATE$",
@@ -126,6 +129,9 @@
         "example": "3"
       }
     }
+  },
+  "criticalApplicationsMarked": {
+    "message": "critical applications marked"
   },
   "countOfCriticalApplications": {
     "message": "Критичне апликације: $COUNT$",
@@ -235,6 +241,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Апликације означене као критичне"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Означавање апликација као критичних није успело"
   },
@@ -258,6 +273,12 @@
   },
   "membersWithAccessToAtRiskItemsForCriticalApps": {
     "message": "Чланови са приступом за угрожене ставке критичних апликација"
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Members with at-risk passwords"
+  },
+  "membersWillReceiveNotification": {
+    "message": "Members will receive a notification to resolve at-risk logins through the browser extension."
   },
   "membersAtRiskCount": {
     "message": "Угрожени чланови: $COUNT$",
@@ -343,26 +364,32 @@
   "reviewNow": {
     "message": "Прегледај сада"
   },
+  "allCaughtUp": {
+    "message": "All caught up!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "No new applications to review at this time"
+  },
   "prioritizeCriticalApplications": {
     "message": "Дајте приоритет критичним апликацијама"
   },
-  "atRiskItems": {
-    "message": "Ставке под ризиком"
+  "selectCriticalApplicationsDescription": {
+    "message": "Select which applications are most critical to your organization, then assign security tasks to members to resolve risks."
+  },
+  "reviewNewApplications": {
+    "message": "Review new applications"
+  },
+  "reviewNewApplicationsDescription": {
+    "message": "We've highlighted at-risk items for new applications stored in Admin console that have weak, exposed, or reused passwords."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Click the star icon to mark an app as critical"
   },
   "markAsCriticalPlaceholder": {
     "message": "Означи као критичну функционалност ће бити имплементирана у будућем ажурирању"
   },
   "applicationReviewSaved": {
     "message": "Application review saved"
-  },
-  "applicationsMarkedAsCritical": {
-    "message": "$COUNT$ applications marked as critical",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
   },
   "newApplicationsReviewed": {
     "message": "New applications reviewed"
@@ -834,6 +861,9 @@
   },
   "favorites": {
     "message": "Омиљени"
+  },
+  "taskSummary": {
+    "message": "Task summary"
   },
   "types": {
     "message": "Врсте"
@@ -4409,8 +4439,8 @@
   "updateBrowser": {
     "message": "Ажурирајте Претраживач"
   },
-  "generatingYourRiskInsights": {
-    "message": "Генерисање прегледа вашег ризика..."
+  "generatingYourAccessIntelligence": {
+    "message": "Generating your Access Intelligence..."
   },
   "riskInsightsRunReport": {
     "message": "Покрените извештај"
@@ -5805,8 +5835,8 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Single organization policy required. "
   },
-  "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "All members must only belong to this organization to activate this automation."
   },
   "autoConfirmSingleOrgExemption": {
     "message": "Single organization policy will extend to all roles. "
@@ -5871,6 +5901,19 @@
   "disableHideEmail": {
     "message": "Не дозволите корисницима да сакрију своју е-пошту од примаоца приликом креирања или уређивања „Send“-а.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Default URI match detection"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Determine when logins are suggested for autofill. Admins and owners are exempt from this policy."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Default URI match detection"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Please select a valid URI match detection option.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Политика $ID$ промењена.",
@@ -6525,11 +6568,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Ваша главна лозинка не испуњава једну или више смерница ваше организације. Да бисте приступили сефу, морате одмах да ажурирате главну лозинку. Ако наставите, одјавићете се са ваше тренутне сесије, што захтева да се поново пријавите. Активне сесије на другим уређајима могу да остану активне до један сат."
   },
-  "automaticAppLogin": {
-    "message": "Аутоматски пријавите кориснике за дозвољене апликације"
+  "automaticAppLoginWithSSO": {
+    "message": "Automatic login with SSO"
   },
-  "automaticAppLoginDesc": {
-    "message": "Обрасци за пријаву ће аутоматски бити попуњени и послати за апликације које покреће ваш провајдер идентитета."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Extend SSO security and convenience to unmanaged apps. When users launch an app from your identity provider, their login details are automatically filled and submitted, creating a one-click, secure flow from the identity provider to the app."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Хост добављача идентитета"
@@ -7129,6 +7172,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Морате додати или основни УРЛ сервера или бар једно прилагођено окружење."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
+  },
   "apiUrl": {
     "message": "УРЛ АПИ Сервера"
   },
@@ -7300,6 +7346,9 @@
   },
   "accessDenied": {
     "message": "Одбијен приступ. Немате дозволу да видите ову страницу."
+  },
+  "noPageAccess": {
+    "message": "You do not have access to this page"
   },
   "masterPassword": {
     "message": "Главна Лозинка"
@@ -9758,6 +9807,9 @@
   },
   "assignTasks": {
     "message": "Додели задатке"
+  },
+  "assignTasksToMembers": {
+    "message": "Assign tasks to members for guided resolution"
   },
   "assignToCollections": {
     "message": "Додели колекцијама"
