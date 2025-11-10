@@ -1,12 +1,15 @@
 <div class="tw-ps-2 tw-pe-2">
   @let open = sideNavService.open$ | async;
   @if (open || icon()) {
+    <!-- Weird padding calculation for tree variant due to needing visual alignment on different indentation levels needed between the first level and subsequent levels -->
     <div
       [ngStyle]="{
         'padding-inline-start':
           open && variant() === 'tree'
-            ? TREE_BASE_PADDING + (treeDepth() ?? 0) * TREE_DEPTH_PADDING + 'rem'
-            : '0',
+            ? treeDepth() === 1
+              ? `${TREE_BASE_PADDING}rem`
+              : TREE_BASE_PADDING + (treeDepth() - 1) * TREE_DEPTH_PADDING + 'rem'
+            : TREE_BASE_PADDING * (treeDepth() ?? 0) + 'rem',
       }"
       class="tw-relative tw-rounded-md tw-h-10"
       [ngClass]="[
@@ -19,7 +22,7 @@
       <div class="tw-relative tw-flex tw-items-center tw-h-full">
         @if (open) {
           <div
-            class="tw-absolute tw-left-[0px] tw-transform tw--translate-x-[calc(100%_-_4px)] tw-pe-2 [&>*:focus-visible::before]:!tw-ring-text-alt2 [&>*:hover]:!tw-border-text-alt2 [&>*]:tw-text-alt2"
+            class="tw-absolute tw-left-[0px] tw-transform tw--translate-x-[calc(100%_+_4px)] [&>*:focus-visible::before]:!tw-ring-text-alt2 [&>*:hover]:!tw-border-text-alt2 [&>*]:tw-text-alt2"
           >
             <ng-content select="[slot=start]"></ng-content>
           </div>
@@ -30,7 +33,7 @@
         <ng-template #anchorAndButtonContent>
           <div
             [ngClass]="[
-              variant() === 'tree' ? 'tw-py-0' : 'tw-py-2',
+              variant() === 'tree' || treeDepth() > 0 ? 'tw-py-0' : 'tw-py-2',
               open ? 'tw-pe-4' : 'tw-text-center',
             ]"
             [title]="text()"
@@ -56,7 +59,7 @@
           <!-- The following `class` field should match the `#isButton` class field below -->
           <a
             class="tw-size-full tw-px-4 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]"
-            [ngClass]="{ 'tw-ps-0': variant() === 'tree' }"
+            [ngClass]="{ 'tw-ps-0': variant() === 'tree' || treeDepth() > 0 }"
             data-fvw
             [routerLink]="route()"
             [relativeTo]="relativeTo()"
