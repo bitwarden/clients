@@ -89,6 +89,7 @@ export default class NotificationBackground {
     ExtensionCommand.AutofillCard,
     ExtensionCommand.AutofillIdentity,
   ]);
+  private unlockPopoutTabId?: number;
   private readonly extensionMessageHandlers: NotificationBackgroundExtensionMessageHandlers = {
     bgAdjustNotificationBar: ({ message, sender }) =>
       this.handleAdjustNotificationBarMessage(message, sender),
@@ -1164,6 +1165,7 @@ export default class NotificationBackground {
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ): Promise<void> {
+    this.unlockPopoutTabId = undefined;
     const messageData = message.data as LockedVaultPendingNotificationsData;
     const retryCommand = messageData.commandToRetry.message.command as ExtensionCommandType;
     if (this.allowedRetryCommands.has(retryCommand)) {
@@ -1316,8 +1318,8 @@ export default class NotificationBackground {
   }
 
   private setupUnlockPopoutCloseListener() {
-    chrome.tabs.onRemoved.addListener(async () => {
-      await this.handleUnlockPopoutClosed();
+    chrome.tabs.onRemoved.addListener(async (tabId: number) => {
+      await this.handleUnlockPopoutClosed(tabId);
     });
   }
 
@@ -1325,9 +1327,20 @@ export default class NotificationBackground {
    * If the unlock popout is closed while the vault
    * is still locked and there are pending autofill notifications, abandon them.
    */
-  private async handleUnlockPopoutClosed() {
+  private async handleUnlockPopoutClosed(removedTabId: number) {
     const authStatus = await this.getAuthStatus();
     if (authStatus >= AuthenticationStatus.Unlocked) {
+      this.unlockPopoutTabId = undefined;
+      return;
+    }
+
+    if (this.unlockPopoutTabId === removedTabId) {
+      this.unlockPopoutTabId = undefined;
+      this.messagingService.send("abandonAutofillPendingNotifications");
+      return;
+    }
+
+    if (this.unlockPopoutTabId) {
       return;
     }
 
@@ -1338,6 +1351,8 @@ export default class NotificationBackground {
 
     if (unlockPopoutTabs.length === 0) {
       this.messagingService.send("abandonAutofillPendingNotifications");
+    } else if (unlockPopoutTabs[0].id) {
+      this.unlockPopoutTabId = unlockPopoutTabs[0].id;
     }
   }
 }
