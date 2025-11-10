@@ -18,8 +18,8 @@ xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/re
         Publisher='${publisher}'
         Version="${version}" />
     <Properties>
-        <DisplayName>Bitwarden</DisplayName>
-        <PublisherDisplayName>Bitwarden Inc</PublisherDisplayName>
+        <DisplayName>${displayName}</DisplayName>
+        <PublisherDisplayName>${publisherDisplayName}</PublisherDisplayName>
         <Description>A secure and free password manager for all of your devices.</Description>
         <Logo>assets\StoreLogo.png</Logo>
     </Properties>
@@ -94,11 +94,11 @@ xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/re
         <rescap:Capability Name="runFullTrust" />
     </Capabilities>
     <Applications>
-        <Application Id="bitwardendesktop" Executable="app\Bitwarden.exe"
+        <Application Id="bitwardendesktop" Executable="${executable}"
             EntryPoint="Windows.FullTrustApplication">
             <uap:VisualElements
                 BackgroundColor="#175DDC"
-                DisplayName="Bitwarden"
+                DisplayName="${displayName}"
                 Square150x150Logo="assets\Square150x150Logo.png"
                 Square44x44Logo="assets\Square44x44Logo.png"
                 Description="A secure and free password manager for all of your devices.">
@@ -109,12 +109,12 @@ xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/re
             <Extensions>
                 <uap:Extension Category="windows.protocol">
                     <uap:Protocol Name="bitwarden">
-                        <uap:DisplayName>Bitwarden</uap:DisplayName>
+                        <uap:DisplayName>${displayName}</uap:DisplayName>
                     </uap:Protocol>
                 </uap:Extension>
                 <com:Extension Category="windows.comServer">
                     <com:ComServer>
-                        <com:ExeServer Executable="app\Bitwarden.exe"
+                        <com:ExeServer Executable='${executable}'
                             DisplayName="Bitwarden Passkey Manager">
                             <com:Class Id="0f7dc5d9-69ce-4652-8572-6877fd695062"
                                 DisplayName="Bitwarden Passkey Manager" />
