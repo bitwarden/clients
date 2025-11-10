@@ -2,6 +2,7 @@ import { firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { LogService } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
 
 import { HashPurpose } from "../../../platform/enums";
@@ -14,6 +15,7 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
   constructor(
     private readonly masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private readonly keyService: KeyService,
+    private readonly logService: LogService,
   ) {}
 
   async unlockWithMasterPassword(masterPassword: string, userId: UserId): Promise<UserKey> {
@@ -35,6 +37,43 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
     await this.setLegacyState(masterPassword, masterPasswordUnlockData, userId);
 
     return userKey;
+  }
+
+  async proofOfDecryption(masterPassword: string, userId: UserId): Promise<boolean> {
+    this.validateInput(masterPassword, userId);
+
+    try {
+      const masterPasswordUnlockData = await firstValueFrom(
+        this.masterPasswordService.masterPasswordUnlockData$(userId),
+      );
+
+      if (masterPasswordUnlockData == null) {
+        this.logService.warning(
+          "[DefaultMasterPasswordUnlockService] proofOfDecryption: No master password unlock data found for user " +
+            userId +
+            " returning false.",
+        );
+        return false;
+      }
+
+      const userKey = await this.masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData(
+        masterPassword,
+        masterPasswordUnlockData,
+      );
+
+      return userKey != null;
+    } catch (error) {
+      // masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData is expected to throw if the password is incorrect.
+      if (error instanceof Error) {
+        this.logService.debug(
+          "[DefaultMasterPasswordUnlockService] proofOfDecryption: Error during proof of decryption for user " +
+            userId +
+            " returning false. Error: " +
+            error.message,
+        );
+      }
+      return false;
+    }
   }
 
   private validateInput(masterPassword: string, userId: UserId): void {
