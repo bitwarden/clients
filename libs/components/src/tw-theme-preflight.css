@@ -14,22 +14,22 @@
   }
 
   h1 {
-    @apply tw-text-3xl tw-text-main tw-mb-2;
+    @apply tw-text-3xl tw-text-main tw-mb-2 tw-font-medium;
   }
   h2 {
-    @apply tw-text-2xl tw-text-main tw-mb-2;
+    @apply tw-text-2xl tw-text-main tw-mb-2 tw-font-medium;
   }
   h3 {
-    @apply tw-text-xl tw-text-main tw-mb-2;
+    @apply tw-text-xl tw-text-main tw-mb-2 tw-font-medium;
   }
   h4 {
-    @apply tw-text-lg tw-text-main tw-mb-2;
+    @apply tw-text-lg tw-text-main tw-mb-2 tw-font-medium;
   }
   h5 {
-    @apply tw-text-base tw-text-main tw-mb-1.5;
+    @apply tw-text-base tw-text-main tw-mb-1.5 tw-font-medium;
   }
   h6 {
-    @apply tw-text-sm tw-text-main tw-mb-1.5;
+    @apply tw-text-sm tw-text-main tw-mb-1.5 tw-font-medium;
   }
 
   code {
@@ -80,6 +80,14 @@
   }
 
   th {
+    @apply tw-font-medium;
+  }
+
+  b {
+    @apply tw-font-medium;
+  }
+
+  strong {
     @apply tw-font-medium;
   }
 }

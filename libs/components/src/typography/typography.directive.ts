@@ -3,12 +3,12 @@ import { booleanAttribute, Directive, HostBinding, input } from "@angular/core";
 type TypographyType = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "body1" | "body2" | "helper";
 
 const styles: Record<TypographyType, string[]> = {
-  h1: ["!tw-text-3xl", "tw-text-main"],
-  h2: ["!tw-text-2xl", "tw-text-main"],
-  h3: ["!tw-text-xl", "tw-text-main"],
-  h4: ["!tw-text-lg", "tw-text-main"],
-  h5: ["!tw-text-base", "tw-text-main"],
-  h6: ["!tw-text-sm", "tw-text-main"],
+  h1: ["!tw-text-3xl", "tw-text-main", "tw-font-medium"],
+  h2: ["!tw-text-2xl", "tw-text-main", "tw-font-medium"],
+  h3: ["!tw-text-xl", "tw-text-main", "tw-font-medium"],
+  h4: ["!tw-text-lg", "tw-text-main", "tw-font-medium"],
+  h5: ["!tw-text-base", "tw-text-main", "tw-font-medium"],
+  h6: ["!tw-text-sm", "tw-text-main", "tw-font-medium"],
   body1: ["!tw-text-base"],
   body2: ["!tw-text-sm"],
   helper: ["!tw-text-xs"],
