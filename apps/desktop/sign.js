@@ -65,7 +65,7 @@ exports.default = async function (configuration) {
         " /fd SHA256" +
         " /a" +
         ` /f "${certFile}"` +
-        ` /p "${process.env.ELECTRON_BUILDER_SIGN_CERT_PW}"` +
+        ` /p "${certPw}"` +
         ` "${configuration.path}"`,
       {
         stdio: "inherit",
