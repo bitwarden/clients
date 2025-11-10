@@ -76,8 +76,6 @@ export class AutotypeKeyboardShortcut {
     const MIN_LENGTH: number = 2;
     const MAX_LENGTH: number = 3;
 
-    console.log("validating: " + strArray);
-
     // Ensure strArray is a string array of valid length
     if (
       strArray === undefined ||

@@ -121,8 +121,7 @@ export class AutotypeShortcutComponent {
 
     this.shortcutArray = parts;
 
-    // return parts.join("+").replace("Super", "Win");
-    return parts.join("+");
+    return parts.join("+").replace("Meta", "Win");
   }
 
   private shortcutCombinationValidator(): ValidatorFn {
@@ -135,7 +134,7 @@ export class AutotypeShortcutComponent {
       // Must include exactly 1-2 modifiers and end with a single letter
       // Valid examples: Ctrl+A, Command+B, Ctrl+Alt+X, Alt+Control+Q
       // Allow modifiers in any order, but only 1-2 modifiers total
-      const pattern = /^(?=.*\b(Control|Alt|Meta)\b)(?:Control\+|Alt\+|Meta\+){1,2}[A-Z]$/i;
+      const pattern = /^(?=.*\b(Control|Alt|Win)\b)(?:Control\+|Alt\+|Win\+){1,2}[A-Z]$/i;
       return pattern.test(value)
         ? null
         : { invalidShortcut: { message: this.i18nService.t("invalidShortcut") } };
