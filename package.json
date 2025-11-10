@@ -52,7 +52,7 @@
     "@ngtools/webpack": "19.2.14",
     "@storybook/addon-a11y": "8.6.12",
     "@storybook/addon-actions": "8.6.12",
-    "@storybook/addon-designs": "8.2.1",
+    "@storybook/addon-designs": "11.0.1",
     "@storybook/addon-essentials": "8.6.12",
     "@storybook/addon-interactions": "8.6.12",
     "@storybook/addon-links": "8.6.12",
