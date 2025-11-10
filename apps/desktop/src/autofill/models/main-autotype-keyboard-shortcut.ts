@@ -2,17 +2,13 @@
  Electron's representation of modifier keys
  <https://www.electronjs.org/docs/latest/tutorial/keyboard-shortcuts#cross-platform-modifiers>
 */
-export const COMMAND_CONTROL_KEY_STR = "CommandOrControl";
+export const CONTROL_KEY_STR = "Control";
 export const ALT_KEY_STR = "Alt";
 export const SUPER_KEY_STR = "Super";
 
-export const VALID_SHORTCUT_MODIFIER_KEYS: string[] = [
-  COMMAND_CONTROL_KEY_STR,
-  ALT_KEY_STR,
-  SUPER_KEY_STR,
-];
+export const VALID_SHORTCUT_MODIFIER_KEYS: string[] = [CONTROL_KEY_STR, ALT_KEY_STR, SUPER_KEY_STR];
 
-export const DEFAULT_KEYBOARD_SHORTCUT: string[] = [COMMAND_CONTROL_KEY_STR, ALT_KEY_STR, "B"];
+export const DEFAULT_KEYBOARD_SHORTCUT: string[] = [CONTROL_KEY_STR, ALT_KEY_STR, "B"];
 
 /*
   This class provides the following:
@@ -79,6 +75,8 @@ export class AutotypeKeyboardShortcut {
     const UNICODE_UPPER_BOUND = 90; // unicode 'Z'
     const MIN_LENGTH: number = 2;
     const MAX_LENGTH: number = 3;
+
+    console.log("validating: " + strArray);
 
     // Ensure strArray is a string array of valid length
     if (
