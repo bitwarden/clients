@@ -98,9 +98,7 @@ describe("Keeper Json Importer", () => {
     expect(bankCard.card.expYear).toEqual("2030");
 
     // Fields
-    expect(bankCard.fields.length).toEqual(4);
-    expect(getField(bankCard, "$paymentCard")).toBeDefined();
-    expect(getField(bankCard, "$text:cardholderName")).toBeDefined();
+    expect(bankCard.fields.length).toEqual(1);
     expect(getField(bankCard, "PIN")).toMatchObject({
       value: "8426",
       type: FieldType.Hidden,

@@ -94,6 +94,11 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
             if (pinCode) {
               this.addField(cipher, "PIN", pinCode, FieldType.Hidden);
             }
+
+            // These should not be imported as custom fields since they are mapped to card properties
+            delete record.custom_fields["$paymentCard"];
+            delete record.custom_fields["$text:cardholderName"];
+            delete record.custom_fields["$pinCode"];
           }
           break;
         case "sshKeys":
