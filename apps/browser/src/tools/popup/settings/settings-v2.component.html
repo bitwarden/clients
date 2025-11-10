@@ -35,7 +35,7 @@
         <div class="tw-flex tw-items-center tw-justify-center">
           <p class="tw-pr-2">{{ "autofill" | i18n }}</p>
           <span
-            *ngIf="!isBrowserAutofillSettingOverridden && (showAutofillBadge$ | async)"
+            *ngIf="!(isBrowserAutofillSettingOverridden$ | async) && (showAutofillBadge$ | async)"
             bitBadge
             variant="notification"
             [attr.aria-label]="'nudgeBadgeAria' | i18n"

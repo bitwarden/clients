@@ -148,18 +148,28 @@ describe("SettingsV2Component", () => {
     expect(openSpy).toHaveBeenCalledWith(dialogService);
   });
 
-  it("sets isBrowserAutofillSettingOverridden on init using vendor from BrowserApi", async () => {
-    mockAutofillSettings.isBrowserAutofillSettingOverridden.mockResolvedValue(true);
+  it("isBrowserAutofillSettingOverridden$ emits the value from the AutofillBrowserSettingsService", async () => {
     pushActiveAccount();
+
+    mockAutofillSettings.isBrowserAutofillSettingOverridden.mockResolvedValue(true);
 
     const fixture = TestBed.createComponent(SettingsV2Component);
     const component = fixture.componentInstance;
-
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(BrowserApi.getBrowserClientVendor).toHaveBeenCalledWith(window);
-    expect(component["isBrowserAutofillSettingOverridden"]).toBe(true);
+    const value = await firstValueFrom(component["isBrowserAutofillSettingOverridden$"]);
+    expect(value).toBe(true);
+
+    mockAutofillSettings.isBrowserAutofillSettingOverridden.mockResolvedValue(false);
+
+    const fixture2 = TestBed.createComponent(SettingsV2Component);
+    const component2 = fixture2.componentInstance;
+    fixture2.detectChanges();
+    await fixture2.whenStable();
+
+    const value2 = await firstValueFrom(component2["isBrowserAutofillSettingOverridden$"]);
+    expect(value2).toBe(false);
   });
 
   it("showAutofillBadge$ emits true when default autofill is NOT disabled and nudge is true", async () => {
