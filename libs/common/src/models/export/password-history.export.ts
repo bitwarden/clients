@@ -42,8 +42,6 @@ export class PasswordHistoryExport {
       return;
     }
 
-    this.validateRequiredFields();
-
     this.password = safeGetString(o.password) ?? "";
     this.lastUsedDate = o.lastUsedDate;
   }
