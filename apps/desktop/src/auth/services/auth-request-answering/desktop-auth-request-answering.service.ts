@@ -8,6 +8,8 @@ import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { LogService } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
 
 export class DesktopAuthRequestAnsweringService
@@ -21,6 +23,8 @@ export class DesktopAuthRequestAnsweringService
     protected readonly messagingService: MessagingService,
     protected readonly pendingAuthRequestsState: PendingAuthRequestsStateService,
     private readonly i18nService: I18nService,
+    private readonly logService: LogService,
+    private readonly validationService: ValidationService,
   ) {
     super(
       accountService,
@@ -58,7 +62,15 @@ export class DesktopAuthRequestAnsweringService
     //     also create the system notification to notify the user that the dialog is there.
     if (!userMeetsConditionsToShowApprovalDialog || !isWindowVisible) {
       const accounts = await firstValueFrom(this.accountService.accounts$);
-      const emailForUser = accounts[userId].email;
+      const accountInfo = accounts[userId];
+
+      if (!accountInfo) {
+        this.logService.error(`Account not found for userId: ${userId}`);
+        this.validationService.showError(`Account not found for userId: ${userId}`);
+        return;
+      }
+
+      const emailForUser = accountInfo.email;
       await ipc.auth.loginRequest(
         this.i18nService.t("accountAccessRequested"),
         this.i18nService.t("confirmAccessAttempt", emailForUser),

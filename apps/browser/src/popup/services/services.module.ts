@@ -101,6 +101,7 @@ import {
   AbstractStorageService,
   ObservableStorageService,
 } from "@bitwarden/common/platform/abstractions/storage.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ActionsService } from "@bitwarden/common/platform/actions";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
@@ -492,6 +493,8 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       PlatformUtilsService,
       SystemNotificationsService,
+      LogService,
+      ValidationService,
     ],
   }),
   safeProvider({

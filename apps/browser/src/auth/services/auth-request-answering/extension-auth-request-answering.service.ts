@@ -10,12 +10,14 @@ import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-manageme
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ActionsService } from "@bitwarden/common/platform/actions";
 import {
   ButtonLocation,
   SystemNotificationEvent,
   SystemNotificationsService,
 } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
+import { LogService } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
 
 export class ExtensionAuthRequestAnsweringService
@@ -32,6 +34,8 @@ export class ExtensionAuthRequestAnsweringService
     private readonly i18nService: I18nService,
     private readonly platformUtilsService: PlatformUtilsService,
     private readonly systemNotificationsService: SystemNotificationsService,
+    private readonly logService: LogService,
+    private readonly validationService: ValidationService,
   ) {
     super(
       accountService,
@@ -63,7 +67,15 @@ export class ExtensionAuthRequestAnsweringService
     } else {
       // Create a system notification
       const accounts = await firstValueFrom(this.accountService.accounts$);
-      const emailForUser = accounts[userId].email;
+      const accountInfo = accounts[userId];
+
+      if (!accountInfo) {
+        this.logService.error(`Account not found for userId: ${userId}`);
+        this.validationService.showError(`Account not found for userId: ${userId}`);
+        return;
+      }
+
+      const emailForUser = accountInfo.email;
       await this.systemNotificationsService.create({
         id: `${AuthServerNotificationTags.AuthRequest}_${authRequestId}`, // the underscore is an important delimiter.
         title: this.i18nService.t("accountAccessRequested"),
