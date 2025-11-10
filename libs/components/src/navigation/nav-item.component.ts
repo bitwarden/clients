@@ -53,10 +53,10 @@ export class NavItemComponent extends NavBaseComponent {
   }
 
   /**
-   * Padding calculation for tree variant due to needing visual alignment on different indentation levels needed between the first level and subsequent levels
+   * adding calculation for tree variant due to needing visual alignment on different indentation levels needed between the first level and subsequent levels
    */
   protected readonly navItemIndentationPadding = computed(() => {
-    const open = this.sideNavService.open$;
+    const open = this.sideNavService.open;
     const depth = this.treeDepth() ?? 0;
 
     if (open && this.variant() === "tree") {
