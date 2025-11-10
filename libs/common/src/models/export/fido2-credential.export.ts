@@ -144,7 +144,8 @@ export class Fido2CredentialExport {
     this.rpId = safeGetString(o.rpId) ?? "";
     this.userHandle = safeGetString(o.userHandle);
     this.userName = safeGetString(o.userName);
-    this.counter = safeGetString(String(o.counter)) ?? "";
+    this.counter =
+      safeGetString(typeof o.counter === "number" ? String(o.counter) : o.counter) ?? "";
     this.rpName = safeGetString(o.rpName);
     this.userDisplayName = safeGetString(o.userDisplayName);
     this.discoverable = safeGetString(String(o.discoverable)) ?? "";
