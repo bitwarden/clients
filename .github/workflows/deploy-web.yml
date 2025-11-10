@@ -375,8 +375,8 @@ jobs:
         env:
           # The following 2 values are ignored in Zizmor, because they have to be dynamically mapped from secrets
           # The only way around this is to create separate steps per environment with static secret references, which is not maintainable
-          SUBSCRIPTION_ID: ${{ secrets[ needs.setup.outputs.SUBSCRIPTION_ID ] }} # zizmor: ignore[overprovisioned-secrets]
-          CLIENT_ID: ${{ secrets[ needs.setup.outputs.CLIENT_ID ] }} # zizmor: ignore[overprovisioned-secrets]
+          SUBSCRIPTION_ID: ${{ secrets[ needs.setup.outputs.azure_login_subscription_id_key_name ] }} # zizmor: ignore[overprovisioned-secrets]
+          CLIENT_ID: ${{ secrets[ needs.setup.outputs.azure_login_client_key_name ] }} # zizmor: ignore[overprovisioned-secrets]
           TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         with:
           subscription_id: ${{ env.SUBSCRIPTION_ID }}
