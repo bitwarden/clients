@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FieldType } from "@bitwarden/common/vault/enums/field-type.enum";
+import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 
@@ -62,6 +63,39 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
 
       // Force type based on the record type
       switch (record.$type) {
+        case "bankCard":
+          {
+            cipher.type = CipherType.Card;
+            cipher.card.cardholderName = this.findCustomField(
+              record.custom_fields,
+              "$text:cardholderName",
+            );
+            cipher.card.number = this.findCustomField(
+              record.custom_fields,
+              "$paymentCard/cardNumber",
+            );
+            cipher.card.code = this.findCustomField(
+              record.custom_fields,
+              "$paymentCard/cardSecurityCode",
+            );
+            cipher.card.brand = CardView.getCardBrandByPatterns(cipher.card.number);
+            const expDate = this.findCustomField(
+              record.custom_fields,
+              "$paymentCard/cardExpirationDate",
+            );
+            const [expMonth, expYear] = expDate.split("/");
+            if (expMonth) {
+              cipher.card.expMonth = expMonth;
+            }
+            if (expYear) {
+              cipher.card.expYear = expYear;
+            }
+            const pinCode = this.findCustomField(record.custom_fields, "$pinCode");
+            if (pinCode) {
+              this.addField(cipher, "PIN", pinCode, FieldType.Hidden);
+            }
+          }
+          break;
         case "sshKeys":
           cipher.type = CipherType.SshKey;
           if (!this.isNullOrWhitespace(cipher.login.username)) {
@@ -82,6 +116,18 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
 
       result.ciphers.push(cipher);
     });
+  }
+
+  private findCustomField(customFields: CustomFields, path: string): string {
+    let root = customFields as any;
+    for (const part of path.split("/")) {
+      if (root[part] == null) {
+        return "";
+      }
+      root = root[part];
+    }
+
+    return root.toString();
   }
 
   private importCustomFields(customFields: CustomFields, cipher: CipherView) {

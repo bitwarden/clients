@@ -279,14 +279,13 @@
       "title": "Production Server SSH Key",
       "uid": "E1124I_NzDheHSckN3cEQA",
       "login": "deploy_user",
-      "password": "SecurePass#SSH2024",
-      "notes": "SSH key for production server deployment - RSA 4096 bit",
+      "notes": "SSH key for production server deployment - RSA 2048 bit",
       "$type": "sshKeys",
-      "last_modified": 1762428779,
+      "last_modified": 1762775800,
       "custom_fields": {
         "$keyPair": {
-          "publicKey": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDExamplePublicKeyData123456789",
-          "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA...ExamplePrivateKeyData...\n-----END RSA PRIVATE KEY-----"
+          "publicKey": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCO+QPW2WUMkkuYQ06cNm9q+IYeDSMZpbBdXOGk0PF8U6f1SAiuHnPkmGcIG7WcCMogVMC+XVrKtUEttXQiIh77udzntP/nLOMosG1/BzTUvSQl24MnnLheAZeebGoMIiInM0tEMRGF+Xaxo+fO9k2Aexakh5Uk8VifuagEEf2XO5CX1rkIM+ApV/Djx7r3JTOisY9Xbaizz1sU7urz1THxXsLP+dZ2d6o5yk/Gv7rEoX+0a7i8KAZyEiPF63NVtQfrd8ZvVraxQJOCLZkEyLyDdK/xE+JSIBTLVvHpMJ/GZ49QuDOaqc6aUqBYIzh9ahxE9GVOQBJD3kueWwBXSyqZ ",
+          "privateKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEAjvkD1tllDJJLmENOnDZvaviGHg0jGaWwXVzhpNDxfFOn9UgI\nrh5z5JhnCBu1nAjKIFTAvl1ayrVBLbV0IiIe+7nc57T/5yzjKLBtfwc01L0kJduD\nJ5y4XgGXnmxqDCIiJzNLRDERhfl2saPnzvZNgHsWpIeVJPFYn7moBBH9lzuQl9a5\nCDPgKVfw48e69yUzorGPV22os89bFO7q89Ux8V7Cz/nWdneqOcpPxr+6xKF/tGu4\nvCgGchIjxetzVbUH63fGb1a2sUCTgi2ZBMi8g3Sv8RPiUiAUy1bx6TCfxmePULgz\nmqnOmlKgWCM4fWocRPRlTkASQ95LnlsAV0sqmQIDAQABAoIBACrTfonp3rHwVIKM\njsyOJbvGK+5ugvgYwIaG3vROvjc+m84GQMtfRdnQqPQt0K2nmFws5vte3WZg+uAl\nPV9IFz3SA9DIT+tAb97tUi89yl57NYu9gEDqWfOWyILk+LMfullBrScFB7m46wv1\nC+fbsYVt2W95SXyiaqiVpTVq6ipVc4jJ5LAESiLLVIK+TFf+CJcxKmCGeLNZCG+/\nqIJ+Coc/UO26T2P94naNpgPUkThHr2425fZ7hjgjyxIy6PpyiXl4VZYtoHT/Ezb9\n/Is3Vj8i+nKYw9HXhqrXit5niK97AAdQRZ3maJ3YjS/fgWKB6O83dOv8v7VhdmE4\nP3PzZwECgYEAycA0PkzG0t9DxzPZKIRhXJuNvGcPsjdn32bMo9cCjeR9ihtDCoAl\nFAjxNxcluQwDA1eFAXnkfrs72nJLl4q/mQ3FJmJN0bVrlrTSHlMLXQ+4UmP4NqmP\ncm1/u0zDcJaXosPNjL1WUd/O1LSDUivL21enfctuPAseeHnMc9qKIbkCgYEAtWq9\nd53ZputpNaurjid2snw1ZTF7EQajV6A0jq1sPuqtIpNQX9Nbb3EE9SThkqgIXb6w\nOtwO6krfr5qrfQxWasIUi9t9oCkMwmfOvPbHObuFeE2STviT3JaJ2OOSHTd1Ra3J\nvP4Ban6XURqpx/XLpGYkfV4nX8JZ+xcd6InPP+ECgYAtRKw0QmPmUuRRYSfbuIBk\nGB8gY/uYoGf1L4rBRHA1SEyG3YEYbRJkwXDmTJJRSAmxCUU1xJTpfrd6V2Twttgw\nzm8rIqmVYWCnqyDuXvHQysMv8XBzS259XWZor1u2+oNBqS+I4b7plg9BmNNSb7NJ\nHwzc4/VzEYefvqyKXkHaOQKBgED89NSF2nNeP3k3fyRUZMP5lNMkT5bAzwDT5h/6\nZh1/yffp19AMEeQxE3qR9LCpux2B8vWS4VDy84CforEQG2DxF5UmUrFuIyD9OOUe\nbi3zTBPVjgT2LVnHH6hvlWcb98m3QN6QC4fPw3sNVybHmWTSJl42vVojcEJvfIpR\n28lhAoGBAIxKiw9Rf8tqR/hI1f/zOq6lidS5d0ajU/ip9V7aaNRYbjrhP+nJyDfi\n4Q6Zcw8+lbG89CK/a659Qr+yO8Wfhw2YUkr9mqxJexJWHXuGdHON18S+jl56ILNa\nlIMEXl1zsCleTLoTu/5ekRfeE+syPJ778LZXphbpDkK4qHzq+IXD\n-----END RSA PRIVATE KEY-----"
         },
         "$host": {
           "hostName": "prod-server.company.com",

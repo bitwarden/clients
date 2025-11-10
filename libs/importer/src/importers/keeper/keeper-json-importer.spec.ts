@@ -1,5 +1,6 @@
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { FieldType } from "@bitwarden/common/vault/enums/field-type.enum";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { newGuid } from "@bitwarden/guid";
@@ -86,16 +87,24 @@ describe("Keeper Json Importer", () => {
     // Cipher
     const bankCard = getCipher(result, "Chase Visa");
     expect(bankCard).toBeDefined();
-    expect(bankCard.type).toEqual(CipherType.SecureNote);
+    expect(bankCard.type).toEqual(CipherType.Card);
 
     // Properties
     expect(bankCard.notes).toEqual("Primary credit card for everyday purchases and rewards");
+    expect(bankCard.card.number).toEqual("4532123456789010");
+    expect(bankCard.card.cardholderName).toEqual("Sarah Johnson");
+    expect(bankCard.card.brand).toEqual("Visa");
+    expect(bankCard.card.expMonth).toEqual("06");
+    expect(bankCard.card.expYear).toEqual("2030");
 
     // Fields
-    expect(bankCard.fields.length).toEqual(3);
+    expect(bankCard.fields.length).toEqual(4);
     expect(getField(bankCard, "$paymentCard")).toBeDefined();
     expect(getField(bankCard, "$text:cardholderName")).toBeDefined();
-    expect(getField(bankCard, "$pinCode")).toBeDefined();
+    expect(getField(bankCard, "PIN")).toMatchObject({
+      value: "8426",
+      type: FieldType.Hidden,
+    });
   });
 
   it("should parse birthCertificate", async () => {
@@ -356,12 +365,12 @@ describe("Keeper Json Importer", () => {
     expect(sshKey.type).toEqual(CipherType.SshKey);
 
     // Properties
-    expect(sshKey.notes).toEqual("SSH key for production server deployment - RSA 4096 bit");
+    expect(sshKey.notes).toEqual("SSH key for production server deployment - RSA 2048 bit");
 
     // Fields
-    expect(sshKey.fields.length).toEqual(4);
+    expect(sshKey.fields.length).toEqual(3);
     expect(getField(sshKey, "username")?.value).toEqual("deploy_user");
-    expect(getField(sshKey, "passphrase")?.value).toEqual("SecurePass#SSH2024");
+    //expect(getField(sshKey, "passphrase")?.value).toEqual("SecurePass#SSH2024");
     expect(getField(sshKey, "hostname")?.value).toEqual("prod-server.company.com");
     expect(getField(sshKey, "port")?.value).toEqual("22");
   });

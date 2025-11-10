@@ -12,7 +12,7 @@ handle some of the type conversion manually. Should the conversion types be forc
 
 - [ ] address -> `Identity`?
 - [ ] bankAccount
-- [ ] bankCard
+- [x] bankCard -> `Card`
 - [ ] birthCertificate -> `Identity`?
 - [ ] contact
 - [ ] databaseCredentials
@@ -33,11 +33,11 @@ handle some of the type conversion manually. Should the conversion types be forc
 
 ### Gotchas, weirdnesses and questions
 
-- [ ] What to do with the IDs? Import them as is? Generate new ones? Leave out blank?
+- [x] What to do with the IDs? Import them as is? Generate new ones? Leave out blank?
 - [ ] Multiple TOTP (currently the first one used, others ignored)
 - [ ] Schema is ignored (probably no use anyway)
 - [ ] Custom fields names/types are not parsed and used as is
-- [ ] Should `last_modified` be set on the cipher?
+- [x] Should `last_modified` be set on the cipher?
 - [ ] The base importer has a special way of handling custom fields, not used in this importer.
       Figure this out!
 - [ ] No fingerprint on ssh keys
@@ -46,7 +46,7 @@ handle some of the type conversion manually. Should the conversion types be forc
 ### Missing features
 
 - [x] Shared folders
-- [ ] File attachments
+- [-] File attachments
 - [ ] PAM record types
 - [ ] Some more enterprise record types
 - [ ] Custom record types
