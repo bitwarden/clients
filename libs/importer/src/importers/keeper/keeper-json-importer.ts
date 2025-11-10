@@ -102,12 +102,37 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
           }
           break;
         case "sshKeys":
-          cipher.type = CipherType.SshKey;
-          if (!this.isNullOrWhitespace(cipher.login.username)) {
-            this.addField(cipher, "username", cipher.login.username!);
-          }
-          if (!this.isNullOrWhitespace(cipher.login.password)) {
-            this.addField(cipher, "passphrase", cipher.login.password!, FieldType.Hidden);
+          {
+            cipher.type = CipherType.SshKey;
+            cipher.sshKey.privateKey = this.findCustomField(
+              record.custom_fields,
+              "$keyPair/privateKey",
+            );
+            cipher.sshKey.publicKey = this.findCustomField(
+              record.custom_fields,
+              "$keyPair/publicKey",
+            );
+            cipher.sshKey.keyFingerprint = "TODO: figure this out"; // TODO: Keeper does not export fingerprint, compute it?
+
+            if (!this.isNullOrWhitespace(cipher.login.username)) {
+              this.addField(cipher, "username", cipher.login.username!);
+            }
+            if (!this.isNullOrWhitespace(cipher.login.password)) {
+              this.addField(cipher, "passphrase", cipher.login.password!, FieldType.Hidden);
+            }
+
+            const hostName = this.findCustomField(record.custom_fields, "$host/hostName");
+            if (hostName) {
+              this.addField(cipher, "hostname", hostName);
+            }
+            const port = this.findCustomField(record.custom_fields, "$host/port");
+            if (port) {
+              this.addField(cipher, "port", port);
+            }
+
+            // These should not be imported as custom fields since they are mapped to ssh key properties
+            delete record.custom_fields["$keyPair"];
+            delete record.custom_fields["$host"];
           }
           break;
       }
@@ -143,10 +168,6 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
         cipher.login.totp = this.getStringOrFirstFromArray(value ?? "");
       } else if (key === "$url" || key.startsWith("$url:")) {
         cipher.login.uris.push(...this.makeUriArray(value));
-      } else if (key === "$keyPair" || key.startsWith("$keyPair:")) {
-        cipher.sshKey.privateKey = value.privateKey ?? "";
-        cipher.sshKey.publicKey = value.publicKey ?? "";
-        cipher.sshKey.keyFingerprint = ""; // TODO: Keeper does not export fingerprint, compute it?
       } else if (key === "$host" || key.startsWith("$host:")) {
         this.addField(cipher, "hostname", value?.hostName);
         this.addField(cipher, "port", value?.port);
