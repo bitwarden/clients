@@ -28,6 +28,15 @@ describe("IpcSessionRepository", () => {
     expect(result).toEqual(session);
   });
 
+  it("saves and retrieves a web session", async () => {
+    const session = { some: "data" };
+    await repository.save({ Web: { id: 9001 } }, session);
+
+    const result = await repository.get({ Web: { id: 9001 } });
+
+    expect(result).toEqual(session);
+  });
+
   it("removes a session", async () => {
     const session = { some: "data" };
     await repository.save("BrowserBackground", session);
