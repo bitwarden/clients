@@ -59,7 +59,7 @@
     "@storybook/addon-themes": "8.6.12",
     "@storybook/angular": "8.6.12",
     "@storybook/manager-api": "8.6.12",
-    "@storybook/test-runner": "0.22.0",
+    "@storybook/test-runner": "0.24.1",
     "@storybook/theming": "8.6.12",
     "@storybook/web-components-webpack5": "8.6.12",
     "@tailwindcss/container-queries": "0.1.1",
