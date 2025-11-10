@@ -189,9 +189,7 @@ describe("DefaultMasterPasswordUnlockService", () => {
         masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData,
       ).not.toHaveBeenCalled();
       expect(logService.warning).toHaveBeenCalledWith(
-        "[DefaultMasterPasswordUnlockService] proofOfDecryption: No master password unlock data found for user " +
-          mockUserId +
-          " returning false.",
+        `[DefaultMasterPasswordUnlockService] No master password unlock data found for user ${mockUserId} returning false.`,
       );
     });
 
@@ -207,9 +205,8 @@ describe("DefaultMasterPasswordUnlockService", () => {
     });
 
     it("returns false when the master password is incorrect", async () => {
-      masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData.mockRejectedValue(
-        new Error("Incorrect password"),
-      );
+      const error = new Error("Incorrect password");
+      masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData.mockRejectedValue(error);
 
       const result = await sut.proofOfDecryption(mockMasterPassword, mockUserId);
 
@@ -220,9 +217,7 @@ describe("DefaultMasterPasswordUnlockService", () => {
         mockMasterPasswordUnlockData,
       );
       expect(logService.debug).toHaveBeenCalledWith(
-        "[DefaultMasterPasswordUnlockService] proofOfDecryption: Error during proof of decryption for user " +
-          mockUserId +
-          " returning false. Error: Incorrect password",
+        `[DefaultMasterPasswordUnlockService] proofOfDecryption: Error during proof of decryption for user ${mockUserId} returning false: ${error}`,
       );
     });
   });

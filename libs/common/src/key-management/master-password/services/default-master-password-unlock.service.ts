@@ -49,9 +49,7 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
 
       if (masterPasswordUnlockData == null) {
         this.logService.warning(
-          "[DefaultMasterPasswordUnlockService] proofOfDecryption: No master password unlock data found for user " +
-            userId +
-            " returning false.",
+          `[DefaultMasterPasswordUnlockService] No master password unlock data found for user ${userId} returning false.`,
         );
         return false;
       }
@@ -64,14 +62,9 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
       return userKey != null;
     } catch (error) {
       // masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData is expected to throw if the password is incorrect.
-      if (error instanceof Error) {
-        this.logService.debug(
-          "[DefaultMasterPasswordUnlockService] proofOfDecryption: Error during proof of decryption for user " +
-            userId +
-            " returning false. Error: " +
-            error.message,
-        );
-      }
+      this.logService.debug(
+        `[DefaultMasterPasswordUnlockService] Error during proof of decryption for user ${userId} returning false: ${error}`,
+      );
       return false;
     }
   }
