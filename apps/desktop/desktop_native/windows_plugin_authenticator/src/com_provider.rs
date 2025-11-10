@@ -1,10 +1,10 @@
 use std::sync::Arc;
 use std::time::Duration;
 
+use windows::core::{implement, interface, IInspectable, IUnknown, Interface, HRESULT};
 use windows::Win32::Foundation::{RECT, S_OK};
 use windows::Win32::System::Com::*;
 use windows::Win32::UI::WindowsAndMessaging::GetWindowRect;
-use windows_core::{implement, interface, IInspectable, IUnknown, Interface, HRESULT};
 
 use crate::assert::plugin_get_assertion;
 use crate::ipc2::{TimedCallback, WindowsProviderClient};
@@ -34,7 +34,7 @@ pub enum PluginLockStatus {
 #[derive(Debug, Copy, Clone)]
 pub struct WebAuthnPluginOperationRequest {
     pub window_handle: windows::Win32::Foundation::HWND,
-    pub transaction_id: windows_core::GUID,
+    pub transaction_id: windows::core::GUID,
     pub request_signature_byte_count: u32,
     pub request_signature_pointer: *mut u8,
     pub request_type: WebAuthnPluginRequestType,
@@ -71,14 +71,14 @@ pub struct WebAuthnPluginOperationResponse {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct WebAuthnPluginCancelOperationRequest {
-    pub transaction_id: windows_core::GUID,
+    pub transaction_id: windows::core::GUID,
     pub request_signature_byte_count: u32,
     pub request_signature_pointer: *mut u8,
 }
 
 // Stable IPluginAuthenticator interface
 #[interface("d26bcf6f-b54c-43ff-9f06-d5bf148625f7")]
-pub unsafe trait IPluginAuthenticator: windows_core::IUnknown {
+pub unsafe trait IPluginAuthenticator: windows::core::IUnknown {
     fn MakeCredential(
         &self,
         request: *const WebAuthnPluginOperationRequest,
@@ -237,10 +237,10 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
 impl IClassFactory_Impl for Factory_Impl {
     fn CreateInstance(
         &self,
-        _outer: windows_core::Ref<IUnknown>,
-        iid: *const windows_core::GUID,
+        _outer: windows::core::Ref<IUnknown>,
+        iid: *const windows::core::GUID,
         object: *mut *mut core::ffi::c_void,
-    ) -> windows_core::Result<()> {
+    ) -> windows::core::Result<()> {
         tracing::debug!("Creating COM server instance.");
         tracing::debug!("Trying to connect to Bitwarden IPC");
         let client = WindowsProviderClient::connect();
@@ -249,7 +249,7 @@ impl IClassFactory_Impl for Factory_Impl {
         unsafe { unknown.query(iid, object).ok() }
     }
 
-    fn LockServer(&self, _lock: windows_core::BOOL) -> windows_core::Result<()> {
+    fn LockServer(&self, _lock: windows::core::BOOL) -> windows::core::Result<()> {
         Ok(())
     }
 }

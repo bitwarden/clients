@@ -5,7 +5,7 @@
     https://github.com/microsoft/webauthn/blob/master/webauthnplugin.h
 */
 
-use windows_core::*;
+use windows::core::*;
 
 use crate::com_buffer::ComBuffer;
 use crate::util::{delay_load, WindowsString};

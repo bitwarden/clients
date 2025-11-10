@@ -5,7 +5,7 @@ use std::{
     sync::Arc,
     time::Duration,
 };
-use windows_core::{s, HRESULT};
+use windows::core::{s, HRESULT};
 
 use crate::ipc2::{
     PasskeyAssertionRequest, PasskeyAssertionResponse, Position, TimedCallback, UserVerification,

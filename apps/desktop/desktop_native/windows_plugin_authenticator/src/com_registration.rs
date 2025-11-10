@@ -1,8 +1,8 @@
 use std::ptr;
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
+use windows::core::{s, ComObjectInterface, GUID, HRESULT, HSTRING, PCWSTR};
 use windows::Win32::System::Com::*;
-use windows_core::{s, ComObjectInterface, GUID, HRESULT, HSTRING, PCWSTR};
 
 use crate::com_provider;
 use crate::util::delay_load;
@@ -152,7 +152,7 @@ pub fn initialize_com_library() -> std::result::Result<(), String> {
 
 /// Registers the Bitwarden Plugin Authenticator COM library with Windows.
 pub fn register_com_library() -> std::result::Result<(), String> {
-    static FACTORY: windows_core::StaticComObject<com_provider::Factory> =
+    static FACTORY: windows::core::StaticComObject<com_provider::Factory> =
         com_provider::Factory.into_static();
     let clsid_guid = parse_clsid_to_guid().map_err(|e| format!("Failed to parse CLSID: {}", e))?;
     let clsid: *const GUID = &clsid_guid;

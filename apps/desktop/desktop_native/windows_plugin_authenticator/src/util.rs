@@ -5,7 +5,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use windows::Win32::Foundation::*;
 use windows::Win32::System::LibraryLoader::*;
-use windows_core::*;
+use windows::core::*;
 
 use crate::com_buffer::ComBuffer;
 

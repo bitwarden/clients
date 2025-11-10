@@ -4,7 +4,7 @@ use std::mem::ManuallyDrop;
 use std::ptr;
 use std::sync::Arc;
 use std::time::Duration;
-use windows_core::{s, HRESULT};
+use windows::core::{s, HRESULT};
 
 use crate::com_provider::{
     parse_credential_list, WebAuthnPluginOperationRequest, WebAuthnPluginOperationResponse,
@@ -627,7 +627,7 @@ pub unsafe fn plugin_make_credential(
 mod tests {
     use std::ptr;
 
-    use windows_core::s;
+    use windows::core::s;
 
     use crate::{
         make_credential::{
