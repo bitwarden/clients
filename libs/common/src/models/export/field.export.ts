@@ -31,8 +31,8 @@ export class FieldExport {
     return domain;
   }
 
-  name: string = "";
-  value: string = "";
+  name?: string;
+  value?: string;
   type: FieldType = FieldType.Text;
   linkedId?: LinkedIdType;
 
