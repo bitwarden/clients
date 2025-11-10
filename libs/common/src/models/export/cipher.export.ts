@@ -75,7 +75,7 @@ export class CipherExport {
         view.identity = req.identity ? IdentityExport.toView(req.identity) : new IdentityView();
         break;
       case CipherType.SshKey:
-        view.sshKey = req.sshKey ? SshKeyExport.toView(req.sshKey) : new SshKeyView();
+        view.sshKey = SshKeyExport.toView(req.sshKey) ?? new SshKeyView();
         break;
     }
 

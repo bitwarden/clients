@@ -13,21 +13,24 @@ export class SshKeyExport {
     return req;
   }
 
+  validateRequiredFields() {
+    if (!this.privateKey || this.privateKey.trim() === "") {
+      throw new Error("SSH key private key is required.");
+    }
+    if (!this.publicKey || this.publicKey.trim() === "") {
+      throw new Error("SSH key public key is required.");
+    }
+    if (!this.keyFingerprint || this.keyFingerprint.trim() === "") {
+      throw new Error("SSH key fingerprint is required.");
+    }
+  }
+
   static toView(req?: SshKeyExport, view = new SshKeyView()): SshKeyView | undefined {
     if (req == null) {
       return undefined;
     }
 
-    // Validate required fields
-    if (!req.privateKey || req.privateKey.trim() === "") {
-      throw new Error("SSH key private key is required.");
-    }
-    if (!req.publicKey || req.publicKey.trim() === "") {
-      throw new Error("SSH key public key is required.");
-    }
-    if (!req.keyFingerprint || req.keyFingerprint.trim() === "") {
-      throw new Error("SSH key fingerprint is required.");
-    }
+    req.validateRequiredFields();
 
     view.privateKey = req.privateKey;
     view.publicKey = req.publicKey;
@@ -36,15 +39,17 @@ export class SshKeyExport {
   }
 
   static toDomain(req: SshKeyExport, domain = new SshKeyDomain()) {
+    req.validateRequiredFields();
+
     domain.privateKey = new EncString(req.privateKey);
     domain.publicKey = new EncString(req.publicKey);
     domain.keyFingerprint = new EncString(req.keyFingerprint);
     return domain;
   }
 
-  privateKey: string = "";
-  publicKey: string = "";
-  keyFingerprint: string = "";
+  privateKey!: string;
+  publicKey!: string;
+  keyFingerprint!: string;
 
   constructor(o?: SshKeyView | SshKeyDomain) {
     if (o == null) {

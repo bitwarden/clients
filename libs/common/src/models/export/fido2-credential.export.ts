@@ -32,6 +32,36 @@ export class Fido2CredentialExport {
     return req;
   }
 
+  validateRequiredFields() {
+    if (!this.credentialId || this.credentialId.trim() === "") {
+      throw new Error("FIDO2 credential ID is required.");
+    }
+    if (!this.keyType || this.keyType.trim() === "") {
+      throw new Error("FIDO2 key type is required.");
+    }
+    if (!this.keyAlgorithm || this.keyAlgorithm.trim() === "") {
+      throw new Error("FIDO2 key algorithm is required.");
+    }
+    if (!this.keyCurve || this.keyCurve.trim() === "") {
+      throw new Error("FIDO2 key curve is required.");
+    }
+    if (!this.keyValue || this.keyValue.trim() === "") {
+      throw new Error("FIDO2 key value is required.");
+    }
+    if (!this.rpId || this.rpId.trim() === "") {
+      throw new Error("FIDO2 relying party ID is required.");
+    }
+    if (!this.counter || this.counter.trim() === "") {
+      throw new Error("FIDO2 counter is required.");
+    }
+    if (!this.discoverable || this.discoverable.trim() === "") {
+      throw new Error("FIDO2 discoverable flag is required.");
+    }
+    if (!this.creationDate) {
+      throw new Error("FIDO2 creation date is required.");
+    }
+  }
+
   /**
    * Converts a Fido2CredentialExport object to its view representation.
    * @param req - The Fido2CredentialExport object to be converted.
@@ -39,6 +69,8 @@ export class Fido2CredentialExport {
    * @returns Fido2CredentialView - The populated view, or a new instance if none was provided.
    */
   static toView(req: Fido2CredentialExport, view = new Fido2CredentialView()) {
+    req.validateRequiredFields();
+
     view.credentialId = req.credentialId;
     view.keyType = req.keyType as "public-key";
     view.keyAlgorithm = req.keyAlgorithm as "ECDSA";
@@ -62,6 +94,8 @@ export class Fido2CredentialExport {
    * @returns Fido2Credential - The populated domain, or a new instance if none was provided.
    */
   static toDomain(req: Fido2CredentialExport, domain = new Fido2Credential()) {
+    req.validateRequiredFields();
+
     domain.credentialId = new EncString(req.credentialId);
     domain.keyType = new EncString(req.keyType);
     domain.keyAlgorithm = new EncString(req.keyAlgorithm);
@@ -78,19 +112,19 @@ export class Fido2CredentialExport {
     return domain;
   }
 
-  credentialId: string = "";
-  keyType: string = "";
-  keyAlgorithm: string = "";
-  keyCurve: string = "";
-  keyValue: string = "";
-  rpId: string = "";
+  credentialId!: string;
+  keyType!: string;
+  keyAlgorithm!: string;
+  keyCurve!: string;
+  keyValue!: string;
+  rpId!: string;
   userHandle?: string;
   userName?: string;
-  counter: string = "";
+  counter!: string;
   rpName?: string;
   userDisplayName?: string;
-  discoverable: string = "";
-  creationDate: Date = new Date();
+  discoverable!: string;
+  creationDate!: Date;
 
   /**
    * Constructs a new Fid2CredentialExport instance.
