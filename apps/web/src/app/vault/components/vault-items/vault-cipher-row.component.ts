@@ -13,7 +13,6 @@ import {
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   CipherViewLike,
@@ -131,10 +130,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   ];
   protected organization?: Organization;
 
-  constructor(
-    private i18nService: I18nService,
-    private vaultSettingsService: VaultSettingsService,
-  ) {}
+  constructor(private i18nService: I18nService) {}
 
   /**
    * Lifecycle hook for component initialization.
