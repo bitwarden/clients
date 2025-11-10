@@ -2,6 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthServerNotificationTags } from "@bitwarden/common/auth/enums/auth-server-notification-tags";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -31,7 +32,7 @@ describe("ExtensionAuthRequestAnsweringService", () => {
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let systemNotificationsService: MockProxy<SystemNotificationsService>;
 
-  let sut: ExtensionAuthRequestAnsweringService;
+  let sut: AuthRequestAnsweringService;
 
   const userId = "9f4c3452-6a45-48af-a7d0-74d3e8b65e4c" as UserId;
   const authRequestId = "auth-request-id-123";

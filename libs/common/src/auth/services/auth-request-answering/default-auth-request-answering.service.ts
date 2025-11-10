@@ -19,6 +19,7 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { SystemNotificationEvent } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
 import { UserId } from "@bitwarden/user-core";
 
 import { AuthRequestAnsweringService } from "../../abstractions/auth-request-answering/auth-request-answering.service.abstraction";
@@ -112,5 +113,9 @@ export class DefaultAuthRequestAnsweringService implements AuthRequestAnsweringS
         this.messagingService.send("openLoginApproval");
       }
     }
+  }
+
+  async handleAuthRequestNotificationClicked(event: SystemNotificationEvent): Promise<void> {
+    throw new Error("handleAuthRequestNotificationClicked() not implemented for this client");
   }
 }

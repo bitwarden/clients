@@ -6,6 +6,10 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import {
+  ButtonLocation,
+  SystemNotificationEvent,
+} from "@bitwarden/common/platform/system-notifications/system-notifications.service";
 import { UserId } from "@bitwarden/user-core";
 
 import { AuthRequestAnsweringService } from "../../abstractions/auth-request-answering/auth-request-answering.service.abstraction";
@@ -397,6 +401,24 @@ describe("DefaultAuthRequestAnsweringService", () => {
         await new Promise((resolve) => setTimeout(resolve, 0));
         expect(messagingService.send).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe("handleAuthRequestNotificationClicked()", () => {
+    it("should throw an error", async () => {
+      // Arrange
+      const event: SystemNotificationEvent = {
+        id: "123",
+        buttonIdentifier: ButtonLocation.NotificationButton,
+      };
+
+      // Act
+      const promise = sut.handleAuthRequestNotificationClicked(event);
+
+      // Assert
+      await expect(promise).rejects.toThrow(
+        "handleAuthRequestNotificationClicked() not implemented for this client",
+      );
     });
   });
 });

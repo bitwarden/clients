@@ -2,6 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -20,7 +21,7 @@ describe("DesktopAuthRequestAnsweringService", () => {
   let pendingAuthRequestsState: MockProxy<PendingAuthRequestsStateService>;
   let i18nService: MockProxy<I18nService>;
 
-  let sut: DesktopAuthRequestAnsweringService;
+  let sut: AuthRequestAnsweringService;
 
   const userId = "9f4c3452-6a45-48af-a7d0-74d3e8b65e4c" as UserId;
   const authRequestId = "auth-request-id-123";
