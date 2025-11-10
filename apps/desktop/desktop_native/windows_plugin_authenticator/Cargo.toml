@@ -24,6 +24,7 @@ tracing-subscriber = { workspace = true }
 ciborium = "0.2"
 sha2 = "0.10"
 tokio = { workspace = true }
+base64 = { workspace = true }
 
 [lints]
 workspace = true

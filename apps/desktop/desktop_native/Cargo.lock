@@ -5161,6 +5161,7 @@ checksum = "1e7ac75179f18232fe9c285163565a57ef8d3c89254a30685b57d83a38d326c2"
 name = "windows_plugin_authenticator"
 version = "0.0.0"
 dependencies = [
+ "base64",
  "ciborium",
  "desktop_core",
  "futures",
