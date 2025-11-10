@@ -103,7 +103,7 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
     <ng-template #exportVault></ng-template>
     <ng-template #appGenerator></ng-template>
     <ng-template #loginApproval></ng-template>
-    <app-header></app-header>
+    <app-header *ngIf="showHeader$ | async"></app-header>
 
     <div id="container">
       <div class="loading" *ngIf="loading">
@@ -140,6 +140,7 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild("loginApproval", { read: ViewContainerRef, static: true })
   loginApprovalModalRef: ViewContainerRef;
 
+  showHeader$ = this.accountService.showHeader$;
   loading = false;
 
   private lastActivity: Date = null;

@@ -1,11 +1,16 @@
 import { ipcMain } from "electron";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { autofill } from "@bitwarden/desktop-napi";
+import { autofill, passkey_authenticator } from "@bitwarden/desktop-napi";
 
 import { WindowMain } from "../../../main/window.main";
 
 import { CommandDefinition } from "./command";
+
+type BufferedMessage = {
+  channel: string;
+  data: any;
+};
 
 export type RunCommandParams<C extends CommandDefinition> = {
   namespace: C["namespace"];
@@ -17,13 +22,56 @@ export type RunCommandResult<C extends CommandDefinition> = C["output"];
 
 export class NativeAutofillMain {
   private ipcServer: autofill.IpcServer | null;
+  private messageBuffer: BufferedMessage[] = [];
+  private listenerReady = false;
 
   constructor(
     private logService: LogService,
     private windowMain: WindowMain,
   ) {}
 
+  /**
+   * Safely sends a message to the renderer, buffering it if the server isn't ready yet
+   */
+  private safeSend(channel: string, data: any) {
+    if (this.listenerReady && this.windowMain.win?.webContents) {
+      this.windowMain.win.webContents.send(channel, data);
+    } else {
+      this.messageBuffer.push({ channel, data });
+    }
+  }
+
+  /**
+   * Flushes all buffered messages to the renderer
+   */
+  private flushMessageBuffer() {
+    if (!this.windowMain.win?.webContents) {
+      this.logService.error("Cannot flush message buffer - window not available");
+      return;
+    }
+
+    this.logService.info(`Flushing ${this.messageBuffer.length} buffered messages`);
+
+    for (const { channel, data } of this.messageBuffer) {
+      this.windowMain.win.webContents.send(channel, data);
+    }
+
+    this.messageBuffer = [];
+  }
+
   async init() {
+    if (process.platform === "win32") {
+      try {
+        passkey_authenticator.register();
+      } catch (err) {
+        this.logService.error("Failed to register windows passkey plugin:", err);
+        return JSON.stringify({
+          type: "error",
+          message: "Failed to register windows passkey plugin",
+        });
+      }
+    }
+
     ipcMain.handle(
       "autofill.runCommand",
       <C extends CommandDefinition>(
@@ -43,7 +91,7 @@ export class NativeAutofillMain {
           this.ipcServer.completeError(clientId, sequenceNumber, String(error));
           return;
         }
-        this.windowMain.win.webContents.send("autofill.passkeyRegistration", {
+        this.safeSend("autofill.passkeyRegistration", {
           clientId,
           sequenceNumber,
           request,
@@ -56,7 +104,7 @@ export class NativeAutofillMain {
           this.ipcServer.completeError(clientId, sequenceNumber, String(error));
           return;
         }
-        this.windowMain.win.webContents.send("autofill.passkeyAssertion", {
+        this.safeSend("autofill.passkeyAssertion", {
           clientId,
           sequenceNumber,
           request,
@@ -69,28 +117,49 @@ export class NativeAutofillMain {
           this.ipcServer.completeError(clientId, sequenceNumber, String(error));
           return;
         }
-        this.windowMain.win.webContents.send("autofill.passkeyAssertionWithoutUserInterface", {
+        this.safeSend("autofill.passkeyAssertionWithoutUserInterface", {
           clientId,
           sequenceNumber,
           request,
         });
       },
+      // NativeStatusCallback
+      (error, clientId, sequenceNumber, status) => {
+        if (error) {
+          this.logService.error("autofill.IpcServer.nativeStatus", error);
+          this.ipcServer.completeError(clientId, sequenceNumber, String(error));
+          return;
+        }
+        this.safeSend("autofill.nativeStatus", {
+          clientId,
+          sequenceNumber,
+          status,
+        });
+      },
     );
 
+    ipcMain.on("autofill.listenerReady", () => {
+      this.listenerReady = true;
+      this.logService.info(
+        `Listener is ready, flushing ${this.messageBuffer.length} buffered messages`,
+      );
+      this.flushMessageBuffer();
+    });
+
     ipcMain.on("autofill.completePasskeyRegistration", (event, data) => {
-      this.logService.warning("autofill.completePasskeyRegistration", data);
+      this.logService.debug("autofill.completePasskeyRegistration", data);
       const { clientId, sequenceNumber, response } = data;
       this.ipcServer.completeRegistration(clientId, sequenceNumber, response);
     });
 
     ipcMain.on("autofill.completePasskeyAssertion", (event, data) => {
-      this.logService.warning("autofill.completePasskeyAssertion", data);
+      this.logService.debug("autofill.completePasskeyAssertion", data);
       const { clientId, sequenceNumber, response } = data;
       this.ipcServer.completeAssertion(clientId, sequenceNumber, response);
     });
 
     ipcMain.on("autofill.completeError", (event, data) => {
-      this.logService.warning("autofill.completeError", data);
+      this.logService.debug("autofill.completeError", data);
       const { clientId, sequenceNumber, error } = data;
       this.ipcServer.completeError(clientId, sequenceNumber, String(error));
     });

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--suppress XmlUnusedNamespaceDeclaration -->
+<!-- <Package
+    xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+    xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+    xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"> -->
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+    xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+    xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+    xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+    xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
+    IgnorableNamespaces="uap rescap com uap10 build"
+    xmlns:build="http://schemas.microsoft.com/developer/appx/2015/build">
+    <!-- use single quotes to avoid double quotes escaping in the publisher value  -->
+    <Identity Name="${applicationId}"
+        ProcessorArchitecture="${arch}"
+        Publisher='${publisher}'
+        Version="${version}" />
+    <Properties>
+        <DisplayName>${displayName}</DisplayName>
+        <PublisherDisplayName>${publisherDisplayName}</PublisherDisplayName>
+        <Description>A secure and free password manager for all of your devices.</Description>
+        <Logo>assets\StoreLogo.png</Logo>
+    </Properties>
+    <Resources>
+        <Resource Language="en-US" />
+        <Resource Language="af" />
+        <Resource Language="ar" />
+        <Resource Language="az-latn" />
+        <Resource Language="be" />
+        <Resource Language="bg" />
+        <Resource Language="bn" />
+        <Resource Language="bs" />
+        <Resource Language="ca" />
+        <Resource Language="cs" />
+        <Resource Language="cy" />
+        <Resource Language="da" />
+        <Resource Language="de" />
+        <Resource Language="el" />
+        <Resource Language="en-gb" />
+        <Resource Language="en-in" />
+        <Resource Language="es" />
+        <Resource Language="et" />
+        <Resource Language="eu" />
+        <Resource Language="fa" />
+        <Resource Language="fi" />
+        <Resource Language="fil" />
+        <Resource Language="fr" />
+        <Resource Language="gl" />
+        <Resource Language="he" />
+        <Resource Language="hi" />
+        <Resource Language="hr" />
+        <Resource Language="hu" />
+        <Resource Language="id" />
+        <Resource Language="it" />
+        <Resource Language="ja" />
+        <Resource Language="ka" />
+        <Resource Language="km" />
+        <Resource Language="kn" />
+        <Resource Language="ko" />
+        <Resource Language="lt" />
+        <Resource Language="lv" />
+        <Resource Language="ml" />
+        <Resource Language="mr" />
+        <Resource Language="nb" />
+        <Resource Language="ne" />
+        <Resource Language="nl" />
+        <Resource Language="nn" />
+        <Resource Language="or" />
+        <Resource Language="pl" />
+        <Resource Language="pt-br" />
+        <Resource Language="pt-pt" />
+        <Resource Language="ro" />
+        <Resource Language="ru" />
+        <Resource Language="si" />
+        <Resource Language="sk" />
+        <Resource Language="sl" />
+        <Resource Language="sr-cyrl" />
+        <Resource Language="sv" />
+        <Resource Language="te" />
+        <Resource Language="th" />
+        <Resource Language="tr" />
+        <Resource Language="uk" />
+        <Resource Language="vi" />
+        <Resource Language="zh-cn" />
+        <Resource Language="zh-tw" />
+    </Resources>
+    <Dependencies>
+        <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.22635.4515"
+            MaxVersionTested="10.0.26120.4250" />
+    </Dependencies>
+    <Capabilities>
+        <rescap:Capability Name="runFullTrust" />
+    </Capabilities>
+    <Applications>
+        <Application Id="bitwardendesktop" Executable="${executable}"
+            EntryPoint="Windows.FullTrustApplication">
+            <uap:VisualElements
+                BackgroundColor="#175DDC"
+                DisplayName="${displayName}"
+                Square150x150Logo="assets\Square150x150Logo.png"
+                Square44x44Logo="assets\Square44x44Logo.png"
+                Description="A secure and free password manager for all of your devices.">
+                <uap:LockScreen Notification="badgeAndTileText" BadgeLogo="assets\BadgeLogo.png" />
+                <uap:DefaultTile Wide310x150Logo="assets\Wide310x150Logo.png" />
+                <uap:SplashScreen Image="assets\SplashScreen.png" />
+            </uap:VisualElements>
+            <Extensions>
+                <uap:Extension Category="windows.protocol">
+                    <uap:Protocol Name="bitwarden">
+                        <uap:DisplayName>${displayName}</uap:DisplayName>
+                    </uap:Protocol>
+                </uap:Extension>
+                <com:Extension Category="windows.comServer">
+                    <com:ComServer>
+                        <com:ExeServer Executable='${executable}'
+                            DisplayName="Bitwarden Passkey Manager">
+                            <com:Class Id="0f7dc5d9-69ce-4652-8572-6877fd695062"
+                                DisplayName="Bitwarden Passkey Manager" />
+                        </com:ExeServer>
+                    </com:ComServer>
+                </com:Extension>
+            </Extensions>
+        </Application>
+    </Applications>
+</Package>

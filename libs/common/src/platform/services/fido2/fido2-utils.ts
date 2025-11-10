@@ -1,3 +1,5 @@
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+
 // FIXME: Update this file to be type safe and remove this and next line
 import type {
   AssertCredentialResult,
@@ -110,5 +112,17 @@ export class Fido2Utils {
     }
 
     return output;
+  }
+
+  /**
+   * This methods returns true if a cipher either has no passkeys, or has a passkey matching with userHandle
+   * @param userHandle
+   */
+  static cipherHasNoOtherPasskeys(cipher: CipherView, userHandle: string): boolean {
+    if (cipher.login.fido2Credentials == null || cipher.login.fido2Credentials.length === 0) {
+      return true;
+    }
+
+    return cipher.login.fido2Credentials.some((passkey) => passkey.userHandle === userHandle);
   }
 }

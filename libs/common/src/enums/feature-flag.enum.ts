@@ -19,6 +19,7 @@ export enum FeatureFlag {
 
   /* Autofill */
   MacOsNativeCredentialSync = "macos-native-credential-sync",
+  WindowsNativeCredentialSync = "windows-native-credential-sync",
   WindowsDesktopAutotype = "windows-desktop-autotype",
 
   /* Billing */
@@ -86,6 +87,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Autofill */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
+  [FeatureFlag.WindowsNativeCredentialSync]: true,
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
 
   /* Tools */

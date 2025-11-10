@@ -128,6 +128,7 @@ export class Fido2AuthenticatorService<ParentWindowReference>
       let userVerified = false;
       let credentialId: string;
       let pubKeyDer: ArrayBuffer;
+
       const response = await userInterfaceSession.confirmNewCredential({
         credentialName: params.rpEntity.name,
         userName: params.userEntity.name,
@@ -189,7 +190,7 @@ export class Fido2AuthenticatorService<ParentWindowReference>
         }
         const reencrypted = await this.cipherService.encrypt(cipher, activeUserId);
         await this.cipherService.updateWithServer(reencrypted);
-        await this.cipherService.clearCache(activeUserId);
+        // await this.cipherService.clearCache(activeUserId);
         credentialId = fido2Credential.credentialId;
       } catch (error) {
         this.logService?.error(
@@ -457,8 +458,10 @@ export class Fido2AuthenticatorService<ParentWindowReference>
   }
 
   private async findCredentialsByRp(rpId: string): Promise<CipherView[]> {
+    this.logService.debug("[findCredentialByRp]:", rpId);
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
+    this.logService.debug("[findCredentialsByRp] ciphers:", ciphers);
     return ciphers.filter(
       (cipher) =>
         !cipher.isDeleted &&

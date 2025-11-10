@@ -8,6 +8,9 @@ rm -r tmp
 mkdir -p ./tmp/target/universal-darwin/release/
 
 
+rustup target add aarch64-apple-darwin
+rustup target add x86_64-apple-darwin
+
 cargo build --package macos_provider --target aarch64-apple-darwin --release
 cargo build --package macos_provider --target x86_64-apple-darwin --release
 

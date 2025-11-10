@@ -20,6 +20,7 @@ base64 = { workspace = true }
 chromium_importer = { path = "../chromium_importer" }
 desktop_core = { path = "../core" }
 hex = { workspace = true }
+log = { workspace = true }
 napi = { workspace = true, features = ["async"] }
 napi-derive = { workspace = true }
 serde = { workspace = true, features = ["derive"] }

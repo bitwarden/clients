@@ -14,6 +14,7 @@ pub struct PasskeyRegistrationRequest {
     user_verification: UserVerification,
     supported_algorithms: Vec<i32>,
     window_xy: Position,
+    excluded_credentials: Vec<Vec<u8>>,
 }
 
 #[derive(uniffi::Record, Serialize, Deserialize)]

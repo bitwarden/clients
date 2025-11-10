@@ -48,7 +48,7 @@ impl super::BiometricTrait for Biometric {
         let operation: IAsyncOperation<UserConsentVerificationResult> = unsafe {
             interop.RequestVerificationForWindowAsync(foreground_window, &HSTRING::from(message))?
         };
-        let result = operation.get()?;
+        let result = operation.join()?;
 
         match result {
             UserConsentVerificationResult::Verified => Ok(true),
@@ -57,7 +57,7 @@ impl super::BiometricTrait for Biometric {
     }
 
     async fn available() -> Result<bool> {
-        let ucv_available = UserConsentVerifier::CheckAvailabilityAsync()?.get()?;
+        let ucv_available = UserConsentVerifier::CheckAvailabilityAsync()?.join()?;
 
         match ucv_available {
             UserConsentVerifierAvailability::Available => Ok(true),
