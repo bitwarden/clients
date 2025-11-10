@@ -4,8 +4,10 @@
   <ul
     class="tw-inline-grid tw-grid-cols-3 tw-gap-6 tw-m-0 tw-p-0 tw-w-full tw-auto-cols-auto tw-list-none"
   >
-    <li class="tw-col-span-1" [ngClass]="{ 'tw-col-span-2': passwordChangeMetricHasProgressBar }">
-      <dirt-password-change-metric></dirt-password-change-metric>
+    <li class="tw-col-span-1" [ngClass]="{ 'tw-col-span-2': extendPasswordChangeWidget }">
+      <dirt-password-change-metric
+        [organizationId]="this.organizationId()"
+      ></dirt-password-change-metric>
     </li>
 
     <li class="tw-col-span-1">

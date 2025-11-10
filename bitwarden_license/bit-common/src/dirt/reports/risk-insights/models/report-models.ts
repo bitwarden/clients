@@ -1,7 +1,7 @@
 import { Opaque } from "type-fest";
 
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { OrganizationReportId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant } from "@bitwarden/components";
 
@@ -79,12 +79,12 @@ export type ApplicationHealthReportDetail = {
   applicationName: string;
   passwordCount: number;
   atRiskPasswordCount: number;
-  atRiskCipherIds: string[];
+  atRiskCipherIds: CipherId[];
   memberCount: number;
   atRiskMemberCount: number;
   memberDetails: MemberDetails[];
   atRiskMemberDetails: MemberDetails[];
-  cipherIds: string[];
+  cipherIds: CipherId[];
 };
 
 // -------------------- Password Health Report Models --------------------
