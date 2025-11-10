@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BehaviorSubject, Observable, combineLatest, fromEvent, map, startWith } from "rxjs";
 
-import { BREAKPOINTS, isWithinBreakpoint } from "../utils/responsive-utils";
+import { BREAKPOINTS, isAtOrLargerThanBreakpoint } from "../utils/responsive-utils";
 
 type CollapsePreference = "open" | "closed" | null;
 
@@ -10,7 +10,7 @@ type CollapsePreference = "open" | "closed" | null;
   providedIn: "root",
 })
 export class SideNavService {
-  private _open$ = new BehaviorSubject<boolean>(!isWithinBreakpoint("md"));
+  private _open$ = new BehaviorSubject<boolean>(isAtOrLargerThanBreakpoint("md"));
   open$ = this._open$.asObservable();
 
   private isSmallScreen$ = media(`(max-width: ${BREAKPOINTS.md}px)`);

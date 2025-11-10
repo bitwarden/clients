@@ -17,7 +17,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { DrawerService } from "../drawer/drawer.service";
-import { isWithinBreakpoint } from "../utils/responsive-utils";
+import { isAtOrLargerThanBreakpoint } from "../utils/responsive-utils";
 
 import { SimpleConfigurableDialogComponent } from "./simple-dialog/simple-configurable-dialog/simple-configurable-dialog.component";
 import { SimpleDialogOptions } from "./simple-dialog/types";
@@ -94,7 +94,7 @@ class ResponsivePositionStrategy extends GlobalPositionStrategy {
   }
 
   updatePosition() {
-    const isSmallScreen = isWithinBreakpoint("md");
+    const isSmallScreen = !isAtOrLargerThanBreakpoint("md");
     const currentBreakpoint = isSmallScreen ? "small" : "large";
     if (this.prevBreakpoint === currentBreakpoint) {
       return; // No change in breakpoint, no need to update position
