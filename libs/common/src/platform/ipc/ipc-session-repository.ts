@@ -10,6 +10,7 @@ const IPC_SESSIONS = KeyDefinition.record<object, string>(IPC_MEMORY, "ipcSessio
 
 /**
  * Implementation of SDK-defined repository interface/trait. Do not use directly.
+ * All error handling is done by the caller (the SDK).
  * For more information see IPC docs.
  */
 export class IpcSessionRepository implements SdkIpcSessionRepository {
