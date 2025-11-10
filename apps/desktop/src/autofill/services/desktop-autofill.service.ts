@@ -213,7 +213,7 @@ export class DesktopAutofillService implements OnDestroy {
       try {
         const response = await this.fido2AuthenticatorService.makeCredential(
           this.convertRegistrationRequest(request),
-          { windowXy: normalizePosition(request.windowXy) },
+          { windowXy: request.windowXy },
           controller,
         );
 
@@ -281,7 +281,7 @@ export class DesktopAutofillService implements OnDestroy {
 
           const response = await this.fido2AuthenticatorService.getAssertion(
             this.convertAssertionRequest(request, true),
-            { windowXy: normalizePosition(request.windowXy) },
+            { windowXy: request.windowXy },
             controller,
           );
 
@@ -309,7 +309,7 @@ export class DesktopAutofillService implements OnDestroy {
       try {
         const response = await this.fido2AuthenticatorService.getAssertion(
           this.convertAssertionRequest(request),
-          { windowXy: normalizePosition(request.windowXy) },
+          { windowXy: request.windowXy },
           controller,
         );
 
@@ -442,14 +442,4 @@ export class DesktopAutofillService implements OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
-}
-
-function normalizePosition(position: { x: number; y: number }): { x: number; y: number } {
-  // Add 100 pixels to the x-coordinate to offset the native OS dialog positioning.
-  const xPostionOffset = 100;
-
-  return {
-    x: Math.round(position.x + xPostionOffset),
-    y: Math.round(position.y),
-  };
 }

@@ -190,19 +190,24 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         logger.log("[autofill-extension] position: Final window frame: \(NSStringFromRect(finalWindowFrame))")
         
         // Use stabilized window frame if available, otherwise fallback to mouse position
+        let x, y: Int32
         if finalWindowFrame.origin.x != 0 || finalWindowFrame.origin.y != 0 {
             let centerX = Int32(round(finalWindowFrame.origin.x))
             let centerY = Int32(round(screenHeight - finalWindowFrame.origin.y))
             logger.log("[autofill-extension] position: Using window position: x=\(centerX), y=\(centerY)")
-            return Position(x: centerX, y: centerY)
+            x = centerX
+            y = centerY
         } else {
             // Fallback to mouse position
             let mouseLocation = NSEvent.mouseLocation
             let mouseX = Int32(round(mouseLocation.x))
             let mouseY = Int32(round(screenHeight - mouseLocation.y))
             logger.log("[autofill-extension] position: Using mouse position fallback: x=\(mouseX), y=\(mouseY)")
-            return Position(x: mouseX, y: mouseY)
+            x = mouseX
+            y = mouseY
         }
+        // Add 100 pixels to the x-coordinate to offset the native OS dialog positioning.
+        return Position(x: x + 100, y: y)
     }
     
     override func viewDidLoad() {
