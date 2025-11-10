@@ -240,9 +240,9 @@ impl Drop for DecodedMakeCredentialRequest {
     fn drop(&mut self) {
         if !self.ptr.is_null() {
             if let Some(free_fn) = self.free_fn {
-                tracing::debug!("NOT Freeing decoded make credential request");
+                tracing::debug!("Freeing decoded make credential request");
                 unsafe {
-                    // free_fn(self.ptr as *mut WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST);
+                    free_fn(self.ptr as *mut WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST);
                 }
             }
         }
