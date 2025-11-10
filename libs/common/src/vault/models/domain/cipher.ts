@@ -121,9 +121,6 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     }
   }
 
-  // We are passing the organizationId into the EncString.decrypt() method here, but because the encKey will always be
-  // present and so the organizationId will not be used.
-  // We will refactor the EncString.decrypt() in https://bitwarden.atlassian.net/browse/PM-3762 to remove the dependency on the organizationId.
   async decrypt(userKeyOrOrgKey: SymmetricCryptoKey): Promise<CipherView> {
     assertNonNullish(userKeyOrOrgKey, "userKeyOrOrgKey", "Cipher decryption");
 
