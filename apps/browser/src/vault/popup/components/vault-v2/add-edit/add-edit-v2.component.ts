@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
@@ -158,7 +158,7 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     IconButtonModule,
   ],
 })
-export class AddEditV2Component implements OnInit {
+export class AddEditV2Component implements OnInit, OnDestroy {
   headerText: string;
   config: CipherFormConfig;
   canDeleteCipher$: Observable<boolean>;
@@ -200,11 +200,56 @@ export class AddEditV2Component implements OnInit {
     this.subscribeToParams();
   }
 
+  private messageListener: (message: any) => void;
+
   async ngOnInit() {
     this.fido2PopoutSessionData = await firstValueFrom(this.fido2PopoutSessionData$);
 
     if (BrowserPopupUtils.inPopout(window)) {
       this.popupCloseWarningService.enable();
+    }
+
+    // Listen for messages to reload cipher data when already open
+    this.messageListener = async (message: any) => {
+      if (message?.command === "reloadAddEditCipherData") {
+        // Reload the cipher data with fresh values from the form
+        await this.reloadCipherData();
+      }
+    };
+    BrowserApi.addListener(chrome.runtime.onMessage, this.messageListener);
+  }
+
+  ngOnDestroy() {
+    if (this.messageListener) {
+      chrome.runtime.onMessage.removeListener(this.messageListener);
+    }
+  }
+
+  /**
+   * Reloads the cipher data when the popup is already open and new form data is submitted.
+   */
+  private async reloadCipherData() {
+    if (!this.config) {
+      return;
+    }
+
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    const latestCipherInfo = await firstValueFrom(
+      this.cipherService.addEditCipherInfo$(activeUserId),
+    );
+
+    if (latestCipherInfo != null) {
+      this.config = {
+        ...this.config,
+        initialValues: {
+          ...this.config.initialValues,
+          ...mapAddEditCipherInfoToInitialValues(latestCipherInfo),
+        },
+      };
+
+      // Be sure to clear the "cached" cipher info, so it doesn't get used again
+      await this.cipherService.setAddEditCipherInfo(null, activeUserId);
     }
   }
 
