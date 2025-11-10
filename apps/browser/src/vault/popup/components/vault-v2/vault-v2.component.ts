@@ -24,6 +24,7 @@ import { DeactivatedOrg, NoResults, VaultOpen } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -115,15 +116,30 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   );
 
   activeUserId: UserId | null = null;
-  protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
-  protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
-  protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
-  protected loading$ = this.vaultPopupLoadingService.loading$.pipe(
+
+  private loading$ = this.vaultPopupLoadingService.loading$.pipe(
     distinctUntilChanged(),
     tap((loading) => {
       const key = loading ? "loadingVault" : "vaultLoaded";
       void this.liveAnnouncer.announce(this.i18nService.translate(key), "polite");
     }),
+  );
+  private skeletonFeatureFlag$ = this.configService.getFeatureFlag$(
+    FeatureFlag.VaultLoadingSkeletons,
+  );
+
+  protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
+  protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
+  protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
+
+  /** When true, show spinner loading state */
+  protected showSpinnerLoaders$ = combineLatest([this.loading$, this.skeletonFeatureFlag$]).pipe(
+    map(([loading, skeletonsEnabled]) => loading && !skeletonsEnabled),
+  );
+
+  /** When true, show skeleton loading state */
+  protected showSkeletonsLoaders$ = combineLatest([this.loading$, this.skeletonFeatureFlag$]).pipe(
+    map(([loading, skeletonsEnabled]) => loading && skeletonsEnabled),
   );
 
   protected newItemItemValues$: Observable<NewItemInitialValues> =
@@ -163,6 +179,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private router: Router,
     private liveAnnouncer: LiveAnnouncer,
     private i18nService: I18nService,
+    private configService: ConfigService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
