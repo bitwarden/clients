@@ -25,6 +25,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { FingerprintDialogComponent, VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
+import { LockService } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
@@ -36,7 +37,6 @@ import {
   VaultTimeout,
   VaultTimeoutAction,
   VaultTimeoutOption,
-  VaultTimeoutService,
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
@@ -143,7 +143,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
-    private vaultTimeoutService: VaultTimeoutService,
+    private lockService: LockService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     public messagingService: MessagingService,
     private environmentService: EnvironmentService,
@@ -695,7 +695,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   }
 
   async lock() {
-    await this.vaultTimeoutService.lock();
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    await this.lockService.lock(activeUserId);
   }
 
   async logOut() {

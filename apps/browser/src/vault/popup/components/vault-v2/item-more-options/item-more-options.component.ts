@@ -202,6 +202,10 @@ export class ItemMoreOptionsComponent {
   async doAutofill() {
     const cipher = await this.cipherService.getFullCipherView(this.cipher);
 
+    if (!(await this.passwordRepromptService.passwordRepromptCheck(this.cipher))) {
+      return;
+    }
+
     const uris = cipher.login?.uris ?? [];
     const cipherHasAllExactMatchLoginUris =
       uris.length > 0 && uris.every((u) => u.uri && u.match === UriMatchStrategy.Exact);
@@ -220,10 +224,6 @@ export class ItemMoreOptionsComponent {
         acceptButtonText: { key: "okay" },
         cancelButtonText: null,
       });
-      return;
-    }
-
-    if (!(await this.passwordRepromptService.passwordRepromptCheck(this.cipher))) {
       return;
     }
 
@@ -291,7 +291,7 @@ export class ItemMoreOptionsComponent {
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t(
-        this.cipher.favorite ? "itemAddedToFavorites" : "itemRemovedFromFavorites",
+        cipher.favorite ? "itemAddedToFavorites" : "itemRemovedFromFavorites",
       ),
     });
   }
