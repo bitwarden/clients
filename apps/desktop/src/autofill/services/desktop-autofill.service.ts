@@ -233,7 +233,7 @@ export class DesktopAutofillService implements OnDestroy {
         // credentials list.
         try {
           this.logService.info("Initiated FIDO2 sync after makeCredential");
-          void this.adHocSync();
+          await this.adHocSync();
         } catch (error) {
           this.logService.error("Failed to sync credentials after makeCredential", error);
         }
