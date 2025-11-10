@@ -15,7 +15,9 @@ const pjson = require(path.resolve(__dirname, "package.json"));
 module.exports.getEnv = function getEnv(params) {
   const ENV = params.env?.ENV ?? process.env?.ENV ?? "development";
   const NODE_ENV = params.env?.NODE_ENV ?? process.env?.NODE_ENV ?? "development";
-  const LOGGING = params.env?.LOGGING ?? process.env?.LOGGING != "false";
+  const LOGGING =
+    params.env?.LOGGING ??
+    (process.env?.LOGGING === undefined ? true : process.env.LOGGING !== "false");
 
   return { ENV, NODE_ENV, LOGGING };
 };
