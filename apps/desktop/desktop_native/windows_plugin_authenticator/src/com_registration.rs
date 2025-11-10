@@ -13,7 +13,7 @@ const AUTHENTICATOR_NAME: &str = "Bitwarden Desktop";
 const CLSID: &str = "0f7dc5d9-69ce-4652-8572-6877fd695062";
 const RPID: &str = "bitwarden.com";
 const AAGUID: &str = "d548826e-79b4-db40-a3d8-11116f7e8349";
-const LOGO_SVG: &str = r#"<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300"><path fill="#175DDC" d="M300 253.125C300 279.023 279.023 300 253.125 300H46.875C20.9766 300 0 279.023 0 253.125V46.875C0 20.9766 20.9766 0 46.875 0H253.125C279.023 0 300 20.9766 300 46.875V253.125Z"/><path fill="#fff" d="M243.105 37.6758C241.201 35.7715 238.945 34.834 236.367 34.834H63.6328C61.0254 34.834 58.7988 35.7715 56.8945 37.6758C54.9902 39.5801 54.0527 41.8359 54.0527 44.4141V159.58C54.0527 168.164 55.7227 176.689 59.0625 185.156C62.4023 193.594 66.5625 201.094 71.5137 207.656C76.4648 214.189 82.3535 220.576 89.209 226.787C96.0645 232.998 102.393 238.125 108.164 242.227C113.965 246.328 120 250.195 126.299 253.857C132.598 257.52 137.08 259.98 139.717 261.27C142.354 262.559 144.492 263.584 146.074 264.258C147.275 264.844 148.564 265.166 149.971 265.166C151.377 265.166 152.666 264.873 153.867 264.258C155.479 263.555 157.588 262.559 160.254 261.27C162.891 259.98 167.373 257.49 173.672 253.857C179.971 250.195 186.006 246.328 191.807 242.227C197.607 238.125 203.936 232.969 210.791 226.787C217.646 220.576 223.535 214.219 228.486 207.656C233.438 201.094 237.568 193.623 240.938 185.156C244.277 176.719 245.947 168.193 245.947 159.58V44.4434C245.977 41.8359 245.01 39.5801 243.105 37.6758ZM220.84 160.664C220.84 202.354 150 238.271 150 238.271V59.502H220.84C220.84 59.502 220.84 118.975 220.84 160.664Z"/></svg>"#;
+const LOGO_SVG: &str = r#"<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 300 300"><path fill="#ff0000" d="M300 253.125C300 279.023 279.023 300 253.125 300H46.875C20.9766 300 0 279.023 0 253.125V46.875C0 20.9766 20.9766 0 46.875 0H253.125C279.023 0 300 20.9766 300 46.875V253.125Z"/><path fill="#fff" d="M243.105 37.6758C241.201 35.7715 238.945 34.834 236.367 34.834H63.6328C61.0254 34.834 58.7988 35.7715 56.8945 37.6758C54.9902 39.5801 54.0527 41.8359 54.0527 44.4141V159.58C54.0527 168.164 55.7227 176.689 59.0625 185.156C62.4023 193.594 66.5625 201.094 71.5137 207.656C76.4648 214.189 82.3535 220.576 89.209 226.787C96.0645 232.998 102.393 238.125 108.164 242.227C113.965 246.328 120 250.195 126.299 253.857C132.598 257.52 137.08 259.98 139.717 261.27C142.354 262.559 144.492 263.584 146.074 264.258C147.275 264.844 148.564 265.166 149.971 265.166C151.377 265.166 152.666 264.873 153.867 264.258C155.479 263.555 157.588 262.559 160.254 261.27C162.891 259.98 167.373 257.49 173.672 253.857C179.971 250.195 186.006 246.328 191.807 242.227C197.607 238.125 203.936 232.969 210.791 226.787C217.646 220.576 223.535 214.219 228.486 207.656C233.438 201.094 237.568 193.623 240.938 185.156C244.277 176.719 245.947 168.193 245.947 159.58V44.4434C245.977 41.8359 245.01 39.5801 243.105 37.6758ZM220.84 160.664C220.84 202.354 150 238.271 150 238.271V59.502H220.84C220.84 59.502 220.84 118.975 220.84 160.664Z"/></svg>"#;
 
 /// Parses a UUID string (with hyphens) into bytes
 fn parse_uuid_to_bytes(uuid_str: &str) -> Result<Vec<u8>, String> {
@@ -187,9 +187,8 @@ pub fn add_authenticator() -> std::result::Result<(), String> {
     let relying_party_id_ptr = PCWSTR(relying_party_id.as_ptr()).as_ptr();
 
     // Base64-encode the SVG as required by Windows API
-    let logo_svg_base64 = base64::engine::general_purpose::STANDARD.encode(LOGO_SVG);
-    let logo_svg_hstring: HSTRING = logo_svg_base64.as_str().into();
-    let logo_svg_ptr = PCWSTR(logo_svg_hstring.as_ptr()).as_ptr();
+    let logo_b64: String = base64::encode(LOGO_SVG);
+    let logo_b64_buf: Vec<u16> = logo_b64.encode_utf16().collect();
 
     // Generate CBOR authenticator info dynamically
     let authenticator_info_bytes = generate_cbor_authenticator_info()
@@ -199,8 +198,8 @@ pub fn add_authenticator() -> std::result::Result<(), String> {
         authenticator_name: authenticator_name_ptr,
         rclsid: &clsid_guid, // Changed to GUID reference
         rpid: relying_party_id_ptr,
-        light_theme_logo_svg: logo_svg_ptr,
-        dark_theme_logo_svg: logo_svg_ptr,
+        light_theme_logo_svg: logo_b64_buf.as_ptr(),
+        dark_theme_logo_svg: logo_b64_buf.as_ptr(),
         cbor_authenticator_info_byte_count: authenticator_info_bytes.len() as u32,
         cbor_authenticator_info: authenticator_info_bytes.as_ptr(), // Use as_ptr() not as_mut_ptr()
         supported_rp_ids_count: 0, // NEW field: 0 means all RPs supported
