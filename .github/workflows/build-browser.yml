@@ -341,7 +341,7 @@ jobs:
 
   build-safari:
     name: Build Safari - ${{ matrix.license_type.readable }}
-    runs-on: macos-13
+    runs-on: macos-15
     permissions:
       contents: read
       id-token: write
