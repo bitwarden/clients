@@ -1,15 +1,19 @@
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { combineLatest, switchMap } from "rxjs";
+import { combineLatest, distinctUntilChanged, switchMap, tap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NoResults, NoSendsIcon } from "@bitwarden/assets/svg";
+import { VaultFadeInOutSkeletonComponent } from "@bitwarden/browser/vault/popup/components/vault-fade-in-skeleton/vault-fade-in-skeleton.component";
+import { VaultLoadingSkeletonComponent } from "@bitwarden/browser/vault/popup/components/vault-loading-skeleton/vault-loading-skeleton.component";
 import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/vault/popup/services/browser-premium-upgrade-prompt.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import {
@@ -64,6 +68,8 @@ export enum SendState {
     SendListFiltersComponent,
     SendSearchComponent,
     TypographyModule,
+    VaultFadeInOutSkeletonComponent,
+    VaultLoadingSkeletonComponent,
   ],
 })
 export class SendV2Component implements OnDestroy {
@@ -72,7 +78,13 @@ export class SendV2Component implements OnDestroy {
 
   protected listState: SendState | null = null;
   protected sends$ = this.sendItemsService.filteredAndSortedSends$;
-  protected sendsLoading$ = this.sendItemsService.loading$;
+  protected sendsLoading$ = this.sendItemsService.loading$.pipe(
+    distinctUntilChanged(),
+    tap((loading) => {
+      const key = loading ? "loadingSendPage" : "sendPageLoaded";
+      void this.liveAnnouncer.announce(this.i18nService.translate(key), "polite");
+    }),
+  );
   protected title: string = "allSends";
   protected noItemIcon = NoSendsIcon;
   protected noResultsIcon = NoResults;
@@ -84,6 +96,8 @@ export class SendV2Component implements OnDestroy {
     protected sendListFiltersService: SendListFiltersService,
     private policyService: PolicyService,
     private accountService: AccountService,
+    private liveAnnouncer: LiveAnnouncer,
+    private i18nService: I18nService,
   ) {
     combineLatest([
       this.sendItemsService.emptyList$,
