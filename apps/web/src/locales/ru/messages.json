@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
-  "riskInsights": {
-    "message": "Информация о рисках"
-  },
   "passwordRisk": {
     "message": "Риск пароля"
   },
+  "noEditPermissions": {
+    "message": "У вас нет разрешения на редактирование этого элемента"
+  },
   "reviewAtRiskPasswords": {
     "message": "Проанализируйте пароли, подверженные риску (слабые, скомпрометированные или повторно используемые), во всех приложениях. Выберите наиболее критичные приложения, чтобы определить приоритетные меры безопасности для пользователей, направленные на устранение подверженных риску паролей."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Обзор логинов, подверженных риску"
   },
   "dataLastUpdated": {
     "message": "Последнее обновление: $DATE$",
@@ -126,6 +129,9 @@
         "example": "3"
       }
     }
+  },
+  "criticalApplicationsMarked": {
+    "message": "критичные приложения помечены"
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ критичных приложений",
@@ -235,6 +241,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Приложения помечены как критичные"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "Помечены как критичные приложений: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Не удалось пометить приложения как критичные"
   },
@@ -258,6 +273,12 @@
   },
   "membersWithAccessToAtRiskItemsForCriticalApps": {
     "message": "Участники, имеющие доступ к элементам, подверженным риску, для критичных приложений"
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Пользователи, пароли которых подверженны риску"
+  },
+  "membersWillReceiveNotification": {
+    "message": "Пользователи получат уведомление о разрешении подверженных риску логинов с помощью расширения браузера."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ участников, подверженных риску",
@@ -343,11 +364,26 @@
   "reviewNow": {
     "message": "Проверить сейчас"
   },
+  "allCaughtUp": {
+    "message": "Все сделано!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "На данный момент новых приложений для рассмотрения нет"
+  },
   "prioritizeCriticalApplications": {
     "message": "Приоритет критичных приложений"
   },
-  "atRiskItems": {
-    "message": "Элементы, подверженные риску"
+  "selectCriticalApplicationsDescription": {
+    "message": "Выберите, какие приложения наиболее критичны для вашей организации, а затем назначьте пользователям задачи по обеспечению безопасности для устранения рисков."
+  },
+  "reviewNewApplications": {
+    "message": "Обзор новых приложений"
+  },
+  "reviewNewApplicationsDescription": {
+    "message": "Мы выделили элементы, подверженные риску, для новых приложений, хранящихся в консоли администратора, которые имеют слабые, незащищенные или повторно используемые пароли."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Нажмите на значок звездочки, чтобы отметить приложение как критичное"
   },
   "markAsCriticalPlaceholder": {
     "message": "Функционал отметки как критического будет реализован в будущем обновлении"
@@ -355,20 +391,11 @@
   "applicationReviewSaved": {
     "message": "Обзор приложения сохранен"
   },
-  "applicationsMarkedAsCritical": {
-    "message": "Помечены как критичные приложений: $COUNT$",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "newApplicationsReviewed": {
     "message": "Рассмотрены новые заявки"
   },
   "errorSavingReviewStatus": {
-    "message": "Error saving review status"
+    "message": "Ошибка сохранения статуса обзора"
   },
   "pleaseTryAgain": {
     "message": "Попробуйте еще раз"
@@ -834,6 +861,9 @@
   },
   "favorites": {
     "message": "Избранные"
+  },
+  "taskSummary": {
+    "message": "Сводка по задаче"
   },
   "types": {
     "message": "Типы элементов"
@@ -4409,8 +4439,8 @@
   "updateBrowser": {
     "message": "Обновить браузер"
   },
-  "generatingYourRiskInsights": {
-    "message": "Генерация информации о рисках..."
+  "generatingYourAccessIntelligence": {
+    "message": "Generating your Access Intelligence..."
   },
   "riskInsightsRunReport": {
     "message": "Запустить отчет"
@@ -5805,8 +5835,8 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Требуется политика единой организации. "
   },
-  "autoConfirmSingleOrgRequiredDescription": {
-    "message": "У любого сотрудника, работающего в нескольких организациях, будет отозван доступ до тех пор, пока он не покинет другие организации."
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "Все участники должны принадлежать только этой организации для активации этой автоматизации."
   },
   "autoConfirmSingleOrgExemption": {
     "message": "Политика единой организации распространяется на все роли. "
@@ -5871,6 +5901,19 @@
   "disableHideEmail": {
     "message": "Всегда показывать email пользователя получателям при создании или редактировании Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Обнаружение совпадения URI по умолчанию"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Определяет, когда логины будут предлагаться для автозаполнения. Администраторы и владельцы освобождаются от этой политики."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Обнаружение совпадения URI по умолчанию"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Пожалуйста, выберите допустимый вариант определения соответствия URI.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Изменена политика $ID$.",
@@ -6525,11 +6568,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущий сеанс будет завершен и потребуется повторная авторизация. Сеансы на других устройствах могут оставаться активными в течение часа."
   },
-  "automaticAppLogin": {
-    "message": "Автоматическая авторизация пользователей в разрешенные приложения"
+  "automaticAppLoginWithSSO": {
+    "message": "Автовход с помощью SSO"
   },
-  "automaticAppLoginDesc": {
-    "message": "Формы авторизаций будут автоматически заполняться и отправляться для приложений, запущенных с помощью настроенного провайдера идентификационных данных."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Повысьте безопасность и удобство единого входа в неуправляемые приложения. Когда пользователи запускают приложение у вашего провайдера идентификации, их регистрационные данные автоматически заполняются и отправляются, создавая безопасный поток от провайдера к приложению в один клик."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Хост провайдера идентификации"
@@ -6574,7 +6617,7 @@
     "message": "Мин."
   },
   "sessionTimeoutConfirmationNeverTitle": {
-    "message": "Are you certain you want to allow a maximum timeout of \"Never\" for all members?"
+    "message": "Вы действительно хотите установить максимальное ограничение по времени \"Никогда\" для всех пользователей?"
   },
   "sessionTimeoutConfirmationNeverDescription": {
     "message": "Этот параметр сохранит ключи шифрования ваших пользователей на их устройствах. Если вы выберете этот параметр, убедитесь, что их устройства должным образом защищены."
@@ -7129,6 +7172,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Вы должны добавить либо базовый URL сервера, либо хотя бы одно пользовательское окружение."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL должны использовать HTTPS."
+  },
   "apiUrl": {
     "message": "URL API сервера"
   },
@@ -7300,6 +7346,9 @@
   },
   "accessDenied": {
     "message": "Доступ запрещен. У вас нет разрешения на просмотр этой страницы."
+  },
+  "noPageAccess": {
+    "message": "У вас нет доступа к этой странице"
   },
   "masterPassword": {
     "message": "Мастер-пароль"
@@ -9758,6 +9807,9 @@
   },
   "assignTasks": {
     "message": "Назначить задачи"
+  },
+  "assignTasksToMembers": {
+    "message": "Назначайте задачи пользователям для управляемого решения"
   },
   "assignToCollections": {
     "message": "Назначить коллекциям"

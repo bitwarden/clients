@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Intelligence sugli accessi"
   },
-  "riskInsights": {
-    "message": "Approfondimento rischi"
-  },
   "passwordRisk": {
     "message": "Rischio password"
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "reviewAtRiskPasswords": {
     "message": "Controlla le password a rischio (deboli, esposte o riutilizzate). Seleziona le applicazioni critiche per determinare la priorità delle azioni di sicurezza."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Review at-risk logins"
   },
   "dataLastUpdated": {
     "message": "Ultimo aggiornamento dei dati: $DATE$",
@@ -127,6 +130,9 @@
       }
     }
   },
+  "criticalApplicationsMarked": {
+    "message": "critical applications marked"
+  },
   "countOfCriticalApplications": {
     "message": "$COUNT$ applicazioni critiche",
     "placeholders": {
@@ -173,7 +179,7 @@
     }
   },
   "noApplicationsInOrgTitle": {
-    "message": "No applications found for $ORG NAME$",
+    "message": "Nessuna applicazione trovata per $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -182,13 +188,13 @@
     }
   },
   "noApplicationsInOrgDescription": {
-    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+    "message": "Importa i dati di accesso della tua organizzazione per iniziare a monitorare i rischi per la sicurezza delle credenziali. Una volta importati, potrai:"
   },
   "benefit1Title": {
-    "message": "Prioritize risks"
+    "message": "Priorità dei rischi"
   },
   "benefit1Description": {
-    "message": "Focus on applications that matter the most"
+    "message": "Concentrati sulle applicazioni più importanti"
   },
   "benefit2Title": {
     "message": "Guide remediation"
@@ -235,6 +241,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Applicazioni contrassegnate come critiche"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Impossibile contrassegnare le applicazioni come critiche"
   },
@@ -258,6 +273,12 @@
   },
   "membersWithAccessToAtRiskItemsForCriticalApps": {
     "message": "Membri con accesso agli elementi a rischio per applicazioni critiche"
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Members with at-risk passwords"
+  },
+  "membersWillReceiveNotification": {
+    "message": "Members will receive a notification to resolve at-risk logins through the browser extension."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ membri a rischio",
@@ -343,26 +364,32 @@
   "reviewNow": {
     "message": "Controlla adesso"
   },
+  "allCaughtUp": {
+    "message": "All caught up!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "No new applications to review at this time"
+  },
   "prioritizeCriticalApplications": {
     "message": "Priorità alle applicazioni critiche"
   },
-  "atRiskItems": {
-    "message": "Elementi a rischio"
+  "selectCriticalApplicationsDescription": {
+    "message": "Select which applications are most critical to your organization, then assign security tasks to members to resolve risks."
+  },
+  "reviewNewApplications": {
+    "message": "Review new applications"
+  },
+  "reviewNewApplicationsDescription": {
+    "message": "We've highlighted at-risk items for new applications stored in Admin console that have weak, exposed, or reused passwords."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Click the star icon to mark an app as critical"
   },
   "markAsCriticalPlaceholder": {
     "message": "La funzionalità per contrassegnare gli elementi critici sarà implementata in un aggiornamento futuro"
   },
   "applicationReviewSaved": {
     "message": "Application review saved"
-  },
-  "applicationsMarkedAsCritical": {
-    "message": "$COUNT$ applications marked as critical",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
   },
   "newApplicationsReviewed": {
     "message": "New applications reviewed"
@@ -834,6 +861,9 @@
   },
   "favorites": {
     "message": "Preferiti"
+  },
+  "taskSummary": {
+    "message": "Task summary"
   },
   "types": {
     "message": "Tipi"
@@ -4409,8 +4439,8 @@
   "updateBrowser": {
     "message": "Aggiorna browser"
   },
-  "generatingYourRiskInsights": {
-    "message": "Generazione delle tue informazioni sui rischi..."
+  "generatingYourAccessIntelligence": {
+    "message": "Generating your Access Intelligence..."
   },
   "riskInsightsRunReport": {
     "message": "Avvia report"
@@ -5805,8 +5835,8 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Single organization policy required. "
   },
-  "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "All members must only belong to this organization to activate this automation."
   },
   "autoConfirmSingleOrgExemption": {
     "message": "Single organization policy will extend to all roles. "
@@ -5871,6 +5901,19 @@
   "disableHideEmail": {
     "message": "Mostra sempre l'indirizzo email del membro ai destinatari durante la creazione o la modifica di un Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Default URI match detection"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Determine when logins are suggested for autofill. Admins and owners are exempt from this policy."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Default URI match detection"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Please select a valid URI match detection option.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Politica $ID$ modificata.",
@@ -6525,11 +6568,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "La tua password principale non soddisfa uno o più politiche della tua organizzazione. Per accedere alla cassaforte, aggiornala ora. Procedere ti farà uscire dalla sessione corrente, richiedendoti di accedere di nuovo. Le sessioni attive su altri dispositivi potrebbero continuare a rimanere attive per un massimo di un'ora."
   },
-  "automaticAppLogin": {
-    "message": "Accesso automatico degli utenti per le applicazioni consentite"
+  "automaticAppLoginWithSSO": {
+    "message": "Automatic login with SSO"
   },
-  "automaticAppLoginDesc": {
-    "message": "I moduli di accesso verranno automaticamente compilati e inviati per le applicazioni lanciate dall'identity provider configurato."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Extend SSO security and convenience to unmanaged apps. When users launch an app from your identity provider, their login details are automatically filled and submitted, creating a one-click, secure flow from the identity provider to the app."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Host Identity provider"
@@ -7129,6 +7172,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Devi aggiungere lo URL del server di base o almeno un ambiente personalizzato."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
+  },
   "apiUrl": {
     "message": "URL del server API"
   },
@@ -7300,6 +7346,9 @@
   },
   "accessDenied": {
     "message": "Accesso negato. Non hai i permessi necessari per visualizzare questa pagina."
+  },
+  "noPageAccess": {
+    "message": "You do not have access to this page"
   },
   "masterPassword": {
     "message": "Password principale"
@@ -9758,6 +9807,9 @@
   },
   "assignTasks": {
     "message": "Assegna attività"
+  },
+  "assignTasksToMembers": {
+    "message": "Assign tasks to members for guided resolution"
   },
   "assignToCollections": {
     "message": "Assegna alle raccolte"
