@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, HostListener, Optional, input, model } from "@angular/core";
+import { Component, HostListener, Optional, computed, input, model } from "@angular/core";
 import { RouterLinkActive, RouterModule } from "@angular/router";
 import { BehaviorSubject, map } from "rxjs";
 
@@ -51,6 +51,19 @@ export class NavItemComponent extends NavBaseComponent {
   protected get showActiveStyles() {
     return this.forceActiveStyles() || (this._isActive && !this.hideActiveStyles());
   }
+
+  protected readonly navItemIndentationPadding = computed(() => {
+    const open = this.sideNavService.open$;
+    const depth = this.treeDepth() ?? 0;
+
+    if (open && this.variant() === "tree") {
+      return depth === 1
+        ? `${this.TREE_BASE_PADDING}rem`
+        : `${this.TREE_BASE_PADDING + (depth - 1) * this.TREE_DEPTH_PADDING}rem`;
+    }
+
+    return `${this.TREE_BASE_PADDING * depth}rem`;
+  });
 
   /**
    * Allow overriding of the RouterLink['ariaCurrentWhenActive'] property.
