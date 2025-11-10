@@ -94,7 +94,7 @@ xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/re
         <rescap:Capability Name="runFullTrust" />
     </Capabilities>
     <Applications>
-        <Application Id="bitwardendesktop" Executable="app\Bitwarden.exe"
+        <Application Id="bitwardendesktop" Executable="app\Bitwarden Beta.exe"
             EntryPoint="Windows.FullTrustApplication">
             <uap:VisualElements
                 BackgroundColor="#175DDC"
