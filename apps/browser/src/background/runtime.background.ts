@@ -290,14 +290,24 @@ export default class RuntimeBackground {
       case "openPopup":
         await this.openPopup();
         break;
-      case VaultMessages.OpenAtRiskPasswords:
+      case VaultMessages.OpenAtRiskPasswords: {
+        if (!(await this.isValidVaultReferrer(msg.referrer))) {
+          return;
+        }
+
         await this.main.openAtRisksPasswordsPage();
         this.announcePopupOpen();
         break;
-      case VaultMessages.OpenBrowserExtensionToUrl:
+      }
+      case VaultMessages.OpenBrowserExtensionToUrl: {
+        if (!(await this.isValidVaultReferrer(msg.referrer))) {
+          return;
+        }
+
         await this.main.openTheExtensionToPage(msg.url);
         this.announcePopupOpen();
         break;
+      }
       case "bgUpdateContextMenu":
       case "editedCipher":
       case "addedCipher":
@@ -309,10 +319,7 @@ export default class RuntimeBackground {
         break;
       }
       case "authResult": {
-        const env = await firstValueFrom(this.environmentService.environment$);
-        const vaultUrl = env.getWebVaultUrl();
-
-        if (msg.referrer == null || Utils.getHostname(vaultUrl) !== msg.referrer) {
+        if (!(await this.isValidVaultReferrer(msg.referrer))) {
           return;
         }
 
@@ -331,10 +338,7 @@ export default class RuntimeBackground {
         break;
       }
       case "webAuthnResult": {
-        const env = await firstValueFrom(this.environmentService.environment$);
-        const vaultUrl = env.getWebVaultUrl();
-
-        if (msg.referrer == null || Utils.getHostname(vaultUrl) !== msg.referrer) {
+        if (!(await this.isValidVaultReferrer(msg.referrer))) {
           return;
         }
 
@@ -367,6 +371,28 @@ export default class RuntimeBackground {
         break;
       }
     }
+  }
+
+  /**
+   * Validates a message's referrer matches the configured web vault hostname.
+   *
+   * @param referrer - hostname from message source
+   * @returns true if referrer matches web vault
+   */
+  private async isValidVaultReferrer(referrer: string | null | undefined): Promise<boolean> {
+    if (!referrer) {
+      return false;
+    }
+
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const vaultUrl = env.getWebVaultUrl();
+    const vaultHostname = Utils.getHostname(vaultUrl);
+
+    if (!vaultHostname) {
+      return false;
+    }
+
+    return vaultHostname === referrer;
   }
 
   private async autofillPage(tabToAutoFill: chrome.tabs.Tab) {

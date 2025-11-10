@@ -18,9 +18,15 @@ const windowMessageHandlers: ContentMessageWindowEventHandlers = {
   [VaultMessages.checkBwInstalled]: () => handleExtensionInstallCheck(),
   duoResult: ({ data, referrer }: { data: any; referrer: string }) =>
     handleDuoResultMessage(data, referrer),
-  [VaultMessages.OpenAtRiskPasswords]: () => handleOpenAtRiskPasswordsMessage(),
-  [VaultMessages.OpenBrowserExtensionToUrl]: ({ data }) =>
-    handleOpenBrowserExtensionToUrlMessage(data),
+  [VaultMessages.OpenAtRiskPasswords]: ({ referrer }: { referrer: string }) =>
+    handleOpenAtRiskPasswordsMessage(referrer),
+  [VaultMessages.OpenBrowserExtensionToUrl]: ({
+    data,
+    referrer,
+  }: {
+    data: any;
+    referrer: string;
+  }) => handleOpenBrowserExtensionToUrlMessage({ ...data, referrer }),
 };
 
 /**
@@ -77,12 +83,18 @@ function handleWebAuthnResultMessage(data: ContentMessageWindowData, referrer: s
 }
 
 /** @deprecated use {@link handleOpenBrowserExtensionToUrlMessage} */
-function handleOpenAtRiskPasswordsMessage() {
-  sendExtensionRuntimeMessage({ command: VaultMessages.OpenAtRiskPasswords });
+function handleOpenAtRiskPasswordsMessage(referrer: string) {
+  sendExtensionRuntimeMessage({ command: VaultMessages.OpenAtRiskPasswords, referrer });
 }
 
-function handleOpenBrowserExtensionToUrlMessage({ url }: { url?: ExtensionPageUrls }) {
-  sendExtensionRuntimeMessage({ command: VaultMessages.OpenBrowserExtensionToUrl, url });
+function handleOpenBrowserExtensionToUrlMessage({
+  url,
+  referrer,
+}: {
+  url?: ExtensionPageUrls;
+  referrer: string;
+}) {
+  sendExtensionRuntimeMessage({ command: VaultMessages.OpenBrowserExtensionToUrl, url, referrer });
 }
 
 /**
