@@ -97,11 +97,6 @@ async function openAddEditVaultItemPopout(
   let singleActionKey = VaultPopoutType.addEditVaultItem;
   let addEditCipherUrl = "popup/index.html#/edit-cipher";
   let queryParamToken = "?";
-  const extensionUrl = chrome.runtime.getURL("popup/index.html");
-  const existingPopupTabs = await BrowserApi.tabsQuery({ url: `${extensionUrl}*` });
-  const existingPopup = existingPopupTabs.find((tab) =>
-    tab.url?.includes(`singleActionPopout=${singleActionKey}`),
-  );
   const formatQueryString = (key: string, value: string) => {
     const queryString = `${queryParamToken}${key}=${value}`;
     queryParamToken = "&";
@@ -120,6 +115,11 @@ async function openAddEditVaultItemPopout(
     addEditCipherUrl += formatQueryString("uri", url);
   }
 
+  const extensionUrl = chrome.runtime.getURL("popup/index.html");
+  const existingPopupTabs = await BrowserApi.tabsQuery({ url: `${extensionUrl}*` });
+  const existingPopup = existingPopupTabs.find((tab) =>
+    tab.url?.includes(`singleActionPopout=${singleActionKey}`),
+  );
   // Check if the an existing popup is already open
   if (existingPopup) {
     await chrome.runtime.sendMessage({

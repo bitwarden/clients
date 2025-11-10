@@ -220,7 +220,7 @@ export class AddEditV2Component implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     if (this.messageListener) {
-      chrome.runtime.onMessage.removeListener(this.messageListener);
+      BrowserApi.removeListener(chrome.runtime.onMessage, this.messageListener);
     }
   }
 
