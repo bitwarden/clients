@@ -6,7 +6,7 @@ describe("PasswordHistoryExport", () => {
       const passwordHistory = new PasswordHistoryExport({
         password: value as any,
         lastUsedDate: new Date(),
-      });
+      } as any);
       expect(() => PasswordHistoryExport.toView(passwordHistory)).toThrow(
         "Password history password is required.",
       );
@@ -16,7 +16,7 @@ describe("PasswordHistoryExport", () => {
       const validPasswordHistory = {
         password: "PASSWORD",
         lastUsedDate: new Date("2023-01-01T00:00:00Z"),
-      };
+      } as any;
       const result = PasswordHistoryExport.toView(new PasswordHistoryExport(validPasswordHistory));
       expect(result).toBeDefined();
       expect(result.password).toBe(validPasswordHistory.password);

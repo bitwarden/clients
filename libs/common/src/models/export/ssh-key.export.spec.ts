@@ -10,17 +10,17 @@ describe("toView", () => {
   };
 
   it.each([null, undefined, "", "   "])("should throw when privateKey is %p", (value) => {
-    const sshKey = new SshKeyExport({ ...validSshKey, privateKey: value });
+    const sshKey = new SshKeyExport({ ...validSshKey, privateKey: value as any } as any);
     expect(() => SshKeyExport.toView(sshKey)).toThrow("SSH key private key is required.");
   });
 
   it.each([null, undefined, "", "   "])("should throw when publicKey is %p", (value) => {
-    const sshKey = new SshKeyExport({ ...validSshKey, publicKey: value });
+    const sshKey = new SshKeyExport({ ...validSshKey, publicKey: value as any } as any);
     expect(() => SshKeyExport.toView(sshKey)).toThrow("SSH key public key is required.");
   });
 
   it.each([null, undefined, "", "   "])("should throw when keyFingerprint is %p", (value) => {
-    const sshKey = new SshKeyExport({ ...validSshKey, keyFingerprint: value });
+    const sshKey = new SshKeyExport({ ...validSshKey, keyFingerprint: value as any } as any);
     expect(() => SshKeyExport.toView(sshKey)).toThrow("SSH key fingerprint is required.");
   });
 

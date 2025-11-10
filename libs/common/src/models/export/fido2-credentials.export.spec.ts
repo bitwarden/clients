@@ -21,8 +21,8 @@ describe("Fido2CredentialsExport", () => {
     it.each([null, undefined, "", "   "])("should throw when credentialId is %p", (value) => {
       const fido2Credential = new Fido2CredentialExport({
         ...validFido2Credential,
-        credentialId: value,
-      });
+        credentialId: value as any,
+      } as any);
       expect(() => Fido2CredentialExport.toView(fido2Credential)).toThrow(
         "FIDO2 credential ID is required.",
       );
@@ -31,8 +31,8 @@ describe("Fido2CredentialsExport", () => {
     it.each([null, undefined, "", "   "])("should throw when keyType is %p", (value) => {
       const fido2Credential = new Fido2CredentialExport({
         ...validFido2Credential,
-        keyType: value,
-      });
+        keyType: value as any,
+      } as any);
       expect(() => Fido2CredentialExport.toView(fido2Credential)).toThrow(
         "FIDO2 key type is required.",
       );
@@ -41,8 +41,8 @@ describe("Fido2CredentialsExport", () => {
     it.each([null, undefined, "", "   "])("should throw when keyAlgorithm is %p", (value) => {
       const fido2Credential = new Fido2CredentialExport({
         ...validFido2Credential,
-        keyAlgorithm: value,
-      });
+        keyAlgorithm: value as any,
+      } as any);
       expect(() => Fido2CredentialExport.toView(fido2Credential)).toThrow(
         "FIDO2 key algorithm is required.",
       );
@@ -51,8 +51,8 @@ describe("Fido2CredentialsExport", () => {
     it.each([null, undefined, "", "   "])("should throw when keyCurve is %p", (value) => {
       const fido2Credential = new Fido2CredentialExport({
         ...validFido2Credential,
-        keyCurve: value,
-      });
+        keyCurve: value as any,
+      } as any);
       expect(() => Fido2CredentialExport.toView(fido2Credential)).toThrow(
         "FIDO2 key curve is required.",
       );
@@ -61,8 +61,8 @@ describe("Fido2CredentialsExport", () => {
     it.each([null, undefined, "", "   "])("should throw when keyValue is %p", (value) => {
       const fido2Credential = new Fido2CredentialExport({
         ...validFido2Credential,
-        keyValue: value,
-      });
+        keyValue: value as any,
+      } as any);
       expect(() => Fido2CredentialExport.toView(fido2Credential)).toThrow(
         "FIDO2 key value is required.",
       );
@@ -71,8 +71,8 @@ describe("Fido2CredentialsExport", () => {
     it.each([null, undefined, "", "   "])("should throw when rpId is %p", (value) => {
       const fido2Credential = new Fido2CredentialExport({
         ...validFido2Credential,
-        rpId: value,
-      });
+        rpId: value as any,
+      } as any);
       expect(() => Fido2CredentialExport.toView(fido2Credential)).toThrow(
         "FIDO2 relying party ID is required.",
       );
@@ -82,7 +82,7 @@ describe("Fido2CredentialsExport", () => {
       const fido2Credential = new Fido2CredentialExport({
         ...validFido2Credential,
         counter: value as any,
-      });
+      } as any);
       expect(() => Fido2CredentialExport.toView(fido2Credential)).toThrow(
         "FIDO2 counter is required.",
       );
@@ -90,7 +90,7 @@ describe("Fido2CredentialsExport", () => {
 
     it("should succeed with valid inputs", () => {
       const fido2Credential = new Fido2CredentialExport(
-        Fido2CredentialView.fromJSON({ ...validFido2Credential }),
+        Fido2CredentialView.fromJSON({ ...validFido2Credential } as any),
       );
       const result = Fido2CredentialExport.toView(fido2Credential);
       expect(result).toBeDefined();
