@@ -421,6 +421,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       card: undefined,
       secureNote: undefined,
       sshKey: undefined,
+      data: undefined,
     };
 
     switch (this.type) {

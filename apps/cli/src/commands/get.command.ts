@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map, switchMap } from "rxjs";
+import { filter, firstValueFrom, map, switchMap } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -448,7 +448,9 @@ export class GetCommand extends DownloadCommand {
         this.collectionService.encryptedCollections$(activeUserId).pipe(getById(id)),
       );
       if (collection != null) {
-        const orgKeys = await firstValueFrom(this.keyService.activeUserOrgKeys$);
+        const orgKeys = await firstValueFrom(
+          this.keyService.orgKeys$(activeUserId).pipe(filter((orgKeys) => orgKeys != null)),
+        );
         decCollection = await collection.decrypt(
           orgKeys[collection.organizationId as OrganizationId],
           this.encryptService,
