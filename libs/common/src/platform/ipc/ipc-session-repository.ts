@@ -8,6 +8,10 @@ const IPC_SESSIONS = KeyDefinition.record<object, string>(IPC_MEMORY, "ipcSessio
   deserializer: (value: object) => value,
 });
 
+/**
+ * Implementation of SDK-defined repository interface/trait. Do not use directly.
+ * For more information see IPC docs.
+ */
 export class IpcSessionRepository implements SdkIpcSessionRepository {
   private states: GlobalState<Record<string, object>>;
 
