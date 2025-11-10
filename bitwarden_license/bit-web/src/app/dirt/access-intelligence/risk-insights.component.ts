@@ -1,3 +1,4 @@
+import { animate, style, transition, trigger } from "@angular/animations";
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, OnDestroy, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -34,6 +35,7 @@ import { AllApplicationsComponent } from "./all-applications/all-applications.co
 import { CriticalApplicationsComponent } from "./critical-applications/critical-applications.component";
 import { EmptyStateCardComponent } from "./empty-state-card.component";
 import { RiskInsightsTabType } from "./models/risk-insights.models";
+import { PageLoadingComponent } from "./shared/page-loading.component";
 import { ApplicationsLoadingComponent } from "./shared/risk-insights-loading.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -55,6 +57,15 @@ import { ApplicationsLoadingComponent } from "./shared/risk-insights-loading.com
     DrawerHeaderComponent,
     AllActivityComponent,
     ApplicationsLoadingComponent,
+    PageLoadingComponent,
+  ],
+  animations: [
+    trigger("fadeIn", [
+      transition(":enter", [
+        style({ opacity: 0 }),
+        animate("300ms 100ms ease-in", style({ opacity: 1 })),
+      ]),
+    ]),
   ],
 })
 export class RiskInsightsComponent implements OnInit, OnDestroy {
@@ -67,7 +78,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
 
   appsCount: number = 0;
 
-  private organizationId: OrganizationId = "" as OrganizationId;
+  protected organizationId: OrganizationId = "" as OrganizationId;
 
   dataLastUpdated: Date | null = null;
 

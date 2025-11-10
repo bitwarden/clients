@@ -1523,12 +1523,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Ask for biometrics on launch"
   },
-  "premiumRequired": {
-    "message": "প্রিমিয়াম আবশ্যক"
-  },
-  "premiumRequiredDesc": {
-    "message": "এই বৈশিষ্ট্যটি ব্যবহার করতে একটি প্রিমিয়াম সদস্যতার প্রয়োজন।"
-  },
   "authenticationTimeout": {
     "message": "Authentication timeout"
   },
@@ -1640,6 +1634,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "You must add either the base Server URL or at least one custom environment."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
   },
   "customEnvironment": {
     "message": "পছন্দসই পরিবেশ"
@@ -4977,6 +4974,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Default ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "Show match detection $WEBSITE$",
     "placeholders": {
@@ -5768,6 +5775,30 @@
   },
   "atRiskLoginsSecured": {
     "message": "Great job securing your at-risk logins!"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
   },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
