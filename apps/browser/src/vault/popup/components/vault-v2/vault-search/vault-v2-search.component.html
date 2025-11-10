@@ -4,5 +4,6 @@
   [(ngModel)]="searchText"
   (ngModelChange)="onSearchTextChanged()"
   appAutofocus
+  [disabled]="loading$ | async"
 >
 </bit-search>
