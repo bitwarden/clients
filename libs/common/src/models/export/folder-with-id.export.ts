@@ -18,7 +18,7 @@ export class FolderWithIdExport extends FolderExport {
 
   // Use build method instead of ctor so that we can control order of JSON stringify for pretty print
   build(o: FolderView | FolderDomain) {
-    this.id = o.id;
+    this.id = o.id ?? "";
     super.build(o);
   }
 }
