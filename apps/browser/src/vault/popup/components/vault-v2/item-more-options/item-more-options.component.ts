@@ -202,8 +202,21 @@ export class ItemMoreOptionsComponent {
   async doAutofill() {
     const cipher = await this.cipherService.getFullCipherView(this.cipher);
 
+    if (!(await this.passwordRepromptService.passwordRepromptCheck(this.cipher))) {
+      return;
+    }
+
+    const uris = cipher.login?.uris ?? [];
+    const cipherHasAllExactMatchLoginUris =
+      uris.length > 0 && uris.every((u) => u.uri && u.match === UriMatchStrategy.Exact);
+
+    const showAutofillConfirmation = await firstValueFrom(this.showAutofillConfirmation$);
     const uriMatchStrategy = await firstValueFrom(this.uriMatchStrategy$);
-    if (uriMatchStrategy === UriMatchStrategy.Exact) {
+
+    if (
+      showAutofillConfirmation &&
+      (cipherHasAllExactMatchLoginUris || uriMatchStrategy === UriMatchStrategy.Exact)
+    ) {
       await this.dialogService.openSimpleDialog({
         title: { key: "cannotAutofill" },
         content: { key: "cannotAutofillExactMatch" },
@@ -213,12 +226,6 @@ export class ItemMoreOptionsComponent {
       });
       return;
     }
-
-    if (!(await this.passwordRepromptService.passwordRepromptCheck(this.cipher))) {
-      return;
-    }
-
-    const showAutofillConfirmation = await firstValueFrom(this.showAutofillConfirmation$);
 
     if (!showAutofillConfirmation) {
       await this.vaultPopupAutofillService.doAutofill(cipher, true, true);
@@ -284,7 +291,7 @@ export class ItemMoreOptionsComponent {
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t(
-        this.cipher.favorite ? "itemAddedToFavorites" : "itemRemovedFromFavorites",
+        cipher.favorite ? "itemAddedToFavorites" : "itemRemovedFromFavorites",
       ),
     });
   }

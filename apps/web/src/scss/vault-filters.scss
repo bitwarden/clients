@@ -30,7 +30,7 @@
         color: rgb(var(--color-primary-600));
       }
       &.active {
-        font-weight: bold;
+        font-weight: 500;
       }
     }
   }
@@ -59,7 +59,7 @@
     > .filter-buttons {
       .filter-button {
         color: rgb(var(--color-primary-600));
-        font-weight: bold;
+        font-weight: 500;
       }
 
       .edit-button {

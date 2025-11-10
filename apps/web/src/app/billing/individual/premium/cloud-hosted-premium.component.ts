@@ -5,6 +5,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
+  catchError,
   combineLatest,
   concatMap,
   filter,
@@ -12,10 +13,9 @@ import {
   map,
   Observable,
   of,
+  shareReplay,
   startWith,
   switchMap,
-  catchError,
-  shareReplay,
 } from "rxjs";
 import { debounceTime } from "rxjs/operators";
 
@@ -23,9 +23,10 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
+import { DefaultSubscriptionPricingService } from "@bitwarden/common/billing/services/subscription-pricing.service";
+import { PersonalSubscriptionPricingTierIds } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ToastService } from "@bitwarden/components";
 import { SubscriberBillingClient, TaxClient } from "@bitwarden/web-vault/app/billing/clients";
@@ -35,21 +36,19 @@ import {
   getBillingAddressFromForm,
 } from "@bitwarden/web-vault/app/billing/payment/components";
 import {
-  tokenizablePaymentMethodToLegacyEnum,
   NonTokenizablePaymentMethods,
+  tokenizablePaymentMethodToLegacyEnum,
 } from "@bitwarden/web-vault/app/billing/payment/types";
-import { SubscriptionPricingService } from "@bitwarden/web-vault/app/billing/services/subscription-pricing.service";
 import { mapAccountToSubscriber } from "@bitwarden/web-vault/app/billing/types";
-import { PersonalSubscriptionPricingTierIds } from "@bitwarden/web-vault/app/billing/types/subscription-pricing-tier";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  templateUrl: "./premium.component.html",
+  templateUrl: "./cloud-hosted-premium.component.html",
   standalone: false,
   providers: [SubscriberBillingClient, TaxClient],
 })
-export class PremiumComponent {
+export class CloudHostedPremiumComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(EnterPaymentMethodComponent) enterPaymentMethodComponent!: EnterPaymentMethodComponent;
@@ -121,7 +120,6 @@ export class PremiumComponent {
   );
 
   protected cloudWebVaultURL: string;
-  protected isSelfHost = false;
   protected readonly familyPlanMaxUserCount = 6;
 
   constructor(
@@ -130,17 +128,14 @@ export class PremiumComponent {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private environmentService: EnvironmentService,
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
     private router: Router,
     private syncService: SyncService,
     private toastService: ToastService,
     private accountService: AccountService,
     private subscriberBillingClient: SubscriberBillingClient,
     private taxClient: TaxClient,
-    private subscriptionPricingService: SubscriptionPricingService,
+    private subscriptionPricingService: DefaultSubscriptionPricingService,
   ) {
-    this.isSelfHost = this.platformUtilsService.isSelfHost();
-
     this.hasPremiumFromAnyOrganization$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
         this.billingAccountProfileStateService.hasPremiumFromAnyOrganization$(account.id),
@@ -231,7 +226,10 @@ export class PremiumComponent {
     const formData = new FormData();
     formData.append("paymentMethodType", paymentMethodType.toString());
     formData.append("paymentToken", paymentToken);
-    formData.append("additionalStorageGb", this.formGroup.value.additionalStorage.toString());
+    formData.append(
+      "additionalStorageGb",
+      (this.formGroup.value.additionalStorage ?? 0).toString(),
+    );
     formData.append("country", this.formGroup.value.billingAddress.country);
     formData.append("postalCode", this.formGroup.value.billingAddress.postalCode);
 
@@ -239,12 +237,4 @@ export class PremiumComponent {
     await this.finalizeUpgrade();
     await this.postFinalizeUpgrade();
   };
-
-  protected get premiumURL(): string {
-    return `${this.cloudWebVaultURL}/#/settings/subscription/premium`;
-  }
-
-  protected async onLicenseFileSelectedChanged(): Promise<void> {
-    await this.postFinalizeUpgrade();
-  }
 }

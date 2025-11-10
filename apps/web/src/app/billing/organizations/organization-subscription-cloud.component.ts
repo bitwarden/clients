@@ -300,6 +300,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
       return this.i18nService.t("subscriptionFreePlan", this.sub.seats.toString());
     } else if (
       this.sub.planType === PlanType.FamiliesAnnually ||
+      this.sub.planType === PlanType.FamiliesAnnually2025 ||
       this.sub.planType === PlanType.FamiliesAnnually2019 ||
       this.sub.planType === PlanType.TeamsStarter2023 ||
       this.sub.planType === PlanType.TeamsStarter

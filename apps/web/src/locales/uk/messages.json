@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Управління доступом"
   },
-  "riskInsights": {
-    "message": "Інформація щодо ризику"
-  },
   "passwordRisk": {
     "message": "Ризиковані паролі"
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "reviewAtRiskPasswords": {
     "message": "Переглядайте ризиковані паролі в різних програмах (слабкі, викриті, або повторно використані). Виберіть найбільш критичні програми, щоб визначити пріоритети дій щодо безпеки для користувачів, які використовують ризиковані паролі."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Review at-risk logins"
   },
   "dataLastUpdated": {
     "message": "Дані востаннє оновлено: $DATE$",
@@ -126,6 +129,9 @@
         "example": "3"
       }
     }
+  },
+  "criticalApplicationsMarked": {
+    "message": "critical applications marked"
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ critical applications",
@@ -235,6 +241,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Позначені критичні програми"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Failed to mark applications as critical"
   },
@@ -258,6 +273,12 @@
   },
   "membersWithAccessToAtRiskItemsForCriticalApps": {
     "message": "Members with access to at-risk items for critical applications"
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Members with at-risk passwords"
+  },
+  "membersWillReceiveNotification": {
+    "message": "Members will receive a notification to resolve at-risk logins through the browser extension."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ members at-risk",
@@ -343,26 +364,32 @@
   "reviewNow": {
     "message": "Review now"
   },
+  "allCaughtUp": {
+    "message": "All caught up!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "No new applications to review at this time"
+  },
   "prioritizeCriticalApplications": {
     "message": "Prioritize critical applications"
   },
-  "atRiskItems": {
-    "message": "At-risk items"
+  "selectCriticalApplicationsDescription": {
+    "message": "Select which applications are most critical to your organization, then assign security tasks to members to resolve risks."
+  },
+  "reviewNewApplications": {
+    "message": "Review new applications"
+  },
+  "reviewNewApplicationsDescription": {
+    "message": "We've highlighted at-risk items for new applications stored in Admin console that have weak, exposed, or reused passwords."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Click the star icon to mark an app as critical"
   },
   "markAsCriticalPlaceholder": {
     "message": "Mark as critical functionality will be implemented in a future update"
   },
   "applicationReviewSaved": {
     "message": "Application review saved"
-  },
-  "applicationsMarkedAsCritical": {
-    "message": "$COUNT$ applications marked as critical",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
   },
   "newApplicationsReviewed": {
     "message": "New applications reviewed"
@@ -834,6 +861,9 @@
   },
   "favorites": {
     "message": "Обране"
+  },
+  "taskSummary": {
+    "message": "Task summary"
   },
   "types": {
     "message": "Типи"
@@ -2495,23 +2525,23 @@
     "message": "Відновити доступ"
   },
   "premium": {
-    "message": "Преміум",
+    "message": "Premium",
     "description": "Premium membership"
   },
   "premiumMembership": {
-    "message": "Преміум статус"
+    "message": "Передплата Premium"
   },
   "premiumRequired": {
-    "message": "Необхідна передплата преміум"
+    "message": "Необхідна передплата Premium"
   },
   "premiumRequiredDesc": {
-    "message": "Для використання цієї функції необхідна передплата преміум."
+    "message": "Для використання цієї функції необхідна передплата Premium."
   },
   "youHavePremiumAccess": {
-    "message": "У вас є преміумдоступ"
+    "message": "У вас є Premium"
   },
   "alreadyPremiumFromOrg": {
-    "message": "У вас вже є доступ до преміумфункцій, тому що ви входите до організації, яка вам їх надає."
+    "message": "У вас вже є доступ до функцій Premium, тому що ви входите до організації, яка вам їх надає."
   },
   "manage": {
     "message": "Керувати"
@@ -3036,10 +3066,10 @@
     "message": "Пріоритетну технічну підтримку."
   },
   "premiumSignUpFuture": {
-    "message": "Усі майбутні преміумфункції. Їх буде більше!"
+    "message": "Усі майбутні функції Premium. Їх буде більше!"
   },
   "premiumPrice": {
-    "message": "Всього лише $PRICE$ / за рік!",
+    "message": "Лише $PRICE$ / рік!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -3048,7 +3078,7 @@
     }
   },
   "premiumPriceWithFamilyPlan": {
-    "message": "Отримайте преміум – лише $PRICE$ /рік. Або отримайте преміум обліковий запис для користувачів $FAMILYPLANUSERCOUNT$ та необмежений спільний доступ з ",
+    "message": "Отримайте Premium – лише $PRICE$ /рік. Або отримайте обліковий запис Premium для користувачів $FAMILYPLANUSERCOUNT$ та необмежений спільний доступ з ",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -3326,7 +3356,7 @@
     "message": "Спосіб оплати оновлено."
   },
   "purchasePremium": {
-    "message": "Придбати преміум"
+    "message": "Придбати Premium"
   },
   "licenseFile": {
     "message": "Файл ліцензії"
@@ -4409,8 +4439,8 @@
   "updateBrowser": {
     "message": "Оновити браузер"
   },
-  "generatingYourRiskInsights": {
-    "message": "Генерується інформація щодо ризиків..."
+  "generatingYourAccessIntelligence": {
+    "message": "Generating your Access Intelligence..."
   },
   "riskInsightsRunReport": {
     "message": "Run report"
@@ -5805,8 +5835,8 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Single organization policy required. "
   },
-  "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "All members must only belong to this organization to activate this automation."
   },
   "autoConfirmSingleOrgExemption": {
     "message": "Single organization policy will extend to all roles. "
@@ -5871,6 +5901,19 @@
   "disableHideEmail": {
     "message": "Завжди показувати отримувачам адресу е-пошти учасників під час створення чи редагування відправлень.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Default URI match detection"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Determine when logins are suggested for autofill. Admins and owners are exempt from this policy."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Default URI match detection"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Please select a valid URI match detection option.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Змінено політику $ID$.",
@@ -6525,11 +6568,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Ваш головний пароль не відповідає одній або більше політикам вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
   },
-  "automaticAppLogin": {
-    "message": "Автоматичний вхід користувачів для дозволених програм"
+  "automaticAppLoginWithSSO": {
+    "message": "Automatic login with SSO"
   },
-  "automaticAppLoginDesc": {
-    "message": "Форми входу автоматично заповнюватимуться і надсилатимуться для програм, запущених від налаштованого провайдера ідентифікації."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Extend SSO security and convenience to unmanaged apps. When users launch an app from your identity provider, their login details are automatically filled and submitted, creating a one-click, secure flow from the identity provider to the app."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Вузол провайдера ідентифікації"
@@ -6821,7 +6864,7 @@
     "message": "План Bitwarden Families включає"
   },
   "sponsoredFamiliesPremiumAccess": {
-    "message": "Преміумдоступ до 6 користувачів"
+    "message": "Доступ Premium для 6 користувачів"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Спільні збірки для учасників родини"
@@ -7129,6 +7172,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Необхідно додати URL-адресу основного сервера, або принаймні одне користувацьке середовище."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
+  },
   "apiUrl": {
     "message": "URL-адреса сервера API"
   },
@@ -7300,6 +7346,9 @@
   },
   "accessDenied": {
     "message": "Доступ заборонено. У вас немає дозволу на перегляд цієї сторінки."
+  },
+  "noPageAccess": {
+    "message": "You do not have access to this page"
   },
   "masterPassword": {
     "message": "Головний пароль"
@@ -7674,7 +7723,7 @@
     }
   },
   "premiumSubcriptionRequired": {
-    "message": "Необхідна передплата преміум"
+    "message": "Необхідна передплата Premium"
   },
   "scim": {
     "message": "Розгортання SCIM",
@@ -9759,6 +9808,9 @@
   "assignTasks": {
     "message": "Assign tasks"
   },
+  "assignTasksToMembers": {
+    "message": "Assign tasks to members for guided resolution"
+  },
   "assignToCollections": {
     "message": "Призначити до збірок"
   },
@@ -10777,7 +10829,7 @@
     "message": "Захистіть паролі своєї родини"
   },
   "accessToPremiumFeatures": {
-    "message": "Доступ до преміальних функцій"
+    "message": "Доступ до функцій Premium"
   },
   "additionalStorageGbMessage": {
     "message": "ГБ додаткового сховища"
@@ -10816,7 +10868,7 @@
     "message": "RSA 4096-Bit"
   },
   "premiumAccounts": {
-    "message": "6 облікових записів Преміум"
+    "message": "6 облікових записів Premium"
   },
   "unlimitedSharing": {
     "message": "Необмежений спільний доступ"
@@ -11827,10 +11879,10 @@
     "message": "Families membership"
   },
   "planDescPremium": {
-    "message": "Complete online security"
+    "message": "Повна онлайн-безпека"
   },
   "planDescFamiliesV2": {
-    "message": "Premium security for your family"
+    "message": "Безпека Premium для вашої сім'ї"
   },
   "planDescFreeV2": {
     "message": "Share with $COUNT$ other user",
@@ -11944,7 +11996,7 @@
     "message": "Upgrade to Families"
   },
   "upgradeToPremium": {
-    "message": "Upgrade to Premium"
+    "message": "Покращити до Premium"
   },
   "familiesUpdated": {
     "message": "You've upgraded to Families!"
@@ -11956,7 +12008,7 @@
     "message": "Welcome to Bitwarden"
   },
   "individualUpgradeDescriptionMessage": {
-    "message": "Unlock more security features with Premium, or start sharing items with Families"
+    "message": "Розблокуйте більше можливостей безпеки з передплатою Premium, або почніть ділитися записами з родиною"
   },
   "individualUpgradeTaxInformationMessage": {
     "message": "Prices exclude tax and are billed annually."

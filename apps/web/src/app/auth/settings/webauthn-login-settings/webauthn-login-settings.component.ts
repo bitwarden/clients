@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, HostBinding, OnDestroy, OnInit } from "@angular/core";
 import { Subject, switchMap, takeUntil } from "rxjs";
 
@@ -36,31 +34,14 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
   protected credentials?: WebauthnLoginCredentialView[];
   protected loading = true;
 
+  protected requireSsoPolicyEnabled = false;
+
   constructor(
     private webauthnService: WebauthnLoginAdminService,
     private dialogService: DialogService,
     private policyService: PolicyService,
     private accountService: AccountService,
   ) {}
-
-  @HostBinding("attr.aria-busy")
-  get ariaBusy() {
-    return this.loading ? "true" : "false";
-  }
-
-  get hasCredentials() {
-    return this.credentials && this.credentials.length > 0;
-  }
-
-  get hasData() {
-    return this.credentials !== undefined;
-  }
-
-  get limitReached() {
-    return this.credentials?.length >= this.MaxCredentialCount;
-  }
-
-  requireSsoPolicyEnabled = false;
 
   ngOnInit(): void {
     this.accountService.activeAccount$
@@ -88,6 +69,23 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  @HostBinding("attr.aria-busy")
+  get ariaBusy() {
+    return this.loading ? "true" : "false";
+  }
+
+  get hasCredentials() {
+    return (this.credentials?.length ?? 0) > 0;
+  }
+
+  get hasData() {
+    return this.credentials !== undefined;
+  }
+
+  get limitReached() {
+    return (this.credentials?.length ?? 0) >= this.MaxCredentialCount;
   }
 
   protected createCredential() {
