@@ -32,7 +32,7 @@
     "message": "使用单点登录"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "您的组织要求单点登录。"
   },
   "welcomeBack": {
     "message": "欢迎回来"
@@ -1523,12 +1523,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "启动时提示生物识别"
   },
-  "premiumRequired": {
-    "message": "需要高级会员"
-  },
-  "premiumRequiredDesc": {
-    "message": "使用此功能需要高级会员资格。"
-  },
   "authenticationTimeout": {
     "message": "身份验证超时"
   },
@@ -1640,6 +1634,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "您必须添加基础服务器 URL 或至少添加一个自定义环境。"
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL 必须使用 HTTPS。"
   },
   "customEnvironment": {
     "message": "自定义环境"
@@ -4968,7 +4965,17 @@
     "message": "删除网站"
   },
   "defaultLabel": {
-    "message": "默认 ($VALUE$)",
+    "message": "默认（$VALUE$）",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "defaultLabelWithValue": {
+    "message": "默认（$VALUE$）",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5592,7 +5599,7 @@
     "message": "欢迎使用 Bitwarden"
   },
   "securityPrioritized": {
-    "message": "安全优先"
+    "message": "以安全为首要"
   },
   "securityPrioritizedBody": {
     "message": "将登录、支付卡和身份保存到您的安全密码库。Bitwarden 使用零知识、端到端的加密来保护您的重要信息。"
@@ -5768,6 +5775,30 @@
   },
   "atRiskLoginsSecured": {
     "message": "很好地保护了存在风险的登录！"
+  },
+  "upgradeNow": {
+    "message": "立即升级"
+  },
+  "builtInAuthenticator": {
+    "message": "内置身份验证器"
+  },
+  "secureFileStorage": {
+    "message": "安全文件存储"
+  },
+  "emergencyAccess": {
+    "message": "紧急访问"
+  },
+  "breachMonitoring": {
+    "message": "数据泄露监测"
+  },
+  "andMoreFeatures": {
+    "message": "以及更多！"
+  },
+  "planDescPremium": {
+    "message": "全面的在线安全防护"
+  },
+  "upgradeToPremium": {
+    "message": "升级为高级版"
   },
   "settingDisabledByPolicy": {
     "message": "此设置被您组织的策略禁用了。",
