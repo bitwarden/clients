@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Accéder à Intelligence"
   },
-  "riskInsights": {
-    "message": "Aperçus des Risques"
-  },
   "passwordRisk": {
     "message": "Risque du mot de passe"
   },
+  "noEditPermissions": {
+    "message": "Vous n'avez pas l'autorisation de modifier cet élément"
+  },
   "reviewAtRiskPasswords": {
     "message": "Examinez les mots de passe à risque (faibles, exposés ou réutilisés) à travers les applications. Sélectionnez vos applications les plus critiques pour prioriser les actions de sécurité pour que vos utilisateurs s'occupent des mots de passe à risque."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Examiner les identifiants à risque"
   },
   "dataLastUpdated": {
     "message": "Dernière mise à jour des données : $DATE$",
@@ -126,6 +129,9 @@
         "example": "3"
       }
     }
+  },
+  "criticalApplicationsMarked": {
+    "message": "applications critiques marquées"
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ applications critiques",
@@ -235,6 +241,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Applications marquées comme critiques"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applications marquées comme critiques",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Échec du marquage de l'application comme étant critique"
   },
@@ -258,6 +273,12 @@
   },
   "membersWithAccessToAtRiskItemsForCriticalApps": {
     "message": "Les membres ayant accès aux éléments à risque pour les applications critiques"
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Membres avec des mots de passe à risque"
+  },
+  "membersWillReceiveNotification": {
+    "message": "Les membres recevront une notification pour résoudre les identifiants à risque via l'extension du navigateur."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ membres à risque",
@@ -343,26 +364,32 @@
   "reviewNow": {
     "message": "Examiner maintenant"
   },
+  "allCaughtUp": {
+    "message": "Tout est à jour !"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "Aucune nouvelle application à examiner pour le moment"
+  },
   "prioritizeCriticalApplications": {
     "message": "Prioriser les applications critiques"
   },
-  "atRiskItems": {
-    "message": "Éléments à risque"
+  "selectCriticalApplicationsDescription": {
+    "message": "Sélectionnez les applications les plus critiques pour votre organisation, puis attribuez des tâches de sécurité aux membres pour résoudre les risques."
+  },
+  "reviewNewApplications": {
+    "message": "Examiner les nouvelles applications"
+  },
+  "reviewNewApplicationsDescription": {
+    "message": "Nous avons mis en évidence des éléments à risque pour les nouvelles applications stockées dans la console Admin qui ont des mots de passe faibles, exposés ou réutilisés."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Cliquez sur l'icône étoile pour marquer une application comme critique"
   },
   "markAsCriticalPlaceholder": {
     "message": "Marquer comme fonctionnalité critique sera implémentée dans une mise à jour future"
   },
   "applicationReviewSaved": {
     "message": "Révision de l'application enregistrée"
-  },
-  "applicationsMarkedAsCritical": {
-    "message": "$COUNT$ applications marquées comme critiques",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
   },
   "newApplicationsReviewed": {
     "message": "Nouvelles demandes examinées"
@@ -834,6 +861,9 @@
   },
   "favorites": {
     "message": "Favoris"
+  },
+  "taskSummary": {
+    "message": "Résumé de tâche"
   },
   "types": {
     "message": "Types"
@@ -4409,8 +4439,8 @@
   "updateBrowser": {
     "message": "Mettre à jour le navigateur"
   },
-  "generatingYourRiskInsights": {
-    "message": "Génération de vos Aperçus de Risque..."
+  "generatingYourAccessIntelligence": {
+    "message": "Génération de votre Intelligence d'Accès..."
   },
   "riskInsightsRunReport": {
     "message": "Exécuter le rapport"
@@ -5805,8 +5835,8 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Une politique d'organisation unique est requise. "
   },
-  "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Toute personne faisant partie de plus d'une organisation sera révoquée jusqu'à ce qu'elle quitte les autres organisations."
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "Tous les membres doivent appartenir uniquement à cette organisation pour activer cette automatisation."
   },
   "autoConfirmSingleOrgExemption": {
     "message": "La politique d'organisation unique s'étendra à tous les rôles. "
@@ -5871,6 +5901,19 @@
   "disableHideEmail": {
     "message": "Toujours afficher l'adresse électronique du membre avec les destinataires lors de la création ou de l'édition d'un Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Détection de correspondance URL par défaut"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Détermine quand des identifiants sont suggérées pour la saisie automatique. Les administrateurs et les propriétaires sont exemptés de cette politique de sécurité."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Détection de correspondance URL par défaut"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Veuillez sélectionner une option de détection de correspondance URL valide.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Politique $ID$ modifiée.",
@@ -6525,11 +6568,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Votre mot de passe principal ne répond pas aux exigences des politiques de sécurité de cette organisation. Pour pouvoir accéder au coffre, vous devez mettre à jour votre mot de passe principal dès maintenant. En poursuivant, vous serez déconnecté de votre session actuelle et vous devrez vous reconnecter. Les sessions actives sur d'autres appareils peuver rester actives pendant encore une heure."
   },
-  "automaticAppLogin": {
-    "message": "Se connecter automatiquement aux utilisateurs pour les applications autorisées"
+  "automaticAppLoginWithSSO": {
+    "message": "Connexion automatique avec SSO"
   },
-  "automaticAppLoginDesc": {
-    "message": "Les formulaires de connexion seront automatiquement remplis et soumis pour les applications lancées à partir de votre fournisseur d'identité configuré."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Étendre la sécurité et la commodité SSO aux applications non gérées. Lorsque les utilisateurs lancent une application à partir de votre fournisseur d'identité, leurs identifiants de connexion sont automatiquement saisis et soumis, créant une connexion sécuriséw en un clic depuis le fournisseur d'identité vers l'application."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Hôte du fournisseur d'identité"
@@ -7129,6 +7172,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Vous devez ajouter soit l'URL du Serveur de base, soit au moins un environnement personnalisé."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Les URLs doivent utiliser HTTPS."
+  },
   "apiUrl": {
     "message": "URL du serveur API"
   },
@@ -7300,6 +7346,9 @@
   },
   "accessDenied": {
     "message": "Accès Refusé. Vous n'avez pas l'autorisation d'afficher cette page."
+  },
+  "noPageAccess": {
+    "message": "Vous n'avez pas accès à cette page"
   },
   "masterPassword": {
     "message": "Mot de passe principal"
@@ -9758,6 +9807,9 @@
   },
   "assignTasks": {
     "message": "Assigner des tâches"
+  },
+  "assignTasksToMembers": {
+    "message": "Assigner des tâches aux membres pour une résolution guidée"
   },
   "assignToCollections": {
     "message": "Assigner aux collections"

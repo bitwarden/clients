@@ -32,7 +32,7 @@
     "message": "Egyszeri bejelentkezés használata"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "A szervezet egyszeri bejelentkezést igényel."
   },
   "welcomeBack": {
     "message": "Üdvözlet újra"
@@ -1523,12 +1523,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Biometria kérése indításkor"
   },
-  "premiumRequired": {
-    "message": "Prémium funkció szükséges"
-  },
-  "premiumRequiredDesc": {
-    "message": "Prémium tagság szükséges ennek a funkciónak eléréséhez a jövőben."
-  },
   "authenticationTimeout": {
     "message": "Hitelesítési időkifutás"
   },
@@ -1640,6 +1634,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Hozzá kell adni az alapszerver webcímét vagy legalább egy egyedi környezetet."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "A webcímeknek HTTPS-t kell használniuk."
   },
   "customEnvironment": {
     "message": "Egyedi környezet"
@@ -4977,6 +4974,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Default ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "$WEBSITE$ egyező érzékelés megjelenítése",
     "placeholders": {
@@ -5768,6 +5775,30 @@
   },
   "atRiskLoginsSecured": {
     "message": "Remek munka a kockázatos bejelentkezések biztosítása!"
+  },
+  "upgradeNow": {
+    "message": "Áttérés most"
+  },
+  "builtInAuthenticator": {
+    "message": "Beépített hitelesítő"
+  },
+  "secureFileStorage": {
+    "message": "Biztonságos fájl tárolás"
+  },
+  "emergencyAccess": {
+    "message": "Sürgősségi hozzáférés"
+  },
+  "breachMonitoring": {
+    "message": "Adatszivárgás figyelés"
+  },
+  "andMoreFeatures": {
+    "message": "És még több!"
+  },
+  "planDescPremium": {
+    "message": "Teljes körű online biztonság"
+  },
+  "upgradeToPremium": {
+    "message": "Áttérés Prémium csomagra"
   },
   "settingDisabledByPolicy": {
     "message": "Ezt a beállítást a szervezet házirendje letiltotta.",
