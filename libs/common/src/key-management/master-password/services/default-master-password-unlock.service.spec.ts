@@ -217,7 +217,7 @@ describe("DefaultMasterPasswordUnlockService", () => {
         mockMasterPasswordUnlockData,
       );
       expect(logService.debug).toHaveBeenCalledWith(
-        `[DefaultMasterPasswordUnlockService] proofOfDecryption: Error during proof of decryption for user ${mockUserId} returning false: ${error}`,
+        `[DefaultMasterPasswordUnlockService] Error during proof of decryption for user ${mockUserId} returning false: ${error}`,
       );
     });
   });
