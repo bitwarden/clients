@@ -29,12 +29,6 @@ export default {
       ],
     }),
   ],
-  parameters: {
-    design: {
-      type: "figma",
-      url: "https://www.figma.com/design/nuFrzHsgEoEk2Sm8fWOGuS/Premium-Upgrade-flows--pricing-increase-?node-id=858-44276&t=KjcXRRvpIsvfbh4jT-4",
-    },
-  },
 } as Meta<DiscountBadgeComponent>;
 
 type Story = StoryObj<DiscountBadgeComponent>;
