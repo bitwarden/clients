@@ -45,25 +45,24 @@ class SignalRLogger implements ILogger {
   }
 
   log(logLevel: LogLevel, message: string): void {
-    const redactedMessage = `[SignalR] ${this.redactMessage(message)}`;
-
-    switch (logLevel) {
-      case LogLevel.Critical:
-        this.logService.error(redactedMessage);
-        break;
-      case LogLevel.Error:
-        this.logService.error(redactedMessage);
-        break;
-      case LogLevel.Warning:
-        this.logService.warning(redactedMessage);
-        break;
-      case LogLevel.Information:
-        this.logService.info(redactedMessage);
-        break;
-      case LogLevel.Debug:
-        this.logService.debug(redactedMessage);
-        break;
-    }
+    // const redactedMessage = `[SignalR] ${this.redactMessage(message)}`;
+    // switch (logLevel) {
+    //   case LogLevel.Critical:
+    //     this.logService.error(redactedMessage);
+    //     break;
+    //   case LogLevel.Error:
+    //     this.logService.error(redactedMessage);
+    //     break;
+    //   case LogLevel.Warning:
+    //     this.logService.warning(redactedMessage);
+    //     break;
+    //   case LogLevel.Information:
+    //     this.logService.info(redactedMessage);
+    //     break;
+    //   case LogLevel.Debug:
+    //     this.logService.debug(redactedMessage);
+    //     break;
+    // }
   }
 }
 

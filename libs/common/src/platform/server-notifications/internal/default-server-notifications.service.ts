@@ -157,7 +157,7 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
           );
         },
         notSupported: () => {
-          this.logService.info("Using SignalR for server notifications");
+          // this.logService.info("Using SignalR for server notifications");
           return this.connectSignalR$(userId, notificationsUrl);
         },
       }),

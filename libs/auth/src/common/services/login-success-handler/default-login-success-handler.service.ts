@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -19,6 +20,30 @@ export class DefaultLoginSuccessHandlerService implements LoginSuccessHandlerSer
     private logService: LogService,
   ) {}
   async run(userId: UserId): Promise<void> {
+    // ⏱️ END TIMING - About to call /sync
+    console.log("");
+    performance.mark("before-sync-call");
+    console.timeEnd("⏱️ Token→Sync Processing Time");
+
+    // Calculate and display the duration
+    try {
+      const measure = performance.measure(
+        "token-to-sync-duration",
+        "token-response-received",
+        "before-sync-call",
+      );
+      console.log(
+        `%c📊 Time between /connect/token response and /sync call: ${measure.duration.toFixed(2)}ms`,
+        "color: #27AE60; font-weight: bold; font-size: 14px",
+      );
+    } catch (e) {
+      // Performance marks might not exist in some scenarios (e.g., 2FA flow)
+    }
+
+    console.log("");
+    console.log("%c🌐 POST /sync - Starting call now...", "color: #95A5A6");
+
+    // This is where /sync is actually called - we don't time this
     await this.syncService.fullSync(true, { skipTokenRefresh: true });
     await this.userAsymmetricKeysRegenerationService.regenerateIfNeeded(userId);
     await this.loginEmailService.clearLoginEmail();

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { BehaviorSubject, filter, firstValueFrom, timeout, Observable } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -120,6 +121,10 @@ export abstract class LoginStrategy {
     }
     const response = await this.apiService.postIdentityToken(tokenRequest);
 
+    // ⏱️ START TIMING - Response received from /connect/token
+    performance.mark("token-response-received");
+    console.time("⏱️ Token→Sync Processing Time");
+
     if (response instanceof IdentityTwoFactorResponse) {
       return [await this.processTwoFactorResponse(response), response];
     } else if (response instanceof IdentityTokenResponse) {
@@ -176,60 +181,88 @@ export abstract class LoginStrategy {
    * @returns {Promise<UserId>} - A promise that resolves the the UserId when the account information has been successfully saved.
    */
   protected async saveAccountInformation(tokenResponse: IdentityTokenResponse): Promise<UserId> {
+    console.time("    💾 STATE WRITE: tokenService.decodeAccessToken()");
     const accountInformation = await this.tokenService.decodeAccessToken(tokenResponse.accessToken);
+    console.timeEnd("    💾 STATE WRITE: tokenService.decodeAccessToken()");
     const userId = accountInformation.sub as UserId;
 
+    console.time("    💾 STATE WRITE: accountService.addAccount()");
     await this.accountService.addAccount(userId, {
       name: accountInformation.name,
       email: accountInformation.email ?? "",
       emailVerified: accountInformation.email_verified ?? false,
     });
+    console.timeEnd("    💾 STATE WRITE: accountService.addAccount()");
 
     // User env must be seeded from currently set env before switching to the account
     // to avoid any incorrect emissions of the global default env.
+    console.time("    💾 STATE WRITE: environmentService.seedUserEnvironment()");
     await this.environmentService.seedUserEnvironment(userId);
+    console.timeEnd("    💾 STATE WRITE: environmentService.seedUserEnvironment()");
 
+    console.time("    💾 STATE WRITE: accountService.switchAccount()");
     await this.accountService.switchAccount(userId);
+    console.timeEnd("    💾 STATE WRITE: accountService.switchAccount()");
 
+    console.time("    📡 OBSERVABLE: verifyAccountAdded()");
     await this.verifyAccountAdded(userId);
+    console.timeEnd("    📡 OBSERVABLE: verifyAccountAdded()");
 
     // We must set user decryption options before retrieving vault timeout settings
     // as the user decryption options help determine the available timeout actions.
+    console.time("    💾 STATE WRITE: userDecryptionOptionsService.setUserDecryptionOptions()");
     await this.userDecryptionOptionsService.setUserDecryptionOptions(
       UserDecryptionOptions.fromResponse(tokenResponse),
     );
+    console.timeEnd("    💾 STATE WRITE: userDecryptionOptionsService.setUserDecryptionOptions()");
 
     if (tokenResponse.userDecryptionOptions?.masterPasswordUnlock != null) {
+      console.time("    💾 STATE WRITE: masterPasswordService.setMasterPasswordUnlockData()");
       const masterPasswordUnlockData =
         tokenResponse.userDecryptionOptions.masterPasswordUnlock.toMasterPasswordUnlockData();
       await this.masterPasswordService.setMasterPasswordUnlockData(
         masterPasswordUnlockData,
         userId,
       );
+      console.timeEnd("    💾 STATE WRITE: masterPasswordService.setMasterPasswordUnlockData()");
     }
 
+    console.time("    📖 STATE READ: vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$()");
     const vaultTimeoutAction = await firstValueFrom(
       this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(userId),
     );
+    console.timeEnd(
+      "    📖 STATE READ: vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$()",
+    );
+
+    console.time("    📖 STATE READ: vaultTimeoutSettingsService.getVaultTimeoutByUserId$()");
     const vaultTimeout = await firstValueFrom(
       this.vaultTimeoutSettingsService.getVaultTimeoutByUserId$(userId),
     );
+    console.timeEnd("    📖 STATE READ: vaultTimeoutSettingsService.getVaultTimeoutByUserId$()");
 
     // User id will be derived from the access token.
+    console.time("    💾 STATE WRITE: tokenService.setTokens()");
     await this.tokenService.setTokens(
       tokenResponse.accessToken,
       vaultTimeoutAction as VaultTimeoutAction,
       vaultTimeout,
       tokenResponse.refreshToken, // Note: CLI login via API key sends undefined for refresh token.
     );
+    console.timeEnd("    💾 STATE WRITE: tokenService.setTokens()");
 
+    console.time("    💾 STATE WRITE: KdfConfigService.setKdfConfig()");
     await this.KdfConfigService.setKdfConfig(userId as UserId, tokenResponse.kdfConfig);
+    console.timeEnd("    💾 STATE WRITE: KdfConfigService.setKdfConfig()");
 
+    console.time("    💾 STATE WRITE: billingAccountProfileStateService.setHasPremium()");
     await this.billingAccountProfileStateService.setHasPremium(
       accountInformation.premium ?? false,
       false,
       userId,
     );
+    console.timeEnd("    💾 STATE WRITE: billingAccountProfileStateService.setHasPremium()");
+
     return userId;
   }
 
@@ -243,24 +276,45 @@ export abstract class LoginStrategy {
     }
 
     // Must come before setting keys, user key needs email to update additional keys.
+    console.log("");
+    console.time("saveAccountInformation()");
     const userId = await this.saveAccountInformation(response);
+    console.timeEnd("saveAccountInformation()");
+
     result.userId = userId;
 
     result.resetMasterPassword = response.resetMasterPassword;
 
     if (response.twoFactorToken != null) {
       // note: we can read email from access token b/c it was saved in saveAccountInformation
+      console.time("📖 STATE READ: tokenService.getEmail()");
       const userEmail = await this.tokenService.getEmail();
+      console.timeEnd("📖 STATE READ: tokenService.getEmail()");
 
+      console.time("💾 STATE WRITE: tokenService.setTwoFactorToken()");
       await this.tokenService.setTwoFactorToken(userEmail, response.twoFactorToken);
+      console.timeEnd("💾 STATE WRITE: tokenService.setTwoFactorToken()");
     }
 
+    console.log("");
+    console.time("setMasterKey()");
     await this.setMasterKey(response, userId);
+    console.timeEnd("setMasterKey()");
+
+    console.log("");
+    console.time("setUserKey()");
     await this.setUserKey(response, userId);
+    console.timeEnd("setUserKey()");
+
+    console.log("");
+    console.time("💾 STATE WRITE: keyService.setPrivateKey()");
     await this.setPrivateKey(response, userId);
+    console.timeEnd("💾 STATE WRITE: keyService.setPrivateKey()");
 
     // This needs to run after the keys are set because it checks for the existence of the encrypted private key
+    console.time("💾 STATE WRITE: super.processForceSetPasswordReason()");
     await this.processForceSetPasswordReason(response.forcePasswordReset, userId);
+    console.timeEnd("💾 STATE WRITE: super.processForceSetPasswordReason()");
 
     this.messagingService.send("loggedIn");
 

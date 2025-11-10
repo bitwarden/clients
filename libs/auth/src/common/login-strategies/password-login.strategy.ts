@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+/* eslint-disable no-console */
 import { BehaviorSubject, firstValueFrom, map, Observable } from "rxjs";
 import { Jsonify } from "type-fest";
 
@@ -101,7 +102,9 @@ export class PasswordLoginStrategy extends LoginStrategy {
 
     const [authResult, identityResponse] = await this.startLogIn();
 
+    console.time("💾 STATE WRITE: evaluateMasterPasswordIfRequired()");
     await this.evaluateMasterPasswordIfRequired(identityResponse, credentials, authResult);
+    console.timeEnd("💾 STATE WRITE: evaluateMasterPasswordIfRequired()");
 
     return authResult;
   }
@@ -114,8 +117,13 @@ export class PasswordLoginStrategy extends LoginStrategy {
 
   protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {
     const { masterKey, localMasterKeyHash } = this.cache.value;
+    console.time("    💾 STATE WRITE: masterPasswordService.setMasterKey()");
     await this.masterPasswordService.setMasterKey(masterKey, userId);
+    console.timeEnd("    💾 STATE WRITE: masterPasswordService.setMasterKey()");
+
+    console.time("    💾 STATE WRITE: masterPasswordService.setMasterKeyHash()");
     await this.masterPasswordService.setMasterKeyHash(localMasterKeyHash, userId);
+    console.timeEnd("    💾 STATE WRITE: masterPasswordService.setMasterKeyHash()");
   }
 
   protected override async setUserKey(
@@ -128,16 +136,30 @@ export class PasswordLoginStrategy extends LoginStrategy {
     }
 
     if (response.key) {
+      console.time("    💾 STATE WRITE: masterPasswordService.setMasterKeyEncryptedUserKey()");
       await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
+      console.timeEnd("    💾 STATE WRITE: masterPasswordService.setMasterKeyEncryptedUserKey()");
     }
 
+    console.time("    📖 STATE READ: masterPasswordService.masterKey$()");
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
+    console.timeEnd("    📖 STATE READ: masterPasswordService.masterKey$()");
+
     if (masterKey) {
+      console.time(
+        "    🔐 ENCRYPTION/DECRYPTION: masterPasswordService.decryptUserKeyWithMasterKey()",
+      );
       const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
         masterKey,
         userId,
       );
+      console.timeEnd(
+        "    🔐 ENCRYPTION/DECRYPTION: masterPasswordService.decryptUserKeyWithMasterKey()",
+      );
+
+      console.time("    💾 STATE WRITE: keyService.setUserKey()");
       await this.keyService.setUserKey(userKey, userId);
+      console.timeEnd("    💾 STATE WRITE: keyService.setUserKey()");
     }
   }
 
