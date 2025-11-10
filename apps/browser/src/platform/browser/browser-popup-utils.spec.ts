@@ -140,6 +140,11 @@ describe("BrowserPopupUtils", () => {
 
   describe("openPopout", () => {
     beforeEach(() => {
+      jest.spyOn(BrowserApi, "getPlatformInfo").mockResolvedValueOnce({
+        os: "linux",
+        arch: "x86-64",
+        nacl_arch: "x86-64",
+      });
       jest.spyOn(BrowserApi, "getWindow").mockResolvedValueOnce({
         id: 1,
         left: 100,
@@ -150,6 +155,8 @@ describe("BrowserPopupUtils", () => {
         width: 380,
       });
       jest.spyOn(BrowserApi, "createWindow").mockImplementation();
+      jest.spyOn(BrowserApi, "updateWindowProperties").mockImplementation();
+      jest.spyOn(BrowserApi, "getPlatformInfo").mockImplementation();
     });
 
     it("creates a window with the default window options", async () => {
@@ -265,6 +272,63 @@ describe("BrowserPopupUtils", () => {
         left: 85,
         top: 190,
         url: `chrome-extension://id/${url}?uilocation=popout&singleActionPopout=123`,
+      });
+    });
+
+    it("exits fullscreen and focuses popout window if the current window is fullscreen and platform is mac", async () => {
+      const url = "popup/index.html";
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+      jest.spyOn(BrowserApi, "getPlatformInfo").mockReset().mockResolvedValueOnce({
+        os: "mac",
+        arch: "x86-64",
+        nacl_arch: "x86-64",
+      });
+      jest.spyOn(BrowserApi, "getWindow").mockReset().mockResolvedValueOnce({
+        id: 1,
+        left: 100,
+        top: 100,
+        focused: false,
+        alwaysOnTop: false,
+        incognito: false,
+        width: 380,
+        state: "fullscreen",
+      });
+      jest
+        .spyOn(BrowserApi, "createWindow")
+        .mockResolvedValueOnce({ id: 2 } as chrome.windows.Window);
+
+      await BrowserPopupUtils.openPopout(url, { senderWindowId: 1 });
+      expect(BrowserApi.updateWindowProperties).toHaveBeenCalledWith(1, {
+        state: "maximized",
+      });
+      expect(BrowserApi.updateWindowProperties).toHaveBeenCalledWith(2, {
+        focused: true,
+      });
+    });
+
+    it("doesnt exit fullscreen if the platform is not mac", async () => {
+      const url = "popup/index.html";
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+      jest.spyOn(BrowserApi, "getPlatformInfo").mockReset().mockResolvedValueOnce({
+        os: "win",
+        arch: "x86-64",
+        nacl_arch: "x86-64",
+      });
+      jest.spyOn(BrowserApi, "getWindow").mockResolvedValueOnce({
+        id: 1,
+        left: 100,
+        top: 100,
+        focused: false,
+        alwaysOnTop: false,
+        incognito: false,
+        width: 380,
+        state: "fullscreen",
+      });
+
+      await BrowserPopupUtils.openPopout(url);
+
+      expect(BrowserApi.updateWindowProperties).not.toHaveBeenCalledWith(1, {
+        state: "maximized",
       });
     });
   });

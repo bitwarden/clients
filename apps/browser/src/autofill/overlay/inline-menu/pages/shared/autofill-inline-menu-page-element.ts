@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import { RedirectFocusDirection } from "../../../../enums/autofill-overlay.enum";
@@ -10,10 +8,14 @@ import {
 
 export class AutofillInlineMenuPageElement extends HTMLElement {
   protected shadowDom: ShadowRoot;
-  protected messageOrigin: string;
-  protected translations: Record<string, string>;
-  private portKey: string;
-  protected windowMessageHandlers: AutofillInlineMenuPageElementWindowMessageHandlers;
+  /** Non-null asserted. */
+  protected messageOrigin!: string;
+  /** Non-null asserted. */
+  protected translations!: Record<string, string>;
+  /** Non-null asserted. */
+  private portKey!: string;
+  /** Non-null asserted. */
+  protected windowMessageHandlers!: AutofillInlineMenuPageElementWindowMessageHandlers;
 
   constructor() {
     super();

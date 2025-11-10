@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import { setElementStyles } from "../../../../utils";
@@ -14,8 +12,10 @@ export class AutofillInlineMenuContainer {
   private readonly setElementStyles = setElementStyles;
   private readonly extensionOriginsSet: Set<string>;
   private port: chrome.runtime.Port | null = null;
-  private portName: string;
-  private inlineMenuPageIframe: HTMLIFrameElement;
+  /** Non-null asserted. */
+  private portName!: string;
+  /** Non-null asserted. */
+  private inlineMenuPageIframe!: HTMLIFrameElement;
   private readonly iframeStyles: Partial<CSSStyleDeclaration> = {
     all: "initial",
     position: "fixed",
@@ -42,8 +42,10 @@ export class AutofillInlineMenuContainer {
     tabIndex: "-1",
   };
   private readonly windowMessageHandlers: AutofillInlineMenuContainerWindowMessageHandlers = {
-    initAutofillInlineMenuButton: (message) => this.handleInitInlineMenuIframe(message),
-    initAutofillInlineMenuList: (message) => this.handleInitInlineMenuIframe(message),
+    initAutofillInlineMenuButton: (message: InitAutofillInlineMenuElementMessage) =>
+      this.handleInitInlineMenuIframe(message),
+    initAutofillInlineMenuList: (message: InitAutofillInlineMenuElementMessage) =>
+      this.handleInitInlineMenuIframe(message),
   };
 
   constructor() {
@@ -116,14 +118,20 @@ export class AutofillInlineMenuContainer {
    *
    * @param event - The message event.
    */
-  private handleWindowMessage = (event: MessageEvent) => {
+  private handleWindowMessage = (event: MessageEvent<AutofillInlineMenuContainerWindowMessage>) => {
     const message = event.data;
     if (this.isForeignWindowMessage(event)) {
       return;
     }
 
-    if (this.windowMessageHandlers[message.command]) {
-      this.windowMessageHandlers[message.command](message);
+    if (
+      this.windowMessageHandlers[
+        message.command as keyof AutofillInlineMenuContainerWindowMessageHandlers
+      ]
+    ) {
+      this.windowMessageHandlers[
+        message.command as keyof AutofillInlineMenuContainerWindowMessageHandlers
+      ](message);
       return;
     }
 
@@ -142,8 +150,8 @@ export class AutofillInlineMenuContainer {
    *
    * @param event - The message event.
    */
-  private isForeignWindowMessage(event: MessageEvent) {
-    if (!event.data.portKey) {
+  private isForeignWindowMessage(event: MessageEvent<AutofillInlineMenuContainerWindowMessage>) {
+    if (!event.data?.portKey) {
       return true;
     }
 
@@ -159,7 +167,9 @@ export class AutofillInlineMenuContainer {
    *
    * @param event - The message event.
    */
-  private isMessageFromParentWindow(event: MessageEvent): boolean {
+  private isMessageFromParentWindow(
+    event: MessageEvent<AutofillInlineMenuContainerWindowMessage>,
+  ): boolean {
     return globalThis.parent === event.source;
   }
 
@@ -168,7 +178,9 @@ export class AutofillInlineMenuContainer {
    *
    * @param event - The message event.
    */
-  private isMessageFromInlineMenuPageIframe(event: MessageEvent): boolean {
+  private isMessageFromInlineMenuPageIframe(
+    event: MessageEvent<AutofillInlineMenuContainerWindowMessage>,
+  ): boolean {
     if (!this.inlineMenuPageIframe) {
       return false;
     }

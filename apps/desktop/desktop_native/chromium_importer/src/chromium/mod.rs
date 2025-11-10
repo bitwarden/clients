@@ -3,11 +3,14 @@ use std::sync::LazyLock;
 
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
+use dirs;
 use hex::decode;
-use homedir::my_home;
 use rusqlite::{params, Connection};
 
 mod platform;
+
+#[cfg(target_os = "windows")]
+pub use platform::{verify_signature, ADMIN_TO_USER_PIPE_NAME};
 
 pub(crate) use platform::SUPPORTED_BROWSERS as PLATFORM_SUPPORTED_BROWSERS;
 
@@ -52,7 +55,6 @@ pub trait InstalledBrowserRetriever {
 pub struct DefaultInstalledBrowserRetriever {}
 
 impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
-    // TODO: Make thus async
     fn get_installed_browsers() -> Result<Vec<String>> {
         let mut browsers = Vec::with_capacity(SUPPORTED_BROWSER_MAP.len());
 
@@ -67,7 +69,6 @@ impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
     }
 }
 
-// TODO: Make thus async
 pub fn get_available_profiles(browser_name: &String) -> Result<Vec<ProfileInfo>> {
     let (_, local_state) = load_local_state_for_browser(browser_name)?;
     Ok(get_profile_info(&local_state))
@@ -123,8 +124,7 @@ pub(crate) static SUPPORTED_BROWSER_MAP: LazyLock<
 });
 
 fn get_browser_data_dir(config: &BrowserConfig) -> Result<PathBuf> {
-    let dir = my_home()
-        .map_err(|_| anyhow!("Home directory not found"))?
+    let dir = dirs::home_dir()
         .ok_or_else(|| anyhow!("Home directory not found"))?
         .join(config.data_dir);
     Ok(dir)

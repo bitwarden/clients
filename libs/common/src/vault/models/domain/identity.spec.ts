@@ -55,6 +55,27 @@ describe("Identity", () => {
       title: undefined,
       username: undefined,
     });
+
+    expect(data).toEqual({
+      title: undefined,
+      firstName: undefined,
+      middleName: undefined,
+      lastName: undefined,
+      address1: undefined,
+      address2: undefined,
+      address3: undefined,
+      city: undefined,
+      state: undefined,
+      postalCode: undefined,
+      country: undefined,
+      company: undefined,
+      email: undefined,
+      phone: undefined,
+      ssn: undefined,
+      username: undefined,
+      passportNumber: undefined,
+      licenseNumber: undefined,
+    });
   });
 
   it("Convert", () => {

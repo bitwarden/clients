@@ -1117,7 +1117,13 @@ export class CipherService implements CipherServiceAbstraction {
   async saveCollectionsWithServerAdmin(cipher: Cipher): Promise<Cipher> {
     const request = new CipherCollectionsRequest(cipher.collectionIds);
     const response = await this.apiService.putCipherCollectionsAdmin(cipher.id, request);
-    const data = new CipherData(response);
+    // The response will be incomplete with several properties missing values
+    // We will assign those properties values so the SDK decryption can complete
+    const completedResponse = new CipherResponse(response);
+    completedResponse.edit = true;
+    completedResponse.viewPassword = true;
+    completedResponse.favorite = false;
+    const data = new CipherData(completedResponse);
     return new Cipher(data);
   }
 

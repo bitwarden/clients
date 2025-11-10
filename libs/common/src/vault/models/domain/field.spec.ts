@@ -30,7 +30,7 @@ describe("Field", () => {
     const field = new Field(data);
 
     expect(field).toEqual({
-      type: undefined,
+      type: FieldType.Text,
       name: undefined,
       value: undefined,
       linkedId: undefined,

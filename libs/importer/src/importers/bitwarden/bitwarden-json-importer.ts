@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { concatMap, firstValueFrom, map } from "rxjs";
+import { filter, firstValueFrom } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -15,7 +15,7 @@ import {
 } from "@bitwarden/common/models/export";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { KeyService } from "@bitwarden/key-management";
@@ -83,7 +83,7 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
     }
 
     const groupingsMap = this.organization
-      ? await this.parseCollections(results as BitwardenEncryptedOrgJsonExport)
+      ? await this.parseCollections(results as BitwardenEncryptedOrgJsonExport, userId)
       : await this.parseFolders(results as BitwardenEncryptedIndividualJsonExport, userId);
 
     for (const c of results.items) {
@@ -127,7 +127,7 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
     userId: UserId,
   ) {
     const groupingsMap = this.organization
-      ? await this.parseCollections(results as BitwardenUnEncryptedOrgJsonExport)
+      ? await this.parseCollections(results as BitwardenUnEncryptedOrgJsonExport, userId)
       : await this.parseFolders(results as BitwardenUnEncryptedIndividualJsonExport, userId);
 
     results.items.forEach((c) => {
@@ -198,10 +198,15 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
 
   private async parseCollections(
     data: BitwardenUnEncryptedOrgJsonExport | BitwardenEncryptedOrgJsonExport,
+    userId: UserId,
   ): Promise<Map<string, number>> | null {
     if (data.collections == null) {
       return null;
     }
+
+    const orgKeys = await firstValueFrom(
+      this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => orgKeys != null)),
+    );
 
     const groupingsMap = new Map<string, number>();
 
@@ -216,12 +221,9 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
             organizationId: this.organizationId,
           }),
         );
-        const collection$ = this.keyService.activeUserOrgKeys$.pipe(
-          // FIXME: replace type assertion with narrowing
-          map((keys) => keys[c.organizationId as OrganizationId]),
-          concatMap((key) => collection.decrypt(key, this.encryptService)),
-        );
-        collectionView = await firstValueFrom(collection$);
+
+        const orgKey = orgKeys[c.organizationId];
+        collectionView = await collection.decrypt(orgKey, this.encryptService);
       } else {
         collectionView = CollectionWithIdExport.toView(c);
         collectionView.organizationId = null;

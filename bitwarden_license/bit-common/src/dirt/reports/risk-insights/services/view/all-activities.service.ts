@@ -1,3 +1,4 @@
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BehaviorSubject } from "rxjs";
 
 import { ApplicationHealthReportDetailEnriched } from "../../models";
@@ -10,7 +11,6 @@ export class AllActivitiesService {
   /// and critical applications.
   /// Going forward, this class can be simplified by using the RiskInsightsDataService
   /// as it contains the application summary data.
-
   private reportSummarySubject$ = new BehaviorSubject<OrganizationReportSummary>({
     totalMemberCount: 0,
     totalCriticalMemberCount: 0,
@@ -20,7 +20,6 @@ export class AllActivitiesService {
     totalCriticalApplicationCount: 0,
     totalAtRiskApplicationCount: 0,
     totalCriticalAtRiskApplicationCount: 0,
-    newApplications: [],
   });
   reportSummary$ = this.reportSummarySubject$.asObservable();
 
@@ -31,23 +30,20 @@ export class AllActivitiesService {
   private atRiskPasswordsCountSubject$ = new BehaviorSubject<number>(0);
   atRiskPasswordsCount$ = this.atRiskPasswordsCountSubject$.asObservable();
 
-  private passwordChangeProgressMetricHasProgressBarSubject$ = new BehaviorSubject<boolean>(false);
-  passwordChangeProgressMetricHasProgressBar$ =
-    this.passwordChangeProgressMetricHasProgressBarSubject$.asObservable();
-
-  private taskCreatedCountSubject$ = new BehaviorSubject<number>(0);
-  taskCreatedCount$ = this.taskCreatedCountSubject$.asObservable();
+  private extendPasswordChangeWidgetSubject$ = new BehaviorSubject<boolean>(false);
+  extendPasswordChangeWidget$ = this.extendPasswordChangeWidgetSubject$.asObservable();
 
   constructor(private dataService: RiskInsightsDataService) {
     // All application summary changes
-    this.dataService.enrichedReportData$.subscribe((report) => {
+    this.dataService.enrichedReportData$.pipe(takeUntilDestroyed()).subscribe((report) => {
       if (report) {
         this.setAllAppsReportSummary(report.summaryData);
         this.setAllAppsReportDetails(report.reportData);
       }
     });
+
     // Critical application summary changes
-    this.dataService.criticalReportResults$.subscribe((report) => {
+    this.dataService.criticalReportResults$.pipe(takeUntilDestroyed()).subscribe((report) => {
       if (report) {
         this.setCriticalAppsReportSummary(report.summaryData);
       }
@@ -55,6 +51,9 @@ export class AllActivitiesService {
   }
 
   setCriticalAppsReportSummary(summary: OrganizationReportSummary) {
+    if (!summary) {
+      return;
+    }
     this.reportSummarySubject$.next({
       ...this.reportSummarySubject$.getValue(),
       totalCriticalApplicationCount: summary.totalApplicationCount,
@@ -65,13 +64,16 @@ export class AllActivitiesService {
   }
 
   setAllAppsReportSummary(summary: OrganizationReportSummary) {
+    if (!summary) {
+      return;
+    }
+
     this.reportSummarySubject$.next({
       ...this.reportSummarySubject$.getValue(),
       totalMemberCount: summary.totalMemberCount,
       totalAtRiskMemberCount: summary.totalAtRiskMemberCount,
       totalApplicationCount: summary.totalApplicationCount,
       totalAtRiskApplicationCount: summary.totalAtRiskApplicationCount,
-      newApplications: summary.newApplications,
     });
   }
 
@@ -84,11 +86,7 @@ export class AllActivitiesService {
     this.allApplicationsDetailsSubject$.next(applications);
   }
 
-  setPasswordChangeProgressMetricHasProgressBar(hasProgressBar: boolean) {
-    this.passwordChangeProgressMetricHasProgressBarSubject$.next(hasProgressBar);
-  }
-
-  setTaskCreatedCount(count: number) {
-    this.taskCreatedCountSubject$.next(count);
+  setExtendPasswordWidget(hasProgressBar: boolean) {
+    this.extendPasswordChangeWidgetSubject$.next(hasProgressBar);
   }
 }

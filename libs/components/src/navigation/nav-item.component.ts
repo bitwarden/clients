@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
-import { Component, HostListener, Optional, input } from "@angular/core";
-import { RouterModule } from "@angular/router";
+import { Component, HostListener, Optional, input, model } from "@angular/core";
+import { RouterLinkActive, RouterModule } from "@angular/router";
 import { BehaviorSubject, map } from "rxjs";
 
 import { IconButtonModule } from "../icon-button";
@@ -11,6 +11,7 @@ import { SideNavService } from "./side-nav.service";
 // Resolves a circular dependency between `NavItemComponent` and `NavItemGroup` when using standalone components.
 export abstract class NavGroupAbstraction {
   abstract setOpen(open: boolean): void;
+  abstract treeDepth: ReturnType<typeof model<number>>;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -22,6 +23,18 @@ export abstract class NavGroupAbstraction {
   imports: [CommonModule, IconButtonModule, RouterModule],
 })
 export class NavItemComponent extends NavBaseComponent {
+  /**
+   * Base padding for tree variant items (in rem)
+   * This provides the initial indentation for tree items before depth-based padding
+   */
+  protected readonly TREE_BASE_PADDING = 1.25;
+
+  /**
+   * Padding increment per tree depth level (in rem)
+   * Each nested level adds this amount of padding to visually indicate hierarchy
+   */
+  protected readonly TREE_DEPTH_PADDING = 1.25;
+
   /** Forces active styles to be shown, regardless of the `routerLinkActiveOptions` */
   readonly forceActiveStyles = input<boolean>(false);
 
@@ -38,6 +51,14 @@ export class NavItemComponent extends NavBaseComponent {
   protected get showActiveStyles() {
     return this.forceActiveStyles() || (this._isActive && !this.hideActiveStyles());
   }
+
+  /**
+   * Allow overriding of the RouterLink['ariaCurrentWhenActive'] property.
+   *
+   * Useful for situations like nav-groups that navigate to their first child page and should
+   * not be marked `current` while the child page is marked as `current`
+   */
+  readonly ariaCurrentWhenActive = input<RouterLinkActive["ariaCurrentWhenActive"]>("page");
 
   /**
    * The design spec calls for the an outline to wrap the entire element when the template's
@@ -70,5 +91,10 @@ export class NavItemComponent extends NavBaseComponent {
     @Optional() private parentNavGroup: NavGroupAbstraction,
   ) {
     super();
+
+    // Set tree depth based on parent's depth
+    if (this.parentNavGroup) {
+      this.treeDepth.set(this.parentNavGroup.treeDepth() + 1);
+    }
   }
 }

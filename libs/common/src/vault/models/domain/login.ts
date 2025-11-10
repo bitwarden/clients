@@ -110,10 +110,7 @@ export class Login extends Domain {
     });
 
     if (this.uris != null && this.uris.length > 0) {
-      l.uris = [];
-      this.uris.forEach((u) => {
-        l.uris.push(u.toLoginUriData());
-      });
+      l.uris = this.uris.map((u) => u.toLoginUriData());
     }
 
     if (this.fido2Credentials != null && this.fido2Credentials.length > 0) {
