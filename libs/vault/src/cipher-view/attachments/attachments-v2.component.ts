@@ -92,8 +92,9 @@ export class AttachmentsV2Component {
   @HostListener("window:beforeunload", ["$event"])
   private handleBeforeUnloadEvent = (event: BeforeUnloadEvent): string | undefined => {
     if (this.isUploading) {
-      const message = "Upload in progress. Are you sure you want to leave?";
       event.preventDefault();
+      // The custom message is not displayed in modern browsers, but MDN docs still recommend setting it for legacy support.
+      const message = "Upload in progress. Are you sure you want to leave?";
       event.returnValue = message;
       return message;
     }
