@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, HostListener, Optional, input, model } from "@angular/core";
+import { Component, HostListener, Optional, computed, input, model } from "@angular/core";
 import { RouterLinkActive, RouterModule } from "@angular/router";
 import { BehaviorSubject, map } from "rxjs";
 
@@ -27,13 +27,13 @@ export class NavItemComponent extends NavBaseComponent {
    * Base padding for tree variant items (in rem)
    * This provides the initial indentation for tree items before depth-based padding
    */
-  protected readonly TREE_BASE_PADDING = 1.25;
+  protected readonly TREE_BASE_PADDING = 2.5;
 
   /**
    * Padding increment per tree depth level (in rem)
    * Each nested level adds this amount of padding to visually indicate hierarchy
    */
-  protected readonly TREE_DEPTH_PADDING = 1.25;
+  protected readonly TREE_DEPTH_PADDING = 1.75;
 
   /** Forces active styles to be shown, regardless of the `routerLinkActiveOptions` */
   readonly forceActiveStyles = input<boolean>(false);
@@ -51,6 +51,22 @@ export class NavItemComponent extends NavBaseComponent {
   protected get showActiveStyles() {
     return this.forceActiveStyles() || (this._isActive && !this.hideActiveStyles());
   }
+
+  /**
+   * adding calculation for tree variant due to needing visual alignment on different indentation levels needed between the first level and subsequent levels
+   */
+  protected readonly navItemIndentationPadding = computed(() => {
+    const open = this.sideNavService.open;
+    const depth = this.treeDepth() ?? 0;
+
+    if (open && this.variant() === "tree") {
+      return depth === 1
+        ? `${this.TREE_BASE_PADDING}rem`
+        : `${this.TREE_BASE_PADDING + (depth - 1) * this.TREE_DEPTH_PADDING}rem`;
+    }
+
+    return `${this.TREE_BASE_PADDING * depth}rem`;
+  });
 
   /**
    * Allow overriding of the RouterLink['ariaCurrentWhenActive'] property.
