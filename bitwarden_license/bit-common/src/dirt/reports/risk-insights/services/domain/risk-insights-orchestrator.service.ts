@@ -42,6 +42,7 @@ import {
   createNewSummaryData,
   flattenMemberDetails,
   getTrimmedCipherUris,
+  getUniqueMembers,
 } from "../../helpers";
 import {
   ApplicationHealthReportDetailEnriched,
@@ -94,6 +95,7 @@ export class RiskInsightsOrchestratorService {
     this._criticalApplicationAtRiskCipherIdsSubject$.asObservable();
 
   // ------------------------- Report Variables ----------------
+  private _totalMemberCount = 0;
   private _rawReportDataSubject = new BehaviorSubject<ReportState>({
     status: ReportStatus.Initializing,
     error: null,
@@ -234,6 +236,7 @@ export class RiskInsightsOrchestratorService {
         const updatedSummaryData = this.reportService.getApplicationsSummary(
           report!.reportData,
           updatedApplicationData,
+          this._totalMemberCount,
         );
 
         // Used for creating metrics with updated application data
@@ -366,6 +369,7 @@ export class RiskInsightsOrchestratorService {
         const updatedSummaryData = this.reportService.getApplicationsSummary(
           report!.reportData,
           updatedApplicationData,
+          this._totalMemberCount,
         );
 
         // Used for creating metrics with updated application data
@@ -502,6 +506,7 @@ export class RiskInsightsOrchestratorService {
         const updatedSummaryData = this.reportService.getApplicationsSummary(
           report!.reportData,
           updatedApplicationData,
+          this._totalMemberCount,
         );
         // Used for creating metrics with updated application data
         const manualEnrichedApplications = report!.reportData.map(
@@ -656,7 +661,8 @@ export class RiskInsightsOrchestratorService {
       switchMap(([ciphers, memberCiphers]) => {
         this.logService.debug("[RiskInsightsOrchestratorService] Analyzing password health");
         this._reportProgressSubject.next(ReportProgress.AnalyzingPasswords);
-        return this._getCipherHealth(ciphers ?? [], memberCiphers);
+        const cipherHealthReports = this._getCipherHealth(ciphers ?? [], memberCiphers);
+        return cipherHealthReports;
       }),
       map((cipherHealthReports) => {
         this.logService.debug("[RiskInsightsOrchestratorService] Calculating risk scores");
@@ -667,7 +673,12 @@ export class RiskInsightsOrchestratorService {
         this.logService.debug("[RiskInsightsOrchestratorService] Generating report data");
         this._reportProgressSubject.next(ReportProgress.GeneratingReport);
       }),
-      withLatestFrom(this.rawReportData$),
+      withLatestFrom(this.rawReportData$, memberCiphers$),
+      tap(([_, __, memberDetails]) => {
+        // total member count includes all users, even those not associated with ciphers
+        const uniqueMembers = getUniqueMembers(memberDetails);
+        this._totalMemberCount = uniqueMembers.length;
+      }),
       map(([report, previousReport]) => {
         // Update the application data
         const updatedApplicationData = this.reportService.getOrganizationApplications(
@@ -688,6 +699,7 @@ export class RiskInsightsOrchestratorService {
         const updatedSummary = this.reportService.getApplicationsSummary(
           report,
           updatedApplicationData,
+          this._totalMemberCount,
         );
         // For now, merge the report with the critical marking flag to make the enriched type
         // We don't care about the individual ciphers in this instance
@@ -964,6 +976,7 @@ export class RiskInsightsOrchestratorService {
         const summary = this.reportService.getApplicationsSummary(
           criticalApplications,
           enrichedReports.applicationData,
+          this._totalMemberCount,
         );
         return {
           ...enrichedReports,
