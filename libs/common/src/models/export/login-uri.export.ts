@@ -26,8 +26,8 @@ export class LoginUriExport {
     return domain;
   }
 
-  uri: string = "";
-  uriChecksum: string | undefined;
+  uri?: string;
+  uriChecksum?: string;
   match?: UriMatchStrategySetting;
 
   constructor(o?: LoginUriView | LoginUriDomain) {
@@ -35,7 +35,7 @@ export class LoginUriExport {
       return;
     }
 
-    this.uri = safeGetString(o.uri) ?? "";
+    this.uri = safeGetString(o.uri);
     if ("uriChecksum" in o) {
       this.uriChecksum = o.uriChecksum?.encryptedString;
     }
