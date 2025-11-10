@@ -13,19 +13,19 @@ export class SideNavService {
   private _open$ = new BehaviorSubject<boolean>(isAtOrLargerThanBreakpoint("md"));
   open$ = this._open$.asObservable();
 
-  private isSmallScreen$ = media(`(max-width: ${BREAKPOINTS.md}px)`);
+  private isLargeScreen$ = media(`(min-width: ${BREAKPOINTS.md}px)`);
   private _userCollapsePreference$ = new BehaviorSubject<CollapsePreference>(null);
   userCollapsePreference$ = this._userCollapsePreference$.asObservable();
 
-  isOverlay$ = combineLatest([this.open$, this.isSmallScreen$]).pipe(
-    map(([open, isSmallScreen]) => open && isSmallScreen),
+  isOverlay$ = combineLatest([this.open$, this.isLargeScreen$]).pipe(
+    map(([open, isLargeScreen]) => open && !isLargeScreen),
   );
 
   constructor() {
-    combineLatest([this.isSmallScreen$, this.userCollapsePreference$])
+    combineLatest([this.isLargeScreen$, this.userCollapsePreference$])
       .pipe(takeUntilDestroyed())
-      .subscribe(([isSmallScreen, userCollapsePreference]) => {
-        if (isSmallScreen) {
+      .subscribe(([isLargeScreen, userCollapsePreference]) => {
+        if (!isLargeScreen) {
           this.setClose();
         } else if (userCollapsePreference !== "closed") {
           // Auto-open when user hasn't set preference (null) or prefers open
