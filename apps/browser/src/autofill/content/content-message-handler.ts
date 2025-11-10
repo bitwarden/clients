@@ -19,8 +19,8 @@ const windowMessageHandlers: ContentMessageWindowEventHandlers = {
   duoResult: ({ data, referrer }: { data: any; referrer: string }) =>
     handleDuoResultMessage(data, referrer),
   [VaultMessages.OpenAtRiskPasswords]: () => handleOpenAtRiskPasswordsMessage(),
-  [VaultMessages.OpenBrowserExtensionToUrl]: ({ data, referrer }) =>
-    handleOpenBrowserExtensionToUrlMessage({ url: data.url, referrer }),
+  [VaultMessages.OpenBrowserExtensionToUrl]: ({ data }) =>
+    handleOpenBrowserExtensionToUrlMessage(data),
 };
 
 /**
@@ -81,18 +81,8 @@ function handleOpenAtRiskPasswordsMessage() {
   sendExtensionRuntimeMessage({ command: VaultMessages.OpenAtRiskPasswords });
 }
 
-function handleOpenBrowserExtensionToUrlMessage({
-  url,
-  referrer,
-}: {
-  url?: ExtensionPageUrls;
-  referrer?: string;
-}) {
-  sendExtensionRuntimeMessage({
-    command: VaultMessages.OpenBrowserExtensionToUrl,
-    url,
-    referrer,
-  });
+function handleOpenBrowserExtensionToUrlMessage({ url }: { url?: ExtensionPageUrls }) {
+  sendExtensionRuntimeMessage({ command: VaultMessages.OpenBrowserExtensionToUrl, url });
 }
 
 /**

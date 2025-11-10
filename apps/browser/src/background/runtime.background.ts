@@ -294,28 +294,10 @@ export default class RuntimeBackground {
         await this.main.openAtRisksPasswordsPage();
         this.announcePopupOpen();
         break;
-      case VaultMessages.OpenBrowserExtensionToUrl: {
-        // validate referrer to prevent any web page from forcing open
-        const env = await firstValueFrom(this.environmentService.environment$);
-        const vaultUrl = env.getWebVaultUrl();
-        const referrer = msg.referrer;
-
-        // this command should only come from web vault
-        if (referrer == null) {
-          // no referrer means not from web vault
-          return;
-        }
-
-        const vaultHostname = Utils.getHostname(vaultUrl);
-        if (vaultHostname == null || vaultHostname !== referrer) {
-          // referrer doesn't match vault
-          return;
-        }
-
+      case VaultMessages.OpenBrowserExtensionToUrl:
         await this.main.openTheExtensionToPage(msg.url);
         this.announcePopupOpen();
         break;
-      }
       case "bgUpdateContextMenu":
       case "editedCipher":
       case "addedCipher":
