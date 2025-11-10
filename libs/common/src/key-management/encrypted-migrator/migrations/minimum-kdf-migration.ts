@@ -34,13 +34,10 @@ export class MinimumKdfMigration implements EncryptedMigration {
     );
     await this.changeKdfService.updateUserKdfParams(
       masterPassword!,
-      new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
+      new PBKDF2KdfConfig(600000),
       userId,
     );
-    await this.kdfConfigService.setKdfConfig(
-      userId,
-      new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
-    );
+    await this.kdfConfigService.setKdfConfig(userId, new PBKDF2KdfConfig(600000));
   }
 
   async needsMigration(userId: UserId): Promise<MigrationRequirement> {
@@ -54,7 +51,7 @@ export class MinimumKdfMigration implements EncryptedMigration {
     const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
     if (
       kdfConfig.kdfType !== KdfType.PBKDF2_SHA256 ||
-      kdfConfig.iterations >= PBKDF2KdfConfig.ITERATIONS.min
+      kdfConfig.iterations >= 600000 // QA override
     ) {
       return "noMigrationNeeded";
     }
