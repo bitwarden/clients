@@ -1,7 +1,7 @@
 import { BehaviorSubject, firstValueFrom, Observable, of, Subject } from "rxjs";
 import { distinctUntilChanged, map } from "rxjs/operators";
 
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 
 import { getAtRiskApplicationList, getAtRiskMemberList } from "../../helpers";
 import {
@@ -10,6 +10,9 @@ import {
   DrawerType,
   RiskInsightsEnrichedData,
   ReportStatus,
+  ReportProgress,
+  ApplicationHealthReportDetail,
+  OrganizationReportApplication,
 } from "../../models";
 import { RiskInsightsOrchestratorService } from "../domain/risk-insights-orchestrator.service";
 
@@ -36,9 +39,11 @@ export class RiskInsightsDataService {
   readonly isGeneratingReport$: Observable<boolean> = of(false);
   readonly criticalReportResults$: Observable<RiskInsightsEnrichedData | null> = of(null);
   readonly hasCiphers$: Observable<boolean | null> = of(null);
+  readonly criticalApplicationAtRiskCipherIds$: Observable<CipherId[]> = of([]);
+  readonly reportProgress$: Observable<ReportProgress | null> = of(null);
 
   // New applications that need review (reviewedDate === null)
-  readonly newApplications$: Observable<string[]> = of([]);
+  readonly newApplications$: Observable<ApplicationHealthReportDetail[]> = of([]);
 
   // ------------------------- Drawer Variables ---------------------
   // Drawer variables unified into a single BehaviorSubject
@@ -60,6 +65,9 @@ export class RiskInsightsDataService {
     this.enrichedReportData$ = this.orchestrator.enrichedReportData$;
     this.criticalReportResults$ = this.orchestrator.criticalReportResults$;
     this.newApplications$ = this.orchestrator.newApplications$;
+    this.criticalApplicationAtRiskCipherIds$ =
+      this.orchestrator.criticalApplicationAtRiskCipherIds$;
+    this.reportProgress$ = this.orchestrator.reportProgress$;
 
     this.hasCiphers$ = this.orchestrator.hasCiphers$.pipe(distinctUntilChanged());
 
@@ -257,7 +265,7 @@ export class RiskInsightsDataService {
     return this.orchestrator.removeCriticalApplication$(hostname);
   }
 
-  saveApplicationReviewStatus(selectedCriticalApps: string[]) {
+  saveApplicationReviewStatus(selectedCriticalApps: OrganizationReportApplication[]) {
     return this.orchestrator.saveApplicationReviewStatus$(selectedCriticalApps);
   }
 }

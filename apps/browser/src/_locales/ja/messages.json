@@ -1523,12 +1523,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "起動時に生体認証を要求する"
   },
-  "premiumRequired": {
-    "message": "プレミアム会員専用"
-  },
-  "premiumRequiredDesc": {
-    "message": "この機能を使うにはプレミアム会員になってください。"
-  },
   "authenticationTimeout": {
     "message": "認証のタイムアウト"
   },
@@ -1640,6 +1634,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "ベース サーバー URL または少なくとも 1 つのカスタム環境を追加する必要があります。"
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
   },
   "customEnvironment": {
     "message": "カスタム環境"
@@ -4977,6 +4974,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Default ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "一致検出 $WEBSITE$を表示",
     "placeholders": {
@@ -5768,6 +5775,30 @@
   },
   "atRiskLoginsSecured": {
     "message": "Great job securing your at-risk logins!"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
   },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",

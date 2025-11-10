@@ -1,7 +1,12 @@
 import { catchError, EMPTY, from, map, Observable, of, switchMap, throwError } from "rxjs";
 
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { OrganizationId, OrganizationReportId, UserId } from "@bitwarden/common/types/guid";
+import {
+  CipherId,
+  OrganizationId,
+  OrganizationReportId,
+  UserId,
+} from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { getUniqueMembers } from "../../helpers/risk-insights-data-mappers";
@@ -63,7 +68,7 @@ export class RiskInsightsReportService {
   ): Map<string, CipherView[]> {
     const cipherMap = new Map<string, CipherView[]>();
     applications.forEach((app) => {
-      const filteredCiphers = ciphers.filter((c) => app.cipherIds.includes(c.id));
+      const filteredCiphers = ciphers.filter((c) => app.cipherIds.includes(c.id as CipherId));
       cipherMap.set(app.applicationName, filteredCiphers);
     });
     return cipherMap;
@@ -346,7 +351,7 @@ export class RiskInsightsReportService {
   ): ApplicationHealthReportDetail {
     return {
       applicationName: application,
-      cipherIds: [cipherReport.cipher.id],
+      cipherIds: [cipherReport.cipher.id as CipherId],
       passwordCount: 1,
       memberDetails: [...cipherReport.cipherMembers],
       memberCount: cipherReport.cipherMembers.length,
@@ -367,7 +372,7 @@ export class RiskInsightsReportService {
       memberDetails: getUniqueMembers(
         existingReport.memberDetails.concat(newCipherReport.cipherMembers),
       ),
-      cipherIds: existingReport.cipherIds.concat(newCipherReport.cipher.id),
+      cipherIds: existingReport.cipherIds.concat(newCipherReport.cipher.id as CipherId),
     };
   }
 
@@ -377,7 +382,7 @@ export class RiskInsightsReportService {
     );
     return {
       atRiskPasswordCount: report.atRiskPasswordCount + 1,
-      atRiskCipherIds: report.atRiskCipherIds.concat(cipherReport.cipher.id),
+      atRiskCipherIds: report.atRiskCipherIds.concat(cipherReport.cipher.id as CipherId),
       atRiskMemberDetails,
       atRiskMemberCount: atRiskMemberDetails.length,
     };

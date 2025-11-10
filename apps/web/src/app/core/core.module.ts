@@ -9,11 +9,16 @@ import {
   DefaultCollectionAdminService,
   OrganizationUserApiService,
   CollectionService,
+  AutomaticUserConfirmationService,
+  DefaultAutomaticUserConfirmationService,
+  OrganizationUserService,
+  DefaultOrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth/device-management/default-device-management-component.service";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
+import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   CLIENT_TYPE,
@@ -43,7 +48,10 @@ import {
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  InternalOrganizationServiceAbstraction,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
   InternalPolicyService,
@@ -55,6 +63,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
@@ -78,6 +87,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
+import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 // eslint-disable-next-line no-restricted-imports -- Needed for DI
 import {
@@ -94,6 +104,7 @@ import { NoopSdkLoadService } from "@bitwarden/common/platform/services/sdk/noop
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
+import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
 import {
   DefaultThemeStateService,
   ThemeStateService,
@@ -127,6 +138,7 @@ import {
   WebSetInitialPasswordService,
 } from "../auth";
 import { WebSsoComponentService } from "../auth/core/services/login/web-sso-component.service";
+import { WebPremiumInterestStateService } from "../billing/services/premium-interest/web-premium-interest-state.service";
 import { HtmlStorageService } from "../core/html-storage.service";
 import { I18nService } from "../core/i18n.service";
 import { WebFileDownloadService } from "../core/web-file-download.service";
@@ -139,6 +151,7 @@ import { WebEnvironmentService } from "../platform/web-environment.service";
 import { WebMigrationRunner } from "../platform/web-migration-runner";
 import { WebSdkLoadService } from "../platform/web-sdk-load.service";
 import { WebStorageServiceProvider } from "../platform/web-storage-service.provider";
+import { WebSystemService } from "../platform/web-system.service";
 
 import { EventService } from "./event.service";
 import { InitService } from "./init.service";
@@ -333,6 +346,29 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
+    provide: OrganizationUserService,
+    useClass: DefaultOrganizationUserService,
+    deps: [
+      KeyServiceAbstraction,
+      EncryptService,
+      OrganizationUserApiService,
+      AccountService,
+      I18nServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: AutomaticUserConfirmationService,
+    useClass: DefaultAutomaticUserConfirmationService,
+    deps: [
+      ConfigService,
+      ApiService,
+      OrganizationUserService,
+      StateProvider,
+      InternalOrganizationServiceAbstraction,
+      OrganizationUserApiService,
+    ],
+  }),
+  safeProvider({
     provide: SdkLoadService,
     useClass: flagEnabled("sdk") ? WebSdkLoadService : NoopSdkLoadService,
     deps: [],
@@ -408,7 +444,26 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: PremiumUpgradePromptService,
     useClass: WebVaultPremiumUpgradePromptService,
-    deps: [DialogService, Router],
+    deps: [
+      DialogService,
+      ConfigService,
+      AccountService,
+      ApiService,
+      SyncService,
+      BillingAccountProfileStateService,
+      PlatformUtilsService,
+      Router,
+    ],
+  }),
+  safeProvider({
+    provide: PremiumInterestStateService,
+    useClass: WebPremiumInterestStateService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: SystemService,
+    useClass: WebSystemService,
+    deps: [],
   }),
 ];
 
