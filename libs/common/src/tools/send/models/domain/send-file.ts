@@ -38,7 +38,6 @@ export class SendFile extends Domain {
       this,
       new SendFileView(this),
       ["fileName"],
-      null,
       key,
     );
   }

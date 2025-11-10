@@ -35,7 +35,6 @@ export class LoginUri extends Domain {
       this,
       new LoginUriView(this),
       ["uri"],
-      null,
       encKey,
       context,
     );

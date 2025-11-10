@@ -29,13 +29,7 @@ export class Field extends Domain {
   }
 
   decrypt(encKey: SymmetricCryptoKey): Promise<FieldView> {
-    return this.decryptObj<Field, FieldView>(
-      this,
-      new FieldView(this),
-      ["name", "value"],
-      null,
-      encKey,
-    );
+    return this.decryptObj<Field, FieldView>(this, new FieldView(this), ["name", "value"], encKey);
   }
 
   toFieldData(): FieldData {

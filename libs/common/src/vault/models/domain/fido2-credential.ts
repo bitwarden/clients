@@ -62,7 +62,6 @@ export class Fido2Credential extends Domain {
         "rpName",
         "userDisplayName",
       ],
-      null,
       decryptionKey,
     );
 
@@ -71,7 +70,7 @@ export class Fido2Credential extends Domain {
       {
         counter: string;
       }
-    >(this, { counter: "" }, ["counter"], null, decryptionKey);
+    >(this, { counter: "" }, ["counter"], decryptionKey);
     // Counter will end up as NaN if this fails
     view.counter = parseInt(counter);
 
@@ -79,7 +78,6 @@ export class Fido2Credential extends Domain {
       this,
       { discoverable: "" },
       ["discoverable"],
-      null,
       decryptionKey,
     );
     view.discoverable = discoverable === "true";

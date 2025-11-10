@@ -40,7 +40,6 @@ export class Attachment extends Domain {
       this,
       new AttachmentView(this),
       ["fileName"],
-      null,
       decryptionKey,
       "DomainType: Attachment; " + context,
     );

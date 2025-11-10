@@ -36,7 +36,6 @@ export class Card extends Domain {
       this,
       new CardView(),
       ["cardholderName", "brand", "number", "expMonth", "expYear", "code"],
-      null,
       encKey,
       "DomainType: Card; " + context,
     );

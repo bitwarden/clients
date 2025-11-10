@@ -29,7 +29,6 @@ export class SshKey extends Domain {
       this,
       new SshKeyView(),
       ["privateKey", "publicKey", "keyFingerprint"],
-      null,
       encKey,
       "DomainType: SshKey; " + context,
     );

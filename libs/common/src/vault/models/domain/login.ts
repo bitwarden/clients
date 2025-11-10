@@ -52,7 +52,6 @@ export class Login extends Domain {
       this,
       new LoginView(this),
       ["username", "password", "totp"],
-      null,
       encKey,
       `DomainType: Login; ${context}`,
     );
