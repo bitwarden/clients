@@ -43,11 +43,11 @@ export class LoginExport {
     return domain;
   }
 
-  uris: LoginUriExport[] = [];
-  username: string = "";
-  password: string = "";
-  totp: string = "";
-  fido2Credentials: Fido2CredentialExport[] = [];
+  uris?: LoginUriExport[];
+  username?: string;
+  password?: string;
+  totp?: string;
+  fido2Credentials?: Fido2CredentialExport[];
 
   constructor(o?: LoginView | LoginDomain) {
     if (o == null) {
@@ -62,8 +62,8 @@ export class LoginExport {
       this.fido2Credentials = o.fido2Credentials.map((key) => new Fido2CredentialExport(key));
     }
 
-    this.username = safeGetString(o.username) ?? "";
-    this.password = safeGetString(o.password) ?? "";
-    this.totp = safeGetString(o.totp) ?? "";
+    this.username = safeGetString(o.username);
+    this.password = safeGetString(o.password);
+    this.totp = safeGetString(o.totp);
   }
 }
