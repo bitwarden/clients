@@ -46,7 +46,6 @@ export class AllActivityComponent implements OnInit {
   newApplications: ApplicationHealthReportDetail[] = [];
   passwordChangeMetricHasProgressBar = false;
   allAppsHaveReviewDate = false;
-  noAppsHaveReviewDate = false;
   isAllCaughtUp = false;
   hasLoadedApplicationData = false;
   showNeedsReviewState = false;
@@ -81,6 +80,10 @@ export class AllActivityComponent implements OnInit {
           this.totalCriticalAppsCount = summary.totalCriticalApplicationCount;
           this.totalCriticalAppsAtRiskCount = summary.totalCriticalAtRiskApplicationCount;
           this.totalApplicationCount = summary.totalApplicationCount;
+          // If we have application data, mark as loaded
+          if (summary.totalApplicationCount > 0) {
+            this.hasLoadedApplicationData = true;
+          }
           this.updateShowNeedsReviewState();
         });
 
@@ -90,6 +93,7 @@ export class AllActivityComponent implements OnInit {
           this.newApplications = newApps;
           this.newApplicationsCount = newApps.length;
           this.updateIsAllCaughtUp();
+          this.updateShowNeedsReviewState();
         });
 
       this.allActivitiesService.passwordChangeProgressMetricHasProgressBar$
@@ -107,17 +111,11 @@ export class AllActivityComponent implements OnInit {
             this.allAppsHaveReviewDate = enrichedData.applicationData.every(
               (app) => app.reviewedDate !== null && app.reviewedDate !== undefined,
             );
-            // Check if NO apps have a review date (all are null or undefined)
-            this.noAppsHaveReviewDate = enrichedData.applicationData.every(
-              (app) => app.reviewedDate === null || app.reviewedDate === undefined,
-            );
           } else {
             this.hasLoadedApplicationData = enrichedData !== null;
             this.allAppsHaveReviewDate = false;
-            this.noAppsHaveReviewDate = false;
           }
           this.updateIsAllCaughtUp();
-          this.updateShowNeedsReviewState();
         });
     }
   }
@@ -141,11 +139,13 @@ export class AllActivityComponent implements OnInit {
    * This state is shown when:
    * - Data has been loaded
    * - There are applications (totalApplicationCount > 0)
-   * - ALL apps do NOT have a review date (noAppsHaveReviewDate is true)
+   * - ALL apps do NOT have a review date (newApplicationsCount === totalApplicationCount)
    */
   private updateShowNeedsReviewState(): void {
     this.showNeedsReviewState =
-      this.hasLoadedApplicationData && this.totalApplicationCount > 0 && this.noAppsHaveReviewDate;
+      this.hasLoadedApplicationData &&
+      this.totalApplicationCount > 0 &&
+      this.newApplicationsCount === this.totalApplicationCount;
   }
 
   /**
