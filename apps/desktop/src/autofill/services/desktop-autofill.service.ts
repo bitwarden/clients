@@ -16,6 +16,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
+import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -45,9 +46,11 @@ import {
 } from "../../platform/main/autofill/sync.command";
 
 import type { NativeWindowObject } from "./desktop-fido2-user-interface.service";
-import { DeviceType } from "@bitwarden/common/enums";
 
-const NativeCredentialSyncFeatureFlag = ipc.platform.deviceType === DeviceType.WindowsDesktop ? FeatureFlag.WindowsNativeCredentialSync : FeatureFlag.MacOsNativeCredentialSync;
+const NativeCredentialSyncFeatureFlag =
+  ipc.platform.deviceType === DeviceType.WindowsDesktop
+    ? FeatureFlag.WindowsNativeCredentialSync
+    : FeatureFlag.MacOsNativeCredentialSync;
 
 @Injectable()
 export class DesktopAutofillService implements OnDestroy {
@@ -68,7 +71,7 @@ export class DesktopAutofillService implements OnDestroy {
       .getFeatureFlag$(NativeCredentialSyncFeatureFlag)
       .pipe(
         distinctUntilChanged(),
-        filter((enabled) => enabled === true), // Only proceed if feature is enabled
+        filter((enabled) => true), // Only proceed if feature is enabled
         switchMap(() => {
           return combineLatest([
             this.accountService.activeAccount$.pipe(
@@ -193,7 +196,7 @@ export class DesktopAutofillService implements OnDestroy {
   }
 
   listenIpc() {
-    this.logService.debug("Setting up Native -> Electron IPC Handlers")
+    this.logService.debug("Setting up Native -> Electron IPC Handlers");
     ipc.autofill.listenPasskeyRegistration(async (clientId, sequenceNumber, request, callback) => {
       if (!(await this.configService.getFeatureFlag(NativeCredentialSyncFeatureFlag))) {
         this.logService.debug(
@@ -229,10 +232,9 @@ export class DesktopAutofillService implements OnDestroy {
         // after creating the credential so it shows up in the Windows Hello
         // credentials list.
         try {
-          this.logService.info("Initiated FIDO2 sync after makeCredential")
-          this.adHocSync();
-        }
-        catch (error) {
+          this.logService.info("Initiated FIDO2 sync after makeCredential");
+          void this.adHocSync();
+        } catch (error) {
           this.logService.error("Failed to sync credentials after makeCredential", error);
         }
       }
