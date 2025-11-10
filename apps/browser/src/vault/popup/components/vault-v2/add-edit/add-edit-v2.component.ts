@@ -209,10 +209,9 @@ export class AddEditV2Component implements OnInit, OnDestroy {
       this.popupCloseWarningService.enable();
     }
 
-    // Listen for messages to reload cipher data when already open
+    // Listen for messages to reload cipher data when the pop up is already open
     this.messageListener = async (message: any) => {
       if (message?.command === "reloadAddEditCipherData") {
-        // Reload the cipher data with fresh values from the form
         await this.reloadCipherData();
       }
     };
