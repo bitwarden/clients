@@ -30,10 +30,10 @@ describe("AutotypeShortcutComponent", () => {
         const validShortcuts = [
           "Control+A",
           "Alt+B",
-          "Meta+D",
+          "Win+D",
           "control+e", // case insensitive
           "ALT+F",
-          "META+H",
+          "WIN+H",
         ];
 
         validShortcuts.forEach((shortcut) => {
@@ -44,7 +44,7 @@ describe("AutotypeShortcutComponent", () => {
       });
 
       it("should accept two modifiers with letter", () => {
-        const validShortcuts = ["Control+Alt+A", "Control+Meta+C", "Alt+Meta+D", "Alt+Meta+E"];
+        const validShortcuts = ["Control+Alt+A", "Control+Win+C", "Alt+Win+D", "Alt+Win+E"];
 
         validShortcuts.forEach((shortcut) => {
           const control = createControl(shortcut);
@@ -54,7 +54,7 @@ describe("AutotypeShortcutComponent", () => {
       });
 
       it("should accept modifiers in different orders", () => {
-        const validShortcuts = ["Alt+Control+A", "Meta+Control+B", "Meta+Alt+C"];
+        const validShortcuts = ["Alt+Control+A", "Win+Control+B", "Win+Alt+C"];
 
         validShortcuts.forEach((shortcut) => {
           const control = createControl(shortcut);
@@ -79,15 +79,15 @@ describe("AutotypeShortcutComponent", () => {
         const invalidShortcuts = [
           "Control+1",
           "Alt+2",
-          "Meta+4",
+          "Win+4",
           "Control+!",
           "Alt+@",
           "Alt+#",
-          "Meta+$",
+          "Win+$",
           "Control+Space",
           "Alt+Enter",
           "Control+Tab",
-          "Meta+Escape",
+          "Win+Escape",
         ];
 
         invalidShortcuts.forEach((shortcut) => {
@@ -101,10 +101,10 @@ describe("AutotypeShortcutComponent", () => {
         const invalidShortcuts = [
           "Control",
           "Alt",
-          "Meta",
+          "Win",
           "Control+Alt",
-          "Control+Meta",
-          "Control+Alt+Meta",
+          "Control+Win",
+          "Control+Alt+Win",
         ];
 
         invalidShortcuts.forEach((shortcut) => {
@@ -115,7 +115,7 @@ describe("AutotypeShortcutComponent", () => {
       });
 
       it("should reject shortcuts with invalid modifier names", () => {
-        const invalidShortcuts = ["Ctrl+A", "Command+A", "Super+A", "Cmd+A", "Invalid+A"];
+        const invalidShortcuts = ["Ctrl+A", "Command+A", "Meta+A", "Cmd+A", "Invalid+A"];
 
         invalidShortcuts.forEach((shortcut) => {
           const control = createControl(shortcut);
@@ -125,7 +125,7 @@ describe("AutotypeShortcutComponent", () => {
       });
 
       it("should reject shortcuts with multiple base keys", () => {
-        const invalidShortcuts = ["Control+A+B", "Alt+Ctrl+Meta"];
+        const invalidShortcuts = ["Control+A+B", "Alt+Ctrl+Win"];
 
         invalidShortcuts.forEach((shortcut) => {
           const control = createControl(shortcut);
@@ -136,10 +136,10 @@ describe("AutotypeShortcutComponent", () => {
 
       it("should reject shortcuts with more than two modifiers", () => {
         const invalidShortcuts = [
-          "Control+Alt+Meta+A",
-          "Control+Alt+Meta+B",
-          "Control+Alt+Meta+C",
-          "Alt+Control+Meta+D",
+          "Control+Alt+Win+A",
+          "Control+Alt+Win+B",
+          "Control+Alt+Win+C",
+          "Alt+Control+Win+D",
         ];
 
         invalidShortcuts.forEach((shortcut) => {
@@ -208,7 +208,7 @@ describe("AutotypeShortcutComponent", () => {
       });
 
       it("should handle very long strings", () => {
-        const longString = "Control+Alt+Meta+A".repeat(100);
+        const longString = "Control+Alt+Win+A".repeat(100);
         const control = createControl(longString);
         const result = validator(control);
         expect(result).toEqual({ invalidShortcut: { message: "Invalid shortcut" } });
@@ -217,7 +217,7 @@ describe("AutotypeShortcutComponent", () => {
 
     describe("modifier combinations", () => {
       it("should accept all possible single modifier combinations", () => {
-        const modifiers = ["Control", "Alt", "Meta"];
+        const modifiers = ["Control", "Alt", "Win"];
 
         modifiers.forEach((modifier) => {
           const control = createControl(`${modifier}+A`);
@@ -227,7 +227,7 @@ describe("AutotypeShortcutComponent", () => {
       });
 
       it("should accept all possible two-modifier combinations", () => {
-        const combinations = ["Control+Alt+A", "Control+Meta+A", "Alt+Meta+A"];
+        const combinations = ["Control+Alt+A", "Control+Win+A", "Alt+Win+A"];
 
         combinations.forEach((shortcut) => {
           const control = createControl(shortcut);
@@ -237,7 +237,7 @@ describe("AutotypeShortcutComponent", () => {
       });
 
       it("should reject all three-modifier combinations", () => {
-        const combinations = ["Control+Alt+Meta+A", "Alt+Control+Meta+A", "Meta+Alt+Control+A"];
+        const combinations = ["Control+Alt+Win+A", "Alt+Control+Win+A", "Win+Alt+Control+A"];
 
         combinations.forEach((shortcut) => {
           const control = createControl(shortcut);

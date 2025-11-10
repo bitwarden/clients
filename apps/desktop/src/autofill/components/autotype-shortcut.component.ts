@@ -82,17 +82,17 @@ export class AutotypeShortcutComponent {
     const hasCtrl = event.ctrlKey;
     const hasAlt = event.altKey;
     const hasShift = event.shiftKey;
-    const hasMeta = event.metaKey; // Windows key on Windows, Command on macOS
+    const hasSuper = event.metaKey; // Windows key on Windows, Command on macOS
 
-    // Require at least one valid modifier (Control, Alt, Meta)
-    if (!hasCtrl && !hasAlt && !hasMeta) {
+    // Require at least one valid modifier (Control, Alt, Super)
+    if (!hasCtrl && !hasAlt && !hasSuper) {
       return null;
     }
 
     const key = event.key;
 
     // disallow pure modifier keys themselves
-    if (key === "Control" || key === "Alt" || key === "Meta") {
+    if (key === "Control" || key === "Alt" || key === "Super") {
       return null;
     }
 
@@ -114,14 +114,14 @@ export class AutotypeShortcutComponent {
     if (hasAlt) {
       parts.push("Alt");
     }
-    if (hasMeta) {
-      parts.push("Meta");
+    if (hasSuper) {
+      parts.push("Super");
     }
     parts.push(key.toUpperCase());
 
     this.shortcutArray = parts;
 
-    return parts.join("+").replace("Meta", "Win");
+    return parts.join("+").replace("Super", "Win");
   }
 
   private shortcutCombinationValidator(): ValidatorFn {
