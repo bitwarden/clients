@@ -1523,12 +1523,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Tanyakan untuk biometrik pada saat diluncurkan"
   },
-  "premiumRequired": {
-    "message": "Membutuhkan Keanggotaan Premium"
-  },
-  "premiumRequiredDesc": {
-    "message": "Keanggotaan premium diperlukan untuk menggunakan fitur ini."
-  },
   "authenticationTimeout": {
     "message": "Batas waktu otentikasi"
   },
@@ -1640,6 +1634,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Anda harus menambahkan antara URL dasar server atau paling tidak satu lingkungan ubahsuai."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
   },
   "customEnvironment": {
     "message": "Lingkungan Khusus"
@@ -4977,6 +4974,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Default ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "Tampilkan deteksi kecocokan $WEBSITE$",
     "placeholders": {
@@ -5768,6 +5775,30 @@
   },
   "atRiskLoginsSecured": {
     "message": "Great job securing your at-risk logins!"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
   },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
