@@ -75,7 +75,7 @@
     "@types/koa-json": "2.0.23",
     "@types/lowdb": "1.0.15",
     "@types/lunr": "2.3.7",
-    "@types/node": "22.18.11",
+    "@types/node": "22.19.0",
     "@types/node-fetch": "2.6.4",
     "@types/node-forge": "1.3.11",
     "@types/papaparse": "5.3.16",

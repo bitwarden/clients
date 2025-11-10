@@ -349,6 +349,9 @@
   "applicationsNeedingReview": {
     "message": "Applications needing review"
   },
+  "newApplicationsCardTitle": {
+    "message": "Review new applications"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ new applications",
     "placeholders": {
@@ -9561,9 +9564,6 @@
   },
   "loggedInExclamation": {
     "message": "Logged in!"
-  },
-  "beta": {
-    "message": "Beta"
   },
   "assignCollectionAccess": {
     "message": "Assign collection access"
