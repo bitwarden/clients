@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::OnceLock};
 
 // Electron modifier keys
 // <https://www.electronjs.org/docs/latest/tutorial/keyboard-shortcuts#cross-platform-modifiers>
-pub(crate) const CONTROL_KEY_STR: &str = "Control";
+pub(crate) const COMMAND_CONTROL_KEY_STR: &str = "CommandOrControl";
 pub(crate) const ALT_KEY_STR: &str = "Alt";
 pub(crate) const SUPER_KEY_STR: &str = "Super";
 
@@ -19,7 +19,7 @@ static MODIFIER_KEYS: OnceLock<HashMap<&str, u16>> = OnceLock::new();
 pub(crate) fn get_modifier_keys() -> &'static HashMap<&'static str, u16> {
     MODIFIER_KEYS.get_or_init(|| {
         HashMap::from([
-            (CONTROL_KEY_STR, CONTROL_KEY),
+            (COMMAND_CONTROL_KEY_STR, CONTROL_KEY),
             (ALT_KEY_STR, ALT_KEY),
             (SUPER_KEY_STR, SUPER_KEY),
         ])
@@ -32,7 +32,7 @@ mod test {
 
     #[test]
     fn valid_modifier_keys() {
-        assert_eq!(get_modifier_keys().get("Control").unwrap(), &0x11);
+        assert_eq!(get_modifier_keys().get("CommandOrControl").unwrap(), &0x11);
         assert_eq!(get_modifier_keys().get("Alt").unwrap(), &0x12);
         assert_eq!(get_modifier_keys().get("Super").unwrap(), &0x5B);
     }

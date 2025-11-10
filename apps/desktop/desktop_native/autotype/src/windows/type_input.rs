@@ -225,7 +225,7 @@ mod tests {
 
     use super::*;
 
-    use crate::{windowing::MockErrorOperations, ALT_KEY_STR, CONTROL_KEY_STR};
+    use crate::windowing::MockErrorOperations;
     use itertools::Itertools;
     use serial_test::serial;
     use windows::Win32::Foundation::WIN32_ERROR;
@@ -269,7 +269,7 @@ mod tests {
     #[test]
     #[serial]
     fn keyboard_shortcut_conversion_succeeds() {
-        let keyboard_shortcut = [CONTROL_KEY_STR, ALT_KEY_STR, "B"];
+        let keyboard_shortcut = ["CommandOrControl", "Alt", "B"];
         let _: Vec<KeyboardShortcutInput> = keyboard_shortcut
             .iter()
             .map(|s| KeyboardShortcutInput::try_from(*s))
@@ -281,7 +281,7 @@ mod tests {
     #[serial]
     #[should_panic = "Letter is not ASCII Alphabetic ([a-z][A-Z]): '1'"]
     fn keyboard_shortcut_conversion_fails_invalid_key() {
-        let keyboard_shortcut = [CONTROL_KEY_STR, ALT_KEY_STR, "1"];
+        let keyboard_shortcut = ["CommandOrControl", "Alt", "1"];
         let _: Vec<KeyboardShortcutInput> = keyboard_shortcut
             .iter()
             .map(|s| KeyboardShortcutInput::try_from(*s))

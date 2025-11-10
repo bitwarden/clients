@@ -2,13 +2,17 @@
  Electron's representation of modifier keys
  <https://www.electronjs.org/docs/latest/tutorial/keyboard-shortcuts#cross-platform-modifiers>
 */
-export const CONTROL_KEY_STR = "Control";
+export const COMMAND_CONTROL_KEY_STR = "CommandOrControl";
 export const ALT_KEY_STR = "Alt";
 export const SUPER_KEY_STR = "Super";
 
-export const VALID_SHORTCUT_MODIFIER_KEYS: string[] = [CONTROL_KEY_STR, ALT_KEY_STR, SUPER_KEY_STR];
+export const VALID_SHORTCUT_MODIFIER_KEYS: string[] = [
+  COMMAND_CONTROL_KEY_STR,
+  ALT_KEY_STR,
+  SUPER_KEY_STR,
+];
 
-export const DEFAULT_KEYBOARD_SHORTCUT: string[] = [CONTROL_KEY_STR, ALT_KEY_STR, "B"];
+export const DEFAULT_KEYBOARD_SHORTCUT: string[] = [COMMAND_CONTROL_KEY_STR, ALT_KEY_STR, "B"];
 
 /*
   This class provides the following:
@@ -61,8 +65,11 @@ export class AutotypeKeyboardShortcut {
     This private function validates the strArray input to make sure the array contains
     valid, currently accepted shortcut keys for Windows.
 
-    Valid windows shortcut keys: Control, Alt, Super, letters A - Z
-    Valid macOS shortcut keys: Control, Alt, Command, letters A - Z (not yet supported)
+    Valid shortcut keys: Control, Alt, Super, letters A - Z
+    Platform specifics:
+      - On Windows, Super maps to the Windows key.
+      - On MacOS, Super maps to the Command key.
+      - On MacOS, Alt maps to the Option key.
 
     See Electron keyboard shorcut docs for more info:
     https://www.electronjs.org/docs/latest/tutorial/keyboard-shortcuts
