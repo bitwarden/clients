@@ -1,7 +1,6 @@
 <div class="tw-ps-2 tw-pe-2">
   @let open = sideNavService.open$ | async;
   @if (open || icon()) {
-    <!-- Weird padding calculation for tree variant due to needing visual alignment on different indentation levels needed between the first level and subsequent levels -->
     <div
       [ngStyle]="{
         'padding-inline-start': navItemIndentationPadding(),
