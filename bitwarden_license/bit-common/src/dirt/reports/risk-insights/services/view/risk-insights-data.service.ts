@@ -1,10 +1,19 @@
 import { BehaviorSubject, firstValueFrom, Observable, of, Subject } from "rxjs";
 import { distinctUntilChanged, map } from "rxjs/operators";
 
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 
 import { getAtRiskApplicationList, getAtRiskMemberList } from "../../helpers";
-import { ReportState, DrawerDetails, DrawerType, RiskInsightsEnrichedData } from "../../models";
+import {
+  ReportState,
+  DrawerDetails,
+  DrawerType,
+  RiskInsightsEnrichedData,
+  ReportStatus,
+  ReportProgress,
+  ApplicationHealthReportDetail,
+  OrganizationReportApplication,
+} from "../../models";
 import { RiskInsightsOrchestratorService } from "../domain/risk-insights-orchestrator.service";
 
 export class RiskInsightsDataService {
@@ -24,10 +33,17 @@ export class RiskInsightsDataService {
   // -------------------------- Orchestrator-driven state  -------------
   // The full report state (for internal facade use or complex components)
   private readonly reportState$: Observable<ReportState>;
-  readonly isLoading$: Observable<boolean> = of(false);
+  readonly reportStatus$: Observable<ReportStatus> = of(ReportStatus.Initializing);
+  readonly hasReportData$: Observable<boolean> = of(false);
   readonly enrichedReportData$: Observable<RiskInsightsEnrichedData | null> = of(null);
   readonly isGeneratingReport$: Observable<boolean> = of(false);
   readonly criticalReportResults$: Observable<RiskInsightsEnrichedData | null> = of(null);
+  readonly hasCiphers$: Observable<boolean | null> = of(null);
+  readonly criticalApplicationAtRiskCipherIds$: Observable<CipherId[]> = of([]);
+  readonly reportProgress$: Observable<ReportProgress | null> = of(null);
+
+  // New applications that need review (reviewedDate === null)
+  readonly newApplications$: Observable<ApplicationHealthReportDetail[]> = of([]);
 
   // ------------------------- Drawer Variables ---------------------
   // Drawer variables unified into a single BehaviorSubject
@@ -48,11 +64,21 @@ export class RiskInsightsDataService {
     this.organizationDetails$ = this.orchestrator.organizationDetails$;
     this.enrichedReportData$ = this.orchestrator.enrichedReportData$;
     this.criticalReportResults$ = this.orchestrator.criticalReportResults$;
+    this.newApplications$ = this.orchestrator.newApplications$;
+    this.criticalApplicationAtRiskCipherIds$ =
+      this.orchestrator.criticalApplicationAtRiskCipherIds$;
+    this.reportProgress$ = this.orchestrator.reportProgress$;
+
+    this.hasCiphers$ = this.orchestrator.hasCiphers$.pipe(distinctUntilChanged());
 
     // Expose the loading state
-    this.isLoading$ = this.reportState$.pipe(
-      map((state) => state.loading),
+    this.reportStatus$ = this.reportState$.pipe(
+      map((state) => state.status),
       distinctUntilChanged(), // Prevent unnecessary component re-renders
+    );
+    this.hasReportData$ = this.reportState$.pipe(
+      map((state) => state.data != null),
+      distinctUntilChanged(),
     );
   }
 
@@ -68,10 +94,6 @@ export class RiskInsightsDataService {
 
   triggerReport(): void {
     this.orchestrator.generateReport();
-  }
-
-  fetchReport(): void {
-    this.orchestrator.fetchReport();
   }
 
   // ------------------------- Drawer functions -----------------------------
@@ -241,5 +263,9 @@ export class RiskInsightsDataService {
 
   removeCriticalApplication(hostname: string) {
     return this.orchestrator.removeCriticalApplication$(hostname);
+  }
+
+  saveApplicationReviewStatus(selectedCriticalApps: OrganizationReportApplication[]) {
+    return this.orchestrator.saveApplicationReviewStatus$(selectedCriticalApps);
   }
 }

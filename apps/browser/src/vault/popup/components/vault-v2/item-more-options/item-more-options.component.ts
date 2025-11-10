@@ -202,15 +202,21 @@ export class ItemMoreOptionsComponent {
   async doAutofill() {
     const cipher = await this.cipherService.getFullCipherView(this.cipher);
 
-    const showAutofillConfirmation = await firstValueFrom(this.showAutofillConfirmation$);
-
-    if (!showAutofillConfirmation) {
-      await this.vaultPopupAutofillService.doAutofill(cipher, false);
+    if (!(await this.passwordRepromptService.passwordRepromptCheck(this.cipher))) {
       return;
     }
 
+    const uris = cipher.login?.uris ?? [];
+    const cipherHasAllExactMatchLoginUris =
+      uris.length > 0 && uris.every((u) => u.uri && u.match === UriMatchStrategy.Exact);
+
+    const showAutofillConfirmation = await firstValueFrom(this.showAutofillConfirmation$);
     const uriMatchStrategy = await firstValueFrom(this.uriMatchStrategy$);
-    if (uriMatchStrategy === UriMatchStrategy.Exact) {
+
+    if (
+      showAutofillConfirmation &&
+      (cipherHasAllExactMatchLoginUris || uriMatchStrategy === UriMatchStrategy.Exact)
+    ) {
       await this.dialogService.openSimpleDialog({
         title: { key: "cannotAutofill" },
         content: { key: "cannotAutofillExactMatch" },
@@ -218,6 +224,11 @@ export class ItemMoreOptionsComponent {
         acceptButtonText: { key: "okay" },
         cancelButtonText: null,
       });
+      return;
+    }
+
+    if (!showAutofillConfirmation) {
+      await this.vaultPopupAutofillService.doAutofill(cipher, true, true);
       return;
     }
 
@@ -236,6 +247,7 @@ export class ItemMoreOptionsComponent {
       data: {
         currentUrl: currentTab?.url || "",
         savedUrls: cipher.login?.uris?.filter((u) => u.uri).map((u) => u.uri!) ?? [],
+        viewOnly: !this.cipher.edit,
       },
     });
 
@@ -245,10 +257,10 @@ export class ItemMoreOptionsComponent {
       case AutofillConfirmationDialogResult.Canceled:
         return;
       case AutofillConfirmationDialogResult.AutofilledOnly:
-        await this.vaultPopupAutofillService.doAutofill(cipher);
+        await this.vaultPopupAutofillService.doAutofill(cipher, true, true);
         return;
       case AutofillConfirmationDialogResult.AutofillAndUrlAdded:
-        await this.vaultPopupAutofillService.doAutofillAndSave(cipher, false);
+        await this.vaultPopupAutofillService.doAutofillAndSave(cipher, false, true);
         return;
     }
   }
@@ -279,7 +291,7 @@ export class ItemMoreOptionsComponent {
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t(
-        this.cipher.favorite ? "itemAddedToFavorites" : "itemRemovedFromFavorites",
+        cipher.favorite ? "itemAddedToFavorites" : "itemRemovedFromFavorites",
       ),
     });
   }

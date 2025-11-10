@@ -48,12 +48,15 @@ import {
   TwoFactorAuthGuard,
   NewDeviceVerificationComponent,
 } from "@bitwarden/auth/angular";
+import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { LockComponent } from "@bitwarden/key-management-ui";
+import { premiumInterestRedirectGuard } from "@bitwarden/web-vault/app/vault/guards/premium-interest-redirect/premium-interest-redirect.guard";
 
 import { flagEnabled, Flags } from "../utils/flags";
 
+import { organizationPolicyGuard } from "./admin-console/organizations/guards/org-policy.guard";
 import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/manage/verify-recover-delete-org.component";
 import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizations/sponsorships/families-for-enterprise-setup.component";
@@ -631,7 +634,7 @@ const routes: Routes = [
     children: [
       {
         path: "vault",
-        canActivate: [setupExtensionRedirectGuard],
+        canActivate: [premiumInterestRedirectGuard, setupExtensionRedirectGuard],
         loadChildren: () => VaultModule,
       },
       {
@@ -711,11 +714,13 @@ const routes: Routes = [
               {
                 path: "",
                 component: EmergencyAccessComponent,
+                canActivate: [organizationPolicyGuard(canAccessEmergencyAccess)],
                 data: { titleId: "emergencyAccess" } satisfies RouteDataProperties,
               },
               {
                 path: ":id",
                 component: EmergencyAccessViewComponent,
+                canActivate: [organizationPolicyGuard(canAccessEmergencyAccess)],
                 data: { titleId: "emergencyAccess" } satisfies RouteDataProperties,
               },
             ],

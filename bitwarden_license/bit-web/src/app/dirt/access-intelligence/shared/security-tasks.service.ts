@@ -1,64 +1,63 @@
-import { Injectable } from "@angular/core";
+import { BehaviorSubject } from "rxjs";
 
-import {
-  AllActivitiesService,
-  ApplicationHealthReportDetailEnriched,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SecurityTasksApiService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
-import { SecurityTaskType } from "@bitwarden/common/vault/tasks";
-import { ToastService } from "@bitwarden/components";
+import { SecurityTask, SecurityTaskType } from "@bitwarden/common/vault/tasks";
 
 import { CreateTasksRequest } from "../../../vault/services/abstractions/admin-task.abstraction";
 import { DefaultAdminTaskService } from "../../../vault/services/default-admin-task.service";
 
-@Injectable()
+/**
+ * Service for managing security tasks related to Access Intelligence features
+ */
 export class AccessIntelligenceSecurityTasksService {
+  private _tasksSubject$ = new BehaviorSubject<SecurityTask[]>([]);
+  tasks$ = this._tasksSubject$.asObservable();
+
   constructor(
-    private allActivitiesService: AllActivitiesService,
     private adminTaskService: DefaultAdminTaskService,
-    private toastService: ToastService,
-    private i18nService: I18nService,
+    private securityTasksApiService: SecurityTasksApiService,
   ) {}
-  async assignTasks(organizationId: OrganizationId, apps: ApplicationHealthReportDetailEnriched[]) {
-    const taskCount = await this.requestPasswordChange(organizationId, apps);
-    this.allActivitiesService.setTaskCreatedCount(taskCount);
+
+  /**
+   * Gets security task metrics for the given organization
+   *
+   * @param organizationId The organization ID
+   * @returns Metrics about security tasks such as a count of completed and total tasks
+   */
+  getTaskMetrics(organizationId: OrganizationId) {
+    return this.securityTasksApiService.getTaskMetrics(organizationId);
   }
 
-  // TODO: this method is shared between here and critical-applications.component.ts
-  async requestPasswordChange(
+  /**
+   * Loads security tasks for the given organization and updates the internal tasks subject
+   *
+   * @param organizationId The organization ID
+   */
+  async loadTasks(organizationId: OrganizationId): Promise<void> {
+    // Loads the tasks to update the service
+    const tasks = await this.securityTasksApiService.getAllTasks(organizationId);
+    this._tasksSubject$.next(tasks);
+  }
+
+  /**
+   * Bulk assigns password change tasks for critical applications with at-risk passwords
+   *
+   * @param organizationId The organization ID
+   * @param criticalApplicationIds IDs of critical applications with at-risk passwords
+   */
+  async requestPasswordChangeForCriticalApplications(
     organizationId: OrganizationId,
-    apps: ApplicationHealthReportDetailEnriched[],
-  ): Promise<number> {
-    // Only create tasks for CRITICAL applications with at-risk passwords
-    const cipherIds = apps
-      .filter((_) => _.isMarkedAsCritical && _.atRiskPasswordCount > 0)
-      .flatMap((app) => app.atRiskCipherIds);
-
-    const distinctCipherIds = Array.from(new Set(cipherIds));
-
+    criticalApplicationIds: CipherId[],
+  ) {
+    const distinctCipherIds = Array.from(new Set(criticalApplicationIds));
     const tasks: CreateTasksRequest[] = distinctCipherIds.map((cipherId) => ({
-      cipherId: cipherId as CipherId,
+      cipherId,
       type: SecurityTaskType.UpdateAtRiskCredential,
     }));
 
-    try {
-      await this.adminTaskService.bulkCreateTasks(organizationId, tasks);
-      this.toastService.showToast({
-        message: this.i18nService.t("notifiedMembers"),
-        variant: "success",
-        title: this.i18nService.t("success"),
-      });
-
-      return tasks.length;
-    } catch {
-      this.toastService.showToast({
-        message: this.i18nService.t("unexpectedError"),
-        variant: "error",
-        title: this.i18nService.t("error"),
-      });
-    }
-
-    return 0;
+    await this.adminTaskService.bulkCreateTasks(organizationId, tasks);
+    // Reload tasks after creation
+    await this.loadTasks(organizationId);
   }
 }
