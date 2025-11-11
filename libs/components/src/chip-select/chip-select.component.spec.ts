@@ -77,13 +77,34 @@ describe("ChipSelectComponent", () => {
     }
   });
 
-  describe("Signal Inputs", () => {
-    it("should initialize with required signal inputs", () => {
-      expect(component.placeholderText()).toBe("Select an option");
-      expect(component.options()).toEqual(testOptions);
+  describe("User-Facing Behavior", () => {
+    it("should display placeholder text when no option is selected", () => {
+      expect(getChipButton().textContent).toContain("Select an option");
     });
 
-    it("should update when options signal changes", () => {
+    it("should display placeholder icon when no option is selected", () => {
+      const icon = fixture.debugElement.query(By.css(".bwi-filter"));
+      expect(icon).toBeTruthy();
+    });
+
+    it("should disable chip button when disabled", () => {
+      const testApp = fixture.componentInstance;
+      testApp.disabled.set(true);
+      fixture.detectChanges();
+
+      expect(getChipButton().disabled).toBe(true);
+    });
+
+    it("should stretch to full width when fullWidth is enabled", () => {
+      const testApp = fixture.componentInstance;
+      testApp.fullWidth.set(true);
+      fixture.detectChanges();
+
+      const chipSelect = fixture.debugElement.query(By.directive(ChipSelectComponent));
+      expect(chipSelect.nativeElement.className).toContain("tw-w-full");
+    });
+
+    it("should update available options when they change", () => {
       const newOptions: ChipSelectOption<string>[] = [
         { label: "New Option 1", value: "new1" },
         { label: "New Option 2", value: "new2" },
@@ -93,113 +114,65 @@ describe("ChipSelectComponent", () => {
       testApp.options.set(newOptions);
       fixture.detectChanges();
 
-      expect(component.options()).toEqual(newOptions);
-    });
-
-    it("should update placeholderText reactively", () => {
-      const testApp = fixture.componentInstance;
-      const newOptions: ChipSelectOption<string>[] = [
-        { label: "Updated Option", value: "updated" },
-      ];
-      testApp.options.set(newOptions);
+      getChipButton().click();
       fixture.detectChanges();
 
-      expect(component.options()).toEqual(newOptions);
-      expect(getChipButton().textContent).toContain("Select an option");
-    });
-
-    it("should handle placeholderIcon signal", () => {
-      expect(component.placeholderIcon()).toBe("bwi-filter");
-    });
-
-    it("should handle disabled signal input", () => {
-      expect(component.disabled()).toBe(false);
-
-      const testApp = fixture.componentInstance;
-      testApp.disabled.set(true);
-      fixture.detectChanges();
-
-      expect(component.disabled()).toBe(true);
-      expect(getChipButton().disabled).toBe(true);
-    });
-
-    it("should handle fullWidth signal input", () => {
-      expect(component.fullWidth()).toBe(false);
-
-      const testApp = fixture.componentInstance;
-      testApp.fullWidth.set(true);
-      fixture.detectChanges();
-
-      expect(component.fullWidth()).toBe(true);
+      const menuItems = Array.from(document.querySelectorAll<HTMLButtonElement>("[bitMenuItem]"));
+      expect(menuItems.some((el) => el.textContent?.includes("New Option 1"))).toBe(true);
+      expect(menuItems.some((el) => el.textContent?.includes("New Option 2"))).toBe(true);
     });
   });
 
-  describe("Control Value Accessor", () => {
-    it("should register onChange callback", () => {
-      const onChangeSpy = jest.fn();
-      component.registerOnChange(onChangeSpy);
-
-      component["notifyOnChange"] = onChangeSpy;
-      component["onChange"]({ label: "Test", value: "test" });
-
-      expect(onChangeSpy).toHaveBeenCalledWith("test");
-    });
-
-    it("should register onTouched callback", () => {
-      const onTouchedSpy = jest.fn();
-      component.registerOnTouched(onTouchedSpy);
-
-      component["notifyOnTouched"] = onTouchedSpy;
-      component["onBlur"]();
-
-      expect(onTouchedSpy).toHaveBeenCalled();
-    });
-
-    it("should write value and select correct option", () => {
+  describe("Form Integration Behavior", () => {
+    it("should display selected option when form control value is set", () => {
       component.writeValue("opt1");
+      fixture.detectChanges();
 
-      expect(component["selectedOption"]?.value).toBe("opt1");
-      expect(component["selectedOption"]?.label).toBe("Option 1");
+      const button = getChipButton();
+      expect(button.textContent?.trim()).toContain("Option 1");
     });
 
-    it("should handle writeValue with nested option", () => {
+    it("should find and display nested option when form control value is set", () => {
       component.writeValue("child1");
+      fixture.detectChanges();
 
-      expect(component["selectedOption"]?.value).toBe("child1");
-      expect(component["selectedOption"]?.label).toBe("Child 1");
+      const button = getChipButton();
+      expect(button.textContent?.trim()).toContain("Child 1");
     });
 
-    it("should handle writeValue with null", () => {
+    it("should clear selection when form control value is set to null", () => {
       component.writeValue("opt1");
-      expect(component["selectedOption"]).toBeTruthy();
+      fixture.detectChanges();
+      expect(getChipButton().textContent).toContain("Option 1");
 
       component.writeValue(null as any);
-      expect(component["selectedOption"]).toBeFalsy();
+      fixture.detectChanges();
+      expect(getChipButton().textContent).toContain("Select an option");
     });
 
-    it("should set disabled state programmatically", () => {
-      expect(component.disabled()).toBe(false);
+    it("should disable chip when form control is disabled", () => {
+      expect(getChipButton().disabled).toBe(false);
 
       component.setDisabledState(true);
       fixture.detectChanges();
 
-      expect(component.disabled()).toBe(true);
+      expect(getChipButton().disabled).toBe(true);
     });
 
-    it("should combine template disabled input and programmatic disabled state", () => {
+    it("should respect both template and programmatic disabled states", () => {
       const testApp = fixture.componentInstance;
       testApp.disabled.set(true);
       fixture.detectChanges();
-      expect(component.disabled()).toBe(true);
+      expect(getChipButton().disabled).toBe(true);
 
       testApp.disabled.set(false);
       component.setDisabledState(true);
       fixture.detectChanges();
-      expect(component.disabled()).toBe(true);
+      expect(getChipButton().disabled).toBe(true);
 
       component.setDisabledState(false);
       fixture.detectChanges();
-      expect(component.disabled()).toBe(false);
+      expect(getChipButton().disabled).toBe(false);
     });
   });
 
@@ -484,22 +457,6 @@ describe("ChipSelectComponent", () => {
       ).find((el) => el.textContent?.includes("Disabled Option"));
 
       expect(disabledMenuItem?.disabled).toBe(true);
-    });
-
-    it("should not call onChange if callback is not registered", () => {
-      component["notifyOnChange"] = undefined;
-
-      expect(() => {
-        component["onChange"]({ label: "Test", value: "test" });
-      }).not.toThrow();
-    });
-
-    it("should not call onBlur if callback is not registered", () => {
-      component["notifyOnTouched"] = undefined;
-
-      expect(() => {
-        component["onBlur"]();
-      }).not.toThrow();
     });
   });
 });
