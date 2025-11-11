@@ -4,7 +4,7 @@ import { WindowState } from "./models/domain/window-state";
 
 // change as needed, however limited by mainwindow minimum size
 const popupWidth = 600;
-const popupHeight = 600;
+const popupHeight = 620;
 
 type Position = { x: number; y: number };
 
