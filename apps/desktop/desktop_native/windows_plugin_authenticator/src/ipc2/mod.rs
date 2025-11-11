@@ -5,19 +5,14 @@ use std::{
     sync::{
         atomic::AtomicU32,
         mpsc::{self, Receiver, Sender},
-        Arc, Mutex, Once,
+        Arc, Mutex,
     },
     time::{Duration, Instant},
 };
 
 use futures::FutureExt;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use tracing::{error, info};
-use tracing_subscriber::{
-    filter::{EnvFilter, LevelFilter},
-    layer::SubscriberExt,
-    util::SubscriberInitExt,
-};
 
 mod assertion;
 mod lock_status;
@@ -31,12 +26,7 @@ pub use registration::{
     PasskeyRegistrationRequest, PasskeyRegistrationResponse, PreparePasskeyRegistrationCallback,
 };
 
-use crate::{
-    ipc2::lock_status::{GetLockStatusCallback, LockStatusRequest},
-    util::debug_log,
-};
-
-static INIT: Once = Once::new();
+use crate::ipc2::lock_status::{GetLockStatusCallback, LockStatusRequest};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -112,27 +102,6 @@ impl WindowsProviderClient {
     // FIXME: Remove unwraps! They panic and terminate the whole application.
     #[allow(clippy::unwrap_used)]
     pub fn connect() -> Self {
-        debug_log("YO!");
-        INIT.call_once(|| {
-            /*
-            let filter = EnvFilter::builder()
-                .with_default_directive(LevelFilter::DEBUG.into())
-                .from_env_lossy();
-
-            let log_file_path = "C:\\temp\\bitwarden_windows_passkey_provider.log";
-            debug_log(&format!("Trying to set up log file at {log_file_path}"));
-            // FIXME: Remove unwrap
-            let file = std::fs::File::options()
-                .append(true)
-                .open(log_file_path)
-                .unwrap();
-            let log_file = tracing_subscriber::fmt::layer().with_writer(file);
-            tracing_subscriber::registry()
-                .with(filter)
-                .with(log_file)
-                .init();
-            */
-        });
         tracing::debug!("Windows COM server trying to connect to Electron IPC...");
 
         let (from_server_send, mut from_server_recv) = tokio::sync::mpsc::channel(32);
@@ -286,11 +255,7 @@ impl WindowsProviderClient {
     }
 
     #[allow(clippy::unwrap_used)]
-    fn send_message(
-        &self,
-        message: impl Serialize + DeserializeOwned,
-        callback: Option<Box<dyn Callback>>,
-    ) {
+    fn send_message(&self, message: impl Serialize, callback: Option<Box<dyn Callback>>) {
         let sequence_number = if let Some(callback) = callback {
             self.add_callback(callback)
         } else {
