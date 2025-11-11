@@ -299,7 +299,7 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
 
       this.addField(cipher, importedName, importedValue, importedType);
 
-      // TODO: Remove this!
+      // TODO: Remove this eventually! Keep it here while debugging, though.
       // console.log(
       //   `Custom field: '${key}'='${JSON.stringify(value)}':\n  - type='${type}'\n  - name='${name}'\n  - value='${JSON.stringify(value)}'\nConverted to:\n  - name='${importedName}'\n  - value='${importedValue}'`,
       // );
