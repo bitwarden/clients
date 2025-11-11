@@ -9,6 +9,8 @@ type BrowserName = "chromium" | "firefox" | "webkit";
 
 import { Play, SingleUserScene, SingleUserSceneTemplate } from "@bitwarden/playwright-helpers";
 
+import { addInitScriptForPlayId } from "./page-extension";
+
 const hostname = new URL(webServerBaseUrl).hostname;
 const dataDir = process.env.PLAYWRIGHT_DATA_DIR ?? "playwright-data";
 // Ensure data directory exists
@@ -79,6 +81,7 @@ export class AuthFixture {
       }
       const context = await this._browser.newContext();
       this._page = await context.newPage();
+      await addInitScriptForPlayId(this._page, process.env.PLAY_ID!);
     }
     return this._page;
   }
