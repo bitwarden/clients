@@ -23,6 +23,8 @@ import { PopOutComponent } from "../../../platform/popup/components/pop-out.comp
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
+import { TunnelService } from "./tunnel.service";
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -54,6 +56,7 @@ export class TunnelDemoComponent {
     private cipherService: CipherService,
     private accountService: AccountService,
     private formBuilder: FormBuilder,
+    private tunnelService: TunnelService,
   ) {}
 
   async submit() {
@@ -96,12 +99,26 @@ export class TunnelDemoComponent {
     const username = tunnelDemoCipher.login.username || "(none)";
     const password = tunnelDemoCipher.login.password || "(none)";
 
-    await this.dialogService.openSimpleDialog({
-      title: "Tunnel Demo - Credentials Retrieved",
-      content: `Username: ${username}\nPassword: ${password}`,
-      type: "info",
-      acceptButtonText: { key: "ok" },
-      cancelButtonText: null,
-    });
+    // Send credentials to the localhost tunnel server
+    try {
+      await this.tunnelService.sendCredentials({ username, password });
+
+      await this.dialogService.openSimpleDialog({
+        title: "Tunnel Demo - Success",
+        content: `Credentials successfully sent to tunnel server.\n\nUsername:
+          ${username}\nPassword: ${password.replace(/./g, "*")}`,
+        type: "success",
+        acceptButtonText: { key: "ok" },
+        cancelButtonText: null,
+      });
+    } catch (error) {
+      await this.dialogService.openSimpleDialog({
+        title: "Tunnel Demo - Error",
+        content: `Failed to send credentials to tunnel server: ${error.message || error}`,
+        type: "danger",
+        acceptButtonText: { key: "ok" },
+        cancelButtonText: null,
+      });
+    }
   }
 }
