@@ -518,7 +518,11 @@ export class BrowserApi {
 
   static messageListener$() {
     return new Observable<unknown>((subscriber) => {
-      const handler = (message: unknown) => {
+      const handler = (
+        message: unknown,
+        sender: chrome.runtime.MessageSender,
+        sendResponse: any,
+      ) => {
         subscriber.next(message);
       };
 

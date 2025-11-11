@@ -1,4 +1,4 @@
-import { EMPTY, catchError, firstValueFrom, map } from "rxjs";
+import { EMPTY, catchError, firstValueFrom, map, switchMap } from "rxjs";
 
 import { UserKey } from "@bitwarden/common/types/key";
 import { EncryptionContext } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -11,6 +11,7 @@ import {
 
 import { LogService } from "../../platform/abstractions/log.service";
 import { SdkService, asUuid, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
+import { RemoteSdkService } from "../../platform/services/sdk/remote-sdk.service";
 import { UserId, OrganizationId } from "../../types/guid";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
 import { CipherType } from "../enums";
@@ -23,6 +24,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
   constructor(
     private sdkService: SdkService,
     private logService: LogService,
+    private remoteSdkService: RemoteSdkService,
   ) {}
 
   async encrypt(model: CipherView, userId: UserId): Promise<EncryptionContext | undefined> {
@@ -224,25 +226,27 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     userId: UserId,
   ): Promise<[CipherListView[], Cipher[]]> {
     return firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        map((sdk) => {
+      // this.sdkService.userClient$(userId).pipe(
+      this.remoteSdkService!.remoteClient$.pipe(
+        switchMap(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK is undefined");
           }
 
-          using ref = sdk.take();
+          await using ref = await sdk.take();
 
-          const result: DecryptCipherListResult = ref.value
+          const result: DecryptCipherListResult = await ref.value
             .vault()
-            .ciphers()
-            .decrypt_list_with_failures(ciphers.map((cipher) => cipher.toSdkCipher()));
+            .await.ciphers()
+            .await.decrypt_list_with_failures(ciphers.map((cipher) => cipher.toSdkCipher())).await
+            .transfer;
 
           const decryptedCiphers = result.successes;
           const failedCiphers: Cipher[] = result.failures
             .map((cipher) => Cipher.fromSdkCipher(cipher))
             .filter((cipher): cipher is Cipher => cipher !== undefined);
 
-          return [decryptedCiphers, failedCiphers];
+          return [decryptedCiphers, failedCiphers] as [CipherListView[], Cipher[]];
         }),
       ),
     );

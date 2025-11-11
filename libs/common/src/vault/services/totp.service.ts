@@ -1,8 +1,9 @@
-import { Observable, map, shareReplay, switchMap, timer } from "rxjs";
+import { map, Observable, shareReplay, switchMap, timer } from "rxjs";
 
 import { TotpResponse } from "@bitwarden/sdk-internal";
 
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
+import { RemoteSdkService } from "../../platform/services/sdk/remote-sdk.service";
 import { TotpService as TotpServiceAbstraction } from "../abstractions/totp.service";
 
 /**
@@ -26,18 +27,33 @@ export type TotpInfo = {
 };
 
 export class TotpService implements TotpServiceAbstraction {
-  constructor(private sdkService: SdkService) {}
+  constructor(
+    private sdkService: SdkService,
+    private remoteSdkService?: RemoteSdkService,
+  ) {}
 
   getCode$(key: string): Observable<TotpResponse> {
     return timer(0, 1000).pipe(
-      switchMap(() =>
-        this.sdkService.client$.pipe(
-          map((sdk) => {
-            return sdk.vault().totp().generate_totp(key);
-          }),
-        ),
-      ),
-      shareReplay({ refCount: true, bufferSize: 1 }),
+      switchMap(() => {
+        if (this.remoteSdkService) {
+          // Using remote SDK service to generate TOTP
+          return this.remoteSdkService.remoteClient$.pipe(
+            switchMap(async (sdk) => {
+              await using ref = await sdk!.take();
+              // Transfer the TOTP response
+              return await ref.value.vault().await.totp().await.generate_totp(key).await.transfer;
+            }),
+            shareReplay({ bufferSize: 1, refCount: true }),
+          );
+        } else {
+          return this.sdkService.client$.pipe(
+            map((sdk) => {
+              return sdk.vault().totp().generate_totp(key);
+            }),
+            shareReplay({ bufferSize: 1, refCount: true }),
+          );
+        }
+      }),
     );
   }
 }

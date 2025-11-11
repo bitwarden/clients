@@ -112,6 +112,7 @@ import { ConsoleLogService } from "@bitwarden/common/platform/services/console-l
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
+import { RemoteSdkService } from "@bitwarden/common/platform/services/sdk/remote-sdk.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { PrimarySecondaryStorageService } from "@bitwarden/common/platform/storage/primary-secondary-storage.service";
 import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
@@ -178,6 +179,7 @@ import { OffscreenDocumentService } from "../../platform/offscreen-document/abst
 import { DefaultOffscreenDocumentService } from "../../platform/offscreen-document/offscreen-document.service";
 import { PopupCompactModeService } from "../../platform/popup/layout/popup-compact-mode.service";
 import { BrowserFileDownloadService } from "../../platform/popup/services/browser-file-download.service";
+import { BrowserRemoteSdkService } from "../../platform/popup/services/remote-sdk.service";
 import { PopupViewCacheService } from "../../platform/popup/view-cache/popup-view-cache.service";
 import { ScriptInjectorService } from "../../platform/services/abstractions/script-injector.service";
 import { BrowserEnvironmentService } from "../../platform/services/browser-environment.service";
@@ -312,7 +314,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: TotpServiceAbstraction,
     useClass: TotpService,
-    deps: [SdkService],
+    deps: [SdkService, RemoteSdkService],
   }),
   safeProvider({
     provide: OffscreenDocumentService,
@@ -712,6 +714,11 @@ const safeProviders: SafeProvider[] = [
     provide: NewDeviceVerificationComponentService,
     useClass: ExtensionNewDeviceVerificationComponentService,
     deps: [],
+  }),
+  safeProvider({
+    provide: RemoteSdkService,
+    useClass: BrowserRemoteSdkService,
+    deps: [LogService],
   }),
 ];
 

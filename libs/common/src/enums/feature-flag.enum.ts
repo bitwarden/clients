@@ -158,5 +158,15 @@ export function getFeatureFlagValue<Flag extends FeatureFlag>(
     return DefaultFeatureFlagValue[flag];
   }
 
+  const override = [
+    FeatureFlag.PM19941MigrateCipherDomainToSdk,
+    FeatureFlag.PM22134SdkCipherListView,
+    FeatureFlag.PM22136_SdkCipherEncryption,
+  ];
+
+  if (override.includes(flag)) {
+    return true as FeatureFlagValueType<Flag>;
+  }
+
   return serverConfig.featureStates[flag] as FeatureFlagValueType<Flag>;
 }

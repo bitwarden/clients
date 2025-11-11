@@ -159,7 +159,9 @@ import { MigrationBuilderService } from "@bitwarden/common/platform/services/mig
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
+import { LocalRemoteSdkService } from "@bitwarden/common/platform/services/sdk/local-remote-sdk.service";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
+import { RemoteSdkService } from "@bitwarden/common/platform/services/sdk/remote-sdk.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { PrimarySecondaryStorageService } from "@bitwarden/common/platform/storage/primary-secondary-storage.service";
@@ -324,6 +326,7 @@ import { BrowserPlatformUtilsService } from "../platform/services/platform-utils
 import { PopupRouterCacheBackgroundService } from "../platform/services/popup-router-cache-background.service";
 import { PopupViewCacheBackgroundService } from "../platform/services/popup-view-cache-background.service";
 import { BrowserSdkLoadService } from "../platform/services/sdk/browser-sdk-load.service";
+import { RemoteSdkServerService } from "../platform/services/sdk/remote-sdk-server.service";
 import { BackgroundTaskSchedulerService } from "../platform/services/task-scheduler/background-task-scheduler.service";
 import { BackgroundMemoryStorageService } from "../platform/storage/background-memory-storage.service";
 import { BrowserStorageServiceProvider } from "../platform/storage/browser-storage-service.provider";
@@ -477,6 +480,9 @@ export default class MainBackground {
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
   loginToAutoFill: CipherView = null;
+
+  remoteSdkServerService: RemoteSdkServerService;
+  remoteSdkService: RemoteSdkService;
 
   private commandsBackground: CommandsBackground;
   private contextMenusBackground: ContextMenusBackground;
@@ -932,9 +938,16 @@ export default class MainBackground {
 
     this.themeStateService = new DefaultThemeStateService(this.globalStateProvider);
 
+    this.remoteSdkService = new LocalRemoteSdkService(
+      this.sdkService,
+      this.accountService,
+      this.authService,
+    );
+
     this.cipherEncryptionService = new DefaultCipherEncryptionService(
       this.sdkService,
       this.logService,
+      this.remoteSdkService,
     );
 
     this.cipherService = new CipherService(
@@ -1496,6 +1509,12 @@ export default class MainBackground {
       this.authService,
     );
 
+    this.remoteSdkServerService = new RemoteSdkServerService(
+      this.accountService,
+      this.authService,
+      this.sdkService,
+    );
+
     // Synchronous startup
     if (this.webPushConnectionService instanceof WorkerWebPushConnectionService) {
       this.webPushConnectionService.start();
@@ -1546,6 +1565,7 @@ export default class MainBackground {
     this.webRequestBackground?.startListening();
     this.syncServiceListener?.listener$().subscribe();
     await this.autoSubmitLoginBackground.init();
+    this.remoteSdkServerService.init();
 
     // If the user is logged out, switch to the next account
     const active = await firstValueFrom(this.accountService.activeAccount$);
