@@ -1,7 +1,7 @@
-import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, lastValueFrom } from "rxjs";
+import { lastValueFrom } from "rxjs";
 
 import {
   AllActivitiesService,
@@ -10,10 +10,6 @@ import {
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
@@ -37,23 +33,26 @@ import { NewApplicationsDialogComponent } from "./application-review-dialog/new-
   templateUrl: "./all-activity.component.html",
 })
 export class AllActivityComponent implements OnInit {
-  organization: Organization | null = null;
+  // Prefer component input since route param controls UI state
+  readonly organizationId = input.required<OrganizationId>();
+
   totalCriticalAppsAtRiskMemberCount = 0;
   totalCriticalAppsCount = 0;
   totalCriticalAppsAtRiskCount = 0;
+  totalApplicationCount = 0;
   newApplicationsCount = 0;
   newApplications: ApplicationHealthReportDetail[] = [];
-  passwordChangeMetricHasProgressBar = false;
+  extendPasswordChangeWidget = false;
   allAppsHaveReviewDate = false;
   isAllCaughtUp = false;
   hasLoadedApplicationData = false;
+  showNeedsReviewState = false;
 
   destroyRef = inject(DestroyRef);
 
   protected ReportStatusEnum = ReportStatus;
 
   constructor(
-    private accountService: AccountService,
     protected activatedRoute: ActivatedRoute,
     protected allActivitiesService: AllActivitiesService,
     protected dataService: RiskInsightsDataService,
@@ -62,53 +61,50 @@ export class AllActivityComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.allActivitiesService.reportSummary$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((summary) => {
+        this.totalCriticalAppsAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
+        this.totalCriticalAppsCount = summary.totalCriticalApplicationCount;
+        this.totalCriticalAppsAtRiskCount = summary.totalCriticalAtRiskApplicationCount;
+        this.totalApplicationCount = summary.totalApplicationCount;
+        // If we have application data, mark as loaded
+        if (summary.totalApplicationCount > 0) {
+          this.hasLoadedApplicationData = true;
+        }
+        this.updateShowNeedsReviewState();
+      });
 
-    if (organizationId) {
-      this.organization =
-        (await firstValueFrom(
-          this.organizationService.organizations$(userId).pipe(getById(organizationId)),
-        )) ?? null;
+    this.dataService.newApplications$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((newApps) => {
+        this.newApplications = newApps;
+        this.newApplicationsCount = newApps.length;
+        this.updateIsAllCaughtUp();
+        this.updateShowNeedsReviewState();
+      });
 
-      this.allActivitiesService.reportSummary$
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((summary) => {
-          this.totalCriticalAppsAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
-          this.totalCriticalAppsCount = summary.totalCriticalApplicationCount;
-          this.totalCriticalAppsAtRiskCount = summary.totalCriticalAtRiskApplicationCount;
-        });
+    this.allActivitiesService.extendPasswordChangeWidget$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((hasProgressBar) => {
+        this.extendPasswordChangeWidget = hasProgressBar;
+      });
 
-      this.dataService.newApplications$
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((newApps) => {
-          this.newApplications = newApps;
-          this.newApplicationsCount = newApps.length;
-          this.updateIsAllCaughtUp();
-        });
-
-      this.allActivitiesService.passwordChangeProgressMetricHasProgressBar$
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((hasProgressBar) => {
-          this.passwordChangeMetricHasProgressBar = hasProgressBar;
-        });
-
-      this.dataService.enrichedReportData$
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((enrichedData) => {
-          if (enrichedData?.applicationData && enrichedData.applicationData.length > 0) {
-            this.hasLoadedApplicationData = true;
-            // Check if all apps have a review date (not null and not undefined)
-            this.allAppsHaveReviewDate = enrichedData.applicationData.every(
-              (app) => app.reviewedDate !== null && app.reviewedDate !== undefined,
-            );
-          } else {
-            this.hasLoadedApplicationData = enrichedData !== null;
-            this.allAppsHaveReviewDate = false;
-          }
-          this.updateIsAllCaughtUp();
-        });
-    }
+    this.dataService.enrichedReportData$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((enrichedData) => {
+        if (enrichedData?.applicationData && enrichedData.applicationData.length > 0) {
+          this.hasLoadedApplicationData = true;
+          // Check if all apps have a review date (not null and not undefined)
+          this.allAppsHaveReviewDate = enrichedData.applicationData.every(
+            (app) => app.reviewedDate !== null && app.reviewedDate !== undefined,
+          );
+        } else {
+          this.hasLoadedApplicationData = enrichedData !== null;
+          this.allAppsHaveReviewDate = false;
+        }
+        this.updateIsAllCaughtUp();
+      });
   }
 
   /**
@@ -123,6 +119,20 @@ export class AllActivityComponent implements OnInit {
       this.hasLoadedApplicationData &&
       this.newApplicationsCount === 0 &&
       this.allAppsHaveReviewDate;
+  }
+
+  /**
+   * Updates the showNeedsReviewState flag based on current state.
+   * This state is shown when:
+   * - Data has been loaded
+   * - There are applications (totalApplicationCount > 0)
+   * - ALL apps do NOT have a review date (newApplicationsCount === totalApplicationCount)
+   */
+  private updateShowNeedsReviewState(): void {
+    this.showNeedsReviewState =
+      this.hasLoadedApplicationData &&
+      this.totalApplicationCount > 0 &&
+      this.newApplicationsCount === this.totalApplicationCount;
   }
 
   /**
@@ -143,6 +153,7 @@ export class AllActivityComponent implements OnInit {
     const dialogRef = NewApplicationsDialogComponent.open(this.dialogService, {
       newApplications: this.newApplications,
       organizationId: organizationId as OrganizationId,
+      hasExistingCriticalApplications: this.totalCriticalAppsCount > 0,
     });
 
     await lastValueFrom(dialogRef.closed);
