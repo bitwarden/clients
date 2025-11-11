@@ -257,7 +257,8 @@ describe("LoginStrategy", () => {
 
       expect(environmentService.seedUserEnvironment).toHaveBeenCalled();
 
-      expect(userDecryptionOptionsService.setUserDecryptionOptions).toHaveBeenCalledWith(
+      expect(userDecryptionOptionsService.setUserDecryptionOptionsById).toHaveBeenCalledWith(
+        userId,
         UserDecryptionOptions.fromResponse(idTokenResponse),
       );
       expect(masterPasswordService.mock.setMasterPasswordUnlockData).toHaveBeenCalledWith(
