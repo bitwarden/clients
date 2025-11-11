@@ -62,6 +62,7 @@ export enum FeatureFlag {
   CipherKeyEncryption = "cipher-key-encryption",
   AutofillConfirmation = "pm-25083-autofill-confirm-from-search",
   RiskInsightsForPremium = "pm-23904-risk-insights-for-premium",
+  VaultLoadingSkeletons = "pm-25081-vault-skeleton-loaders",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -111,6 +112,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
   [FeatureFlag.AutofillConfirmation]: FALSE,
   [FeatureFlag.RiskInsightsForPremium]: FALSE,
+  [FeatureFlag.VaultLoadingSkeletons]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM22110_DisableAlternateLoginMethods]: FALSE,
