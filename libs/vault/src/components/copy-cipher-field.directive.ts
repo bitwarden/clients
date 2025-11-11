@@ -11,7 +11,7 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuItemDirective, BitIconButtonComponent } from "@bitwarden/components";
-import { CopyAction, CopyCipherFieldService } from "@bitwarden/vault";
+import { CopyFieldAction, CopyCipherFieldService } from "@bitwarden/vault";
 
 /**
  * Directive to copy a specific field from a cipher on click. Uses the `CopyCipherFieldService` to
@@ -36,7 +36,7 @@ export class CopyCipherFieldDirective implements OnChanges {
     alias: "appCopyField",
     required: true,
   })
-  action!: Exclude<CopyAction, "hiddenField">;
+  action!: CopyFieldAction;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
