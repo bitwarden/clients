@@ -16,7 +16,7 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
   private portKey!: string;
   /** Non-null asserted. */
   protected windowMessageHandlers!: AutofillInlineMenuPageElementWindowMessageHandlers;
-  private token: string;
+  private token?: string;
 
   constructor() {
     super();
