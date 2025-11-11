@@ -43,6 +43,7 @@ import {
   NativeAutofillPasswordCredential,
   NativeAutofillSyncCommand,
 } from "../../platform/main/autofill/sync.command";
+import { NativeAutofillUserVerificationCommand } from "../../platform/main/autofill/user-verification.command";
 
 import type { NativeWindowObject } from "./desktop-fido2-user-interface.service";
 import { DeviceType } from "@bitwarden/common/enums";
@@ -278,11 +279,13 @@ export class DesktopAutofillService implements OnDestroy {
               new Uint8Array(parseCredentialId(decrypted.login.fido2Credentials?.[0].credentialId)),
             );
           }
+          const ctx = request.context ? new Uint8Array(request.context).buffer : null;
 
           const response = await this.fido2AuthenticatorService.getAssertion(
             this.convertAssertionRequest(request, true),
             { windowXy: request.windowXy },
             controller,
+            ctx
           );
 
           callback(null, this.convertAssertionResponse(request, response));
@@ -304,13 +307,14 @@ export class DesktopAutofillService implements OnDestroy {
       }
 
       this.logService.debug("listenPasskeyAssertion", clientId, sequenceNumber, request);
-
+      const ctx = request.context ? new Uint8Array(request.context).buffer : null;
       const controller = new AbortController();
       try {
         const response = await this.fido2AuthenticatorService.getAssertion(
           this.convertAssertionRequest(request),
           { windowXy: request.windowXy },
           controller,
+          ctx
         );
 
         callback(null, this.convertAssertionResponse(request, response));

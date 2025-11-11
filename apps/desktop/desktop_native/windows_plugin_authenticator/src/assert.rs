@@ -8,8 +8,8 @@ use std::{
 use windows_core::{s, HRESULT};
 
 use crate::ipc2::{
-    PasskeyAssertionRequest, PasskeyAssertionResponse, Position, TimedCallback, UserVerification,
-    WindowsProviderClient,
+    PasskeyAssertionRequest, PasskeyAssertionResponse, Position, TimedCallback, TransactionContext,
+    TransactionId, UserVerification, WindowsProviderClient,
 };
 use crate::util::{debug_log, delay_load, wstr_to_string};
 use crate::webauthn::WEBAUTHN_CREDENTIAL_LIST;
@@ -148,6 +148,7 @@ fn send_assertion_request(
             client_data_hash: request.client_data_hash,
             user_verification: request.user_verification,
             window_xy: request.window_xy,
+            context: request.context,
         };
         ipc_client.prepare_passkey_assertion_without_user_interface(request, callback.clone());
     } else {
@@ -349,15 +350,17 @@ pub unsafe fn plugin_get_assertion(
     let allowed_credentials = parse_credential_list(&decoded_request.CredentialList);
 
     // Create Windows assertion request
+    let transaction_id = req.transaction_id.to_u128().to_le_bytes().to_vec();
     let assertion_request = PasskeyAssertionRequest {
         rp_id: rpid.clone(),
         client_data_hash,
         allowed_credentials: allowed_credentials.clone(),
+        user_verification,
         window_xy: Position {
             x: coords.0,
             y: coords.1,
         },
-        user_verification,
+        context: transaction_id,
     };
 
     tracing::debug!(

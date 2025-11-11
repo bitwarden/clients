@@ -5,7 +5,7 @@ use std::ptr::NonNull;
 use anyhow::{anyhow, Result};
 use base64::engine::{general_purpose::URL_SAFE_NO_PAD, Engine};
 use windows::core::s;
-use windows::Win32::Foundation::FreeLibrary;
+use windows::Win32::Foundation::{FreeLibrary, HWND};
 use windows::{
     core::{GUID, HRESULT, PCSTR},
     Win32::System::{Com::CoTaskMemAlloc, LibraryLoader::*},
@@ -13,15 +13,15 @@ use windows::{
 
 use crate::autofill::{
     CommandResponse, RunCommand, RunCommandRequest, StatusResponse, StatusState, StatusSupport,
-    SyncCredential, SyncParameters, SyncResponse,
+    SyncCredential, SyncParameters, SyncResponse, UserVerificationParameters,
+    UserVerificationResponse,
 };
 
 const PLUGIN_CLSID: &str = "0f7dc5d9-69ce-4652-8572-6877fd695062";
 
 #[allow(clippy::unused_async)]
 pub async fn run_command(value: String) -> Result<String> {
-    // this.logService.info("Passkey request received:", { error, event });
-
+    tracing::debug!("Received command request: {value}");
     let request: RunCommandRequest = serde_json::from_str(&value)
         .map_err(|e| anyhow!("Failed to deserialize passkey request: {e}"))?;
 
@@ -35,37 +35,13 @@ pub async fn run_command(value: String) -> Result<String> {
                 .map_err(|e| anyhow!("Could not parse sync parameters: {e}"))?;
             handle_sync_request(params)?.try_into()?
         }
+        RunCommand::UserVerification => {
+            let params: UserVerificationParameters = serde_json::from_value(request.params)
+                .map_err(|e| anyhow!("Could not parse user verification parameters: {e}"))?;
+            handle_user_verification_request(params)?.try_into()?
+        }
     };
     serde_json::to_string(&response).map_err(|e| anyhow!("Failed to serialize response: {e}"))
-
-    /*
-      try {
-        const request = JSON.parse(event.requestJson);
-        this.logService.info("Parsed passkey request:", { type: event.requestType, request });
-
-        // Handle different request types based on the requestType field
-        switch (event.requestType) {
-          case "assertion":
-            return await this.handleAssertionRequest(request);
-          case "registration":
-            return await this.handleRegistrationRequest(request);
-          case "sync":
-            return await this.handleSyncRequest(request);
-          default:
-            this.logService.error("Unknown passkey request type:", event.requestType);
-            return JSON.stringify({
-              type: "error",
-              message: `Unknown request type: ${event.requestType}`,
-            });
-        }
-      } catch (parseError) {
-        this.logService.error("Failed to parse passkey request:", parseError);
-        return JSON.stringify({
-          type: "error",
-          message: "Failed to parse request JSON",
-        });
-      }
-    */
 }
 
 fn handle_sync_request(params: SyncParameters) -> Result<SyncResponse> {
@@ -78,13 +54,6 @@ fn handle_sync_request(params: SyncParameters) -> Result<SyncResponse> {
     sync_credentials_to_windows(credentials, PLUGIN_CLSID)
         .map_err(|e| anyhow!("Failed to sync credentials to Windows: {e}"))?;
     Ok(SyncResponse { added: num_creds })
-    /*
-      let mut log_file = std::fs::File::options()
-          .append(true)
-          .open("C:\\temp\\bitwarden_windows_core.log")
-          .unwrap();
-      log_file.write_all(b"Made it to sync!");
-    */
 }
 
 fn handle_status_request() -> Result<StatusResponse> {
@@ -98,136 +67,44 @@ fn handle_status_request() -> Result<StatusResponse> {
     })
 }
 
-/*
-async fn handleAssertionRequest(request: autofill.PasskeyAssertionRequest): Promise<string> {
-    this.logService.info("Handling assertion request for rpId:", request.rpId);
+fn handle_user_verification_request(
+    request: UserVerificationParameters,
+) -> Result<UserVerificationResponse> {
+    tracing::debug!(?request, "Handling user verification request");
+    unsafe {
+        let hwnd: HWND = *request.window_handle.as_ptr().cast();
 
-    try {
-      // Generate unique identifiers for tracking this request
-      const clientId = Date.now();
-      const sequenceNumber = Math.floor(Math.random() * 1000000);
+        let (buf, _) = request.transaction_context[..16].split_at(16);
+        let guid_u128 = buf
+            .try_into()
+            .map_err(|e| anyhow!("Failed to parse transaction ID as u128: {e}"))?;
+        let transaction_id = GUID::from_u128(u128::from_le_bytes(guid_u128));
 
-      // Send request and wait for response
-      const response = await this.sendAndOptionallyWait<autofill.PasskeyAssertionResponse>(
-        "autofill.passkeyAssertion",
-        {
-          clientId,
-          sequenceNumber,
-          request: request,
-        },
-        { waitForResponse: true, timeout: 60000 },
-      );
-
-      if (response) {
-        // Convert the response to the format expected by the NAPI bridge
-        return JSON.stringify({
-          type: "assertion_response",
-          ...response,
-        });
-      } else {
-        return JSON.stringify({
-          type: "error",
-          message: "No response received from renderer",
-        });
-      }
-    } catch (error) {
-      this.logService.error("Error in assertion request:", error);
-      return JSON.stringify({
-        type: "error",
-        message: `Assertion request failed: ${error.message}`,
-      });
+        let uv_request = WebAuthNPluginUserVerificationRequest {
+            hwnd,
+            rguidTransactionId: (&transaction_id) as *const GUID,
+            pwszUsername: request.username.to_com_utf16().0,
+            pwszDisplayHint: request.display_hint.to_com_utf16().0,
+        };
+        let uv_fn = delay_load::<WebAuthNPluginPerformUserVerification>(
+            s!("webauthn.dll"),
+            s!("WebAuthNPluginPerformUserVerification"),
+        )
+        .ok_or(anyhow!(
+            "Could not load WebAuthNPluginPerformUserVerification"
+        ))?;
+        let mut uv_response_len: u32 = 0;
+        let mut uv_response: *mut u8 = std::ptr::null_mut();
+        uv_fn(
+            std::ptr::from_ref(&uv_request),
+            &mut uv_response_len as *mut u32,
+            &mut uv_response as *mut *mut u8,
+        )
+        .ok()
+        .map_err(|err| anyhow!("User Verification request failed: {err}"))?;
     }
-  }
-
-  private async handleRegistrationRequest(
-    request: autofill.PasskeyRegistrationRequest,
-  ): Promise<string> {
-    this.logService.info("Handling registration request for rpId:", request.rpId);
-
-    try {
-      // Generate unique identifiers for tracking this request
-      const clientId = Date.now();
-      const sequenceNumber = Math.floor(Math.random() * 1000000);
-
-      // Send request and wait for response
-      const response = await this.sendAndOptionallyWait<autofill.PasskeyRegistrationResponse>(
-        "autofill.passkeyRegistration",
-        {
-          clientId,
-          sequenceNumber,
-          request: request,
-        },
-        { waitForResponse: true, timeout: 60000 },
-      );
-
-      this.logService.info("Received response for registration request:", response);
-
-      if (response) {
-        // Convert the response to the format expected by the NAPI bridge
-        return JSON.stringify({
-          type: "registration_response",
-          ...response,
-        });
-      } else {
-        return JSON.stringify({
-          type: "error",
-          message: "No response received from renderer",
-        });
-      }
-    } catch (error) {
-      this.logService.error("Error in registration request:", error);
-      return JSON.stringify({
-        type: "error",
-        message: `Registration request failed: ${error.message}`,
-      });
-    }
-  }
-
-  private async handleSyncRequest(
-    request: passkey_authenticator.PasskeySyncRequest,
-  ): Promise<string> {
-    this.logService.info("Handling sync request for rpId:", request.rpId);
-
-    try {
-      // Generate unique identifiers for tracking this request
-      const clientId = Date.now();
-      const sequenceNumber = Math.floor(Math.random() * 1000000);
-
-      // Send sync request and wait for response
-      const response = await this.sendAndOptionallyWait<passkey_authenticator.PasskeySyncResponse>(
-        "autofill.passkeySync",
-        {
-          clientId,
-          sequenceNumber,
-          request: { rpId: request.rpId },
-        },
-        { waitForResponse: true, timeout: 60000 },
-      );
-
-      this.logService.info("Received response for sync request:", response);
-
-      if (response && response.credentials) {
-        // Convert the response to the format expected by the NAPI bridge
-        return JSON.stringify({
-          type: "sync_response",
-          credentials: response.credentials,
-        });
-      } else {
-        return JSON.stringify({
-          type: "error",
-          message: "No credentials received from renderer",
-        });
-      }
-    } catch (error) {
-      this.logService.error("Error in sync request:", error);
-      return JSON.stringify({
-        type: "error",
-        message: `Sync request failed: ${error.message}`,
-      });
-    }
-  }
-
-*/
+    return Ok(UserVerificationResponse {});
+}
 
 impl TryFrom<SyncCredential> for SyncedCredential {
     type Error = anyhow::Error;
@@ -623,3 +500,27 @@ fn add_credentials(
 
 type WebAuthNPluginAuthenticatorRemoveAllCredentialsFnDeclaration =
     unsafe extern "cdecl" fn(rclsid: *const GUID) -> HRESULT;
+
+#[repr(C)]
+#[derive(Debug)]
+struct WebAuthNPluginUserVerificationRequest {
+    /// Windows handle of the top-level window displayed by the plugin and currently is in foreground as part of the ongoing webauthn operation.
+    hwnd: HWND,
+
+    /// The webauthn transaction id from the WEBAUTHN_PLUGIN_OPERATION_REQUEST
+    rguidTransactionId: *const GUID,
+
+    /// The username attached to the credential that is in use for this webauthn operation
+    pwszUsername: *const u16,
+
+    /// A text hint displayed on the windows hello prompt
+    pwszDisplayHint: *const u16,
+}
+
+type WebAuthNPluginPerformUserVerification = unsafe extern "cdecl" fn(
+    pPluginUserVerification: *const WebAuthNPluginUserVerificationRequest,
+    pcbResponse: *mut u32,
+    ppbResponse: *mut *mut u8,
+) -> HRESULT;
+
+type WebAuthNPluginFreeUserVerificationResponse = unsafe extern "cdecl" fn(ppbResponse: *mut u8);

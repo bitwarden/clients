@@ -33,6 +33,7 @@ export abstract class Fido2AuthenticatorService<ParentWindowReference> {
     params: Fido2AuthenticatorGetAssertionParams,
     window: ParentWindowReference,
     abortController?: AbortController,
+    transactionContext?: ArrayBuffer,
   ): Promise<Fido2AuthenticatorGetAssertionResult>;
 
   /**

@@ -4,7 +4,7 @@
 #[cfg_attr(target_os = "macos", path = "macos.rs")]
 mod autofill;
 pub use autofill::*;
-use serde::{Deserialize, Serialize};
+use serde::{de::Visitor, Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 
 #[derive(Deserialize)]
@@ -23,6 +23,8 @@ enum RunCommand {
     Status,
     #[serde(rename = "sync")]
     Sync,
+    #[serde(rename = "user-verification")]
+    UserVerification,
 }
 
 #[derive(Debug, Deserialize)]
@@ -87,6 +89,19 @@ struct SyncResponse {
     added: u32,
 }
 
+#[derive(Debug, Deserialize)]
+struct UserVerificationParameters {
+    #[serde(rename = "windowHandle", deserialize_with = "deserialize_b64")]
+    window_handle: Vec<u8>,
+    #[serde(rename = "transactionContext", deserialize_with = "deserialize_b64")]
+    pub(crate) transaction_context: Vec<u8>,
+    #[serde(rename = "displayHint")]
+    pub(crate) display_hint: String,
+    pub(crate) username: String,
+}
+#[derive(Serialize)]
+struct UserVerificationResponse {}
+
 #[derive(Serialize)]
 #[serde(tag = "type")]
 enum CommandResponse {
@@ -124,5 +139,36 @@ impl TryFrom<SyncResponse> for CommandResponse {
         Ok(Self::Success {
             value: serde_json::to_value(response)?,
         })
+    }
+}
+
+impl TryFrom<UserVerificationResponse> for CommandResponse {
+    type Error = anyhow::Error;
+
+    fn try_from(response: UserVerificationResponse) -> Result<Self, anyhow::Error> {
+        Ok(Self::Success {
+            value: serde_json::to_value(response)?,
+        })
+    }
+}
+
+fn deserialize_b64<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Vec<u8>, D::Error> {
+    deserializer.deserialize_str(Base64Visitor {})
+}
+
+struct Base64Visitor;
+impl<'de> Visitor<'de> for Base64Visitor {
+    type Value = Vec<u8>;
+
+    fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str("A valid base64 string")
+    }
+
+    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+    where
+        E: serde::de::Error,
+    {
+        use base64::{engine::general_purpose::STANDARD, Engine as _};
+        STANDARD.decode(v).map_err(|err| E::custom(err))
     }
 }

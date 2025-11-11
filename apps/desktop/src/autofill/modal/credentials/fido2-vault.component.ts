@@ -153,8 +153,8 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
   private async validateCipherAccess(cipher: CipherView): Promise<boolean> {
     if (cipher.reprompt !== CipherRepromptType.None) {
       return this.passwordRepromptService.showPasswordPrompt();
+    } else {
+      return this.session.promptForUserVerification(cipher)
     }
-
-    return true;
   }
 }

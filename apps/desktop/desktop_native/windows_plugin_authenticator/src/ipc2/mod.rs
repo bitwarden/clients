@@ -11,7 +11,10 @@ use std::{
 };
 
 use futures::FutureExt;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{
+    de::{self, DeserializeOwned, Expected, Visitor},
+    Deserialize, Serialize,
+};
 use tracing::{error, info};
 use tracing_subscriber::{
     filter::{EnvFilter, LevelFilter},
@@ -29,8 +32,9 @@ pub use assertion::{
 pub use registration::{
     PasskeyRegistrationRequest, PasskeyRegistrationResponse, PreparePasskeyRegistrationCallback,
 };
+use windows_core::GUID;
 
-use crate::util::debug_log;
+use crate::{com_registration::parse_clsid_to_guid_str, util::debug_log};
 
 static INIT: Once = Once::new();
 
@@ -365,5 +369,68 @@ impl PreparePasskeyAssertionCallback for TimedCallback<PasskeyAssertionResponse>
 
     fn on_error(&self, error: BitwardenError) {
         self.send(Err(error))
+    }
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub(crate) struct TransactionContext {
+    /// Transaction ID received from Windows in the plugin operation request.
+    pub(crate) id: TransactionId,
+}
+
+#[derive(Debug)]
+pub(crate) struct TransactionId(GUID);
+
+impl From<GUID> for TransactionId {
+    fn from(value: GUID) -> Self {
+        Self(value)
+    }
+}
+
+impl<'de> Deserialize<'de> for TransactionId {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        deserializer.deserialize_str(TransactionIdVisitor {})
+    }
+}
+
+struct TransactionIdVisitor;
+
+impl<'de> Visitor<'de> for TransactionIdVisitor {
+    type Value = TransactionId;
+
+    fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str("A GUID string")
+    }
+
+    fn visit_str<E: de::Error>(self, value: &str) -> Result<Self::Value, E> {
+        parse_clsid_to_guid_str(value)
+            .map(|guid| TransactionId(guid))
+            .map_err(|err| de::Error::custom(err))
+    }
+}
+
+impl Display for TransactionId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let guid_str = [
+            hex::encode(self.0.data1.to_le_bytes()),
+            hex::encode(self.0.data2.to_le_bytes()),
+            hex::encode(self.0.data2.to_le_bytes()),
+            hex::encode(&self.0.data4[..2]),
+            hex::encode(&self.0.data4[2..8]),
+        ]
+        .join("-");
+        f.write_str(&guid_str)
+    }
+}
+
+impl Serialize for TransactionId {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
     }
 }

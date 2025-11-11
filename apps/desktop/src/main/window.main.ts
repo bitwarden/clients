@@ -403,6 +403,10 @@ export class WindowMain {
     if (this.createWindowCallback) {
       this.createWindowCallback(this.win);
     }
+    
+    ipcMain.handle("get-native-window-handle", (_event) => {
+      return this.win.getNativeWindowHandle().toString("base64");
+    });
   }
 
   // Retrieve the background color
