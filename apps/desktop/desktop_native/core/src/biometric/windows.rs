@@ -60,9 +60,8 @@ impl super::BiometricTrait for Biometric {
 
         match ucv_available {
             UserConsentVerifierAvailability::Available => Ok(true),
-            UserConsentVerifierAvailability::DeviceBusy => Ok(true), /* TODO: Look into removing */
-            // this and making the
-            // check more ad-hoc
+            // TODO: look into removing this and making the check more ad-hoc
+            UserConsentVerifierAvailability::DeviceBusy => Ok(true),
             _ => Ok(false),
         }
     }
