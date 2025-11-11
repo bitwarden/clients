@@ -620,7 +620,6 @@ dependencies = [
  "sha1",
  "tokio",
  "tracing",
- "tracing-subscriber",
  "verifysign",
  "windows 0.61.1",
 ]
