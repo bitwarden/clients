@@ -114,7 +114,10 @@ import {
   BiometricStateService,
   BiometricsService,
 } from "@bitwarden/key-management";
-import { LockComponentService } from "@bitwarden/key-management-ui";
+import {
+  LockComponentService,
+  SessionTimeoutSettingsComponentService,
+} from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
 
@@ -130,6 +133,7 @@ import { DesktopBiometricsService } from "../../key-management/biometrics/deskto
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
 import { ElectronKeyService } from "../../key-management/electron-key.service";
 import { DesktopLockComponentService } from "../../key-management/lock/services/desktop-lock-component.service";
+import { DesktopSessionTimeoutSettingsComponentService } from "../../key-management/session-timeout/services/desktop-session-timeout-settings-component.service";
 import { flagEnabled } from "../../platform/flags";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { ElectronLogRendererService } from "../../platform/services/electron-log.renderer.service";
@@ -479,6 +483,11 @@ const safeProviders: SafeProvider[] = [
     provide: DesktopAutotypeDefaultSettingPolicy,
     useClass: DesktopAutotypeDefaultSettingPolicy,
     deps: [AccountServiceAbstraction, AuthServiceAbstraction, InternalPolicyService, ConfigService],
+  }),
+  safeProvider({
+    provide: SessionTimeoutSettingsComponentService,
+    useClass: DesktopSessionTimeoutSettingsComponentService,
+    deps: [I18nServiceAbstraction],
   }),
   safeProvider({
     provide: AuthRequestAnsweringService,
