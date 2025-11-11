@@ -1,9 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -29,7 +29,7 @@ export class BitwardenPasswordProtectedImporter extends BitwardenJsonImporter im
     encryptService: EncryptService,
     i18nService: I18nService,
     cipherService: CipherService,
-    private pinService: PinServiceAbstraction,
+    private keyGenerationService: KeyGenerationService,
     accountService: AccountService,
     private promptForPassword_callback: () => Promise<string>,
   ) {
@@ -86,7 +86,13 @@ export class BitwardenPasswordProtectedImporter extends BitwardenJsonImporter im
         ? new PBKDF2KdfConfig(jdoc.kdfIterations)
         : new Argon2KdfConfig(jdoc.kdfIterations, jdoc.kdfMemory, jdoc.kdfParallelism);
 
-    this.key = await this.pinService.makePinKey(password, jdoc.salt, kdfConfig);
+    const unstretchedExportkey = await this.keyGenerationService.deriveKeyFromPassword(
+      password,
+      jdoc.salt,
+      kdfConfig,
+    );
+    const exportKey = await this.keyGenerationService.stretchKey(unstretchedExportkey);
+    this.key = exportKey;
 
     const encKeyValidation = new EncString(jdoc.encKeyValidation_DO_NOT_EDIT);
 

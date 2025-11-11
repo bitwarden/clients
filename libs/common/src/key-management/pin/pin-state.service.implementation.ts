@@ -13,7 +13,6 @@ import {
   PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT,
   PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL,
   USER_KEY_ENCRYPTED_PIN,
-  PIN_KEY_ENCRYPTED_USER_KEY_PERSISTENT,
 } from "./pin.state";
 
 export class PinStateService implements PinStateServiceAbstraction {
@@ -36,9 +35,7 @@ export class PinStateService implements PinStateServiceAbstraction {
     assertNonNullish(userId, "userId");
 
     const isPersistentPinSet =
-      (await this.getPinProtectedUserKeyEnvelope(userId, "PERSISTENT")) != null ||
-      // Deprecated
-      (await this.getLegacyPinKeyEncryptedUserKeyPersistent(userId)) != null;
+      (await this.getPinProtectedUserKeyEnvelope(userId, "PERSISTENT")) != null;
     const isPinSet =
       (await firstValueFrom(this.stateProvider.getUserState$(USER_KEY_ENCRYPTED_PIN, userId))) !=
       null;
@@ -69,16 +66,6 @@ export class PinStateService implements PinStateServiceAbstraction {
     } else {
       throw new Error(`Unsupported PinLockType: ${pinLockType}`);
     }
-  }
-
-  async getLegacyPinKeyEncryptedUserKeyPersistent(userId: UserId): Promise<EncString | null> {
-    assertNonNullish(userId, "userId");
-
-    return await firstValueFrom(
-      this.stateProvider
-        .getUserState$(PIN_KEY_ENCRYPTED_USER_KEY_PERSISTENT, userId)
-        .pipe(map((value) => (value ? new EncString(value) : null))),
-    );
   }
 
   async setPinState(
@@ -116,9 +103,6 @@ export class PinStateService implements PinStateServiceAbstraction {
     await this.stateProvider.setUserState(USER_KEY_ENCRYPTED_PIN, null, userId);
     await this.stateProvider.setUserState(PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL, null, userId);
     await this.stateProvider.setUserState(PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT, null, userId);
-
-    // Note: This can be deleted after sufficiently many PINs are migrated and the state is removed.
-    await this.stateProvider.setUserState(PIN_KEY_ENCRYPTED_USER_KEY_PERSISTENT, null, userId);
   }
 
   async clearEphemeralPinState(userId: UserId): Promise<void> {
