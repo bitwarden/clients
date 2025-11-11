@@ -2,7 +2,7 @@ import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { combineLatest, distinctUntilChanged, switchMap, tap } from "rxjs";
+import { combineLatest, distinctUntilChanged, map, switchMap, tap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NoResults, NoSendsIcon } from "@bitwarden/assets/svg";
@@ -13,6 +13,8 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -78,6 +80,9 @@ export class SendV2Component implements OnDestroy {
 
   protected listState: SendState | null = null;
   protected sends$ = this.sendItemsService.filteredAndSortedSends$;
+  private skeletonFeatureFlag$ = this.configService.getFeatureFlag$(
+    FeatureFlag.VaultLoadingSkeletons,
+  );
   protected sendsLoading$ = this.sendItemsService.loading$.pipe(
     distinctUntilChanged(),
     tap((loading) => {
@@ -85,6 +90,19 @@ export class SendV2Component implements OnDestroy {
       void this.liveAnnouncer.announce(this.i18nService.translate(key), "polite");
     }),
   );
+
+  /** Spinner Loading State */
+  protected showSpinnerLoaders$ = combineLatest([
+    this.sendsLoading$,
+    this.skeletonFeatureFlag$,
+  ]).pipe(map(([loading, skeletonsEnabled]) => loading && !skeletonsEnabled));
+
+  /** Skeleton Loading State */
+  protected showSkeletonsLoaders$ = combineLatest([
+    this.sendsLoading$,
+    this.skeletonFeatureFlag$,
+  ]).pipe(map(([loading, skeletonsEnabled]) => loading && skeletonsEnabled));
+
   protected title: string = "allSends";
   protected noItemIcon = NoSendsIcon;
   protected noResultsIcon = NoResults;
@@ -98,6 +116,7 @@ export class SendV2Component implements OnDestroy {
     private accountService: AccountService,
     private liveAnnouncer: LiveAnnouncer,
     private i18nService: I18nService,
+    private configService: ConfigService,
   ) {
     combineLatest([
       this.sendItemsService.emptyList$,
