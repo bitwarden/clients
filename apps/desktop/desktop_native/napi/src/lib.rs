@@ -656,6 +656,18 @@ pub mod autofill {
         Discouraged,
     }
 
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct LockStatusQueryRequest {}
+
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct LockStatusQueryResponse {
+        pub is_unlocked: bool,
+    }
+
     #[derive(Serialize, Deserialize)]
     #[serde(bound = "T: Serialize + DeserializeOwned")]
     pub struct PasskeyMessage<T: Serialize + DeserializeOwned> {
@@ -788,6 +800,13 @@ pub mod autofill {
                 (u32, u32, NativeStatus),
                 ErrorStrategy::CalleeHandled,
             >,
+            #[napi(
+                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: LockStatusQueryRequest) => void"
+            )]
+            lock_status_query_callback: ThreadsafeFunction<
+                (u32, u32, LockStatusQueryRequest),
+                ErrorStrategy::CalleeHandled,
+            >,
         ) -> napi::Result<Self> {
             let (send, mut recv) = tokio::sync::mpsc::channel::<Message>(32);
             tokio::spawn(async move {
@@ -875,6 +894,23 @@ pub mod autofill {
                                 }
                             }
 
+                            match serde_json::from_str::<PasskeyMessage<LockStatusQueryRequest>>(
+                                &message,
+                            ) {
+                                Ok(msg) => {
+                                    let value = msg
+                                        .value
+                                        .map(|value| (client_id, msg.sequence_number, value))
+                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
+                                    lock_status_query_callback
+                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
+                                    continue;
+                                }
+                                Err(error) => {
+                                    error!(%error, "Unable to deserialze native status.");
+                                }
+                            }
+
                             error!(message, "Received an unknown message2");
                         }
                     }
@@ -925,6 +961,20 @@ pub mod autofill {
             client_id: u32,
             sequence_number: u32,
             response: PasskeyAssertionResponse,
+        ) -> napi::Result<u32> {
+            let message = PasskeyMessage {
+                sequence_number,
+                value: Ok(response),
+            };
+            self.send(client_id, serde_json::to_string(&message).unwrap())
+        }
+
+        #[napi]
+        pub fn complete_lock_status_query(
+            &self,
+            client_id: u32,
+            sequence_number: u32,
+            response: LockStatusQueryResponse,
         ) -> napi::Result<u32> {
             let message = PasskeyMessage {
                 sequence_number,

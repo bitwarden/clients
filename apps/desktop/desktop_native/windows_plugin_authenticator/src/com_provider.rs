@@ -1,10 +1,13 @@
+use std::sync::Arc;
+use std::time::Duration;
+
 use windows::Win32::Foundation::{RECT, S_OK};
 use windows::Win32::System::Com::*;
 use windows::Win32::UI::WindowsAndMessaging::GetWindowRect;
 use windows_core::{implement, interface, IInspectable, IUnknown, Interface, HRESULT};
 
 use crate::assert::plugin_get_assertion;
-use crate::ipc2::WindowsProviderClient;
+use crate::ipc2::{TimedCallback, WindowsProviderClient};
 use crate::make_credential::plugin_make_credential;
 use crate::util::debug_log;
 use crate::webauthn::WEBAUTHN_CREDENTIAL_LIST;
@@ -199,12 +202,37 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
     }
 
     unsafe fn GetLockStatus(&self, lock_status: *mut PluginLockStatus) -> HRESULT {
-        tracing::debug!("GetLockStatus() called");
+        tracing::debug!(
+            "GetLockStatus() called <PID {}, Thread {:?}>",
+            std::process::id(),
+            std::thread::current().id()
+        );
         if lock_status.is_null() {
             return HRESULT(-2147024809); // E_INVALIDARG
         }
-        *lock_status = PluginLockStatus::PluginUnlocked;
-        HRESULT(0)
+        *lock_status = PluginLockStatus::PluginLocked;
+        let callback = Arc::new(TimedCallback::new());
+        self.client.get_lock_status(callback.clone());
+        match callback.wait_for_response(Duration::from_secs(3)) {
+            Ok(Ok(response)) => {
+                let status = if response.is_unlocked {
+                    PluginLockStatus::PluginUnlocked
+                } else {
+                    PluginLockStatus::PluginLocked
+                };
+                tracing::debug!("GetLockStatus() received {status:?}");
+                *lock_status = status;
+                HRESULT(0)
+            }
+            Ok(Err(err)) => {
+                tracing::error!("GetLockStatus() call failed: {err}");
+                HRESULT(-1)
+            }
+            Err(_) => {
+                tracing::error!("GetLockStatus() call timed out");
+                HRESULT(-1)
+            }
+        }
     }
 }
 

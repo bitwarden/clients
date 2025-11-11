@@ -188,4 +188,42 @@ export default {
       },
     );
   },
+  listenLockStatusQuery: (
+    fn: (
+      clientId: number,
+      sequenceNumber: number,
+      request: autofill.LockStatusQueryRequest,
+      completeCallback: (error: Error | null, response: autofill.LockStatusQueryResponse) => void,
+    ) => void,
+  ) => {
+    ipcRenderer.on(
+      "autofill.lockStatusQuery",
+      (
+        event,
+        data: {
+          clientId: number;
+          sequenceNumber: number;
+          request: autofill.LockStatusQueryRequest;
+        },
+      ) => {
+        const { clientId, sequenceNumber, request } = data;
+        fn(clientId, sequenceNumber, request, (error, response) => {
+          if (error) {
+            ipcRenderer.send("autofill.completeError", {
+              clientId,
+              sequenceNumber,
+              error: error.message,
+            });
+            return;
+          }
+
+          ipcRenderer.send("autofill.completeLockStatusQuery", {
+            clientId,
+            sequenceNumber,
+            response,
+          });
+        });
+      },
+    );
+  },
 };

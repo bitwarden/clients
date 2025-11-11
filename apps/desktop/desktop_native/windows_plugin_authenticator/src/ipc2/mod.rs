@@ -20,6 +20,7 @@ use tracing_subscriber::{
 };
 
 mod assertion;
+mod lock_status;
 mod registration;
 
 pub use assertion::{
@@ -30,7 +31,10 @@ pub use registration::{
     PasskeyRegistrationRequest, PasskeyRegistrationResponse, PreparePasskeyRegistrationCallback,
 };
 
-use crate::util::debug_log;
+use crate::{
+    ipc2::lock_status::{GetLockStatusCallback, LockStatusRequest},
+    util::debug_log,
+};
 
 static INIT: Once = Once::new();
 
@@ -231,6 +235,10 @@ impl WindowsProviderClient {
         callback: Arc<dyn PreparePasskeyAssertionCallback>,
     ) {
         self.send_message(request, Some(Box::new(callback)));
+    }
+
+    pub fn get_lock_status(&self, callback: Arc<dyn GetLockStatusCallback>) {
+        self.send_message(LockStatusRequest {}, Some(Box::new(callback)));
     }
 
     pub fn get_connection_status(&self) -> ConnectionStatus {

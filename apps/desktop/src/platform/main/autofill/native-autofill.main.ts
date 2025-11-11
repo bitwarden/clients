@@ -138,6 +138,19 @@ export class NativeAutofillMain {
           status,
         });
       },
+      // LockStatusQueryCallback
+      (error, clientId, sequenceNumber, request) => {
+        if (error) {
+          this.logService.error("autofill.IpcServer.lockStatusQuery", error);
+          this.ipcServer.completeError(clientId, sequenceNumber, String(error));
+          return;
+        }
+        this.safeSend("autofill.lockStatusQuery", {
+          clientId,
+          sequenceNumber,
+          request,
+        });
+      },
     );
 
     ipcMain.on("autofill.listenerReady", () => {
@@ -159,6 +172,14 @@ export class NativeAutofillMain {
       const { clientId, sequenceNumber, response } = data;
       this.ipcServer.completeAssertion(clientId, sequenceNumber, response);
     });
+
+    ipcMain.on("autofill.completeLockStatusQuery", (event, data) => {
+      this.logService.debug("autofill.completeLockStatusQuery", data);
+      const { clientId, sequenceNumber, response } = data;
+      this.ipcServer.completeLockStatusQuery(clientId, sequenceNumber, response);
+    });
+
+
 
     ipcMain.on("autofill.completeError", (event, data) => {
       this.logService.debug("autofill.completeError", data);

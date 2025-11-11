@@ -146,6 +146,12 @@ export declare namespace autofill {
     Required = 'required',
     Discouraged = 'discouraged'
   }
+  export interface LockStatusQueryRequest {
+    
+  }
+  export interface LockStatusQueryResponse {
+    isUnlocked: boolean
+  }
   export interface Position {
     x: number
     y: number
@@ -202,13 +208,14 @@ export declare namespace autofill {
      * @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
      * @param callback This function will be called whenever a message is received from a client.
      */
-    static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void, assertionWithoutUserInterfaceCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void, nativeStatusCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: NativeStatus) => void): Promise<IpcServer>
+    static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void, assertionWithoutUserInterfaceCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void, nativeStatusCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: NativeStatus) => void, lockStatusQueryCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: LockStatusQueryRequest) => void): Promise<IpcServer>
     /** Return the path to the IPC server. */
     getPath(): string
     /** Stop the IPC server. */
     stop(): void
     completeRegistration(clientId: number, sequenceNumber: number, response: PasskeyRegistrationResponse): number
     completeAssertion(clientId: number, sequenceNumber: number, response: PasskeyAssertionResponse): number
+    completeLockStatusQuery(clientId: number, sequenceNumber: number, response: LockStatusQueryResponse): number
     completeError(clientId: number, sequenceNumber: number, error: string): number
   }
 }

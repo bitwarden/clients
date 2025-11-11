@@ -336,6 +336,19 @@ export class DesktopAutofillService implements OnDestroy {
       }
     });
 
+    ipc.autofill.listenLockStatusQuery(async (clientId, sequenceNumber, request, callback) => {
+      if (!(await this.configService.getFeatureFlag(NativeCredentialSyncFeatureFlag))) {
+        this.logService.debug(
+          `listenLockStatusQuery: ${NativeCredentialSyncFeatureFlag} feature flag is disabled`,
+        );
+        return;
+      }
+
+      this.logService.debug("listenLockStatusQuery", clientId, sequenceNumber, request);
+      const isUnlocked = await firstValueFrom(this.authService.activeAccountStatus$) === AuthenticationStatus.Unlocked;
+      callback(null, { isUnlocked })
+    })
+
     ipc.autofill.listenerReady();
   }
 
