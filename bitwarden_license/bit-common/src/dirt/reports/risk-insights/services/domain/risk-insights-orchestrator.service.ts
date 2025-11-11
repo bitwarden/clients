@@ -219,9 +219,8 @@ export class RiskInsightsOrchestratorService {
       withLatestFrom(
         this.organizationDetails$.pipe(filter((org) => !!org && !!org.organizationId)),
         this._userId$.pipe(filter((userId) => !!userId)),
-        this._memberCiphers$.pipe(take(1)),
       ),
-      map(([reportState, organizationDetails, userId, memberCiphers]) => {
+      map(([reportState, organizationDetails, userId]) => {
         const report = reportState?.data;
         if (!report) {
           throwError(() => Error("Tried to update critical applications without a report"));
@@ -238,7 +237,7 @@ export class RiskInsightsOrchestratorService {
         const updatedSummaryData = this.reportService.getApplicationsSummary(
           report!.reportData,
           updatedApplicationData,
-          memberCiphers.length,
+          report!.summaryData.totalMemberCount,
         );
 
         // Used for creating metrics with updated application data
@@ -349,9 +348,8 @@ export class RiskInsightsOrchestratorService {
       withLatestFrom(
         this.organizationDetails$.pipe(filter((org) => !!org && !!org.organizationId)),
         this._userId$.pipe(filter((userId) => !!userId)),
-        this._memberCiphers$.pipe(take(1)),
       ),
-      map(([reportState, organizationDetails, userId, memberCiphers]) => {
+      map(([reportState, organizationDetails, userId]) => {
         const report = reportState?.data;
         if (!report) {
           throwError(() => Error("Tried to update critical applications without a report"));
@@ -372,7 +370,7 @@ export class RiskInsightsOrchestratorService {
         const updatedSummaryData = this.reportService.getApplicationsSummary(
           report!.reportData,
           updatedApplicationData,
-          memberCiphers.length,
+          report!.summaryData.totalMemberCount,
         );
 
         // Used for creating metrics with updated application data
@@ -993,7 +991,7 @@ export class RiskInsightsOrchestratorService {
         const summary = this.reportService.getApplicationsSummary(
           criticalApplications,
           enrichedReports.applicationData,
-          memberCiphers.length,
+          enrichedReports.summaryData.totalMemberCount,
         );
         return {
           ...enrichedReports,
