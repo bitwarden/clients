@@ -15,6 +15,17 @@
     <button
       type="button"
       bitButton
+      buttonType="secondary"
+      [bitAction]="exportMembers"
+      [disabled]="!firstLoaded"
+    >
+      <span>{{ "export" | i18n }}</span>
+      <i class="bwi bwi-fw bwi-sign-in" aria-hidden="true"></i>
+    </button>
+
+    <button
+      type="button"
+      bitButton
       buttonType="primary"
       (click)="invite(organization)"
       [disabled]="!firstLoaded"

@@ -33,6 +33,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -55,6 +56,7 @@ import {
   MemberActionsService,
   MemberActionResult,
 } from "./services/member-actions/member-actions.service";
+import { MemberExportService } from "./services/member-export.service";
 
 class MembersTableDataSource extends PeopleTableDataSource<OrganizationUserView> {
   protected statusType = OrganizationUserStatusType;
@@ -113,6 +115,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private policyService: PolicyService,
     private policyApiService: PolicyApiServiceAbstraction,
     private organizationMetadataService: OrganizationMetadataServiceAbstraction,
+    private memberExportService: MemberExportService,
+    private fileDownloadService: FileDownloadService,
   ) {
     super(
       apiService,
@@ -544,4 +548,36 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       .getCheckedUsers()
       .every((member) => member.managedByOrganization && validStatuses.includes(member.status));
   }
+
+  exportMembers = async (): Promise<void> => {
+    try {
+      const members = this.dataSource.data;
+      if (!members || members.length === 0) {
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("noMembersToExport"),
+        });
+        return;
+      }
+
+      const csvData = await this.memberExportService.getMemberExport(members);
+      const fileName = this.memberExportService.getFileName("org-members");
+
+      this.fileDownloadService.download({
+        fileName: fileName,
+        blobData: csvData,
+        blobOptions: { type: "text/plain" },
+      });
+
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("exportSuccess"),
+      });
+    } catch (e) {
+      this.validationService.showError(e);
+      this.logService.error(`Failed to export members: ${e}`);
+    }
+  };
 }

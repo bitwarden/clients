@@ -1755,6 +1755,9 @@
   "noMembersInList": {
     "message": "There are no members to list."
   },
+  "noMembersToExport": {
+    "message": "There are no members to export."
+  },
   "noEventsInList": {
     "message": "There are no events to list."
   },
@@ -6240,6 +6243,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Enrolled in account recovery"
+  },
+  "enrolled": {
+    "message": "Enrolled"
+  },
+  "notEnrolled": {
+    "message": "Not enrolled"
   },
   "withdrawAccountRecovery": {
     "message": "Withdraw from account recovery"
