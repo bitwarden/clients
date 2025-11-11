@@ -3,11 +3,15 @@
     <bit-nav-logo [openIcon]="logo" route="." [label]="'passwordManager' | i18n"></bit-nav-logo>
 
     <bit-nav-item icon="bwi-vault" [text]="'vaults' | i18n" route="vault"></bit-nav-item>
-    <bit-nav-item icon="bwi-send" [text]="'send' | i18n" route="sends"></bit-nav-item>
+    @if (disableSendPolicy$ | async) {
+      <bit-nav-item icon="bwi-send" [text]="'send' | i18n" route="sends"></bit-nav-item>
+    }
     <bit-nav-group icon="bwi-wrench" [text]="'tools' | i18n" route="tools">
       <bit-nav-item [text]="'generator' | i18n" route="tools/generator"></bit-nav-item>
       <bit-nav-item [text]="'importData' | i18n" route="tools/import"></bit-nav-item>
-      <bit-nav-item [text]="'exportVault' | i18n" route="tools/export"></bit-nav-item>
+      @if (disablePersonalVaultExportPolicy$ | async) {
+        <bit-nav-item [text]="'exportVault' | i18n" route="tools/export"></bit-nav-item>
+      }
     </bit-nav-group>
     <bit-nav-item icon="bwi-sliders" [text]="'reports' | i18n" route="reports"></bit-nav-item>
     <bit-nav-group icon="bwi-cog" [text]="'settings' | i18n" route="settings">

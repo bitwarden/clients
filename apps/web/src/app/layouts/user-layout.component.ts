@@ -42,6 +42,9 @@ export class UserLayoutComponent implements OnInit {
   protected hasFamilySponsorshipAvailable$: Observable<boolean>;
   protected showSponsoredFamilies$: Observable<boolean>;
   protected showSubscription$: Observable<boolean>;
+  protected disableSendPolicy$: Observable<boolean>;
+  protected disablePersonalVaultExportPolicy$: Observable<boolean>;
+  // detects if policy is enabled and applies to the user, admins are exempted
 
   constructor(
     private syncService: SyncService,
@@ -79,5 +82,19 @@ export class UserLayoutComponent implements OnInit {
   async ngOnInit() {
     document.body.classList.remove("layout_frontend");
     await this.syncService.fullSync(false);
+
+    this.disableSendPolicy$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
+      ),
+    );
+
+    this.disablePersonalVaultExportPolicy$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policyAppliesToUser$(PolicyType.DisablePersonalVaultExport, userId),
+      ),
+    );
   }
 }
