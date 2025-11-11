@@ -7,6 +7,7 @@ import { WindowMain } from "../../main/window.main";
 import { stringIsNotUndefinedNullAndEmpty } from "../../utils";
 import { AutotypeVaultData } from "../models/autotype-vault-data";
 import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
+import { AutotypeMatchError } from "../models/autotype-errors";
 
 export class MainDesktopAutotypeService {
   autotypeKeyboardShortcut: AutotypeKeyboardShortcut;
@@ -55,6 +56,14 @@ export class MainDesktopAutotypeService {
       ) {
         this.doAutotype(vaultData, this.autotypeKeyboardShortcut.getArrayFormat());
       }
+    });
+
+    ipcMain.on("autofill.completeAutotypeError", (_event, matchError: AutotypeMatchError) => {
+      this.logService.debug(
+        "autofill.completeAutotypeError",
+        "No match for window: " + matchError.windowTitle,
+      );
+      this.logService.error("autofill.completeAutotypeError", matchError.errorMessage);
     });
   }
 

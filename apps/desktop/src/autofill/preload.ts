@@ -5,6 +5,7 @@ import type { autofill } from "@bitwarden/desktop-napi";
 import { Command } from "../platform/main/autofill/command";
 import { RunCommandParams, RunCommandResult } from "../platform/main/autofill/native-autofill.main";
 
+import { AutotypeMatchError } from "./models/autotype-errors";
 import { AutotypeVaultData } from "./models/autotype-vault-data";
 
 export default {
@@ -141,7 +142,7 @@ export default {
     ipcRenderer.on(
       "autofill.listenAutotypeRequest",
       (
-        event,
+        _event,
         data: {
           windowTitle: string;
         },
@@ -150,10 +151,11 @@ export default {
 
         fn(windowTitle, (error, vaultData) => {
           if (error) {
-            ipcRenderer.send("autofill.completeError", {
-              windowTitle,
-              error: error.message,
-            });
+            const matchError: AutotypeMatchError = {
+              windowTitle: windowTitle,
+              errorMessage: error.message,
+            };
+            ipcRenderer.send("autofill.completeAutotypeError", matchError);
             return;
           }
           if (vaultData !== null) {
