@@ -279,8 +279,10 @@ export class AutofillInlineMenuContainer {
   }
 
   /**
-   * validates that a message event is from the extension origin.
+   * Validates that a message event originates from the extension.
    *
+   * @param event - The message event to validate.
+   * @returns True if the message is from the extension origin.
    */
   private isMessageFromExtensionOrigin(event: MessageEvent): boolean {
     try {
