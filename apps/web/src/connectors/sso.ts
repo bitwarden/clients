@@ -4,6 +4,7 @@ import { getQsParam } from "./common";
 
 window.addEventListener("load", () => {
   // Debug mode: keep the page static for styling/debugging; don't navigate away.
+  // Visit with https://localhost:8080/sso-connector.html?debug=1
   const debug = getQsParam("debug");
   if (debug === "1") {
     // Keep the page static for styling/debugging; don't navigate away.

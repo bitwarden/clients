@@ -1,7 +1,5 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit" class="tw-container">
   <div *ngIf="showLoadingSpinner">
-    <!--    <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>-->
-    <!--    {{ "loading" | i18n }}-->
     <bit-spinner />
   </div>
   <div *ngIf="!showLoadingSpinner">
