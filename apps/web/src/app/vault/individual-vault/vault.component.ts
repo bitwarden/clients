@@ -1001,6 +1001,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   async editCipherId(id: string, cloneMode?: boolean) {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const cipher = await this.cipherService.get(id, activeUserId);
+    if (!cipher) {
+      await this.handleUnknownCipher();
+      return;
+    }
 
     if (
       cipher &&
