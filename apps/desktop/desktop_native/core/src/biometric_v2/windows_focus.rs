@@ -41,17 +41,18 @@ fn set_focus(hwnd: HWND) {
         // This function implements forced focusing of windows using a few hacks.
         // The conditions to successfully foreground a window are:
         // All of the following conditions are true:
-        //   The calling process belongs to a desktop application, not a UWP app or a Windows Store
-        // app designed for Windows 8 or 8.1.   The foreground process has not disabled
-        // calls to SetForegroundWindow by a previous call to the LockSetForegroundWindow function.
-        //   The foreground lock time-out has expired (see SPI_GETFOREGROUNDLOCKTIMEOUT in
-        // SystemParametersInfo).   No menus are active.
+        //   - The calling process belongs to a desktop application, not a UWP app or a Windows Store
+        //     app designed for Windows 8 or 8.1.
+        //  -  The foreground process has not disabled calls to SetForegroundWindow by a previous call
+        //     to the LockSetForegroundWindow function.
+        //   - The foreground lock time-out has expired (see SPI_GETFOREGROUNDLOCKTIMEOUT in
+        //     SystemParametersInfo). No menus are active.
         // Additionally, at least one of the following conditions is true:
-        //   The calling process is the foreground process.
-        //   The calling process was started by the foreground process.
-        //   There is currently no foreground window, and thus no foreground process.
-        //   The calling process received the last input event.
-        //   Either the foreground process or the calling process is being debugged.
+        //   - The calling process is the foreground process.
+        //   - The calling process was started by the foreground process.
+        //   - There is currently no foreground window, and thus no foreground process.
+        //   - The calling process received the last input event.
+        //   - Either the foreground process or the calling process is being debugged.
 
         // Update the foreground lock timeout temporarily
         let mut old_timeout = 0;
