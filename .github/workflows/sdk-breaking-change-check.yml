@@ -5,12 +5,8 @@ run-name: "SDK breaking change check (${{ github.event.inputs.sdk_version }})"
 on:
   workflow_dispatch:
     inputs:
-      pr_number:
-        description: "PR number"
-        required: true
-        type: string
       sdk_version:
-        description: "SDK version being tested"  
+        description: "SDK version being tested"
         required: true
         type: string
       source_repo:
