@@ -286,7 +286,25 @@ describe("Keeper Json Importer", () => {
     ]);
 
     // Fields
-    expect(login.fields.length).toEqual(0);
+    expect(login.fields.length).toEqual(8);
+    expect(getField(login, "some label")?.value).toEqual("some text");
+    expect(getField(login, "some more text")?.value).toEqual(
+      "some lines\nsome more lines\nblah blah blah",
+    );
+
+    const questions = getFields(login, "Security question");
+    const answers = getFields(login, "Security question answer");
+    expect(questions.map((x) => x.value)).toEqual([
+      "how old were you when you were born?",
+      "how are you?",
+      "how old are you?",
+    ]);
+    expect(answers.map((x) => x.value)).toEqual(["zero", "good, thanks!", "five"]);
+    expect(answers.map((x) => x.type)).toEqual([
+      FieldType.Hidden,
+      FieldType.Hidden,
+      FieldType.Hidden,
+    ]);
   });
 
   it("should parse membership", async () => {
@@ -514,6 +532,10 @@ describe("Keeper Json Importer", () => {
 
   function getField(cipher: CipherView, name: string): FieldView | undefined {
     return cipher.fields.find((f) => f.name === name);
+  }
+
+  function getFields(cipher: CipherView, name: string): FieldView[] {
+    return cipher.fields.filter((f) => f.name === name);
   }
 
   function assertInFolder(result: ImportResult, cipherName: string, folderName: string) {

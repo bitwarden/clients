@@ -553,13 +553,34 @@ export const TestData = {
       login_url: "https://www.amazon.com",
       notes: "Primary Amazon account for online shopping and Prime membership",
       $type: "login",
-      last_modified: 1762428779,
+      last_modified: 1762886098,
       custom_fields: {
         $oneTimeCode:
           "otpauth://totp/totp%40authenticationtest.com?secret=I65VU7K5ZQL7WB4E&issuer=&algorithm=SHA1&digits=6&period=30",
         $url: ["https://login.amazon.com", "https://logout.amazon.com"],
         "$url:account": "https://account.amazon.com",
         "$url:profile url": "https://profile.amazon.com",
+        "$text:some label": "some text",
+        $securityQuestion: {
+          question: "how old were you when you were born?",
+          answer: "zero",
+        },
+        "$multiline:some more text": "some lines\nsome more lines\nblah blah blah",
+        $appFiller: {
+          applicationTitle: "notepad.exe",
+          contentFilter: "not-sure",
+          macroSequence: "{USERNAME}{TAB}{ENTER}",
+        },
+        "$securityQuestion:Q&A": [
+          {
+            question: "how are you?",
+            answer: "good, thanks!",
+          },
+          {
+            question: "how old are you?",
+            answer: "five",
+          },
+        ],
       },
       folders: [
         {

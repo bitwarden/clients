@@ -197,6 +197,20 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
             this.addField(cipher, "Private key", privateKey, FieldType.Hidden);
           }
           break;
+        case "securityQuestion":
+          {
+            for (const { question, answer } of this.makeArray(value) as {
+              question?: string;
+              answer?: string;
+            }[]) {
+              this.addField(cipher, "Security question", question);
+              this.addField(cipher, "Security question answer", answer, FieldType.Hidden);
+            }
+          }
+          break;
+        case "appFiller":
+          // Ignored
+          break;
         default:
           needFallbackToGenericImport = true;
           break;
@@ -383,6 +397,16 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
 
   private getStringOrFirstFromArray(value: string | string[]): string {
     return Array.isArray(value) ? (value[0] ?? "") : value;
+  }
+
+  private makeArray(value: any): any[] {
+    if (Array.isArray(value)) {
+      return value;
+    }
+    if (value != null) {
+      return [value];
+    }
+    return [];
   }
 
   private parseFolders(result: ImportResult, record: Record) {
