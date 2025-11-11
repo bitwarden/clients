@@ -47,7 +47,7 @@ describe("BitwardenPasswordProtectedImporter", () => {
     });
 
     const mockOrgId = emptyGuid as OrganizationId;
-    /* 
+    /*
       The key values below are never read, empty objects are cast as types for compilation type checking only.
       Tests specific to key contents are in key-service.spec.ts
     */
@@ -58,9 +58,6 @@ describe("BitwardenPasswordProtectedImporter", () => {
       of({ [mockOrgId]: mockOrgKey } as Record<OrganizationId, OrgKey>),
     );
     keyService.userKey$.mockImplementation(() => of(mockUserKey));
-    (keyService as any).activeUserOrgKeys$ = of({
-      [mockOrgId]: mockOrgKey,
-    } as Record<OrganizationId, OrgKey>);
 
     /*
       Crypto isn’t under test here; keys are just placeholders.

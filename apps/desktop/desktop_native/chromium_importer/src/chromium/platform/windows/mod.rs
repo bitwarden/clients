@@ -4,10 +4,6 @@ use aes_gcm::{aead::Aead, Aes256Gcm, Key, KeyInit, Nonce};
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use base64::{engine::general_purpose::STANDARD as BASE64_STANDARD, Engine as _};
-use windows::Win32::{
-    Foundation::{LocalFree, HLOCAL},
-    Security::Cryptography::{CryptUnprotectData, CRYPT_INTEGER_BLOB},
-};
 
 use crate::{
     chromium::{BrowserConfig, CryptoService, LocalState},
@@ -15,9 +11,11 @@ use crate::{
 };
 mod abe;
 mod abe_config;
+mod crypto;
 mod signature;
 
 pub use abe_config::ADMIN_TO_USER_PIPE_NAME;
+pub use crypto::*;
 pub use signature::*;
 
 //
@@ -170,7 +168,7 @@ impl WindowsCryptoService {
             return Err(anyhow!("Encrypted master key is not encrypted with DPAPI"));
         }
 
-        let key = unprotect_data_win(&key_bytes[5..])
+        let key = crypt_unprotect_data(&key_bytes[5..], 0)
             .map_err(|e| anyhow!("Failed to unprotect the master key: {}", e))?;
 
         Ok(key)
@@ -211,53 +209,6 @@ impl WindowsCryptoService {
         let key = BASE64_STANDARD.decode(&key_base64)?;
         Ok(key)
     }
-}
-
-fn unprotect_data_win(data: &[u8]) -> Result<Vec<u8>> {
-    if data.is_empty() {
-        return Ok(Vec::new());
-    }
-
-    let data_in = CRYPT_INTEGER_BLOB {
-        cbData: data.len() as u32,
-        pbData: data.as_ptr() as *mut u8,
-    };
-
-    let mut data_out = CRYPT_INTEGER_BLOB {
-        cbData: 0,
-        pbData: std::ptr::null_mut(),
-    };
-
-    let result = unsafe {
-        CryptUnprotectData(
-            &data_in,
-            None, // ppszDataDescr: Option<*mut PWSTR>
-            None, // pOptionalEntropy: Option<*const CRYPT_INTEGER_BLOB>
-            None, // pvReserved: Option<*const std::ffi::c_void>
-            None, // pPromptStruct: Option<*const CRYPTPROTECT_PROMPTSTRUCT>
-            0,    // dwFlags: u32
-            &mut data_out,
-        )
-    };
-
-    if result.is_err() {
-        return Err(anyhow!("CryptUnprotectData failed"));
-    }
-
-    if data_out.pbData.is_null() || data_out.cbData == 0 {
-        return Ok(Vec::new());
-    }
-
-    let output_slice =
-        unsafe { std::slice::from_raw_parts(data_out.pbData, data_out.cbData as usize) };
-
-    unsafe {
-        if !data_out.pbData.is_null() {
-            LocalFree(Some(HLOCAL(data_out.pbData as *mut std::ffi::c_void)));
-        }
-    }
-
-    Ok(output_slice.to_vec())
 }
 
 fn get_admin_exe_path() -> Result<PathBuf> {

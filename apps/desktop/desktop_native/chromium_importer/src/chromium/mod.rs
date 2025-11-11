@@ -13,7 +13,7 @@ mod platform;
 
 pub(crate) use platform::SUPPORTED_BROWSERS as PLATFORM_SUPPORTED_BROWSERS;
 #[cfg(target_os = "windows")]
-pub use platform::{verify_signature, ADMIN_TO_USER_PIPE_NAME};
+pub use platform::*;
 
 //
 // Public API
