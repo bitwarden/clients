@@ -86,7 +86,7 @@ function handleOpenBrowserExtensionToUrlMessage({ url }: { url?: ExtensionPageUr
 }
 
 /**
- * Handles the window message event.
+ * Handles window message events, validating source and extracting referrer for security.
  *
  * @param event - The window message event
  */
@@ -96,14 +96,14 @@ function handleWindowMessageEvent(event: MessageEvent) {
     return;
   }
 
-  // use event.origin instead of source.location
-  // extract hostname from origin for referrer validation in background script
+  // Extract hostname from event.origin for secure referrer validation in background script
+  // Helps avoid potential manipulation of source.location by malicious frames
   let referrer: string;
   try {
     const originUrl = new URL(origin);
     referrer = originUrl.hostname;
   } catch {
-    // fallback to window.location.hostname if origin parsing fails
+    // Fallback if origin parsing fails
     referrer = window.location.hostname;
   }
 
