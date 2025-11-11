@@ -674,12 +674,11 @@ export class RiskInsightsOrchestratorService {
         this._reportProgressSubject.next(ReportProgress.GeneratingReport);
       }),
       withLatestFrom(this.rawReportData$, memberCiphers$),
-      tap(([_, __, memberDetails]) => {
+      map(([report, previousReport, memberDetails]) => {
         // total member count includes all users, even those not associated with ciphers
         const uniqueMembers = getUniqueMembers(memberDetails);
         this._totalMemberCount = uniqueMembers.length;
-      }),
-      map(([report, previousReport]) => {
+
         // Update the application data
         const updatedApplicationData = this.reportService.getOrganizationApplications(
           report,
