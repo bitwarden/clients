@@ -152,7 +152,8 @@ export class AppComponent implements OnInit, OnDestroy {
   private isIdle = false;
   private activeUserId: UserId = null;
   private activeSimpleDialog: DialogRef<boolean> = null;
-  private processingPendingAuth = false;
+  private processingPendingAuthRequests = false;
+  private shouldRerunAuthRequestProcessing = false;
 
   private destroy$ = new Subject<void>();
 
@@ -505,44 +506,26 @@ export class AppComponent implements OnInit, OnDestroy {
             await this.checkForSystemTimeout(VaultTimeoutStringType.OnIdle);
             break;
           case "openLoginApproval":
-            if (this.processingPendingAuth) {
+            if (this.processingPendingAuthRequests) {
+              // If an "openLoginApproval" message is received while we are currently processing other
+              // auth requests, then set a flag so we remember to process that new auth request
+              this.shouldRerunAuthRequestProcessing = true;
               return;
             }
 
-            this.processingPendingAuth = true;
+            /**
+             * This do/while loop allows us to:
+             * - a) call processPendingAuthRequests() once on "openLoginApproval"
+             * - b) remember to re-call processPendingAuthRequests() if another "openLoginApproval" was
+             *      received while we were processing the original auth requests
+             */
+            do {
+              this.shouldRerunAuthRequestProcessing = false;
+              await this.processPendingAuthRequests();
+              // If an "openLoginApproval" message was received while processPendingAuthRequests() was running, then
+              // shouldRerunAuthRequestProcessing will have been set to true
+            } while (this.shouldRerunAuthRequestProcessing);
 
-            try {
-              // Always query server for all pending requests and open a dialog for each
-              const pendingList = await firstValueFrom(
-                this.authRequestService.getPendingAuthRequests$(),
-              );
-
-              if (Array.isArray(pendingList) && pendingList.length > 0) {
-                const respondedIds = new Set<string>();
-
-                for (const req of pendingList) {
-                  if (req?.id == null) {
-                    continue;
-                  }
-
-                  const dialogRef = LoginApprovalDialogComponent.open(this.dialogService, {
-                    notificationId: req.id,
-                  });
-
-                  const result = await firstValueFrom(dialogRef.closed);
-
-                  if (result !== undefined && typeof result === "boolean") {
-                    respondedIds.add(req.id);
-
-                    if (respondedIds.size === pendingList.length && this.activeUserId != null) {
-                      await this.pendingAuthRequestsState.clear(this.activeUserId);
-                    }
-                  }
-                }
-              }
-            } finally {
-              this.processingPendingAuth = false;
-            }
             break;
           case "redrawMenu":
             await this.updateAppMenu();
@@ -923,5 +906,40 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     DeleteAccountComponent.open(this.dialogService);
+  }
+
+  private async processPendingAuthRequests() {
+    this.processingPendingAuthRequests = true;
+
+    try {
+      // Always query server for all pending requests and open a dialog for each
+      const pendingList = await firstValueFrom(this.authRequestService.getPendingAuthRequests$());
+
+      if (Array.isArray(pendingList) && pendingList.length > 0) {
+        const respondedIds = new Set<string>();
+
+        for (const req of pendingList) {
+          if (req?.id == null) {
+            continue;
+          }
+
+          const dialogRef = LoginApprovalDialogComponent.open(this.dialogService, {
+            notificationId: req.id,
+          });
+
+          const result = await firstValueFrom(dialogRef.closed);
+
+          if (result !== undefined && typeof result === "boolean") {
+            respondedIds.add(req.id);
+
+            if (respondedIds.size === pendingList.length && this.activeUserId != null) {
+              await this.pendingAuthRequestsState.clear(this.activeUserId);
+            }
+          }
+        }
+      }
+    } finally {
+      this.processingPendingAuthRequests = false;
+    }
   }
 }
