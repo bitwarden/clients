@@ -152,7 +152,7 @@ export default {
         fn(windowTitle, (error, vaultData) => {
           if (error) {
             const matchError: AutotypeMatchError = {
-              windowTitle: windowTitle,
+              windowTitle,
               errorMessage: error.message,
             };
             ipcRenderer.send("autofill.completeAutotypeError", matchError);
