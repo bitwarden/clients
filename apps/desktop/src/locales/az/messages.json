@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Bu elementə düzəliş etmə icazəniz yoxdur"
+  },
   "welcomeBack": {
     "message": "Yenidən xoş gəlmisiniz"
   },
@@ -772,7 +775,7 @@
     "message": "Vahid daxil olma üsulunu istifadə et"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Təşkilatınız, vahid daxil olma tələb edir."
   },
   "submit": {
     "message": "Göndər"
@@ -1034,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Təməl server URL-sini və ya ən azı bir özəl mühiti əlavə etməlisiniz."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL-lər, HTTPS istifadə etməlidir."
   },
   "customEnvironment": {
     "message": "Özəl mühit"
@@ -4190,5 +4196,29 @@
   },
   "cardNumberLabel": {
     "message": "Kart nömrəsi"
+  },
+  "upgradeNow": {
+    "message": "İndi yüksəlt"
+  },
+  "builtInAuthenticator": {
+    "message": "Daxili kimlik doğrulayıcı"
+  },
+  "secureFileStorage": {
+    "message": "Güvənli fayl anbarı"
+  },
+  "emergencyAccess": {
+    "message": "Fövqəladə hal erişimi"
+  },
+  "breachMonitoring": {
+    "message": "Pozuntu monitorinqi"
+  },
+  "andMoreFeatures": {
+    "message": "Və daha çoxu!"
+  },
+  "planDescPremium": {
+    "message": "Tam onlayn təhlükəsizlik"
+  },
+  "upgradeToPremium": {
+    "message": "\"Premium\"a yüksəlt"
   }
 }
