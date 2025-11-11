@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Zugriff auf Informationen"
   },
-  "riskInsights": {
-    "message": "Risiko-Überblick"
-  },
   "passwordRisk": {
     "message": "Passwort-Risiko"
   },
+  "noEditPermissions": {
+    "message": "Du bist nicht berechtigt, diesen Eintrag zu bearbeiten"
+  },
   "reviewAtRiskPasswords": {
     "message": "Überprüfe gefährdete Passwörter (schwach, kompromittiert oder wiederverwendet) in allen Anwendungen. Wähle deine kritischsten Anwendungen aus, um die Sicherheitsmaßnahmen für deine Benutzer zu priorisieren, um gefährdete Passwörter zu beseitigen."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Überprüfung gefährdeter Zugangsdaten"
   },
   "dataLastUpdated": {
     "message": "Daten zuletzt aktualisiert: $DATE$",
@@ -127,6 +130,9 @@
       }
     }
   },
+  "criticalApplicationsMarked": {
+    "message": "kritische Anwendungen markiert"
+  },
   "countOfCriticalApplications": {
     "message": "$COUNT$ kritische Anwendungen",
     "placeholders": {
@@ -173,7 +179,7 @@
     }
   },
   "noApplicationsInOrgTitle": {
-    "message": "No applications found for $ORG NAME$",
+    "message": "Keine Anwendungen für $ORG NAME$ gefunden",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -182,31 +188,31 @@
     }
   },
   "noApplicationsInOrgDescription": {
-    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+    "message": "Importiere die Zugangsdaten deiner Organisation, um mit der Überwachung von Sicherheitsrisiken für Zugangsdaten zu starten. Nach dem Import kannst du:"
   },
   "benefit1Title": {
-    "message": "Prioritize risks"
+    "message": "Risiken priorisieren"
   },
   "benefit1Description": {
-    "message": "Focus on applications that matter the most"
+    "message": "Auf Anwendungen konzentrieren, die am wichtigsten sind"
   },
   "benefit2Title": {
-    "message": "Guide remediation"
+    "message": "Anleitung zur Behebung"
   },
   "benefit2Description": {
-    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+    "message": "Gefährdeten Mitgliedern gezielte Aufgaben zuweisen, um gefährdete Zugangsdaten zu erneuern"
   },
   "benefit3Title": {
-    "message": "Monitor progress"
+    "message": "Fortschritt überwachen"
   },
   "benefit3Description": {
-    "message": "Track changes over time to show security improvements"
+    "message": "Änderungen im Laufe der Zeit verfolgen, um Sicherheitsverbesserungen anzuzeigen"
   },
   "noReportRunTitle": {
-    "message": "Run your first report to see applications"
+    "message": "Erstelle deinen ersten Bericht, um Anwendungen zu sehen"
   },
   "noReportRunDescription": {
-    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
+    "message": "Erstelle einen Risikoanalysebericht, um die Anwendungen deines Unternehmens zu analysieren und gefährdete Passwörter zu identifizieren, die Aufmerksamkeit erfordern. Die Erstellung deines ersten Berichts wird:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Du hast keine Anwendung als kritisch markiert"
@@ -235,6 +241,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Als kritisch markierte Anwendungen"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ Anwendungen als kritisch markiert",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Anwendungen konnten nicht als kritisch markiert werden"
   },
@@ -258,6 +273,12 @@
   },
   "membersWithAccessToAtRiskItemsForCriticalApps": {
     "message": "Mitglieder mit Zugriff auf gefährdete Einträge für kritische Anwendungen"
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Mitglieder mit gefährdeten Passwörtern"
+  },
+  "membersWillReceiveNotification": {
+    "message": "Mitglieder erhalten über die Browser-Erweiterung eine Benachrichtigung, um gefährdete Zugangsdaten zu ändern."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ gefährdete Mitglieder",
@@ -343,35 +364,41 @@
   "reviewNow": {
     "message": "Jetzt prüfen"
   },
+  "allCaughtUp": {
+    "message": "Alles erledigt!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "Derzeit gibt es keine neuen Anwendungen zum Überprüfen"
+  },
   "prioritizeCriticalApplications": {
     "message": "Kritische Anwendungen priorisieren"
   },
-  "atRiskItems": {
-    "message": "Gefährdete Einträge"
+  "selectCriticalApplicationsDescription": {
+    "message": "Wähle die für deine Organisation kritischsten Anwendungen aus und weise den Mitgliedern Sicherheitsaufgaben zu, um Risiken zu beseitigen."
+  },
+  "reviewNewApplications": {
+    "message": "Neue Anwendungen überprüfen"
+  },
+  "reviewNewApplicationsDescription": {
+    "message": "Wir haben gefährdete Einträge für neue Anwendungen hervorgehoben, die in der Administrator-Konsole gespeichert sind und schwache, kompromittierte oder wiederverwendete Passwörter beinhalten."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Klicke auf das Sternsymbol, um eine App als kritisch zu markieren"
   },
   "markAsCriticalPlaceholder": {
     "message": "Die Funktion \"Als kritisch markieren\" wird in einer zukünftigen Aktualisierung implementiert"
   },
   "applicationReviewSaved": {
-    "message": "Application review saved"
-  },
-  "applicationsMarkedAsCritical": {
-    "message": "$COUNT$ applications marked as critical",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
+    "message": "Anwendungsüberprüfung gespeichert"
   },
   "newApplicationsReviewed": {
-    "message": "New applications reviewed"
+    "message": "Neue Anwendungen überprüft"
   },
   "errorSavingReviewStatus": {
-    "message": "Error saving review status"
+    "message": "Fehler beim Speichern des Überprüfungsstatus"
   },
   "pleaseTryAgain": {
-    "message": "Please try again"
+    "message": "Bitte versuche es erneut"
   },
   "unmarkAsCritical": {
     "message": "Markierung als kritisch aufheben"
@@ -834,6 +861,9 @@
   },
   "favorites": {
     "message": "Favoriten"
+  },
+  "taskSummary": {
+    "message": "Aufgaben-Übersicht"
   },
   "types": {
     "message": "Typen"
@@ -1360,7 +1390,7 @@
     "message": "Single Sign-on verwenden"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Deine Organisation erfordert Single Sign-On."
   },
   "welcomeBack": {
     "message": "Willkommen zurück"
@@ -4409,8 +4439,8 @@
   "updateBrowser": {
     "message": "Browser aktualisieren"
   },
-  "generatingYourRiskInsights": {
-    "message": "Dein Risiko-Überblick wird generiert..."
+  "generatingYourAccessIntelligence": {
+    "message": "Deine Zugangsintelligenz wird generiert..."
   },
   "riskInsightsRunReport": {
     "message": "Bericht ausführen"
@@ -5805,8 +5835,8 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Richtlinie einer einzelnen Organisation erforderlich. "
   },
-  "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Jeder, der mehr als einer Organisation angehört, verliert seinen Zugriff, bis er aus den anderen Organisationen austritt."
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "Alle Mitglieder dürfen nur dieser Organisation angehören, um diese Automatisierung zu aktivieren."
   },
   "autoConfirmSingleOrgExemption": {
     "message": "Die Richtlinie für einzelne Organisationen wird für alle Rollen gelten. "
@@ -5871,6 +5901,19 @@
   "disableHideEmail": {
     "message": "Benutzern nicht gestatten, ihre E-Mail-Adresse vor Empfängern zu verstecken, wenn sie ein Send erstellen oder bearbeiten.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Standard URI-Übereinstimmungserkennung"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Lege fest, wann Zugangsdaten für Auto-Ausfüllen vorgeschlagen werden. Administratoren und Eigentümer sind von dieser Richtlinie ausgenommen."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Standard URI-Übereinstimmungserkennung"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Bitte wähle eine gültige URI-Übereinstimmungserkennungs-Option aus.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Richtlinie $ID$ geändert.",
@@ -6525,11 +6568,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Dein Master-Passwort entspricht nicht einer oder mehreren Richtlinien deiner Organisation. Um auf den Tresor zugreifen zu können, musst du dein Master-Passwort jetzt aktualisieren. Wenn du fortfährst, wirst du von deiner aktuellen Sitzung abgemeldet und musst dich erneut anmelden. Aktive Sitzungen auf anderen Geräten können noch bis zu einer Stunde lang aktiv bleiben."
   },
-  "automaticAppLogin": {
-    "message": "Benutzer automatisch bei erlaubten Anwendungen anmelden"
+  "automaticAppLoginWithSSO": {
+    "message": "Automatische Anmeldung mit SSO"
   },
-  "automaticAppLoginDesc": {
-    "message": "Anmeldeformulare von Apps, die über deinen konfigurierten Identitätsanbieter gestartet wurden, werden automatisch ausgefüllt und abgesendet."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Erweitere die Sicherheit und den Komfort von SSO auf nicht verwaltete Anwendungen. Wenn Benutzer eine Anwendung über Ihren Identitätsanbieter starten, werden deren Anmeldedaten automatisch ausgefüllt und übermittelt, sodass ein sicherer Ablauf mit nur einem Klick vom Identitätsanbieter zur Anwendung entsteht."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identitätsanbieter Host"
@@ -7129,6 +7172,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Du musst entweder die Basis-Server-URL oder mindestens eine benutzerdefinierte Umgebung hinzufügen."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs müssen HTTPS verwenden."
+  },
   "apiUrl": {
     "message": "API Server-URL"
   },
@@ -7300,6 +7346,9 @@
   },
   "accessDenied": {
     "message": "Zugriff verweigert. Du hast keine Berechtigung, diese Seite zu sehen."
+  },
+  "noPageAccess": {
+    "message": "Du hast keinen Zugriff auf diese Seite"
   },
   "masterPassword": {
     "message": "Master-Passwort"
@@ -9759,6 +9808,9 @@
   "assignTasks": {
     "message": "Aufgaben zuweisen"
   },
+  "assignTasksToMembers": {
+    "message": "Mitgliedern Aufgaben für eine gezielte Lösung zuweisen"
+  },
   "assignToCollections": {
     "message": "Sammlungen zuweisen"
   },
@@ -12022,6 +12074,6 @@
     "message": "Kartennummer"
   },
   "startFreeFamiliesTrial": {
-    "message": "Start free Families trial"
+    "message": "Kostenlose Families-Testversion starten"
   }
 }

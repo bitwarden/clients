@@ -93,8 +93,8 @@ jobs:
           [
             { base: "linux", distro: "ubuntu-22.04", target_suffix: "" },
             { base: "linux", distro: "ubuntu-22.04-arm", target_suffix: "-arm64" },
-            { base: "mac", distro: "macos-13", target_suffix: "" },
-            { base: "mac", distro: "macos-14", target_suffix: "-arm64" }
+            { base: "mac", distro: "macos-15-intel", target_suffix: "" },
+            { base: "mac", distro: "macos-15", target_suffix: "-arm64" }
           ]
         license_type:
           [

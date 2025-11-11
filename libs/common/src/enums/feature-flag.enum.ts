@@ -16,6 +16,7 @@ export enum FeatureFlag {
 
   /* Auth */
   PM22110_DisableAlternateLoginMethods = "pm-22110-disable-alternate-login-methods",
+  PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
 
   /* Autofill */
   MacOsNativeCredentialSync = "macos-native-credential-sync",
@@ -31,6 +32,7 @@ export enum FeatureFlag {
   PM24033PremiumUpgradeNewDesign = "pm-24033-updat-premium-subscription-page",
   PM26793_FetchPremiumPriceFromPricingService = "pm-26793-fetch-premium-price-from-pricing-service",
   PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog = "pm-23713-premium-badge-opens-new-premium-upgrade-dialog",
+  PM26462_Milestone_3 = "pm-26462-milestone-3",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -41,6 +43,7 @@ export enum FeatureFlag {
   LinuxBiometricsV2 = "pm-26340-linux-biometrics-v2",
   UnlockWithMasterPasswordUnlockData = "pm-23246-unlock-with-master-password-unlock-data",
   NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
+  ConsolidatedSessionTimeoutComponent = "pm-26056-consolidated-session-timeout-component",
 
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
@@ -111,6 +114,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Auth */
   [FeatureFlag.PM22110_DisableAlternateLoginMethods]: FALSE,
+  [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
@@ -122,6 +126,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM24033PremiumUpgradeNewDesign]: FALSE,
   [FeatureFlag.PM26793_FetchPremiumPriceFromPricingService]: FALSE,
   [FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog]: FALSE,
+  [FeatureFlag.PM26462_Milestone_3]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
@@ -132,6 +137,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.UnlockWithMasterPasswordUnlockData]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
+  [FeatureFlag.ConsolidatedSessionTimeoutComponent]: FALSE,
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,
