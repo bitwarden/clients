@@ -1,9 +1,10 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit" class="tw-container">
-  <div *ngIf="loggingIn">
-    <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-    {{ "loading" | i18n }}
+  <div *ngIf="showLoadingSpinner">
+    <!--    <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>-->
+    <!--    {{ "loading" | i18n }}-->
+    <bit-spinner />
   </div>
-  <div *ngIf="!loggingIn">
+  <div *ngIf="!showLoadingSpinner">
     <bit-form-field>
       <bit-label>{{ "ssoIdentifier" | i18n }}</bit-label>
       <input bitInput type="text" formControlName="identifier" appAutofocus />
