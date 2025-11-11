@@ -1,12 +1,7 @@
 import { Query } from "./queries/query";
-import {
-  SceneOptions,
-  Scene,
-  SCENE_OPTIONS_DEFAULTS,
-  seedIdsToTearDown,
-  seedIdsToWarnAbout,
-} from "./scene";
+import { Scene } from "./scene";
 import { SceneTemplate } from "./scene-templates/scene-template";
+import { cleanStage, playId } from "./test";
 
 export class Play {
   /**
@@ -21,7 +16,7 @@ export class Play {
    * import { Play, SingleUserScene } from "@bitwarden/playwright-helpers";
    *
    * test("my test", async ({ page }) => {
-   *  using scene = await Play.scene(new SingleUserScene({ email: "
+   *  const scene = await Play.scene(new SingleUserScene({ email: "
    *  expect(scene.mangle("my-id")).not.toBe("my-id");
    * });
    *
@@ -29,29 +24,42 @@ export class Play {
    * @param options Options for the scene
    * @returns
    */
-  static async scene<TUp, TResult>(
-    template: SceneTemplate<TUp, TResult>,
-    options: SceneOptions = {},
-  ): Promise<Scene<TResult>> {
-    const opts = { ...SCENE_OPTIONS_DEFAULTS, ...options };
-    if (opts.noDown && process.env.CI) {
-      throw new Error("Cannot set noDown to true in CI environments");
-    }
-    const scene = new Scene<TResult>(opts);
+  static async scene<TUp, TResult>(template: SceneTemplate<TUp, TResult>): Promise<Scene<TResult>> {
+    const scene = new Scene<TResult>();
     await scene.init(template);
-    if (!opts.noDown) {
-      seedIdsToTearDown.add(scene.seedId);
-    } else {
-      seedIdsToWarnAbout.add(scene.seedId);
-    }
     return scene;
   }
 
-  static async DeleteAllScenes(): Promise<void> {
-    await Scene.DeleteAllScenes();
+  static async clean(): Promise<void> {
+    await cleanStage();
   }
 
   static async query<TUp, TReturns>(template: Query<TUp, TReturns>): Promise<TReturns> {
     return await template.fetch();
+  }
+
+  /**
+   * Utility to mangle strings consistently within a play session.
+   * The preferred method is to use server-side mangling via Scenes, but this is useful
+   * for entities that are created as a part of a test, such as user registration.
+   *
+   * @param str The string to mangle
+   * @returns the mangled string
+   */
+  static mangler(str: string): string {
+    return `${str}_${playId.replaceAll("-", "").slice(0, 8)}`;
+  }
+
+  /**
+   * Utility to mangle email addresses consistently within a play session.
+   * The preferred method is to use server-side mangling via Scenes, but this is useful
+   * for entities that are created as a part of a test, such as user registration.
+   *
+   * @param email The email to mangle
+   * @returns the mangled email
+   */
+  static mangleEmail(email: string): string {
+    const [localPart, domain] = email.split("@");
+    return `${this.mangler(localPart)}@${domain}`;
   }
 }

@@ -1,9 +1,17 @@
-import { Page } from "@playwright/test";
+import { Page, TestFixture } from "@playwright/test";
 
 import { UserKeyDefinition } from "@bitwarden/state";
 import { UserId } from "@bitwarden/user-core";
 
 export class UserStateFixture {
+  static fixtureValue(): TestFixture<UserStateFixture, any> {
+    // eslint-disable-next-line no-empty-pattern
+    return async ({}, use) => {
+      const userState = new UserStateFixture();
+      await use(userState);
+    };
+  }
+
   async get<T>(page: Page, userId: UserId, keyDefinition: UserKeyDefinition<T>): Promise<T | null> {
     let json: string | null;
     switch (keyDefinition.stateDefinition.defaultStorageLocation) {

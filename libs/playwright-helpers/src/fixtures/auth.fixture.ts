@@ -132,9 +132,7 @@ export class AuthFixture {
 
   async newSession(email: string, password: string): Promise<AuthenticatedContext> {
     const page = await this.page();
-    using scene = await Play.scene(new SingleUserSceneTemplate({ email }), {
-      downAfterAll: true,
-    });
+    const scene = await Play.scene(new SingleUserSceneTemplate({ email }));
     const mangledEmail = scene.mangle(email);
     await page.goto("/#/login");
 

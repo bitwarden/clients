@@ -1,14 +1,15 @@
 import { test as base, expect, Page } from "@playwright/test";
 
 import {
-  EmergencyAccessInviteRecipe,
+  EmergencyAccessInviteQuery,
   Play,
   Scene,
-  SingleUserRecipe,
+  SingleUserSceneTemplate,
 } from "@bitwarden/playwright-helpers";
+import { UserId } from "@bitwarden/user-core";
 
 async function authenticate(page: Page, email: string) {
-  using scene = await Play.scene(new SingleUserRecipe({ email, premium: true }), { noDown: true });
+  const scene = await Play.scene(new SingleUserSceneTemplate({ email, premium: true }));
 
   await page.goto("/#/login");
   await page.getByRole("textbox", { name: "Email address (required)" }).click();
@@ -37,7 +38,7 @@ type MyFixtures = {
 
 type MyFixture2 = {
   page: Page;
-  scene: Scene;
+  scene: Scene<UserId>;
 };
 
 const test = base.extend<MyFixtures>({
@@ -74,8 +75,7 @@ base.describe("Emergency Access", () => {
     await expect(await grantor.page.getByRole("cell", { name: granteeEmail })).toBeVisible();
 
     // Grab the invite link from the server directly since intercepting email is hard
-    const recipe = new EmergencyAccessInviteRecipe({ email: granteeEmail });
-    const result = (await recipe.up()) as unknown as string[]; // FIXME: Recipe does not only return mangle map.
+    const result = await Play.query(new EmergencyAccessInviteQuery({ email: granteeEmail }));
     const inviteUrl = result[0];
     await grantee.page.goto(`/#${inviteUrl}`);
 
