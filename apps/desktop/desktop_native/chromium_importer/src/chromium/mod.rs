@@ -94,8 +94,8 @@ pub async fn import_logins(
 
     // TODO: Do we need a better merge strategy? Maybe ignore duplicates at least?
     // TODO: Should we also ignore an error from one of the two imports? If one is successful and
-    // the other fails,       should we still return the successful ones? At the moment it
-    // doesn't fail for a missing file, only when       something goes really wrong.
+    // the other fails, should we still return the successful ones? At the moment it
+    // doesn't fail for a missing file, only when something goes really wrong.
     let all_logins = local_logins
         .into_iter()
         .chain(account_logins.into_iter())
