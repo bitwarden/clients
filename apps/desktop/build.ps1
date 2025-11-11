@@ -1,8 +1,12 @@
 $ErrorActionPreference = "Stop"
 $PSNativeCommandUseErrorActionPreference = $true
 
-$env:ELECTRON_BUILDER_SIGN_CERT = "C:\temp\code-signing.pfx"
-$env:ELECTRON_BUILDER_SIGN_CERT_PW = "1234"
+if ($null -eq $env:ELECTRON_BUILDER_SIGN_CERT) {
+    $env:ELECTRON_BUILDER_SIGN_CERT = "C:\temp\code-signing.pfx"
+}
+if ($null -eq $env:ELECTRON_BUILDER_SIGN_CERT_PW) {
+    $env:ELECTRON_BUILDER_SIGN_CERT_PW = "1234"
+}
 $bwFolder = "$env:LOCALAPPDATA\Packages\bitwardendesktop_h4e712dmw3xyy"
 
 $package = (Get-AppxPackage -name bitwardendesktop)
@@ -20,7 +24,7 @@ npm run build-native && npm run build:dev && npm run pack:win:appx:arm64
 Remove-AppxPackage $package && Add-AppxPackage $appx
 
 # Delete log files
-Remove-Item -Path $comLogFile
+Remove-Item -Path $comLogFile -Force -ErrorAction SilentlyContinue
 
 # Restore tokens
 # New-Item -Type Directory -Force -Path "$bwFolder\LocalCache\Roaming\Bitwarden\"
