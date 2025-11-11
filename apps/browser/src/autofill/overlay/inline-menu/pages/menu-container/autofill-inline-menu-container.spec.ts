@@ -60,6 +60,35 @@ describe("AutofillInlineMenuContainer", () => {
         autofillInlineMenuContainer["inlineMenuPageIframe"].contentWindow.postMessage,
       ).toHaveBeenCalledWith(expectedMessage, "*");
     });
+
+    it("ignores initialization when URLs are not from extension origin", () => {
+      const invalidIframeUrlMessage = {
+        command: "initAutofillInlineMenuList",
+        iframeUrl: "https://malicious.com/overlay/menu-list.html",
+        pageTitle,
+        portKey,
+        portName: AutofillOverlayPort.List,
+      };
+
+      postWindowMessage(invalidIframeUrlMessage, extensionOrigin);
+      expect(autofillInlineMenuContainer["inlineMenuPageIframe"]).toBeUndefined();
+      expect(autofillInlineMenuContainer["isInitialized"]).toBe(false);
+
+      autofillInlineMenuContainer = new AutofillInlineMenuContainer();
+
+      const invalidStyleSheetUrlMessage = {
+        command: "initAutofillInlineMenuList",
+        iframeUrl,
+        pageTitle,
+        portKey,
+        portName: AutofillOverlayPort.List,
+        styleSheetUrl: "https://malicious.com/styles.css",
+      };
+
+      postWindowMessage(invalidStyleSheetUrlMessage, extensionOrigin);
+      expect(autofillInlineMenuContainer["inlineMenuPageIframe"]).toBeUndefined();
+      expect(autofillInlineMenuContainer["isInitialized"]).toBe(false);
+    });
   });
 
   describe("handling window messages", () => {
@@ -136,6 +165,23 @@ describe("AutofillInlineMenuContainer", () => {
         token: expect.any(String),
       });
       expect(iframe.contentWindow.postMessage).toHaveBeenCalledWith(expectedMessage, "*");
+    });
+
+    it("ignores messages from iframe with invalid token", () => {
+      const message = { command: "checkInlineMenuButtonFocused", portKey, token: "invalid-token" };
+
+      postWindowMessage(message, "null", iframe.contentWindow as any);
+
+      expect(port.postMessage).not.toHaveBeenCalled();
+    });
+
+    it("ignores messages from iframe with commands not in the allowlist", () => {
+      const token = autofillInlineMenuContainer["token"];
+      const message = { command: "maliciousCommand", portKey, token };
+
+      postWindowMessage(message, "null", iframe.contentWindow as any);
+
+      expect(port.postMessage).not.toHaveBeenCalled();
     });
   });
 });
