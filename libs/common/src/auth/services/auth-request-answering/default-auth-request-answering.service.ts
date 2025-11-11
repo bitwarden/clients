@@ -39,8 +39,7 @@ export class DefaultAuthRequestAnsweringService implements AuthRequestAnsweringS
   ) {}
 
   async activeUserMeetsConditionsToShowApprovalDialog(authRequestUserId: UserId): Promise<boolean> {
-    // If the active user is not the user that the auth request is for, return false
-    // early (no reason to perform the following async calls)
+    // If the active user is not the intended recipient of the auth request, return false
     const activeUserId: UserId | null = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
@@ -48,11 +47,14 @@ export class DefaultAuthRequestAnsweringService implements AuthRequestAnsweringS
       return false;
     }
 
+    // If the active user is not unlocked, return false
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     if (authStatus !== AuthenticationStatus.Unlocked) {
       return false;
     }
 
+    // If the active user is required to set/change their master password, return false
+    // Note that by this point we know that the authRequestUserId is the active UserId (see check above)
     const forceSetPasswordReason = await firstValueFrom(
       this.masterPasswordService.forceSetPasswordReason$(authRequestUserId),
     );

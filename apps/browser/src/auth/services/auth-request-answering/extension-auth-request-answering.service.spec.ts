@@ -166,28 +166,30 @@ describe("ExtensionAuthRequestAnsweringService", () => {
   });
 
   describe("activeUserMeetsConditionsToShowApprovalDialog()", () => {
-    it("should return true if popup is open and user is active, the intended recipient of the auth request, unlocked, and not required to set/change their master password", async () => {
-      // Arrange
-      platformUtilsService.isPopupOpen.mockResolvedValue(true);
-      authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+    describe("given the active user is the intended recipient of the auth request, unlocked, and not required to set/change their master password", () => {
+      it("should return true if popup is open", async () => {
+        // Arrange
+        platformUtilsService.isPopupOpen.mockResolvedValue(true);
+        authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
 
-      // Act
-      const result = await sut.activeUserMeetsConditionsToShowApprovalDialog(userId);
+        // Act
+        const result = await sut.activeUserMeetsConditionsToShowApprovalDialog(userId);
 
-      // Assert
-      expect(result).toBe(true);
-    });
+        // Assert
+        expect(result).toBe(true);
+      });
 
-    it("should return false if popup is closed", async () => {
-      // Arrange
-      platformUtilsService.isPopupOpen.mockResolvedValue(false);
-      authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+      it("should return false if popup is closed", async () => {
+        // Arrange
+        platformUtilsService.isPopupOpen.mockResolvedValue(false);
+        authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
 
-      // Act
-      const result = await sut.activeUserMeetsConditionsToShowApprovalDialog(userId);
+        // Act
+        const result = await sut.activeUserMeetsConditionsToShowApprovalDialog(userId);
 
-      // Assert
-      expect(result).toBe(false);
+        // Assert
+        expect(result).toBe(false);
+      });
     });
   });
 
