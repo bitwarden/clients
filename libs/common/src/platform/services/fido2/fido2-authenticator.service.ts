@@ -61,11 +61,13 @@ export class Fido2AuthenticatorService<ParentWindowReference>
     params: Fido2AuthenticatorMakeCredentialsParams,
     window: ParentWindowReference,
     abortController?: AbortController,
+    transactionContext?: ArrayBuffer,
   ): Promise<Fido2AuthenticatorMakeCredentialResult> {
     const userInterfaceSession = await this.userInterface.newSession(
       params.fallbackSupported,
       window,
       abortController,
+      transactionContext,
     );
 
     try {

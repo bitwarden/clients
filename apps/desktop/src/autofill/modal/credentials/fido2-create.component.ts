@@ -135,7 +135,10 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
         throw new Error("Missing session");
       }
 
-      this.session.notifyConfirmCreateCredential(true);
+      // TODO: We should know the username by now; we should pass that context here.
+      const username = "New Account" // placeholder
+      const isConfirmed = await this.session.promptForUserVerification("New Account", "Verify it's you to update a new credential")
+      this.session.notifyConfirmCreateCredential(isConfirmed);
     } catch {
       await this.showErrorDialog(this.DIALOG_MESSAGES.unableToSavePasskey);
     }
@@ -208,7 +211,9 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
       return this.passwordRepromptService.showPasswordPrompt();
     }
 
-    return true;
+    let cred = cipher.login.fido2Credentials[0];
+    const username = cred.userName ?? cred.userDisplayName
+    return this.session.promptForUserVerification(username, "Verify it's you to update a new credential")
   }
 
   private async showErrorDialog(config: SimpleDialogOptions): Promise<void> {

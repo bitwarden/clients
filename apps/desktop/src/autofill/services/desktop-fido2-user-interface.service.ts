@@ -322,10 +322,8 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   }
 
   /** Called by the UI to prompt the user for verification. May be fulfilled by the OS. */
-  async promptForUserVerification(cipher: CipherView): Promise<boolean> {
+  async promptForUserVerification(username: string, displayHint: string): Promise<boolean> {
     this.logService.info("DesktopFido2UserInterfaceSession] Prompting for user verification")
-    let cred = cipher.login.fido2Credentials[0];
-    const username = cred.userName ?? cred.userDisplayName
     let windowHandle = await ipc.platform.getNativeWindowHandle();
 
     const uvResult = await ipc.autofill.runCommand<NativeAutofillUserVerificationCommand>({
@@ -335,7 +333,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         windowHandle: Utils.fromBufferToB64(windowHandle),
         transactionContext: Utils.fromBufferToB64(this.transactionContext),
         username,
-        displayHint: `Logging in as ${cipher.name}`,
+        displayHint,
       },
     });
     if (uvResult.type === "error") {
