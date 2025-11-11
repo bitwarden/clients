@@ -95,7 +95,6 @@ export class RiskInsightsOrchestratorService {
     this._criticalApplicationAtRiskCipherIdsSubject$.asObservable();
 
   // ------------------------- Report Variables ----------------
-  private _totalMemberCount = 0;
   private _rawReportDataSubject = new BehaviorSubject<ReportState>({
     status: ReportStatus.Initializing,
     error: null,
@@ -149,6 +148,8 @@ export class RiskInsightsOrchestratorService {
 
   private _reportStateSubscription: Subscription | null = null;
   private _migrationSubscription: Subscription | null = null;
+  private _memberCiphersSubject = new BehaviorSubject<MemberDetails[]>([]);
+  private _memberCiphers$ = this._memberCiphersSubject.asObservable();
 
   constructor(
     private accountService: AccountService,
@@ -218,8 +219,9 @@ export class RiskInsightsOrchestratorService {
       withLatestFrom(
         this.organizationDetails$.pipe(filter((org) => !!org && !!org.organizationId)),
         this._userId$.pipe(filter((userId) => !!userId)),
+        this._memberCiphers$.pipe(take(1)),
       ),
-      map(([reportState, organizationDetails, userId]) => {
+      map(([reportState, organizationDetails, userId, memberCiphers]) => {
         const report = reportState?.data;
         if (!report) {
           throwError(() => Error("Tried to update critical applications without a report"));
@@ -236,7 +238,7 @@ export class RiskInsightsOrchestratorService {
         const updatedSummaryData = this.reportService.getApplicationsSummary(
           report!.reportData,
           updatedApplicationData,
-          this._totalMemberCount,
+          memberCiphers.length,
         );
 
         // Used for creating metrics with updated application data
@@ -347,8 +349,9 @@ export class RiskInsightsOrchestratorService {
       withLatestFrom(
         this.organizationDetails$.pipe(filter((org) => !!org && !!org.organizationId)),
         this._userId$.pipe(filter((userId) => !!userId)),
+        this._memberCiphers$.pipe(take(1)),
       ),
-      map(([reportState, organizationDetails, userId]) => {
+      map(([reportState, organizationDetails, userId, memberCiphers]) => {
         const report = reportState?.data;
         if (!report) {
           throwError(() => Error("Tried to update critical applications without a report"));
@@ -369,7 +372,7 @@ export class RiskInsightsOrchestratorService {
         const updatedSummaryData = this.reportService.getApplicationsSummary(
           report!.reportData,
           updatedApplicationData,
-          this._totalMemberCount,
+          memberCiphers.length,
         );
 
         // Used for creating metrics with updated application data
@@ -489,8 +492,9 @@ export class RiskInsightsOrchestratorService {
       withLatestFrom(
         this.organizationDetails$.pipe(filter((org) => !!org && !!org.organizationId)),
         this._userId$.pipe(filter((userId) => !!userId)),
+        this._memberCiphers$.pipe(take(1)),
       ),
-      map(([reportState, organizationDetails, userId]) => {
+      map(([reportState, organizationDetails, userId, memberCiphers]) => {
         const report = reportState?.data;
         if (!report) {
           throwError(() => Error("Tried save reviewed applications without a report"));
@@ -506,7 +510,7 @@ export class RiskInsightsOrchestratorService {
         const updatedSummaryData = this.reportService.getApplicationsSummary(
           report!.reportData,
           updatedApplicationData,
-          this._totalMemberCount,
+          memberCiphers.length,
         );
         // Used for creating metrics with updated application data
         const manualEnrichedApplications = report!.reportData.map(
@@ -654,31 +658,44 @@ export class RiskInsightsOrchestratorService {
     // Generate the report - fetch member ciphers and org ciphers in parallel
     const memberCiphers$ = from(
       this.memberCipherDetailsApiService.getMemberCipherDetails(organizationId),
-    ).pipe(map((memberCiphers) => flattenMemberDetails(memberCiphers)));
+    ).pipe(
+      map((memberCiphers) => flattenMemberDetails(memberCiphers)),
+      tap((memberCiphers) => {
+        // Update the subject so other parts of the app can access member ciphers
+        const memberDetails = getUniqueMembers(memberCiphers);
+        this._memberCiphersSubject.next(memberDetails);
+      }),
+    );
 
     // Start the generation pipeline
     const reportGeneration$ = forkJoin([this._ciphers$.pipe(take(1)), memberCiphers$]).pipe(
       switchMap(([ciphers, memberCiphers]) => {
         this.logService.debug("[RiskInsightsOrchestratorService] Analyzing password health");
         this._reportProgressSubject.next(ReportProgress.AnalyzingPasswords);
-        const cipherHealthReports = this._getCipherHealth(ciphers ?? [], memberCiphers);
-        return cipherHealthReports;
+        return forkJoin({
+          memberDetails: of(memberCiphers),
+          cipherHealthReports: this._getCipherHealth(ciphers ?? [], memberCiphers),
+        }).pipe(
+          map(({ memberDetails, cipherHealthReports }) => {
+            const uniqueMembers = getUniqueMembers(memberDetails);
+            const totalMemberCount = uniqueMembers.length;
+
+            return { cipherHealthReports, totalMemberCount };
+          }),
+        );
       }),
-      map((cipherHealthReports) => {
+      map(({ cipherHealthReports, totalMemberCount }) => {
         this.logService.debug("[RiskInsightsOrchestratorService] Calculating risk scores");
         this._reportProgressSubject.next(ReportProgress.CalculatingRisks);
-        return this.reportService.generateApplicationsReport(cipherHealthReports);
+        const report = this.reportService.generateApplicationsReport(cipherHealthReports);
+        return { report, totalMemberCount };
       }),
       tap(() => {
         this.logService.debug("[RiskInsightsOrchestratorService] Generating report data");
         this._reportProgressSubject.next(ReportProgress.GeneratingReport);
       }),
-      withLatestFrom(this.rawReportData$, memberCiphers$),
-      map(([report, previousReport, memberDetails]) => {
-        // total member count includes all users, even those not associated with ciphers
-        const uniqueMembers = getUniqueMembers(memberDetails);
-        this._totalMemberCount = uniqueMembers.length;
-
+      withLatestFrom(this.rawReportData$),
+      map(([{ report, totalMemberCount }, previousReport]) => {
         // Update the application data
         const updatedApplicationData = this.reportService.getOrganizationApplications(
           report,
@@ -698,7 +715,7 @@ export class RiskInsightsOrchestratorService {
         const updatedSummary = this.reportService.getApplicationsSummary(
           report,
           updatedApplicationData,
-          this._totalMemberCount,
+          totalMemberCount,
         );
         // For now, merge the report with the critical marking flag to make the enriched type
         // We don't care about the individual ciphers in this instance
@@ -967,7 +984,8 @@ export class RiskInsightsOrchestratorService {
   private _setupCriticalApplicationReport() {
     const criticalReportResultsPipeline$ = this.enrichedReportData$.pipe(
       filter((state) => !!state),
-      map((enrichedReports) => {
+      withLatestFrom(this._memberCiphers$.pipe(take(1))),
+      map(([enrichedReports, memberCiphers]) => {
         const criticalApplications = enrichedReports!.reportData.filter(
           (app) => app.isMarkedAsCritical,
         );
@@ -975,7 +993,7 @@ export class RiskInsightsOrchestratorService {
         const summary = this.reportService.getApplicationsSummary(
           criticalApplications,
           enrichedReports.applicationData,
-          this._totalMemberCount,
+          memberCiphers.length,
         );
         return {
           ...enrichedReports,
