@@ -1523,12 +1523,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Pri spustení požiadať o biometriu"
   },
-  "premiumRequired": {
-    "message": "Vyžaduje sa prémiový účet"
-  },
-  "premiumRequiredDesc": {
-    "message": "Na použitie tejto funkcie je potrebné prémiové členstvo."
-  },
   "authenticationTimeout": {
     "message": "Časový limit overenia"
   },
@@ -1640,6 +1634,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Musíte pridať buď základnú adresu URL servera, alebo aspoň jedno vlastné prostredie."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Adresy URL musia používať HTTPS."
   },
   "customEnvironment": {
     "message": "Vlastné prostredie"
@@ -4977,6 +4974,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Predvolené ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "Zobraziť zisťovanie zhody $WEBSITE$",
     "placeholders": {
@@ -5768,6 +5775,30 @@
   },
   "atRiskLoginsSecured": {
     "message": "Skvelá práca pri zabezpečení vašich ohrozených prihlasovacích údajov!"
+  },
+  "upgradeNow": {
+    "message": "Upgradovať teraz"
+  },
+  "builtInAuthenticator": {
+    "message": "Zabudovaný autentifikátor"
+  },
+  "secureFileStorage": {
+    "message": "Bezpečné ukladanie súborov"
+  },
+  "emergencyAccess": {
+    "message": "Núdzový prístup"
+  },
+  "breachMonitoring": {
+    "message": "Sledovanie únikov"
+  },
+  "andMoreFeatures": {
+    "message": "A ešte viac!"
+  },
+  "planDescPremium": {
+    "message": "Úplné online zabezpečenie"
+  },
+  "upgradeToPremium": {
+    "message": "Upgradovať na Prémium"
   },
   "settingDisabledByPolicy": {
     "message": "Politika organizácie vypla toto nastavenie.",

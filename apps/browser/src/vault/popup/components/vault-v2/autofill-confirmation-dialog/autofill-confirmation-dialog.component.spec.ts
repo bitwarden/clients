@@ -199,7 +199,7 @@ describe("AutofillConfirmationDialogComponent", () => {
   it("shows the 'view all' button when savedUrls > 1 and hides it after click", () => {
     const findViewAll = () =>
       fixture.nativeElement.querySelector(
-        "button.tw-text-sm.tw-font-bold.tw-cursor-pointer",
+        "button.tw-text-sm.tw-font-medium.tw-cursor-pointer",
       ) as HTMLButtonElement | null;
 
     let btn = findViewAll();
