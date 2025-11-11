@@ -12,21 +12,21 @@ import {
  * Allowlist of commands that can be sent to the background script.
  */
 const ALLOWED_BG_COMMANDS = new Set<string>([
-  "unlockVault",
-  "fillGeneratedPassword",
-  "refreshGeneratedPassword",
   "addNewVaultItem",
-  "fillAutofillInlineMenuCipher",
-  "viewSelectedCipher",
-  "refreshOverlayCiphers",
-  "checkAutofillInlineMenuButtonFocused",
-  "updateAutofillInlineMenuListHeight",
   "autofillInlineMenuBlurred",
-  "redirectAutofillInlineMenuFocusOut",
   "autofillInlineMenuButtonClicked",
+  "checkAutofillInlineMenuButtonFocused",
+  "checkInlineMenuButtonFocused",
+  "fillAutofillInlineMenuCipher",
+  "fillGeneratedPassword",
+  "redirectAutofillInlineMenuFocusOut",
+  "refreshGeneratedPassword",
+  "refreshOverlayCiphers",
   "triggerDelayedAutofillInlineMenuClosure",
   "updateAutofillInlineMenuColorScheme",
-  "checkInlineMenuButtonFocused",
+  "updateAutofillInlineMenuListHeight",
+  "unlockVault",
+  "viewSelectedCipher",
 ]);
 
 export class AutofillInlineMenuContainer {
