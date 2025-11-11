@@ -148,8 +148,6 @@ export class RiskInsightsOrchestratorService {
 
   private _reportStateSubscription: Subscription | null = null;
   private _migrationSubscription: Subscription | null = null;
-  private _memberCiphersSubject = new BehaviorSubject<MemberDetails[]>([]);
-  private _memberCiphers$ = this._memberCiphersSubject.asObservable();
 
   constructor(
     private accountService: AccountService,
@@ -490,9 +488,8 @@ export class RiskInsightsOrchestratorService {
       withLatestFrom(
         this.organizationDetails$.pipe(filter((org) => !!org && !!org.organizationId)),
         this._userId$.pipe(filter((userId) => !!userId)),
-        this._memberCiphers$.pipe(take(1)),
       ),
-      map(([reportState, organizationDetails, userId, memberCiphers]) => {
+      map(([reportState, organizationDetails, userId]) => {
         const report = reportState?.data;
         if (!report) {
           throwError(() => Error("Tried save reviewed applications without a report"));
@@ -508,7 +505,7 @@ export class RiskInsightsOrchestratorService {
         const updatedSummaryData = this.reportService.getApplicationsSummary(
           report!.reportData,
           updatedApplicationData,
-          memberCiphers.length,
+          report.summaryData.totalMemberCount,
         );
         // Used for creating metrics with updated application data
         const manualEnrichedApplications = report!.reportData.map(
@@ -656,14 +653,7 @@ export class RiskInsightsOrchestratorService {
     // Generate the report - fetch member ciphers and org ciphers in parallel
     const memberCiphers$ = from(
       this.memberCipherDetailsApiService.getMemberCipherDetails(organizationId),
-    ).pipe(
-      map((memberCiphers) => flattenMemberDetails(memberCiphers)),
-      tap((memberCiphers) => {
-        // Update the subject so other parts of the app can access member ciphers
-        const memberDetails = getUniqueMembers(memberCiphers);
-        this._memberCiphersSubject.next(memberDetails);
-      }),
-    );
+    ).pipe(map((memberCiphers) => flattenMemberDetails(memberCiphers)));
 
     // Start the generation pipeline
     const reportGeneration$ = forkJoin([this._ciphers$.pipe(take(1)), memberCiphers$]).pipe(
@@ -982,8 +972,7 @@ export class RiskInsightsOrchestratorService {
   private _setupCriticalApplicationReport() {
     const criticalReportResultsPipeline$ = this.enrichedReportData$.pipe(
       filter((state) => !!state),
-      withLatestFrom(this._memberCiphers$.pipe(take(1))),
-      map(([enrichedReports, memberCiphers]) => {
+      map((enrichedReports) => {
         const criticalApplications = enrichedReports!.reportData.filter(
           (app) => app.isMarkedAsCritical,
         );
