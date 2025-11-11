@@ -32,6 +32,7 @@ import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   VaultTimeout,
@@ -40,6 +41,7 @@ import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -67,6 +69,7 @@ import {
   BiometricStateService,
   BiometricsStatus,
 } from "@bitwarden/key-management";
+import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -100,6 +103,7 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     SectionComponent,
     SectionHeaderComponent,
     SelectModule,
+    SessionTimeoutSettingsComponent,
     SpotlightComponent,
     TypographyModule,
     VaultTimeoutInputComponent,
@@ -133,11 +137,14 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       ),
     );
 
-  private refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
+  protected readonly consolidatedSessionTimeoutComponent$: Observable<boolean>;
+
+  protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
   private destroy$ = new Subject<void>();
 
   constructor(
     private accountService: AccountService,
+    private configService: ConfigService,
     private pinService: PinServiceAbstraction,
     private policyService: PolicyService,
     private formBuilder: FormBuilder,
@@ -157,7 +164,11 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private vaultNudgesService: NudgesService,
     private validationService: ValidationService,
     private logService: LogService,
-  ) {}
+  ) {
+    this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
+      FeatureFlag.ConsolidatedSessionTimeoutComponent,
+    );
+  }
 
   async ngOnInit() {
     const hasMasterPassword = await this.userVerificationService.hasMasterPassword();
@@ -173,6 +184,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       this.hasVaultTimeoutPolicy = true;
     }
 
+    // Determine platform-specific timeout options
     const showOnLocked =
       !this.platformUtilsService.isFirefox() &&
       !this.platformUtilsService.isSafari() &&
