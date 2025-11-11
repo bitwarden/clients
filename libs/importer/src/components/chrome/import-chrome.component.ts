@@ -142,6 +142,8 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
         // If any of the login items has a failure return a generic error message
         // Introduced because we ran into a new type of V3 encryption added on Chrome that we don't yet support
         if (logins.some((l) => l.failure != null)) {
+          const error = logins.find((l) => l.failure != null);
+          this.logService.error("Chromium importer failure:", error.failure.error);
           return {
             errors: {
               message: this.i18nService.t("errorOccurred"),
