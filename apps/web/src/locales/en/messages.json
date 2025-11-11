@@ -373,6 +373,21 @@
   "noNewApplicationsToReviewAtThisTime": {
     "message": "No new applications to review at this time"
   },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Your organization has items saved for $COUNT$ applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Review applications to secure the items most critical to your organization's security"
+  },
+  "reviewApplications": {
+    "message": "Review applications"
+  },
   "prioritizeCriticalApplications": {
     "message": "Prioritize critical applications"
   },
