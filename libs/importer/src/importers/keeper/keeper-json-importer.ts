@@ -5,6 +5,7 @@ import { FieldType } from "@bitwarden/common/vault/enums/field-type.enum";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
+import { import_ssh_key, SshKeyView } from "@bitwarden/sdk-internal";
 
 import { ImportResult } from "../../models/import-result";
 import { BaseImporter } from "../base-importer";
@@ -64,75 +65,14 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
       // Force type based on the record type
       switch (record.$type) {
         case "bankCard":
-          {
-            cipher.type = CipherType.Card;
-            cipher.card.cardholderName = this.findCustomField(
-              record.custom_fields,
-              "$text:cardholderName",
-            );
-            cipher.card.number = this.findCustomField(
-              record.custom_fields,
-              "$paymentCard/cardNumber",
-            );
-            cipher.card.code = this.findCustomField(
-              record.custom_fields,
-              "$paymentCard/cardSecurityCode",
-            );
-            cipher.card.brand = CardView.getCardBrandByPatterns(cipher.card.number);
-            const expDate = this.findCustomField(
-              record.custom_fields,
-              "$paymentCard/cardExpirationDate",
-            );
-            const [expMonth, expYear] = expDate.split("/");
-            if (expMonth) {
-              cipher.card.expMonth = expMonth;
-            }
-            if (expYear) {
-              cipher.card.expYear = expYear;
-            }
-            const pinCode = this.findCustomField(record.custom_fields, "$pinCode");
-            if (pinCode) {
-              this.addField(cipher, "PIN", pinCode, FieldType.Hidden);
-            }
-
-            // These should not be imported as custom fields since they are mapped to card properties
-            delete record.custom_fields["$paymentCard"];
-            delete record.custom_fields["$text:cardholderName"];
-            delete record.custom_fields["$pinCode"];
-          }
+          this.importBankCard(record, cipher);
           break;
         case "sshKeys":
-          {
-            cipher.type = CipherType.SshKey;
-            cipher.sshKey.privateKey = this.findCustomField(
-              record.custom_fields,
-              "$keyPair/privateKey",
-            );
-            cipher.sshKey.publicKey = this.findCustomField(
-              record.custom_fields,
-              "$keyPair/publicKey",
-            );
-            cipher.sshKey.keyFingerprint = "TODO: figure this out"; // TODO: Keeper does not export fingerprint, compute it?
-
-            if (!this.isNullOrWhitespace(cipher.login.username)) {
-              this.addField(cipher, "username", cipher.login.username!);
-            }
-            if (!this.isNullOrWhitespace(cipher.login.password)) {
-              this.addField(cipher, "passphrase", cipher.login.password!, FieldType.Hidden);
-            }
-
-            const hostName = this.findCustomField(record.custom_fields, "$host/hostName");
-            if (hostName) {
-              this.addField(cipher, "hostname", hostName);
-            }
-            const port = this.findCustomField(record.custom_fields, "$host/port");
-            if (port) {
-              this.addField(cipher, "port", port);
-            }
-
-            // These should not be imported as custom fields since they are mapped to ssh key properties
-            delete record.custom_fields["$keyPair"];
-            delete record.custom_fields["$host"];
+          // In Bitwarden the ssh key is supposed to be valid.
+          // So we only set the type if we can actually import a key.
+          if (!this.importSshKey(record, cipher)) {
+            // Otherwise, fallback to secure note
+            cipher.type = CipherType.SecureNote;
           }
           break;
       }
@@ -146,6 +86,71 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
 
       result.ciphers.push(cipher);
     });
+  }
+
+  private importBankCard(record: Record, cipher: CipherView) {
+    cipher.type = CipherType.Card;
+    cipher.card.cardholderName = this.findCustomField(record.custom_fields, "$text:cardholderName");
+    cipher.card.number = this.findCustomField(record.custom_fields, "$paymentCard/cardNumber");
+    cipher.card.code = this.findCustomField(record.custom_fields, "$paymentCard/cardSecurityCode");
+    cipher.card.brand = CardView.getCardBrandByPatterns(cipher.card.number);
+    const expDate = this.findCustomField(record.custom_fields, "$paymentCard/cardExpirationDate");
+    const [expMonth, expYear] = expDate.split("/");
+    if (expMonth) {
+      cipher.card.expMonth = expMonth;
+    }
+    if (expYear) {
+      cipher.card.expYear = expYear;
+    }
+    const pinCode = this.findCustomField(record.custom_fields, "$pinCode");
+    if (pinCode) {
+      this.addField(cipher, "PIN", pinCode, FieldType.Hidden);
+    }
+
+    // These should not be imported as custom fields since they are mapped to card properties
+    delete record.custom_fields["$paymentCard"];
+    delete record.custom_fields["$text:cardholderName"];
+    delete record.custom_fields["$pinCode"];
+  }
+
+  private importSshKey(record: Record, cipher: CipherView): boolean {
+    const privateKey = this.findCustomField(record.custom_fields, "$keyPair/privateKey");
+    if (!privateKey) {return false;}
+
+    let keyView: SshKeyView | null = null;
+    try {
+      keyView = import_ssh_key(privateKey);
+    } catch {
+      return false;
+    }
+    if (!keyView) {return false;}
+
+    cipher.type = CipherType.SshKey;
+    cipher.sshKey.privateKey = keyView.privateKey;
+    cipher.sshKey.publicKey = keyView.publicKey;
+    cipher.sshKey.keyFingerprint = keyView.fingerprint;
+
+    if (!this.isNullOrWhitespace(cipher.login.username)) {
+      this.addField(cipher, "username", cipher.login.username!);
+    }
+    if (!this.isNullOrWhitespace(cipher.login.password)) {
+      this.addField(cipher, "passphrase", cipher.login.password!, FieldType.Hidden);
+    }
+
+    const hostName = this.findCustomField(record.custom_fields, "$host/hostName");
+    if (hostName) {
+      this.addField(cipher, "hostname", hostName);
+    }
+    const port = this.findCustomField(record.custom_fields, "$host/port");
+    if (port) {
+      this.addField(cipher, "port", port);
+    }
+
+    // These should not be imported as custom fields since they are mapped to ssh key properties
+    delete record.custom_fields["$keyPair"];
+    delete record.custom_fields["$host"];
+
+    return true;
   }
 
   private findCustomField(customFields: CustomFields, path: string): string {

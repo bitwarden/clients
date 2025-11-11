@@ -40,7 +40,7 @@ handle some of the type conversion manually. Should the conversion types be forc
 - [x] Should `last_modified` be set on the cipher?
 - [ ] The base importer has a special way of handling custom fields, not used in this importer.
       Figure this out!
-- [ ] No fingerprint on ssh keys
+- [x] No fingerprint on ssh keys
 - [ ] login/password on ssh keys are stored as username/passphrase extra fields
 
 ### Missing features
