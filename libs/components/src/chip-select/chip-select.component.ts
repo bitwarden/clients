@@ -112,7 +112,9 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
       const items = this.menuItems();
       const currentMenu = this.menu();
       const trigger = this.menuTrigger();
-      // Only focus if menu is actually open to prevent running during initialization
+      // Note: `isOpen` is intentionally accessed outside signal tracking (via `trigger?.isOpen`)
+      // to avoid re-focusing when the menu state changes. We only want to focus during
+      // submenu navigation, not on initial open/close.
       if (items.length > 0 && trigger?.isOpen) {
         currentMenu?.keyManager?.setFirstItemActive();
       }
@@ -255,6 +257,8 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
   writeValue(obj: T): void {
     this.selectedOption = this.findOption(this.rootTree, obj);
     this.setOrResetRenderedOptions();
+    // OnPush components require manual change detection when writeValue() is called
+    // externally by Angular forms, as the framework doesn't automatically trigger CD
     this.cdr.markForCheck();
   }
 
