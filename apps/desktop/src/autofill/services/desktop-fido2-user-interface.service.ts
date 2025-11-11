@@ -32,6 +32,8 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
 
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
+import { NativeAutofillUserVerificationCommand } from "../../platform/main/autofill/user-verification.command";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 /**
  * This type is used to pass the window position from the native UI
@@ -65,8 +67,9 @@ export class DesktopFido2UserInterfaceService
     fallbackSupported: boolean,
     nativeWindowObject: NativeWindowObject,
     abortController?: AbortController,
+    transactionContext?: ArrayBuffer,
   ): Promise<DesktopFido2UserInterfaceSession> {
-    this.logService.debug("newSession", fallbackSupported, abortController, nativeWindowObject);
+    this.logService.debug("newSession", fallbackSupported, abortController, nativeWindowObject, transactionContext);
     const session = new DesktopFido2UserInterfaceSession(
       this.authService,
       this.cipherService,
@@ -75,6 +78,7 @@ export class DesktopFido2UserInterfaceService
       this.router,
       this.desktopSettingsService,
       nativeWindowObject,
+      transactionContext,
     );
 
     this.currentSession = session;
@@ -91,6 +95,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     private router: Router,
     private desktopSettingsService: DesktopSettingsService,
     private windowObject: NativeWindowObject,
+    private transactionContext: ArrayBuffer,
   ) {}
 
   private confirmCredentialSubject = new Subject<boolean>();
@@ -126,7 +131,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     try {
       // Check if we can return the credential without user interaction
       await this.accountService.setShowHeader(false);
-      if (assumeUserPresence && cipherIds.length === 1 && !masterPasswordRepromptRequired) {
+      if (assumeUserPresence && cipherIds.length === 1 && !masterPasswordRepromptRequired && !userVerification) {
         this.logService.debug(
           "shortcut - Assuming user presence and returning cipherId",
           cipherIds[0],
@@ -135,6 +140,10 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       }
 
       this.logService.debug("Could not shortcut, showing UI");
+
+      // TODO: We need to pass context from the original request whether this
+      // should be a silent request or not. Then, we can fail here if it's
+      // supposed to be silent.
 
       // make the cipherIds available to the UI.
       this.availableCipherIdsSubject.next(cipherIds);
@@ -310,6 +319,30 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     } catch {
       throw new Error("Unable to create cipher");
     }
+  }
+
+  /** Called by the UI to prompt the user for verification. May be fulfilled by the OS. */
+  async promptForUserVerification(cipher: CipherView): Promise<boolean> {
+    this.logService.info("DesktopFido2UserInterfaceSession] Prompting for user verification")
+    let cred = cipher.login.fido2Credentials[0];
+    const username = cred.userName ?? cred.userDisplayName
+    let windowHandle = await ipc.platform.getNativeWindowHandle();
+
+    const uvResult = await ipc.autofill.runCommand<NativeAutofillUserVerificationCommand>({
+      namespace: "autofill",
+      command: "user-verification",
+      params: {
+        windowHandle: Utils.fromBufferToB64(windowHandle),
+        transactionContext: Utils.fromBufferToB64(this.transactionContext),
+        username,
+        displayHint: `Logging in as ${cipher.name}`,
+      },
+    });
+    if (uvResult.type === "error") {
+      this.logService.error("Error getting user verification", uvResult.error)
+      return false
+    }
+    return uvResult.type === "success";
   }
 
   async updateCredential(cipher: CipherView): Promise<void> {

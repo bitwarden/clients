@@ -12,6 +12,7 @@ pub struct PasskeyAssertionRequest {
     pub user_verification: UserVerification,
     pub allowed_credentials: Vec<Vec<u8>>,
     pub window_xy: Position,
+    pub context: Vec<u8>,
     // pub extension_input: Vec<u8>, TODO: Implement support for extensions
 }
 
@@ -26,6 +27,7 @@ pub struct PasskeyAssertionWithoutUserInterfaceRequest {
     pub client_data_hash: Vec<u8>,
     pub user_verification: UserVerification,
     pub window_xy: Position,
+    pub context: Vec<u8>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

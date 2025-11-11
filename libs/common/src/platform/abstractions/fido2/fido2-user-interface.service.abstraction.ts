@@ -71,6 +71,7 @@ export abstract class Fido2UserInterfaceService<ParentWindowReference> {
     fallbackSupported: boolean,
     window: ParentWindowReference,
     abortController?: AbortController,
+    transactionContext?: ArrayBuffer,
   ): Promise<Fido2UserInterfaceSession>;
 }
 

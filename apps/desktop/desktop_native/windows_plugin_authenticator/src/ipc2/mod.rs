@@ -18,6 +18,7 @@ mod assertion;
 mod lock_status;
 mod registration;
 
+use crate::ipc2::lock_status::{GetLockStatusCallback, LockStatusRequest};
 pub use assertion::{
     PasskeyAssertionRequest, PasskeyAssertionResponse, PasskeyAssertionWithoutUserInterfaceRequest,
     PreparePasskeyAssertionCallback,
@@ -25,8 +26,6 @@ pub use assertion::{
 pub use registration::{
     PasskeyRegistrationRequest, PasskeyRegistrationResponse, PreparePasskeyRegistrationCallback,
 };
-
-use crate::ipc2::lock_status::{GetLockStatusCallback, LockStatusRequest};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
