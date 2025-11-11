@@ -95,7 +95,7 @@ export class RiskInsightsReportService {
     );
 
     return {
-      totalMemberCount: totalMemberCount == 0 ? totalUniqueMembers.length : totalMemberCount,
+      totalMemberCount: totalMemberCount > 0 ? totalMemberCount : totalUniqueMembers.length,
       totalAtRiskMemberCount: atRiskUniqueMembers.length,
       totalApplicationCount: reports.length,
       totalAtRiskApplicationCount: reports.filter((app) => app.atRiskPasswordCount > 0).length,
