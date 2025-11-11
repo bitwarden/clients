@@ -36,7 +36,7 @@ handle some of the type conversion manually. Should the conversion types be forc
 - [x] What to do with the IDs? Import them as is? Generate new ones? Leave out blank?
 - [ ] Multiple TOTP (currently the first one used, others ignored)
 - [ ] Schema is ignored (probably no use anyway)
-- [ ] Custom fields names/types are not parsed and used as is
+- [x] Custom fields names/types are not parsed and used as is
 - [x] Should `last_modified` be set on the cipher?
 - [ ] The base importer has a special way of handling custom fields, not used in this importer.
       Figure this out!
@@ -55,3 +55,4 @@ handle some of the type conversion manually. Should the conversion types be forc
 - [ ] PAM record types
 - [ ] Some more enterprise record types
 - [ ] Custom record types
+- [ ] Referenced fields
