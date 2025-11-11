@@ -188,18 +188,6 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
             this.addField(cipher, "port", port);
           }
           break;
-        case "name":
-          {
-            const { first, middle, last } = value as {
-              first?: string;
-              middle?: string;
-              last?: string;
-            };
-            this.addField(cipher, "First name", first);
-            this.addField(cipher, "Middle name", middle);
-            this.addField(cipher, "Last name", last);
-          }
-          break;
         default:
           needFallbackToGenericImport = true;
           break;
@@ -224,6 +212,19 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
         case "birthDate":
         case "expirationDate":
           importedValue = this.parseDate(value);
+          break;
+        case "name":
+          {
+            const { first, middle, last } = value as {
+              first?: string;
+              middle?: string;
+              last?: string;
+            };
+            importedValue = [first, middle, last]
+              .filter((x) => !!x)
+              .join(" ")
+              .trim();
+          }
           break;
       }
 

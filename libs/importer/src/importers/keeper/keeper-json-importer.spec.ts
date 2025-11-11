@@ -78,11 +78,9 @@ describe("Keeper Json Importer", () => {
     expect(bankAccount.login.totp).toContain("otpauth://totp/");
 
     // Fields
-    expect(bankAccount.fields.length).toEqual(4);
+    expect(bankAccount.fields.length).toEqual(2);
     expect(getField(bankAccount, "bankAccount")).toBeDefined();
-    expect(getField(bankAccount, "First name")).toBeDefined();
-    expect(getField(bankAccount, "Middle name")).toBeDefined();
-    expect(getField(bankAccount, "Last name")).toBeDefined();
+    expect(getField(bankAccount, "name")).toBeDefined();
   });
 
   it("should parse bankCard", async () => {
@@ -119,10 +117,8 @@ describe("Keeper Json Importer", () => {
     );
 
     // Fields
-    expect(birthCertificate.fields.length).toEqual(4);
-    expect(getField(birthCertificate, "First name")).toBeDefined();
-    expect(getField(birthCertificate, "Middle name")).toBeDefined();
-    expect(getField(birthCertificate, "Last name")).toBeDefined();
+    expect(birthCertificate.fields.length).toEqual(2);
+    expect(getField(birthCertificate, "name")).toBeDefined();
     expect(getField(birthCertificate, "birthDate")).toBeDefined();
   });
 
@@ -136,10 +132,8 @@ describe("Keeper Json Importer", () => {
     expect(contact.notes).toEqual("Primary care physician - office visits and consultations");
 
     // Fields
-    expect(contact.fields.length).toEqual(6);
-    expect(getField(contact, "First name")).toBeDefined();
-    expect(getField(contact, "Middle name")).toBeDefined();
-    expect(getField(contact, "Last name")).toBeDefined();
+    expect(contact.fields.length).toEqual(4);
+    expect(getField(contact, "name")).toBeDefined();
     expect(getField(contact, "company")).toBeDefined();
     expect(getField(contact, "email")).toBeDefined();
     expect(getField(contact, "phone")).toBeDefined();
@@ -175,11 +169,9 @@ describe("Keeper Json Importer", () => {
     expect(driverLicense.notes).toEqual("Valid Oregon driver's license - Class C");
 
     // Fields
-    expect(driverLicense.fields.length).toEqual(6);
+    expect(driverLicense.fields.length).toEqual(4);
     expect(getField(driverLicense, "dlNumber")).toBeDefined();
-    expect(getField(driverLicense, "First name")).toBeDefined();
-    expect(getField(driverLicense, "Middle name")).toBeDefined();
-    expect(getField(driverLicense, "Last name")).toBeDefined();
+    expect(getField(driverLicense, "name")).toBeDefined();
     expect(getField(driverLicense, "birthDate")).toBeDefined();
     expect(getField(driverLicense, "expirationDate")).toBeDefined();
   });
@@ -250,11 +242,9 @@ describe("Keeper Json Importer", () => {
     expect(healthInsurance.login.uri).toEqual("https://www.bcbs.com");
 
     // Fields
-    expect(healthInsurance.fields.length).toEqual(4);
+    expect(healthInsurance.fields.length).toEqual(2);
     expect(getField(healthInsurance, "accountNumber")).toBeDefined();
-    expect(getField(healthInsurance, "First name")).toBeDefined();
-    expect(getField(healthInsurance, "Middle name")).toBeDefined();
-    expect(getField(healthInsurance, "Last name")).toBeDefined();
+    expect(getField(healthInsurance, "insuredsName")).toBeDefined();
   });
 
   it("should parse login", async () => {
@@ -293,11 +283,9 @@ describe("Keeper Json Importer", () => {
     );
 
     // Fields
-    expect(membership.fields.length).toEqual(4);
+    expect(membership.fields.length).toEqual(2);
     expect(getField(membership, "accountNumber")).toBeDefined();
-    expect(getField(membership, "First name")).toBeDefined();
-    expect(getField(membership, "Middle name")).toBeDefined();
-    expect(getField(membership, "Last name")).toBeDefined();
+    expect(getField(membership, "name")).toBeDefined();
   });
 
   it("should parse passport", async () => {
@@ -310,11 +298,9 @@ describe("Keeper Json Importer", () => {
     expect(passport.notes).toEqual("Valid US passport for international travel");
 
     // Fields
-    expect(passport.fields.length).toEqual(7);
+    expect(passport.fields.length).toEqual(5);
     expect(getField(passport, "passportNumber")).toBeDefined();
-    expect(getField(passport, "First name")).toBeDefined();
-    expect(getField(passport, "Middle name")).toBeDefined();
-    expect(getField(passport, "Last name")).toBeDefined();
+    expect(getField(passport, "name")).toBeDefined();
     expect(getField(passport, "birthDate")).toBeDefined();
     expect(getField(passport, "expirationDate")).toBeDefined();
     expect(getField(passport, "dateIssued")).toBeDefined();
@@ -413,11 +399,9 @@ describe("Keeper Json Importer", () => {
     expect(ssnCard.notes).toEqual("National identification card - Valid through 2028");
 
     // Fields
-    expect(ssnCard.fields.length).toEqual(4);
+    expect(ssnCard.fields.length).toEqual(2);
     expect(getField(ssnCard, "identityNumber")).toBeDefined();
-    expect(getField(ssnCard, "First name")).toBeDefined();
-    expect(getField(ssnCard, "Middle name")).toBeDefined();
-    expect(getField(ssnCard, "Last name")).toBeDefined();
+    expect(getField(ssnCard, "name")).toBeDefined();
   });
   it("should parse wifiCredentials", async () => {
     // Cipher
