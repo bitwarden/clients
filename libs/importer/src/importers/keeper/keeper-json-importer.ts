@@ -168,22 +168,114 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
 
   private importCustomFields(customFields: CustomFields, cipher: CipherView) {
     for (const [key, value] of Object.entries(customFields)) {
-      // TODO: Add more known custom fields here as needed
-      // Process known custom fields
-      if (key == "$oneTimeCode" || key.startsWith("$oneTimeCode:")) {
-        cipher.login.totp = this.getStringOrFirstFromArray(value ?? "");
-      } else if (key === "$url" || key.startsWith("$url:")) {
-        cipher.login.uris.push(...this.makeUriArray(value));
-      } else if (key === "$host" || key.startsWith("$host:")) {
-        this.addField(cipher, "hostname", value?.hostName);
-        this.addField(cipher, "port", value?.port);
-      } else {
-        this.addField(cipher, key, value);
+      const [type, name] = this.parseFieldKey(key);
+
+      // Special handling for certain types
+      let needFallbackToGenericImport = false;
+      switch (type) {
+        case "oneTimeCode":
+          // TODO: If not a login, add as a custom field
+          cipher.login.totp = this.getStringOrFirstFromArray(value ?? "");
+          break;
+        case "url":
+          // TODO: If not a login, add as a custom field
+          cipher.login.uris.push(...this.makeUriArray(value));
+          break;
+        case "host":
+          {
+            const { hostName, port } = value as { hostName?: string; port?: string };
+            this.addField(cipher, "hostname", hostName);
+            this.addField(cipher, "port", port);
+          }
+          break;
+        case "name":
+          {
+            const { first, middle, last } = value as {
+              first?: string;
+              middle?: string;
+              last?: string;
+            };
+            this.addField(cipher, "First name", first);
+            this.addField(cipher, "Middle name", middle);
+            this.addField(cipher, "Last name", last);
+          }
+          break;
+        default:
+          needFallbackToGenericImport = true;
+          break;
       }
+
+      if (!needFallbackToGenericImport) {
+        continue;
+      }
+
+      // TODO: Support compound values (objects/arrays)
+      const importedName = name || type || key;
+      let importedValue = this.convertToFieldValue(value);
+      const importedType = FieldType.Text;
+
+      switch (type) {
+        case "text":
+        case "accountNumber":
+        case "licenseNumber":
+          // Do nothing, default is text
+          break;
+        case "date":
+        case "birthDate":
+        case "expirationDate":
+          importedValue = this.parseDate(value);
+          break;
+      }
+
+      this.addField(cipher, importedName, importedValue, importedType);
+
+      // TODO: Remove this!
+      // console.log(
+      //   `Custom field: '${key}'='${value}':\n  - type='${type}'\n  - name='${name}'\n  - value='${value}'\nConverted to:\n  - name='${importedName}'\n  - value='${importedValue}'`,
+      // );
     }
   }
 
+  private parseDate(timestamp: string | number): string {
+    const date = new Date(timestamp);
+    return isNaN(date.getTime()) ? "" : date.toLocaleString();
+  }
+
+  private parseFieldKey(key: string): [string, string] {
+    if (this.isNullOrWhitespace(key)) {
+      return ["", ""];
+    }
+
+    let fieldType = "";
+    let fieldName = "";
+
+    if (key[0] === "$") {
+      const pos = key.indexOf(":");
+      if (pos > 0) {
+        fieldType = key.substring(1, pos).trim();
+        fieldName = key.substring(pos + 1).trim();
+      } else {
+        fieldType = key.substring(1).trim();
+        fieldName = "";
+      }
+    } else {
+      fieldType = "";
+      fieldName = key;
+    }
+
+    if (
+      fieldName.length >= 2 &&
+      fieldName[fieldName.length - 2] === ":" &&
+      /\d/.test(fieldName[fieldName.length - 1])
+    ) {
+      fieldName = fieldName.substring(0, fieldName.length - 2);
+    }
+
+    return [fieldType, fieldName];
+  }
+
   private addField(cipher: CipherView, name: string, value: any, type: FieldType = FieldType.Text) {
+    // TODO: Should "" be also discarded?
     if (value == null || typeof value === "undefined") {
       return;
     }

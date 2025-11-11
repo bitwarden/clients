@@ -43,6 +43,8 @@ handle some of the type conversion manually. Should the conversion types be forc
 - [x] No fingerprint on ssh keys
 - [x] login/password on ssh keys are stored as username/passphrase extra fields
 - [ ] Custom fields have a weird format, like `$keyPair::1`. This needs to be figured out.
+- [ ] Legacy exports are similar but not exactly the same. Need to support variants.
+- [ ] When importing dates, should a specific locale be used in `toLocaleString`?
 
 ### Missing features
 
