@@ -5,6 +5,7 @@ import { newGuid } from "@bitwarden/guid";
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
+import { CryptoError } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { HashPurpose } from "../../../platform/enums";
@@ -205,7 +206,9 @@ describe("DefaultMasterPasswordUnlockService", () => {
     });
 
     it("returns false when the master password is incorrect", async () => {
-      const error = new Error("Incorrect password");
+      const error = new Error("Incorrect password") as CryptoError;
+      error.name = "CryptoError";
+      error.variant = "InvalidKey";
       masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData.mockRejectedValue(error);
 
       const result = await sut.proofOfDecryption(mockMasterPassword, mockUserId);
@@ -218,6 +221,23 @@ describe("DefaultMasterPasswordUnlockService", () => {
       );
       expect(logService.debug).toHaveBeenCalledWith(
         `[DefaultMasterPasswordUnlockService] Error during proof of decryption for user ${mockUserId} returning false: ${error}`,
+      );
+    });
+
+    it("returns false when a generic error occurs", async () => {
+      const error = new Error("Generic error");
+      masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData.mockRejectedValue(error);
+
+      const result = await sut.proofOfDecryption(mockMasterPassword, mockUserId);
+
+      expect(result).toBe(false);
+      expect(masterPasswordService.masterPasswordUnlockData$).toHaveBeenCalledWith(mockUserId);
+      expect(masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData).toHaveBeenCalledWith(
+        mockMasterPassword,
+        mockMasterPasswordUnlockData,
+      );
+      expect(logService.error).toHaveBeenCalledWith(
+        `[DefaultMasterPasswordUnlockService] Unexpected error during proof of decryption for user ${mockUserId} returning false: ${error}`,
       );
     });
   });

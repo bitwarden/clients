@@ -3,6 +3,7 @@ import { firstValueFrom } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
+import { isCryptoError } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { HashPurpose } from "../../../platform/enums";
@@ -62,9 +63,16 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
       return userKey != null;
     } catch (error) {
       // masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData is expected to throw if the password is incorrect.
-      this.logService.debug(
-        `[DefaultMasterPasswordUnlockService] Error during proof of decryption for user ${userId} returning false: ${error}`,
-      );
+      // Currently this throws CryptoError:InvalidKey if decrypting the user key fails at all.
+      if (isCryptoError(error) && error.variant === "InvalidKey") {
+        this.logService.debug(
+          `[DefaultMasterPasswordUnlockService] Error during proof of decryption for user ${userId} returning false: ${error}`,
+        );
+      } else {
+        this.logService.error(
+          `[DefaultMasterPasswordUnlockService] Unexpected error during proof of decryption for user ${userId} returning false: ${error}`,
+        );
+      }
       return false;
     }
   }
