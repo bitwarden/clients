@@ -115,15 +115,19 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
 
   private importSshKey(record: Record, cipher: CipherView): boolean {
     const privateKey = this.findCustomField(record.custom_fields, "$keyPair/privateKey");
-    if (!privateKey) {return false;}
+    if (!privateKey) {
+      return false;
+    }
 
     let keyView: SshKeyView | null = null;
     try {
-      keyView = import_ssh_key(privateKey);
+      keyView = import_ssh_key(privateKey, cipher.login.password);
     } catch {
       return false;
     }
-    if (!keyView) {return false;}
+    if (!keyView) {
+      return false;
+    }
 
     cipher.type = CipherType.SshKey;
     cipher.sshKey.privateKey = keyView.privateKey;
@@ -132,9 +136,6 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
 
     if (!this.isNullOrWhitespace(cipher.login.username)) {
       this.addField(cipher, "username", cipher.login.username!);
-    }
-    if (!this.isNullOrWhitespace(cipher.login.password)) {
-      this.addField(cipher, "passphrase", cipher.login.password!, FieldType.Hidden);
     }
 
     const hostName = this.findCustomField(record.custom_fields, "$host/hostName");

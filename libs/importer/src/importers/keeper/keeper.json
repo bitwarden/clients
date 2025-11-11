@@ -477,6 +477,25 @@
       ]
     },
     {
+      "title": "Production Server SSH Key with a passphrase",
+      "uid": "H9qgL9gc1jGEK4hMqpIHWw",
+      "login": "deploy_user",
+      "password": "blah-blah-blah",
+      "notes": "SSH key for production server deployment - RSA 2048 bit",
+      "$type": "sshKeys",
+      "last_modified": 1762848661,
+      "custom_fields": {
+        "$keyPair": {
+          "publicKey": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDGLWOv9FqwmTvKgHse41BtJmvutu6RG9WI1aSWjTJ1DSaZqYnGSeShHN4tg4sBXdiCq2sFASQ+rkbzhA/aQCqhsvQKIHMOcHIT2L2MKe5SfDfjb26krV7rRCjhaUyAiEX1mLc3UdfonL88zWGKUCiH8W7Ael/726VQJbW8eURJb2yLQNO8UaqobzXbQVoD015G9oxdrV3NbzCI87uwY//2ak9TOfgYjWzvTTjo3yZZhqaMUdqrtSUYVhM9tA+c8/BlWJis5lKy1R+ZsbTpPcESwuA4IVI5sqPaeVbQa/iUwiyv3T45TLt+pNp0gdGWbtm7rN88Ni9id7yq0+wEkGKSCvbCdUvHR4eQPhn0F/jUupzYvwIJ5o2k7XVg1KwsCJiTK+5ZaChjdzlXCBgmzQwWPcXic/EVTjaVoGhXJUdZnNwFTdgQEGf6tkngSFIBnLUyR9fV1zmwXUfLpT/yrqVJtiUDaupoa/3TvJSVH1IVut05p7WYB/oHL+TxIrp8PF6KdiB6VVmkkknf4mV+QdmeVYMXPX66yn9ctt8NCMkTffcN0D8SD2rRwQLRyyA3HrqtUkyQnsAhJ81r6ur3S5sgSwACCpix+F64bBLeatmke7hV7qvdXIKKRB/NDNaNN9i6leyAtjYLyE5ydWdOHI/Dywuj87JXl6TKRN9TOKb3pw== generated@local\n",
+          "privateKey": "-----BEGIN OPENSSH PRIVATE KEY-----\n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\n203O/Ve2/iEoB1CDJQVO7iWcE=\n-----END OPENSSH PRIVATE KEY-----\n"
+        },
+        "$host": {
+          "hostName": "prod-server.company.com",
+          "port": "22"
+        }
+      }
+    },
+    {
       "title": "Amazon Account",
       "uid": "fZuZy2b5jZa4xcmbZgs7ng",
       "login": "john.martinez@email.com",

@@ -373,6 +373,22 @@ describe("Keeper Json Importer", () => {
     expect(getField(sshKey, "port")?.value).toEqual("22");
   });
 
+  it("should parse sshKeys with a passphrase", async () => {
+    // Cipher
+    const sshKey = getCipher(result, "Production Server SSH Key with a passphrase");
+    expect(sshKey).toBeDefined();
+    expect(sshKey.type).toEqual(CipherType.SshKey);
+
+    // Properties
+    expect(sshKey.notes).toEqual("SSH key for production server deployment - RSA 2048 bit");
+
+    // Fields
+    expect(sshKey.fields.length).toEqual(3);
+    expect(getField(sshKey, "username")?.value).toEqual("deploy_user");
+    expect(getField(sshKey, "hostname")?.value).toEqual("prod-server.company.com");
+    expect(getField(sshKey, "port")?.value).toEqual("22");
+  });
+
   it("should parse ssnCard", async () => {
     // Cipher
     const ssnCard = getCipher(result, "National Identity Card");
@@ -454,7 +470,7 @@ describe("Keeper Json Importer", () => {
     const result = await importer.parse(testDataJson);
     expect(result).toBeDefined();
     expect(result.ciphers).toBeDefined();
-    expect(result.ciphers.length).toBe(20);
+    expect(result.ciphers.length).toBe(21);
     return result;
   }
 
