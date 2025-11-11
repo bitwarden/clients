@@ -226,13 +226,29 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
               .trim();
           }
           break;
+        case "address":
+          {
+            const { street1, street2, city, state, zip, country } = value as {
+              street1?: string;
+              street2?: string;
+              city?: string;
+              state?: string;
+              zip?: string;
+              country?: string;
+            };
+            importedValue = [street1, street2, city, state, zip, country]
+              .filter((x) => !!x)
+              .join(", ")
+              .trim();
+          }
+          break;
       }
 
       this.addField(cipher, importedName, importedValue, importedType);
 
       // TODO: Remove this!
       // console.log(
-      //   `Custom field: '${key}'='${value}':\n  - type='${type}'\n  - name='${name}'\n  - value='${value}'\nConverted to:\n  - name='${importedName}'\n  - value='${importedValue}'`,
+      //   `Custom field: '${key}'='${JSON.stringify(value)}':\n  - type='${type}'\n  - name='${name}'\n  - value='${JSON.stringify(value)}'\nConverted to:\n  - name='${importedName}'\n  - value='${importedValue}'`,
       // );
     }
   }
