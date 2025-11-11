@@ -43,8 +43,8 @@ export class UserLayoutComponent implements OnInit {
   protected showSponsoredFamilies$: Observable<boolean>;
   protected showSubscription$: Observable<boolean>;
   protected disableSendPolicy$: Observable<boolean>;
-  protected disablePersonalVaultExportPolicy$: Observable<boolean>;
   // detects if policy is enabled and applies to the user, admins are exempted
+  protected disablePersonalVaultExportPolicy$: Observable<boolean>;
   protected consolidatedSessionTimeoutComponent$: Observable<boolean>;
 
   constructor(
