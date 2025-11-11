@@ -9,7 +9,7 @@ import {
 } from "../../abstractions/autofill-inline-menu-container";
 
 /**
- * Whitelist of commands allowed
+ * Allowlist of commands that can be sent to the background script.
  */
 const ALLOWED_BG_COMMANDS = new Set<string>([
   "unlockVault",
