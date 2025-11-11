@@ -2,8 +2,8 @@ import { animate, style, transition, trigger } from "@angular/animations";
 import { ChangeDetectionStrategy, Component, HostBinding } from "@angular/core";
 
 @Component({
-  selector: "vault-fade-in-skeleton",
-  templateUrl: "./vault-fade-in-skeleton.component.html",
+  selector: "vault-fade-in-out-skeleton",
+  templateUrl: "./vault-fade-in-out-skeleton.component.html",
   animations: [
     trigger("fadeInOut", [
       transition(":enter", [
