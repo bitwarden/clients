@@ -13,7 +13,7 @@ use crate::ipc2::{
     PasskeyRegistrationRequest, PasskeyRegistrationResponse, Position, TimedCallback,
     UserVerification, WindowsProviderClient,
 };
-use crate::util::{debug_log, delay_load, wstr_to_string, WindowsString};
+use crate::util::{delay_load, wstr_to_string, WindowsString};
 use crate::webauthn::WEBAUTHN_CREDENTIAL_LIST;
 
 // Windows API types for WebAuthn (from webauthn.h.sample)
@@ -285,10 +285,10 @@ unsafe fn decode_make_credential_request(
 
     // Check if the call succeeded (following C++ THROW_IF_FAILED pattern)
     if result.is_err() {
-        debug_log(&format!(
-            "ERROR: WebAuthNDecodeMakeCredentialRequest failed with HRESULT: 0x{:08x}",
+        tracing::error!(
+            "WebAuthNDecodeMakeCredentialRequest failed with HRESULT: 0x{:08x}",
             result.0
-        ));
+        );
         return Err(format!(
             "Windows API call failed with HRESULT: 0x{:08x}",
             result.0
@@ -306,13 +306,13 @@ unsafe fn decode_make_credential_request(
     ))
 }
 
-/// Helper for registration requests  
+/// Helper for registration requests
 fn send_registration_request(
     ipc_client: &WindowsProviderClient,
     request: PasskeyRegistrationRequest,
 ) -> Result<PasskeyRegistrationResponse, String> {
-    debug_log(&format!("Registration request data - RP ID: {}, User ID: {} bytes, User name: {}, Client data hash: {} bytes, Algorithms: {:?}, Excluded credentials: {}", 
-        request.rp_id, request.user_handle.len(), request.user_name, request.client_data_hash.len(), request.supported_algorithms, request.excluded_credentials.len()));
+    tracing::debug!("Registration request data - RP ID: {}, User ID: {} bytes, User name: {}, Client data hash: {} bytes, Algorithms: {:?}, Excluded credentials: {}",
+        request.rp_id, request.user_handle.len(), request.user_name, request.client_data_hash.len(), request.supported_algorithms, request.excluded_credentials.len());
 
     let request_json = serde_json::to_string(&request)
         .map_err(|err| format!("Failed to serialize registration request: {err}"))?;
@@ -490,16 +490,9 @@ pub unsafe fn plugin_make_credential(
         req.encoded_request_byte_count as usize,
     );
 
-    debug_log(&format!(
-        "Encoded request: {} bytes",
-        encoded_request_slice.len()
-    ));
-
     // Try to decode the request using Windows API
     let decoded_wrapper = decode_make_credential_request(encoded_request_slice).map_err(|err| {
-        debug_log(&format!(
-            "ERROR: Failed to decode make credential request: {err}"
-        ));
+        tracing::debug!("ERROR: Failed to decode make credential request: {}", err);
         HRESULT(-1)
     })?;
     let decoded_request = decoded_wrapper.as_ref();
@@ -621,10 +614,10 @@ pub unsafe fn plugin_make_credential(
     // Extract excluded credentials from credential list
     let excluded_credentials = parse_credential_list(&decoded_request.CredentialList);
     if !excluded_credentials.is_empty() {
-        debug_log(&format!(
+        tracing::debug!(
             "Found {} excluded credentials for make credential",
             excluded_credentials.len()
-        ));
+        );
     }
 
     // Create Windows registration request
@@ -643,10 +636,10 @@ pub unsafe fn plugin_make_credential(
         },
     };
 
-    debug_log(&format!(
+    tracing::debug!(
         "Make credential request - RP: {}, User: {}",
         rpid, registration_request.user_name
-    ));
+    );
 
     // Send registration request
     let passkey_response =
@@ -654,10 +647,10 @@ pub unsafe fn plugin_make_credential(
             tracing::error!("Registration request failed: {err}");
             HRESULT(-1)
         })?;
-    debug_log(&format!(
+    tracing::debug!(
         "Registration response received: {:?}",
         passkey_response
-    ));
+    );
 
     // Create proper WebAuthn response from passkey_response
     tracing::debug!("Creating WebAuthn make credential response");
@@ -666,9 +659,9 @@ pub unsafe fn plugin_make_credential(
             tracing::error!("Failed to create WebAuthn response: {err}");
             HRESULT(-1)
         })?;
-    debug_log(&format!(
+    tracing::debug!(
         "Successfully created WebAuthn response: {webauthn_response:?}"
-    ));
+    );
     (*response).encoded_response_byte_count = webauthn_response.len() as u32;
     (*response).encoded_response_pointer = webauthn_response.as_mut_ptr();
     tracing::debug!("Set pointer, returning HRESULT(0)");

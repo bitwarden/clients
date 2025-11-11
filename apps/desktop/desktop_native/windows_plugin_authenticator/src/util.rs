@@ -1,8 +1,3 @@
-use std::fs::{create_dir_all, OpenOptions};
-use std::io::Write;
-use std::path::Path;
-use std::time::{SystemTime, UNIX_EPOCH};
-
 use windows::Win32::Foundation::*;
 use windows::Win32::System::LibraryLoader::*;
 use windows_core::*;
@@ -49,37 +44,6 @@ impl WindowsString for str {
         wide_vec.push(0); // null terminator
         wide_vec
     }
-}
-
-pub fn file_log(msg: &str) {
-    let log_path = "C:\\temp\\bitwarden_com_debug.log";
-
-    // Create the temp directory if it doesn't exist
-    if let Some(parent) = Path::new(log_path).parent() {
-        let _ = create_dir_all(parent);
-    }
-
-    if let Ok(mut file) = OpenOptions::new().create(true).append(true).open(log_path) {
-        let now = SystemTime::now();
-        let timestamp = match now.duration_since(UNIX_EPOCH) {
-            Ok(duration) => {
-                let total_secs = duration.as_secs();
-                let millis = duration.subsec_millis();
-                let secs = total_secs % 60;
-                let mins = (total_secs / 60) % 60;
-                let hours = (total_secs / 3600) % 24;
-                format!("{:02}:{:02}:{:02}.{:03}", hours, mins, secs, millis)
-            }
-            Err(_) => "??:??:??.???".to_string(),
-        };
-
-        let _ = writeln!(file, "[{}] {}", timestamp, msg);
-    }
-}
-
-pub fn debug_log(message: &str) {
-    tracing::debug!(message);
-    file_log(message)
 }
 
 // Helper function to convert Windows wide string (UTF-16) to Rust String

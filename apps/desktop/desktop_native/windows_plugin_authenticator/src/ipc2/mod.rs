@@ -30,8 +30,6 @@ pub use registration::{
     PasskeyRegistrationRequest, PasskeyRegistrationResponse, PreparePasskeyRegistrationCallback,
 };
 
-use crate::util::debug_log;
-
 static INIT: Once = Once::new();
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -108,7 +106,6 @@ impl WindowsProviderClient {
     // FIXME: Remove unwraps! They panic and terminate the whole application.
     #[allow(clippy::unwrap_used)]
     pub fn connect() -> Self {
-        debug_log("YO!");
         INIT.call_once(|| {
             /*
             let filter = EnvFilter::builder()
@@ -116,7 +113,6 @@ impl WindowsProviderClient {
                 .from_env_lossy();
 
             let log_file_path = "C:\\temp\\bitwarden_windows_passkey_provider.log";
-            debug_log(&format!("Trying to set up log file at {log_file_path}"));
             // FIXME: Remove unwrap
             let file = std::fs::File::options()
                 .append(true)

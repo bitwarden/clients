@@ -11,7 +11,7 @@ use crate::ipc2::{
     PasskeyAssertionRequest, PasskeyAssertionResponse, Position, TimedCallback, UserVerification,
     WindowsProviderClient,
 };
-use crate::util::{debug_log, delay_load, wstr_to_string};
+use crate::util::{delay_load, wstr_to_string};
 use crate::webauthn::WEBAUTHN_CREDENTIAL_LIST;
 use crate::{
     com_provider::{
@@ -222,17 +222,9 @@ unsafe fn create_get_assertion_response(
     // Encode to CBOR with error handling
     let mut cbor_data = Vec::new();
     if let Err(e) = ciborium::ser::into_writer(&cbor_value, &mut cbor_data) {
-        debug_log(&format!(
-            "ERROR: Failed to encode CBOR assertion response: {:?}",
-            e
-        ));
+        tracing::error!("ERROR: Failed to encode CBOR assertion response: {:?}", e);
         return Err(HRESULT(-1));
     }
-
-    debug_log(&format!(
-        "Formatted CBOR assertion response: {:?}",
-        cbor_data
-    ));
 
     let response_len = cbor_data.len();
 
@@ -282,11 +274,6 @@ pub unsafe fn plugin_get_assertion(
     let req = &*request;
     let transaction_id = format!("{:?}", req.transaction_id);
     let coords = req.window_coordinates().unwrap_or((400, 400));
-
-    debug_log(&format!(
-        "Get assertion request - Transaction: {}",
-        transaction_id
-    ));
 
     if req.encoded_request_byte_count == 0 || req.encoded_request_pointer.is_null() {
         tracing::error!("No encoded request data provided");
