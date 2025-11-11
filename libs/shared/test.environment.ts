@@ -1,5 +1,3 @@
-import { TextEncoder, TextDecoder } from "util";
-
 import JSDOMEnvironment from "jest-environment-jsdom";
 
 /**
@@ -26,13 +24,5 @@ export default class FixJSDOMEnvironment extends JSDOMEnvironment {
     this.global.Headers = Headers;
     this.global.Request = Request;
     this.global.Response = Response;
-
-    // SDK/WASM code relies on TextEncoder/TextDecoder being available globally
-    if (!(this.global as any).TextEncoder) {
-      (this.global as any).TextEncoder = TextEncoder;
-    }
-    if (!(this.global as any).TextDecoder) {
-      (this.global as any).TextDecoder = TextDecoder as unknown as typeof globalThis.TextDecoder;
-    }
   }
 }
