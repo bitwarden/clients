@@ -7,8 +7,11 @@ import {
   Subscription,
   combineLatest,
   debounce,
+  debounceTime,
   distinctUntilChanged,
   filter,
+  map,
+  switchMap,
   timer,
 } from "rxjs";
 
@@ -18,6 +21,8 @@ import { SearchModule } from "@bitwarden/components";
 
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -35,6 +40,7 @@ export class VaultV2SearchComponent {
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
     private vaultPopupLoadingService: VaultPopupLoadingService,
+    private configService: ConfigService,
     private ngZone: NgZone,
   ) {
     this.subscribeToLatestSearchText();
@@ -57,21 +63,35 @@ export class VaultV2SearchComponent {
   }
 
   subscribeToApplyFilter(): void {
-    combineLatest([this.searchText$, this.loading$])
+    this.configService
+      .getFeatureFlag$(FeatureFlag.VaultLoadingSkeletons)
       .pipe(
-        debounce(([_, isLoading]) => {
-          // If loading apply immediately to avoid stale searches.
-          // After loading completes, debounce to avoid excessive searches.
-          const delayTime = isLoading ? 0 : SearchTextDebounceInterval;
-          return timer(delayTime);
+        switchMap((enabled) => {
+          if (!enabled) {
+            return this.searchText$.pipe(
+              debounceTime(SearchTextDebounceInterval),
+              distinctUntilChanged(),
+              takeUntilDestroyed(),
+            );
+          }
+
+          return combineLatest([this.searchText$, this.loading$]).pipe(
+            debounce(([_, isLoading]) => {
+              // If loading apply immediately to avoid stale searches.
+              // After loading completes, debounce to avoid excessive searches.
+              const delayTime = isLoading ? 0 : SearchTextDebounceInterval;
+              return timer(delayTime);
+            }),
+            distinctUntilChanged(
+              ([prevText, prevLoading], [newText, newLoading]) =>
+                prevText === newText && prevLoading === newLoading,
+            ),
+            takeUntilDestroyed(),
+            map(([text, _]) => text),
+          );
         }),
-        distinctUntilChanged(
-          ([prevText, prevLoading], [newText, newLoading]) =>
-            prevText === newText && prevLoading === newLoading,
-        ),
-        takeUntilDestroyed(),
       )
-      .subscribe(([text]) => {
+      .subscribe((text) => {
         this.ngZone.runOutsideAngular(() => {
           this.ngZone.run(() => {
             this.vaultPopupItemsService.applyFilter(text);
