@@ -6,7 +6,7 @@
       <app-current-account></app-current-account>
     </ng-container>
   </popup-header>
-  <ng-container slot="above-scroll-area" *ngIf="!(sendsLoading$ | async)">
+  <ng-container slot="above-scroll-area">
     <bit-callout *ngIf="sendsDisabled" [title]="'sendDisabled' | i18n">
       {{ "sendDisabledWarning" | i18n }}
     </bit-callout>
