@@ -278,16 +278,38 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * Builds and prepends an internal stylesheet to the container node with rules
    * to prevent targeting by the host's global styling rules. This should only be
    * used for pseudo elements such as `::backdrop` or `::before`. All other
-   * styles should be applied inline upon the parent container itself.
+   * styles should be applied inline upon the parent container itself for improved
+   * specificity priority.
    */
   private createInternalStyleNode(parent: HTMLElement) {
     const css = document.createTextNode(`
-      ${parent.tagName}::backdrop {
+      ${parent.tagName}[popover="manual"]::backdrop,
+      ${parent.tagName}[popover="manual"]::before,
+      ${parent.tagName}[popover="manual"]::after {
+        all: initial !important;
+        backdrop-filter: none !important;
+        filter: none !important;
+        inset: auto !important;
+        touch-action: auto !important;
+        user-select: text !important;
+        position: relative !important;
+        top: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        left: auto !important;
+        transform: none !important;
+        transform-origin: 50% 50% !important;
+        opacity: 1 !important;
+        mix-blend-mode: normal !important;
+        isolation: isolate !important;
+        z-index: 0 !important;
         background: none !important;
-        pointer-events: none !important;
-      }
-      ${parent.tagName}::before, ${parent.tagName}::after {
-        content:"" !important;
+        background-color: transparent !important;
+        background-image: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        content: "" !important;
+        pointer-events: all !important;
       }
     `);
     const style = globalThis.document.createElement("style");
