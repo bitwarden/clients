@@ -505,7 +505,7 @@ export class RiskInsightsOrchestratorService {
         const updatedSummaryData = this.reportService.getApplicationsSummary(
           report!.reportData,
           updatedApplicationData,
-          report.summaryData.totalMemberCount,
+          report!.summaryData.totalMemberCount,
         );
         // Used for creating metrics with updated application data
         const manualEnrichedApplications = report!.reportData.map(
