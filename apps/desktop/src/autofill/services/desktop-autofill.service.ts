@@ -210,12 +210,14 @@ export class DesktopAutofillService implements OnDestroy {
       this.logService.debug("listenPasskeyRegistration2", this.convertRegistrationRequest(request));
 
       const controller = new AbortController();
+      const ctx = request.context ? new Uint8Array(request.context).buffer : null;
 
       try {
         const response = await this.fido2AuthenticatorService.makeCredential(
           this.convertRegistrationRequest(request),
           { windowXy: request.windowXy },
           controller,
+          ctx
         );
 
         this.logService.debug("Sending registration response to plugin via callback");

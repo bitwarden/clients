@@ -19,6 +19,7 @@ export abstract class Fido2AuthenticatorService<ParentWindowReference> {
     params: Fido2AuthenticatorMakeCredentialsParams,
     window: ParentWindowReference,
     abortController?: AbortController,
+    transactionContext?: ArrayBuffer,
   ): Promise<Fido2AuthenticatorMakeCredentialResult>;
 
   /**

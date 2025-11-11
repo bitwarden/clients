@@ -627,6 +627,8 @@ pub unsafe fn plugin_make_credential(
         ));
     }
 
+    let transaction_id = req.transaction_id.to_u128().to_le_bytes().to_vec();
+
     // Create Windows registration request
     let registration_request = PasskeyRegistrationRequest {
         rp_id: rpid.clone(),
@@ -641,6 +643,7 @@ pub unsafe fn plugin_make_credential(
             x: coords.0,
             y: coords.1,
         },
+        context: transaction_id,
     };
 
     debug_log(&format!(
