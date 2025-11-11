@@ -3772,7 +3772,7 @@
     "message": "Devices"
   },
   "triggerTunnelDemo": {
-    "message": "Trigger tunnel demo"
+    "message": "Trigger tunnel demo ⚠️"
   },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",
@@ -4756,6 +4756,9 @@
   },
   "demoSettings": {
     "message": "Demo settings"
+  },
+  "demoRetrieve": {
+    "message": "Fetch"
   },
   "notifications": {
     "message": "Notifications"

@@ -5,7 +5,21 @@
     </ng-container>
   </popup-header>
 
-  <div class="tw-p-4">
-    <p class="tw-text-center tw-text-muted">Credential Tunnel Demo triggered</p>
-  </div>
+  <bit-section>
+    <bit-section-header>
+      <h2 bitTypography="h6">{{ "retrieveCredentials" | i18n }}</h2>
+    </bit-section-header>
+    <bit-card>
+      <form [formGroup]="formGroup" (ngSubmit)="submit()">
+        <bit-form-field>
+          <bit-label>{{ "vaultItemName" | i18n }}</bit-label>
+          <input bitInput type="text" formControlName="vaultItemName" />
+          <bit-hint>Enter the name of the vault item to retrieve credentials from.</bit-hint>
+        </bit-form-field>
+        <button bitButton buttonType="primary" type="submit" [disabled]="formGroup.invalid">
+          {{ "demoRetrieve" | i18n }}
+        </button>
+      </form>
+    </bit-card>
+  </bit-section>
 </popup-page>
