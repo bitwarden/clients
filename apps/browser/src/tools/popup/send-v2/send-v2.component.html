@@ -17,7 +17,7 @@
   </ng-container>
 
   <div
-    *ngIf="listState === sendState.Empty"
+    *ngIf="listState === sendState.Empty && !(sendsLoading$ | async)"
     class="tw-flex tw-flex-col tw-h-full tw-justify-center"
   >
     <bit-no-items [icon]="noItemIcon" class="tw-text-main">
@@ -27,7 +27,7 @@
       </ng-container>
       <tools-new-send-dropdown
         [hideIcon]="true"
-        *ngIf="!sendsDisabled"
+        *ngIf="!sendsDisabled && !(sendsLoading$ | async)"
         slot="button"
         [buttonType]="'secondary'"
       ></tools-new-send-dropdown>
@@ -46,7 +46,6 @@
     </div>
     <app-send-list-items-container [headerText]="title | i18n" [sends]="sends$ | async" />
   </ng-container>
-
   @if (sendsLoading$ | async) {
     <vault-fade-in-skeleton>
       <vault-loading-skeleton></vault-loading-skeleton>
