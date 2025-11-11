@@ -13,15 +13,22 @@ import {
   startWith,
   switchMap,
   take,
+  withLatestFrom,
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { DeactivatedOrg, NoResults, VaultOpen } from "@bitwarden/assets/svg";
+import {
+  AutoConfirmExtensionSetupDialogComponent,
+  AutoConfirmState,
+  AutomaticUserConfirmationService,
+} from "@bitwarden/auto-confirm";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -30,6 +37,7 @@ import {
   ButtonModule,
   DialogService,
   NoItemsModule,
+  ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 import { DecryptionFailureDialogComponent } from "@bitwarden/vault";
@@ -158,6 +166,9 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private introCarouselService: IntroCarouselService,
     private nudgesService: NudgesService,
     private router: Router,
+    private autoConfirmService: AutomaticUserConfirmationService,
+    private toastService: ToastService,
+    private i18nService: I18nService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
@@ -212,6 +223,37 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
           cipherIds: ciphers.map((c) => c.id as CipherId),
         });
       });
+
+    const autoConfirmState$ = this.autoConfirmService.configuration$(this.activeUserId);
+
+    combineLatest([
+      this.autoConfirmService.canManageAutoConfirm$(this.activeUserId),
+      autoConfirmState$,
+    ])
+      .pipe(
+        filter(([canManage, state]) => canManage && state.showBrowserNotification === undefined),
+        take(1),
+        switchMap(() => AutoConfirmExtensionSetupDialogComponent.open(this.dialogService).closed),
+        withLatestFrom(autoConfirmState$, this.accountService.activeAccount$.pipe(getUserId)),
+        switchMap(([result, state, userId]) => {
+          const newState: AutoConfirmState = {
+            ...state,
+            enabled: result ?? false,
+            showBrowserNotification: !result,
+          };
+
+          if (result) {
+            this.toastService.showToast({
+              message: this.i18nService.t("autoConfirmEnabled"),
+              variant: "success",
+            });
+          }
+
+          return this.autoConfirmService.upsert(userId, newState);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 
   ngOnDestroy() {
