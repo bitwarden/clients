@@ -158,7 +158,11 @@ export class AutofillInlineMenuContainer {
   }
 
   /**
-   * posts a message to the inline menu page iframe without token validation, used internally when we need to send raw postMessage.
+   * Posts a message to the inline menu page iframe without token validation.
+   *
+   * UNSAFE: Bypasses token authentication and sends raw messages. Only use internally
+   * when sending trusted messages (e.g., initialization) or when token validation
+   * would create circular dependencies. External callers should use postMessageToInlineMenuPage().
    *
    * @param message - The message to post.
    */
