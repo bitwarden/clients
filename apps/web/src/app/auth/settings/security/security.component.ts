@@ -1,6 +1,9 @@
 import { Component, OnInit } from "@angular/core";
+import { Observable } from "rxjs";
 
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
@@ -14,8 +17,16 @@ import { SharedModule } from "../../../shared";
 export class SecurityComponent implements OnInit {
   showChangePassword = true;
   changePasswordRoute = "password";
+  consolidatedSessionTimeoutComponent$: Observable<boolean>;
 
-  constructor(private userVerificationService: UserVerificationService) {}
+  constructor(
+    private userVerificationService: UserVerificationService,
+    private configService: ConfigService,
+  ) {
+    this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
+      FeatureFlag.ConsolidatedSessionTimeoutComponent,
+    );
+  }
 
   async ngOnInit() {
     this.showChangePassword = await this.userVerificationService.hasMasterPassword();

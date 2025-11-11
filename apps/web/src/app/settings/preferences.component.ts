@@ -39,6 +39,11 @@ import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 import { HeaderModule } from "../layouts/header/header.module";
 import { SharedModule } from "../shared";
 
+/**
+ * @deprecated Use {@link AppearanceComponent} and {@link SessionTimeoutComponent} instead.
+ *
+ * TODO Cleanup once feature flag enabled: https://bitwarden.atlassian.net/browse/PM-27297
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -211,6 +216,8 @@ export class PreferencesComponent implements OnInit, OnDestroy {
       values.vaultTimeout,
       values.vaultTimeoutAction,
     );
+
+    // Save other preferences (theme, locale, favicons)
     await this.domainSettingsService.setShowFavicons(values.enableFavicons);
     await this.themeStateService.setSelectedTheme(values.theme);
     await this.i18nService.setLocale(values.locale);
