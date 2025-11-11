@@ -32,7 +32,7 @@
     "message": "使用單一登入"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "您的組織需要單一登入。"
   },
   "welcomeBack": {
     "message": "歡迎回來"
@@ -1523,12 +1523,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "啟動時要求生物特徵辨識"
   },
-  "premiumRequired": {
-    "message": "需要進階會員資格"
-  },
-  "premiumRequiredDesc": {
-    "message": "進階會員才可使用此功能。"
-  },
   "authenticationTimeout": {
     "message": "驗證逾時"
   },
@@ -1640,6 +1634,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "您必須新增伺服器網域 URL 或至少一個自訂環境。"
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL 必須使用 HTTPS。"
   },
   "customEnvironment": {
     "message": "自訂環境"
@@ -4977,6 +4974,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Default ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "顯示偵測到的吻合 $WEBSITE$",
     "placeholders": {
@@ -5768,6 +5775,30 @@
   },
   "atRiskLoginsSecured": {
     "message": "你已成功保護有風險的登入項目，做得好！"
+  },
+  "upgradeNow": {
+    "message": "立即升級"
+  },
+  "builtInAuthenticator": {
+    "message": "內建驗證器"
+  },
+  "secureFileStorage": {
+    "message": "安全檔案儲存"
+  },
+  "emergencyAccess": {
+    "message": "緊急存取"
+  },
+  "breachMonitoring": {
+    "message": "外洩監控"
+  },
+  "andMoreFeatures": {
+    "message": "以及其他功能功能！"
+  },
+  "planDescPremium": {
+    "message": "完整的線上安全"
+  },
+  "upgradeToPremium": {
+    "message": "升級到 Premium"
   },
   "settingDisabledByPolicy": {
     "message": "此設定已被你的組織原則停用。",

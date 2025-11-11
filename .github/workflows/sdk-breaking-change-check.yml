@@ -1,10 +1,26 @@
 # This workflow runs TypeScript compatibility checks when the SDK is updated.
-# Triggered automatically by the SDK repository via repository_dispatch when SDK PRs are created/updated.
+# Triggered automatically by the SDK repository via workflow_dispatch when SDK PRs are created/updated.
 name: SDK Breaking Change Check
-run-name: "SDK breaking change check (${{ github.event.client_payload.sdk_version }})"
+run-name: "SDK breaking change check (${{ github.event.inputs.sdk_version }})"
 on:
-  repository_dispatch:
-    types: [sdk-breaking-change-check]
+  workflow_dispatch:
+    inputs:
+      sdk_version:
+        description: "SDK version being tested"
+        required: true
+        type: string
+      source_repo:
+        description: "Source repository"
+        required: true
+        type: string
+      artifacts_run_id:
+        description: "Artifacts run ID"
+        required: true
+        type: string
+      artifact_name:
+        description: "Artifact name"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -17,12 +33,11 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      _SOURCE_REPO: ${{ github.event.client_payload.source_repo }}
-      _SDK_VERSION: ${{ github.event.client_payload.sdk_version }}
-      _ARTIFACTS_RUN_ID: ${{ github.event.client_payload.artifacts_info.run_id }}
-      _ARTIFACT_NAME: ${{ github.event.client_payload.artifacts_info.artifact_name }}
-      _CLIENT_LABEL: ${{ github.event.client_payload.client_label }}
-
+      _SOURCE_REPO: ${{ github.event.inputs.source_repo }}
+      _SDK_VERSION: ${{ github.event.inputs.sdk_version }}
+      _ARTIFACTS_RUN_ID: ${{ github.event.inputs.artifacts_run_id }}
+      _ARTIFACT_NAME: ${{ github.event.inputs.artifact_name }}
+      
     steps:
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -45,21 +60,7 @@ jobs:
           private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
-      - name: Validate inputs
-        run: |
-          echo "🔍 Validating required client_payload fields..."
 
-          if [ -z "${_SOURCE_REPO}" ] || [ -z "${_SDK_VERSION}" ] || [ -z "${_ARTIFACTS_RUN_ID}" ] || [ -z "${_ARTIFACT_NAME}" ]; then
-            echo "::error::Missing required client_payload fields"
-            echo "SOURCE_REPO: ${_SOURCE_REPO}"
-            echo "SDK_VERSION: ${_SDK_VERSION}"
-            echo "ARTIFACTS_RUN_ID: ${_ARTIFACTS_RUN_ID}"
-            echo "ARTIFACT_NAME: ${_ARTIFACT_NAME}"
-            echo "CLIENT_LABEL: ${_CLIENT_LABEL}"
-            exit 1
-          fi
-
-          echo "✅ All required payload fields are present"
       - name: Check out clients repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
@@ -134,34 +135,30 @@ jobs:
       - name: Run TypeScript compatibility check
         run: |
 
-          echo "🔍 Running TypeScript type checking for ${_CLIENT_LABEL} client with SDK version: ${_SDK_VERSION}"
+          echo "🔍 Running TypeScript type checking with SDK version: ${_SDK_VERSION}"
           echo "🎯 Type checking command: npm run test:types"
 
           # Add GitHub Step Summary output
-          {
-            echo "## 📊 TypeScript Compatibility Check (${_CLIENT_LABEL})"
-            echo "- **Client**: ${_CLIENT_LABEL}"
-            echo "- **SDK Version**: ${_SDK_VERSION}"
-            echo "- **Source Repository**: ${_SOURCE_REPO}"
-            echo "- **Artifacts Run ID**: ${_ARTIFACTS_RUN_ID}"
-            echo ""
-          } >> "$GITHUB_STEP_SUMMARY"
-
-
+          echo "## 📊 TypeScript Compatibility Check" >> $GITHUB_STEP_SUMMARY
+          echo "- **SDK Version**: ${_SDK_VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Source Repository**: ${_SOURCE_REPO}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Artifacts Run ID**: ${_ARTIFACTS_RUN_ID}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
           TYPE_CHECK_START=$(date +%s)
 
           # Run type check with timeout - exit code determines gh run watch result
           if timeout 10m npm run test:types; then
             TYPE_CHECK_END=$(date +%s)
             TYPE_CHECK_DURATION=$((TYPE_CHECK_END - TYPE_CHECK_START))
-            echo "✅ TypeScript compilation successful for ${_CLIENT_LABEL} client (${TYPE_CHECK_DURATION}s)"
-            echo "✅ **Result**: TypeScript compilation successful" >> "$GITHUB_STEP_SUMMARY"
-            echo "No breaking changes detected in ${_CLIENT_LABEL} client for SDK version ${_SDK_VERSION}" >> "$GITHUB_STEP_SUMMARY"
+            echo "✅ TypeScript compilation successful (${TYPE_CHECK_DURATION}s)"
+            echo "✅ **Result**: TypeScript compilation successful" >> $GITHUB_STEP_SUMMARY
+            echo "No breaking changes detected for SDK version ${_SDK_VERSION}" >> $GITHUB_STEP_SUMMARY
           else
             TYPE_CHECK_END=$(date +%s)
             TYPE_CHECK_DURATION=$((TYPE_CHECK_END - TYPE_CHECK_START))
-            echo "❌ TypeScript compilation failed for ${_CLIENT_LABEL} client after ${TYPE_CHECK_DURATION}s - breaking changes detected"
-            echo "❌ **Result**: TypeScript compilation failed" >> "$GITHUB_STEP_SUMMARY"
-            echo "Breaking changes detected in ${_CLIENT_LABEL} client for SDK version ${_SDK_VERSION}" >> "$GITHUB_STEP_SUMMARY"
+            echo "❌ TypeScript compilation failed after ${TYPE_CHECK_DURATION}s - breaking changes detected"
+            echo "❌ **Result**: TypeScript compilation failed" >> $GITHUB_STEP_SUMMARY
+            echo "Breaking changes detected for SDK version ${_SDK_VERSION}" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi

@@ -87,7 +87,7 @@
             <bit-tab-group [(selectedIndex)]="tabIndex" (selectedIndexChange)="onTabChange($event)">
               @if (isRiskInsightsActivityTabFeatureEnabled) {
                 <bit-tab label="{{ 'activity' | i18n }}">
-                  <dirt-all-activity></dirt-all-activity>
+                  <dirt-all-activity [organizationId]="this.organizationId"></dirt-all-activity>
                 </bit-tab>
               }
               <bit-tab label="{{ 'allApplicationsWithCount' | i18n: appsCount }}">
