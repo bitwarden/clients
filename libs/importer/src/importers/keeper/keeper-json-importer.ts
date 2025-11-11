@@ -252,13 +252,48 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
             };
 
             const parts = [];
-            if (region) {parts.push(`(${region})`);} // TODO: Convert to +<code> format?
-            if (number) {parts.push(number);}
-            if (ext) {parts.push(`ext. ${ext}`);}
-            if (type) {parts.push(`(${type})`);}
+            if (region) {
+              parts.push(`(${region})`);
+            } // TODO: Convert to +<code> format?
+            if (number) {
+              parts.push(number);
+            }
+            if (ext) {
+              parts.push(`ext. ${ext}`);
+            }
+            if (type) {
+              parts.push(`(${type})`);
+            }
 
             importedValue = parts.join(" ").trim();
           }
+          break;
+        case "bankAccount":
+          {
+            const { accountType, otherType, accountNumber, routingNumber } = value as {
+              accountType?: string;
+              otherType?: string;
+              accountNumber?: string;
+              routingNumber?: string;
+            };
+
+            const parts = [];
+            const type = otherType || accountType;
+            if (type) {
+              parts.push(`Type: ${type}`);
+            }
+            if (accountNumber) {
+              parts.push(`Account Number: ${accountNumber}`);
+            }
+            if (routingNumber) {
+              parts.push(`Routing Number: ${routingNumber}`);
+            }
+
+            importedValue = parts.join(", ").trim();
+          }
+          break;
+        default:
+          // Do nothing, default conversion is fine
           break;
       }
 

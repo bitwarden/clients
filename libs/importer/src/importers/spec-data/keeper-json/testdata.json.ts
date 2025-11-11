@@ -121,11 +121,11 @@ export const TestData = {
       },
       folders: [
         {
-          folder:
-            "Development\\Name/with\\\\both/slashes\\Name/with/forward/slashes\\Name\\\\with\\\\backslashes",
+          folder: "Development\\Name/with\\\\both/slashes\\Name/with/forward/slashes",
         },
         {
-          folder: "Development\\Name/with\\\\both/slashes\\Name/with/forward/slashes",
+          folder:
+            "Development\\Name/with\\\\both/slashes\\Name/with/forward/slashes\\Name\\\\with\\\\backslashes",
         },
       ],
     },
@@ -272,11 +272,11 @@ export const TestData = {
       },
       folders: [
         {
-          folder:
-            "Development\\Name/with\\\\both/slashes\\Name/with/forward/slashes\\Name\\\\with\\\\backslashes",
+          folder: "Development\\Web",
         },
         {
-          folder: "Development\\Web",
+          folder:
+            "Development\\Name/with\\\\both/slashes\\Name/with/forward/slashes\\Name\\\\with\\\\backslashes",
         },
       ],
     },
@@ -425,6 +425,24 @@ export const TestData = {
           folder: "Work\\Projects\\2025\\Q4",
         },
       ],
+    },
+    {
+      title: "Other bank",
+      uid: "bWG_hWTz--kLtseN6CKiSg",
+      $type: "bankAccount",
+      last_modified: 1762881740,
+      custom_fields: {
+        $bankAccount: {
+          accountType: "Other",
+          routingNumber: "",
+          accountNumber: "12345678",
+          otherType: "Crypto",
+        },
+        $name: {
+          first: "Mark",
+          last: "Zwei",
+        },
+      },
     },
     {
       title: "Web Server - Production",

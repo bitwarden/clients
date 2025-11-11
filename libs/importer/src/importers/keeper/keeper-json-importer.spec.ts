@@ -81,8 +81,24 @@ describe("Keeper Json Importer", () => {
 
     // Fields
     expect(bankAccount.fields.length).toEqual(2);
-    expect(getField(bankAccount, "bankAccount")).toBeDefined();
+    expect(getField(bankAccount, "bankAccount")?.value).toEqual(
+      "Type: Checking, Account Number: 8472651938, Routing Number: 121000248",
+    );
     expect(getField(bankAccount, "name")?.value).toEqual("Michael James Thompson");
+  });
+
+  it("should parse bankAccount with other type", async () => {
+    // Cipher
+    const bankAccount = getCipher(result, "Other bank");
+    expect(bankAccount).toBeDefined();
+    expect(bankAccount.type).toEqual(CipherType.SecureNote);
+
+    // Fields
+    expect(bankAccount.fields.length).toEqual(2);
+    expect(getField(bankAccount, "bankAccount")?.value).toEqual(
+      "Type: Crypto, Account Number: 12345678",
+    );
+    expect(getField(bankAccount, "name")?.value).toEqual("Mark Zwei");
   });
 
   it("should parse bankCard", async () => {
@@ -471,7 +487,7 @@ describe("Keeper Json Importer", () => {
     const result = await importer.parse(testDataJson);
     expect(result).toBeDefined();
     expect(result.ciphers).toBeDefined();
-    expect(result.ciphers.length).toBe(21);
+    expect(result.ciphers.length).toBe(22);
     return result;
   }
 
