@@ -83,7 +83,7 @@ export class RiskInsightsReportService {
   getApplicationsSummary(
     reports: ApplicationHealthReportDetail[],
     applicationData: OrganizationReportApplication[],
-    totalMemberCount: number = 0,
+    totalMemberCount: number,
   ): OrganizationReportSummary {
     const atRiskUniqueMembers = getUniqueMembers(reports.flatMap((x) => x.atRiskMemberDetails));
 
