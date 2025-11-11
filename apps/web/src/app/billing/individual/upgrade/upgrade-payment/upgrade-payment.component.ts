@@ -348,7 +348,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
 
   // Create an observable for tax calculation
   private refreshSalesTax$(): Observable<number> {
-    if (this.formGroup.invalid || !this.selectedPlan) {
+    if (this.formGroup.invalid || !this.selectedPlan()) {
       return of(this.INITIAL_TAX_VALUE);
     }
 
