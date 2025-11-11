@@ -281,6 +281,25 @@ export const TestData = {
       ],
     },
     {
+      title: "Invalid SSH key",
+      uid: "mP3O9xfpvyOHdI4fzyZuAA",
+      login: "deploy_user",
+      password: "blah-blah-blah",
+      notes: "Broken ssh key",
+      $type: "sshKeys",
+      last_modified: 1762884879,
+      custom_fields: {
+        $keyPair: {
+          publicKey: "blah blah public key",
+          privateKey: "blah blah blah private key",
+        },
+        $host: {
+          hostName: "prod-server.company.com",
+          port: "22",
+        },
+      },
+    },
+    {
       title: "Production Server SSH Key",
       uid: "E1124I_NzDheHSckN3cEQA",
       login: "deploy_user",

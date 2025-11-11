@@ -73,6 +73,8 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
           if (!this.importSshKey(record, cipher)) {
             // Otherwise, fallback to secure note
             cipher.type = CipherType.SecureNote;
+            // Make sure the passphrase is not lost, if any. The key pair will be imported as a custom field.
+            this.addField(cipher, "Passphrase", cipher.login.password, FieldType.Hidden);
           }
           break;
       }
@@ -135,16 +137,16 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     cipher.sshKey.keyFingerprint = keyView.fingerprint;
 
     if (!this.isNullOrWhitespace(cipher.login.username)) {
-      this.addField(cipher, "username", cipher.login.username!);
+      this.addField(cipher, "Username", cipher.login.username!);
     }
 
     const hostName = this.findCustomField(record.custom_fields, "$host/hostName");
     if (hostName) {
-      this.addField(cipher, "hostname", hostName);
+      this.addField(cipher, "Hostname", hostName);
     }
     const port = this.findCustomField(record.custom_fields, "$host/port");
     if (port) {
-      this.addField(cipher, "port", port);
+      this.addField(cipher, "Port", port);
     }
 
     // These should not be imported as custom fields since they are mapped to ssh key properties
@@ -184,8 +186,15 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
         case "host":
           {
             const { hostName, port } = value as { hostName?: string; port?: string };
-            this.addField(cipher, "hostname", hostName);
-            this.addField(cipher, "port", port);
+            this.addField(cipher, "Hostname", hostName);
+            this.addField(cipher, "Port", port);
+          }
+          break;
+        case "keyPair":
+          {
+            const { publicKey, privateKey } = value as { publicKey?: string; privateKey?: string };
+            this.addField(cipher, "Public key", publicKey);
+            this.addField(cipher, "Private key", privateKey, FieldType.Hidden);
           }
           break;
         default:

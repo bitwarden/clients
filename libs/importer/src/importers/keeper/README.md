@@ -47,6 +47,7 @@ handle some of the type conversion manually. Should the conversion types be forc
 - [ ] When importing dates, should a specific locale be used in `toLocaleString`?
 - [ ] Phone number format is a bit funky: `(AF) 5415558723 ext. 5577 (Work)`. Would be good to
       replace the region with +code.
+- [x] An invalid ssh key should be added as a secure note
 
 ### Missing features
 
