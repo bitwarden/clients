@@ -51,6 +51,7 @@ describe("DefaultAuthRequestAnsweringService", () => {
     });
     accountService.accounts$ = of({
       [userId]: { email: "user@example.com", emailVerified: true, name: "User" },
+      [otherUserId]: { email: "other@example.com", emailVerified: true, name: "Other User" },
     });
 
     sut = new DefaultAuthRequestAnsweringService(
@@ -62,16 +63,43 @@ describe("DefaultAuthRequestAnsweringService", () => {
     );
   });
 
-  describe("userMeetsConditionsToShowApprovalDialog()", () => {
-    it("should return true if user is Unlocked, active, and not required to set/change their master password", async () => {
+  describe("activeUserMeetsConditionsToShowApprovalDialog()", () => {
+    it("should return true if user is active, the intended recipient of the auth request, Unlocked, and not required to set/change their master password", async () => {
       // Arrange
       authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
 
       // Act
-      const result = await sut.userMeetsConditionsToShowApprovalDialog(userId);
+      const result = await sut.activeUserMeetsConditionsToShowApprovalDialog(userId);
 
       // Assert
       expect(result).toBe(true);
+    });
+
+    it("should return false if user is not the active user", async () => {
+      // Arrange
+      accountService.activeAccount$ = of({
+        id: otherUserId,
+        email: "other@example.com",
+        emailVerified: true,
+        name: "Other User",
+      });
+
+      // Act
+      const result = await sut.activeUserMeetsConditionsToShowApprovalDialog(userId);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it("should return false if active user is not the intended recipient of the auth request", async () => {
+      // Arrange
+      authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+
+      // Act
+      const result = await sut.activeUserMeetsConditionsToShowApprovalDialog(otherUserId);
+
+      // Assert
+      expect(result).toBe(false);
     });
 
     it("should return false if user is not Unlocked", async () => {
@@ -79,36 +107,31 @@ describe("DefaultAuthRequestAnsweringService", () => {
       authService.activeAccountStatus$ = of(AuthenticationStatus.Locked);
 
       // Act
-      const result = await sut.userMeetsConditionsToShowApprovalDialog(userId);
+      const result = await sut.activeUserMeetsConditionsToShowApprovalDialog(userId);
 
       // Assert
       expect(result).toBe(false);
     });
 
-    it("should return false if user is not the active user", async () => {
+    it("should return false if user is not Unlocked", async () => {
       // Arrange
-      accountService.activeAccount$ = of({
-        id: otherUserId,
-        email: "other-user@example.com",
-        emailVerified: true,
-        name: "Other User",
-      });
+      authService.activeAccountStatus$ = of(AuthenticationStatus.Locked);
 
       // Act
-      const result = await sut.userMeetsConditionsToShowApprovalDialog(userId);
+      const result = await sut.activeUserMeetsConditionsToShowApprovalDialog(userId);
 
       // Assert
       expect(result).toBe(false);
     });
 
-    it("should return false if user is required to set/change their master password", async () => {
+    it("should return false if active user is required to set/change their master password", async () => {
       // Arrange
       masterPasswordService.forceSetPasswordReason$.mockReturnValue(
         of(ForceSetPasswordReason.WeakMasterPassword),
       );
 
       // Act
-      const result = await sut.userMeetsConditionsToShowApprovalDialog(userId);
+      const result = await sut.activeUserMeetsConditionsToShowApprovalDialog(userId);
 
       // Assert
       expect(result).toBe(false);

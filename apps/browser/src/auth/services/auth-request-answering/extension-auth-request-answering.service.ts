@@ -46,18 +46,21 @@ export class ExtensionAuthRequestAnsweringService
     );
   }
 
-  async receivedPendingAuthRequest(userId: UserId, authRequestId: string): Promise<void> {
+  async receivedPendingAuthRequest(
+    authRequestUserId: UserId,
+    authRequestId: string,
+  ): Promise<void> {
     if (!authRequestId) {
       throw new Error("authRequestId not found.");
     }
 
     // Always persist the pending marker for this user to global state.
-    await this.pendingAuthRequestsState.add(userId);
+    await this.pendingAuthRequestsState.add(authRequestUserId);
 
-    const userMeetsConditionsToShowApprovalDialog =
-      await this.userMeetsConditionsToShowApprovalDialog(userId);
+    const activeUserMeetsConditionsToShowApprovalDialog =
+      await this.activeUserMeetsConditionsToShowApprovalDialog(authRequestUserId);
 
-    if (userMeetsConditionsToShowApprovalDialog) {
+    if (activeUserMeetsConditionsToShowApprovalDialog) {
       // Send message to open dialog immediately for this request
       this.messagingService.send("openLoginApproval", {
         // Include the authRequestId so the DeviceManagementComponent can upsert the correct device.
@@ -67,11 +70,11 @@ export class ExtensionAuthRequestAnsweringService
     } else {
       // Create a system notification
       const accounts = await firstValueFrom(this.accountService.accounts$);
-      const accountInfo = accounts[userId];
+      const accountInfo = accounts[authRequestUserId];
 
       if (!accountInfo) {
-        this.logService.error(`Account not found for userId: ${userId}`);
-        this.validationService.showError(`Account not found for userId: ${userId}`);
+        this.logService.error(`Account not found for userId: ${authRequestUserId}`);
+        this.validationService.showError(`Account not found for userId: ${authRequestUserId}`);
         return;
       }
 
@@ -85,8 +88,10 @@ export class ExtensionAuthRequestAnsweringService
     }
   }
 
-  async userMeetsConditionsToShowApprovalDialog(userId: UserId): Promise<boolean> {
-    const meetsBasicConditions = await super.userMeetsConditionsToShowApprovalDialog(userId);
+  async activeUserMeetsConditionsToShowApprovalDialog(authRequestUserId: UserId): Promise<boolean> {
+    const meetsBasicConditions = await super.activeUserMeetsConditionsToShowApprovalDialog(
+      authRequestUserId,
+    );
 
     // To show an approval dialog immediately on Extension, the popup must be open.
     const isPopupOpen = await this.platformUtilsService.isPopupOpen();

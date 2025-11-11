@@ -36,19 +36,22 @@ export class DesktopAuthRequestAnsweringService
   }
 
   /**
-   * @param userId The UserId that the auth request is for.
+   * @param authRequestUserId The UserId that the auth request is for.
    * @param authRequestId The authRequestId param is not used on Desktop because clicks on a
    *                      Desktop notification do not run any auth-request-specific actions.
    *                      All clicks simply open the Desktop window. See electron-main-messaging.service.ts.
    */
-  async receivedPendingAuthRequest(userId: UserId, authRequestId: string): Promise<void> {
+  async receivedPendingAuthRequest(
+    authRequestUserId: UserId,
+    authRequestId: string,
+  ): Promise<void> {
     // Always persist the pending marker for this user to global state.
-    await this.pendingAuthRequestsState.add(userId);
+    await this.pendingAuthRequestsState.add(authRequestUserId);
 
-    const userMeetsConditionsToShowApprovalDialog =
-      await this.userMeetsConditionsToShowApprovalDialog(userId);
+    const activeUserMeetsConditionsToShowApprovalDialog =
+      await this.activeUserMeetsConditionsToShowApprovalDialog(authRequestUserId);
 
-    if (userMeetsConditionsToShowApprovalDialog) {
+    if (activeUserMeetsConditionsToShowApprovalDialog) {
       // Send message to open dialog immediately for this request
       this.messagingService.send("openLoginApproval");
     }
@@ -60,13 +63,13 @@ export class DesktopAuthRequestAnsweringService
     // - User does meet conditions, but the Desktop window is not visible
     //   - In this second case, we both send the "openLoginApproval" message (above) AND
     //     also create the system notification to notify the user that the dialog is there.
-    if (!userMeetsConditionsToShowApprovalDialog || !isWindowVisible) {
+    if (!activeUserMeetsConditionsToShowApprovalDialog || !isWindowVisible) {
       const accounts = await firstValueFrom(this.accountService.accounts$);
-      const accountInfo = accounts[userId];
+      const accountInfo = accounts[authRequestUserId];
 
       if (!accountInfo) {
-        this.logService.error(`Account not found for userId: ${userId}`);
-        this.validationService.showError(`Account not found for userId: ${userId}`);
+        this.logService.error(`Account not found for userId: ${authRequestUserId}`);
+        this.validationService.showError(`Account not found for userId: ${authRequestUserId}`);
         return;
       }
 

@@ -11,20 +11,24 @@ export abstract class AuthRequestAnsweringService {
    * Only way to clear out the global state is to respond to the auth request.
    * - Implemented on Extension and Desktop.
    *
-   * @param userId The UserId that the auth request is for.
+   * @param authRequestUserId The UserId that the auth request is for.
    * @param authRequestId The id of the auth request that is to be processed.
    */
-  abstract receivedPendingAuthRequest?(userId: UserId, authRequestId: string): Promise<void>;
+  abstract receivedPendingAuthRequest?(
+    authRequestUserId: UserId,
+    authRequestId: string,
+  ): Promise<void>;
 
   /**
-   * Confirms whether or not the user meets the conditions required to show an approval
-   * dialog immediately.
+   * Confirms whether or not the user meets the conditions required to show them an
+   * approval dialog immediately.
    *
-   * @param userId the UserId that the auth request is for.
-   * @returns boolean stating whether or not the user meets conditions necessary to show
-   *          an approval dialog immediately.
+   * @param authRequestUserId the UserId that the auth request is for.
+   * @returns boolean stating whether or not the user meets conditions
    */
-  abstract userMeetsConditionsToShowApprovalDialog(userId: UserId): Promise<boolean>;
+  abstract activeUserMeetsConditionsToShowApprovalDialog(
+    authRequestUserId: UserId,
+  ): Promise<boolean>;
 
   /**
    * Sets up listeners for scenarios where the user unlocks and we want to process

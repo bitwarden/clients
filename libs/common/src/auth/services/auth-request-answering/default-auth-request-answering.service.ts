@@ -38,22 +38,30 @@ export class DefaultAuthRequestAnsweringService implements AuthRequestAnsweringS
     protected readonly pendingAuthRequestsState: PendingAuthRequestsStateService,
   ) {}
 
-  async userMeetsConditionsToShowApprovalDialog(userId: UserId): Promise<boolean> {
-    const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
+  async activeUserMeetsConditionsToShowApprovalDialog(authRequestUserId: UserId): Promise<boolean> {
+    // If the active user is not the user that the auth request is for, return false
+    // early (no reason to perform the following async calls)
     const activeUserId: UserId | null = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
+    if (activeUserId !== authRequestUserId) {
+      return false;
+    }
+
+    const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
+    if (authStatus !== AuthenticationStatus.Unlocked) {
+      return false;
+    }
+
     const forceSetPasswordReason = await firstValueFrom(
-      this.masterPasswordService.forceSetPasswordReason$(userId),
+      this.masterPasswordService.forceSetPasswordReason$(authRequestUserId),
     );
+    if (forceSetPasswordReason !== ForceSetPasswordReason.None) {
+      return false;
+    }
 
-    // User must be unlocked, active, and must not be required to set/change their master password
-    const meetsConditions =
-      authStatus === AuthenticationStatus.Unlocked &&
-      activeUserId === userId &&
-      forceSetPasswordReason === ForceSetPasswordReason.None;
-
-    return meetsConditions;
+    // User meets conditions: they are the intended recipient, unlocked, and not required to set/change their master password
+    return true;
   }
 
   setupUnlockListenersForProcessingAuthRequests(destroy$: Observable<void>): void {

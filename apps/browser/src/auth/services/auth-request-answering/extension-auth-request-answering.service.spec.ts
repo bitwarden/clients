@@ -11,12 +11,14 @@ import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ActionsService } from "@bitwarden/common/platform/actions";
 import {
   ButtonLocation,
   SystemNotificationEvent,
   SystemNotificationsService,
 } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
+import { LogService } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
 
 import { ExtensionAuthRequestAnsweringService } from "./extension-auth-request-answering.service";
@@ -31,6 +33,8 @@ describe("ExtensionAuthRequestAnsweringService", () => {
   let i18nService: MockProxy<I18nService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let systemNotificationsService: MockProxy<SystemNotificationsService>;
+  let logService: MockProxy<LogService>;
+  let validationService: MockProxy<ValidationService>;
 
   let sut: AuthRequestAnsweringService;
 
@@ -49,6 +53,8 @@ describe("ExtensionAuthRequestAnsweringService", () => {
     i18nService = mock<I18nService>();
     platformUtilsService = mock<PlatformUtilsService>();
     systemNotificationsService = mock<SystemNotificationsService>();
+    logService = mock<LogService>();
+    validationService = mock<ValidationService>();
 
     // Common defaults
     authService.activeAccountStatus$ = of(AuthenticationStatus.Locked);
@@ -77,6 +83,8 @@ describe("ExtensionAuthRequestAnsweringService", () => {
       i18nService,
       platformUtilsService,
       systemNotificationsService,
+      logService,
+      validationService,
     );
   });
 
@@ -157,14 +165,14 @@ describe("ExtensionAuthRequestAnsweringService", () => {
     });
   });
 
-  describe("userMeetsConditionsToShowApprovalDialog()", () => {
-    it("should return true if popup is open and user is Unlocked, active, and not required to set/change their master password", async () => {
+  describe("activeUserMeetsConditionsToShowApprovalDialog()", () => {
+    it("should return true if popup is open and user is active, the intended recipient of the auth request, unlocked, and not required to set/change their master password", async () => {
       // Arrange
       platformUtilsService.isPopupOpen.mockResolvedValue(true);
       authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
 
       // Act
-      const result = await sut.userMeetsConditionsToShowApprovalDialog(userId);
+      const result = await sut.activeUserMeetsConditionsToShowApprovalDialog(userId);
 
       // Assert
       expect(result).toBe(true);
@@ -176,7 +184,7 @@ describe("ExtensionAuthRequestAnsweringService", () => {
       authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
 
       // Act
-      const result = await sut.userMeetsConditionsToShowApprovalDialog(userId);
+      const result = await sut.activeUserMeetsConditionsToShowApprovalDialog(userId);
 
       // Assert
       expect(result).toBe(false);
