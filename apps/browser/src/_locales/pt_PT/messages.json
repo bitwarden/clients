@@ -1523,12 +1523,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Pedir biometria ao iniciar"
   },
-  "premiumRequired": {
-    "message": "É necessária uma subscrição Premium"
-  },
-  "premiumRequiredDesc": {
-    "message": "É necessária uma subscrição Premium para utilizar esta funcionalidade."
-  },
   "authenticationTimeout": {
     "message": "Tempo limite de autenticação"
   },
@@ -1640,6 +1634,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Deve adicionar o URL do servidor de base ou pelo menos um ambiente personalizado."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Os URLs devem usar HTTPS."
   },
   "customEnvironment": {
     "message": "Ambiente personalizado"
@@ -4977,6 +4974,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Predefinido ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "Mostrar deteção de correspondência para $WEBSITE$",
     "placeholders": {
@@ -5768,6 +5775,30 @@
   },
   "atRiskLoginsSecured": {
     "message": "Excelente trabalho ao proteger as suas credenciais em risco!"
+  },
+  "upgradeNow": {
+    "message": "Atualizar agora"
+  },
+  "builtInAuthenticator": {
+    "message": "Autenticador incorporado"
+  },
+  "secureFileStorage": {
+    "message": "Armazenamento seguro de ficheiros"
+  },
+  "emergencyAccess": {
+    "message": "Acesso de emergência"
+  },
+  "breachMonitoring": {
+    "message": "Monitorização de violações"
+  },
+  "andMoreFeatures": {
+    "message": "E muito mais!"
+  },
+  "planDescPremium": {
+    "message": "Segurança total online"
+  },
+  "upgradeToPremium": {
+    "message": "Atualizar para o Premium"
   },
   "settingDisabledByPolicy": {
     "message": "Esta configuração está desativada pela política da sua organização.",
