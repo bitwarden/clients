@@ -45,6 +45,8 @@ handle some of the type conversion manually. Should the conversion types be forc
 - [ ] Custom fields have a weird format, like `$keyPair::1`. This needs to be figured out.
 - [ ] Legacy exports are similar but not exactly the same. Need to support variants.
 - [ ] When importing dates, should a specific locale be used in `toLocaleString`?
+- [ ] Phone number format is a bit funky: `(AF) 5415558723 ext. 5577 (Work)`. Would be good to
+      replace the region with +code.
 
 ### Missing features
 

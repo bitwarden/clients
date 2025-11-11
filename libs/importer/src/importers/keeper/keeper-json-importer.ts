@@ -242,6 +242,24 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
               .trim();
           }
           break;
+        case "phone":
+          {
+            const { region, number, ext, type } = value as {
+              region?: string;
+              number?: string;
+              ext?: string;
+              type?: string;
+            };
+
+            const parts = [];
+            if (region) {parts.push(`(${region})`);} // TODO: Convert to +<code> format?
+            if (number) {parts.push(number);}
+            if (ext) {parts.push(`ext. ${ext}`);}
+            if (type) {parts.push(`(${type})`);}
+
+            importedValue = parts.join(" ").trim();
+          }
+          break;
       }
 
       this.addField(cipher, importedName, importedValue, importedType);

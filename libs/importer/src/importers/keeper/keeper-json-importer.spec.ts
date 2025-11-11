@@ -136,9 +136,9 @@ describe("Keeper Json Importer", () => {
     // Fields
     expect(contact.fields.length).toEqual(4);
     expect(getField(contact, "name")?.value).toEqual("Emily Marie Chen");
-    expect(getField(contact, "company")).toBeDefined();
-    expect(getField(contact, "email")).toBeDefined();
-    expect(getField(contact, "phone")).toBeDefined();
+    expect(getField(contact, "company")?.value).toEqual("Springfield Medical Center");
+    expect(getField(contact, "email")?.value).toEqual("emily.chen@smc.org");
+    expect(getField(contact, "phone")?.value).toEqual("(AF) 5415558723 ext. 5577 (Work)");
   });
 
   it("should parse databaseCredentials", async () => {

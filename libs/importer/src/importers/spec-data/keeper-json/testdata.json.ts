@@ -369,7 +369,7 @@ export const TestData = {
       uid: "EeEt6WFPj-6BLXuQ-P9Hmg",
       notes: "Primary care physician - office visits and consultations",
       $type: "contact",
-      last_modified: 1762428779,
+      last_modified: 1762877896,
       custom_fields: {
         $name: {
           first: "Emily",
@@ -380,6 +380,9 @@ export const TestData = {
         $email: "emily.chen@smc.org",
         $phone: {
           number: "5415558723",
+          region: "AF",
+          ext: "5577",
+          type: "Work",
         },
       },
       folders: [
