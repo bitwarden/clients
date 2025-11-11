@@ -41,7 +41,8 @@ handle some of the type conversion manually. Should the conversion types be forc
 - [ ] The base importer has a special way of handling custom fields, not used in this importer.
       Figure this out!
 - [x] No fingerprint on ssh keys
-- [ ] login/password on ssh keys are stored as username/passphrase extra fields
+- [x] login/password on ssh keys are stored as username/passphrase extra fields
+- [ ] Custom fields have a weird format, like `$keyPair::1`. This needs to be figured out.
 
 ### Missing features
 
