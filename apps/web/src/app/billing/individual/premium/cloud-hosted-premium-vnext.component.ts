@@ -183,6 +183,7 @@ export class CloudHostedPremiumVNextComponent {
 
     this.shouldShowUpgradeDialogOnInit$
       .pipe(
+        take(1),
         switchMap((shouldShowUpgradeDialogOnInit) => {
           if (shouldShowUpgradeDialogOnInit) {
             return from(this.openUpgradeDialog("Premium"));
@@ -190,7 +191,6 @@ export class CloudHostedPremiumVNextComponent {
           // Return an Observable that completes immediately when dialog should not be shown
           return of(void 0);
         }),
-        take(1),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();

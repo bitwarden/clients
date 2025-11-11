@@ -312,7 +312,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
 
     const response = await this.upgradePaymentService.upgradeToFamilies(
       this.account(),
-      this.selectedPlan(),
+      this.selectedPlan()!,
       paymentMethod,
       paymentFormValues,
     );
@@ -357,7 +357,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
       return of(this.INITIAL_TAX_VALUE);
     }
     return from(
-      this.upgradePaymentService.calculateEstimatedTax(this.selectedPlan(), billingAddress),
+      this.upgradePaymentService.calculateEstimatedTax(this.selectedPlan()!, billingAddress),
     ).pipe(
       catchError((error: unknown) => {
         this.logService.error("Tax calculation failed:", error);
