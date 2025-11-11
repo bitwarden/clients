@@ -3,6 +3,21 @@
 import { getQsParam } from "./common";
 
 window.addEventListener("load", () => {
+  // Debug mode: keep the page static for styling/debugging; don't navigate away.
+  const debug = getQsParam("debug");
+  if (debug === "1") {
+    // Keep the page static for styling/debugging; don't navigate away.
+    // Optionally show a small note for clarity.
+    const content = document.getElementById("content");
+    if (content && !content.dataset.debugNoticeAdded) {
+      const note = document.createElement("p");
+      note.className = "tw-text-center tw-text-muted tw-mt-4";
+      note.innerText = "(Debug mode: navigation disabled)";
+      content.appendChild(note);
+      content.dataset.debugNoticeAdded = "true";
+    }
+    return;
+  }
   const code = getQsParam("code");
   const state = getQsParam("state");
   const lastpass = getQsParam("lp");
