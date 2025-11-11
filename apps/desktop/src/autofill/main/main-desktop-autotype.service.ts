@@ -5,9 +5,9 @@ import { LogService } from "@bitwarden/logging";
 
 import { WindowMain } from "../../main/window.main";
 import { stringIsNotUndefinedNullAndEmpty } from "../../utils";
+import { AutotypeMatchError } from "../models/autotype-errors";
 import { AutotypeVaultData } from "../models/autotype-vault-data";
 import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
-import { AutotypeMatchError } from "../models/autotype-errors";
 
 export class MainDesktopAutotypeService {
   autotypeKeyboardShortcut: AutotypeKeyboardShortcut;
