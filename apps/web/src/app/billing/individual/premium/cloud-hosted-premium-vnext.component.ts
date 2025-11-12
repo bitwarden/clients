@@ -11,6 +11,7 @@ import {
   of,
   shareReplay,
   switchMap,
+  take,
 } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -21,7 +22,6 @@ import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import {
   BadgeModule,
@@ -52,7 +52,7 @@ const RouteParamValues = {
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  templateUrl: "./premium-vnext.component.html",
+  templateUrl: "./cloud-hosted-premium-vnext.component.html",
   standalone: true,
   imports: [
     CommonModule,
@@ -64,7 +64,7 @@ const RouteParamValues = {
     PricingCardComponent,
   ],
 })
-export class PremiumVNextComponent {
+export class CloudHostedPremiumVNextComponent {
   protected hasPremiumFromAnyOrganization$: Observable<boolean>;
   protected hasPremiumPersonally$: Observable<boolean>;
   protected shouldShowNewDesign$: Observable<boolean>;
@@ -81,22 +81,18 @@ export class PremiumVNextComponent {
     features: string[];
   }>;
   protected subscriber!: BitwardenSubscriber;
-  protected isSelfHost = false;
   private destroyRef = inject(DestroyRef);
 
   constructor(
     private accountService: AccountService,
     private apiService: ApiService,
     private dialogService: DialogService,
-    private platformUtilsService: PlatformUtilsService,
     private syncService: SyncService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private subscriptionPricingService: SubscriptionPricingServiceAbstraction,
     private router: Router,
     private activatedRoute: ActivatedRoute,
   ) {
-    this.isSelfHost = this.platformUtilsService.isSelfHost();
-
     this.hasPremiumFromAnyOrganization$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
         account
@@ -187,10 +183,13 @@ export class PremiumVNextComponent {
 
     this.shouldShowUpgradeDialogOnInit$
       .pipe(
-        switchMap(async (shouldShowUpgradeDialogOnInit) => {
+        take(1),
+        switchMap((shouldShowUpgradeDialogOnInit) => {
           if (shouldShowUpgradeDialogOnInit) {
-            from(this.openUpgradeDialog("Premium"));
+            return from(this.openUpgradeDialog("Premium"));
           }
+          // Return an Observable that completes immediately when dialog should not be shown
+          return of(void 0);
         }),
         takeUntilDestroyed(this.destroyRef),
       )
