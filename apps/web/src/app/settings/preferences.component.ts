@@ -14,7 +14,6 @@ import {
   tap,
 } from "rxjs";
 
-import { VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
@@ -34,6 +33,7 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { DialogService } from "@bitwarden/components";
+import { SessionTimeoutInputComponent } from "@bitwarden/key-management-ui";
 import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
 import { HeaderModule } from "../layouts/header/header.module";
@@ -52,7 +52,7 @@ import { SharedModule } from "../shared";
   imports: [
     SharedModule,
     HeaderModule,
-    VaultTimeoutInputComponent,
+    SessionTimeoutInputComponent,
     PermitCipherDetailsPopoverComponent,
   ],
 })

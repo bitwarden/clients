@@ -9,7 +9,6 @@ import { concatMap, map, pairwise, startWith, switchMap, takeUntil, timeout } fr
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
@@ -55,7 +54,10 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
-import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
+import {
+  SessionTimeoutInputComponent,
+  SessionTimeoutSettingsComponent,
+} from "@bitwarden/key-management-ui";
 import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
@@ -95,7 +97,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     SectionHeaderComponent,
     SelectModule,
     TypographyModule,
-    VaultTimeoutInputComponent,
+    SessionTimeoutInputComponent,
     SessionTimeoutSettingsComponent,
     PermitCipherDetailsPopoverComponent,
     PremiumBadgeComponent,

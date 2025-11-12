@@ -25,7 +25,6 @@ import {
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
@@ -56,6 +55,8 @@ import { LogService } from "@bitwarden/logging";
 
 import { SessionTimeoutSettingsComponentService } from "../services/session-timeout-settings-component.service";
 
+import { SessionTimeoutInputComponent } from "./session-timeout-input.component";
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -74,7 +75,7 @@ import { SessionTimeoutSettingsComponentService } from "../services/session-time
     RouterModule,
     SelectModule,
     TypographyModule,
-    VaultTimeoutInputComponent,
+    SessionTimeoutInputComponent,
   ],
 })
 export class SessionTimeoutSettingsComponent implements OnInit {
