@@ -45,7 +45,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Lint ${{ matrix.app.name }} config
-        uses: crowdin/github-action@f214c8723025f41fc55b2ad26e67b60b80b1885d # v2.7.1
+        uses: crowdin/github-action@08713f00a50548bfe39b37e8f44afb53e7a802d4 # v2.12.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_PROJECT_ID: ${{ matrix.app.project_id }}
