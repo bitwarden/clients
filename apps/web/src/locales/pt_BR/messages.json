@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Inteligência de acesso"
   },
-  "riskInsights": {
-    "message": "Critérios de risco"
-  },
   "passwordRisk": {
     "message": "Risco de senhas"
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "reviewAtRiskPasswords": {
     "message": "Revise senhas em risco (fracas, expostas, ou reutilizadas) em todos os aplicativos. Selecione seus aplicativos mais críticos para priorizar ações de segurança para que seus usuários resolvem senhas em risco."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Review at-risk logins"
   },
   "dataLastUpdated": {
     "message": "Última atualização dos dados: $DATE$",
@@ -127,6 +130,9 @@
       }
     }
   },
+  "criticalApplicationsMarked": {
+    "message": "critical applications marked"
+  },
   "countOfCriticalApplications": {
     "message": "$COUNT$ aplicativos críticos",
     "placeholders": {
@@ -172,8 +178,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "Nenhum aplicativo encontrado em $ORG NAME$",
+  "noApplicationsInOrgTitle": {
+    "message": "No applications found for $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -181,8 +187,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "Quando usuários salvam credenciais, aplicativos aparecem aqui, mostrando quaisquer senhas em risco. Marque apps como críticos e notifique usuários para que atualizem as senhas."
+  "noApplicationsInOrgDescription": {
+    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  },
+  "benefit1Title": {
+    "message": "Prioritize risks"
+  },
+  "benefit1Description": {
+    "message": "Focus on applications that matter the most"
+  },
+  "benefit2Title": {
+    "message": "Guide remediation"
+  },
+  "benefit2Description": {
+    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  },
+  "benefit3Title": {
+    "message": "Monitor progress"
+  },
+  "benefit3Description": {
+    "message": "Track changes over time to show security improvements"
+  },
+  "noReportRunTitle": {
+    "message": "Run your first report to see applications"
+  },
+  "noReportRunDescription": {
+    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Você não marcou nenhum aplicativo como crítico"
@@ -211,6 +241,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Aplicativos marcados como críticos"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Falha ao marcar aplicativos como críticos"
   },
@@ -234,6 +273,12 @@
   },
   "membersWithAccessToAtRiskItemsForCriticalApps": {
     "message": "Membros com acesso a itens em risco de aplicativos críticos"
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Members with at-risk passwords"
+  },
+  "membersWillReceiveNotification": {
+    "message": "Members will receive a notification to resolve at-risk logins through the browser extension."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ membros em risco",
@@ -319,14 +364,41 @@
   "reviewNow": {
     "message": "Revisar agora"
   },
+  "allCaughtUp": {
+    "message": "All caught up!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "No new applications to review at this time"
+  },
   "prioritizeCriticalApplications": {
     "message": "Priorizar aplicativos críticos"
   },
-  "atRiskItems": {
-    "message": "Itens em risco"
+  "selectCriticalApplicationsDescription": {
+    "message": "Select which applications are most critical to your organization, then assign security tasks to members to resolve risks."
+  },
+  "reviewNewApplications": {
+    "message": "Review new applications"
+  },
+  "reviewNewApplicationsDescription": {
+    "message": "We've highlighted at-risk items for new applications stored in Admin console that have weak, exposed, or reused passwords."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Click the star icon to mark an app as critical"
   },
   "markAsCriticalPlaceholder": {
     "message": "A funcionalidade de marcar como crítico será implementada em uma atualização futura"
+  },
+  "applicationReviewSaved": {
+    "message": "Application review saved"
+  },
+  "newApplicationsReviewed": {
+    "message": "New applications reviewed"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Error saving review status"
+  },
+  "pleaseTryAgain": {
+    "message": "Please try again"
   },
   "unmarkAsCritical": {
     "message": "Desmarcar como crítico"
@@ -789,6 +861,9 @@
   },
   "favorites": {
     "message": "Favoritos"
+  },
+  "taskSummary": {
+    "message": "Task summary"
   },
   "types": {
     "message": "Tipos"
@@ -1294,7 +1369,7 @@
     "message": "Precisa de outra opção?"
   },
   "loginWithMasterPassword": {
-    "message": "Entrar com senha mestre"
+    "message": "Entrar com senha principal"
   },
   "readingPasskeyLoading": {
     "message": "Lendo a chave de acesso..."
@@ -1312,7 +1387,10 @@
     "message": "Entrar com chave de acesso"
   },
   "useSingleSignOn": {
-    "message": "Usar login único"
+    "message": "Usar autenticação única"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
   },
   "welcomeBack": {
     "message": "Boas-vindas de volta"
@@ -1354,7 +1432,7 @@
     "message": "Usar para criptografia do cofre"
   },
   "useForVaultEncryptionInfo": {
-    "message": "Conecte-se e desbloqueie em dispositivos suportados sem a sua senha mestre. Siga as instruções do seu navegador para finalizar a configuração."
+    "message": "Conecte-se e desbloqueie em dispositivos suportados sem a sua senha principal. Siga as instruções do seu navegador para finalizar a configuração."
   },
   "useForVaultEncryptionErrorReadingPasskey": {
     "message": "Erro ao ler a chave de acesso. Tente novamente ou desmarque esta opção."
@@ -1387,7 +1465,7 @@
     "message": "Remover chave de acesso"
   },
   "removePasskeyInfo": {
-    "message": "Se todas as chaves de acesso forem removidas, não será mais possível entrar em novos dispositivos sem sua senha mestre."
+    "message": "Se todas as chaves de acesso forem removidas, não será mais possível entrar em novos dispositivos sem sua senha principal."
   },
   "passkeyLimitReachedInfo": {
     "message": "Limite de chaves de acesso atingido. Remova uma chave de acesso para adicionar outra."
@@ -1468,28 +1546,28 @@
     "message": "Como devemos chamá-lo?"
   },
   "masterPass": {
-    "message": "Senha mestre"
+    "message": "Senha principal"
   },
   "masterPassDesc": {
-    "message": "A senha mestra é a senha que você usa para acessar o seu cofre. É muito importante que você não esqueça sua senha mestra. Não há maneira de recuperar a senha caso você se esqueça."
+    "message": "A senha principal é a senha que você usa para acessar o seu cofre. É muito importante que você não esqueça sua senha principal. Não há maneira de recuperar a senha caso você se esqueça."
   },
   "masterPassImportant": {
-    "message": "Sua senha mestre não pode ser recuperada se esquecê-la!"
+    "message": "Sua senha principal não pode ser recuperada se esquecê-la!"
   },
   "masterPassHintDesc": {
-    "message": "Uma dica de senha mestra pode ajudá-lo(a) a lembrar a senha caso você esqueça."
+    "message": "Uma dica de senha principal pode ajudá-lo(a) a lembrar a senha caso você esqueça."
   },
   "reTypeMasterPass": {
-    "message": "Digite novamente a senha mestre"
+    "message": "Digite novamente a senha principal"
   },
   "masterPassHint": {
-    "message": "Dica da senha mestre (opcional)"
+    "message": "Dica da senha principal (opcional)"
   },
   "newMasterPassHint": {
-    "message": "Nova dica de senha mestre (opcional)"
+    "message": "Nova dica de senha principal (opcional)"
   },
   "masterPassHintLabel": {
-    "message": "Dica da senha mestre"
+    "message": "Dica da senha principal"
   },
   "masterPassHintText": {
     "message": "Se você esquecer sua senha, a dica da senha pode ser enviada ao seu e-mail. $CURRENT$/$MAXIMUM$ caracteres máximos.",
@@ -1514,13 +1592,13 @@
     "message": "Solicitar dica"
   },
   "requestPasswordHint": {
-    "message": "Dica da senha mestre"
+    "message": "Dica da senha principal"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Digite o endereço de e-mail da sua conta e sua dica da senha será enviada para você"
   },
   "getMasterPasswordHint": {
-    "message": "Obter dica da senha mestra"
+    "message": "Obter dica da senha principal"
   },
   "emailRequired": {
     "message": "O endereço de e-mail é obrigatório."
@@ -1529,13 +1607,13 @@
     "message": "Endereço de e-mail inválido."
   },
   "masterPasswordRequired": {
-    "message": "A senha mestra é obrigatória."
+    "message": "A senha principal é obrigatória."
   },
   "confirmMasterPasswordRequired": {
-    "message": "A senha mestre é obrigatória."
+    "message": "A senha principal é obrigatória."
   },
   "masterPasswordMinlength": {
-    "message": "A senha mestre deve ter pelo menos $VALUE$ caracteres.",
+    "message": "A senha principal deve ter pelo menos $VALUE$ caracteres.",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -1545,7 +1623,7 @@
     }
   },
   "masterPassDoesntMatch": {
-    "message": "A confirmação da senha mestra não corresponde."
+    "message": "A confirmação da senha principal não corresponde."
   },
   "newAccountCreated": {
     "message": "A sua nova conta foi criada! Agora você pode iniciar a sessão."
@@ -1560,7 +1638,7 @@
     "message": "Conta criada com sucesso."
   },
   "masterPassSent": {
-    "message": "Enviamos um e-mail com a dica da sua senha mestra."
+    "message": "Enviamos um e-mail com a dica da sua senha principal."
   },
   "unexpectedError": {
     "message": "Ocorreu um erro inesperado."
@@ -1597,10 +1675,10 @@
     }
   },
   "invalidMasterPassword": {
-    "message": "Senha mestra inválida"
+    "message": "Senha principal inválida"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Senha mestre inválida. Confirme se seu e-mail está correto e sua conta foi criada em $HOST$.",
+    "message": "Senha principal inválida. Confirme se seu e-mail está correto e sua conta foi criada em $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -1901,7 +1979,7 @@
     "message": "Esta senha será usada para exportar e importar este arquivo"
   },
   "confirmMasterPassword": {
-    "message": "Confirme a senha mestre"
+    "message": "Confirme a senha principal"
   },
   "confirmFormat": {
     "message": "Confirmar formato"
@@ -1913,7 +1991,7 @@
     "message": "Confirmar senha do arquivo"
   },
   "accountRestrictedOptionDescription": {
-    "message": "Use a chave de criptografia da sua conta, derivada do nome de usuário e senha mestre da sua conta, para criptografar a exportação e restringir a importação para apenas a conta atual do Bitwarden."
+    "message": "Use a chave de criptografia da sua conta, derivada do nome de usuário e senha principal da sua conta, para criptografar a exportação e restringir a importação para apenas a conta atual do Bitwarden."
   },
   "passwordProtectedOptionDescription": {
     "message": "Defina uma senha para criptografar a exportação e importá-la para qualquer conta do Bitwarden usando a senha para descriptografar."
@@ -2072,19 +2150,19 @@
     "message": "Por favor, reinicie a sessão. Se estiver usando outros aplicativos do Bitwarden, encerre a sessão e reinicie também."
   },
   "changeMasterPassword": {
-    "message": "Alterar senha mestre"
+    "message": "Alterar senha principal"
   },
   "masterPasswordChanged": {
-    "message": "Senha mestre salva"
+    "message": "Senha principal salva"
   },
   "currentMasterPass": {
-    "message": "Senha mestre atual"
+    "message": "Senha principal atual"
   },
   "newMasterPass": {
-    "message": "Nova senha mestre"
+    "message": "Nova senha principal"
   },
   "confirmNewMasterPass": {
-    "message": "Confirmar nova senha mestra"
+    "message": "Confirmar nova senha principal"
   },
   "encKeySettings": {
     "message": "Configurações da chave de criptografia"
@@ -2093,7 +2171,7 @@
     "message": "Iterações da KDF"
   },
   "kdfIterationsDesc": {
-    "message": "As iterações KDF mais altas podem ajudar a proteger a sua senha mestra de ser descoberta pela força bruta de um invasor. Recomendamos um valor de $VALUE$ ou mais.",
+    "message": "As iterações KDF mais altas podem ajudar a proteger a sua senha principal de ser descoberta pela força bruta de um invasor. Recomendamos um valor de $VALUE$ ou mais.",
     "placeholders": {
       "value": {
         "content": "$1",
@@ -2121,7 +2199,7 @@
     "message": "Paralelismo da KDF"
   },
   "argon2Desc": {
-    "message": "Mais iterações KDF, memória e paralelismo podem ajudar a proteger sua senha mestre de ser descoberta por força bruta por um invasor."
+    "message": "Mais iterações KDF, memória e paralelismo podem ajudar a proteger sua senha principal de ser descoberta por força bruta por um invasor."
   },
   "encKeySettingsChanged": {
     "message": "As configurações da chave de criptografia foram salvas"
@@ -2154,7 +2232,7 @@
     "message": "Prossiga abaixo para que o Bitwarden envie e-mails de verificação quando você se conectar a partir de um novo dispositivo."
   },
   "turnOffNewDeviceLoginProtectionWarning": {
-    "message": "Com a proteção de autenticação de dispositivos novos desativada, qualquer um com a sua senha mestre pode acessar sua conta de qualquer dispositivo. Para proteger sua conta sem e-mails de verificação, configure a autenticação em duas etapas."
+    "message": "Com a proteção de autenticação de dispositivos novos desativada, qualquer um com a sua senha principal pode acessar sua conta de qualquer dispositivo. Para proteger sua conta sem e-mails de verificação, configure a autenticação em duas etapas."
   },
   "accountNewDeviceLoginProtectionSaved": {
     "message": "Alterações na proteção na entrada de dispositivos novos salvas"
@@ -2499,7 +2577,7 @@
     "message": "Este provedor de autenticação em duas etapas está ativo em sua conta."
   },
   "twoStepLoginAuthDesc": {
-    "message": "Insira a sua senha mestra para modificar as configurações de login em duas etapas."
+    "message": "Insira a sua senha principal para modificar as configurações de login em duas etapas."
   },
   "twoStepAuthenticatorInstructionPrefix": {
     "message": "Baixe um app autenticador como o"
@@ -4361,8 +4439,8 @@
   "updateBrowser": {
     "message": "Atualize o navegador"
   },
-  "generatingYourRiskInsights": {
-    "message": "Gerando suas informações de risco..."
+  "generatingYourAccessIntelligence": {
+    "message": "Generating your Access Intelligence..."
   },
   "riskInsightsRunReport": {
     "message": "Executar relatório"
@@ -4444,13 +4522,13 @@
     "message": "Você foi convidado para participar da organização listada acima. Para aceitar o convite, você precisa iniciar sessão ou criar uma nova conta no Bitwarden."
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Termine de juntar-se nessa organização definindo uma senha mestre."
+    "message": "Termine de juntar-se nessa organização definindo uma senha principal."
   },
   "inviteAccepted": {
     "message": "Convite aceito"
   },
-  "inviteAcceptedDesc": {
-    "message": "Você pode acessar essa organização quando um administrador confirmar sua associação. Enviaremos um e-mail quando isso acontecer."
+  "invitationAcceptedDesc": {
+    "message": "Successfully accepted your invitation."
   },
   "inviteInitAcceptedDesc": {
     "message": "Você agora pode acessar esta organização."
@@ -4507,7 +4585,7 @@
     "message": "Apagar organização"
   },
   "deletingOrganizationContentWarning": {
-    "message": "Digite a senha mestre para confirmar o apagamento de $ORGANIZATION$ e todos os dados associados. Os dados do cofre no $ORGANIZATION$ incluem:",
+    "message": "Digite a senha principal para confirmar o apagamento de $ORGANIZATION$ e todos os dados associados. Os dados do cofre no $ORGANIZATION$ incluem:",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4986,10 +5064,10 @@
     "description": "ex. A very weak password. Scale: Very Weak -> Weak -> Good -> Strong"
   },
   "weakMasterPassword": {
-    "message": "Senha mestre fraca"
+    "message": "Senha principal fraca"
   },
   "weakMasterPasswordDesc": {
-    "message": "Senha fraca identificada. Você deve usar uma senha mestra forte para proteger a sua conta. Tem certeza que quer usar esta senha mestre?"
+    "message": "Senha fraca identificada. Você deve usar uma senha principal forte para proteger a sua conta. Tem certeza que quer usar esta senha principal?"
   },
   "rotateAccountEncKey": {
     "message": "Também rodar a chave de encriptação da minha conta"
@@ -5079,10 +5157,10 @@
     "message": "Clonar"
   },
   "masterPassPolicyTitle": {
-    "message": "Requisitos de senha mestra"
+    "message": "Requisitos de senha principal"
   },
   "masterPassPolicyDesc": {
-    "message": "Defina os requisitos para a força da senha mestre."
+    "message": "Defina os requisitos para a força da senha principal."
   },
   "passwordStrengthScore": {
     "message": "Pontuação de força da senha $SCORE$",
@@ -5109,7 +5187,7 @@
     "message": "Defina requisitos para o gerador de senhas."
   },
   "masterPasswordPolicyInEffect": {
-    "message": "Uma ou mais políticas da organização exigem que a sua senha mestra cumpra aos seguintes requisitos:"
+    "message": "Uma ou mais políticas da organização exigem que a sua senha principal cumpra aos seguintes requisitos:"
   },
   "policyInEffectMinComplexity": {
     "message": "Pontuação mínima de complexidade de $SCORE$",
@@ -5148,7 +5226,7 @@
     }
   },
   "masterPasswordPolicyRequirementsNotMet": {
-    "message": "A sua nova senha mestra não cumpre aos requisitos da política."
+    "message": "A sua nova senha principal não cumpre aos requisitos da política."
   },
   "minimumNumberOfWords": {
     "message": "Número mínimo de palavras"
@@ -5164,7 +5242,7 @@
     "message": "Ação do tempo limite do cofre"
   },
   "vaultTimeoutActionLockDesc": {
-    "message": "A senha mestre ou outro método de desbloqueio é necessário para acessar seu cofre novamente."
+    "message": "A senha principal ou outro método de desbloqueio é necessário para acessar seu cofre novamente."
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "Reautenticação é necessária para acessar seu cofre novamente."
@@ -5259,7 +5337,7 @@
     "message": "Informações de impostos atualizadas."
   },
   "setMasterPassword": {
-    "message": "Configurar senha mestre"
+    "message": "Configurar senha principal"
   },
   "identifier": {
     "message": "Identificador"
@@ -5580,7 +5658,7 @@
     "message": "Assumir controle"
   },
   "takeoverDesc": {
-    "message": "Pode redefinir a sua conta com uma nova senha mestre."
+    "message": "Pode redefinir a sua conta com uma nova senha principal."
   },
   "waitTime": {
     "message": "Tempo de espera"
@@ -5757,8 +5835,8 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Single organization policy required. "
   },
-  "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Anyone part of more than one organization will have their access revoked until they leave the other organizations."
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "All members must only belong to this organization to activate this automation."
   },
   "autoConfirmSingleOrgExemption": {
     "message": "Single organization policy will extend to all roles. "
@@ -5823,6 +5901,19 @@
   "disableHideEmail": {
     "message": "Sempre mostrar o endereço de e-mail do membro com destinatários ao criar ou editar um Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Default URI match detection"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Determine when logins are suggested for autofill. Admins and owners are exempt from this policy."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Default URI match detection"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Please select a valid URI match detection option.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Modificou a política $ID$.",
@@ -6132,7 +6223,7 @@
     }
   },
   "eventAdminPasswordReset": {
-    "message": "Senha mestre do usuário $ID$ redefinida.",
+    "message": "Senha principal do usuário $ID$ redefinida.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6183,25 +6274,25 @@
     "message": "este usuário"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
-    "message": "Uma ou mais políticas da organização exigem que a senha mestre cumpra aos seguintes requisitos:"
+    "message": "Uma ou mais políticas da organização exigem que a senha principal cumpra aos seguintes requisitos:"
   },
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
-    "message": "Uma ou mais políticas da organização exigem que a senha mestre cumpra aos seguintes requisitos:"
+    "message": "Uma ou mais políticas da organização exigem que a senha principal cumpra aos seguintes requisitos:"
   },
   "resetPasswordSuccess": {
     "message": "Senha redefinida com sucesso!"
   },
   "resetPasswordEnrollmentWarning": {
-    "message": "A inscrição permitirá que os administradores da organização alterem sua senha mestra. Tem certeza que deseja se inscrever?"
+    "message": "A inscrição permitirá que os administradores da organização alterem sua senha principal. Tem certeza que deseja se inscrever?"
   },
   "accountRecoveryPolicy": {
     "message": "Gerenciar recuperação de conta"
   },
   "accountRecoveryPolicyDesc": {
-    "message": "Baseado no método de criptografia, recupere contas quando senhas mestras ou dispositivos confiáveis forem esquecidos ou perdidos."
+    "message": "Baseado no método de criptografia, recupere contas quando senhas principais ou dispositivos confiáveis forem esquecidos ou perdidos."
   },
   "accountRecoveryPolicyWarning": {
-    "message": "Contas existentes com senhas mestras exigirá que os membros se inscrevam antes que os administradores possam recuperar suas contas. A inscrição automática irá ativar a recuperação de conta para novos membros."
+    "message": "Contas existentes com senhas principais exigirá que os membros se inscrevam antes que os administradores possam recuperar suas contas. A inscrição automática irá ativar a recuperação de conta para novos membros."
   },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "A política empresarial de organização única deve ser ativada antes de ativar esta política."
@@ -6213,7 +6304,7 @@
     "message": "Inscrever automaticamente novos usuários"
   },
   "resetPasswordAutoEnrollInviteWarning": {
-    "message": "Esta organização possui uma política empresarial que irá inscrevê-lo automaticamente na redefinição de senha. A inscrição permitirá que os administradores da organização alterem sua senha mestra."
+    "message": "Esta organização possui uma política empresarial que irá inscrevê-lo automaticamente na redefinição de senha. A inscrição permitirá que os administradores da organização alterem sua senha principal."
   },
   "resetPasswordOrgKeysError": {
     "message": "A resposta das Chaves da Organização é nula"
@@ -6228,13 +6319,13 @@
     "message": "As cifras que estiverem na Lixeira por um tempo serão excluídas automaticamente."
   },
   "passwordPrompt": {
-    "message": "Nova solicitação de senha mestra"
+    "message": "Nova solicitação de senha principal"
   },
   "passwordConfirmation": {
-    "message": "Confirmação de senha mestra"
+    "message": "Confirmação de senha principal"
   },
   "passwordConfirmationDesc": {
-    "message": "Esta ação está protegida. Para continuar, por favor, reinsira a sua senha mestra para verificar sua identidade."
+    "message": "Esta ação está protegida. Para continuar, por favor, reinsira a sua senha principal para verificar sua identidade."
   },
   "reinviteSelected": {
     "message": "Reenviar Convites"
@@ -6475,13 +6566,13 @@
     "message": "Sua Senha Mestra foi alterada recentemente por um administrador de sua organização. Para acessar o cofre, você precisa atualizar sua Senha Mestra agora. O processo desconectará você da sessão atual, exigindo que você inicie a sessão novamente. Sessões ativas em outros dispositivos podem continuar ativas por até uma hora."
   },
   "updateWeakMasterPasswordWarning": {
-    "message": "A sua senha mestra não atende a uma ou mais das políticas da sua organização. Para acessar o cofre, você deve atualizar a sua senha mestra agora. O processo desconectará você da sessão atual, exigindo que você inicie a sessão novamente. Sessões ativas em outros dispositivos podem continuar ativas por até uma hora."
+    "message": "A sua senha principal não atende a uma ou mais das políticas da sua organização. Para acessar o cofre, você deve atualizar a sua senha principal agora. O processo desconectará você da sessão atual, exigindo que você inicie a sessão novamente. Sessões ativas em outros dispositivos podem continuar ativas por até uma hora."
   },
-  "automaticAppLogin": {
-    "message": "Fazer login automaticamente em usuários para aplicativos permitidos"
+  "automaticAppLoginWithSSO": {
+    "message": "Automatic login with SSO"
   },
-  "automaticAppLoginDesc": {
-    "message": "Os formulários de login serão automaticamente preenchidos e enviados para aplicativos iniciados por seu provedor de identidade configurado."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Extend SSO security and convenience to unmanaged apps. When users launch an app from your identity provider, their login details are automatically filled and submitted, creating a one-click, secure flow from the identity provider to the app."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Provedor de identidade"
@@ -6490,25 +6581,55 @@
     "message": "Digite a URL do seu provedor de identidade. Insira vários URLs, separando com uma vírgula."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Sua organização atualizou suas opções de descriptografia. Por favor, defina uma senha mestra para acessar seu cofre."
+    "message": "Sua organização atualizou suas opções de descriptografia. Por favor, defina uma senha principal para acessar seu cofre."
   },
-  "maximumVaultTimeout": {
-    "message": "Tempo Limite do Cofre"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Session timeout"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Configure o tempo máximo para o cofre para todos os usuários."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Set a maximum session timeout for all members except owners."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Tempo Limite Máximo do Cofre"
+  "maximumAllowedTimeout": {
+    "message": "Maximum allowed timeout"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "Tempo Máximo de Cofre Inválido."
+  "maximumAllowedTimeoutRequired": {
+    "message": "Maximum allowed timeout is required."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Time is invalid. Change at least one value."
+  },
+  "sessionTimeoutAction": {
+    "message": "Session timeout action"
+  },
+  "immediately": {
+    "message": "Immediately"
+  },
+  "onSystemLock": {
+    "message": "On system lock"
+  },
+  "onAppRestart": {
+    "message": "On app restart"
   },
   "hours": {
     "message": "Horas"
   },
   "minutes": {
     "message": "Minutos"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Are you certain you want to allow a maximum timeout of \"Never\" for all members?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "This option will save your members' encryption keys on their devices. If you choose this option, ensure that their devices are adequately protected."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Learn more about device protection"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "\"System lock\" will only apply to the browser and desktop app"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "The mobile and web app will use \"on app restart\" as their maximum allowed timeout, since the option is not supported."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "As políticas da sua organização estão afetando o tempo limite do seu cofre. O Tempo Limite Máximo permitido do Cofre é $HOURS$ hora(s) e $MINUTES$ minuto(s)",
@@ -6905,7 +7026,7 @@
     "message": "Remover Senha Mestra"
   },
   "removedMasterPassword": {
-    "message": "Senha mestra removida."
+    "message": "Senha principal removida."
   },
   "allowSso": {
     "message": "Permitir autenticação por SSO"
@@ -6935,7 +7056,7 @@
     "message": "Conector de Chave"
   },
   "memberDecryptionKeyConnectorDescStart": {
-    "message": "Conecte o login com SSO ao seu servidor de chave de descriptografia auto-hospedado. Usando essa opção, os membros não precisarão usar suas senhas mestres para descriptografar os dados",
+    "message": "Conecte o login com SSO ao seu servidor de chave de descriptografia auto-hospedado. Usando essa opção, os membros não precisarão usar suas senhas principais para descriptografar os dados",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "memberDecryptionKeyConnectorDescLink": {
@@ -7050,6 +7171,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Você deve adicionar um URL do servidor de base ou pelo menos um ambiente personalizado."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
   },
   "apiUrl": {
     "message": "URL do servidor API"
@@ -7222,6 +7346,9 @@
   },
   "accessDenied": {
     "message": "Acesso negado. Você não tem permissão para ver esta página."
+  },
+  "noPageAccess": {
+    "message": "You do not have access to this page"
   },
   "masterPassword": {
     "message": "Senha Mestra"
@@ -8397,7 +8524,7 @@
     "message": "Precisa de um método diferente?"
   },
   "useMasterPassword": {
-    "message": "Usar a senha mestra"
+    "message": "Usar a senha principal"
   },
   "usePin": {
     "message": "Usar PIN"
@@ -8547,7 +8674,7 @@
     "message": "Desbloquear com o PIN"
   },
   "unlockWithMasterPassword": {
-    "message": "Desbloquear com a senha mestra"
+    "message": "Desbloquear com a senha principal"
   },
   "licenseAndBillingManagement": {
     "message": "Gerenciamento da licença e faturamento"
@@ -8948,7 +9075,7 @@
     "message": "Verificar se essa senha aparece em vazamento de dados conhecidos"
   },
   "exposedMasterPassword": {
-    "message": "Senha mestre exposta"
+    "message": "Senha principal exposta"
   },
   "exposedMasterPasswordDesc": {
     "message": "A senha foi encontrada em violação de dados. Use uma senha única para proteger sua conta. Tem certeza de que deseja usar uma senha exposta?"
@@ -8969,7 +9096,7 @@
     }
   },
   "masterPasswordMinimumlength": {
-    "message": "A senha mestra deve ter pelo menos $LENGTH$ caracteres.",
+    "message": "A senha principal deve ter pelo menos $LENGTH$ caracteres.",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -9045,7 +9172,7 @@
     "message": "Dispositivos confiáveis"
   },
   "memberDecryptionOptionTdeDescPart1": {
-    "message": "Os membros não precisarão de uma senha mestra ao fazer login com SSO. A senha mestra é substituída por uma chave de criptografia armazenada no dispositivo, fazendo com que esse dispositivo seja confiável. O primeiro dispositivo que um membro cria sua conta e os logins serão confiáveis. Novos dispositivos precisarão ser aprovados por um dispositivo confiável existente ou por um administrador. O",
+    "message": "Os membros não precisarão de uma senha principal ao fazer login com SSO. A senha principal é substituída por uma chave de criptografia armazenada no dispositivo, fazendo com que esse dispositivo seja confiável. O primeiro dispositivo que um membro cria sua conta e os logins serão confiáveis. Novos dispositivos precisarão ser aprovados por um dispositivo confiável existente ou por um administrador. O",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink1": {
@@ -9073,11 +9200,11 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
-    "message": "As permissões da sua organização foram atualizadas, exigindo que você defina uma senha mestra.",
+    "message": "As permissões da sua organização foram atualizadas, exigindo que você defina uma senha principal.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "orgRequiresYouToSetPassword": {
-    "message": "Sua organização requer que você defina uma senha mestra.",
+    "message": "Sua organização requer que você defina uma senha principal.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
@@ -9175,10 +9302,10 @@
     "message": "Solicitação de login aprovada"
   },
   "removeOrgUserNoMasterPasswordTitle": {
-    "message": "A conta não tem uma senha mestre"
+    "message": "A conta não tem uma senha principal"
   },
   "removeOrgUserNoMasterPasswordDesc": {
-    "message": "Remover $USER$ sem definir uma senha mestra pode restringir o acesso deles à conta toda. Tem certeza de que deseja continuar?",
+    "message": "Remover $USER$ sem definir uma senha principal pode restringir o acesso deles à conta toda. Tem certeza de que deseja continuar?",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -9187,10 +9314,10 @@
     }
   },
   "noMasterPassword": {
-    "message": "Nenhuma senha mestre"
+    "message": "Nenhuma senha principal"
   },
   "removeMembersWithoutMasterPasswordWarning": {
-    "message": "Remover membros que não têm senhas mestres sem definir uma para eles pode restringir o acesso à sua conta completa."
+    "message": "Remover membros que não têm senhas principais sem definir uma para eles pode restringir o acesso à sua conta completa."
   },
   "approvedAuthRequest": {
     "message": "Dispositivo aprovado para $ID$.",
@@ -9214,7 +9341,7 @@
     "message": "Aprovação do dispositivo solicitada."
   },
   "tdeOffboardingPasswordSet": {
-    "message": "Usuário definiu uma senha mestra durante o offboard TDE."
+    "message": "Usuário definiu uma senha principal durante o offboard TDE."
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Comece o seu período de teste gratuito de 7 dias do Bitwarden para $ORG$",
@@ -9681,6 +9808,9 @@
   "assignTasks": {
     "message": "Assign tasks"
   },
+  "assignTasksToMembers": {
+    "message": "Assign tasks to members for guided resolution"
+  },
   "assignToCollections": {
     "message": "Atribuir à coleções"
   },
@@ -9979,7 +10109,7 @@
     "message": "Excluir Provedor"
   },
   "deleteProviderConfirmation": {
-    "message": "A exclusão de um provedor é permanente e irreversível. Digite sua senha mestra para confirmar a exclusão do provedor e de todos os dados associados."
+    "message": "A exclusão de um provedor é permanente e irreversível. Digite sua senha principal para confirmar a exclusão do provedor e de todos os dados associados."
   },
   "deleteProviderName": {
     "message": "Não é possível excluir $ID$",
@@ -10576,7 +10706,7 @@
     "message": "Saiba mais sobre a detecção de partidas"
   },
   "learnMoreAboutMasterPasswordReprompt": {
-    "message": "Saiba mais sobre a redefinição da senha mestra"
+    "message": "Saiba mais sobre a redefinição da senha principal"
   },
   "learnMoreAboutSearchingYourVault": {
     "message": "Saiba mais sobre como pesquisar no seu cofre"
@@ -11084,7 +11214,7 @@
     "message": "Rotação de chave bem-sucedida"
   },
   "rotationCompletedDesc": {
-    "message": "Sua senha mestra e chave de criptografia foram atualizadas. Seus outros dispositivos foram desconectados."
+    "message": "Sua senha principal e chave de criptografia foram atualizadas. Seus outros dispositivos foram desconectados."
   },
   "trustUserEmergencyAccess": {
     "message": "Confiar e confirmar usuário"
@@ -11936,5 +12066,14 @@
   },
   "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
     "message": "Argon2id offers stronger protection against modern attacks. Best for advanced users with powerful devices."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Start free Families trial"
   }
 }

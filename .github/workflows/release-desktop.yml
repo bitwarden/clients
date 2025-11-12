@@ -109,6 +109,8 @@ jobs:
             apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-x86_64.rpm,
             apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-x64.freebsd,
             apps/desktop/artifacts/bitwarden_${{ env.PKG_VERSION }}_amd64.snap,
+            apps/desktop/artifacts/bitwarden_${{ env.PKG_VERSION }}_arm64.snap,
+            apps/desktop/artifacts/bitwarden_${{ env.PKG_VERSION }}_arm64.tar.gz,
             apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-x86_64.AppImage,
             apps/desktop/artifacts/Bitwarden-Portable-${{ env.PKG_VERSION }}.exe,
             apps/desktop/artifacts/Bitwarden-Installer-${{ env.PKG_VERSION }}.exe,
