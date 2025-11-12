@@ -2,9 +2,9 @@
 
 ## Think Twice Before Recommending
 
-Angular has multiple valid patterns and ongoing migrations. Before suggesting changes:
+Angular has multiple valid patterns. Before suggesting changes:
 
-- **Consider the migration context** - Is this code part of an active modernization effort?
+- **Consider the context** - Is this code part of an active modernization effort?
 - **Check for established patterns** - Look for similar implementations in the codebase
 - **Avoid premature optimization** - Don't suggest refactoring stable, working code without clear benefit
 - **Respect incremental progress** - Teams may be modernizing gradually with feature flags
@@ -20,7 +20,7 @@ Angular has multiple valid patterns and ongoing migrations. Before suggesting ch
 **Standalone Components:**
 
 - New components should be standalone whenever feasible, but do not flag existing NgModule components as issues
-- Legacy patterns exist for valid reasons - consider migration effort vs benefit
+- Legacy patterns exist for valid reasons - consider modernization effort vs benefit
 
 **Typed Forms:**
 
@@ -34,7 +34,7 @@ Angular has multiple valid patterns and ongoing migrations. Before suggesting ch
 - Missing tw- prefix breaks styling completely
 - Check ALL Tailwind classes in modified files
 
-## Rust SDK Migrations - Tread Carefully
+## Rust SDK Adoption - Tread Carefully
 
 When reviewing cipher operations:
 
