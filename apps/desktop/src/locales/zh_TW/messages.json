@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "welcomeBack": {
     "message": "歡迎回來"
   },
@@ -772,7 +775,7 @@
     "message": "使用單一登入"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "您的組織要求使用單一登入。"
   },
   "submit": {
     "message": "送出"
@@ -1034,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "您必須新增伺服器網域 URL 或至少一個自訂環境。"
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL 必須使用 HTTPS。"
   },
   "customEnvironment": {
     "message": "自訂環境"
@@ -4190,5 +4196,29 @@
   },
   "cardNumberLabel": {
     "message": "支付卡號碼"
+  },
+  "upgradeNow": {
+    "message": "立即升級"
+  },
+  "builtInAuthenticator": {
+    "message": "內建驗證器"
+  },
+  "secureFileStorage": {
+    "message": "安全檔案儲存"
+  },
+  "emergencyAccess": {
+    "message": "緊急存取"
+  },
+  "breachMonitoring": {
+    "message": "外洩監控"
+  },
+  "andMoreFeatures": {
+    "message": "以及其他功能功能！"
+  },
+  "planDescPremium": {
+    "message": "完整的線上安全"
+  },
+  "upgradeToPremium": {
+    "message": "升級到 Premium"
   }
 }

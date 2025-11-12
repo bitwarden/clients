@@ -2,3 +2,6 @@ export { PoliciesComponent } from "./policies.component";
 export { ossPolicyEditRegister } from "./policy-edit-register";
 export { BasePolicyEditDefinition, BasePolicyEditComponent } from "./base-policy-edit.component";
 export { POLICY_EDIT_REGISTER } from "./policy-register-token";
+export { AutoConfirmPolicyDialogComponent } from "./auto-confirm-edit-policy-dialog.component";
+export { AutoConfirmPolicy } from "./policy-edit-definitions";
+export { PolicyEditDialogResult } from "./policy-edit-dialog.component";

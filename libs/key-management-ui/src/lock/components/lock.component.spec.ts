@@ -51,7 +51,6 @@ import {
   BiometricsStatus,
   BiometricStateService,
   KeyService,
-  PBKDF2KdfConfig,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
 
@@ -497,7 +496,6 @@ describe("LockComponent", () => {
     const mockMasterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
     const masterPasswordVerificationResponse: MasterPasswordVerificationResponse = {
       masterKey: mockMasterKey,
-      kdfConfig: new PBKDF2KdfConfig(600_001),
       email: "test-email@example.com",
       policyOptions: null,
     };

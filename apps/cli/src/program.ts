@@ -251,7 +251,10 @@ export class Program extends BaseProgram {
           return;
         }
 
-        const command = new LockCommand(this.serviceContainer.vaultTimeoutService);
+        const command = new LockCommand(
+          this.serviceContainer.lockService,
+          this.serviceContainer.accountService,
+        );
         const response = await command.run();
         this.processResponse(response);
       });

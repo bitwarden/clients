@@ -330,6 +330,7 @@ export class ViewV2Component {
         const tab = await BrowserApi.getTab(senderTabId);
         await sendExtensionMessage("bgHandleReprompt", {
           tab,
+          cipherId: cipher.id,
           success: repromptSuccess,
         });
 
