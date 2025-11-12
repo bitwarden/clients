@@ -23,6 +23,12 @@ describe("VaultV2SearchComponent", () => {
   const featureFlag$ = new BehaviorSubject(true);
   const applyFilter = jest.fn();
 
+  const createComponent = () => {
+    fixture = TestBed.createComponent(VaultV2SearchComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  };
+
   beforeEach(async () => {
     applyFilter.mockClear();
     featureFlag$.next(true);
@@ -52,13 +58,11 @@ describe("VaultV2SearchComponent", () => {
         { provide: I18nService, useValue: { t: (key: string) => key } },
       ],
     }).compileComponents();
-
-    fixture = TestBed.createComponent(VaultV2SearchComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it("subscribes to search text from service", () => {
+    createComponent();
+
     searchText$.next("test search");
     fixture.detectChanges();
 
@@ -69,6 +73,7 @@ describe("VaultV2SearchComponent", () => {
     describe("when feature flag is enabled", () => {
       beforeEach(() => {
         featureFlag$.next(true);
+        createComponent();
       });
 
       it("debounces search text changes when not loading", fakeAsync(() => {
@@ -122,6 +127,7 @@ describe("VaultV2SearchComponent", () => {
     describe("when feature flag is disabled", () => {
       beforeEach(() => {
         featureFlag$.next(false);
+        createComponent();
       });
 
       it("debounces search text changes", fakeAsync(() => {
