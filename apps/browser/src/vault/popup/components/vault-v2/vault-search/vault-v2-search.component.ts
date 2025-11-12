@@ -16,13 +16,13 @@ import {
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import { SearchModule } from "@bitwarden/components";
 
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -71,7 +71,6 @@ export class VaultV2SearchComponent {
             return this.searchText$.pipe(
               debounceTime(SearchTextDebounceInterval),
               distinctUntilChanged(),
-              takeUntilDestroyed(),
             );
           }
 
@@ -86,10 +85,10 @@ export class VaultV2SearchComponent {
               ([prevText, prevLoading], [newText, newLoading]) =>
                 prevText === newText && prevLoading === newLoading,
             ),
-            takeUntilDestroyed(),
             map(([text, _]) => text),
           );
         }),
+        takeUntilDestroyed(),
       )
       .subscribe((text) => {
         this.ngZone.runOutsideAngular(() => {
