@@ -213,7 +213,13 @@ export class AppComponent implements OnInit, OnDestroy {
              */
             do {
               this.shouldRerunAuthRequestProcessing = false;
-              await this.processPendingAuthRequests();
+
+              try {
+                await this.processPendingAuthRequests();
+              } catch (error) {
+                this.logService.error(`Error processing pending auth requests: ${error}`);
+                this.shouldRerunAuthRequestProcessing = false; // Reset flag to prevent infinite loop on persistent errors
+              }
               // If an "openLoginApproval" message was received while processPendingAuthRequests() was running, then
               // shouldRerunAuthRequestProcessing will have been set to true
             } while (this.shouldRerunAuthRequestProcessing);
