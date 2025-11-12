@@ -1,6 +1,5 @@
-import { Jsonify } from "type-fest";
-
 import { View } from "@bitwarden/common/models/view/view";
+import { DeepJsonify } from "@bitwarden/common/types/deep-jsonify";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RiskInsightsApplicationApi } from "../api/risk-insights-application.api";
@@ -34,7 +33,9 @@ export class RiskInsightsApplicationView implements View {
     return this;
   }
 
-  static fromJSON(obj: Partial<Jsonify<RiskInsightsApplicationView>>): RiskInsightsApplicationView {
+  static fromJSON(
+    obj: Partial<DeepJsonify<RiskInsightsApplicationView>>,
+  ): RiskInsightsApplicationView {
     return Object.assign(new RiskInsightsApplicationView(), obj);
   }
 
