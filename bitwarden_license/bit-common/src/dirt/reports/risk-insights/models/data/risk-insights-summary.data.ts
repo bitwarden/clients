@@ -5,7 +5,7 @@ import { RiskInsightsSummary } from "../domain/risk-insights-summary";
 import { RiskInsightsSummaryView } from "../view/risk-insights-summary.view";
 
 /**
- * Serializable data model for member details in risk insights report
+ * Serializable data model for report summary in risk insights report
  *
  * - See {@link RiskInsightsSummary} for domain model
  * - See {@link RiskInsightsSummaryApi} for API model
