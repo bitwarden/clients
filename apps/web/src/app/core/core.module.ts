@@ -118,6 +118,7 @@ import {
   BiometricsService,
 } from "@bitwarden/key-management";
 import { LockComponentService } from "@bitwarden/key-management-ui";
+import { FlightRecorderService } from "@bitwarden/logging";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
@@ -371,7 +372,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SdkLoadService,
     useClass: flagEnabled("sdk") ? WebSdkLoadService : NoopSdkLoadService,
-    deps: [],
+    deps: [FlightRecorderService],
   }),
   safeProvider({
     provide: SdkClientFactory,

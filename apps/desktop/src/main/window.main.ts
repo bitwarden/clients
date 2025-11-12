@@ -49,7 +49,7 @@ export class WindowMain {
     private desktopSettingsService: DesktopSettingsService,
     private argvCallback: (argv: string[]) => void = null,
     private createWindowCallback: (win: BrowserWindow) => void,
-  ) {}
+  ) { }
 
   init(): Promise<any> {
     // Perform a hard reload of the render process by crashing it. This is suboptimal but ensures that all memory gets
@@ -267,6 +267,7 @@ export class WindowMain {
     this.enableAlwaysOnTop = await firstValueFrom(this.desktopSettingsService.alwaysOnTop$);
 
     this.session = session.fromPartition("persist:bitwarden", { cache: false });
+    console.log("IS DEV", isDev());
 
     // Create the browser window.
     this.win = new BrowserWindow({
@@ -350,6 +351,7 @@ export class WindowMain {
     }
 
     // Open the DevTools.
+    console.log("IS DEV1", isDev());
     if (isDev()) {
       this.win.webContents.openDevTools();
     }

@@ -345,6 +345,7 @@ import {
   UserAsymmetricKeysRegenerationApiService,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
+import { FlightRecorderService, MemoryFlightRecorderService } from "@bitwarden/logging";
 import {
   ActiveUserStateProvider,
   DerivedStateProvider,
@@ -455,11 +456,11 @@ const safeProviders: SafeProvider[] = [
     provide: LOGOUT_CALLBACK,
     useFactory:
       (messagingService: MessagingServiceAbstraction) =>
-      async (logoutReason: LogoutReason, userId?: string) => {
-        return Promise.resolve(
-          messagingService.send("logout", { logoutReason: logoutReason, userId: userId }),
-        );
-      },
+        async (logoutReason: LogoutReason, userId?: string) => {
+          return Promise.resolve(
+            messagingService.send("logout", { logoutReason: logoutReason, userId: userId }),
+          );
+        },
     deps: [MessagingServiceAbstraction],
   }),
   safeProvider({
@@ -658,8 +659,8 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: LogService,
-    useFactory: () => new ConsoleLogService(process.env.NODE_ENV === "development"),
-    deps: [],
+    useFactory: (flightRecorderService: FlightRecorderService) => new ConsoleLogService(process.env.NODE_ENV === "development", null, flightRecorderService),
+    deps: [FlightRecorderService],
   }),
   safeProvider({
     provide: CollectionService,
@@ -1755,4 +1756,4 @@ const safeProviders: SafeProvider[] = [
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
   providers: safeProviders,
 })
-export class JslibServicesModule {}
+export class JslibServicesModule { }

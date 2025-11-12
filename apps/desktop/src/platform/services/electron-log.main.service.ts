@@ -8,6 +8,7 @@ import log from "electron-log/main";
 import { LogLevelType } from "@bitwarden/common/platform/enums/log-level-type.enum";
 import { ConsoleLogService as BaseLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { logging } from "@bitwarden/desktop-napi";
+import { FlightRecorderService } from "@bitwarden/logging";
 
 import { isDev } from "../../utils";
 
@@ -15,6 +16,7 @@ export class ElectronLogMainService extends BaseLogService {
   constructor(
     protected filter: (level: LogLevelType) => boolean = null,
     private logDir: string = null,
+    private flightRecorder: FlightRecorderService = null
   ) {
     super(isDev(), filter);
 
@@ -59,6 +61,11 @@ export class ElectronLogMainService extends BaseLogService {
   write(level: LogLevelType, message?: any, ...optionalParams: any[]) {
     if (this.filter != null && this.filter(level)) {
       return;
+    }
+
+    console.log("ElectronLogMainService.write:", this.flightRecorder, message, ...optionalParams);
+    if (this.flightRecorder != null) {
+      this.flightRecorder.write(`[TS] [${LogLevelType[level]}] ${message}`).then(() => { }).catch(() => { });
     }
 
     switch (level) {

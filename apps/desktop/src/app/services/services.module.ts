@@ -110,6 +110,7 @@ import {
   BiometricsService,
 } from "@bitwarden/key-management";
 import { LockComponentService } from "@bitwarden/key-management-ui";
+import { FlightRecorderService } from "@bitwarden/logging";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
 
@@ -136,6 +137,7 @@ import { ElectronRendererMessageSender } from "../../platform/services/electron-
 import { ElectronRendererSecureStorageService } from "../../platform/services/electron-renderer-secure-storage.service";
 import { ElectronRendererStorageService } from "../../platform/services/electron-renderer-storage.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
+import { RendererFlightRecorderService } from "../../platform/services/renderer-flight-recorder.service";
 import { fromIpcMessaging } from "../../platform/utils/from-ipc-messaging";
 import { fromIpcSystemTheme } from "../../platform/utils/from-ipc-system-theme";
 import { BiometricMessageHandlerService } from "../../services/biometric-message-handler.service";
@@ -168,6 +170,11 @@ const safeProviders: SafeProvider[] = [
     useClass: RendererBiometricsService,
     deps: [],
   }),
+  safeProvider({
+    provide: FlightRecorderService,
+    useClass: RendererFlightRecorderService,
+    deps: [],
+  }),
   safeProvider(NativeMessagingService),
   safeProvider(BiometricMessageHandlerService),
   safeProvider(SearchBarService),
@@ -185,7 +192,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LogServiceAbstraction,
     useClass: ElectronLogRendererService,
-    deps: [],
+    deps: [FlightRecorderService],
   }),
   safeProvider({
     provide: PlatformUtilsServiceAbstraction,
@@ -488,4 +495,4 @@ const safeProviders: SafeProvider[] = [
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
   providers: safeProviders,
 })
-export class ServicesModule {}
+export class ServicesModule { }

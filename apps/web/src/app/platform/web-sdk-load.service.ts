@@ -1,4 +1,5 @@
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { FlightRecorderService } from "@bitwarden/logging";
 import * as sdk from "@bitwarden/sdk-internal";
 
 // https://stackoverflow.com/a/47880734
@@ -19,6 +20,10 @@ const supported = (() => {
 })();
 
 export class WebSdkLoadService extends SdkLoadService {
+  constructor(private flightRecorderService: FlightRecorderService) {
+    super();
+  }
+
   async load(): Promise<void> {
     let module: any;
     if (supported) {
@@ -27,5 +32,9 @@ export class WebSdkLoadService extends SdkLoadService {
       module = await import("@bitwarden/sdk-internal/bitwarden_wasm_internal_bg.wasm.js");
     }
     (sdk as any).init(module);
+  }
+
+  protected log(message: string): void {
+    this.flightRecorderService.write("[SDK] " + message);
   }
 }

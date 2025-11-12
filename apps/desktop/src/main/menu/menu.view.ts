@@ -4,6 +4,7 @@ import { MenuItemConstructorOptions } from "electron";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { FlightRecorderService } from "@bitwarden/logging";
 
 import { isDev } from "../../utils";
 
@@ -30,6 +31,7 @@ export class ViewMenu implements IMenubarMenu {
       this.toggleFullscreen,
       this.separator,
       this.reload,
+      this.flightRecorder,
     ];
 
     if (isDev()) {
@@ -131,6 +133,14 @@ export class ViewMenu implements IMenubarMenu {
       label: this.localize("toggleDevTools"),
       role: "toggleDevTools",
       accelerator: "F12",
+    };
+  }
+
+  private get flightRecorder(): MenuItemConstructorOptions {
+    return {
+      id: "flightRecorder",
+      label: "Flight recorder",
+      click: () => this.sendMessage("openFlightRecorder"),
     };
   }
 

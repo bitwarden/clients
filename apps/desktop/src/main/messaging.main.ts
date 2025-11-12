@@ -3,7 +3,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import { app, ipcMain } from "electron";
+import { app, dialog, ipcMain } from "electron";
 import { firstValueFrom } from "rxjs";
 
 import { autostart } from "@bitwarden/desktop-napi";
@@ -22,7 +22,7 @@ export class MessagingMain {
   constructor(
     private main: Main,
     private desktopSettingsService: DesktopSettingsService,
-  ) {}
+  ) { }
 
   async init() {
     this.scheduleNextSync();
@@ -89,6 +89,18 @@ export class MessagingMain {
       case "getWindowIsFocused":
         this.windowIsFocused();
         break;
+      case "openFlightRecorder": {
+        const records = (await this.main.flightRecorder.getRecords()).join("\n");
+        const result = await dialog.showSaveDialog(this.main.windowMain.win, {
+          title: "Save Flight Recorder Log",
+          defaultPath: `bitwarden_flight_recorder_${new Date().toISOString().replace(/[:.]/g, "-")}.log`,
+          filters: [{ name: "Log Files", extensions: ["log", "txt"] }],
+        });
+        if (!result.canceled && result.filePath) {
+          fs.writeFileSync(result.filePath, records, { encoding: "utf-8" });
+        }
+        break;
+      }
       default:
         break;
     }
@@ -129,7 +141,7 @@ export class MessagingMain {
   private addOpenAtLogin() {
     if (process.platform === "linux") {
       if (isFlatpak()) {
-        autostart.setAutostart(true, []).catch((e) => {});
+        autostart.setAutostart(true, []).catch((e) => { });
       } else {
         const data = `[Desktop Entry]
   Type=Application
@@ -154,7 +166,7 @@ export class MessagingMain {
   private removeOpenAtLogin() {
     if (process.platform === "linux") {
       if (isFlatpak()) {
-        autostart.setAutostart(false, []).catch((e) => {});
+        autostart.setAutostart(false, []).catch((e) => { });
       } else {
         if (fs.existsSync(this.linuxStartupFile())) {
           fs.unlinkSync(this.linuxStartupFile());

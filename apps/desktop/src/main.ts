@@ -22,6 +22,7 @@ import { MemoryStorageService } from "@bitwarden/common/platform/services/memory
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { DefaultBiometricStateService } from "@bitwarden/key-management";
+import { FlightRecorderService, MemoryFlightRecorderService } from "@bitwarden/logging";
 import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
 import {
   DefaultActiveUserStateProvider,
@@ -56,12 +57,14 @@ import { ElectronLogMainService } from "./platform/services/electron-log.main.se
 import { ElectronStorageService } from "./platform/services/electron-storage.service";
 import { EphemeralValueStorageService } from "./platform/services/ephemeral-value-storage.main.service";
 import { I18nMainService } from "./platform/services/i18n.main.service";
+import { MainFlightRecorderService } from "./platform/services/main-flight-recorder.service";
 import { SSOLocalhostCallbackService } from "./platform/services/sso-localhost-callback.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { MainSdkLoadService } from "./services/main-sdk-load-service";
 import { isMacAppStore } from "./utils";
 
 export class Main {
+  flightRecorder: FlightRecorderService;
   logService: ElectronLogMainService;
   i18nService: I18nMainService;
   storageService: ElectronStorageService;
@@ -129,7 +132,8 @@ export class Main {
       });
     }
 
-    this.logService = new ElectronLogMainService(null, app.getPath("userData"));
+    this.flightRecorder = new MainFlightRecorderService();
+    this.logService = new ElectronLogMainService(null, app.getPath("userData"), this.flightRecorder);
 
     const storageDefaults: any = {};
     this.storageService = new ElectronStorageService(app.getPath("userData"), storageDefaults);
@@ -146,7 +150,7 @@ export class Main {
 
     this.i18nService = new I18nMainService("en", "./locales/", globalStateProvider);
 
-    this.sdkLoadService = new MainSdkLoadService();
+    this.sdkLoadService = new MainSdkLoadService(this.flightRecorder);
 
     this.mainCryptoFunctionService = new NodeCryptoFunctionService();
 

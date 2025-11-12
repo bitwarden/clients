@@ -56,4 +56,4 @@ import { SharedModule } from "./shared/shared.module";
   providers: [SshAgentService],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule { }

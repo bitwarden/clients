@@ -1,3 +1,4 @@
+import { FlightRecorderService } from "./flight-recorder.service";
 import { LogLevel } from "./log-level";
 import { LogService } from "./log.service";
 
@@ -7,7 +8,8 @@ export class ConsoleLogService implements LogService {
   constructor(
     protected isDev: boolean,
     protected filter: ((level: LogLevel) => boolean) | null = null,
-  ) {}
+    protected flightRecorderService: FlightRecorderService | null = null,
+  ) { }
 
   debug(message?: any, ...optionalParams: any[]) {
     if (!this.isDev) {
@@ -31,6 +33,12 @@ export class ConsoleLogService implements LogService {
   write(level: LogLevel, message?: any, ...optionalParams: any[]) {
     if (this.filter != null && this.filter(level)) {
       return;
+    }
+
+    if (this.flightRecorderService) {
+      const fullMessage = [message, ...optionalParams].join(" ");
+      console.log("ConsoleLogService.write:", fullMessage);
+      this.flightRecorderService.write(`[TS] [${LogLevel[level]}] ${fullMessage}`).then(() => { }).catch(() => { });
     }
 
     switch (level) {

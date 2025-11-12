@@ -25,17 +25,6 @@ export class WebIpcService extends IpcService {
       this.communicationBackend = new IpcCommunicationBackend({
         async send(message: OutgoingMessage): Promise<void> {
           if (message.destination === "BrowserBackground") {
-            window.postMessage(
-              {
-                type: "bitwarden-ipc-message",
-                message: {
-                  destination: message.destination,
-                  payload: [...message.payload],
-                  topic: message.topic,
-                },
-              } satisfies IpcMessage,
-              window.location.origin,
-            );
             return;
           }
 
@@ -70,7 +59,7 @@ export class WebIpcService extends IpcService {
         );
       });
 
-      await super.initWithClient(new IpcClient(this.communicationBackend));
+      //await super.initWithClient(new IpcClient(this.communicationBackend));
 
       if (this.platformUtilsService.isDev()) {
         await ipcRegisterDiscoverHandler(this.client, {

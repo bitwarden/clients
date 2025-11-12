@@ -68,6 +68,11 @@ const sshAgent = {
   },
 };
 
+const flightRecorder = {
+  write: (message: string) => ipcRenderer.invoke("flightrecorder.write", message),
+  getRecords: (): Promise<string[]> => ipcRenderer.invoke("flightrecorder.getRecords"),
+};
+
 const powermonitor = {
   isLockMonitorAvailable: (): Promise<boolean> =>
     ipcRenderer.invoke("powermonitor.isLockMonitorAvailable"),
@@ -185,6 +190,7 @@ export default {
   crypto,
   ephemeralStore,
   localhostCallbackService,
+  flightRecorder,
 };
 
 function deviceType(): DeviceType {

@@ -102,10 +102,10 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM22887_RiskInsightsActivityTab]: FALSE,
 
   /* Vault */
-  [FeatureFlag.CipherKeyEncryption]: FALSE,
-  [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
-  [FeatureFlag.PM22134SdkCipherListView]: FALSE,
-  [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
+  [FeatureFlag.CipherKeyEncryption]: true,
+  [FeatureFlag.PM19941MigrateCipherDomainToSdk]: true,
+  [FeatureFlag.PM22134SdkCipherListView]: true,
+  [FeatureFlag.PM22136_SdkCipherEncryption]: true,
   [FeatureFlag.AutofillConfirmation]: FALSE,
   [FeatureFlag.RiskInsightsForPremium]: FALSE,
 

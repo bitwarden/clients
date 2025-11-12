@@ -4,8 +4,8 @@ import { LogLevelType } from "@bitwarden/common/platform/enums/log-level-type.en
 import { ConsoleLogService as BaseLogService } from "@bitwarden/common/platform/services/console-log.service";
 
 export class ElectronLogRendererService extends BaseLogService {
-  constructor(protected filter: (level: LogLevelType) => boolean = null) {
-    super(ipc.platform.isDev, filter);
+  constructor() {
+    super(ipc.platform.isDev, null, null);
   }
 
   write(level: LogLevelType, message?: any, ...optionalParams: any[]) {
