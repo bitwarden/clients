@@ -28,13 +28,15 @@
         </button>
       </div>
       <div class="tw-pt-2" [ngClass]="savedUrlsListClass()">
-        <div class="-tw-mt-2" *ngFor="let url of savedUrls()">
-          <bit-callout [title]="null" type="success" icon="bwi-globe">
-            <div class="tw-font-mono tw-line-clamp-1 tw-break-all" [appA11yTitle]="url">
-              {{ url }}
-            </div>
-          </bit-callout>
-        </div>
+        @for (url of displayedSavedUrls(); track url) {
+          <div class="-tw-mt-2">
+            <bit-callout [title]="null" type="success" icon="bwi-globe">
+              <div class="tw-font-mono tw-line-clamp-1 tw-break-all" [appA11yTitle]="url">
+                {{ url }}
+              </div>
+            </bit-callout>
+          </div>
+        }
       </div>
     }
     <p class="tw-text-muted tw-text-xs tw-uppercase tw-mt-5 tw-font-medium">
