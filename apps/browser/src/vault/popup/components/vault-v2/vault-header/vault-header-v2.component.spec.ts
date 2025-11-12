@@ -28,6 +28,7 @@ import {
   PopupListFilter,
   VaultPopupListFiltersService,
 } from "../../../../../vault/popup/services/vault-popup-list-filters.service";
+import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 
 import { VaultHeaderV2Component } from "./vault-header-v2.component";
 
@@ -98,6 +99,10 @@ describe("VaultHeaderV2Component", () => {
         {
           provide: StateProvider,
           useValue: { getGlobal: () => ({ state$, update }) },
+        },
+        {
+          provide: VaultPopupLoadingService,
+          useValue: { loading$: new BehaviorSubject(false) },
         },
       ],
     }).compileComponents();
