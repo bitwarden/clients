@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
-import { RouterLink } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
@@ -8,6 +8,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ButtonModule, ButtonType, MenuModule } from "@bitwarden/components";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -32,6 +33,8 @@ export class NewSendDropdownComponent implements OnInit {
   constructor(
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private accountService: AccountService,
+    private router: Router,
+    private premiumUpgradePromptService: PremiumUpgradePromptService,
   ) {}
 
   async ngOnInit() {
@@ -46,18 +49,21 @@ export class NewSendDropdownComponent implements OnInit {
     ));
   }
 
-  buildRouterLink(type: SendType) {
-    if (this.hasNoPremium && type === SendType.File) {
-      return "/premium";
-    } else {
-      return "/add-send";
-    }
+  buildRouterLink() {
+    return "/add-send";
   }
 
   buildQueryParams(type: SendType) {
-    if (this.hasNoPremium && type === SendType.File) {
-      return null;
-    }
     return { type: type, isNew: true };
+  }
+
+  async sendFileClick() {
+    if (this.hasNoPremium) {
+      await this.premiumUpgradePromptService.promptForPremium();
+    } else {
+      await this.router.navigate([this.buildRouterLink()], {
+        queryParams: this.buildQueryParams(SendType.File),
+      });
+    }
   }
 }

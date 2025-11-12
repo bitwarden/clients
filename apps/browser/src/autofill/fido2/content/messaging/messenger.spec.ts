@@ -31,9 +31,8 @@ describe("Messenger", () => {
 
   it("should deliver message to B when sending request from A", () => {
     const request = createRequest();
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    messengerA.request(request);
+
+    void messengerA.request(request);
 
     const received = handlerB.receive();
 
@@ -66,14 +65,13 @@ describe("Messenger", () => {
 
   it("should deliver abort signal to B when requesting abort", () => {
     const abortController = new AbortController();
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    messengerA.request(createRequest(), abortController.signal);
+
+    void messengerA.request(createRequest(), abortController.signal);
     abortController.abort();
 
     const received = handlerB.receive();
 
-    expect(received[0].abortController.signal.aborted).toBe(true);
+    expect(received[0].abortController?.signal.aborted).toBe(true);
   });
 
   describe("destroy", () => {
@@ -103,29 +101,25 @@ describe("Messenger", () => {
 
     it("should dispatch the destroy event on messenger destruction", async () => {
       const request = createRequest();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      messengerA.request(request);
+
+      void messengerA.request(request);
 
       const dispatchEventSpy = jest.spyOn((messengerA as any).onDestroy, "dispatchEvent");
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      messengerA.destroy();
+
+      void messengerA.destroy();
 
       expect(dispatchEventSpy).toHaveBeenCalledWith(expect.any(Event));
     });
 
     it("should trigger onDestroyListener when the destroy event is dispatched", async () => {
       const request = createRequest();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      messengerA.request(request);
+
+      void messengerA.request(request);
 
       const onDestroyListener = jest.fn();
       (messengerA as any).onDestroy.addEventListener("destroy", onDestroyListener);
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      messengerA.destroy();
+
+      void messengerA.destroy();
 
       expect(onDestroyListener).toHaveBeenCalled();
       const eventArg = onDestroyListener.mock.calls[0][0];
@@ -213,7 +207,7 @@ class MockMessagePort<T> {
   remotePort: MockMessagePort<T>;
 
   postMessage(message: T, port?: MessagePort) {
-    this.remotePort.onmessage(
+    this.remotePort.onmessage?.(
       new MessageEvent("message", {
         data: message,
         ports: port ? [port] : [],

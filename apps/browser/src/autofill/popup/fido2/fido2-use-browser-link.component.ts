@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { firstValueFrom } from "rxjs";
@@ -69,7 +67,7 @@ export class Fido2UseBrowserLinkComponent {
 
     this.platformUtilsService.showToast(
       "success",
-      null,
+      "",
       this.i18nService.t("domainAddedToExcludedDomains", validDomain),
     );
   }
