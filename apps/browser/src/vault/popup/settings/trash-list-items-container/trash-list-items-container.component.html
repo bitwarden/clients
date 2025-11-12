@@ -45,7 +45,7 @@
               type="button"
               bitMenuItem
               (click)="restore(cipher)"
-              *ngIf="!('decryptionFailure' in cipher && cipher.decryptionFailure)"
+              *ngIf="!hasDecryptionFailure(cipher)"
             >
               {{ "restore" | i18n }}
             </button>

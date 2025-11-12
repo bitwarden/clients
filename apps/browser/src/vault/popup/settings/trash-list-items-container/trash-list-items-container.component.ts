@@ -106,6 +106,14 @@ export class TrashListItemsContainerComponent {
     return cipher.subtitle;
   }
 
+  /**
+   * Check if a cipher has a decryption failure. CipherView has this property,
+   * while CipherListView does not.
+   */
+  hasDecryptionFailure(cipher: PopupCipherViewLike): boolean {
+    return "decryptionFailure" in cipher && cipher.decryptionFailure;
+  }
+
   async restore(cipher: PopupCipherViewLike) {
     try {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
