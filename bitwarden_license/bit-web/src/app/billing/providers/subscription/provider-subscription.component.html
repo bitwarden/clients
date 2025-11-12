@@ -51,7 +51,7 @@
               <tr bitRow>
                 <td bitCell class="tw-pl-0 tw-py-3"></td>
                 <td bitCell class="tw-text-right">
-                  <span class="tw-font-bold">Total:</span> {{ totalCost | currency: "$" }} /
+                  <span class="tw-font-medium">Total:</span> {{ totalCost | currency: "$" }} /
                   {{
                     getBillingCadenceLabel(activePlans.length > 0 ? activePlans[0] : null) | i18n
                   }}

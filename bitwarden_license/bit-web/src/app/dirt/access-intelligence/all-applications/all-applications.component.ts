@@ -10,7 +10,10 @@ import {
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { createNewSummaryData } from "@bitwarden/bit-common/dirt/reports/risk-insights/helpers";
-import { OrganizationReportSummary } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
+import {
+  OrganizationReportSummary,
+  ReportStatus,
+} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
@@ -53,6 +56,7 @@ export class AllApplicationsComponent implements OnInit {
   noItemsIcon = Security;
   protected markingAsCritical = false;
   protected applicationSummary: OrganizationReportSummary = createNewSummaryData();
+  protected ReportStatusEnum = ReportStatus;
 
   destroyRef = inject(DestroyRef);
 
@@ -87,6 +91,7 @@ export class AllApplicationsComponent implements OnInit {
 
   markAppsAsCritical = async () => {
     this.markingAsCritical = true;
+    const count = this.selectedUrls.size;
 
     this.dataService
       .saveCriticalApplications(Array.from(this.selectedUrls))
@@ -96,7 +101,7 @@ export class AllApplicationsComponent implements OnInit {
           this.toastService.showToast({
             variant: "success",
             title: "",
-            message: this.i18nService.t("applicationsMarkedAsCriticalSuccess"),
+            message: this.i18nService.t("criticalApplicationsMarkedSuccess", count.toString()),
           });
           this.selectedUrls.clear();
           this.markingAsCritical = false;

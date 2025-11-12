@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Egyszeri bejelentkezés használata"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "A szervezet egyszeri bejelentkezést igényel."
+  },
   "welcomeBack": {
     "message": "Üdvözlet újra"
   },
@@ -588,6 +591,9 @@
   "view": {
     "message": "Nézet"
   },
+  "viewAll": {
+    "message": "Összes megtekintése"
+  },
   "viewLogin": {
     "message": "Bejelentkezés megtekintése"
   },
@@ -1027,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Az elem szerkesztésre került."
+  },
+  "savedWebsite": {
+    "message": "Mentett webhely"
+  },
+  "savedWebsites": {
+    "message": "Mentett webhelyek ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Biztosan törlésre kerüljön ezt az elem?"
@@ -1505,12 +1523,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Biometria kérése indításkor"
   },
-  "premiumRequired": {
-    "message": "Prémium funkció szükséges"
-  },
-  "premiumRequiredDesc": {
-    "message": "Prémium tagság szükséges ennek a funkciónak eléréséhez a jövőben."
-  },
   "authenticationTimeout": {
     "message": "Hitelesítési időkifutás"
   },
@@ -1623,6 +1635,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Hozzá kell adni az alapszerver webcímét vagy legalább egy egyedi környezetet."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "A webcímeknek HTTPS-t kell használniuk."
+  },
   "customEnvironment": {
     "message": "Egyedi környezet"
   },
@@ -1676,8 +1691,29 @@
   "turnOffAutofill": {
     "message": "Automat kitöltés bekapcsolása"
   },
+  "confirmAutofill": {
+    "message": "Automatikus kitöltés megerősítése"
+  },
+  "confirmAutofillDesc": {
+    "message": "Ez a webhely nem egyezik a mentett bejelentkezési adatokkal. Mielőtt kitöltenénk a bejelentkezés hitelesítő adatokat, győződjünk meg arról, hogy megbízható webhelyről van-e szó."
+  },
   "showInlineMenuLabel": {
     "message": "Automatikus kitöltési javaslatok megjelenítése űrlapmezőknél"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Hogyan védi meg a Bitwarden az adathalászattól az adatokat?"
+  },
+  "currentWebsite": {
+    "message": "Jelenlegi webhely"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Automatikus kitöltés és ezen webhely hozzáadása"
+  },
+  "autofillWithoutAdding": {
+    "message": "Automatikus kitöltés hozzáadás nélkül"
+  },
+  "doNotAutofill": {
+    "message": "Ne legyen automatikus kitöltés"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Az identitások megjelenítése javaslatként"
@@ -3240,6 +3276,9 @@
   "decryptionError": {
     "message": "Visszafejtési hiba"
   },
+  "errorGettingAutoFillData": {
+    "message": "Hiba történt az automatikus kitöltési adatok beolvasásakor."
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "A Bitwarden nem tudta visszafejteni az alább felsorolt ​​széf elemeket."
   },
@@ -4010,6 +4049,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Az automatikus kitöltés az oldal betöltésekor az alapértelmezett beállítás használatára lett beállítva.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Nem lehetséges az automatikus kitöltés."
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Az alapértelmezett egyezés beállítása 'Pontos egyezés'. Az aktuális webhely nem egyezik pontosan az ezzel az elemmel mentett bejelentkezési adatokkal."
+  },
+  "okay": {
+    "message": "OK"
   },
   "toggleSideNavigation": {
     "message": "Oldalnavigáció váltás"
@@ -4926,6 +4974,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Default ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "$WEBSITE$ egyező érzékelés megjelenítése",
     "placeholders": {
@@ -5718,8 +5776,38 @@
   "atRiskLoginsSecured": {
     "message": "Remek munka a kockázatos bejelentkezések biztosítása!"
   },
+  "upgradeNow": {
+    "message": "Áttérés most"
+  },
+  "builtInAuthenticator": {
+    "message": "Beépített hitelesítő"
+  },
+  "secureFileStorage": {
+    "message": "Biztonságos fájl tárolás"
+  },
+  "emergencyAccess": {
+    "message": "Sürgősségi hozzáférés"
+  },
+  "breachMonitoring": {
+    "message": "Adatszivárgás figyelés"
+  },
+  "andMoreFeatures": {
+    "message": "És még több!"
+  },
+  "planDescPremium": {
+    "message": "Teljes körű online biztonság"
+  },
+  "upgradeToPremium": {
+    "message": "Áttérés Prémium csomagra"
+  },
   "settingDisabledByPolicy": {
     "message": "Ezt a beállítást a szervezet házirendje letiltotta.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Irányítószám"
+  },
+  "cardNumberLabel": {
+    "message": "Kártya szám"
   }
 }

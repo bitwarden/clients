@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "您没有编辑此项目的权限"
+  },
   "welcomeBack": {
     "message": "欢迎回来"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "使用单点登录"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "您的组织要求单点登录。"
+  },
   "submit": {
     "message": "提交"
   },
@@ -1032,6 +1038,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "您必须添加基础服务器 URL 或至少添加一个自定义环境。"
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL 必须使用 HTTPS。"
+  },
   "customEnvironment": {
     "message": "自定义环境"
   },
@@ -1238,13 +1247,13 @@
     "message": "两步登录"
   },
   "vaultTimeoutHeader": {
-    "message": "密码库超时时间"
+    "message": "密码库超时"
   },
   "vaultTimeout": {
-    "message": "密码库超时时间"
+    "message": "密码库超时"
   },
   "vaultTimeout1": {
-    "message": "超时"
+    "message": "超时时间"
   },
   "vaultTimeoutAction1": {
     "message": "超时动作"
@@ -1895,7 +1904,7 @@
     "message": "您必须至少选择一个集合。"
   },
   "premiumUpdated": {
-    "message": "您已升级到高级会员。"
+    "message": "您已升级为高级版。"
   },
   "restore": {
     "message": "恢复"
@@ -1964,7 +1973,7 @@
     "message": "永久删除"
   },
   "vaultTimeoutLogOutConfirmation": {
-    "message": "超时后注销将解除对密码库的所有访问权限，并需要进行在线身份验证。确定使用此设置吗？"
+    "message": "超时后注销账户将解除对密码库的所有访问权限，并需要进行在线身份验证。确定要使用此设置吗？"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
     "message": "超时动作确认"
@@ -2431,7 +2440,7 @@
     "message": "您的主密码不符合某一项或多项组织策略要求。要访问密码库，必须立即更新您的主密码。继续操作将使您退出当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
   },
   "changePasswordWarning": {
-    "message": "更改密码后，您需要使用新密码登录。 在其他设备上的活动会话将在一小时内注销。"
+    "message": "更改密码后，您需要使用新密码登录。在其他设备上的活动会话将在一小时内注销。"
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
     "message": "更改您的主密码以完成账户恢复。"
@@ -2498,7 +2507,7 @@
     }
   },
   "vaultTimeoutPolicyWithActionInEffect": {
-    "message": "您的组织策略正在影响您的密码库超时时间。最大允许的密码库超时时间是 $HOURS$ 小时 $MINUTES$ 分钟。您的密码库超时动作被设置为 $ACTION$。",
+    "message": "您的组织策略正在影响您的密码库超时。最大允许的密码库超时为 $HOURS$ 小时 $MINUTES$ 分钟。您的密码库超时动作被设置为 $ACTION$。",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2515,7 +2524,7 @@
     }
   },
   "vaultTimeoutActionPolicyInEffect": {
-    "message": "您的组织策略已将您的密码库超时动作设置为 $ACTION$。",
+    "message": "您的组织策略已将您的密码库超时动作设置为「$ACTION$」。",
     "placeholders": {
       "action": {
         "content": "$1",
@@ -2524,13 +2533,13 @@
     }
   },
   "vaultTimeoutTooLarge": {
-    "message": "您的密码库超时时间超出了组织设置的限制。"
+    "message": "您的密码库超时超出了您组织设置的限制。"
   },
   "vaultTimeoutPolicyAffectingOptions": {
     "message": "企业策略要求已应用到您的超时选项中"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "您的组织策略已将您最大允许的密码库超时时间设置为 $HOURS$ 小时 $MINUTES$ 分钟。",
+    "message": "您的组织策略已将您最大允许的密码库超时设置为 $HOURS$ 小时 $MINUTES$ 分钟。",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2543,7 +2552,7 @@
     }
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "超时时间超出了您组织设置的限制：最多 $HOURS$ 小时 $MINUTES$ 分钟",
+    "message": "超时超出了您组织设置的限制：最多 $HOURS$ 小时 $MINUTES$ 分钟",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2556,7 +2565,7 @@
     }
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "自定义超时时间最小为 1 分钟。"
+    "message": "自定义超时最少为 1 分钟。"
   },
   "inviteAccepted": {
     "message": "邀请已接受"
@@ -4181,5 +4190,35 @@
   },
   "archiveItemConfirmDesc": {
     "message": "已归档的项目将被排除在一般搜索结果和自动填充建议之外。确定要归档此项目吗？"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / 邮政编码"
+  },
+  "cardNumberLabel": {
+    "message": "卡号"
+  },
+  "upgradeNow": {
+    "message": "立即升级"
+  },
+  "builtInAuthenticator": {
+    "message": "内置身份验证器"
+  },
+  "secureFileStorage": {
+    "message": "安全文件存储"
+  },
+  "emergencyAccess": {
+    "message": "紧急访问"
+  },
+  "breachMonitoring": {
+    "message": "数据泄露监测"
+  },
+  "andMoreFeatures": {
+    "message": "以及更多！"
+  },
+  "planDescPremium": {
+    "message": "全面的在线安全防护"
+  },
+  "upgradeToPremium": {
+    "message": "升级为高级版"
   }
 }

@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   Component,
+  computed,
   DestroyRef,
   input,
   OnInit,
@@ -24,11 +25,17 @@ import {
 } from "rxjs";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
+import {
+  PersonalSubscriptionPricingTier,
+  PersonalSubscriptionPricingTierId,
+  PersonalSubscriptionPricingTierIds,
+} from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { ButtonModule, DialogModule, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { CartSummaryComponent, LineItem } from "@bitwarden/pricing";
+import { CartSummaryComponent } from "@bitwarden/pricing";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import {
@@ -43,13 +50,7 @@ import {
   TokenizedPaymentMethod,
 } from "../../../payment/types";
 import { BillingServicesModule } from "../../../services";
-import { SubscriptionPricingService } from "../../../services/subscription-pricing.service";
 import { BitwardenSubscriber } from "../../../types";
-import {
-  PersonalSubscriptionPricingTier,
-  PersonalSubscriptionPricingTierId,
-  PersonalSubscriptionPricingTierIds,
-} from "../../../types/subscription-pricing-tier";
 
 import {
   PaymentFormValues,
@@ -104,8 +105,6 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
   protected readonly account = input.required<Account>();
   protected goBack = output<void>();
   protected complete = output<UpgradePaymentResult>();
-  protected selectedPlan: PlanDetails | null = null;
-  protected hasEnoughAccountCredit$!: Observable<boolean>;
 
   readonly paymentComponent = viewChild.required(EnterPaymentMethodComponent);
   readonly cartSummaryComponent = viewChild.required(CartSummaryComponent);
@@ -116,19 +115,30 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     billingAddress: EnterBillingAddressComponent.getFormGroup(),
   });
 
+  protected readonly selectedPlan = signal<PlanDetails | null>(null);
   protected readonly loading = signal(true);
-  private pricingTiers$!: Observable<PersonalSubscriptionPricingTier[]>;
-
+  protected readonly upgradeToMessage = signal("");
   // Cart Summary data
-  protected passwordManager!: LineItem;
-  protected estimatedTax$!: Observable<number>;
+  protected readonly passwordManager = computed(() => {
+    if (!this.selectedPlan()) {
+      return { name: "", cost: 0, quantity: 0, cadence: "year" as const };
+    }
 
-  // Display data
-  protected upgradeToMessage = "";
+    return {
+      name: this.isFamiliesPlan ? "familiesMembership" : "premiumMembership",
+      cost: this.selectedPlan()!.details.passwordManager.annualPrice,
+      quantity: 1,
+      cadence: "year" as const,
+    };
+  });
+
+  protected hasEnoughAccountCredit$!: Observable<boolean>;
+  private pricingTiers$!: Observable<PersonalSubscriptionPricingTier[]>;
+  protected estimatedTax$!: Observable<number>;
 
   constructor(
     private i18nService: I18nService,
-    private subscriptionPricingService: SubscriptionPricingService,
+    private subscriptionPricingService: SubscriptionPricingServiceAbstraction,
     private toastService: ToastService,
     private logService: LogService,
     private destroyRef: DestroyRef,
@@ -145,29 +155,36 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     }
 
     this.pricingTiers$ = this.subscriptionPricingService.getPersonalSubscriptionPricingTiers$();
-    this.pricingTiers$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((plans) => {
-      const planDetails = plans.find((plan) => plan.id === this.selectedPlanId());
+    this.pricingTiers$
+      .pipe(
+        catchError((error: unknown) => {
+          this.toastService.showToast({
+            variant: "error",
+            title: this.i18nService.t("error"),
+            message: this.i18nService.t("unexpectedError"),
+          });
+          this.loading.set(false);
+          return of([]);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((plans) => {
+        const planDetails = plans.find((plan) => plan.id === this.selectedPlanId());
 
-      if (planDetails) {
-        this.selectedPlan = {
-          tier: this.selectedPlanId(),
-          details: planDetails,
-        };
-        this.passwordManager = {
-          name: this.isFamiliesPlan ? "familiesMembership" : "premiumMembership",
-          cost: this.selectedPlan.details.passwordManager.annualPrice,
-          quantity: 1,
-          cadence: "year",
-        };
+        if (planDetails) {
+          this.selectedPlan.set({
+            tier: this.selectedPlanId(),
+            details: planDetails,
+          });
 
-        this.upgradeToMessage = this.i18nService.t(
-          this.isFamiliesPlan ? "startFreeFamiliesTrial" : "upgradeToPremium",
-        );
-      } else {
-        this.complete.emit({ status: UpgradePaymentStatus.Closed, organizationId: null });
-        return;
-      }
-    });
+          this.upgradeToMessage.set(
+            this.i18nService.t(this.isFamiliesPlan ? "startFreeFamiliesTrial" : "upgradeToPremium"),
+          );
+        } else {
+          this.complete.emit({ status: UpgradePaymentStatus.Closed, organizationId: null });
+          return;
+        }
+      });
 
     this.estimatedTax$ = this.formGroup.controls.billingAddress.valueChanges.pipe(
       startWith(this.formGroup.controls.billingAddress.value),
@@ -215,7 +232,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    if (!this.selectedPlan) {
+    if (!this.selectedPlan()) {
       throw new Error("No plan selected");
     }
 
@@ -247,7 +264,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
   }
 
   private async processUpgrade(): Promise<UpgradePaymentResult> {
-    if (!this.selectedPlan) {
+    if (!this.selectedPlan()) {
       throw new Error("No plan selected");
     }
 
@@ -295,7 +312,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
 
     const response = await this.upgradePaymentService.upgradeToFamilies(
       this.account(),
-      this.selectedPlan!,
+      this.selectedPlan()!,
       paymentMethod,
       paymentFormValues,
     );
@@ -331,7 +348,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
 
   // Create an observable for tax calculation
   private refreshSalesTax$(): Observable<number> {
-    if (this.formGroup.invalid || !this.selectedPlan) {
+    if (this.formGroup.invalid || !this.selectedPlan()) {
       return of(this.INITIAL_TAX_VALUE);
     }
 
@@ -340,7 +357,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
       return of(this.INITIAL_TAX_VALUE);
     }
     return from(
-      this.upgradePaymentService.calculateEstimatedTax(this.selectedPlan, billingAddress),
+      this.upgradePaymentService.calculateEstimatedTax(this.selectedPlan()!, billingAddress),
     ).pipe(
       catchError((error: unknown) => {
         this.logService.error("Tax calculation failed:", error);
