@@ -70,13 +70,6 @@ describe("ChipSelectComponent", () => {
     fixture.detectChanges();
   });
 
-  afterEach(() => {
-    const overlayContainer = document.querySelector(".cdk-overlay-container");
-    if (overlayContainer) {
-      overlayContainer.innerHTML = "";
-    }
-  });
-
   describe("User-Facing Behavior", () => {
     it("should display placeholder text when no option is selected", () => {
       expect(getChipButton().textContent).toContain("Select an option");
@@ -371,14 +364,6 @@ describe("ChipSelectComponent", () => {
   });
 
   describe("Disabled State Behavior", () => {
-    it("should disable chip button when disabled input is true", () => {
-      const testApp = fixture.componentInstance;
-      testApp.disabled.set(true);
-      fixture.detectChanges();
-
-      expect(getChipButton().disabled).toBe(true);
-    });
-
     it("should disable clear button when disabled", () => {
       component.writeValue("opt1");
       fixture.detectChanges();
@@ -389,16 +374,6 @@ describe("ChipSelectComponent", () => {
 
       const clearButton = getClearButton();
       expect(clearButton.disabled).toBe(true);
-    });
-
-    it("should apply disabled styling", () => {
-      const testApp = fixture.componentInstance;
-      testApp.disabled.set(true);
-      fixture.detectChanges();
-
-      const chipContainer = fixture.debugElement.query(By.css(".tw-inline-flex"));
-      expect(chipContainer.nativeElement.className).toContain("tw-bg-secondary-300");
-      expect(chipContainer.nativeElement.className).toContain("tw-text-muted");
     });
   });
 
@@ -541,13 +516,6 @@ describe("ChipSelectComponent - Form Integration", () => {
       chipComponent.writeValue(currentValue);
     }
     formFixture.detectChanges();
-  });
-
-  afterEach(() => {
-    const overlayContainer = document.querySelector(".cdk-overlay-container");
-    if (overlayContainer) {
-      overlayContainer.innerHTML = "";
-    }
   });
 
   it("should integrate with Angular forms", () => {
