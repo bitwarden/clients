@@ -28,7 +28,7 @@
         </button>
       </div>
       <div class="tw-pt-2" [ngClass]="savedUrlsListClass()">
-        @for (url of displayedSavedUrls(); track url) {
+        @for (url of savedUrls(); track url) {
           <div class="-tw-mt-2">
             <bit-callout [title]="null" type="success" icon="bwi-globe">
               <div class="tw-font-mono tw-line-clamp-1 tw-break-all" [appA11yTitle]="url">
