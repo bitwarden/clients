@@ -7,12 +7,9 @@ use windows::Win32::UI::Input::KeyboardAndMouse::{
     VIRTUAL_KEY,
 };
 
-use super::{ErrorOperations, KeyboardShortcutInput, Win32ErrorOperations};
+use crate::get_modifier_keys;
 
-const SHIFT_KEY_STR: &str = "Shift";
-const CONTROL_KEY_STR: &str = "Control";
-const ALT_KEY_STR: &str = "Alt";
-const LEFT_WINDOWS_KEY_STR: &str = "Super";
+use super::{ErrorOperations, KeyboardShortcutInput, Win32ErrorOperations};
 
 const IS_VIRTUAL_KEY: bool = true;
 const IS_REAL_KEY: bool = false;
@@ -92,19 +89,12 @@ impl TryFrom<&str> for KeyboardShortcutInput {
     type Error = anyhow::Error;
 
     fn try_from(key: &str) -> std::result::Result<Self, Self::Error> {
-        const SHIFT_KEY: u16 = 0x10;
-        const CONTROL_KEY: u16 = 0x11;
-        const ALT_KEY: u16 = 0x12;
-        const LEFT_WINDOWS_KEY: u16 = 0x5B;
-
         // the modifier keys are using the Up keypress variant because the user has already
         // pressed those keys in order to trigger the feature.
-        let input = match key {
-            SHIFT_KEY_STR => build_virtual_key_input(InputKeyPress::Up, SHIFT_KEY),
-            CONTROL_KEY_STR => build_virtual_key_input(InputKeyPress::Up, CONTROL_KEY),
-            ALT_KEY_STR => build_virtual_key_input(InputKeyPress::Up, ALT_KEY),
-            LEFT_WINDOWS_KEY_STR => build_virtual_key_input(InputKeyPress::Up, LEFT_WINDOWS_KEY),
-            _ => build_unicode_input(InputKeyPress::Up, get_alphabetic_hotkey(key)?),
+        let input = if let Some(numeric_modifier_key) = get_modifier_keys().get(key) {
+            build_virtual_key_input(InputKeyPress::Up, *numeric_modifier_key)
+        } else {
+            build_unicode_input(InputKeyPress::Up, get_alphabetic_hotkey(key)?)
         };
 
         Ok(KeyboardShortcutInput(input))
@@ -279,7 +269,7 @@ mod tests {
     #[test]
     #[serial]
     fn keyboard_shortcut_conversion_succeeds() {
-        let keyboard_shortcut = [CONTROL_KEY_STR, SHIFT_KEY_STR, "B"];
+        let keyboard_shortcut = ["Control", "Alt", "B"];
         let _: Vec<KeyboardShortcutInput> = keyboard_shortcut
             .iter()
             .map(|s| KeyboardShortcutInput::try_from(*s))
@@ -291,7 +281,7 @@ mod tests {
     #[serial]
     #[should_panic = "Letter is not ASCII Alphabetic ([a-z][A-Z]): '1'"]
     fn keyboard_shortcut_conversion_fails_invalid_key() {
-        let keyboard_shortcut = [CONTROL_KEY_STR, SHIFT_KEY_STR, "1"];
+        let keyboard_shortcut = ["Control", "Alt", "1"];
         let _: Vec<KeyboardShortcutInput> = keyboard_shortcut
             .iter()
             .map(|s| KeyboardShortcutInput::try_from(*s))
