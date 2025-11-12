@@ -24,6 +24,7 @@
       "@bitwarden/assets/svg": ["libs/assets/src/svg/index.ts"],
       "@bitwarden/auth/angular": ["./libs/auth/src/angular"],
       "@bitwarden/auth/common": ["./libs/auth/src/common"],
+      "@bitwarden/auto-confirm": ["libs/auto-confirm/src/index.ts"],
       "@bitwarden/billing": ["./libs/billing/src"],
       "@bitwarden/bit-common/*": ["./bitwarden_license/bit-common/src/*"],
       "@bitwarden/browser/*": ["./apps/browser/src/*"],

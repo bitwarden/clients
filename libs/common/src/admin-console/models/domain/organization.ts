@@ -371,6 +371,10 @@ export class Organization {
     return this.familySponsorshipAvailable || this.familySponsorshipFriendlyName !== null;
   }
 
+  get canManageAutoConfirm() {
+    return this.canManageUsers && this.useAutomaticUserConfirmation;
+  }
+
   static fromJSON(json: Jsonify<Organization>) {
     if (json == null) {
       return null;

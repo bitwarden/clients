@@ -1,7 +1,6 @@
 import { Observable } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { OrganizationId } from "@bitwarden/common/types/guid";
 import { UserId } from "@bitwarden/user-core";
 
 import { AutoConfirmState } from "../models/auto-confirm-state.model";
@@ -24,10 +23,7 @@ export abstract class AutomaticUserConfirmationService {
    * @param userId
    * @returns Observable<boolean> an observable with a boolean telling us if the provided user may confgure the auto confirm feature.
    **/
-  abstract canManageAutoConfirm$(
-    userId: UserId,
-    organizationId: OrganizationId,
-  ): Observable<boolean>;
+  abstract canManageAutoConfirm$(userId: UserId): Observable<boolean>;
   /**
    * Calls the API endpoint to initiate automatic user confirmation.
    * @param userId The userId of the logged in admin performing auto confirmation. This is neccesary to perform the key exchange and for permissions checks.

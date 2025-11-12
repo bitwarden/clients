@@ -23,6 +23,7 @@ import {
   AccountSecurityNudgeService,
   VaultSettingsImportNudgeService,
 } from "./custom-nudges-services";
+import { AutoConfirmNudgeService } from "./custom-nudges-services/auto-confirm-nudge.service";
 import { DefaultSingleNudgeService } from "./default-single-nudge.service";
 import { NudgesService, NudgeType } from "./nudges.service";
 
@@ -35,6 +36,7 @@ describe("Vault Nudges Service", () => {
     EmptyVaultNudgeService,
     NewAccountNudgeService,
     AccountSecurityNudgeService,
+    AutoConfirmNudgeService,
   ];
 
   beforeEach(async () => {
@@ -72,6 +74,10 @@ describe("Vault Nudges Service", () => {
         {
           provide: VaultSettingsImportNudgeService,
           useValue: mock<VaultSettingsImportNudgeService>(),
+        },
+        {
+          provide: AutoConfirmNudgeService,
+          useValue: mock<AutoConfirmNudgeService>(),
         },
         {
           provide: ApiService,
