@@ -34,7 +34,7 @@
     </bit-no-items>
   </div>
 
-  <ng-container *ngIf="listState !== sendState.Empty">
+  <ng-container *ngIf="listState !== sendState.Empty && !(sendsLoading$ | async)">
     <div
       *ngIf="listState === sendState.NoResults"
       class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12"
