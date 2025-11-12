@@ -12152,5 +12152,11 @@
         "example": "5"
       }
     }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle" : {
+    "message": "No critical applications are selected"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc" : {
+    "message": "Are you sure you want to continue?"
   }
 }
