@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -98,6 +99,29 @@ export class TunnelDemoComponent {
 
     const username = tunnelDemoCipher.login.username || "(none)";
     const password = tunnelDemoCipher.login.password || "(none)";
+
+    // Verify user identity before sending credentials
+    const verificationResult = await UserVerificationDialogComponent.open(this.dialogService, {
+      verificationType: "client",
+      title: "verificationRequired",
+      bodyText: "verifyIdentityToSendCredentials",
+      calloutOptions: {
+        text: "credentialsWillBeSentToTunnel",
+        type: "warning",
+      },
+    });
+
+    // Check if user cancelled or verification failed
+    if (verificationResult.userAction === "cancel" || !verificationResult.verificationSuccess) {
+      await this.dialogService.openSimpleDialog({
+        title: "Tunnel Demo - Cancelled",
+        content: "User verification was cancelled or failed.",
+        type: "info",
+        acceptButtonText: { key: "ok" },
+        cancelButtonText: null,
+      });
+      return;
+    }
 
     // Send credentials to the localhost tunnel server
     try {

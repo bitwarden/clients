@@ -4757,6 +4757,9 @@
   "demoSettings": {
     "message": "Demo settings"
   },
+  "credentialsWillBeSentToTunnel": {
+    "message": "For demo use only. Credentials will be sent over secure tunnel."
+  },
   "demoRetrieve": {
     "message": "Fetch"
   },
