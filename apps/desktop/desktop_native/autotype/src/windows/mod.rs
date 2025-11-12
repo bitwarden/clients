@@ -44,7 +44,6 @@ pub fn get_foreground_window_title() -> Result<String> {
 ///     - Control
 ///     - Alt
 ///     - Super
-///     - Shift
 ///     - \[a-z\]\[A-Z\]
 struct KeyboardShortcutInput(INPUT);
 
