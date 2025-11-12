@@ -17,7 +17,7 @@
   </ng-container>
 
   <div
-    *ngIf="listState === sendState.Empty && !(sendsLoading$ | async)"
+    *ngIf="listState === sendState.Empty"
     class="tw-flex tw-flex-col tw-h-full tw-justify-center"
   >
     <bit-no-items [icon]="noItemIcon" class="tw-text-main">
@@ -27,7 +27,7 @@
       </ng-container>
       <tools-new-send-dropdown
         [hideIcon]="true"
-        *ngIf="!sendsDisabled && !(sendsLoading$ | async)"
+        *ngIf="!sendsDisabled"
         slot="button"
         [buttonType]="'secondary'"
       ></tools-new-send-dropdown>
