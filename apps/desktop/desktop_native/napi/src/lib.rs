@@ -1044,7 +1044,7 @@ pub mod logging {
         // the log level hierarchy is determined by:
         //    - if RUST_LOG is detected at runtime
         //    - if RUST_LOG is provided at compile time
-        //    - defaukt to INFO
+        //    - default to INFO
         let filter = EnvFilter::builder()
             .with_default_directive(
                 option_env!("RUST_LOG")
