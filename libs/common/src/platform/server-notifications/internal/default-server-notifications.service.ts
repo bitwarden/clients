@@ -296,10 +296,14 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
       case NotificationType.AuthRequest: {
         // Only Extension and Desktop implement the AuthRequestAnsweringService
         if (this.authRequestAnsweringService.receivedPendingAuthRequest) {
-          await this.authRequestAnsweringService.receivedPendingAuthRequest(
-            notification.payload.userId,
-            notification.payload.id,
-          );
+          try {
+            await this.authRequestAnsweringService.receivedPendingAuthRequest(
+              notification.payload.userId,
+              notification.payload.id,
+            );
+          } catch (error) {
+            this.logService.error(`Failed to process auth request notification: ${error}`);
+          }
         } else {
           // This call is necessary for Web, which uses a NoopAuthRequestAnsweringService
           // that does not have a receivedPendingAuthRequest() method
