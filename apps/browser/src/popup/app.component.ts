@@ -362,7 +362,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private async processPendingAuthRequests() {
-    this.processingPendingAuth = true;
+    this.processingPendingAuthRequests = true;
 
     try {
       // Always query server for all pending requests and open a dialog for each
@@ -392,7 +392,7 @@ export class AppComponent implements OnInit, OnDestroy {
         }
       }
     } finally {
-      this.processingPendingAuth = false;
+      this.processingPendingAuthRequests = false;
     }
   }
 }
