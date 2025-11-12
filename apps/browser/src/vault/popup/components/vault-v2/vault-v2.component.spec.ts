@@ -145,17 +145,6 @@ jest.spyOn(BrowserPopupUtils, "openCurrentPagePopout").mockResolvedValue();
 describe("VaultV2Component", () => {
   let component: VaultV2Component;
 
-  jest
-    .spyOn(PremiumUpgradeDialogComponent, "open")
-    .mockImplementation((_: DialogService) => mockDialogRef as any);
-
-  jest
-    .spyOn(DecryptionFailureDialogComponent, "open")
-    .mockImplementation((_: DialogService, _params: any) => mockDialogRef as any);
-
-  jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(false);
-  jest.spyOn(BrowserPopupUtils, "openCurrentPagePopout").mockResolvedValue();
-
   interface FakeAccount {
     id: string;
   }
@@ -211,8 +200,6 @@ describe("VaultV2Component", () => {
   const billingSvc = {
     hasPremiumFromAnySource$: (_: string) => hasPremiumFromAnySource$,
   };
-
-  describe("VaultV2Component", () => {});
 
   beforeEach(async () => {
     jest.clearAllMocks();

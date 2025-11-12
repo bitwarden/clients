@@ -115,7 +115,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
   protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
-  protected showPremiumUpgradeSpotlight$ = this.activeUserId$.pipe(
+  protected showPremiumNudgeSpotlight$ = this.activeUserId$.pipe(
     switchMap((userId) => this.nudgesService.showNudgeSpotlight$(NudgeType.PremiumUpgrade, userId)),
   );
   protected cipherCount$ = this.vaultPopupItemsService.cipherCount$;
@@ -128,13 +128,28 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
       return creationDate$.pipe(
         map((creationDate) => {
           if (!creationDate) {
-            return null;
+            return 0;
           }
           const ageInMilliseconds = Date.now() - creationDate.getTime();
           return Math.floor(ageInMilliseconds / (1000 * 60 * 60 * 24));
         }),
       );
     }),
+  );
+
+  protected showPremiumSpotlight$ = combineLatest([
+    this.showPremiumNudgeSpotlight$,
+    this.showEmptyVaultSpotlight$,
+    this.showHasItemsVaultSpotlight$,
+    this.hasPremium$,
+    this.cipherCount$,
+    this.accountAgeInDays$,
+  ]).pipe(
+    map(
+      ([showNudge, emptyVault, hasItems, hasPremium, count, age]) =>
+        showNudge && !emptyVault && !hasItems && !hasPremium && count >= 5 && age && age >= 5,
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   showPremiumDialog() {
