@@ -222,7 +222,7 @@ export class AutofillInlineMenuContainer {
 
     // messages from iframe to background require object identity verification with a contentWindow check and token auth
     if (this.isMessageFromInlineMenuPageIframe(event)) {
-      if (this.verifyToken(message)) {
+      if (this.isValidSessionToken(message)) {
         this.postMessageToBackground(message);
       }
       return;
@@ -274,7 +274,13 @@ export class AutofillInlineMenuContainer {
     return this.inlineMenuPageIframe.contentWindow === event.source;
   }
 
-  private verifyToken(message: { token?: string }): boolean {
+  /**
+   * Validates that the message contains a valid session token.
+   * The session token is generated when the container is created and is refreshed
+   * every time the inline menu container is recreated.
+   *
+   */
+  private isValidSessionToken(message: { token?: string }): boolean {
     return message.token === this.token;
   }
 

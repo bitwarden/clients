@@ -97,14 +97,17 @@ function handleWindowMessageEvent(event: MessageEvent) {
   }
 
   // Extract hostname from event.origin for secure referrer validation in background script
-  // Helps avoid potential manipulation of source.location by malicious frames
   let referrer: string;
-  try {
-    const originUrl = new URL(origin);
-    referrer = originUrl.hostname;
-  } catch {
-    // Fallback if origin parsing fails
-    referrer = window.location.hostname;
+  // Sandboxed iframe or opaque origin support
+  if (origin === "null") {
+    referrer = "null";
+  } else {
+    try {
+      const originUrl = new URL(origin);
+      referrer = originUrl.hostname;
+    } catch {
+      return;
+    }
   }
 
   const handler = windowMessageHandlers[data.command];
