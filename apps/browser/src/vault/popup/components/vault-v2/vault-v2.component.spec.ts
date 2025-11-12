@@ -201,6 +201,12 @@ describe("VaultV2Component", () => {
     hasPremiumFromAnySource$: (_: string) => hasPremiumFromAnySource$,
   };
 
+  const vaultProfileSvc = {
+    getProfileCreationDate: jest
+      .fn()
+      .mockResolvedValue(new Date(Date.now() - 8 * 24 * 60 * 60 * 1000)), // 8 days ago
+  };
+
   beforeEach(async () => {
     jest.clearAllMocks();
     await TestBed.configureTestingModule({
@@ -219,11 +225,7 @@ describe("VaultV2Component", () => {
         { provide: NudgesService, useValue: nudgesSvc },
         {
           provide: VaultProfileService,
-          useValue: {
-            getProfileCreationDate: jest
-              .fn()
-              .mockResolvedValue(new Date(Date.now() - 8 * 24 * 60 * 60 * 1000)),
-          },
+          useValue: vaultProfileSvc,
         },
         {
           provide: VaultPopupCopyButtonsService,
@@ -496,6 +498,42 @@ describe("VaultV2Component", () => {
     expect(spotlights.length).toBe(1);
 
     expect(fixture.nativeElement.textContent).toContain("hasItemsVaultNudgeTitle");
+  }));
+
+  it("does not render Premium spotlight when account is less than a week old", fakeAsync(() => {
+    itemsSvc.cipherCount$.next(10);
+    hasPremiumFromAnySource$.next(false);
+
+    vaultProfileSvc.getProfileCreationDate = jest
+      .fn()
+      .mockResolvedValue(new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)); // 3 days ago
+
+    (nudgesSvc.showNudgeSpotlight$ as jest.Mock).mockImplementation((type: NudgeType) => {
+      return of(type === NudgeType.PremiumUpgrade);
+    });
+
+    const fixture = TestBed.createComponent(VaultV2Component);
+    fixture.detectChanges();
+    tick();
+
+    const spotlights = queryAllSpotlights(fixture);
+    expect(spotlights.length).toBe(0);
+  }));
+
+  it("does not render Premium spotlight when vault has less than 5 items", fakeAsync(() => {
+    itemsSvc.cipherCount$.next(3);
+    hasPremiumFromAnySource$.next(false);
+
+    (nudgesSvc.showNudgeSpotlight$ as jest.Mock).mockImplementation((type: NudgeType) => {
+      return of(type === NudgeType.PremiumUpgrade);
+    });
+
+    const fixture = TestBed.createComponent(VaultV2Component);
+    fixture.detectChanges();
+    tick();
+
+    const spotlights = queryAllSpotlights(fixture);
+    expect(spotlights.length).toBe(0);
   }));
 
   it("does not render Premium spotlight when user already has premium", fakeAsync(() => {

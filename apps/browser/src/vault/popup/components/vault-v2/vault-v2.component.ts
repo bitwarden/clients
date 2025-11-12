@@ -147,7 +147,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   ]).pipe(
     map(
       ([showNudge, emptyVault, hasItems, hasPremium, count, age]) =>
-        showNudge && !emptyVault && !hasItems && !hasPremium && count >= 5 && age && age >= 5,
+        showNudge && !emptyVault && !hasItems && !hasPremium && count >= 5 && age >= 7,
     ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
