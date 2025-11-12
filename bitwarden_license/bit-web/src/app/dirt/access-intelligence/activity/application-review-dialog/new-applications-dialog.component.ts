@@ -11,7 +11,7 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { from, of, switchMap, take } from "rxjs";
+import { from, switchMap, take } from "rxjs";
 
 import {
   ApplicationHealthReportDetail,
@@ -256,20 +256,15 @@ export class NewApplicationsDialogComponent {
     this.dataService
       .saveApplicationReviewStatus(updatedApplications)
       .pipe(
-        takeUntilDestroyed(this.destroyRef), // Satisfy eslint rule,
+        takeUntilDestroyed(this.destroyRef), // Satisfy eslint rule
         take(1),
         switchMap(() => {
           // Assign password change tasks for unassigned at-risk ciphers for critical applications
-          return of(this.newUnassignedAtRiskCipherIds()).pipe(
-            takeUntilDestroyed(this.destroyRef), // Satisfy eslint rule
-            switchMap((criticalApplicationAtRiskCipherIds) => {
-              return from(
-                this.securityTasksService.requestPasswordChangeForCriticalApplications(
-                  this.dialogParams.organizationId,
-                  criticalApplicationAtRiskCipherIds,
-                ),
-              );
-            }),
+          return from(
+            this.securityTasksService.requestPasswordChangeForCriticalApplications(
+              this.dialogParams.organizationId,
+              this.newUnassignedAtRiskCipherIds(),
+            ),
           );
         }),
       )

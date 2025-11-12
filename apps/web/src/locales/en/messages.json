@@ -12153,10 +12153,10 @@
       }
     }
   },
-  "confirmNoSelectedCriticalApplicationsTitle" : {
+  "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "No critical applications are selected"
   },
-  "confirmNoSelectedCriticalApplicationsDesc" : {
+  "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Are you sure you want to continue?"
   }
 }
