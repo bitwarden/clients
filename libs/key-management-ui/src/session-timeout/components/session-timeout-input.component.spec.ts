@@ -12,11 +12,11 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { VaultTimeoutInputComponent } from "./vault-timeout-input.component";
+import { SessionTimeoutInputComponent } from "./session-timeout-input.component";
 
-describe("VaultTimeoutInputComponent", () => {
-  let component: VaultTimeoutInputComponent;
-  let fixture: ComponentFixture<VaultTimeoutInputComponent>;
+describe("SessionTimeoutInputComponent", () => {
+  let component: SessionTimeoutInputComponent;
+  let fixture: ComponentFixture<SessionTimeoutInputComponent>;
   const policiesByType$ = jest.fn().mockReturnValue(new BehaviorSubject({}));
   const availableVaultTimeoutActions$ = jest.fn().mockReturnValue(new BehaviorSubject([]));
   const mockUserId = Utils.newGuid() as UserId;
@@ -24,7 +24,7 @@ describe("VaultTimeoutInputComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [VaultTimeoutInputComponent],
+      imports: [SessionTimeoutInputComponent],
       providers: [
         { provide: PolicyService, useValue: { policiesByType$ } },
         { provide: AccountService, useValue: accountService },
@@ -33,7 +33,7 @@ describe("VaultTimeoutInputComponent", () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(VaultTimeoutInputComponent);
+    fixture = TestBed.createComponent(SessionTimeoutInputComponent);
     component = fixture.componentInstance;
     component.vaultTimeoutOptions = [
       { name: "oneMinute", value: 1 },
