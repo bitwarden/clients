@@ -98,9 +98,9 @@ impl TryFrom<&str> for KeyboardShortcutInput {
         // pressed those keys in order to trigger the feature.
         if let Some(numeric_modifier_key) = get_modifier_keys().get(key) {
             let input = build_virtual_key_input(InputKeyPress::Up, *numeric_modifier_key);
-            return Ok(KeyboardShortcutInput(input));
+            Ok(KeyboardShortcutInput(input))
         } else {
-            return Err(anyhow!("Unsupported modifier key: {key}"));
+            Err(anyhow!("Unsupported modifier key: {key}"))
         }
     }
 }
