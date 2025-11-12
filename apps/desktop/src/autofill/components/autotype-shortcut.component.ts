@@ -92,7 +92,7 @@ export class AutotypeShortcutComponent {
     const key = event.key;
 
     // disallow pure modifier keys themselves
-    if (key === "Control" || key === "Alt" || key === "Super") {
+    if (key === "Control" || key === "Alt" || key === "Meta") {
       return null;
     }
 
