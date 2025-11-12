@@ -10,7 +10,6 @@ import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-manageme
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ActionsService } from "@bitwarden/common/platform/actions";
 import {
   ButtonLocation,
@@ -35,7 +34,6 @@ export class ExtensionAuthRequestAnsweringService
     private readonly platformUtilsService: PlatformUtilsService,
     private readonly systemNotificationsService: SystemNotificationsService,
     private readonly logService: LogService,
-    private readonly validationService: ValidationService,
   ) {
     super(
       accountService,
@@ -73,8 +71,7 @@ export class ExtensionAuthRequestAnsweringService
       const accountInfo = accounts[authRequestUserId];
 
       if (!accountInfo) {
-        this.logService.error(`Account not found for userId: ${authRequestUserId}`);
-        this.validationService.showError(`Account not found for userId: ${authRequestUserId}`);
+        this.logService.error("Account not found for authRequestUserId");
         return;
       }
 

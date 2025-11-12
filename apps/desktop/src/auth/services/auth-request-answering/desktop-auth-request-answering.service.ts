@@ -8,7 +8,6 @@ import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { LogService } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
 
@@ -24,7 +23,6 @@ export class DesktopAuthRequestAnsweringService
     protected readonly pendingAuthRequestsState: PendingAuthRequestsStateService,
     private readonly i18nService: I18nService,
     private readonly logService: LogService,
-    private readonly validationService: ValidationService,
   ) {
     super(
       accountService,
@@ -68,8 +66,7 @@ export class DesktopAuthRequestAnsweringService
       const accountInfo = accounts[authRequestUserId];
 
       if (!accountInfo) {
-        this.logService.error(`Account not found for userId: ${authRequestUserId}`);
-        this.validationService.showError(`Account not found for userId: ${authRequestUserId}`);
+        this.logService.error("Account not found for authRequestUserId");
         return;
       }
 

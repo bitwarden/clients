@@ -11,7 +11,6 @@ import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ActionsService } from "@bitwarden/common/platform/actions";
 import {
   ButtonLocation,
@@ -34,7 +33,6 @@ describe("ExtensionAuthRequestAnsweringService", () => {
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let systemNotificationsService: MockProxy<SystemNotificationsService>;
   let logService: MockProxy<LogService>;
-  let validationService: MockProxy<ValidationService>;
 
   let sut: AuthRequestAnsweringService;
 
@@ -54,7 +52,6 @@ describe("ExtensionAuthRequestAnsweringService", () => {
     platformUtilsService = mock<PlatformUtilsService>();
     systemNotificationsService = mock<SystemNotificationsService>();
     logService = mock<LogService>();
-    validationService = mock<ValidationService>();
 
     // Common defaults
     authService.activeAccountStatus$ = of(AuthenticationStatus.Locked);
@@ -84,7 +81,6 @@ describe("ExtensionAuthRequestAnsweringService", () => {
       platformUtilsService,
       systemNotificationsService,
       logService,
-      validationService,
     );
   });
 

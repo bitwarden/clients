@@ -1180,6 +1180,7 @@ export default class MainBackground {
       this.i18nService,
       this.platformUtilsService,
       this.systemNotificationService,
+      this.logService,
     );
 
     this.serverNotificationsService = new DefaultServerNotificationsService(

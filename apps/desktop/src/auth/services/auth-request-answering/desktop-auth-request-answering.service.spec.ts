@@ -9,7 +9,6 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { LogService } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
 
@@ -23,7 +22,6 @@ describe("DesktopAuthRequestAnsweringService", () => {
   let pendingAuthRequestsState: MockProxy<PendingAuthRequestsStateService>;
   let i18nService: MockProxy<I18nService>;
   let logService: MockProxy<LogService>;
-  let validationService: MockProxy<ValidationService>;
 
   let sut: AuthRequestAnsweringService;
 
@@ -49,7 +47,6 @@ describe("DesktopAuthRequestAnsweringService", () => {
     pendingAuthRequestsState = mock<PendingAuthRequestsStateService>();
     i18nService = mock<I18nService>();
     logService = mock<LogService>();
-    validationService = mock<ValidationService>();
 
     // Common defaults
     authService.activeAccountStatus$ = of(AuthenticationStatus.Locked);
@@ -75,7 +72,6 @@ describe("DesktopAuthRequestAnsweringService", () => {
       pendingAuthRequestsState,
       i18nService,
       logService,
-      validationService,
     );
   });
 
