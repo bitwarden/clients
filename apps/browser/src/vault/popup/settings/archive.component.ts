@@ -69,7 +69,7 @@ export class ArchiveComponent {
 
   protected archivedCiphers$ = this.userId$.pipe(
     switchMap((userId) => this.cipherArchiveService.archivedCiphers$(userId)),
-  );
+  ) as Observable<CipherView[]>;
 
   protected loading$ = this.archivedCiphers$.pipe(
     map(() => false),
