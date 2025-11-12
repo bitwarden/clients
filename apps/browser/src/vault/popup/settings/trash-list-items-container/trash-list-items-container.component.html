@@ -25,11 +25,11 @@
           [appA11yTitle]="orgIconTooltip(cipher)"
         ></i>
         <i
-          *ngIf="cipher.hasAttachments"
+          *ngIf="hasAttachments(cipher)"
           class="bwi bwi-paperclip bwi-sm"
           [appA11yTitle]="'attachments' | i18n"
         ></i>
-        <span slot="secondary">{{ cipher.subTitle }}</span>
+        <span slot="secondary">{{ getSubtitle(cipher) }}</span>
       </button>
       <ng-container slot="end" *ngIf="cipher.permissions.restore">
         <bit-item-action>
@@ -45,7 +45,7 @@
               type="button"
               bitMenuItem
               (click)="restore(cipher)"
-              *ngIf="!cipher.decryptionFailure"
+              *ngIf="!('decryptionFailure' in cipher && cipher.decryptionFailure)"
             >
               {{ "restore" | i18n }}
             </button>

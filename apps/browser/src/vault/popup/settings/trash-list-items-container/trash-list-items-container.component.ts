@@ -12,7 +12,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   DialogService,
   IconButtonModule,
@@ -85,10 +84,32 @@ export class TrashListItemsContainerComponent {
     return collections[0]?.name;
   }
 
-  async restore(cipher: CipherView) {
+  /**
+   * Check if a cipher has attachments. CipherView has a hasAttachments getter,
+   * while CipherListView has an attachments count property.
+   */
+  hasAttachments(cipher: PopupCipherViewLike): boolean {
+    if ("hasAttachments" in cipher) {
+      return cipher.hasAttachments;
+    }
+    return cipher.attachments > 0;
+  }
+
+  /**
+   * Get the subtitle for a cipher. CipherView has a subTitle getter,
+   * while CipherListView has a subtitle property.
+   */
+  getSubtitle(cipher: PopupCipherViewLike): string | undefined {
+    if ("subTitle" in cipher) {
+      return cipher.subTitle;
+    }
+    return cipher.subtitle;
+  }
+
+  async restore(cipher: PopupCipherViewLike) {
     try {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      await this.cipherService.restoreWithServer(cipher.id, activeUserId);
+      await this.cipherService.restoreWithServer(cipher.id as string, activeUserId);
 
       await this.router.navigate(["/trash"]);
       this.toastService.showToast({
@@ -101,7 +122,7 @@ export class TrashListItemsContainerComponent {
     }
   }
 
-  async delete(cipher: CipherView) {
+  async delete(cipher: PopupCipherViewLike) {
     const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
 
     if (!repromptPassed) {
@@ -120,7 +141,7 @@ export class TrashListItemsContainerComponent {
 
     try {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      await this.cipherService.deleteWithServer(cipher.id, activeUserId);
+      await this.cipherService.deleteWithServer(cipher.id as string, activeUserId);
 
       await this.router.navigate(["/trash"]);
       this.toastService.showToast({
@@ -133,8 +154,9 @@ export class TrashListItemsContainerComponent {
     }
   }
 
-  async onViewCipher(cipher: CipherView) {
-    if (cipher.decryptionFailure) {
+  async onViewCipher(cipher: PopupCipherViewLike) {
+    // CipherListView doesn't have decryptionFailure, so we use optional chaining
+    if ("decryptionFailure" in cipher && cipher.decryptionFailure) {
       DecryptionFailureDialogComponent.open(this.dialogService, {
         cipherIds: [cipher.id as CipherId],
       });
@@ -147,7 +169,7 @@ export class TrashListItemsContainerComponent {
     }
 
     await this.router.navigate(["/view-cipher"], {
-      queryParams: { cipherId: cipher.id, type: cipher.type },
+      queryParams: { cipherId: cipher.id as string, type: cipher.type },
     });
   }
 }
