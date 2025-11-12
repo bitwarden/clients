@@ -286,25 +286,54 @@ describe("Keeper Json Importer", () => {
     ]);
 
     // Fields
-    expect(login.fields.length).toEqual(8);
+    expect(login.fields.length).toEqual(15);
+
+    // 1
     expect(getField(login, "some label")?.value).toEqual("some text");
+
+    // 2
     expect(getField(login, "some more text")?.value).toEqual(
       "some lines\nsome more lines\nblah blah blah",
     );
 
+    // 3
+    expect(getField(login, "pin-pin-pin")?.value).toEqual("1234");
+    expect(getField(login, "pin-pin-pin")?.type).toEqual(FieldType.Hidden);
+
+    // 4-9
     const questions = getFields(login, "Security question");
-    const answers = getFields(login, "Security question answer");
     expect(questions.map((x) => x.value)).toEqual([
       "how old were you when you were born?",
       "how are you?",
       "how old are you?",
     ]);
+    const answers = getFields(login, "Security question answer");
     expect(answers.map((x) => x.value)).toEqual(["zero", "good, thanks!", "five"]);
     expect(answers.map((x) => x.type)).toEqual([
       FieldType.Hidden,
       FieldType.Hidden,
       FieldType.Hidden,
     ]);
+
+    // 10-11
+    const phones = getFields(login, "phone");
+    expect(phones.map((x) => x.value)).toEqual([
+      "(AZ) 123123123 (Home)",
+      "(CZ) 555555555 ext. 444",
+    ]);
+
+    // 12
+    expect(getField(login, "some date")?.value).toEqual("11/30/2025, 9:50:48 PM");
+
+    // 13
+    expect(getField(login, "email")?.value).toEqual("blah@blah.com");
+
+    // 14
+    expect(getField(login, "someone")?.value).toEqual("Maria Smith");
+
+    // 15
+    expect(getField(login, "special secret")?.value).toEqual("big secret");
+    expect(getField(login, "special secret")?.type).toEqual(FieldType.Hidden);
   });
 
   it("should parse membership", async () => {

@@ -169,164 +169,195 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
   }
 
   private importCustomFields(customFields: CustomFields, cipher: CipherView) {
-    for (const [key, value] of Object.entries(customFields)) {
-      const [type, name] = this.parseFieldKey(key);
+    for (const [originalKey, originalValue] of Object.entries(customFields)) {
+      const [type, name] = this.parseFieldKey(originalKey);
 
-      // Special handling for certain types
-      let needFallbackToGenericImport = false;
-      switch (type) {
-        case "oneTimeCode":
-          // TODO: If not a login, add as a custom field
-          cipher.login.totp = this.getStringOrFirstFromArray(value ?? "");
-          break;
-        case "url":
-          // TODO: If not a login, add as a custom field
-          cipher.login.uris.push(...this.makeUriArray(value));
-          break;
-        case "host":
-          {
-            const { hostName, port } = value as { hostName?: string; port?: string };
-            this.addField(cipher, "Hostname", hostName);
-            this.addField(cipher, "Port", port);
-          }
-          break;
-        case "keyPair":
-          {
-            const { publicKey, privateKey } = value as { publicKey?: string; privateKey?: string };
-            this.addField(cipher, "Public key", publicKey);
-            this.addField(cipher, "Private key", privateKey, FieldType.Hidden);
-          }
-          break;
-        case "securityQuestion":
-          {
-            for (const { question, answer } of this.makeArray(value) as {
-              question?: string;
-              answer?: string;
-            }[]) {
-              this.addField(cipher, "Security question", question);
-              this.addField(cipher, "Security question answer", answer, FieldType.Hidden);
-            }
-          }
-          break;
-        case "appFiller":
-          // Ignored
-          break;
-        default:
-          needFallbackToGenericImport = true;
-          break;
-      }
-
-      if (!needFallbackToGenericImport) {
+      // These handle arrays internally
+      if (this.tryImportArrayField(type, originalValue, cipher)) {
         continue;
       }
 
-      // TODO: Support compound values (objects/arrays)
-      const importedName = name || type || key;
-      let importedValue = this.convertToFieldValue(value);
-      const importedType = FieldType.Text;
+      const importedName = name || type || originalKey;
+      const values = this.makeArray(originalValue);
 
-      switch (type) {
-        case "text":
-        case "accountNumber":
-        case "licenseNumber":
-          // Do nothing, default is text
-          break;
-        case "date":
-        case "birthDate":
-        case "expirationDate":
-          importedValue = this.parseDate(value);
-          break;
-        case "name":
-          {
-            const { first, middle, last } = value as {
-              first?: string;
-              middle?: string;
-              last?: string;
-            };
-            importedValue = [first, middle, last]
-              .filter((x) => !!x)
-              .join(" ")
-              .trim();
-          }
-          break;
-        case "address":
-          {
-            const { street1, street2, city, state, zip, country } = value as {
-              street1?: string;
-              street2?: string;
-              city?: string;
-              state?: string;
-              zip?: string;
-              country?: string;
-            };
-            importedValue = [street1, street2, city, state, zip, country]
-              .filter((x) => !!x)
-              .join(", ")
-              .trim();
-          }
-          break;
-        case "phone":
-          {
-            const { region, number, ext, type } = value as {
-              region?: string;
-              number?: string;
-              ext?: string;
-              type?: string;
-            };
+      for (const value of values) {
+        // These expand into multiple fields
+        if (this.tryImportExpandingField(type, value, cipher)) {
+          continue;
+        }
 
-            const parts = [];
-            if (region) {
-              parts.push(`(${region})`);
-            } // TODO: Convert to +<code> format?
-            if (number) {
-              parts.push(number);
-            }
-            if (ext) {
-              parts.push(`ext. ${ext}`);
-            }
-            if (type) {
-              parts.push(`(${type})`);
-            }
+        // Import as a single field with JSON.stringify as the last resort fallback
+        this.importSingleField(type, importedName, value, cipher);
 
-            importedValue = parts.join(" ").trim();
-          }
-          break;
-        case "bankAccount":
-          {
-            const { accountType, otherType, accountNumber, routingNumber } = value as {
-              accountType?: string;
-              otherType?: string;
-              accountNumber?: string;
-              routingNumber?: string;
-            };
-
-            const parts = [];
-            const type = otherType || accountType;
-            if (type) {
-              parts.push(`Type: ${type}`);
-            }
-            if (accountNumber) {
-              parts.push(`Account Number: ${accountNumber}`);
-            }
-            if (routingNumber) {
-              parts.push(`Routing Number: ${routingNumber}`);
-            }
-
-            importedValue = parts.join(", ").trim();
-          }
-          break;
-        default:
-          // Do nothing, default conversion is fine
-          break;
+        // TODO: Remove this eventually! Keep it here while debugging, though.
+        // console.log(
+        //   `Custom field: '${originalKey}'='${JSON.stringify(originalValue)}':\n  - type='${type}'\n  - name='${name}'\n  - value='${JSON.stringify(originalValue)}'\nConverted to:\n  - name='${importedName}'\n  - value='${importedValue}'`,
+        // );
       }
-
-      this.addField(cipher, importedName, importedValue, importedType);
-
-      // TODO: Remove this eventually! Keep it here while debugging, though.
-      // console.log(
-      //   `Custom field: '${key}'='${JSON.stringify(value)}':\n  - type='${type}'\n  - name='${name}'\n  - value='${JSON.stringify(value)}'\nConverted to:\n  - name='${importedName}'\n  - value='${importedValue}'`,
-      // );
     }
+  }
+
+  private tryImportArrayField(
+    type: string,
+    originalValue: string | string[],
+    cipher: CipherView,
+  ): boolean {
+    switch (type) {
+      case "oneTimeCode":
+        // TODO: If not a login, add as a custom field
+        cipher.login.totp = this.getStringOrFirstFromArray(originalValue ?? "");
+        break;
+      case "url":
+        // TODO: If not a login, add as a custom field
+        cipher.login.uris.push(...this.makeUriArray(originalValue));
+        break;
+      default:
+        return false;
+    }
+
+    return true;
+  }
+
+  private tryImportExpandingField(type: string, originalValue: any, cipher: CipherView): boolean {
+    switch (type) {
+      case "host":
+        {
+          const { hostName, port } = originalValue as { hostName?: string; port?: string };
+          this.addField(cipher, "Hostname", hostName);
+          this.addField(cipher, "Port", port);
+        }
+        break;
+      case "keyPair":
+        {
+          const { publicKey, privateKey } = originalValue as {
+            publicKey?: string;
+            privateKey?: string;
+          };
+          this.addField(cipher, "Public key", publicKey);
+          this.addField(cipher, "Private key", privateKey, FieldType.Hidden);
+        }
+        break;
+      case "securityQuestion":
+        {
+          for (const { question, answer } of this.makeArray(originalValue) as {
+            question?: string;
+            answer?: string;
+          }[]) {
+            this.addField(cipher, "Security question", question);
+            this.addField(cipher, "Security question answer", answer, FieldType.Hidden);
+          }
+        }
+        break;
+      case "appFiller":
+        // Ignored since it's an implementation detail of Keeper
+        break;
+      default:
+        return false;
+    }
+
+    return true;
+  }
+
+  private importSingleField(type: string, importedName: string, value: any, cipher: CipherView) {
+    let importedValue = this.convertToFieldValue(value);
+    let importedType = FieldType.Text;
+
+    switch (type) {
+      case "date":
+      case "birthDate":
+      case "expirationDate":
+        importedValue = this.parseDate(value);
+        break;
+      case "name":
+        {
+          const { first, middle, last } = value as {
+            first?: string;
+            middle?: string;
+            last?: string;
+          };
+          importedValue = [first, middle, last]
+            .filter((x) => !!x)
+            .join(" ")
+            .trim();
+        }
+        break;
+      case "address":
+        {
+          const { street1, street2, city, state, zip, country } = value as {
+            street1?: string;
+            street2?: string;
+            city?: string;
+            state?: string;
+            zip?: string;
+            country?: string;
+          };
+          importedValue = [street1, street2, city, state, zip, country]
+            .filter((x) => !!x)
+            .join(", ")
+            .trim();
+        }
+        break;
+      case "phone":
+        {
+          const { region, number, ext, type } = value as {
+            region?: string;
+            number?: string;
+            ext?: string;
+            type?: string;
+          };
+
+          const parts = [];
+          if (region) {
+            // TODO: Convert to +<code> format?
+            parts.push(`(${region})`);
+          }
+          if (number) {
+            parts.push(number);
+          }
+          if (ext) {
+            parts.push(`ext. ${ext}`);
+          }
+          if (type) {
+            parts.push(`(${type})`);
+          }
+
+          importedValue = parts.join(" ").trim();
+        }
+        break;
+      case "bankAccount":
+        {
+          const { accountType, otherType, accountNumber, routingNumber } = value as {
+            accountType?: string;
+            otherType?: string;
+            accountNumber?: string;
+            routingNumber?: string;
+          };
+
+          const parts = [];
+          const type = otherType || accountType;
+          if (type) {
+            parts.push(`Type: ${type}`);
+          }
+          if (accountNumber) {
+            parts.push(`Account Number: ${accountNumber}`);
+          }
+          if (routingNumber) {
+            parts.push(`Routing Number: ${routingNumber}`);
+          }
+
+          importedValue = parts.join(", ").trim();
+        }
+        break;
+      case "pinCode":
+      case "secret":
+        importedType = FieldType.Hidden;
+        break;
+      default:
+        // Do nothing, default conversion is fine
+        break;
+    }
+
+    this.addField(cipher, importedName, importedValue, importedType);
   }
 
   private parseDate(timestamp: string | number): string {

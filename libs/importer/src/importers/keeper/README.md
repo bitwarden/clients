@@ -48,6 +48,8 @@ handle some of the type conversion manually. Should the conversion types be forc
 - [ ] Phone number format is a bit funky: `(AF) 5415558723 ext. 5577 (Work)`. Would be good to
       replace the region with +code.
 - [x] An invalid ssh key should be added as a secure note
+- [x] Some items could be both arrays and single objects
+- [ ] Some single/repeated items might get a generic name instead of the label in the vault
 
 ### Missing features
 

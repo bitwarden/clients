@@ -553,7 +553,7 @@ export const TestData = {
       login_url: "https://www.amazon.com",
       notes: "Primary Amazon account for online shopping and Prime membership",
       $type: "login",
-      last_modified: 1762886098,
+      last_modified: 1762894504,
       custom_fields: {
         $oneTimeCode:
           "otpauth://totp/totp%40authenticationtest.com?secret=I65VU7K5ZQL7WB4E&issuer=&algorithm=SHA1&digits=6&period=30",
@@ -581,6 +581,27 @@ export const TestData = {
             answer: "five",
           },
         ],
+        "$date:some date": 1764535848918,
+        $email: "blah@blah.com",
+        "$name:someone": {
+          first: "Maria",
+          middle: "",
+          last: "Smith",
+        },
+        "$pinCode:pin-pin-pin": "1234",
+        $phone: [
+          {
+            region: "AZ",
+            number: "123123123",
+            type: "Home",
+          },
+          {
+            region: "CZ",
+            number: "555555555",
+            ext: "444",
+          },
+        ],
+        "$secret:special secret": "big secret",
       },
       folders: [
         {
