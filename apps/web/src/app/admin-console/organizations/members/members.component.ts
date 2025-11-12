@@ -561,7 +561,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         return;
       }
 
-      const csvData = await this.memberExportService.getMemberExport(members);
+      const csvData = this.memberExportService.getMemberExport(members);
       const fileName = this.memberExportService.getFileName("org-members");
 
       this.fileDownloadService.download({

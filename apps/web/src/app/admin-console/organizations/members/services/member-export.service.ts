@@ -13,7 +13,7 @@ import { MemberExport } from "./member.export";
 export class MemberExportService {
   constructor(private i18nService: I18nService) {}
 
-  async getMemberExport(members: OrganizationUserView[]): Promise<string> {
+  getMemberExport(members: OrganizationUserView[]): string {
     const exportData = members.map((m) => new MemberExport(m, this.i18nService));
 
     const headers: { [key in keyof MemberExport]: string } = {
