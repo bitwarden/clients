@@ -550,6 +550,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     const isEmailValid = this.validateEmail();
 
     if (isEmailValid) {
+      await this.makePasswordPreloginCall();
+
       await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY);
     }
   }
@@ -650,6 +652,23 @@ export class LoginComponent implements OnInit, OnDestroy {
    */
   protected async backButtonClicked() {
     history.back();
+  }
+
+  private async makePasswordPreloginCall() {
+    // Prefetch prelogin KDF config when enabled
+    try {
+      const flagEnabled = await this.configService.getFeatureFlag(
+        FeatureFlag.PM23801_PrefetchPasswordPrelogin,
+      );
+      if (flagEnabled) {
+        const email = this.formGroup.value.email;
+        if (email) {
+          void this.loginStrategyService.getPasswordPrelogin(email);
+        }
+      }
+    } catch (error) {
+      this.logService.error("Failed to prefetch prelogin data.", error);
+    }
   }
 
   /**

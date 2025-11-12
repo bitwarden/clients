@@ -2,17 +2,14 @@ use aes_gcm::{aead::Aead, Aes256Gcm, Key, KeyInit};
 use anyhow::{anyhow, Result};
 use base64::{engine::general_purpose, Engine as _};
 use chacha20poly1305::ChaCha20Poly1305;
+use chromium_importer::chromium::crypt_unprotect_data;
 use scopeguard::defer;
 use tracing::debug;
 use windows::{
     core::w,
-    Win32::{
-        Foundation::{LocalFree, HLOCAL},
-        Security::Cryptography::{
-            self, CryptUnprotectData, NCryptOpenKey, NCryptOpenStorageProvider, CERT_KEY_SPEC,
-            CRYPTPROTECT_UI_FORBIDDEN, CRYPT_INTEGER_BLOB, NCRYPT_FLAGS, NCRYPT_KEY_HANDLE,
-            NCRYPT_PROV_HANDLE, NCRYPT_SILENT_FLAG,
-        },
+    Win32::Security::Cryptography::{
+        self, NCryptOpenKey, NCryptOpenStorageProvider, CERT_KEY_SPEC, CRYPTPROTECT_UI_FORBIDDEN,
+        NCRYPT_FLAGS, NCRYPT_KEY_HANDLE, NCRYPT_PROV_HANDLE, NCRYPT_SILENT_FLAG,
     },
 };
 
@@ -71,38 +68,7 @@ fn decrypt_with_dpapi(data: &[u8], expect_appb: bool) -> Result<Vec<u8>> {
 
     let data = if expect_appb { &data[4..] } else { data };
 
-    let in_blob = CRYPT_INTEGER_BLOB {
-        cbData: data.len() as u32,
-        pbData: data.as_ptr() as *mut u8,
-    };
-
-    let mut out_blob = CRYPT_INTEGER_BLOB::default();
-
-    let result = unsafe {
-        CryptUnprotectData(
-            &in_blob,
-            None,
-            None,
-            None,
-            None,
-            CRYPTPROTECT_UI_FORBIDDEN,
-            &mut out_blob,
-        )
-    };
-
-    if result.is_ok() && !out_blob.pbData.is_null() && out_blob.cbData > 0 {
-        let decrypted = unsafe {
-            std::slice::from_raw_parts(out_blob.pbData, out_blob.cbData as usize).to_vec()
-        };
-
-        // Free the memory allocated by CryptUnprotectData
-        unsafe { LocalFree(Some(HLOCAL(out_blob.pbData as *mut _))) };
-
-        Ok(decrypted)
-    } else {
-        debug!("CryptUnprotectData failed");
-        Err(anyhow!("CryptUnprotectData failed"))
-    }
+    crypt_unprotect_data(data, CRYPTPROTECT_UI_FORBIDDEN)
 }
 
 //

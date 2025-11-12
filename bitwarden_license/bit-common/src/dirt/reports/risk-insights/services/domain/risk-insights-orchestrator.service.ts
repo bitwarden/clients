@@ -32,7 +32,7 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LogService } from "@bitwarden/logging";
@@ -56,6 +56,7 @@ import {
   OrganizationReportSummary,
   ReportStatus,
   ReportState,
+  ReportProgress,
   ApplicationHealthReportDetail,
 } from "../../models/report-models";
 import { MemberCipherDetailsApiService } from "../api/member-cipher-details-api.service";
@@ -87,6 +88,10 @@ export class RiskInsightsOrchestratorService {
 
   private _hasCiphersSubject$ = new BehaviorSubject<boolean | null>(null);
   hasCiphers$ = this._hasCiphersSubject$.asObservable();
+
+  private _criticalApplicationAtRiskCipherIdsSubject$ = new BehaviorSubject<CipherId[]>([]);
+  readonly criticalApplicationAtRiskCipherIds$ =
+    this._criticalApplicationAtRiskCipherIdsSubject$.asObservable();
 
   // ------------------------- Report Variables ----------------
   private _rawReportDataSubject = new BehaviorSubject<ReportState>({
@@ -127,6 +132,10 @@ export class RiskInsightsOrchestratorService {
   // Generate report trigger and state
   private _generateReportTriggerSubject = new BehaviorSubject<boolean>(false);
   generatingReport$ = this._generateReportTriggerSubject.asObservable();
+
+  // Report generation progress
+  private _reportProgressSubject = new BehaviorSubject<ReportProgress | null>(null);
+  reportProgress$ = this._reportProgressSubject.asObservable();
 
   // --------------------------- Critical Application data ---------------------
   criticalReportResults$: Observable<RiskInsightsEnrichedData | null> = of(null);
@@ -631,19 +640,33 @@ export class RiskInsightsOrchestratorService {
     organizationId: OrganizationId,
     userId: UserId,
   ): Observable<ReportState> {
-    // Generate the report
+    // Reset progress at the start
+    this._reportProgressSubject.next(null);
+
+    this.logService.debug("[RiskInsightsOrchestratorService] Fetching member cipher details");
+    this._reportProgressSubject.next(ReportProgress.FetchingMembers);
+
+    // Generate the report - fetch member ciphers and org ciphers in parallel
     const memberCiphers$ = from(
       this.memberCipherDetailsApiService.getMemberCipherDetails(organizationId),
     ).pipe(map((memberCiphers) => flattenMemberDetails(memberCiphers)));
 
-    return forkJoin([this._ciphers$.pipe(take(1)), memberCiphers$]).pipe(
-      tap(() => {
-        this.logService.debug("[RiskInsightsOrchestratorService] Generating new report");
+    // Start the generation pipeline
+    const reportGeneration$ = forkJoin([this._ciphers$.pipe(take(1)), memberCiphers$]).pipe(
+      switchMap(([ciphers, memberCiphers]) => {
+        this.logService.debug("[RiskInsightsOrchestratorService] Analyzing password health");
+        this._reportProgressSubject.next(ReportProgress.AnalyzingPasswords);
+        return this._getCipherHealth(ciphers ?? [], memberCiphers);
       }),
-      switchMap(([ciphers, memberCiphers]) => this._getCipherHealth(ciphers ?? [], memberCiphers)),
-      map((cipherHealthReports) =>
-        this.reportService.generateApplicationsReport(cipherHealthReports),
-      ),
+      map((cipherHealthReports) => {
+        this.logService.debug("[RiskInsightsOrchestratorService] Calculating risk scores");
+        this._reportProgressSubject.next(ReportProgress.CalculatingRisks);
+        return this.reportService.generateApplicationsReport(cipherHealthReports);
+      }),
+      tap(() => {
+        this.logService.debug("[RiskInsightsOrchestratorService] Generating report data");
+        this._reportProgressSubject.next(ReportProgress.GeneratingReport);
+      }),
       withLatestFrom(this.rawReportData$),
       map(([report, previousReport]) => {
         // Update the application data
@@ -680,6 +703,8 @@ export class RiskInsightsOrchestratorService {
         };
       }),
       switchMap(({ report, summary, applications, metrics }) => {
+        this.logService.debug("[RiskInsightsOrchestratorService] Saving report");
+        this._reportProgressSubject.next(ReportProgress.Saving);
         return this.reportService
           .saveRiskInsightsReport$(report, summary, applications, metrics, {
             organizationId,
@@ -696,6 +721,10 @@ export class RiskInsightsOrchestratorService {
           );
       }),
       // Update the running state
+      tap(() => {
+        this.logService.debug("[RiskInsightsOrchestratorService] Report generation complete");
+        this._reportProgressSubject.next(ReportProgress.Complete);
+      }),
       map((mappedResult): ReportState => {
         const { id, report, summary, applications, contentEncryptionKey } = mappedResult;
         return {
@@ -723,7 +752,9 @@ export class RiskInsightsOrchestratorService {
         error: null,
         data: null,
       }),
-    );
+    ) as Observable<ReportState>;
+
+    return reportGeneration$;
   }
 
   // Calculates the metrics for a report
@@ -1123,8 +1154,40 @@ export class RiskInsightsOrchestratorService {
     this._reportStateSubscription = mergedReportState$
       .pipe(takeUntil(this._destroy$))
       .subscribe((state) => {
+        // Update the raw report data subject
         this._rawReportDataSubject.next(state.reportState);
+
+        // Update the critical application at risk cipher ids for exposure
+        const reportState = state.reportState?.data;
+        if (reportState) {
+          const criticalApplicationAtRiskCipherIds = this._getCriticalApplicationCipherIds(
+            reportState.reportData || [],
+            reportState.applicationData || [],
+          );
+          this._criticalApplicationAtRiskCipherIdsSubject$.next(criticalApplicationAtRiskCipherIds);
+        }
       });
+  }
+
+  // Gets the unique cipher IDs that are marked at risk in critical applications
+  private _getCriticalApplicationCipherIds(
+    applications: ApplicationHealthReportDetail[],
+    applicationData: OrganizationReportApplication[],
+  ): CipherId[] {
+    const foundCipherIds = applications
+      .map((app) => {
+        const isCriticalApplication = this.reportService.isCriticalApplication(
+          app,
+          applicationData,
+        );
+        return isCriticalApplication ? app.atRiskCipherIds : [];
+      })
+      .flat();
+
+    // Use a set to ensure uniqueness
+    const uniqueCipherIds = new Set<CipherId>([...foundCipherIds]);
+
+    return [...uniqueCipherIds];
   }
 
   // Setup the user ID observable to track the current user

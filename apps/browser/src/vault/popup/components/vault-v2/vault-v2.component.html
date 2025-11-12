@@ -1,4 +1,4 @@
-<popup-page [loading]="loading$ | async">
+<popup-page [loading]="showSpinnerLoaders$ | async" [hideOverflow]="showSkeletonsLoaders$ | async">
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
       <app-new-item-dropdown [initialValues]="newItemItemValues$ | async"></app-new-item-dropdown>
@@ -112,4 +112,10 @@
       ></app-vault-list-items-container>
     </ng-container>
   </ng-container>
+
+  @if (showSkeletonsLoaders$ | async) {
+    <vault-fade-in-out-skeleton>
+      <vault-loading-skeleton></vault-loading-skeleton>
+    </vault-fade-in-out-skeleton>
+  }
 </popup-page>
