@@ -1475,6 +1475,9 @@
   "selectFile": {
     "message": "Select a file"
   },
+  "itemsTransferred": {
+    "message": "Items transferred"
+  },
   "maxFileSize": {
     "message": "Maximum file size is 500 MB."
   },
