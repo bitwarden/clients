@@ -14,7 +14,7 @@
           {{ "autofill" | i18n }}
         </button>
         <!-- Autofill confirmation handles both 'autofill' and 'autofill and save' so no need to show both -->
-        @if (!(showAutofillConfirmation$ | async)) {
+        @if (!(autofillConfirmationFlagEnabled$ | async)) {
           <button
             type="button"
             bitMenuItem
