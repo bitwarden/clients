@@ -85,12 +85,20 @@ describe("ExtensionAuthRequestAnsweringService", () => {
   });
 
   describe("receivedPendingAuthRequest()", () => {
+    it("should throw if authRequestUserId not given", async () => {
+      // Act
+      const promise = sut.receivedPendingAuthRequest(undefined, authRequestId);
+
+      // Assert
+      await expect(promise).rejects.toThrow("authRequestUserId required");
+    });
+
     it("should throw if authRequestId not given", async () => {
       // Act
       const promise = sut.receivedPendingAuthRequest(userId, undefined);
 
       // Assert
-      await expect(promise).rejects.toThrow("authRequestId not found.");
+      await expect(promise).rejects.toThrow("authRequestId required");
     });
 
     it("should add a pending marker for the user to state", async () => {
@@ -102,62 +110,68 @@ describe("ExtensionAuthRequestAnsweringService", () => {
       expect(pendingAuthRequestsState.add).toHaveBeenCalledWith(userId);
     });
 
-    it("should send an 'openLoginApproval' message if the popup is open and the user is Unlocked, active, and not required to set/change their master password", async () => {
-      // Arrange
-      platformUtilsService.isPopupOpen.mockResolvedValue(true);
-      authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+    describe("given the active user is the intended recipient of the auth request, unlocked, and not required to set/change their master password", () => {
+      describe("given the popup is open", () => {
+        it("should send an 'openLoginApproval' message", async () => {
+          // Arrange
+          platformUtilsService.isPopupOpen.mockResolvedValue(true);
+          authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
 
-      // Act
-      await sut.receivedPendingAuthRequest(userId, authRequestId);
+          // Act
+          await sut.receivedPendingAuthRequest(userId, authRequestId);
 
-      // Assert
-      expect(messagingService.send).toHaveBeenCalledTimes(1);
-      expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval", {
-        notificationId: authRequestId,
+          // Assert
+          expect(messagingService.send).toHaveBeenCalledTimes(1);
+          expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval", {
+            notificationId: authRequestId,
+          });
+        });
+
+        it("should not create a system notification", async () => {
+          // Arrange
+          platformUtilsService.isPopupOpen.mockResolvedValue(true);
+          authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+
+          // Act
+          await sut.receivedPendingAuthRequest(userId, authRequestId);
+
+          // Assert
+          expect(systemNotificationsService.create).not.toHaveBeenCalled();
+        });
       });
-    });
 
-    it("should not send an 'openLoginApproval' message if the popup is closed", async () => {
-      // Arrange
-      platformUtilsService.isPopupOpen.mockResolvedValue(false);
-      authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+      describe("given the popup is closed", () => {
+        it("should not send an 'openLoginApproval' message", async () => {
+          // Arrange
+          platformUtilsService.isPopupOpen.mockResolvedValue(false);
+          authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
 
-      // Act
-      await sut.receivedPendingAuthRequest(userId, authRequestId);
+          // Act
+          await sut.receivedPendingAuthRequest(userId, authRequestId);
 
-      // Assert
-      expect(messagingService.send).not.toHaveBeenCalled();
-    });
+          // Assert
+          expect(messagingService.send).not.toHaveBeenCalled();
+        });
 
-    it("should create a system notification if the popup is closed", async () => {
-      // Arrange
-      platformUtilsService.isPopupOpen.mockResolvedValue(false);
-      authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+        it("should create a system notification", async () => {
+          // Arrange
+          platformUtilsService.isPopupOpen.mockResolvedValue(false);
+          authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
 
-      // Act
-      await sut.receivedPendingAuthRequest(userId, authRequestId);
+          // Act
+          await sut.receivedPendingAuthRequest(userId, authRequestId);
 
-      // Assert
-      expect(i18nService.t).toHaveBeenCalledWith("accountAccessRequested");
-      expect(i18nService.t).toHaveBeenCalledWith("confirmAccessAttempt", "user@example.com");
-      expect(systemNotificationsService.create).toHaveBeenCalledWith({
-        id: `${AuthServerNotificationTags.AuthRequest}_${authRequestId}`,
-        title: "accountAccessRequested",
-        body: "confirmAccessAttempt:user@example.com",
-        buttons: [],
+          // Assert
+          expect(i18nService.t).toHaveBeenCalledWith("accountAccessRequested");
+          expect(i18nService.t).toHaveBeenCalledWith("confirmAccessAttempt", "user@example.com");
+          expect(systemNotificationsService.create).toHaveBeenCalledWith({
+            id: `${AuthServerNotificationTags.AuthRequest}_${authRequestId}`,
+            title: "accountAccessRequested",
+            body: "confirmAccessAttempt:user@example.com",
+            buttons: [],
+          });
+        });
       });
-    });
-
-    it("should not create a system notification if the popup is open and the user is Unlocked, active, and not required to set/change their master password", async () => {
-      // Arrange
-      platformUtilsService.isPopupOpen.mockResolvedValue(true);
-      authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
-
-      // Act
-      await sut.receivedPendingAuthRequest(userId, authRequestId);
-
-      // Assert
-      expect(systemNotificationsService.create).not.toHaveBeenCalled();
     });
   });
 

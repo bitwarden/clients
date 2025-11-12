@@ -48,8 +48,11 @@ export class ExtensionAuthRequestAnsweringService
     authRequestUserId: UserId,
     authRequestId: string,
   ): Promise<void> {
+    if (!authRequestUserId) {
+      throw new Error("authRequestUserId required");
+    }
     if (!authRequestId) {
-      throw new Error("authRequestId not found.");
+      throw new Error("authRequestId required");
     }
 
     // Always persist the pending marker for this user to global state.

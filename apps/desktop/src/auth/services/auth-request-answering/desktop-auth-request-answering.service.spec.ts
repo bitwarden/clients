@@ -76,6 +76,14 @@ describe("DesktopAuthRequestAnsweringService", () => {
   });
 
   describe("receivedPendingAuthRequest()", () => {
+    it("should throw if authRequestUserId not given", async () => {
+      // Act
+      const promise = sut.receivedPendingAuthRequest(undefined, undefined);
+
+      // Assert
+      await expect(promise).rejects.toThrow("authRequestUserId required");
+    });
+
     it("should add a pending marker for the user to state", async () => {
       // Act
       await sut.receivedPendingAuthRequest(userId, authRequestId);
@@ -85,7 +93,7 @@ describe("DesktopAuthRequestAnsweringService", () => {
       expect(pendingAuthRequestsState.add).toHaveBeenCalledWith(userId);
     });
 
-    describe("given the user is Unlocked, active, and not required to set/change their master password", () => {
+    describe("given the active user is the intended recipient of the auth request, unlocked, and not required to set/change their master password", () => {
       describe("given the Desktop window is visible", () => {
         it("should send an 'openLoginApproval' message", async () => {
           // Arrange
@@ -149,7 +157,7 @@ describe("DesktopAuthRequestAnsweringService", () => {
       });
     });
 
-    describe("given the user is Locked", () => {
+    describe("given the active user is Locked", () => {
       it("should NOT send an 'openLoginApproval' message", async () => {
         // Arrange
         (global as any).ipc.platform.isWindowVisible.mockResolvedValue(true);
@@ -179,21 +187,27 @@ describe("DesktopAuthRequestAnsweringService", () => {
       });
     });
 
-    describe("given the user is NOT the active user", () => {
-      it("should NOT send an 'openLoginApproval' message", async () => {
-        // Arrange
+    describe("given the active user is not the intended recipient of the auth request", () => {
+      beforeEach(() => {
+        // Different active user for these tests
         const differentUserId = "different-user-id" as UserId;
-        (global as any).ipc.platform.isWindowVisible.mockResolvedValue(true);
-        authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
         accountService.activeAccount$ = of({
           id: differentUserId,
           email: "different@example.com",
           emailVerified: true,
           name: "Different User",
         });
+      });
+
+      it("should NOT send an 'openLoginApproval' message", async () => {
+        // Arrange
+        (global as any).ipc.platform.isWindowVisible.mockResolvedValue(true);
+        authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
 
         // Act
-        await sut.receivedPendingAuthRequest(userId, authRequestId);
+        // Pass in userId, not differentUserId (the active user), to mimic an auth
+        // request coming in for a user who is not the active user
+        await sut.receivedPendingAuthRequest(userId, authRequestId); // pass in userId, not differentUserId
 
         // Assert
         expect(messagingService.send).not.toHaveBeenCalled();
@@ -201,17 +215,12 @@ describe("DesktopAuthRequestAnsweringService", () => {
 
       it("should create a system notification", async () => {
         // Arrange
-        const differentUserId = "different-user-id" as UserId;
         (global as any).ipc.platform.isWindowVisible.mockResolvedValue(true);
         authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
-        accountService.activeAccount$ = of({
-          id: differentUserId,
-          email: "different@example.com",
-          emailVerified: true,
-          name: "Different User",
-        });
 
         // Act
+        // Pass in userId, not differentUserId (the active user), to mimic an auth
+        // request coming in for a user who is not the active user
         await sut.receivedPendingAuthRequest(userId, authRequestId);
 
         // Assert
@@ -223,7 +232,7 @@ describe("DesktopAuthRequestAnsweringService", () => {
       });
     });
 
-    describe("given the user is required to set/change their master password", () => {
+    describe("given the active user is required to set/change their master password", () => {
       it("should NOT send an 'openLoginApproval' message", async () => {
         // Arrange
         (global as any).ipc.platform.isWindowVisible.mockResolvedValue(true);

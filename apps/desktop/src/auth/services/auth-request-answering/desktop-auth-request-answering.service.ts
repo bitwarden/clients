@@ -43,6 +43,10 @@ export class DesktopAuthRequestAnsweringService
     authRequestUserId: UserId,
     authRequestId: string,
   ): Promise<void> {
+    if (!authRequestUserId) {
+      throw new Error("authRequestUserId required");
+    }
+
     // Always persist the pending marker for this user to global state.
     await this.pendingAuthRequestsState.add(authRequestUserId);
 
