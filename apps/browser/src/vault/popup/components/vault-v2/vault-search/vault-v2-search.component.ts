@@ -9,6 +9,7 @@ import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/sea
 import { SearchModule } from "@bitwarden/components";
 
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
+import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -22,8 +23,10 @@ export class VaultV2SearchComponent {
 
   private searchText$ = new Subject<string>();
 
+  protected loading$ = this.vaultPopupLoadingService.loading$;
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
+    private vaultPopupLoadingService: VaultPopupLoadingService,
     private ngZone: NgZone,
   ) {
     this.subscribeToLatestSearchText();
