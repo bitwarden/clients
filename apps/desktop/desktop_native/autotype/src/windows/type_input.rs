@@ -89,15 +89,19 @@ impl TryFrom<&str> for KeyboardShortcutInput {
     type Error = anyhow::Error;
 
     fn try_from(key: &str) -> std::result::Result<Self, Self::Error> {
+        // not modifier key
+        if key.len() == 1 {
+            let input = build_unicode_input(InputKeyPress::Up, get_alphabetic_hotkey(key)?);
+            return Ok(KeyboardShortcutInput(input));
+        }
         // the modifier keys are using the Up keypress variant because the user has already
         // pressed those keys in order to trigger the feature.
-        let input = if let Some(numeric_modifier_key) = get_modifier_keys().get(key) {
-            build_virtual_key_input(InputKeyPress::Up, *numeric_modifier_key)
+        if let Some(numeric_modifier_key) = get_modifier_keys().get(key) {
+            let input = build_virtual_key_input(InputKeyPress::Up, *numeric_modifier_key);
+            return Ok(KeyboardShortcutInput(input));
         } else {
-            build_unicode_input(InputKeyPress::Up, get_alphabetic_hotkey(key)?)
-        };
-
-        Ok(KeyboardShortcutInput(input))
+            return Err(anyhow!("Unsupported modifier key: {key}"));
+        }
     }
 }
 
@@ -282,6 +286,18 @@ mod tests {
     #[should_panic = "Letter is not ASCII Alphabetic ([a-z][A-Z]): '1'"]
     fn keyboard_shortcut_conversion_fails_invalid_key() {
         let keyboard_shortcut = ["Control", "Alt", "1"];
+        let _: Vec<KeyboardShortcutInput> = keyboard_shortcut
+            .iter()
+            .map(|s| KeyboardShortcutInput::try_from(*s))
+            .try_collect()
+            .unwrap();
+    }
+
+    #[test]
+    #[serial]
+    #[should_panic(expected = "Unsupported modifier key: Shift")]
+    fn keyboard_shortcut_conversion_fails_with_shift() {
+        let keyboard_shortcut = ["Control", "Shift", "B"];
         let _: Vec<KeyboardShortcutInput> = keyboard_shortcut
             .iter()
             .map(|s| KeyboardShortcutInput::try_from(*s))
