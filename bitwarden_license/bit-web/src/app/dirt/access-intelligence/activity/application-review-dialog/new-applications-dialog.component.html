@@ -2,7 +2,9 @@
   <span bitDialogTitle>
     {{
       currentView() === DialogView.SelectApplications
-        ? ("prioritizeCriticalApplications" | i18n)
+        ? hasNoCriticalApplications()
+          ? ("prioritizeCriticalApplications" | i18n)
+          : ("reviewNewApplications" | i18n)
         : ("assignTasksToMembers" | i18n)
     }}
   </span>
@@ -11,7 +13,11 @@
     @if (currentView() === DialogView.SelectApplications) {
       <div>
         <p bitTypography="body1" class="tw-mb-5">
-          {{ "selectCriticalApplicationsDescription" | i18n }}
+          {{
+            hasNoCriticalApplications()
+              ? ("selectCriticalApplicationsDescription" | i18n)
+              : ("reviewNewApplicationsDescription" | i18n)
+          }}
         </p>
 
         <div class="tw-flex tw-items-center tw-gap-2.5 tw-mb-5">
@@ -32,8 +38,8 @@
 
     @if (currentView() === DialogView.AssignTasks) {
       <dirt-assign-tasks-view
-        [criticalApplicationsCount]="selectedApplications().size"
-        [totalApplicationsCount]="this.dialogParams.newApplications.length"
+        [criticalApplicationsCount]="atRiskCriticalApplicationsCount()"
+        [totalApplicationsCount]="totalCriticalApplicationsCount()"
         [atRiskCriticalMembersCount]="atRiskCriticalMembersCount()"
       >
       </dirt-assign-tasks-view>

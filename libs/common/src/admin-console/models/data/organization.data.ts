@@ -62,7 +62,7 @@ export class OrganizationData {
   limitItemDeletion: boolean;
   allowAdminAccessToAllCollectionItems: boolean;
   userIsManagedByOrganization: boolean;
-  useRiskInsights: boolean;
+  useAccessIntelligence: boolean;
   useAdminSponsoredFamilies: boolean;
   isAdminInitiated: boolean;
   ssoEnabled: boolean;
@@ -130,7 +130,7 @@ export class OrganizationData {
     this.limitItemDeletion = response.limitItemDeletion;
     this.allowAdminAccessToAllCollectionItems = response.allowAdminAccessToAllCollectionItems;
     this.userIsManagedByOrganization = response.userIsManagedByOrganization;
-    this.useRiskInsights = response.useRiskInsights;
+    this.useAccessIntelligence = response.useAccessIntelligence;
     this.useAdminSponsoredFamilies = response.useAdminSponsoredFamilies;
     this.isAdminInitiated = response.isAdminInitiated;
     this.ssoEnabled = response.ssoEnabled;

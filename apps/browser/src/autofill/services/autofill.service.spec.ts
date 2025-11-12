@@ -370,9 +370,7 @@ describe("AutofillService", () => {
       jest.spyOn(autofillService as any, "injectAutofillScriptsInAllTabs");
       jest.spyOn(autofillService, "getAutofillOnPageLoad").mockResolvedValue(true);
 
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      autofillService.reloadAutofillScripts();
+      void autofillService.reloadAutofillScripts();
 
       expect(port1.disconnect).toHaveBeenCalled();
       expect(port2.disconnect).toHaveBeenCalled();
@@ -681,7 +679,9 @@ describe("AutofillService", () => {
           await autofillService.doAutoFill(autofillOptions);
           triggerTestFailure();
         } catch (error) {
-          expect(error.message).toBe(nothingToAutofillError);
+          if (error instanceof Error) {
+            expect(error.message).toBe(nothingToAutofillError);
+          }
         }
       });
 
@@ -692,7 +692,9 @@ describe("AutofillService", () => {
           await autofillService.doAutoFill(autofillOptions);
           triggerTestFailure();
         } catch (error) {
-          expect(error.message).toBe(nothingToAutofillError);
+          if (error instanceof Error) {
+            expect(error.message).toBe(nothingToAutofillError);
+          }
         }
       });
 
@@ -703,7 +705,9 @@ describe("AutofillService", () => {
           await autofillService.doAutoFill(autofillOptions);
           triggerTestFailure();
         } catch (error) {
-          expect(error.message).toBe(nothingToAutofillError);
+          if (error instanceof Error) {
+            expect(error.message).toBe(nothingToAutofillError);
+          }
         }
       });
 
@@ -714,7 +718,9 @@ describe("AutofillService", () => {
           await autofillService.doAutoFill(autofillOptions);
           triggerTestFailure();
         } catch (error) {
-          expect(error.message).toBe(nothingToAutofillError);
+          if (error instanceof Error) {
+            expect(error.message).toBe(nothingToAutofillError);
+          }
         }
       });
 
@@ -728,7 +734,9 @@ describe("AutofillService", () => {
           await autofillService.doAutoFill(autofillOptions);
           triggerTestFailure();
         } catch (error) {
-          expect(error.message).toBe(didNotAutofillError);
+          if (error instanceof Error) {
+            expect(error.message).toBe(didNotAutofillError);
+          }
         }
       });
     });
@@ -767,7 +775,6 @@ describe("AutofillService", () => {
         {
           command: "fillForm",
           fillScript: {
-            metadata: {},
             properties: {
               delay_between_operations: 20,
             },
@@ -864,7 +871,9 @@ describe("AutofillService", () => {
         expect(logService.info).toHaveBeenCalledWith(
           "Autofill on page load was blocked due to an untrusted iframe.",
         );
-        expect(error.message).toBe(didNotAutofillError);
+        if (error instanceof Error) {
+          expect(error.message).toBe(didNotAutofillError);
+        }
       }
     });
 
@@ -899,7 +908,10 @@ describe("AutofillService", () => {
       } catch (error) {
         expect(autofillService["generateFillScript"]).toHaveBeenCalled();
         expect(BrowserApi.tabSendMessage).not.toHaveBeenCalled();
-        expect(error.message).toBe(didNotAutofillError);
+
+        if (error instanceof Error) {
+          expect(error.message).toBe(didNotAutofillError);
+        }
       }
     });
 
@@ -1371,7 +1383,10 @@ describe("AutofillService", () => {
         triggerTestFailure();
       } catch (error) {
         expect(BrowserApi.getTabFromCurrentWindow).toHaveBeenCalled();
-        expect(error.message).toBe("No tab found.");
+
+        if (error instanceof Error) {
+          expect(error.message).toBe("No tab found.");
+        }
       }
     });
 
@@ -1611,7 +1626,6 @@ describe("AutofillService", () => {
 
       expect(autofillService["generateLoginFillScript"]).toHaveBeenCalledWith(
         {
-          metadata: {},
           properties: {},
           script: [
             ["click_on_opid", "username-field"],
@@ -1649,7 +1663,6 @@ describe("AutofillService", () => {
 
       expect(autofillService["generateCardFillScript"]).toHaveBeenCalledWith(
         {
-          metadata: {},
           properties: {},
           script: [
             ["click_on_opid", "username-field"],
@@ -1687,7 +1700,6 @@ describe("AutofillService", () => {
 
       expect(autofillService["generateIdentityFillScript"]).toHaveBeenCalledWith(
         {
-          metadata: {},
           properties: {},
           script: [
             ["click_on_opid", "username-field"],
@@ -2280,7 +2292,7 @@ describe("AutofillService", () => {
         );
         expect(value).toStrictEqual({
           autosubmit: null,
-          metadata: {},
+          itemType: "",
           properties: { delay_between_operations: 20 },
           savedUrls: ["https://www.example.com"],
           script: [
@@ -2295,7 +2307,6 @@ describe("AutofillService", () => {
             ["fill_by_opid", "password", "password"],
             ["focus_by_opid", "password"],
           ],
-          itemType: "",
           untrustedIframe: false,
         });
       });
@@ -2506,11 +2517,10 @@ describe("AutofillService", () => {
     describe("given an invalid autofill field", () => {
       const unmodifiedFillScriptValues: AutofillScript = {
         autosubmit: null,
-        metadata: {},
+        itemType: "",
         properties: { delay_between_operations: 20 },
         savedUrls: [],
         script: [],
-        itemType: "",
         untrustedIframe: false,
       };
 
@@ -2697,7 +2707,6 @@ describe("AutofillService", () => {
         expect(value).toStrictEqual({
           autosubmit: null,
           itemType: "",
-          metadata: {},
           properties: {
             delay_between_operations: 20,
           },

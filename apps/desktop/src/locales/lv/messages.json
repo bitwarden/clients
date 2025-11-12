@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Nav nepieciešamo atļauju, lai labotu šo vienumu"
+  },
   "welcomeBack": {
     "message": "Laipni lūdzam atpakaļ"
   },
@@ -772,7 +775,7 @@
     "message": "Izmantot vienoto pieteikšanos"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Tava apvienība pieprasa vienoto pieteikšanos."
   },
   "submit": {
     "message": "Iesniegt"
@@ -1034,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Jāpievieno vai no servera pamata URL vai vismaz viena pielāgota vide."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
   },
   "customEnvironment": {
     "message": "Pielāgota vide"
@@ -4190,5 +4196,29 @@
   },
   "cardNumberLabel": {
     "message": "Kartes numurs"
+  },
+  "upgradeNow": {
+    "message": "Uzlabot tagad"
+  },
+  "builtInAuthenticator": {
+    "message": "Iebūvēts autentificētājs"
+  },
+  "secureFileStorage": {
+    "message": "Droša datņu krātuve"
+  },
+  "emergencyAccess": {
+    "message": "Ārkārtas piekļuve"
+  },
+  "breachMonitoring": {
+    "message": "Noplūžu pārraudzīšana"
+  },
+  "andMoreFeatures": {
+    "message": "Un vēl!"
+  },
+  "planDescPremium": {
+    "message": "Pilnīga drošība tiešsaistē"
+  },
+  "upgradeToPremium": {
+    "message": "Uzlabot uz Premium"
   }
 }

@@ -1,19 +1,22 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
+import { CipherIconDetails } from "@bitwarden/common/vault/icon/build-cipher-icon";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { InlineMenuFillType } from "../../enums/autofill-overlay.enum";
+import AutofillField from "../../models/autofill-field";
 import AutofillPageDetails from "../../models/autofill-page-details";
 import { PageDetail } from "../../services/abstractions/autofill.service";
 
 import { LockedVaultPendingNotificationsData } from "./notification.background";
 
-export type PageDetailsForTab = Record<
-  chrome.runtime.MessageSender["tab"]["id"],
-  Map<chrome.runtime.MessageSender["frameId"], PageDetail>
->;
+export type TabId = NonNullable<chrome.tabs.Tab["id"]>;
+
+export type FrameId = NonNullable<chrome.runtime.MessageSender["frameId"]>;
+
+type PageDetailsByFrame = Map<FrameId, PageDetail>;
+
+export type PageDetailsForTab = Record<TabId, PageDetailsByFrame>;
 
 export type SubFrameOffsetData = {
   top: number;
@@ -21,19 +24,14 @@ export type SubFrameOffsetData = {
   url?: string;
   frameId?: number;
   parentFrameIds?: number[];
+  isCrossOriginSubframe?: boolean;
+  isMainFrame?: boolean;
+  hasParentFrame?: boolean;
 } | null;
 
-export type SubFrameOffsetsForTab = Record<
-  chrome.runtime.MessageSender["tab"]["id"],
-  Map<chrome.runtime.MessageSender["frameId"], SubFrameOffsetData>
->;
+type SubFrameOffsetsByFrame = Map<FrameId, SubFrameOffsetData>;
 
-export type WebsiteIconData = {
-  imageEnabled: boolean;
-  image: string;
-  fallbackImage: string;
-  icon: string;
-};
+export type SubFrameOffsetsForTab = Record<TabId, SubFrameOffsetsByFrame>;
 
 export type UpdateOverlayCiphersParams = {
   updateAllCipherTypes: boolean;
@@ -147,7 +145,7 @@ export type OverlayBackgroundExtensionMessage = {
   isFieldCurrentlyFilling?: boolean;
   subFrameData?: SubFrameOffsetData;
   focusedFieldData?: FocusedFieldData;
-  allFieldsRect?: any;
+  allFieldsRect?: AutofillField[];
   isOpeningFullInlineMenu?: boolean;
   styles?: Partial<CSSStyleDeclaration>;
   data?: LockedVaultPendingNotificationsData;
@@ -156,13 +154,30 @@ export type OverlayBackgroundExtensionMessage = {
   ToggleInlineMenuHiddenMessage &
   UpdateInlineMenuVisibilityMessage;
 
+export type OverlayPortCommand =
+  | "fillCipher"
+  | "addNewVaultItem"
+  | "viewCipher"
+  | "redirectFocus"
+  | "updateHeight"
+  | "buttonClicked"
+  | "blurred"
+  | "updateColorScheme"
+  | "unlockVault"
+  | "refreshGeneratedPassword"
+  | "fillGeneratedPassword";
+
 export type OverlayPortMessage = {
-  [key: string]: any;
-  command: string;
-  direction?: string;
+  command: OverlayPortCommand;
+  direction?: "up" | "down" | "left" | "right";
   inlineMenuCipherId?: string;
   addNewCipherType?: CipherType;
   usePasskey?: boolean;
+  height?: number;
+  backgroundColorScheme?: "light" | "dark";
+  viewsCipherData?: InlineMenuCipherData;
+  loginUrl?: string;
+  fillGeneratedPassword?: boolean;
 };
 
 export type InlineMenuCipherData = {
@@ -171,7 +186,7 @@ export type InlineMenuCipherData = {
   type: CipherType;
   reprompt: CipherRepromptType;
   favorite: boolean;
-  icon: WebsiteIconData;
+  icon: CipherIconDetails;
   accountCreationFieldType?: string;
   login?: {
     totp?: string;
@@ -202,9 +217,14 @@ export type BuildCipherDataParams = {
 export type BackgroundMessageParam = {
   message: OverlayBackgroundExtensionMessage;
 };
+
 export type BackgroundSenderParam = {
-  sender: chrome.runtime.MessageSender;
+  sender: chrome.runtime.MessageSender & {
+    tab: NonNullable<chrome.runtime.MessageSender["tab"]>;
+    frameId: FrameId;
+  };
 };
+
 export type BackgroundOnMessageHandlerParams = BackgroundMessageParam & BackgroundSenderParam;
 
 export type OverlayBackgroundExtensionMessageHandlers = {
@@ -254,9 +274,13 @@ export type OverlayBackgroundExtensionMessageHandlers = {
 export type PortMessageParam = {
   message: OverlayPortMessage;
 };
+
 export type PortConnectionParam = {
-  port: chrome.runtime.Port;
+  port: chrome.runtime.Port & {
+    sender: NonNullable<chrome.runtime.Port["sender"]>;
+  };
 };
+
 export type PortOnMessageHandlerParams = PortMessageParam & PortConnectionParam;
 
 export type InlineMenuButtonPortMessageHandlers = {
