@@ -8,6 +8,7 @@ export class PremiumPlanResponse extends BaseResponse {
   storage: {
     stripePriceId: string;
     price: number;
+    provided: number;
   };
 
   constructor(response: any) {
@@ -30,6 +31,7 @@ export class PremiumPlanResponse extends BaseResponse {
 class PurchasableResponse extends BaseResponse {
   stripePriceId: string;
   price: number;
+  provided: number;
 
   constructor(response: any) {
     super(response);
@@ -42,6 +44,10 @@ class PurchasableResponse extends BaseResponse {
     this.price = this.getResponseProperty("Price");
     if (typeof this.price !== "number" || isNaN(this.price)) {
       throw new Error("PurchasableResponse: Missing or invalid 'Price' property");
+    }
+    this.provided = this.getResponseProperty("Provided");
+    if (typeof this.provided !== "number" || isNaN(this.provided)) {
+      throw new Error("PurchasableResponse: Missing or invalid 'Provided' property");
     }
   }
 }
