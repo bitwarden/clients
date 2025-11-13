@@ -86,10 +86,7 @@ export class BitwardenPasswordProtectedImporter extends BitwardenJsonImporter im
         ? new PBKDF2KdfConfig(jdoc.kdfIterations)
         : new Argon2KdfConfig(jdoc.kdfIterations, jdoc.kdfMemory, jdoc.kdfParallelism);
 
-    const exportKey = await this.keyGenerationService.stretchKey(
-      await this.keyGenerationService.deriveKeyFromPassword(password, jdoc.salt, kdfConfig),
-    );
-    this.key = exportKey;
+    this.key = await this.keyGenerationService.deriveVaultExportKey(password, jdoc.salt, kdfConfig);
 
     const encKeyValidation = new EncString(jdoc.encKeyValidation_DO_NOT_EDIT);
 
