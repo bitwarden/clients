@@ -30,8 +30,6 @@ import {
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
 import { FormFieldModule, SelectModule } from "@bitwarden/components";
 
 type VaultTimeoutForm = FormGroup<{
@@ -47,34 +45,66 @@ type VaultTimeoutFormValue = VaultTimeoutForm["value"];
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "auth-vault-timeout-input",
-  templateUrl: "vault-timeout-input.component.html",
+  selector: "bit-session-timeout-input",
+  templateUrl: "session-timeout-input.component.html",
   imports: [CommonModule, JslibModule, ReactiveFormsModule, FormFieldModule, SelectModule],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
       multi: true,
-      useExisting: VaultTimeoutInputComponent,
+      useExisting: SessionTimeoutInputComponent,
     },
     {
       provide: NG_VALIDATORS,
       multi: true,
-      useExisting: VaultTimeoutInputComponent,
+      useExisting: SessionTimeoutInputComponent,
     },
   ],
 })
-export class VaultTimeoutInputComponent
+export class SessionTimeoutInputComponent
   implements ControlValueAccessor, Validator, OnInit, OnDestroy, OnChanges
 {
+  static CUSTOM_VALUE = -100;
+  static MIN_CUSTOM_MINUTES = 0;
+  form: VaultTimeoutForm = this.formBuilder.group({
+    vaultTimeout: [null],
+    custom: this.formBuilder.group({
+      hours: [null],
+      minutes: [null],
+    }),
+  });
+
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() vaultTimeoutOptions: VaultTimeoutOption[];
+
+  vaultTimeoutPolicy: Policy;
+  vaultTimeoutPolicyHours: number;
+  vaultTimeoutPolicyMinutes: number;
+
   protected readonly VaultTimeoutAction = VaultTimeoutAction;
 
+  protected canLockVault$: Observable<boolean>;
+  private onChange: (vaultTimeout: VaultTimeout) => void;
+  private validatorChange: () => void;
+  private destroy$ = new Subject<void>();
+
+  constructor(
+    private formBuilder: FormBuilder,
+    private policyService: PolicyService,
+    private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    private i18nService: I18nService,
+    private accountService: AccountService,
+  ) {}
+
   get showCustom() {
-    return this.form.get("vaultTimeout").value === VaultTimeoutInputComponent.CUSTOM_VALUE;
+    return this.form.get("vaultTimeout").value === SessionTimeoutInputComponent.CUSTOM_VALUE;
   }
 
   get exceedsMinimumTimeout(): boolean {
     return (
-      !this.showCustom || this.customTimeInMinutes() > VaultTimeoutInputComponent.MIN_CUSTOM_MINUTES
+      !this.showCustom ||
+      this.customTimeInMinutes() > SessionTimeoutInputComponent.MIN_CUSTOM_MINUTES
     );
   }
 
@@ -100,39 +130,6 @@ export class VaultTimeoutInputComponent
       return false;
     });
   }
-
-  static CUSTOM_VALUE = -100;
-  static MIN_CUSTOM_MINUTES = 0;
-
-  form: VaultTimeoutForm = this.formBuilder.group({
-    vaultTimeout: [null],
-    custom: this.formBuilder.group({
-      hours: [null],
-      minutes: [null],
-    }),
-  });
-
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() vaultTimeoutOptions: VaultTimeoutOption[];
-
-  vaultTimeoutPolicy: Policy;
-  vaultTimeoutPolicyHours: number;
-  vaultTimeoutPolicyMinutes: number;
-
-  protected canLockVault$: Observable<boolean>;
-
-  private onChange: (vaultTimeout: VaultTimeout) => void;
-  private validatorChange: () => void;
-  private destroy$ = new Subject<void>();
-
-  constructor(
-    private formBuilder: FormBuilder,
-    private policyService: PolicyService,
-    private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-    private i18nService: I18nService,
-    private accountService: AccountService,
-  ) {}
 
   async ngOnInit() {
     this.accountService.activeAccount$
@@ -163,7 +160,7 @@ export class VaultTimeoutInputComponent
     // ex: user picks 5 min, goes to custom, we want to show 0 hr, 5 min in the custom fields
     this.form.controls.vaultTimeout.valueChanges
       .pipe(
-        filter((value) => value !== VaultTimeoutInputComponent.CUSTOM_VALUE),
+        filter((value) => value !== SessionTimeoutInputComponent.CUSTOM_VALUE),
         takeUntil(this.destroy$),
       )
       .subscribe((value) => {
@@ -195,17 +192,17 @@ export class VaultTimeoutInputComponent
 
   ngOnChanges() {
     if (
-      !this.vaultTimeoutOptions.find((p) => p.value === VaultTimeoutInputComponent.CUSTOM_VALUE)
+      !this.vaultTimeoutOptions.find((p) => p.value === SessionTimeoutInputComponent.CUSTOM_VALUE)
     ) {
       this.vaultTimeoutOptions.push({
         name: this.i18nService.t("custom"),
-        value: VaultTimeoutInputComponent.CUSTOM_VALUE,
+        value: SessionTimeoutInputComponent.CUSTOM_VALUE,
       });
     }
   }
 
   getVaultTimeout(value: VaultTimeoutFormValue) {
-    if (value.vaultTimeout !== VaultTimeoutInputComponent.CUSTOM_VALUE) {
+    if (value.vaultTimeout !== SessionTimeoutInputComponent.CUSTOM_VALUE) {
       return value.vaultTimeout;
     }
 
@@ -219,7 +216,7 @@ export class VaultTimeoutInputComponent
 
     if (this.vaultTimeoutOptions.every((p) => p.value !== value)) {
       this.form.setValue({
-        vaultTimeout: VaultTimeoutInputComponent.CUSTOM_VALUE,
+        vaultTimeout: SessionTimeoutInputComponent.CUSTOM_VALUE,
         custom: {
           hours: Math.floor(value / 60),
           minutes: value % 60,
@@ -271,7 +268,7 @@ export class VaultTimeoutInputComponent
 
     this.vaultTimeoutOptions = this.vaultTimeoutOptions.filter((vaultTimeoutOption) => {
       // Always include the custom option
-      if (vaultTimeoutOption.value === VaultTimeoutInputComponent.CUSTOM_VALUE) {
+      if (vaultTimeoutOption.value === SessionTimeoutInputComponent.CUSTOM_VALUE) {
         return true;
       }
 
