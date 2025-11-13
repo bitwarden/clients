@@ -291,7 +291,7 @@ export default class RuntimeBackground {
         await this.openPopup();
         break;
       case VaultMessages.OpenAtRiskPasswords: {
-        if (!(await this.isValidVaultReferrer(msg.referrer))) {
+        if (isExternalMessage(msg)) {
           return;
         }
 
@@ -300,7 +300,7 @@ export default class RuntimeBackground {
         break;
       }
       case VaultMessages.OpenBrowserExtensionToUrl: {
-        if (!(await this.isValidVaultReferrer(msg.referrer))) {
+        if (isExternalMessage(msg)) {
           return;
         }
 
