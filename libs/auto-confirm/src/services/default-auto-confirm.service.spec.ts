@@ -21,6 +21,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeStateProvider, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { newGuid } from "@bitwarden/guid";
 
 import { AUTO_CONFIRM_STATE, AutoConfirmState } from "../models/auto-confirm-state.model";
 
@@ -36,9 +37,9 @@ describe("DefaultAutomaticUserConfirmationService", () => {
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let policyService: MockProxy<PolicyService>;
 
-  const mockUserId = Utils.newGuid() as UserId;
-  const mockConfirmingUserId = Utils.newGuid() as UserId;
-  const mockOrganizationId = Utils.newGuid() as OrganizationId;
+  const mockUserId = newGuid() as UserId;
+  const mockConfirmingUserId = newGuid() as UserId;
+  const mockOrganizationId = newGuid() as OrganizationId;
   let mockOrganization: Organization;
 
   beforeEach(() => {
@@ -177,7 +178,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
     });
 
     it("should preserve other user configurations when updating", async () => {
-      const otherUserId = Utils.newGuid() as UserId;
+      const otherUserId = newGuid() as UserId;
       const otherConfig = new AutoConfirmState();
       otherConfig.enabled = true;
 
