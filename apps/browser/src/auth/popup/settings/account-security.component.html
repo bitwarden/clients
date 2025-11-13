@@ -20,9 +20,9 @@
       <bit-card>
         <bit-form-control [disableMargin]="!((pinEnabled$ | async) || this.form.value.pin)">
           <input bitCheckbox id="biometric" type="checkbox" formControlName="biometric" />
-          <bit-label for="biometric" class="tw-whitespace-normal">{{
-            "unlockWithBiometrics" | i18n
-          }}</bit-label>
+          <bit-label for="biometric" class="tw-whitespace-normal">
+            {{ "unlockWithBiometrics" | i18n }}
+          </bit-label>
           <bit-hint *ngIf="biometricUnavailabilityReason">
             {{ biometricUnavailabilityReason }}
           </bit-hint>
@@ -38,9 +38,9 @@
             type="checkbox"
             formControlName="enableAutoBiometricsPrompt"
           />
-          <bit-label for="autoBiometricsPrompt" class="tw-whitespace-normal">{{
-            "enableAutoBiometricsPrompt" | i18n
-          }}</bit-label>
+          <bit-label for="autoBiometricsPrompt" class="tw-whitespace-normal">
+            {{ "enableAutoBiometricsPrompt" | i18n }}
+          </bit-label>
         </bit-form-control>
         <bit-form-control
           [disableMargin]="!(this.form.value.pin && showMasterPasswordOnClientRestartOption)"
@@ -60,46 +60,60 @@
             type="checkbox"
             formControlName="pinLockWithMasterPassword"
           />
-          <bit-label for="pinEphemeral" class="tw-whitespace-normal">{{
-            "lockWithMasterPassOnRestart1" | i18n
-          }}</bit-label>
+          <bit-label for="pinEphemeral" class="tw-whitespace-normal">
+            {{ "lockWithMasterPassOnRestart1" | i18n }}
+          </bit-label>
         </bit-form-control>
       </bit-card>
     </bit-section>
 
     <bit-section>
-      <bit-section-header>
-        <h2 bitTypography="h6">{{ "vaultTimeoutHeader" | i18n }}</h2>
-      </bit-section-header>
+      @if (consolidatedSessionTimeoutComponent$ | async) {
+        <bit-section-header>
+          <h2 bitTypography="h6">
+            {{ "sessionTimeoutHeader" | i18n }}
+          </h2>
+        </bit-section-header>
 
-      <bit-card>
-        <auth-vault-timeout-input
-          [vaultTimeoutOptions]="vaultTimeoutOptions"
-          [formControl]="form.controls.vaultTimeout"
-          ngDefaultControl
-        >
-        </auth-vault-timeout-input>
+        <bit-card>
+          <bit-session-timeout-settings [refreshTimeoutActionSettings]="refreshTimeoutSettings$" />
+        </bit-card>
+      } @else {
+        <bit-section-header>
+          <h2 bitTypography="h6">
+            {{ "vaultTimeoutHeader" | i18n }}
+          </h2>
+        </bit-section-header>
 
-        <bit-form-field disableMargin>
-          <bit-label for="vaultTimeoutAction">{{ "vaultTimeoutAction1" | i18n }}</bit-label>
-          <bit-select id="vaultTimeoutAction" formControlName="vaultTimeoutAction">
-            <bit-option
-              *ngFor="let action of availableVaultTimeoutActions"
-              [value]="action"
-              [label]="action | i18n"
-            >
-            </bit-option>
-          </bit-select>
+        <bit-card>
+          <bit-session-timeout-input
+            [vaultTimeoutOptions]="vaultTimeoutOptions"
+            [formControl]="form.controls.vaultTimeout"
+            ngDefaultControl
+          >
+          </bit-session-timeout-input>
 
-          <bit-hint *ngIf="!availableVaultTimeoutActions.includes(VaultTimeoutAction.Lock)">
-            {{ "unlockMethodNeededToChangeTimeoutActionDesc" | i18n }}<br />
+          <bit-form-field disableMargin>
+            <bit-label for="vaultTimeoutAction">{{ "vaultTimeoutAction1" | i18n }}</bit-label>
+            <bit-select id="vaultTimeoutAction" formControlName="vaultTimeoutAction">
+              <bit-option
+                *ngFor="let action of availableVaultTimeoutActions"
+                [value]="action"
+                [label]="action | i18n"
+              >
+              </bit-option>
+            </bit-select>
+
+            <bit-hint *ngIf="!availableVaultTimeoutActions.includes(VaultTimeoutAction.Lock)">
+              {{ "unlockMethodNeededToChangeTimeoutActionDesc" | i18n }}<br />
+            </bit-hint>
+          </bit-form-field>
+
+          <bit-hint *ngIf="hasVaultTimeoutPolicy" class="tw-mt-4">
+            {{ "vaultTimeoutPolicyAffectingOptions" | i18n }}
           </bit-hint>
-        </bit-form-field>
-
-        <bit-hint *ngIf="hasVaultTimeoutPolicy" class="tw-mt-4">
-          {{ "vaultTimeoutPolicyAffectingOptions" | i18n }}
-        </bit-hint>
-      </bit-card>
+        </bit-card>
+      }
     </bit-section>
 
     <bit-section>
