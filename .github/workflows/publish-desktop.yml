@@ -312,7 +312,7 @@ jobs:
 
       - name: Download artifacts
         working-directory: apps/desktop/dist
-        run: Invoke-WebRequest -Uri "https://github.com/bitwarden/clients/releases/download/$_RELEASE_TAG/bitwarden.$_PKG_VERSION.nupkg" -OutFile "bitwarden.$_PKG_VERSION.nupkg"
+        run: Invoke-WebRequest -Uri "https://github.com/bitwarden/clients/releases/download/$($env:_RELEASE_TAG)/bitwarden.$($env:_PKG_VERSION).nupkg" -OutFile "bitwarden.$($env:_PKG_VERSION).nupkg"
 
       - name: Push to Chocolatey
         if: ${{ inputs.publish_type != 'Dry Run' }}
@@ -353,7 +353,7 @@ jobs:
           ruby-version: '3.4.7'
           bundler-cache: false
           working-directory: apps/desktop
-        
+
       - name: Install Fastlane
         working-directory: apps/desktop
         run: gem install fastlane
@@ -394,15 +394,15 @@ jobs:
             echo "🚀 PRODUCTION MODE - Publishing to Mac App Store"
             echo "📦 Publishing build $BUILD_NUMBER to Mac App Store"
           fi
-          
+
           echo "📝 Release notes (${#CHANGELOG} chars): ${CHANGELOG:0:100}..."
-          
+
           # Validate changelog length (App Store limit is 4000 chars)
           if [ ${#CHANGELOG} -gt 4000 ]; then
             echo "❌ Release notes too long: ${#CHANGELOG} characters (max 4000)"
             exit 1
           fi
-          
+
           fastlane publish --verbose \
             app_version:"$PKG_VERSION" \
             build_number:"$BUILD_NUMBER" \
