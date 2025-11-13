@@ -127,7 +127,7 @@ export const CRYPTO_MEMORY = new StateDefinition("crypto", "memory");
 export const DESKTOP_SETTINGS_DISK = new StateDefinition("desktopSettings", "disk");
 export const ENVIRONMENT_DISK = new StateDefinition("environment", "disk");
 export const ENVIRONMENT_MEMORY = new StateDefinition("environment", "memory");
-export const IPC_MEMORY = new StateDefinition("ipc", "memory");
+export const IPC_MEMORY = new StateDefinition("inter_process_commuinication", "memory");
 export const POPUP_VIEW_MEMORY = new StateDefinition("popupView", "memory", {
   browser: "memory-large-object",
 });
