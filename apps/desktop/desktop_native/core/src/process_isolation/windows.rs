@@ -1,4 +1,5 @@
 use anyhow::{bail, Result};
+use secmem_proc::Config;
 use tracing::info;
 
 pub fn disable_coredumps() -> Result<()> {
