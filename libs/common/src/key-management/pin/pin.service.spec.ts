@@ -10,7 +10,7 @@ import { LogService } from "../../platform/abstractions/log.service";
 import { Utils } from "../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../types/guid";
-import { PinKey, UserKey } from "../../types/key";
+import { UserKey } from "../../types/key";
 import { KeyGenerationService } from "../crypto";
 import { EncryptService } from "../crypto/abstractions/encrypt.service";
 import { EncryptedString, EncString } from "../crypto/models/enc-string";
