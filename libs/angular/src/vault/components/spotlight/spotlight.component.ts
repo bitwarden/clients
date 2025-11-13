@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
+import { booleanAttribute, ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 
 import { ButtonModule, IconButtonModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -18,7 +18,7 @@ export class SpotlightComponent {
   // The text to display on the button
   readonly buttonText = input<string | null>(null);
   // Whether the component can be dismissed, if true, the component will not show a close button
-  readonly persistent = input(false);
+  readonly persistent = input(false, { transform: booleanAttribute });
   // Optional icon to display on the button
   readonly buttonIcon = input<string | null>(null);
   readonly onDismiss = output<void>();
