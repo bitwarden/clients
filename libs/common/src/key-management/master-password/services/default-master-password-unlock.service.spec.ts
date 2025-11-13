@@ -4,6 +4,8 @@ import { of } from "rxjs";
 import { newGuid } from "@bitwarden/guid";
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, KeyService } from "@bitwarden/key-management";
+import { LogService } from "@bitwarden/logging";
+import { CryptoError } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { HashPurpose } from "../../../platform/enums";
@@ -23,6 +25,7 @@ describe("DefaultMasterPasswordUnlockService", () => {
 
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let keyService: MockProxy<KeyService>;
+  let logService: MockProxy<LogService>;
 
   const mockMasterPassword = "testExample";
   const mockUserId = newGuid() as UserId;
@@ -41,8 +44,9 @@ describe("DefaultMasterPasswordUnlockService", () => {
   beforeEach(() => {
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     keyService = mock<KeyService>();
+    logService = mock<LogService>();
 
-    sut = new DefaultMasterPasswordUnlockService(masterPasswordService, keyService);
+    sut = new DefaultMasterPasswordUnlockService(masterPasswordService, keyService, logService);
 
     masterPasswordService.masterPasswordUnlockData$.mockReturnValue(
       of(mockMasterPasswordUnlockData),
@@ -73,7 +77,7 @@ describe("DefaultMasterPasswordUnlockService", () => {
     );
 
     test.each([null as unknown as UserId, undefined as unknown as UserId])(
-      "throws when the provided master password is %s",
+      "throws when the provided userID is %s",
       async (userId) => {
         await expect(sut.unlockWithMasterPassword(mockMasterPassword, userId)).rejects.toThrow(
           "User ID is required",
@@ -149,6 +153,92 @@ describe("DefaultMasterPasswordUnlockService", () => {
       expect(keyService.hashMasterKey).not.toHaveBeenCalled();
       expect(masterPasswordService.setMasterKeyHash).not.toHaveBeenCalled();
       expect(masterPasswordService.setMasterKey).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("proofOfDecryption", () => {
+    test.each([null as unknown as string, undefined as unknown as string, ""])(
+      "throws when the provided master password is %s",
+      async (masterPassword) => {
+        await expect(sut.proofOfDecryption(masterPassword, mockUserId)).rejects.toThrow(
+          "Master password is required",
+        );
+        expect(masterPasswordService.masterPasswordUnlockData$).not.toHaveBeenCalled();
+        expect(
+          masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData,
+        ).not.toHaveBeenCalled();
+      },
+    );
+
+    test.each([null as unknown as UserId, undefined as unknown as UserId])(
+      "throws when the provided userID is %s",
+      async (userId) => {
+        await expect(sut.proofOfDecryption(mockMasterPassword, userId)).rejects.toThrow(
+          "User ID is required",
+        );
+      },
+    );
+
+    it("returns false when the user doesn't have masterPasswordUnlockData", async () => {
+      masterPasswordService.masterPasswordUnlockData$.mockReturnValue(of(null));
+
+      const result = await sut.proofOfDecryption(mockMasterPassword, mockUserId);
+
+      expect(result).toBe(false);
+      expect(masterPasswordService.masterPasswordUnlockData$).toHaveBeenCalledWith(mockUserId);
+      expect(
+        masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData,
+      ).not.toHaveBeenCalled();
+      expect(logService.warning).toHaveBeenCalledWith(
+        `[DefaultMasterPasswordUnlockService] No master password unlock data found for user ${mockUserId} returning false.`,
+      );
+    });
+
+    it("returns true when the master password is correct", async () => {
+      const result = await sut.proofOfDecryption(mockMasterPassword, mockUserId);
+
+      expect(result).toBe(true);
+      expect(masterPasswordService.masterPasswordUnlockData$).toHaveBeenCalledWith(mockUserId);
+      expect(masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData).toHaveBeenCalledWith(
+        mockMasterPassword,
+        mockMasterPasswordUnlockData,
+      );
+    });
+
+    it("returns false when the master password is incorrect", async () => {
+      const error = new Error("Incorrect password") as CryptoError;
+      error.name = "CryptoError";
+      error.variant = "InvalidKey";
+      masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData.mockRejectedValue(error);
+
+      const result = await sut.proofOfDecryption(mockMasterPassword, mockUserId);
+
+      expect(result).toBe(false);
+      expect(masterPasswordService.masterPasswordUnlockData$).toHaveBeenCalledWith(mockUserId);
+      expect(masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData).toHaveBeenCalledWith(
+        mockMasterPassword,
+        mockMasterPasswordUnlockData,
+      );
+      expect(logService.debug).toHaveBeenCalledWith(
+        `[DefaultMasterPasswordUnlockService] Error during proof of decryption for user ${mockUserId} returning false: ${error}`,
+      );
+    });
+
+    it("returns false when a generic error occurs", async () => {
+      const error = new Error("Generic error");
+      masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData.mockRejectedValue(error);
+
+      const result = await sut.proofOfDecryption(mockMasterPassword, mockUserId);
+
+      expect(result).toBe(false);
+      expect(masterPasswordService.masterPasswordUnlockData$).toHaveBeenCalledWith(mockUserId);
+      expect(masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData).toHaveBeenCalledWith(
+        mockMasterPassword,
+        mockMasterPasswordUnlockData,
+      );
+      expect(logService.error).toHaveBeenCalledWith(
+        `[DefaultMasterPasswordUnlockService] Unexpected error during proof of decryption for user ${mockUserId} returning false: ${error}`,
+      );
     });
   });
 });
