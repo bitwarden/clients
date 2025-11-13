@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import * as lunr from "lunr";
-import { Observable, firstValueFrom, map } from "rxjs";
+import { BehaviorSubject, Observable, firstValueFrom, map } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { perUserCache$ } from "@bitwarden/common/vault/utils/observable-utilities";
@@ -80,6 +80,9 @@ export class SearchService implements SearchServiceAbstraction {
   private readonly immediateSearchLocales: string[] = ["zh-CN", "zh-TW", "ja", "ko", "vi"];
   private readonly defaultSearchableMinLength: number = 2;
   private searchableMinLength: number = this.defaultSearchableMinLength;
+
+  private _isCipherSearching$ = new BehaviorSubject<boolean>(false);
+  isCipherSearching$: Observable<boolean> = this._isCipherSearching$.asObservable();
 
   constructor(
     private logService: LogService,
@@ -223,6 +226,7 @@ export class SearchService implements SearchServiceAbstraction {
     filter: ((cipher: C) => boolean) | ((cipher: C) => boolean)[] = null,
     ciphers: C[],
   ): Promise<C[]> {
+    this._isCipherSearching$.next(true);
     const results: C[] = [];
     const searchStartTime = performance.now();
     if (query != null) {
@@ -243,6 +247,7 @@ export class SearchService implements SearchServiceAbstraction {
     }
 
     if (!(await this.isSearchable(userId, query))) {
+      this._isCipherSearching$.next(false);
       return ciphers;
     }
 
@@ -258,6 +263,7 @@ export class SearchService implements SearchServiceAbstraction {
       // Fall back to basic search if index is not available
       const basicResults = this.searchCiphersBasic(ciphers, query);
       this.logService.measure(searchStartTime, "Vault", "SearchService", "basic search complete");
+      this._isCipherSearching$.next(false);
       return basicResults;
     }
 
@@ -293,6 +299,7 @@ export class SearchService implements SearchServiceAbstraction {
       });
     }
     this.logService.measure(searchStartTime, "Vault", "SearchService", "search complete");
+    this._isCipherSearching$.next(false);
     return results;
   }
 
