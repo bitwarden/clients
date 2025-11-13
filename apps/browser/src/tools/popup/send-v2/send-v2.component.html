@@ -34,7 +34,7 @@
     </bit-no-items>
   </div>
 
-  <ng-container *ngIf="listState !== sendState.Empty && !(sendsLoading$ | async)">
+  <ng-container *ngIf="listState !== sendState.Empty && !(showSkeletonsLoaders$ | async)">
     <div
       *ngIf="listState === sendState.NoResults"
       class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12"
@@ -46,7 +46,7 @@
     </div>
     <app-send-list-items-container [headerText]="title | i18n" [sends]="sends$ | async" />
   </ng-container>
-  @if (sendsLoading$ | async) {
+  @if (showSkeletonsLoaders$ | async) {
     <vault-fade-in-skeleton>
       <vault-loading-skeleton></vault-loading-skeleton>
     </vault-fade-in-skeleton>
