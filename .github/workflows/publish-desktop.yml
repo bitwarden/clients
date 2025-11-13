@@ -251,14 +251,14 @@ jobs:
 
       - name: Download artifacts
         working-directory: apps/desktop/dist
-        run: wget "https://github.com/bitwarden/clients/releases/download/$_RELEASE_TAG/bitwarden_$_PKG_VERSION_amd64.snap"
+        run: wget "https://github.com/bitwarden/clients/releases/download/${_RELEASE_TAG}/bitwarden_${_PKG_VERSION}_amd64.snap"
 
       - name: Deploy to Snap Store
         if: ${{ inputs.publish_type != 'Dry Run' }}
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ steps.retrieve-secrets.outputs.snapcraft-store-token }}
         run: |
-          snapcraft upload "bitwarden_$_PKG_VERSION_amd64.snap" --release stable
+          snapcraft upload "bitwarden_${_PKG_VERSION}_amd64.snap" --release stable
           snapcraft logout
         working-directory: apps/desktop/dist
 

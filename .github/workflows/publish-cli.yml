@@ -126,14 +126,14 @@ jobs:
         uses: samuelmeuli/action-snapcraft@fceeb3c308e76f3487e72ef608618de625fb7fe8  # v3.0.1
 
       - name: Download artifacts
-        run: wget "https://github.com/bitwarden/clients/releases/download/cli-v$_PKG_VERSION/bw_$_PKG_VERSION_amd64.snap"
+        run: wget "https://github.com/bitwarden/clients/releases/download/cli-v${_PKG_VERSION}/bw_${_PKG_VERSION}_amd64.snap"
 
       - name: Publish Snap & logout
         if: ${{ inputs.publish_type != 'Dry Run' }}
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ steps.retrieve-secrets.outputs.snapcraft-store-token }}
         run: |
-          snapcraft upload "bw_$_PKG_VERSION_amd64.snap" --release stable
+          snapcraft upload "bw_${_PKG_VERSION}_amd64.snap" --release stable
           snapcraft logout
 
   choco:
@@ -227,8 +227,8 @@ jobs:
       - name: Download and set up artifact
         run: |
           mkdir -p build
-          wget "https://github.com/bitwarden/clients/releases/download/cli-v$_PKG_VERSION/bitwarden-cli-$_PKG_VERSION-npm-build.zip"
-          unzip "bitwarden-cli-$_PKG_VERSION-npm-build.zip" -d build
+          wget "https://github.com/bitwarden/clients/releases/download/cli-v${_PKG_VERSION}/bitwarden-cli-${_PKG_VERSION}-npm-build.zip"
+          unzip "bitwarden-cli-${_PKG_VERSION}-npm-build.zip" -d build
 
       - name: Publish NPM
         if: ${{ inputs.publish_type != 'Dry Run' }}
