@@ -38,6 +38,7 @@ const focusRing = [
   "before:tw-ring-2",
   "before:tw-ring-transparent",
   "focus-visible:tw-z-10",
+  "focus:tw-z-10",
 ];
 
 const styles: Record<IconButtonType, string[]> = {
@@ -48,7 +49,12 @@ const styles: Record<IconButtonType, string[]> = {
     "focus-visible:before:tw-ring-text-contrast",
     ...focusRing,
   ],
-  main: ["!tw-text-main", "focus-visible:before:tw-ring-primary-600", ...focusRing],
+  main: [
+    "!tw-text-main",
+    "focus-visible:before:tw-ring-primary-600",
+    "focus:before:tw-ring-primary-600",
+    ...focusRing,
+  ],
   muted: [
     "!tw-text-muted",
     "tw-border-transparent",

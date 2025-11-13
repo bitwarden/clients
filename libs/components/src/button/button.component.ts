@@ -18,6 +18,10 @@ import { SpinnerComponent } from "../spinner";
 import { ariaDisableElement } from "../utils";
 
 const focusRing = [
+  "focus:tw-ring-2",
+  "focus:tw-ring-offset-2",
+  "focus:tw-ring-primary-600",
+  "focus:tw-z-10",
   "focus-visible:tw-ring-2",
   "focus-visible:tw-ring-offset-2",
   "focus-visible:tw-ring-primary-600",
