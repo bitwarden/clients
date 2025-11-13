@@ -267,6 +267,29 @@ describe("DefaultAuthRequestAnsweringService", () => {
         // Assert
         expect(messagingService.send).toHaveBeenCalledTimes(1);
       });
+
+      it("should NOT process pending auth requests when switching to an Unlocked user who is required to set/change their master password", async () => {
+        // Arrange
+        masterPasswordService.forceSetPasswordReason$.mockReturnValue(
+          of(ForceSetPasswordReason.WeakMasterPassword),
+        );
+        authStatusForSubjects.set(otherUserId, new BehaviorSubject(AuthenticationStatus.Unlocked));
+        pendingRequestMarkers = [{ userId: otherUserId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
+
+        // Act
+        sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
+        activeAccount$.next({
+          id: otherUserId,
+          email: "other@example.com",
+          emailVerified: true,
+          name: "Other",
+        });
+
+        // Assert
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(messagingService.send).not.toHaveBeenCalled();
+      });
     });
 
     describe("authentication status transitions", () => {
@@ -379,6 +402,24 @@ describe("DefaultAuthRequestAnsweringService", () => {
         // Assert
         expect(messagingService.send).toHaveBeenCalledTimes(2);
         expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval");
+      });
+
+      it("should NOT process pending auth requests when active account transitions to Unlocked but is required to set/change their master password", async () => {
+        // Arrange
+        masterPasswordService.forceSetPasswordReason$.mockReturnValue(
+          of(ForceSetPasswordReason.WeakMasterPassword),
+        );
+        activeAccountStatus$.next(AuthenticationStatus.Locked);
+        pendingRequestMarkers = [{ userId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
+
+        // Act
+        sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
+        activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+
+        // Assert
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(messagingService.send).not.toHaveBeenCalled();
       });
     });
 

@@ -103,6 +103,16 @@ export class DefaultAuthRequestAnsweringService implements AuthRequestAnsweringS
    * approval dialog.
    */
   private async processPendingAuthRequests(): Promise<void> {
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    // Only continue if the active user is not required to set/change their master password
+    const forceSetPasswordReason = await firstValueFrom(
+      this.masterPasswordService.forceSetPasswordReason$(activeUserId),
+    );
+    if (forceSetPasswordReason !== ForceSetPasswordReason.None) {
+      return;
+    }
+
     // Prune any stale pending requests (older than 15 minutes)
     // This comes from GlobalSettings.cs
     //    public TimeSpan UserRequestExpiration { get; set; } = TimeSpan.FromMinutes(15);
@@ -114,7 +124,6 @@ export class DefaultAuthRequestAnsweringService implements AuthRequestAnsweringS
       (await firstValueFrom(this.pendingAuthRequestsState.getAll$())) ?? [];
 
     if (pendingAuthRequestsInState.length > 0) {
-      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const pendingAuthRequestsForActiveUser = pendingAuthRequestsInState.some(
         (e) => e.userId === activeUserId,
       );

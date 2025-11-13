@@ -23,9 +23,11 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -224,6 +226,7 @@ export class VaultV2Component<C extends CipherViewLike>
     private cipherArchiveService: CipherArchiveService,
     private policyService: PolicyService,
     private archiveCipherUtilitiesService: ArchiveCipherUtilitiesService,
+    private masterPasswordService: MasterPasswordServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -333,12 +336,11 @@ export class VaultV2Component<C extends CipherViewLike>
     this.searchBarService.setEnabled(true);
     this.searchBarService.setPlaceholderText(this.i18nService.t("searchVault"));
 
-    // If there are pending auth requests for this user, a LoginApprovalDialogComponent will open
-    this.messagingService.send("openLoginApproval");
-
     this.activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getUserId),
     ).catch((): any => null);
+
+    await this.sendOpenLoginApprovalMessage(this.activeUserId);
 
     if (this.activeUserId) {
       this.cipherService
@@ -1004,5 +1006,28 @@ export class VaultV2Component<C extends CipherViewLike>
       this.cipherRepromptId = cipher.id;
     }
     return repromptResult;
+  }
+
+  /**
+   * Sends a message that will retrieve any pending auth requests from the server. If there are
+   * pending auth requests for this user, a LoginApprovalDialogComponent will open. If there
+   * are no pending auth requests, nothing happens (see AppComponent: "openLoginApproval").
+   */
+  private async sendOpenLoginApprovalMessage(activeUserId: UserId) {
+    // This is a defensive check against a race condition where a user may have successfully logged
+    // in with no forceSetPasswordReason, but while the vault component is loading, a sync sets
+    // forceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission (see DefaultSyncService).
+    // This could potentially happen if an Admin upgrades the user's permissions as the user is logging
+    // in. In this rare case we do not want to send an "openLoginApproval" message.
+    //
+    // This also keeps parity with other usages of the "openLoginApproval" message. That is: don't send
+    // an "openLoginApproval" message if the user is required to set/change their password.
+    const forceSetPasswordReason = await firstValueFrom(
+      this.masterPasswordService.forceSetPasswordReason$(activeUserId),
+    );
+    if (forceSetPasswordReason === ForceSetPasswordReason.None) {
+      // If there are pending auth requests for this user, a LoginApprovalDialogComponent will open
+      this.messagingService.send("openLoginApproval");
+    }
   }
 }
