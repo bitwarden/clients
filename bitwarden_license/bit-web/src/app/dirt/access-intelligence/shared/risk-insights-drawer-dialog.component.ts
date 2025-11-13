@@ -34,7 +34,7 @@ export class RiskInsightsDrawerDialogComponent {
   /**
    * downloads at risk members as CSV
    */
-  async downloadAtRiskMembers() {
+  downloadAtRiskMembers() {
     try {
       // Validate drawer is open and showing the correct drawer type
       if (
@@ -63,7 +63,7 @@ export class RiskInsightsDrawerDialogComponent {
   /**
    * downloads at risk applications as CSV
    */
-  async downloadAtRiskApplications() {
+  downloadAtRiskApplications() {
     try {
       // Validate drawer is open and showing the correct drawer type
       if (
