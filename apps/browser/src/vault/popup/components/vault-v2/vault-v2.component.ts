@@ -28,8 +28,10 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
+import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
 import {
   ButtonModule,
   DialogService,
@@ -137,9 +139,18 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     map(([loading, skeletonsEnabled]) => loading && !skeletonsEnabled),
   );
 
-  /** When true, show skeleton loading state */
-  protected showSkeletonsLoaders$ = combineLatest([this.loading$, this.skeletonFeatureFlag$]).pipe(
-    map(([loading, skeletonsEnabled]) => loading && skeletonsEnabled),
+  /** When true, show skeleton loading state with debouncing to prevent flicker */
+  protected showSkeletonsLoaders$ = combineLatest([
+    this.loading$,
+    this.searchService.isCipherSearching$,
+    this.skeletonFeatureFlag$,
+  ]).pipe(
+    map(
+      ([loading, cipherSearching, skeletonsEnabled]) =>
+        (loading || cipherSearching) && skeletonsEnabled,
+    ),
+    distinctUntilChanged(),
+    skeletonLoadingDelay(),
   );
 
   protected newItemItemValues$: Observable<NewItemInitialValues> =
@@ -180,6 +191,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private liveAnnouncer: LiveAnnouncer,
     private i18nService: I18nService,
     private configService: ConfigService,
+    private searchService: SearchService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
