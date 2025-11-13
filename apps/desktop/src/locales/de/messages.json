@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Du bist nicht berechtigt, diesen Eintrag zu bearbeiten"
+  },
   "welcomeBack": {
     "message": "Willkommen zurück"
   },
@@ -772,7 +775,7 @@
     "message": "Single Sign-on verwenden"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Deine Organisation erfordert Single Sign-On."
   },
   "submit": {
     "message": "Absenden"
@@ -1034,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Du musst entweder die Basis-Server-URL oder mindestens eine benutzerdefinierte Umgebung hinzufügen."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs müssen HTTPS verwenden."
   },
   "customEnvironment": {
     "message": "Benutzerdefinierte Umgebung"
@@ -4190,5 +4196,29 @@
   },
   "cardNumberLabel": {
     "message": "Kartennummer"
+  },
+  "upgradeNow": {
+    "message": "Jetzt upgraden"
+  },
+  "builtInAuthenticator": {
+    "message": "Integrierter Authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Sicherer Dateispeicher"
+  },
+  "emergencyAccess": {
+    "message": "Notfallzugriff"
+  },
+  "breachMonitoring": {
+    "message": "Datendiebstahl-Überwachung"
+  },
+  "andMoreFeatures": {
+    "message": "Und mehr!"
+  },
+  "planDescPremium": {
+    "message": "Umfassende Online-Sicherheit"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade auf Premium"
   }
 }

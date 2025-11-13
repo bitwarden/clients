@@ -2,7 +2,7 @@ import { mock } from "jest-mock-extended";
 
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
-import AutofillScript, { FillScript, FillScriptActions } from "../models/autofill-script";
+import AutofillScript, { FillScript, FillScriptActionTypes } from "../models/autofill-script";
 import { mockQuerySelectorAllDefinedCall } from "../spec/testing-utils";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
 
@@ -94,14 +94,13 @@ describe("InsertAutofillContentService", () => {
     );
     fillScript = {
       script: [
-        ["click_on_opid", "username"],
-        ["focus_by_opid", "username"],
-        ["fill_by_opid", "username", "test"],
+        [FillScriptActionTypes.click_on_opid, "username"],
+        [FillScriptActionTypes.focus_by_opid, "username"],
+        [FillScriptActionTypes.fill_by_opid, "username", "test"],
       ],
       properties: {
         delay_between_operations: 20,
       },
-      metadata: {},
       autosubmit: [],
       savedUrls: ["https://bitwarden.com"],
       untrustedIframe: false,
@@ -221,17 +220,14 @@ describe("InsertAutofillContentService", () => {
       expect(insertAutofillContentService["runFillScriptAction"]).toHaveBeenNthCalledWith(
         1,
         fillScript.script[0],
-        0,
       );
       expect(insertAutofillContentService["runFillScriptAction"]).toHaveBeenNthCalledWith(
         2,
         fillScript.script[1],
-        1,
       );
       expect(insertAutofillContentService["runFillScriptAction"]).toHaveBeenNthCalledWith(
         3,
         fillScript.script[2],
-        2,
       );
     });
   });
@@ -376,42 +372,62 @@ describe("InsertAutofillContentService", () => {
     });
 
     it("returns early if no opid is provided", async () => {
-      const action = "fill_by_opid";
+      const action = FillScriptActionTypes.fill_by_opid;
       const opid = "";
       const value = "value";
       const scriptAction: FillScript = [action, opid, value];
       jest.spyOn(insertAutofillContentService["autofillInsertActions"], action);
 
-      await insertAutofillContentService["runFillScriptAction"](scriptAction, 0);
+      await insertAutofillContentService["runFillScriptAction"](scriptAction);
       jest.advanceTimersByTime(20);
 
       expect(insertAutofillContentService["autofillInsertActions"][action]).not.toHaveBeenCalled();
     });
 
     describe("given a valid fill script action and opid", () => {
-      const fillScriptActions: FillScriptActions[] = [
-        "fill_by_opid",
-        "click_on_opid",
-        "focus_by_opid",
-      ];
-      fillScriptActions.forEach((action) => {
-        it(`triggers a ${action} action`, () => {
-          const opid = "opid";
-          const value = "value";
-          const scriptAction: FillScript = [action, opid, value];
-          jest.spyOn(insertAutofillContentService["autofillInsertActions"], action);
+      it(`triggers a fill_by_opid action`, () => {
+        const action = FillScriptActionTypes.fill_by_opid;
+        const opid = "opid";
+        const value = "value";
+        const scriptAction: FillScript = [action, opid, value];
+        jest.spyOn(insertAutofillContentService["autofillInsertActions"], action);
 
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          insertAutofillContentService["runFillScriptAction"](scriptAction, 0);
-          jest.advanceTimersByTime(20);
+        void insertAutofillContentService["runFillScriptAction"](scriptAction);
+        jest.advanceTimersByTime(20);
 
-          expect(
-            insertAutofillContentService["autofillInsertActions"][action],
-          ).toHaveBeenCalledWith({
-            opid,
-            value,
-          });
+        expect(insertAutofillContentService["autofillInsertActions"][action]).toHaveBeenCalledWith({
+          opid,
+          value,
+        });
+      });
+
+      it(`triggers a click_on_opid action`, () => {
+        const action = FillScriptActionTypes.click_on_opid;
+        const opid = "opid";
+        const value = "value";
+        const scriptAction: FillScript = [action, opid, value];
+        jest.spyOn(insertAutofillContentService["autofillInsertActions"], action);
+
+        void insertAutofillContentService["runFillScriptAction"](scriptAction);
+        jest.advanceTimersByTime(20);
+
+        expect(insertAutofillContentService["autofillInsertActions"][action]).toHaveBeenCalledWith({
+          opid,
+        });
+      });
+
+      it(`triggers a focus_by_opid action`, () => {
+        const action = FillScriptActionTypes.focus_by_opid;
+        const opid = "opid";
+        const value = "value";
+        const scriptAction: FillScript = [action, opid, value];
+        jest.spyOn(insertAutofillContentService["autofillInsertActions"], action);
+
+        void insertAutofillContentService["runFillScriptAction"](scriptAction);
+        jest.advanceTimersByTime(20);
+
+        expect(insertAutofillContentService["autofillInsertActions"][action]).toHaveBeenCalledWith({
+          opid,
         });
       });
     });

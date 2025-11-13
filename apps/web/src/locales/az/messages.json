@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
-  "riskInsights": {
-    "message": "Risk Məlumatları"
-  },
   "passwordRisk": {
     "message": "Parol riski"
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "reviewAtRiskPasswords": {
     "message": "Tətbiqlər arasında riskli (zəif, ifşa olunmuş və ya təkrar istifadə olunmuş) parolları incələyin. İstifadəçilərinizin riskli parollara yönəlmiş təhlükəsizlik tədbirlərinə əhəmiyyət vermələri üçün kritik tətbiqlərinizi seçin."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Riskli girişləri incələ"
   },
   "dataLastUpdated": {
     "message": "Verilərin son güncəlləmə tarixi: $DATE$",
@@ -127,6 +130,9 @@
       }
     }
   },
+  "criticalApplicationsMarked": {
+    "message": "kritik olaraq işarələnmiş tətbiqlər"
+  },
   "countOfCriticalApplications": {
     "message": "$COUNT$ kritik tətbiq",
     "placeholders": {
@@ -173,7 +179,7 @@
     }
   },
   "noApplicationsInOrgTitle": {
-    "message": "No applications found for $ORG NAME$",
+    "message": "$ORG NAME$ üçün heç bir tətbiq tapılmadı",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -182,31 +188,31 @@
     }
   },
   "noApplicationsInOrgDescription": {
-    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+    "message": "Kimlik məlumatı təhlükəsizlik risklərini monitorinq etməyə başlamaq üçün təşkilatınızın giriş verilərini daxilə köçürün. Daxilə köçürdükdən sonra əldə edəcəkləriniz:"
   },
   "benefit1Title": {
-    "message": "Prioritize risks"
+    "message": "Riskləri prioritetləşdirmə"
   },
   "benefit1Description": {
-    "message": "Focus on applications that matter the most"
+    "message": "Ən vacib tətbiqlərə fokuslanma"
   },
   "benefit2Title": {
-    "message": "Guide remediation"
+    "message": "Riskləri azaltma bələdçisi"
   },
   "benefit2Description": {
-    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+    "message": "Risk altındakı üzvlərə, riskli kimlik məlumatlarını dəyişmək üçün rəhbər tapşırıqlar təyin edin"
   },
   "benefit3Title": {
-    "message": "Monitor progress"
+    "message": "İrəliləyişin monitorinqi"
   },
   "benefit3Description": {
-    "message": "Track changes over time to show security improvements"
+    "message": "Təhlükəsizlik təkmilləşdirmələrini göstərmək üçün zamanla dəyişiklikləri izləyin"
   },
   "noReportRunTitle": {
-    "message": "Run your first report to see applications"
+    "message": "Tətbiqləri görmək üçün ilk hesabatınızı çalışdırın"
   },
   "noReportRunDescription": {
-    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
+    "message": "Təşkilatınızın tətbiqlərini təhlil etmək və diqqət edilməli riskli parolları müəyyənləşdirmək üçün risk təhlili hesabatını yaradın. İlk hesabatınızı çalışdırdıqda:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Heç bir tətbiqi kritik olaraq işarələməmisiniz"
@@ -235,6 +241,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Kritik olaraq işarələnmiş tətbiqlər"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ tətbiq kritik olaraq işarələndi",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Müraciətlər kritik olaraq işarələnmədi"
   },
@@ -258,6 +273,12 @@
   },
   "membersWithAccessToAtRiskItemsForCriticalApps": {
     "message": "Kritik tətbiqlər üçün risk altındakı elementlərə erişimi olan üzvlər"
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Riskli parollara sahib üzvlər"
+  },
+  "membersWillReceiveNotification": {
+    "message": "Üzvlər, riskli girişləri həll etmək üçün brauzer uzantısı üzərindən bildiriş alacaqlar."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ üzv risk altındadır",
@@ -343,35 +364,41 @@
   "reviewNow": {
     "message": "İndi incələ"
   },
+  "allCaughtUp": {
+    "message": "Hələlik bu qədər!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "Hazırda incələnməli yeni tətbiq yoxdur"
+  },
   "prioritizeCriticalApplications": {
     "message": "Kritik tətbiqləri prioritetləşdir"
   },
-  "atRiskItems": {
-    "message": "Riskli elementlər"
+  "selectCriticalApplicationsDescription": {
+    "message": "Təşkilatınız üçün ən kritik sayılan tətbiqləri seçin, daha sonra riskləri həll etmələri üçün üzvlərə təhlükəsizlik tapşırıqları təyin edin."
+  },
+  "reviewNewApplications": {
+    "message": "Yeni tətbiqlər incələ"
+  },
+  "reviewNewApplicationsDescription": {
+    "message": "Admin konsolunda saxlanılmış və zəif, ifşa olunmuş və ya təkrar istifadə olunmuş parollara sahib yeni tətbiqlər üçün riskli elementləri vurğulamışıq."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Bir tətbiqi kritik olaraq işarələmək üçün ulduz ikonuna klikləyin"
   },
   "markAsCriticalPlaceholder": {
     "message": "Kritik olaraq işarələmə funksionallığı, gələcək güncəlləmədə tətbiq olunacaq"
   },
   "applicationReviewSaved": {
-    "message": "Application review saved"
-  },
-  "applicationsMarkedAsCritical": {
-    "message": "$COUNT$ applications marked as critical",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
+    "message": "Tətbiq incələmə saxlanıldı"
   },
   "newApplicationsReviewed": {
-    "message": "New applications reviewed"
+    "message": "Yeni tətbiqlər incələnib"
   },
   "errorSavingReviewStatus": {
-    "message": "Error saving review status"
+    "message": "İncələmə statusunu saxlama xətası"
   },
   "pleaseTryAgain": {
-    "message": "Please try again"
+    "message": "Lütfən yenidən sınayın"
   },
   "unmarkAsCritical": {
     "message": "Kritik olaraq işarələməni götür"
@@ -834,6 +861,9 @@
   },
   "favorites": {
     "message": "Sevimlilər"
+  },
+  "taskSummary": {
+    "message": "Tapşırıq icmalı"
   },
   "types": {
     "message": "Növlər"
@@ -1360,7 +1390,7 @@
     "message": "Vahid daxil olma üsulunu istifadə et"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Təşkilatınız, vahid daxil olma tələb edir."
   },
   "welcomeBack": {
     "message": "Yenidən xoş gəlmisiniz"
@@ -4409,8 +4439,8 @@
   "updateBrowser": {
     "message": "Brauzeri güncəllə"
   },
-  "generatingYourRiskInsights": {
-    "message": "Risk Təhlilləriniz yaradılır..."
+  "generatingYourAccessIntelligence": {
+    "message": "Generating your Access Intelligence..."
   },
   "riskInsightsRunReport": {
     "message": "Hesabatı işə sal"
@@ -5805,8 +5835,8 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Vahid təşkilat siyasəti tələb olunur. "
   },
-  "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Birdən çox təşkilatın üzvü olan hər kəsin erişimi, digər təşkilatları tərk edənə qədər ləğv ediləcək."
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "Bu avtomatlaşdırmanı aktivləşdirmək üçün bütün üzvlər yalnız bu təşkilata aid olmalıdır."
   },
   "autoConfirmSingleOrgExemption": {
     "message": "Vahid təşkilat siyasəti bütün rollara şamil ediləcək. "
@@ -5871,6 +5901,19 @@
   "disableHideEmail": {
     "message": "\"Send\" yaradarkən və ya ona düzəliş edərkən istifadəçilərin e-poçt ünvanlarını alıcılardan gizlətməsinə icazə verməyin.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "İlkin URI uyuşma aşkarlaması"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Avto-doldurma üçün giriş məlumatlarının nə vaxt təklif ediləcəyini müəyyənləşdirin. Adminlər və sahiblər bu siyasətdən azaddır."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "İlkin URI uyuşma aşkarlaması"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Lütfən yararlı bir URI uyuşma aşkarlama variantını seçin.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "$ID$ siyasətinə düzəliş edildi.",
@@ -6525,11 +6568,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Ana parolunuz təşkilatınızdakı siyasətlərdən birinə və ya bir neçəsinə uyğun gəlmir. Seyfə erişmək üçün ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı seansdan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər."
   },
-  "automaticAppLogin": {
-    "message": "İcazə verilən tətbiqlər üçün istifadəçilərin avtomatik giriş etməsi"
+  "automaticAppLoginWithSSO": {
+    "message": "SSO ilə avtomatik giriş"
   },
-  "automaticAppLoginDesc": {
-    "message": "Konfiqurasiya edilmiş kimlik provayderinizdən başladılan tətbiqlər üçün giriş xanaları avtomatik doldurulub göndəriləcək."
+  "automaticAppLoginWithSSODesc": {
+    "message": "SSO təhlükəsizliyini və rahatlığını idarə edilməyən tətbiqlərə genişləndirin. İstifadəçilər bir tətbiqi kimlik provayderinizdən işə saldığı zaman, onların giriş məlumatları avtomatik olaraq doldurulub təqdim ediləcək. Beləliklə kimlik provayderindən tətbiqə bir kliklə təhlükəsiz axın yaradılır."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Provayder host-unu müəyyənləşdir"
@@ -7129,6 +7172,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Təməl server URL-sini və ya ən azı bir özəl mühiti əlavə etməlisiniz."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL-lər, HTTPS istifadə etməlidir."
+  },
   "apiUrl": {
     "message": "API server URL-si"
   },
@@ -7300,6 +7346,9 @@
   },
   "accessDenied": {
     "message": "Erişim rədd edildi. Bu səhifəyə baxmaq üçün icazəniz yoxdur."
+  },
+  "noPageAccess": {
+    "message": "Bu səhifəyə erişmək üçün icazəniz yoxdur"
   },
   "masterPassword": {
     "message": "Ana parol"
@@ -9758,6 +9807,9 @@
   },
   "assignTasks": {
     "message": "Tapşırıq təyin et"
+  },
+  "assignTasksToMembers": {
+    "message": "Üzvlərə rəhbər həll üçün tapşırıqlar təyin edin"
   },
   "assignToCollections": {
     "message": "Kolleksiyalara təyin et"

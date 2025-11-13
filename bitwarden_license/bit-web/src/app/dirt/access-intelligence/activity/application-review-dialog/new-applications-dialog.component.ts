@@ -2,24 +2,26 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   Inject,
   inject,
+  Injector,
+  Signal,
   signal,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { from, switchMap } from "rxjs";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { from, switchMap, take } from "rxjs";
 
 import {
   ApplicationHealthReportDetail,
-  ApplicationHealthReportDetailEnriched,
-  OrganizationReportApplication,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { getUniqueMembers } from "@bitwarden/bit-common/dirt/reports/risk-insights/helpers";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
+import { SecurityTask, SecurityTaskStatus } from "@bitwarden/common/vault/tasks";
 import {
   ButtonModule,
   DIALOG_DATA,
@@ -45,6 +47,11 @@ export interface NewApplicationsDialogData {
    * the route subscription has fired.
    */
   organizationId: OrganizationId;
+  /**
+   * Whether the organization has any existing critical applications.
+   * Used to determine which title and description to show in the dialog.
+   */
+  hasExistingCriticalApplications: boolean;
 }
 
 /**
@@ -67,9 +74,9 @@ export type NewApplicationsDialogResultType =
   (typeof NewApplicationsDialogResultType)[keyof typeof NewApplicationsDialogResultType];
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "dirt-new-applications-dialog",
   templateUrl: "./new-applications-dialog.component.html",
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     ButtonModule,
@@ -92,10 +99,41 @@ export class NewApplicationsDialogComponent {
   // Applications selected to save as critical applications
   protected readonly selectedApplications = signal<Set<string>>(new Set());
 
-  // Assign tasks variables
-  readonly criticalApplicationsCount = signal<number>(0);
-  readonly totalApplicationsCount = signal<number>(0);
-  readonly atRiskCriticalMembersCount = signal<number>(0);
+  // Used to determine if there are unassigned at-risk cipher IDs
+  private readonly _tasks!: Signal<SecurityTask[]>;
+
+  // Computed properties for selected applications
+  protected readonly newCriticalApplications = computed(() => {
+    return this.dialogParams.newApplications.filter((newApp) =>
+      this.selectedApplications().has(newApp.applicationName),
+    );
+  });
+
+  // New at risk critical applications
+  protected readonly newAtRiskCriticalApplications = computed(() => {
+    return this.newCriticalApplications().filter((app) => app.atRiskPasswordCount > 0);
+  });
+
+  // Count of unique members with at-risk passwords in newly marked critical applications
+  protected readonly atRiskCriticalMembersCount = computed(() => {
+    return getUniqueMembers(this.newCriticalApplications().flatMap((x) => x.atRiskMemberDetails))
+      .length;
+  });
+
+  protected readonly newUnassignedAtRiskCipherIds = computed<CipherId[]>(() => {
+    const newAtRiskCipherIds = this.newCriticalApplications().flatMap((app) => app.atRiskCipherIds);
+    const tasks = this._tasks();
+
+    if (tasks.length === 0) {
+      return newAtRiskCipherIds;
+    }
+
+    const inProgressTasks = tasks.filter((task) => task.status === SecurityTaskStatus.Pending);
+    const assignedIdSet = new Set(inProgressTasks.map((task) => task.cipherId));
+    const unassignedIds = newAtRiskCipherIds.filter((id) => !assignedIdSet.has(id));
+    return unassignedIds;
+  });
+
   readonly saving = signal<boolean>(false);
 
   // Loading states
@@ -103,13 +141,21 @@ export class NewApplicationsDialogComponent {
 
   constructor(
     @Inject(DIALOG_DATA) protected dialogParams: NewApplicationsDialogData,
-    private dialogRef: DialogRef<NewApplicationsDialogResultType>,
     private dataService: RiskInsightsDataService,
-    private toastService: ToastService,
+    private dialogRef: DialogRef<NewApplicationsDialogResultType>,
+    private dialogService: DialogService,
     private i18nService: I18nService,
-    private accessIntelligenceSecurityTasksService: AccessIntelligenceSecurityTasksService,
+    private injector: Injector,
     private logService: LogService,
-  ) {}
+    private securityTasksService: AccessIntelligenceSecurityTasksService,
+    private toastService: ToastService,
+  ) {
+    // Setup the _tasks signal by manually passing in the injector
+    this._tasks = toSignal(this.securityTasksService.tasks$, {
+      initialValue: [],
+      injector: this.injector,
+    });
+  }
 
   /**
    * Opens the new applications dialog
@@ -128,6 +174,14 @@ export class NewApplicationsDialogComponent {
 
   getApplications() {
     return this.dialogParams.newApplications;
+  }
+
+  /**
+   * Returns true if the organization has no existing critical applications.
+   * Used to conditionally show different titles and descriptions.
+   */
+  protected hasNoCriticalApplications(): boolean {
+    return !this.dialogParams.hasExistingCriticalApplications;
   }
 
   /**
@@ -159,68 +213,57 @@ export class NewApplicationsDialogComponent {
     });
   }
 
-  handleMarkAsCritical() {
-    if (this.markingAsCritical() || this.saving()) {
-      return; // Prevent action if already processing
+  // Checks if there are selected applications and proceeds to assign tasks
+  async handleMarkAsCritical() {
+    if (this.selectedApplications().size === 0) {
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "confirmNoSelectedCriticalApplicationsTitle" },
+        content: { key: "confirmNoSelectedCriticalApplicationsDesc" },
+        type: "warning",
+      });
+
+      if (!confirmed) {
+        return;
+      }
     }
-    this.markingAsCritical.set(true);
 
-    const onlyNewCriticalApplications = this.dialogParams.newApplications.filter((newApp) =>
-      this.selectedApplications().has(newApp.applicationName),
-    );
-
-    const atRiskCriticalMembersCount = getUniqueMembers(
-      onlyNewCriticalApplications.flatMap((x) => x.atRiskMemberDetails),
-    ).length;
-    this.atRiskCriticalMembersCount.set(atRiskCriticalMembersCount);
-
-    this.currentView.set(DialogView.AssignTasks);
-    this.markingAsCritical.set(false);
+    // Skip the assign tasks view if there are no new unassigned at-risk cipher IDs
+    if (this.newUnassignedAtRiskCipherIds().length === 0) {
+      this.handleAssignTasks();
+    } else {
+      this.currentView.set(DialogView.AssignTasks);
+    }
   }
 
-  /**
-   * Handles the assign tasks button click
-   */
+  // Saves the application review and assigns tasks for unassigned at-risk ciphers
   protected handleAssignTasks() {
     if (this.saving()) {
       return; // Prevent double-click
     }
     this.saving.set(true);
 
-    // Create updated organization report application types with new review date
-    // and critical marking based on selected applications
-    const newReviewDate = new Date();
-    const updatedApplications: OrganizationReportApplication[] =
-      this.dialogParams.newApplications.map((app) => ({
+    const reviewedDate = new Date();
+    const updatedApplications = this.dialogParams.newApplications.map((app) => {
+      const isCritical = this.selectedApplications().has(app.applicationName);
+      return {
         applicationName: app.applicationName,
-        isCritical: this.selectedApplications().has(app.applicationName),
-        reviewedDate: newReviewDate,
-      }));
+        isCritical,
+        reviewedDate,
+      };
+    });
 
     // Save the application review dates and critical markings
     this.dataService
       .saveApplicationReviewStatus(updatedApplications)
       .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        switchMap((updatedState) => {
-          // After initial save is complete, created the assigned tasks
-          // for at risk passwords
-          const updatedStateApplicationData = updatedState?.data?.applicationData || [];
-          // Manual enrich for type matching
-          // TODO Consolidate in model updates
-          const manualEnrichedApplications =
-            updatedState?.data?.reportData.map(
-              (application): ApplicationHealthReportDetailEnriched => ({
-                ...application,
-                isMarkedAsCritical: updatedStateApplicationData.some(
-                  (a) => a.applicationName == application.applicationName && a.isCritical,
-                ),
-              }),
-            ) || [];
+        takeUntilDestroyed(this.destroyRef), // Satisfy eslint rule
+        take(1),
+        switchMap(() => {
+          // Assign password change tasks for unassigned at-risk ciphers for critical applications
           return from(
-            this.accessIntelligenceSecurityTasksService.assignTasks(
+            this.securityTasksService.requestPasswordChangeForCriticalApplications(
               this.dialogParams.organizationId,
-              manualEnrichedApplications,
+              this.newUnassignedAtRiskCipherIds(),
             ),
           );
         }),

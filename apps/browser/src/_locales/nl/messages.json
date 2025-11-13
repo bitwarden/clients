@@ -1523,12 +1523,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Vraag om biometrie bij opstarten"
   },
-  "premiumRequired": {
-    "message": "Premium is vereist"
-  },
-  "premiumRequiredDesc": {
-    "message": "Je hebt een Premium-abonnement nodig om deze functie te gebruiken."
-  },
   "authenticationTimeout": {
     "message": "Authenticatie-timeout"
   },
@@ -1640,6 +1634,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Je moet de basis URL van de server of ten minste één aangepaste omgeving toevoegen."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL's moeten HTTPS gebruiken."
   },
   "customEnvironment": {
     "message": "Aangepaste omgeving"
@@ -4977,6 +4974,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Standaard ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "Overeenkomstdetectie weergeven $WEBSITE$",
     "placeholders": {
@@ -5768,6 +5775,30 @@
   },
   "atRiskLoginsSecured": {
     "message": "Goed gedaan, je hebt je risicovolle inloggegevens verbeterd!"
+  },
+  "upgradeNow": {
+    "message": "Nu upgraden"
+  },
+  "builtInAuthenticator": {
+    "message": "Ingebouwde authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Beveiligde bestandsopslag"
+  },
+  "emergencyAccess": {
+    "message": "Noodtoegang"
+  },
+  "breachMonitoring": {
+    "message": "Lek-monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "En meer!"
+  },
+  "planDescPremium": {
+    "message": "Online beveiliging voltooien"
+  },
+  "upgradeToPremium": {
+    "message": "Opwaarderen naar Premium"
   },
   "settingDisabledByPolicy": {
     "message": "Deze instelling is uitgeschakeld door het beleid van uw organisatie.",

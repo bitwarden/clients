@@ -24,7 +24,7 @@
     "yargs": "18.0.0"
   },
   "devDependencies": {
-    "@types/node": "22.18.11",
+    "@types/node": "22.19.0",
     "typescript": "5.4.2"
   },
   "_moduleAliases": {

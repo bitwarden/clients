@@ -51,10 +51,10 @@ describe("Default task service", () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: false,
+            useAccessIntelligence: false,
           },
           {
-            useRiskInsights: true,
+            useAccessIntelligence: true,
           },
         ] as Organization[]),
       );
@@ -70,10 +70,10 @@ describe("Default task service", () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: false,
+            useAccessIntelligence: false,
           },
           {
-            useRiskInsights: false,
+            useAccessIntelligence: false,
           },
         ] as Organization[]),
       );
@@ -91,7 +91,7 @@ describe("Default task service", () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: true,
+            useAccessIntelligence: true,
           },
         ] as Organization[]),
       );
@@ -101,7 +101,7 @@ describe("Default task service", () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: false,
+            useAccessIntelligence: false,
           },
         ] as Organization[]),
       );
@@ -163,7 +163,7 @@ describe("Default task service", () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: true,
+            useAccessIntelligence: true,
           },
         ] as Organization[]),
       );
@@ -173,7 +173,7 @@ describe("Default task service", () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: false,
+            useAccessIntelligence: false,
           },
         ] as Organization[]),
       );

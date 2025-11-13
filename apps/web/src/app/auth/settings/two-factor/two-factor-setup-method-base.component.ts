@@ -27,7 +27,7 @@ export abstract class TwoFactorSetupMethodBaseComponent {
   enabled = false;
   authed = false;
 
-  protected hashedSecret: string | undefined;
+  protected secret: string | undefined;
   protected verificationType: VerificationType | undefined;
   protected componentName = "";
 
@@ -42,7 +42,7 @@ export abstract class TwoFactorSetupMethodBaseComponent {
   ) {}
 
   protected auth(authResponse: AuthResponseBase) {
-    this.hashedSecret = authResponse.secret;
+    this.secret = authResponse.secret;
     this.verificationType = authResponse.verificationType;
     this.authed = true;
   }
@@ -132,12 +132,12 @@ export abstract class TwoFactorSetupMethodBaseComponent {
   protected async buildRequestModel<T extends SecretVerificationRequest>(
     requestClass: new () => T,
   ) {
-    if (this.hashedSecret === undefined || this.verificationType === undefined) {
+    if (this.secret === undefined || this.verificationType === undefined) {
       throw new Error("User verification data is missing");
     }
     return this.userVerificationService.buildRequest(
       {
-        secret: this.hashedSecret,
+        secret: this.secret,
         type: this.verificationType,
       },
       requestClass,
