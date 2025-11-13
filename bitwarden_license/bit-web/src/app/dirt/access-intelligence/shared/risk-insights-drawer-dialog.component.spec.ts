@@ -164,7 +164,7 @@ describe("RiskInsightsDrawerDialogComponent", () => {
         open: true,
         invokerId: "test-invoker",
         activeDrawerType: DrawerType.OrgAtRiskMembers,
-        atRiskMemberDetails: null,
+        atRiskMemberDetails: [],
         appAtRiskMembers: null,
         atRiskAppDetails: null,
       };
