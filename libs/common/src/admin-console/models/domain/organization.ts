@@ -311,7 +311,11 @@ export class Organization {
   }
 
   get canEnableAutoConfirmPolicy() {
-    return (this.canManageUsers || this.canManagePolicies) && this.useAutomaticUserConfirmation;
+    return (
+      (this.canManageUsers || this.canManagePolicies) &&
+      this.useAutomaticUserConfirmation &&
+      !this.isProviderUser
+    );
   }
 
   get canManageDeviceApprovals() {
