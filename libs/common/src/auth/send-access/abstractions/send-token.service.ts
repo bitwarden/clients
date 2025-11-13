@@ -13,7 +13,7 @@ export abstract class SendTokenService {
   /**
    * Attempts to retrieve a {@link SendAccessToken} for the given sendId.
    * If the access token is found in session storage and is not expired, then it returns the token.
-   * If the access token is expired, then it returns a {@link TryGetSendAccessTokenError} expired error.
+   * If the access token is expired, then it returns a {@link TryGetSendAccessTokenError} expired error and clears the token from storage so that a subsequent call can attempt to retrieve a new token.
    * If an access token is not found in storage, then it attempts to retrieve it from the server (will succeed for sends that don't require any credentials to view).
    * If the access token is successfully retrieved from the server, then it stores the token in session storage and returns it.
    * If an access token cannot be granted b/c the send requires credentials, then it returns a {@link TryGetSendAccessTokenError} indicating which credentials are required.
