@@ -38,8 +38,8 @@
 
     @if (currentView() === DialogView.AssignTasks) {
       <dirt-assign-tasks-view
-        [criticalApplicationsCount]="atRiskCriticalApplicationsCount()"
-        [totalApplicationsCount]="totalCriticalApplicationsCount()"
+        [criticalApplicationsCount]="newAtRiskCriticalApplications().length"
+        [totalApplicationsCount]="newCriticalApplications().length"
         [atRiskCriticalMembersCount]="atRiskCriticalMembersCount()"
       >
       </dirt-assign-tasks-view>

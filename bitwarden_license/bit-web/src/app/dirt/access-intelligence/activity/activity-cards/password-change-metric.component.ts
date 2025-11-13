@@ -66,16 +66,13 @@ export class PasswordChangeMetricComponent implements OnInit {
   readonly completedTasksCount = computed(
     () => this._tasks().filter((task) => task.status === SecurityTaskStatus.Completed).length,
   );
-  readonly uncompletedTasksCount = computed(
-    () => this._tasks().filter((task) => task.status == SecurityTaskStatus.Pending).length,
-  );
   readonly completedTasksPercent = computed(() => {
     const total = this.tasksCount();
     // Account for case where there are no tasks to avoid NaN
     return total > 0 ? Math.round((this.completedTasksCount() / total) * 100) : 0;
   });
 
-  readonly atRiskPasswordCount = computed<number>(() => {
+  readonly unassignedCipherIds = computed<number>(() => {
     const atRiskIds = this._atRiskCipherIds();
     const tasks = this._tasks();
 
@@ -83,10 +80,18 @@ export class PasswordChangeMetricComponent implements OnInit {
       return atRiskIds.length;
     }
 
-    const assignedIdSet = new Set(tasks.map((task) => task.cipherId));
+    const inProgressTasks = tasks.filter((task) => task.status === SecurityTaskStatus.Pending);
+    const assignedIdSet = new Set(inProgressTasks.map((task) => task.cipherId));
     const unassignedIds = atRiskIds.filter((id) => !assignedIdSet.has(id));
 
     return unassignedIds.length;
+  });
+
+  readonly atRiskPasswordCount = computed<number>(() => {
+    const atRiskIds = this._atRiskCipherIds();
+    const atRiskIdsSet = new Set(atRiskIds);
+
+    return atRiskIdsSet.size;
   });
 
   readonly currentView = computed<PasswordChangeView>(() => {
@@ -96,7 +101,7 @@ export class PasswordChangeMetricComponent implements OnInit {
     if (this.tasksCount() === 0) {
       return PasswordChangeView.NO_TASKS_ASSIGNED;
     }
-    if (this.atRiskPasswordCount() > 0) {
+    if (this.unassignedCipherIds() > 0) {
       return PasswordChangeView.NEW_TASKS_AVAILABLE;
     }
     return PasswordChangeView.PROGRESS;
