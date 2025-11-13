@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "У вас нет разрешения на редактирование этого элемента"
+  },
   "welcomeBack": {
     "message": "С возвращением"
   },
@@ -1034,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Вы должны добавить либо базовый URL сервера, либо хотя бы одно пользовательское окружение."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL должны использовать HTTPS."
   },
   "customEnvironment": {
     "message": "Пользовательское окружение"
@@ -4190,5 +4196,29 @@
   },
   "cardNumberLabel": {
     "message": "Номер карты"
+  },
+  "upgradeNow": {
+    "message": "Изменить сейчас"
+  },
+  "builtInAuthenticator": {
+    "message": "Встроенный аутентификатор"
+  },
+  "secureFileStorage": {
+    "message": "Защищенное хранилище файлов"
+  },
+  "emergencyAccess": {
+    "message": "Экстренный доступ"
+  },
+  "breachMonitoring": {
+    "message": "Мониторинг нарушений"
+  },
+  "andMoreFeatures": {
+    "message": "И многое другое!"
+  },
+  "planDescPremium": {
+    "message": "Полная онлайн-защищенность"
+  },
+  "upgradeToPremium": {
+    "message": "Обновить до Премиум"
   }
 }

@@ -1,4 +1,4 @@
-<!-- 
+<!--
   # Table of Contents
 
     This file contains a single consolidated template for all visual clients.
@@ -21,7 +21,7 @@
         bitInput
         appAutofocus
         (input)="onEmailInput($event)"
-        (keyup.enter)="continuePressed()"
+        (keyup.enter)="ssoRequired ? handleSsoClick() : continuePressed()"
       />
     </bit-form-field>
 

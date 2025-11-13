@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
-  "riskInsights": {
-    "message": "Risk Məlumatları"
-  },
   "passwordRisk": {
     "message": "Parol riski"
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "reviewAtRiskPasswords": {
     "message": "Tətbiqlər arasında riskli (zəif, ifşa olunmuş və ya təkrar istifadə olunmuş) parolları incələyin. İstifadəçilərinizin riskli parollara yönəlmiş təhlükəsizlik tədbirlərinə əhəmiyyət vermələri üçün kritik tətbiqlərinizi seçin."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Riskli girişləri incələ"
   },
   "dataLastUpdated": {
     "message": "Verilərin son güncəlləmə tarixi: $DATE$",
@@ -127,6 +130,9 @@
       }
     }
   },
+  "criticalApplicationsMarked": {
+    "message": "kritik olaraq işarələnmiş tətbiqlər"
+  },
   "countOfCriticalApplications": {
     "message": "$COUNT$ kritik tətbiq",
     "placeholders": {
@@ -172,8 +178,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "$ORGNAME$ təşkilatında heç bir tətbiq tapılmadı",
+  "noApplicationsInOrgTitle": {
+    "message": "$ORG NAME$ üçün heç bir tətbiq tapılmadı",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -181,8 +187,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "İstifadəçilər giriş məlumatlarını saxladıqda, tətbiqlər burada görünür və riskli parolları göstərir. Kritik tətbiqləri işarələyin və parollarını güncəlləməsi üçün istifadəçiləri məlumatlandırın."
+  "noApplicationsInOrgDescription": {
+    "message": "Kimlik məlumatı təhlükəsizlik risklərini monitorinq etməyə başlamaq üçün təşkilatınızın giriş verilərini daxilə köçürün. Daxilə köçürdükdən sonra əldə edəcəkləriniz:"
+  },
+  "benefit1Title": {
+    "message": "Riskləri prioritetləşdirmə"
+  },
+  "benefit1Description": {
+    "message": "Ən vacib tətbiqlərə fokuslanma"
+  },
+  "benefit2Title": {
+    "message": "Riskləri azaltma bələdçisi"
+  },
+  "benefit2Description": {
+    "message": "Risk altındakı üzvlərə, riskli kimlik məlumatlarını dəyişmək üçün rəhbər tapşırıqlar təyin edin"
+  },
+  "benefit3Title": {
+    "message": "İrəliləyişin monitorinqi"
+  },
+  "benefit3Description": {
+    "message": "Təhlükəsizlik təkmilləşdirmələrini göstərmək üçün zamanla dəyişiklikləri izləyin"
+  },
+  "noReportRunTitle": {
+    "message": "Tətbiqləri görmək üçün ilk hesabatınızı çalışdırın"
+  },
+  "noReportRunDescription": {
+    "message": "Təşkilatınızın tətbiqlərini təhlil etmək və diqqət edilməli riskli parolları müəyyənləşdirmək üçün risk təhlili hesabatını yaradın. İlk hesabatınızı çalışdırdıqda:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Heç bir tətbiqi kritik olaraq işarələməmisiniz"
@@ -211,6 +241,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Kritik olaraq işarələnmiş tətbiqlər"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ tətbiq kritik olaraq işarələndi",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Müraciətlər kritik olaraq işarələnmədi"
   },
@@ -234,6 +273,12 @@
   },
   "membersWithAccessToAtRiskItemsForCriticalApps": {
     "message": "Kritik tətbiqlər üçün risk altındakı elementlərə erişimi olan üzvlər"
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Riskli parollara sahib üzvlər"
+  },
+  "membersWillReceiveNotification": {
+    "message": "Üzvlər, riskli girişləri həll etmək üçün brauzer uzantısı üzərindən bildiriş alacaqlar."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ üzv risk altındadır",
@@ -319,14 +364,41 @@
   "reviewNow": {
     "message": "İndi incələ"
   },
+  "allCaughtUp": {
+    "message": "Hələlik bu qədər!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "Hazırda incələnməli yeni tətbiq yoxdur"
+  },
   "prioritizeCriticalApplications": {
     "message": "Kritik tətbiqləri prioritetləşdir"
   },
-  "atRiskItems": {
-    "message": "Riskli elementlər"
+  "selectCriticalApplicationsDescription": {
+    "message": "Təşkilatınız üçün ən kritik sayılan tətbiqləri seçin, daha sonra riskləri həll etmələri üçün üzvlərə təhlükəsizlik tapşırıqları təyin edin."
+  },
+  "reviewNewApplications": {
+    "message": "Yeni tətbiqlər incələ"
+  },
+  "reviewNewApplicationsDescription": {
+    "message": "Admin konsolunda saxlanılmış və zəif, ifşa olunmuş və ya təkrar istifadə olunmuş parollara sahib yeni tətbiqlər üçün riskli elementləri vurğulamışıq."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Bir tətbiqi kritik olaraq işarələmək üçün ulduz ikonuna klikləyin"
   },
   "markAsCriticalPlaceholder": {
     "message": "Kritik olaraq işarələmə funksionallığı, gələcək güncəlləmədə tətbiq olunacaq"
+  },
+  "applicationReviewSaved": {
+    "message": "Tətbiq incələmə saxlanıldı"
+  },
+  "newApplicationsReviewed": {
+    "message": "Yeni tətbiqlər incələnib"
+  },
+  "errorSavingReviewStatus": {
+    "message": "İncələmə statusunu saxlama xətası"
+  },
+  "pleaseTryAgain": {
+    "message": "Lütfən yenidən sınayın"
   },
   "unmarkAsCritical": {
     "message": "Kritik olaraq işarələməni götür"
@@ -789,6 +861,9 @@
   },
   "favorites": {
     "message": "Sevimlilər"
+  },
+  "taskSummary": {
+    "message": "Tapşırıq icmalı"
   },
   "types": {
     "message": "Növlər"
@@ -1313,6 +1388,9 @@
   },
   "useSingleSignOn": {
     "message": "Vahid daxil olma üsulunu istifadə et"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Təşkilatınız, vahid daxil olma tələb edir."
   },
   "welcomeBack": {
     "message": "Yenidən xoş gəlmisiniz"
@@ -4361,8 +4439,8 @@
   "updateBrowser": {
     "message": "Brauzeri güncəllə"
   },
-  "generatingYourRiskInsights": {
-    "message": "Risk Təhlilləriniz yaradılır..."
+  "generatingYourAccessIntelligence": {
+    "message": "Generating your Access Intelligence..."
   },
   "riskInsightsRunReport": {
     "message": "Hesabatı işə sal"
@@ -4449,8 +4527,8 @@
   "inviteAccepted": {
     "message": "Dəvət qəbul edildi"
   },
-  "inviteAcceptedDesc": {
-    "message": "Bir inzibatçı üzvlüyünüzü təsdiqlədikdən sonra bu təşkilata erişə bilərsiniz. Üzvlüyünüz təsdiqləndikdə sizə bir e-poçt göndərəcəyik."
+  "invitationAcceptedDesc": {
+    "message": "Dəvətiniz uğurla qəbul edildi."
   },
   "inviteInitAcceptedDesc": {
     "message": "Artıq bu təşkilata erişə bilərsiniz."
@@ -5757,8 +5835,8 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Vahid təşkilat siyasəti tələb olunur. "
   },
-  "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Birdən çox təşkilatın üzvü olan hər kəsin erişimi, digər təşkilatları tərk edənə qədər ləğv ediləcək."
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "Bu avtomatlaşdırmanı aktivləşdirmək üçün bütün üzvlər yalnız bu təşkilata aid olmalıdır."
   },
   "autoConfirmSingleOrgExemption": {
     "message": "Vahid təşkilat siyasəti bütün rollara şamil ediləcək. "
@@ -5823,6 +5901,19 @@
   "disableHideEmail": {
     "message": "\"Send\" yaradarkən və ya ona düzəliş edərkən istifadəçilərin e-poçt ünvanlarını alıcılardan gizlətməsinə icazə verməyin.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "İlkin URI uyuşma aşkarlaması"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Avto-doldurma üçün giriş məlumatlarının nə vaxt təklif ediləcəyini müəyyənləşdirin. Adminlər və sahiblər bu siyasətdən azaddır."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "İlkin URI uyuşma aşkarlaması"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Lütfən yararlı bir URI uyuşma aşkarlama variantını seçin.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "$ID$ siyasətinə düzəliş edildi.",
@@ -6477,11 +6568,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Ana parolunuz təşkilatınızdakı siyasətlərdən birinə və ya bir neçəsinə uyğun gəlmir. Seyfə erişmək üçün ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı seansdan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər."
   },
-  "automaticAppLogin": {
-    "message": "İcazə verilən tətbiqlər üçün istifadəçilərin avtomatik giriş etməsi"
+  "automaticAppLoginWithSSO": {
+    "message": "SSO ilə avtomatik giriş"
   },
-  "automaticAppLoginDesc": {
-    "message": "Konfiqurasiya edilmiş kimlik provayderinizdən başladılan tətbiqlər üçün giriş xanaları avtomatik doldurulub göndəriləcək."
+  "automaticAppLoginWithSSODesc": {
+    "message": "SSO təhlükəsizliyini və rahatlığını idarə edilməyən tətbiqlərə genişləndirin. İstifadəçilər bir tətbiqi kimlik provayderinizdən işə saldığı zaman, onların giriş məlumatları avtomatik olaraq doldurulub təqdim ediləcək. Beləliklə kimlik provayderindən tətbiqə bir kliklə təhlükəsiz axın yaradılır."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Provayder host-unu müəyyənləşdir"
@@ -6492,23 +6583,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "Təşkilatınız, şifrə açma seçimlərinizi güncəllədi. Seyfinizə erişmək üçün lütfən bir ana parol təyin edin."
   },
-  "maximumVaultTimeout": {
-    "message": "Seyf vaxtının bitməsi"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Session timeout"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Üzvlər üçün maksimum seyf bitmə vaxtını ayarlayın."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Set a maximum session timeout for all members except owners."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Maksimum seyf bitmə vaxtı"
+  "maximumAllowedTimeout": {
+    "message": "Maximum allowed timeout"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "Yararsız maksimum seyf bitmə vaxtı."
+  "maximumAllowedTimeoutRequired": {
+    "message": "Maximum allowed timeout is required."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Time is invalid. Change at least one value."
+  },
+  "sessionTimeoutAction": {
+    "message": "Session timeout action"
+  },
+  "immediately": {
+    "message": "Immediately"
+  },
+  "onSystemLock": {
+    "message": "On system lock"
+  },
+  "onAppRestart": {
+    "message": "On app restart"
   },
   "hours": {
     "message": "Saat"
   },
   "minutes": {
     "message": "Dəqiqə"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Are you certain you want to allow a maximum timeout of \"Never\" for all members?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "This option will save your members' encryption keys on their devices. If you choose this option, ensure that their devices are adequately protected."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Learn more about device protection"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "\"System lock\" will only apply to the browser and desktop app"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "The mobile and web app will use \"on app restart\" as their maximum allowed timeout, since the option is not supported."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Təşkilatınızın siyasətləri, icazə verilən maksimum seyf bitmə vaxtını $HOURS$ saat $MINUTES$ dəqiqə olaraq ayarladı.",
@@ -7051,6 +7172,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Təməl server URL-sini və ya ən azı bir özəl mühiti əlavə etməlisiniz."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL-lər, HTTPS istifadə etməlidir."
+  },
   "apiUrl": {
     "message": "API server URL-si"
   },
@@ -7222,6 +7346,9 @@
   },
   "accessDenied": {
     "message": "Erişim rədd edildi. Bu səhifəyə baxmaq üçün icazəniz yoxdur."
+  },
+  "noPageAccess": {
+    "message": "Bu səhifəyə erişmək üçün icazəniz yoxdur"
   },
   "masterPassword": {
     "message": "Ana parol"
@@ -9681,6 +9808,9 @@
   "assignTasks": {
     "message": "Tapşırıq təyin et"
   },
+  "assignTasksToMembers": {
+    "message": "Üzvlərə rəhbər həll üçün tapşırıqlar təyin edin"
+  },
   "assignToCollections": {
     "message": "Kolleksiyalara təyin et"
   },
@@ -11936,5 +12066,14 @@
   },
   "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
     "message": "Argon2id, müasir hücumlara qarşı daha güclü qoruma təklif edir. Güclü cihazlara sahib qabaqcıl istifadəçilər üçün idealdır."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Poçt kodu"
+  },
+  "cardNumberLabel": {
+    "message": "Kart nömrəsi"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Ödənişsiz Ailələr sınağını başlat"
   }
 }

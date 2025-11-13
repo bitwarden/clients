@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { getSubmitButtonKeywordsSet, sendExtensionMessage } from "../utils";
@@ -162,12 +160,14 @@ export class InlineMenuFieldQualificationService
   private isExplicitIdentityEmailField(field: AutofillField): boolean {
     const matchFieldAttributeValues = [field.type, field.htmlName, field.htmlID, field.placeholder];
     for (let attrIndex = 0; attrIndex < matchFieldAttributeValues.length; attrIndex++) {
-      if (!matchFieldAttributeValues[attrIndex]) {
+      const attributeValueToMatch = matchFieldAttributeValues[attrIndex];
+
+      if (!attributeValueToMatch) {
         continue;
       }
 
       for (let keywordIndex = 0; keywordIndex < matchFieldAttributeValues.length; keywordIndex++) {
-        if (this.newEmailFieldKeywords.has(matchFieldAttributeValues[attrIndex])) {
+        if (this.newEmailFieldKeywords.has(attributeValueToMatch)) {
           return true;
         }
       }
@@ -210,10 +210,7 @@ export class InlineMenuFieldQualificationService
   }
 
   constructor() {
-    void Promise.all([
-      sendExtensionMessage("getInlineMenuFieldQualificationFeatureFlag"),
-      sendExtensionMessage("getUserPremiumStatus"),
-    ]).then(([fieldQualificationFlag, premiumStatus]) => {
+    void sendExtensionMessage("getUserPremiumStatus").then((premiumStatus) => {
       this.premiumEnabled = !!premiumStatus?.result;
     });
   }
@@ -263,7 +260,13 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    const parentForm = pageDetails.forms[field.form];
+    let parentForm;
+
+    const fieldForm = field.form;
+
+    if (fieldForm) {
+      parentForm = pageDetails.forms[fieldForm];
+    }
 
     // If the field does not have a parent form
     if (!parentForm) {
@@ -321,7 +324,13 @@ export class InlineMenuFieldQualificationService
       return false;
     }
 
-    const parentForm = pageDetails.forms[field.form];
+    let parentForm;
+
+    const fieldForm = field.form;
+
+    if (fieldForm) {
+      parentForm = pageDetails.forms[fieldForm];
+    }
 
     if (!parentForm) {
       // If the field does not have a parent form, but we can identify that the page contains at least
@@ -374,7 +383,13 @@ export class InlineMenuFieldQualificationService
     field: AutofillField,
     pageDetails: AutofillPageDetails,
   ): boolean {
-    const parentForm = pageDetails.forms[field.form];
+    let parentForm;
+
+    const fieldForm = field.form;
+
+    if (fieldForm) {
+      parentForm = pageDetails.forms[fieldForm];
+    }
 
     // If the provided field is set with an autocomplete value of "current-password", we should assume that
     // the page developer intends for this field to be interpreted as a password field for a login form.
@@ -476,7 +491,13 @@ export class InlineMenuFieldQualificationService
 
     // If the field is not explicitly set as a username field, we need to qualify
     // the field based on the other fields that are present on the page.
-    const parentForm = pageDetails.forms[field.form];
+    let parentForm;
+
+    const fieldForm = field.form;
+
+    if (fieldForm) {
+      parentForm = pageDetails.forms[fieldForm];
+    }
     const passwordFieldsInPageDetails = pageDetails.fields.filter(this.isCurrentPasswordField);
 
     if (this.isNewsletterForm(parentForm)) {
@@ -919,8 +940,10 @@ export class InlineMenuFieldQualificationService
    * @param field - The field to validate
    */
   isUsernameField = (field: AutofillField): boolean => {
+    const fieldType = field.type;
     if (
-      !this.usernameFieldTypes.has(field.type) ||
+      !fieldType ||
+      !this.usernameFieldTypes.has(fieldType) ||
       this.isExcludedFieldType(field, this.excludedAutofillFieldTypesSet) ||
       this.fieldHasDisqualifyingAttributeValue(field)
     ) {
@@ -1026,7 +1049,13 @@ export class InlineMenuFieldQualificationService
 
     const testedValues = [field.htmlID, field.htmlName, field.placeholder];
     for (let i = 0; i < testedValues.length; i++) {
-      if (this.valueIsLikePassword(testedValues[i])) {
+      const attributeValueToMatch = testedValues[i];
+
+      if (!attributeValueToMatch) {
+        continue;
+      }
+
+      if (this.valueIsLikePassword(attributeValueToMatch)) {
         return true;
       }
     }
@@ -1101,7 +1130,9 @@ export class InlineMenuFieldQualificationService
    * @param excludedTypes - The set of excluded types
    */
   private isExcludedFieldType(field: AutofillField, excludedTypes: Set<string>): boolean {
-    if (excludedTypes.has(field.type)) {
+    const fieldType = field.type;
+
+    if (fieldType && excludedTypes.has(fieldType)) {
       return true;
     }
 
@@ -1116,12 +1147,14 @@ export class InlineMenuFieldQualificationService
   private isSearchField(field: AutofillField): boolean {
     const matchFieldAttributeValues = [field.type, field.htmlName, field.htmlID, field.placeholder];
     for (let attrIndex = 0; attrIndex < matchFieldAttributeValues.length; attrIndex++) {
-      if (!matchFieldAttributeValues[attrIndex]) {
+      const attributeValueToMatch = matchFieldAttributeValues[attrIndex];
+
+      if (!attributeValueToMatch) {
         continue;
       }
 
       // Separate camel case words and case them to lower case values
-      const camelCaseSeparatedFieldAttribute = matchFieldAttributeValues[attrIndex]
+      const camelCaseSeparatedFieldAttribute = attributeValueToMatch
         .replace(/([a-z])([A-Z])/g, "$1 $2")
         .toLowerCase();
       // Split the attribute by non-alphabetical characters to get the keywords
@@ -1168,7 +1201,7 @@ export class InlineMenuFieldQualificationService
       this.submitButtonKeywordsMap.set(element, Array.from(keywordsSet).join(","));
     }
 
-    return this.submitButtonKeywordsMap.get(element);
+    return this.submitButtonKeywordsMap.get(element) || "";
   }
 
   /**
@@ -1222,8 +1255,9 @@ export class InlineMenuFieldQualificationService
       ];
       const keywordsSet = new Set<string>();
       for (let i = 0; i < keywords.length; i++) {
-        if (keywords[i] && typeof keywords[i] === "string") {
-          let keywordEl = keywords[i].toLowerCase();
+        const attributeValue = keywords[i];
+        if (attributeValue && typeof attributeValue === "string") {
+          let keywordEl = attributeValue.toLowerCase();
           keywordsSet.add(keywordEl);
 
           // Remove hyphens from all potential keywords, we want to treat these as a single word.
@@ -1253,7 +1287,7 @@ export class InlineMenuFieldQualificationService
     }
 
     const mapValues = this.autofillFieldKeywordsMap.get(autofillFieldData);
-    return returnStringValue ? mapValues.stringValue : mapValues.keywordsSet;
+    return mapValues ? (returnStringValue ? mapValues.stringValue : mapValues.keywordsSet) : "";
   }
 
   /**

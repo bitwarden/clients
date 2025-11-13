@@ -96,15 +96,6 @@ export class EmergencyAccessComponent implements OnInit {
     this.loaded = true;
   }
 
-  async premiumRequired() {
-    const canAccessPremium = await firstValueFrom(this.canAccessPremium$);
-
-    if (!canAccessPremium) {
-      this.messagingService.send("premiumRequired");
-      return;
-    }
-  }
-
   edit = async (details: GranteeEmergencyAccess) => {
     const canAccessPremium = await firstValueFrom(this.canAccessPremium$);
     const dialogRef = EmergencyAccessAddEditComponent.open(this.dialogService, {
