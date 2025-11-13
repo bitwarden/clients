@@ -220,6 +220,15 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   // detects if policy is enabled regardless of admin exemption
   organizationDataOwnershipPolicyEnabledForOrg$: Observable<boolean>;
 
+  /**
+   * Observable that determines whether the "My Vault" export option should be hidden.
+   *
+   * The option is hidden when either:
+   * - The personal vault export is disabled by policy @see {@link disablePersonalVaultExportPolicy$}, or
+   * - The organization data ownership policy applies to the user @see {@link organizationDataOwnershipPolicyAppliesToUser$}
+   */
+  hideMyVaultOption$: Observable<boolean> = of(false);
+
   exportForm = this.formBuilder.group({
     vaultSelector: [
       "myVault",
@@ -494,28 +503,28 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     ])
       .pipe(
         tap(([disablePersonalVaultExport, organizationDataOwnership, organizations]) => {
-          this._disabledByPolicy = disablePersonalVaultExport;
-
-          // When organizationDataOwnership is enabled and we have orgs, set the first org as the selected vault
-          if (organizationDataOwnership && organizations.length > 0) {
-            this.exportForm.enable();
-            this.exportForm.controls.vaultSelector.setValue(organizations[0].id);
-          }
-
-          // When organizationDataOwnership is enabled and we have no orgs, disable the form
-          if (organizationDataOwnership && organizations.length === 0) {
-            this.exportForm.disable();
-          }
-
-          // When personalVaultExport is disabled, disable the form
-          if (disablePersonalVaultExport) {
-            this.exportForm.disable();
-          }
-
           // When neither policy is enabled, enable the form and set the default vault to "myVault"
           if (!disablePersonalVaultExport && !organizationDataOwnership) {
+            this.exportForm.enable();
             this.exportForm.controls.vaultSelector.setValue("myVault");
+            return;
           }
+
+          this._disabledByPolicy = disablePersonalVaultExport;
+
+          // Any of the policies are enabled, hide the "My Vault" option
+          this.hideMyVaultOption$ = of(disablePersonalVaultExport || organizationDataOwnership);
+
+          // When you have no organizations and either policy is enabled, disable the form
+          if (organizations.length === 0) {
+            this.exportForm.disable();
+            return;
+          }
+
+          // Set the default vault to the first organization and enable the form
+          this.exportForm.enable();
+          this.exportForm.controls.vaultSelector.setValue(organizations[0].id);
+          return;
         }),
         takeUntil(this.destroy$),
       )
