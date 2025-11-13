@@ -341,7 +341,7 @@ jobs:
 
   build-safari:
     name: Build Safari - ${{ matrix.license_type.readable }}
-    runs-on: macos-14
+    runs-on: macos-15
     permissions:
       contents: read
       id-token: write
@@ -548,7 +548,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Upload Sources
-        uses: crowdin/github-action@f214c8723025f41fc55b2ad26e67b60b80b1885d # v2.7.1
+        uses: crowdin/github-action@08713f00a50548bfe39b37e8f44afb53e7a802d4 # v2.12.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}

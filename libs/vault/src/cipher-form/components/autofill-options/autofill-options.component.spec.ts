@@ -39,7 +39,8 @@ describe("AutofillOptionsComponent", () => {
 
   beforeEach(async () => {
     getInitialCipherView.mockClear();
-    cipherFormContainer = mock<CipherFormContainer>({ getInitialCipherView, formStatusChange$ });
+    cipherFormContainer = mock<CipherFormContainer>({ getInitialCipherView });
+    cipherFormContainer.formStatusChange$ = formStatusChange$.asObservable();
     liveAnnouncer = mock<LiveAnnouncer>();
     platformUtilsService = mock<PlatformUtilsService>();
     domainSettingsService = mock<DomainSettingsService>();
@@ -201,12 +202,12 @@ describe("AutofillOptionsComponent", () => {
 
   it("updates the default autofill on page load label", () => {
     fixture.detectChanges();
-    expect(component["autofillOptions"][0].label).toEqual("defaultLabel no");
+    expect(component["autofillOptions"][0].label).toEqual("defaultLabelWithValue no");
 
     (autofillSettingsService.autofillOnPageLoadDefault$ as BehaviorSubject<boolean>).next(true);
     fixture.detectChanges();
 
-    expect(component["autofillOptions"][0].label).toEqual("defaultLabel yes");
+    expect(component["autofillOptions"][0].label).toEqual("defaultLabelWithValue yes");
   });
 
   it("hides the autofill on page load field when the setting is disabled", () => {
@@ -264,6 +265,23 @@ describe("AutofillOptionsComponent", () => {
     fixture.detectChanges();
 
     expect(component.autofillOptionsForm.value.uris.length).toEqual(1);
+  });
+
+  it("does not emit events when status changes to prevent a `valueChanges` call", () => {
+    fixture.detectChanges();
+
+    const enable = jest.spyOn(component.autofillOptionsForm, "enable");
+    const disable = jest.spyOn(component.autofillOptionsForm, "disable");
+
+    formStatusChange$.next("disabled");
+    fixture.detectChanges();
+
+    expect(disable).toHaveBeenCalledWith({ emitEvent: false });
+
+    formStatusChange$.next("enabled");
+    fixture.detectChanges();
+
+    expect(enable).toHaveBeenCalledWith({ emitEvent: false });
   });
 
   describe("Drag & Drop Functionality", () => {

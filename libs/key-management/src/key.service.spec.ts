@@ -1357,6 +1357,51 @@ describe("keyService", () => {
     });
   });
 
+  describe("encryptUserKeyWithMasterKey", () => {
+    const mockMasterKey = makeSymmetricCryptoKey<MasterKey>(32);
+    const mockUserKey = makeSymmetricCryptoKey<UserKey>(64);
+
+    test.each([null as unknown as MasterKey, undefined as unknown as MasterKey])(
+      "throws when the provided master key is %s",
+      async (key) => {
+        await expect(keyService.encryptUserKeyWithMasterKey(key, mockUserKey)).rejects.toThrow(
+          "masterKey is required.",
+        );
+      },
+    );
+
+    test.each([null as unknown as UserKey, undefined as unknown as UserKey])(
+      "throws when the provided userKey key is %s",
+      async (key) => {
+        await expect(keyService.encryptUserKeyWithMasterKey(mockMasterKey, key)).rejects.toThrow(
+          "userKey is required.",
+        );
+      },
+    );
+
+    it("throws with invalid master key size", async () => {
+      const invalidMasterKey = new SymmetricCryptoKey(new Uint8Array(78)) as MasterKey;
+
+      await expect(
+        keyService.encryptUserKeyWithMasterKey(invalidMasterKey, mockUserKey),
+      ).rejects.toThrow("Invalid key size.");
+    });
+
+    it("encrypts the user key with the master key", async () => {
+      const mockEncryptedUserKey = makeEncString("encryptedUserKey");
+
+      encryptService.wrapSymmetricKey.mockResolvedValue(mockEncryptedUserKey);
+      const stretchedMasterKey = new SymmetricCryptoKey(new Uint8Array(64));
+      keyGenerationService.stretchKey.mockResolvedValue(stretchedMasterKey);
+
+      const result = await keyService.encryptUserKeyWithMasterKey(mockMasterKey, mockUserKey);
+
+      expect(encryptService.wrapSymmetricKey).toHaveBeenCalledWith(mockUserKey, stretchedMasterKey);
+      expect(result[0]).toBe(mockUserKey);
+      expect(result[1]).toBe(mockEncryptedUserKey);
+    });
+  });
+
   describe("makeKeyPair", () => {
     test.each([null as unknown as SymmetricCryptoKey, undefined as unknown as SymmetricCryptoKey])(
       "throws when the provided key is %s",

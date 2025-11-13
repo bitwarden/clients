@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "存取資訊"
   },
-  "riskInsights": {
-    "message": "風險洞察"
-  },
   "passwordRisk": {
     "message": "密碼風險"
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "reviewAtRiskPasswords": {
     "message": "檢視全部應用中具有風險的密碼 (弱、被暴露或重複使用)。選擇最重要的應用程式並優先採取安全措施，幫助使用者解決具有風險的密碼。"
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "檢視有風險的登入資訊"
   },
   "dataLastUpdated": {
     "message": "上次資料更新日期：$DATE$",
@@ -94,7 +97,7 @@
     "message": "在您檢視應用程式並將其標記為關鍵後，您可以指派任務給成員，以解決有風險的項目，並在此監控進度"
   },
   "sendReminders": {
-    "message": "發送提醒"
+    "message": "傳送提醒"
   },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "一旦您標記應用程式為關鍵，它們將顯示在此。"
@@ -126,6 +129,9 @@
         "example": "3"
       }
     }
+  },
+  "criticalApplicationsMarked": {
+    "message": "已將應用程式標記為關鍵"
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ 個關鍵應用程式",
@@ -173,7 +179,7 @@
     }
   },
   "noApplicationsInOrgTitle": {
-    "message": "No applications found for $ORG NAME$",
+    "message": "未找到 $ORG NAME$ 的應用程式",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -182,31 +188,31 @@
     }
   },
   "noApplicationsInOrgDescription": {
-    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+    "message": "匯入您組織的登入資料以開始監控憑證安全風險。匯入後您可以："
   },
   "benefit1Title": {
-    "message": "Prioritize risks"
+    "message": "風險優先排序"
   },
   "benefit1Description": {
-    "message": "Focus on applications that matter the most"
+    "message": "專注於最重要的應用程式"
   },
   "benefit2Title": {
-    "message": "Guide remediation"
+    "message": "指導補救措施"
   },
   "benefit2Description": {
-    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+    "message": "指派有風險的成員執行指導任務以輪換有風險的憑證"
   },
   "benefit3Title": {
-    "message": "Monitor progress"
+    "message": "監控進展"
   },
   "benefit3Description": {
-    "message": "Track changes over time to show security improvements"
+    "message": "追蹤隨時間變化的狀況以顯示安全性改善"
   },
   "noReportRunTitle": {
-    "message": "Run your first report to see applications"
+    "message": "執行您的第一份報告以查看應用程式"
   },
   "noReportRunDescription": {
-    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
+    "message": "產生風險洞察報告以分析組織的應用程式並找出需要注意的高風險密碼。執行第一份報告將會："
   },
   "noCriticalApplicationsTitle": {
     "message": "您尚未將任何應用程式標記為關鍵"
@@ -235,6 +241,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "被標註重要的應用程式"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "已將 $COUNT$ 個應用程式標記為關鍵",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "標記應用程式為關鍵失敗"
   },
@@ -258,6 +273,12 @@
   },
   "membersWithAccessToAtRiskItemsForCriticalApps": {
     "message": "擁有關鍵應用程式中有風險項目存取權的成員"
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "使用有風險密碼的成員"
+  },
+  "membersWillReceiveNotification": {
+    "message": "成員會透過瀏覽器擴充套件接收到有風險登入的通知。"
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ 位有風險的成員",
@@ -343,35 +364,41 @@
   "reviewNow": {
     "message": "立即審查"
   },
+  "allCaughtUp": {
+    "message": "全部完成！"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "目前沒有新的應用程式可供審查"
+  },
   "prioritizeCriticalApplications": {
     "message": "優先處理關鍵應用程式"
   },
-  "atRiskItems": {
-    "message": "有風險的項目"
+  "selectCriticalApplicationsDescription": {
+    "message": "選擇對組織最關鍵的應用程式，然後將安全任務指派給成員以供解決。"
+  },
+  "reviewNewApplications": {
+    "message": "Review new applications"
+  },
+  "reviewNewApplicationsDescription": {
+    "message": "We've highlighted at-risk items for new applications stored in Admin console that have weak, exposed, or reused passwords."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "點擊星形圖示以將應用程式標記為關鍵"
   },
   "markAsCriticalPlaceholder": {
     "message": "標記為關鍵功能將在未來更新中實現"
   },
   "applicationReviewSaved": {
-    "message": "Application review saved"
-  },
-  "applicationsMarkedAsCritical": {
-    "message": "$COUNT$ applications marked as critical",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
+    "message": "已儲存應用程式審查"
   },
   "newApplicationsReviewed": {
-    "message": "New applications reviewed"
+    "message": "新應用程式已審查"
   },
   "errorSavingReviewStatus": {
-    "message": "Error saving review status"
+    "message": "儲存審查狀態時發生錯誤"
   },
   "pleaseTryAgain": {
-    "message": "Please try again"
+    "message": "請再試一次"
   },
   "unmarkAsCritical": {
     "message": "取消標記為關鍵"
@@ -834,6 +861,9 @@
   },
   "favorites": {
     "message": "我的最愛"
+  },
+  "taskSummary": {
+    "message": "任務摘要"
   },
   "types": {
     "message": "類型"
@@ -1360,7 +1390,7 @@
     "message": "使用單一登入"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "您的組織要求使用單一登入。"
   },
   "welcomeBack": {
     "message": "歡迎回來"
@@ -4409,8 +4439,8 @@
   "updateBrowser": {
     "message": "更新瀏覽器"
   },
-  "generatingYourRiskInsights": {
-    "message": "正在生成您的風險洞察..."
+  "generatingYourAccessIntelligence": {
+    "message": "Generating your Access Intelligence..."
   },
   "riskInsightsRunReport": {
     "message": "執行報告"
@@ -5805,8 +5835,8 @@
   "autoConfirmSingleOrgRequired": {
     "message": "需要啟用單一組織原則。"
   },
-  "autoConfirmSingleOrgRequiredDescription": {
-    "message": "任何同時屬於多個組織的成員，其存取權都會被撤銷，直到他們離開其他組織為止。"
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "要使用自動化，所有成員必須僅隸屬於該組織。"
   },
   "autoConfirmSingleOrgExemption": {
     "message": "單一組織原則將套用到所有角色。"
@@ -5871,6 +5901,19 @@
   "disableHideEmail": {
     "message": "建立或編輯 Send 時，始終對收件人顯示成員的電子郵件地址。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "預設的 URI 一致性偵測方式"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "決定何時建議登入項目進行自動填入。管理員與擁有者不受此原則限制。"
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "預設的 URI 一致性偵測方式"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "請選擇有效的 URI 比對偵測選項。",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "原則 $ID$ 已修改。",
@@ -6525,11 +6568,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "您的主密碼不符合一個或多個組織政策規定。您必須立即更新您的主密碼才能存取密碼庫。進行此動作將登出您目前的工作階段，需要您重新登入。其他裝置上的工作階段可能持續長達一小時。"
   },
-  "automaticAppLogin": {
-    "message": "自動登入允許的應用程式使用者"
+  "automaticAppLoginWithSSO": {
+    "message": "自動使用SSO登入"
   },
-  "automaticAppLoginDesc": {
-    "message": "從已設定的身份提供者啟動的應用程式，其登入表單將自動填入並提交。"
+  "automaticAppLoginWithSSODesc": {
+    "message": "將SSO的安全和便利拓展至未受管理的應用程式。當使用者用身分識別提供者啟動應用程式時，登入資訊會自動填寫並提交，建立從身分識別提供者到應用程式的一鍵式安全流程。"
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "身份提供者主機"
@@ -7129,6 +7172,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "您必須新增伺服器網域 URL 或至少一個自訂環境。"
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL 必須使用 HTTPS。"
+  },
   "apiUrl": {
     "message": "API 伺服器網址"
   },
@@ -7300,6 +7346,9 @@
   },
   "accessDenied": {
     "message": "拒絕存取。您沒有檢視此頁面的權限。"
+  },
+  "noPageAccess": {
+    "message": "您沒有存取頁面的權限"
   },
   "masterPassword": {
     "message": "主密碼"
@@ -9758,6 +9807,9 @@
   },
   "assignTasks": {
     "message": "指派任務"
+  },
+  "assignTasksToMembers": {
+    "message": "指派任務給成員並引導解決"
   },
   "assignToCollections": {
     "message": "指派至集合"

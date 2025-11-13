@@ -1,0 +1,68 @@
+<div class="tw-max-w-3xl tw-mx-auto">
+  <bit-section *ngIf="shouldShowNewDesign$ | async">
+    <div class="tw-text-center">
+      <div class="tw-mt-8 tw-mb-6">
+        <span bitBadge variant="secondary" [truncate]="false">
+          {{ "bitwardenFreeplanMessage" | i18n }}
+        </span>
+      </div>
+
+      <h2 class="tw-mt-2 tw-text-4xl">
+        {{ "upgradeCompleteSecurity" | i18n }}
+      </h2>
+      <p class="tw-text-muted tw-mb-6 tw-mt-4">
+        {{ "individualUpgradeDescriptionMessage" | i18n }}
+      </p>
+    </div>
+
+    <!-- Two-Card Layout -->
+    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-6 tw-mt-6 tw-justify-center">
+      <!-- Premium Card -->
+      <div>
+        @if (premiumCardData$ | async; as premiumData) {
+          <billing-pricing-card
+            [tagline]="'planDescPremium' | i18n"
+            [price]="{ amount: premiumData.price, cadence: 'monthly' }"
+            [button]="{ type: 'primary', text: ('upgradeToPremium' | i18n) }"
+            [features]="premiumData.features"
+            (buttonClick)="openUpgradeDialog('Premium')"
+          >
+            <h3 slot="title" bitTypography="h3" class="tw-m-0">{{ "premium" | i18n }}</h3>
+          </billing-pricing-card>
+        }
+      </div>
+
+      <!-- Families Card -->
+      <div>
+        @if (familiesCardData$ | async; as familiesData) {
+          <billing-pricing-card
+            [tagline]="'planDescFamiliesV2' | i18n"
+            [price]="{ amount: familiesData.price, cadence: 'monthly' }"
+            [button]="{ type: 'secondary', text: ('startFreeFamiliesTrial' | i18n) }"
+            [features]="familiesData.features"
+            (buttonClick)="openUpgradeDialog('Families')"
+          >
+            <h3 slot="title" bitTypography="h3" class="tw-m-0">{{ "families" | i18n }}</h3>
+          </billing-pricing-card>
+        }
+      </div>
+    </div>
+
+    <!-- Business Plans Link -->
+    <div class="tw-text-center tw-mt-6">
+      <p class="tw-text-muted tw-mb-2 tw-italic">
+        {{ "individualUpgradeTaxInformationMessage" | i18n }}
+      </p>
+      <a
+        bitLink
+        linkType="primary"
+        href="https://bitwarden.com/pricing/business/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {{ "viewbusinessplans" | i18n }}
+        <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
+      </a>
+    </div>
+  </bit-section>
+</div>

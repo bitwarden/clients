@@ -42,6 +42,7 @@ export class UserLayoutComponent implements OnInit {
   protected hasFamilySponsorshipAvailable$: Observable<boolean>;
   protected showSponsoredFamilies$: Observable<boolean>;
   protected showSubscription$: Observable<boolean>;
+  protected consolidatedSessionTimeoutComponent$: Observable<boolean>;
 
   constructor(
     private syncService: SyncService,
@@ -73,6 +74,10 @@ export class UserLayoutComponent implements OnInit {
           return false;
         }),
       ),
+    );
+
+    this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
+      FeatureFlag.ConsolidatedSessionTimeoutComponent,
     );
   }
 

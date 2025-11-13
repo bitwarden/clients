@@ -1,0 +1,116 @@
+@if (isActiveDrawerType(drawerTypes.OrgAtRiskMembers)) {
+  <bit-dialog dialogSize="large" disablePadding="false">
+    <ng-container bitDialogTitle>
+      <span>{{
+        "atRiskMembersWithCount" | i18n: drawerDetails.atRiskMemberDetails?.length ?? 0
+      }}</span>
+    </ng-container>
+    <ng-container bitDialogContent>
+      <span bitTypography="body1" class="tw-text-muted tw-text-sm">{{
+        (drawerDetails.atRiskMemberDetails?.length > 0
+          ? "atRiskMembersDescription"
+          : "atRiskMembersDescriptionNone"
+        ) | i18n
+      }}</span>
+
+      @if (drawerDetails.atRiskMemberDetails?.length > 0) {
+        <button
+          bitLink
+          type="button"
+          class="tw-my-4 tw-font-bold tw-block"
+          (click)="downloadAtRiskMembers()"
+        >
+          <i class="bwi bwi-download tw-mr-1"></i>
+          {{ "downloadCSV" | i18n }}
+        </button>
+        <ng-container>
+          <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
+            <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+              {{ "email" | i18n }}
+            </div>
+            <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+              {{ "atRiskPasswords" | i18n }}
+            </div>
+          </div>
+          @for (member of drawerDetails.atRiskMemberDetails; track member.email) {
+            <div class="tw-flex tw-justify-between tw-mt-2">
+              <div>{{ member.email }}</div>
+              <div>{{ member.atRiskPasswordCount }}</div>
+            </div>
+          }
+        </ng-container>
+      }
+    </ng-container>
+  </bit-dialog>
+}
+
+@if (isActiveDrawerType(drawerTypes.AppAtRiskMembers)) {
+  <bit-dialog dialogSize="large" disablePadding="false">
+    <ng-container bitDialogTitle>
+      <span>{{ drawerDetails.appAtRiskMembers?.applicationName }}</span>
+    </ng-container>
+    <ng-container bitDialogContent>
+      <div bitTypography="body1" class="tw-mb-2">
+        {{ "atRiskMembersWithCount" | i18n: drawerDetails.appAtRiskMembers?.members.length }}
+      </div>
+      <div bitTypography="body1" class="tw-text-muted tw-text-sm tw-mb-2">
+        {{
+          (drawerDetails.appAtRiskMembers?.members.length > 0
+            ? "atRiskMembersDescriptionWithApp"
+            : "atRiskMembersDescriptionWithAppNone"
+          ) | i18n: drawerDetails.appAtRiskMembers?.applicationName
+        }}
+      </div>
+      <div class="tw-mt-1">
+        @for (member of drawerDetails.appAtRiskMembers?.members; track $index) {
+          <div>{{ member.email }}</div>
+        }
+      </div>
+    </ng-container>
+  </bit-dialog>
+}
+
+@if (isActiveDrawerType(drawerTypes.OrgAtRiskApps)) {
+  <bit-dialog dialogSize="large" disablePadding="false">
+    <ng-container bitDialogTitle>
+      <span>{{
+        "atRiskApplicationsWithCount" | i18n: drawerDetails.atRiskAppDetails?.length ?? 0
+      }}</span>
+    </ng-container>
+    <ng-container bitDialogContent>
+      <span bitTypography="body1" class="tw-text-muted tw-text-sm">{{
+        (drawerDetails.atRiskAppDetails?.length > 0
+          ? "atRiskApplicationsDescription"
+          : "atRiskApplicationsDescriptionNone"
+        ) | i18n
+      }}</span>
+      @if (drawerDetails.atRiskAppDetails?.length > 0) {
+        <ng-container>
+          <button
+            bitLink
+            type="button"
+            class="tw-my-4 tw-font-bold tw-block"
+            (click)="downloadAtRiskApplications()"
+          >
+            <i class="bwi bwi-download tw-mr-1"></i>
+            {{ "downloadCSV" | i18n }}
+          </button>
+          <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
+            <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+              {{ "application" | i18n }}
+            </div>
+            <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+              {{ "atRiskPasswords" | i18n }}
+            </div>
+          </div>
+          @for (app of drawerDetails.atRiskAppDetails; track app.applicationName) {
+            <div class="tw-flex tw-justify-between tw-mt-2">
+              <div>{{ app.applicationName }}</div>
+              <div>{{ app.atRiskPasswordCount }}</div>
+            </div>
+          }
+        </ng-container>
+      }
+    </ng-container>
+  </bit-dialog>
+}

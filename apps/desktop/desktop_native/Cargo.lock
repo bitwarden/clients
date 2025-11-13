@@ -444,8 +444,10 @@ dependencies = [
 name = "bitwarden_chromium_import_helper"
 version = "0.0.0"
 dependencies = [
+ "aes-gcm",
  "anyhow",
  "base64",
+ "chacha20poly1305",
  "chromium_importer",
  "clap",
  "embed-resource",
@@ -606,7 +608,6 @@ dependencies = [
  "async-trait",
  "base64",
  "cbc",
- "chacha20poly1305",
  "dirs",
  "hex",
  "oo7",
@@ -619,7 +620,6 @@ dependencies = [
  "sha1",
  "tokio",
  "tracing",
- "tracing-subscriber",
  "verifysign",
  "windows 0.61.1",
 ]
@@ -3660,9 +3660,9 @@ dependencies = [
 
 [[package]]
 name = "typenum"
-version = "1.18.0"
+version = "1.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1dccffe3ce07af9386bfd29e80c0ab1a8205a2fc34e4bcd40364df902cfa8f3f"
+checksum = "562d481066bde0658276a35467c4af00bdc6ee726305698a55b86e61d7ad82bb"
 
 [[package]]
 name = "uds_windows"
