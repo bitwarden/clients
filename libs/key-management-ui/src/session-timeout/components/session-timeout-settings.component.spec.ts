@@ -4,7 +4,6 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, filter, firstValueFrom, of } from "rxjs";
 
-import { VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -22,6 +21,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 
+import { SessionTimeoutInputComponent } from "../components/session-timeout-input.component";
 import { SessionTimeoutSettingsComponentService } from "../services/session-timeout-settings-component.service";
 
 import { SessionTimeoutSettingsComponent } from "./session-timeout-settings.component";
@@ -87,7 +87,7 @@ describe("SessionTimeoutSettingsComponent", () => {
       imports: [
         SessionTimeoutSettingsComponent,
         ReactiveFormsModule,
-        VaultTimeoutInputComponent,
+        SessionTimeoutInputComponent,
         NoopAnimationsModule,
       ],
       providers: [
