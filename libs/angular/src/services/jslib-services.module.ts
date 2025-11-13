@@ -181,7 +181,9 @@ import { ChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kd
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
 import { KeyApiService } from "@bitwarden/common/key-management/keys/services/abstractions/key-api-service.abstraction";
+import { RotateableKeySetService } from "@bitwarden/common/key-management/keys/services/abstractions/rotateable-key-set.service";
 import { DefaultKeyApiService } from "@bitwarden/common/key-management/keys/services/default-key-api-service.service";
+import { DefaultRotateableKeySetService } from "@bitwarden/common/key-management/keys/services/default-rotateable-key-set.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import {
   InternalMasterPasswordServiceAbstraction,
@@ -1085,7 +1087,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: MasterPasswordUnlockService,
     useClass: DefaultMasterPasswordUnlockService,
-    deps: [InternalMasterPasswordServiceAbstraction, KeyService],
+    deps: [InternalMasterPasswordServiceAbstraction, KeyService, LogService],
   }),
   safeProvider({
     provide: KeyConnectorServiceAbstraction,
@@ -1737,6 +1739,11 @@ const safeProviders: SafeProvider[] = [
       BillingAccountProfileStateService,
       ConfigService,
     ],
+  }),
+  safeProvider({
+    provide: RotateableKeySetService,
+    useClass: DefaultRotateableKeySetService,
+    deps: [KeyService, EncryptService],
   }),
   safeProvider({
     provide: NewDeviceVerificationComponentService,

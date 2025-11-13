@@ -975,6 +975,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       showPasskeys: !!autofillFieldData?.showPasskeys,
       accountCreationFieldType: autofillFieldData?.accountCreationFieldType,
       focusedFieldForm: autofillFieldData?.form,
+      focusedFieldOpid: autofillFieldData?.opid,
     };
 
     const allFields = this.formFieldElements;
@@ -1085,7 +1086,15 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         pageDetails,
       )
     ) {
-      this.setQualifiedAccountCreationFillType(autofillFieldData);
+      const hasUsernameField = [...this.formFieldElements.values()].some((field) =>
+        this.inlineMenuFieldQualificationService.isUsernameField(field),
+      );
+
+      if (hasUsernameField) {
+        void this.setQualifiedLoginFillType(autofillFieldData);
+      } else {
+        this.setQualifiedAccountCreationFillType(autofillFieldData);
+      }
       return false;
     }
 

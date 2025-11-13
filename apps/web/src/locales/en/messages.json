@@ -3250,8 +3250,17 @@
   "nextCharge": {
     "message": "Next charge"
   },
+  "nextChargeHeader": {
+    "message": "Next Charge"
+  },
+   "plan": {
+    "message": "Plan"
+  },
   "details": {
     "message": "Details"
+  },
+  "discount": {
+    "message": "discount"
   },
   "downloadLicense": {
     "message": "Download license"
@@ -12152,5 +12161,11 @@
         "example": "5"
       }
     }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "No critical applications are selected"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Are you sure you want to continue?"
   }
 }
