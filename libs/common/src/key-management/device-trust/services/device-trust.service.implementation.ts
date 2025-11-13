@@ -4,7 +4,7 @@ import { firstValueFrom, map, Observable, Subject } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { RotateableKeySet, UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
@@ -33,6 +33,7 @@ import { KeyGenerationService } from "../../crypto";
 import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 import { EncString } from "../../crypto/models/enc-string";
+import { RotateableKeySet } from "../../keys/models/rotateable-key-set";
 import { DeviceTrustServiceAbstraction } from "../abstractions/device-trust.service.abstraction";
 
 /** Uses disk storage so that the device key can persist after log out and tab removal. */
@@ -145,7 +146,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     }
 
     // Attempt to get user key
-    const userKey: UserKey = await this.keyService.getUserKey(userId);
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
     // If user key is not found, throw error
     if (!userKey) {
@@ -240,7 +241,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
 
           const request = new OtherDeviceKeysUpdateRequest();
           request.encryptedPublicKey = newRotateableKeySet.encryptedPublicKey.encryptedString;
-          request.encryptedUserKey = newRotateableKeySet.encryptedUserKey.encryptedString;
+          request.encryptedUserKey = newRotateableKeySet.encapsulatedDownstreamKey.encryptedString;
           request.deviceId = device.id;
           return request;
         })
