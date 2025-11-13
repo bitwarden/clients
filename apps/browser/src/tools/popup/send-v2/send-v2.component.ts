@@ -2,7 +2,7 @@ import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { combineLatest, distinctUntilChanged, map, switchMap, tap } from "rxjs";
+import { combineLatest, distinctUntilChanged, map, shareReplay, switchMap, tap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NoResults, NoSendsIcon } from "@bitwarden/assets/svg";
@@ -89,6 +89,7 @@ export class SendV2Component implements OnDestroy {
       const key = loading ? "loadingSendPage" : "sendPageLoaded";
       void this.liveAnnouncer.announce(this.i18nService.translate(key), "polite");
     }),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   /** Spinner Loading State */
