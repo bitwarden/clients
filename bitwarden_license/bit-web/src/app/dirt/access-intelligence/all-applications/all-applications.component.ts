@@ -89,7 +89,10 @@ export class AllApplicationsComponent implements OnInit {
           // Map the report data to include the iconCipher for each application
           const tableDataWithIcon = report.reportData.map((app) => ({
             ...app,
-            iconCipher: this.dataService.getCipherIcon(app.cipherIds[0]),
+            iconCipher:
+              app.cipherIds.length > 0
+                ? this.dataService.getCipherIcon(app.cipherIds[0])
+                : undefined,
           }));
           this.dataSource.data = tableDataWithIcon;
         } else {
