@@ -6,7 +6,7 @@ import { PopupRouterCacheService } from "../view-cache/popup-router-cache.servic
 
 /** Navigate the browser popup to the previous page when the component is clicked. */
 @Directive({
-  selector: "[popupBackAction]",
+  selector: "popupBackAction",
 })
 export class PopupBackBrowserDirective extends BitActionDirective {
   private routerCacheService = inject(PopupRouterCacheService);
