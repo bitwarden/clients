@@ -1,0 +1,10 @@
+<span
+  *ngIf="hasDiscount()"
+  bitBadge
+  variant="success"
+  class="tw-w-fit"
+  role="status"
+  [attr.aria-label]="getDiscountText()"
+>
+  {{ getDiscountText() }}
+</span>
