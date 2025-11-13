@@ -11,7 +11,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   DialogService,
   IconButtonModule,
@@ -69,14 +72,16 @@ export class ArchiveComponent {
 
   protected archivedCiphers$ = this.userId$.pipe(
     switchMap((userId) => this.cipherArchiveService.archivedCiphers$(userId)),
-  ) as Observable<CipherView[]>;
+  );
+
+  protected CipherViewLikeUtils = CipherViewLikeUtils;
 
   protected loading$ = this.archivedCiphers$.pipe(
     map(() => false),
     startWith(true),
   );
 
-  async view(cipher: CipherView) {
+  async view(cipher: CipherViewLike) {
     if (!(await this.canInteract(cipher))) {
       return;
     }
@@ -86,7 +91,7 @@ export class ArchiveComponent {
     });
   }
 
-  async edit(cipher: CipherView) {
+  async edit(cipher: CipherViewLike) {
     if (!(await this.canInteract(cipher))) {
       return;
     }
@@ -96,7 +101,7 @@ export class ArchiveComponent {
     });
   }
 
-  async delete(cipher: CipherView) {
+  async delete(cipher: CipherViewLike) {
     if (!(await this.canInteract(cipher))) {
       return;
     }
@@ -113,7 +118,7 @@ export class ArchiveComponent {
     const activeUserId = await firstValueFrom(this.userId$);
 
     try {
-      await this.cipherService.softDeleteWithServer(cipher.id, activeUserId);
+      await this.cipherService.softDeleteWithServer(cipher.id as string, activeUserId);
     } catch (e) {
       this.logService.error(e);
       return;
@@ -125,13 +130,16 @@ export class ArchiveComponent {
     });
   }
 
-  async unarchive(cipher: CipherView) {
+  async unarchive(cipher: CipherViewLike) {
     if (!(await this.canInteract(cipher))) {
       return;
     }
     const activeUserId = await firstValueFrom(this.userId$);
 
-    await this.cipherArchiveService.unarchiveWithServer(cipher.id as CipherId, activeUserId);
+    await this.cipherArchiveService.unarchiveWithServer(
+      cipher.id as unknown as CipherId,
+      activeUserId,
+    );
 
     this.toastService.showToast({
       variant: "success",
@@ -139,12 +147,12 @@ export class ArchiveComponent {
     });
   }
 
-  async clone(cipher: CipherView) {
+  async clone(cipher: CipherViewLike) {
     if (!(await this.canInteract(cipher))) {
       return;
     }
 
-    if (cipher.login?.hasFido2Credentials) {
+    if (CipherViewLikeUtils.hasFido2Credentials(cipher)) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "passkeyNotCopied" },
         content: { key: "passkeyNotCopiedAlert" },
@@ -171,8 +179,8 @@ export class ArchiveComponent {
    * @param cipher
    * @private
    */
-  private canInteract(cipher: CipherView) {
-    if (cipher.decryptionFailure) {
+  private canInteract(cipher: CipherViewLike) {
+    if (CipherViewLikeUtils.decryptionFailure(cipher)) {
       DecryptionFailureDialogComponent.open(this.dialogService, {
         cipherIds: [cipher.id as CipherId],
       });
