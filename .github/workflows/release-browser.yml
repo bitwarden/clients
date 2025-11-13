@@ -140,7 +140,7 @@ jobs:
 
       - name: Create release
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: ncipollo/release-action@cdcc88a9acf3ca41c16c37bb7d21b9ad48560d87 # v1.15.0
+        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
         with:
           artifacts: 'browser-source-${{ needs.setup.outputs.release_version }}.zip,
                       dist-chrome-${{ needs.setup.outputs.release_version }}.zip,
