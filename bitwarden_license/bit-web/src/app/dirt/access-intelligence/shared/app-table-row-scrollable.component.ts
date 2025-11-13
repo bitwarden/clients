@@ -9,7 +9,7 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
 export type ApplicationTableDataSource = ApplicationHealthReportDetailEnriched & {
-  iconCipher: CipherViewLike;
+  iconCipher: CipherViewLike | undefined;
 };
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
