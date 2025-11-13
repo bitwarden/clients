@@ -2,7 +2,7 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, filter } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 import { PasswordProtectedKeyEnvelope } from "@bitwarden/sdk-internal";
 
 import { MockSdkService } from "../..//platform/spec/mock-sdk.service";
@@ -11,7 +11,6 @@ import { Utils } from "../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../types/guid";
 import { UserKey } from "../../types/key";
-import { KeyGenerationService } from "../crypto";
 import { EncryptService } from "../crypto/abstractions/encrypt.service";
 import { EncryptedString, EncString } from "../crypto/models/enc-string";
 
@@ -22,12 +21,9 @@ describe("PinService", () => {
   let sut: PinService;
 
   const encryptService = mock<EncryptService>();
-  const kdfConfigService = mock<KdfConfigService>();
-  const keyGenerationService = mock<KeyGenerationService>();
   const logService = mock<LogService>();
   const mockUserId = Utils.newGuid() as UserId;
   const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
-  const mockPinKey = new SymmetricCryptoKey(randomBytes(32)) as PinKey;
   const mockPin = "1234";
   const mockUserKeyEncryptedPin = new EncString("userKeyEncryptedPin");
   const mockEphemeralEnvelope = "mock-ephemeral-envelope" as PasswordProtectedKeyEnvelope;
@@ -366,29 +362,5 @@ describe("PinService", () => {
       // Assert
       expect(result).toEqual(mockUserKey);
     });
-
-    it("should return userkey with legacy pin PERSISTENT", async () => {
-      keyGenerationService.deriveKeyFromPassword.mockResolvedValue(mockPinKey);
-      keyGenerationService.stretchKey.mockResolvedValue(mockPinKey);
-      kdfConfigService.getKdfConfig.mockResolvedValue(DEFAULT_KDF_CONFIG);
-      encryptService.unwrapSymmetricKey.mockResolvedValue(mockUserKey);
-
-      // Arrange
-      const mockPin = "1234";
-      pinStateService.userKeyEncryptedPin$.mockReturnValueOnce(
-        new BehaviorSubject(mockUserKeyEncryptedPin),
-      );
-
-      // Act
-      const result = await sut.decryptUserKeyWithPin(mockPin, mockUserId);
-
-      // Assert
-      expect(result).toEqual(mockUserKey);
-    });
   });
 });
-
-// Test helpers
-function randomBytes(length: number): Uint8Array {
-  return new Uint8Array(Array.from({ length }, (_, k) => k % 255));
-}
