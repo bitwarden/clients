@@ -50,6 +50,7 @@ import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
 import {
   createAutofillFieldMock,
+  createAutofillFormMock,
   createAutofillPageDetailsMock,
   createAutofillScriptMock,
   createChromeTabMock,
@@ -2307,6 +2308,147 @@ describe("AutofillService", () => {
             ["focus_by_opid", "password"],
           ],
           untrustedIframe: false,
+        });
+      });
+
+      describe("given a focused username field", () => {
+        let focusedField: AutofillField;
+        let passwordField: AutofillField;
+
+        beforeEach(() => {
+          focusedField = createAutofillFieldMock({
+            opid: "focused-username",
+            type: "text",
+            form: "form1",
+            elementNumber: 1,
+          });
+          passwordField = createAutofillFieldMock({
+            opid: "password",
+            type: "password",
+            form: "form1",
+            elementNumber: 2,
+          });
+          pageDetails.forms = {
+            form1: createAutofillFormMock({ opid: "form1" }),
+          };
+          options.focusedFieldOpid = "focused-username";
+          jest.spyOn(autofillService as any, "inUntrustedIframe").mockResolvedValue(false);
+          jest.spyOn(AutofillService, "fillByOpid");
+        });
+
+        it("will return early when no matching password is found and set autosubmit if enabled", async () => {
+          pageDetails.fields = [focusedField];
+          options.autoSubmitLogin = true;
+
+          const value = await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledTimes(1);
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            focusedField,
+            options.cipher.login.username,
+          );
+          expect(value.autosubmit).toEqual(["form1"]);
+        });
+
+        it("will prioritize focused field and skip passwords in different forms", async () => {
+          const otherUsername = createAutofillFieldMock({
+            opid: "other-username",
+            type: "text",
+            form: "form1",
+            elementNumber: 2,
+          });
+          const passwordDifferentForm = createAutofillFieldMock({
+            opid: "password-different",
+            type: "password",
+            form: "form2",
+            elementNumber: 1,
+          });
+          pageDetails.fields = [focusedField, otherUsername, passwordField, passwordDifferentForm];
+          pageDetails.forms.form2 = createAutofillFormMock({ opid: "form2" });
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            focusedField,
+            options.cipher.login.username,
+          );
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            passwordField,
+            options.cipher.login.password,
+          );
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            otherUsername,
+            expect.anything(),
+          );
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            passwordDifferentForm,
+            expect.anything(),
+          );
+        });
+
+        it("will not fill focused field if already in filledFields", async () => {
+          pageDetails.fields = [focusedField, passwordField];
+          filledFields[focusedField.opid] = focusedField;
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            focusedField,
+            expect.anything(),
+          );
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            passwordField,
+            options.cipher.login.password,
+          );
+        });
+
+        it.each([
+          ["email", "email"],
+          ["tel", "tel"],
+        ])("will treat focused %s field as username field", async (type, opid) => {
+          const focusedTypedField = createAutofillFieldMock({
+            opid: `focused-${opid}`,
+            type: type as "email" | "tel",
+            form: "form1",
+            elementNumber: 1,
+          });
+          pageDetails.fields = [focusedTypedField, passwordField];
+          options.focusedFieldOpid = `focused-${opid}`;
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            focusedTypedField,
+            options.cipher.login.username,
+          );
         });
       });
     });

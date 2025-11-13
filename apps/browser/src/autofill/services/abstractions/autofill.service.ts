@@ -29,6 +29,7 @@ export interface AutoFillOptions {
   allowTotpAutofill?: boolean;
   autoSubmitLogin?: boolean;
   focusedFieldForm?: string;
+  focusedFieldOpid?: string;
 }
 
 export interface FormData {
@@ -47,6 +48,7 @@ export interface GenerateFillScriptOptions {
   cipher: CipherView;
   tabUrl: string;
   defaultUriMatch: UriMatchStrategySetting;
+  focusedFieldOpid?: string;
 }
 
 export type CollectPageDetailsResponseMessage = {
