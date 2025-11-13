@@ -26,12 +26,10 @@ export class BaseVaultExportService {
     const kdfConfig: KdfConfig = await this.kdfConfigService.getKdfConfig(userId);
 
     const salt = Utils.fromBufferToB64(await this.cryptoFunctionService.randomBytes(16));
-    const unstretchedExportkey = await this.keyGenerationService.deriveKeyFromPassword(
-      password,
-      salt,
-      kdfConfig,
+
+    const exportKey = await this.keyGenerationService.stretchKey(
+      await this.keyGenerationService.deriveKeyFromPassword(password, salt, kdfConfig),
     );
-    const exportKey = await this.keyGenerationService.stretchKey(unstretchedExportkey);
     const key = exportKey;
 
     const encKeyValidation = await this.encryptService.encryptString(Utils.newGuid(), key);
