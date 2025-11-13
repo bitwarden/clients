@@ -18,8 +18,8 @@
             'tw-bg-primary-100': drawerDetails.invokerId === 'allAppsOrgAtRiskMembers',
           }"
           [title]="'atRiskMembers' | i18n"
-          [value]="applicationSummary.totalAtRiskMemberCount"
-          [maxValue]="applicationSummary.totalMemberCount"
+          [value]="applicationSummary().totalAtRiskMemberCount"
+          [maxValue]="applicationSummary().totalMemberCount"
         >
         </dirt-card>
       </button>
@@ -36,8 +36,8 @@
             'tw-bg-primary-100': drawerDetails.invokerId === 'allAppsOrgAtRiskApplications',
           }"
           [title]="'atRiskApplications' | i18n"
-          [value]="applicationSummary.totalAtRiskApplicationCount"
-          [maxValue]="applicationSummary.totalApplicationCount"
+          [value]="applicationSummary().totalAtRiskApplicationCount"
+          [maxValue]="applicationSummary().totalApplicationCount"
         >
         </dirt-card>
       </button>
@@ -52,11 +52,11 @@
         type="button"
         [buttonType]="'primary'"
         bitButton
-        [disabled]="!selectedUrls.size"
-        [loading]="markingAsCritical"
+        [disabled]="!selectedUrls().size"
+        [loading]="markingAsCritical()"
         (click)="markAppsAsCritical()"
       >
-        <i class="bwi tw-mr-2" [ngClass]="selectedUrls.size ? 'bwi-star-f' : 'bwi-star'"></i>
+        <i class="bwi tw-mr-2" [ngClass]="selectedUrls().size ? 'bwi-star-f' : 'bwi-star'"></i>
         {{ "markAppAsCritical" | i18n }}
       </button>
     </div>
@@ -65,7 +65,7 @@
       [dataSource]="dataSource"
       [showRowCheckBox]="true"
       [showRowMenuForCriticalApps]="false"
-      [selectedUrls]="selectedUrls"
+      [selectedUrls]="selectedUrls()"
       [openApplication]="drawerDetails.invokerId || ''"
       [checkboxChange]="onCheckboxChange"
       [showAppAtRiskMembers]="showAppAtRiskMembers"
