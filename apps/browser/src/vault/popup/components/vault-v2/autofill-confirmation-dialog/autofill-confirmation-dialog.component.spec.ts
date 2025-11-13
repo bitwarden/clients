@@ -32,7 +32,7 @@ describe("AutofillConfirmationDialogComponent", () => {
     const base = options?.params ?? params;
     const p: AutofillConfirmationDialogParams = {
       ...base,
-      ...(typeof options?.viewOnly !== "undefined" ? { viewOnly: options.viewOnly } : {}),
+      ...{ viewOnly: options?.viewOnly },
     };
 
     TestBed.resetTestingModule();
