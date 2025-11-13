@@ -8,7 +8,7 @@
 use windows_core::*;
 
 use crate::com_buffer::ComBuffer;
-use crate::util::{debug_log, delay_load, WindowsString};
+use crate::util::{delay_load, WindowsString};
 
 /// Windows WebAuthn Authenticator Options structure
 /// Header File Name: _WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS
@@ -135,7 +135,7 @@ pub fn add_credentials(
     clsid_guid: GUID,
     credentials: Vec<WebAuthnPluginCredentialDetails>,
 ) -> std::result::Result<(), String> {
-    debug_log("Loading WebAuthNPluginAuthenticatorAddCredentials function...");
+    tracing::debug!("Loading WebAuthNPluginAuthenticatorAddCredentials function...");
 
     let result = unsafe {
         delay_load::<WebAuthNPluginAuthenticatorAddCredentialsFnDeclaration>(
@@ -146,8 +146,8 @@ pub fn add_credentials(
 
     match result {
         Some(api) => {
-            debug_log("Function loaded successfully, calling API...");
-            debug_log(&format!("Adding {} credentials", credentials.len()));
+            tracing::debug!("Function loaded successfully, calling API...");
+            tracing::debug!("Adding {} credentials", credentials.len());
 
             let credential_count = credentials.len() as u32;
             let credentials_ptr = if credentials.is_empty() {
@@ -160,18 +160,18 @@ pub fn add_credentials(
 
             if result.is_err() {
                 let error_code = result.0;
-                debug_log(&format!("API call failed with HRESULT: 0x{:x}", error_code));
+                tracing::debug!("API call failed with HRESULT: 0x{:x}", error_code);
                 return Err(format!(
                     "Error: Error response from WebAuthNPluginAuthenticatorAddCredentials()\nHRESULT: 0x{:x}\n{}",
                     error_code, result.message()
                 ));
             }
 
-            debug_log("API call succeeded");
+            tracing::debug!("API call succeeded");
             Ok(())
         }
         None => {
-            debug_log("Failed to load WebAuthNPluginAuthenticatorAddCredentials function from webauthn.dll");
+            tracing::debug!("Failed to load WebAuthNPluginAuthenticatorAddCredentials function from webauthn.dll");
             Err(String::from("Error: Can't complete add_credentials(), as the function WebAuthNPluginAuthenticatorAddCredentials can't be loaded."))
         }
     }
@@ -181,7 +181,7 @@ pub fn remove_credentials(
     clsid_guid: GUID,
     credentials: Vec<WebAuthnPluginCredentialDetails>,
 ) -> std::result::Result<(), String> {
-    debug_log("Loading WebAuthNPluginAuthenticatorRemoveCredentials function...");
+    tracing::debug!("Loading WebAuthNPluginAuthenticatorRemoveCredentials function...");
 
     let result = unsafe {
         delay_load::<WebAuthNPluginAuthenticatorRemoveCredentialsFnDeclaration>(
@@ -192,7 +192,7 @@ pub fn remove_credentials(
 
     match result {
         Some(api) => {
-            debug_log(&format!("Removing {} credentials", credentials.len()));
+            tracing::debug!("Removing {} credentials", credentials.len());
 
             let credential_count = credentials.len() as u32;
             let credentials_ptr = if credentials.is_empty() {
@@ -232,7 +232,7 @@ pub struct OwnedCredentialDetails {
 pub fn get_all_credentials(
     clsid_guid: GUID,
 ) -> std::result::Result<Vec<OwnedCredentialDetails>, String> {
-    debug_log("Loading WebAuthNPluginAuthenticatorGetAllCredentials function...");
+    tracing::debug!("Loading WebAuthNPluginAuthenticatorGetAllCredentials function...");
 
     let result = unsafe {
         delay_load::<WebAuthNPluginAuthenticatorGetAllCredentialsFnDeclaration>(
@@ -256,7 +256,7 @@ pub fn get_all_credentials(
             }
 
             if credentials_array_ptr.is_null() || credential_count == 0 {
-                debug_log("No credentials returned");
+                tracing::debug!("No credentials returned");
                 return Ok(Vec::new());
             }
 
@@ -333,7 +333,7 @@ pub fn get_all_credentials(
             // Free the array using the Windows API - this frees everything including strings
             free_credential_details_array(credential_count, credentials_array_ptr);
 
-            debug_log(&format!("Retrieved {} credentials", owned_credentials.len()));
+            tracing::debug!("Retrieved {} credentials", owned_credentials.len());
             Ok(owned_credentials)
         },
         None => {
@@ -360,12 +360,14 @@ fn free_credential_details_array(
     if let Some(api) = result {
         unsafe { api(credential_count, credentials_array) };
     } else {
-        debug_log("Warning: Could not load WebAuthNPluginAuthenticatorFreeCredentialDetailsArray");
+        tracing::debug!(
+            "Warning: Could not load WebAuthNPluginAuthenticatorFreeCredentialDetailsArray"
+        );
     }
 }
 
 pub fn remove_all_credentials(clsid_guid: GUID) -> std::result::Result<(), String> {
-    debug_log("Loading WebAuthNPluginAuthenticatorRemoveAllCredentials function...");
+    tracing::debug!("Loading WebAuthNPluginAuthenticatorRemoveAllCredentials function...");
 
     let result = unsafe {
         delay_load::<WebAuthNPluginAuthenticatorRemoveAllCredentialsFnDeclaration>(
@@ -376,13 +378,13 @@ pub fn remove_all_credentials(clsid_guid: GUID) -> std::result::Result<(), Strin
 
     match result {
         Some(api) => {
-            debug_log("Function loaded successfully, calling API...");
+            tracing::debug!("Function loaded successfully, calling API...");
 
             let result = unsafe { api(&clsid_guid) };
 
             if result.is_err() {
                 let error_code = result.0;
-                debug_log(&format!("API call failed with HRESULT: 0x{:x}", error_code));
+                tracing::debug!("API call failed with HRESULT: 0x{:x}", error_code);
 
                 return Err(format!(
                     "Error: Error response from WebAuthNPluginAuthenticatorRemoveAllCredentials()\nHRESULT: 0x{:x}\n{}",
@@ -390,11 +392,11 @@ pub fn remove_all_credentials(clsid_guid: GUID) -> std::result::Result<(), Strin
                 ));
             }
 
-            debug_log("API call succeeded");
+            tracing::debug!("API call succeeded");
             Ok(())
         }
         None => {
-            debug_log("Failed to load WebAuthNPluginAuthenticatorRemoveAllCredentials function from webauthn.dll");
+            tracing::debug!("Failed to load WebAuthNPluginAuthenticatorRemoveAllCredentials function from webauthn.dll");
             Err(String::from("Error: Can't complete remove_all_credentials(), as the function WebAuthNPluginAuthenticatorRemoveAllCredentials can't be loaded."))
         }
     }

@@ -13,7 +13,7 @@ use crate::ipc2::{
     PasskeyRegistrationRequest, PasskeyRegistrationResponse, Position, TimedCallback,
     UserVerification, WindowsProviderClient,
 };
-use crate::util::{debug_log, delay_load, wstr_to_string, WindowsString};
+use crate::util::{delay_load, wstr_to_string, WindowsString};
 use crate::webauthn::WEBAUTHN_CREDENTIAL_LIST;
 
 // Windows API types for WebAuthn (from webauthn.h.sample)
@@ -285,10 +285,10 @@ unsafe fn decode_make_credential_request(
 
     // Check if the call succeeded (following C++ THROW_IF_FAILED pattern)
     if result.is_err() {
-        debug_log(&format!(
+        tracing::debug!(
             "ERROR: WebAuthNDecodeMakeCredentialRequest failed with HRESULT: 0x{:08x}",
             result.0
-        ));
+        );
         return Err(format!(
             "Windows API call failed with HRESULT: 0x{:08x}",
             result.0
@@ -311,8 +311,8 @@ fn send_registration_request(
     ipc_client: &WindowsProviderClient,
     request: PasskeyRegistrationRequest,
 ) -> Result<PasskeyRegistrationResponse, String> {
-    debug_log(&format!("Registration request data - RP ID: {}, User ID: {} bytes, User name: {}, Client data hash: {} bytes, Algorithms: {:?}, Excluded credentials: {}", 
-        request.rp_id, request.user_handle.len(), request.user_name, request.client_data_hash.len(), request.supported_algorithms, request.excluded_credentials.len()));
+    tracing::debug!("Registration request data - RP ID: {}, User ID: {} bytes, User name: {}, Client data hash: {} bytes, Algorithms: {:?}, Excluded credentials: {}", 
+        request.rp_id, request.user_handle.len(), request.user_name, request.client_data_hash.len(), request.supported_algorithms, request.excluded_credentials.len());
 
     let request_json = serde_json::to_string(&request)
         .map_err(|err| format!("Failed to serialize registration request: {err}"))?;
@@ -345,24 +345,6 @@ unsafe fn create_make_credential_response(
         .iter()
         .map(|(k, v)| (k.as_text().unwrap(), v))
         .collect();
-
-    /*
-    let ctap_attestation_response = ciborium::Value::Map(vec![
-        (Value::Integer(1.into()), webauthn_att_obj["fmt"].clone()),
-        (
-            Value::Integer(2.into()),
-            webauthn_att_obj["authData"].clone(),
-        ),
-        (
-            Value::Integer(3.into()),
-            webauthn_att_obj["attStmt"].clone(),
-        ),
-    ]);
-
-    // Write data into CBOR
-    // let mut response = Vec::new();
-    // ciborium::into_writer(&ctap_attestation_response, &mut response).map_err(|_| HRESULT(-1))?;
-    */
 
     let webauthn_encode_make_credential_response =
         delay_load::<WebAuthNEncodeMakeCredentialResponseFn>(
@@ -426,35 +408,6 @@ unsafe fn create_make_credential_response(
     let response = Vec::from_raw_parts(response_ptr, response_len as usize, response_len as usize);
 
     Ok(response)
-    /*
-    // Allocate memory for the response data
-    let layout = Layout::from_size_align(response_len as usize, 1).map_err(|_| HRESULT(-1))?;
-    let response_ptr = alloc(layout);
-    if response_ptr.is_null() {
-        return Err(HRESULT(-1));
-    }
-
-    // Copy response data
-    ptr::copy_nonoverlapping(response, response_ptr, response.len());
-
-    // Allocate memory for the response structure
-    let response_layout = Layout::new::<WebAuthnPluginOperationResponse>();
-    let operation_response_ptr = alloc(response_layout) as *mut WebAuthnPluginOperationResponse;
-    if operation_response_ptr.is_null() {
-        return Err(HRESULT(-1));
-    }
-
-    // Initialize the response
-    ptr::write(
-        operation_response_ptr,
-        WebAuthnPluginOperationResponse {
-            encoded_response_byte_count: response.len() as u32,
-            encoded_response_pointer: response_ptr,
-        },
-    );
-    tracing::debug!("CTAP-encoded attestation object: {response:?}");
-    Ok(operation_response_ptr)
-    */
 }
 
 /// Implementation of PluginMakeCredential moved from com_provider.rs
@@ -490,16 +443,11 @@ pub unsafe fn plugin_make_credential(
         req.encoded_request_byte_count as usize,
     );
 
-    debug_log(&format!(
-        "Encoded request: {} bytes",
-        encoded_request_slice.len()
-    ));
+    tracing::debug!("Encoded request: {} bytes", encoded_request_slice.len());
 
     // Try to decode the request using Windows API
     let decoded_wrapper = decode_make_credential_request(encoded_request_slice).map_err(|err| {
-        debug_log(&format!(
-            "ERROR: Failed to decode make credential request: {err}"
-        ));
+        tracing::debug!("ERROR: Failed to decode make credential request: {err}");
         HRESULT(-1)
     })?;
     let decoded_request = decoded_wrapper.as_ref();
@@ -621,10 +569,10 @@ pub unsafe fn plugin_make_credential(
     // Extract excluded credentials from credential list
     let excluded_credentials = parse_credential_list(&decoded_request.CredentialList);
     if !excluded_credentials.is_empty() {
-        debug_log(&format!(
+        tracing::debug!(
             "Found {} excluded credentials for make credential",
             excluded_credentials.len()
-        ));
+        );
     }
 
     let transaction_id = req.transaction_id.to_u128().to_le_bytes().to_vec();
@@ -646,10 +594,11 @@ pub unsafe fn plugin_make_credential(
         context: transaction_id,
     };
 
-    debug_log(&format!(
+    tracing::debug!(
         "Make credential request - RP: {}, User: {}",
-        rpid, registration_request.user_name
-    ));
+        rpid,
+        registration_request.user_name
+    );
 
     // Send registration request
     let passkey_response =
@@ -657,10 +606,7 @@ pub unsafe fn plugin_make_credential(
             tracing::error!("Registration request failed: {err}");
             HRESULT(-1)
         })?;
-    debug_log(&format!(
-        "Registration response received: {:?}",
-        passkey_response
-    ));
+    tracing::debug!("Registration response received: {:?}", passkey_response);
 
     // Create proper WebAuthn response from passkey_response
     tracing::debug!("Creating WebAuthn make credential response");
@@ -669,9 +615,7 @@ pub unsafe fn plugin_make_credential(
             tracing::error!("Failed to create WebAuthn response: {err}");
             HRESULT(-1)
         })?;
-    debug_log(&format!(
-        "Successfully created WebAuthn response: {webauthn_response:?}"
-    ));
+    tracing::debug!("Successfully created WebAuthn response: {webauthn_response:?}");
     (*response).encoded_response_byte_count = webauthn_response.len() as u32;
     (*response).encoded_response_pointer = webauthn_response.as_mut_ptr();
     tracing::debug!("Set pointer, returning HRESULT(0)");
@@ -698,18 +642,6 @@ mod tests {
             163, 99, 102, 109, 116, 100, 110, 111, 110, 101, 103, 97, 116, 116, 83, 116, 109, 116,
             160, 104, 97, 117, 116, 104, 68, 97, 116, 97, 68, 1, 2, 3, 4,
         ];
-        /*
-            148, 116, 166, 234, 146, 19, 201,
-            156, 47, 116, 178, 36, 146, 179, 32, 207, 64, 38, 42, 148, 193, 169, 80, 160, 57, 127,
-            41, 37, 11, 96, 132, 30, 240, 93, 0, 0, 0, 0, 213, 72, 130, 110, 121, 180, 219, 64,
-            163, 216, 17, 17, 111, 126, 131, 73, 0, 16, 41, 58, 58, 242, 229, 31, 75, 22, 168, 253,
-            151, 122, 177, 155, 237, 89, 165, 1, 2, 3, 38, 32, 1, 33, 88, 32, 154, 18, 243, 88, 48,
-            112, 84, 3, 82, 219, 172, 210, 76, 151, 246, 101, 189, 86, 147, 114, 248, 43, 231, 192,
-            202, 190, 92, 37, 216, 45, 202, 250, 34, 88, 32, 28, 36, 149, 44, 106, 229, 243, 164,
-            190, 234, 102, 125, 168, 224, 155, 182, 190, 178, 218, 158, 98, 11, 57, 187, 41, 10,
-            218, 58, 80, 124, 254, 119,
-        ];
-        */
         let ctap_att_obj = unsafe { create_make_credential_response(webauthn_att_obj).unwrap() };
         println!("{ctap_att_obj:?}");
         let expected = vec![163, 1, 100, 110, 111, 110, 101, 2, 68, 1, 2, 3, 4, 3, 160];

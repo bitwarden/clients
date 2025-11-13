@@ -9,7 +9,6 @@ use windows_core::{implement, interface, IInspectable, IUnknown, Interface, HRES
 use crate::assert::plugin_get_assertion;
 use crate::ipc2::{TimedCallback, WindowsProviderClient};
 use crate::make_credential::plugin_make_credential;
-use crate::util::debug_log;
 use crate::webauthn::WEBAUTHN_CREDENTIAL_LIST;
 
 /// Plugin request type enum as defined in the IDL
@@ -102,10 +101,10 @@ pub unsafe fn parse_credential_list(credential_list: &WEBAUTHN_CREDENTIAL_LIST) 
         return allowed_credentials;
     }
 
-    debug_log(&format!(
+    tracing::debug!(
         "Parsing {} credentials from credential list",
         credential_list.cCredentials
-    ));
+    );
 
     // ppCredentials is an array of pointers to WEBAUTHN_CREDENTIAL_EX
     let credentials_array = std::slice::from_raw_parts(
@@ -122,10 +121,7 @@ pub unsafe fn parse_credential_list(credential_list: &WEBAUTHN_CREDENTIAL_LIST) 
         let credential = &*credential_ptr;
 
         if credential.cbId == 0 || credential.pbId.is_null() {
-            debug_log(&format!(
-                "WARNING: Credential {} has invalid ID, skipping",
-                i
-            ));
+            tracing::debug!("WARNING: Credential {} has invalid ID, skipping", i);
             continue;
         }
         // Extract credential ID bytes
@@ -133,17 +129,19 @@ pub unsafe fn parse_credential_list(credential_list: &WEBAUTHN_CREDENTIAL_LIST) 
         let credential_id_slice =
             std::slice::from_raw_parts(credential.pbId, credential.cbId as usize);
 
-        debug_log(&format!(
+        tracing::debug!(
             "Parsed credential {}: {} bytes, {:?}",
-            i, credential.cbId, &credential_id_slice,
-        ));
+            i,
+            credential.cbId,
+            &credential_id_slice,
+        );
         allowed_credentials.push(credential_id_slice.to_vec());
     }
 
-    debug_log(&format!(
+    tracing::debug!(
         "Successfully parsed {} allowed credentials",
         allowed_credentials.len()
-    ));
+    );
     allowed_credentials
 }
 
