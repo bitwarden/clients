@@ -11,7 +11,7 @@ import { PopupRouterCacheService } from "../view-cache/popup-router-cache.servic
 export class PopupBackBrowserDirective extends BitActionDirective {
   private routerCacheService = inject(PopupRouterCacheService);
   // Override the required input to make it optional since we set it automatically
-  override readonly handler = model<FunctionReturningAwaitable | undefined>(
+  override readonly handler = model<FunctionReturningAwaitable>(
     () => this.routerCacheService.back(),
     { alias: "popupBackAction" },
   );
