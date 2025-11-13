@@ -47,7 +47,7 @@
               type="button"
               bitLink
               [attr.aria-label]="('viewAtRiskMembers' | i18n) + ': ' + ('atRiskMembers' | i18n)"
-              (click)="dataService.setDrawerForOrgAtRiskMembers('criticalAppsAtRiskMembers')"
+              (click)="dataService.setDrawerForCriticalAtRiskMembers('criticalAppsAtRiskMembers')"
             >
               {{ "viewAtRiskMembers" | i18n }}
             </button>
@@ -89,7 +89,7 @@
               [attr.aria-label]="
                 ('viewAtRiskApplications' | i18n) + ': ' + ('atRiskApplications' | i18n)
               "
-              (click)="dataService.setDrawerForOrgAtRiskApps('criticalAppsAtRiskApplications')"
+              (click)="dataService.setDrawerForCriticalAtRiskApps('criticalAppsAtRiskApplications')"
             >
               {{ "viewAtRiskApplications" | i18n }}
             </button>
