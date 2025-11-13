@@ -125,7 +125,7 @@ describe("DomQueryService", () => {
 
   describe("queryAllTreeWalkerNodes", () => {
     it("queries form field elements that are nested within multiple ShadowDOM elements", () => {
-      domQueryService["pageContainsShadowDom"] = true;
+      domQueryService["_pageContainsShadowDom"] = true;
       const root = document.createElement("div");
       const shadowRoot1 = root.attachShadow({ mode: "open" });
       const root2 = document.createElement("div");
