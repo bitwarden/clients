@@ -3,8 +3,10 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { mock } from "jest-mock-extended";
 
 import { DrawerDetails, DrawerType } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { RiskInsightsDrawerDialogComponent } from "./risk-insights-drawer-dialog.component";
@@ -48,6 +50,8 @@ describe("RiskInsightsDrawerDialogComponent", () => {
   let component: RiskInsightsDrawerDialogComponent;
   let fixture: ComponentFixture<RiskInsightsDrawerDialogComponent>;
   const mockI18nService = mock<I18nService>();
+  const mockFileDownloadService = mock<FileDownloadService>();
+  const mocklogService = mock<LogService>();
   const drawerDetails: DrawerDetails = {
     open: true,
     invokerId: "test-invoker",
@@ -64,6 +68,8 @@ describe("RiskInsightsDrawerDialogComponent", () => {
         { provide: DIALOG_DATA, useValue: drawerDetails },
         { provide: I18nPipe, useValue: mock<I18nPipe>() },
         { provide: I18nService, useValue: mockI18nService },
+        { provide: FileDownloadService, useValue: mockFileDownloadService },
+        { provide: LogService, useValue: mocklogService },
       ],
     }).compileComponents();
 

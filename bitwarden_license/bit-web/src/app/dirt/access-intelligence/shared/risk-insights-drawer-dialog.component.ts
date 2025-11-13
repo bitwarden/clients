@@ -34,7 +34,7 @@ export class RiskInsightsDrawerDialogComponent {
   /**
    * downloads at risk members as CSV
    */
-  downloadAtRiskMembers = async () => {
+  async downloadAtRiskMembers() {
     try {
       // Validate drawer is open and showing the correct drawer type
       if (
@@ -58,12 +58,12 @@ export class RiskInsightsDrawerDialogComponent {
       // Log error for debugging
       this.logService.error("Failed to download at-risk members", error);
     }
-  };
+  }
 
   /**
    * downloads at risk applications as CSV
    */
-  downloadAtRiskApplications = async () => {
+  async downloadAtRiskApplications() {
     try {
       // Validate drawer is open and showing the correct drawer type
       if (
@@ -87,5 +87,5 @@ export class RiskInsightsDrawerDialogComponent {
       // Log error for debugging
       this.logService.error("Failed to download at-risk applications", error);
     }
-  };
+  }
 }
