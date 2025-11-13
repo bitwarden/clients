@@ -1,0 +1,48 @@
+<app-header></app-header>
+
+<bit-container>
+  <form [formGroup]="form" class="tw-w-full tw-max-w-md">
+    <bit-form-field>
+      <bit-label>{{ "theme" | i18n }}</bit-label>
+      <bit-select formControlName="theme" id="theme">
+        @for (option of themeOptions; track option.value) {
+          <bit-option [value]="option.value" [label]="option.name"></bit-option>
+        }
+      </bit-select>
+      <bit-hint>{{ "themeDesc" | i18n }}</bit-hint>
+    </bit-form-field>
+    <bit-form-field>
+      <bit-label>
+        {{ "language" | i18n }}
+        <a
+          bitLink
+          class="tw-float-right"
+          href="https://bitwarden.com/help/localization/"
+          target="_blank"
+          rel="noreferrer"
+          appA11yTitle="{{ 'learnMoreAboutLocalization' | i18n }}"
+          slot="end"
+        >
+          <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+        </a>
+      </bit-label>
+      <bit-select formControlName="locale" id="locale">
+        @for (option of localeOptions; track option.value) {
+          <bit-option [value]="option.value" [label]="option.name"></bit-option>
+        }
+      </bit-select>
+      <bit-hint>{{ "languageDesc" | i18n }}</bit-hint>
+    </bit-form-field>
+    <div class="tw-flex tw-items-start tw-gap-1.5">
+      <bit-form-control>
+        <input type="checkbox" bitCheckbox formControlName="enableFavicons" />
+        <bit-label>
+          {{ "showIconsChangePasswordUrls" | i18n }}
+        </bit-label>
+      </bit-form-control>
+      <div class="-tw-mt-0.5">
+        <vault-permit-cipher-details-popover></vault-permit-cipher-details-popover>
+      </div>
+    </div>
+  </form>
+</bit-container>
