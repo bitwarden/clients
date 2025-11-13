@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, Inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -8,8 +8,8 @@ import {
   DIALOG_DATA,
   DialogConfig,
   DialogRef,
-  ButtonModule,
   DialogService,
+  ButtonModule,
   DialogModule,
   TypographyModule,
   CalloutComponent,
@@ -46,49 +46,37 @@ export type AutofillConfirmationDialogResultType = UnionOfValues<
   ],
 })
 export class AutofillConfirmationDialogComponent {
-  AutofillConfirmationDialogResult = AutofillConfirmationDialogResult;
+  private readonly params = inject<AutofillConfirmationDialogParams>(DIALOG_DATA);
+  private readonly dialogRef = inject(DialogRef<AutofillConfirmationDialogResultType>);
 
-  currentUrl: string = "";
-  savedUrls: string[] = [];
-  savedUrlsExpanded = false;
-  viewOnly: boolean = false;
+  readonly currentUrl = signal<string>(Utils.getHostname(this.params.currentUrl));
+  readonly savedUrls = signal<string[]>(
+    (this.params.savedUrls ?? []).map((u) => Utils.getHostname(u) ?? "").filter(Boolean),
+  );
+  readonly viewOnly = signal<boolean>(this.params.viewOnly ?? false);
+  readonly savedUrlsExpanded = signal<boolean>(false);
 
-  constructor(
-    @Inject(DIALOG_DATA) protected params: AutofillConfirmationDialogParams,
-    private dialogRef: DialogRef,
-  ) {
-    this.currentUrl = Utils.getHostname(params.currentUrl);
-    this.viewOnly = params.viewOnly ?? false;
-    this.savedUrls =
-      params.savedUrls?.map((url) => Utils.getHostname(url) ?? "").filter(Boolean) ?? [];
-  }
-
-  protected get savedUrlsListClass(): string {
-    return this.savedUrlsExpanded
+  readonly savedUrlsListClass = computed(() =>
+    this.savedUrlsExpanded()
       ? ""
-      : `tw-relative
-         tw-max-h-24
-         tw-overflow-hidden
-         after:tw-pointer-events-none after:tw-content-['']
-         after:tw-absolute after:tw-inset-x-0 after:tw-bottom-0
-         after:tw-h-8 after:tw-bg-gradient-to-t
-         after:tw-from-background after:tw-to-transparent
-    `;
+      : `tw-relative tw-max-h-24 tw-overflow-hidden after:tw-pointer-events-none
+         after:tw-content-[''] after:tw-absolute after:tw-inset-x-0 after:tw-bottom-0
+         after:tw-h-8 after:tw-bg-gradient-to-t after:tw-from-background after:tw-to-transparent`,
+  );
+
+  toggleSavedUrlExpandedState() {
+    this.savedUrlsExpanded.update((v) => !v);
   }
 
-  protected viewAllSavedUrls() {
-    this.savedUrlsExpanded = true;
-  }
-
-  protected close() {
+  close() {
     this.dialogRef.close(AutofillConfirmationDialogResult.Canceled);
   }
 
-  protected autofillAndAddUrl() {
+  autofillAndAddUrl() {
     this.dialogRef.close(AutofillConfirmationDialogResult.AutofillAndUrlAdded);
   }
 
-  protected autofillOnly() {
+  autofillOnly() {
     this.dialogRef.close(AutofillConfirmationDialogResult.AutofilledOnly);
   }
 
