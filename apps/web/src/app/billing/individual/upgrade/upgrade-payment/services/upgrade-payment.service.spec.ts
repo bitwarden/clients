@@ -436,7 +436,7 @@ describe("UpgradePaymentService", () => {
           tier: "families",
           passwordManager: {
             additionalStorage: 0,
-            seats: 6,
+            seats: 1,
             sponsored: false,
           },
         },
