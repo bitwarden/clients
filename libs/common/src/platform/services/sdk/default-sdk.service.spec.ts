@@ -1,22 +1,24 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 import { BitwardenClient } from "@bitwarden/sdk-internal";
 
 import {
+  ObservableTracker,
   FakeAccountService,
   FakeStateProvider,
   mockAccountServiceWith,
-  ObservableTracker,
 } from "../../../../spec";
+import { ApiService } from "../../../abstractions/api.service";
 import { AccountInfo } from "../../../auth/abstractions/account.service";
 import { EncryptedString } from "../../../key-management/crypto/models/enc-string";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
+import { ConfigService } from "../../abstractions/config/config.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
@@ -42,10 +44,12 @@ describe("DefaultSdkService", () => {
     let platformUtilsService!: MockProxy<PlatformUtilsService>;
     let kdfConfigService!: MockProxy<KdfConfigService>;
     let keyService!: MockProxy<KeyService>;
+    let securityStateService!: MockProxy<SecurityStateService>;
     let configService!: MockProxy<ConfigService>;
     let service!: DefaultSdkService;
     let accountService!: FakeAccountService;
     let fakeStateProvider!: FakeStateProvider;
+    let apiService!: MockProxy<ApiService>;
 
     beforeEach(async () => {
       await new TestSdkLoadService().loadAndInit();
@@ -55,6 +59,8 @@ describe("DefaultSdkService", () => {
       platformUtilsService = mock<PlatformUtilsService>();
       kdfConfigService = mock<KdfConfigService>();
       keyService = mock<KeyService>();
+      securityStateService = mock<SecurityStateService>();
+      apiService = mock<ApiService>();
       const mockUserId = Utils.newGuid() as UserId;
       accountService = mockAccountServiceWith(mockUserId);
       fakeStateProvider = new FakeStateProvider(accountService);
@@ -72,6 +78,8 @@ describe("DefaultSdkService", () => {
         accountService,
         kdfConfigService,
         keyService,
+        securityStateService,
+        apiService,
         fakeStateProvider,
         configService,
       );
@@ -96,6 +104,8 @@ describe("DefaultSdkService", () => {
           .calledWith(userId)
           .mockReturnValue(of("private-key" as EncryptedString));
         keyService.encryptedOrgKeys$.calledWith(userId).mockReturnValue(of({}));
+        keyService.userSigningKey$.calledWith(userId).mockReturnValue(of(null));
+        securityStateService.accountSecurityState$.calledWith(userId).mockReturnValue(of(null));
       });
 
       describe("given no client override has been set for the user", () => {
@@ -237,8 +247,9 @@ function createMockClient(): MockProxy<BitwardenClient> {
   client.crypto.mockReturnValue(mock());
   client.platform.mockReturnValue({
     state: jest.fn().mockReturnValue(mock()),
+    load_flags: jest.fn().mockReturnValue(mock()),
     free: mock(),
-    load_flags: jest.fn(),
+    [Symbol.dispose]: jest.fn(),
   });
   return client;
 }

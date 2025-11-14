@@ -62,6 +62,8 @@ export interface AddEditCipherDialogCloseResult {
  * Component for viewing a cipher, presented in a dialog.
  * @deprecated Use the VaultItemDialogComponent instead.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-add-edit-v2",
   templateUrl: "add-edit-v2.component.html",
@@ -138,19 +140,15 @@ export class AddEditComponentV2 implements OnInit {
    * @returns The header text.
    */
   setHeader(mode: CipherFormMode, type: CipherType) {
-    const partOne = mode === "edit" || mode === "partial-edit" ? "editItemHeader" : "newItemHeader";
-    switch (type) {
-      case CipherType.Login:
-        return this.i18nService.t(partOne, this.i18nService.t("typeLogin").toLowerCase());
-      case CipherType.Card:
-        return this.i18nService.t(partOne, this.i18nService.t("typeCard").toLowerCase());
-      case CipherType.Identity:
-        return this.i18nService.t(partOne, this.i18nService.t("typeIdentity").toLowerCase());
-      case CipherType.SecureNote:
-        return this.i18nService.t(partOne, this.i18nService.t("note").toLowerCase());
-      case CipherType.SshKey:
-        return this.i18nService.t(partOne, this.i18nService.t("typeSshKey").toLowerCase());
-    }
+    const isEditMode = mode === "edit" || mode === "partial-edit";
+    const translation = {
+      [CipherType.Login]: isEditMode ? "editItemHeaderLogin" : "newItemHeaderLogin",
+      [CipherType.Card]: isEditMode ? "editItemHeaderCard" : "newItemHeaderCard",
+      [CipherType.Identity]: isEditMode ? "editItemHeaderIdentity" : "newItemHeaderIdentity",
+      [CipherType.SecureNote]: isEditMode ? "editItemHeaderNote" : "newItemHeaderNote",
+      [CipherType.SshKey]: isEditMode ? "editItemHeaderSshKey" : "newItemHeaderSshKey",
+    };
+    return this.i18nService.t(translation[type]);
   }
 
   /**

@@ -3,7 +3,6 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import {
   first,
-  firstValueFrom,
   lastValueFrom,
   Observable,
   Subject,
@@ -12,7 +11,7 @@ import {
   switchMap,
 } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -25,6 +24,7 @@ import { TwoFactorWebAuthnResponse } from "@bitwarden/common/auth/models/respons
 import { TwoFactorYubiKeyResponse } from "@bitwarden/common/auth/models/response/two-factor-yubi-key.response";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { TwoFactorProviders } from "@bitwarden/common/auth/services/two-factor.service";
+import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
@@ -35,7 +35,6 @@ import { DialogRef, DialogService, ItemModule } from "@bitwarden/components";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared/shared.module";
-import { PremiumBadgeComponent } from "../../../vault/components/premium-badge.component";
 
 import { TwoFactorRecoveryComponent } from "./two-factor-recovery.component";
 import { TwoFactorSetupAuthenticatorComponent } from "./two-factor-setup-authenticator.component";
@@ -45,6 +44,8 @@ import { TwoFactorSetupWebAuthnComponent } from "./two-factor-setup-webauthn.com
 import { TwoFactorSetupYubiKeyComponent } from "./two-factor-setup-yubikey.component";
 import { TwoFactorVerifyComponent } from "./two-factor-verify.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-setup",
   templateUrl: "two-factor-setup.component.html",
@@ -68,7 +69,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
 
   constructor(
     protected dialogService: DialogService,
-    protected apiService: ApiService,
+    protected twoFactorApiService: TwoFactorApiService,
     protected messagingService: MessagingService,
     protected policyService: PolicyService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
@@ -262,15 +263,8 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
     }
   }
 
-  async premiumRequired() {
-    if (!(await firstValueFrom(this.canAccessPremium$))) {
-      this.messagingService.send("premiumRequired");
-      return;
-    }
-  }
-
   protected getTwoFactorProviders() {
-    return this.apiService.getTwoFactorProviders();
+    return this.twoFactorApiService.getTwoFactorProviders();
   }
 
   protected filterProvider(type: TwoFactorProviderType): boolean {

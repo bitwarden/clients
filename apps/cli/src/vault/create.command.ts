@@ -20,6 +20,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request";
@@ -91,18 +92,18 @@ export class CreateCommand {
   }
 
   private async createCipher(req: CipherExport) {
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-
-    const cipherView = CipherExport.toView(req);
-    const isCipherTypeRestricted =
-      await this.cliRestrictedItemTypesService.isCipherRestricted(cipherView);
-
-    if (isCipherTypeRestricted) {
-      return Response.error("Creating this item type is restricted by organizational policy.");
-    }
-
-    const cipher = await this.cipherService.encrypt(CipherExport.toView(req), activeUserId);
     try {
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+      const cipherView = CipherExport.toView(req);
+      const isCipherTypeRestricted =
+        await this.cliRestrictedItemTypesService.isCipherRestricted(cipherView);
+
+      if (isCipherTypeRestricted) {
+        return Response.error("Creating this item type is restricted by organizational policy.");
+      }
+
+      const cipher = await this.cipherService.encrypt(CipherExport.toView(req), activeUserId);
       const newCipher = await this.cipherService.createWithServer(cipher);
       const decCipher = await this.cipherService.decrypt(newCipher, activeUserId);
       const res = new CipherResponse(decCipher);
@@ -183,8 +184,8 @@ export class CreateCommand {
     const userKey = await this.keyService.getUserKey(activeUserId);
     const folder = await this.folderService.encrypt(FolderExport.toView(req), userKey);
     try {
-      await this.folderApiService.save(folder, activeUserId);
-      const newFolder = await this.folderService.get(folder.id, activeUserId);
+      const folderData = await this.folderApiService.save(folder, activeUserId);
+      const newFolder = new Folder(folderData);
       const decFolder = await newFolder.decrypt();
       const res = new FolderResponse(decFolder);
       return Response.success(res);

@@ -36,9 +36,11 @@ export const DELETE_MANAGED_USER_WARNING = new StateDefinition(
     web: "disk-local",
   },
 );
+export const AUTO_CONFIRM = new StateDefinition("autoConfirm", "disk", { web: "disk-local" });
 
 // Billing
 export const BILLING_DISK = new StateDefinition("billing", "disk");
+export const BILLING_MEMORY = new StateDefinition("billing", "memory");
 
 // Auth
 
@@ -66,11 +68,13 @@ export const PIN_DISK = new StateDefinition("pinUnlock", "disk");
 export const PIN_MEMORY = new StateDefinition("pinUnlock", "memory");
 export const ROUTER_DISK = new StateDefinition("router", "disk");
 export const SSO_DISK = new StateDefinition("ssoLogin", "disk");
+export const SSO_DISK_LOCAL = new StateDefinition("ssoLoginLocal", "disk", { web: "disk-local" });
 export const TOKEN_DISK = new StateDefinition("token", "disk");
 export const TOKEN_DISK_LOCAL = new StateDefinition("tokenDiskLocal", "disk", {
   web: "disk-local",
 });
 export const TOKEN_MEMORY = new StateDefinition("token", "memory");
+export const SEND_ACCESS_DISK = new StateDefinition("sendAccess", "disk");
 export const TWO_FACTOR_MEMORY = new StateDefinition("twoFactor", "memory");
 export const USER_DECRYPTION_OPTIONS_DISK = new StateDefinition("userDecryptionOptions", "disk");
 export const ORGANIZATION_INVITE_DISK = new StateDefinition("organizationInvite", "disk");
@@ -104,13 +108,14 @@ export const NEW_WEB_LAYOUT_BANNER_DISK = new StateDefinition("newWebLayoutBanne
   web: "disk-local",
 });
 
+// DIRT
+
+export const PHISHING_DETECTION_DISK = new StateDefinition("phishingDetection", "disk");
+
 // Platform
 
 export const APPLICATION_ID_DISK = new StateDefinition("applicationId", "disk", {
   web: "disk-local",
-});
-export const BADGE_MEMORY = new StateDefinition("badge", "memory", {
-  browser: "memory-large-object",
 });
 export const BIOMETRIC_SETTINGS_DISK = new StateDefinition("biometricSettings", "disk");
 export const CLEAR_EVENT_DISK = new StateDefinition("clearEvent", "disk");
@@ -122,6 +127,7 @@ export const CRYPTO_MEMORY = new StateDefinition("crypto", "memory");
 export const DESKTOP_SETTINGS_DISK = new StateDefinition("desktopSettings", "disk");
 export const ENVIRONMENT_DISK = new StateDefinition("environment", "disk");
 export const ENVIRONMENT_MEMORY = new StateDefinition("environment", "memory");
+export const IPC_MEMORY = new StateDefinition("interProcessCommunication", "memory");
 export const POPUP_VIEW_MEMORY = new StateDefinition("popupView", "memory", {
   browser: "memory-large-object",
 });
@@ -218,3 +224,4 @@ export const VAULT_BROWSER_INTRO_CAROUSEL = new StateDefinition(
   "vaultBrowserIntroCarousel",
   "disk",
 );
+export const VAULT_AT_RISK_PASSWORDS_MEMORY = new StateDefinition("vaultAtRiskPasswords", "memory");

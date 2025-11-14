@@ -30,13 +30,18 @@ import { CopyAction, CopyCipherFieldService } from "@bitwarden/vault";
   selector: "[appCopyField]",
 })
 export class CopyCipherFieldDirective implements OnChanges {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({
     alias: "appCopyField",
     required: true,
   })
   action!: Exclude<CopyAction, "hiddenField">;
 
-  @Input({ required: true }) cipher!: CipherViewLike;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input({ required: true })
+  cipher!: CipherViewLike;
 
   constructor(
     private copyCipherFieldService: CopyCipherFieldService,

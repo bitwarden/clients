@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "استفاده از ورود تک مرحله‌ای"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "خوش آمدید"
   },
@@ -550,11 +553,46 @@
   "resetSearch": {
     "message": "Reset search"
   },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
   "edit": {
     "message": "ویرایش"
   },
   "view": {
     "message": "مشاهده"
+  },
+  "viewAll": {
+    "message": "View all"
   },
   "viewLogin": {
     "message": "View login"
@@ -700,6 +738,15 @@
   },
   "invalidMasterPassword": {
     "message": "کلمه عبور اصلی نامعتبر است"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "متوقف شدن گاو‌صندوق"
@@ -986,6 +1033,18 @@
   },
   "editedItem": {
     "message": "مورد ذخیره شد"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "واقعاً می‌خواهید این مورد را به سطل زباله ارسال کنید؟"
@@ -1464,12 +1523,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "درخواست بیومتریک هنگام راه‌اندازی"
   },
-  "premiumRequired": {
-    "message": "در نسخه پرمیوم کار می‌کند"
-  },
-  "premiumRequiredDesc": {
-    "message": "برای استفاده از این ویژگی عضویت پرمیوم لازم است."
-  },
   "authenticationTimeout": {
     "message": "پایان زمان احراز هویت"
   },
@@ -1507,6 +1560,15 @@
   "readSecurityKey": {
     "message": "خواندن کلید امنیتی"
   },
+  "readingPasskeyLoading": {
+    "message": "Reading passkey..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey authentication failed"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Use a different log in method"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "در انتظار تعامل با کلید امنیتی..."
   },
@@ -1524,9 +1586,6 @@
   },
   "selectTwoStepLoginMethod": {
     "message": "انتخاب ورود دو مرحله‌ای"
-  },
-  "recoveryCodeDesc": {
-    "message": "دسترسی به تمامی ارائه‌دهندگان دو مرحله‌ای را از دست داده‌اید؟ از کد بازیابی خود برای غیرفعال‌سازی ارائه‌دهندگان دو مرحله‌ای از حسابتان استفاده کنید."
   },
   "recoveryCodeTitle": {
     "message": "کد بازیابی"
@@ -1575,6 +1634,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "شما باید یا نشانی اینترنتی پایه سرور را اضافه کنید، یا حداقل یک محیط سفارشی تعریف کنید."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
   },
   "customEnvironment": {
     "message": "محیط سفارشی"
@@ -1629,8 +1691,29 @@
   "turnOffAutofill": {
     "message": "پر کردن خودکار را خاموش کنید"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "نمایش پیشنهادهای پر کردن خودکار روی فیلدهای فرم"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "نمایش هویت‌ها به‌عنوان پیشنهاد"
@@ -1685,9 +1768,6 @@
   },
   "defaultAutoFillOnPageLoadDesc": {
     "message": "می‌توانید پر کردن خودکار هنگام بارگیری صفحه را برای موارد ورود به سیستم از نمای ویرایش مورد خاموش کنید."
-  },
-  "itemAutoFillOnPageLoad": {
-    "message": "پر کردن خودکار بارگذاری صفحه (درصورت فعال بودن در گزینه‌ها)"
   },
   "autoFillOnPageLoadUseDefault": {
     "message": "استفاده از تنظیمات پیش‌فرض"
@@ -1760,17 +1840,8 @@
   "popup2faCloseMessage": {
     "message": "در خارج از پنجره پاپ آپ کلیک کنید که ایمیل‌تان بررسی شود برای کد تأییدیه که باعث می‌شود این پنجره بسته شود. آیا می‌خواهید این پاپ آپ را در یک پنجره جدید باز کنید تا آن را نبندید؟"
   },
-  "popupU2fCloseMessage": {
-    "message": "این مرورگر نمی‌تواند درخواستهای U2F را در این پنجره پاپ آپ پردازش کند. آیا می‌خواهید این پنجره را در یک پنجره جدید باز کنید تا بتوانید با استفاده از U2F وارد شوید؟"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
-  },
-  "enableBadgeCounter": {
-    "message": "نمایش شمارنده نشان"
-  },
-  "badgeCounterDesc": {
-    "message": "تعداد ورود به صفحه وب فعلی را مشخص کن."
   },
   "cardholderName": {
     "message": "نام صاحب کارت"
@@ -1934,32 +2005,81 @@
   "typeNote": {
     "message": "یادداشت"
   },
-  "newItemHeader": {
-    "message": "$TYPE$ جدید",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "ویرایش $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "مشاهده $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "تاریخچه کلمه عبور"
@@ -3132,11 +3252,32 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "خطا"
   },
   "decryptionError": {
     "message": "خطای رمزگشایی"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden نتوانست مورد(های) گاوصندوق فهرست شده زیر را رمزگشایی کند."
@@ -3520,9 +3661,6 @@
   },
   "autofillPageLoadPolicyActivated": {
     "message": "خط مشی‌های سازمان شما پر کردن خودکار هنگام بارگیری صفحه را روشن کرده است."
-  },
-  "howToAutofill": {
-    "message": "نحوه پر کردن خودکار"
   },
   "autofillSelectInfoWithCommand": {
     "message": "یک مورد را از این صفحه انتخاب کنید، از میان‌بر $COMMAND$ استفاده کنید، یا گزینه‌های دیگر را در تنظیمات بررسی کنید.",
@@ -3908,17 +4046,18 @@
   "aliasDomain": {
     "message": "دامنه مستعار"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "موارد با درخواست مجدد کلمه عبور اصلی را نمی‌توان در بارگذاری صفحه به‌صورت خودکار پر کرد. پر کردن خودکار در بارگیری صفحه خاموش شد.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "پر کردن خودکار در بارگیری صفحه برای استفاده از تنظیمات پیش‌فرض تنظیم شده است.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "برای ویرایش این فیلد، درخواست مجدد کلمه عبور اصلی را خاموش کنید",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "تغییر وضعیت ناوبری کناری"
@@ -4188,9 +4327,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "کلید عبور در مورد شبیه‌سازی شده کپی نمی‌شود. آیا می‌خواهید به شبیه‌سازی این مورد ادامه دهید؟"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "تأیید توسط سایت آغازگر الزامی است. این ویژگی هنوز برای حساب‌های کاربری بدون کلمه عبور اصلی اجرا نشده است."
   },
   "logInWithPasskeyQuestion": {
     "message": "با کلید عبور وارد می‌شوید؟"
@@ -4838,6 +4974,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Default ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "نمایش شناسایی تطابق برای $WEBSITE$",
     "placeholders": {
@@ -4876,9 +5022,6 @@
         "example": "Visa"
       }
     }
-  },
-  "enableAnimations": {
-    "message": "فعال‌سازی انیمیشن‌ها"
   },
   "showAnimations": {
     "message": "نمایش انیمیشن‌ها"
@@ -5092,14 +5235,8 @@
   "itemLocation": {
     "message": "مکان مورد"
   },
-  "fileSend": {
-    "message": "پرونده ارسال"
-  },
   "fileSends": {
     "message": "پرونده ارسال‌ها"
-  },
-  "textSend": {
-    "message": "ارسال متن"
   },
   "textSends": {
     "message": "ارسال‌های متن"
@@ -5160,9 +5297,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "حداقل مهلت زمانی سفارشی ۱ دقیقه است."
-  },
-  "additionalContentAvailable": {
-    "message": "محتوای اضافی در دسترس است"
   },
   "fileSavedToDevice": {
     "message": "پرونده در دستگاه ذخیره شد. از بخش بارگیری‌های دستگاه خود مدیریت کنید."
@@ -5503,6 +5637,38 @@
   "hasItemsVaultNudgeTitle": {
     "message": "به گاوصندوق خود خوش آمدید!"
   },
+  "phishingPageTitleV2": {
+    "message": "Phishing attempt detected"
+  },
+  "phishingPageSummary": {
+    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+  },
+  "phishingPageCloseTabV2": {
+    "message": "Close this tab"
+  },
+  "phishingPageContinueV2": {
+    "message": "Continue to this site (not recommended)"
+  },
+  "phishingPageExplanation1": {
+    "message": "This site was found in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Learn more about phishing detection"
+  },
+  "protectedBy": {
+    "message": "Protected by $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
+  },
   "hasItemsVaultNudgeBodyOne": {
     "message": "پر کردن خودکار موارد برای صفحه فعلی"
   },
@@ -5606,5 +5772,42 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Confirm Key Connector domain"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "settingDisabledByPolicy": {
+    "message": "This setting is disabled by your organization's policy.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

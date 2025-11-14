@@ -145,6 +145,7 @@ export default class RuntimeBackground {
             if (totpCode != null) {
               this.platformUtilsService.copyToClipboard(totpCode);
             }
+            await this.main.updateOverlayCiphers();
             break;
           }
           case ExtensionCommand.AutofillCard: {
@@ -256,12 +257,20 @@ export default class RuntimeBackground {
         this.lockedVaultPendingNotifications.push(msg.data);
         break;
       case "lockVault":
-        await this.main.vaultTimeoutService.lock(msg.userId);
+        await this.lockService.lock(msg.userId);
         break;
       case "lockAll":
         {
           await this.lockService.lockAll();
           this.messagingService.send("lockAllFinished", { requestId: msg.requestId });
+        }
+        break;
+      case "lockUser":
+        {
+          await this.lockService.lock(msg.userId);
+          this.messagingService.send("lockUserFinished", {
+            requestId: msg.requestId,
+          });
         }
         break;
       case "logout":

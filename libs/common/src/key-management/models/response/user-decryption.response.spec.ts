@@ -1,14 +1,12 @@
 // eslint-disable-next-line no-restricted-imports
 import { KdfType } from "@bitwarden/key-management";
 
-import { makeEncString } from "../../../../spec";
-
 import { UserDecryptionResponse } from "./user-decryption.response";
 
 describe("UserDecryptionResponse", () => {
   it("should create response when masterPasswordUnlock provided", () => {
     const salt = "test@example.com";
-    const encryptedUserKey = makeEncString("testUserKey");
+    const encryptedUserKey = "testUserKey";
     const kdfIterations = 600_000;
 
     const response = {
@@ -18,7 +16,7 @@ describe("UserDecryptionResponse", () => {
           KdfType: KdfType.PBKDF2_SHA256 as number,
           Iterations: kdfIterations,
         },
-        MasterKeyEncryptedUserKey: encryptedUserKey.encryptedString,
+        MasterKeyEncryptedUserKey: encryptedUserKey,
       },
     };
 
@@ -35,9 +33,14 @@ describe("UserDecryptionResponse", () => {
     );
   });
 
-  it("should create response when masterPasswordUnlock is not provided", () => {
-    const userDecryptionResponse = new UserDecryptionResponse({});
+  it.each([null, undefined, "should be object type"])(
+    "should create response when masterPasswordUnlock is %s",
+    (masterPasswordUnlock) => {
+      const userDecryptionResponse = new UserDecryptionResponse({
+        MasterPasswordUnlock: masterPasswordUnlock,
+      });
 
-    expect(userDecryptionResponse.masterPasswordUnlock).toBeUndefined();
-  });
+      expect(userDecryptionResponse.masterPasswordUnlock).toBeUndefined();
+    },
+  );
 });

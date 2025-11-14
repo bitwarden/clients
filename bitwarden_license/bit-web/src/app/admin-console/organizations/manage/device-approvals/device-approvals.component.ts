@@ -6,7 +6,7 @@ import { BehaviorSubject, Subject, switchMap, takeUntil, tap } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
-import { Devices } from "@bitwarden/assets/svg";
+import { DevicesIcon } from "@bitwarden/assets/svg";
 import { OrganizationAuthRequestApiService } from "@bitwarden/bit-common/admin-console/auth-requests/organization-auth-request-api.service";
 import { OrganizationAuthRequestService } from "@bitwarden/bit-common/admin-console/auth-requests/organization-auth-request.service";
 import { PendingAuthRequestWithFingerprintView } from "@bitwarden/bit-common/admin-console/auth-requests/pending-auth-request-with-fingerprint.view";
@@ -24,6 +24,8 @@ import { KeyService } from "@bitwarden/key-management";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared/shared.module";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-org-device-approvals",
   templateUrl: "./device-approvals.component.html",
@@ -51,7 +53,7 @@ export class DeviceApprovalsComponent implements OnInit, OnDestroy {
   loading = true;
   actionInProgress = false;
 
-  protected readonly Devices = Devices;
+  protected readonly DevicesIcon = DevicesIcon;
 
   private destroy$ = new Subject<void>();
   private refresh$ = new BehaviorSubject<void>(null);

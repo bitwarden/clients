@@ -83,8 +83,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     unsetMostRecentlyFocusedField: () => this.unsetMostRecentlyFocusedField(),
     checkIsMostRecentlyFocusedFieldWithinViewport: () =>
       this.checkIsMostRecentlyFocusedFieldWithinViewport(),
-    bgUnlockPopoutOpened: () => this.blurMostRecentlyFocusedField(true),
     bgVaultItemRepromptPopoutOpened: () => this.blurMostRecentlyFocusedField(true),
+    bgUnlockPopoutOpened: () => this.blurMostRecentlyFocusedField(true),
     redirectAutofillInlineMenuFocusOut: ({ message }) =>
       this.redirectInlineMenuFocusOut(message?.data?.direction),
     getSubFrameOffsets: ({ message }) => this.getSubFrameOffsets(message),
@@ -974,6 +974,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       inlineMenuFillType: autofillFieldData?.inlineMenuFillType,
       showPasskeys: !!autofillFieldData?.showPasskeys,
       accountCreationFieldType: autofillFieldData?.accountCreationFieldType,
+      focusedFieldForm: autofillFieldData?.form,
+      focusedFieldOpid: autofillFieldData?.opid,
     };
 
     const allFields = this.formFieldElements;
@@ -1084,7 +1086,15 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         pageDetails,
       )
     ) {
-      this.setQualifiedAccountCreationFillType(autofillFieldData);
+      const hasUsernameField = [...this.formFieldElements.values()].some((field) =>
+        this.inlineMenuFieldQualificationService.isUsernameField(field),
+      );
+
+      if (hasUsernameField) {
+        void this.setQualifiedLoginFillType(autofillFieldData);
+      } else {
+        this.setQualifiedAccountCreationFillType(autofillFieldData);
+      }
       return false;
     }
 
@@ -1484,11 +1494,16 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     frameId?: number,
   ): SubFrameOffsetData {
     const iframeRect = iframeElement.getBoundingClientRect();
+    const iframeRectHasSize = iframeRect.width > 0 && iframeRect.height > 0;
     const iframeStyles = globalThis.getComputedStyle(iframeElement);
     const paddingLeft = parseInt(iframeStyles.getPropertyValue("padding-left")) || 0;
     const paddingTop = parseInt(iframeStyles.getPropertyValue("padding-top")) || 0;
     const borderWidthLeft = parseInt(iframeStyles.getPropertyValue("border-left-width")) || 0;
     const borderWidthTop = parseInt(iframeStyles.getPropertyValue("border-top-width")) || 0;
+
+    if (!iframeRect || !iframeRectHasSize || !iframeElement.isConnected) {
+      return null;
+    }
 
     return {
       url: subFrameUrl,
@@ -1523,6 +1538,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
           subFrameData.url,
           subFrameData.frameId,
         );
+
+        if (!subFrameOffsets) {
+          return;
+        }
 
         subFrameData.top += subFrameOffsets.top;
         subFrameData.left += subFrameOffsets.left;
@@ -1655,10 +1674,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     });
     globalThis.addEventListener(EVENTS.RESIZE, repositionHandler);
   }
-
-  private shouldRepositionSubFrameInlineMenuOnScroll = async () => {
-    return await this.sendExtensionMessage("shouldRepositionSubFrameInlineMenuOnScroll");
-  };
 
   /**
    * Removes the listeners that facilitate repositioning

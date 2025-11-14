@@ -28,6 +28,8 @@ import { RoutedVaultFilterService } from "../../../../vault/individual-vault/vau
 import { AdminConsoleCipherFormConfigService } from "../../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import { ExposedPasswordsReportComponent as BaseExposedPasswordsReportComponent } from "../exposed-passwords-report.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-org-exposed-passwords-report",
   templateUrl: "../exposed-passwords-report.component.html",
@@ -90,7 +92,7 @@ export class ExposedPasswordsReportComponent
   }
 
   getAllCiphers(): Promise<CipherView[]> {
-    return this.cipherService.getAllFromApiForOrganization(this.organization.id);
+    return this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
   }
 
   canManageCipher(c: CipherView): boolean {

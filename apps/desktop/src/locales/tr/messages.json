@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Bu kaydı düzenleme yetkisine sahip değilsiniz"
+  },
   "welcomeBack": {
     "message": "Tekrar hoş geldiniz"
   },
@@ -238,16 +241,16 @@
     "message": "SSH agent'ı etkinleştir"
   },
   "enableSshAgentDesc": {
-    "message": "Enable the SSH agent to sign SSH requests right from your Bitwarden vault."
+    "message": "SSH aracısını doğrudan Bitwarden kasanızdan SSH isteklerini imzalaması için etkinleştirin."
   },
   "enableSshAgentHelp": {
     "message": "SSH aracısı, SSH isteklerini doğrudan Bitwarden kasanızdan imzalamanıza olanak tanıyan, geliştiricileri hedefleyen bir hizmettir."
   },
   "sshAgentPromptBehavior": {
-    "message": "Ask for authorization when using SSH agent"
+    "message": "SSH aracısını kullanırken yetkilendirme iste"
   },
   "sshAgentPromptBehaviorDesc": {
-    "message": "Choose how to handle SSH-agent authorization requests."
+    "message": "SSH aracısı yetkilendirme isteklerinin nasıl ele alınacağını seçin."
   },
   "sshAgentPromptBehaviorHelp": {
     "message": "SSH yetkilerini hatırla"
@@ -280,11 +283,11 @@
     "message": "Bitwarden, aşağıda listelenen kasa öğelerinin şifresini çözemedi."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Müşteri ekibi ile başarıyla iletişime geçtin",
+    "message": "Müşteri hizmetleriyle iletişime geçerek",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "ek veri kaybını önlemek için.",
+    "message": "daha fazla veri kaybının önüne geçebilirsiniz.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
@@ -470,7 +473,7 @@
     "message": "Formlardaki onay kutularını (örn. \"e-posta adresimi hatırla\") otomatik doldurmak isterseniz onay kutularını kullanın"
   },
   "linkedHelpText": {
-    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+    "message": "Belirli bir web sitesi için otomatik doldurma sorunları yaşıyorsanız bağlantılı bir alan kullanın."
   },
   "linkedLabelHelpText": {
     "message": "Alanın html kimliğini (id), adını (name), aria-label etiketini veya yer tutucusunu (placeholder) girin."
@@ -760,7 +763,7 @@
     "message": "Kimlik doğrulama uygulamanızdaki kodu girin"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Doğrulamak için Yubikey'inize basın"
+    "message": "Kimliğinizi doğrulamak için YubiKey’inize dokunun"
   },
   "logInWithPasskey": {
     "message": "Geçiş anahtarıyla giriş yap"
@@ -770,6 +773,9 @@
   },
   "useSingleSignOn": {
     "message": "Çoklu oturum açma kullan"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Kuruluşunuz çoklu oturum açma gerektiriyor."
   },
   "submit": {
     "message": "Gönder"
@@ -960,9 +966,6 @@
   "insertU2f": {
     "message": "Güvenlik anahtarınızı bilgisayarınızın USB portuna takın. Bir düğmesi varsa dokunun."
   },
-  "recoveryCodeDesc": {
-    "message": "İki aşamalı doğrulama sağlayıcılarınıza ulaşamıyor musunuz? Kurtarma kodunuzu kullanarak hesabınızdaki tüm iki aşamalı giriş sağlayıcılarını devre dışı bırakabilirsiniz."
-  },
   "recoveryCodeTitle": {
     "message": "Kurtarma kodu"
   },
@@ -1034,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Temel Sunucu URL’sini veya en az bir özel ortam eklemelisiniz."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL'ler HTTPS kullanmalıdır."
   },
   "customEnvironment": {
     "message": "Özel ortam"
@@ -1224,6 +1230,15 @@
   },
   "invalidMasterPassword": {
     "message": "Geçersiz ana parola"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Ana parola geçersiz. E-posta adresinizin doğru olduğunu ve hesabınızın $HOST$ üzerinde oluşturulduğunu kontrol edin.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "twoStepLoginConfirmation": {
     "message": "İki aşamalı giriş, hesabınıza girererken işlemi bir güvenlik anahtarı, şifrematik uygulaması, SMS, telefon araması veya e-posta gibi ek bir yöntemle doğrulamanızı isteyerek hesabınızın güvenliğini artırır. İki aşamalı giriş özelliğini bitwarden.com web kasası üzerinden ayarlayabilirsiniz. Şimdi siteye gitmek ister misiniz?"
@@ -1749,7 +1764,7 @@
     "message": "Kart öge türleri içe aktarılamıyor"
   },
   "restrictCardTypeImportDesc": {
-    "message": "1 veya daha fazla kuruluş tarafından belirlenen bir ilke, kasalarınıza kart aktarmanızı engeller."
+    "message": "1 veya daha fazla kuruluş tarafından belirlenen bir ilke, kasalarınıza kart aktarmanızı engelliyor."
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Dosya parolası\" ile \"Dosya parolasını onaylayın\" eşleşmiyor."
@@ -1845,6 +1860,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Yeniden başlatmada ana parola ile kilitle"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Uygulama yeniden başlatıldığında ana parola veya PIN iste"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Uygulama yeniden başlatıldığında ana parola iste"
   },
   "deleteAccount": {
     "message": "Hesabı sil"
@@ -2543,6 +2564,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum özel zaman aşımı 1 dakikadır."
+  },
   "inviteAccepted": {
     "message": "Davet kabul edildi"
   },
@@ -2654,6 +2678,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -3622,11 +3664,11 @@
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "\"Düzenli ifadeler\" gelişmiş bir seçenektir ve kimlik bilgilerini açığa çıkarma riski taşır.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "\"İle başla\" gelişmiş bir seçenektir ve kimlik bilgilerini açığa çıkarma riski taşır.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
@@ -3777,19 +3819,19 @@
     "message": "SSH anahtar kullanımını onayla"
   },
   "agentForwardingWarningTitle": {
-    "message": "Warning: Agent Forwarding"
+    "message": "Uyarı: Aracı Yönlendirme"
   },
   "agentForwardingWarningText": {
     "message": "Bu istek, oturum açtığınız uzak bir cihazdan gelir"
   },
   "sshkeyApprovalMessageInfix": {
-    "message": "is requesting access to"
+    "message": "erişim istiyor"
   },
   "sshkeyApprovalMessageSuffix": {
-    "message": "in order to"
+    "message": "amacıyla"
   },
   "sshActionLogin": {
-    "message": "authenticate to a server"
+    "message": "bir sunucuya kimlik doğrulamak"
   },
   "sshActionSign": {
     "message": "bir iletiyi imzala"
@@ -3835,6 +3877,12 @@
   },
   "changeAtRiskPassword": {
     "message": "Risk altındaki parolayı değiştirin"
+  },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Bu hesap risk altında ve web sitesi eksik. Bir web sitesi ekleyin ve güvenliğinizi artırmak için parolayı değiştirin."
+  },
+  "missingWebsite": {
+    "message": "Web sitesi eksik"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Yalnızca Görüntüleme izinlerine sahip koleksiyonları kaldıramazsınız: $COLLECTIONS$",
@@ -3935,7 +3983,7 @@
     "message": "Bu ayar hakkında"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden, deneyiminizi iyileştirmek için hangi simgenin veya şifre değiştirme URL'sinin kullanılması gerektiğini belirlemek için kayıtlı giriş URI'lerini kullanacaktır. Bu hizmeti kullandığınızda hiçbir bilgi toplanmaz veya kaydedilmez."
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "Koleksiyonlara ata"
@@ -4077,14 +4125,20 @@
   "showLess": {
     "message": "Daha az göster"
   },
-  "enableAutotype": {
-    "message": "Enable Autotype"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden giriş konumlarını doğrulamaz, kısayolu kullanmadan önce doğru pencerede ve alanda olduğunuzdan emin olun."
   },
+  "typeShortcut": {
+    "message": "Kısayolu yazın"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Geçersiz kısayol"
+  },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Daha fazla gezinme izi",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "next": {
@@ -4096,13 +4150,75 @@
   "confirm": {
     "message": "Onayla"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Verilerin yanlış yere doldurulmasını önlemek için kısayolu kullanmadan önce doğru alanda olduğunuzdan emin olun."
   },
   "editShortcut": {
     "message": "Kısayolu düzenle"
+  },
+  "archiveNoun": {
+    "message": "Arşiv",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Arşivle",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Arşivden çıkar"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Kayıt arşive gönderildi"
+  },
+  "itemWasUnarchived": {
+    "message": "Kayıt arşivden çıkarıldı"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / posta kodu"
+  },
+  "cardNumberLabel": {
+    "message": "Kart numarası"
+  },
+  "upgradeNow": {
+    "message": "Şimdi yükselt"
+  },
+  "builtInAuthenticator": {
+    "message": "Dahili kimlik doğrulayıcı"
+  },
+  "secureFileStorage": {
+    "message": "Güvenli dosya depolama"
+  },
+  "emergencyAccess": {
+    "message": "Acil durum erişimi"
+  },
+  "breachMonitoring": {
+    "message": "İhlal izleme"
+  },
+  "andMoreFeatures": {
+    "message": "Ve daha fazlası!"
+  },
+  "planDescPremium": {
+    "message": "Eksiksiz çevrimiçi güvenlik"
+  },
+  "upgradeToPremium": {
+    "message": "Premium'a yükselt"
   }
 }

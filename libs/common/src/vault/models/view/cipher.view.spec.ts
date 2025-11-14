@@ -109,6 +109,72 @@ describe("CipherView", () => {
       expect(actual.key).toBeInstanceOf(EncString);
       expect(actual.key?.toJSON()).toBe(cipherKeyObject.toJSON());
     });
+
+    it("fromJSON should always restore top-level CipherView properties", () => {
+      jest.spyOn(LoginView, "fromJSON").mockImplementation(mockFromJson);
+      // Create a fully populated CipherView instance
+      const original = new CipherView();
+      original.id = "test-id";
+      original.organizationId = "org-id";
+      original.folderId = "folder-id";
+      original.name = "test-name";
+      original.notes = "test-notes";
+      original.type = CipherType.Login;
+      original.favorite = true;
+      original.organizationUseTotp = true;
+      original.permissions = new CipherPermissionsApi();
+      original.edit = true;
+      original.viewPassword = false;
+      original.localData = { lastUsedDate: Date.now() };
+      original.login = new LoginView();
+      original.identity = new IdentityView();
+      original.card = new CardView();
+      original.secureNote = new SecureNoteView();
+      original.sshKey = new SshKeyView();
+      original.attachments = [];
+      original.fields = [];
+      original.passwordHistory = [];
+      original.collectionIds = ["collection-1"];
+      original.revisionDate = new Date("2022-01-01");
+      original.creationDate = new Date("2022-01-02");
+      original.deletedDate = new Date("2022-01-03");
+      original.archivedDate = new Date("2022-01-04");
+      original.reprompt = CipherRepromptType.Password;
+      original.key = new EncString("test-key");
+      original.decryptionFailure = true;
+
+      // Serialize and deserialize
+      const json = original.toJSON();
+      const restored = CipherView.fromJSON(json as any);
+
+      // Get all enumerable properties from the original instance
+      const originalProps = Object.keys(original);
+
+      // Check that all properties exist on the restored instance
+      for (const prop of originalProps) {
+        try {
+          expect(restored).toHaveProperty(prop);
+        } catch {
+          throw new Error(`Property '${prop}' is missing from restored instance`);
+        }
+
+        // For non-function, non-getter properties, verify the value is defined
+        const descriptor = Object.getOwnPropertyDescriptor(CipherView.prototype, prop);
+        if (!descriptor?.get && typeof (original as any)[prop] !== "function") {
+          try {
+            expect((restored as any)[prop]).toBeDefined();
+          } catch {
+            throw new Error(`Property '${prop}' is undefined in restored instance`);
+          }
+        }
+      }
+
+      // Verify restored instance has the same properties as original
+      const restoredProps = Object.keys(restored!).sort();
+      const sortedOriginalProps = originalProps.sort();
+
+      expect(restoredProps).toEqual(sortedOriginalProps);
+    });
   });
 
   describe("fromSdkCipherView", () => {
@@ -163,6 +229,7 @@ describe("CipherView", () => {
         creationDate: "2022-01-01T12:00:00.000Z",
         revisionDate: "2022-01-02T12:00:00.000Z",
         deletedDate: undefined,
+        archivedDate: undefined,
       };
     });
 
@@ -179,15 +246,12 @@ describe("CipherView", () => {
         folderId: "folderId",
         collectionIds: ["collectionId"],
         name: "name",
-        notes: null,
         type: CipherType.Login,
         favorite: true,
         edit: true,
         reprompt: CipherRepromptType.None,
         organizationUseTotp: false,
         viewPassword: true,
-        localData: undefined,
-        permissions: undefined,
         attachments: [
           {
             id: "attachmentId",
@@ -223,7 +287,6 @@ describe("CipherView", () => {
         passwordHistory: [],
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
         revisionDate: new Date("2022-01-02T12:00:00.000Z"),
-        deletedDate: null,
       });
     });
   });
@@ -282,18 +345,12 @@ describe("CipherView", () => {
           restore: true,
           delete: true,
         },
-        deletedDate: undefined,
         creationDate: "2022-01-02T12:00:00.000Z",
         revisionDate: "2022-01-02T12:00:00.000Z",
         attachments: [],
         passwordHistory: [],
-        login: undefined,
-        identity: undefined,
-        card: undefined,
-        secureNote: undefined,
-        sshKey: undefined,
         fields: [],
-      } as SdkCipherView);
+      });
     });
   });
 });

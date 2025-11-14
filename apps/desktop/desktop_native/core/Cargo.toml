@@ -26,12 +26,13 @@ bitwarden-russh = { workspace = true }
 byteorder = { workspace = true }
 bytes = { workspace = true }
 cbc = { workspace = true, features = ["alloc"] }
+chacha20poly1305 = { workspace = true }
 dirs = { workspace = true }
 ed25519 = { workspace = true, features = ["pkcs8"] }
 futures = { workspace = true }
 homedir = { workspace = true }
 interprocess = { workspace = true, features = ["tokio"] }
-log = { workspace = true }
+memsec = { workspace = true, features = ["alloc_ext"] }
 pin-project = { workspace = true }
 pkcs8 = { workspace = true, features = ["alloc", "encryption", "pem"] }
 rand = { workspace = true }
@@ -39,6 +40,8 @@ rsa = { workspace = true }
 russh-cryptovec = { workspace = true }
 scopeguard = { workspace = true }
 secmem-proc = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
 sha2 = { workspace = true }
 ssh-encoding = { workspace = true }
 ssh-key = { workspace = true, features = [
@@ -52,6 +55,7 @@ thiserror = { workspace = true }
 tokio = { workspace = true, features = ["io-util", "sync", "macros", "net"] }
 tokio-stream = { workspace = true, features = ["net"] }
 tokio-util = { workspace = true, features = ["codec"] }
+tracing = { workspace = true }
 typenum = { workspace = true }
 zeroizing-alloc = { workspace = true }
 
@@ -64,6 +68,7 @@ windows = { workspace = true, features = [
     "Storage_Streams",
     "Win32_Foundation",
     "Win32_Security_Credentials",
+    "Win32_Security_Cryptography",
     "Win32_System_WinRT",
     "Win32_UI_Input_KeyboardAndMouse",
     "Win32_UI_WindowsAndMessaging",
@@ -83,6 +88,7 @@ desktop_objc = { path = "../objc" }
 [target.'cfg(target_os = "linux")'.dependencies]
 oo7 = { workspace = true }
 libc = { workspace = true }
+linux-keyutils = { workspace = true }
 ashpd = { workspace = true }
 
 zbus = { workspace = true, optional = true }

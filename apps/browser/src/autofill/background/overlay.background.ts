@@ -1127,11 +1127,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     { inlineMenuCipherId, usePasskey }: OverlayPortMessage,
     { sender }: chrome.runtime.Port,
   ) {
+    await BrowserApi.tabSendMessage(
+      sender.tab,
+      { command: "collectPageDetails" },
+      { frameId: this.focusedFieldData?.frameId },
+    );
+
     const pageDetailsForTab = this.pageDetailsForTab[sender.tab.id];
     if (!inlineMenuCipherId || !pageDetailsForTab?.size) {
       return;
     }
-
     const cipher = this.inlineMenuCiphers.get(inlineMenuCipherId);
     if (usePasskey && cipher.login?.hasFido2Credentials) {
       await this.authenticatePasskeyCredential(
@@ -1170,6 +1175,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       pageDetails,
       fillNewPassword: true,
       allowTotpAutofill: true,
+      focusedFieldForm: this.focusedFieldData?.focusedFieldForm,
+      focusedFieldOpid: this.focusedFieldData?.focusedFieldOpid,
     });
 
     if (totpCode) {
@@ -1232,7 +1239,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param details - The web request details
    */
   private handlePasskeyAuthenticationOnCompleted = (
-    details: chrome.webRequest.WebResponseCacheDetails,
+    details: chrome.webRequest.OnCompletedDetails,
   ) => {
     chrome.webRequest.onCompleted.removeListener(this.handlePasskeyAuthenticationOnCompleted);
 
@@ -1854,6 +1861,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       pageDetails,
       fillNewPassword: true,
       allowTotpAutofill: false,
+      focusedFieldForm: this.focusedFieldData?.focusedFieldForm,
+      focusedFieldOpid: this.focusedFieldData?.focusedFieldOpid,
     });
 
     globalThis.setTimeout(async () => {
@@ -2102,7 +2111,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       "addToLockedVaultPendingNotifications",
       retryMessage,
     );
-    await this.openUnlockPopout(sender.tab, true);
+    await this.openUnlockPopout(sender.tab);
   }
 
   /**

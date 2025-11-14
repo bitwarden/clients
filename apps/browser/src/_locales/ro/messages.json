@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Autentificare unică"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Bine ați revenit"
   },
@@ -550,11 +553,46 @@
   "resetSearch": {
     "message": "Reset search"
   },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
   "edit": {
     "message": "Editare"
   },
   "view": {
     "message": "Afișare"
+  },
+  "viewAll": {
+    "message": "View all"
   },
   "viewLogin": {
     "message": "View login"
@@ -700,6 +738,15 @@
   },
   "invalidMasterPassword": {
     "message": "Parolă principală incorectă"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Expirare seif"
@@ -986,6 +1033,18 @@
   },
   "editedItem": {
     "message": "Articol salvat"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Sigur doriți să trimiteți în coșul de reciclare?"
@@ -1464,12 +1523,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Solicitați date biometrice la pornire"
   },
-  "premiumRequired": {
-    "message": "Premium necesar"
-  },
-  "premiumRequiredDesc": {
-    "message": "Pentru a utiliza această funcție este necesar un abonament Premium."
-  },
   "authenticationTimeout": {
     "message": "Authentication timeout"
   },
@@ -1507,6 +1560,15 @@
   "readSecurityKey": {
     "message": "Read security key"
   },
+  "readingPasskeyLoading": {
+    "message": "Reading passkey..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey authentication failed"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Use a different log in method"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Awaiting security key interaction..."
   },
@@ -1524,9 +1586,6 @@
   },
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
-  },
-  "recoveryCodeDesc": {
-    "message": "Ați pierdut accesul la toți furnizorii de autentificare în două etape? Utilizați codul de recuperare pentru a dezactiva toți acești furnizori din contul dvs."
   },
   "recoveryCodeTitle": {
     "message": "Cod de recuperare"
@@ -1575,6 +1634,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "You must add either the base Server URL or at least one custom environment."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
   },
   "customEnvironment": {
     "message": "Mediu personalizat"
@@ -1629,8 +1691,29 @@
   "turnOffAutofill": {
     "message": "Turn off autofill"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "Show autofill suggestions on form fields"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Display identities as suggestions"
@@ -1685,9 +1768,6 @@
   },
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Puteți dezactiva completarea automată la încărcarea paginii pentru elementele de autentificare individuale din vizualizarea Editare element."
-  },
-  "itemAutoFillOnPageLoad": {
-    "message": "Completare automată la încărcarea paginii (dacă este configurată în Opțiuni)"
   },
   "autoFillOnPageLoadUseDefault": {
     "message": "Utilizați setarea implicită"
@@ -1760,17 +1840,8 @@
   "popup2faCloseMessage": {
     "message": "Dând clic în afara ferestrei pop-up pentru a vă verifica e-mailul pentru codul de verificare, aceasta se va închide. Doriți să deschideți acest pop-up într-o fereastră nouă, astfel încât aceasta să nu se închidă?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Acest browser nu poate procesa cererile U2F în această fereastră pop-up. Doriți să deschideți acest pop-up într-o fereastră nouă, astfel încât să vă puteți conecta utilizând U2F?"
-  },
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
-  },
-  "enableBadgeCounter": {
-    "message": "Afișați contorul de insigne"
-  },
-  "badgeCounterDesc": {
-    "message": "Indică numărul de autentificări pe care le aveți pentru pagina web curentă."
   },
   "cardholderName": {
     "message": "Numele titularului cardului"
@@ -1934,32 +2005,81 @@
   "typeNote": {
     "message": "Note"
   },
-  "newItemHeader": {
-    "message": "New $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Edit $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "View $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Istoric parole"
@@ -3132,11 +3252,32 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Eroare"
   },
   "decryptionError": {
     "message": "Decryption error"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden could not decrypt the vault item(s) listed below."
@@ -3520,9 +3661,6 @@
   },
   "autofillPageLoadPolicyActivated": {
     "message": "Politicile organizației dvs. au activat auto-completarea la încărcarea paginii."
-  },
-  "howToAutofill": {
-    "message": "Instrucțiuni de auto-completare"
   },
   "autofillSelectInfoWithCommand": {
     "message": "Select an item from this screen, use the shortcut $COMMAND$, or explore other options in settings.",
@@ -3908,17 +4046,18 @@
   "aliasDomain": {
     "message": "Alias domain"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Elementele în care parola principală este solicitată din nou nu pot fi completate automat la încărcarea paginii. Completarea automată la încărcarea paginii este dezactivată.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Completarea automată la încărcarea paginii este setată la valoarea implicită.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Dezactivați reintroducerea parolei principale pentru a edita acest câmp",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "Toggle side navigation"
@@ -4188,9 +4327,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Verification required by the initiating site. This feature is not yet implemented for accounts without master password."
   },
   "logInWithPasskeyQuestion": {
     "message": "Log in with passkey?"
@@ -4838,6 +4974,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Default ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "Show match detection $WEBSITE$",
     "placeholders": {
@@ -4876,9 +5022,6 @@
         "example": "Visa"
       }
     }
-  },
-  "enableAnimations": {
-    "message": "Enable animations"
   },
   "showAnimations": {
     "message": "Show animations"
@@ -5092,14 +5235,8 @@
   "itemLocation": {
     "message": "Item Location"
   },
-  "fileSend": {
-    "message": "File Send"
-  },
   "fileSends": {
     "message": "File Sends"
-  },
-  "textSend": {
-    "message": "Text Send"
   },
   "textSends": {
     "message": "Text Sends"
@@ -5160,9 +5297,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Minimum custom timeout is 1 minute."
-  },
-  "additionalContentAvailable": {
-    "message": "Additional content is available"
   },
   "fileSavedToDevice": {
     "message": "File saved to device. Manage from your device downloads."
@@ -5503,6 +5637,38 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Welcome to your vault!"
   },
+  "phishingPageTitleV2": {
+    "message": "Phishing attempt detected"
+  },
+  "phishingPageSummary": {
+    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+  },
+  "phishingPageCloseTabV2": {
+    "message": "Close this tab"
+  },
+  "phishingPageContinueV2": {
+    "message": "Continue to this site (not recommended)"
+  },
+  "phishingPageExplanation1": {
+    "message": "This site was found in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Learn more about phishing detection"
+  },
+  "protectedBy": {
+    "message": "Protected by $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
+  },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"
   },
@@ -5606,5 +5772,42 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Confirm Key Connector domain"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "settingDisabledByPolicy": {
+    "message": "This setting is disabled by your organization's policy.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

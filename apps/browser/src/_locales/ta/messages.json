@@ -10,7 +10,7 @@
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "message": "வீட்டிலோ, வேலையிலோ, பயணத்திலோ, Bitwarden உங்கள் கடவுச்சொற்கள் மற்றும் முக்கிய தகவல்களை எளிதாகப் பாதுகாக்கிறது",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
@@ -30,6 +30,9 @@
   },
   "useSingleSignOn": {
     "message": "ஒற்றை உள்நுழைவைப் பயன்படுத்தவும்"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
   },
   "welcomeBack": {
     "message": "மீண்டும் வருக"
@@ -174,7 +177,7 @@
     "message": "கைரேகையை நகலெடு"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "$FIELD$-ஐ நகலெடு",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -341,7 +344,7 @@
     "message": "வணிகத்திற்கான Bitwarden"
   },
   "bitwardenAuthenticator": {
-    "message": "Bitwarden Authenticator"
+    "message": "Bitwarden அங்கீகரிப்பான்"
   },
   "continueToAuthenticatorPageDesc": {
     "message": "Bitwarden Authenticator ஆனது அங்கீகரிப்பு விசைகளைச் சேமிக்கவும், 2-படி சரிபார்ப்பு ஓட்டங்களுக்கு TOTP குறியீடுகளை உருவாக்கவும் உங்களை அனுமதிக்கிறது. bitwarden.com வலைத்தளத்தில் மேலும் அறிக"
@@ -550,14 +553,49 @@
   "resetSearch": {
     "message": "தேடலை மீட்டமை"
   },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
   "edit": {
     "message": "திருத்து"
   },
   "view": {
     "message": "காண்"
   },
+  "viewAll": {
+    "message": "View all"
+  },
   "viewLogin": {
-    "message": "View login"
+    "message": "உள்நுழைவைக் காண்க"
   },
   "noItemsInList": {
     "message": "பட்டியலிட உருப்படிகள் எதுவும் இல்லை."
@@ -617,7 +655,7 @@
     "message": "வலைத்தளத்தைத் தொடங்கு"
   },
   "launchWebsiteName": {
-    "message": "Launch website $ITEMNAME$",
+    "message": "$ITEMNAME$ வலைத்தளத்தைத் தொடங்கு",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -686,7 +724,7 @@
     "message": "திற"
   },
   "loggedInAsOn": {
-    "message": "Logged in as $EMAIL$ on $HOSTNAME$.",
+    "message": "$HOSTNAME$-இல் $EMAIL$-ஆக உள்நுழைந்துள்ளார்.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -700,6 +738,15 @@
   },
   "invalidMasterPassword": {
     "message": "தவறான முதன்மை கடவுச்சொல்"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "வால்ட் காலக்கெடு"
@@ -987,6 +1034,18 @@
   "editedItem": {
     "message": "உருப்படி சேமிக்கப்பட்டது"
   },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "deleteItemConfirmation": {
     "message": "நீங்கள் உண்மையிலேயே குப்பைக்கு அனுப்ப விரும்புகிறீர்களா?"
   },
@@ -1103,11 +1162,11 @@
     "description": "Shown to user after item is saved."
   },
   "notificationLoginUpdatedConfirmation": {
-    "message": "updated in Bitwarden.",
+    "message": "Bitwarden-இல் புதுப்பிக்கப்பட்டது.",
     "description": "Shown to user after item is updated."
   },
   "selectItemAriaLabel": {
-    "message": "Select $ITEMTYPE$, $ITEMNAME$",
+    "message": "$ITEMTYPE$ஐத் தேர்ந்தெடுக்கவும், $ITEMNAME$",
     "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
     "placeholders": {
       "itemType": {
@@ -1258,63 +1317,63 @@
     "message": "கோப்பு வடிவம்"
   },
   "fileEncryptedExportWarningDesc": {
-    "message": "This file export will be password protected and require the file password to decrypt."
+    "message": "இந்த கோப்பு ஏற்றுமதி கடவுச்சொல் பாதுகாக்கப்பட்டதாக இருக்கும் மற்றும் அதைத் திறக்க கோப்பு கடவுச்சொல் தேவைப்படும்."
   },
   "filePassword": {
-    "message": "File password"
+    "message": "கோப்பு கடவுச்சொல்"
   },
   "exportPasswordDescription": {
-    "message": "This password will be used to export and import this file"
+    "message": "இந்த கடவுச்சொல், இந்தக் கோப்பை ஏற்றுமதி செய்வதற்கும் இறக்குமதி செய்வதற்கும் பயன்படுத்தப்படும்"
   },
   "accountRestrictedOptionDescription": {
-    "message": "Use your account encryption key, derived from your account's username and Master Password, to encrypt the export and restrict import to only the current Bitwarden account."
+    "message": "ஏற்றுமதியை என்க்ரிப்ட் செய்யவும், தற்போதைய Bitwarden கணக்கிற்கு மட்டுமே இறக்குமதி செய்வதைக் கட்டுப்படுத்தவும் உங்கள் கணக்கின் பயனர்பெயர் மற்றும் முதன்மைக் கடவுச்சொல்லிலிருந்து பெறப்பட்ட உங்கள் கணக்கின் என்க்ரிப்ஷன் கீயை பயன்படுத்தவும்."
   },
   "passwordProtectedOptionDescription": {
-    "message": "Set a file password to encrypt the export and import it to any Bitwarden account using the password for decryption."
+    "message": "ஏற்றுமதியை என்க்ரிப்ட் செய்ய ஒரு கோப்பு கடவுச்சொல்லை அமைத்து, அதை டீக்ரிப்ட் செய்ய கடவுச்சொல்லைப் பயன்படுத்தி, அதை எந்த Bitwarden கணக்கிற்கும் இறக்குமதி செய்யவும்."
   },
   "exportTypeHeading": {
-    "message": "Export type"
+    "message": "ஏற்றுமதி வகை"
   },
   "accountRestricted": {
-    "message": "Account restricted"
+    "message": "கணக்கு கட்டுப்படுத்தப்பட்டது"
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "“File password”  and “Confirm file password“ do not match."
+    "message": "“கோப்பு கடவுச்சொல்” மற்றும் “கோப்பு கடவுச்சொல்லை உறுதிப்படுத்து“ ஆகியவை பொருந்தவில்லை."
   },
   "warning": {
-    "message": "WARNING",
+    "message": "எச்சரிக்கை",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "எச்சரிக்கை",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "confirmVaultExport": {
-    "message": "Confirm vault export"
+    "message": "வால்ட் ஏற்றுமதியை உறுதிப்படுத்துக"
   },
   "exportWarningDesc": {
-    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over unsecure channels (such as email). Delete it immediately after you are done using it."
+    "message": "இந்த ஏற்றுமதியில், உங்கள் வால்ட் டேட்டா என்க்ரிப்ட் செய்யப்படாத வடிவத்தில் உள்ளது. ஏற்றுமதி செய்யப்பட்ட கோப்பை பாதுகாப்பற்ற சேனல்கள் (மின்னஞ்சல் போன்றவை) வழியாக சேமிக்கவோ அல்லது அனுப்பவோ கூடாது. அதைப் பயன்படுத்தி முடித்தவுடன் உடனடியாக அதை நீக்கிவிடவும்."
   },
   "encExportKeyWarningDesc": {
-    "message": "This export encrypts your data using your account's encryption key. If you ever rotate your account's encryption key you should export again since you will not be able to decrypt this export file."
+    "message": "இந்த ஏற்றுமதி உங்கள் கணக்கின் என்க்ரிப்ஷன் கீயைப் பயன்படுத்தி உங்கள் டேட்டாவை என்க்ரிப்ட் செய்கிறது. உங்கள் கணக்கின் என்க்ரிப்ஷன் கீயை நீங்கள் மாற்றினால், நீங்கள் மீண்டும் ஏற்றுமதி செய்ய வேண்டும், ஏனெனில் உங்களால் இந்த ஏற்றுமதி கோப்பை டீக்ரிப்ட் செய்ய முடியாது."
   },
   "encExportAccountWarningDesc": {
-    "message": "Account encryption keys are unique to each Bitwarden user account, so you can't import an encrypted export into a different account."
+    "message": "கணக்கு என்க்ரிப்ஷன் கீகள் ஒவ்வொரு Bitwarden பயனர் கணக்கிற்கும் தனித்துவமானது, எனவே என்க்ரிப்ட் செய்யப்பட்ட ஏற்றுமதியை வேறொரு கணக்கில் இறக்குமதி செய்ய முடியாது."
   },
   "exportMasterPassword": {
-    "message": "Enter your master password to export your vault data."
+    "message": "உங்கள் வால்ட் டேட்டாவை ஏற்றுமதி செய்ய உங்கள் முதன்மைக் கடவுச்சொல்லை உள்ளிடவும்."
   },
   "shared": {
-    "message": "Shared"
+    "message": "பகிரப்பட்டது"
   },
   "bitwardenForBusinessPageDesc": {
-    "message": "Bitwarden for Business allows you to share your vault items with others by using an organization. Learn more on the bitwarden.com website."
+    "message": "Bitwarden for Business ஒரு அமைப்பைப் பயன்படுத்தி மற்றவர்களுடன் உங்கள் வால்ட் பொருட்களைப் பகிர உங்களை அனுமதிக்கிறது. bitwarden.com வலைத்தளத்தில் மேலும் அறிக."
   },
   "moveToOrganization": {
-    "message": "Move to organization"
+    "message": "அமைப்புக்கு நகர்த்து"
   },
   "movedItemToOrg": {
-    "message": "$ITEMNAME$ moved to $ORGNAME$",
+    "message": "$ITEMNAME$ $ORGNAME$-க்கு நகர்த்தப்பட்டது",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1327,115 +1386,115 @@
     }
   },
   "moveToOrgDesc": {
-    "message": "Choose an organization that you wish to move this item to. Moving to an organization transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved."
+    "message": "இந்த பொருளை எந்த அமைப்புக்கு நகர்த்த விரும்புகிறீர்கள் என்பதைத் தேர்ந்தெடுக்கவும். ஒரு அமைப்புக்கு நகர்த்துவது அந்த பொருளின் உரிமையை அந்த அமைப்புக்கு மாற்றுகிறது. அது நகர்த்தப்பட்டவுடன் நீங்கள் இனி இந்த பொருளின் நேரடி உரிமையாளராக இருக்க மாட்டீர்கள்."
   },
   "learnMore": {
-    "message": "Learn more"
+    "message": "மேலும் அறிக"
   },
   "authenticatorKeyTotp": {
-    "message": "Authenticator key (TOTP)"
+    "message": "அங்கீகரிப்பு விசை (TOTP)"
   },
   "verificationCodeTotp": {
-    "message": "Verification code (TOTP)"
+    "message": "சரிபார்ப்புக் குறியீடு (TOTP)"
   },
   "copyVerificationCode": {
-    "message": "Copy verification code"
+    "message": "சரிபார்ப்புக் குறியீட்டை நகலெடு"
   },
   "attachments": {
-    "message": "Attachments"
+    "message": "இணைப்புகள்"
   },
   "deleteAttachment": {
-    "message": "Delete attachment"
+    "message": "இணைப்பை நீக்கு"
   },
   "deleteAttachmentConfirmation": {
-    "message": "Are you sure you want to delete this attachment?"
+    "message": "இந்த இணைப்பை நீக்க நீங்கள் உறுதியாக உள்ளீர்களா?"
   },
   "deletedAttachment": {
-    "message": "Attachment deleted"
+    "message": "இணைப்பு நீக்கப்பட்டது"
   },
   "newAttachment": {
-    "message": "Add new attachment"
+    "message": "புதிய இணைப்பைச் சேர்"
   },
   "noAttachments": {
-    "message": "No attachments."
+    "message": "இணைப்புகள் இல்லை."
   },
   "attachmentSaved": {
-    "message": "Attachment saved"
+    "message": "இணைப்பு சேமிக்கப்பட்டது"
   },
   "file": {
-    "message": "File"
+    "message": "கோப்பு"
   },
   "fileToShare": {
-    "message": "File to share"
+    "message": "பகிர வேண்டிய கோப்பு"
   },
   "selectFile": {
-    "message": "Select a file"
+    "message": "ஒரு கோப்பைத் தேர்ந்தெடுக்கவும்"
   },
   "maxFileSize": {
-    "message": "Maximum file size is 500 MB."
+    "message": "அதிகபட்ச கோப்பு அளவு 500 MB ஆகும்."
   },
   "featureUnavailable": {
-    "message": "Feature unavailable"
+    "message": "வசதி கிடைக்கவில்லை"
   },
   "legacyEncryptionUnsupported": {
-    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
+    "message": "மரபு என்க்ரிப்ஷன் இனி ஆதரிக்கப்படாது. உங்கள் கணக்கை மீட்டெடுக்க ஆதரவைத் தொடர்பு கொள்ளவும்."
   },
   "premiumMembership": {
-    "message": "Premium membership"
+    "message": "பிரீமியம் மெம்பர்ஷிப்"
   },
   "premiumManage": {
-    "message": "Manage membership"
+    "message": "மெம்பர்ஷிப்பை நிர்வகி"
   },
   "premiumManageAlert": {
-    "message": "You can manage your membership on the bitwarden.com web vault. Do you want to visit the website now?"
+    "message": "bitwarden.com வலை வால்ட்டில் உங்கள் மெம்பர்ஷிப்பை நீங்கள் நிர்வகிக்கலாம். இப்போது வலைத்தளத்தைப் பார்வையிட விரும்புகிறீர்களா?"
   },
   "premiumRefresh": {
-    "message": "Refresh membership"
+    "message": "மெம்பர்ஷிப்பை ரெஃப்ரெஷ் செய்"
   },
   "premiumNotCurrentMember": {
-    "message": "You are not currently a Premium member."
+    "message": "நீங்கள் தற்போது பிரீமியம் மெம்பர் இல்லை."
   },
   "premiumSignUpAndGet": {
-    "message": "Sign up for a Premium membership and get:"
+    "message": "ஒரு பிரீமியம் மெம்பர்ஷிப்பிற்கு சைன் அப் செய்து பெறுங்கள்:"
   },
   "ppremiumSignUpStorage": {
-    "message": "1 GB encrypted storage for file attachments."
+    "message": "கோப்பு இணைப்புகளுக்கு 1 GB என்க்ரிப்ட் செய்யப்பட்ட ஸ்டோரேஜ்."
   },
   "premiumSignUpEmergency": {
-    "message": "Emergency access."
+    "message": "அவசர அணுகல்."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "Proprietary two-step login options such as YubiKey and Duo."
+    "message": "YubiKey மற்றும் Duo போன்ற பிரத்யேக டூ-ஸ்டெப் உள்நுழைவு விருப்பங்கள்."
   },
   "ppremiumSignUpReports": {
-    "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
+    "message": "உங்கள் வால்ட்டைப் பாதுகாப்பாக வைத்திருக்க கடவுச்சொல் சுகாதாரம், கணக்கின் ஆரோக்கியம் மற்றும் டேட்டா மீறல் அறிக்கைகள்."
   },
   "ppremiumSignUpTotp": {
-    "message": "TOTP verification code (2FA) generator for logins in your vault."
+    "message": "உங்கள் வால்ட்டில் உள்நுழைவுகளுக்கான TOTP சரிபார்ப்புக் குறியீடு (2FA) ஜெனரேட்டர்."
   },
   "ppremiumSignUpSupport": {
-    "message": "Priority customer support."
+    "message": "முன்னுரிமை வாடிக்கையாளர் ஆதரவு."
   },
   "ppremiumSignUpFuture": {
-    "message": "All future Premium features. More coming soon!"
+    "message": "எதிர்கால பிரீமியம் அம்சங்கள் அனைத்தும். மேலும் பல விரைவில் வருகிறது!"
   },
   "premiumPurchase": {
-    "message": "Purchase Premium"
+    "message": "பிரீமியம் வாங்கு"
   },
   "premiumPurchaseAlertV2": {
-    "message": "You can purchase Premium from your account settings on the Bitwarden web app."
+    "message": "Bitwarden வலை செயலியில் உங்கள் கணக்கு அமைப்புகளிலிருந்து பிரீமியம் வாங்கலாம்."
   },
   "premiumCurrentMember": {
-    "message": "You are a Premium member!"
+    "message": "நீங்கள் ஒரு பிரீமியம் மெம்பர்!"
   },
   "premiumCurrentMemberThanks": {
-    "message": "Thank you for supporting Bitwarden."
+    "message": "Bitwarden-ஐ ஆதரித்ததற்கு நன்றி."
   },
   "premiumFeatures": {
-    "message": "Upgrade to Premium and receive:"
+    "message": "பிரீமியத்திற்கு மேம்படுத்திப் பெறுங்கள்:"
   },
   "premiumPrice": {
-    "message": "All for just $PRICE$ /year!",
+    "message": "எல்லாம் வெறும் $PRICE$ /ஆண்டுக்கு!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -1444,7 +1503,7 @@
     }
   },
   "premiumPriceV2": {
-    "message": "All for just $PRICE$ per year!",
+    "message": "ஆண்டுக்கு வெறும் $PRICE$க்கு அனைத்தும்!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -1453,31 +1512,25 @@
     }
   },
   "refreshComplete": {
-    "message": "Refresh complete"
+    "message": "ரெஃப்ரெஷ் நிறைவடைந்தது"
   },
   "enableAutoTotpCopy": {
-    "message": "Copy TOTP automatically"
+    "message": "TOTP-ஐ தானாக நகலெடு"
   },
   "disableAutoTotpCopyDesc": {
-    "message": "If a login has an authenticator key, copy the TOTP verification code to your clip-board when you autofill the login."
+    "message": "ஒரு உள்நுழைவுக்கு ஒரு அங்கீகரிப்பு விசை இருந்தால், நீங்கள் உள்நுழைவை ஆட்டோஃபில் செய்யும்போது TOTP சரிபார்ப்புக் குறியீட்டை உங்கள் கிளிப்-போர்டுக்கு நகலெடுக்கவும்."
   },
   "enableAutoBiometricsPrompt": {
-    "message": "Ask for biometrics on launch"
-  },
-  "premiumRequired": {
-    "message": "Premium required"
-  },
-  "premiumRequiredDesc": {
-    "message": "A Premium membership is required to use this feature."
+    "message": "தொடங்கும் போது பயோமெட்ரிக்ஸைக் கேட்கவும்"
   },
   "authenticationTimeout": {
-    "message": "Authentication timeout"
+    "message": "அங்கீகரிப்பு டைம் அவுட்"
   },
   "authenticationSessionTimedOut": {
-    "message": "The authentication session timed out. Please restart the login process."
+    "message": "அங்கீகரிப்பு அமர்வு காலாவதியானது. தயவுசெய்து உள்நுழைவு செயல்முறையை மீண்டும் தொடங்கவும்."
   },
   "verificationCodeEmailSent": {
-    "message": "Verification email sent to $EMAIL$.",
+    "message": "சரிபார்ப்பு மின்னஞ்சல் $EMAIL$-க்கு அனுப்பப்பட்டது.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1486,139 +1539,148 @@
     }
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "இந்த சாதனத்தில் 30 நாட்களுக்கு மீண்டும் கேட்க வேண்டாம்"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "மற்றொரு முறையைத் தேர்ந்தெடுக்கவும்",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "உங்கள் மீட்புக் குறியீட்டைப் பயன்படுத்தவும்"
   },
   "insertU2f": {
-    "message": "Insert your security key into your computer's USB port. If it has a button, touch it."
+    "message": "உங்கள் கணினியின் USB போர்ட்டில் உங்கள் பாதுகாப்பு விசையைச் செருகவும். அதற்கு ஒரு பட்டன் இருந்தால், அதைத் தொடவும்."
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "புதிய டேப்பில் திற"
   },
   "webAuthnAuthenticate": {
-    "message": "Authenticate WebAuthn"
+    "message": "WebAuthn-ஐ அங்கீகரி"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "பாதுகாப்பு விசையைப் படி"
+  },
+  "readingPasskeyLoading": {
+    "message": "Reading passkey..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey authentication failed"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Use a different log in method"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Awaiting security key interaction..."
+    "message": "பாதுகாப்பு விசை தொடர்புகொள்ளக் காத்திருக்கிறது..."
   },
   "loginUnavailable": {
-    "message": "Login unavailable"
+    "message": "உள்நுழைவு கிடைக்கவில்லை"
   },
   "noTwoStepProviders": {
-    "message": "This account has two-step login set up, however, none of the configured two-step providers are supported by this web browser."
+    "message": "இந்த கணக்கில் டூ-ஸ்டெப் உள்நுழைவு அமைக்கப்பட்டுள்ளது, இருப்பினும், கட்டமைக்கப்பட்ட டூ-ஸ்டெப் வழங்குநர்களில் எதுவும் இந்த வலை உலாவியால் ஆதரிக்கப்படவில்லை."
   },
   "noTwoStepProviders2": {
-    "message": "Please use a supported web browser (such as Chrome) and/or add additional providers that are better supported across web browsers (such as an authenticator app)."
+    "message": "தயவுசெய்து ஆதரிக்கப்பட்ட வலை உலாவியை (Chrome போன்றது) பயன்படுத்தவும் மற்றும்/அல்லது வலை உலாவிகளில் சிறந்த முறையில் ஆதரிக்கப்படும் கூடுதல் வழங்குநர்களைச் சேர்க்கவும் (அங்கீகரிப்பு செயலி போன்றது)."
   },
   "twoStepOptions": {
-    "message": "Two-step login options"
+    "message": "டூ-ஸ்டெப் உள்நுழைவு விருப்பங்கள்"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
-  },
-  "recoveryCodeDesc": {
-    "message": "Lost access to all of your two-factor providers? Use your recovery code to turn off all two-factor providers from your account."
+    "message": "டூ-ஸ்டெப் உள்நுழைவு முறையைத் தேர்ந்தெடுக்கவும்"
   },
   "recoveryCodeTitle": {
-    "message": "Recovery code"
+    "message": "மீட்புக் குறியீடு"
   },
   "authenticatorAppTitle": {
-    "message": "Authenticator app"
+    "message": "அங்கீகரிப்பு செயலி"
   },
   "authenticatorAppDescV2": {
-    "message": "Enter a code generated by an authenticator app like Bitwarden Authenticator.",
+    "message": "Bitwarden Authenticator போன்ற அங்கீகரிப்பு செயலியால் உருவாக்கப்பட்ட குறியீட்டை உள்ளிடவும்.",
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
-    "message": "Yubico OTP Security Key"
+    "message": "Yubico OTP பாதுகாப்பு விசை"
   },
   "yubiKeyDesc": {
-    "message": "Use a YubiKey to access your account. Works with YubiKey 4, 4 Nano, 4C, and NEO devices."
+    "message": "உங்கள் கணக்கை அணுக ஒரு YubiKey-ஐப் பயன்படுத்தவும். YubiKey 4, 4 Nano, 4C, மற்றும் NEO சாதனங்களுடன் வேலை செய்கிறது."
   },
   "duoDescV2": {
-    "message": "Enter a code generated by Duo Security.",
+    "message": "Duo Security-யால் உருவாக்கப்பட்ட குறியீட்டை உள்ளிடவும்.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
-    "message": "Verify with Duo Security for your organization using the Duo Mobile app, SMS, phone call, or U2F security key.",
+    "message": "Duo Mobile செயலி, SMS, ஃபோன் கால் அல்லது U2F பாதுகாப்பு விசையைப் பயன்படுத்தி உங்கள் அமைப்புக்கான Duo Security-யுடன் சரிபார்க்கவும்.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
   "webAuthnDesc": {
-    "message": "Use any WebAuthn compatible security key to access your account."
+    "message": "உங்கள் கணக்கை அணுக, WebAuthn இணக்கமான எந்தவொரு பாதுகாப்பு விசையையும் பயன்படுத்தவும்."
   },
   "emailTitle": {
-    "message": "Email"
+    "message": "மின்னஞ்சல்"
   },
   "emailDescV2": {
-    "message": "Enter a code sent to your email."
+    "message": "உங்கள் மின்னஞ்சலுக்கு அனுப்பப்பட்ட குறியீட்டை உள்ளிடவும்."
   },
   "selfHostedEnvironment": {
-    "message": "Self-hosted environment"
+    "message": "சுய-ஹோஸ்ட் செய்யப்பட்ட சூழல்"
   },
   "selfHostedBaseUrlHint": {
-    "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
+    "message": "உங்கள் ஆன்-ப்ரிமைஸ் ஹோஸ்ட் செய்யப்பட்ட Bitwarden இன்ஸ்டாலேஷனின் பேஸ் URL-ஐ குறிப்பிடவும். உதாரணம்: https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
-    "message": "For advanced configuration, you can specify the base URL of each service independently."
+    "message": "மேம்பட்ட கட்டமைப்பிற்காக, ஒவ்வொரு சேவையின் பேஸ் URL-ஐயும் தனித்தனியாக நீங்கள் குறிப்பிடலாம்."
   },
   "selfHostedEnvFormInvalid": {
-    "message": "You must add either the base Server URL or at least one custom environment."
+    "message": "நீங்கள் பேஸ் சர்வர் URL-ஐ அல்லது குறைந்தது ஒரு தனிப்பயன் சூழலைச் சேர்க்க வேண்டும்."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
   },
   "customEnvironment": {
-    "message": "Custom environment"
+    "message": "தனிப்பயன் சூழல்"
   },
   "baseUrl": {
-    "message": "Server URL"
+    "message": "சர்வர் URL"
   },
   "selfHostBaseUrl": {
-    "message": "Self-host server URL",
+    "message": "சுய-ஹோஸ்ட் சர்வர் URL",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
-    "message": "API server URL"
+    "message": "API சர்வர் URL"
   },
   "webVaultUrl": {
-    "message": "Web vault server URL"
+    "message": "வலை வால்ட் சர்வர் URL"
   },
   "identityUrl": {
-    "message": "Identity server URL"
+    "message": "Identity சர்வர் URL"
   },
   "notificationsUrl": {
-    "message": "Notifications server URL"
+    "message": "அறிவிப்புகள் சர்வர் URL"
   },
   "iconsUrl": {
-    "message": "Icons server URL"
+    "message": "ஐகான்ஸ் சர்வர் URL"
   },
   "environmentSaved": {
-    "message": "Environment URLs saved"
+    "message": "சூழல் URLகள் சேமிக்கப்பட்டன"
   },
   "showAutoFillMenuOnFormFields": {
-    "message": "Show autofill menu on form fields",
+    "message": "படிவப் புலங்களில் ஆட்டோஃபில் மெனுவைக் காட்டு",
     "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
-    "message": "Autofill suggestions"
+    "message": "ஆட்டோஃபில் பரிந்துரைகள்"
   },
   "autofillSpotlightTitle": {
-    "message": "Easily find autofill suggestions"
+    "message": "ஆட்டோஃபில் பரிந்துரைகளை எளிதாகக் கண்டறியவும்"
   },
   "autofillSpotlightDesc": {
-    "message": "Turn off your browser's autofill settings, so they don't conflict with Bitwarden."
+    "message": "உங்கள் உலாவி ஆட்டோஃபில் அமைப்புகளை முடக்கவும், அதனால் அவை Bitwarden-உடன் முரண்படாது."
   },
   "turnOffBrowserAutofill": {
-    "message": "Turn off $BROWSER$ autofill",
+    "message": "$BROWSER$ ஆட்டோஃபில்லை முடக்கு",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -1627,112 +1689,130 @@
     }
   },
   "turnOffAutofill": {
-    "message": "Turn off autofill"
+    "message": "ஆட்டோஃபில்லை முடக்கு"
+  },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
   },
   "showInlineMenuLabel": {
-    "message": "Show autofill suggestions on form fields"
+    "message": "படிவப் புலங்களில் ஆட்டோஃபில் பரிந்துரைகளைக் காட்டு"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
-    "message": "Display identities as suggestions"
+    "message": "பரிந்துரைகளாக அடையாளங்களைக் காட்டு"
   },
   "showInlineMenuCardsLabel": {
-    "message": "Display cards as suggestions"
+    "message": "பரிந்துரைகளாக கார்டுகளைக் காட்டு"
   },
   "showInlineMenuOnIconSelectionLabel": {
-    "message": "Display suggestions when icon is selected"
+    "message": "ஐகான் தேர்ந்தெடுக்கப்பட்டபோது பரிந்துரைகளைக் காட்டு"
   },
   "showInlineMenuOnFormFieldsDescAlt": {
-    "message": "Applies to all logged in accounts."
+    "message": "உள்நுழைந்த அனைத்து கணக்குகளுக்கும் பொருந்தும்."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "Turn off your browser's built in password manager settings to avoid conflicts."
+    "message": "முரண்பாடுகளைத் தவிர்க்க, உங்கள் உலாவியின் உள்ளமைக்கப்பட்ட கடவுச்சொல் மேனேஜர் அமைப்புகளை முடக்கவும்."
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
-    "message": "Edit browser settings."
+    "message": "உலாவி அமைப்புகளை எடிட் செய்."
   },
   "autofillOverlayVisibilityOff": {
-    "message": "Off",
+    "message": "ஆஃப்",
     "description": "Overlay setting select option for disabling autofill overlay"
   },
   "autofillOverlayVisibilityOnFieldFocus": {
-    "message": "When field is selected (on focus)",
+    "message": "புலம் தேர்ந்தெடுக்கப்பட்டபோது (ஃபோகஸ்-இல்)",
     "description": "Overlay appearance select option for showing the field on focus of the input element"
   },
   "autofillOverlayVisibilityOnButtonClick": {
-    "message": "When autofill icon is selected",
+    "message": "ஆட்டோஃபில் ஐகான் தேர்ந்தெடுக்கப்பட்டபோது",
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
   "enableAutoFillOnPageLoadSectionTitle": {
-    "message": "Autofill on page load"
+    "message": "பக்கம் லோட் ஆகும்போது ஆட்டோஃபில்"
   },
   "enableAutoFillOnPageLoad": {
-    "message": "Autofill on page load"
+    "message": "பக்கம் லோட் ஆகும்போது ஆட்டோஃபில்"
   },
   "enableAutoFillOnPageLoadDesc": {
-    "message": "If a login form is detected, autofill when the web page loads."
+    "message": "ஒரு உள்நுழைவுப் படிவம் கண்டறியப்பட்டால், வலைப் பக்கம் லோட் ஆகும்போது ஆட்டோஃபில் செய்யவும்."
   },
   "experimentalFeature": {
-    "message": "Compromised or untrusted websites can exploit autofill on page load."
+    "message": "பாதிக்கப்பட்ட அல்லது நம்பத்தகாத வலைத்தளங்கள் பக்கம் லோட் ஆகும்போது ஆட்டோஃபில்லை பயன்படுத்திக் கொள்ள முடியும்."
   },
   "learnMoreAboutAutofillOnPageLoadLinkText": {
-    "message": "Learn more about risks"
+    "message": "ஆபத்துகளைப் பற்றி மேலும் அறிக"
   },
   "learnMoreAboutAutofill": {
-    "message": "Learn more about autofill"
+    "message": "ஆட்டோஃபில் பற்றி மேலும் அறிக"
   },
   "defaultAutoFillOnPageLoad": {
-    "message": "Default autofill setting for login items"
+    "message": "உள்நுழைவு பொருட்களுக்கான டிஃபால்ட் ஆட்டோஃபில் அமைப்பு"
   },
   "defaultAutoFillOnPageLoadDesc": {
-    "message": "You can turn off autofill on page load for individual login items from the item's Edit view."
-  },
-  "itemAutoFillOnPageLoad": {
-    "message": "Autofill on page load (if set up in Options)"
+    "message": "உள்நுழைவு பொருட்களுக்கான டிஃபால்ட் ஆட்டோஃபில் அமைப்பை ஐட்டம்-இன் எடிட் வியூவிலிருந்து பக்க லோட்-இல் முடக்கலாம்."
   },
   "autoFillOnPageLoadUseDefault": {
-    "message": "Use default setting"
+    "message": "டிஃபால்ட் அமைப்பைப் பயன்படுத்து"
   },
   "autoFillOnPageLoadYes": {
-    "message": "Autofill on page load"
+    "message": "பக்கம் லோட் ஆகும்போது ஆட்டோஃபில்"
   },
   "autoFillOnPageLoadNo": {
-    "message": "Do not autofill on page load"
+    "message": "பக்கம் லோட் ஆகும்போது ஆட்டோஃபில் செய்ய வேண்டாம்"
   },
   "commandOpenPopup": {
-    "message": "Open vault popup"
+    "message": "வால்ட் பாப்-அப்பைத் திற"
   },
   "commandOpenSidebar": {
-    "message": "Open vault in sidebar"
+    "message": "சைட்பாரில் வால்ட்டைத் திற"
   },
   "commandAutofillLoginDesc": {
-    "message": "Autofill the last used login for the current website"
+    "message": "தற்போதைய வலைத்தளத்திற்கான கடைசியாகப் பயன்படுத்தப்பட்ட உள்நுழைவை ஆட்டோஃபில் செய்யவும்"
   },
   "commandAutofillCardDesc": {
-    "message": "Autofill the last used card for the current website"
+    "message": "தற்போதைய வலைத்தளத்திற்கான கடைசியாகப் பயன்படுத்தப்பட்ட கார்டை ஆட்டோஃபில் செய்யவும்"
   },
   "commandAutofillIdentityDesc": {
-    "message": "Autofill the last used identity for the current website"
+    "message": "தற்போதைய வலைத்தளத்திற்கான கடைசியாகப் பயன்படுத்தப்பட்ட அடையாளத்தை ஆட்டோஃபில் செய்யவும்"
   },
   "commandGeneratePasswordDesc": {
-    "message": "Generate and copy a new random password to the clipboard"
+    "message": "புதிய சீரற்ற கடவுச்சொல்லை உருவாக்கி கிளிப்போர்டுக்கு நகலெடுக்கவும்"
   },
   "commandLockVaultDesc": {
-    "message": "Lock the vault"
+    "message": "வால்ட்டை லாக் செய்"
   },
   "customFields": {
-    "message": "Custom fields"
+    "message": "தனிப்பயன் புலங்கள்"
   },
   "copyValue": {
-    "message": "Copy value"
+    "message": "மதிப்பை நகலெடு"
   },
   "value": {
-    "message": "Value"
+    "message": "மதிப்பு"
   },
   "newCustomField": {
-    "message": "New custom field"
+    "message": "புதிய தனிப்பயன் புலம்"
   },
   "dragToSort": {
-    "message": "Drag to sort"
+    "message": "வரிசைப்படுத்த இழு"
   },
   "dragToReorder": {
     "message": "மீண்டும் வரிசைப்படுத்த இழுக்கவும்"
@@ -1760,17 +1840,8 @@
   "popup2faCloseMessage": {
     "message": "உங்கள் சரிபார்ப்புக் குறியீட்டிற்கான உங்கள் மின்னஞ்சலைச் சரிபார்க்க, பாப்அப் சாளரத்திற்கு வெளியே கிளிக் செய்வதால், இந்த பாப்அப் மூடப்படும். இந்த பாப்அப் மூடாமல் இருக்க, புதிய சாளரத்தில் திறக்க விரும்புகிறீர்களா?"
   },
-  "popupU2fCloseMessage": {
-    "message": "இந்த உலாவி இந்தப் பாப்அப் சாளரத்தில் U2F கோரிக்கைகளை செயலாக்க முடியாது. U2F ஐப் பயன்படுத்தி உள்நுழைய, இந்த பாப்அப்பை புதிய சாளரத்தில் திறக்க விரும்புகிறீர்களா?"
-  },
   "showIconsChangePasswordUrls": {
-    "message": "இணையதள ஐகான்களைக் காண்பி மற்றும் கடவுச்சொல் மாற்றுவதற்கான URLகளைப் பெறு"
-  },
-  "enableBadgeCounter": {
-    "message": "பேட்ஜ் கவுண்டரைக் காட்டு"
-  },
-  "badgeCounterDesc": {
-    "message": "தற்போதைய இணையப் பக்கத்தில் உங்களிடம் உள்ள உள்நுழைவுகளின் எண்ணிக்கையைக் குறிக்கவும்."
+    "message": "Show website icons and retrieve change password URLs"
   },
   "cardholderName": {
     "message": "அட்டைதாரர் பெயர்"
@@ -1833,7 +1904,7 @@
     "message": "அட்டை எண்"
   },
   "ex": {
-    "message": "ex."
+    "message": "உதா."
   },
   "title": {
     "message": "பதவி"
@@ -1934,32 +2005,81 @@
   "typeNote": {
     "message": "குறிப்பு"
   },
-  "newItemHeader": {
-    "message": "புதிய $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "திருத்து $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "பார்வை $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "கடவுச்சொல் வரலாறு"
@@ -3132,11 +3252,32 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "பிழை"
   },
   "decryptionError": {
     "message": "குறியாக்கம் நீக்கப் பிழை"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden கீழே பட்டியலிடப்பட்ட பெட்டக பொருளை குறியாக்கம் நீக்க முடியவில்லை."
@@ -3520,9 +3661,6 @@
   },
   "autofillPageLoadPolicyActivated": {
     "message": "பக்கம் ஏற்றப்படும்போது தானியங்கு நிரப்புதலை உங்கள் நிறுவனக் கொள்கைகள் செயல்படுத்தியுள்ளன."
-  },
-  "howToAutofill": {
-    "message": "தானியங்கு நிரப்புவது எப்படி"
   },
   "autofillSelectInfoWithCommand": {
     "message": "இந்தத் திரையில் இருந்து ஒரு உருப்படியைத் தேர்ந்தெடுக்கவும், $COMMAND$ என்ற குறுக்குவழியைப் பயன்படுத்தவும் அல்லது அமைப்புகளில் பிற விருப்பங்களை ஆராயவும்.",
@@ -3908,17 +4046,18 @@
   "aliasDomain": {
     "message": "புனைப்பெயர் டொமைன்"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "மாஸ்டர் கடவுச்சொல் மீண்டும் கோரப்பட்ட உருப்படிகளைப் பக்க ஏற்றத்தில் தானாக நிரப்ப முடியாது. பக்க ஏற்றத்தில் தானியங்கு நிரப்புதல் அணைக்கப்பட்டது.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "பக்க ஏற்றத்தில் தானியங்கு நிரப்புதல் இயல்புநிலை அமைப்பைப் பயன்படுத்த அமைக்கப்பட்டுள்ளது.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "இந்தப் புலத்தைத் திருத்த மாஸ்டர் கடவுச்சொல் மீண்டும் கோருதலை அணைக்கவும்",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "பக்க வழிசெலுத்தலை மாற்று"
@@ -4188,9 +4327,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "பாஸ்கி குளோன் செய்யப்பட்ட உருப்படிக்கு நகலெடுக்கப்படாது. இந்த உருப்படியைக் குளோன் செய்வதைத் தொடர விரும்புகிறீர்களா?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "தொடங்கும் தளம் சரிபார்க்கக் கோருகிறது. மாஸ்டர் கடவுச்சொல் இல்லாத கணக்குகளுக்கு இந்த அம்சம் இன்னும் செயல்படுத்தப்படவில்லை."
   },
   "logInWithPasskeyQuestion": {
     "message": "பாஸ்கியுடன் உள்நுழைய வேண்டுமா?"
@@ -4838,6 +4974,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Default ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "பொருத்தமான கண்டறிதலைக் காட்டு $WEBSITE$",
     "placeholders": {
@@ -4876,9 +5022,6 @@
         "example": "Visa"
       }
     }
-  },
-  "enableAnimations": {
-    "message": "அசைவூட்டங்களை இயக்கு"
   },
   "showAnimations": {
     "message": "அசைவூட்டங்களைக் காட்டு"
@@ -5092,14 +5235,8 @@
   "itemLocation": {
     "message": "பொருளின் இருப்பிடம்"
   },
-  "fileSend": {
-    "message": "கோப்பு அனுப்பு"
-  },
   "fileSends": {
     "message": "கோப்பு அனுப்புகள்"
-  },
-  "textSend": {
-    "message": "உரை அனுப்பு"
   },
   "textSends": {
     "message": "உரை அனுப்புகள்"
@@ -5160,9 +5297,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "குறைந்தபட்ச தனிப்பயன் காலக்கெடு 1 நிமிடம் ஆகும்."
-  },
-  "additionalContentAvailable": {
-    "message": "கூடுதல் உள்ளடக்கம் உள்ளது"
   },
   "fileSavedToDevice": {
     "message": "கோப்பு சாதனத்தில் சேமிக்கப்பட்டது. உங்கள் சாதன பதிவிறக்கங்களிலிருந்து நிர்வகிக்கவும்."
@@ -5450,10 +5584,10 @@
     "message": "அபாயத்திலுள்ள கடவுச்சொல்லை மாற்றவும்"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "இந்த உள்நுழைவு ஆபத்தில் உள்ளது, மேலும் அதில் ஒரு வலைத்தளமும் இல்லை. வலுவான பாதுகாப்பிற்காக ஒரு வலைத்தளத்தைச் சேர்த்து கடவுச்சொல்லை மாற்றவும்."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "காணாமல் போன வலைத்தளம்"
   },
   "settingsVaultOptions": {
     "message": "சேமிப்பு பெட்டக விருப்பத்தேர்வுகள்"
@@ -5502,6 +5636,38 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "உங்கள் சேமிப்பு பெட்டகத்திற்கு நல்வரவு!"
+  },
+  "phishingPageTitleV2": {
+    "message": "Phishing attempt detected"
+  },
+  "phishingPageSummary": {
+    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+  },
+  "phishingPageCloseTabV2": {
+    "message": "Close this tab"
+  },
+  "phishingPageContinueV2": {
+    "message": "Continue to this site (not recommended)"
+  },
+  "phishingPageExplanation1": {
+    "message": "This site was found in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Learn more about phishing detection"
+  },
+  "protectedBy": {
+    "message": "Protected by $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "தற்போதைய பக்கத்திற்கான தானாக நிரப்பு பொருள்கள்"
@@ -5570,7 +5736,7 @@
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyTwo": {
-    "message": "to help you keep your logins secure.",
+    "message": "உங்கள் உள்நுழைவுகளைப் பாதுகாப்பாக வைத்திருக்க உதவும்.",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
@@ -5579,10 +5745,10 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
-    "message": "இந்த அமைப்பைப் பற்றி"
+    "message": "About this setting"
   },
   "permitCipherDetailsDescription": {
-    "message": "உங்கள் அனுபவத்தை மேம்படுத்த எந்த ஐகான் அல்லது கடவுச்சொல் மாற்ற URLஐப் பயன்படுத்த வேண்டும் என்பதை அடையாளம் காண Bitwarden சேமிக்கப்பட்ட உள்நுழைவு URIகளைப் பயன்படுத்தும். நீங்கள் இந்த சேவையைப் பயன்படுத்தும்போது எந்த தகவலும் சேகரிக்கப்படவோ அல்லது சேமிக்கப்படவோ இல்லை."
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "இந்த பக்கத்தைக் காண உங்களுக்கு அனுமதிகள் இல்லை. வேறு கணக்குடன் உள்நுழைய முயற்சிக்கவும்."
@@ -5605,6 +5771,43 @@
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "confirmKeyConnectorDomain": {
-    "message": "Confirm Key Connector domain"
+    "message": "Key Connector டொமைனை உறுதிப்படுத்து"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "settingDisabledByPolicy": {
+    "message": "This setting is disabled by your organization's policy.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
   }
 }

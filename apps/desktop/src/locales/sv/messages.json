@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Du har inte behörighet att redigera detta objekt"
+  },
   "welcomeBack": {
     "message": "Välkommen tillbaka"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "Använd Single Sign-On"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Din organisation kräver single sign-on."
+  },
   "submit": {
     "message": "Skicka"
   },
@@ -960,9 +966,6 @@
   "insertU2f": {
     "message": "Anslut din säkerhetsnyckel till datorns USB-port. Om den har en knapp, tryck på den."
   },
-  "recoveryCodeDesc": {
-    "message": "Förlorat åtkomst till alla dina metoder för tvåstegsverifiering? Använd din återställningskod för att inaktivera tvåstegsverifiering på ditt konto."
-  },
   "recoveryCodeTitle": {
     "message": "Återställningskod"
   },
@@ -1034,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Du måste lägga till antingen basserverns URL eller minst en anpassad miljö."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Webbadresser måste använda HTTPS."
   },
   "customEnvironment": {
     "message": "Anpassad miljö"
@@ -1225,6 +1231,15 @@
   "invalidMasterPassword": {
     "message": "Ogiltigt huvudlösenord"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Ogiltigt huvudlösenord. Bekräfta att din e-postadress är korrekt och ditt konto skapades på $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Tvåstegsverifiering gör ditt konto säkrare genom att kräva att du verifierar din inloggning med en annan enhet, t.ex. en säkerhetsnyckel, autentiseringsapp, SMS, telefonsamtal eller e-post. Tvåstegsverifiering kan aktiveras i Bitwardens webbvalv. Vill du besöka webbplatsen nu?"
   },
@@ -1306,7 +1321,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Visa webbplatsikoner och hämta URL-adresser för att ändra lösenord"
+    "message": "Visa webbplatsikoner och URLer för lösenordsändringar"
   },
   "enableMinToTray": {
     "message": "Minimera till systemfältsikon"
@@ -1845,6 +1860,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lås med huvudlösenord vid omstart"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Kräv huvudlösenord eller PIN-kod vid omstart av appen"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Kräv huvudlösenord vid omstart av appen"
   },
   "deleteAccount": {
     "message": "Radera konto"
@@ -2543,6 +2564,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minsta anpassade tidsgräns är 1 minut."
+  },
   "inviteAccepted": {
     "message": "Inbjudan accepterad"
   },
@@ -2654,6 +2678,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Endast organisationsvalvet som är associerat med $ORGANIZATION$ kommer att exporteras.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Endast organisationsvalvet som associeras med $ORGANIZATION$ kommer att exporteras. Mina objektsamlingar kommer inte att inkluderas.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -3836,6 +3878,12 @@
   "changeAtRiskPassword": {
     "message": "Ändra lösenord för riskgrupper"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Denna inloggning är utsatt för risk och saknar en webbplats. Lägg till en webbplats och ändra lösenordet för ökad säkerhet."
+  },
+  "missingWebsite": {
+    "message": "Saknar webbplats"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Du kan inte ta bort samlingar med behörigheten Visa endast: $COLLECTIONS$",
     "placeholders": {
@@ -4077,11 +4125,17 @@
   "showLess": {
     "message": "Visa mindre"
   },
-  "enableAutotype": {
-    "message": "Aktivera automatisk inmatning"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden validerar inte inmatningsplatser, så se till att du är i rätt fönster och fält innan du använder genvägen."
+  },
+  "typeShortcut": {
+    "message": "Inmatningsgenväg"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Inkludera en eller två av följande modifierare: Ctrl, Alt, Win, eller Skift och en bokstav."
+  },
+  "invalidShortcut": {
+    "message": "Ogiltig genväg"
   },
   "moreBreadcrumbs": {
     "message": "Fler länkstigar",
@@ -4096,13 +4150,75 @@
   "confirm": {
     "message": "Bekräfta"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+  "enableAutotypeShortcutPreview": {
+    "message": "Aktivera inmatningsgenväg (förhandsvisning av funktion)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  "enableAutotypeShortcutDescription": {
+    "message": "Försäkra dig om att du befinner dig i rätt fält innan du använder genvägen för att undvika att fylla i data på fel ställe."
   },
   "editShortcut": {
     "message": "Redigera genväg"
+  },
+  "archiveNoun": {
+    "message": "Arkiv",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Arkivera",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Avarkivera"
+  },
+  "itemsInArchive": {
+    "message": "Objekt i arkivet"
+  },
+  "noItemsInArchive": {
+    "message": "Inga objekt i arkivet"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Arkiverade objekt kommer att visas här och kommer att uteslutas från allmänna sökresultat och förslag för autofyll."
+  },
+  "itemWasSentToArchive": {
+    "message": "Objektet skickades till arkivet"
+  },
+  "itemWasUnarchived": {
+    "message": "Objektet har avarkiverats"
+  },
+  "archiveItem": {
+    "message": "Arkivera objekt"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Arkiverade objekt är uteslutna från allmänna sökresultat och förslag för autofyll. Är du säker på att du vill arkivera detta objekt?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "Postnummer"
+  },
+  "cardNumberLabel": {
+    "message": "Kortnummer"
+  },
+  "upgradeNow": {
+    "message": "Uppgradera nu"
+  },
+  "builtInAuthenticator": {
+    "message": "Inbyggd autenticator"
+  },
+  "secureFileStorage": {
+    "message": "Säker fillagring"
+  },
+  "emergencyAccess": {
+    "message": "Nödåtkomst"
+  },
+  "breachMonitoring": {
+    "message": "Intrångsmonitorering"
+  },
+  "andMoreFeatures": {
+    "message": "och mer!"
+  },
+  "planDescPremium": {
+    "message": "Komplett säkerhet online"
+  },
+  "upgradeToPremium": {
+    "message": "Uppgradera till Premium"
   }
 }

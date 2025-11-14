@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "כל היישומים"
   },
+  "activity": {
+    "message": "פעילות"
+  },
   "appLogoLabel": {
     "message": "הלוגו של Bitwarden"
   },
@@ -12,16 +15,19 @@
     "message": "אין יישומים קריטיים בסיכון"
   },
   "accessIntelligence": {
-    "message": "גישה למודיעין"
-  },
-  "riskInsights": {
-    "message": "תובנות סיכון"
+    "message": "מודיעין גישות"
   },
   "passwordRisk": {
     "message": "סיכון סיסמה"
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "reviewAtRiskPasswords": {
     "message": "סקור סיסמאות בסיכון (חלשות, חשופות, או משומשות) בין יישומים. בחר את היישומים הכי קריטיים שלך על מנת לתעדף פעולות אבטחה עבור המשתמשים שלך כדי לטפל בסיסמאות בסיכון."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Review at-risk logins"
   },
   "dataLastUpdated": {
     "message": "הנתונים עודכנו לאחרונה: $DATE$",
@@ -31,6 +37,9 @@
         "example": "2021-01-01"
       }
     }
+  },
+  "noReportRan": {
+    "message": "עדיין לא יצרת דוח"
   },
   "notifiedMembers": {
     "message": "חברים שהודיעו להם"
@@ -56,12 +65,107 @@
   "createNewLoginItem": {
     "message": "צור פריט כניסה חדש"
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% הושלמו",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ מתוך $TOTAL$ משימות אבטחה הושלמו",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "התקדמות שינוי סיסמה"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "הקצה משימות לחברים כדי לנטר התקדמות"
+  },
+  "onceYouReviewApps": {
+    "message": "לאחר שתסקור יישומים ותסמן אותם כקריטיים, באפשרותך להקצות משימות לחברים כדי לפתור פריטים בסיכון ולנטר התקדמות כאן"
+  },
+  "sendReminders": {
+    "message": "שלח תזכורות"
+  },
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "לאחר שתסמן יישומים כקריטיים, הם יופיעו כאן."
+  },
+  "viewAtRiskMembers": {
+    "message": "הצג חברים בסיכון"
+  },
+  "viewAtRiskApplications": {
+    "message": "הצג יישומים בסיכון"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ מתוך $TOTAL$ יישומים קריטיים הם בסיכון בשל סיסמאות בסיכון",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "criticalApplicationsWithCount": {
     "message": "יישומים קריטיים ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "criticalApplicationsMarked": {
+    "message": "critical applications marked"
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ יישומים קריטיים",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ יישומים בסיכון",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ סיסמאות בסיכון",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ סיסמאות חדשות בסיכון",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -74,8 +178,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "לא נמצאו יישומים אצל $ORG NAME$",
+  "noApplicationsInOrgTitle": {
+    "message": "לא נמצאו יישומים עבור $ORG NAME",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -83,23 +187,71 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "ככל שמשתמשים שומרים כניסות, יישומים מופיעים כאן, ומוצגות כל הסיסמאות בסיכון. סמן יישומים קריטיים והודע למשתמשים לעדכן סיסמאות."
+  "noApplicationsInOrgDescription": {
+    "message": "ייבא את נתוני הכניסה של הארגון שלך כדי להתחיל בניטור סיכוני אבטחה של אישורים. לאחר הייבוא תוכל:"
   },
-  "noCriticalAppsTitle": {
+  "benefit1Title": {
+    "message": "לתעדף סיכונים"
+  },
+  "benefit1Description": {
+    "message": "התמקדות ביישומים החשובים ביותר"
+  },
+  "benefit2Title": {
+    "message": "להדריך תיקון"
+  },
+  "benefit2Description": {
+    "message": "הקצה משימות מודרכות לחברים בסיכון כדי להחליף אישורים בסיכון"
+  },
+  "benefit3Title": {
+    "message": "לנטר התקדמות"
+  },
+  "benefit3Description": {
+    "message": "עקוב אחר שינויים לאורך זמן כדי להציג שיפורי אבטחה"
+  },
+  "noReportRunTitle": {
+    "message": "הרץ את הדוח הראשון שלך כדי לראות יישומים"
+  },
+  "noReportRunDescription": {
+    "message": "ייצר דוח תובנות סיכון כדי לנתח את היישומים של הארגון שלך ולזהות סיסמאות בסיכון שצריכות תשומת לב. הרצת הדוח הראשון שלך תגרום ל:"
+  },
+  "noCriticalApplicationsTitle": {
     "message": "לא סימנת אף יישום כקריטי"
   },
-  "noCriticalAppsDescription": {
-    "message": "בחר את היישומים הכי קריטיים שלך כדי לגלות סיסמאות בסיכון, ולהודיע למשתמשים לשנות את הסיסמאות הללו."
+  "noCriticalApplicationsDescription": {
+    "message": "בחר את היישומים הקריטיים ביותר שלך כדי לתעדף פעולות אבטחה עבור המשתמשים שלך על מנת לטפל בסיסמאות בסיכון."
   },
-  "markCriticalApps": {
-    "message": "סמן יישומים קריטיים"
+  "markCriticalApplications": {
+    "message": "בחר יישומים קריטיים"
   },
   "markAppAsCritical": {
     "message": "סמן יישום כקריטי"
   },
+  "markAsCritical": {
+    "message": "סמן כקריטי"
+  },
+  "applicationsSelected": {
+    "message": "יישומים נבחרו"
+  },
+  "selectApplication": {
+    "message": "בחר יישום"
+  },
+  "unselectApplication": {
+    "message": "בטל בחירת יישום"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "יישומים המסומנים כקריטיים"
+  },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "סימון יישומים כקריטיים נכשל"
   },
   "application": {
     "message": "יישום"
@@ -118,6 +270,24 @@
   },
   "atRiskMembers": {
     "message": "חברים בסיכון"
+  },
+  "membersWithAccessToAtRiskItemsForCriticalApps": {
+    "message": "חברים עם גישה לפריטים בסיכון עבור יישומים קריטיים"
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Members with at-risk passwords"
+  },
+  "membersWillReceiveNotification": {
+    "message": "Members will receive a notification to resolve at-risk logins through the browser extension."
+  },
+  "membersAtRiskCount": {
+    "message": "$COUNT$ חברים בסיכון",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "atRiskMembersWithCount": {
     "message": "חברים בסיכון ($COUNT$)",
@@ -176,11 +346,65 @@
   "totalApplications": {
     "message": "סה\"כ יישומים"
   },
+  "applicationsNeedingReview": {
+    "message": "יישומים צריכים סקירה"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ יישומים חדשים",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "סקור יישומים חדשים לסימון כקריטיים ושמור על אבטחת הארגון שלך"
+  },
+  "reviewNow": {
+    "message": "סקור עכשיו"
+  },
+  "allCaughtUp": {
+    "message": "All caught up!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "No new applications to review at this time"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "תעדוף יישומים קריטיים"
+  },
+  "selectCriticalApplicationsDescription": {
+    "message": "Select which applications are most critical to your organization, then assign security tasks to members to resolve risks."
+  },
+  "reviewNewApplications": {
+    "message": "Review new applications"
+  },
+  "reviewNewApplicationsDescription": {
+    "message": "We've highlighted at-risk items for new applications stored in Admin console that have weak, exposed, or reused passwords."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Click the star icon to mark an app as critical"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "שימושיות 'סמן כקריטי' תיושם בעדכון עתידי"
+  },
+  "applicationReviewSaved": {
+    "message": "סקירת היישום נשמרה"
+  },
+  "newApplicationsReviewed": {
+    "message": "יישומים חדשים נסקרו"
+  },
+  "errorSavingReviewStatus": {
+    "message": "שגיאה בשמירת מצב סקירה"
+  },
+  "pleaseTryAgain": {
+    "message": "נא לנסות שוב"
+  },
   "unmarkAsCritical": {
     "message": "בטל סימון כקריטי"
   },
-  "criticalApplicationSuccessfullyUnmarked": {
-    "message": "בוטל סימון יישום קריטי בהצלחה"
+  "criticalApplicationUnmarkedSuccessfully": {
+    "message": "בוטל בהצלחה הסימון של היישום כקריטי"
   },
   "whatTypeOfItem": {
     "message": "מאיזה סוג פריט זה?"
@@ -638,6 +862,9 @@
   "favorites": {
     "message": "מועדפים"
   },
+  "taskSummary": {
+    "message": "Task summary"
+  },
   "types": {
     "message": "סוגים"
   },
@@ -734,32 +961,81 @@
   "viewItem": {
     "message": "הצג פריט"
   },
-  "newItemHeader": {
-    "message": "$TYPE$ חדש",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "כניסה חדשה",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "ערוך $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "כרטיס חדש",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "הצג $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "זהות חדשה",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "הערה חדשה",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "מפתח SSH חדש",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "סֵנְד של טקסט חדש",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "סֵנְד של קובץ חדש",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "ערוך כניסה",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "ערוך כרטיס",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "ערוך זהות",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "ערוך הערה",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "ערוך מפתח SSH",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "ערוך סֵנְד של טקסט",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "ערוך סֵנְד של קובץ",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "הצג כניסה",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "הצג כרטיס",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "הצג זהות",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "הצג הערה",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "הצג מפתח SSH",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "חדש",
@@ -1101,6 +1377,9 @@
   "readingPasskeyLoadingInfo": {
     "message": "השאר חלון זה פתוח ועקוב אחר ההנחיות מהדפדפן שלך."
   },
+  "passkeyAuthenticationFailed": {
+    "message": "אימות מפתח גישה נכשל. נא לנסות שוב."
+  },
   "useADifferentLogInMethod": {
     "message": "השתמש בשיטת כניסה אחרת"
   },
@@ -1109,6 +1388,9 @@
   },
   "useSingleSignOn": {
     "message": "השתמש בכניסה יחידה"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "הארגון שלך דורש כניסה יחידה."
   },
   "welcomeBack": {
     "message": "ברוך שובך"
@@ -1395,6 +1677,15 @@
   "invalidMasterPassword": {
     "message": "סיסמה ראשית שגויה"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "סיסמה ראשית אינה תקינה. יש לאשר שהדוא\"ל שלך נכון ושהחשבון שלך נוצר ב־$HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "סיסמת קובץ שגויה, נא להשתמש בסיסמה שהזנת כשיצרת את קובץ הייצוא."
   },
@@ -1403,6 +1694,30 @@
   },
   "noItemsInList": {
     "message": "אין פריטים להצגה ברשימה."
+  },
+  "noItemsInTrash": {
+    "message": "אין פריטים באשפה"
+  },
+  "noItemsInTrashDesc": {
+    "message": "פריטים שאתה מוחק יופיעו כאן ויימחקו לצמיתות לאחר 30 יום"
+  },
+  "noItemsInVault": {
+    "message": "אין פריטים בכספת"
+  },
+  "emptyVaultDescription": {
+    "message": "הכספת מגנה על יותר מרק הסיסמאות שלך. אחסן כניסות מאובטחות, זהויות, כרטיסים והערות באופן מאובטח כאן."
+  },
+  "emptyFavorites": {
+    "message": "לא הוספת למועדפים פריטים כלשהם"
+  },
+  "emptyFavoritesDesc": {
+    "message": "הוסף פריטים בשימוש תכוף למועדפים עבור גישה מהירה."
+  },
+  "noSearchResults": {
+    "message": "לא הוחזרו תוצאות חיפוש"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "נקה מסננים או נסה מונח חיפוש אחר"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "אין לך הרשאה להציג את כל הפריטים באוסף זה."
@@ -1509,9 +1824,6 @@
   },
   "selectTwoStepLoginMethod": {
     "message": "בחר שיטת כניסה דו־שלבית"
-  },
-  "recoveryCodeDesc": {
-    "message": "איבדת גישה לכל ספקי הכניסות הדו־שלביות שלך? השתמש בקוד השחזור שלך כדי לכבות את כל ספקי הכניסות הדו־שלביות מהחשבון שלך."
   },
   "recoveryCodeTitle": {
     "message": "קוד שחזור"
@@ -1855,9 +2167,6 @@
   "encKeySettings": {
     "message": "הגדרות מפתח הצפנה"
   },
-  "kdfAlgorithm": {
-    "message": "אלגוריתם KDF"
-  },
   "kdfIterations": {
     "message": "חזרות KDF"
   },
@@ -1891,9 +2200,6 @@
   },
   "argon2Desc": {
     "message": "ערכי חזרות, זיכרון, ומקבילות KDF גבוהים יותר יכולים לעזור להגן על הסיסמה הראשית מפני תקיפה כוחנית על ידי תוקף."
-  },
-  "changeKdf": {
-    "message": "שנה KDF"
   },
   "encKeySettingsChanged": {
     "message": "הגדרות מפתח ההצפנה נשמרו"
@@ -2724,6 +3030,9 @@
   },
   "makeSureEnoughCredit": {
     "message": "אנא ודא כי יש בחשבונך מספיק קרדיט עבור רכישה זו. אם בחשבונך אין די קרדיט, נשתמש בשיטת התשלום המועדפת בחשבונך כדי לגבות את הפער. באפשרותך להוסיף קרדיט לחשבונך דרך עמוד החיוב."
+  },
+  "notEnoughAccountCredit": {
+    "message": "אין לך מספיק אשראי בחשבון עבורו רכישה זו. באפשרותך להוסיף אשראי לחשבון שלך מדף החיוב."
   },
   "creditAppliedDesc": {
     "message": "ניתן להשתמש בקרדיט שבחשבונך כדי לבצע רכישות. נשתמש בקרדיט הראשון הזמין עבור חשבוניות בחשבון זה."
@@ -4130,8 +4439,11 @@
   "updateBrowser": {
     "message": "עדכן דפדפן"
   },
-  "generatingYourRiskInsights": {
-    "message": "מייצר את תובנות הסיכון שלך..."
+  "generatingYourAccessIntelligence": {
+    "message": "Generating your Access Intelligence..."
+  },
+  "riskInsightsRunReport": {
+    "message": "הרץ דוח"
   },
   "updateBrowserDesc": {
     "message": "אתה משתמש בדפדפן אינטרנט שאיננו נתמך. כספת הרשת עלולה שלא לפעול כראוי."
@@ -4215,8 +4527,8 @@
   "inviteAccepted": {
     "message": "ההזמנה התקבלה"
   },
-  "inviteAcceptedDesc": {
-    "message": "תוכל לקבל גישה לארגון זה כשאחד המנהלים יאשר את החברות שלך. נשלח לך מייל כשזה יקרה."
+  "invitationAcceptedDesc": {
+    "message": "קיבל בהצלחה את ההזמנה שלך."
   },
   "inviteInitAcceptedDesc": {
     "message": "אתה יכול עכשיו לגשת אל ארגון זה."
@@ -4697,7 +5009,13 @@
     "description": "ex. Date this password was updated"
   },
   "organizationIsDisabled": {
-    "message": "הארגון הושעה"
+    "message": "ארגון מושעה"
+  },
+  "organizationIsSuspended": {
+    "message": "הארגון מושעה"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "לא ניתן לגשת לפריטים בארגון מושעה. פנה אל בעל הארגון שלך עבור סיוע."
   },
   "secretsAccessSuspended": {
     "message": "לא ניתן לגשת אל ארגונים מושעים. נא לפנות לבעל הארגון שלך עבור סיוע."
@@ -4710,9 +5028,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "לא ניתן ליצור חשבונות שירות בארגונים מושעים. נא לפנות אל בעל הארגון שלך עבור סיוע."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "לא ניתן לגשת לפריטים בארגון מושעה. פנה אל בעל הארגון שלך עבור סיוע."
   },
   "licenseIsExpired": {
     "message": "תוקף הרשיון הסתיים."
@@ -5087,9 +5402,13 @@
   "ssoIdentifier": {
     "message": "מזהה SSO"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "ספק את המזהה הזה לחברים שלך כדי שיכנסו עם SSO. כדי לעקוף את השלב הזה, הגדר ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "ספק את המזהה הזה לחברים שלך כדי שיכנסו באמצעות SSO. חברים יכולים לדלג על הזנת מזהה זה במהלך SSO אם הוגדר דומיין שנדרש. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "למד עוד",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "נתק SSO"
@@ -5125,10 +5444,10 @@
     "message": "תנאים מקדימים"
   },
   "requireSsoPolicyReq": {
-    "message": "יש להפעיל את המדיניות הארגונית של הארגון היחיד לפני הפעלת מדיניות זו."
+    "message": "יש להפעיל את המדיניות הארגונית של הארגון היחידי לפני הפעלת מדיניות זו."
   },
   "requireSsoPolicyReqError": {
-    "message": "מדיניות ארגון יחיד לא הוגדרה."
+    "message": "מדיניות ארגון יחידי לא הוגדרה."
   },
   "requireSsoExemption": {
     "message": "מנהלי ובעלי הארגון פטורים מהאכיפה של מדיניות זו."
@@ -5472,6 +5791,65 @@
     "message": "למד עוד על ה",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
+  "availableNow": {
+    "message": "זמין עכשיו"
+  },
+  "autoConfirm": {
+    "message": "אישור אוטומטי של משתמשים חדשים"
+  },
+  "autoConfirmDescription": {
+    "message": "משתמשים חדשים המוזמנים לארגון יאושרו באופן אוטומטי כאשר מכשיר של מנהל נפתח.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "איך להפעיל אישור משתמש אוטומטי"
+  },
+  "autoConfirmStep1": {
+    "message": "פתח את הרחבת Bitwarden שלך."
+  },
+  "autoConfirmStep2a": {
+    "message": "בחר",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " הפעל.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "הרחבת Bitwarden לדפדפן נפתחה בהצלחה. כעת ביכולתך להפעיל את הגדרת אישור אוטומטי של משתמשים."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "משתמשים חדשים המוזמנים לארגון יאושרו באופן אוטומטי כאשר מכשיר של מנהל נפתח. לפני הפעלת מדיניות זו, נא לסקור ולהסכים לדברים הבאים: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "סיכון אבטחה פוטנציאלי. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "אישור אוטומטי של משתמשים עלול להוות סיכון אבטחה לנתוני הארגון שלך."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "למד על הסיכונים",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "נדרשת מדיניות ארגון יחידי. "
+  },
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "All members must only belong to this organization to activate this automation."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "מדיניות ארגון יחידי תורחב לכל התפקידים. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "אין גישת חירום. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "גישת חירום תוסר."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "אני מסכים לסיכונים ועדכוני מדיניות אלה"
+  },
   "personalOwnership": {
     "message": "הסר כספת אישית"
   },
@@ -5483,6 +5861,13 @@
   },
   "personalOwnershipSubmitError": {
     "message": "בשל מדיניות ארגונית, אתה מוגבל מלשמור פריטים לכספת האישית שלך. שנה את אפשרות הבעלות לארגון ובחר מאוספים זמינים."
+  },
+  "desktopAutotypePolicy": {
+    "message": "הגדרת ברירת מחדל עבור הקלדה אוטומטית בשולחן עבודה"
+  },
+  "desktopAutotypePolicyDesc": {
+    "message": "הפעל הקלדה אוטומטית בשולחן עבודה כברירת מחדל עבור חברים. חברים יכולים להשבית הקלדה אוטומטית באופן ידני בלקוח שולחן העבודה.",
+    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
   },
   "disableSend": {
     "message": "הסר סֵנְד"
@@ -5516,6 +5901,19 @@
   "disableHideEmail": {
     "message": "הצג תמיד את כתובת הדוא\"ל של חבר מנמענים בעת יצירת או עריכת סֵנְד.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Default URI match detection"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Determine when logins are suggested for autofill. Admins and owners are exempt from this policy."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Default URI match detection"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Please select a valid URI match detection option.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "מדיניות $ID$ שונתה.",
@@ -5897,7 +6295,7 @@
     "message": "חברים בעלי חשבונות קיימים עם סיסמאות ראשיות יידרשו להירשם בעצמם לפני שמנהלים יוכלו לשחזר את החשבונות שלהם. הרשמה אוטומטית תפעיל שחזור חשבון עבור חברים חדשים."
   },
   "accountRecoverySingleOrgRequirementDesc": {
-    "message": "יש להפעיל את המדיניות הארגונית של הארגון היחיד לפני הפעלת מדיניות זו."
+    "message": "יש להפעיל את המדיניות הארגונית של הארגון היחידי לפני הפעלת מדיניות זו."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "הרשמה אוטומטית"
@@ -5990,7 +6388,7 @@
     "message": "חברים שאינם עומדים בדרישות"
   },
   "nonCompliantMembersError": {
-    "message": "חברים שאינם עומדים בדרישות מדיניות הארגון היחיד או הכניסה הדו־שלבית אינם ניתנים לשחזור עד שהם יעמדו בדרישות המדיניות"
+    "message": "חברים שאינם עומדים בדרישות מדיניות הארגון היחידי או הכניסה הדו־שלבית אינם ניתנים לשחזור עד שהם יעמדו בדרישות המדיניות"
   },
   "fingerprint": {
     "message": "טביעת אצבע"
@@ -6170,11 +6568,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "הסיסמה הראשית שלך אינה עומדת באחת או יותר מפוליסות הארגון שלך. כדי לגשת לכספת, אתה מוכרח לעדכן את הסיסמה הראשית שלך עכשיו. בהמשך תנותק מההפעלה הנוכחית שלך, מה שידרוש ממך להיכנס חזרה. הפעלות פעילות במכשירים אחרים עלולות להישאר פעילות למשך עד שעה אחת."
   },
-  "automaticAppLogin": {
-    "message": "הכנס באופן אוטומטי משתמשים עבור יישומים מותרים"
+  "automaticAppLoginWithSSO": {
+    "message": "Automatic login with SSO"
   },
-  "automaticAppLoginDesc": {
-    "message": "טפסי כניסה ימולאו ויוגשו באופן אוטומטי עבור יישומים שנפתחו מספק הזהות המוגדר שלך."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Extend SSO security and convenience to unmanaged apps. When users launch an app from your identity provider, their login details are automatically filled and submitted, creating a one-click, secure flow from the identity provider to the app."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "מארח ספק זהות"
@@ -6185,23 +6583,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "הארגון שלך עדכן את אפשרויות הפענוח שלך. נא להגדיר סיסמה ראשית כדי לגשת לכספת שלך."
   },
-  "maximumVaultTimeout": {
-    "message": "פסק זמן לכספת"
+  "sessionTimeoutPolicyTitle": {
+    "message": "פסק זמן להפעלה"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "הגדר פסק זמן מרבי לכספת עבור חברים."
+  "sessionTimeoutPolicyDescription": {
+    "message": "הגדר פסק זמן להפעלה מרבי עבור כל החברים חוץ מבעלים."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "פסק זמן מרבי לכספת"
+  "maximumAllowedTimeout": {
+    "message": "פסק הזמן המרבי המותר"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "פסק זמן מרבי לכספת לא חוקי."
+  "maximumAllowedTimeoutRequired": {
+    "message": "נדרש פסק הזמן המרבי המותר."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "הזמן אינו חוקי. שנה לפחות ערך אחד."
+  },
+  "sessionTimeoutAction": {
+    "message": "פעולת פסק זמן להפעלה"
+  },
+  "immediately": {
+    "message": "באופן מיידי"
+  },
+  "onSystemLock": {
+    "message": "בנעילת המערכת"
+  },
+  "onAppRestart": {
+    "message": "בהפעלת היישום מחדש"
   },
   "hours": {
     "message": "שעות"
   },
   "minutes": {
     "message": "דקות"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "האם אתה בטוח שברצונך להתיר פסק זמן מרבי של \"לעולם לא\" עבור כל החברים?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "אפשרות זו תשמור את מפתחות ההצפנה של החברים שלך במכשירים שלהם. אם אתה בוחר אפשרות זו, תוודא שהמכשירים שלהם מוגנים במידה מספקת."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "למד עוד על הגנת מכשיר"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "\"נעילת מערכת\" חלה רק על היישום לדפדפן ולשולחן העבודה"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "היישום לנייד וברשת ישתמש באפשרות \"בהפעלת היישום מחדש\" בתור פסק הזמן המרבי המותר, מאחר והאפשרות אינה נתמכת."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "פוליסות הארגון שלך הגדירו את פסק הזמן לכספת המרבי שלך ל־$HOURS$ שעות ו־$MINUTES$ דקות.",
@@ -6648,6 +7076,15 @@
   "disabledSso": {
     "message": "SSO כבוי"
   },
+  "emailMustLoginWithSso": {
+    "message": "$EMAIL$ מוכרח להיכנס עם כניסה יחידה",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "enabledKeyConnector": {
     "message": "Key Connector הופעל"
   },
@@ -6734,6 +7171,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "אתה מוכרח להוסיף או את בסיס ה־URL של השרת או לפחות סביבה מותאמת אישית אחת."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "כתובות URL מוכרחות להשתמש ב־HTTPS."
   },
   "apiUrl": {
     "message": "URL של שרת ה־API"
@@ -6886,8 +7326,29 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "רק הכספת הארגונית המשויכת עם $ORGANIZATION$ תיוצא.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "רק הכספת הארגונית המשויכת עם $ORGANIZATION$ תיוצא. פריטי האוספים שלי לא יכללו.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "גישה נדחתה. אין לך הרשאות כדי לצפות בעמוד זה."
+  },
+  "noPageAccess": {
+    "message": "You do not have access to this page"
   },
   "masterPassword": {
     "message": "סיסמה ראשית"
@@ -7039,6 +7500,9 @@
   },
   "unknownSecret": {
     "message": "סוד לא ידוע, ייתכן שאתה צריך לבקש הרשאה כדי לגשת אל סוד זה."
+  },
+  "unknownServiceAccount": {
+    "message": "חשבון מכונה לא ידוע, ייתכן שתצטרך לבקש הרשאה לגשת לחשבון מכונה זה."
   },
   "unknownProject": {
     "message": "פרויקט לא ידוע, ייתכן שאתה צריך לבקש הרשאה כדי לגשת אל פרויקט זה."
@@ -7429,6 +7893,9 @@
   },
   "off": {
     "message": "כבוי"
+  },
+  "connected": {
+    "message": "מחובר"
   },
   "members": {
     "message": "חברים"
@@ -8284,12 +8751,6 @@
   "groupSlashUser": {
     "message": "קבוצה/משתמש"
   },
-  "lowKdfIterations": {
-    "message": "חזרות KDF נמוכות"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "שדרג את הגדרות ההצפנה שלך כדי לעמוד בהמלצות אבטחה חדשות ולשפר את הגנת החשבון."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "המשך התהליך יוציא אותך מכל ההפעלות הפעילות שלך. תידרש להיכנס חזרה כדי להמשיך כניסה דו-שלבית, אם ישנה. אנו ממליצים על ייצוא הכספת שלך לפני שינוי הגדרות ההצפנה שלך כדי למנוע איבוד נתונים."
   },
@@ -8393,8 +8854,8 @@
       }
     }
   },
-  "accessedProjectWithId": {
-    "message": "ניגש אל פרויקט עם מזהה: $PROJECT_ID$.",
+  "accessedProjectWithIdentifier": {
+    "message": "ניגש לפרויקט עם מזהה: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8420,10 +8881,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "מזהה חשבון המכונה שנמחק: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "ערך פרויקט עם מזהה: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "הוסיף משתמש: $USER_ID$ לחשבון מכונה עם מזהה: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "הסיר משתמש: $USER_ID$ מחשבון מכונה עם מזהה: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "הסיר קבוצה: $GROUP_ID$ מחשבון מכונה עם מזהה: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "יצר חשבון מכונה עם מזהה: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "הוסיף קבוצה: $GROUP_ID$ לחשבון מכונה עם מזהה: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "מחק חשבון מכונה עם מזהה: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -8636,7 +9176,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink1": {
-    "message": "מדיניות הארגון היחיד",
+    "message": "מדיניות הארגון היחידי",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart2": {
@@ -8936,23 +9476,23 @@
     "message": "ניהול אוספים"
   },
   "collectionManagementDescription": {
-    "message": "Configure the collection behavior for the organization"
+    "message": "הגדר את התנהגות האוספים עבור הארגון"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
-    "message": "Allow owners and admins to manage all collections and items from the Admin Console"
+    "message": "אפשר לבעלים ולמנהלים לנהל את כל האוספים והפריטים ממסוף המנהל"
   },
   "restrictCollectionCreationDescription": {
-    "message": "Restrict collection creation to owners and admins"
+    "message": "הגבל יצירת אוספים לבעלים ולמנהלים"
   },
   "restrictCollectionDeletionDescription": {
-    "message": "Restrict collection deletion to owners and admins"
+    "message": "הגבל מחיקת אוספים לבעלים ולמנהלים"
   },
   "restrictItemDeletionDescriptionStart": {
-    "message": "Restrict item deletion to members with the ",
+    "message": "הגבל מחיקת פריטים לחברים עם הרשאת ",
     "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "restrictItemDeletionDescriptionEnd": {
-    "message": " permission",
+    "message": "​",
     "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
@@ -9024,6 +9564,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "שונתה הגדרת ניהול אוספים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "הופעלה הגדרת הגבלת יצירת אוספים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "כובתה הגדרת הגבלת יצירת אוספים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "הופעלה הגדרת הגבלת מחיקת אוספים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "כובתה הגדרת הגבלת מחיקת אוספים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "הופעלה הגדרת הגבלת מחיקת פריטים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "כובתה הגדרת הגבלת מחיקת פריטים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "הופעלה הגדרת 'אפשר לבעלים ולמנהלים לנהל את כל האוספים והפריטים' $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "כובתה הגדרת 'אפשר לבעלים ולמנהלים לנהל את כל האוספים והפריטים' $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9192,6 +9804,12 @@
   },
   "assign": {
     "message": "הקצה"
+  },
+  "assignTasks": {
+    "message": "הקצה משימות"
+  },
+  "assignTasksToMembers": {
+    "message": "Assign tasks to members for guided resolution"
   },
   "assignToCollections": {
     "message": "הקצה לאוספים"
@@ -9588,8 +10206,17 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "שלח נתוני אירועים אל מופע ה־Logscale שלך"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "שלח נתוני אירועי כספת אל מופע ה־Datadog שלך"
+  },
   "failedToSaveIntegration": {
     "message": "שמירת האינטגרציה נכשלה. נא לנסות שוב מאוחר יותר."
+  },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "אתה מוכרח להיות מנהל הארגון כדי לבצע פעולה זו."
+  },
+  "failedToDeleteIntegration": {
+    "message": "מחיקת האינטגרציה נכשלה. נא לנסות שוב מאוחר יותר."
   },
   "deviceIdMissing": {
     "message": "מזהה המכשיר חסר"
@@ -9608,6 +10235,15 @@
   },
   "connectIntegrationButtonDesc": {
     "message": "חבר את $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
+  "updateIntegrationButtonDesc": {
+    "message": "עדכן $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9677,6 +10313,9 @@
   },
   "bearerToken": {
     "message": "אסימון נושא"
+  },
+  "repositoryNameHint": {
+    "message": "שם המאגר להטמעה"
   },
   "index": {
     "message": "אינדקס"
@@ -9817,12 +10456,6 @@
       }
     }
   },
-  "lowKDFIterationsBanner": {
-    "message": "חזרות KDF נמוכות. הגדל את מספר החזרות שלך כדי לשפר את האבטחה של חשבונך."
-  },
-  "changeKDFSettings": {
-    "message": "שנה הגדרות KDF"
-  },
   "secureYourInfrastructure": {
     "message": "אבטח את התשתית שלך"
   },
@@ -9920,26 +10553,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "כבוי"
   },
-  "higherKDFIterations": {
-    "message": "ערכי חזרות KDF גבוהים יותר יכולים לעזור להגן על הסיסמה הראשית מפני תקיפה כוחנית על ידי תוקף."
-  },
-  "incrementsOf100,000": {
-    "message": "במרווחים של 100,000"
-  },
-  "smallIncrements": {
-    "message": "במרווחים קטנים"
-  },
   "kdfIterationRecommends": {
     "message": "אנו ממליצים על 600,000 או יותר"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "עבור מכשירים ישנים יותר, הגדרת ה־KDF שלך לערך גבוה מדי עשויה להוביל לבעיות ביצועים. הגדל את הערך ב־$VALUE$ ובדוק את המכשירים שלך.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " צור קשר עם שירות הלקוחות כדי להחזיר את המנוי שלך."
@@ -10126,14 +10741,8 @@
   "learnMoreAboutApi": {
     "message": "למד עוד על ה־API של Bitwarden"
   },
-  "fileSend": {
-    "message": "סֵנְד של קובץ"
-  },
   "fileSends": {
     "message": "סֵנְדים של קובץ"
-  },
-  "textSend": {
-    "message": "סֵנְד של טקסט"
   },
   "textSends": {
     "message": "סֵנְדים של טקסט"
@@ -10388,7 +10997,7 @@
     "message": "אירוח עצמי"
   },
   "claim-domain-single-org-warning": {
-    "message": "דרישת דומיין תפעיל את מדיניות הארגון היחיד."
+    "message": "דרישת דומיין תפעיל את מדיניות הארגון היחידי."
   },
   "single-org-revoked-user-warning": {
     "message": "חברים שאינם עומדים בדרישות יבוטלו. מנהלים יכולים לשחזר חברים ברגע שהם עזבו את כל הארגונים האחרים."
@@ -10478,7 +11087,7 @@
     "message": "אל תאפשר לחברים לממש תוכנית משפחות דרך ארגון זה."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
-    "message": "תשלום באמצעות חשבון בנק זמין רק ללקוחות בארצות הברית. אתה תידרש לאמת את חשבון הבנק שלך. אנחנו נבצע מיקרו־הפקדה בתוך 1-2 ימי עסקים. הזן את קוד המתאר של ההצהרה מהפקדה זו בדף החיוב של הארגון כדי לאמת את חשבון הבנק. כשל באימות חשבון הבנק יגרום לפספוס תשלום ולהשעיית המנוי שלך."
+    "message": "תשלום באמצעות חשבון בנק זמין רק ללקוחות בארצות הברית. אתה תידרש לאמת את חשבון הבנק שלך. אנחנו נבצע מיקרו־הפקדה בתוך 1-2 ימי העסקים הבאים. הזן את קוד המתאר של ההצהרה מהפקדה זו בדף החיוב של הארגון כדי לאמת את חשבון הבנק. כשל באימות חשבון הבנק יגרום לפספוס תשלום ולהשעיית המנוי שלך."
   },
   "verifyBankAccountWithStatementDescriptorInstructions": {
     "message": "ביצענו מיקרו־הפקדה לחשבון הבנק שלך (זה עשוי לקחת 1-2 ימי עסקים). הזן את הקוד בן שש הספרות המתחיל ב־'SM' הנמצא בתיאור ההפקדה. כשל באימות חשבון הבנק יגרום לפספוס תשלום ולהשעיית המנוי שלך."
@@ -10588,6 +11197,15 @@
   },
   "domainClaimed": {
     "message": "דומיין נדרש"
+  },
+  "itemAddedToFavorites": {
+    "message": "פריט נוסף למועדפים"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "פריט הוסר מהמועדפים"
+  },
+  "copyNote": {
+    "message": "העתק הערה"
   },
   "organizationNameMaxLength": {
     "message": "שם ארגון לא יכול לחרוג מ־50 תווים."
@@ -10821,6 +11439,12 @@
   "changeAtRiskPassword": {
     "message": "שנה סיסמה בסיכון"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "כניסה זו נמצאת בסיכון וחסר לה אתר אינטרנט. הוסף אתר אינטרנט ושנה את הסיסמה עבור אבטחה חזקה יותר."
+  },
+  "missingWebsite": {
+    "message": "אתר אינטרנט חסר"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "הסר ביטול נעילה עם PIN"
   },
@@ -10841,6 +11465,58 @@
   },
   "cannotCreateCollection": {
     "message": "לארגונים חינמיים יכולים להיות עד 2 אוספים. שדרג לתוכנית בתשלום כדי להוסיף עוד אוספים."
+  },
+  "searchArchive": {
+    "message": "חיפוש בארכיון"
+  },
+  "archiveNoun": {
+    "message": "ארכיון",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "העבר לארכיון",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "הסר מהארכיון"
+  },
+  "itemsInArchive": {
+    "message": "פריטים בארכיון"
+  },
+  "noItemsInArchive": {
+    "message": "אין פריטים בארכיון"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "פריטים בארכיון יופיעו כאן ויוחרגו מתוצאות חיפוש כללי והצעות למילוי אוטומטי."
+  },
+  "itemWasSentToArchive": {
+    "message": "הפריט נשלח לארכיון"
+  },
+  "itemsWereSentToArchive": {
+    "message": "פריטים שנשלחו לארכיון"
+  },
+  "itemUnarchived": {
+    "message": "הפריט הוסר מהארכיון"
+  },
+  "bulkArchiveItems": {
+    "message": "הפריטים הועברו לארכיון"
+  },
+  "bulkUnarchiveItems": {
+    "message": "הפריטים הוסרו מהארכיון"
+  },
+  "archiveItem": {
+    "message": "העבר פריט לארכיון",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "פריטים בארכיון מוחרגים מתוצאות חיפוש כללי והצעות למילוי אוטומטי. האם אתה בטוח שברצונך להעביר פריט זה לארכיון?"
+  },
+  "archiveBulkItems": {
+    "message": "העבר פריטים לארכיון",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "פריטים בארכיון מוחרגים מתוצאות חיפוש כללי והצעות למילוי אוטומטי. האם אתה בטוח שברצונך להעביר פריטים אלה לארכיון?"
   },
   "businessUnit": {
     "message": "יחידת עסקים"
@@ -10949,6 +11625,12 @@
   "bitwardenExtensionInstalled": {
     "message": "הרחבת Bitwarden הותקנה!"
   },
+  "openTheBitwardenExtension": {
+    "message": "פתח את ההרחבה של Bitwarden"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "ההרחבה של Bitwarden הותקנה! פתח את ההרחבה כדי להיכנס ולהתחיל למלא אוטומטית."
+  },
   "openExtensionToAutofill": {
     "message": "פתח את ההרחבה כדי להיכנס ולהתחיל למלא אוטומטית."
   },
@@ -10974,7 +11656,7 @@
     "message": "הפעל מחדש"
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
-    "message": "תשלום באמצעות חשבון בנק זמין רק ללקוחות בארצות הברית. אתה תידרש לאמת את חשבון הבנק שלך. אנחנו נבצע מיקרו־הפקדה בתוך 1-2 ימי עסקים. הזן את קוד המתאר של ההצהרה מהפקדה זו בדף המנוי של הספק כדי לאמת את חשבון הבנק. כשל באימות חשבון הבנק יגרום לפספוס תשלום ולהשעיית המנוי שלך."
+    "message": "תשלום באמצעות חשבון בנק זמין רק ללקוחות בארצות הברית. אתה תידרש לאמת את חשבון הבנק שלך. אנחנו נבצע מיקרו־הפקדה בתוך 1-2 ימי העסקים הבאים. הזן את קוד המתאר של ההצהרה מהפקדה זו בדף המנוי של הספק כדי לאמת את חשבון הבנק. כשל באימות חשבון הבנק יגרום לפספוס תשלום ולהשעיית המנוי שלך."
   },
   "clickPayWithPayPal": {
     "message": "נא ללחוץ על הלחצן 'שלם עם PayPal' כדי להוסיף את שיטת התשלום שלך."
@@ -11039,7 +11721,7 @@
     "message": "קוד האבטחה של הכרטיס, הידוע גם כ־CVV או CVC, הוא בדרך כלל מספר בן 3 ספרות המודפס על גבי כרטיס האשראי שלך או מספר בן 4 ספרות המודפס מקדימה מעל מספר הכרטיס שלך."
   },
   "verifyBankAccountWarning": {
-    "message": "תשלום באמצעות חשבון בנק זמין רק ללקוחות בארצות הברית. אתה תידרש לאמת את חשבון הבנק שלך. אנחנו נבצע מיקרו־הפקדה בתוך 1-2 ימי עסקים. הזן את קוד המתאר של ההצהרה מהפקדה זו בדף פרטי התשלום כדי לאמת את חשבון הבנק. כשל באימות חשבון הבנק יגרום לפספוס תשלום ולהשעיית המנוי שלך."
+    "message": "תשלום באמצעות חשבון בנק זמין רק ללקוחות בארצות הברית. אתה תידרש לאמת את חשבון הבנק שלך. אנחנו נבצע מיקרו־הפקדה בתוך 1-2 ימי העסקים הבאים. הזן את קוד המתאר של ההצהרה מהפקדה זו בדף פרטי התשלום כדי לאמת את חשבון הבנק. כשל באימות חשבון הבנק יגרום לפספוס תשלום ולהשעיית המנוי שלך."
   },
   "taxId": {
     "message": "מזהה מס: $TAX_ID$",
@@ -11164,7 +11846,234 @@
     }
   },
   "confirmKeyConnectorDomain": {
-    "message": "Confirm Key Connector domain"
+    "message": "אשר דומיין של Key Connector"
+  },
+  "requiredToVerifyBankAccountWithStripe": {
+    "message": "תשלום באמצעות חשבון בנק זמין רק ללקוחות בארצות הברית. אתה תידרש לאמת את חשבון הבנק שלך. אנחנו נבצע מיקרו־הפקדה בתוך 1-2 ימי העסקים הבאים. כשל באימות חשבון הבנק יגרום לפספוס תשלום ולהשעיית המנוי שלך."
+  },
+  "verifyBankAccountWithStripe": {
+    "message": "ביצענו מיקרו־הפקדה לחשבון הבנק שלך. זה עשוי לקחת 1-2 ימי עסקים. כאשר תראה את ההפקדה בחשבונך, תוכל לאמת את חשבון הבנק שלך. כשל באימות חשבון הבנק שלך יגרום לפספוס תשלום ולהשעיית המנוי שלך."
+  },
+  "verifyNow": {
+    "message": "אמת כעת."
+  },
+  "additionalStorageGB": {
+    "message": "אחסון נוסף ב־GB"
+  },
+  "additionalServiceAccountsV2": {
+    "message": "חשבונות מכונה נוספים"
+  },
+  "secretsManagerSeats": {
+    "message": "מקומות במנהל הסודות"
+  },
+  "additionalStorage": {
+    "message": "אחסון נוסף"
+  },
+  "expandPurchaseDetails": {
+    "message": "הרחב פריטי רכישה"
+  },
+  "collapsePurchaseDetails": {
+    "message": "כווץ פריטי רכישה"
+  },
+  "familiesMembership": {
+    "message": "חברות למשפחות"
+  },
+  "planDescPremium": {
+    "message": "השלם אבטחה מקוונת"
+  },
+  "planDescFamiliesV2": {
+    "message": "אבטחת פרימיום למשפחה שלך"
+  },
+  "planDescFreeV2": {
+    "message": "שתף עם משתמש $COUNT$ אחר",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "planDescEnterpriseV2": {
+    "message": "יכולות מתקדמות עבור כל ארגון"
+  },
+  "planNameCustom": {
+    "message": "תוכנית מותאמת אישית"
+  },
+  "planDescCustom": {
+    "message": "Bitwarden מתרחבת עם עסקים בכל הגדלים כדי לאבטח סיסמאות ומידע רגיש. אם אתה חלק מארגון גדול, צור קשר עם המכירות כדי לבקש הצעת מחיר."
+  },
+  "builtInAuthenticator": {
+    "message": "מאמת מובנה"
+  },
+  "breachMonitoring": {
+    "message": "ניטור פרצות"
+  },
+  "andMoreFeatures": {
+    "message": "ועוד!"
+  },
+  "secureFileStorage": {
+    "message": "אחסון קבצים מאובטח"
+  },
+  "familiesUnlimitedSharing": {
+    "message": "שיתוף ללא הגבלה - בחר מי רואה מה"
+  },
+  "familiesUnlimitedCollections": {
+    "message": "אוספים משפחתיים ללא הגבלה"
+  },
+  "familiesSharedStorage": {
+    "message": "אחסון משותף עבור מידע משפחתי חשוב"
+  },
+  "limitedUsersV2": {
+    "message": "עד $COUNT$ חברים",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedCollectionsV2": {
+    "message": "עד $COUNT$ אוספים",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "alwaysFree": {
+    "message": "תמיד חינם"
+  },
+  "twoSecretsIncluded": {
+    "message": "2 סודות"
+  },
+  "projectsIncludedV2": {
+    "message": "$COUNT$ פרויקט(ים)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "secureItemSharing": {
+    "message": "שיתוף פריטים מאובטח"
+  },
+  "scimSupport": {
+    "message": "תמיכת SCIM"
+  },
+  "includedMachineAccountsV2": {
+    "message": "$COUNT$ חשבונות מכונה",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "enterpriseSecurityPolicies": {
+    "message": "פוליסות אבטחה ארגוניות"
+  },
+  "selfHostOption": {
+    "message": "אפשרות לאירוח עצמי"
+  },
+  "complimentaryFamiliesPlan": {
+    "message": "תוכנית למשפחות על חשבון הבית לכל המשתמשים"
+  },
+  "strengthenCybersecurity": {
+    "message": "חזק את אבטחת הסייבר"
+  },
+  "boostProductivity": {
+    "message": "שיפור פרודוקטיביות"
+  },
+  "seamlessIntegration": {
+    "message": "אינטגרציה חלקה"
+  },
+  "families": {
+    "message": "משפחות"
+  },
+  "upgradeToFamilies": {
+    "message": "שדרג למשפחות"
+  },
+  "upgradeToPremium": {
+    "message": "שדרג לפרימיום"
+  },
+  "familiesUpdated": {
+    "message": "שדרגת למשפחות!"
+  },
+  "taxCalculationError": {
+    "message": "אירעה שגיאה בחישוב המס עבור המיקום שלך. נא לנסות שוב."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "ברוך בואך אל Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "פתח תכונות אבטחה נוספות עם פרימיום, או התחל בשיתוף פריטים עם משפחות"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "המחירים אינם כוללים מס ומחויבים מדי שנה."
+  },
+  "organizationNameDescription": {
+    "message": "שם הארגון שלך יופיע בהזמנות שאתה שולח לחברים."
+  },
+  "continueWithoutUpgrading": {
+    "message": "המשך ללא שדרוג"
+  },
+  "upgradeYourPlan": {
+    "message": "שדרג את התוכנית שלך"
+  },
+  "upgradeNow": {
+    "message": "שדרג עכשיו"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "השלמת טופס זה תיצור ארגון משפחות חדש. באפשרותך לשדרג את הארגון החינמי שלך ממסוף המנהל."
+  },
+  "upgradeErrorMessage": {
+    "message": "נתקלנו בשגיאה בעת עיבוד השדרוג שלך. נא לנסות שוב."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "יש לך תוכנית Bitwarden בחינם"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "שדרג עבור אבטחה מלאה"
+  },
+  "viewbusinessplans": {
+    "message": "הצג תוכניות עסקיות"
+  },
+  "updateEncryptionSettings": {
+    "message": "עדכן הגדרות הצפנה"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "עדכן את הגדרות ההצפנה שלך"
+  },
+  "updateSettings": {
+    "message": "עדכן הגדרות"
+  },
+  "algorithm": {
+    "message": "אלגוריתם"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "בחר כיצד על Bitwarden להצפין את נתוני הכספת שלך. כל האפשרויות בטוחות, אבל שיטות חזקות יותר מציעות הגנה טובה יותר - במיוחד נגד מתקפות כוחניות. Bitwarden ממליצה על הגדרת ברירת המחדל עבור רוב המשתמשים."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "שיפור הערכים מעל ברירת המחדל ישפרו אבטחה, אבל לכספת שלך עשוי לקחת יותר זמן להיפתח כתוצאה."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "אודות אלגוריתמי הצפנה"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "האלגוריתם PBKDF2-SHA256 הוא שיטת הצפנה בדוקה היטב אשר מאזנת אבטחה וביצועים. טוב עבור רוב המשתמשים."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "האלגוריתם Argon2id מציע הגנה חזקה יותר נגד מתקפות מודרניות. טוב ביותר עבור משתמשים מתקדמים עם מכשירים חזקים."
+  },
+  "zipPostalCodeLabel": {
+    "message": "מיקוד"
+  },
+  "cardNumberLabel": {
+    "message": "מספר כרטיס"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "התחל ניסיון משפחות בחינם"
   }
 }
-

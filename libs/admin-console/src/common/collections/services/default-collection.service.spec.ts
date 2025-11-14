@@ -177,8 +177,7 @@ describe("DefaultCollectionService", () => {
       // Arrange dependencies
       void setEncryptedState([collection1, collection2]).then(() => {
         // Act: emit undefined
-        cryptoKeys.next(undefined);
-        keyService.activeUserOrgKeys$ = of(undefined);
+        cryptoKeys.next(null);
       });
     });
 
@@ -366,6 +365,27 @@ describe("DefaultCollectionService", () => {
 
       const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
       expect(result!.length).toEqual(0);
+    });
+  });
+
+  describe("groupByOrganization", () => {
+    it("groups collections by organization", () => {
+      const org1 = { organizationId: "org1" } as CollectionView;
+      org1.name = "Collection 1";
+
+      const org2 = { organizationId: "org1" } as CollectionView;
+      org2.name = "Collection 2";
+      const org3 = { organizationId: "org2" } as CollectionView;
+      org3.name = "Collection 3";
+      const collections = [org1, org2, org3];
+
+      const result = collectionService.groupByOrganization(collections);
+
+      expect(result.size).toBe(2);
+      expect(result.get(org1.organizationId)?.length).toBe(2);
+      expect(result.get(org1.organizationId)).toContainPartialObjects([org1, org2]);
+      expect(result.get(org3.organizationId)?.length).toBe(1);
+      expect(result.get(org3.organizationId)).toContainPartialObjects([org3]);
     });
   });
 

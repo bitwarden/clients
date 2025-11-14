@@ -1,4 +1,4 @@
-<popup-page [loading]="loading$ | async">
+<popup-page [loading]="showSpinnerLoaders$ | async" [hideOverflow]="showSkeletonsLoaders$ | async">
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
       <app-new-item-dropdown [initialValues]="newItemItemValues$ | async"></app-new-item-dropdown>
@@ -41,6 +41,9 @@
       </bit-spotlight>
     </ng-container>
     <ng-container *ngIf="vaultState !== VaultStateEnum.Empty">
+      <!-- At-Risk callout displays as a banner and should always remain visually above all other callouts -->
+      <vault-at-risk-password-callout></vault-at-risk-password-callout>
+
       <div class="tw-mb-4" *ngIf="showHasItemsVaultSpotlight$ | async">
         <bit-spotlight
           [title]="'hasItemsVaultNudgeTitle' | i18n"
@@ -53,7 +56,6 @@
           </ul>
         </bit-spotlight>
       </div>
-      <vault-at-risk-password-callout></vault-at-risk-password-callout>
       <app-vault-header-v2></app-vault-header-v2>
     </ng-container>
   </ng-container>
@@ -101,4 +103,10 @@
       ></app-vault-list-items-container>
     </ng-container>
   </ng-container>
+
+  @if (showSkeletonsLoaders$ | async) {
+    <vault-fade-in-out-skeleton>
+      <vault-loading-skeleton></vault-loading-skeleton>
+    </vault-fade-in-out-skeleton>
+  }
 </popup-page>

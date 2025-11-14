@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "welcomeBack": {
     "message": "خوش آمدید"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "استفاده از ورود تک مرحله‌ای"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "ثبت"
   },
@@ -960,9 +966,6 @@
   "insertU2f": {
     "message": "کلید امنیتی خود را وارد پورت USB رایانه کنید، اگر دکمه‌ای دارد آن را بفشارید."
   },
-  "recoveryCodeDesc": {
-    "message": "دسترسی به تمامی ارائه‌دهندگان دو مرحله‌ای را از دست داده‌اید؟ از کد بازیابی خود برای غیرفعال‌سازی ارائه‌دهندگان دو مرحله‌ای حسابتان استفاده کنید."
-  },
   "recoveryCodeTitle": {
     "message": "کد بازیابی"
   },
@@ -1034,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "شما باید یا نشانی اینترنتی پایه سرور را اضافه کنید، یا حداقل یک محیط سفارشی تعریف کنید."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
   },
   "customEnvironment": {
     "message": "محیط سفارشی"
@@ -1224,6 +1230,15 @@
   },
   "invalidMasterPassword": {
     "message": "کلمه عبور اصلی نامعتبر است"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "twoStepLoginConfirmation": {
     "message": "ورود دو مرحله‌ای باعث می شود که حساب کاربری شما با استفاده از یک دستگاه دیگر مانند کلید امنیتی، برنامه احراز هویت، پیامک، تماس تلفنی و یا رایانامه، اعتبار خود را با ایمنی بیشتر اثبات کند. ورود دو مرحله‌ای می‌تواند در bitwarden.com راه‌اندازی شود. آیا می‌خواهید از سایت بازدید کنید؟"
@@ -1845,6 +1860,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "در زمان شروع مجدد، با کلمه عبور اصلی قفل کن"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Require master password or PIN on app restart"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Require master password on app restart"
   },
   "deleteAccount": {
     "message": "حذف حساب کاربری"
@@ -2543,6 +2564,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum custom timeout is 1 minute."
+  },
   "inviteAccepted": {
     "message": "دعوتنامه پذیرفته شد"
   },
@@ -2654,6 +2678,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -3836,6 +3878,12 @@
   "changeAtRiskPassword": {
     "message": "تغییر کلمه عبور در معرض خطر"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "نمی‌توانید مجموعه‌هایی را که فقط دسترسی مشاهده دارند حذف کنید: $COLLECTIONS$",
     "placeholders": {
@@ -4077,11 +4125,17 @@
   "showLess": {
     "message": "Show less"
   },
-  "enableAutotype": {
-    "message": "Enable Autotype"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
@@ -4096,13 +4150,75 @@
   "confirm": {
     "message": "Confirm"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
   },
   "editShortcut": {
     "message": "Edit shortcut"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
   }
 }

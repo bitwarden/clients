@@ -12,8 +12,6 @@ import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
 import { LogService } from "../../../platform/abstractions/log.service";
-import { StateService } from "../../../platform/abstractions/state.service";
-import { EncryptionType } from "../../../platform/enums";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import {
   MASTER_PASSWORD_DISK,
@@ -26,7 +24,6 @@ import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
 import { KeyGenerationService } from "../../crypto";
 import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
-import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 import { EncryptedString, EncString } from "../../crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
 import {
@@ -38,7 +35,7 @@ import {
 } from "../types/master-password.types";
 
 /** Memory since master key shouldn't be available on lock */
-const MASTER_KEY = new UserKeyDefinition<MasterKey>(MASTER_PASSWORD_MEMORY, "masterKey", {
+export const MASTER_KEY = new UserKeyDefinition<MasterKey>(MASTER_PASSWORD_MEMORY, "masterKey", {
   deserializer: (masterKey) => SymmetricCryptoKey.fromJSON(masterKey) as MasterKey,
   clearOn: ["lock", "logout"],
 });
@@ -50,7 +47,7 @@ const MASTER_KEY_HASH = new UserKeyDefinition<string>(MASTER_PASSWORD_DISK, "mas
 });
 
 /** Disk to persist through lock */
-const MASTER_KEY_ENCRYPTED_USER_KEY = new UserKeyDefinition<EncryptedString>(
+export const MASTER_KEY_ENCRYPTED_USER_KEY = new UserKeyDefinition<EncryptedString>(
   MASTER_PASSWORD_DISK,
   "masterKeyEncryptedUserKey",
   {
@@ -60,7 +57,7 @@ const MASTER_KEY_ENCRYPTED_USER_KEY = new UserKeyDefinition<EncryptedString>(
 );
 
 /** Disk to persist through lock and account switches */
-const FORCE_SET_PASSWORD_REASON = new UserKeyDefinition<ForceSetPasswordReason>(
+export const FORCE_SET_PASSWORD_REASON = new UserKeyDefinition<ForceSetPasswordReason>(
   MASTER_PASSWORD_DISK,
   "forceSetPasswordReason",
   {
@@ -82,9 +79,7 @@ export const MASTER_PASSWORD_UNLOCK_KEY = new UserKeyDefinition<MasterPasswordUn
 export class MasterPasswordService implements InternalMasterPasswordServiceAbstraction {
   constructor(
     private stateProvider: StateProvider,
-    private stateService: StateService,
     private keyGenerationService: KeyGenerationService,
-    private encryptService: EncryptService,
     private logService: LogService,
     private cryptoFunctionService: CryptoFunctionService,
     private accountService: AccountService,
@@ -132,7 +127,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     return EncString.fromJSON(key);
   }
 
-  private emailToSalt(email: string): MasterPasswordSalt {
+  emailToSalt(email: string): MasterPasswordSalt {
     return email.toLowerCase().trim() as MasterPasswordSalt;
   }
 
@@ -219,33 +214,15 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
       throw new Error("No master key found.");
     }
 
-    let decUserKey: SymmetricCryptoKey;
-
-    if (userKey.encryptionType === EncryptionType.AesCbc256_B64) {
-      try {
-        decUserKey = await this.encryptService.unwrapSymmetricKey(userKey, masterKey);
-      } catch {
-        this.logService.warning("Failed to decrypt user key with master key.");
-        return null;
-      }
-    } else if (userKey.encryptionType === EncryptionType.AesCbc256_HmacSha256_B64) {
-      try {
-        const newKey = await this.keyGenerationService.stretchKey(masterKey);
-        decUserKey = await this.encryptService.unwrapSymmetricKey(userKey, newKey);
-      } catch {
-        this.logService.warning("Failed to decrypt user key with stretched master key.");
-        return null;
-      }
-    } else {
-      throw new Error("Unsupported encryption type.");
-    }
-
-    if (decUserKey == null) {
-      this.logService.warning("Failed to decrypt user key with master key, user key is null.");
+    await SdkLoadService.Ready;
+    try {
+      return new SymmetricCryptoKey(
+        PureCrypto.decrypt_user_key_with_master_key(userKey.toSdk(), masterKey.toEncoded()),
+      ) as UserKey;
+    } catch {
+      this.logService.warning("Failed to decrypt user key with master key.");
       return null;
     }
-
-    return decUserKey as UserKey;
   }
 
   async makeMasterPasswordAuthenticationData(
@@ -256,6 +233,9 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     assertNonNullish(password, "password");
     assertNonNullish(kdf, "kdf");
     assertNonNullish(salt, "salt");
+    if (password === "") {
+      throw new Error("Master password cannot be empty.");
+    }
 
     // We don't trust callers to use masterpasswordsalt correctly. They may type assert incorrectly.
     salt = salt.toLowerCase().trim() as MasterPasswordSalt;
@@ -294,18 +274,19 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     assertNonNullish(kdf, "kdf");
     assertNonNullish(salt, "salt");
     assertNonNullish(userKey, "userKey");
+    if (password === "") {
+      throw new Error("Master password cannot be empty.");
+    }
 
     // We don't trust callers to use masterpasswordsalt correctly. They may type assert incorrectly.
     salt = salt.toLowerCase().trim() as MasterPasswordSalt;
 
     await SdkLoadService.Ready;
-    const masterKeyWrappedUserKey = new EncString(
-      PureCrypto.encrypt_user_key_with_master_password(
-        userKey.toEncoded(),
-        password,
-        salt,
-        kdf.toSdkConfig(),
-      ),
+    const masterKeyWrappedUserKey = PureCrypto.encrypt_user_key_with_master_password(
+      userKey.toEncoded(),
+      password,
+      salt,
+      kdf.toSdkConfig(),
     ) as MasterKeyWrappedUserKey;
     return new MasterPasswordUnlockData(salt, kdf, masterKeyWrappedUserKey);
   }
@@ -320,7 +301,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     await SdkLoadService.Ready;
     const userKey = new SymmetricCryptoKey(
       PureCrypto.decrypt_user_key_with_master_password(
-        masterPasswordUnlockData.masterKeyWrappedUserKey.encryptedString,
+        masterPasswordUnlockData.masterKeyWrappedUserKey,
         password,
         masterPasswordUnlockData.salt,
         masterPasswordUnlockData.kdf.toSdkConfig(),
@@ -339,5 +320,11 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     await this.stateProvider
       .getUser(userId, MASTER_PASSWORD_UNLOCK_KEY)
       .update(() => masterPasswordUnlockData.toJSON());
+  }
+
+  masterPasswordUnlockData$(userId: UserId): Observable<MasterPasswordUnlockData | null> {
+    assertNonNullish(userId, "userId");
+
+    return this.stateProvider.getUser(userId, MASTER_PASSWORD_UNLOCK_KEY).state$;
   }
 }

@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Je hebt geen toestemming om dit item te bewerken"
+  },
   "welcomeBack": {
     "message": "Welkom terug"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "Single sign-on gebruiken"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Je organisatie vereist single sign-on."
+  },
   "submit": {
     "message": "Opslaan"
   },
@@ -960,9 +966,6 @@
   "insertU2f": {
     "message": "Plaats je beveilingssleutel in de USB-poort van je computer. Als het een knop heeft, druk deze dan in."
   },
-  "recoveryCodeDesc": {
-    "message": "Ben je de toegang tot al je tweestapsaanbieders verloren? Gebruik dan je herstelcode om alle tweestapsaanbieders op je account uit te schakelen."
-  },
   "recoveryCodeTitle": {
     "message": "Herstelcode"
   },
@@ -1034,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Je moet de basisserver-URL of ten minste één aangepaste omgeving toevoegen."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL's moeten HTTPS gebruiken."
   },
   "customEnvironment": {
     "message": "Aangepaste omgeving"
@@ -1225,6 +1231,15 @@
   "invalidMasterPassword": {
     "message": "Ongeldig hoofdwachtwoord"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Ongeldig hoofdwachtwoord. Check of je e-mailadres klopt en of je account is aangemaakt op $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Tweestapsaanmelding beschermt je account door je inlogpoging te bevestigen met een ander apparaat zoals een beveiligingssleutel, authenticatie-app, SMS, spraakoproep of e-mail. Je kunt Tweestapsaanmelding inschakelen in de webkluis op bitwarden.com. Wil je de website nu bezoeken?"
   },
@@ -1306,7 +1321,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Pictogrammen van de website weergeven URL's voor wachtwoordwijzigingen ophalen"
+    "message": "Websitepictogrammen weergeven en URL's voor wachtwoordwijzigingen ophalen"
   },
   "enableMinToTray": {
     "message": "Minimaliseren naar systeemvak"
@@ -1845,6 +1860,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bij herstart vergrendelen met hoofdwachtwoord"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Hoofdwachtwoord of pincode vereisen bij herstart van de app"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Hoofdwachtwoord vereisen bij herstart van de app"
   },
   "deleteAccount": {
     "message": "Account verwijderen"
@@ -2543,6 +2564,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimale aangepaste time-out is 1 minuut."
+  },
   "inviteAccepted": {
     "message": "Uitnodiging geaccepteerd"
   },
@@ -2654,6 +2678,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Alleen de organisatiekluis die gekoppeld is aan $ORGANIZATION$ wordt geëxporteerd.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Exporteert alleen de organisatiekluis van $ORGANIZATION$. Geen persoonlijke kluis-items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -3836,6 +3878,12 @@
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Deze login is in gevaar en mist een website. Voeg een website toe en verander het wachtwoord voor een sterkere beveiliging."
+  },
+  "missingWebsite": {
+    "message": "Ontbrekende website"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Je kunt verzamelingen niet verwijderen met alleen rechten voor weergeven: $COLLECTIONS$",
     "placeholders": {
@@ -4077,11 +4125,17 @@
   "showLess": {
     "message": "Minder weergeven"
   },
-  "enableAutotype": {
-    "message": "Autotypen inschakelen"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden valideert de invoerlocaties niet, zorg ervoor dat je je in het juiste venster en veld bevindt voordat je de snelkoppeling gebruikt."
+  },
+  "typeShortcut": {
+    "message": "Typ de sneltoets"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Voeg een of twee van de volgende toetsen toe: Ctrl, Alt, Win of Shift, en een letter."
+  },
+  "invalidShortcut": {
+    "message": "Ongeldige sneltoets"
   },
   "moreBreadcrumbs": {
     "message": "Meer broodkruimels",
@@ -4096,13 +4150,75 @@
   "confirm": {
     "message": "Bevestigen"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Snelkoppeling autotype inschakelen"
+  "enableAutotypeShortcutPreview": {
+    "message": "Autotype sneltoets inschakelen (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
-    "message": "Zorg ervoor dat je je in het juiste veld bevindt voordat je de snelkoppeling gebruikt om te voorkomen dat je de gegevens op de verkeerde plaats invult."
+  "enableAutotypeShortcutDescription": {
+    "message": "Zorg ervoor dat je je in het juiste veld staat voordat je de snelkoppeling gebruikt om te voorkomen dat je de gegevens op de verkeerde plaats invult."
   },
   "editShortcut": {
     "message": "Snelkoppeling bewerken"
+  },
+  "archiveNoun": {
+    "message": "Archief",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archiveren",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Dearchiveren"
+  },
+  "itemsInArchive": {
+    "message": "Items in archief"
+  },
+  "noItemsInArchive": {
+    "message": "Geen items in archief"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Gearchiveerde items verschijnen hier en worden uitgesloten van algemene zoekresultaten en automatisch invulsuggesties."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item naar archief verzonden"
+  },
+  "itemWasUnarchived": {
+    "message": "Item uit het archief gehaald"
+  },
+  "archiveItem": {
+    "message": "Item archiveren"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Gearchiveerde items worden uitgesloten van algemene zoekresultaten en automatische invulsuggesties. Weet je zeker dat je dit item wilt archiveren?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "Postcode"
+  },
+  "cardNumberLabel": {
+    "message": "Kaartnummer"
+  },
+  "upgradeNow": {
+    "message": "Nu upgraden"
+  },
+  "builtInAuthenticator": {
+    "message": "Ingebouwde authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Beveiligde bestandsopslag"
+  },
+  "emergencyAccess": {
+    "message": "Noodtoegang"
+  },
+  "breachMonitoring": {
+    "message": "Lek-monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "En meer!"
+  },
+  "planDescPremium": {
+    "message": "Online beveiliging voltooien"
+  },
+  "upgradeToPremium": {
+    "message": "Opwaarderen naar Premium"
   }
 }

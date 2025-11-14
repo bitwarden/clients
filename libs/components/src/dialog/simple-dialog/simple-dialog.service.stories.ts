@@ -9,12 +9,14 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { ButtonModule } from "../../button";
 import { I18nMockService } from "../../utils/i18n-mock.service";
 import { DialogModule } from "../dialog.module";
-import { DialogService } from "../dialog.service";
+import { CenterPositionStrategy, DialogService } from "../dialog.service";
 
 interface Animal {
   animal: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <button type="button" bitButton (click)="openSimpleDialog()">Open Simple Dialog</button>
@@ -35,6 +37,7 @@ class StoryDialogComponent {
       data: {
         animal: "panda",
       },
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 
@@ -44,6 +47,7 @@ class StoryDialogComponent {
         animal: "panda",
       },
       disableClose: true,
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 
@@ -53,10 +57,13 @@ class StoryDialogComponent {
         animal: "panda",
       },
       disableClose: true,
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-simple-dialog>
@@ -87,6 +94,8 @@ class SimpleDialogContent {
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-simple-dialog>
@@ -116,6 +125,8 @@ class NonDismissableWithPrimaryButtonContent {
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-simple-dialog>

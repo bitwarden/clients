@@ -21,6 +21,8 @@ import { SecretListView } from "../models/view/secret-list.view";
 import { SecretView } from "../models/view/secret.view";
 import { SecretService } from "../secrets/secret.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-secrets-list",
   templateUrl: "./secrets-list.component.html",
@@ -29,9 +31,8 @@ import { SecretService } from "../secrets/secret.service";
 export class SecretsListComponent implements OnDestroy, OnInit {
   protected dataSource = new TableDataSource<SecretListView>();
 
-  @Input()
-  disableVirtualScroll: boolean;
-
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get secrets(): SecretListView[] {
     return this._secrets;
@@ -43,22 +44,44 @@ export class SecretsListComponent implements OnDestroy, OnInit {
   }
   private _secrets: SecretListView[];
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   set search(search: string) {
     this.selection.clear();
     this.dataSource.filter = search;
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() trash: boolean;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() editSecretEvent = new EventEmitter<string>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() viewSecretEvent = new EventEmitter<string>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() copySecretNameEvent = new EventEmitter<string>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() copySecretValueEvent = new EventEmitter<string>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() copySecretUuidEvent = new EventEmitter<string>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onSecretCheckedEvent = new EventEmitter<string[]>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() deleteSecretsEvent = new EventEmitter<SecretListView[]>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() newSecretEvent = new EventEmitter();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() restoreSecretsEvent = new EventEmitter();
 
   private destroy$: Subject<void> = new Subject<void>();

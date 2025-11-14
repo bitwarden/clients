@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { EVENTS, MAX_DEEP_QUERY_RECURSION_DEPTH } from "@bitwarden/common/autofill/constants";
 
 import { nodeIsElement } from "../utils";
@@ -7,7 +5,8 @@ import { nodeIsElement } from "../utils";
 import { DomQueryService as DomQueryServiceInterface } from "./abstractions/dom-query.service";
 
 export class DomQueryService implements DomQueryServiceInterface {
-  private pageContainsShadowDom: boolean;
+  /** Non-null asserted. */
+  private pageContainsShadowDom!: boolean;
   private ignoredTreeWalkerNodes = new Set([
     "svg",
     "script",
@@ -79,8 +78,9 @@ export class DomQueryService implements DomQueryServiceInterface {
   /**
    * Checks if the page contains any shadow DOM elements.
    */
-  checkPageContainsShadowDom = (): void => {
+  checkPageContainsShadowDom = (): boolean => {
     this.pageContainsShadowDom = this.queryShadowRoots(globalThis.document.body, true).length > 0;
+    return this.pageContainsShadowDom;
   };
 
   /**
@@ -109,7 +109,7 @@ export class DomQueryService implements DomQueryServiceInterface {
   ): T[] {
     let elements = this.queryElements<T>(root, queryString);
 
-    const shadowRoots = this.recursivelyQueryShadowRoots(root);
+    const shadowRoots = this.pageContainsShadowDom ? this.recursivelyQueryShadowRoots(root) : [];
     for (let index = 0; index < shadowRoots.length; index++) {
       const shadowRoot = shadowRoots[index];
       elements = elements.concat(this.queryElements<T>(shadowRoot, queryString));
@@ -152,10 +152,6 @@ export class DomQueryService implements DomQueryServiceInterface {
     root: Document | ShadowRoot | Element,
     depth: number = 0,
   ): ShadowRoot[] {
-    if (!this.pageContainsShadowDom) {
-      return [];
-    }
-
     if (depth >= MAX_DEEP_QUERY_RECURSION_DEPTH) {
       throw new Error("Max recursion depth reached");
     }
@@ -220,13 +216,12 @@ export class DomQueryService implements DomQueryServiceInterface {
     if ((chrome as any).dom?.openOrClosedShadowRoot) {
       try {
         return (chrome as any).dom.openOrClosedShadowRoot(node);
-        // FIXME: Remove when updating file. Eslint update
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
+      } catch {
         return null;
       }
     }
 
+    // Firefox-specific equivalent of `openOrClosedShadowRoot`
     return (node as any).openOrClosedShadowRoot;
   }
 
@@ -279,7 +274,7 @@ export class DomQueryService implements DomQueryServiceInterface {
         ? NodeFilter.FILTER_REJECT
         : NodeFilter.FILTER_ACCEPT,
     );
-    let currentNode = treeWalker?.currentNode;
+    let currentNode: Node | null = treeWalker?.currentNode;
 
     while (currentNode) {
       if (filterCallback(currentNode)) {

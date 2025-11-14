@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "אין לך הרשאות לערוך את הפריט הזה"
+  },
   "welcomeBack": {
     "message": "ברוך שובך"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "השתמש בכניסה יחידה"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "הארגון שלך דורש כניסה יחידה."
+  },
   "submit": {
     "message": "שלח"
   },
@@ -960,9 +966,6 @@
   "insertU2f": {
     "message": "הכנס את מפתח האבטחה שלך אל כניסת ה-USB במחשבך. אם יש לו כפתור, גע בו."
   },
-  "recoveryCodeDesc": {
-    "message": "איבדת גישה לכל ספקי האימות הדו-שלבי שלך? השתמש בקוד שחזור כדי לבטל את כל הספקים הקיימים בחשבונך."
-  },
   "recoveryCodeTitle": {
     "message": "קוד שחזור"
   },
@@ -1034,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "אתה מוכרח להוסיף או את בסיס ה־URL של השרת או לפחות סביבה מותאמת אישית אחת."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "כתובות URL מוכרחות להשתמש ב־HTTPS."
   },
   "customEnvironment": {
     "message": "סביבה מותאמת אישית"
@@ -1225,6 +1231,15 @@
   "invalidMasterPassword": {
     "message": "סיסמה ראשית שגויה"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "סיסמה ראשית אינה תקינה. יש לאשר שהדוא\"ל שלך נכון ושהחשבון שלך נוצר ב־$HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "אימות דו שלבי הופך את החשבון שלך למאובטח יותר בכך שתצטרך לאשר התחברות בעזרת מפתח אבטחה, תוכנת אימות, SMS, שיחת טלפון, או אימייל. ניתן להפעיל את \"אימות דו שלבי\" בכספת שבאתר bitwarden.com. האם ברצונך לפתוח את האתר כעת?"
   },
@@ -1306,7 +1321,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "הצג סמלי אתרים ואחזר כתובות URL לשינוי סיסמה"
+    "message": "הצג סמלי אתרי אינטרנט ואחזר כתובות URL לשינוי סיסמה"
   },
   "enableMinToTray": {
     "message": "מזער למגש המערכת"
@@ -1845,6 +1860,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "נעל בעזרת הסיסמה הראשית בהפעלה מחדש"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "דרוש סיסמה ראשית או PIN בעת הפעלה מחדש של היישום"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "דרוש סיסמה ראשית בעת הפעלה מחדש של היישום"
   },
   "deleteAccount": {
     "message": "מחק חשבון"
@@ -2543,6 +2564,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "פסק זמן מותאם אישית מינימלי הוא דקה 1."
+  },
   "inviteAccepted": {
     "message": "ההזמנה התקבלה"
   },
@@ -2654,6 +2678,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "רק הכספת הארגונית המשויכת עם $ORGANIZATION$ תיוצא.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "רק הכספת הארגונית המשויכת עם $ORGANIZATION$ תיוצא. פריטי האוספים שלי לא יכללו.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -3836,6 +3878,12 @@
   "changeAtRiskPassword": {
     "message": "שנה סיסמה בסיכון"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "כניסה זו נמצאת בסיכון וחסר בה אתר אינטרנט. הוסף אתר אינטרנט ושנה את הסיסמה לאבטחה חזקה יותר."
+  },
+  "missingWebsite": {
+    "message": "לא נמצא אתר אינטרנט"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "אינך יכול להסיר אוספים עם הרשאות הצגה בלבד: $COLLECTIONS$",
     "placeholders": {
@@ -4077,11 +4125,17 @@
   "showLess": {
     "message": "הצג פחות"
   },
-  "enableAutotype": {
-    "message": "הפעל הקלדה אוטומטית"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden לא מאמת את מקומות הקלט, נא לוודא שזה החלון והשדה הנכונים בטרם שימוש בקיצור הדרך."
+  },
+  "typeShortcut": {
+    "message": "הקלד קיצור דרך"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "כלול אחד או שניים ממקשי הצירוף הבאים: Ctrl, Alt, Win, או Shift, ואות."
+  },
+  "invalidShortcut": {
+    "message": "קיצור דרך לא חוקי"
   },
   "moreBreadcrumbs": {
     "message": "עוד סימני דרך",
@@ -4096,13 +4150,75 @@
   "confirm": {
     "message": "אשר"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+  "enableAutotypeShortcutPreview": {
+    "message": "הפעל קיצור דרך להקלדה אוטומטית (תצוגה תכונה מקדימה)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  "enableAutotypeShortcutDescription": {
+    "message": "וודא שאתה נמצא בשדה הנכון לפני השימוש בקיצור הדרך כדי להימנע ממילוי נתונים במקום הלא נכון."
   },
   "editShortcut": {
-    "message": "Edit shortcut"
+    "message": "ערוך קיצור דרך"
+  },
+  "archiveNoun": {
+    "message": "ארכיון",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "העבר לארכיון",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "הסר מהארכיון"
+  },
+  "itemsInArchive": {
+    "message": "פריטים בארכיון"
+  },
+  "noItemsInArchive": {
+    "message": "אין פריטים בארכיון"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "פריטים בארכיון יופיעו כאן ויוחרגו מתוצאות חיפוש כללי והצעות למילוי אוטומטי."
+  },
+  "itemWasSentToArchive": {
+    "message": "הפריט נשלח לארכיון"
+  },
+  "itemWasUnarchived": {
+    "message": "הפריט הוסר מהארכיון"
+  },
+  "archiveItem": {
+    "message": "העבר פריט לארכיון"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "פריטים בארכיון מוחרגים מתוצאות חיפוש כללי והצעות למילוי אוטומטי. האם אתה בטוח שברצונך להעביר פריט זה לארכיון?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "מיקוד"
+  },
+  "cardNumberLabel": {
+    "message": "מספר כרטיס"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
   }
 }

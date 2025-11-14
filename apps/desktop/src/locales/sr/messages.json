@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "welcomeBack": {
     "message": "Добродошли назад"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "Употребити једнократну пријаву"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "Пошаљи"
   },
@@ -960,9 +966,6 @@
   "insertU2f": {
     "message": "Убаците свој сигурносни кључ у УСБ порт рачунара, и ако има дугме , додирните га."
   },
-  "recoveryCodeDesc": {
-    "message": "Изгубили сте приступ свим својим двофакторским добављачима? Употребите код за опоравак да онемогућите све двофакторске добављаче из налога."
-  },
   "recoveryCodeTitle": {
     "message": "Шифра за опоравак"
   },
@@ -1034,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Морате додати или основни УРЛ сервера или бар једно прилагођено окружење."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
   },
   "customEnvironment": {
     "message": "Прилагођено окружење"
@@ -1224,6 +1230,15 @@
   },
   "invalidMasterPassword": {
     "message": "Погрешна главна лозинка"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Неисправна главна лозинка. Потврдите да је адреса ваше е-поште исправна и да је ваш налог направљен на $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "twoStepLoginConfirmation": {
     "message": "Пријава у два корака чини ваш налог сигурнијим захтевом да верификујете своје податке помоћу другог уређаја, као што су безбедносни кључ, апликација, СМС-а, телефонски позив или имејл. Пријављивање у два корака може се омогућити на веб сефу. Да ли желите да посетите веб страницу сада?"
@@ -1845,6 +1860,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Закључајте са главном лозинком при поновном покретању"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Require master password or PIN on app restart"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Require master password on app restart"
   },
   "deleteAccount": {
     "message": "Брисање налога"
@@ -2543,6 +2564,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Минимално прилагођено временско ограничење је 1 минут."
+  },
   "inviteAccepted": {
     "message": "Позив прихваћен"
   },
@@ -2654,6 +2678,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Извешће се само сеф организације повезана са $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Извешће се само сеф организације повезан са $ORGANIZATION$. Колекције мојих предмета неће бити укључене.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -3836,6 +3878,12 @@
   "changeAtRiskPassword": {
     "message": "Променити ризичну лозинку"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Ова пријава је ризична и недостаје веб локација. Додајте веб страницу и промените лозинку за јачу сигурност."
+  },
+  "missingWebsite": {
+    "message": "Недостаје веб страница"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Не можете уклонити колекције са дозволама само за приказ: $COLLECTIONS$",
     "placeholders": {
@@ -4077,11 +4125,17 @@
   "showLess": {
     "message": "Прикажи мање"
   },
-  "enableAutotype": {
-    "message": "Упали ауто-унос"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden не потврђује локације уноса, будите сигурни да сте у добром прозору и поље пре употребе пречице."
+  },
+  "typeShortcut": {
+    "message": "Унети пречицу"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Укључите један или два следећа модификатора: Ctrl, Alt, Win, или Shift, и слово."
+  },
+  "invalidShortcut": {
+    "message": "Неважећа пречица"
   },
   "moreBreadcrumbs": {
     "message": "Више мрвица",
@@ -4096,13 +4150,75 @@
   "confirm": {
     "message": "Потврди"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+  "enableAutotypeShortcutPreview": {
+    "message": "Омогућите пречицу ауто-уноса (преглед функције)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  "enableAutotypeShortcutDescription": {
+    "message": "Будите сигурни да сте у исправном пољу пре употребе пречице да бисте избегли попуњавање података на погрешно место."
   },
   "editShortcut": {
-    "message": "Edit shortcut"
+    "message": "Уреди пречицу"
+  },
+  "archiveNoun": {
+    "message": "Архива",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Архивирај",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Врати из архиве"
+  },
+  "itemsInArchive": {
+    "message": "Ставке у архиви"
+  },
+  "noItemsInArchive": {
+    "message": "Нема ставка у архиви"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Архивиране ставке ће се овде појавити и бити искључени из општих резултата претраге и сугестија о ауто-пуњењу."
+  },
+  "itemWasSentToArchive": {
+    "message": "Ставка је послата у архиву"
+  },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "archiveItem": {
+    "message": "Архивирај ставку"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Архивиране ставке су искључене из општих резултата претраге и предлога за ауто попуњавање. Јесте ли сигурни да желите да архивирате ову ставку?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
   }
 }

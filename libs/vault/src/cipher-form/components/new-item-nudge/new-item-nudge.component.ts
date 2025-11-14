@@ -11,13 +11,15 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/sdk-internal";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-new-item-nudge",
   templateUrl: "./new-item-nudge.component.html",
   imports: [SpotlightComponent, AsyncPipe],
 })
 export class NewItemNudgeComponent {
-  configType = input.required<CipherType | null>();
+  readonly configType = input.required<CipherType | null>();
   activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
   showNewItemSpotlight$ = combineLatest([
     this.activeUserId$,
@@ -70,7 +72,7 @@ export class NewItemNudgeComponent {
 
         this.dismissalNudgeType = NudgeType.NewSshItemStatus;
         this.nudgeTitle = this.i18nService.t("newSshNudgeTitle");
-        this.nudgeBody = `${sshPartOne} <a href="https://bitwarden.com/help/ssh-agent" class="tw-text-primary-600 tw-font-bold" target="_blank">${sshPartTwo}</a>`;
+        this.nudgeBody = `${sshPartOne} <a href="https://bitwarden.com/help/ssh-agent" class="tw-text-primary-600 tw-font-medium" target="_blank">${sshPartTwo}</a>`;
         return NudgeType.NewSshItemStatus;
       }
       default:

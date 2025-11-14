@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Nemáte oprávnění upravit tuto položku"
+  },
   "welcomeBack": {
     "message": "Vítejte zpět"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "Použít jednotné přihlášení"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Vaše organizace vyžaduje jednotné přihlášení."
+  },
   "submit": {
     "message": "Odeslat"
   },
@@ -960,9 +966,6 @@
   "insertU2f": {
     "message": "Vložte svůj bezpečnostní klíč do USB portu Vašeho počítače a pokud má tlačítko, tak jej stiskněte."
   },
-  "recoveryCodeDesc": {
-    "message": "Ztratili jste přístup ke všem nastaveným poskytovatelům dvoufázového přihlášení? Použijte obnovovací kód pro vypnutí dvoufázového přihlášení."
-  },
   "recoveryCodeTitle": {
     "message": "Kód pro obnovení"
   },
@@ -1034,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Musíte přidat buď základní adresu URL serveru nebo alespoň jedno vlastní prostředí."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL adresy musí používat HTTPS."
   },
   "customEnvironment": {
     "message": "Vlastní prostředí"
@@ -1224,6 +1230,15 @@
   },
   "invalidMasterPassword": {
     "message": "Chybné hlavní heslo"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Neplatné hlavní heslo. Potvrďte správnost e-mailu a zda byl Váš účet vytvořen na $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "twoStepLoginConfirmation": {
     "message": "Dvoufázové přihlášení činí Váš účet mnohem bezpečnějším díky nutnosti po každém úspěšném přihlášení zadat ověřovací kód získaný z bezpečnostního klíče, aplikace, SMS, telefonního hovoru nebo e-mailu. Dvoufázové přihlášení lze aktivovat na webové stránce bitwarden.com. Chcete tuto stránku nyní otevřít?"
@@ -1845,6 +1860,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Zamknout trezor při restartu pomocí hlavního hesla"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Vyžadovat hlavní heslo nebo PIN při restartu aplikace"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Vyžadovat hlavní heslo při restartu aplikace"
   },
   "deleteAccount": {
     "message": "Smazat účet"
@@ -2543,6 +2564,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimální vlastní časový limit je 1 minuta."
+  },
   "inviteAccepted": {
     "message": "Pozvánka byla přijata"
   },
@@ -2654,6 +2678,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Bude exportován jen trezor organizace přidružený k $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Bude exportován jen trezor organizace přidružený k $ORGANIZATION$. Položky mých sbírek nebudou zahrnuty.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -3836,6 +3878,12 @@
   "changeAtRiskPassword": {
     "message": "Změnit ohrožené heslo"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Tyto přihlašovací údaje jsou ohrožené a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
+  },
+  "missingWebsite": {
+    "message": "Chybějící webová stránka"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nemůžete odebrat sbírky s oprávněními jen pro zobrazení: $COLLECTIONS$",
     "placeholders": {
@@ -4077,11 +4125,17 @@
   "showLess": {
     "message": "Zobrazit méně"
   },
-  "enableAutotype": {
-    "message": "Povolit automatický zápis"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden neověřuje umístění vstupu. Před použitím zkratky se ujistěte, že jste ve správném okně a poli."
+  },
+  "typeShortcut": {
+    "message": "Napsat zkratku"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Zahrňte jeden nebo dva z následujících modifikátorů: Ctrl, Alt, Win nebo Shift a písmeno."
+  },
+  "invalidShortcut": {
+    "message": "Neplatná zkratka"
   },
   "moreBreadcrumbs": {
     "message": "Více...",
@@ -4096,13 +4150,75 @@
   "confirm": {
     "message": "Potvrdit"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Povolit zkratku automatického psaní"
+  "enableAutotypeShortcutPreview": {
+    "message": "Povolit zkratku Autotype (náhled funkce)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Před použitím zkratky se ujistěte, že jste ve správném poli, abyste se vyhnuli vyplnění dat na nesprávné místo."
   },
   "editShortcut": {
     "message": "Upravit zkratku"
+  },
+  "archiveNoun": {
+    "message": "Archiv",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archivovat",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Odebrat z archivu"
+  },
+  "itemsInArchive": {
+    "message": "Položky v archivu"
+  },
+  "noItemsInArchive": {
+    "message": "Žádné položky v archivu"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Zde se zobrazí archivované položky a budou vyloučeny z obecných výsledků vyhledávání a návrhů automatického vyplňování."
+  },
+  "itemWasSentToArchive": {
+    "message": "Položka byla přesunuta do archivu"
+  },
+  "itemWasUnarchived": {
+    "message": "Položka byla odebrána z archivu"
+  },
+  "archiveItem": {
+    "message": "Archivovat položku"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tuto položku archivovat?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / PSČ"
+  },
+  "cardNumberLabel": {
+    "message": "Číslo karty"
+  },
+  "upgradeNow": {
+    "message": "Aktualizovat nyní"
+  },
+  "builtInAuthenticator": {
+    "message": "Vestavěný autentifikátor"
+  },
+  "secureFileStorage": {
+    "message": "Zabezpečené úložiště souborů"
+  },
+  "emergencyAccess": {
+    "message": "Nouzový přístup"
+  },
+  "breachMonitoring": {
+    "message": "Sledování úniků"
+  },
+  "andMoreFeatures": {
+    "message": "A ještě více!"
+  },
+  "planDescPremium": {
+    "message": "Dokončit online zabezpečení"
+  },
+  "upgradeToPremium": {
+    "message": "Aktualizovat na Premium"
   }
 }

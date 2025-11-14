@@ -29,12 +29,13 @@ import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/opera
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+  CollectionService,
+  CollectionTypes,
+  CollectionView,
+} from "@bitwarden/admin-console/common";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -44,7 +45,9 @@ import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { isId, OrganizationId } from "@bitwarden/common/types/guid";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -68,7 +71,11 @@ import {
 
 import { ImporterMetadata, DataLoader, Loader, Instructions } from "../metadata";
 import { ImportOption, ImportResult, ImportType } from "../models";
-import { ImportCollectionServiceAbstraction, ImportServiceAbstraction } from "../services";
+import {
+  ImportCollectionServiceAbstraction,
+  ImportMetadataServiceAbstraction,
+  ImportServiceAbstraction,
+} from "../services";
 
 import { ImportChromeComponent } from "./chrome";
 import {
@@ -79,6 +86,8 @@ import {
 import { ImporterProviders } from "./importer-providers";
 import { ImportLastPassComponent } from "./lastpass";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-import",
   templateUrl: "import.component.html",
@@ -103,6 +112,8 @@ import { ImportLastPassComponent } from "./lastpass";
   providers: ImporterProviders,
 })
 export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
+  DefaultCollectionType = CollectionTypes.DefaultUserCollection;
+
   featuredImportOptions: ImportOption[];
   importOptions: ImportOption[];
   format: ImportType = null;
@@ -112,21 +123,36 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   collections$: Observable<CollectionView[]>;
   organizations$: Observable<Organization[]>;
 
-  private _organizationId: string;
+  private _organizationId: OrganizationId | undefined;
 
-  get organizationId(): string {
+  get organizationId(): OrganizationId | undefined {
     return this._organizationId;
   }
 
-  @Input() set organizationId(value: string) {
+  /**
+   * Enables the hosting control to pass in an organizationId
+   * If a organizationId is provided, the organization selection is disabled.
+   */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() set organizationId(value: OrganizationId | string | undefined) {
+    if (Utils.isNullOrEmpty(value)) {
+      this._organizationId = undefined;
+      this.organization = undefined;
+      return;
+    }
+
+    if (!isId<OrganizationId>(value)) {
+      this._organizationId = undefined;
+      this.organization = undefined;
+      return;
+    }
+
     this._organizationId = value;
+
     getUserId(this.accountService.activeAccount$)
       .pipe(
-        switchMap((userId) =>
-          this.organizationService
-            .organizations$(userId)
-            .pipe(getOrganizationById(this._organizationId)),
-        ),
+        switchMap((userId) => this.organizationService.organizations$(userId).pipe(getById(value))),
       )
       .pipe(takeUntil(this.destroy$))
       .subscribe((organization) => {
@@ -135,13 +161,17 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   onLoadProfilesFromBrowser: (browser: string) => Promise<any[]>;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   onImportFromBrowser: (browser: string, profile: string) => Promise<any[]>;
 
-  protected organization: Organization;
+  protected organization: Organization | undefined = undefined;
   protected destroy$ = new Subject<void>();
 
   protected readonly isCardTypeRestricted$: Observable<boolean> =
@@ -169,15 +199,23 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     chromiumLoader: [Loader.file as DataLoader],
   });
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(BitSubmitDirective)
   private bitSubmit: BitSubmitDirective;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   formLoading = new EventEmitter<boolean>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   formDisabled = new EventEmitter<boolean>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   onSuccessfulImport = new EventEmitter<string>();
 
@@ -230,6 +268,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     protected accountService: AccountService,
     private restrictedItemTypesService: RestrictedItemTypesService,
     private destroyRef: DestroyRef,
+    protected importMetadataService: ImportMetadataServiceAbstraction,
   ) {}
 
   protected get importBlockedByPolicy(): boolean {
@@ -248,9 +287,11 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   async ngOnInit() {
+    await this.importMetadataService.init();
+
     this.setImportOptions();
 
-    this.importService
+    this.importMetadataService
       .metadata$(this.formGroup.controls.format.valueChanges)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -259,7 +300,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
           // when an importer is defined, the loader needs to be set to a value from
           // its list.
-          const loader = importer.loaders.includes(Loader.chromium)
+          const loader = importer.loaders?.includes(Loader.chromium)
             ? Loader.chromium
             : importer.loaders?.[0];
           this.formGroup.controls.chromiumLoader.setValue(loader ?? Loader.file);
@@ -438,7 +479,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
         importContents,
         this.organizationId,
         this.formGroup.controls.targetSelector.value,
-        (await this.canAccessImport(this.organizationId)) && this.isFromAC,
+        this.organization?.canAccessImport && this.isFromAC,
       );
 
       //No errors, display success message
@@ -456,20 +497,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       });
       this.logService.error(e);
     }
-  }
-
-  private async canAccessImport(organizationId?: string): Promise<boolean> {
-    if (!organizationId) {
-      return false;
-    }
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    return (
-      await firstValueFrom(
-        this.organizationService
-          .organizations$(userId)
-          .pipe(getOrganizationById(this.organizationId)),
-      )
-    )?.canAccessImport;
   }
 
   getFormatInstructionTitle() {

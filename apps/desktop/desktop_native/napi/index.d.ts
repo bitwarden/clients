@@ -49,6 +49,18 @@ export declare namespace biometrics {
     ivB64: string
   }
 }
+export declare namespace biometrics_v2 {
+  export function initBiometricSystem(): BiometricLockSystem
+  export function authenticate(biometricLockSystem: BiometricLockSystem, hwnd: Buffer, message: string): Promise<boolean>
+  export function authenticateAvailable(biometricLockSystem: BiometricLockSystem): Promise<boolean>
+  export function enrollPersistent(biometricLockSystem: BiometricLockSystem, userId: string, key: Buffer): Promise<void>
+  export function provideKey(biometricLockSystem: BiometricLockSystem, userId: string, key: Buffer): Promise<void>
+  export function unlock(biometricLockSystem: BiometricLockSystem, userId: string, hwnd: Buffer): Promise<Buffer>
+  export function unlockAvailable(biometricLockSystem: BiometricLockSystem, userId: string): Promise<boolean>
+  export function hasPersistent(biometricLockSystem: BiometricLockSystem, userId: string): Promise<boolean>
+  export function unenroll(biometricLockSystem: BiometricLockSystem, userId: string): Promise<void>
+  export class BiometricLockSystem {   }
+}
 export declare namespace clipboards {
   export function read(): Promise<string>
   export function write(text: string, password: boolean): Promise<void>
@@ -228,11 +240,17 @@ export declare namespace chromium_importer {
     login?: Login
     failure?: LoginImportFailure
   }
-  export function getInstalledBrowsers(): Promise<Array<string>>
-  export function getAvailableProfiles(browser: string): Promise<Array<ProfileInfo>>
+  export interface NativeImporterMetadata {
+    id: string
+    loaders: Array<string>
+    instructions: string
+  }
+  /** Returns OS aware metadata describing supported Chromium based importers as a JSON string. */
+  export function getMetadata(): Record<string, NativeImporterMetadata>
+  export function getAvailableProfiles(browser: string): Array<ProfileInfo>
   export function importLogins(browser: string, profileId: string): Promise<Array<LoginImportResult>>
 }
 export declare namespace autotype {
   export function getForegroundWindowTitle(): string
-  export function typeInput(input: Array<number>): void
+  export function typeInput(input: Array<number>, keyboardShortcut: Array<string>): void
 }

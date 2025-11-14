@@ -278,7 +278,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private async buildAutofillFieldsData(
     formFieldElements: FormFieldElement[],
   ): Promise<AutofillField[]> {
-    const autofillFieldElements = this.getAutofillFieldElements(100, formFieldElements);
+    // Maximum number of form fields to process for autofill to prevent performance issues on pages with excessive fields
+    const autofillFieldsLimit = 200;
+    const autofillFieldElements = this.getAutofillFieldElements(
+      autofillFieldsLimit,
+      formFieldElements,
+    );
     const autofillFieldDataPromises = autofillFieldElements.map(this.buildAutofillFieldItem);
 
     return Promise.all(autofillFieldDataPromises);
@@ -428,7 +433,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   /**
    * Caches the autofill field element and its data.
-   * Will not cache the element if the index is less than 0.
    *
    * @param index - The index of the autofill field element
    * @param element - The autofill field element to cache
@@ -439,10 +443,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     element: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
   ) {
-    if (index < 0) {
-      return;
-    }
-
+    // Always cache the element, even if index is -1 (for dynamically added fields)
     this.autofillFieldElements.set(element, autofillFieldData);
   }
 
@@ -996,6 +997,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * within an idle callback to help with performance and prevent excessive updates.
    */
   private processMutations = () => {
+    // If the page contains shadow DOM, we require a page details update from the autofill service.
+    // Will wait for an idle moment on main thread to execute, unless timeout has passed.
+    requestIdleCallbackPolyfill(
+      () => this.domQueryService.checkPageContainsShadowDom() && this.requirePageDetailsUpdate(),
+      { timeout: 500 },
+    );
+
     const queueLength = this.mutationsQueue.length;
 
     for (let queueIndex = 0; queueIndex < queueLength; queueIndex++) {
@@ -1018,13 +1026,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * Triggers several flags that indicate that a collection of page details should
    * occur again on a subsequent call after a mutation has been observed in the DOM.
    */
-  private flagPageDetailsUpdateIsRequired() {
+  private requirePageDetailsUpdate = () => {
     this.domRecentlyMutated = true;
     if (this.autofillOverlayContentService) {
       this.autofillOverlayContentService.pageDetailsUpdateRequired = true;
     }
     this.noFieldsFound = false;
-  }
+  };
 
   /**
    * Processes all mutation records encountered by the mutation observer.
@@ -1052,7 +1060,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       (this.isAutofillElementNodeMutated(mutation.removedNodes, true) ||
         this.isAutofillElementNodeMutated(mutation.addedNodes))
     ) {
-      this.flagPageDetailsUpdateIsRequired();
+      this.requirePageDetailsUpdate();
       return;
     }
 
@@ -1184,7 +1192,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private setupOverlayListenersOnMutatedElements(mutatedElements: Node[]) {
     for (let elementIndex = 0; elementIndex < mutatedElements.length; elementIndex++) {
       const node = mutatedElements[elementIndex];
-      const buildAutofillFieldItem = () => {
+      const buildAutofillFieldItem = async () => {
         if (
           !this.isNodeFormFieldElement(node) ||
           this.autofillFieldElements.get(node as ElementWithOpId<FormFieldElement>)
@@ -1194,7 +1202,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
         // We are setting this item to a -1 index because we do not know its position in the DOM.
         // This value should be updated with the next call to collect page details.
-        void this.buildAutofillFieldItem(node as ElementWithOpId<FormFieldElement>, -1);
+        const formFieldElement = node as ElementWithOpId<FormFieldElement>;
+        const autofillField = await this.buildAutofillFieldItem(formFieldElement, -1);
+
+        // Set up overlay listeners for the new field if we have the overlay service
+        if (autofillField && this.autofillOverlayContentService) {
+          this.setupOverlayOnField(formFieldElement, autofillField);
+
+          if (this.domRecentlyMutated) {
+            this.updateAutofillElementsAfterMutation();
+          }
+        }
       };
 
       requestIdleCallbackPolyfill(buildAutofillFieldItem, { timeout: 1000 });
