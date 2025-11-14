@@ -345,7 +345,7 @@ jobs:
 
       - name: Download MacOS App Store build number
         working-directory: apps/desktop
-        run: wget "https://github.com/bitwarden/clients/releases/download/$($env:_RELEASE_TAG)/macos-build-number.json"
+        run: wget "https://github.com/bitwarden/clients/releases/download/${_RELEASE_TAG}/macos-build-number.json"
 
       - name: Setup Ruby and Install Fastlane
         uses: ruby/setup-ruby@d5126b9b3579e429dd52e51e68624dda2e05be25 # v1.267.0
