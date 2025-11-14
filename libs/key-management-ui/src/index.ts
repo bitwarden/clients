@@ -11,3 +11,4 @@ export { RemovePasswordComponent } from "./key-connector/remove-password.compone
 export { ConfirmKeyConnectorDomainComponent } from "./key-connector/confirm-key-connector-domain.component";
 export { SessionTimeoutSettingsComponent } from "./session-timeout/components/session-timeout-settings.component";
 export { SessionTimeoutSettingsComponentService } from "./session-timeout/services/session-timeout-settings-component.service";
+export { SessionTimeoutInputComponent } from "./session-timeout/components/session-timeout-input.component";

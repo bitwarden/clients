@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Midagi läks valesti brauseriga ühendamisel."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Paraku on brauseri integratsioon hetkel toetatud ainult Mac App Store'i versioonis."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Paraku ei ole brauseri integratsioon hetkel Microsoft Store versioonis toetatud."
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

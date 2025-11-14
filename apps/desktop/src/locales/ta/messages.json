@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "உலாவி ஒருங்கிணைப்பை இயக்கும்போது ஒரு பிழை ஏற்பட்டது."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "துரதிர்ஷ்டவசமாக உலாவி ஒருங்கிணைப்பு தற்போது Mac App Store பதிப்பில் மட்டுமே ஆதரிக்கப்படுகிறது."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "துரதிர்ஷ்டவசமாக உலாவி ஒருங்கிணைப்பு தற்போது Microsoft Store பதிப்பில் ஆதரிக்கப்படவில்லை."
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

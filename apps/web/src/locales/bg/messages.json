@@ -15,7 +15,7 @@
     "message": "Няма важни приложения в риск"
   },
   "accessIntelligence": {
-    "message": "Access Intelligence"
+    "message": "Анализ на достъпа"
   },
   "passwordRisk": {
     "message": "Рискова парола"
@@ -349,6 +349,9 @@
   "applicationsNeedingReview": {
     "message": "Приложения, които имат нужда от преглед"
   },
+  "newApplicationsCardTitle": {
+    "message": "Преглед на новите приложения"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ нови приложения",
     "placeholders": {
@@ -369,6 +372,21 @@
   },
   "noNewApplicationsToReviewAtThisTime": {
     "message": "В момента няма нови приложения за преглед"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Вашата организация има запазени елементи за $COUNT$ приложения",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Прегледайте приложенията, за да защитите най-важните за организацията си елементи"
+  },
+  "reviewApplications": {
+    "message": "Преглед на приложенията"
   },
   "prioritizeCriticalApplications": {
     "message": "Даване на приоритет на важните приложения"
@@ -3232,8 +3250,17 @@
   "nextCharge": {
     "message": "Следваща промяна"
   },
+  "nextChargeHeader": {
+    "message": "Следващо плащане"
+  },
+  "plan": {
+    "message": "План"
+  },
   "details": {
     "message": "Детайли"
+  },
+  "discount": {
+    "message": "отстъпка"
   },
   "downloadLicense": {
     "message": "Изтегляне на лиценз"
@@ -4440,7 +4467,31 @@
     "message": "Обновяване на браузъра"
   },
   "generatingYourAccessIntelligence": {
-    "message": "Generating your Access Intelligence..."
+    "message": "Създаване на Вашия анализ на достъпа…"
+  },
+  "fetchingMemberData": {
+    "message": "Извличане на данните за членовете…"
+  },
+  "analyzingPasswordHealth": {
+    "message": "Анализиране на състоянието на паролите…"
+  },
+  "calculatingRiskScores": {
+    "message": "Изчисляване на оценките на риска…"
+  },
+  "generatingReportData": {
+    "message": "Създаване на данните за доклада…"
+  },
+  "savingReport": {
+    "message": "Запазване на доклада…"
+  },
+  "compilingInsights": {
+    "message": "Събиране на подробности…"
+  },
+  "loadingProgress": {
+    "message": "Зареждане на напредъка"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Това може да отнеме няколко минути."
   },
   "riskInsightsRunReport": {
     "message": "Изпълнение на доклада"
@@ -5804,16 +5855,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "Как се включва автоматичното потвърждаване на потребителите"
   },
-  "autoConfirmStep1": {
-    "message": "Отворете добавката на Битуорден."
+  "autoConfirmExtension1": {
+    "message": "Отворете добавката на Битуорден"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "Изберете",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " Включване.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " Включване",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "Добавката за браузър на Битуорден е отворена. Сега можете да включите настройката за автоматично потвърждаване на потребителите."
@@ -9525,9 +9576,6 @@
   "loggedInExclamation": {
     "message": "Вписахте се!"
   },
-  "beta": {
-    "message": "Бета"
-  },
   "assignCollectionAccess": {
     "message": "Задаване на достъп за колекциите"
   },
@@ -12075,5 +12123,45 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Започнете безплатния пробен период на Семейния план"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Задайте метод за отключване, за да може да промените действието при изтичане на времето за достъп до трезора."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Изискванията на политиката за големи компании бяха приложени към настройките на времето за достъп"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Времето за достъп до трезора Ви превишава ограничението, определено от организацията Ви."
+  },
+  "neverLockWarning": {
+    "message": "Уверени ли сте, че искате да зададете стойност „Никога“? Това води до съхранение на шифриращия ключ за трезора във устройството ви. Ако използвате тази възможност, е много важно да имате надлежна защита на устройството си."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Действие при изтичането на времето за достъп"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Изтичане на времето за сесията"
+  },
+  "appearance": {
+    "message": "Външен вид"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Времето за достъп превишава ограничението, зададено от Вашата организация: максимум $HOURS$ час(а) и $MINUTES$ минута/и",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "No critical applications are selected"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Are you sure you want to continue?"
   }
 }
