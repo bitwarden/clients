@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Wystąpił błąd podczas włączania połączenia z przeglądarką."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Połączenie z przeglądarką jest obsługiwane tylko z wersją aplikacji ze sklepu Mac App Store."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Połączenie z przeglądarką nie jest obecnie obsługiwane w aplikacji w wersji Windows Store."
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

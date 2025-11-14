@@ -772,7 +772,7 @@
     "message": "Anmelden mit einem anderen Gerät"
   },
   "useSingleSignOn": {
-    "message": "Single Sign-on verwenden"
+    "message": "Single Sign-On verwenden"
   },
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Deine Organisation erfordert Single Sign-On."
@@ -1979,7 +1979,7 @@
     "message": "Timeout-Aktion bestätigen"
   },
   "enterpriseSingleSignOn": {
-    "message": "Enterprise Single-Sign-On"
+    "message": "Enterprise Single Sign-On"
   },
   "setMasterPassword": {
     "message": "Master-Passwort festlegen"
@@ -2149,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "Beim Aktivieren der Browser-Integration ist ein Fehler aufgetreten."
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Leider wird die Browser-Integration derzeit nur in der Mac App Store Version unterstützt."
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Leider wird die Browser-Integration derzeit nicht in der Microsoft Store Version unterstützt."
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Upgrade auf Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout-Aktion"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sitzungs-Timeout"
   }
 }

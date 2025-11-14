@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "View all"
   },
+  "viewLess": {
+    "message": "View less"
+  },
   "viewLogin": {
     "message": "View login"
   },
@@ -5805,6 +5808,12 @@
   },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
+  },
+  "loadingVault": {
+    "message": "Loading vault"
+  },
+  "vaultLoaded": {
+    "message": "Vault loaded"
   },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
