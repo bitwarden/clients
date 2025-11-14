@@ -66,9 +66,7 @@ export class PricingSummaryService {
       : (sub?.customerDiscount?.percentOff ?? 0);
     const discountPercentage = 20;
     const acceptingSponsorship = false;
-    const storageGb = sub?.maxStorageGb
-      ? sub?.maxStorageGb - plan.PasswordManager.baseStorageGb
-      : 0;
+    const storageGb = sub.maxStorageGb - plan.PasswordManager.baseStorageGb;
 
     const total = organization?.useSecretsManager
       ? passwordManagerSubtotal + secretsManagerSubtotal + estimatedTax
