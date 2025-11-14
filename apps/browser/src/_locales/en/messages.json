@@ -5812,12 +5812,6 @@
   "vaultLoaded": {
     "message": "Vault loaded"
   },
-  "loadingSendPage": {
-    "message": "Loading send page"
-  },
-  "sendPageLoaded": {
-    "message": "Send page loaded"
-  },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
