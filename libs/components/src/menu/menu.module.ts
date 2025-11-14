@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 
 import { MenuDividerComponent } from "./menu-divider.component";
-import { MenuItemComponent } from "./menu-item.directive";
+import { MenuItemComponent } from "./menu-item.component";
 import { MenuTriggerForDirective } from "./menu-trigger-for.directive";
 import { MenuComponent } from "./menu.component";
 
