@@ -32,7 +32,7 @@
     "message": "Använd Single Sign-On"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Din organisation kräver single sign-on."
   },
   "welcomeBack": {
     "message": "Välkommen tillbaka"
@@ -87,7 +87,7 @@
     "message": "Huvudlösenordsledtråd (valfri)"
   },
   "passwordStrengthScore": {
-    "message": "Lösenordsstyrka $SCORE$ (score)",
+    "message": "Lösenordsstyrka $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -108,7 +108,7 @@
     }
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Avsluta anslutningen till denna organisation genom att ange ett huvudlösenord."
+    "message": "Slutför anslutningen till den här organisationen genom att ställa in ett huvudlösenord."
   },
   "tab": {
     "message": "Flik"
@@ -592,7 +592,10 @@
     "message": "Visa"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "Visa alla"
+  },
+  "viewLess": {
+    "message": "View less"
   },
   "viewLogin": {
     "message": "Visa inloggning"
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Vid låsning av datorn"
+  },
+  "onIdle": {
+    "message": "När systemet är overksamt"
+  },
+  "onSleep": {
+    "message": "När systemet är i strömsparläge"
   },
   "onRestart": {
     "message": "Vid omstart"
@@ -1035,10 +1044,10 @@
     "message": "Objekt sparat"
   },
   "savedWebsite": {
-    "message": "Saved website"
+    "message": "Sparad webbplats"
   },
   "savedWebsites": {
-    "message": "Saved websites ( $COUNT$ )",
+    "message": "Sparade webbplatser ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1523,12 +1532,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Be om biometri vid start"
   },
-  "premiumRequired": {
-    "message": "Premium krävs"
-  },
-  "premiumRequiredDesc": {
-    "message": "Ett premium-medlemskap krävs för att använda den här funktionen."
-  },
   "authenticationTimeout": {
     "message": "Timeout för autentisering"
   },
@@ -1641,6 +1644,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Du måste lägga till antingen serverns bas-URL eller minst en anpassad miljö."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Webbadresser måste använda HTTPS."
+  },
   "customEnvironment": {
     "message": "Anpassad miljö"
   },
@@ -1695,28 +1701,28 @@
     "message": "Stäng av autofyll"
   },
   "confirmAutofill": {
-    "message": "Confirm autofill"
+    "message": "Bekräfta autofyll"
   },
   "confirmAutofillDesc": {
-    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+    "message": "Denna webbplats matchar inte dina sparade inloggningsuppgifter. Innan du fyller i dina inloggningsuppgifter, se till att det är en betrodd webbplats."
   },
   "showInlineMenuLabel": {
     "message": "Visa förslag för autofyll i formulärfält"
   },
   "howDoesBitwardenProtectFromPhishing": {
-    "message": "How does Bitwarden protect your data from phishing?"
+    "message": "Hur skyddar Bitwarden dina data från nätfiske?"
   },
   "currentWebsite": {
-    "message": "Current website"
+    "message": "Aktuell webbplats"
   },
   "autofillAndAddWebsite": {
-    "message": "Autofill and add this website"
+    "message": "Autofyll och lägg till denna webbplats"
   },
   "autofillWithoutAdding": {
-    "message": "Autofill without adding"
+    "message": "Autofyll utan att lägga till"
   },
   "doNotAutofill": {
-    "message": "Do not autofill"
+    "message": "Autofyll inte"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Visa identiteter som förslag"
@@ -3280,7 +3286,7 @@
     "message": "Dekrypteringsfel"
   },
   "errorGettingAutoFillData": {
-    "message": "Error getting autofill data"
+    "message": "Fel vid hämtning av autofylldata"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden kunde inte dekryptera valvföremålet/valvföremålen som listas nedan."
@@ -4054,13 +4060,13 @@
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "cannotAutofill": {
-    "message": "Cannot autofill"
+    "message": "Kan inte autofylla"
   },
   "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+    "message": "Standardmatchning är satt till 'Exakt matchning'. Den aktuella webbplatsen matchar inte exakt de sparade inloggningsuppgifterna för detta objekt."
   },
   "okay": {
-    "message": "Okay"
+    "message": "Okej"
   },
   "toggleSideNavigation": {
     "message": "Växla sidonavigering"
@@ -4977,6 +4983,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Standard ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "Visa matchningsdetektering $WEBSITE",
     "placeholders": {
@@ -5769,14 +5785,47 @@
   "atRiskLoginsSecured": {
     "message": "Bra jobbat med att säkra upp dina inloggninar i riskzonen!"
   },
+  "upgradeNow": {
+    "message": "Uppgradera nu"
+  },
+  "builtInAuthenticator": {
+    "message": "Inbyggd autenticator"
+  },
+  "secureFileStorage": {
+    "message": "Säker fillagring"
+  },
+  "emergencyAccess": {
+    "message": "Nödåtkomst"
+  },
+  "breachMonitoring": {
+    "message": "Intrångsmonitorering"
+  },
+  "andMoreFeatures": {
+    "message": "och mer!"
+  },
+  "planDescPremium": {
+    "message": "Komplett säkerhet online"
+  },
+  "upgradeToPremium": {
+    "message": "Uppgradera till Premium"
+  },
+  "loadingVault": {
+    "message": "Läser in valv"
+  },
+  "vaultLoaded": {
+    "message": "Valvet lästes in"
+  },
   "settingDisabledByPolicy": {
     "message": "Denna inställning är inaktiverad enligt din organisations policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "Postnummer"
   },
   "cardNumberLabel": {
-    "message": "Card number"
+    "message": "Kortnummer"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Tidsgränsåtgärd"
   }
 }

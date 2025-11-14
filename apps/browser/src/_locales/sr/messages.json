@@ -32,7 +32,7 @@
     "message": "Употребити једнократну пријаву"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Ваша организација захтева јединствену пријаву."
   },
   "welcomeBack": {
     "message": "Добродошли назад"
@@ -592,7 +592,10 @@
     "message": "Приказ"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "Прегледај све"
+  },
+  "viewLess": {
+    "message": "View less"
   },
   "viewLogin": {
     "message": "Преглед пријаве"
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "На закључавање система"
+  },
+  "onIdle": {
+    "message": "On system idle"
+  },
+  "onSleep": {
+    "message": "On system sleep"
   },
   "onRestart": {
     "message": "На покретање прегледача"
@@ -1035,10 +1044,10 @@
     "message": "Ставка уређена"
   },
   "savedWebsite": {
-    "message": "Saved website"
+    "message": "Сачувана веб локација"
   },
   "savedWebsites": {
-    "message": "Saved websites ( $COUNT$ )",
+    "message": "Сачувана веб локација ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1523,12 +1532,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Захтевај биометрију при покретању"
   },
-  "premiumRequired": {
-    "message": "Потребан Премијум"
-  },
-  "premiumRequiredDesc": {
-    "message": "Премијум чланство је неопходно за употребу ове опције."
-  },
   "authenticationTimeout": {
     "message": "Истекло је време аутентификације"
   },
@@ -1641,6 +1644,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Морате додати или основни УРЛ сервера или бар једно прилагођено окружење."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Везе морају да користе HTTPS."
+  },
   "customEnvironment": {
     "message": "Прилагођено окружење"
   },
@@ -1695,28 +1701,28 @@
     "message": "Угасити ауто-пуњење"
   },
   "confirmAutofill": {
-    "message": "Confirm autofill"
+    "message": "Потврди аутопуњење"
   },
   "confirmAutofillDesc": {
-    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+    "message": "Овај сајт се не подудара са вашим сачуваним подацима за пријаву. Пре него што унесете своје акредитиве за пријаву, уверите се да је то поуздан сајт."
   },
   "showInlineMenuLabel": {
     "message": "Прикажи предлоге за ауто-попуњавање у пољима обрасца"
   },
   "howDoesBitwardenProtectFromPhishing": {
-    "message": "How does Bitwarden protect your data from phishing?"
+    "message": "Како Bitwarden штити ваше податке од фишинга?"
   },
   "currentWebsite": {
-    "message": "Current website"
+    "message": "Тренутни сајт"
   },
   "autofillAndAddWebsite": {
-    "message": "Autofill and add this website"
+    "message": "Ауто-попуни и додај овај сајт"
   },
   "autofillWithoutAdding": {
-    "message": "Autofill without adding"
+    "message": "Ауто-попуни без додавања"
   },
   "doNotAutofill": {
-    "message": "Do not autofill"
+    "message": "Не попуни"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Приказати идентитете као предлоге"
@@ -3280,7 +3286,7 @@
     "message": "Грешка при декрипцији"
   },
   "errorGettingAutoFillData": {
-    "message": "Error getting autofill data"
+    "message": "Грешка при преузимању података за ауто-попуњавање"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden није могао да декриптује ставке из трезора наведене испод."
@@ -4054,13 +4060,13 @@
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "cannotAutofill": {
-    "message": "Cannot autofill"
+    "message": "Не може да се ауто-попуни"
   },
   "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+    "message": "Подразумевано подударање је подешено на „Тачно подударање“. Тренутна веб локација не одговара тачно сачуваним детаљима за пријаву за ову ставку."
   },
   "okay": {
-    "message": "Okay"
+    "message": "У реду"
   },
   "toggleSideNavigation": {
     "message": "Укључите бочну навигацију"
@@ -4977,6 +4983,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Подразумевано ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "Прикажи откривање подударања $WEBSITE$",
     "placeholders": {
@@ -5767,16 +5783,49 @@
     "message": "Потврдите домен конектора кључа"
   },
   "atRiskLoginsSecured": {
-    "message": "Great job securing your at-risk logins!"
+    "message": "Сјајан посао обезбеђивања ваших ризичних пријава!"
+  },
+  "upgradeNow": {
+    "message": "Надогради сада"
+  },
+  "builtInAuthenticator": {
+    "message": "Уграђени аутентификатор"
+  },
+  "secureFileStorage": {
+    "message": "Сигурно складиштење датотека"
+  },
+  "emergencyAccess": {
+    "message": "Хитан приступ"
+  },
+  "breachMonitoring": {
+    "message": "Праћење повreda безбедности"
+  },
+  "andMoreFeatures": {
+    "message": "И још више!"
+  },
+  "planDescPremium": {
+    "message": "Потпуна онлајн безбедност"
+  },
+  "upgradeToPremium": {
+    "message": "Надоградите на Premium"
+  },
+  "loadingVault": {
+    "message": "Loading vault"
+  },
+  "vaultLoaded": {
+    "message": "Vault loaded"
   },
   "settingDisabledByPolicy": {
-    "message": "This setting is disabled by your organization's policy.",
+    "message": "Ово подешавање је онемогућено смерницама ваше организације.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "ZIP/Поштански број"
   },
   "cardNumberLabel": {
-    "message": "Card number"
+    "message": "Број картице"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
   }
 }

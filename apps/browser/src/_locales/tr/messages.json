@@ -32,7 +32,7 @@
     "message": "Çoklu oturum açma kullan"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Kuruluşunuz çoklu oturum açma gerektiriyor."
   },
   "welcomeBack": {
     "message": "Tekrar hoş geldiniz"
@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "Tümünü göster"
   },
+  "viewLess": {
+    "message": "View less"
+  },
   "viewLogin": {
     "message": "Hesabı göster"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Sistem kilitlenince"
+  },
+  "onIdle": {
+    "message": "Sistem boştayken"
+  },
+  "onSleep": {
+    "message": "Sistem uyuyunca"
   },
   "onRestart": {
     "message": "Tarayıcı yeniden başlatılınca"
@@ -1035,10 +1044,10 @@
     "message": "Hesap kaydedildi"
   },
   "savedWebsite": {
-    "message": "Saved website"
+    "message": "Kayıtlı web sitesi"
   },
   "savedWebsites": {
-    "message": "Saved websites ( $COUNT$ )",
+    "message": "Kayıtlı web siteleri ( $COUNT$ )",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1523,12 +1532,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Açılışta biyometri doğrulaması iste"
   },
-  "premiumRequired": {
-    "message": "Premium gerekli"
-  },
-  "premiumRequiredDesc": {
-    "message": "Bu özelliği kullanmak için premium üyelik gereklidir."
-  },
   "authenticationTimeout": {
     "message": "Kimlik doğrulama zaman aşımı"
   },
@@ -1641,6 +1644,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Temel Sunucu URL’sini veya en az bir özel ortam eklemelisiniz."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL'ler HTTPS kullanmalıdır."
+  },
   "customEnvironment": {
     "message": "Özel ortam"
   },
@@ -1695,28 +1701,28 @@
     "message": "Otomatik doldurmayı kapat"
   },
   "confirmAutofill": {
-    "message": "Confirm autofill"
+    "message": "Otomatik doldurmayı onayla"
   },
   "confirmAutofillDesc": {
-    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+    "message": "Bu site kayıtlı hesap bilgilerinizle eşleşmiyor. Hesap bilgilerinizi doldurmadan önce sitenin güvenilir olduğundan emin olun."
   },
   "showInlineMenuLabel": {
     "message": "Form alanlarında otomatik doldurma önerilerini göster"
   },
   "howDoesBitwardenProtectFromPhishing": {
-    "message": "How does Bitwarden protect your data from phishing?"
+    "message": "Bitwarden verilerinizi kimlik avı saldırılarından nasıl koruyor?"
   },
   "currentWebsite": {
-    "message": "Current website"
+    "message": "Geçerli web sitesi"
   },
   "autofillAndAddWebsite": {
-    "message": "Autofill and add this website"
+    "message": "Otomatik doldur ve bu siteyi ekle"
   },
   "autofillWithoutAdding": {
-    "message": "Autofill without adding"
+    "message": "Eklemeden otomatik doldur"
   },
   "doNotAutofill": {
-    "message": "Do not autofill"
+    "message": "Otomatik doldurma"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Kimlikleri öneri olarak göster"
@@ -3280,7 +3286,7 @@
     "message": "Şifre çözme sorunu"
   },
   "errorGettingAutoFillData": {
-    "message": "Error getting autofill data"
+    "message": "Otomatik doldurma verileri alınırken hata oluştu"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden aşağıdaki kasa öğelerini deşifre edemedi."
@@ -4054,13 +4060,13 @@
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "cannotAutofill": {
-    "message": "Cannot autofill"
+    "message": "Otomatik doldurulamıyor"
   },
   "cannotAutofillExactMatch": {
     "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
   },
   "okay": {
-    "message": "Okay"
+    "message": "Tamam"
   },
   "toggleSideNavigation": {
     "message": "Kenar menüsünü aç/kapat"
@@ -4977,6 +4983,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Varsayılan ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "$WEBSITE$ eşleşme tespitini göster",
     "placeholders": {
@@ -5769,6 +5785,36 @@
   "atRiskLoginsSecured": {
     "message": "Great job securing your at-risk logins!"
   },
+  "upgradeNow": {
+    "message": "Şimdi yükselt"
+  },
+  "builtInAuthenticator": {
+    "message": "Dahili kimlik doğrulayıcı"
+  },
+  "secureFileStorage": {
+    "message": "Güvenli dosya depolama"
+  },
+  "emergencyAccess": {
+    "message": "Acil durum erişimi"
+  },
+  "breachMonitoring": {
+    "message": "İhlal izleme"
+  },
+  "andMoreFeatures": {
+    "message": "Ve daha fazlası!"
+  },
+  "planDescPremium": {
+    "message": "Eksiksiz çevrimiçi güvenlik"
+  },
+  "upgradeToPremium": {
+    "message": "Premium'a yükselt"
+  },
+  "loadingVault": {
+    "message": "Kasa yükleniyor"
+  },
+  "vaultLoaded": {
+    "message": "Kasa yüklendi"
+  },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5778,5 +5824,8 @@
   },
   "cardNumberLabel": {
     "message": "Kart numarası"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Zaman aşımı eylemi"
   }
 }

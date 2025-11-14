@@ -29,10 +29,10 @@
     "message": "Mit Passkey anmelden"
   },
   "useSingleSignOn": {
-    "message": "Single Sign-on verwenden"
+    "message": "Single Sign-On verwenden"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Deine Organisation erfordert Single Sign-On."
   },
   "welcomeBack": {
     "message": "Willkommen zurück"
@@ -44,7 +44,7 @@
     "message": "Schließe die Erstellung deines Kontos ab, indem du ein Passwort festlegst"
   },
   "enterpriseSingleSignOn": {
-    "message": "Enterprise Single-Sign-On"
+    "message": "Enterprise Single Sign-On"
   },
   "cancel": {
     "message": "Abbrechen"
@@ -592,7 +592,10 @@
     "message": "Anzeigen"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "Alles anzeigen"
+  },
+  "viewLess": {
+    "message": "View less"
   },
   "viewLogin": {
     "message": "Zugangsdaten anzeigen"
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Wenn System gesperrt"
+  },
+  "onIdle": {
+    "message": "Bei Systeminaktivität"
+  },
+  "onSleep": {
+    "message": "Im Standby"
   },
   "onRestart": {
     "message": "Bei Browser-Neustart"
@@ -1035,10 +1044,10 @@
     "message": "Eintrag gespeichert"
   },
   "savedWebsite": {
-    "message": "Saved website"
+    "message": "Website gespeichert"
   },
   "savedWebsites": {
-    "message": "Saved websites ( $COUNT$ )",
+    "message": "Gespeicherte Websites ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1523,12 +1532,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Beim Start nach biometrischen Daten fragen"
   },
-  "premiumRequired": {
-    "message": "Premium-Mitgliedschaft benötigt"
-  },
-  "premiumRequiredDesc": {
-    "message": "Eine Premium-Mitgliedschaft ist für diese Funktion notwendig."
-  },
   "authenticationTimeout": {
     "message": "Authentifizierungs-Timeout"
   },
@@ -1641,6 +1644,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Du musst entweder die Basis-Server-URL oder mindestens eine benutzerdefinierte Umgebung hinzufügen."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs müssen HTTPS verwenden."
+  },
   "customEnvironment": {
     "message": "Benutzerdefinierte Umgebung"
   },
@@ -1695,28 +1701,28 @@
     "message": "Auto-Ausfüllen deaktivieren"
   },
   "confirmAutofill": {
-    "message": "Confirm autofill"
+    "message": "Auto-Ausfüllen bestätigen"
   },
   "confirmAutofillDesc": {
-    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+    "message": "Diese Website stimmt nicht mit deinen gespeicherten Zugangsdaten überein. Bevor du deine Zugangsdaten eingibst, stelle sicher, dass es sich um eine vertrauenswürdige Website handelt."
   },
   "showInlineMenuLabel": {
     "message": "Vorschläge zum Auto-Ausfüllen in Formularfeldern anzeigen"
   },
   "howDoesBitwardenProtectFromPhishing": {
-    "message": "How does Bitwarden protect your data from phishing?"
+    "message": "Wie schützt Bitwarden deine Daten vor Phishing?"
   },
   "currentWebsite": {
-    "message": "Current website"
+    "message": "Aktuelle Website"
   },
   "autofillAndAddWebsite": {
-    "message": "Autofill and add this website"
+    "message": "Auto-Ausfüllen und diese Website hinzufügen"
   },
   "autofillWithoutAdding": {
-    "message": "Autofill without adding"
+    "message": "Auto-Ausfüllen ohne Hinzufügen"
   },
   "doNotAutofill": {
-    "message": "Do not autofill"
+    "message": "Nicht automatisch ausfüllen"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Identitäten als Vorschläge anzeigen"
@@ -3280,7 +3286,7 @@
     "message": "Entschlüsselungsfehler"
   },
   "errorGettingAutoFillData": {
-    "message": "Error getting autofill data"
+    "message": "Fehler beim Abrufen der Auto-Ausfüllen-Daten"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden konnte folgende(n) Tresor-Eintrag/Einträge nicht entschlüsseln."
@@ -4054,10 +4060,10 @@
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "cannotAutofill": {
-    "message": "Cannot autofill"
+    "message": "Kein Auto-Ausfüllen möglich"
   },
   "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+    "message": "Die Standard-Übereinstimmungserkennung steht auf \"Exakte Übereinstimmung\". Die aktuelle Website stimmt nicht genau mit den gespeicherten Zugangsdaten für diesen Eintrag überein."
   },
   "okay": {
     "message": "Okay"
@@ -4977,6 +4983,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Standard ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "Übereinstimmungs-Erkennung anzeigen $WEBSITE$",
     "placeholders": {
@@ -5769,6 +5785,36 @@
   "atRiskLoginsSecured": {
     "message": "Gute Arbeit! Du hast deine gefährdeten Zugangsdaten geschützt!"
   },
+  "upgradeNow": {
+    "message": "Jetzt upgraden"
+  },
+  "builtInAuthenticator": {
+    "message": "Integrierter Authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Sicherer Dateispeicher"
+  },
+  "emergencyAccess": {
+    "message": "Notfallzugriff"
+  },
+  "breachMonitoring": {
+    "message": "Datendiebstahl-Überwachung"
+  },
+  "andMoreFeatures": {
+    "message": "Und mehr!"
+  },
+  "planDescPremium": {
+    "message": "Umfassende Online-Sicherheit"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade auf Premium"
+  },
+  "loadingVault": {
+    "message": "Tresor wird geladen"
+  },
+  "vaultLoaded": {
+    "message": "Tresor geladen"
+  },
   "settingDisabledByPolicy": {
     "message": "Diese Einstellung ist durch die Richtlinien deiner Organisation deaktiviert.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5778,5 +5824,8 @@
   },
   "cardNumberLabel": {
     "message": "Kartennummer"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout-Aktion"
   }
 }

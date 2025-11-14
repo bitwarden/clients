@@ -2,6 +2,7 @@ import { CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Router } from "@angular/router";
+import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -66,11 +67,6 @@ describe("ItemMoreOptionsComponent", () => {
     resolvedDefaultUriMatchStrategy$: uriMatchStrategy$.asObservable(),
   };
 
-  const hasSearchText$ = new BehaviorSubject(false);
-  const vaultPopupItemsService = {
-    hasSearchText$: hasSearchText$.asObservable(),
-  };
-
   const baseCipher = {
     id: "cipher-1",
     login: {
@@ -120,7 +116,7 @@ describe("ItemMoreOptionsComponent", () => {
         },
         {
           provide: VaultPopupItemsService,
-          useValue: vaultPopupItemsService,
+          useValue: mock<VaultPopupItemsService>({}),
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -144,7 +140,16 @@ describe("ItemMoreOptionsComponent", () => {
   }
 
   describe("doAutofill", () => {
-    it("calls the autofill service to autofill without showing the confirmation dialog when the feature flag is disabled or search text is not present", async () => {
+    it("calls the passwordService to passwordRepromptCheck", async () => {
+      autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
+      mockConfirmDialogResult(AutofillConfirmationDialogResult.AutofilledOnly);
+
+      await component.doAutofill();
+
+      expect(passwordRepromptService.passwordRepromptCheck).toHaveBeenCalledWith(baseCipher);
+    });
+
+    it("calls the autofill service to autofill without showing the confirmation dialog when the feature flag is disabled", async () => {
       autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
 
       await component.doAutofill();
@@ -160,15 +165,6 @@ describe("ItemMoreOptionsComponent", () => {
       expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
     });
 
-    it("calls the passwordService to passwordRepromptCheck", async () => {
-      autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
-      mockConfirmDialogResult(AutofillConfirmationDialogResult.AutofilledOnly);
-
-      await component.doAutofill();
-
-      expect(passwordRepromptService.passwordRepromptCheck).toHaveBeenCalledWith(baseCipher);
-    });
-
     it("does nothing if the user fails master password reprompt", async () => {
       baseCipher.reprompt = 2; // Master Password reprompt enabled
       autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
@@ -182,7 +178,7 @@ describe("ItemMoreOptionsComponent", () => {
     });
 
     it("does not show the exact match dialog when the default match strategy is Exact and autofill confirmation is not to be shown", async () => {
-      // autofill confirmation dialog is not shown when either the feature flag is disabled or search text is not present
+      // autofill confirmation dialog is not shown when either the feature flag is disabled
       uriMatchStrategy$.next(UriMatchStrategy.Exact);
       autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com/path" });
       await component.doAutofill();
@@ -192,14 +188,22 @@ describe("ItemMoreOptionsComponent", () => {
 
     describe("autofill confirmation dialog", () => {
       beforeEach(() => {
-        // autofill confirmation dialog is shown when feature flag is enabled and search text is present
+        // autofill confirmation dialog is shown when feature flag is enabled
         featureFlag$.next(true);
-        hasSearchText$.next(true);
         uriMatchStrategy$.next(UriMatchStrategy.Domain);
         passwordRepromptService.passwordRepromptCheck.mockResolvedValue(true);
       });
 
-      it("opens the autofill confirmation dialog with filtered saved URLs when the feature flag is enabled and search text is present", async () => {
+      it("calls the passwordService to passwordRepromptCheck", async () => {
+        autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
+        mockConfirmDialogResult(AutofillConfirmationDialogResult.AutofilledOnly);
+
+        await component.doAutofill();
+
+        expect(passwordRepromptService.passwordRepromptCheck).toHaveBeenCalledWith(baseCipher);
+      });
+
+      it("opens the autofill confirmation dialog with filtered saved URLs when the feature flag is enabled", async () => {
         autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com/path" });
         const openSpy = mockConfirmDialogResult(AutofillConfirmationDialogResult.Canceled);
 
@@ -207,8 +211,8 @@ describe("ItemMoreOptionsComponent", () => {
 
         expect(openSpy).toHaveBeenCalledTimes(1);
         const args = openSpy.mock.calls[0][1];
-        expect(args.data.currentUrl).toBe("https://page.example.com/path");
-        expect(args.data.savedUrls).toEqual([
+        expect(args.data?.currentUrl).toBe("https://page.example.com/path");
+        expect(args.data?.savedUrls).toEqual([
           "https://one.example.com",
           "https://two.example.com/a",
         ]);
@@ -259,7 +263,16 @@ describe("ItemMoreOptionsComponent", () => {
             uriMatchStrategy$.next(UriMatchStrategy.Exact);
           });
 
-          it("shows the exact match dialog and not the password dialog", async () => {
+          it("calls the passwordService to passwordRepromptCheck", async () => {
+            autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
+            mockConfirmDialogResult(AutofillConfirmationDialogResult.AutofilledOnly);
+
+            await component.doAutofill();
+
+            expect(passwordRepromptService.passwordRepromptCheck).toHaveBeenCalledWith(baseCipher);
+          });
+
+          it("shows the exact match dialog", async () => {
             autofillSvc.currentAutofillTab$.next({ url: "https://no-match.example.com" });
 
             await component.doAutofill();
@@ -273,7 +286,6 @@ describe("ItemMoreOptionsComponent", () => {
               }),
             );
             expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
-            expect(passwordRepromptService.passwordRepromptCheck).not.toHaveBeenCalled();
             expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
           });
         });
