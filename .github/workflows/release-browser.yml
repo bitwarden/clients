@@ -136,7 +136,7 @@ jobs:
           mv dist-chrome.zip "dist-chrome-${PACKAGE_VERSION}.zip"
           mv dist-opera.zip "dist-opera-${PACKAGE_VERSION}.zip"
           mv dist-firefox.zip "dist-firefox-${PACKAGE_VERSION}.zip"
-          mv dist-edge.zip "dist-edge-${PACKAGE_VERSION}s.zip"
+          mv dist-edge.zip "dist-edge-${PACKAGE_VERSION}.zip"
 
       - name: Create release
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
