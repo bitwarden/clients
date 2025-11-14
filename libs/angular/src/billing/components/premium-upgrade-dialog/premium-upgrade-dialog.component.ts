@@ -17,6 +17,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import {
   ButtonModule,
   ButtonType,
+  CenterPositionStrategy,
   DialogModule,
   DialogRef,
   DialogService,
@@ -114,6 +115,8 @@ export class PremiumUpgradeDialogComponent {
    * @returns A dialog reference object
    */
   static open(dialogService: DialogService): DialogRef<PremiumUpgradeDialogComponent> {
-    return dialogService.open(PremiumUpgradeDialogComponent);
+    return dialogService.open(PremiumUpgradeDialogComponent, {
+      positionStrategy: new CenterPositionStrategy(),
+    });
   }
 }
