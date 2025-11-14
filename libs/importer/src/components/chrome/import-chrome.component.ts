@@ -38,6 +38,23 @@ import { ImportType } from "../../models";
 
 type ProfileOption = { id: string; name: string };
 
+type Login = {
+  url: string;
+  username: string;
+  password: string;
+  note: string;
+};
+type LoginImportFailure = {
+  url: string;
+  username: string;
+  error: string;
+};
+
+type LoginImportResult = {
+  login?: Login;
+  failure?: LoginImportFailure;
+};
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -82,7 +99,7 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
-  onImportFromBrowser: (browser: string, profile: string) => Promise<any[]>;
+  onImportFromBrowser: (browser: string, profile: string) => Promise<LoginImportResult[]>;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
@@ -121,6 +138,19 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
           this.getBrowserName(this.format()),
           this.formGroup.controls.profile.value,
         );
+
+        // If any of the login items has a failure return a generic error message
+        // Introduced because we ran into a new type of V3 encryption added on Chrome that we don't yet support
+        if (logins.some((l) => l.failure != null)) {
+          const error = logins.find((l) => l.failure != null);
+          this.logService.error("Chromium importer failure:", error.failure.error);
+          return {
+            errors: {
+              message: this.i18nService.t("errorOccurred"),
+            },
+          };
+        }
+
         if (logins.length === 0) {
           return {
             errors: {
