@@ -42,7 +42,7 @@
             data-testid="username-type"
           >
           </bit-select>
-          @if (!!(credentialTypeHint$ | async)) {
+          @if (credentialTypeHint$ | async) {
             <bit-hint>{{ credentialTypeHint$ | async }}</bit-hint>
           }
         </bit-form-field>
@@ -60,22 +60,23 @@
           </bit-form-field>
         </form>
       }
-      @if ((showAlgorithm$ | async)?.id === Algorithm.catchall) {
+      @let showAlgorithm = showAlgorithm$ | async;
+      @if (showAlgorithm?.id === Algorithm.catchall) {
         <tools-catchall-settings
           [account]="account$ | async"
           (onUpdated)="generate('catchall settings')"
         />
       }
-      @if (!!(forwarderId$ | async)) {
-        <tools-forwarder-settings [forwarder]="forwarderId$ | async" [account]="account$ | async" />
+      @if (forwarderId$ | async; as forwarderId) {
+        <tools-forwarder-settings [forwarder]="forwarderId" [account]="account$ | async" />
       }
-      @if ((showAlgorithm$ | async)?.id === Algorithm.plusAddress) {
+      @if (showAlgorithm?.id === Algorithm.plusAddress) {
         <tools-subaddress-settings
           [account]="account$ | async"
           (onUpdated)="generate('subaddress settings')"
         />
       }
-      @if ((showAlgorithm$ | async)?.id === Algorithm.username) {
+      @if (showAlgorithm?.id === Algorithm.username) {
         <tools-username-settings
           [account]="account$ | async"
           (onUpdated)="generate('username settings')"
