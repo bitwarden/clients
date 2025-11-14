@@ -63,7 +63,7 @@ export default tseslint.config(
       // TODO: Enable these.
       "@angular-eslint/component-class-suffix": 0,
       "@angular-eslint/contextual-lifecycle": 0,
-      "@angular-eslint/directive-class-suffix": 0,
+      "@angular-eslint/directive-class-suffix": "error",
       "@angular-eslint/no-empty-lifecycle-method": 0,
       "@angular-eslint/no-host-metadata-property": 0,
       "@angular-eslint/no-input-rename": 0,

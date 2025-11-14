@@ -13,7 +13,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
 import { AriaDisableDirective } from "../a11y";
 import { FormControlModule } from "../form-control/form-control.module";
-import { BitHintComponent } from "../form-control/hint.component";
+import { BitHintDirective } from "../form-control/hint.directive";
 import { BitLabel } from "../form-control/label.component";
 
 let nextId = 0;
@@ -56,7 +56,7 @@ export class SwitchComponent implements ControlValueAccessor, AfterViewInit {
   protected readonly disabled = model(false);
   protected readonly disabledReasonText = input<string | null>(null);
 
-  private readonly hintComponent = contentChild<BitHintComponent>(BitHintComponent);
+  private readonly hintComponent = contentChild<BitHintDirective>(BitHintDirective);
 
   protected readonly disabledReasonTextId = `bit-switch-disabled-text-${nextId++}`;
 
