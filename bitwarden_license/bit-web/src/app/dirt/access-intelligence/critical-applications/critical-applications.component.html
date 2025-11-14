@@ -1,31 +1,4 @@
-<div *ngIf="loading">
-  <i
-    class="bwi bwi-spinner bwi-spin tw-text-muted"
-    title="{{ 'loading' | i18n }}"
-    aria-hidden="true"
-  ></i>
-  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-</div>
-<div class="tw-mt-4" *ngIf="!dataSource.data.length">
-  <bit-no-items [icon]="noItemsIcon" class="tw-text-main">
-    <ng-container slot="title">
-      <h2 class="tw-font-semibold tw-mt-4">
-        {{ "noCriticalApplicationsTitle" | i18n }}
-      </h2>
-    </ng-container>
-    <ng-container slot="description">
-      <p class="tw-text-muted">
-        {{ "noCriticalApplicationsDescription" | i18n }}
-      </p>
-    </ng-container>
-    <ng-container slot="button">
-      <button (click)="goToAllAppsTab()" bitButton buttonType="primary" type="button">
-        {{ "markCriticalApplications" | i18n }}
-      </button>
-    </ng-container>
-  </bit-no-items>
-</div>
-<div class="tw-mt-4 tw-flex tw-flex-col" *ngIf="!loading && dataSource.data.length">
+<div class="tw-mt-4 tw-flex tw-flex-col">
   <div class="tw-flex tw-justify-between tw-mb-4">
     <h2 bitTypography="h2">{{ "criticalApplications" | i18n }}</h2>
     <button
@@ -49,7 +22,7 @@
         type="button"
         class="tw-flex-1"
         tabindex="0"
-        (click)="dataService.setDrawerForOrgAtRiskMembers('criticalAppsAtRiskMembers')"
+        (click)="dataService.setDrawerForCriticalAtRiskMembers('criticalAppsAtRiskMembers')"
       >
         <dirt-card
           #criticalAppsAtRiskMembers
@@ -67,7 +40,7 @@
         type="button"
         class="tw-flex-1"
         tabindex="0"
-        (click)="dataService.setDrawerForOrgAtRiskApps('criticalAppsAtRiskApplications')"
+        (click)="dataService.setDrawerForCriticalAtRiskApps('criticalAppsAtRiskApplications')"
       >
         <dirt-card
           #criticalAppsAtRiskApplications

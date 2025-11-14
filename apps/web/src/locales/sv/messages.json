@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
-  "riskInsights": {
-    "message": "Riskinsikter"
-  },
   "passwordRisk": {
     "message": "Lösenordsrisk"
   },
+  "noEditPermissions": {
+    "message": "Du har inte behörighet att redigera detta objekt"
+  },
   "reviewAtRiskPasswords": {
     "message": "Granska risklösenord (svaga, exponerade eller återanvända) i olika applikationer. Välj ut de mest kritiska applikationerna för att prioritera säkerhetsåtgärder för användarna för att hantera risklösenord."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Granska inloggningar i riskzonen"
   },
   "dataLastUpdated": {
     "message": "Data senast uppdaterade: $DATE$",
@@ -85,13 +88,13 @@
     }
   },
   "passwordChangeProgress": {
-    "message": "Password change progress"
+    "message": "Lösenordsändringsförlopp"
   },
   "assignMembersTasksToMonitorProgress": {
-    "message": "Assign members tasks to monitor progress"
+    "message": "Tilldela medlemmar uppgifter för att övervaka framsteg"
   },
   "onceYouReviewApps": {
-    "message": "Once you review applications and mark them as critical, you can assign tasks to members to resolve at-risk items and monitor progress here"
+    "message": "När du har granskat applikationer och markerat dem som kritiska kan du tilldela uppgifter till medlemmar för att åtgärda riskutsatta objekt och övervaka framsteg här"
   },
   "sendReminders": {
     "message": "Skicka påminnelser"
@@ -127,6 +130,9 @@
       }
     }
   },
+  "criticalApplicationsMarked": {
+    "message": "kritiska applikationer markerade"
+  },
   "countOfCriticalApplications": {
     "message": "$COUNT$ kritiska applikationer",
     "placeholders": {
@@ -154,6 +160,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ nya lösenord i riskzonen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Meddelade medlemmar ($COUNT$)",
     "placeholders": {
@@ -163,8 +178,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "Inga applikationer hittades i $ORG NAME$",
+  "noApplicationsInOrgTitle": {
+    "message": "Inga applikationer hittades för $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -172,8 +187,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "När användare sparar inloggningar visas applikationer här och visar eventuella riskfyllda lösenord. Markera kritiska appar och meddela användarna att de ska uppdatera lösenorden."
+  "noApplicationsInOrgDescription": {
+    "message": "Importera din organisations inloggningsdata för att börja övervaka säkerhetsrisker för autentiseringsuppgifter. När de har importerats kan du:"
+  },
+  "benefit1Title": {
+    "message": "Prioritera risker"
+  },
+  "benefit1Description": {
+    "message": "Fokusera på applikationer som betyder mest"
+  },
+  "benefit2Title": {
+    "message": "Guide åtgärder"
+  },
+  "benefit2Description": {
+    "message": "Tilldela riskutsatta medlemmar vägledda uppgifter för att byta ut riskutsatta autentiseringsuppgifter"
+  },
+  "benefit3Title": {
+    "message": "Övervaka framsteg"
+  },
+  "benefit3Description": {
+    "message": "Spåra förändringar över tid för att visa säkerhetsförbättringar"
+  },
+  "noReportRunTitle": {
+    "message": "Kör din första rapport för att se applikationer"
+  },
+  "noReportRunDescription": {
+    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Du har inte markerat några applikationer som kritiska"
@@ -202,6 +241,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Applikationer markerade som kritiska"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Misslyckades med att markera applikationer som kritiska"
   },
@@ -225,6 +273,12 @@
   },
   "membersWithAccessToAtRiskItemsForCriticalApps": {
     "message": "Members with access to at-risk items for critical applications"
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Members with at-risk passwords"
+  },
+  "membersWillReceiveNotification": {
+    "message": "Members will receive a notification to resolve at-risk logins through the browser extension."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ medlemmar i riskzonen",
@@ -310,14 +364,41 @@
   "reviewNow": {
     "message": "Granska nu"
   },
+  "allCaughtUp": {
+    "message": "All caught up!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "Inga nya applikationer att granska just nu"
+  },
   "prioritizeCriticalApplications": {
     "message": "Prioritera kritiska applikationer"
   },
-  "atRiskItems": {
-    "message": "Objekt i riskzonen"
+  "selectCriticalApplicationsDescription": {
+    "message": "Select which applications are most critical to your organization, then assign security tasks to members to resolve risks."
+  },
+  "reviewNewApplications": {
+    "message": "Granska nya applikationer"
+  },
+  "reviewNewApplicationsDescription": {
+    "message": "Vi har markerat objekt i riskzonen för nya applikationer som lagras i administratörskonsolen och som har svaga, exponerade eller återanvända lösenord."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Click the star icon to mark an app as critical"
   },
   "markAsCriticalPlaceholder": {
     "message": "Markera som kritisk funktionalitet kommer att implementeras i en framtida uppdatering"
+  },
+  "applicationReviewSaved": {
+    "message": "Application review saved"
+  },
+  "newApplicationsReviewed": {
+    "message": "Nya applikationer granskade"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Fel vid sparande av granskningsstatus"
+  },
+  "pleaseTryAgain": {
+    "message": "Försök igen"
   },
   "unmarkAsCritical": {
     "message": "Avmarkera som kritisk"
@@ -780,6 +861,9 @@
   },
   "favorites": {
     "message": "Favoriter"
+  },
+  "taskSummary": {
+    "message": "Task summary"
   },
   "types": {
     "message": "Typer"
@@ -1305,6 +1389,9 @@
   "useSingleSignOn": {
     "message": "Använd Single Sign-On"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Din organisation kräver single sign-on."
+  },
   "welcomeBack": {
     "message": "Välkommen tillbaka"
   },
@@ -1420,7 +1507,7 @@
     "message": "Tryck på din YubiKey för att autentisera"
   },
   "authenticationTimeout": {
-    "message": "Timeout för autentisering"
+    "message": "Tidsgräns för autentisering"
   },
   "authenticationSessionTimedOut": {
     "message": "Autentiseringssessionen timade ut. Vänligen starta om inloggningsprocessen."
@@ -2080,9 +2167,6 @@
   "encKeySettings": {
     "message": "Inställningar för krypteringsnyckel"
   },
-  "kdfAlgorithm": {
-    "message": "KDF-algoritm"
-  },
   "kdfIterations": {
     "message": "KDF-iterationer"
   },
@@ -2116,9 +2200,6 @@
   },
   "argon2Desc": {
     "message": "Högre KDF-iterationer, minne och parallellism kan hjälpa till att skydda ditt huvudlösenord från att bli brutalt tvingad av en angripare."
-  },
-  "changeKdf": {
-    "message": "Ändra KDF"
   },
   "encKeySettingsChanged": {
     "message": "Inställningarna för krypteringsnyckel ändrades"
@@ -4358,8 +4439,8 @@
   "updateBrowser": {
     "message": "Uppdatera webbläsare"
   },
-  "generatingYourRiskInsights": {
-    "message": "Skapa din riskinsikt..."
+  "generatingYourAccessIntelligence": {
+    "message": "Generating your Access Intelligence..."
   },
   "riskInsightsRunReport": {
     "message": "Kör rapport"
@@ -4446,8 +4527,8 @@
   "inviteAccepted": {
     "message": "Inbjudan accepterades"
   },
-  "inviteAcceptedDesc": {
-    "message": "Du kan komma åt denna organisation när en administratör har bekräftat ditt medlemskap. Vi skickar ett e-postmeddelande till dig när det sker."
+  "invitationAcceptedDesc": {
+    "message": "Accepterade din inbjudan."
   },
   "inviteInitAcceptedDesc": {
     "message": "Du har nu tillgång till denna organisation."
@@ -5710,6 +5791,65 @@
     "message": "Läs mer om ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
+  "availableNow": {
+    "message": "Tillgänglig nu"
+  },
+  "autoConfirm": {
+    "message": "Automatisk bekräftelse av nya användare"
+  },
+  "autoConfirmDescription": {
+    "message": "Nya användare som bjuds in till organisationen kommer automatiskt att bekräftas när en administratörs enhet är upplåst.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "Så här aktiverar du automatisk användarbekräftelse"
+  },
+  "autoConfirmStep1": {
+    "message": "Öppna ditt Bitwarden-tillägg."
+  },
+  "autoConfirmStep2a": {
+    "message": "Välj",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Slå på.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "Nya användare som bjuds in till organisationen kommer automatiskt att bekräftas när en administratörs enhet är upplåst. Innan du aktiverar denna policy, granska och godkänn följande: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potentiell säkerhetsrisk. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Automatic user confirmation could pose a security risk to your organization’s data."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Läs mer om riskerna",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "En organisationspolicy krävs. "
+  },
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "All members must only belong to this organization to activate this automation."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Single organization policy will extend to all roles. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "Ingen nödåtkomst. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Nödåtkomst kommer att tas bort."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "Jag accepterar dessa risker och policyuppdateringar"
+  },
   "personalOwnership": {
     "message": "Radera individuellt valv"
   },
@@ -5723,10 +5863,10 @@
     "message": "På grund av en av företagets policyer är du begränsad från att spara objekt till ditt personliga valv. Ändra ägarskap till en organisation och välj från tillgängliga samlingar."
   },
   "desktopAutotypePolicy": {
-    "message": "Desktop Autotype Default Setting"
+    "message": "Standardinställning för autotype"
   },
   "desktopAutotypePolicyDesc": {
-    "message": "Turn Desktop Autotype ON by default for members. Members can turn Autotype off manually in the Desktop client.",
+    "message": "Aktivera Desktop Autotype som standard för medlemmar. Medlemmar kan stänga av Desktop Autotype manuellt i skrivbordsklienten.",
     "description": "This policy will enable Desktop Autotype by default for members on Unlock."
   },
   "disableSend": {
@@ -5761,6 +5901,19 @@
   "disableHideEmail": {
     "message": "Tillåt inte användare att dölja sin e-postadress från mottagare när de skapar eller redigerar en Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Standardmatchning för URI"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Avgör när inloggningar föreslås för autofyll. Administratörer och ägare undantas från denna policy."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Standardmatchning för URI"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Please select a valid URI match detection option.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Ändrade policyn $ID$.",
@@ -6415,11 +6568,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Ditt huvudlösenord uppfyller inte en eller flera av organisationens policyer. För att få tillgång till valvet måste du uppdatera ditt huvudlösenord nu. Om du fortsätter loggas du ut från din nuvarande session och måste logga in igen. Aktiva sessioner på andra enheter kan fortsätta att vara aktiva i upp till en timme."
   },
-  "automaticAppLogin": {
-    "message": "Automatiskt logga in användare för tillåtna applikationer"
+  "automaticAppLoginWithSSO": {
+    "message": "Automatic login with SSO"
   },
-  "automaticAppLoginDesc": {
-    "message": "Inloggningsformulär fylls i och skickas automatiskt för appar som startas från din konfigurerade identitetsleverantör."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Extend SSO security and convenience to unmanaged apps. When users launch an app from your identity provider, their login details are automatically filled and submitted, creating a one-click, secure flow from the identity provider to the app."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identitetsleverantörens värd"
@@ -6430,23 +6583,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "Din organisation har uppdaterat dina dekrypteringsalternativ. Ange ett huvudlösenord för att komma åt ditt valv."
   },
-  "maximumVaultTimeout": {
-    "message": "Timeout för valv"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Tidsgräns för session"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Ange en maximal tidsgräns för valv för medlemmar."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Ställ in en maximal tidsgräns för sessioner för alla medlemmar förutom ägare."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Maximal tidsgräns för valv"
+  "maximumAllowedTimeout": {
+    "message": "Maximalt tillåten tidsgräns"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "Ogiltig maximal tidsgräns för valv."
+  "maximumAllowedTimeoutRequired": {
+    "message": "Maximalt tillåten tidsgräns krävs."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Tiden är ogiltig. Ändra minst ett värde."
+  },
+  "sessionTimeoutAction": {
+    "message": "Åtgärd vid sessions­tidsgräns"
+  },
+  "immediately": {
+    "message": "Omedelbart"
+  },
+  "onSystemLock": {
+    "message": "Vid låsning av datorn"
+  },
+  "onAppRestart": {
+    "message": "Vid omstart av app"
   },
   "hours": {
     "message": "Timmar"
   },
   "minutes": {
     "message": "Minuter"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Är du säker på att du vill tillåta en maximal timeout av \"Aldrig\" för alla medlemmar?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "Det här alternativet kommer att spara dina medlemmars krypteringsnycklar på deras enheter. Om du väljer det här alternativet, se till att deras enheter är tillräckligt skyddade."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Läs mer om enhetsskydd"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "\"System lock\" kommer endast att gälla för webbläsare och skrivbordsapp"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "Mobil- och webbappen kommer att använda \"vid omstart av app\" som deras högsta tillåtna timeout, eftersom alternativet inte stöds."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "I organisationens policyer har den maximalt tillåtna tidsgränsen för valvet angetts till $HOURS$ timme(n) och $MINUTES$ minut(er).",
@@ -6989,6 +7172,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Du måste lägga till antingen basserverns URL eller minst en anpassad miljö."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Webbadresser måste använda HTTPS."
+  },
   "apiUrl": {
     "message": "URL till API-server"
   },
@@ -7161,6 +7347,9 @@
   "accessDenied": {
     "message": "Åtkomst nekad. Du har inte behörighet att visa den här sidan."
   },
+  "noPageAccess": {
+    "message": "You do not have access to this page"
+  },
   "masterPassword": {
     "message": "Huvudlösenord"
   },
@@ -7258,11 +7447,11 @@
     }
   },
   "plusAddressedEmail": {
-    "message": "Plus adresserad e-post",
+    "message": "Plusadresserad e-post",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
   },
   "plusAddressedEmailDesc": {
-    "message": "Använd din e-postleverantörs funktioner för underadressering."
+    "message": "Använd din e-postleverantörs funktion för subadressering."
   },
   "catchallEmail": {
     "message": "E-post för alla"
@@ -7313,7 +7502,7 @@
     "message": "Okänd hemlighet, du kan behöver begära behörighet för att komma åt denna hemlighet."
   },
   "unknownServiceAccount": {
-    "message": "Unknown machine account, you may need to request permission to access this machine account."
+    "message": "Okänt maskinkonto. Du kan behöva begära tillstånd för att få tillgång till detta maskinkonto."
   },
   "unknownProject": {
     "message": "Okänt projekt, du kan behöver begära behörighet för att komma åt detta projekt."
@@ -8737,7 +8926,7 @@
     }
   },
   "removedGroupFromServiceAccountWithId": {
-    "message": "Removed group: $GROUP_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "message": "Tog bort grupp $GROUP_ID$ från maskinkonto med identifierare $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "group_id": {
         "content": "$1",
@@ -8750,7 +8939,7 @@
     }
   },
   "serviceAccountCreatedWithId": {
-    "message": "Created machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "message": "Skapade maskinkonto med identifierare: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "service_account_id": {
         "content": "$1",
@@ -8759,7 +8948,7 @@
     }
   },
   "addedGroupToServiceAccountId": {
-    "message": "Added group: $GROUP_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "message": "Lade till grupp: $GROUP_ID$ till maskinkonto med identifierare: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "group_id": {
         "content": "$1",
@@ -8772,7 +8961,7 @@
     }
   },
   "serviceAccountDeletedWithId": {
-    "message": "Deleted machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "message": "Tog bort maskinkonto med identifierare: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "service_account_id": {
         "content": "$1",
@@ -9619,6 +9808,9 @@
   "assignTasks": {
     "message": "Tilldela uppgifter"
   },
+  "assignTasksToMembers": {
+    "message": "Assign tasks to members for guided resolution"
+  },
   "assignToCollections": {
     "message": "Tilldela till samlingar"
   },
@@ -10015,7 +10207,7 @@
     "message": "Skicka händelsedata till din Logscale-instans"
   },
   "datadogEventIntegrationDesc": {
-    "message": "Send vault event data to your Datadog instance"
+    "message": "Skicka data om valvhändelser till din Datadog-instans"
   },
   "failedToSaveIntegration": {
     "message": "Misslyckades med att spara integration. Försök igen senare."
@@ -10123,7 +10315,7 @@
     "message": "Bärartoken"
   },
   "repositoryNameHint": {
-    "message": "Name of the repository to ingest into"
+    "message": "Namn på arkivet som ska importeras till"
   },
   "index": {
     "message": "Index"
@@ -10361,26 +10553,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Av"
   },
-  "higherKDFIterations": {
-    "message": "Högre KDF-iterationer kan hjälpa till att skydda ditt huvudlösenord från att bli brute forced av en angripare."
-  },
-  "incrementsOf100,000": {
-    "message": "steg om 100.000"
-  },
-  "smallIncrements": {
-    "message": "små steg"
-  },
   "kdfIterationRecommends": {
     "message": "Vi rekommenderar 600.000 eller mer"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "För äldre enheter kan det leda till prestandaproblem om du ställer in KDF för högt. Öka värdet i $VALUE$ och testa dina enheter.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Kontakta kundtjänst för att återupprätta din prenumeration."
@@ -11024,6 +11198,15 @@
   "domainClaimed": {
     "message": "Domänanspråk"
   },
+  "itemAddedToFavorites": {
+    "message": "Objekt tillagt i favoriter"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Objekt borttaget från favoriter"
+  },
+  "copyNote": {
+    "message": "Kopiera anteckning"
+  },
   "organizationNameMaxLength": {
     "message": "Organisationsnamnet får inte överstiga 50 tecken."
   },
@@ -11100,13 +11283,13 @@
     "message": "Vi hade problem med att öppna webbläsartillägget Bitwarden. Klicka på knappen för att öppna det nu."
   },
   "openExtension": {
-    "message": "Öppen förlängning"
+    "message": "Öppna tillägg"
   },
   "doNotHaveExtension": {
     "message": "Har du inte webbläsartillägget Bitwarden?"
   },
   "installExtension": {
-    "message": "Installera förlängning"
+    "message": "Installera tillägg"
   },
   "openedExtension": {
     "message": "Öppnade webbläsartillägget"
@@ -11295,7 +11478,7 @@
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Avarkivera"
   },
   "itemsInArchive": {
     "message": "Objekt i arkivet"
@@ -11304,16 +11487,16 @@
     "message": "Inga objekt i arkivet"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Arkiverade objekt visas här och undantas från allmänna sökresultat och autofyllförslag."
   },
   "itemWasSentToArchive": {
     "message": "Objektet skickades till arkivet"
   },
   "itemsWereSentToArchive": {
-    "message": "Items were sent to archive"
+    "message": "Objekten har skickats till arkivet"
   },
   "itemUnarchived": {
-    "message": "Item was unarchived"
+    "message": "Objektet har avarkiverats"
   },
   "bulkArchiveItems": {
     "message": "Objekt arkiverade"
@@ -11326,14 +11509,14 @@
     "description": "Verb"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+    "message": "Arkiverade objekt undantas från allmänna sökresultat och autofyllförslag. Är du säker på att du vill arkivera det här objektet?"
   },
   "archiveBulkItems": {
     "message": "Arkivera objekt",
     "description": "Verb"
   },
   "archiveBulkItemsConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive these items?"
+    "message": "Arkiverade objekt undantas från allmänna sökresultat och autofyllförslag. Är du säker på att du vill arkivera dessa objekt?"
   },
   "businessUnit": {
     "message": "Affärsenhet"
@@ -11440,19 +11623,19 @@
     "message": "Hoppa till webbapp"
   },
   "bitwardenExtensionInstalled": {
-    "message": "Bitvärdesförlängningen installerad!"
+    "message": "Bitwarden-tillägg installerat!"
   },
   "openTheBitwardenExtension": {
     "message": "Öppna Bitwarden-tillägget"
   },
   "bitwardenExtensionInstalledOpenExtension": {
-    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
+    "message": "Bitwarden-tillägget är installerat! Öppna tillägget för att logga in och starta autofyllning."
   },
   "openExtensionToAutofill": {
     "message": "Öppna tillägget för att logga in och starta autofyllning."
   },
   "openBitwardenExtension": {
-    "message": "Öppna Bitwarden-förlängning"
+    "message": "Öppna Bitwarden-tillägget"
   },
   "gettingStartedWithBitwardenPart1": {
     "message": "För tips om hur du kommer igång med Bitwarden besök",
@@ -11675,28 +11858,28 @@
     "message": "Verifiera nu."
   },
   "additionalStorageGB": {
-    "message": "Additional storage GB"
+    "message": "Ytterligare lagringsplats (GB)"
   },
   "additionalServiceAccountsV2": {
     "message": "Ytterligare maskinkonton"
   },
   "secretsManagerSeats": {
-    "message": "Secrets Manager seats"
+    "message": "Secrets Manager-licenser"
   },
   "additionalStorage": {
     "message": "Ytterligare lagring"
   },
   "expandPurchaseDetails": {
-    "message": "Expand purchase details"
+    "message": "Visa köpuppgifter"
   },
   "collapsePurchaseDetails": {
-    "message": "Collapse purchase details"
+    "message": "Dölj köpuppgifter"
   },
   "familiesMembership": {
     "message": "Familjemedlemskap"
   },
   "planDescPremium": {
-    "message": "Complete online security"
+    "message": "Komplett säkerhet online"
   },
   "planDescFamiliesV2": {
     "message": "Premiumsäkerhet för din familj"
@@ -11792,7 +11975,7 @@
     "message": "Säkerhetspolicyer för företag"
   },
   "selfHostOption": {
-    "message": "Self-host option"
+    "message": "Alternativ för self-hosting"
   },
   "complimentaryFamiliesPlan": {
     "message": "Kostnadsfri familjeplan för alla användare"
@@ -11819,19 +12002,19 @@
     "message": "Du har uppgraderat till Familjer!"
   },
   "taxCalculationError": {
-    "message": "There was an error calculating tax for your location. Please try again."
+    "message": "Ett fel uppstod vid beräkning av skatt för din plats. Försök igen."
   },
   "individualUpgradeWelcomeMessage": {
     "message": "Välkommen till Bitwarden"
   },
   "individualUpgradeDescriptionMessage": {
-    "message": "Unlock more security features with Premium, or start sharing items with Families"
+    "message": "Lås upp fler säkerhetsfunktioner med Premium, eller börja dela objekt med Families"
   },
   "individualUpgradeTaxInformationMessage": {
     "message": "Priser exklusive moms och faktureras årligen."
   },
   "organizationNameDescription": {
-    "message": "Your organization name will appear in invitations you send to members."
+    "message": "Ditt organisationsnamn visas i inbjudningar som du skickar till medlemmar."
   },
   "continueWithoutUpgrading": {
     "message": "Fortsätt utan att uppgradera"
@@ -11843,18 +12026,54 @@
     "message": "Uppgradera nu"
   },
   "formWillCreateNewFamiliesOrgMessage": {
-    "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."
+    "message": "Genom att fylla i detta formulär skapas en ny Familjer-organisation. Du kan uppgradera din kostnadsfria organisation från administratörskonsolen."
   },
   "upgradeErrorMessage": {
     "message": "Vi stötte på ett fel vid bearbetningen av din uppgradering. Försök igen."
   },
   "bitwardenFreeplanMessage": {
-    "message": "You have the Bitwarden Free plan"
+    "message": "Du har Bitwarden Free-planen"
   },
   "upgradeCompleteSecurity": {
     "message": "Uppgradera för fullständig säkerhet"
   },
   "viewbusinessplans": {
     "message": "Visa prismodeller"
+  },
+  "updateEncryptionSettings": {
+    "message": "Uppdatera krypteringsinställningar"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Uppdatera dina krypteringsinställningar"
+  },
+  "updateSettings": {
+    "message": "Uppdatera inställningar"
+  },
+  "algorithm": {
+    "message": "Algoritm"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Välj hur Bitwarden ska kryptera dina valvdata. Alla alternativ är säkra, men starkare metoder ger bättre skydd - särskilt mot uttömmande attacker. Bitwarden rekommenderar standardinställningen för de flesta användare."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Att öka värdena ovanför standard kommer att förbättra säkerheten, men ditt valv kan ta längre tid att låsa upp som ett resultat."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "Om krypteringsalgoritmer"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 är en vältestad krypteringsmetod som balanserar säkerhet och prestanda. Bra för alla användare."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id erbjuder ett starkare skydd mot moderna attacker. Bäst för avancerade användare med kraftfulla enheter."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Postnummer"
+  },
+  "cardNumberLabel": {
+    "message": "Kortnummer"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Starta gratis testperiod för Families"
   }
 }

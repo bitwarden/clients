@@ -21,6 +21,8 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { IntegrationGridComponent } from "./integration-grid/integration-grid.component";
 import { FilterIntegrationsPipe } from "./integrations.pipe";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "ac-integrations",
   templateUrl: "./integrations.component.html",
@@ -200,6 +202,14 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       linkURL: "https://bitwarden.com/help/panther-siem/",
       image: "../../../../../../../images/integrations/logo-panther-round-color.svg",
       type: IntegrationType.EVENT,
+    },
+    {
+      name: "Sumo Logic",
+      linkURL: "https://bitwarden.com/help/sumo-logic-siem/",
+      image: "../../../../../../../images/integrations/logo-sumo-logic-siem.svg",
+      imageDarkMode: "../../../../../../../images/integrations/logo-sumo-logic-siem-darkmode.svg",
+      type: IntegrationType.EVENT,
+      newBadgeExpiration: "2025-12-31",
     },
     {
       name: "Microsoft Intune",

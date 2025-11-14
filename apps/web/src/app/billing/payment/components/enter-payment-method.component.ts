@@ -83,7 +83,7 @@ type PaymentMethodFormGroup = FormGroup<{
           <div class="tw-grid tw-grid-cols-2 tw-gap-4 tw-mb-4">
             <div class="tw-col-span-1">
               <app-payment-label for="stripe-card-number" required>
-                {{ "number" | i18n }}
+                {{ "cardNumberLabel" | i18n }}
               </app-payment-label>
               <div id="stripe-card-number" class="tw-stripe-form-control"></div>
             </div>
@@ -109,7 +109,7 @@ type PaymentMethodFormGroup = FormGroup<{
                   class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-pr-1"
                   [position]="'above-end'"
                 >
-                  <i class="bwi bwi-question-circle tw-text-lg" aria-hidden="true"></i>
+                  <i class="bwi bwi-question-circle tw-text-sm" aria-hidden="true"></i>
                 </button>
                 <bit-popover [title]="'cardSecurityCode' | i18n" #cardSecurityCodePopover>
                   <p class="tw-mb-0">{{ "cardSecurityCodeDescription" | i18n }}</p>
@@ -217,7 +217,7 @@ type PaymentMethodFormGroup = FormGroup<{
           </div>
           <div class="tw-col-span-6">
             <bit-form-field [disableMargin]="true">
-              <bit-label>{{ "zipPostalCode" | i18n }}</bit-label>
+              <bit-label>{{ "zipPostalCodeLabel" | i18n }}</bit-label>
               <input
                 bitInput
                 type="text"

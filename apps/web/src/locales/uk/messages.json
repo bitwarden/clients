@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Управління доступом"
   },
-  "riskInsights": {
-    "message": "Інформація щодо ризику"
-  },
   "passwordRisk": {
     "message": "Ризиковані паролі"
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "reviewAtRiskPasswords": {
     "message": "Переглядайте ризиковані паролі в різних програмах (слабкі, викриті, або повторно використані). Виберіть найбільш критичні програми, щоб визначити пріоритети дій щодо безпеки для користувачів, які використовують ризиковані паролі."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Review at-risk logins"
   },
   "dataLastUpdated": {
     "message": "Дані востаннє оновлено: $DATE$",
@@ -127,6 +130,9 @@
       }
     }
   },
+  "criticalApplicationsMarked": {
+    "message": "critical applications marked"
+  },
   "countOfCriticalApplications": {
     "message": "$COUNT$ critical applications",
     "placeholders": {
@@ -154,6 +160,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ new passwords at-risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Сповіщення учасників ($COUNT$)",
     "placeholders": {
@@ -163,8 +178,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "Не знайдено програм в $ORG NAME$",
+  "noApplicationsInOrgTitle": {
+    "message": "No applications found for $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -172,8 +187,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "Коли користувачі зберігатимуть записи, тут з'являтимуться програми з ризикованими паролями. Позначте критичні програми та сповіщайте користувачів про необхідність зміни паролів."
+  "noApplicationsInOrgDescription": {
+    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  },
+  "benefit1Title": {
+    "message": "Prioritize risks"
+  },
+  "benefit1Description": {
+    "message": "Focus on applications that matter the most"
+  },
+  "benefit2Title": {
+    "message": "Guide remediation"
+  },
+  "benefit2Description": {
+    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  },
+  "benefit3Title": {
+    "message": "Monitor progress"
+  },
+  "benefit3Description": {
+    "message": "Track changes over time to show security improvements"
+  },
+  "noReportRunTitle": {
+    "message": "Run your first report to see applications"
+  },
+  "noReportRunDescription": {
+    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Ви не відмітили жодного додатку в якості критичного"
@@ -202,6 +241,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Позначені критичні програми"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Failed to mark applications as critical"
   },
@@ -225,6 +273,12 @@
   },
   "membersWithAccessToAtRiskItemsForCriticalApps": {
     "message": "Members with access to at-risk items for critical applications"
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Members with at-risk passwords"
+  },
+  "membersWillReceiveNotification": {
+    "message": "Members will receive a notification to resolve at-risk logins through the browser extension."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ members at-risk",
@@ -310,14 +364,41 @@
   "reviewNow": {
     "message": "Review now"
   },
+  "allCaughtUp": {
+    "message": "All caught up!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "No new applications to review at this time"
+  },
   "prioritizeCriticalApplications": {
     "message": "Prioritize critical applications"
   },
-  "atRiskItems": {
-    "message": "At-risk items"
+  "selectCriticalApplicationsDescription": {
+    "message": "Select which applications are most critical to your organization, then assign security tasks to members to resolve risks."
+  },
+  "reviewNewApplications": {
+    "message": "Review new applications"
+  },
+  "reviewNewApplicationsDescription": {
+    "message": "We've highlighted at-risk items for new applications stored in Admin console that have weak, exposed, or reused passwords."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Click the star icon to mark an app as critical"
   },
   "markAsCriticalPlaceholder": {
     "message": "Mark as critical functionality will be implemented in a future update"
+  },
+  "applicationReviewSaved": {
+    "message": "Application review saved"
+  },
+  "newApplicationsReviewed": {
+    "message": "New applications reviewed"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Error saving review status"
+  },
+  "pleaseTryAgain": {
+    "message": "Please try again"
   },
   "unmarkAsCritical": {
     "message": "Unmark as critical"
@@ -780,6 +861,9 @@
   },
   "favorites": {
     "message": "Обране"
+  },
+  "taskSummary": {
+    "message": "Task summary"
   },
   "types": {
     "message": "Типи"
@@ -1304,6 +1388,9 @@
   },
   "useSingleSignOn": {
     "message": "Використати єдиний вхід"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
   },
   "welcomeBack": {
     "message": "З поверненням"
@@ -2080,9 +2167,6 @@
   "encKeySettings": {
     "message": "Налаштування ключа шифрування"
   },
-  "kdfAlgorithm": {
-    "message": "Алгоритм KDF"
-  },
   "kdfIterations": {
     "message": "Ітерації KDF"
   },
@@ -2116,9 +2200,6 @@
   },
   "argon2Desc": {
     "message": "Вищі значення KDF-ітерацій, пам'яті й паралелізму можуть допомогти захистити ваш головний пароль від грубого зламу зловмисником."
-  },
-  "changeKdf": {
-    "message": "Змінити KDF"
   },
   "encKeySettingsChanged": {
     "message": "Налаштування ключа шифрування збережено"
@@ -2444,23 +2525,23 @@
     "message": "Відновити доступ"
   },
   "premium": {
-    "message": "Преміум",
+    "message": "Premium",
     "description": "Premium membership"
   },
   "premiumMembership": {
-    "message": "Преміум статус"
+    "message": "Передплата Premium"
   },
   "premiumRequired": {
-    "message": "Необхідна передплата преміум"
+    "message": "Необхідна передплата Premium"
   },
   "premiumRequiredDesc": {
-    "message": "Для використання цієї функції необхідна передплата преміум."
+    "message": "Для використання цієї функції необхідна передплата Premium."
   },
   "youHavePremiumAccess": {
-    "message": "У вас є преміумдоступ"
+    "message": "У вас є Premium"
   },
   "alreadyPremiumFromOrg": {
-    "message": "У вас вже є доступ до преміумфункцій, тому що ви входите до організації, яка вам їх надає."
+    "message": "У вас вже є доступ до функцій Premium, тому що ви входите до організації, яка вам їх надає."
   },
   "manage": {
     "message": "Керувати"
@@ -2985,10 +3066,10 @@
     "message": "Пріоритетну технічну підтримку."
   },
   "premiumSignUpFuture": {
-    "message": "Усі майбутні преміумфункції. Їх буде більше!"
+    "message": "Усі майбутні функції Premium. Їх буде більше!"
   },
   "premiumPrice": {
-    "message": "Всього лише $PRICE$ / за рік!",
+    "message": "Лише $PRICE$ / рік!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -2997,7 +3078,7 @@
     }
   },
   "premiumPriceWithFamilyPlan": {
-    "message": "Отримайте преміум – лише $PRICE$ /рік. Або отримайте преміум обліковий запис для користувачів $FAMILYPLANUSERCOUNT$ та необмежений спільний доступ з ",
+    "message": "Отримайте Premium – лише $PRICE$ /рік. Або отримайте обліковий запис Premium для користувачів $FAMILYPLANUSERCOUNT$ та необмежений спільний доступ з ",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -3275,7 +3356,7 @@
     "message": "Спосіб оплати оновлено."
   },
   "purchasePremium": {
-    "message": "Придбати преміум"
+    "message": "Придбати Premium"
   },
   "licenseFile": {
     "message": "Файл ліцензії"
@@ -4358,8 +4439,8 @@
   "updateBrowser": {
     "message": "Оновити браузер"
   },
-  "generatingYourRiskInsights": {
-    "message": "Генерується інформація щодо ризиків..."
+  "generatingYourAccessIntelligence": {
+    "message": "Generating your Access Intelligence..."
   },
   "riskInsightsRunReport": {
     "message": "Run report"
@@ -4446,8 +4527,8 @@
   "inviteAccepted": {
     "message": "Запрошення прийнято"
   },
-  "inviteAcceptedDesc": {
-    "message": "Ви можете отримати доступ до цієї організації одразу після підтвердження адміністратором. Ми надішлемо вам електронне повідомлення, коли це станеться."
+  "invitationAcceptedDesc": {
+    "message": "Successfully accepted your invitation."
   },
   "inviteInitAcceptedDesc": {
     "message": "Тепер ви маєте доступ до цієї організації."
@@ -5710,6 +5791,65 @@
     "message": "Докладніше про ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
+  "availableNow": {
+    "message": "Available now"
+  },
+  "autoConfirm": {
+    "message": "Automatic confirmation of new users"
+  },
+  "autoConfirmDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "How to turn on automatic user confirmation"
+  },
+  "autoConfirmStep1": {
+    "message": "Open your Bitwarden extension."
+  },
+  "autoConfirmStep2a": {
+    "message": "Select",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Turn on.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potential security risk. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Automatic user confirmation could pose a security risk to your organization’s data."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Learn about the risks",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Single organization policy required. "
+  },
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "All members must only belong to this organization to activate this automation."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Single organization policy will extend to all roles. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "No emergency access. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Emergency Access will be removed."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "I accept these risks and policy updates"
+  },
   "personalOwnership": {
     "message": "Вилучити особисте сховище"
   },
@@ -5761,6 +5901,19 @@
   "disableHideEmail": {
     "message": "Завжди показувати отримувачам адресу е-пошти учасників під час створення чи редагування відправлень.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Default URI match detection"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Determine when logins are suggested for autofill. Admins and owners are exempt from this policy."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Default URI match detection"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Please select a valid URI match detection option.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Змінено політику $ID$.",
@@ -6415,11 +6568,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Ваш головний пароль не відповідає одній або більше політикам вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
   },
-  "automaticAppLogin": {
-    "message": "Автоматичний вхід користувачів для дозволених програм"
+  "automaticAppLoginWithSSO": {
+    "message": "Automatic login with SSO"
   },
-  "automaticAppLoginDesc": {
-    "message": "Форми входу автоматично заповнюватимуться і надсилатимуться для програм, запущених від налаштованого провайдера ідентифікації."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Extend SSO security and convenience to unmanaged apps. When users launch an app from your identity provider, their login details are automatically filled and submitted, creating a one-click, secure flow from the identity provider to the app."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Вузол провайдера ідентифікації"
@@ -6430,23 +6583,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "Ваша організація оновила параметри дешифрування. Встановіть головний пароль для доступу до сховища."
   },
-  "maximumVaultTimeout": {
-    "message": "Час очікування сховища"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Session timeout"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Встановити максимальний час очікування сховища для учасників."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Set a maximum session timeout for all members except owners."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Максимальний час очікування сховища"
+  "maximumAllowedTimeout": {
+    "message": "Maximum allowed timeout"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "Недійсний максимальний час очікування сховища."
+  "maximumAllowedTimeoutRequired": {
+    "message": "Maximum allowed timeout is required."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Time is invalid. Change at least one value."
+  },
+  "sessionTimeoutAction": {
+    "message": "Session timeout action"
+  },
+  "immediately": {
+    "message": "Immediately"
+  },
+  "onSystemLock": {
+    "message": "On system lock"
+  },
+  "onAppRestart": {
+    "message": "On app restart"
   },
   "hours": {
     "message": "Годин"
   },
   "minutes": {
     "message": "Хвилин"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Are you certain you want to allow a maximum timeout of \"Never\" for all members?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "This option will save your members' encryption keys on their devices. If you choose this option, ensure that their devices are adequately protected."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Learn more about device protection"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "\"System lock\" will only apply to the browser and desktop app"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "The mobile and web app will use \"on app restart\" as their maximum allowed timeout, since the option is not supported."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Політикою вашої організації встановлено максимальний дозволений час очікування сховища $HOURS$ годин, $MINUTES$ хвилин.",
@@ -6681,7 +6864,7 @@
     "message": "План Bitwarden Families включає"
   },
   "sponsoredFamiliesPremiumAccess": {
-    "message": "Преміумдоступ до 6 користувачів"
+    "message": "Доступ Premium для 6 користувачів"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Спільні збірки для учасників родини"
@@ -6989,6 +7172,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Необхідно додати URL-адресу основного сервера, або принаймні одне користувацьке середовище."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
+  },
   "apiUrl": {
     "message": "URL-адреса сервера API"
   },
@@ -7160,6 +7346,9 @@
   },
   "accessDenied": {
     "message": "Доступ заборонено. У вас немає дозволу на перегляд цієї сторінки."
+  },
+  "noPageAccess": {
+    "message": "You do not have access to this page"
   },
   "masterPassword": {
     "message": "Головний пароль"
@@ -7534,7 +7723,7 @@
     }
   },
   "premiumSubcriptionRequired": {
-    "message": "Необхідна передплата преміум"
+    "message": "Необхідна передплата Premium"
   },
   "scim": {
     "message": "Розгортання SCIM",
@@ -9619,6 +9808,9 @@
   "assignTasks": {
     "message": "Assign tasks"
   },
+  "assignTasksToMembers": {
+    "message": "Assign tasks to members for guided resolution"
+  },
   "assignToCollections": {
     "message": "Призначити до збірок"
   },
@@ -10361,26 +10553,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Вимк"
   },
-  "higherKDFIterations": {
-    "message": "Вищі значення ітерацій KDF можуть допомогти захистити ваш головний пароль від грубого зламу зловмисником."
-  },
-  "incrementsOf100,000": {
-    "message": "кроком 100 000"
-  },
-  "smallIncrements": {
-    "message": "невеликі кроки"
-  },
   "kdfIterationRecommends": {
     "message": "Ми рекомендуємо 600 000 або більше"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "Для старіших пристроїв занадто високе значення KDF може призвести до проблем зі швидкодією. Збільшуйте значення з $VALUE$ і тестуйте роботу на пристрої.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Зверніться до служби підтримки для відновлення передплати."
@@ -10655,7 +10829,7 @@
     "message": "Захистіть паролі своєї родини"
   },
   "accessToPremiumFeatures": {
-    "message": "Доступ до преміальних функцій"
+    "message": "Доступ до функцій Premium"
   },
   "additionalStorageGbMessage": {
     "message": "ГБ додаткового сховища"
@@ -10694,7 +10868,7 @@
     "message": "RSA 4096-Bit"
   },
   "premiumAccounts": {
-    "message": "6 облікових записів Преміум"
+    "message": "6 облікових записів Premium"
   },
   "unlimitedSharing": {
     "message": "Необмежений спільний доступ"
@@ -11023,6 +11197,15 @@
   },
   "domainClaimed": {
     "message": "Домен заявлено"
+  },
+  "itemAddedToFavorites": {
+    "message": "Item added to favorites"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removed from favorites"
+  },
+  "copyNote": {
+    "message": "Copy note"
   },
   "organizationNameMaxLength": {
     "message": "Назва організації не може перевищувати 50 символів."
@@ -11696,10 +11879,10 @@
     "message": "Families membership"
   },
   "planDescPremium": {
-    "message": "Complete online security"
+    "message": "Повна онлайн-безпека"
   },
   "planDescFamiliesV2": {
-    "message": "Premium security for your family"
+    "message": "Безпека Premium для вашої сім'ї"
   },
   "planDescFreeV2": {
     "message": "Share with $COUNT$ other user",
@@ -11813,7 +11996,7 @@
     "message": "Upgrade to Families"
   },
   "upgradeToPremium": {
-    "message": "Upgrade to Premium"
+    "message": "Покращити до Premium"
   },
   "familiesUpdated": {
     "message": "You've upgraded to Families!"
@@ -11825,7 +12008,7 @@
     "message": "Welcome to Bitwarden"
   },
   "individualUpgradeDescriptionMessage": {
-    "message": "Unlock more security features with Premium, or start sharing items with Families"
+    "message": "Розблокуйте більше можливостей безпеки з передплатою Premium, або почніть ділитися записами з родиною"
   },
   "individualUpgradeTaxInformationMessage": {
     "message": "Prices exclude tax and are billed annually."
@@ -11856,5 +12039,41 @@
   },
   "viewbusinessplans": {
     "message": "View business plans"
+  },
+  "updateEncryptionSettings": {
+    "message": "Update encryption settings"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Update your encryption settings"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
+  "algorithm": {
+    "message": "Algorithm"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Choose how Bitwarden should encrypt your vault data. All options are secure, but stronger methods offer better protection - especially against brute-force attacks. Bitwarden recommends the default setting for most users."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Increasing the values above the default will improve security, but your vault may take longer to unlock as a result."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "About encryption algorithms"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 is a well-tested encryption method that balances security and performance. Good for all users."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id offers stronger protection against modern attacks. Best for advanced users with powerful devices."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Start free Families trial"
   }
 }

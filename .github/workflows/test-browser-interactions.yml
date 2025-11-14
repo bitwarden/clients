@@ -49,6 +49,8 @@ jobs:
       uses: bitwarden/gh-actions/azure-logout@main
 
     - name: Generate GH App token
+      # NOTE: versions of actions/create-github-app-token after 2.0.3 break this workflow
+      # Remediation is tracked in https://bitwarden.atlassian.net/browse/PM-28174
       uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3
       id: app-token
       with:
@@ -73,7 +75,7 @@ jobs:
 
     - name: Trigger test-all workflow in browser-interactions-testing
       if: steps.changed-files.outputs.monitored == 'true'
-      uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0 # v3.0.0
+      uses: peter-evans/repository-dispatch@5fc4efd1a4797ddb68ffd0714a238564e4cc0e6f # v4.0.0
       with:
         token: ${{ steps.app-token.outputs.token }}
         repository: "bitwarden/browser-interactions-testing"

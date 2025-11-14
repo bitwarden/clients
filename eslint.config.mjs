@@ -72,9 +72,9 @@ export default tseslint.config(
       "@angular-eslint/no-output-on-prefix": 0,
       "@angular-eslint/no-output-rename": 0,
       "@angular-eslint/no-outputs-metadata-property": 0,
-      "@angular-eslint/prefer-on-push-component-change-detection": "warn",
-      "@angular-eslint/prefer-output-emitter-ref": "warn",
-      "@angular-eslint/prefer-signals": "warn",
+      "@angular-eslint/prefer-on-push-component-change-detection": "error",
+      "@angular-eslint/prefer-output-emitter-ref": "error",
+      "@angular-eslint/prefer-signals": "error",
       "@angular-eslint/prefer-standalone": 0,
       "@angular-eslint/use-lifecycle-interface": "error",
       "@angular-eslint/use-pipe-transform-interface": 0,
@@ -159,6 +159,11 @@ export default tseslint.config(
               from: ["./libs/common/src/platform/state/**/*"],
               // allow module index import
               except: ["**/state/index.ts"],
+            },
+            {
+              target: ["libs/**/*"],
+              from: ["apps/**/*"],
+              message: "Libs should not import app-specific code.",
             },
           ],
         },
@@ -689,6 +694,12 @@ function buildNoRestrictedImports(additionalForbiddenPatterns = [], skipPlatform
   return [
     "error",
     {
+      paths: [
+        {
+          name: "@bitwarden/commercial-sdk-internal",
+          message: "Use @bitwarden/sdk-internal instead.",
+        },
+      ],
       patterns: [
         ...(skipPlatform ? [] : ["**/platform/**/internal", "**/platform/messaging/**"]),
         "**/src/**/*", // Prevent relative imports across libs.

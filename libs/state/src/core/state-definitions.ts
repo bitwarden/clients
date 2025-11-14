@@ -36,10 +36,11 @@ export const DELETE_MANAGED_USER_WARNING = new StateDefinition(
     web: "disk-local",
   },
 );
-export const AUTO_CONFIRM = new StateDefinition("autoConfirm", "disk");
+export const AUTO_CONFIRM = new StateDefinition("autoConfirm", "disk", { web: "disk-local" });
 
 // Billing
 export const BILLING_DISK = new StateDefinition("billing", "disk");
+export const BILLING_MEMORY = new StateDefinition("billing", "memory");
 
 // Auth
 
@@ -107,6 +108,10 @@ export const NEW_WEB_LAYOUT_BANNER_DISK = new StateDefinition("newWebLayoutBanne
   web: "disk-local",
 });
 
+// DIRT
+
+export const PHISHING_DETECTION_DISK = new StateDefinition("phishingDetection", "disk");
+
 // Platform
 
 export const APPLICATION_ID_DISK = new StateDefinition("applicationId", "disk", {
@@ -122,6 +127,7 @@ export const CRYPTO_MEMORY = new StateDefinition("crypto", "memory");
 export const DESKTOP_SETTINGS_DISK = new StateDefinition("desktopSettings", "disk");
 export const ENVIRONMENT_DISK = new StateDefinition("environment", "disk");
 export const ENVIRONMENT_MEMORY = new StateDefinition("environment", "memory");
+export const IPC_MEMORY = new StateDefinition("interProcessCommunication", "memory");
 export const POPUP_VIEW_MEMORY = new StateDefinition("popupView", "memory", {
   browser: "memory-large-object",
 });

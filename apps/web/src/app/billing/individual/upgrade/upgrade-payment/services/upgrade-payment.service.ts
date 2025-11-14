@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
 import { defaultIfEmpty, find, map, mergeMap, Observable, switchMap } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
@@ -12,6 +11,13 @@ import {
   SubscriptionInformation,
 } from "@bitwarden/common/billing/abstractions";
 import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
+import {
+  PersonalSubscriptionPricingTier,
+  PersonalSubscriptionPricingTierId,
+  PersonalSubscriptionPricingTierIds,
+} from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { LogService } from "@bitwarden/logging";
 
@@ -30,11 +36,6 @@ import {
   TokenizedPaymentMethod,
 } from "../../../../payment/types";
 import { mapAccountToSubscriber } from "../../../../types";
-import {
-  PersonalSubscriptionPricingTier,
-  PersonalSubscriptionPricingTierId,
-  PersonalSubscriptionPricingTierIds,
-} from "../../../../types/subscription-pricing-tier";
 
 export type PlanDetails = {
   tier: PersonalSubscriptionPricingTierId;
@@ -59,11 +60,11 @@ export class UpgradePaymentService {
     private accountBillingClient: AccountBillingClient,
     private taxClient: TaxClient,
     private logService: LogService,
-    private apiService: ApiService,
     private syncService: SyncService,
     private organizationService: OrganizationService,
     private accountService: AccountService,
     private subscriberBillingClient: SubscriberBillingClient,
+    private configService: ConfigService,
   ) {}
 
   userIsOwnerOfFreeOrg$: Observable<boolean> = this.accountService.activeAccount$.pipe(
@@ -97,41 +98,37 @@ export class UpgradePaymentService {
     planDetails: PlanDetails,
     billingAddress: BillingAddress,
   ): Promise<number> {
+    const isFamiliesPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Families;
+    const isPremiumPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Premium;
+
+    let taxClientCall: Promise<TaxAmounts> | null = null;
+
+    if (isFamiliesPlan) {
+      // Currently, only Families plan is supported for organization plans
+      const request: OrganizationSubscriptionPurchase = {
+        tier: "families",
+        cadence: "annually",
+        passwordManager: { seats: 1, additionalStorage: 0, sponsored: false },
+      };
+
+      taxClientCall = this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
+        request,
+        billingAddress,
+      );
+    }
+
+    if (isPremiumPlan) {
+      taxClientCall = this.taxClient.previewTaxForPremiumSubscriptionPurchase(0, billingAddress);
+    }
+
+    if (taxClientCall === null) {
+      throw new Error("Tax client call is not defined");
+    }
+
     try {
-      const isOrganizationPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Families;
-      const isPremiumPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Premium;
-
-      let taxClientCall: Promise<TaxAmounts> | null = null;
-
-      if (isOrganizationPlan) {
-        const seats = this.getPasswordManagerSeats(planDetails);
-        if (seats === 0) {
-          throw new Error("Seats must be greater than 0 for organization plan");
-        }
-        // Currently, only Families plan is supported for organization plans
-        const request: OrganizationSubscriptionPurchase = {
-          tier: "families",
-          cadence: "annually",
-          passwordManager: { seats, additionalStorage: 0, sponsored: false },
-        };
-
-        taxClientCall = this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
-          request,
-          billingAddress,
-        );
-      }
-
-      if (isPremiumPlan) {
-        taxClientCall = this.taxClient.previewTaxForPremiumSubscriptionPurchase(0, billingAddress);
-      }
-
-      if (taxClientCall === null) {
-        throw new Error("Tax client call is not defined");
-      }
-
       const preview = await taxClientCall;
       return preview.tax;
-    } catch (error: unknown) {
+    } catch (error) {
       this.logService.error("Tax calculation failed:", error);
       throw error;
     }
@@ -169,6 +166,12 @@ export class UpgradePaymentService {
     this.validatePaymentAndBillingInfo(paymentMethod, billingAddress);
 
     const passwordManagerSeats = this.getPasswordManagerSeats(planDetails);
+    const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM26462_Milestone_3,
+    );
+    const familyPlan = milestone3FeatureEnabled
+      ? PlanType.FamiliesAnnually
+      : PlanType.FamiliesAnnually2025;
 
     const subscriptionInformation: SubscriptionInformation = {
       organization: {
@@ -176,7 +179,7 @@ export class UpgradePaymentService {
         billingEmail: account.email, // Use account email as billing email
       },
       plan: {
-        type: PlanType.FamiliesAnnually,
+        type: familyPlan,
         passwordManagerSeats: passwordManagerSeats,
       },
       payment: {
@@ -224,7 +227,6 @@ export class UpgradePaymentService {
   }
 
   private async refreshAndSync(): Promise<void> {
-    await this.apiService.refreshIdentityToken();
     await this.syncService.fullSync(true);
   }
 

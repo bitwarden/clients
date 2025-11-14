@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Toegangsintelligentie"
   },
-  "riskInsights": {
-    "message": "Risicoinzichten"
-  },
   "passwordRisk": {
     "message": "Wachtwoordrisico"
   },
+  "noEditPermissions": {
+    "message": "Je hebt geen toestemming om dit item te bewerken"
+  },
   "reviewAtRiskPasswords": {
     "message": "Herzie risicovolle wachtwoorden (zwak, blootgelegd of herbruikt) tussen applicaties. Selecteer je meest belangrijke applicaties om prioriteit te geven aan beveiligingsacties voor je gebruikers om risicovolle wachtwoorden aan te pakken."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Risicovolle logins bekijken"
   },
   "dataLastUpdated": {
     "message": "Datum laatste wijziging: $DATE$",
@@ -127,6 +130,9 @@
       }
     }
   },
+  "criticalApplicationsMarked": {
+    "message": "belangrijke applicaties gemarkeerd"
+  },
   "countOfCriticalApplications": {
     "message": "$COUNT$ belangrijke applicaties",
     "placeholders": {
@@ -154,6 +160,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ nieuwe wachtwoorden lopen risico",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Geînformeerde leden ($COUNT$)",
     "placeholders": {
@@ -163,8 +178,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "Nieuwe applicaties gevonden in $ORG NAME$",
+  "noApplicationsInOrgTitle": {
+    "message": "No applications found for $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -172,8 +187,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "Als gebruikers inloggegevens opslaan, verschijnen hier applicaties met wachtwoorden die risico lopen. Markeer belangrijke applicaties en attendeer gebruikers op het bijwerken van wachtwoorden."
+  "noApplicationsInOrgDescription": {
+    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  },
+  "benefit1Title": {
+    "message": "Prioritize risks"
+  },
+  "benefit1Description": {
+    "message": "Focus on applications that matter the most"
+  },
+  "benefit2Title": {
+    "message": "Guide remediation"
+  },
+  "benefit2Description": {
+    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  },
+  "benefit3Title": {
+    "message": "Monitor progress"
+  },
+  "benefit3Description": {
+    "message": "Track changes over time to show security improvements"
+  },
+  "noReportRunTitle": {
+    "message": "Run your first report to see applications"
+  },
+  "noReportRunDescription": {
+    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Je hebt nog geen applicaties als belangrijk aangewezen"
@@ -202,6 +241,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Als belangrijk gemarkeerde applicaties"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applicaties als belangrijk gemarkeerd",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Kon applicaties niet als kritiek markeren"
   },
@@ -225,6 +273,12 @@
   },
   "membersWithAccessToAtRiskItemsForCriticalApps": {
     "message": "Leden met toegang tot risico-items voor belangrijke applicaties"
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Leden met risicovolle wachtwoorden"
+  },
+  "membersWillReceiveNotification": {
+    "message": "Leden ontvangen een melding via de browserextensie om risico-logins op te lossen."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ leden lopen risico",
@@ -310,14 +364,41 @@
   "reviewNow": {
     "message": "Nu beoordelen"
   },
+  "allCaughtUp": {
+    "message": "All caught up!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "No new applications to review at this time"
+  },
   "prioritizeCriticalApplications": {
     "message": "Belangrijke applicaties prioriteren"
   },
-  "atRiskItems": {
-    "message": "Items in gevaar"
+  "selectCriticalApplicationsDescription": {
+    "message": "Selecteer welke toepassingen het meest belangrijk zijn voor je organisatie en wijs de leden dan beveiligingstaken toe om risico's op te lossen."
+  },
+  "reviewNewApplications": {
+    "message": "Nieuwe toepassingen beoordelen"
+  },
+  "reviewNewApplicationsDescription": {
+    "message": "We hebben items met risico gemarkeerd voor nieuwe toepassingen die zijn opgeslagen in Admin-console die zwakke, onthulde of hergebruikte wachtwoorden hebben."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Klik op het sterpictogram om een app als belangrijk te markeren"
   },
   "markAsCriticalPlaceholder": {
     "message": "Markeren als kritieke functionaliteit wordt geïmplementeerd in een toekomstige update"
+  },
+  "applicationReviewSaved": {
+    "message": "Application review saved"
+  },
+  "newApplicationsReviewed": {
+    "message": "New applications reviewed"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Error saving review status"
+  },
+  "pleaseTryAgain": {
+    "message": "Please try again"
   },
   "unmarkAsCritical": {
     "message": "Markeren als belangrijk ongedaan maken"
@@ -780,6 +861,9 @@
   },
   "favorites": {
     "message": "Favorieten"
+  },
+  "taskSummary": {
+    "message": "Taaksamenvatting"
   },
   "types": {
     "message": "Categorieën"
@@ -1304,6 +1388,9 @@
   },
   "useSingleSignOn": {
     "message": "Single sign-on gebruiken"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
   },
   "welcomeBack": {
     "message": "Welkom terug"
@@ -2080,9 +2167,6 @@
   "encKeySettings": {
     "message": "Instellingen encryptiesleutel"
   },
-  "kdfAlgorithm": {
-    "message": "KDF-algortime"
-  },
   "kdfIterations": {
     "message": "KDF-iteraties"
   },
@@ -2116,9 +2200,6 @@
   },
   "argon2Desc": {
     "message": "Hogere instellingen voor KDF-iteraties, geheugen en parallellisatie kunnen je hoofdwachtwoord beschermen tegen brute-foce-aanvallen."
-  },
-  "changeKdf": {
-    "message": "KDF wijzigen"
   },
   "encKeySettingsChanged": {
     "message": "Instellingen encryptiesleutel zijn gewijzigd"
@@ -4358,8 +4439,8 @@
   "updateBrowser": {
     "message": "Webbrowser bijwerken"
   },
-  "generatingYourRiskInsights": {
-    "message": "Je risico-inzichten genereren..."
+  "generatingYourAccessIntelligence": {
+    "message": "Je toegangsinlichtingen genereren..."
   },
   "riskInsightsRunReport": {
     "message": "Rapport uitvoeren"
@@ -4446,8 +4527,8 @@
   "inviteAccepted": {
     "message": "Uitnodiging geaccepteerd"
   },
-  "inviteAcceptedDesc": {
-    "message": "Je krijgt toegang tot deze organisatie zodra een beheerder je lidmaatschap bevestigt. We sturen je een e-mail zodra dat gebeurt."
+  "invitationAcceptedDesc": {
+    "message": "Je uitnodiging is geaccepteerd."
   },
   "inviteInitAcceptedDesc": {
     "message": "Je hebt nu toegang tot deze organisatie."
@@ -5710,6 +5791,65 @@
     "message": "Leer meer over de ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
+  "availableNow": {
+    "message": "Nu beschikbaar"
+  },
+  "autoConfirm": {
+    "message": "Automatische bevestiging van nieuwe gebruikers"
+  },
+  "autoConfirmDescription": {
+    "message": "Nieuwe uitgenodigde gebruikers in de organisatie worden automatisch bevestigd wanneer het apparaat van een beheerder is ontgrendeld.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "Automatische bevestiging van gebruikers inschakelen"
+  },
+  "autoConfirmStep1": {
+    "message": "De Bitwarden-extensie openen."
+  },
+  "autoConfirmStep2a": {
+    "message": "Selecteer",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmStep2b": {
+    "message": " Inschakelen.",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "De Bitwarden-browserextensie is succesvol geopend. Je kunt nu de automatische bevestiging van de gebruiker activeren."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "Nieuwe uitgenodigde gebruikers in de organisatie worden automatisch bevestigd wanneer het apparaat van een beheerder is ontgrendeld. Voordat je dit beleid gaat inschakelt, graag het volgende lezen en instemmen: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Mogelijk beveiligingsrisico. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Automatische gebruikersbevestiging kan een beveiligingsrisico vormen voor de gegevens van je organisatie."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Meer informatie over de risico's",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Enkele Organisatie-beleid vereist "
+  },
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "Alle leden mogen alleen lid zijn van deze organisatie om deze automatisering te activeren."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Het beleid inzake één organisatie strekt zich uit tot alle rollen. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "Geen noodtoegang. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Noodtoegang zal worden verwijderd."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "Ik accepteer deze risico's en beleidsupdates"
+  },
   "personalOwnership": {
     "message": "Persoonlijk eigendom"
   },
@@ -5761,6 +5901,19 @@
   "disableHideEmail": {
     "message": "Gebruikers mogen hun e-mailadres niet verbergen voor ontvangers bij het aanmaken of bewerken van een Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Standaard URI-overeenkomstdetectie"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Bepaal wanneer logins voor autofill worden voorgesteld. Beheerders en eigenaren zijn vrijgesteld van dit beleid."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Standaard URI-overeenkomstdetectie"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Selecteer een geldige optie voor URI match-detectie.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Bewerkt beleid $ID$.",
@@ -6415,11 +6568,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Je hoofdwachtwoord voldoet niet aan en of meerdere oganisatiebeleidsonderdelen. Om toegang te krijgen tot de kluis, moet je je hoofdwachtwoord nu bijwerken. Doorgaan zal je huidige sessie uitloggen, waarna je opnieuw moet inloggen. Actieve sessies op andere apparaten blijven mogelijk nog een uur actief."
   },
-  "automaticAppLogin": {
-    "message": "Gebruikers automatisch inloggen voor toegestane applicaties"
+  "automaticAppLoginWithSSO": {
+    "message": "Automatische login met SSO"
   },
-  "automaticAppLoginDesc": {
-    "message": "Inlogformulieren automatisch invullen en indienen voor apps die zijn gestart vanuit je geconfigureerde identiteitsprovider."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Bereid het gemak en beveiliging van SSO uit naar niet-beheerde apps. Wanneer gebruikers een app starten van je identiteitsprovider, worden de inloggegevens automatisch ingevuld en verzonden, voor een één-klik, beveiligde flow van de identiteitsprovider naar de app."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identiteitsproviderhost"
@@ -6430,23 +6583,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "Je organisatie heeft je versleutelingsopties gewijzigd. Stel een hoofdwachtwoord in om toegang te krijgen tot je kluis."
   },
-  "maximumVaultTimeout": {
-    "message": "Time-out van de kluis"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Sessie time-out"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Stel een maximale time-out van de kluis in voor alle gebruikers."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Stel een maximale sessie time-out in voor alle leden behalve eigenaren."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Maximale time-out van de kluis"
+  "maximumAllowedTimeout": {
+    "message": "Maximaal toegestane time-out"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "Ongeldige maximale time-out van de kluis."
+  "maximumAllowedTimeoutRequired": {
+    "message": "Maximaal toegestane time-out is vereist."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Tijd is ongeldig. Wijzig ten minste één waarde."
+  },
+  "sessionTimeoutAction": {
+    "message": "Actie voor sessie time-out"
+  },
+  "immediately": {
+    "message": "Onmiddellijk"
+  },
+  "onSystemLock": {
+    "message": "Bij systeemvergrendeling"
+  },
+  "onAppRestart": {
+    "message": "Na opnieuw starten"
   },
   "hours": {
     "message": "Uren"
   },
   "minutes": {
     "message": "Minuten"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Weet je zeker dat je een maximale time-out van \"Nooit\" wilt toestaan voor alle leden?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "Deze optie slaat de encryptiesleutels van je leden op hun apparaten op. Als je deze optie kiest, zorg er dan voor dat hun apparaten voldoende worden beschermd."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Lees meer over apparaatbescherming"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "\"Systeem vergrendeling\" zal alleen van toepassing zijn op de browser en desktop app"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "De mobiele en web-app gebruikt \"bij herstarten van de app\" als maximaal toegestane time-out, aangezien de optie niet wordt ondersteund."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Het beleid van je organisatie heeft invloed op de time-out van je kluis. De maximaal toegestane time-out voor je kluis is $HOURS$ uur en $MINUTES$ minuten.",
@@ -6989,6 +7172,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Je moet de basis URL van de server of ten minste één aangepaste omgeving toevoegen."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL's moeten HTTPS gebruiken."
+  },
   "apiUrl": {
     "message": "API-server URL"
   },
@@ -7160,6 +7346,9 @@
   },
   "accessDenied": {
     "message": "Toegang geweigerd. Je hebt geen toestemming om deze pagina te bekijken."
+  },
+  "noPageAccess": {
+    "message": "Je hebt geen toegang tot deze pagina"
   },
   "masterPassword": {
     "message": "Hoofdwachtwoord"
@@ -9619,6 +9808,9 @@
   "assignTasks": {
     "message": "Taken toewijzen"
   },
+  "assignTasksToMembers": {
+    "message": "Taken aan leden toewijzen voor een begeleide oplossing"
+  },
   "assignToCollections": {
     "message": "Toewijzen aan collecties"
   },
@@ -10361,26 +10553,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Uit"
   },
-  "higherKDFIterations": {
-    "message": "Hogere KDF-iteraties beschermen je hoofdwachtwoord tegen brute-foce-aanvallen."
-  },
-  "incrementsOf100,000": {
-    "message": "verhogingen van 100.000"
-  },
-  "smallIncrements": {
-    "message": "kleine verhogingen"
-  },
   "kdfIterationRecommends": {
     "message": "We adviseren 600.000 of meer"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "Voor oudere apparaten kan het te hoog instellen van je KDF tot prestatieproblemen leiden. Verhoog de waarde in $VALUE$ en test je apparaten.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Neem contact op met de klantenservice om je abonnement te herstellen."
@@ -11023,6 +11197,15 @@
   },
   "domainClaimed": {
     "message": "Domein geverifieerd"
+  },
+  "itemAddedToFavorites": {
+    "message": "Item toegevoegd aan favorieten"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item verwijderd uit favorieten"
+  },
+  "copyNote": {
+    "message": "Notitie kopiëren"
   },
   "organizationNameMaxLength": {
     "message": "Organisatienaam mag niet langer zijn dan 50 tekens."
@@ -11856,5 +12039,41 @@
   },
   "viewbusinessplans": {
     "message": "Bedrijfsabonnementen bekijken"
+  },
+  "updateEncryptionSettings": {
+    "message": "Versleutelingsinstellingen bijwerken"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Je versleutelingsinstellingen bijwerken"
+  },
+  "updateSettings": {
+    "message": "Instellingen bijwerken"
+  },
+  "algorithm": {
+    "message": "Algoritme"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Kies hoe Bitwarden je kluisgegevens moet versleutelen. Alle opties zijn veilig, maar sterkere methoden bieden betere bescherming - vooral tegen brute-force aanvallen. Bitwarden beveelt de standaardinstelling voor de meeste gebruikers aan."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Het verhogen van de waarden boven de standaard zal de veiligheid verbeteren, maar het ontgrendelen van je kluis kan langer duren."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "Over versleutelingsalgoritmen"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 is een goed geteste versleutelingsmethode met evenwicht tussen veiligheid en prestaties. Goed voor alle gebruikers."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id biedt een sterkere bescherming tegen moderne aanvallen. Het beste voor geavanceerde gebruikers met krachtige apparaten."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Postcode"
+  },
+  "cardNumberLabel": {
+    "message": "Kaartnummer"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Start gratis Families-proefperiode"
   }
 }

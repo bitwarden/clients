@@ -13,7 +13,12 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import {
+  CenterPositionStrategy,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/admin-console/organizations/manage/entity-events.component";
 
 import { SecretListView } from "../models/view/secret-list.view";
@@ -34,6 +39,8 @@ import {
 } from "./dialog/secret-view-dialog.component";
 import { SecretService } from "./secret.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-secrets",
   templateUrl: "./secrets.component.html",
@@ -178,6 +185,7 @@ export class SecretsComponent implements OnInit {
       data: {
         secrets: event,
       },
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 

@@ -36,6 +36,7 @@ const DEFAULT_PARAMS = {
  *  outputPath?: string;
  *  mode?: string;
  *  env?: string;
+ *  importAliases?: import("webpack").ResolveOptions["alias"];
  * }} params
  */
 module.exports.buildConfig = function buildConfig(params) {
@@ -276,6 +277,13 @@ module.exports.buildConfig = function buildConfig(params) {
               secure: false,
               changeOrigin: true,
             },
+            {
+              context: ["/key-connector"],
+              target: envConfig.dev?.proxyKeyConnector,
+              pathRewrite: { "^/key-connector": "" },
+              secure: false,
+              changeOrigin: true,
+            },
           ],
           headers: (req) => {
             if (!req.originalUrl.includes("connector.html")) {
@@ -453,6 +461,7 @@ module.exports.buildConfig = function buildConfig(params) {
         process: false,
         path: require.resolve("path-browserify"),
       },
+      alias: params.importAliases,
     },
     output: {
       filename: "[name].[contenthash].js",

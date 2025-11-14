@@ -1,4 +1,5 @@
 #![cfg(target_os = "macos")]
+#![allow(clippy::disallowed_macros)] // uniffi macros trip up clippy's evaluation
 
 use std::{
     collections::HashMap,
@@ -120,7 +121,7 @@ impl MacOSProviderClient {
             connection_status: Arc::new(std::sync::atomic::AtomicBool::new(false)),
         };
 
-        let path = desktop_core::ipc::path("autofill");
+        let path = desktop_core::ipc::path("af");
 
         let queue = client.response_callbacks_queue.clone();
         let connection_status = client.connection_status.clone();

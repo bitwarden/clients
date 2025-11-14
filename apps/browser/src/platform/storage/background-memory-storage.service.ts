@@ -18,6 +18,9 @@ export class BackgroundMemoryStorageService extends SerializedMemoryStorageServi
       if (port.name !== portName(chrome.storage.session)) {
         return;
       }
+      if (!BrowserApi.senderIsInternal(port.sender)) {
+        return;
+      }
 
       this._ports.push(port);
 

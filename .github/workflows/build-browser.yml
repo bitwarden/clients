@@ -219,12 +219,14 @@ jobs:
             archive_name_prefix: ""
             npm_command_prefix: "dist:"
             readable: "open source license"
+            type: "oss"
           - build_prefix: "bit-"
             artifact_prefix: "bit-"
             source_archive_name_prefix: "bit-"
             archive_name_prefix: "bit-"
             npm_command_prefix: "dist:bit:"
             readable: "commercial license"
+            type: "commercial"
         browser:
           - name: "chrome"
             npm_command_suffix: "chrome"
@@ -277,6 +279,11 @@ jobs:
 
       - name: NPM setup
         run: npm ci
+        working-directory: browser-source/
+
+      - name: Remove commercial packages
+        if: ${{ matrix.license_type.type == 'oss' }}
+        run: rm -rf node_modules/@bitwarden/commercial-sdk-internal
         working-directory: browser-source/
 
       - name: Download SDK artifacts
@@ -334,7 +341,7 @@ jobs:
 
   build-safari:
     name: Build Safari - ${{ matrix.license_type.readable }}
-    runs-on: macos-13
+    runs-on: macos-15
     permissions:
       contents: read
       id-token: write
@@ -350,11 +357,13 @@ jobs:
             archive_name_prefix: ""
             npm_command_prefix: "dist:"
             readable: "open source license"
+            type: "oss"
           - build_prefix: "bit-"
             artifact_prefix: "bit-"
             archive_name_prefix: "bit-"
             npm_command_prefix: "dist:bit:"
             readable: "commercial license"
+            type: "commercial"
     env:
       _BUILD_NUMBER: ${{ needs.setup.outputs.adj_build_number }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -461,6 +470,11 @@ jobs:
         run: npm ci
         working-directory: ./
 
+      - name: Remove commercial packages
+        if: ${{ matrix.license_type.type == 'oss' }}
+        run: rm -rf node_modules/@bitwarden/commercial-sdk-internal
+        working-directory: ./
+
       - name: Download SDK Artifacts
         if: ${{ inputs.sdk_branch != '' }}
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -534,7 +548,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Upload Sources
-        uses: crowdin/github-action@f214c8723025f41fc55b2ad26e67b60b80b1885d # v2.7.1
+        uses: crowdin/github-action@08713f00a50548bfe39b37e8f44afb53e7a802d4 # v2.12.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}
