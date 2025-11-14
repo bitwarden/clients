@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "הצג הכל"
   },
+  "viewLess": {
+    "message": "View less"
+  },
   "viewLogin": {
     "message": "הצג כניסה"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "בנעילת המערכת"
+  },
+  "onIdle": {
+    "message": "On system idle"
+  },
+  "onSleep": {
+    "message": "On system sleep"
   },
   "onRestart": {
     "message": "בהפעלת הדפדפן מחדש"
@@ -5800,6 +5809,12 @@
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
   },
+  "loadingVault": {
+    "message": "Loading vault"
+  },
+  "vaultLoaded": {
+    "message": "Vault loaded"
+  },
   "settingDisabledByPolicy": {
     "message": "הגדרה זו מושבתת על ידי מדיניות של הארגון שלך.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5824,8 @@
   },
   "cardNumberLabel": {
     "message": "מספר כרטיס"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
   }
 }

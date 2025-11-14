@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "View all"
   },
+  "viewLess": {
+    "message": "View less"
+  },
   "viewLogin": {
     "message": "View login"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "هنگام قفل سیستم"
+  },
+  "onIdle": {
+    "message": "On system idle"
+  },
+  "onSleep": {
+    "message": "On system sleep"
   },
   "onRestart": {
     "message": "هنگام راه‌اندازی مجدد"
@@ -5800,6 +5809,12 @@
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
   },
+  "loadingVault": {
+    "message": "Loading vault"
+  },
+  "vaultLoaded": {
+    "message": "Vault loaded"
+  },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5824,8 @@
   },
   "cardNumberLabel": {
     "message": "Card number"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
   }
 }

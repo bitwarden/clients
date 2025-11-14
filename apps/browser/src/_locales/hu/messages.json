@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "Összes megtekintése"
   },
+  "viewLess": {
+    "message": "kevesebb megjelenítése"
+  },
   "viewLogin": {
     "message": "Bejelentkezés megtekintése"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Rendszerzároláskor"
+  },
+  "onIdle": {
+    "message": "Rendszer üresjárat esetén"
+  },
+  "onSleep": {
+    "message": "Rendszer alvó mód esetén"
   },
   "onRestart": {
     "message": "Böngésző újraindításkor"
@@ -4975,7 +4984,7 @@
     }
   },
   "defaultLabelWithValue": {
-    "message": "Default ( $VALUE$ )",
+    "message": "Alapértelmezett ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5800,6 +5809,12 @@
   "upgradeToPremium": {
     "message": "Áttérés Prémium csomagra"
   },
+  "loadingVault": {
+    "message": "Széf betöltése"
+  },
+  "vaultLoaded": {
+    "message": "A széf betöltésre került."
+  },
   "settingDisabledByPolicy": {
     "message": "Ezt a beállítást a szervezet házirendje letiltotta.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5824,8 @@
   },
   "cardNumberLabel": {
     "message": "Kártya szám"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Időkifutási művelet"
   }
 }

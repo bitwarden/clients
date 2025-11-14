@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "Visa alla"
   },
+  "viewLess": {
+    "message": "View less"
+  },
   "viewLogin": {
     "message": "Visa inloggning"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Vid låsning av datorn"
+  },
+  "onIdle": {
+    "message": "När systemet är overksamt"
+  },
+  "onSleep": {
+    "message": "När systemet är i strömsparläge"
   },
   "onRestart": {
     "message": "Vid omstart"
@@ -5800,6 +5809,12 @@
   "upgradeToPremium": {
     "message": "Uppgradera till Premium"
   },
+  "loadingVault": {
+    "message": "Läser in valv"
+  },
+  "vaultLoaded": {
+    "message": "Valvet lästes in"
+  },
   "settingDisabledByPolicy": {
     "message": "Denna inställning är inaktiverad enligt din organisations policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5824,8 @@
   },
   "cardNumberLabel": {
     "message": "Kortnummer"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Tidsgränsåtgärd"
   }
 }
