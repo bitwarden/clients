@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Възникна грешка при включването на интеграцията с браузъра."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "За жалост в момента интеграцията с браузър не се поддържа във версията за магазина на Mac."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "За жалост в момента интеграцията с браузър не се поддържа във версията за магазина на Windows."
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Надградете до Платения план"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Действие при изтичането на времето за достъп"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Изтичане на времето за сесията"
   }
 }

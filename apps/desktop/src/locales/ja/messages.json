@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "ブラウザー統合の有効化中にエラーが発生しました。"
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "残念ながら、ブラウザ統合は、Mac App Storeのバージョンでのみサポートされています。"
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "残念ながらお使いの Microsoft Store のバージョンではブラウザの統合に対応していません。"
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

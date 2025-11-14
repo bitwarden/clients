@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Παρουσιάστηκε σφάλμα κατά την ενεργοποίηση ενσωμάτωσης του περιηγητή."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Δυστυχώς η ενσωμάτωση του προγράμματος περιήγησης υποστηρίζεται μόνο στην έκδοση Mac App Store για τώρα."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Δυστυχώς η ενσωμάτωση του περιηγητή, δεν υποστηρίζεται προς το παρόν στην έκδοση Windows Store."
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

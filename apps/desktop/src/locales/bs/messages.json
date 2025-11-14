@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "An error has occurred while enabling browser integration."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Nažalost, za sada je integracija sa preglednikom podržana samo u Mac App Store verziji aplikacije."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Nažalost, integracija sa preglednikom nije podržana u Windows Store verziji aplikacije."
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

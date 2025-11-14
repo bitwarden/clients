@@ -1856,7 +1856,7 @@
     "message": "odomknúť svoj trezor"
   },
   "autoPromptTouchId": {
-    "message": "Pri spustení požiadať o Touch ID"
+    "message": "Pri spustení aplikácie požiadať o Touch ID"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Pri reštarte zamknúť hlavným heslom"
@@ -1904,7 +1904,7 @@
     "message": "Musíte vybrať aspoň jednu zbierku."
   },
   "premiumUpdated": {
-    "message": "Povýšili ste na prémium."
+    "message": "Upgradovali ste na Prémium."
   },
   "restore": {
     "message": "Obnoviť"
@@ -1964,10 +1964,10 @@
     "message": "Naozaj chcete natrvalo odstrániť túto položku?"
   },
   "permanentlyDeletedItem": {
-    "message": "Položka natrvalo odstránená"
+    "message": "Položka bola natrvalo odstránená"
   },
   "restoredItem": {
-    "message": "Obnovená položka"
+    "message": "Položka bola obnovená"
   },
   "permanentlyDelete": {
     "message": "Natrvalo odstrániť"
@@ -2139,7 +2139,7 @@
     "message": "Povoliť integráciu prehliadača DuckDuckGo"
   },
   "enableDuckDuckGoBrowserIntegrationDesc": {
-    "message": "Používajte svoj trezor Bitwarden pri prehliadaní pomocou DuckDuckGo."
+    "message": "Používajte svoj trezor v Bitwardene pri prehliadaní pomocou DuckDuckGo."
   },
   "browserIntegrationUnsupportedTitle": {
     "message": "Integrácia v prehliadači nie je podporovaná"
@@ -2149,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "Pri povoľovaní integrácie v prehliadači sa vyskytla chyba."
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Bohužiaľ, integrácia v prehliadači je zatiaľ podporovaná iba vo verzii Mac App Store."
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Bohužiaľ, integrácia v prehliadači zatiaľ nie je podporovaná, ak je aplikácia nainštalovaná cez Microsoft Store."
@@ -2181,7 +2178,7 @@
     "message": "Uistite sa, že zobrazený odtlačok prsta je identický s odtlačkom prsta zobrazeným v rozšírení prehliadača."
   },
   "verifyNativeMessagingConnectionTitle": {
-    "message": "$APPID$ sa chce pripojiť k Bitwarden",
+    "message": "$APPID$ sa chce pripojiť k Bitwardenu",
     "placeholders": {
       "appid": {
         "content": "$1",
@@ -2208,7 +2205,7 @@
     "message": "Vzhľadom na spôsob inštalácie nebolo možné automaticky povoliť podporu biometrie. Chcete otvoriť dokumentáciu, ako to urobiť manuálne?"
   },
   "personalOwnershipSubmitError": {
-    "message": "Z dôvodu podnikovej politiky máte obmedzené ukladanie položiek do osobného trezora. Zmeňte možnosť vlastníctvo na organizáciu a vyberte si z dostupných zbierok."
+    "message": "Z dôvodu podnikových pravidiel máte obmedzené ukladanie položiek do osobného trezora. Zmeňte možnosť vlastníctvo na organizáciu a vyberte si z dostupných zbierok."
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Nové heslo nemôže byť rovnaké ako súčasné heslo."
@@ -2305,15 +2302,15 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createdSend": {
-    "message": "Send vytvorený",
+    "message": "Send bol vytvorený",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
-    "message": "Send upravený",
+    "message": "Send bol upravený",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletedSend": {
-    "message": "Send odstránený",
+    "message": "Send bol odstránený",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newPassword": {
@@ -2324,7 +2321,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
-    "message": "Vytvoriť Send",
+    "message": "Nový Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
@@ -2360,7 +2357,7 @@
     "message": "Kopírovať odkaz na zdieľanie tohto Sendu do schránky počas ukladania."
   },
   "sendDisabled": {
-    "message": "Funkcia Send zakázaná",
+    "message": "Send bol odstránený",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDisabledWarning": {
@@ -2985,10 +2982,10 @@
     "message": "Vyžaduje sa predplatné Prémium"
   },
   "organizationIsDisabled": {
-    "message": "Organizácia je vypnutá."
+    "message": "Organizácia je pozastavená"
   },
   "disabledOrganizationFilterError": {
-    "message": "K položkám vo vypnutej organizácii nie je možné pristupovať. Požiadajte o pomoc vlastníka organizácie."
+    "message": "K položkám pozastavenej organizácii nie je možné pristupovať. Požiadajte o pomoc vlastníka organizácie."
   },
   "neverLockWarning": {
     "message": "Ste si istí, že chcete použiť možnosť \"Nikdy\"? Táto predvoľba ukladá šifrovací kľúč od trezora priamo na zariadení. Ak použijete túto možnosť, mali by ste svoje zariadenie náležite zabezpečiť."
@@ -3189,16 +3186,16 @@
     "message": "na úpravu e-mailovej adresy."
   },
   "exposedMasterPassword": {
-    "message": "Odhalené hlavné heslo"
+    "message": "Uniknuté hlavné heslo"
   },
   "exposedMasterPasswordDesc": {
-    "message": "Nájdené heslo v uniknuných údajoch. Na ochranu svojho účtu používajte jedinečné heslo. Naozaj chcete používať odhalené heslo?"
+    "message": "Heslo bolo nájdené v uniknutých údajoch. Na ochranu svojho účtu používajte jedinečné heslo. Naozaj chcete používať uniknuté heslo?"
   },
   "weakAndExposedMasterPassword": {
-    "message": "Slabé a odhalené hlavné heslo"
+    "message": "Slabé a uniknuté hlavné heslo"
   },
   "weakAndBreachedMasterPasswordDesc": {
-    "message": "Nájdené slabé heslo v uniknuných údajoch. Na ochranu svojho účtu používajte silné a jedinečné heslo. Naozaj chcete používať toto heslo?"
+    "message": "Nájdené slabé heslo v uniknutých údajoch. Na ochranu svojho účtu používajte silné a jedinečné heslo. Naozaj chcete používať toto heslo?"
   },
   "checkForBreaches": {
     "message": "Skontrolovať známe úniky údajov pre toto heslo"
@@ -3222,7 +3219,7 @@
     "message": "Vaše hlavné heslo sa nebude dať obnoviť, ak ho zabudnete!"
   },
   "characterMinimum": {
-    "message": "Minimálny počet znakov $LENGTH$",
+    "message": "Minimálny počet znakov: $LENGTH$",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Upgradovať na Prémium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Akcia pri vypršaní časového limitu"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Časový limit relácie"
   }
 }

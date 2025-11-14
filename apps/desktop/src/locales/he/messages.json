@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "אירעה שגיאה בעת אפשור שילוב דפדפן."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "למרבה הצער שילוב דפדפן נתמך רק בגרסת Mac App Store לעת עתה."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "למרבה הצער שילוב דפדפן אינו נתמך כרגע בגרסת ה־Microsoft Store."
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

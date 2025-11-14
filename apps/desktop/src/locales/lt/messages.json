@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "An error has occurred while enabling browser integration."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Deja, bet naršyklės integravimas kol kas palaikomas tik Mac App Store versijoje."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Deja, bet naršyklės integravimas nepalaikomas Microsoft Store versijoje."
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

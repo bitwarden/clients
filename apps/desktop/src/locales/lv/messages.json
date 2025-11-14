@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Atgadījās kļūda pārlūka saistīšanas iespējošanas laikā."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Diemžēl sasaistīšāna ar pārlūku pagaidām ir nodrošināta tikai Mac App Store laidienā."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Diemžēl sasaistīšana ar pārlūku pagaidām nav nodrošināta Windows veikala laidienā."
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Uzlabot uz Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Noildzes darbība"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sesijas noildze"
   }
 }

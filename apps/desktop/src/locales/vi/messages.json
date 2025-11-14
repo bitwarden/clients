@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Đã xảy ra lỗi khi bật tích hợp với trình duyệt."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Rất tiếc, tính năng tích hợp trình duyệt hiện chỉ được hỗ trợ trong phiên bản Mac App Store."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Rất tiếc, tính năng tích hợp trình duyệt hiện không được hỗ trợ trong phiên bản Microsoft Store."
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Nâng cấp lên gói Cao cấp"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

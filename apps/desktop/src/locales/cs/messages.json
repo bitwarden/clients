@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Vyskytla se chyba při povolování integrace prohlížeče."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Integrace prohlížeče je podporována jen ve verzi pro Mac App Store."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Integrace prohlížeče není ve verzi pro Windows Store podporována."
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Aktualizovat na Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Akce vypršení časového limitu"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Časový limit relace"
   }
 }

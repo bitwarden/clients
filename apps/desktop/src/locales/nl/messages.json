@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Er is iets misgegaan bij het tijdens het inschakelen van de browserintegratie."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Helaas wordt browserintegratie momenteel alleen ondersteund in de Mac App Store-versie."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Helaas wordt browserintegratie momenteel niet ondersteund in de Windows Store-versie."
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Opwaarderen naar Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Time-out actie"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sessietime-out"
   }
 }

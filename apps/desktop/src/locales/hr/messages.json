@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Pogreška prillikom integracije s preglednikom."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Nažalost, za sada je integracija s preglednikom podržana samo u Mac App Store verziji aplikacije."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Nažalost, integracija s preglednikom trenutno nije podržana u Windows Store verziji aplikacije."
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": " Nadogradi na Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Radnja nakon isteka"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Istek sesije"
   }
 }
