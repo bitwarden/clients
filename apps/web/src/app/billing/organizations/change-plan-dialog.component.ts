@@ -648,7 +648,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     return (
       plan.PasswordManager.additionalStoragePricePerGb *
-      (this.sub?.maxStorageGb ? this.sub.maxStorageGb - plan.PasswordManager.baseStorageGb : 0)
+      (this.sub.maxStorageGb - plan.PasswordManager.baseStorageGb)
     );
   }
 

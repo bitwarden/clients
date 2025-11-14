@@ -33,7 +33,7 @@ export class PricingSummaryService {
 
     const additionalStorageTotal = plan.PasswordManager?.hasAdditionalStorageOption
       ? plan.PasswordManager.additionalStoragePricePerGb *
-        (sub?.maxStorageGb ? sub.maxStorageGb - plan.PasswordManager.baseStorageGb : 0)
+        (sub.maxStorageGb - plan.PasswordManager.baseStorageGb)
       : 0;
 
     const additionalStoragePriceMonthly = plan.PasswordManager?.additionalStoragePricePerGb || 0;
