@@ -65,17 +65,19 @@
     </sm-section>
     <sm-section>
       <h2 slot="summary" class="tw-mb-0" bitTypography="h2" noMargin>{{ "secrets" | i18n }}</h2>
-      <sm-secrets-list
-        baseRoute="secrets"
-        (deleteSecretsEvent)="openDeleteSecret($event)"
-        (newSecretEvent)="openNewSecretDialog()"
-        (editSecretEvent)="openEditSecret($event)"
-        (viewSecretEvent)="openViewSecret($event)"
-        (copySecretNameEvent)="copySecretName($event)"
-        (copySecretValueEvent)="copySecretValue($event)"
-        (copySecretUuidEvent)="copySecretUuid($event)"
-        [secrets]="view.latestSecrets"
-      ></sm-secrets-list>
+      <div class="tw-overflow-auto">
+        <sm-secrets-list
+          baseRoute="secrets"
+          (deleteSecretsEvent)="openDeleteSecret($event)"
+          (newSecretEvent)="openNewSecretDialog()"
+          (editSecretEvent)="openEditSecret($event)"
+          (viewSecretEvent)="openViewSecret($event)"
+          (copySecretNameEvent)="copySecretName($event)"
+          (copySecretValueEvent)="copySecretValue($event)"
+          (copySecretUuidEvent)="copySecretUuid($event)"
+          [secrets]="view.latestSecrets"
+        ></sm-secrets-list>
+      </div>
       <div *ngIf="view.allSecrets.length > 0" class="tw-ml-auto tw-mt-4 tw-max-w-max">
         {{ "showingPortionOfTotal" | i18n: view.latestSecrets.length : view.counts.secrets }}
         <a bitLink routerLink="secrets" class="tw-ml-2">{{ "viewAll" | i18n }}</a>

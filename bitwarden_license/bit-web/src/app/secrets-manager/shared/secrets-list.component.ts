@@ -89,6 +89,22 @@ export class SecretsListComponent implements OnDestroy, OnInit {
   selection = new SelectionModel<string>(true, []);
   protected viewEventsAllowed$: Observable<boolean>;
   protected isAdmin$: Observable<boolean>;
+  protected rowHeight = 66;
+  protected rowHeightClass = `tw-h-[66px]`;
+
+  protected get viewportHeight(): string {
+    if (!this.secrets || this.secrets.length === 0) {
+      return "0px";
+    }
+    // Calculate height: (number of items * row height) + header height + buffer
+    const itemsHeight = this.secrets.length * this.rowHeight;
+    const headerHeight = 65; // Header with borders
+    const buffer = 8; // Small buffer for borders and spacing
+    const totalHeight = itemsHeight + headerHeight + buffer;
+    // Use min() to set exact height, capping at 60vh or 500px for responsive behavior
+    // This ensures the viewport is exactly the size of the content, unless it exceeds the max
+    return `min(${totalHeight}px, 60vh, 500px)`;
+  }
 
   constructor(
     private i18nService: I18nService,

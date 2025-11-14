@@ -1,3 +1,4 @@
+import { ScrollingModule } from "@angular/cdk/scrolling";
 import { NgModule } from "@angular/core";
 
 import {
@@ -7,6 +8,7 @@ import {
   SelectModule,
   NoItemsModule,
   FormFieldModule,
+  ScrollLayoutDirective,
 } from "@bitwarden/components";
 import { CoreOrganizationModule } from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import { DynamicAvatarComponent } from "@bitwarden/web-vault/app/components/dynamic-avatar.component";
@@ -25,6 +27,7 @@ import { SecretsListComponent } from "./secrets-list.component";
 @NgModule({
   imports: [
     SharedModule,
+    ScrollingModule,
     ProductSwitcherModule,
     MultiSelectModule,
     CoreOrganizationModule,
@@ -35,6 +38,7 @@ import { SecretsListComponent } from "./secrets-list.component";
     HeaderModule,
     CardComponent,
     FormFieldModule,
+    ScrollLayoutDirective,
   ],
   exports: [
     AccessPolicySelectorComponent,
