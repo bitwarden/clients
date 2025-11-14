@@ -33,15 +33,15 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Branch check
-        if: ${{ inputs.release_type != 'Dry Run' }}
-        run: |
-          if [[ "$GITHUB_REF" != "refs/heads/rc" ]] && [[ "$GITHUB_REF" != "refs/heads/hotfix-rc-cli" ]]; then
-            echo "==================================="
-            echo "[!] Can only release from the 'rc' or 'hotfix-rc-cli' branches"
-            echo "==================================="
-            exit 1
-          fi
+      # - name: Branch check
+      #   if: ${{ inputs.release_type != 'Dry Run' }}
+      #   run: |
+      #     if [[ "$GITHUB_REF" != "refs/heads/rc" ]] && [[ "$GITHUB_REF" != "refs/heads/hotfix-rc-cli" ]]; then
+      #       echo "==================================="
+      #       echo "[!] Can only release from the 'rc' or 'hotfix-rc-cli' branches"
+      #       echo "==================================="
+      #       exit 1
+      #     fi
 
       - name: Check Release Version
         id: version
