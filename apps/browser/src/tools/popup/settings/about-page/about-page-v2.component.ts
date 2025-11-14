@@ -7,7 +7,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DeviceType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService, ItemModule } from "@bitwarden/components";
+import { CenterPositionStrategy, DialogService, ItemModule } from "@bitwarden/components";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
@@ -51,7 +51,9 @@ export class AboutPageV2Component {
   ) {}
 
   about() {
-    this.dialogService.open(AboutDialogComponent);
+    this.dialogService.open(AboutDialogComponent, {
+      positionStrategy: new CenterPositionStrategy(),
+    });
   }
 
   async launchHelp() {
