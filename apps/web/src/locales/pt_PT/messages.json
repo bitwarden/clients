@@ -349,6 +349,9 @@
   "applicationsNeedingReview": {
     "message": "Aplicações que necessitam de análise"
   },
+  "newApplicationsCardTitle": {
+    "message": "Rever novas aplicações"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ novas aplicações",
     "placeholders": {
@@ -369,6 +372,21 @@
   },
   "noNewApplicationsToReviewAtThisTime": {
     "message": "Não há novas aplicações para rever neste momento"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "A sua organização tem itens guardados para $COUNT$ aplicações",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Reveja as aplicações para proteger os itens mais críticos para a segurança da sua organização"
+  },
+  "reviewApplications": {
+    "message": "Rever aplicações"
   },
   "prioritizeCriticalApplications": {
     "message": "Dê prioridade a aplicações críticas"
@@ -3232,8 +3250,17 @@
   "nextCharge": {
     "message": "Próxima cobrança"
   },
+  "nextChargeHeader": {
+    "message": "Próxima cobrança"
+  },
+  "plan": {
+    "message": "Plano"
+  },
   "details": {
     "message": "Detalhes"
+  },
+  "discount": {
+    "message": "desconto"
   },
   "downloadLicense": {
     "message": "Transferir licença"
@@ -4441,6 +4468,30 @@
   },
   "generatingYourAccessIntelligence": {
     "message": "A gerar a sua Inteligência de Acesso..."
+  },
+  "fetchingMemberData": {
+    "message": "A obter dados dos membros..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "A analisar a segurança da palavra-passe..."
+  },
+  "calculatingRiskScores": {
+    "message": "A calcular pontuações de risco..."
+  },
+  "generatingReportData": {
+    "message": "A gerar dados do relatório..."
+  },
+  "savingReport": {
+    "message": "A guardar relatório..."
+  },
+  "compilingInsights": {
+    "message": "A compilar insights..."
+  },
+  "loadingProgress": {
+    "message": "A carregar progresso"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Isto pode demorar alguns minutos."
   },
   "riskInsightsRunReport": {
     "message": "Executar relatório"
@@ -5804,16 +5855,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "Como ativar a confirmação automática do utilizador"
   },
-  "autoConfirmStep1": {
-    "message": "Abra a sua extensão Bitwarden."
+  "autoConfirmExtension1": {
+    "message": "Abra a sua extensão Bitwarden"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "Selecione",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " Ativar.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " Ativar",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "A extensão do navegador Bitwarden foi aberta com sucesso. Agora pode ativar a configuração de confirmação automática do utilizador."
@@ -9525,9 +9576,6 @@
   "loggedInExclamation": {
     "message": "Sessão iniciada!"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "assignCollectionAccess": {
     "message": "Atribuir acesso à coleção"
   },
@@ -12075,5 +12123,45 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Comece o teste gratuito do plano Familiar"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Configure um método de desbloqueio para alterar a ação de tempo limite do seu cofre."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Os requisitos da política empresarial foram aplicados às suas opções de tempo limite"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "O tempo limite do seu cofre excede as restrições definidas pela sua organização."
+  },
+  "neverLockWarning": {
+    "message": "Tem a certeza de que deseja utilizar a opção \"Nunca\"? Ao definir as opções de bloqueio para \"Nunca\" armazena a chave de encriptação do seu cofre no seu dispositivo. Se utilizar esta opção deve assegurar-se de que mantém o seu dispositivo devidamente protegido."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Ação de tempo limite"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Tempo limite da sessão"
+  },
+  "appearance": {
+    "message": "Aspeto"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "O tempo limite excede a restrição definida pela sua organização: $HOURS$ hora(s) e $MINUTES$ minuto(s) no máximo",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "Não foram selecionadas aplicações críticas"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Tem a certeza de que deseja continuar?"
   }
 }

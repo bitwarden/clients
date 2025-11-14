@@ -349,6 +349,9 @@
   "applicationsNeedingReview": {
     "message": "Anwendungen, die geprüft werden müssen"
   },
+  "newApplicationsCardTitle": {
+    "message": "Neue Anwendungen überprüfen"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ neue Anwendungen",
     "placeholders": {
@@ -369,6 +372,21 @@
   },
   "noNewApplicationsToReviewAtThisTime": {
     "message": "Derzeit gibt es keine neuen Anwendungen zum Überprüfen"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Deine Organisation hat Einträge für $COUNT$ Anwendungen gespeichert",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Überprüfe Anwendungen, um die für die Sicherheit deiner Organisation wichtigsten Einträge zu sichern"
+  },
+  "reviewApplications": {
+    "message": "Anwendungen überprüfen"
   },
   "prioritizeCriticalApplications": {
     "message": "Kritische Anwendungen priorisieren"
@@ -1387,7 +1405,7 @@
     "message": "Mit Passkey anmelden"
   },
   "useSingleSignOn": {
-    "message": "Single Sign-on verwenden"
+    "message": "Single Sign-On verwenden"
   },
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Deine Organisation erfordert Single Sign-On."
@@ -3232,8 +3250,17 @@
   "nextCharge": {
     "message": "Nächste Abbuchung"
   },
+  "nextChargeHeader": {
+    "message": "Next Charge"
+  },
+  "plan": {
+    "message": "Plan"
+  },
   "details": {
     "message": "Details"
+  },
+  "discount": {
+    "message": "discount"
   },
   "downloadLicense": {
     "message": "Lizenz herunterladen"
@@ -3640,7 +3667,7 @@
     "message": "Richtlinien"
   },
   "singleSignOn": {
-    "message": "Single Sign-on"
+    "message": "Single Sign-On"
   },
   "editPolicy": {
     "message": "Richtlinie bearbeiten"
@@ -4441,6 +4468,30 @@
   },
   "generatingYourAccessIntelligence": {
     "message": "Deine Zugangsintelligenz wird generiert..."
+  },
+  "fetchingMemberData": {
+    "message": "Mitgliedsdaten werden abgerufen..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "Passwortsicherheit wird analysiert..."
+  },
+  "calculatingRiskScores": {
+    "message": "Risikobewertung wird berechnet..."
+  },
+  "generatingReportData": {
+    "message": "Berichtsdaten werden generiert..."
+  },
+  "savingReport": {
+    "message": "Bericht wird gespeichert..."
+  },
+  "compilingInsights": {
+    "message": "Analyse wird zusammengestellt..."
+  },
+  "loadingProgress": {
+    "message": "Ladefortschritt"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Dies kann einige Minuten dauern."
   },
   "riskInsightsRunReport": {
     "message": "Bericht ausführen"
@@ -5804,16 +5855,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "So aktivierst du die automatische Benutzerbestätigung"
   },
-  "autoConfirmStep1": {
-    "message": "Öffne deine Bitwarden-Erweiterung."
+  "autoConfirmExtension1": {
+    "message": "Öffne deine Bitwarden-Erweiterung"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "Wähle",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " Aktivieren.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " Einschalten",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "Die Bitwarden Browser-Erweiterung wurde erfolgreich geöffnet. Du kannst nun die automatische Benutzerbestätigung aktivieren."
@@ -9525,9 +9576,6 @@
   "loggedInExclamation": {
     "message": "Angemeldet!"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "assignCollectionAccess": {
     "message": "Sammlungszugriff zuweisen"
   },
@@ -12075,5 +12123,45 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Kostenlose Families-Testversion starten"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Richte eine Entsperrmethode ein, um deine Aktion bei Tresor-Timeout zu ändern."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Die Unternehmens-Richtlinienanforderungen wurden auf deine Timeout-Optionen angewendet"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Dein Tresor-Timeout überschreitet die von deinem Unternehmen festgelegten Beschränkungen."
+  },
+  "neverLockWarning": {
+    "message": "Bist du sicher, dass du die Option \"Nie\" verwenden möchtest? Durch das Setzen der Sperroptionen zu \"Nie\" wird der Verschlüsselungsschlüssel deines Tresors auf deinem Gerät gespeichert. Wenn du diese Option verwendest, solltest du sicherstellen, dass dein Gerät ausreichend geschützt ist."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout-Aktion"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sitzungs-Timeout"
+  },
+  "appearance": {
+    "message": "Aussehen"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Das Timeout überschreitet die von deiner Organisation festgelegte Beschränkung: Maximal $HOURS$ Stunde(n) und $MINUTES$ Minute(n)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "No critical applications are selected"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Are you sure you want to continue?"
   }
 }
