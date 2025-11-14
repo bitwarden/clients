@@ -128,6 +128,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
       void this.liveAnnouncer.announce(this.i18nService.translate(key), "polite");
     }),
   );
+
   private skeletonFeatureFlag$ = this.configService.getFeatureFlag$(
     FeatureFlag.VaultLoadingSkeletons,
   );

@@ -236,7 +236,10 @@ describe("VaultV2Component", () => {
           provide: BillingAccountProfileStateService,
           useValue: billingSvc,
         },
-        { provide: I18nService, useValue: { t: (key: string) => key } },
+        {
+          provide: I18nService,
+          useValue: { translate: (key: string) => key, t: (key: string) => key },
+        },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
         { provide: RestrictedItemTypesService, useValue: { restricted$: new BehaviorSubject([]) } },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
@@ -250,7 +253,12 @@ describe("VaultV2Component", () => {
         },
         { provide: TaskService, useValue: mock<TaskService>() },
         { provide: StateProvider, useValue: mock<StateProvider>() },
-        { provide: ConfigService, useValue: mock<ConfigService>() },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag$: (_: string) => of(false),
+          },
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
