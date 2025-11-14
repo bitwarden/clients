@@ -7,6 +7,7 @@ import { CipherViewLike } from "../utils/cipher-view-like-utils";
 
 export abstract class SearchService {
   abstract isCipherSearching$: Observable<boolean>;
+  abstract isSendSearching$: Observable<boolean>;
 
   abstract indexedEntityId$(userId: UserId): Observable<IndexedEntityId | null>;
 

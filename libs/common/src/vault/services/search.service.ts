@@ -84,6 +84,9 @@ export class SearchService implements SearchServiceAbstraction {
   private _isCipherSearching$ = new BehaviorSubject<boolean>(false);
   isCipherSearching$: Observable<boolean> = this._isCipherSearching$.asObservable();
 
+  private _isSendSearching$ = new BehaviorSubject<boolean>(false);
+  isSendSearching$: Observable<boolean> = this._isSendSearching$.asObservable();
+
   constructor(
     private logService: LogService,
     private i18nService: I18nService,
@@ -342,8 +345,10 @@ export class SearchService implements SearchServiceAbstraction {
   }
 
   searchSends(sends: SendView[], query: string) {
+    this._isSendSearching$.next(true);
     query = SearchService.normalizeSearchQuery(query.trim().toLocaleLowerCase());
     if (query === null) {
+      this._isSendSearching$.next(false);
       return sends;
     }
     const sendsMatched: SendView[] = [];
@@ -366,6 +371,7 @@ export class SearchService implements SearchServiceAbstraction {
         lowPriorityMatched.push(s);
       }
     });
+    this._isSendSearching$.next(false);
     return sendsMatched.concat(lowPriorityMatched);
   }
 
