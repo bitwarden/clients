@@ -349,6 +349,9 @@
   "applicationsNeedingReview": {
     "message": "Felülvizsgálatot igénylő kérelmek"
   },
+  "newApplicationsCardTitle": {
+    "message": "Új alkalmazások felülvizsgálata"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ új alkalmazás",
     "placeholders": {
@@ -369,6 +372,21 @@
   },
   "noNewApplicationsToReviewAtThisTime": {
     "message": "Jelenleg nincs új falkalmazás felülvizsgálatra."
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "A szervezet $COUNT$ alkalmazáshoz mentett elemeket tartalmaz.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Tekintsük át az alkalmazásokat, hogy biztosítsuk a szervezet biztonsága szempontjából legkritikusabb elemeket."
+  },
+  "reviewApplications": {
+    "message": "Alkalmazások áttekintése"
   },
   "prioritizeCriticalApplications": {
     "message": "Kritikus alkalmazások rangsorolása"
@@ -3232,8 +3250,17 @@
   "nextCharge": {
     "message": "Következő terhelés"
   },
+  "nextChargeHeader": {
+    "message": "Következő terhelés"
+  },
+  "plan": {
+    "message": "Csomag"
+  },
   "details": {
     "message": "Részletek"
+  },
+  "discount": {
+    "message": "kedvezmény"
   },
   "downloadLicense": {
     "message": "Licensz letöltése"
@@ -4440,7 +4467,31 @@
     "message": "Böngésző frissítése"
   },
   "generatingYourAccessIntelligence": {
-    "message": "Generating your Access Intelligence..."
+    "message": "Hozzáférési intelligencia generálása..."
+  },
+  "fetchingMemberData": {
+    "message": "Tagi adatok lekérése..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "A jelszó állapot elemzése..."
+  },
+  "calculatingRiskScores": {
+    "message": "Kockázati pontszámok kiszámítása..."
+  },
+  "generatingReportData": {
+    "message": "Jelentés adatok generálása..."
+  },
+  "savingReport": {
+    "message": "Jelentés mentése..."
+  },
+  "compilingInsights": {
+    "message": "Betekintések összeállítása..."
+  },
+  "loadingProgress": {
+    "message": "Feldolgozás betöltése"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Ez eltarthat pár percig."
   },
   "riskInsightsRunReport": {
     "message": "Jelentés futtatása"
@@ -5804,16 +5855,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "Hogyan kapcsolható be az automatikus felhasználó megerősítés"
   },
-  "autoConfirmStep1": {
+  "autoConfirmExtension1": {
     "message": "Nyissuk meg a Bitwarden bővítményt."
   },
-  "autoConfirmStep2a": {
-    "message": "Kijelölés",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension2": {
+    "message": "Kiválasztás",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " Bekapcsolás.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " Bekapcsolás",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "Sikeresen megnyitásra került a Bitwarden böngésző bővítmény. Most már aktiválhatjuk az automatikus felhasználó megerősítés beállítást."
@@ -9525,9 +9576,6 @@
   "loggedInExclamation": {
     "message": "Megtörtént a bejelentkezés."
   },
-  "beta": {
-    "message": "Béta"
-  },
   "assignCollectionAccess": {
     "message": "Gyűjtemény elérés hozzárendelése"
   },
@@ -12075,5 +12123,45 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Az ingyenes Családok próbaverzió elindítása"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Állítsunk be egy feloldási módot a széf időkifutási műveletének módosításához."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "A vállalkozáspolitikai követelményeket alkalmazásra kerültek az időkifutási opciókra."
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "A széf időkorlátja túllépi a szervezet által beállított korlátozást."
+  },
+  "neverLockWarning": {
+    "message": "Biztosan szeretnénk használni a \"Soha\" opciót? A zárolási opciók \"Soha\" értékre állítása a széf titkosítási kulcsát az eszközön tárolja. Ennek az opciónak a használatakor célszerű az eszköz megfelelő védettségét biztosítani."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Időkifutási művelet"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Munkamenet időkifutás"
+  },
+  "appearance": {
+    "message": "Megjelenés"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Az időkifutás meghaladja a szervezet által beállított korlátozást: $HOURS$ óra és $MINUTES$ perc maximum.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "Nincsenek veszélyben levő kritikus alkalmazások."
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Biztos folytatni szeretnénk?"
   }
 }
