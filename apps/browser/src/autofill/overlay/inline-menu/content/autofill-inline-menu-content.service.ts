@@ -166,6 +166,10 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * Updates the position of both the inline menu button and inline menu list.
    */
   private async appendInlineMenuElements({ overlayElement }: AutofillExtensionMessage) {
+    if (!this.inlineMenuEnabled) {
+      return;
+    }
+
     if (overlayElement === AutofillOverlayElement.Button) {
       return this.appendButtonElement();
     }
@@ -177,6 +181,10 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * Updates the position of the inline menu button.
    */
   private async appendButtonElement(): Promise<void> {
+    if (!this.inlineMenuEnabled) {
+      return;
+    }
+
     if (!this.buttonElement) {
       this.createButtonElement();
       this.updateCustomElementDefaultStyles(this.buttonElement);
@@ -193,6 +201,10 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * Updates the position of the inline menu list.
    */
   private async appendListElement(): Promise<void> {
+    if (!this.inlineMenuEnabled) {
+      return;
+    }
+
     if (!this.listElement) {
       this.createListElement();
       this.updateCustomElementDefaultStyles(this.listElement);
