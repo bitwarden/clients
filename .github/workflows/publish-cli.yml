@@ -179,7 +179,7 @@ jobs:
         run: New-Item -ItemType directory -Path ./dist
 
       - name: Download artifacts
-        run: Invoke-WebRequest -Uri "https://github.com/bitwarden/clients/releases/download/cli-v$($env:_PKG_VERSION)/bitwarden-cli.$($env:_PKG_VERSION).nupkg" -OutFile bitwarden-cli.$($env:_PKG_VERSION)nupkg
+        run: Invoke-WebRequest -Uri "https://github.com/bitwarden/clients/releases/download/cli-v$($env:_PKG_VERSION)/bitwarden-cli.$($env:_PKG_VERSION).nupkg" -OutFile bitwarden-cli.$($env:_PKG_VERSION).nupkg
         working-directory: apps/cli/dist
 
       - name: Push to Chocolatey
