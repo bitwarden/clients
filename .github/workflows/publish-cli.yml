@@ -66,15 +66,17 @@ jobs:
       - name: Version output
         id: version-output
         env:
-          _INPUT_VERSION: ${{ inputs.version }}
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
-          if [[ "$_INPUT_VERSION" == "latest" || "$_INPUT_VERSION" == "" ]]; then
-            VERSION=$(curl  "https://api.github.com/repos/bitwarden/clients/releases" | jq -c '.[] | select(.tag_name | contains("cli")) | .tag_name' | head -1 | grep -ohE '20[0-9]{2}\.([1-9]|1[0-2])\.[0-9]+')
+          if [[ "$INPUT_VERSION" == "latest" || "$INPUT_VERSION" == "" ]]; then
+            TAG_NAME=$(curl -s "https://api.github.com/repos/bitwarden/clients/releases" \
+              | jq -r '.[] | select(.tag_name | contains("cli")) | .tag_name' | head -1)
+            VERSION="${TAG_NAME#cli-v}"
             echo "Latest Released Version: $VERSION"
             echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           else
-            echo "Release Version: $_INPUT_VERSION"
-            echo "version=$_INPUT_VERSION" >> "$GITHUB_OUTPUT"
+            echo "Release Version: $INPUT_VERSION"
+            echo "version=$INPUT_VERSION" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Create GitHub deployment
