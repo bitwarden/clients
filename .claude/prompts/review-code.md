@@ -1,25 +1,57 @@
-Please review this pull request with a focus on:
+# Bitwarden Clients Repo Code Review - Careful Consideration Required
 
-- Code quality and best practices
-- Potential bugs or issues
-- Security implications
-- Performance considerations
+## Think Twice Before Recommending
 
-Note: The PR branch is already checked out in the current working directory.
+Angular has multiple valid patterns. Before suggesting changes:
 
-Provide a comprehensive review including:
+- **Consider the context** - Is this code part of an active modernization effort?
+- **Check for established patterns** - Look for similar implementations in the codebase
+- **Avoid premature optimization** - Don't suggest refactoring stable, working code without clear benefit
+- **Respect incremental progress** - Teams may be modernizing gradually with feature flags
 
-- Summary of changes since last review
-- Critical issues found (be thorough)
-- Suggested improvements (be thorough)
-- Good practices observed (be concise - list only the most notable items without elaboration)
-- Action items for the author
-- Leverage collapsible <details> sections where appropriate for lengthy explanations or code snippets to enhance human readability
+## Angular Modernization - Handle with Care
 
-When reviewing subsequent commits:
+**Control Flow Syntax (@if, @for, @switch):**
 
-- Track status of previously identified issues (fixed/unfixed/reopened)
-- Identify NEW problems introduced since last review
-- Note if fixes introduced new issues
+- When you see legacy structural directives (*ngIf, *ngFor), consider whether modernization is in scope
+- Do not mandate changes to stable code unless part of the PR's objective
+- If suggesting modernization, acknowledge it's optional unless required by PR goals
 
-IMPORTANT: Be comprehensive about issues and improvements. For good practices, be brief - just note what was done well without explaining why or praising excessively.
+**Standalone Components:**
+
+- New components should be standalone whenever feasible, but do not flag existing NgModule components as issues
+- Legacy patterns exist for valid reasons - consider modernization effort vs benefit
+
+**Typed Forms:**
+
+- Recommend typed forms for NEW form code
+- Don't suggest rewriting working untyped forms unless they're being modified
+
+## Tailwind CSS - Critical Pattern
+
+**tw- prefix is mandatory** - This is non-negotiable and should be flagged as ❌ major finding:
+
+- Missing tw- prefix breaks styling completely
+- Check ALL Tailwind classes in modified files
+
+## Rust SDK Adoption - Tread Carefully
+
+When reviewing cipher operations:
+
+- Look for breaking changes in the TypeScript → Rust boundary
+- Verify error handling matches established patterns
+- Don't suggest alternative SDK patterns without strong justification
+
+## Component Library First
+
+Before suggesting custom implementations:
+
+- Check if Bitwarden's component library already provides the functionality
+- Prefer existing components over custom Tailwind styling
+- Don't add UI complexity that the component library already solves
+
+## When in Doubt
+
+- **Ask questions** (💭) rather than making definitive recommendations
+- **Flag for human review** (⚠️) if you're uncertain
+- **Acknowledge alternatives** exist when suggesting improvements

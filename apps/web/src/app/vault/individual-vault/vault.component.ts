@@ -550,15 +550,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
                 await this.editCipherId(cipherId);
               }
             } else {
-              this.toastService.showToast({
-                variant: "error",
-                title: null,
-                message: this.i18nService.t("unknownCipher"),
-              });
-              await this.router.navigate([], {
-                queryParams: { itemId: null, cipherId: null },
-                queryParamsHandling: "merge",
-              });
+              await this.handleUnknownCipher();
             }
           }
         }),
@@ -712,6 +704,18 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     } finally {
       this.processingEvent = false;
     }
+  }
+
+  async handleUnknownCipher() {
+    this.toastService.showToast({
+      variant: "error",
+      title: null,
+      message: this.i18nService.t("unknownCipher"),
+    });
+    await this.router.navigate([], {
+      queryParams: { itemId: null, cipherId: null },
+      queryParamsHandling: "merge",
+    });
   }
 
   async archive(cipher: C) {
@@ -997,6 +1001,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   async editCipherId(id: string, cloneMode?: boolean) {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const cipher = await this.cipherService.get(id, activeUserId);
+    if (!cipher) {
+      await this.handleUnknownCipher();
+      return;
+    }
 
     if (
       cipher &&
@@ -1034,6 +1042,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   async viewCipherById(id: string) {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipher = await this.cipherService.get(id, activeUserId);
+    if (!cipher) {
+      await this.handleUnknownCipher();
+      return;
+    }
     // If cipher exists (cipher is null when new) and MP reprompt
     // is on for this cipher, then show password reprompt.
     if (
@@ -1611,7 +1623,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
             !policyEnabled &&
             autoConfirmState.showSetupDialog &&
             !!organization &&
-            (organization.canManageUsers || organization.canManagePolicies);
+            organization.canEnableAutoConfirmPolicy;
 
           if (showDialog) {
             await this.openAutoConfirmFeatureDialog(organization);

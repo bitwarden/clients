@@ -32,6 +32,8 @@ export enum FeatureFlag {
   PM24033PremiumUpgradeNewDesign = "pm-24033-updat-premium-subscription-page",
   PM26793_FetchPremiumPriceFromPricingService = "pm-26793-fetch-premium-price-from-pricing-service",
   PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog = "pm-23713-premium-badge-opens-new-premium-upgrade-dialog",
+  PM26462_Milestone_3 = "pm-26462-milestone-3",
+  PM23341_Milestone_2 = "pm-23341-milestone-2",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -42,6 +44,7 @@ export enum FeatureFlag {
   LinuxBiometricsV2 = "pm-26340-linux-biometrics-v2",
   UnlockWithMasterPasswordUnlockData = "pm-23246-unlock-with-master-password-unlock-data",
   NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
+  ConsolidatedSessionTimeoutComponent = "pm-26056-consolidated-session-timeout-component",
 
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
@@ -60,6 +63,7 @@ export enum FeatureFlag {
   CipherKeyEncryption = "cipher-key-encryption",
   AutofillConfirmation = "pm-25083-autofill-confirm-from-search",
   RiskInsightsForPremium = "pm-23904-risk-insights-for-premium",
+  VaultLoadingSkeletons = "pm-25081-vault-skeleton-loaders",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -109,6 +113,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
   [FeatureFlag.AutofillConfirmation]: FALSE,
   [FeatureFlag.RiskInsightsForPremium]: FALSE,
+  [FeatureFlag.VaultLoadingSkeletons]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM22110_DisableAlternateLoginMethods]: FALSE,
@@ -124,6 +129,8 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM24033PremiumUpgradeNewDesign]: FALSE,
   [FeatureFlag.PM26793_FetchPremiumPriceFromPricingService]: FALSE,
   [FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog]: FALSE,
+  [FeatureFlag.PM26462_Milestone_3]: FALSE,
+  [FeatureFlag.PM23341_Milestone_2]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
@@ -134,6 +141,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.UnlockWithMasterPasswordUnlockData]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
+  [FeatureFlag.ConsolidatedSessionTimeoutComponent]: FALSE,
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,

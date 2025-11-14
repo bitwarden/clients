@@ -72,7 +72,7 @@ tracing-subscriber = { version = "=0.3.20", features = [
     "env-filter",
     "tracing-log",
 ] }
-typenum = "=1.18.0"
+typenum = "=1.19.0"
 uniffi = "=0.28.3"
 widestring = "=1.2.0"
 windows = "=0.61.1"
