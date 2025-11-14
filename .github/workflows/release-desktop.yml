@@ -58,9 +58,9 @@ jobs:
       - name: Get Version Channel
         id: release_channel
         env:
-          _VERSION: ${{ steps.version.outputs.version }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          case "$_VERSION" in
+          case "$VERSION" in
             *"alpha"*)
               echo "channel=alpha" >> "$GITHUB_OUTPUT"
               echo "[!] We do not yet support 'alpha'"
@@ -96,7 +96,7 @@ jobs:
         env:
           PKG_VERSION: ${{ steps.version.outputs.version }}
         working-directory: apps/desktop/artifacts
-        run: mv "Bitwarden-$PKG_VERSION-universal.pkg" "Bitwarden-$PKG_VERSION-universal.pkg.archive"
+        run: mv "Bitwarden-${PKG_VERSION}-universal.pkg" "Bitwarden-${PKG_VERSION}-universal.pkg.archive"
 
       - name: Create Release
         uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
