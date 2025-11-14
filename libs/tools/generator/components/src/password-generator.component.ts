@@ -1,5 +1,6 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
+import { AsyncPipe } from "@angular/common";
 import {
   Component,
   EventEmitter,
@@ -24,6 +25,7 @@ import {
   withLatestFrom,
 } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -33,7 +35,18 @@ import {
   ifEnabledSemanticLoggerProvider,
 } from "@bitwarden/common/tools/log";
 import { UserId } from "@bitwarden/common/types/guid";
-import { ToastService, Option } from "@bitwarden/components";
+import {
+  ToastService,
+  Option,
+  BaseCardDirective,
+  CardComponent,
+  ColorPasswordComponent,
+  AriaDisableDirective,
+  TooltipDirective,
+  BitIconButtonComponent,
+  CopyClickDirective,
+  ToggleGroupModule,
+} from "@bitwarden/components";
 import {
   CredentialGeneratorService,
   GeneratedCredential,
@@ -49,7 +62,10 @@ import {
   Profile,
 } from "@bitwarden/generator-core";
 import { GeneratorHistoryService } from "@bitwarden/generator-history";
+import { I18nPipe } from "@bitwarden/ui-common";
 
+import { PassphraseSettingsComponent } from "./passphrase-settings.component";
+import { PasswordSettingsComponent } from "./password-settings.component";
 import { toAlgorithmInfo, translate } from "./util";
 
 /** Options group for passwords */
@@ -58,7 +74,21 @@ import { toAlgorithmInfo, translate } from "./util";
 @Component({
   selector: "tools-password-generator",
   templateUrl: "password-generator.component.html",
-  standalone: false,
+  imports: [
+    ToggleGroupModule,
+    BaseCardDirective,
+    CardComponent,
+    ColorPasswordComponent,
+    AriaDisableDirective,
+    TooltipDirective,
+    BitIconButtonComponent,
+    CopyClickDirective,
+    PasswordSettingsComponent,
+    PassphraseSettingsComponent,
+    AsyncPipe,
+    JslibModule,
+    I18nPipe,
+  ],
 })
 export class PasswordGeneratorComponent implements OnInit, OnChanges, OnDestroy {
   constructor(

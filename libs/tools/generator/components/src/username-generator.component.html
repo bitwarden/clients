@@ -42,42 +42,45 @@
             data-testid="username-type"
           >
           </bit-select>
-          <bit-hint *ngIf="!!(credentialTypeHint$ | async)">{{
-            credentialTypeHint$ | async
-          }}</bit-hint>
+          @if (!!(credentialTypeHint$ | async)) {
+            <bit-hint>{{ credentialTypeHint$ | async }}</bit-hint>
+          }
         </bit-form-field>
       </form>
-      <form *ngIf="showForwarder$ | async" [formGroup]="forwarder" class="tw-container">
-        <bit-form-field>
-          <bit-label>{{ "service" | i18n }}</bit-label>
-          <bit-select
-            [items]="forwarderOptions$ | async"
-            formControlName="nav"
-            data-testid="email-forwarding-service"
-          >
-          </bit-select>
-        </bit-form-field>
-      </form>
-      <tools-catchall-settings
-        *ngIf="(showAlgorithm$ | async)?.id === Algorithm.catchall"
-        [account]="account$ | async"
-        (onUpdated)="generate('catchall settings')"
-      />
-      <tools-forwarder-settings
-        *ngIf="!!(forwarderId$ | async)"
-        [forwarder]="forwarderId$ | async"
-        [account]="account$ | async"
-      />
-      <tools-subaddress-settings
-        *ngIf="(showAlgorithm$ | async)?.id === Algorithm.plusAddress"
-        [account]="account$ | async"
-        (onUpdated)="generate('subaddress settings')"
-      />
-      <tools-username-settings
-        *ngIf="(showAlgorithm$ | async)?.id === Algorithm.username"
-        [account]="account$ | async"
-        (onUpdated)="generate('username settings')"
-      />
+      @if (showForwarder$ | async) {
+        <form [formGroup]="forwarder" class="tw-container">
+          <bit-form-field>
+            <bit-label>{{ "service" | i18n }}</bit-label>
+            <bit-select
+              [items]="forwarderOptions$ | async"
+              formControlName="nav"
+              data-testid="email-forwarding-service"
+            >
+            </bit-select>
+          </bit-form-field>
+        </form>
+      }
+      @if ((showAlgorithm$ | async)?.id === Algorithm.catchall) {
+        <tools-catchall-settings
+          [account]="account$ | async"
+          (onUpdated)="generate('catchall settings')"
+        />
+      }
+      @if (!!(forwarderId$ | async)) {
+        <tools-forwarder-settings [forwarder]="forwarderId$ | async" [account]="account$ | async" />
+      }
+      @if ((showAlgorithm$ | async)?.id === Algorithm.plusAddress) {
+        <tools-subaddress-settings
+          [account]="account$ | async"
+          (onUpdated)="generate('subaddress settings')"
+        />
+      }
+      @if ((showAlgorithm$ | async)?.id === Algorithm.username) {
+        <tools-username-settings
+          [account]="account$ | async"
+          (onUpdated)="generate('username settings')"
+        />
+      }
     </bit-card>
   </div>
 </bit-section>
