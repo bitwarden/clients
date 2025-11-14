@@ -62,8 +62,15 @@ export class BannerComponent {
 
   /**
    * The computed icon to display, falling back to the default icon for the banner type.
+   * Returns null if icon is explicitly set to null (to hide the icon).
    */
   protected readonly displayIcon = computed(() => {
+    // If icon is explicitly null, don't show any icon
+    if (this.icon() === null) {
+      return null;
+    }
+
+    // If icon is undefined, fall back to default icon
     return this.icon() ?? defaultIcon[this.bannerType()];
   });
 
