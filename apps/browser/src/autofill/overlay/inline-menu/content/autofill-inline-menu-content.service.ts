@@ -619,20 +619,23 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     // for `opacity`, here
     // @TODO for definitive checks, traverse up the node tree from the inline menu container;
     // nodes can exist between `html` and `body`
-    const htmlElement = globalThis.document.querySelector("html");
-    const bodyElement = globalThis.document.querySelector("body");
+    const htmlElements = globalThis.document.querySelectorAll("html");
+    const bodyElements = globalThis.document.querySelectorAll("body");
 
-    if (!htmlElement || !bodyElement) {
+    if (!htmlElements.length || !bodyElements.length) {
       return false;
     }
 
-    const htmlOpacity = globalThis.window.getComputedStyle(htmlElement)?.opacity || "0";
-    const bodyOpacity = globalThis.window.getComputedStyle(bodyElement)?.opacity || "0";
+    const pageElements = [...htmlElements, ...bodyElements];
 
-    // Any value above this is considered "opaque" for our purposes
-    const opacityThreshold = 0.6;
+    return pageElements.every((element) => {
+      const elementOpacity = globalThis.window.getComputedStyle(element)?.opacity || "0";
 
-    return parseFloat(htmlOpacity) > opacityThreshold && parseFloat(bodyOpacity) > opacityThreshold;
+      // Any value above this is considered "opaque" for our purposes
+      const opacityThreshold = 0.6;
+
+      return parseFloat(elementOpacity) > opacityThreshold;
+    });
   };
 
   /**
