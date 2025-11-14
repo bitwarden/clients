@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
 import {
   firstValueFrom,
@@ -56,6 +56,7 @@ import {
     BadgeModule,
   ],
   templateUrl: "fido2-vault.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Fido2VaultComponent implements OnInit, OnDestroy {
   session?: DesktopFido2UserInterfaceSession = null;
