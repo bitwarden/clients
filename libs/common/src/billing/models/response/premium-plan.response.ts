@@ -4,6 +4,7 @@ export class PremiumPlanResponse extends BaseResponse {
   seat: {
     stripePriceId: string;
     price: number;
+    provided?: number;
   };
   storage: {
     stripePriceId: string;
