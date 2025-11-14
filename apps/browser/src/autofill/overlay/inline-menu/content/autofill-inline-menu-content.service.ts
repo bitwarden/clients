@@ -22,7 +22,18 @@ import {
 import { AutofillInlineMenuButtonIframe } from "../iframe-content/autofill-inline-menu-button-iframe";
 import { AutofillInlineMenuListIframe } from "../iframe-content/autofill-inline-menu-list-iframe";
 
-const TopLayerRefreshBackoffThresholds = { countLimit: 5, timeSpanLimit: 5000 };
+const experienceValidationBackoffThresholds = {
+  topLayer: {
+    countLimit: 5,
+    timeSpanLimit: 5000,
+  },
+  popoverAttribute: {
+    countLimit: 10,
+    timeSpanLimit: 5000,
+  },
+};
+
+type BackoffCheckType = keyof typeof experienceValidationBackoffThresholds;
 
 export class AutofillInlineMenuContentService implements AutofillInlineMenuContentServiceInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;
@@ -37,8 +48,14 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private bodyMutationObserver: MutationObserver;
   private inlineMenuElementsMutationObserver: MutationObserver;
   private containerElementMutationObserver: MutationObserver;
-  private topLayerRefreshCountWithinTimeThreshold: number = 0;
-  private lastTrackedTopLayerRefreshTimestamp = Date.now();
+  private refreshCountWithinTimeThreshold: { [key in BackoffCheckType]: number } = {
+    topLayer: 0,
+    popoverAttribute: 0,
+  };
+  private lastTrackedTimestamp = {
+    topLayer: Date.now(),
+    popoverAttribute: Date.now(),
+  };
   /**
    * Distinct from preventing inline menu script injection, this is for cases
    * where the page is subsequently determined to be risky.
@@ -416,14 +433,23 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       }
 
       const element = record.target as HTMLElement;
-      if (record.attributeName !== "style") {
-        this.removeModifiedElementAttributes(element);
+      if (record.attributeName === "popover" && this.inlineMenuEnabled) {
+        const attributeValue = element.getAttribute(record.attributeName);
+        if (attributeValue !== "manual") {
+          this.refreshPopoverAttribute(element);
+        }
 
         continue;
       }
 
-      element.removeAttribute("style");
-      this.updateCustomElementDefaultStyles(element);
+      if (record.attributeName === "style") {
+        element.removeAttribute("style");
+        this.updateCustomElementDefaultStyles(element);
+
+        continue;
+      }
+
+      this.removeModifiedElementAttributes(element);
     }
   };
 
@@ -437,7 +463,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     const attributes = Array.from(element.attributes);
     for (let attributeIndex = 0; attributeIndex < attributes.length; attributeIndex++) {
       const attribute = attributes[attributeIndex];
-      if (attribute.name === "style") {
+      if (attribute.name === "style" || attribute.name === "popover") {
         continue;
       }
 
@@ -518,16 +544,16 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     return otherTopLayeritems;
   };
 
-  checkAndUpdateTopLayerRefreshCount = () => {
-    const { countLimit, timeSpanLimit } = TopLayerRefreshBackoffThresholds;
+  checkAndUpdateRefreshCount = (countType: BackoffCheckType) => {
+    const { countLimit, timeSpanLimit } = experienceValidationBackoffThresholds[countType];
     const now = Date.now();
-    const timeSinceLastTrackedRefresh = now - this.lastTrackedTopLayerRefreshTimestamp;
+    const timeSinceLastTrackedRefresh = now - this.lastTrackedTimestamp[countType];
     const currentlyWithinTimeThreshold = timeSinceLastTrackedRefresh <= timeSpanLimit;
-    const withinCountThreshold = this.topLayerRefreshCountWithinTimeThreshold <= countLimit;
+    const withinCountThreshold = this.refreshCountWithinTimeThreshold[countType] <= countLimit;
 
     if (currentlyWithinTimeThreshold) {
       if (withinCountThreshold) {
-        this.topLayerRefreshCountWithinTimeThreshold++;
+        this.refreshCountWithinTimeThreshold[countType]++;
       } else {
         // Set inline menu to be off; page is aggressively trying to take top position of top layer
         this.inlineMenuEnabled = false;
@@ -537,9 +563,15 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
         globalThis.window.alert(warningMessage);
       }
     } else {
-      this.lastTrackedTopLayerRefreshTimestamp = now;
-      this.topLayerRefreshCountWithinTimeThreshold = 0;
+      this.lastTrackedTimestamp[countType] = now;
+      this.refreshCountWithinTimeThreshold[countType] = 0;
     }
+  };
+
+  refreshPopoverAttribute = (element: HTMLElement) => {
+    element.setAttribute("popover", "manual");
+    this.checkAndUpdateRefreshCount("popoverAttribute");
+    element.showPopover();
   };
 
   refreshTopLayerPosition = () => {
@@ -572,7 +604,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     }
 
     if (buttonInDocument || listInDocument) {
-      this.checkAndUpdateTopLayerRefreshCount();
+      this.checkAndUpdateRefreshCount("topLayer");
     }
   };
 
