@@ -131,7 +131,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { ActionsService } from "@bitwarden/common/platform/actions/actions-service";
-import { IpcService } from "@bitwarden/common/platform/ipc";
+import { IpcService, IpcSessionRepository } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -1476,7 +1476,12 @@ export default class MainBackground {
     );
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
-    this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);
+    const ipcSessionRepository = new IpcSessionRepository(this.stateProvider);
+    this.ipcService = new IpcBackgroundService(
+      this.platformUtilsService,
+      this.logService,
+      ipcSessionRepository,
+    );
 
     this.endUserNotificationService = new DefaultEndUserNotificationService(
       this.stateProvider,
