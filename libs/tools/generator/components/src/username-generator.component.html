@@ -61,26 +61,21 @@
         </form>
       }
       @let showAlgorithm = showAlgorithm$ | async;
+      @let account = account$ | async;
       @if (showAlgorithm?.id === Algorithm.catchall) {
-        <tools-catchall-settings
-          [account]="account$ | async"
-          (onUpdated)="generate('catchall settings')"
-        />
+        <tools-catchall-settings [account]="account" (onUpdated)="generate('catchall settings')" />
       }
       @if (forwarderId$ | async; as forwarderId) {
-        <tools-forwarder-settings [forwarder]="forwarderId" [account]="account$ | async" />
+        <tools-forwarder-settings [forwarder]="forwarderId" [account]="account" />
       }
       @if (showAlgorithm?.id === Algorithm.plusAddress) {
         <tools-subaddress-settings
-          [account]="account$ | async"
+          [account]="account"
           (onUpdated)="generate('subaddress settings')"
         />
       }
       @if (showAlgorithm?.id === Algorithm.username) {
-        <tools-username-settings
-          [account]="account$ | async"
-          (onUpdated)="generate('username settings')"
-        />
+        <tools-username-settings [account]="account" (onUpdated)="generate('username settings')" />
       }
     </bit-card>
   </div>
