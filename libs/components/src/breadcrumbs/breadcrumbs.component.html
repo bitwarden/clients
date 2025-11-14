@@ -1,4 +1,4 @@
-@for (breadcrumb of beforeOverflow; track breadcrumb; let last = $last) {
+@for (breadcrumb of beforeOverflow(); track breadcrumb; let last = $last) {
   @if (breadcrumb.route(); as route) {
     <a
       bitLink
@@ -26,8 +26,8 @@
   }
 }
 
-@if (hasOverflow) {
-  @if (beforeOverflow.length > 0) {
+@if (hasOverflow()) {
+  @if (beforeOverflow().length > 0) {
     <i class="bwi bwi-angle-right tw-mx-1.5 tw-text-main"></i>
   }
   <button
@@ -38,7 +38,7 @@
     [label]="'moreBreadcrumbs' | i18n"
   ></button>
   <bit-menu #overflowMenu>
-    @for (breadcrumb of overflow; track breadcrumb) {
+    @for (breadcrumb of overflow(); track breadcrumb) {
       @if (breadcrumb.route(); as route) {
         <a
           bitMenuItem
@@ -57,7 +57,7 @@
     }
   </bit-menu>
   <i class="bwi bwi-angle-right tw-mx-1.5 tw-text-main"></i>
-  @for (breadcrumb of afterOverflow; track breadcrumb; let last = $last) {
+  @for (breadcrumb of afterOverflow(); track breadcrumb; let last = $last) {
     @if (breadcrumb.route(); as route) {
       <a
         bitLink
