@@ -442,7 +442,15 @@ export abstract class ApiService {
   abstract postBitPayInvoice(request: BitPayInvoiceRequest): Promise<string>;
   abstract postSetupPayment(): Promise<string>;
 
+  /**
+   * Retrieves the bearer access token for the user.
+   * If the access token is expired or within 5 minutes of expiration, attemps to refresh the token
+   * and persists the refresh token to state before returning it.
+   * @param userId The user for whom we're retrieving the access token
+   * @returns The access token, or an Error if no access token exists.
+   */
   abstract getActiveBearerToken(userId: UserId): Promise<string>;
+
   abstract fetch(request: Request): Promise<Response>;
   abstract nativeFetch(request: Request): Promise<Response>;
 

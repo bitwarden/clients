@@ -1301,15 +1301,6 @@ export class ApiService implements ApiServiceAbstraction {
     }
   }
 
-  // Helpers
-
-  /**
-   * Retrieves the bearer access token for the user, or `null` if no token exists.
-   * If the access token is expired or within 5 minutes of expiration, attemps to refresh the token
-   * and persists the refresh token to state before returning it.
-   * @param userId The user for whom we're retrieving the access token
-   * @returns The access token, or `null` if none exists for the `userId` provided.
-   */
   async getActiveBearerToken(userId: UserId): Promise<string | null> {
     let accessToken = await this.tokenService.getAccessToken(userId);
     if (await this.tokenService.tokenNeedsRefresh(userId)) {
@@ -1576,12 +1567,14 @@ export class ApiService implements ApiServiceAbstraction {
     apiUrl?: string | null,
     alterHeaders?: (headers: Headers) => void,
   ): Promise<any> {
-    const userId = await this.getUserIdForRequest(authedOrUserId);
+    // We assume that if there is a UserId making the request, it is also an authenticated
+    // request and we will attempt to add an access token to the request.
+    const userIdMakingRequest = await this.getUserIdMakingRequest(authedOrUserId);
 
     const environment = await firstValueFrom(
-      userId == null
+      userIdMakingRequest == null
         ? this.environmentService.environment$
-        : this.environmentService.getEnvironment$(userId),
+        : this.environmentService.getEnvironment$(userIdMakingRequest),
     );
     apiUrl = Utils.isNullOrWhitespace(apiUrl) ? environment.getApiUrl() : apiUrl;
 
@@ -1590,11 +1583,9 @@ export class ApiService implements ApiServiceAbstraction {
     const requestUrl =
       apiUrl + Utils.normalizePath(pathParts[0]) + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
 
-    const accessToken = await this.getActiveBearerToken(userId);
-
     let request = await this.buildRequest(
       method,
-      accessToken,
+      userIdMakingRequest,
       environment,
       hasResponse,
       body,
@@ -1605,11 +1596,14 @@ export class ApiService implements ApiServiceAbstraction {
     // First, check to see if we were making an authenticated request and received an Unauthorized (401)
     // response.  This could mean that we attempted to make a request with an expired access token.
     // If so, attempt to refresh the token and try again.
-    if (hasResponse && accessToken != null && response.status === HttpStatusCode.Unauthorized) {
-      const refreshedToken = await this.refreshAccessToken(userId);
+    if (
+      hasResponse &&
+      userIdMakingRequest != null &&
+      response.status === HttpStatusCode.Unauthorized
+    ) {
       request = await this.buildRequest(
         method,
-        refreshedToken,
+        userIdMakingRequest,
         environment,
         hasResponse,
         body,
@@ -1632,12 +1626,12 @@ export class ApiService implements ApiServiceAbstraction {
       response.status !== HttpStatusCode.Ok &&
       response.status !== HttpStatusCode.NoContent
     ) {
-      const error = await this.handleApiRequestError(response, userId != null);
+      const error = await this.handleApiRequestError(response, userIdMakingRequest != null);
       return Promise.reject(error);
     }
   }
 
-  private async getUserIdForRequest(authedOrUserId: UserId | boolean): Promise<UserId> {
+  private async getUserIdMakingRequest(authedOrUserId: UserId | boolean): Promise<UserId> {
     if (authedOrUserId == null) {
       throw new Error("A user id was given but it was null, cannot complete API request.");
     }
@@ -1654,14 +1648,14 @@ export class ApiService implements ApiServiceAbstraction {
 
   private async buildRequest(
     method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
-    accessToken: string | null,
+    userForAccessToken: UserId | null,
     environment: Environment,
     hasResponse: boolean,
     body: string,
     alterHeaders?: (headers: Headers) => void,
   ): Promise<RequestInit> {
     const [requestHeaders, requestBody] = await this.buildHeadersAndBody(
-      accessToken,
+      userForAccessToken,
       hasResponse,
       body,
       alterHeaders,
@@ -1679,7 +1673,7 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   private async buildHeadersAndBody(
-    bearerAuthenticationToken: string | null,
+    userForAccessToken: UserId | null,
     hasResponse: boolean,
     body: any,
     alterHeaders: (headers: Headers) => void,
@@ -1701,8 +1695,9 @@ export class ApiService implements ApiServiceAbstraction {
     if (alterHeaders != null) {
       alterHeaders(headers);
     }
-    if (bearerAuthenticationToken != null) {
-      headers.set("Authorization", "Bearer " + bearerAuthenticationToken);
+    if (userForAccessToken != null) {
+      const authHeader = await this.getActiveBearerToken(userForAccessToken);
+      headers.set("Authorization", "Bearer " + authHeader);
     } else {
       // For unauthenticated requests, we need to tell the server what the device is for flag targeting,
       // since it won't be able to get it from the access token.
@@ -1741,8 +1736,6 @@ export class ApiService implements ApiServiceAbstraction {
     response: Response,
     userIsAuthenticated: boolean,
   ): Promise<ErrorResponse> {
-    const responseJson = await this.getJsonResponse(response);
-
     if (
       userIsAuthenticated &&
       (response.status === HttpStatusCode.Unauthorized ||
@@ -1751,6 +1744,7 @@ export class ApiService implements ApiServiceAbstraction {
       await this.logoutCallback("sessionExpired");
     }
 
+    const responseJson = await this.getJsonResponse(response);
     return new ErrorResponse(responseJson, response.status);
   }
 
@@ -1766,13 +1760,7 @@ export class ApiService implements ApiServiceAbstraction {
     // IdentityServer will return an invalid_grant response if the refresh token has expired.
     // This means that the user's session has expired, and they need to log out.
     // We issue the logoutCallback() to log the user out through messaging.
-    if (
-      response.status === HttpStatusCode.Unauthorized ||
-      response.status === HttpStatusCode.Forbidden ||
-      (response.status === HttpStatusCode.BadRequest &&
-        responseJson != null &&
-        responseJson.error === "invalid_grant")
-    ) {
+    if (response.status === HttpStatusCode.BadRequest && responseJson?.error === "invalid_grant") {
       await this.logoutCallback("sessionExpired");
     }
 
