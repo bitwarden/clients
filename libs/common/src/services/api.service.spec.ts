@@ -449,6 +449,13 @@ describe("ApiService", () => {
   });
 
   it("retries request with refreshed token when initial request with access token returns 401", async () => {
+    // This test verifies the 401 retry flow:
+    // 1. Initial request with valid token returns 401 (token expired server-side)
+    // 2. After 401, buildRequest is called again, which checks tokenNeedsRefresh
+    // 3. tokenNeedsRefresh returns true, triggering refreshToken via getActiveBearerToken
+    // 4. refreshToken makes an HTTP call to /connect/token to get new tokens
+    // 5. setTokens is called to store the new tokens, returning the refreshed access token
+    // 6. Request is retried with the refreshed token and succeeds
     environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
       of({
         getApiUrl: () => "https://example.com",
@@ -467,8 +474,15 @@ describe("ApiService", () => {
         headers: new Headers(request.headers),
       } satisfies Partial<Request> as unknown as Request;
     });
-    tokenService.getAccessToken.calledWith(testActiveUser).mockResolvedValue("expired_token");
-    tokenService.tokenNeedsRefresh.calledWith(testActiveUser).mockResolvedValue(false);
+    // getAccessToken returns the same token throughout - the token itself doesn't change,
+    // but after the 401, tokenNeedsRefresh will return true, triggering a refresh
+    tokenService.getAccessToken.calledWith(testActiveUser).mockResolvedValue("valid_token");
+    // First call (initial request): token doesn't need refresh yet
+    // Subsequent calls (after 401): token needs refresh, triggering the refresh flow
+    tokenService.tokenNeedsRefresh
+      .calledWith(testActiveUser)
+      .mockResolvedValueOnce(false)
+      .mockResolvedValue(true);
 
     tokenService.getRefreshToken
       .calledWith(testActiveUser)
@@ -544,7 +558,7 @@ describe("ApiService", () => {
         } satisfies Partial<Response> as Response);
       }
 
-      throw new Error("Unexpected call");
+      throw new Error(`Unexpected call #${callCount}: ${request.method} ${request.url}`);
     });
 
     sut.nativeFetch = nativeFetch;
@@ -712,8 +726,15 @@ describe("ApiService", () => {
       } satisfies Partial<Request> as unknown as Request;
     });
 
+    // getAccessToken returns the same token throughout - the token itself doesn't change,
+    // but after the 401, tokenNeedsRefresh will return true, triggering a refresh
     tokenService.getAccessToken.calledWith(testActiveUser).mockResolvedValue("expired_token");
-    tokenService.tokenNeedsRefresh.calledWith(testActiveUser).mockResolvedValue(false);
+    // First call (initial request): token doesn't need refresh yet
+    // Subsequent calls (after 401): token needs refresh, triggering the refresh flow
+    tokenService.tokenNeedsRefresh
+      .calledWith(testActiveUser)
+      .mockResolvedValueOnce(false)
+      .mockResolvedValue(true);
 
     tokenService.getRefreshToken
       .calledWith(testActiveUser)
@@ -802,10 +823,17 @@ describe("ApiService", () => {
   });
 
   it("retries with refreshed token for inactive user when 401 received", async () => {
+    // getAccessToken returns the same token throughout - the token itself doesn't change,
+    // but after the 401, tokenNeedsRefresh will return true, triggering a refresh
     tokenService.getAccessToken
       .calledWith(testInactiveUser)
       .mockResolvedValue("inactive_expired_token");
-    tokenService.tokenNeedsRefresh.calledWith(testInactiveUser).mockResolvedValue(false);
+    // First call (initial request): token doesn't need refresh yet
+    // Subsequent calls (after 401): token needs refresh, triggering the refresh flow
+    tokenService.tokenNeedsRefresh
+      .calledWith(testInactiveUser)
+      .mockResolvedValueOnce(false)
+      .mockResolvedValue(true);
 
     tokenService.getRefreshToken
       .calledWith(testInactiveUser)
