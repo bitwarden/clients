@@ -163,17 +163,67 @@ export class MemberActionsService {
   }
 
   async bulkReinvite(organization: Organization, userIds: string[]): Promise<BulkActionResult> {
-    try {
-      const result = await this.organizationUserApiService.postManyOrganizationUserReinvite(
-        organization.id,
-        userIds,
-      );
-      return { successful: result, failed: [] };
-    } catch (error) {
-      return {
-        failed: userIds.map((id) => ({ id, error: (error as Error).message ?? String(error) })),
-      };
+    const isBatchingEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.BulkMemberActionsBatching,
+    );
+
+    // If batching is not enabled, use the original implementation
+    if (!isBatchingEnabled) {
+      try {
+        const result = await this.organizationUserApiService.postManyOrganizationUserReinvite(
+          organization.id,
+          userIds,
+        );
+        return { successful: result, failed: [] };
+      } catch (error) {
+        return {
+          failed: userIds.map((id) => ({ id, error: (error as Error).message ?? String(error) })),
+        };
+      }
     }
+
+    // Batching enabled: split into chunks of 500 and process sequentially
+    const batchSize = 500;
+    const batches = this.chunkArray(userIds, batchSize);
+    let aggregatedResult: ListResponse<OrganizationUserBulkResponse> | undefined;
+    const allFailed: { id: string; error: string }[] = [];
+
+    for (const batch of batches) {
+      try {
+        const result = await this.organizationUserApiService.postManyOrganizationUserReinvite(
+          organization.id,
+          batch,
+        );
+
+        // Aggregate successful results
+        if (aggregatedResult === undefined) {
+          aggregatedResult = result;
+        } else {
+          aggregatedResult.data.push(...result.data);
+        }
+      } catch (error) {
+        // If the entire batch fails, mark all users in the batch as failed
+        allFailed.push(
+          ...batch.map((id) => ({ id, error: (error as Error).message ?? String(error) })),
+        );
+      }
+    }
+
+    return {
+      successful: aggregatedResult,
+      failed: allFailed,
+    };
+  }
+
+  /**
+   * Helper method to split an array into chunks of a specified size
+   */
+  private chunkArray<T>(array: T[], chunkSize: number): T[][] {
+    const chunks: T[][] = [];
+    for (let i = 0; i < array.length; i += chunkSize) {
+      chunks.push(array.slice(i, i + chunkSize));
+    }
+    return chunks;
   }
 
   allowResetPassword(
