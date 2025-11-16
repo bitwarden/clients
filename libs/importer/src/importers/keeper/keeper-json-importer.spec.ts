@@ -6,23 +6,34 @@ import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { newGuid } from "@bitwarden/guid";
 
 import { ImportResult } from "../../models";
-import { TestData } from "../spec-data/keeper-json/testdata.json";
+import { LegacyTestData, TestData } from "../spec-data/keeper-json/testdata.json";
 
 import { KeeperJsonImporter } from "./keeper-json-importer";
 
 describe("Keeper Json Importer", () => {
   const testDataJson = JSON.stringify(TestData);
+  const legacyTestDataJson = JSON.stringify(LegacyTestData);
 
   let result: ImportResult;
   let orgResult: ImportResult;
 
+  let legacyResult: ImportResult;
+  //let legacyOrgResult: ImportResult;
+
   beforeAll(async () => {
     const importer = new KeeperJsonImporter();
-    result = await expectParse(importer);
+    result = await expectParse(importer, testDataJson, 23);
 
     const orgImporter = new KeeperJsonImporter();
     orgImporter.organizationId = newGuid() as OrganizationId;
-    orgResult = await expectParse(orgImporter);
+    orgResult = await expectParse(orgImporter, testDataJson, 23);
+
+    const legacyImporter = new KeeperJsonImporter();
+    legacyResult = await expectParse(legacyImporter, legacyTestDataJson, 78);
+
+    // const legacyOrgImporter = new KeeperJsonImporter();
+    // legacyOrgImporter.organizationId = newGuid() as OrganizationId;
+    // legacyOrgResult = await expectParse(legacyOrgImporter, legacyTestDataJson, 78);
   });
 
   // All possible record types
@@ -48,6 +59,10 @@ describe("Keeper Json Importer", () => {
   // 18  sshKeys
   // 19  ssnCard
   // 96  wifiCredentials
+
+  //
+  // Current format tests
+  //
 
   it("should parse address", async () => {
     // Cipher
@@ -546,12 +561,95 @@ describe("Keeper Json Importer", () => {
     expect(orgResult.folders.length).toEqual(0);
   });
 
+  //
+  // Legacy format tests
+  //
+
+  it("should parse legacy login", async () => {
+    // Cipher
+    const login = getCipher(legacyResult, "AARP");
+    expect(login).toBeDefined();
+    expect(login.type).toEqual(CipherType.Login);
+
+    // Properties
+    expect(login.login.uri).toEqual("https://aarp.org");
+
+    // Folder relationships
+    assertInFolder(legacyResult, "AARP", "Sub-inheritance");
+  });
+
+  it("should parse login with custom fields", async () => {
+    // Cipher
+    const login = getCipher(legacyResult, "cipher item");
+    expect(login).toBeDefined();
+    expect(login.type).toEqual(CipherType.Login);
+
+    // Properties
+    expect(login.notes).toEqual("the quick brown fox jumps over the lazy dog.");
+    expect(login.login.username).toEqual("username123");
+    expect(login.login.password).toEqual("password123");
+
+    // Fields
+    expect(login.fields.length).toEqual(1);
+    expect(getField(login, "kasjdfiauefaikjsjdf8as7878")?.value).toEqual("custom");
+  });
+
+  it("should parse login with multiple TOTP codes", async () => {
+    // Cipher
+    const login = getCipher(legacyResult, "Comp Test with OTP");
+    expect(login).toBeDefined();
+    expect(login.type).toEqual(CipherType.Login);
+
+    // Properties
+    expect(login.login.username).toEqual("test");
+    expect(login.login.password).toEqual("l3}9%aI6Hh33k2CJcsXB");
+    expect(login.login.totp).toEqual(
+      "otpauth://totp/Iterable:justin.tulk@iterable.com?secret=YW6CMSUJOHCE3H33&issuer=Iterable",
+    );
+
+    // TOTP fields
+    expect(login.fields.length).toEqual(1);
+    expect(getField(login, "TOTP")?.value).toEqual(
+      "otpauth://totp/Google%3Asbolina%40bitwarden.com?secret=6whhjvsb3taxmlf4e7fk4v7lsusuv2m5&issuer=Google",
+    );
+  });
+
+  it("should parse legacy bankCard", async () => {
+    // Cipher
+    const bankCard = getCipher(legacyResult, "VISA");
+    expect(bankCard).toBeDefined();
+    expect(bankCard.type).toEqual(CipherType.Card);
+
+    // Properties
+    expect(bankCard.card.number).toEqual("5555555555555555");
+    expect(bankCard.card.cardholderName).toEqual("Ted Lasso");
+    expect(bankCard.card.expMonth).toEqual("02");
+    expect(bankCard.card.expYear).toEqual("2028");
+
+    // Fields
+    expect(bankCard.fields.length).toEqual(1);
+    expect(getField(bankCard, "PIN")?.value).toEqual("1235");
+    expect(getField(bankCard, "PIN")?.type).toEqual(FieldType.Hidden);
+
+    // Folder relationships
+    assertInFolder(legacyResult, "VISA", "Social Media/Cards");
+  });
+
+  // TODO: Add more legacy format tests!!!
+
+  //
   // Helpers
-  async function expectParse(importer: KeeperJsonImporter): Promise<ImportResult> {
+  //
+
+  async function expectParse(
+    importer: KeeperJsonImporter,
+    testDataJson: string,
+    recordCount: number,
+  ): Promise<ImportResult> {
     const result = await importer.parse(testDataJson);
     expect(result).toBeDefined();
     expect(result.ciphers).toBeDefined();
-    expect(result.ciphers.length).toEqual(23);
+    expect(result.ciphers.length).toEqual(recordCount);
     return result;
   }
 

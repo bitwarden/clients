@@ -34,7 +34,7 @@ handle some of the type conversion manually. Should the conversion types be forc
 ### Gotchas, weirdnesses and questions
 
 - [x] What to do with the IDs? Import them as is? Generate new ones? Leave out blank?
-- [ ] Multiple TOTP (currently the first one used, others ignored)
+- [x] Multiple TOTP (currently the first one used, others ignored)
 - [ ] Schema is ignored (probably no use anyway)
 - [x] Custom fields names/types are not parsed and used as is
 - [x] Should `last_modified` be set on the cipher?
@@ -42,8 +42,8 @@ handle some of the type conversion manually. Should the conversion types be forc
       Figure this out!
 - [x] No fingerprint on ssh keys
 - [x] login/password on ssh keys are stored as username/passphrase extra fields
-- [ ] Custom fields have a weird format, like `$keyPair::1`. This needs to be figured out.
-- [ ] Legacy exports are similar but not exactly the same. Need to support variants.
+- [x] Custom fields have a weird format, like `$keyPair::1`. This needs to be figured out.
+- [x] Legacy exports are similar but not exactly the same. Need to support variants.
 - [ ] When importing dates, should a specific locale be used in `toLocaleString`?
 - [ ] Phone number format is a bit funky: `(AF) 5415558723 ext. 5577 (Work)`. Would be good to
       replace the region with +code.

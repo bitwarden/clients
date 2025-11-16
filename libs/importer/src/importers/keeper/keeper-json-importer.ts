@@ -110,9 +110,9 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     }
 
     // These should not be imported as custom fields since they are mapped to card properties
-    delete record.custom_fields["$paymentCard"];
-    delete record.custom_fields["$text:cardholderName"];
-    delete record.custom_fields["$pinCode"];
+    this.deleteTopLevelCustomField(record.custom_fields, "$paymentCard");
+    this.deleteTopLevelCustomField(record.custom_fields, "$text:cardholderName");
+    this.deleteTopLevelCustomField(record.custom_fields, "$pinCode");
   }
 
   private importSshKey(record: Record, cipher: CipherView): boolean {
@@ -150,8 +150,8 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     }
 
     // These should not be imported as custom fields since they are mapped to ssh key properties
-    delete record.custom_fields["$keyPair"];
-    delete record.custom_fields["$host"];
+    this.deleteTopLevelCustomField(record.custom_fields, "$keyPair");
+    this.deleteTopLevelCustomField(record.custom_fields, "$host");
 
     return true;
   }
@@ -159,13 +159,27 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
   private findCustomField(customFields: CustomFields, path: string): string {
     let root = customFields as any;
     for (const part of path.split("/")) {
-      if (root[part] == null) {
+      const keys = Object.keys(root);
+      if (keys.length === 0) {
         return "";
       }
-      root = root[part];
+
+      const key = keys.find((k) => k.replace(/:?:\d$/, "") === part);
+      if (!key || root[key] == null) {
+        return "";
+      }
+
+      root = root[key];
     }
 
     return root.toString();
+  }
+
+  private deleteTopLevelCustomField(customFields: CustomFields, name: string) {
+    const key = Object.keys(customFields).find((k) => k.replace(/:?:\d$/, "") === name);
+    if (key) {
+      delete customFields[key];
+    }
   }
 
   private importCustomFields(customFields: CustomFields, cipher: CipherView) {
@@ -204,8 +218,20 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
   ): boolean {
     switch (type) {
       case "oneTimeCode":
-        // TODO: If not a login, add as a custom field
-        cipher.login.totp = this.getStringOrFirstFromArray(originalValue ?? "");
+        {
+          // TODO: If not a login, add as a custom field
+          const totps = this.makeArray(originalValue);
+          if (totps.length === 0) {
+            break;
+          }
+
+          cipher.login.totp = totps[0];
+          if (totps.length > 1) {
+            totps.slice(1).forEach((code) => {
+              this.addField(cipher, "TOTP", code, FieldType.Hidden);
+            });
+          }
+        }
         break;
       case "url":
         // TODO: If not a login, add as a custom field
