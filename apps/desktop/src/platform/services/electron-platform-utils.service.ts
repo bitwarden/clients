@@ -113,7 +113,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
   }
 
   isDev(): boolean {
-    return ipc.platform.isDev;
+    return true;
   }
 
   isSelfHost(): boolean {

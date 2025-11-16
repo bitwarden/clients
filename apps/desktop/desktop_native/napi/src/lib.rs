@@ -1,3 +1,6 @@
+use napi::bindgen_prelude::{Buffer, Uint8Array};
+use tokio_util::bytes::Buf;
+
 #[macro_use]
 extern crate napi_derive;
 
@@ -1197,5 +1200,109 @@ pub mod autotype {
         autotype::type_input(input, keyboard_shortcut).map_err(|_| {
             napi::Error::from_reason("Autotype Error: failed to type input".to_string())
         })
+    }
+}
+
+#[napi(string_enum)]
+pub enum UserVerification {
+    Preferred,
+    Required,
+    Discouraged,
+}
+
+impl Into<fido2_client::UserVerification> for UserVerification {
+    fn into(self) -> fido2_client::UserVerification {
+        match self {
+            UserVerification::Preferred => fido2_client::UserVerification::Preferred,
+            UserVerification::Required => fido2_client::UserVerification::Required,
+            UserVerification::Discouraged => fido2_client::UserVerification::Discouraged,
+        }
+    }
+}
+
+#[napi(object)]
+pub struct CredentialAssertionOptions {
+    pub challenge: Uint8Array,
+    pub timeout: i64,
+    pub rpid: String,
+    pub user_verification: UserVerification,
+    pub allow_credentials: Vec<Vec<u8>>,
+    pub prf_eval_first: Uint8Array,
+}
+
+impl Into<fido2_client::AssertionOptions> for CredentialAssertionOptions {
+    fn into(self) -> fido2_client::AssertionOptions {
+        fido2_client::AssertionOptions {
+            challenge: self.challenge.to_vec(),
+            timeout: self.timeout as u64,
+            rpid: self.rpid,
+            user_verification: self.user_verification.into(),
+            allow_credentials: self.allow_credentials,
+            prf_eval_first: self.prf_eval_first.to_vec().try_into().unwrap_or([0u8; 32]),
+            prf_eval_second: None,
+        }
+    }
+}
+
+#[napi(object)]
+pub struct AuthenticatorAssertionResponse {
+    pub authenticator_data: Uint8Array,
+    pub client_data_json: Uint8Array,
+    pub signature: Uint8Array,
+    pub user_handle: Uint8Array,
+}
+
+impl From<fido2_client::AuthenticatorAssertionResponse> for AuthenticatorAssertionResponse {
+    fn from(response: fido2_client::AuthenticatorAssertionResponse) -> Self {
+        AuthenticatorAssertionResponse {
+            authenticator_data: Uint8Array::from(response.authenticator_data),
+            client_data_json: Uint8Array::from(response.client_data_json),
+            signature: Uint8Array::from(response.signature),
+            user_handle: Uint8Array::from(response.user_handle),
+        }
+    }
+}
+
+#[napi(object)]
+pub struct PublicKeyCredential {
+    pub authenticator_attachment: String,
+    pub id: String,
+    pub raw_id: Uint8Array,
+    pub response: AuthenticatorAssertionResponse,
+    pub r#type: String,
+    pub prf: Option<Uint8Array>,
+}
+
+impl Into<PublicKeyCredential> for fido2_client::PublicKeyCredential {
+    fn into(self) -> PublicKeyCredential {
+        PublicKeyCredential {
+            authenticator_attachment: self.authenticator_attachment,
+            id: self.id,
+            raw_id: Uint8Array::from(self.raw_id),
+            response: self.response.into(),
+            r#type: self.r#type,
+            prf: self.prf.map(|p| Uint8Array::from(p)),
+        }
+    }
+}
+
+#[napi]
+pub mod navigator_credentials {
+    use crate::CredentialAssertionOptions;
+
+    #[napi]
+    pub fn get(
+        assertion_options: CredentialAssertionOptions,
+    ) -> napi::Result<crate::PublicKeyCredential> {
+        let options: fido2_client::AssertionOptions = assertion_options.into();
+        let resp = fido2_client::fido2_client::get(options).map_err(|e| {
+            napi::Error::from_reason(format!("FIDO2 Authentication failed: {:?}", e))
+        })?;
+        Ok(resp.into())
+    }
+
+    #[napi]
+    pub fn available() -> bool {
+        fido2_client::fido2_client::available()
     }
 }

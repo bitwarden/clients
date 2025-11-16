@@ -33,6 +33,7 @@ import {
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
+  LoginStrategyServiceAbstraction,
   SsoUrlService,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -51,6 +52,9 @@ import {
 } from "@bitwarden/common/auth/abstractions/auth.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
+import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
+import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ClientType } from "@bitwarden/common/enums";
@@ -119,6 +123,7 @@ import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarde
 import { DesktopLoginApprovalDialogComponentService } from "../../auth/login/desktop-login-approval-dialog-component.service";
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
 import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
+import { DesktopWebAuthnLoginService } from "../../auth/services/desktop-webauthn-login.serivce";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeDefaultSettingPolicy } from "../../autofill/services/desktop-autotype-policy.service";
@@ -309,6 +314,17 @@ const safeProviders: SafeProvider[] = [
     provide: CryptoFunctionServiceAbstraction,
     useClass: WebCryptoFunctionService,
     deps: [WINDOW],
+  }),
+  safeProvider({
+    provide: WebAuthnLoginServiceAbstraction,
+    useClass: DesktopWebAuthnLoginService,
+    deps: [
+      WebAuthnLoginApiServiceAbstraction,
+      LoginStrategyServiceAbstraction,
+      WebAuthnLoginPrfKeyServiceAbstraction,
+      WINDOW,
+      LogService,
+    ],
   }),
   safeProvider({
     provide: KeyServiceAbstraction,

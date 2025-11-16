@@ -107,7 +107,6 @@ import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/ab
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
-import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { SendTokenService, DefaultSendTokenService } from "@bitwarden/common/auth/send-access";
 import { AccountApiServiceImplementation } from "@bitwarden/common/auth/services/account-api.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
@@ -130,8 +129,6 @@ import { UserVerificationApiService } from "@bitwarden/common/auth/services/user
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
 import { WebAuthnLoginApiService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-api.service";
 import { WebAuthnLoginPrfKeyService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-prf-key.service";
-import { WebAuthnLoginService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login.service";
-import { TwoFactorApiService, DefaultTwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import {
   AutofillSettingsService,
   AutofillSettingsServiceAbstraction,
@@ -1339,17 +1336,17 @@ const safeProviders: SafeProvider[] = [
     useClass: WebAuthnLoginApiService,
     deps: [ApiServiceAbstraction, EnvironmentService],
   }),
-  safeProvider({
-    provide: WebAuthnLoginServiceAbstraction,
-    useClass: WebAuthnLoginService,
-    deps: [
-      WebAuthnLoginApiServiceAbstraction,
-      LoginStrategyServiceAbstraction,
-      WebAuthnLoginPrfKeyServiceAbstraction,
-      WINDOW,
-      LogService,
-    ],
-  }),
+  // safeProvider({
+  //   provide: WebAuthnLoginServiceAbstraction,
+  //   useClass: WebAuthnLoginService,
+  //   deps: [
+  //     WebAuthnLoginApiServiceAbstraction,
+  //     LoginStrategyServiceAbstraction,
+  //     WebAuthnLoginPrfKeyServiceAbstraction,
+  //     WINDOW,
+  //     LogService,
+  //   ],
+  // }),
   safeProvider({
     provide: StorageServiceProvider,
     useClass: StorageServiceProvider,

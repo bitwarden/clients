@@ -34,6 +34,7 @@ import {
 import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitwarden/storage-core";
 
 import { ChromiumImporterService } from "./app/tools/import/chromium-importer.service";
+import { MainNavigatorCredentialsService } from "./auth/services/main-navigator-credentials.serivce";
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
@@ -284,6 +285,7 @@ export class Main {
       app.getPath("exe"),
       app.getAppPath(),
     );
+    new MainNavigatorCredentialsService(this.logService);
 
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
 

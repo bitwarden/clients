@@ -1,0 +1,22 @@
+[package]
+name = "fido2_client"
+edition = { workspace = true }
+license = { workspace = true }
+version = { workspace = true }
+publish = { workspace = true }
+
+[dependencies]
+base64.workspace = true
+ctap-hid-fido2 = "3.5.1"
+pinentry = "0.5.0"
+home = "=0.5.0"
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+secrecy = "0.8.0"
+hex.workspace = true
+webauthn-authenticator-rs = { version = "0.5.3", features = ["ctap2", "cable", "usb"] }
+tokio.workspace = true
+futures-util = "0.3.31"
+webauthn-rs-proto = "0.5.3"
+sha2.workspace = true
+

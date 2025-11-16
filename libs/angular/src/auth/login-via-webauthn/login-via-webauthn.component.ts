@@ -98,6 +98,7 @@ export class LoginViaWebAuthnComponent implements OnInit {
     let assertion: WebAuthnLoginCredentialAssertionView;
     try {
       const options = await this.webAuthnLoginService.getCredentialAssertionOptions();
+      this.logService.info("Starting WebAuthn assertion with options:", options);
       assertion = await this.webAuthnLoginService.assertCredential(options);
     } catch (error) {
       this.validationService.showError(error);

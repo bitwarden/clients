@@ -20,15 +20,16 @@ export class WebAuthnLoginAssertionResponseRequest extends WebAuthnLoginResponse
   constructor(credential: PublicKeyCredential) {
     super(credential);
 
-    if (!(credential.response instanceof AuthenticatorAssertionResponse)) {
-      throw new Error("Invalid authenticator response");
-    }
+    // if (!(credential.response instanceof AuthenticatorAssertionResponse)) {
+    //   throw new Error("Invalid authenticator response");
+    // }
+    const resp = credential.response as AuthenticatorAssertionResponse;
 
     this.response = {
-      authenticatorData: Utils.fromBufferToUrlB64(credential.response.authenticatorData),
-      signature: Utils.fromBufferToUrlB64(credential.response.signature),
-      clientDataJSON: Utils.fromBufferToUrlB64(credential.response.clientDataJSON),
-      userHandle: Utils.fromBufferToUrlB64(credential.response.userHandle),
+      authenticatorData: Utils.fromBufferToUrlB64(resp.authenticatorData),
+      signature: Utils.fromBufferToUrlB64(resp.signature),
+      clientDataJSON: Utils.fromBufferToUrlB64((resp as any).clientDataJson),
+      userHandle: Utils.fromBufferToUrlB64(resp.userHandle),
     };
   }
 

@@ -20,10 +20,10 @@ export class WebAuthnLoginService implements WebAuthnLoginServiceAbstraction {
 
   constructor(
     private webAuthnLoginApiService: WebAuthnLoginApiServiceAbstraction,
-    private loginStrategyService: LoginStrategyServiceAbstraction,
-    private webAuthnLoginPrfKeyService: WebAuthnLoginPrfKeyServiceAbstraction,
+    protected loginStrategyService: LoginStrategyServiceAbstraction,
+    protected webAuthnLoginPrfKeyService: WebAuthnLoginPrfKeyServiceAbstraction,
     private window: Window,
-    private logService?: LogService,
+    protected logService?: LogService,
   ) {
     this.navigatorCredentials = this.window.navigator.credentials;
   }
