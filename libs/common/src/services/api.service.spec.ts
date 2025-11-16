@@ -474,9 +474,7 @@ describe("ApiService", () => {
         headers: new Headers(request.headers),
       } satisfies Partial<Request> as unknown as Request;
     });
-    // getAccessToken returns the same token throughout - the token itself doesn't change,
-    // but after the 401, tokenNeedsRefresh will return true, triggering a refresh
-    tokenService.getAccessToken.calledWith(testActiveUser).mockResolvedValue("valid_token");
+    tokenService.getAccessToken.calledWith(testActiveUser).mockResolvedValue("access_token");
     // First call (initial request): token doesn't need refresh yet
     // Subsequent calls (after 401): token needs refresh, triggering the refresh flow
     tokenService.tokenNeedsRefresh
@@ -484,9 +482,7 @@ describe("ApiService", () => {
       .mockResolvedValueOnce(false)
       .mockResolvedValue(true);
 
-    tokenService.getRefreshToken
-      .calledWith(testActiveUser)
-      .mockResolvedValue("valid_refresh_token");
+    tokenService.getRefreshToken.calledWith(testActiveUser).mockResolvedValue("refresh_token");
 
     tokenService.decodeAccessToken
       .calledWith(testActiveUser)
@@ -511,7 +507,7 @@ describe("ApiService", () => {
         VaultTimeoutStringType.Never,
         "new_refresh_token",
       )
-      .mockResolvedValue({ accessToken: "refreshed_access_token" });
+      .mockResolvedValue({ accessToken: "new_access_token" });
 
     const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
     let callCount = 0;
@@ -547,7 +543,7 @@ describe("ApiService", () => {
 
       // Third call: retry with refreshed token succeeds
       if (callCount === 3) {
-        expect(request.headers.get("Authorization")).toBe("Bearer refreshed_access_token");
+        expect(request.headers.get("Authorization")).toBe("Bearer new_access_token");
         return Promise.resolve({
           ok: true,
           status: 200,
@@ -706,6 +702,162 @@ describe("ApiService", () => {
     expect(nativeFetch).toHaveBeenCalledTimes(1);
   });
 
+  it("uses original user token for retry even if active user changes between requests", async () => {
+    // Setup: Initial request is for testActiveUser, but during the retry, the active user switches
+    // to testInactiveUser. The retry should still use testActiveUser's refreshed token.
+
+    let activeUserId = testActiveUser;
+
+    // Mock accountService to return different active users based on when it's called
+    accountService.activeAccount$ = of({
+      id: activeUserId,
+      email: "user1@example.com",
+      emailVerified: true,
+      name: "Test Name",
+    } satisfies ObservedValueOf<AccountService["activeAccount$"]>);
+
+    environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+      of({
+        getApiUrl: () => "https://example.com",
+        getIdentityUrl: () => "https://identity.example.com",
+      } satisfies Partial<Environment> as Environment),
+    );
+
+    environmentService.getEnvironment$.calledWith(testInactiveUser).mockReturnValue(
+      of({
+        getApiUrl: () => "https://inactive.example.com",
+        getIdentityUrl: () => "https://identity.inactive.example.com",
+      } satisfies Partial<Environment> as Environment),
+    );
+
+    httpOperations.createRequest.mockImplementation((url, request) => {
+      return {
+        url: url,
+        cache: request.cache,
+        credentials: request.credentials,
+        method: request.method,
+        mode: request.mode,
+        signal: request.signal,
+        headers: new Headers(request.headers),
+      } satisfies Partial<Request> as unknown as Request;
+    });
+
+    tokenService.getAccessToken.calledWith(testActiveUser).mockResolvedValue("active_access_token");
+    tokenService.tokenNeedsRefresh
+      .calledWith(testActiveUser)
+      .mockResolvedValueOnce(false)
+      .mockResolvedValue(true);
+
+    tokenService.getRefreshToken
+      .calledWith(testActiveUser)
+      .mockResolvedValue("active_refresh_token");
+
+    tokenService.decodeAccessToken
+      .calledWith(testActiveUser)
+      .mockResolvedValue({ client_id: "web" });
+
+    tokenService.decodeAccessToken
+      .calledWith("active_new_access_token")
+      .mockResolvedValue({ sub: testActiveUser });
+
+    vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$
+      .calledWith(testActiveUser)
+      .mockReturnValue(of(VaultTimeoutAction.Lock));
+
+    vaultTimeoutSettingsService.getVaultTimeoutByUserId$
+      .calledWith(testActiveUser)
+      .mockReturnValue(of(VaultTimeoutStringType.Never));
+
+    tokenService.setTokens
+      .calledWith(
+        "active_new_access_token",
+        VaultTimeoutAction.Lock,
+        VaultTimeoutStringType.Never,
+        "active_new_refresh_token",
+      )
+      .mockResolvedValue({ accessToken: "active_new_access_token" });
+
+    // Mock tokens for inactive user (should NOT be used)
+    tokenService.getAccessToken
+      .calledWith(testInactiveUser)
+      .mockResolvedValue("inactive_access_token");
+
+    const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+    let callCount = 0;
+
+    nativeFetch.mockImplementation((request) => {
+      callCount++;
+
+      // First call: initial request with active user's token returns 401
+      if (callCount === 1) {
+        expect(request.url).toBe("https://example.com/something");
+        expect(request.headers.get("Authorization")).toBe("Bearer active_access_token");
+
+        // After the 401, simulate active user changing
+        activeUserId = testInactiveUser;
+        accountService.activeAccount$ = of({
+          id: testInactiveUser,
+          email: "user2@example.com",
+          emailVerified: true,
+          name: "Inactive User",
+        } satisfies ObservedValueOf<AccountService["activeAccount$"]>);
+
+        return Promise.resolve({
+          ok: false,
+          status: 401,
+          json: () => Promise.resolve({ message: "Unauthorized" }),
+          headers: new Headers({
+            "content-type": "application/json",
+          }),
+        } satisfies Partial<Response> as Response);
+      }
+
+      // Second call: token refresh request for ORIGINAL user (testActiveUser)
+      if (callCount === 2 && request.url.includes("identity")) {
+        expect(request.url).toContain("identity.example.com");
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              access_token: "active_new_access_token",
+              token_type: "Bearer",
+              refresh_token: "active_new_refresh_token",
+            }),
+        } satisfies Partial<Response> as Response);
+      }
+
+      // Third call: retry with ORIGINAL user's refreshed token, NOT the new active user's token
+      if (callCount === 3) {
+        expect(request.url).toBe("https://example.com/something");
+        expect(request.headers.get("Authorization")).toBe("Bearer active_new_access_token");
+        // Verify we're NOT using the inactive user's endpoint
+        expect(request.url).not.toContain("inactive");
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({ data: "success with original user" }),
+          headers: new Headers({
+            "content-type": "application/json",
+          }),
+        } satisfies Partial<Response> as Response);
+      }
+
+      throw new Error(`Unexpected call #${callCount}: ${request.method} ${request.url}`);
+    });
+
+    sut.nativeFetch = nativeFetch;
+
+    // Explicitly pass testActiveUser to ensure the request is for that specific user
+    const response = await sut.send("GET", "/something", null, testActiveUser, true, null, null);
+
+    expect(nativeFetch).toHaveBeenCalledTimes(3);
+    expect(response).toEqual({ data: "success with original user" });
+
+    // Verify that inactive user's token was never requested
+    expect(tokenService.getAccessToken.calledWith(testInactiveUser)).not.toHaveBeenCalled();
+  });
+
   it("throws error when retry also returns 401", async () => {
     environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
       of({
@@ -726,9 +878,7 @@ describe("ApiService", () => {
       } satisfies Partial<Request> as unknown as Request;
     });
 
-    // getAccessToken returns the same token throughout - the token itself doesn't change,
-    // but after the 401, tokenNeedsRefresh will return true, triggering a refresh
-    tokenService.getAccessToken.calledWith(testActiveUser).mockResolvedValue("expired_token");
+    tokenService.getAccessToken.calledWith(testActiveUser).mockResolvedValue("access_token");
     // First call (initial request): token doesn't need refresh yet
     // Subsequent calls (after 401): token needs refresh, triggering the refresh flow
     tokenService.tokenNeedsRefresh
@@ -736,9 +886,7 @@ describe("ApiService", () => {
       .mockResolvedValueOnce(false)
       .mockResolvedValue(true);
 
-    tokenService.getRefreshToken
-      .calledWith(testActiveUser)
-      .mockResolvedValue("valid_refresh_token");
+    tokenService.getRefreshToken.calledWith(testActiveUser).mockResolvedValue("refresh_token");
 
     tokenService.decodeAccessToken
       .calledWith(testActiveUser)
@@ -763,7 +911,7 @@ describe("ApiService", () => {
         VaultTimeoutStringType.Never,
         "new_refresh_token",
       )
-      .mockResolvedValue({ accessToken: "refreshed_access_token" });
+      .mockResolvedValue({ accessToken: "new_access_token" });
 
     const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
     let callCount = 0;
@@ -820,119 +968,5 @@ describe("ApiService", () => {
 
     expect(nativeFetch).toHaveBeenCalledTimes(3);
     expect(logoutCallback).toHaveBeenCalledWith("sessionExpired");
-  });
-
-  it("retries with refreshed token for inactive user when 401 received", async () => {
-    // getAccessToken returns the same token throughout - the token itself doesn't change,
-    // but after the 401, tokenNeedsRefresh will return true, triggering a refresh
-    tokenService.getAccessToken
-      .calledWith(testInactiveUser)
-      .mockResolvedValue("inactive_expired_token");
-    // First call (initial request): token doesn't need refresh yet
-    // Subsequent calls (after 401): token needs refresh, triggering the refresh flow
-    tokenService.tokenNeedsRefresh
-      .calledWith(testInactiveUser)
-      .mockResolvedValueOnce(false)
-      .mockResolvedValue(true);
-
-    tokenService.getRefreshToken
-      .calledWith(testInactiveUser)
-      .mockResolvedValue("inactive_refresh_token");
-
-    tokenService.decodeAccessToken
-      .calledWith(testInactiveUser)
-      .mockResolvedValue({ client_id: "web" });
-
-    tokenService.decodeAccessToken
-      .calledWith("inactive_new_access_token")
-      .mockResolvedValue({ sub: testInactiveUser });
-
-    vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$
-      .calledWith(testInactiveUser)
-      .mockReturnValue(of(VaultTimeoutAction.Lock));
-
-    vaultTimeoutSettingsService.getVaultTimeoutByUserId$
-      .calledWith(testInactiveUser)
-      .mockReturnValue(of(VaultTimeoutStringType.Never));
-
-    tokenService.setTokens
-      .calledWith(
-        "inactive_new_access_token",
-        VaultTimeoutAction.Lock,
-        VaultTimeoutStringType.Never,
-        "inactive_new_refresh_token",
-      )
-      .mockResolvedValue({ accessToken: "inactive_refreshed_access_token" });
-
-    environmentService.getEnvironment$.calledWith(testInactiveUser).mockReturnValue(
-      of({
-        getApiUrl: () => "https://inactive.example.com",
-        getIdentityUrl: () => "https://identity.inactive.example.com",
-      } satisfies Partial<Environment> as Environment),
-    );
-
-    httpOperations.createRequest.mockImplementation((url, request) => {
-      return {
-        url: url,
-        cache: request.cache,
-        credentials: request.credentials,
-        method: request.method,
-        mode: request.mode,
-        signal: request.signal,
-        headers: new Headers(request.headers),
-      } satisfies Partial<Request> as unknown as Request;
-    });
-
-    const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
-    let callCount = 0;
-
-    nativeFetch.mockImplementation((request) => {
-      callCount++;
-
-      if (callCount === 1) {
-        return Promise.resolve({
-          ok: false,
-          status: 401,
-          json: () => Promise.resolve({ message: "Unauthorized" }),
-          headers: new Headers({
-            "content-type": "application/json",
-          }),
-        } satisfies Partial<Response> as Response);
-      }
-
-      if (callCount === 2 && request.url.includes("identity")) {
-        return Promise.resolve({
-          ok: true,
-          status: 200,
-          json: () =>
-            Promise.resolve({
-              access_token: "inactive_new_access_token",
-              token_type: "Bearer",
-              refresh_token: "inactive_new_refresh_token",
-            }),
-        } satisfies Partial<Response> as Response);
-      }
-
-      if (callCount === 3) {
-        expect(request.headers.get("Authorization")).toBe("Bearer inactive_refreshed_access_token");
-        return Promise.resolve({
-          ok: true,
-          status: 200,
-          json: () => Promise.resolve({ data: "inactive user success" }),
-          headers: new Headers({
-            "content-type": "application/json",
-          }),
-        } satisfies Partial<Response> as Response);
-      }
-
-      throw new Error("Unexpected call");
-    });
-
-    sut.nativeFetch = nativeFetch;
-
-    const response = await sut.send("GET", "/something", null, testInactiveUser, true, null, null);
-
-    expect(nativeFetch).toHaveBeenCalledTimes(3);
-    expect(response).toEqual({ data: "inactive user success" });
   });
 });
