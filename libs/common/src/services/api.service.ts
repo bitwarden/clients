@@ -1601,7 +1601,6 @@ export class ApiService implements ApiServiceAbstraction {
       userIdMakingRequest != null &&
       response.status === HttpStatusCode.Unauthorized
     ) {
-      this.logService.info("Detected 401, attempting request again");
       request = await this.buildRequest(
         method,
         userIdMakingRequest,
