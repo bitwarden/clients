@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "Показване на всички"
   },
+  "viewLess": {
+    "message": "View less"
+  },
   "viewLogin": {
     "message": "Преглед на елемента за вписване"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "При заключване на системата"
+  },
+  "onIdle": {
+    "message": "При бездействие на системата"
+  },
+  "onSleep": {
+    "message": "При заспиване на системата"
   },
   "onRestart": {
     "message": "При повторно пускане на браузъра"
@@ -5800,6 +5809,12 @@
   "upgradeToPremium": {
     "message": "Надградете до Платения план"
   },
+  "loadingVault": {
+    "message": "Зареждане на трезора"
+  },
+  "vaultLoaded": {
+    "message": "Трезорът е зареден"
+  },
   "settingDisabledByPolicy": {
     "message": "Тази настройка е изключена съгласно политиката на организацията Ви.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5824,8 @@
   },
   "cardNumberLabel": {
     "message": "Номер на картата"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Действие при изтичането на времето за достъп"
   }
 }

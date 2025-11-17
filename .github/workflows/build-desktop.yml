@@ -185,6 +185,13 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
 
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        with:
+          workspaces: |
+            apps/desktop/desktop_native -> target
+          cache-targets: "true"
+
       - name: Set up environment
         run: |
           sudo apt-get update
@@ -225,7 +232,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         id: cache
         with:
           path: |
@@ -244,7 +251,7 @@ jobs:
           TARGET: musl
         run: |
           rustup target add x86_64-unknown-linux-musl
-          node build.js --target=x86_64-unknown-linux-musl --release
+          node build.js --target=x86_64-unknown-linux-musl
 
       - name: Build application
         run: npm run dist:lin
@@ -334,6 +341,13 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
 
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        with:
+          workspaces: |
+            apps/desktop/desktop_native -> target
+          cache-targets: "true"
+
       - name: Set up environment
         run: |
           sudo apt-get update
@@ -381,7 +395,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         id: cache
         with:
           path: |
@@ -400,7 +414,7 @@ jobs:
           TARGET: musl
         run: |
           rustup target add aarch64-unknown-linux-musl
-          node build.js --target=aarch64-unknown-linux-musl --release
+          node build.js --target=aarch64-unknown-linux-musl
 
       - name: Check index.d.ts generated
         if: github.event_name == 'pull_request' && steps.cache.outputs.cache-hit != 'true'
@@ -426,7 +440,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload tar.gz artifact
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: bitwarden_${{ env._PACKAGE_VERSION }}_arm64.tar.gz
           path: apps/desktop/dist/bitwarden_desktop_arm64.tar.gz
@@ -474,6 +488,13 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        with:
+          workspaces: |
+            apps/desktop/desktop_native -> target
+          cache-targets: "true"
 
       - name: Install AST
         run: dotnet tool install --global AzureSignTool --version 4.0.1
@@ -537,7 +558,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         id: cache
         with:
           path: |
@@ -734,6 +755,13 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
 
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        with:
+          workspaces: |
+            apps/desktop/desktop_native -> target
+          cache-targets: "true"
+
       - name: Install AST
         run: dotnet tool install --global AzureSignTool --version 4.0.1
 
@@ -793,7 +821,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         id: cache
         with:
           path: |
@@ -843,6 +871,8 @@ jobs:
             -NewName bitwarden-beta-$env:_PACKAGE_VERSION-x64.nsis.7z
           Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-$env:_PACKAGE_VERSION-arm64.nsis.7z `
             -NewName bitwarden-beta-$env:_PACKAGE_VERSION-arm64.nsis.7z
+          Rename-Item -Path .\dist\nsis-web\latest.yml `
+            -NewName latest-beta.yml
 
       - name: Upload portable exe artifact
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
@@ -935,8 +965,8 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
-          name: ${{ needs.setup.outputs.release_channel }}-beta.yml
-          path: apps/desktop/dist/nsis-web/${{ needs.setup.outputs.release_channel }}.yml
+          name: latest-beta.yml
+          path: apps/desktop/dist/nsis-web/latest-beta.yml
           if-no-files-found: error
 
   macos-build:
@@ -967,14 +997,21 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
-      
+
       - name: Set up Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
-          python-version: '3.12'
-      
+          python-version: '3.14'
+
       - name: Set up Node-gyp
         run: python3 -m pip install setuptools
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        with:
+          workspaces: |
+            apps/desktop/desktop_native -> target
+          cache-targets: "true"
 
       - name: Print environment
         run: |
@@ -986,14 +1023,14 @@ jobs:
 
       - name: Cache Build
         id: build-cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: apps/desktop/build
           key: ${{ runner.os }}-${{ github.run_id }}-build
 
       - name: Cache Safari
         id: safari-cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
@@ -1139,7 +1176,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         id: cache
         with:
           path: |
@@ -1197,14 +1234,21 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
-      
+
       - name: Set up Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
-          python-version: '3.12'
-      
+          python-version: '3.14'
+
       - name: Set up Node-gyp
         run: python3 -m pip install setuptools
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        with:
+          workspaces: |
+            apps/desktop/desktop_native -> target
+          cache-targets: "true"
 
       - name: Print environment
         run: |
@@ -1216,14 +1260,14 @@ jobs:
 
       - name: Get Build Cache
         id: build-cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: apps/desktop/build
           key: ${{ runner.os }}-${{ github.run_id }}-build
 
       - name: Setup Safari Cache
         id: safari-cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
@@ -1353,7 +1397,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         id: cache
         with:
           path: |
@@ -1462,14 +1506,21 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
-      
+
       - name: Set up Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
-          python-version: '3.12'
-          
+          python-version: '3.14'
+
       - name: Set up Node-gyp
         run: python3 -m pip install setuptools
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        with:
+          workspaces: |
+            apps/desktop/desktop_native -> target
+          cache-targets: "true"
 
       - name: Print environment
         run: |
@@ -1481,14 +1532,14 @@ jobs:
 
       - name: Get Build Cache
         id: build-cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: apps/desktop/build
           key: ${{ runner.os }}-${{ github.run_id }}-build
 
       - name: Setup Safari Cache
         id: safari-cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
@@ -1626,7 +1677,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         id: cache
         with:
           path: |
@@ -1747,7 +1798,7 @@ jobs:
         if: |
           github.event_name != 'pull_request_target'
           && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
-        uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d # v2.0.0
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         with:
           channel-id: C074F5UESQ0
           method: chat.postMessage
@@ -1805,7 +1856,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Upload Sources
-        uses: crowdin/github-action@f214c8723025f41fc55b2ad26e67b60b80b1885d # v2.7.1
+        uses: crowdin/github-action@08713f00a50548bfe39b37e8f44afb53e7a802d4 # v2.12.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}

@@ -349,6 +349,9 @@
   "applicationsNeedingReview": {
     "message": "Aanvragen die herzien moeten worden"
   },
+  "newApplicationsCardTitle": {
+    "message": "Nieuwe toepassingen beoordelen"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ nieuwe applicaties",
     "placeholders": {
@@ -369,6 +372,21 @@
   },
   "noNewApplicationsToReviewAtThisTime": {
     "message": "No new applications to review at this time"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Je organisatie heeft items opgeslagen voor $COUNT$ applicaties",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Beoordeel applicaties om de items die het meest belangrijk zijn voor de veiligheid van je organisatie te beveiligen"
+  },
+  "reviewApplications": {
+    "message": "Applicaties beoordelen"
   },
   "prioritizeCriticalApplications": {
     "message": "Belangrijke applicaties prioriteren"
@@ -3232,8 +3250,17 @@
   "nextCharge": {
     "message": "Volgende betaling"
   },
+  "nextChargeHeader": {
+    "message": "Volgende betaling"
+  },
+  "plan": {
+    "message": "Pakket"
+  },
   "details": {
     "message": "Details"
+  },
+  "discount": {
+    "message": "korting"
   },
   "downloadLicense": {
     "message": "Licentie downloaden"
@@ -4441,6 +4468,30 @@
   },
   "generatingYourAccessIntelligence": {
     "message": "Je toegangsinlichtingen genereren..."
+  },
+  "fetchingMemberData": {
+    "message": "Ledengegevens ophalen..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "Wachtwoordgezondheid analyseren..."
+  },
+  "calculatingRiskScores": {
+    "message": "Risicoscores berekenen..."
+  },
+  "generatingReportData": {
+    "message": "Rapportgegevens genereren..."
+  },
+  "savingReport": {
+    "message": "Rapport opslaan..."
+  },
+  "compilingInsights": {
+    "message": "Inzichten compileren..."
+  },
+  "loadingProgress": {
+    "message": "Voortgang laden"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Dit kan een paar minuten duren."
   },
   "riskInsightsRunReport": {
     "message": "Rapport uitvoeren"
@@ -5804,16 +5855,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "Automatische bevestiging van gebruikers inschakelen"
   },
-  "autoConfirmStep1": {
-    "message": "De Bitwarden-extensie openen."
+  "autoConfirmExtension1": {
+    "message": "Bitwarden-extensie openen"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "Selecteer",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " Inschakelen.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " Inschakelen",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "De Bitwarden-browserextensie is succesvol geopend. Je kunt nu de automatische bevestiging van de gebruiker activeren."
@@ -9525,9 +9576,6 @@
   "loggedInExclamation": {
     "message": "Ingelogd!"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "assignCollectionAccess": {
     "message": "Toegang collectie toewijzen"
   },
@@ -12075,5 +12123,45 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Start gratis Families-proefperiode"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Stel een ontgrendelingsmethode in om je kluis time-out actie te wijzigen."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Bedrijfsbeleidseisen zijn toegepast op je time-out instellingen"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Je kluis time-out is hoger dan het maximum van jouw organisatie."
+  },
+  "neverLockWarning": {
+    "message": "Weet je zeker dat je de optie \"Nooit\" wilt gebruiken? De vergrendelingsoptie \"Nooit\" bewaart de sleutel van je kluis op je apparaat. Als je deze optie gebruikt, moet je ervoor zorgen dat je je apparaat naar behoren beschermt."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Time-out actie"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sessietime-out"
+  },
+  "appearance": {
+    "message": "Uiterlijk"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Time-out overschrijdt de beperking van je organisatie: $HOURS$ uur en $MINUTES$ minu(u) t(en) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "Geen belangrijke applicaties geselecteerd"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Weet je zeker dat je wilt doorgaan?"
   }
 }
