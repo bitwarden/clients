@@ -23,7 +23,7 @@ export class DefaultNavigatorCredentialsService implements NavigatorCredentialsS
     const response: AuthenticatorAssertionResponse =
       result.response as AuthenticatorAssertionResponse;
     return {
-      authenticatorAttachment: result.authenticatorAttachment,
+      authenticatorAttachment: result!.authenticatorAttachment,
       id: result.id,
       rawId: new Uint8Array(result.rawId),
       response: {
@@ -42,7 +42,11 @@ export class DefaultNavigatorCredentialsService implements NavigatorCredentialsS
   }
 }
 
-function bufferSourceToUint8Array(source: BufferSource): Uint8Array {
+function bufferSourceToUint8Array(source: BufferSource | null): Uint8Array | null {
+  if (source === null) {
+    return null;
+  }
+
   if (source instanceof ArrayBuffer) {
     return new Uint8Array(source);
   } else {

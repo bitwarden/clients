@@ -4,6 +4,10 @@ import { BehaviorSubject } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
+import {
+  PublicKeyCredential as CustomPublicKeyCredential,
+  AuthenticatorAssertionResponse as CustomAuthenticatorAssertionResponse,
+} from "@bitwarden/common/auth/abstractions/webauthn/navigator-credentials.service";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
@@ -72,11 +76,6 @@ describe("WebAuthnLoginStrategy", () => {
     // Save off the original classes so we can restore them after all tests are done if they exist
     originalPublicKeyCredential = global.PublicKeyCredential;
     originalAuthenticatorAssertionResponse = global.AuthenticatorAssertionResponse;
-
-    // We must do this to make the mocked classes available for all the
-    // assertCredential(...) tests.
-    global.PublicKeyCredential = MockPublicKeyCredential as any;
-    global.AuthenticatorAssertionResponse = MockAuthenticatorAssertionResponse;
   });
 
   beforeEach(() => {
@@ -131,7 +130,7 @@ describe("WebAuthnLoginStrategy", () => {
     );
 
     // Create credentials
-    const publicKeyCredential = new MockPublicKeyCredential();
+    const publicKeyCredential = mockPublicKeyCredential;
     const deviceResponse = new WebAuthnLoginAssertionResponseRequest(publicKeyCredential);
     const prfKey = new SymmetricCryptoKey(randomBytes(32)) as PrfKey;
     webAuthnCredentials = new WebAuthnLoginCredentials(token, deviceResponse, prfKey);
@@ -351,54 +350,18 @@ function randomBytes(length: number): Uint8Array {
 // AuthenticatorAssertionResponse && PublicKeyCredential are only available in secure contexts
 // so we need to mock them and assign them to the global object to make them available
 // for the tests
-export class MockAuthenticatorAssertionResponse implements AuthenticatorAssertionResponse {
-  clientDataJSON: ArrayBuffer = randomBytes(32).buffer;
-  authenticatorData: ArrayBuffer = randomBytes(196).buffer;
-  signature: ArrayBuffer = randomBytes(72).buffer;
-  userHandle: ArrayBuffer = randomBytes(16).buffer;
+const mockAuthenticatorAssertionResponse: CustomAuthenticatorAssertionResponse = {
+  clientDataJSON: randomBytes(32),
+  authenticatorData: randomBytes(196),
+  signature: randomBytes(72),
+  userHandle: randomBytes(16),
+};
 
-  clientDataJSONB64Str = Utils.fromBufferToUrlB64(this.clientDataJSON);
-  authenticatorDataB64Str = Utils.fromBufferToUrlB64(this.authenticatorData);
-  signatureB64Str = Utils.fromBufferToUrlB64(this.signature);
-  userHandleB64Str = Utils.fromBufferToUrlB64(this.userHandle);
-}
-
-export class MockPublicKeyCredential implements PublicKeyCredential {
-  authenticatorAttachment = "cross-platform";
-  id = "mockCredentialId";
-  type = "public-key";
-  rawId: ArrayBuffer = randomBytes(32).buffer;
-  rawIdB64Str = Utils.fromBufferToB64(this.rawId);
-
-  response: MockAuthenticatorAssertionResponse = new MockAuthenticatorAssertionResponse();
-
-  // Use random 64 character hex string (32 bytes - matters for symmetric key creation)
-  // to represent the prf key binary data and convert to ArrayBuffer
-  // Creating the array buffer from a known hex value allows us to
-  // assert on the value in tests
-  private prfKeyArrayBuffer: ArrayBuffer = Utils.hexStringToArrayBuffer(
-    "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-  );
-
-  getClientExtensionResults(): any {
-    return {
-      prf: {
-        results: {
-          first: this.prfKeyArrayBuffer,
-        },
-      },
-    };
-  }
-
-  static isConditionalMediationAvailable(): Promise<boolean> {
-    return Promise.resolve(false);
-  }
-
-  static isUserVerifyingPlatformAuthenticatorAvailable(): Promise<boolean> {
-    return Promise.resolve(false);
-  }
-
-  toJSON() {
-    throw new Error("Method not implemented.");
-  }
-}
+const mockPublicKeyCredential: CustomPublicKeyCredential = {
+  authenticatorAttachment: "cross-platform",
+  id: "mockCredentialId",
+  type: "public-key",
+  rawId: randomBytes(32),
+  response: mockAuthenticatorAssertionResponse,
+  prf: randomBytes(32),
+};

@@ -2,7 +2,6 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import {
   EnvironmentService,
@@ -54,18 +53,6 @@ describe("DefaultLoginComponentService", () => {
 
   it("creates without error", () => {
     expect(service).toBeTruthy();
-  });
-
-  describe("isLoginWithPasskeySupported", () => {
-    it("returns true when clientType is Web", () => {
-      service["clientType"] = ClientType.Web;
-      expect(service.isLoginWithPasskeySupported()).toBe(true);
-    });
-
-    it("returns false when clientType is not Web", () => {
-      service["clientType"] = ClientType.Desktop;
-      expect(service.isLoginWithPasskeySupported()).toBe(false);
-    });
   });
 
   describe("redirectToSsoLogin", () => {
