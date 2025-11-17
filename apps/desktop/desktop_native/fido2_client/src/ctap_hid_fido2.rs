@@ -14,7 +14,7 @@ use crate::{
 /// Depending on the platform API, the platform MAY do this for you, or may require you to do it manually.
 fn prf_to_hmac(prf_salt: &[u8]) -> [u8; 32] {
     use sha2::Digest;
-    sha2::Sha256::digest(&[b"WebAuthn PRF".as_slice(), &[0], prf_salt].concat()).into()
+    sha2::Sha256::digest([b"WebAuthn PRF".as_slice(), &[0], prf_salt].concat()).into()
 }
 
 fn get_pin() -> Option<String> {
@@ -68,7 +68,7 @@ pub fn get(
     let mut get_assertion_args = make_assertion(
         options.clone(),
         client_data_json.clone(),
-        options.allow_credentials.get(0).map(|v| v.as_slice()),
+        options.allow_credentials.first().map(|v| v.as_slice()),
     )?;
 
     let pin: String;
@@ -101,9 +101,9 @@ pub fn get(
         assertions = device
             .get_assertion_with_args(&get_assertion_args.build())
             .map_err(|_e| Fido2ClientError::AssertionError)?;
-        assertions.get(0).ok_or(Fido2ClientError::AssertionError)?
+        assertions.first().ok_or(Fido2ClientError::AssertionError)?
     } else {
-        assertions.get(0).ok_or(Fido2ClientError::AssertionError)?
+        assertions.first().ok_or(Fido2ClientError::AssertionError)?
     };
 
     let prf_extension = assertion
