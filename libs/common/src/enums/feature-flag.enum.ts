@@ -69,6 +69,7 @@ export enum FeatureFlag {
   IpcChannelFramework = "ipc-channel-framework",
   InactiveUserServerNotification = "pm-25130-receive-push-notifications-for-inactive-users",
   PushNotificationsWhenLocked = "pm-19388-push-notifications-when-locked",
+  WebPushForEdgeAndOpera = "pm-23694-web-push-for-edge-opera",
 
   /* Innovation */
   PM19148_InnovationArchive = "pm-19148-innovation-archive",
@@ -147,6 +148,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.IpcChannelFramework]: FALSE,
   [FeatureFlag.InactiveUserServerNotification]: FALSE,
   [FeatureFlag.PushNotificationsWhenLocked]: FALSE,
+  [FeatureFlag.WebPushForEdgeAndOpera]: FALSE,
 
   /* Innovation */
   [FeatureFlag.PM19148_InnovationArchive]: FALSE,

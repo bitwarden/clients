@@ -12,6 +12,7 @@ import {
   withLatestFrom,
 } from "rxjs";
 
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { PushTechnology } from "../../../enums/push-technology.enum";
 import { NotificationResponse } from "../../../models/response/notification.response";
 import { UserId } from "../../../types/guid";
@@ -78,33 +79,41 @@ export class WorkerWebPushConnectionService implements WebPushConnectionService 
   supportStatus$(userId: UserId): Observable<SupportStatus<WebPushConnector>> {
     // Check the server config to see if it supports sending WebPush server notifications
     // FIXME: get config of server for the specified userId, once ConfigService supports it
-    return this.configService.serverConfig$.pipe(
-      map((config) =>
-        config?.push?.pushTechnology === PushTechnology.WebPush ? config.push.vapidPublicKey : null,
-      ),
-      // No need to re-emit when there is new server config if the vapidPublicKey is still there and the exact same
-      distinctUntilChanged(),
-      map((publicKey) => {
-        if (publicKey == null) {
-          return {
-            type: "not-supported",
-            reason: "server-not-configured",
-          } satisfies SupportStatus<WebPushConnector>;
-        }
 
-        return {
-          type: "supported",
-          service: new MyWebPushConnector(
-            publicKey,
-            userId,
-            this.webPushApiService,
-            this.serviceWorkerRegistration,
-            this.pushEvent,
-            this.pushChangeEvent,
-            this.stateProvider,
-            this.userVisibleOnly,
+    return this.configService.getFeatureFlag$(FeatureFlag.WebPushForEdgeAndOpera).pipe(
+      distinctUntilChanged(),
+      switchMap((webPushForEdgeAndOpera) => {
+        return this.configService.serverConfig$.pipe(
+          map((config) =>
+            config?.push?.pushTechnology === PushTechnology.WebPush
+              ? config.push.vapidPublicKey
+              : null,
           ),
-        } satisfies SupportStatus<WebPushConnector>;
+          // No need to re-emit when there is new server config if the vapidPublicKey is still there and the exact same
+          distinctUntilChanged(),
+          map((publicKey) => {
+            if (publicKey == null) {
+              return {
+                type: "not-supported",
+                reason: "server-not-configured",
+              } satisfies SupportStatus<WebPushConnector>;
+            }
+
+            return {
+              type: "supported",
+              service: new MyWebPushConnector(
+                publicKey,
+                userId,
+                this.webPushApiService,
+                this.serviceWorkerRegistration,
+                this.pushEvent,
+                this.pushChangeEvent,
+                this.stateProvider,
+                this.userVisibleOnly && webPushForEdgeAndOpera,
+              ),
+            } satisfies SupportStatus<WebPushConnector>;
+          }),
+        );
       }),
     );
   }
