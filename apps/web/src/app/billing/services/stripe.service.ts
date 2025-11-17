@@ -201,11 +201,36 @@ export class StripeService {
 
   /**
    * Removes {@link https://docs.stripe.com/js} from the <head> element of the current page as well as all
-   * Stripe-managed <iframe> elements.
+   * Stripe-managed <iframe> elements. Also properly unmounts Stripe elements to prevent memory leaks.
    */
   unloadStripe() {
+    // Unmount Stripe elements if they exist
+    if (this.elements) {
+      try {
+        const cardNumber = this.elements.getElement("cardNumber");
+        const cardExpiry = this.elements.getElement("cardExpiry");
+        const cardCVC = this.elements.getElement("cardCvc");
+
+        if (cardNumber) {cardNumber.unmount();}
+        if (cardExpiry) {cardExpiry.unmount();}
+        if (cardCVC) {cardCVC.unmount();}
+      } catch (error) {
+        this.logService.error("Error unmounting Stripe elements:", error);
+      }
+    }
+
+    // Reset state
+    this.elements = null;
+    this.stripe = null;
+    this.elementIds = null;
+
+    // Remove Stripe script
     const script = window.document.getElementById("stripe-script");
-    window.document.head.removeChild(script);
+    if (script) {
+      window.document.head.removeChild(script);
+    }
+
+    // Remove Stripe iframes
     window.setTimeout(() => {
       const iFrames = Array.from(window.document.querySelectorAll("iframe")).filter(
         (element) => element.src != null && element.src.indexOf("stripe") > -1,

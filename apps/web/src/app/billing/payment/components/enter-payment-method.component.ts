@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { map, Observable, of, startWith, Subject, takeUntil } from "rxjs";
 
@@ -82,10 +82,10 @@ type PaymentMethodFormGroup = FormGroup<{
         @case ("card") {
           <div class="tw-grid tw-grid-cols-2 tw-gap-4 tw-mb-4">
             <div class="tw-col-span-1">
-              <app-payment-label for="stripe-card-number" required>
+              <app-payment-label [for]="'stripe-card-number-' + instanceId" required>
                 {{ "cardNumberLabel" | i18n }}
               </app-payment-label>
-              <div id="stripe-card-number" class="tw-stripe-form-control"></div>
+              <div [id]="'stripe-card-number-' + instanceId" class="tw-stripe-form-control"></div>
             </div>
             <div class="tw-col-span-1 tw-flex tw-items-end">
               <img
@@ -95,13 +95,13 @@ type PaymentMethodFormGroup = FormGroup<{
               />
             </div>
             <div class="tw-col-span-1">
-              <app-payment-label for="stripe-card-expiry" required>
+              <app-payment-label [for]="'stripe-card-expiry-' + instanceId" required>
                 {{ "expiration" | i18n }}
               </app-payment-label>
-              <div id="stripe-card-expiry" class="tw-stripe-form-control"></div>
+              <div [id]="'stripe-card-expiry-' + instanceId" class="tw-stripe-form-control"></div>
             </div>
             <div class="tw-col-span-1">
-              <app-payment-label for="stripe-card-cvc" required>
+              <app-payment-label [for]="'stripe-card-cvc-' + instanceId" required>
                 {{ "securityCodeSlashCVV" | i18n }}
                 <button
                   [bitPopoverTriggerFor]="cardSecurityCodePopover"
@@ -115,7 +115,7 @@ type PaymentMethodFormGroup = FormGroup<{
                   <p class="tw-mb-0">{{ "cardSecurityCodeDescription" | i18n }}</p>
                 </bit-popover>
               </app-payment-label>
-              <div id="stripe-card-cvc" class="tw-stripe-form-control"></div>
+              <div [id]="'stripe-card-cvc-' + instanceId" class="tw-stripe-form-control"></div>
             </div>
           </div>
         }
@@ -233,7 +233,10 @@ type PaymentMethodFormGroup = FormGroup<{
   standalone: true,
   imports: [BillingServicesModule, PaymentLabelComponent, PopoverModule, SharedModule],
 })
-export class EnterPaymentMethodComponent implements OnInit {
+export class EnterPaymentMethodComponent implements OnInit, OnDestroy {
+  // Generate unique ID for this component instance to avoid conflicts when multiple instances exist
+  protected instanceId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) group!: PaymentMethodFormGroup;
@@ -270,9 +273,9 @@ export class EnterPaymentMethodComponent implements OnInit {
   ngOnInit() {
     this.stripeService.loadStripe(
       {
-        cardNumber: "#stripe-card-number",
-        cardExpiry: "#stripe-card-expiry",
-        cardCvc: "#stripe-card-cvc",
+        cardNumber: `#stripe-card-number-${this.instanceId}`,
+        cardExpiry: `#stripe-card-expiry-${this.instanceId}`,
+        cardCvc: `#stripe-card-cvc-${this.instanceId}`,
       },
       true,
     );
@@ -328,6 +331,12 @@ export class EnterPaymentMethodComponent implements OnInit {
         this.select("card");
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.stripeService.unloadStripe();
   }
 
   select = (paymentMethod: PaymentMethodOption) =>
