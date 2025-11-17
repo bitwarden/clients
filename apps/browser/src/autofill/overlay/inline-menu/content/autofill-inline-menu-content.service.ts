@@ -257,6 +257,10 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * to create the element if it already exists in the DOM.
    */
   private createButtonElement() {
+    if (!this.inlineMenuEnabled) {
+      return;
+    }
+
     if (this.isFirefoxBrowser) {
       this.buttonElement = globalThis.document.createElement("div");
       this.buttonElement.setAttribute("popover", "manual");
@@ -287,6 +291,10 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * to create the element if it already exists in the DOM.
    */
   private createListElement() {
+    if (!this.inlineMenuEnabled) {
+      return;
+    }
+
     if (this.isFirefoxBrowser) {
       this.listElement = globalThis.document.createElement("div");
       this.listElement.setAttribute("popover", "manual");
@@ -556,7 +564,15 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     return otherTopLayeritems;
   };
 
-  checkAndUpdateRefreshCount = (countType: BackoffCheckType) => {
+  /**
+   * Internally track owned injected experience refreshes as a side-effect
+   * of host page interference.
+   */
+  private checkAndUpdateRefreshCount = (countType: BackoffCheckType) => {
+    if (!this.inlineMenuEnabled) {
+      return;
+    }
+
     const { countLimit, timeSpanLimit } = experienceValidationBackoffThresholds[countType];
     const now = Date.now();
     const timeSinceLastTrackedRefresh = now - this.lastTrackedTimestamp[countType];
@@ -580,9 +596,9 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     }
   };
 
-  refreshPopoverAttribute = (element: HTMLElement) => {
-    element.setAttribute("popover", "manual");
+  private refreshPopoverAttribute = (element: HTMLElement) => {
     this.checkAndUpdateRefreshCount("popoverAttribute");
+    element.setAttribute("popover", "manual");
     element.showPopover();
   };
 
@@ -627,20 +643,21 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * `body` (enforced elsewhere).
    */
   private getPageIsOpaque = () => {
-    // These are computed style values, so we don't need to worry about non-float values
-    // for `opacity`, here
     // @TODO for definitive checks, traverse up the node tree from the inline menu container;
     // nodes can exist between `html` and `body`
-    const htmlElements = globalThis.document.querySelectorAll("html");
-    const bodyElements = globalThis.document.querySelectorAll("body");
+    /**
+     * `querySelectorAll` for (non-standard) cases where the page has additional copies of
+     * page nodes that should be unique
+     */
+    const pageElements = globalThis.document.querySelectorAll("html, body");
 
-    if (!htmlElements.length || !bodyElements.length) {
+    if (!pageElements.length) {
       return false;
     }
 
-    const pageElements = [...htmlElements, ...bodyElements];
-
-    return pageElements.every((element) => {
+    return [...pageElements].every((element) => {
+      // These are computed style values, so we don't need to worry about non-float values
+      // for `opacity`, here
       const elementOpacity = globalThis.window.getComputedStyle(element)?.opacity || "0";
 
       // Any value above this is considered "opaque" for our purposes
