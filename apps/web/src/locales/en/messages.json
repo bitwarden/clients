@@ -93,7 +93,7 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Assign members tasks to monitor progress"
   },
-  "onceYouReviewApps": {
+  "onceYouReviewApplications": {
     "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
   },
   "sendReminders": {
@@ -301,7 +301,7 @@
       }
     }
   },
-  "atRiskMembersDescription": {
+  "atRiskMemberDescription": {
     "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionNone": {
@@ -385,13 +385,13 @@
   "prioritizeCriticalApplications": {
     "message": "Prioritize critical applications"
   },
-  "selectCriticalApplicationsDescription": {
+  "selectCriticalAppsDescription": {
     "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "reviewNewApplications": {
     "message": "Review new applications"
   },
-  "reviewNewApplicationsDescription": {
+  "reviewNewAppsDescription": {
     "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "clickIconToMarkAppAsCritical": {
