@@ -17,8 +17,14 @@ import { createNewSummaryData } from "@bitwarden/bit-common/dirt/reports/risk-in
 import { OrganizationReportSummary } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { NoItemsModule, SearchModule, TableDataSource, ToastService } from "@bitwarden/components";
-import { CardComponent } from "@bitwarden/dirt-card";
+import {
+  LinkModule,
+  NoItemsModule,
+  SearchModule,
+  TableDataSource,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
@@ -33,13 +39,14 @@ import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks
   selector: "dirt-critical-applications",
   templateUrl: "./critical-applications.component.html",
   imports: [
-    CardComponent,
     HeaderModule,
+    LinkModule,
     SearchModule,
     NoItemsModule,
     PipesModule,
     SharedModule,
     AppTableRowScrollableComponent,
+    TypographyModule,
   ],
 })
 export class CriticalApplicationsComponent implements OnInit {
