@@ -5193,6 +5193,7 @@ dependencies = [
  "uuid",
  "webauthn-rs-core",
  "webauthn-rs-proto",
+ "windows 0.41.0",
 ]
 
 [[package]]

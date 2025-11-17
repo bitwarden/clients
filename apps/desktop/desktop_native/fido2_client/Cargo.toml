@@ -14,7 +14,7 @@ serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 secrecy = "0.8.0"
 hex.workspace = true
-webauthn-authenticator-rs = { version = "0.5.3", features = ["ctap2", "cable", "usb"] }
+webauthn-authenticator-rs = { version = "0.5.3", features = ["ctap2", "cable", "usb", "win10"] }
 tokio.workspace = true
 futures-util = "0.3.31"
 webauthn-rs-proto = "0.5.3"
