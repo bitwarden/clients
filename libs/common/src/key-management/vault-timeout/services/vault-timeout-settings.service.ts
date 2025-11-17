@@ -188,10 +188,9 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
 
     switch (maxSessionTimeoutPolicyData.type) {
       case "immediately":
-        if (await this.sessionTimeoutTypeService.isAvailable(VaultTimeoutNumberType.Immediately)) {
-          return VaultTimeoutNumberType.Immediately;
-        }
-        return VaultTimeoutNumberType.OnMinute;
+        return await this.sessionTimeoutTypeService.getHighestAvailable(
+          VaultTimeoutNumberType.Immediately,
+        );
       case "custom":
       case null:
       case undefined:
@@ -209,10 +208,9 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
           currentVaultTimeout === VaultTimeoutStringType.OnIdle ||
           currentVaultTimeout === VaultTimeoutStringType.OnSleep
         ) {
-          if (await this.sessionTimeoutTypeService.isAvailable(VaultTimeoutStringType.OnLocked)) {
-            return VaultTimeoutStringType.OnLocked;
-          }
-          return VaultTimeoutStringType.OnRestart;
+          return await this.sessionTimeoutTypeService.getHighestAvailable(
+            VaultTimeoutStringType.OnLocked,
+          );
         }
         break;
       case "onAppRestart":
@@ -226,11 +224,10 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
         }
         break;
       case "never":
-        if (
-          currentVaultTimeout === VaultTimeoutStringType.Never &&
-          !(await this.sessionTimeoutTypeService.isAvailable(VaultTimeoutStringType.Never))
-        ) {
-          return VaultTimeoutStringType.OnRestart;
+        if (currentVaultTimeout === VaultTimeoutStringType.Never) {
+          return await this.sessionTimeoutTypeService.getHighestAvailable(
+            VaultTimeoutStringType.Never,
+          );
         }
         break;
     }
@@ -331,7 +328,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
 
     return this.policyService.policiesByType$(PolicyType.MaximumVaultTimeout, userId).pipe(
       getFirstPolicy,
-      map((policy) => (policy?.data as MaximumSessionTimeoutPolicyData) ?? null),
+      map((policy) => (policy?.data ?? null) as MaximumSessionTimeoutPolicyData | null),
     );
   }
 

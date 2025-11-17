@@ -39,7 +39,10 @@ import {
   VaultTimeoutOption,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
-import { VaultTimeoutNumberType } from "@bitwarden/common/key-management/vault-timeout/types/vault-timeout.type";
+import {
+  isVaultTimeoutTypeNumeric,
+  VaultTimeoutNumberType,
+} from "@bitwarden/common/key-management/vault-timeout/types/vault-timeout.type";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FormFieldModule, SelectModule } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
@@ -295,45 +298,52 @@ export class SessionTimeoutInputComponent implements ControlValueAccessor, Valid
   private async getPolicyTimeoutMessage(
     policyData: MaximumSessionTimeoutPolicyData,
   ): Promise<string | null> {
-    const type = policyData.type;
+    const timeout = await this.getPolicyAppliedTimeout(policyData);
 
-    switch (type) {
-      case "immediately": {
-        if (await this.sessionTimeoutTypeService.isAvailable(VaultTimeoutNumberType.Immediately)) {
-          return this.i18nService.t("sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately");
-        } else {
+    switch (timeout) {
+      case VaultTimeoutNumberType.Immediately:
+        return this.i18nService.t("sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately");
+      case VaultTimeoutStringType.OnLocked:
+        return this.i18nService.t("sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked");
+      case VaultTimeoutStringType.OnRestart:
+        return this.i18nService.t("sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart");
+      case null:
+        return null;
+      default:
+        if (isVaultTimeoutTypeNumeric(timeout)) {
+          const hours = Math.floor(policyData.minutes / 60);
+          const minutes = policyData.minutes % 60;
           return this.i18nService.t(
             "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes",
-            0,
-            1,
+            hours,
+            minutes,
           );
         }
-      }
-      case "onSystemLock": {
-        if (await this.sessionTimeoutTypeService.isAvailable(VaultTimeoutStringType.OnLocked)) {
-          return this.i18nService.t("sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked");
-        } else {
-          return this.i18nService.t("sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart");
-        }
-      }
-      case "onAppRestart":
-        return this.i18nService.t("sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart");
-      case "never":
-        if (await this.sessionTimeoutTypeService.isAvailable(VaultTimeoutStringType.Never)) {
-          return null;
-        } else {
-          return this.i18nService.t("sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart");
-        }
-      case "custom":
-      default: {
-        const hours = Math.floor(policyData.minutes / 60);
-        const minutes = policyData.minutes % 60;
-        return this.i18nService.t(
-          "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes",
-          hours,
-          minutes,
+        throw new Error("Invalid timeout parameter");
+    }
+  }
+
+  private async getPolicyAppliedTimeout(
+    policyData: MaximumSessionTimeoutPolicyData,
+  ): Promise<VaultTimeout | null> {
+    switch (policyData.type) {
+      case "immediately":
+        return await this.sessionTimeoutTypeService.getHighestAvailable(
+          VaultTimeoutNumberType.Immediately,
         );
-      }
+      case "onSystemLock":
+        return await this.sessionTimeoutTypeService.getHighestAvailable(
+          VaultTimeoutStringType.OnLocked,
+        );
+      case "onAppRestart":
+        return VaultTimeoutStringType.OnRestart;
+      case "never":
+        return await this.sessionTimeoutTypeService.getHighestAvailable(
+          VaultTimeoutStringType.Never,
+        );
+      case "custom":
+      default:
+        return policyData.minutes;
     }
   }
 }

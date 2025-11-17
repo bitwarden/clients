@@ -1,4 +1,4 @@
-import { combineLatest, defer, map, Observable } from "rxjs";
+import { combineLatest, concatMap, defer, map, Observable } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -46,50 +46,64 @@ export class SessionTimeoutSettingsComponentService {
   }
 
   policyFilteredTimeoutOptions$(userId: UserId): Observable<VaultTimeoutOption[]> {
+    const policyData$ = this.policyService
+      .policiesByType$(PolicyType.MaximumVaultTimeout, userId)
+      .pipe(
+        getFirstPolicy,
+        map((policy) => (policy?.data ?? null) as MaximumSessionTimeoutPolicyData | null),
+      );
+
     return combineLatest([
       this.availableTimeoutOptions$,
-      this.policyService
-        .policiesByType$(PolicyType.MaximumVaultTimeout, userId)
-        .pipe(getFirstPolicy),
+      policyData$,
+      policyData$.pipe(
+        concatMap(async (policyData) => {
+          if (policyData == null) {
+            return null;
+          }
+          switch (policyData.type) {
+            case "immediately":
+              return await this.sessionTimeoutTypeService.getHighestAvailable(
+                VaultTimeoutNumberType.Immediately,
+              );
+            case "onSystemLock":
+              return await this.sessionTimeoutTypeService.getHighestAvailable(
+                VaultTimeoutStringType.OnLocked,
+              );
+          }
+
+          return null;
+        }),
+      ),
     ]).pipe(
-      map(([options, policy]) => {
-        if (policy == null) {
-          return options;
+      concatMap(async ([availableOptions, policyData, highestPolicyTypeAvailableTimeout]) => {
+        if (policyData == null) {
+          return availableOptions;
         }
 
-        const policyData = policy.data as MaximumSessionTimeoutPolicyData;
-        const policyType = policyData.type;
-
-        return options.filter((option) => {
-          switch (policyType) {
+        return availableOptions.filter((option) => {
+          switch (policyData.type) {
             case "immediately": {
-              // Policy requires immediate lock. If "immediately" is available, use it.
-              // Otherwise, fall back to the lowest available option (1 minute)
-              const hasImmediately = options.some(
-                (opt) => opt.value === VaultTimeoutNumberType.Immediately,
-              );
-              if (hasImmediately) {
-                return option.value === VaultTimeoutNumberType.Immediately;
-              }
-              return option.value === VaultTimeoutNumberType.OnMinute;
+              // Policy requires immediate lock.
+              return option.value === highestPolicyTypeAvailableTimeout;
             }
 
-            case "onSystemLock":
-              // Allow immediately, numeric values, custom, and any system lock-related options
+            case "onSystemLock": {
+              // Allow immediately, numeric values, custom, and any system lock-related options.
               if (
                 option.value === VaultTimeoutNumberType.Immediately ||
                 isVaultTimeoutTypeNumeric(option.value) ||
-                option.value === VaultTimeoutStringType.Custom
+                option.value === VaultTimeoutStringType.Custom ||
+                option.value === VaultTimeoutStringType.OnLocked ||
+                option.value === VaultTimeoutStringType.OnIdle ||
+                option.value === VaultTimeoutStringType.OnSleep
               ) {
                 return true;
               }
 
-              return (
-                option.value === VaultTimeoutStringType.OnLocked ||
-                option.value === VaultTimeoutStringType.OnIdle ||
-                option.value === VaultTimeoutStringType.OnSleep ||
-                option.value === VaultTimeoutStringType.OnRestart
-              );
+              // When on locked is not supported, fallback.
+              return option.value === highestPolicyTypeAvailableTimeout;
+            }
 
             case "onAppRestart":
               // Allow immediately, numeric values, custom, and on app restart
@@ -116,7 +130,7 @@ export class SessionTimeoutSettingsComponentService {
               return true;
 
             default:
-              throw Error(`Unsupported policy type: ${policyType}`);
+              throw Error(`Unsupported policy type: ${policyData.type}`);
           }
         });
       }),

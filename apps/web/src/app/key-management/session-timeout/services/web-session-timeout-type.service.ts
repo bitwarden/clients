@@ -30,4 +30,17 @@ export class WebSessionTimeoutTypeService implements SessionTimeoutTypeService {
 
     return false;
   }
+
+  async getHighestAvailable(type: VaultTimeout): Promise<VaultTimeout> {
+    const available = await this.isAvailable(type);
+    if (!available) {
+      switch (type) {
+        case VaultTimeoutNumberType.Immediately:
+          return VaultTimeoutNumberType.OnMinute;
+        default:
+          return VaultTimeoutStringType.OnRestart;
+      }
+    }
+    return type;
+  }
 }

@@ -11,6 +11,7 @@ export const VaultTimeoutStringType = {
 export const VaultTimeoutNumberType = {
   Immediately: 0,
   OnMinute: 1,
+  EightHours: 8 * 60,
 };
 
 export type VaultTimeout =

@@ -30,4 +30,19 @@ export class DesktopSessionTimeoutTypeService implements SessionTimeoutTypeServi
 
     return false;
   }
+
+  async getHighestAvailable(type: VaultTimeout): Promise<VaultTimeout> {
+    const available = await this.isAvailable(type);
+    if (!available) {
+      switch (type) {
+        case VaultTimeoutNumberType.Immediately:
+          return VaultTimeoutNumberType.OnMinute;
+        case VaultTimeoutStringType.OnLocked:
+          return VaultTimeoutStringType.OnSleep;
+        default:
+          return VaultTimeoutStringType.OnRestart;
+      }
+    }
+    return type;
+  }
 }
