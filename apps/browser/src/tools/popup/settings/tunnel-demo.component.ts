@@ -50,6 +50,7 @@ import { TunnelService } from "./tunnel.service";
 export class TunnelDemoComponent {
   protected formGroup = this.formBuilder.group({
     tunnelUsername: ["", Validators.required],
+    useNoiseProtocol: [false],
   });
 
   constructor(
@@ -125,17 +126,30 @@ export class TunnelDemoComponent {
     }
 
     // Send credentials to the localhost tunnel server
-    try {
-      await this.tunnelService.sendCredentials({ tunnelUsername, username, password });
+    const useNoiseProtocol = this.formGroup.value.useNoiseProtocol ?? false;
 
-      await this.dialogService.openSimpleDialog({
-        title: "Tunnel Demo - Success",
-        content: `Credentials successfully sent to tunnel server.\n\nUsername:
-          ${username}\nPassword: ${password.replace(/./g, "*")}`,
-        type: "success",
-        acceptButtonText: { key: "ok" },
-        cancelButtonText: null,
-      });
+    try {
+      if (useNoiseProtocol) {
+        await this.tunnelService.sendCredentialsWithNoise({ tunnelUsername, username, password });
+
+        await this.dialogService.openSimpleDialog({
+          title: "Tunnel Demo - Success (Noise Protocol)",
+          content: `Encrypted credentials successfully sent to tunnel server using Noise Protocol (XXpsk3).\n\nUsername: ${username}\nPassword: ${password.replace(/./g, "*")}`,
+          type: "success",
+          acceptButtonText: { key: "ok" },
+          cancelButtonText: null,
+        });
+      } else {
+        await this.tunnelService.sendCredentials({ tunnelUsername, username, password });
+
+        await this.dialogService.openSimpleDialog({
+          title: "Tunnel Demo - Success",
+          content: `Credentials successfully sent to tunnel server.\n\nUsername: ${username}\nPassword: ${password.replace(/./g, "*")}`,
+          type: "success",
+          acceptButtonText: { key: "ok" },
+          cancelButtonText: null,
+        });
+      }
     } catch (error) {
       await this.dialogService.openSimpleDialog({
         title: "Tunnel Demo - Error",

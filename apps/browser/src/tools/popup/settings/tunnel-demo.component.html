@@ -16,6 +16,18 @@
           <input bitInput type="text" formControlName="tunnelUsername" />
           <bit-hint>Enter your username to connect to the remote tunnel.</bit-hint>
         </bit-form-field>
+        <bit-form-field>
+          <input
+            type="checkbox"
+            bitCheckbox
+            formControlName="useNoiseProtocol"
+            id="useNoiseProtocol"
+          />
+          <bit-label for="useNoiseProtocol">Use Noise Protocol (XXpsk3) Encryption</bit-label>
+          <bit-hint
+            >Enable end-to-end encryption using the Noise Protocol Framework with WASM.</bit-hint
+          >
+        </bit-form-field>
         <button bitButton buttonType="primary" type="submit" [disabled]="formGroup.invalid">
           {{ "demoRetrieve" | i18n }}
         </button>
