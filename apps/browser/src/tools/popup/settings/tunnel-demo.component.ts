@@ -49,7 +49,7 @@ import { TunnelService } from "./tunnel.service";
 })
 export class TunnelDemoComponent {
   protected formGroup = this.formBuilder.group({
-    vaultItemName: ["", Validators.required],
+    tunnelUsername: ["", Validators.required],
   });
 
   constructor(
@@ -65,12 +65,13 @@ export class TunnelDemoComponent {
       return;
     }
 
-    const vaultItemName = this.formGroup.value.vaultItemName?.trim();
+    const tunnelUsername = this.formGroup.value.tunnelUsername?.trim();
+    const vaultItemName = "Bitwarden Tunnel Demo";
 
-    if (!vaultItemName) {
+    if (!tunnelUsername) {
       await this.dialogService.openSimpleDialog({
         title: "Tunnel Demo",
-        content: "No vault item name provided.",
+        content: "No tunnel username provided.",
         type: "warning",
         acceptButtonText: { key: "ok" },
         cancelButtonText: null,
@@ -125,7 +126,7 @@ export class TunnelDemoComponent {
 
     // Send credentials to the localhost tunnel server
     try {
-      await this.tunnelService.sendCredentials({ username, password });
+      await this.tunnelService.sendCredentials({ tunnelUsername, username, password });
 
       await this.dialogService.openSimpleDialog({
         title: "Tunnel Demo - Success",

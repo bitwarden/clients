@@ -12,9 +12,9 @@
     <bit-card>
       <form [formGroup]="formGroup" (ngSubmit)="submit()">
         <bit-form-field>
-          <bit-label>{{ "vaultItemName" | i18n }}</bit-label>
-          <input bitInput type="text" formControlName="vaultItemName" />
-          <bit-hint>Enter the name of the vault item to retrieve credentials from.</bit-hint>
+          <bit-label>{{ "tunnelUsername" | i18n }}</bit-label>
+          <input bitInput type="text" formControlName="tunnelUsername" />
+          <bit-hint>Enter your username to connect to the remote tunnel.</bit-hint>
         </bit-form-field>
         <button bitButton buttonType="primary" type="submit" [disabled]="formGroup.invalid">
           {{ "demoRetrieve" | i18n }}

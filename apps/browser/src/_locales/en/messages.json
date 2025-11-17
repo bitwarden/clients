@@ -3775,7 +3775,7 @@
     "message": "Devices"
   },
   "triggerTunnelDemo": {
-    "message": "Trigger tunnel demo ⚠️"
+    "message": "Run tunnel demo test ⚠️"
   },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",
@@ -4764,7 +4764,7 @@
     "message": "For demo use only. Credentials will be sent over secure tunnel."
   },
   "demoRetrieve": {
-    "message": "Fetch"
+    "message": "Connect to Tunnel"
   },
   "notifications": {
     "message": "Notifications"

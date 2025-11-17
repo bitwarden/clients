@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 export interface TunnelCredentials {
+  tunnelUsername: string;
   username: string;
   password: string;
 }

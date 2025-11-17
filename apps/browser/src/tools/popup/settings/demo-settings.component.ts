@@ -6,7 +6,6 @@ import { RouterModule } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
-  CardComponent,
   ItemModule,
   SectionComponent,
   SectionHeaderComponent,
@@ -22,7 +21,6 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 @Component({
   templateUrl: "demo-settings.component.html",
   imports: [
-    CardComponent,
     CommonModule,
     ItemModule,
     JslibModule,
