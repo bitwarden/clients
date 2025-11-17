@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Ett fel uppstod vid aktivering av webbläsarintegration."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Tyvärr stöds webbläsarintegration för tillfället endast i versionen från Mac App Store."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Tyvärr stöds webbläsarintegration för tillfället inte i versionen från Windows Store."
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Uppgradera till Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Tidsgränsåtgärd"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sessionstidsgräns"
   }
 }

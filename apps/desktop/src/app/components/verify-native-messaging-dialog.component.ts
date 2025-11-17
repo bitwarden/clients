@@ -1,7 +1,13 @@
 import { Component, Inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { DIALOG_DATA, ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  ButtonModule,
+  DialogModule,
+  DialogService,
+  CenterPositionStrategy,
+} from "@bitwarden/components";
 
 export type VerifyNativeMessagingDialogData = {
   applicationName: string;
@@ -19,6 +25,7 @@ export class VerifyNativeMessagingDialogComponent {
   static open(dialogService: DialogService, data: VerifyNativeMessagingDialogData) {
     return dialogService.open<boolean>(VerifyNativeMessagingDialogComponent, {
       data,
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 }

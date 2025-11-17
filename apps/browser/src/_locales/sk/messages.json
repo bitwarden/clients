@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "Zobraziť všetky"
   },
+  "viewLess": {
+    "message": "Zobraziť menej"
+  },
   "viewLogin": {
     "message": "Zobraziť prihlásenie"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Keď je systém uzamknutý"
+  },
+  "onIdle": {
+    "message": "Pri nečinnosti systému"
+  },
+  "onSleep": {
+    "message": "V režime spánku"
   },
   "onRestart": {
     "message": "Po reštarte prehliadača"
@@ -5800,6 +5809,12 @@
   "upgradeToPremium": {
     "message": "Upgradovať na Prémium"
   },
+  "loadingVault": {
+    "message": "Načítava sa trezor"
+  },
+  "vaultLoaded": {
+    "message": "Trezor sa načítal"
+  },
   "settingDisabledByPolicy": {
     "message": "Politika organizácie vypla toto nastavenie.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5824,8 @@
   },
   "cardNumberLabel": {
     "message": "Číslo karty"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Akcia pri vypršaní časového limitu"
   }
 }
