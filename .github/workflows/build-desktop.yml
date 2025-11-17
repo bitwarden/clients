@@ -871,6 +871,8 @@ jobs:
             -NewName bitwarden-beta-$env:_PACKAGE_VERSION-x64.nsis.7z
           Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-$env:_PACKAGE_VERSION-arm64.nsis.7z `
             -NewName bitwarden-beta-$env:_PACKAGE_VERSION-arm64.nsis.7z
+          Rename-Item -Path .\dist\nsis-web\latest.yml `
+            -NewName latest-beta.yml
 
       - name: Upload portable exe artifact
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
@@ -963,8 +965,8 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
-          name: ${{ needs.setup.outputs.release_channel }}-beta.yml
-          path: apps/desktop/dist/nsis-web/${{ needs.setup.outputs.release_channel }}.yml
+          name: latest-beta.yml
+          path: apps/desktop/dist/nsis-web/latest-beta.yml
           if-no-files-found: error
 
   macos-build:
