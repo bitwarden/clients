@@ -133,12 +133,13 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     FeatureFlag.VaultLoadingSkeletons,
   );
 
+  private showPremiumNudgeSpotlight$ = this.activeUserId$.pipe(
+    switchMap((userId) => this.nudgesService.showNudgeSpotlight$(NudgeType.PremiumUpgrade, userId)),
+  );
+
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
   protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
-  protected showPremiumNudgeSpotlight$ = this.activeUserId$.pipe(
-    switchMap((userId) => this.nudgesService.showNudgeSpotlight$(NudgeType.PremiumUpgrade, userId)),
-  );
   protected cipherCount$ = this.vaultPopupItemsService.cipherCount$;
   protected hasPremium$ = this.activeUserId$.pipe(
     switchMap((userId) => this.billingAccountService.hasPremiumFromAnySource$(userId)),
