@@ -4,17 +4,17 @@ on:
   pull_request:
     types: [opened, synchronize]
     branches-ignore:
-      - 'l10n_master'
-      - 'cf-pages'
+      - "l10n_master"
+      - "cf-pages"
     paths-ignore:
-      - '.github/workflows/**'
+      - ".github/workflows/**"
   push:
     branches:
-      - 'main'
-      - 'rc'
-      - 'hotfix-rc-*'
+      - "main"
+      - "rc"
+      - "hotfix-rc-*"
     paths-ignore:
-      - '.github/workflows/**'
+      - ".github/workflows/**"
   workflow_dispatch:
     inputs: {}
 
@@ -65,8 +65,8 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
 
       - name: Install Node dependencies
@@ -100,6 +100,12 @@ jobs:
 
       - name: Check Rust version
         run: rustup --version
+
+      - name: Install linux dependencies
+        if: ${{ matrix.os=='ubuntu-24.04' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libudev-dev
 
       - name: Run cargo fmt
         working-directory: ./apps/desktop/desktop_native
