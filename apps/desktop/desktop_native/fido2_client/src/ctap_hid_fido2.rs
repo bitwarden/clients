@@ -30,7 +30,7 @@ fn get_pin() -> Option<String> {
     }
 }
 
-pub fn available() -> bool {
+pub(crate) fn available() -> bool {
     true
 }
 
@@ -54,7 +54,7 @@ fn make_assertion(
     Ok(get_assertion_args)
 }
 
-pub fn get(
+pub(crate) fn get(
     options: PublicKeyCredentialRequestOptions,
 ) -> Result<PublicKeyCredential, Fido2ClientError> {
     let device = FidoKeyHidFactory::create(&Cfg::init()).map_err(|_| Fido2ClientError::NoDevice)?;
