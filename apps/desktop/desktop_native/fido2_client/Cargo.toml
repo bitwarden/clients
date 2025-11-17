@@ -6,7 +6,7 @@ version = { workspace = true }
 publish = { workspace = true }
 
 [features]
-default = ["ctap-hid-fido2"]
+default = []
 ctap-hid-fido2 = ["dep:ctap-hid-fido2", "dep:pinentry", "dep:secrecy"]
 
 [dependencies]
