@@ -4,6 +4,9 @@
  */
 
 import { trackEmissions } from "@bitwarden/common/../spec/utils";
+import { mock, MockProxy } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/logging";
 
 import { mockPorts } from "../../../spec/mock-port.spec-util";
 
@@ -14,11 +17,13 @@ import { ForegroundMemoryStorageService } from "./foreground-memory-storage.serv
 describe.skip("foreground background memory storage interaction", () => {
   let foreground: ForegroundMemoryStorageService;
   let background: BackgroundMemoryStorageService;
+  let logService: MockProxy<LogService>;
 
   beforeEach(() => {
     mockPorts();
+    logService = mock();
 
-    background = new BackgroundMemoryStorageService();
+    background = new BackgroundMemoryStorageService(logService);
     foreground = new ForegroundMemoryStorageService();
   });
 
