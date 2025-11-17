@@ -27,7 +27,7 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { WebauthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn-login/webauthn-login.service";
+import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -147,7 +147,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     private ssoLoginService: SsoLoginServiceAbstraction,
     private environmentService: EnvironmentService,
-    private webauthnLoginService: WebauthnLoginServiceAbstraction,
+    private webauthnLoginService: WebAuthnLoginServiceAbstraction,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
