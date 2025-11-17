@@ -438,7 +438,7 @@ module.exports.buildConfig = function buildConfig(params) {
     const backgroundConfig = {
       name: "background",
       mode: ENV,
-      devtool: false,
+      devtool: ENV === "development" ? "source-map" : false,
 
       entry: params.background.entry,
       target: target,
@@ -451,6 +451,11 @@ module.exports.buildConfig = function buildConfig(params) {
           {
             test: /\.tsx?$/,
             loader: "ts-loader",
+            options: {
+              compilerOptions: {
+                sourceMap: true,
+              },
+            },
           },
         ],
       },
