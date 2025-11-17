@@ -20,6 +20,7 @@
     "start": "cross-env ELECTRON_IS_DEV=0 ELECTRON_NO_UPDATER=1 electron ./build",
     "build-native-macos": "cd desktop_native && ./macos_provider/build.sh && node build.js cross-platform",
     "build-native": "cd desktop_native && node build.js",
+    "build-native-win-cross": "cd desktop_native && node build.js cross-platform --target=aarch64-pc-windows-msvc",
     "build": "concurrently -n Main,Rend,Prel -c yellow,cyan \"npm run build:main\" \"npm run build:renderer\" \"npm run build:preload\"",
     "build:dev": "concurrently -n Main,Rend,Prel -c yellow,cyan \"npm run build:main:dev\" \"npm run build:renderer:dev\" \"npm run build:preload:dev\"",
     "build:preload": "cross-env NODE_ENV=production webpack --config webpack.config.js --config-name preload",

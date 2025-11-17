@@ -13,12 +13,11 @@
   },
   "afterSign": "scripts/after-sign.js",
   "afterPack": "scripts/after-pack.js",
-  "asarUnpack": ["**/*.node"],
   "files": [
-    "**/*",
-    "!**/node_modules/@bitwarden/desktop-napi/**/*",
-    "**/node_modules/@bitwarden/desktop-napi/index.js",
-    "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node"
+    "!node_modules/@bitwarden/desktop-napi/src",
+    "!node_modules/@bitwarden/desktop-napi/Cargo.toml",
+    "!node_modules/@bitwarden/desktop-napi/build.rs",
+    "!node_modules/@bitwarden/desktop-napi/package.json"
   ],
   "electronVersion": "36.9.3",
   "generateUpdatesFilesForAllChannels": true,
