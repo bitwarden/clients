@@ -365,3 +365,5 @@ const mockPublicKeyCredential: CustomPublicKeyCredential = {
   response: mockAuthenticatorAssertionResponse,
   prf: randomBytes(32),
 };
+
+export { mockPublicKeyCredential };
