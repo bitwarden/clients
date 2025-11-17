@@ -7,7 +7,7 @@ use pinentry::PassphraseInput;
 use secrecy::ExposeSecret;
 
 use crate::{
-    prf_to_hmac, AuthenticatorAssertionResponse, Fido2ClientError, PublicKeyCredential,
+    AuthenticatorAssertionResponse, Fido2ClientError, PublicKeyCredential,
     PublicKeyCredentialRequestOptions,
 };
 
@@ -40,10 +40,13 @@ fn make_assertion(
     credential: Option<&[u8]>,
 ) -> Result<GetAssertionArgsBuilder, Fido2ClientError> {
     let mut get_assertion_args =
-        GetAssertionArgsBuilder::new(options.rp_id.as_str(), client_data_json.as_bytes())
-            .extensions(&[AssertionExtension::HmacSecret(Some(prf_to_hmac(
-                &options.prf_eval_first,
-            )))]);
+        GetAssertionArgsBuilder::new(options.rp_id.as_str(), client_data_json.as_bytes());
+
+    if let Some(prf_config) = &options.prf {
+        get_assertion_args = get_assertion_args.extensions(&[AssertionExtension::HmacSecret(
+            Some(prf_to_hmac(&prf_config.first)),
+        )]);
+    }
 
     if let Some(cred) = credential {
         get_assertion_args = get_assertion_args.credential_id(cred);
@@ -143,8 +146,7 @@ mod tests {
             rp_id: "vault.usdev.bitwarden.pw".to_string(),
             user_verification: crate::UserVerification::Required,
             allow_credentials: vec![],
-            prf_eval_first: [0u8; 32],
-            prf_eval_second: None,
+            prf: None,
         })
         .unwrap();
     }
