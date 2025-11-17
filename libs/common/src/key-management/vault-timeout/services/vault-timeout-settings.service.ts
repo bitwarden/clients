@@ -232,6 +232,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
         ) {
           return VaultTimeoutStringType.OnRestart;
         }
+        break;
     }
     return currentVaultTimeout;
   }
