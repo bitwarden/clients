@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "存取資訊"
   },
-  "riskInsights": {
-    "message": "風險洞察"
-  },
   "passwordRisk": {
     "message": "密碼風險"
   },
+  "noEditPermissions": {
+    "message": "你沒有權限編輯這個項目"
+  },
   "reviewAtRiskPasswords": {
     "message": "檢視全部應用中具有風險的密碼 (弱、被暴露或重複使用)。選擇最重要的應用程式並優先採取安全措施，幫助使用者解決具有風險的密碼。"
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "檢視有風險的登入資訊"
   },
   "dataLastUpdated": {
     "message": "上次資料更新日期：$DATE$",
@@ -94,7 +97,7 @@
     "message": "在您檢視應用程式並將其標記為關鍵後，您可以指派任務給成員，以解決有風險的項目，並在此監控進度"
   },
   "sendReminders": {
-    "message": "發送提醒"
+    "message": "傳送提醒"
   },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "一旦您標記應用程式為關鍵，它們將顯示在此。"
@@ -126,6 +129,9 @@
         "example": "3"
       }
     }
+  },
+  "criticalApplicationsMarked": {
+    "message": "已將應用程式標記為關鍵"
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ 個關鍵應用程式",
@@ -172,8 +178,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "在$ORG NAME$中找無應用程式",
+  "noApplicationsInOrgTitle": {
+    "message": "未找到 $ORG NAME$ 的應用程式",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -181,8 +187,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "在使用者儲存登入後，應用程式將會顯示在這裡，並同時顯示具有風險的密碼。標註重要應用程式並通知使用者以更新密碼。"
+  "noApplicationsInOrgDescription": {
+    "message": "匯入您組織的登入資料以開始監控憑證安全風險。匯入後您可以："
+  },
+  "benefit1Title": {
+    "message": "風險優先排序"
+  },
+  "benefit1Description": {
+    "message": "專注於最重要的應用程式"
+  },
+  "benefit2Title": {
+    "message": "指導補救措施"
+  },
+  "benefit2Description": {
+    "message": "指派有風險的成員執行指導任務以輪換有風險的憑證"
+  },
+  "benefit3Title": {
+    "message": "監控進展"
+  },
+  "benefit3Description": {
+    "message": "追蹤隨時間變化的狀況以顯示安全性改善"
+  },
+  "noReportRunTitle": {
+    "message": "執行您的第一份報告以查看應用程式"
+  },
+  "noReportRunDescription": {
+    "message": "產生風險洞察報告以分析組織的應用程式並找出需要注意的高風險密碼。執行第一份報告將會："
   },
   "noCriticalApplicationsTitle": {
     "message": "您尚未將任何應用程式標記為關鍵"
@@ -211,6 +241,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "被標註重要的應用程式"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "已將 $COUNT$ 個應用程式標記為關鍵",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "標記應用程式為關鍵失敗"
   },
@@ -234,6 +273,12 @@
   },
   "membersWithAccessToAtRiskItemsForCriticalApps": {
     "message": "擁有關鍵應用程式中有風險項目存取權的成員"
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "使用有風險密碼的成員"
+  },
+  "membersWillReceiveNotification": {
+    "message": "成員會透過瀏覽器擴充套件接收到有風險登入的通知。"
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ 位有風險的成員",
@@ -304,6 +349,9 @@
   "applicationsNeedingReview": {
     "message": "需要檢視的應用程式"
   },
+  "newApplicationsCardTitle": {
+    "message": "審查新應用程式"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ 個新應用程式",
     "placeholders": {
@@ -319,14 +367,56 @@
   "reviewNow": {
     "message": "立即審查"
   },
+  "allCaughtUp": {
+    "message": "全部完成！"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "目前沒有新的應用程式可供審查"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "您的組織已為 $COUNT$ 個應用程式儲存項目",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "審查應用程式以保護對組織安全最重要的項目"
+  },
+  "reviewApplications": {
+    "message": "審核認領"
+  },
   "prioritizeCriticalApplications": {
     "message": "優先處理關鍵應用程式"
   },
-  "atRiskItems": {
-    "message": "有風險的項目"
+  "selectCriticalApplicationsDescription": {
+    "message": "選擇對組織最關鍵的應用程式，然後將安全任務指派給成員以供解決。"
+  },
+  "reviewNewApplications": {
+    "message": "審查新應用程式"
+  },
+  "reviewNewApplicationsDescription": {
+    "message": "我們已在管理主控台中標示出新應用程式中密碼薄弱、已外洩或重複使用的高風險項目。"
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "點擊星形圖示以將應用程式標記為關鍵"
   },
   "markAsCriticalPlaceholder": {
     "message": "標記為關鍵功能將在未來更新中實現"
+  },
+  "applicationReviewSaved": {
+    "message": "已儲存應用程式審查"
+  },
+  "newApplicationsReviewed": {
+    "message": "新應用程式已審查"
+  },
+  "errorSavingReviewStatus": {
+    "message": "儲存審查狀態時發生錯誤"
+  },
+  "pleaseTryAgain": {
+    "message": "請再試一次"
   },
   "unmarkAsCritical": {
     "message": "取消標記為關鍵"
@@ -789,6 +879,9 @@
   },
   "favorites": {
     "message": "我的最愛"
+  },
+  "taskSummary": {
+    "message": "任務摘要"
   },
   "types": {
     "message": "類型"
@@ -1313,6 +1406,9 @@
   },
   "useSingleSignOn": {
     "message": "使用單一登入"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "您的組織要求使用單一登入。"
   },
   "welcomeBack": {
     "message": "歡迎回來"
@@ -3154,8 +3250,17 @@
   "nextCharge": {
     "message": "下一次扣款"
   },
+  "nextChargeHeader": {
+    "message": "下一次收費"
+  },
+  "plan": {
+    "message": "方案"
+  },
   "details": {
     "message": "詳細資料"
+  },
+  "discount": {
+    "message": "折扣"
   },
   "downloadLicense": {
     "message": "下載授權證"
@@ -4361,8 +4466,32 @@
   "updateBrowser": {
     "message": "更新瀏覽器"
   },
-  "generatingYourRiskInsights": {
-    "message": "正在生成您的風險洞察..."
+  "generatingYourAccessIntelligence": {
+    "message": "正在產生您的存取智慧分析…"
+  },
+  "fetchingMemberData": {
+    "message": "正在擷取成員資料…"
+  },
+  "analyzingPasswordHealth": {
+    "message": "正在分析密碼安全狀況…"
+  },
+  "calculatingRiskScores": {
+    "message": "正在計算風險分數…"
+  },
+  "generatingReportData": {
+    "message": "正在產生報告資料..."
+  },
+  "savingReport": {
+    "message": "正在儲存報告..."
+  },
+  "compilingInsights": {
+    "message": "正在整理洞察結果…"
+  },
+  "loadingProgress": {
+    "message": "載入進度中"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "這可能需要幾分鐘。"
   },
   "riskInsightsRunReport": {
     "message": "執行報告"
@@ -4449,8 +4578,8 @@
   "inviteAccepted": {
     "message": "邀請已接受"
   },
-  "inviteAcceptedDesc": {
-    "message": "管理員確認您的成員身分後，您便可以存取此組織。到時我們會向您傳送電子郵件通知。"
+  "invitationAcceptedDesc": {
+    "message": "成功接受您的邀請。"
   },
   "inviteInitAcceptedDesc": {
     "message": "您現在可以存取此組織了。"
@@ -5726,16 +5855,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "如何開啟自動使用者確認"
   },
-  "autoConfirmStep1": {
-    "message": "開啟你的 Bitwarden 瀏覽器擴充套件。"
+  "autoConfirmExtension1": {
+    "message": "開啟你的 Bitwarden 瀏覽器擴充套件"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "選擇",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " 開啟。",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " 開啟",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "已成功開啟 Bitwarden 瀏覽器擴充套件。您現在可以啟用自動使用者確認設定。"
@@ -5757,8 +5886,8 @@
   "autoConfirmSingleOrgRequired": {
     "message": "需要啟用單一組織原則。"
   },
-  "autoConfirmSingleOrgRequiredDescription": {
-    "message": "任何同時屬於多個組織的成員，其存取權都會被撤銷，直到他們離開其他組織為止。"
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "要使用自動化，所有成員必須僅隸屬於該組織。"
   },
   "autoConfirmSingleOrgExemption": {
     "message": "單一組織原則將套用到所有角色。"
@@ -5823,6 +5952,19 @@
   "disableHideEmail": {
     "message": "建立或編輯 Send 時，始終對收件人顯示成員的電子郵件地址。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "預設的 URI 一致性偵測方式"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "決定何時建議登入項目進行自動填入。管理員與擁有者不受此原則限制。"
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "預設的 URI 一致性偵測方式"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "請選擇有效的 URI 比對偵測選項。",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "原則 $ID$ 已修改。",
@@ -6477,11 +6619,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "您的主密碼不符合一個或多個組織政策規定。您必須立即更新您的主密碼才能存取密碼庫。進行此動作將登出您目前的工作階段，需要您重新登入。其他裝置上的工作階段可能持續長達一小時。"
   },
-  "automaticAppLogin": {
-    "message": "自動登入允許的應用程式使用者"
+  "automaticAppLoginWithSSO": {
+    "message": "自動使用SSO登入"
   },
-  "automaticAppLoginDesc": {
-    "message": "從已設定的身份提供者啟動的應用程式，其登入表單將自動填入並提交。"
+  "automaticAppLoginWithSSODesc": {
+    "message": "將SSO的安全和便利拓展至未受管理的應用程式。當使用者用身分識別提供者啟動應用程式時，登入資訊會自動填寫並提交，建立從身分識別提供者到應用程式的一鍵式安全流程。"
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "身份提供者主機"
@@ -6492,23 +6634,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "您的組織已更新您的解密選項。請設定主密碼以存取您的密碼庫。"
   },
-  "maximumVaultTimeout": {
-    "message": "密碼庫逾時時間"
+  "sessionTimeoutPolicyTitle": {
+    "message": "工作階段逾時"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "為成員設定最大密碼庫逾時時間。"
+  "sessionTimeoutPolicyDescription": {
+    "message": "為除擁有者外的所有成員設定最長工作階段逾時時間。"
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "最大密碼庫逾時時間"
+  "maximumAllowedTimeout": {
+    "message": "最大允許的逾時時間"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "無效的最大密碼庫逾時時間。"
+  "maximumAllowedTimeoutRequired": {
+    "message": "需要最大允許的逾時時間"
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "時間無效。請至少變更一個值。"
+  },
+  "sessionTimeoutAction": {
+    "message": "工作階段逾時動作"
+  },
+  "immediately": {
+    "message": "立即"
+  },
+  "onSystemLock": {
+    "message": "於系統鎖定時"
+  },
+  "onAppRestart": {
+    "message": "應用程式重新啟動時"
   },
   "hours": {
     "message": "小時"
   },
   "minutes": {
     "message": "分鐘"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "您確定要允許所有成員的最長逾時為「永不」嗎？"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "此選項會將成員的加密金鑰儲存在其裝置上。若選擇此選項，請確保這些裝置具備充分的防護。"
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "進一步了解裝置保護"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "「系統鎖定」僅適用於瀏覽器與桌面應用程式"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "由於不支援此選項，行動與網頁應用程式將以「在應用程式重新啟動時」作為其最長允許逾時時間。"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "您的組織政策已限定您密碼庫逾時的時間長度。密碼庫逾時時間最高可以設定到 $HOURS$ 小時 $MINUTES$ 分鐘。",
@@ -7051,6 +7223,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "您必須新增伺服器網域 URL 或至少一個自訂環境。"
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL 必須使用 HTTPS。"
+  },
   "apiUrl": {
     "message": "API 伺服器網址"
   },
@@ -7222,6 +7397,9 @@
   },
   "accessDenied": {
     "message": "拒絕存取。您沒有檢視此頁面的權限。"
+  },
+  "noPageAccess": {
+    "message": "您沒有存取頁面的權限"
   },
   "masterPassword": {
     "message": "主密碼"
@@ -9398,9 +9576,6 @@
   "loggedInExclamation": {
     "message": "已登入！"
   },
-  "beta": {
-    "message": "Beta 版"
-  },
   "assignCollectionAccess": {
     "message": "指派分類存取權限"
   },
@@ -9680,6 +9855,9 @@
   },
   "assignTasks": {
     "message": "指派任務"
+  },
+  "assignTasksToMembers": {
+    "message": "指派任務給成員並引導解決"
   },
   "assignToCollections": {
     "message": "指派至集合"
@@ -11936,5 +12114,54 @@
   },
   "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
     "message": "Argon2id 對抗現代攻擊提供更強的防護，最適合具有高效能裝置的進階使用者。"
+  },
+  "zipPostalCodeLabel": {
+    "message": "郵編 / 郵政代碼"
+  },
+  "cardNumberLabel": {
+    "message": "支付卡號碼"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "開始免費家庭試用"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "企業政策已套用至您的逾時選項中"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "您的密碼庫逾時時間超過組織設定的限制。"
+  },
+  "neverLockWarning": {
+    "message": "您確定要使用「永不」選項嗎？將鎖定選項設定為「永不」會將密碼庫的加密金鑰儲存在您的裝置上。如果使用此選項，應確保您的裝置是安全的。"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "逾時後動作"
+  },
+  "sessionTimeoutHeader": {
+    "message": "工作階段逾時"
+  },
+  "appearance": {
+    "message": "外觀"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "逾時時間超出了您組織設定的此限制：最多 $HOURS$ 小時 $MINUTES$ 分鐘",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "No critical applications are selected"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Are you sure you want to continue?"
   }
 }

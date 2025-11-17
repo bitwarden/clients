@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Usar autenticação única"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "A sua organização requer o uso da autenticação única."
+  },
   "welcomeBack": {
     "message": "Boas-vindas de volta"
   },
@@ -56,13 +59,13 @@
     "message": "Endereço de e-mail"
   },
   "masterPass": {
-    "message": "Senha mestra"
+    "message": "Senha principal"
   },
   "masterPassDesc": {
-    "message": "A senha mestra é a senha que você usa para acessar o seu cofre. É muito importante que você não esqueça sua senha mestra. Não há maneira de recuperar a senha caso você se esqueça."
+    "message": "A senha principal é a senha que você usa para acessar o seu cofre. É muito importante que você não esqueça sua senha principal. Não há maneira de recuperar a senha caso você se esqueça."
   },
   "masterPassHintDesc": {
-    "message": "Uma dica de senha mestra pode ajudá-lo(a) a lembrá-lo(a) caso você esqueça."
+    "message": "Uma dica de senha principal pode ajudá-lo(a) a lembrá-lo(a) caso você esqueça."
   },
   "masterPassHintText": {
     "message": "Se você esquecer sua senha, a dica de senha pode ser enviada ao seu e-mail. $CURRENT$/$MAXIMUM$ caracteres máximos.",
@@ -78,10 +81,10 @@
     }
   },
   "reTypeMasterPass": {
-    "message": "Digite novamente a senha mestra"
+    "message": "Digite novamente a senha principal"
   },
   "masterPassHint": {
-    "message": "Dica de Senha Mestra (opcional)"
+    "message": "Dica de senha principal (opcional)"
   },
   "passwordStrengthScore": {
     "message": "Pontuação de força da senha $SCORE$",
@@ -105,7 +108,7 @@
     }
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Termine de juntar-se nessa organização definindo uma senha mestra."
+    "message": "Termine de juntar-se à organização definindo uma senha principal."
   },
   "tab": {
     "message": "Aba"
@@ -261,13 +264,13 @@
     "message": "Solicitar dica"
   },
   "requestPasswordHint": {
-    "message": "Dica da senha mestra"
+    "message": "Dica da senha principal"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Digite o endereço de e-mail da sua conta e dica da sua senha será enviada para você"
   },
   "getMasterPasswordHint": {
-    "message": "Obter dica da senha mestra"
+    "message": "Obter dica da senha principal"
   },
   "continue": {
     "message": "Continuar"
@@ -288,7 +291,7 @@
     "message": "Confirme a sua identidade para continuar."
   },
   "changeMasterPassword": {
-    "message": "Alterar senha mestra"
+    "message": "Alterar senha principal"
   },
   "continueToWebApp": {
     "message": "Continuar no aplicativo web?"
@@ -309,7 +312,7 @@
     "message": "Ajude outras pessoas a descobrirem se o Bitwarden é o que elas estão procurando. Visite a loja de extensões do seu navegador e deixe uma avaliação agora."
   },
   "changeMasterPasswordOnWebConfirmation": {
-    "message": "Você pode alterar a sua senha mestra no aplicativo web do Bitwarden."
+    "message": "Você pode alterar a sua senha principal no aplicativo web do Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "Frase biométrica",
@@ -588,6 +591,12 @@
   "view": {
     "message": "Ver"
   },
+  "viewAll": {
+    "message": "Ver tudo"
+  },
+  "viewLess": {
+    "message": "Ver menos"
+  },
   "viewLogin": {
     "message": "Ver credencial"
   },
@@ -731,10 +740,10 @@
     }
   },
   "invalidMasterPassword": {
-    "message": "Senha mestra inválida"
+    "message": "Senha principal inválida"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Senha mestre inválida. Confirme que seu e-mail está correto e sua conta foi criada em $HOST$.",
+    "message": "Senha principal inválida. Confirme que seu e-mail está correto e sua conta foi criada em $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -790,6 +799,12 @@
   "onLocked": {
     "message": "Ao bloquear o sistema"
   },
+  "onIdle": {
+    "message": "Quando o sistema ficar inativo"
+  },
+  "onSleep": {
+    "message": "Quando o sistema hibernar"
+  },
   "onRestart": {
     "message": "Ao reiniciar o navegador"
   },
@@ -800,16 +815,16 @@
     "message": "Segurança"
   },
   "confirmMasterPassword": {
-    "message": "Confirme a senha mestra"
+    "message": "Confirme a senha principal"
   },
   "masterPassword": {
-    "message": "Senha mestra"
+    "message": "Senha principal"
   },
   "masterPassImportant": {
-    "message": "Sua senha mestra não pode ser recuperada se você esquecê-la!"
+    "message": "Sua senha principal não pode ser recuperada se você esquecê-la!"
   },
   "masterPassHintLabel": {
-    "message": "Dica da senha mestra"
+    "message": "Dica da senha principal"
   },
   "errorOccurred": {
     "message": "Ocorreu um erro"
@@ -821,13 +836,13 @@
     "message": "Endereço de e-mail inválido."
   },
   "masterPasswordRequired": {
-    "message": "A senha mestre é necessária."
+    "message": "A senha principal é necessária."
   },
   "confirmMasterPasswordRequired": {
-    "message": "É necessário digitar a senha mestra novamente."
+    "message": "É necessário digitar a senha principal novamente."
   },
   "masterPasswordMinlength": {
-    "message": "A senha mestra deve ter pelo menos $VALUE$ caracteres.",
+    "message": "A senha principal deve ter pelo menos $VALUE$ caracteres.",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -837,7 +852,7 @@
     }
   },
   "masterPassDoesntMatch": {
-    "message": "A confirmação da senha mestra não corresponde."
+    "message": "A confirmação da senha principal não corresponde."
   },
   "newAccountCreated": {
     "message": "A sua nova conta foi criada! Agora você pode iniciar a sessão."
@@ -855,7 +870,7 @@
     "message": "Você pode fechar esta janela"
   },
   "masterPassSent": {
-    "message": "Enviamos um e-mail com a dica da sua senha mestra."
+    "message": "Enviamos um e-mail com a dica da sua senha principal."
   },
   "verificationCodeRequired": {
     "message": "O código de verificação é necessário."
@@ -1027,6 +1042,18 @@
   },
   "editedItem": {
     "message": "Item salvo"
+  },
+  "savedWebsite": {
+    "message": "Site salvo"
+  },
+  "savedWebsites": {
+    "message": "Sites salvos ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Você tem certeza que deseja enviar este item para a lixeira?"
@@ -1224,7 +1251,7 @@
     "message": "Ao alterar sua senha, você precisará entrar com a sua senha nova. Sessões ativas em outros dispositivos serão desconectados dentro de uma hora."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Mude a sua senha mestre para completar a recuperação de conta."
+    "message": "Mude a sua senha principal para completar a recuperação de conta."
   },
   "enableChangedPasswordNotification": {
     "message": "Pedir para atualizar credencial existente"
@@ -1308,7 +1335,7 @@
     "message": "Esta senha será usada para exportar e importar este arquivo"
   },
   "accountRestrictedOptionDescription": {
-    "message": "Use a chave de criptografia da sua conta, derivada do nome de usuário e senha mestra da sua conta, para criptografar a exportação e restringir a importação para apenas a conta atual do Bitwarden."
+    "message": "Use a chave de criptografia da sua conta, derivada do nome de usuário e senha principal da sua conta, para criptografar a exportação e restringir a importação para apenas a conta atual do Bitwarden."
   },
   "passwordProtectedOptionDescription": {
     "message": "Defina uma senha para criptografar a exportação e importá-la para qualquer conta do Bitwarden usando a senha para descriptografar."
@@ -1343,7 +1370,7 @@
     "message": "As chaves de criptografia são únicas para cada conta de usuário do Bitwarden, então você não pode importar um arquivo de exportação criptografado para uma conta diferente."
   },
   "exportMasterPassword": {
-    "message": "Insira a sua senha mestra para exportar os dados do seu cofre."
+    "message": "Insira a sua senha principal para exportar os dados do seu cofre."
   },
   "shared": {
     "message": "Compartilhado"
@@ -1505,12 +1532,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Pedir biometria ao abrir"
   },
-  "premiumRequired": {
-    "message": "Requer Assinatura Premium"
-  },
-  "premiumRequiredDesc": {
-    "message": "Uma assinatura Premium é necessária para usar esse recurso."
-  },
   "authenticationTimeout": {
     "message": "Tempo de autenticação esgotado"
   },
@@ -1623,6 +1644,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Você deve adicionar um URL do servidor de base ou pelo menos um ambiente personalizado."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs devem usar HTTPS."
+  },
   "customEnvironment": {
     "message": "Ambiente personalizado"
   },
@@ -1676,8 +1700,29 @@
   "turnOffAutofill": {
     "message": "Desativar o preenchimento automático"
   },
+  "confirmAutofill": {
+    "message": "Confirmar preenchimento automático"
+  },
+  "confirmAutofillDesc": {
+    "message": "Esse site não corresponde aos detalhes salvos na credencial. Antes de preencher suas credenciais de acesso, certifique-se de que é um site confiável."
+  },
   "showInlineMenuLabel": {
     "message": "Mostrar sugestões de preenchimento automático em campos de formulário"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Como que o Bitwarden protege seus dados de phishing?"
+  },
+  "currentWebsite": {
+    "message": "Site atual"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Preencher automaticamente e adicionar este site"
+  },
+  "autofillWithoutAdding": {
+    "message": "Preencher automaticamente sem adicionar"
+  },
+  "doNotAutofill": {
+    "message": "Não preencher automaticamente"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Exibir identidades como sugestões"
@@ -2228,10 +2273,10 @@
     "description": "ex. A weak password. Scale: Weak -> Good -> Strong"
   },
   "weakMasterPassword": {
-    "message": "Senha mestra fraca"
+    "message": "Senha principal Fraca"
   },
   "weakMasterPasswordDesc": {
-    "message": "A senha mestra que você selecionou está fraca. Você deve usar uma senha mestra forte (ou uma frase-passe) para proteger a sua conta Bitwarden adequadamente. Tem certeza que deseja usar esta senha mestra?"
+    "message": "A senha principal que você selecionou está fraca. Você deve usar uma senha principal forte (ou uma frase-passe) para proteger a sua conta Bitwarden adequadamente. Tem certeza que deseja usar esta senha principal?"
   },
   "pin": {
     "message": "PIN",
@@ -2265,7 +2310,7 @@
     "message": "Desbloquear com a biometria"
   },
   "unlockWithMasterPassword": {
-    "message": "Desbloquear com senha mestra"
+    "message": "Desbloquear com senha principal"
   },
   "awaitDesktop": {
     "message": "Aguardando confirmação do desktop"
@@ -2274,10 +2319,10 @@
     "message": "Confirme o uso de biometria no aplicativo do Bitwarden Desktop para ativar a biometria para o navegador."
   },
   "lockWithMasterPassOnRestart": {
-    "message": "Bloquear com senha mestra ao reiniciar o navegador"
+    "message": "Bloquear com senha principal ao reiniciar o navegador"
   },
   "lockWithMasterPassOnRestart1": {
-    "message": "Exigir senha mestra ao reiniciar o navegador"
+    "message": "Exigir senha principal ao reiniciar o navegador"
   },
   "selectOneCollection": {
     "message": "Você deve selecionar pelo menos uma coleção."
@@ -2392,19 +2437,19 @@
     }
   },
   "setMasterPassword": {
-    "message": "Definir senha mestra"
+    "message": "Definir senha principal"
   },
   "currentMasterPass": {
-    "message": "Senha mestra atual"
+    "message": "Senha principal atual"
   },
   "newMasterPass": {
-    "message": "Nova senha mestra"
+    "message": "Nova senha principal"
   },
   "confirmNewMasterPass": {
-    "message": "Confirmar nova senha mestra"
+    "message": "Confirmar nova senha principal"
   },
   "masterPasswordPolicyInEffect": {
-    "message": "Uma ou mais políticas da organização exigem que a sua senha mestra cumpra aos seguintes requisitos:"
+    "message": "Uma ou mais políticas da organização exigem que a sua senha principal cumpra aos seguintes requisitos:"
   },
   "policyInEffectMinComplexity": {
     "message": "Pontuação mínima de complexidade de $SCORE$",
@@ -2443,7 +2488,7 @@
     }
   },
   "masterPasswordPolicyRequirementsNotMet": {
-    "message": "A sua nova senha mestra não cumpre aos requisitos da política."
+    "message": "A sua nova senha principal não cumpre aos requisitos da política."
   },
   "receiveMarketingEmailsV2": {
     "message": "Receba conselhos, novidades, e oportunidades de pesquisa do Bitwarden em sua caixa de entrada."
@@ -2557,7 +2602,7 @@
     "message": "Biometria falhou"
   },
   "biometricsFailedDesc": {
-    "message": "A biometria não pode ser concluída, considere usar uma senha mestra ou desconectar. Se isso persistir, entre em contato com o suporte do Bitwarden."
+    "message": "A biometria não pode ser concluída, considere usar uma senha principal ou desconectar. Se isso persistir, entre em contato com o suporte do Bitwarden."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "Permissão não fornecida"
@@ -2995,13 +3040,13 @@
     "message": "Oculte seu endereço de e-mail dos visualizadores."
   },
   "passwordPrompt": {
-    "message": "Solicitação nova de senha mestra"
+    "message": "Solicitação nova de senha principal"
   },
   "passwordConfirmation": {
-    "message": "Confirmação de senha mestra"
+    "message": "Confirmação de senha principal"
   },
   "passwordConfirmationDesc": {
-    "message": "Esta ação está protegida. Para continuar, por favor, reinsira a sua senha mestra para verificar sua identidade."
+    "message": "Esta ação está protegida. Para continuar, por favor, reinsira a sua senha principal para verificar sua identidade."
   },
   "emailVerificationRequired": {
     "message": "Verificação de e-mail necessária"
@@ -3013,28 +3058,28 @@
     "message": "Você precisa verificar o seu e-mail para usar este recurso. Você pode verificar seu e-mail no cofre web."
   },
   "masterPasswordSuccessfullySet": {
-    "message": "Senha mestra definida com sucesso"
+    "message": "Senha principal definida com sucesso"
   },
   "updatedMasterPassword": {
-    "message": "Senha mestra atualizada"
+    "message": "Senha principal atualizada"
   },
   "updateMasterPassword": {
-    "message": "Atualizar senha mestra"
+    "message": "Atualizar senha principal"
   },
   "updateMasterPasswordWarning": {
-    "message": "Sua senha mestra foi alterada recentemente por um administrador de sua organização. Para acessar o cofre, você precisa atualizá-la agora. O processo desconectará você da sessão atual, exigindo que você entre novamente. Sessões ativas em outros dispositivos podem continuar ativas por até uma hora."
+    "message": "Sua senha principal foi alterada recentemente por um administrador de sua organização. Para acessar o cofre, você precisa atualizá-la agora. O processo desconectará você da sessão atual, exigindo que você entre novamente. Sessões ativas em outros dispositivos podem continuar ativas por até uma hora."
   },
   "updateWeakMasterPasswordWarning": {
-    "message": "A sua senha mestra não atende a uma ou mais das políticas da sua organização. Para acessar o cofre, você deve atualizar a sua senha mestra agora. O processo desconectará você da sessão atual, exigindo que você entre novamente. Sessões ativas em outros dispositivos podem continuar ativas por até uma hora."
+    "message": "A sua senha principal não atende a uma ou mais das políticas da sua organização. Para acessar o cofre, você deve atualizar a sua senha principal agora. O processo desconectará você da sessão atual, exigindo que você entre novamente. Sessões ativas em outros dispositivos podem continuar ativas por até uma hora."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Sua organização desativou a criptografia confiável do dispositivo. Defina uma senha mestra para acessar o seu cofre."
+    "message": "Sua organização desativou a criptografia confiável do dispositivo. Defina uma senha principal para acessar o seu cofre."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Inscrição automática"
   },
   "resetPasswordAutoEnrollInviteWarning": {
-    "message": "Esta organização possui uma política empresarial que irá inscrevê-lo automaticamente na redefinição de senha. A inscrição permitirá que os administradores da organização alterem sua senha mestra."
+    "message": "Esta organização possui uma política empresarial que irá inscrevê-lo automaticamente na redefinição de senha. A inscrição permitirá que os administradores da organização alterem sua senha principal."
   },
   "selectFolder": {
     "message": "Selecionar pasta..."
@@ -3044,11 +3089,11 @@
     "description": "Used as a message within the notification bar when no folders are found"
   },
   "orgPermissionsUpdatedMustSetPassword": {
-    "message": "As permissões da sua organização foram atualizadas, exigindo que você defina uma senha mestra.",
+    "message": "As permissões da sua organização foram atualizadas, exigindo que você defina uma senha principal.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "orgRequiresYouToSetPassword": {
-    "message": "Sua organização requer que você defina uma senha mestra.",
+    "message": "Sua organização requer que você defina uma senha principal.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
@@ -3154,7 +3199,7 @@
     "message": "Nenhum identificador exclusivo encontrado."
   },
   "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Uma senha mestra não é mais necessária para os membros da seguinte organização. Confirme o domínio abaixo com o administrador da sua organização."
+    "message": "Uma senha principal não é mais necessária para os membros da seguinte organização. Confirme o domínio abaixo com o administrador da sua organização."
   },
   "organizationName": {
     "message": "Nome da organização"
@@ -3166,10 +3211,10 @@
     "message": "Sair da organização"
   },
   "removeMasterPassword": {
-    "message": "Remover senha mestra"
+    "message": "Remover senha principal"
   },
   "removedMasterPassword": {
-    "message": "Senha mestra removida"
+    "message": "Senha principal removida"
   },
   "leaveOrganizationConfirmation": {
     "message": "Você tem certeza que deseja sair desta organização?"
@@ -3239,6 +3284,9 @@
   },
   "decryptionError": {
     "message": "Erro ao descriptografar"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Erro ao obter dados de preenchimento automático"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "O Bitwarden não conseguiu descriptografar o(s) item(ns) do cofre listado abaixo."
@@ -3515,7 +3563,7 @@
     }
   },
   "loginWithMasterPassword": {
-    "message": "Entrar com a senha mestra"
+    "message": "Entrar com a senha principal"
   },
   "newAroundHere": {
     "message": "Novo por aqui?"
@@ -3588,16 +3636,16 @@
     "message": "Estado de autenticação"
   },
   "masterPasswordChanged": {
-    "message": "Senha mestre salva"
+    "message": "Senha principal salva"
   },
   "exposedMasterPassword": {
-    "message": "Senha mestra comprometida"
+    "message": "Senha principal comprometida"
   },
   "exposedMasterPasswordDesc": {
     "message": "A senha foi encontrada em um vazamento de dados. Use uma senha única para proteger sua conta. Tem certeza de que deseja usar uma senha já exposta?"
   },
   "weakAndExposedMasterPassword": {
-    "message": "Senha mestra fraca e comprometida"
+    "message": "Senha principal fraca e comprometida"
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Senha fraca identificada e encontrada em um vazamento de dados. Use uma senha forte e única para proteger a sua conta. Tem certeza de que deseja usar essa senha?"
@@ -3609,7 +3657,7 @@
     "message": "Importante:"
   },
   "masterPasswordHint": {
-    "message": "Sua senha mestra não pode ser recuperada se você a esquecer!"
+    "message": "Sua senha principal não pode ser recuperada se você a esquecer!"
   },
   "characterMinimum": {
     "message": "Mínimo de $LENGTH$ caracteres",
@@ -4011,6 +4059,15 @@
     "message": "O preenchimento automático ao carregar a página está usando a configuração padrão.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
+  "cannotAutofill": {
+    "message": "Não é possível preencher automaticamente"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "A correspondência padrão está configurada como 'Correspondência exata'. O site atual não corresponde exatamente aos detalhes salvos de credencial para este item."
+  },
+  "okay": {
+    "message": "Ok"
+  },
   "toggleSideNavigation": {
     "message": "Habilitar navegação lateral"
   },
@@ -4157,7 +4214,7 @@
     "message": "Precisa de um método diferente?"
   },
   "useMasterPassword": {
-    "message": "Usar a senha mestra"
+    "message": "Usar a senha principal"
   },
   "usePin": {
     "message": "Usar PIN"
@@ -4371,7 +4428,7 @@
     "message": "Código"
   },
   "lastPassMasterPassword": {
-    "message": "Senha mestra do LastPass"
+    "message": "Senha principal do LastPass"
   },
   "lastPassAuthRequired": {
     "message": "Autenticação do LastPass necessária"
@@ -4918,6 +4975,16 @@
   },
   "defaultLabel": {
     "message": "Padrão ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "defaultLabelWithValue": {
+    "message": "Padrão ( $VALUE$ )",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5718,8 +5785,47 @@
   "atRiskLoginsSecured": {
     "message": "Ótimo trabalho protegendo suas credenciais em risco!"
   },
+  "upgradeNow": {
+    "message": "Faça upgrade agora"
+  },
+  "builtInAuthenticator": {
+    "message": "Autenticador integrado"
+  },
+  "secureFileStorage": {
+    "message": "Armazenamento seguro de arquivos"
+  },
+  "emergencyAccess": {
+    "message": "Acesso de emergência"
+  },
+  "breachMonitoring": {
+    "message": "Monitoramento de brechas"
+  },
+  "andMoreFeatures": {
+    "message": "E mais!"
+  },
+  "planDescPremium": {
+    "message": "Segurança on-line completa"
+  },
+  "upgradeToPremium": {
+    "message": "Faça upgrade para o Premium"
+  },
+  "loadingVault": {
+    "message": "Carregando cofre"
+  },
+  "vaultLoaded": {
+    "message": "Cofre carregado"
+  },
   "settingDisabledByPolicy": {
     "message": "Essa configuração está desativada pela política da sua organização.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "CEP / Código postal"
+  },
+  "cardNumberLabel": {
+    "message": "Número do cartão"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Ação do tempo limite"
   }
 }

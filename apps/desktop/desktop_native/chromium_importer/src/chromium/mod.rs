@@ -1,13 +1,17 @@
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::LazyLock;
 
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
+use dirs;
 use hex::decode;
-use homedir::my_home;
 use rusqlite::{params, Connection};
 
 mod platform;
+
+#[cfg(target_os = "windows")]
+pub use platform::*;
 
 pub(crate) use platform::SUPPORTED_BROWSERS as PLATFORM_SUPPORTED_BROWSERS;
 
@@ -52,7 +56,6 @@ pub trait InstalledBrowserRetriever {
 pub struct DefaultInstalledBrowserRetriever {}
 
 impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
-    // TODO: Make thus async
     fn get_installed_browsers() -> Result<Vec<String>> {
         let mut browsers = Vec::with_capacity(SUPPORTED_BROWSER_MAP.len());
 
@@ -67,7 +70,6 @@ impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
     }
 }
 
-// TODO: Make thus async
 pub fn get_available_profiles(browser_name: &String) -> Result<Vec<ProfileInfo>> {
     let (_, local_state) = load_local_state_for_browser(browser_name)?;
     Ok(get_profile_info(&local_state))
@@ -123,8 +125,7 @@ pub(crate) static SUPPORTED_BROWSER_MAP: LazyLock<
 });
 
 fn get_browser_data_dir(config: &BrowserConfig) -> Result<PathBuf> {
-    let dir = my_home()
-        .map_err(|_| anyhow!("Home directory not found"))?
+    let dir = dirs::home_dir()
         .ok_or_else(|| anyhow!("Home directory not found"))?
         .join(config.data_dir);
     Ok(dir)
@@ -148,13 +149,13 @@ pub(crate) struct LocalState {
 
 #[derive(serde::Deserialize, Clone)]
 struct AllProfiles {
-    info_cache: std::collections::HashMap<String, OneProfile>,
+    info_cache: HashMap<String, OneProfile>,
 }
 
 #[derive(serde::Deserialize, Clone)]
 struct OneProfile {
     name: String,
-    gaia_name: Option<String>,
+    gaia_id: Option<String>,
     user_name: Option<String>,
 }
 
@@ -197,10 +198,14 @@ fn get_profile_info(local_state: &LocalState) -> Vec<ProfileInfo> {
         .profile
         .info_cache
         .iter()
-        .map(|(name, info)| ProfileInfo {
-            name: info.name.clone(),
-            folder: name.clone(),
-            account_name: info.gaia_name.clone(),
+        .map(|(folder, info)| ProfileInfo {
+            name: if !info.name.trim().is_empty() {
+                info.name.clone()
+            } else {
+                folder.clone()
+            },
+            folder: folder.clone(),
+            account_name: info.gaia_id.clone(),
             account_email: info.user_name.clone(),
         })
         .collect()
@@ -346,5 +351,113 @@ async fn decrypt_login(
             username: encrypted_login.username,
             error: e.to_string(),
         }),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_local_state(profiles: Vec<(&str, &str, Option<&str>, Option<&str>)>) -> LocalState {
+        let info_cache = profiles
+            .into_iter()
+            .map(|(folder, name, gaia_id, user_name)| {
+                (
+                    folder.to_string(),
+                    OneProfile {
+                        name: name.to_string(),
+                        gaia_id: gaia_id.map(|s| s.to_string()),
+                        user_name: user_name.map(|s| s.to_string()),
+                    },
+                )
+            })
+            .collect::<HashMap<_, _>>();
+
+        LocalState {
+            profile: AllProfiles { info_cache },
+            os_crypt: None,
+        }
+    }
+
+    #[test]
+    fn test_get_profile_info_basic() {
+        let local_state = make_local_state(vec![
+            (
+                "Profile 1",
+                "User 1",
+                Some("Account 1"),
+                Some("email1@example.com"),
+            ),
+            (
+                "Profile 2",
+                "User 2",
+                Some("Account 2"),
+                Some("email2@example.com"),
+            ),
+        ]);
+        let infos = get_profile_info(&local_state);
+        assert_eq!(infos.len(), 2);
+
+        let profile1 = infos.iter().find(|p| p.folder == "Profile 1").unwrap();
+        assert_eq!(profile1.name, "User 1");
+        assert_eq!(profile1.account_name.as_deref(), Some("Account 1"));
+        assert_eq!(
+            profile1.account_email.as_deref(),
+            Some("email1@example.com")
+        );
+
+        let profile2 = infos.iter().find(|p| p.folder == "Profile 2").unwrap();
+        assert_eq!(profile2.name, "User 2");
+        assert_eq!(profile2.account_name.as_deref(), Some("Account 2"));
+        assert_eq!(
+            profile2.account_email.as_deref(),
+            Some("email2@example.com")
+        );
+    }
+
+    #[test]
+    fn test_get_profile_info_empty_name() {
+        let local_state = make_local_state(vec![(
+            "ProfileX",
+            "",
+            Some("AccountX"),
+            Some("emailx@example.com"),
+        )]);
+        let infos = get_profile_info(&local_state);
+        assert_eq!(infos.len(), 1);
+        assert_eq!(infos[0].name, "ProfileX");
+        assert_eq!(infos[0].folder, "ProfileX");
+    }
+
+    #[test]
+    fn test_get_profile_info_none_fields() {
+        let local_state = make_local_state(vec![("ProfileY", "NameY", None, None)]);
+        let infos = get_profile_info(&local_state);
+        assert_eq!(infos.len(), 1);
+        assert_eq!(infos[0].name, "NameY");
+        assert_eq!(infos[0].account_name, None);
+        assert_eq!(infos[0].account_email, None);
+    }
+
+    #[test]
+    fn test_get_profile_info_multiple_profiles() {
+        let local_state = make_local_state(vec![
+            ("P1", "N1", Some("A1"), Some("E1")),
+            ("P2", "", None, None),
+            ("P3", "N3", Some("A3"), None),
+        ]);
+        let infos = get_profile_info(&local_state);
+        assert_eq!(infos.len(), 3);
+
+        let p1 = infos.iter().find(|p| p.folder == "P1").unwrap();
+        assert_eq!(p1.name, "N1");
+
+        let p2 = infos.iter().find(|p| p.folder == "P2").unwrap();
+        assert_eq!(p2.name, "P2");
+
+        let p3 = infos.iter().find(|p| p.folder == "P3").unwrap();
+        assert_eq!(p3.name, "N3");
+        assert_eq!(p3.account_name.as_deref(), Some("A3"));
+        assert_eq!(p3.account_email, None);
     }
 }

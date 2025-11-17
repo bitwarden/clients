@@ -1,0 +1,70 @@
+<bit-dialog [title]="'confirmAutofill' | i18n">
+  <div bitDialogContent>
+    <p bitTypography="body2">
+      {{ "confirmAutofillDesc" | i18n }}
+    </p>
+    @if (savedUrls().length === 1) {
+      <p class="tw-text-muted tw-text-xs tw-uppercase tw-mt-4 tw-font-medium">
+        {{ "savedWebsite" | i18n }}
+      </p>
+      <bit-callout [title]="null" type="success" icon="bwi-globe">
+        <div class="tw-font-mono tw-line-clamp-1 tw-break-all" [appA11yTitle]="savedUrls()[0]">
+          {{ savedUrls()[0] }}
+        </div>
+      </bit-callout>
+    }
+    @if (savedUrls().length > 1) {
+      <div class="tw-flex tw-justify-between tw-items-center tw-mt-4 tw-mb-1 tw-pt-2">
+        <p class="tw-text-muted tw-text-xs tw-uppercase tw-font-medium">
+          {{ "savedWebsites" | i18n: savedUrls().length }}
+        </p>
+        <button
+          type="button"
+          bitLink
+          class="tw-text-sm tw-font-medium tw-cursor-pointer"
+          (click)="toggleSavedUrlExpandedState()"
+        >
+          {{ (savedUrlsExpanded() ? "viewLess" : "viewAll") | i18n }}
+        </button>
+      </div>
+      <div class="tw-pt-2" [ngClass]="savedUrlsListClass()">
+        @for (url of savedUrls(); track url) {
+          <div class="-tw-mt-2">
+            <bit-callout [title]="null" type="success" icon="bwi-globe">
+              <div class="tw-font-mono tw-line-clamp-1 tw-break-all" [appA11yTitle]="url">
+                {{ url }}
+              </div>
+            </bit-callout>
+          </div>
+        }
+      </div>
+    }
+    <p class="tw-text-muted tw-text-xs tw-uppercase tw-mt-5 tw-font-medium">
+      {{ "currentWebsite" | i18n }}
+    </p>
+    <bit-callout [title]="null" type="warning" icon="bwi-globe">
+      <div [appA11yTitle]="currentUrl()" class="tw-font-mono tw-line-clamp-1 tw-break-all">
+        {{ currentUrl() }}
+      </div>
+    </bit-callout>
+    <div class="tw-flex tw-justify-center tw-flex-col tw-gap-3 tw-mt-6">
+      @if (!viewOnly()) {
+        <button type="button" bitButton buttonType="primary" (click)="autofillAndAddUrl()">
+          {{ "autofillAndAddWebsite" | i18n }}
+        </button>
+      }
+      <button type="button" bitButton buttonType="secondary" (click)="autofillOnly()">
+        {{ (viewOnly() ? "autofill" : "autofillWithoutAdding") | i18n }}
+      </button>
+      <button
+        type="button"
+        bitLink
+        linkType="secondary"
+        (click)="close()"
+        class="tw-mt-2 tw-font-medium tw-text-sm tw-justify-center tw-text-center"
+      >
+        {{ "doNotAutofill" | i18n }}
+      </button>
+    </div>
+  </div>
+</bit-dialog>

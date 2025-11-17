@@ -957,10 +957,7 @@ pub mod logging {
     use tracing::Level;
     use tracing_subscriber::fmt::format::{DefaultVisitor, Writer};
     use tracing_subscriber::{
-        filter::{EnvFilter, LevelFilter},
-        layer::SubscriberExt,
-        util::SubscriberInitExt,
-        Layer,
+        filter::EnvFilter, layer::SubscriberExt, util::SubscriberInitExt, Layer,
     };
 
     struct JsLogger(OnceLock<ThreadsafeFunction<(LogLevel, String), CalleeHandled>>);
@@ -1044,9 +1041,17 @@ pub mod logging {
     pub fn init_napi_log(js_log_fn: ThreadsafeFunction<(LogLevel, String), CalleeHandled>) {
         let _ = JS_LOGGER.0.set(js_log_fn);
 
+        // the log level hierarchy is determined by:
+        //    - if RUST_LOG is detected at runtime
+        //    - if RUST_LOG is provided at compile time
+        //    - default to INFO
         let filter = EnvFilter::builder()
-            // set the default log level to INFO.
-            .with_default_directive(LevelFilter::INFO.into())
+            .with_default_directive(
+                option_env!("RUST_LOG")
+                    .unwrap_or("info")
+                    .parse()
+                    .expect("should provide valid log level at compile time."),
+            )
             // parse directives from the RUST_LOG environment variable,
             // overriding the default directive for matching targets.
             .from_env_lossy();
@@ -1066,8 +1071,8 @@ pub mod logging {
 pub mod chromium_importer {
     use chromium_importer::{
         chromium::{
-            DefaultInstalledBrowserRetriever, InstalledBrowserRetriever,
-            LoginImportResult as _LoginImportResult, ProfileInfo as _ProfileInfo,
+            DefaultInstalledBrowserRetriever, LoginImportResult as _LoginImportResult,
+            ProfileInfo as _ProfileInfo,
         },
         metadata::NativeImporterMetadata as _NativeImporterMetadata,
     };
@@ -1157,12 +1162,6 @@ pub mod chromium_importer {
             .into_iter()
             .map(|(browser, metadata)| (browser, NativeImporterMetadata::from(metadata)))
             .collect()
-    }
-
-    #[napi]
-    pub fn get_installed_browsers() -> napi::Result<Vec<String>> {
-        chromium_importer::chromium::DefaultInstalledBrowserRetriever::get_installed_browsers()
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
     #[napi]

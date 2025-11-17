@@ -6,7 +6,7 @@
     "message": "Filtros"
   },
   "allItems": {
-    "message": "Todos os Itens"
+    "message": "Todos os itens"
   },
   "favorites": {
     "message": "Favoritos"
@@ -27,7 +27,7 @@
     "message": "Anotação"
   },
   "typeSecureNote": {
-    "message": "Nota Segura"
+    "message": "Anotação segura"
   },
   "typeSshKey": {
     "message": "Chave SSH"
@@ -42,10 +42,10 @@
     "message": "Pesquisar no cofre"
   },
   "resetSearch": {
-    "message": "Redefinir pesquisa"
+    "message": "Apagar pesquisa"
   },
   "addItem": {
-    "message": "Adicionar Item"
+    "message": "Adicionar item"
   },
   "shared": {
     "message": "Compartilhado"
@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Você não tem permissão para editar este item"
+  },
   "welcomeBack": {
     "message": "Boas-vindas de volta"
   },
@@ -79,7 +82,7 @@
     "message": "Anexos"
   },
   "viewItem": {
-    "message": "Ver Item"
+    "message": "Ver item"
   },
   "name": {
     "message": "Nome"
@@ -101,37 +104,37 @@
     "message": "Novo URI"
   },
   "username": {
-    "message": "Nome de Usuário"
+    "message": "Nome de usuário"
   },
   "password": {
     "message": "Senha"
   },
   "passphrase": {
-    "message": "Frase Secreta"
+    "message": "Frase secreta"
   },
   "editItem": {
-    "message": "Editar Item"
+    "message": "Editar item"
   },
   "emailAddress": {
     "message": "Endereço de e-mail"
   },
   "verificationCodeTotp": {
-    "message": "Código de Verificação (TOTP)"
+    "message": "Código de verificação (TOTP)"
   },
   "website": {
     "message": "Site"
   },
   "notes": {
-    "message": "Notas"
+    "message": "Anotações"
   },
   "customFields": {
-    "message": "Campos Personalizados"
+    "message": "Campos personalizados"
   },
   "launch": {
     "message": "Abrir"
   },
   "copyValue": {
-    "message": "Copiar Valor",
+    "message": "Copiar valor",
     "description": "Copy value to clipboard"
   },
   "minimizeOnCopyToClipboard": {
@@ -141,14 +144,14 @@
     "message": "Minimizar ao copiar dados de um item para a área de transferência."
   },
   "toggleVisibility": {
-    "message": "Alternar Visibilidade"
+    "message": "Habilitar visibilidade"
   },
   "toggleCollapse": {
-    "message": "Alternar colapso",
+    "message": "Guardar/mostrar",
     "description": "Toggling an expand/collapse state."
   },
   "cardholderName": {
-    "message": "Titular do Cartão"
+    "message": "Nome do titular do cartão"
   },
   "number": {
     "message": "Número"
@@ -160,22 +163,22 @@
     "message": "Vencimento"
   },
   "securityCode": {
-    "message": "Código de Segurança"
+    "message": "Código de segurança"
   },
   "identityName": {
-    "message": "Nome de Identidade"
+    "message": "Nome da identidade"
   },
   "company": {
     "message": "Empresa"
   },
   "ssn": {
-    "message": "Número de Segurança Social"
+    "message": "Cadastro de Pessoas Físicas (CPF)"
   },
   "passportNumber": {
-    "message": "Número do Passaporte"
+    "message": "Número do passaporte"
   },
   "licenseNumber": {
-    "message": "Número da Licença"
+    "message": "Número da licença"
   },
   "email": {
     "message": "E-mail"
@@ -220,19 +223,19 @@
     "message": "Importar"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirmar senha"
+    "message": "Confirme a senha"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Digite a senha para a chave SSH."
+    "message": "Digite a senha da chave SSH."
   },
   "enterSshKeyPassword": {
-    "message": "Digite a sua senha"
+    "message": "Digite a senha"
   },
   "sshAgentUnlockRequired": {
     "message": "Desbloqueie seu cofre para aprovar a solicitação de chave SSH."
   },
   "sshAgentUnlockTimeout": {
-    "message": "Solicitação de chave SSH expirada."
+    "message": "A solicitação da chave SSH expirou."
   },
   "enableSshAgent": {
     "message": "Ativar agente SSH"
@@ -262,10 +265,10 @@
     "message": "Lembrar até que o cofre seja bloqueado"
   },
   "premiumRequired": {
-    "message": "Requer Assinatura Premium"
+    "message": "Requer Premium"
   },
   "premiumRequiredDesc": {
-    "message": "Uma conta premium é necessária para usar esse recurso."
+    "message": "Uma assinatura Premium é necessária para usar esse recurso."
   },
   "errorOccurred": {
     "message": "Ocorreu um erro."
@@ -277,10 +280,10 @@
     "message": "Erro ao descriptografar"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "O Bitwarden não pode descriptografar o(s) item(ns) do cofre listados abaixo."
+    "message": "O Bitwarden não pôde descriptografar o(s) item(ns) listados abaixo do cofre."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contatar sucesso do cliente",
+    "message": "Contate o costumer success",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
@@ -324,7 +327,7 @@
     "message": "Dezembro"
   },
   "ex": {
-    "message": "ex.",
+    "message": "p. ex.",
     "description": "Short abbreviation for 'example'."
   },
   "title": {
@@ -382,10 +385,10 @@
     "message": "Endereço 3"
   },
   "cityTown": {
-    "message": "Cidade / Localidade"
+    "message": "Cidade ou localidade"
   },
   "stateProvince": {
-    "message": "Estado / Província"
+    "message": "Estado ou província"
   },
   "zipPostalCode": {
     "message": "CEP / Código postal"
@@ -400,16 +403,16 @@
     "message": "Cancelar"
   },
   "delete": {
-    "message": "Excluir"
+    "message": "Apagar"
   },
   "favorite": {
-    "message": "Favorito"
+    "message": "Favoritar"
   },
   "edit": {
     "message": "Editar"
   },
   "authenticatorKeyTotp": {
-    "message": "Chave de autenticação (TOTP)"
+    "message": "Chave do autenticador (TOTP)"
   },
   "authenticatorKey": {
     "message": "Chave do autenticador"
@@ -467,10 +470,10 @@
     "message": "Use campos ocultos para dados sensíveis como senhas"
   },
   "checkBoxHelpText": {
-    "message": "Use caixas de seleção caso deseje preencher automaticamente as caixas de seleção de um formulário, como um e-mail de lembrete"
+    "message": "Use caixas de seleção se gostaria de preencher automaticamente a caixa de seleção de um formulário, como um lembrar e-mail"
   },
   "linkedHelpText": {
-    "message": "Use um campo vinculado quando você estiver experienciando problemas de preenchimento automático em um site específico."
+    "message": "Use um campo vinculado quando você estiver experienciando problemas com o preenchimento automático em um site específico."
   },
   "linkedLabelHelpText": {
     "message": "Digite o ID html, nome, aria-label, ou placeholder do campo."
@@ -485,7 +488,7 @@
     "message": "Valor"
   },
   "dragToSort": {
-    "message": "Arrastar para ordenar"
+    "message": "Arraste para ordenar"
   },
   "cfTypeText": {
     "message": "Texto"
@@ -511,7 +514,7 @@
     "message": "Remover"
   },
   "nameRequired": {
-    "message": "Requer o nome."
+    "message": "O nome é necessário."
   },
   "addedItem": {
     "message": "Item adicionado"
@@ -526,7 +529,7 @@
     "message": "Apagar pasta"
   },
   "deleteAttachment": {
-    "message": "Excluir Anexo"
+    "message": "Apagar anexo"
   },
   "deleteItemConfirmation": {
     "message": "Você realmente deseja enviar para a lixeira?"
@@ -544,7 +547,7 @@
     "message": "Tem certeza que quer substituir o nome de usuário atual?"
   },
   "noneFolder": {
-    "message": "Nenhuma Pasta",
+    "message": "Sem pasta",
     "description": "This is the folder for uncategorized items"
   },
   "addFolder": {
@@ -554,19 +557,19 @@
     "message": "Editar pasta"
   },
   "regeneratePassword": {
-    "message": "Gerar nova senha"
+    "message": "Regerar senha"
   },
   "copyPassword": {
-    "message": "Copiar Senha"
+    "message": "Copiar senha"
   },
   "regenerateSshKey": {
     "message": "Regerar chave SSH"
   },
   "copySshPrivateKey": {
-    "message": "Copiar chave SSH privada"
+    "message": "Copiar chave privada da chave SSH"
   },
   "copyPassphrase": {
-    "message": "Copiar senha",
+    "message": "Copiar frase secreta",
     "description": "Copy passphrase to clipboard"
   },
   "copyUri": {
@@ -649,7 +652,7 @@
     "message": "Separador de palavras"
   },
   "capitalize": {
-    "message": "Iniciais em Maiúsculas",
+    "message": "Iniciais maiúsculas",
     "description": "Make the first letter of a word uppercase."
   },
   "includeNumber": {
@@ -674,7 +677,7 @@
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
-    "message": "Os requisitos de política empresarial foram aplicados às suas opções de gerador.",
+    "message": "Os requisitos da política empresarial foram aplicados às opções do seu gerador.",
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchCollection": {
@@ -697,7 +700,7 @@
     "message": "Anexo apagado"
   },
   "deleteAttachmentConfirmation": {
-    "message": "Tem certeza que deseja excluir esse anexo?"
+    "message": "Tem certeza que quer apagar esse anexo?"
   },
   "attachmentSaved": {
     "message": "Anexo salvo"
@@ -706,7 +709,7 @@
     "message": "Adicionar anexo"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "Tamanho máximo do arquivo é 500 MB"
+    "message": "O tamanho máximo do arquivo é de 500 MB"
   },
   "file": {
     "message": "Arquivo"
@@ -721,19 +724,19 @@
     "message": "A criptografia legada não é mais suportada. Entre em contato com o suporte para recuperar a sua conta."
   },
   "editedFolder": {
-    "message": "Pasta editada"
+    "message": "Pasta salva"
   },
   "addedFolder": {
     "message": "Pasta adicionada"
   },
   "deleteFolderConfirmation": {
-    "message": "Você tem certeza que deseja excluir esta pasta?"
+    "message": "Tem certeza que deseja apagar esta pasta?"
   },
   "deletedFolder": {
     "message": "Pasta apagada"
   },
   "loginOrCreateNewAccount": {
-    "message": "Inicie a sessão ou crie uma nova conta para acessar seu cofre seguro."
+    "message": "Conecte-se ou crie uma nova conta para acessar seu cofre seguro."
   },
   "createAccount": {
     "message": "Criar conta"
@@ -742,19 +745,19 @@
     "message": "Novo no Bitwarden?"
   },
   "setAStrongPassword": {
-    "message": "Defina uma senha forte"
+    "message": "Configure uma senha forte"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Termine de criar a sua conta definindo uma senha"
+    "message": "Termine de criar a sua conta configurando uma senha"
   },
   "logIn": {
-    "message": "Iniciar sessão"
+    "message": "Conectar-se"
   },
   "logInToBitwarden": {
-    "message": "Entre no Bitwarden"
+    "message": "Conecte-se ao Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Digite o código enviado por e-mail"
+    "message": "Digite o código enviado ao seu e-mail"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
     "message": "Digite o código do seu aplicativo autenticador"
@@ -763,31 +766,34 @@
     "message": "Pressione sua YubiKey para autenticar-se"
   },
   "logInWithPasskey": {
-    "message": "Entrar com chave de acesso"
+    "message": "Conectar-se com chave de acesso"
   },
   "loginWithDevice": {
-    "message": "Entrar com dispositivo"
+    "message": "Conectar-se com dispositivo"
   },
   "useSingleSignOn": {
     "message": "Usar autenticação única"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "A sua organização requer o uso da autenticação única."
   },
   "submit": {
     "message": "Enviar"
   },
   "masterPass": {
-    "message": "Senha mestra"
+    "message": "Senha principal"
   },
   "masterPassDesc": {
-    "message": "A senha mestra é a senha que você usa para acessar o seu cofre. É muito importante que você não esqueça sua senha mestra. Não há maneira de recuperar a senha caso você se esqueça."
+    "message": "A senha principal é a senha que você usa para acessar o seu cofre. É muito importante que você não esqueça sua senha principal. Não há maneira de recuperar a senha caso você se esqueça."
   },
   "masterPassHintDesc": {
-    "message": "Uma dica de senha mestra pode ajudá-lo(a) a lembrá-lo(a) caso você esqueça."
+    "message": "Uma dica para a senha principal pode ajudá-lo(a) a lembrá-la caso você esqueça."
   },
   "reTypeMasterPass": {
-    "message": "Digite novamente a senha mestra"
+    "message": "Digite novamente a senha principal"
   },
   "masterPassHint": {
-    "message": "Dica da senha mestra (opcional)"
+    "message": "Dica da senha principal (opcional)"
   },
   "masterPassHintText": {
     "message": "Se você esquecer sua senha, a dica da senha pode ser enviada ao seu e-mail. $CURRENT$/$MAXIMUM$ caracteres máximos.",
@@ -803,16 +809,16 @@
     }
   },
   "masterPassword": {
-    "message": "Senha mestre"
+    "message": "Senha principal"
   },
   "masterPassImportant": {
-    "message": "Sua senha mestre não pode ser recuperada se você a esquecer!"
+    "message": "Sua senha principal não pode ser recuperada se você esquecê-la!"
   },
   "confirmMasterPassword": {
-    "message": "Confirme a senha mestre"
+    "message": "Confirme a senha principal"
   },
   "masterPassHintLabel": {
-    "message": "Dica da senha mestre"
+    "message": "Dica da senha principal"
   },
   "passwordStrengthScore": {
     "message": "Pontuação de força da senha $SCORE$",
@@ -836,7 +842,7 @@
     }
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Termine de juntar-se à esta organização definindo uma senha mestra."
+    "message": "Termine de juntar-se à esta organização configurando uma senha principal."
   },
   "settings": {
     "message": "Configurações"
@@ -848,13 +854,13 @@
     "message": "Solicitar dica"
   },
   "requestPasswordHint": {
-    "message": "Dica da senha mestre"
+    "message": "Dica da senha principal"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Digite o endereço de e-mail da sua conta e sua dica da senha será enviada para você"
   },
   "getMasterPasswordHint": {
-    "message": "Obter dica da senha mestra"
+    "message": "Receber dica da senha principal"
   },
   "emailRequired": {
     "message": "O endereço de e-mail é obrigatório."
@@ -863,13 +869,13 @@
     "message": "Endereço de e-mail inválido."
   },
   "masterPasswordRequired": {
-    "message": "A senha mestre é obrigatória."
+    "message": "A senha principal é obrigatória."
   },
   "confirmMasterPasswordRequired": {
-    "message": "É necessário redigitar a senha mestre."
+    "message": "É necessário redigitar a senha principal."
   },
   "masterPasswordMinlength": {
-    "message": "A senha mestre deve ter pelo menos $VALUE$ caracteres.",
+    "message": "A senha principal deve ter pelo menos $VALUE$ caracteres.",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -879,25 +885,25 @@
     }
   },
   "youSuccessfullyLoggedIn": {
-    "message": "Você entrou na sua conta com sucesso"
+    "message": "Você conectou-se à sua conta com sucesso"
   },
   "youMayCloseThisWindow": {
     "message": "Você pode fechar esta janela"
   },
   "masterPassDoesntMatch": {
-    "message": "A confirmação da senha mestra não corresponde."
+    "message": "A confirmação da senha principal não corresponde."
   },
   "newAccountCreated": {
-    "message": "A sua nova conta foi criada! Agora você pode iniciar a sessão."
+    "message": "A sua nova conta foi criada! Agora você pode se conectar."
   },
   "newAccountCreated2": {
     "message": "Sua nova conta foi criada!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "Você entrou!"
+    "message": "Você foi conectado!"
   },
   "masterPassSent": {
-    "message": "Enviamos um e-mail com a dica da sua senha mestra."
+    "message": "Enviamos um e-mail com a dica da sua senha principal."
   },
   "unexpectedError": {
     "message": "Ocorreu um erro inesperado."
@@ -924,7 +930,7 @@
     "message": "Confirme a sua identidade para continuar."
   },
   "verificationCodeRequired": {
-    "message": "Requer o código de verificação."
+    "message": "O código de verificação é necessário."
   },
   "webauthnCancelOrTimeout": {
     "message": "A autenticação foi cancelada ou demorou muito. Tente novamente."
@@ -958,7 +964,7 @@
     "message": "Use seu código de recuperação"
   },
   "insertU2f": {
-    "message": "Insira a sua chave de segurança na porta USB do seu computador. Se ele tiver um botão, toque nele."
+    "message": "Insira a sua chave de segurança na porta USB do seu computador. Se ela tiver um botão, toque nele."
   },
   "recoveryCodeTitle": {
     "message": "Código de recuperação"
@@ -1009,10 +1015,10 @@
     "message": "Autenticação indisponível"
   },
   "noTwoStepProviders": {
-    "message": "Esta conta tem a autenticação por duas etapas ativada, no entanto, nenhum dos provedores de autenticação em duas etapas configurados são suportados por este dispositivo."
+    "message": "Esta conta tem a autenticação em duas etapas ativada, no entanto, nenhum dos provedores de autenticação em duas etapas configurados são suportados por este dispositivo."
   },
   "noTwoStepProviders2": {
-    "message": "Por favor inclua provedores adicionais que são melhor suportados entre dispositivos (como um aplicativo de autenticação)."
+    "message": "Adicione provedores adicionais que são melhor suportados entre dispositivos (como um aplicativo autenticador)."
   },
   "twoStepOptions": {
     "message": "Opções de autenticação em duas etapas"
@@ -1027,16 +1033,19 @@
     "message": "Especifique a URL de base da sua instalação local do Bitwarden. Exemplo: https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
-    "message": "Para usuários avançados. Você pode especificar a URL de base de cada serviço independentemente."
+    "message": "Para configuração avançada, você pode especificar a URL de base de cada serviço independentemente."
   },
   "selfHostedEnvFormInvalid": {
-    "message": "Você deve adicionar um URL do servidor de base ou pelo menos um ambiente personalizado."
+    "message": "Você deve adicionar um URL de base de um servidor ou pelo menos um ambiente personalizado."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs devem usar HTTPS."
   },
   "customEnvironment": {
     "message": "Ambiente personalizado"
   },
   "baseUrl": {
-    "message": "URL do Servidor"
+    "message": "URL do servidor"
   },
   "authenticationTimeout": {
     "message": "Tempo de autenticação esgotado"
@@ -1079,10 +1088,10 @@
     "message": "Localização"
   },
   "overwritePassword": {
-    "message": "Sobrescrever senha"
+    "message": "Substituir senha"
   },
   "learnMore": {
-    "message": "Saber mais"
+    "message": "Saiba mais"
   },
   "featureUnavailable": {
     "message": "Recurso indisponível"
@@ -1112,7 +1121,7 @@
     "message": "Você tem certeza que deseja sair?"
   },
   "logOut": {
-    "message": "Encerrar a Sessão"
+    "message": "Sair"
   },
   "addNewLogin": {
     "message": "Nova credencial"
@@ -1133,7 +1142,7 @@
     "message": "Bloquear cofre"
   },
   "passwordGenerator": {
-    "message": "Gerador de senha"
+    "message": "Gerador de senhas"
   },
   "contactUs": {
     "message": "Contate-nos"
@@ -1145,7 +1154,7 @@
     "message": "Receber ajuda"
   },
   "fileBugReport": {
-    "message": "Reportar um bug"
+    "message": "Relatar um bug"
   },
   "blog": {
     "message": "Blog"
@@ -1157,24 +1166,24 @@
     "message": "Sincronizar cofre"
   },
   "changeMasterPass": {
-    "message": "Alterar senha mestra"
+    "message": "Alterar senha principal"
   },
   "continueToWebApp": {
-    "message": "Continuar no app web?"
+    "message": "Continuar no aplicativo web?"
   },
   "changeMasterPasswordOnWebConfirmation": {
-    "message": "Você pode alterar a sua senha mestre no app web Bitwarden."
+    "message": "Você pode alterar a sua senha principal no aplicativo web Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "Frase biométrica",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "yourAccountsFingerprint": {
-    "message": "A sua frase biométrica",
+    "message": "A frase biométrica da sua conta",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "goToWebVault": {
-    "message": "Ir para o Cofre Web"
+    "message": "Ir para o cofre web"
   },
   "getMobileApp": {
     "message": "Baixar o app para celular"
@@ -1183,13 +1192,13 @@
     "message": "Baixar a extensão para navegador"
   },
   "syncingComplete": {
-    "message": "Sincronização completada"
+    "message": "Sincronização concluída"
   },
   "syncingFailed": {
-    "message": "A sincronização falhou"
+    "message": "Falha na sincronização"
   },
   "yourVaultIsLocked": {
-    "message": "Seu cofre está trancado. Verifique sua identidade para continuar."
+    "message": "O seu cofre está bloqueado. Verifique a sua identidade para continuar."
   },
   "yourAccountIsLocked": {
     "message": "Sua conta está bloqueada"
@@ -1201,13 +1210,13 @@
     "message": "Desbloquear com biometria"
   },
   "unlockWithMasterPassword": {
-    "message": "Desbloquear com senha mestre"
+    "message": "Desbloquear com senha principal"
   },
   "unlock": {
     "message": "Desbloquear"
   },
   "loggedInAsOn": {
-    "message": "Entrou como $EMAIL$ em $HOSTNAME$.",
+    "message": "Conectado como $EMAIL$ em $HOSTNAME$.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1220,10 +1229,10 @@
     }
   },
   "invalidMasterPassword": {
-    "message": "Senha mestra inválida"
+    "message": "Senha principal inválida"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Senha mestre inválida. Confirme que seu e-mail está correto e sua conta foi criada em $HOST$.",
+    "message": "Senha principal inválida. Confirme que seu e-mail está correto e sua conta foi criada em $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -1232,7 +1241,7 @@
     }
   },
   "twoStepLoginConfirmation": {
-    "message": "A autenticação em duas etapas torna sua conta mais segura, exigindo que você verifique o seu login com outro dispositivo, como uma chave de segurança, um aplicativo autenticador, SMS, chamada telefônica ou e-mail. A autenticação em duas etapas pode ser ativada no cofre web em bitwarden.com. Você deseja visitar o site agora?"
+    "message": "A autenticação em duas etapas torna sua conta mais segura, exigindo que você verifique a sua autenticação com outro dispositivo, como uma chave de segurança, um aplicativo autenticador, SMS, chamada telefônica ou e-mail. A autenticação em duas etapas pode ser ativada no cofre web em bitwarden.com. Você deseja visitar o site agora?"
   },
   "twoStepLogin": {
     "message": "Autenticação em duas etapas"
@@ -1250,7 +1259,7 @@
     "message": "Ação do tempo limite"
   },
   "vaultTimeoutDesc": {
-    "message": "Escolha quando o tempo limite do seu cofre irá se esgotar e execute a ação selecionada."
+    "message": "Escolha quando o seu cofre executará a ação do tempo limite do cofre."
   },
   "immediately": {
     "message": "Imediatamente"
@@ -1292,7 +1301,7 @@
     "message": "Quando o sistema hibernar"
   },
   "onLocked": {
-    "message": "Quando o sistema estiver bloqueado"
+    "message": "Quando o sistema for bloqueado"
   },
   "onRestart": {
     "message": "Ao reiniciar"
@@ -1318,25 +1327,25 @@
     "message": "Minimizar para ícone da bandeja"
   },
   "enableMinToTrayDesc": {
-    "message": "Ao minimizar a janela, mostra um ícone na bandeja do sistema."
+    "message": "Ao minimizar a janela, mostrar um ícone na bandeja do sistema."
   },
   "enableMinToMenuBar": {
     "message": "Minimizar para a barra de menu"
   },
   "enableMinToMenuBarDesc": {
-    "message": "Ao minimizar a janela, mostra um ícone na barra de menus."
+    "message": "Ao minimizar a janela, mostrar um ícone na barra de menu."
   },
   "enableCloseToTray": {
     "message": "Fechar para ícone da bandeja"
   },
   "enableCloseToTrayDesc": {
-    "message": "Ao fechar a janela, mostra um ícone na bandeja do sistema."
+    "message": "Ao fechar a janela, mostrar um ícone na bandeja do sistema."
   },
   "enableCloseToMenuBar": {
     "message": "Fechar para barra de menu"
   },
   "enableCloseToMenuBarDesc": {
-    "message": "Ao fechar a janela, mostra um ícone na barra de menu."
+    "message": "Ao fechar a janela, mostrar um ícone na barra de menu."
   },
   "enableTray": {
     "message": "Ativar icone da bandeja"
@@ -1345,19 +1354,19 @@
     "message": "Sempre mostrar um ícone na bandeja do sistema."
   },
   "startToTray": {
-    "message": "Iniciar no ícone da bandeja"
+    "message": "Abrir no ícone da bandeja"
   },
   "startToTrayDesc": {
-    "message": "Quando o aplicativo for iniciado, apenas mostrar um ícone na bandeja do sistema."
+    "message": "Ao abrir o aplicativo, apenas mostrar um ícone na bandeja do sistema."
   },
   "startToMenuBar": {
-    "message": "Iniciar na barra de menu"
+    "message": "Abrir na barra de menu"
   },
   "startToMenuBarDesc": {
-    "message": "Quando o aplicativo for iniciado, apenas mostrar um ícone na barra de menu."
+    "message": "Ao abrir o aplicativo, apenas mostrar um ícone na barra de menu."
   },
   "openAtLogin": {
-    "message": "Iniciar automaticamente ao iniciar sessão"
+    "message": "Iniciar automaticamente com o usuário"
   },
   "openAtLoginDesc": {
     "message": "Inicie o aplicativo Bitwarden Desktop automaticamente junto com o usuário."
@@ -1366,10 +1375,10 @@
     "message": "Exibir sempre na Dock"
   },
   "alwaysShowDockDesc": {
-    "message": "Mostrar o ícone do Bitwarden na Dock, mesmo quando minimizado para a barra de menu."
+    "message": "Mostrar o ícone do Bitwarden na Dock, mesmo quando minimizado na barra de menu."
   },
   "confirmTrayTitle": {
-    "message": "Confirmar ocultamento da bandeja"
+    "message": "Confirmar ocultar da bandeja"
   },
   "confirmTrayDesc": {
     "message": "Desativar esta configuração também desativará todas as outras configurações relacionadas à bandeja."
@@ -1411,7 +1420,7 @@
     }
   },
   "restartToUpdate": {
-    "message": "Reinicie para atualizar"
+    "message": "Reiniciar para atualizar"
   },
   "restartToUpdateDesc": {
     "message": "A versão $VERSION_NUM$ está pronta para ser instalada. Você deve reiniciar o Bitwarden para completar a instalação. Você quer reiniciar e atualizar agora?",
@@ -1432,7 +1441,7 @@
     "message": "Reiniciar"
   },
   "later": {
-    "message": "Mais Tarde"
+    "message": "Mais tarde"
   },
   "noUpdatesAvailable": {
     "message": "Não há atualizações disponíveis no momento. Você está usando a versão mais recente."
@@ -1467,25 +1476,25 @@
     "message": "Gerenciar assinatura"
   },
   "premiumManageAlert": {
-    "message": "Você pode gerenciar a sua assinatura premium no cofre web em bitwarden.com. Você deseja visitar o site agora?"
+    "message": "Você pode gerenciar a sua assinatura no cofre web do bitwarden.com. Você deseja visitar o site agora?"
   },
   "premiumRefresh": {
     "message": "Recarregar assinatura"
   },
   "premiumNotCurrentMember": {
-    "message": "Você não possui uma assinatura Premium."
+    "message": "Você não é um membro Premium atualmente."
   },
   "premiumSignUpAndGet": {
     "message": "Inscreva-se para uma assinatura Premium e receba:"
   },
   "premiumSignUpStorage": {
-    "message": "1 GB de armazenamento de arquivos encriptados."
+    "message": "1 GB de armazenamento criptografado para anexos de arquivos."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "Opções de autenticação em duas etapas como YubiKey e Duo."
+    "message": "Opções proprietárias de autenticação em duas etapas como YubiKey e Duo."
   },
   "premiumSignUpReports": {
-    "message": "Higiene de senha, saúde da conta, e relatórios sobre violação de dados para manter o seu cofre seguro."
+    "message": "Higiene de senha, saúde da conta, e relatórios de brechas de dados para manter o seu cofre seguro."
   },
   "premiumSignUpTotp": {
     "message": "Gerador de códigos de verificação TOTP (2FA) para credenciais no seu cofre."
@@ -1494,22 +1503,22 @@
     "message": "Prioridade no suporte ao cliente."
   },
   "premiumSignUpFuture": {
-    "message": "Todos os recursos premium no futuro. Mais em breve!"
+    "message": "Todos os recursos Premium no futuro. Mais em breve!"
   },
   "premiumPurchase": {
     "message": "Comprar Premium"
   },
   "premiumPurchaseAlertV2": {
-    "message": "Você pode comprar Premium nas configurações de sua conta no aplicativo web do Bitwarden."
+    "message": "Você pode comprar o Premium nas configurações da sua conta no aplicativo web do Bitwarden."
   },
   "premiumCurrentMember": {
-    "message": "Você é um membro premium!"
+    "message": "Você é um membro Premium!"
   },
   "premiumCurrentMemberThanks": {
     "message": "Obrigado por apoiar o Bitwarden."
   },
   "premiumPrice": {
-    "message": "Tudo por apenas $PRICE$ /ano!",
+    "message": "Tudo por apenas $PRICE$ por ano!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -1518,7 +1527,7 @@
     }
   },
   "refreshComplete": {
-    "message": "Atualização completada"
+    "message": "Recarregamento concluído"
   },
   "passwordHistory": {
     "message": "Histórico de senhas"
@@ -1601,16 +1610,16 @@
     "message": "Serviços"
   },
   "hideBitwarden": {
-    "message": "Ocultar o Bitwarden"
+    "message": "Ocultar Bitwarden"
   },
   "hideOthers": {
     "message": "Ocultar outros"
   },
   "showAll": {
-    "message": "Mostrar todos"
+    "message": "Mostrar tudo"
   },
   "quitBitwarden": {
-    "message": "Sair do Bitwarden"
+    "message": "Fechar Bitwarden"
   },
   "valueCopied": {
     "message": "$VALUE$ copiado(a)",
@@ -1626,10 +1635,10 @@
     "message": "Copiado com sucesso"
   },
   "errorRefreshingAccessToken": {
-    "message": "Erro ao acessar token de recarregamento"
+    "message": "Erro de atualização do token de acesso"
   },
   "errorRefreshingAccessTokenDesc": {
-    "message": "Nenhum token de atualização ou chave de API foi encontrado. Tente sair e entrar novamente."
+    "message": "Nenhum token de recarregamento ou chave de API foi encontrado. Tente desconectar-se e conectar-se novamente."
   },
   "help": {
     "message": "Ajuda"
@@ -1638,7 +1647,7 @@
     "message": "Janela"
   },
   "checkPassword": {
-    "message": "Verifique se a senha foi exposta."
+    "message": "Confira se a senha foi exposta."
   },
   "passwordExposed": {
     "message": "Esta senha foi exposta $VALUE$ vez(es) em brechas de dados. Você deve alterá-la.",
@@ -1650,7 +1659,7 @@
     }
   },
   "passwordSafe": {
-    "message": "Esta senha não foi encontrada em brechas de dados conhecidas. Deve ser seguro de usar."
+    "message": "Esta senha não foi encontrada em brechas de dados conhecidas. Deve ser segura de usar."
   },
   "baseDomain": {
     "message": "Domínio de base",
@@ -1737,13 +1746,13 @@
     "message": "Esta senha será usada para exportar e importar este arquivo"
   },
   "accountRestrictedOptionDescription": {
-    "message": "Use a chave de criptografia da sua conta, derivada do nome de usuário e senha mestre da sua conta, para criptografar a exportação e restringir a importação para apenas a conta atual do Bitwarden."
+    "message": "Use a chave de criptografia da sua conta, derivada do nome de usuário e senha principal da sua conta, para criptografar a exportação e restringir a importação para apenas a conta atual do Bitwarden."
   },
   "passwordProtected": {
-    "message": "Protegido por senha"
+    "message": "Protegida por senha"
   },
   "passwordProtectedOptionDescription": {
-    "message": "Defina uma senha de arquivo para criptografar a exportação e importá-la para qualquer conta do Bitwarden usando a senha para descriptografia."
+    "message": "Configure uma senha de arquivo para criptografar a exportação e importá-la para qualquer conta do Bitwarden usando a senha para descriptografá-la."
   },
   "exportTypeHeading": {
     "message": "Tipo da exportação"
@@ -1752,10 +1761,10 @@
     "message": "Restrita à conta"
   },
   "restrictCardTypeImport": {
-    "message": "Não é possível importar tipos de item de cartão"
+    "message": "Não é possível importar itens do tipo de cartão"
   },
   "restrictCardTypeImportDesc": {
-    "message": "Uma política definida por 1 ou mais organizações impedem que você importe cartões em seus cofres."
+    "message": "Uma política configurada por uma ou mais organizações impedem que você importe cartões em seus cofres."
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Senha do arquivo\" e \"Confirmar senha do arquivo\" não correspondem."
@@ -1771,7 +1780,7 @@
     "message": "Confirmar exportação do cofre"
   },
   "exportWarningDesc": {
-    "message": "Esta exportação contém os dados do seu cofre em um formato não criptografado. Você não deve armazenar ou enviar o arquivo exportado por canais inseguros (como e-mail). Exclua o arquivo imediatamente após terminar de usá-lo."
+    "message": "Esta exportação contém os dados do seu cofre em um formato não criptografado. Você não deve armazenar ou enviar o arquivo exportado por canais inseguros (como e-mail). Apague o arquivo imediatamente após terminar de usá-lo."
   },
   "encExportKeyWarningDesc": {
     "message": "Esta exportação criptografa seus dados usando a chave de criptografia da sua conta. Se você rotacionar a chave de criptografia da sua conta, você deve exportar novamente, já que você não será capaz de descriptografar este arquivo de exportação."
@@ -1780,7 +1789,7 @@
     "message": "As chaves de criptografia de conta são únicas para cada conta de usuário do Bitwarden, então você não pode importar uma exportação criptografada para uma conta diferente."
   },
   "noOrganizationsList": {
-    "message": "Você não pertence a nenhuma organização. Organizações permitem-lhe compartilhar itens em segurança com outros usuários."
+    "message": "Você não faz parte de uma organização. Organizações permitem-lhe compartilhar itens com segurança com outros usuários."
   },
   "noCollectionsInList": {
     "message": "Não há coleções para listar."
@@ -1789,7 +1798,7 @@
     "message": "Propriedade"
   },
   "whoOwnsThisItem": {
-    "message": "Quem possui este item?"
+    "message": "Quem é o proprietário deste item?"
   },
   "strong": {
     "message": "Forte",
@@ -1804,20 +1813,20 @@
     "description": "ex. A weak password. Scale: Weak -> Good -> Strong"
   },
   "weakMasterPassword": {
-    "message": "Senha mestra fraca"
+    "message": "Senha principal fraca"
   },
   "weakMasterPasswordDesc": {
-    "message": "A senha mestra que você selecionou está fraca. Você deve usar uma senha mestra forte (ou uma frase-passe) para proteger a sua conta Bitwarden adequadamente. Tem certeza que deseja usar esta senha mestra?"
+    "message": "A senha principal que você escolheu é fraca. Você deve usar uma senha principal forte (ou uma frase secreta) para proteger a sua conta Bitwarden adequadamente. Tem certeza que deseja usar esta senha principal?"
   },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
   },
   "unlockWithPin": {
-    "message": "Desbloquear com o PIN"
+    "message": "Desbloquear com PIN"
   },
   "setYourPinCode": {
-    "message": "Defina o seu código PIN para desbloquear o Bitwarden. Suas configurações de PIN serão redefinidas se alguma vez você encerrar completamente toda a sessão do aplicativo."
+    "message": "Configure o seu código PIN para desbloquear o Bitwarden. Suas configurações de PIN serão redefinidas se você desconectar-se totalmente do aplicativo."
   },
   "pinRequired": {
     "message": "O código PIN é necessário."
@@ -1832,7 +1841,7 @@
     "message": "Desbloquear com o Windows Hello"
   },
   "unlockWithPolkit": {
-    "message": "Desbloquear com autenticação de sistema"
+    "message": "Desbloquear com a autenticação do sistema"
   },
   "windowsHelloConsentMessage": {
     "message": "Verifique para o Bitwarden."
@@ -1841,22 +1850,22 @@
     "message": "Desbloquear com o Touch ID"
   },
   "additionalTouchIdSettings": {
-    "message": "Configurações adicionais de Touch ID"
+    "message": "Configurações adicionais do Touch ID"
   },
   "touchIdConsentMessage": {
     "message": "desbloquear o seu cofre"
   },
   "autoPromptTouchId": {
-    "message": "Pedir pelo Touch ID ao iniciar"
+    "message": "Pedir o Touch ID ao abrir"
   },
   "lockWithMasterPassOnRestart1": {
-    "message": "Bloquear com senha mestra ao reiniciar"
+    "message": "Bloquear com a senha principal ao reiniciar"
   },
   "requireMasterPasswordOrPinOnAppRestart": {
-    "message": "Exigir senha mestra ou PIN ao reiniciar o app"
+    "message": "Exigir senha principal ou PIN ao reiniciar o app"
   },
   "requireMasterPasswordOnAppRestart": {
-    "message": "Exigir senha mestra ao reiniciar o app"
+    "message": "Exigir senha principal ao reiniciar o app"
   },
   "deleteAccount": {
     "message": "Apagar conta"
@@ -1877,7 +1886,7 @@
     "message": "Conta apagada"
   },
   "accountDeletedDesc": {
-    "message": "A sua conta foi fechada e todos os dados associados foram excluídos."
+    "message": "A sua conta foi fechada e todos os dados associados foram apagados."
   },
   "preferences": {
     "message": "Preferências"
@@ -1889,7 +1898,7 @@
     "message": "Sempre mostrar um ícone na barra de menu."
   },
   "hideToMenuBar": {
-    "message": "Ocultar para a barra de menu"
+    "message": "Esconder na barra de menu"
   },
   "selectOneCollection": {
     "message": "Você deve selecionar pelo menos uma coleção."
@@ -1901,10 +1910,10 @@
     "message": "Restaurar"
   },
   "premiumManageAlertAppStore": {
-    "message": "Você pode gerenciar sua assinatura da App Store. Você quer visitar a App Store agora?"
+    "message": "Você pode gerenciar sua assinatura pela App Store. Você quer visitar a App Store agora?"
   },
   "legal": {
-    "message": "Aspectos Legais",
+    "message": "Jurídico",
     "description": "Noun. As in 'legal documents', like our terms of service and privacy policy."
   },
   "termsOfService": {
@@ -1914,7 +1923,7 @@
     "message": "Política de Privacidade"
   },
   "unsavedChangesConfirmation": {
-    "message": "Você tem certeza que deseja sair? Se sair agora, as suas informações atuais não serão salvas."
+    "message": "Tem certeza que quer sair? Se sair agora, as suas informações atuais não serão salvas."
   },
   "unsavedChangesTitle": {
     "message": "Alterações não salvas"
@@ -1923,13 +1932,13 @@
     "message": "Clonar"
   },
   "passwordGeneratorPolicyInEffect": {
-    "message": "Uma ou mais políticas da organização estão afetando as suas configurações do gerador."
+    "message": "Uma ou mais políticas da organização estão afetando as configurações do seu gerador."
   },
   "vaultTimeoutAction": {
     "message": "Ação do tempo limite do cofre"
   },
   "vaultTimeoutActionLockDesc": {
-    "message": "A senha mestre ou outro método de desbloqueio é necessário para acessar seu cofre novamente."
+    "message": "A senha principal ou outro método de desbloqueio é necessário para acessar seu cofre novamente."
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "Reautenticação é necessária para acessar seu cofre novamente."
@@ -1952,7 +1961,7 @@
     "message": "Apagar item para sempre"
   },
   "permanentlyDeleteItemConfirmation": {
-    "message": "Você tem certeza que deseja excluir permanentemente esse item?"
+    "message": "Tem certeza que quer apagar este item para sempre?"
   },
   "permanentlyDeletedItem": {
     "message": "Item apagado para sempre"
@@ -1973,14 +1982,14 @@
     "message": "Autenticação única empresarial"
   },
   "setMasterPassword": {
-    "message": "Configurar senha mestre"
+    "message": "Configurar senha principal"
   },
   "orgPermissionsUpdatedMustSetPassword": {
-    "message": "As permissões da sua organização foram atualizadas, exigindo que você defina uma senha mestre.",
+    "message": "As permissões da sua organização foram atualizadas, exigindo que você configure uma senha principal.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "orgRequiresYouToSetPassword": {
-    "message": "Sua organização requer que você defina uma senha mestre.",
+    "message": "Sua organização requer que você configure uma senha principal.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
@@ -2014,10 +2023,10 @@
     "message": "Torne a verificação em 2 etapas mais simples"
   },
   "totpHelper": {
-    "message": "Bitwarden pode armazenar e preencher códigos de verificação de 2 etapas. Copie e cole a chave nesse campo."
+    "message": "O Bitwarden pode armazenar e preencher códigos de verificação de 2 etapas. Copie e cole a chave nesse campo."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden pode armazenar e preencher códigos de verificação de 2 etapas. Selecione o ícone da câmera e tire uma captura de tela do código QR de autenticação desse site ou copie e cole a chave nesse campo."
+    "message": "O Bitwarden pode armazenar e preencher códigos de verificação de 2 etapas. Selecione o ícone da câmera e tire uma captura de tela do código QR do autenticador nesse site ou copie e cole a chave nesse campo."
   },
   "premium": {
     "message": "Premium",
@@ -2039,26 +2048,26 @@
     }
   },
   "cardExpiredTitle": {
-    "message": "Cartão expirado"
+    "message": "Cartão vencido"
   },
   "cardExpiredMessage": {
-    "message": "Se você fez uma renovação recente, atualize as informações do cartão"
+    "message": "Se você o renovou, atualize as informações do cartão"
   },
   "verificationRequired": {
     "message": "Verificação necessária",
     "description": "Default title for the user verification dialog."
   },
   "currentMasterPass": {
-    "message": "Senha mestre atual"
+    "message": "Senha principal atual"
   },
   "newMasterPass": {
-    "message": "Nova senha mestra"
+    "message": "Nova senha principal"
   },
   "confirmNewMasterPass": {
-    "message": "Confirmar nova senha mestra"
+    "message": "Confirmar nova senha principal"
   },
   "masterPasswordPolicyInEffect": {
-    "message": "Uma ou mais políticas da organização exigem que a sua senha mestra cumpra aos seguintes requisitos:"
+    "message": "Uma ou mais políticas da organização exigem que a sua senha principal cumpra aos seguintes requisitos:"
   },
   "policyInEffectMinComplexity": {
     "message": "Pontuação mínima de complexidade de $SCORE$",
@@ -2097,7 +2106,7 @@
     }
   },
   "masterPasswordPolicyRequirementsNotMet": {
-    "message": "A sua nova senha mestra não cumpre aos requisitos da política."
+    "message": "A sua nova senha principal não cumpre aos requisitos da política."
   },
   "receiveMarketingEmailsV2": {
     "message": "Receba conselhos, novidades, e oportunidades de pesquisa do Bitwarden em sua caixa de entrada."
@@ -2124,7 +2133,7 @@
     "message": "Permitir integração com o navegador"
   },
   "enableBrowserIntegrationDesc1": {
-    "message": "Usado para permitir desbloqueio biométrico em navegadores que não são o Safari."
+    "message": "Usado para permitir o desbloqueio biométrico em navegadores que não são o Safari."
   },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "Permitir integração com o navegador DuckDuckGo"
@@ -2136,16 +2145,13 @@
     "message": "Integração com o navegador não suportada"
   },
   "browserIntegrationErrorTitle": {
-    "message": "Erro ao ativar a integração do navegador"
+    "message": "Erro ao ativar a integração com o navegador"
   },
   "browserIntegrationErrorDesc": {
-    "message": "Ocorreu um erro ao ativar a integração do navegador."
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Infelizmente, por ora, a integração do navegador só é suportada na versão da Mac App Store."
+    "message": "Ocorreu um erro ao ativar a integração com o navegador."
   },
   "browserIntegrationWindowsStoreDesc": {
-    "message": "Infelizmente, a integração do navegador não é suportada na versão da Microsoft Store."
+    "message": "Infelizmente, a integração com o navegador não é suportada na versão da Microsoft Store no momento."
   },
   "browserIntegrationLinuxDesc": {
     "message": "Infelizmente, a integração do navegador não é suportada na versão linux no momento."
@@ -2154,22 +2160,22 @@
     "message": "Exigir verificação para integração com o navegador"
   },
   "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Adicione uma camada adicional de segurança, exigindo validação de frase biométrica ao estabelecer uma ligação entre o computador e o navegador. Quando ativado, isto requer intervenção do usuário e verificação cada vez que uma conexão é estabelecida."
+    "message": "Adicione uma camada adicional de segurança, exigindo a validação da frase biométrica ao estabelecer uma ligação entre o computador e o navegador. Requer intervenção do usuário e verificação cada vez que uma conexão é estabelecida."
   },
   "enableHardwareAcceleration": {
-    "message": "Utilizar aceleração de hardware"
+    "message": "Usar aceleração de hardware"
   },
   "enableHardwareAccelerationDesc": {
-    "message": "Por padrão esta configuração está ativada. Desligue apenas se tiver problemas gráficos. Reiniciar é necessário."
+    "message": "Por padrão esta configuração está ativada. Desative apenas se tiver problemas gráficos. Reiniciar é necessário."
   },
   "approve": {
     "message": "Aprovar"
   },
   "verifyBrowserTitle": {
-    "message": "Verificar conexão do navegador"
+    "message": "Verifique a conexão com o navegador"
   },
   "verifyBrowserDesc": {
-    "message": "Por favor, certifique-se que a impressão digital mostrada é idêntica à impressão digital exibida na extensão do navegador."
+    "message": "Certifique-se que a frase biométrica mostrada é idêntica à exibida na extensão do navegador."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ quer se conectar ao Bitwarden",
@@ -2181,7 +2187,7 @@
     }
   },
   "verifyNativeMessagingConnectionDesc": {
-    "message": "Gostaria de aprovar este pedido?"
+    "message": "Gostaria de aprovar esta solicitação?"
   },
   "verifyNativeMessagingConnectionWarning": {
     "message": "Se não iniciou esta solicitação, não a aprove."
@@ -2205,19 +2211,19 @@
     "message": "Sua senha nova não pode ser a mesma que a sua atual."
   },
   "hintEqualsPassword": {
-    "message": "Sua dica de senha não pode ser o mesmo que sua senha."
+    "message": "A dica da sua senha não pode ser a mesma que a sua senha."
   },
   "personalOwnershipPolicyInEffect": {
     "message": "Uma política de organização está afetando suas opções de propriedade."
   },
   "personalOwnershipPolicyInEffectImports": {
-    "message": "Uma política da organização bloqueou a importação de itens em seu cofre pessoal."
+    "message": "Uma política da organização bloqueou a importação de itens em seu cofre individual."
   },
   "personalDetails": {
     "message": "Detalhes pessoais"
   },
   "identification": {
-    "message": "Identificação"
+    "message": "Identidade"
   },
   "contactInfo": {
     "message": "Informações de contato"
@@ -2250,14 +2256,14 @@
     "message": "Data de apagamento"
   },
   "deletionDateDesc": {
-    "message": "O Send será eliminado permanentemente na data e hora especificadas.",
+    "message": "O Send será apagado para sempre no horário especificado.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
     "message": "Data de validade"
   },
   "expirationDateDesc": {
-    "message": "Se definido, o acesso a este Send expirará na data e hora especificadas.",
+    "message": "Se configurado, o acesso a este Send acabará no horário especificado.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCount": {
@@ -2265,7 +2271,7 @@
     "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "maxAccessCountDesc": {
-    "message": "Se atribuído, usuários não poderão mais acessar este Send assim que o número máximo de acessos for atingido.",
+    "message": "Se configurado, usuários não poderão mais acessar este Send assim que o número máximo de acessos for atingido.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "currentAccessCount": {
@@ -2276,11 +2282,11 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendPasswordDesc": {
-    "message": "Opcionalmente exigir uma senha para os usuários acessarem este Send.",
+    "message": "Opcionalmente exija uma senha para os usuários acessarem este Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendNotesDesc": {
-    "message": "Notas privadas sobre este Send.",
+    "message": "Anotações privadas sobre este Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendLink": {
@@ -2340,7 +2346,7 @@
     "message": "Personalizado"
   },
   "deleteSendConfirmation": {
-    "message": "Você tem certeza que deseja excluir este Send?",
+    "message": "Tem certeza que quer apagar este Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkToClipboard": {
@@ -2355,7 +2361,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDisabledWarning": {
-    "message": "Devido a uma política corporativa, você só pode excluir um Send existente.",
+    "message": "Devido a uma política corporativa, você só pode apagar um Send existente.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copyLink": {
@@ -2377,10 +2383,10 @@
     "message": "Número máximo de acessos atingido"
   },
   "expired": {
-    "message": "Expirado"
+    "message": "Vencido"
   },
   "pendingDeletion": {
-    "message": "Exclusão pendente"
+    "message": "Apagamento pendente"
   },
   "webAuthnAuthenticate": {
     "message": "Autenticar WebAuthn"
@@ -2407,49 +2413,49 @@
     "message": "Você precisa verificar o seu e-mail para usar este recurso."
   },
   "passwordPrompt": {
-    "message": "Solicitação nova de senha mestra"
+    "message": "Resolicitar senha principal"
   },
   "passwordConfirmation": {
-    "message": "Confirmação de senha mestra"
+    "message": "Confirmação de senha principal"
   },
   "passwordConfirmationDesc": {
-    "message": "Esta ação está protegida. Para continuar, por favor, reinsira a sua senha mestra para verificar sua identidade."
+    "message": "Esta ação está protegida. Redigite a sua senha principal para verificar sua identidade."
   },
   "masterPasswordSuccessfullySet": {
-    "message": "Senha mestra definida com sucesso"
+    "message": "Senha principal configurada com sucesso"
   },
   "updatedMasterPassword": {
-    "message": "Senha mestra atualizada"
+    "message": "Senha principal atualizada"
   },
   "updateMasterPassword": {
-    "message": "Atualizar senha mestre"
+    "message": "Atualizar senha principal"
   },
   "updateMasterPasswordWarning": {
-    "message": "Sua senha mestre foi alterada recentemente por um administrador de sua organização. Para acessar o cofre, você precisa atualizá-la agora. O processo desconectará você da sessão atual, exigindo que você entre novamente. Sessões ativas em outros dispositivos podem continuar ativas por até uma hora."
+    "message": "Sua senha principal foi alterada recentemente por um administrador de sua organização. Para acessar o cofre, você precisa atualizá-la agora. O processo desconectará você da sessão atual, exigindo que você conecte-se novamente. Sessões ativas em outros dispositivos podem continuar ativas por até uma hora."
   },
   "updateWeakMasterPasswordWarning": {
-    "message": "A sua senha mestre não atende a uma ou mais das políticas da sua organização. Para acessar o cofre, você deve atualizar a sua senha mestre agora. O processo desconectará você da sessão atual, exigindo que você inicie a sessão novamente. Sessões ativas em outros dispositivos podem continuar ativas por até uma hora."
+    "message": "A sua senha principal não atende a uma ou mais das políticas da sua organização. Para acessar o cofre, você deve atualizar a sua senha principal agora. O processo desconectará você da sessão atual, exigindo que você se conecte novamente. Sessões ativas em outros dispositivos podem continuar ativas por até uma hora."
   },
   "changePasswordWarning": {
-    "message": "Após mudar a sua senha, será necessário entrar novamente com a sua nova senha. Sessões ativas em outros dispositivos serão encerradas em até uma hora."
+    "message": "Após mudar a sua senha, será necessário conectar-se novamente com a sua nova senha. Sessões ativas em outros dispositivos serão desconectadas em até uma hora."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Mude a sua senha mestre para completar a recuperação de conta."
+    "message": "Altere a sua senha principal para concluir a recuperação da conta."
   },
   "updateMasterPasswordSubtitle": {
-    "message": "Sua senha mestre não corresponde aos requisitos da organização. Mude a sua senha mestre para continuar."
+    "message": "Sua senha principal não corresponde aos requisitos da organização. Mude a sua senha principal para continuar."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Sua organização desativou a criptografia confiável do dispositivo. Defina uma senha mestra para acessar o seu cofre."
+    "message": "Sua organização desativou a criptografia de dispositivo confiado. Configure uma senha principal para acessar o seu cofre."
   },
   "tryAgain": {
-    "message": "Repetir"
+    "message": "Tentar novamente"
   },
   "verificationRequiredForActionSetPinToContinue": {
-    "message": "Verificação necessária para esta ação. Defina um PIN para continuar."
+    "message": "Verificação necessária para esta ação. Configure um PIN para continuar."
   },
   "setPin": {
-    "message": "Definir PIN"
+    "message": "Configurar PIN"
   },
   "verifyWithBiometrics": {
     "message": "Verificar com biometria"
@@ -2458,13 +2464,13 @@
     "message": "Aguardando confirmação"
   },
   "couldNotCompleteBiometrics": {
-    "message": "Não foi possível completar a biometria."
+    "message": "Não foi possível concluir a biometria."
   },
   "needADifferentMethod": {
     "message": "Precisa de um método diferente?"
   },
   "useMasterPassword": {
-    "message": "Usar a senha mestra"
+    "message": "Usar senha principal"
   },
   "usePin": {
     "message": "Usar PIN"
@@ -2473,7 +2479,7 @@
     "message": "Usar biometria"
   },
   "enterVerificationCodeSentToEmail": {
-    "message": "Digite o código de verificação que foi enviado para o seu e-mail."
+    "message": "Digite o código de verificação enviado para o seu e-mail."
   },
   "resendCode": {
     "message": "Reenviar código"
@@ -2498,7 +2504,7 @@
     }
   },
   "vaultTimeoutPolicyWithActionInEffect": {
-    "message": "As políticas da sua organização estão afetando o tempo limite do seu cofre. O tempo limite máximo permitido para cofre é $HOURS$ hora(s) e $MINUTES$ minuto(s). A ação de tempo limite do seu cofre é definida como $ACTION$.",
+    "message": "As políticas da sua organização estão afetando o tempo limite do seu cofre. O máximo permitido do tempo limite do cofre é $HOURS$ hora(s) e $MINUTES$ minuto(s). A ação de tempo limite do seu cofre está configurada para $ACTION$.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2515,7 +2521,7 @@
     }
   },
   "vaultTimeoutActionPolicyInEffect": {
-    "message": "As políticas da sua organização definiram a ação do tempo limite do seu cofre para $ACTION$.",
+    "message": "As políticas da sua organização configuraram a ação do tempo limite do seu cofre para $ACTION$.",
     "placeholders": {
       "action": {
         "content": "$1",
@@ -2527,10 +2533,10 @@
     "message": "O tempo limite do seu cofre excede as restrições definidas por sua organização."
   },
   "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Requisitos de políticas corporativas foram adicionadas as suas opções de tempo limite"
+    "message": "Os requisitos das políticas corporativas foram aplicados às suas opções de tempo limite"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "As políticas da sua organização definiram o seu tempo limite máximo permitido no cofre para $HOURS$ hora(s) e $MINUTES$ minuto(s).",
+    "message": "As políticas da sua organização configuraram o seu máximo permitido do tempo limite do cofre para $HOURS$ hora(s) e $MINUTES$ minuto(s).",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2556,7 +2562,7 @@
     }
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "O tempo limite personalizado mínimo é de 1 minuto."
+    "message": "O mínimo do tempo limite personalizado é de 1 minuto."
   },
   "inviteAccepted": {
     "message": "Convite aceito"
@@ -2565,31 +2571,31 @@
     "message": "Inscrição automática"
   },
   "resetPasswordAutoEnrollInviteWarning": {
-    "message": "Esta organização possui uma política empresarial que irá inscrevê-lo automaticamente na redefinição de senha. A inscrição permitirá que os administradores da organização alterem sua senha mestra."
+    "message": "Esta organização possui uma política empresarial que irá inscrevê-lo automaticamente na redefinição de senha. A inscrição permitirá que os administradores da organização alterem sua senha principal."
   },
   "vaultExportDisabled": {
     "message": "Exportação de cofre removida"
   },
   "personalVaultExportPolicyInEffect": {
-    "message": "Uma ou mais políticas da organização impdem que você exporte seu cofre pessoal."
+    "message": "Uma ou mais políticas da organização impedem que você exporte seu cofre pessoal."
   },
   "addAccount": {
     "message": "Adicionar conta"
   },
   "removeMasterPassword": {
-    "message": "Remover senha mestre"
+    "message": "Remover senha principal"
   },
   "removedMasterPassword": {
-    "message": "Senha mestre removida"
+    "message": "Senha principal removida"
   },
   "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Uma senha mestra não é mais necessária para membros da seguinte organização. Por favor, confirme o domínio abaixo com o administrador da sua organização."
+    "message": "Uma senha principal não é mais necessária para membros da seguinte organização. Confirme o domínio abaixo com o administrador da sua organização."
   },
   "organizationName": {
     "message": "Nome da organização"
   },
   "keyConnectorDomain": {
-    "message": "Domínio do Conector de Chave"
+    "message": "Domínio do Key Connector"
   },
   "leaveOrganization": {
     "message": "Sair da organização"
@@ -2601,25 +2607,25 @@
     "message": "Você saiu da organização."
   },
   "ssoKeyConnectorError": {
-    "message": "Erro do conector de chave: certifique-se de que o conector de chave está disponível e funcionando corretamente."
+    "message": "Erro do Key Connector: certifique-se de que o Key Connector está disponível e funcionando corretamente."
   },
   "lockAllVaults": {
     "message": "Bloquear todos os cofres"
   },
   "accountLimitReached": {
-    "message": "Não mais do que 5 contas podem estar logadas ao mesmo tempo."
+    "message": "Não mais do que 5 contas podem estar conectadas ao mesmo tempo."
   },
   "accountPreferences": {
     "message": "Preferências"
   },
   "appPreferences": {
-    "message": "Configurações do Aplicativo (Todas as Contas)"
+    "message": "Configurações do aplicativo (todas as contas)"
   },
   "accountSwitcherLimitReached": {
-    "message": "Limite de Contas atingido. Saia de uma conta para adicionar outra."
+    "message": "Limite de contas atingido. Desconecte uma conta para adicionar outra."
   },
   "settingsTitle": {
-    "message": "Configurações do Aplicativo para $EMAIL$",
+    "message": "Configurações do aplicativo para $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2637,13 +2643,13 @@
     "message": "Opções"
   },
   "sessionTimeout": {
-    "message": "Sua sessão expirou. Volte e tente entrar novamente."
+    "message": "Sua sessão expirou. Volte e tente se conectar novamente."
   },
   "exportingPersonalVaultTitle": {
     "message": "Exportando cofre individual"
   },
   "exportingIndividualVaultDescription": {
-    "message": "Apenas os itens do cofre individual associados com $EMAIL$ serão exportados. Os itens do cofre da organização não serão incluídos. Apenas as informações dos itens do cofre serão exportadas e não incluirão anexos associados.",
+    "message": "Apenas os itens do cofre individual associados a $EMAIL$ serão exportados. Os itens do cofre de organizações não serão incluídos. Apenas as informações dos itens do cofre serão exportadas e não incluirão anexos associados.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2652,7 +2658,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Apenas os itens do cofre individual, incluindo anexos associados com $EMAIL$ serão exportados. Os itens do cofre da organização não serão incluídos",
+    "message": "Apenas os itens do cofre individual, incluindo anexos associados com $EMAIL$ serão exportados. Os itens do cofre de organizações não serão incluídos",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2664,7 +2670,7 @@
     "message": "Exportando cofre da organização"
   },
   "exportingOrganizationVaultDesc": {
-    "message": "Apenas o cofre da organização associado com $ORGANIZATION$ será exportado. Itens do cofre individual e itens de outras organizações não serão incluídos.",
+    "message": "Apenas o cofre da organização associado a $ORGANIZATION$ será exportado. Itens de cofres individuais e de outras organizações não serão incluídos.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2682,7 +2688,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Apenas o cofre da organização associado com $ORGANIZATION$ será exportado. Os itens da minhas coleções não serão incluídos.",
+    "message": "Apenas o cofre da organização associado com $ORGANIZATION$ será exportado. As coleções de itens não serão incluídos.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2704,13 +2710,13 @@
     "description": "Short for 'credential generator'."
   },
   "whatWouldYouLikeToGenerate": {
-    "message": "O que você gostaria de gerar?"
+    "message": "O que gostaria de gerar?"
   },
   "passwordType": {
-    "message": "Tipo de senha"
+    "message": "Tipo da senha"
   },
   "regenerateUsername": {
-    "message": "Regenerar nome de usuário"
+    "message": "Regerar nome de usuário"
   },
   "generateUsername": {
     "message": "Gerar nome de usuário"
@@ -2731,7 +2737,7 @@
     "message": "Senha gerada"
   },
   "passphraseGenerated": {
-    "message": "Gerador de frase secreta"
+    "message": "Frase secreta gerada"
   },
   "usernameGenerated": {
     "message": "Nome de usuário gerado"
@@ -2787,19 +2793,19 @@
     "message": "E-mail pega-tudo"
   },
   "catchallEmailDesc": {
-    "message": "Use o catch-all configurado no seu domínio."
+    "message": "Use a caixa de entrada pega-tudo configurada no seu domínio."
   },
   "useThisEmail": {
     "message": "Usar este e-mail"
   },
   "useThisPassword": {
-    "message": "Use esta senha"
+    "message": "Usar esta senha"
   },
   "useThisPassphrase": {
-    "message": "Use esta frase secreta"
+    "message": "Usar esta frase secreta"
   },
   "useThisUsername": {
-    "message": "Use este nome de usuário"
+    "message": "Usar este nome de usuário"
   },
   "random": {
     "message": "Aleatório"
@@ -2817,13 +2823,13 @@
     "message": "Todos os cofres"
   },
   "searchOrganization": {
-    "message": "Pesquisar organização"
+    "message": "Buscar na organização"
   },
   "searchMyVault": {
-    "message": "Pesquisar meu cofre"
+    "message": "Buscar no meu cofre"
   },
   "forwardedEmail": {
-    "message": "Alias de Encaminhamento de E-mail"
+    "message": "Alias de encaminhamento de e-mail"
   },
   "forwardedEmailDesc": {
     "message": "Gere um alias de e-mail com um serviço externo de encaminhamento."
@@ -2837,7 +2843,7 @@
     "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
-    "message": "Erro $SERVICENAME$: $ERRORMESSAGE$",
+    "message": "Erro do $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Reports an error returned by a forwarding service to the user.",
     "placeholders": {
       "servicename": {
@@ -2865,7 +2871,7 @@
     }
   },
   "forwaderInvalidToken": {
-    "message": "Token de API $SERVICENAME$ inválido",
+    "message": "Token de API do $SERVICENAME$ inválido",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -2875,7 +2881,7 @@
     }
   },
   "forwaderInvalidTokenWithMessage": {
-    "message": "Token de API $SERVICENAME$ inválido: $ERRORMESSAGE$",
+    "message": "Token de API da $SERVICENAME$ inválido: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -2913,7 +2919,7 @@
     }
   },
   "forwarderNoAccountId": {
-    "message": "Não foi possível obter o ID da conta de e-mail mascarado $SERVICENAME$.",
+    "message": "Não é possível obter o ID da conta de e-mail mascarado do $SERVICENAME$.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
     "placeholders": {
       "servicename": {
@@ -2923,7 +2929,7 @@
     }
   },
   "forwarderNoDomain": {
-    "message": "Domínio $SERVICENAME$ inválido.",
+    "message": "Domínio inválido do $SERVICENAME$.",
     "description": "Displayed when the domain is empty or domain authorization failed at the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -2933,7 +2939,7 @@
     }
   },
   "forwarderNoUrl": {
-    "message": "URL $SERVICENAME$ inválido.",
+    "message": "URL inválido do $SERVICENAME$.",
     "description": "Displayed when the url of the forwarding service wasn't supplied.",
     "placeholders": {
       "servicename": {
@@ -2943,7 +2949,7 @@
     }
   },
   "forwarderUnknownError": {
-    "message": "Ocorreu um erro $SERVICENAME$ desconhecido.",
+    "message": "Ocorreu um erro desconhecido do $SERVICENAME$.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
     "placeholders": {
       "servicename": {
@@ -2963,7 +2969,7 @@
     }
   },
   "hostname": {
-    "message": "Servidor",
+    "message": "Nome do servidor",
     "description": "Part of a URL."
   },
   "apiAccessToken": {
@@ -2988,16 +2994,16 @@
     "message": "Cofre"
   },
   "loginWithMasterPassword": {
-    "message": "Entrar com senha mestre"
+    "message": "Conectar-se com senha principal"
   },
   "rememberEmail": {
-    "message": "Lembrar e-mail"
+    "message": "Lembrar do e-mail"
   },
   "newAroundHere": {
     "message": "Novo por aqui?"
   },
   "loggingInTo": {
-    "message": "Entrando em $DOMAIN$",
+    "message": "Conectando-se a $DOMAIN$",
     "placeholders": {
       "domain": {
         "content": "$1",
@@ -3006,7 +3012,7 @@
     }
   },
   "logInWithAnotherDevice": {
-    "message": "Entrar com outro dispositivo"
+    "message": "Conectar-se com outro dispositivo"
   },
   "loginInitiated": {
     "message": "Autenticação iniciada"
@@ -3024,7 +3030,7 @@
     "message": "Desbloqueie o Bitwarden no seu dispositivo ou no "
   },
   "notificationSentDeviceAnchor": {
-    "message": "app web"
+    "message": "aplicativo web"
   },
   "notificationSentDevicePart2": {
     "message": "Certifique-se de que a frase biométrica corresponde à frase abaixo antes de aprovar."
@@ -3042,7 +3048,7 @@
     "message": "Você será notificado assim que a solicitação for aprovada"
   },
   "needAnotherOption": {
-    "message": "A entrada com dispositivo deve ser ativada nas configurações do aplicativo móvel do Bitwarden. Precisa de outra opção?"
+    "message": "A autenticação com dispositivo deve ser ativada nas configurações do aplicativo móvel do Bitwarden. Precisa de outra opção?"
   },
   "viewAllLogInOptions": {
     "message": "Ver todas as opções de autenticação"
@@ -3080,10 +3086,10 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "Você negou uma tentativa de autenticação por outro dispositivo. Se foi você, tente entrar com o dispositivo novamente."
+    "message": "Você negou uma tentativa de autenticação por outro dispositivo. Se foi você, tente conectar-se com o dispositivo novamente."
   },
   "webApp": {
-    "message": "App web"
+    "message": "Aplicativo web"
   },
   "mobile": {
     "message": "Móvel",
@@ -3111,7 +3117,7 @@
     "message": "Solicitação de autenticação"
   },
   "deviceType": {
-    "message": "Tipo de dispositivo"
+    "message": "Tipo do dispositivo"
   },
   "ipAddress": {
     "message": "Endereço de IP"
@@ -3174,19 +3180,19 @@
     "message": "Nenhum e-mail?"
   },
   "goBack": {
-    "message": "Voltar"
+    "message": "Volte"
   },
   "toEditYourEmailAddress": {
     "message": "para editar o seu endereço de e-mail."
   },
   "exposedMasterPassword": {
-    "message": "Senha mestre comprometida"
+    "message": "Senha principal comprometida"
   },
   "exposedMasterPasswordDesc": {
     "message": "Senha encontrada em um vazamento de dados. Use uma senha única para proteger sua conta. Tem certeza de que deseja usar uma senha já exposta?"
   },
   "weakAndExposedMasterPassword": {
-    "message": "Senha mestra fraca e comprometida"
+    "message": "Senha principal fraca e comprometida"
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Senha fraca identificada e encontrada em um vazamento de dados. Use uma senha forte e única para proteger a sua conta. Tem certeza de que deseja usar essa senha?"
@@ -3204,13 +3210,13 @@
     "message": "Acessando"
   },
   "accessTokenUnableToBeDecrypted": {
-    "message": "Você foi desconectado porque seu token de acesso não pôde ser descriptografado. Por favor, entre novamente para resolver esse problema."
+    "message": "Você foi desconectado porque seu token de acesso não pôde ser descriptografado. Conecte-se novamente para resolver esse problema."
   },
   "refreshTokenSecureStorageRetrievalFailure": {
-    "message": "Você foi desconectado porque seu token de recarregamento não pôde ser recuperado. Por favor, entre novamente para resolver esse problema."
+    "message": "Você foi desconectado porque seu token de recarregamento não pôde ser recuperado. Conecte-se novamente para resolver esse problema."
   },
   "masterPasswordHint": {
-    "message": "A sua senha mestra não pode ser recuperada se você esquecê-la!"
+    "message": "A sua senha principal não pode ser recuperada se você esquecê-la!"
   },
   "characterMinimum": {
     "message": "Mínimo de $LENGTH$ caracteres",
@@ -3222,7 +3228,7 @@
     }
   },
   "windowsBiometricUpdateWarning": {
-    "message": "O Bitwarden recomenda a atualização das suas configurações de biometria para exigir a sua senha mestra (ou PIN) no primeiro desbloqueio. Gostaria de atualizar suas configurações agora?"
+    "message": "O Bitwarden recomenda a atualização das suas configurações de biometria para exigir a sua senha principal (ou PIN) no primeiro desbloqueio. Gostaria de atualizar suas configurações agora?"
   },
   "windowsBiometricUpdateWarningTitle": {
     "message": "Atualização recomendada das configurações"
@@ -3610,7 +3616,7 @@
     "message": "Código"
   },
   "lastPassMasterPassword": {
-    "message": "Senha mestre do LastPass"
+    "message": "Senha mestra do LastPass"
   },
   "lastPassAuthRequired": {
     "message": "Autenticação do LastPass necessária"
@@ -4181,5 +4187,41 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Itens arquivados são excluídos dos resultados da pesquisa geral e das sugestões de preenchimento automático. Tem certeza de que deseja arquivar este item?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "CEP / Código postal"
+  },
+  "cardNumberLabel": {
+    "message": "Número do cartão"
+  },
+  "upgradeNow": {
+    "message": "Faça upgrade agora"
+  },
+  "builtInAuthenticator": {
+    "message": "Autenticador integrado"
+  },
+  "secureFileStorage": {
+    "message": "Armazenamento seguro de arquivos"
+  },
+  "emergencyAccess": {
+    "message": "Acesso de emergência"
+  },
+  "breachMonitoring": {
+    "message": "Monitoramento de brechas"
+  },
+  "andMoreFeatures": {
+    "message": "E mais!"
+  },
+  "planDescPremium": {
+    "message": "Segurança on-line completa"
+  },
+  "upgradeToPremium": {
+    "message": "Faça upgrade para o Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Ação do tempo limite"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Tempo limite da sessão"
   }
 }

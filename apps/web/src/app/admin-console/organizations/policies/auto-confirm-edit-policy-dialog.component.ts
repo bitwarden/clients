@@ -22,6 +22,8 @@ import {
   tap,
 } from "rxjs";
 
+import { AutomaticUserConfirmationService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -30,6 +32,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -63,6 +66,8 @@ export type AutoConfirmPolicyDialogData = PolicyEditDialogData & {
  * Satisfies the PolicyDialogComponent interface structurally
  * via its static open() function.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "auto-confirm-edit-policy-dialog.component.html",
   imports: [SharedModule],
@@ -73,20 +78,31 @@ export class AutoConfirmPolicyDialogComponent
 {
   policyType = PolicyType;
 
-  protected firstTimeDialog = signal(false);
-  protected currentStep = signal(0);
+  protected readonly firstTimeDialog = signal(false);
+  protected readonly currentStep = signal(0);
   protected multiStepSubmit: Observable<MultiStepSubmit[]> = of([]);
   protected autoConfirmEnabled$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) => this.policyService.policies$(userId)),
     map((policies) => policies.find((p) => p.type === PolicyType.AutoConfirm)?.enabled ?? false),
   );
+  // Users with manage policies custom permission should not see the dialog's second step since
+  // they do not have permission to configure the setting. This will only allow them to configure
+  // the policy.
+  protected managePoliciesOnly$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => this.organizationService.organizations$(userId)),
+    getById(this.data.organizationId),
+    map((organization) => (!organization?.isAdmin && organization?.canManagePolicies) ?? false),
+  );
 
-  private submitPolicy: Signal<TemplateRef<unknown> | undefined> = viewChild("step0");
-  private openExtension: Signal<TemplateRef<unknown> | undefined> = viewChild("step1");
+  private readonly submitPolicy: Signal<TemplateRef<unknown> | undefined> = viewChild("step0");
+  private readonly openExtension: Signal<TemplateRef<unknown> | undefined> = viewChild("step1");
 
-  private submitPolicyTitle: Signal<TemplateRef<unknown> | undefined> = viewChild("step0Title");
-  private openExtensionTitle: Signal<TemplateRef<unknown> | undefined> = viewChild("step1Title");
+  private readonly submitPolicyTitle: Signal<TemplateRef<unknown> | undefined> =
+    viewChild("step0Title");
+  private readonly openExtensionTitle: Signal<TemplateRef<unknown> | undefined> =
+    viewChild("step1Title");
 
   override policyComponent: AutoConfirmPolicyEditComponent | undefined;
 
@@ -101,8 +117,10 @@ export class AutoConfirmPolicyDialogComponent
     toastService: ToastService,
     configService: ConfigService,
     keyService: KeyService,
+    private organizationService: OrganizationService,
     private policyService: PolicyService,
     private router: Router,
+    private autoConfirmService: AutomaticUserConfirmationService,
   ) {
     super(
       data,
@@ -142,19 +160,31 @@ export class AutoConfirmPolicyDialogComponent
       tap((singleOrgPolicyEnabled) =>
         this.policyComponent?.setSingleOrgEnabled(singleOrgPolicyEnabled),
       ),
-      map((singleOrgPolicyEnabled) => [
-        {
-          sideEffect: () => this.handleSubmit(singleOrgPolicyEnabled ?? false),
-          footerContent: this.submitPolicy,
-          titleContent: this.submitPolicyTitle,
-        },
-        {
-          sideEffect: () => this.openBrowserExtension(),
-          footerContent: this.openExtension,
-          titleContent: this.openExtensionTitle,
-        },
-      ]),
+      switchMap((singleOrgPolicyEnabled) => this.buildMultiStepSubmit(singleOrgPolicyEnabled)),
       shareReplay({ bufferSize: 1, refCount: true }),
+    );
+  }
+
+  private buildMultiStepSubmit(singleOrgPolicyEnabled: boolean): Observable<MultiStepSubmit[]> {
+    return this.managePoliciesOnly$.pipe(
+      map((managePoliciesOnly) => {
+        const submitSteps = [
+          {
+            sideEffect: () => this.handleSubmit(singleOrgPolicyEnabled ?? false),
+            footerContent: this.submitPolicy,
+            titleContent: this.submitPolicyTitle,
+          },
+        ];
+
+        if (!managePoliciesOnly) {
+          submitSteps.push({
+            sideEffect: () => this.openBrowserExtension(),
+            footerContent: this.openExtension,
+            titleContent: this.openExtensionTitle,
+          });
+        }
+        return submitSteps;
+      }),
     );
   }
 
@@ -181,6 +211,17 @@ export class AutoConfirmPolicyDialogComponent
       autoConfirmRequest,
     );
 
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    const currentAutoConfirmState = await firstValueFrom(
+      this.autoConfirmService.configuration$(userId),
+    );
+
+    await this.autoConfirmService.upsert(userId, {
+      ...currentAutoConfirmState,
+      showSetupDialog: false,
+    });
+
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
@@ -193,7 +234,6 @@ export class AutoConfirmPolicyDialogComponent
 
   private async submitSingleOrg(): Promise<void> {
     const singleOrgRequest: PolicyRequest = {
-      type: PolicyType.SingleOrg,
       enabled: true,
       data: null,
     };

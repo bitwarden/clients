@@ -9,6 +9,9 @@ export class MasterPasswordUnlockDataRequest {
   email: string;
   masterKeyAuthenticationHash: string;
 
+  /**
+   * Also known as masterKeyWrappedUserKey in other parts of the codebase
+   */
   masterKeyEncryptedUserKey: string;
 
   masterPasswordHint?: string;
@@ -17,7 +20,7 @@ export class MasterPasswordUnlockDataRequest {
     kdfConfig: KdfConfig,
     email: string,
     masterKeyAuthenticationHash: string,
-    masterKeyEncryptedUserKey: string,
+    masterKeyWrappedUserKey: string,
     masterPasswordHash?: string,
   ) {
     this.kdfType = kdfConfig.kdfType;
@@ -29,7 +32,7 @@ export class MasterPasswordUnlockDataRequest {
 
     this.email = email;
     this.masterKeyAuthenticationHash = masterKeyAuthenticationHash;
-    this.masterKeyEncryptedUserKey = masterKeyEncryptedUserKey;
+    this.masterKeyEncryptedUserKey = masterKeyWrappedUserKey;
     this.masterPasswordHint = masterPasswordHash;
   }
 }

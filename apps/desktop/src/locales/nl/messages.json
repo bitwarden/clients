@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Je hebt geen toestemming om dit item te bewerken"
+  },
   "welcomeBack": {
     "message": "Welkom terug"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "Single sign-on gebruiken"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Je organisatie vereist single sign-on."
+  },
   "submit": {
     "message": "Opslaan"
   },
@@ -1031,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Je moet de basisserver-URL of ten minste één aangepaste omgeving toevoegen."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL's moeten HTTPS gebruiken."
   },
   "customEnvironment": {
     "message": "Aangepaste omgeving"
@@ -2140,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "Er is iets misgegaan bij het tijdens het inschakelen van de browserintegratie."
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Helaas wordt browserintegratie momenteel alleen ondersteund in de Mac App Store-versie."
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Helaas wordt browserintegratie momenteel niet ondersteund in de Windows Store-versie."
@@ -4181,5 +4187,41 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Gearchiveerde items worden uitgesloten van algemene zoekresultaten en automatische invulsuggesties. Weet je zeker dat je dit item wilt archiveren?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "Postcode"
+  },
+  "cardNumberLabel": {
+    "message": "Kaartnummer"
+  },
+  "upgradeNow": {
+    "message": "Nu upgraden"
+  },
+  "builtInAuthenticator": {
+    "message": "Ingebouwde authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Beveiligde bestandsopslag"
+  },
+  "emergencyAccess": {
+    "message": "Noodtoegang"
+  },
+  "breachMonitoring": {
+    "message": "Lek-monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "En meer!"
+  },
+  "planDescPremium": {
+    "message": "Online beveiliging voltooien"
+  },
+  "upgradeToPremium": {
+    "message": "Opwaarderen naar Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Time-out actie"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sessietime-out"
   }
 }

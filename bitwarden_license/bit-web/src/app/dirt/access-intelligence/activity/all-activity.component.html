@@ -1,21 +1,23 @@
-@if (dataService.isLoading$ | async) {
+@if ((dataService.reportStatus$ | async) == ReportStatusEnum.Loading) {
   <dirt-risk-insights-loading></dirt-risk-insights-loading>
 } @else {
   <ul
     class="tw-inline-grid tw-grid-cols-3 tw-gap-6 tw-m-0 tw-p-0 tw-w-full tw-auto-cols-auto tw-list-none"
   >
-    <li class="tw-col-span-1" [ngClass]="{ 'tw-col-span-2': passwordChangeMetricHasProgressBar }">
-      <dirt-password-change-metric></dirt-password-change-metric>
+    <li class="tw-col-span-1" [ngClass]="{ 'tw-col-span-2': extendPasswordChangeWidget }">
+      <dirt-password-change-metric
+        [organizationId]="this.organizationId()"
+      ></dirt-password-change-metric>
     </li>
 
     <li class="tw-col-span-1">
       <dirt-activity-card
         [title]="'atRiskMembers' | i18n"
         [cardMetrics]="'membersAtRiskCount' | i18n: totalCriticalAppsAtRiskMemberCount"
-        [metricDescription]="'membersWithAccessToAtRiskItemsForCriticalApps' | i18n"
-        navigationText="{{ 'viewAtRiskMembers' | i18n }}"
-        navigationLink="{{ getLinkForRiskInsightsTab(RiskInsightsTabType.AllApps) }}"
-        [showNavigationLink]="totalCriticalAppsAtRiskMemberCount > 0"
+        [metricDescription]="'membersWithAccessToAtRiskItemsForCriticalApplications' | i18n"
+        actionText="{{ 'viewAtRiskMembers' | i18n }}"
+        [showActionLink]="totalCriticalAppsAtRiskMemberCount > 0"
+        (actionClick)="onViewAtRiskMembers()"
       >
       </dirt-activity-card>
     </li>
@@ -35,24 +37,60 @@
             : ('criticalApplicationsAreAtRisk'
               | i18n: totalCriticalAppsAtRiskCount : totalCriticalAppsCount)
         "
-        navigationText="{{ 'viewAtRiskApplications' | i18n }}"
-        navigationLink="{{ getLinkForRiskInsightsTab(RiskInsightsTabType.CriticalApps) }}"
-        [showNavigationLink]="totalCriticalAppsAtRiskCount > 0"
+        actionText="{{ 'viewAtRiskApplications' | i18n }}"
+        [showActionLink]="totalCriticalAppsAtRiskCount > 0"
+        (actionClick)="onViewAtRiskApplications()"
       >
       </dirt-activity-card>
     </li>
 
-    <li class="tw-col-span-1">
-      <dirt-activity-card
-        [title]="'applicationsNeedingReview' | i18n"
-        [cardMetrics]="'newApplicationsWithCount' | i18n: newApplicationsCount"
-        [metricDescription]="'newApplicationsDescription' | i18n"
-        [iconClass]="'bwi-exclamation-triangle'"
-        [buttonText]="'reviewNow' | i18n"
-        [buttonType]="'primary'"
-        (buttonClick)="onReviewNewApplications()"
-      >
-      </dirt-activity-card>
-    </li>
+    <!-- All Caught Up State -->
+    @if (isAllCaughtUp) {
+      <li class="tw-col-span-1">
+        <dirt-activity-card
+          [title]="'applicationsNeedingReview' | i18n"
+          [cardMetrics]="'allCaughtUp' | i18n"
+          [metricDescription]="'noNewApplicationsToReviewAtThisTime' | i18n"
+          [iconClass]="'bwi-check-circle'"
+          [iconColorClass]="'tw-text-success'"
+          [buttonText]="''"
+          [buttonType]="'primary'"
+          (buttonClick)="onReviewNewApplications()"
+        >
+        </dirt-activity-card>
+      </li>
+    }
+    <!-- Needs Review State (No apps have been reviewed) -->
+    @else if (showNeedsReviewState) {
+      <li class="tw-col-span-2">
+        <dirt-activity-card
+          [title]="'applicationsNeedingReview' | i18n"
+          [cardMetrics]="'organizationHasItemsSavedForApplications' | i18n: totalApplicationCount"
+          [metricDescription]="'reviewApplicationsToSecureItems' | i18n"
+          [iconClass]="'bwi-exclamation-triangle'"
+          [iconColorClass]="'tw-text-warning'"
+          [buttonText]="'reviewApplications' | i18n"
+          [buttonType]="'primary'"
+          (buttonClick)="onReviewNewApplications()"
+        >
+        </dirt-activity-card>
+      </li>
+    }
+    <!-- Default State (New applications to review) -->
+    @else {
+      <li class="tw-col-span-1">
+        <dirt-activity-card
+          [title]="'applicationsNeedingReview' | i18n"
+          [cardMetrics]="'newApplicationsWithCount' | i18n: newApplicationsCount"
+          [metricDescription]="'newApplicationsDescription' | i18n"
+          [iconClass]="'bwi-exclamation-triangle'"
+          [iconColorClass]="'tw-text-muted'"
+          [buttonText]="'reviewNow' | i18n"
+          [buttonType]="'primary'"
+          (buttonClick)="onReviewNewApplications()"
+        >
+        </dirt-activity-card>
+      </li>
+    }
   </ul>
 }

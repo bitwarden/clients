@@ -91,7 +91,7 @@ import { CipherShareRequest } from "../vault/models/request/cipher-share.request
 import { CipherRequest } from "../vault/models/request/cipher.request";
 import { AttachmentUploadDataResponse } from "../vault/models/response/attachment-upload-data.response";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
-import { CipherResponse } from "../vault/models/response/cipher.response";
+import { CipherMiniResponse, CipherResponse } from "../vault/models/response/cipher.response";
 import { OptionalCipherResponse } from "../vault/models/response/optional-cipher.response";
 
 /**
@@ -215,7 +215,10 @@ export abstract class ApiService {
     id: string,
     request: CipherCollectionsRequest,
   ): Promise<OptionalCipherResponse>;
-  abstract putCipherCollectionsAdmin(id: string, request: CipherCollectionsRequest): Promise<any>;
+  abstract putCipherCollectionsAdmin(
+    id: string,
+    request: CipherCollectionsRequest,
+  ): Promise<CipherMiniResponse>;
   abstract postPurgeCiphers(
     request: SecretVerificationRequest,
     organizationId?: string,
