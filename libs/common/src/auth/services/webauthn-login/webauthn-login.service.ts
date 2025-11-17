@@ -43,15 +43,13 @@ export class WebAuthnLoginService implements WebAuthnLoginServiceAbstraction {
 
     try {
       const response = await this.navigatorCredentialsService.get(nativeOptions);
-      if (!(response instanceof PublicKeyCredential)) {
-        return undefined;
-      }
       // TODO: Remove `any` when typescript typings add support for PRF
-      const prfResult = (response.getClientExtensionResults() as any).prf?.results?.first;
+      const prfResult = response.prf;
       let symmetricPrfKey: PrfKey | undefined;
       if (prfResult != undefined) {
-        symmetricPrfKey =
-          await this.webAuthnLoginPrfKeyService.createSymmetricKeyFromPrf(prfResult);
+        symmetricPrfKey = await this.webAuthnLoginPrfKeyService.createSymmetricKeyFromPrf(
+          prfResult.buffer as ArrayBuffer,
+        );
       }
 
       const deviceResponse = new WebAuthnLoginAssertionResponseRequest(response);

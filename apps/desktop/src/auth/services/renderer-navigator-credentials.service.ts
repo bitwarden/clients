@@ -1,11 +1,14 @@
 import { navigator_credentials } from "apps/desktop/desktop_native/napi";
 
-import { NavigatorCredentialsService } from "@bitwarden/common/auth/abstractions/webauthn/navigator-credentials.service";
+import {
+  NavigatorCredentialsService,
+  PublicKeyCredential,
+} from "@bitwarden/common/auth/abstractions/webauthn/navigator-credentials.service";
 
 export class RendererNavigatorCredentialsService implements NavigatorCredentialsService {
   constructor() {}
 
-  async get(options: CredentialRequestOptions): Promise<Credential | null> {
+  async get(options: CredentialRequestOptions): Promise<PublicKeyCredential | null> {
     return await ipc.auth.navigatorCredentialsGet({
       challenge: arrayBufferSourceToUint8Array(options.publicKey.challenge),
       timeout: options.publicKey.timeout,

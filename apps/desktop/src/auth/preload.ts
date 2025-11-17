@@ -1,5 +1,6 @@
 import { ipcRenderer } from "electron";
 
+import { PublicKeyCredential } from "@bitwarden/common/auth/abstractions/webauthn/navigator-credentials.service";
 import { navigator_credentials } from "@bitwarden/desktop-napi";
 
 export default {
@@ -11,8 +12,7 @@ export default {
     }),
   navigatorCredentialsGet: (
     options: navigator_credentials.PublicKeyCredentialRequestOptions,
-  ): Promise<navigator_credentials.PublicKeyCredential | null> =>
-    ipcRenderer.invoke("navigatorCredentials.get", options),
+  ): Promise<PublicKeyCredential | null> => ipcRenderer.invoke("navigatorCredentials.get", options),
   navigatorCredentialsAvailable: (): Promise<boolean> =>
     ipcRenderer.invoke("navigatorCredentials.available"),
 };

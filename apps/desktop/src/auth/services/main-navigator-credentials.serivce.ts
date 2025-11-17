@@ -7,7 +7,20 @@ export class MainNavigatorCredentialsService {
     ipcMain.handle(
       "navigatorCredentials.get",
       async (_event: any, message: navigator_credentials.PublicKeyCredentialRequestOptions) => {
-        return navigator_credentials.get(message);
+        const result = navigator_credentials.get(message);
+        return {
+          authenticatorAttachment: result.authenticatorAttachment,
+          id: result.id,
+          rawId: result.rawId,
+          response: {
+            clientDataJSON: result.response.clientDataJson,
+            authenticatorData: result.response.authenticatorData,
+            signature: result.response.signature,
+            userHandle: result.response.userHandle,
+          },
+          type: result.type,
+          prf: result.prf,
+        };
       },
     );
     ipcMain.handle("navigatorCredentials.available", async (_event: any, _message: any) => {

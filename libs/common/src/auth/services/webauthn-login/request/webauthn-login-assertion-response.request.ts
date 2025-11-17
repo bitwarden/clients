@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { PublicKeyCredential } from "@bitwarden/common/auth/abstractions/webauthn/navigator-credentials.service";
+
 import { Utils } from "../../../../platform/misc/utils";
 
 import { WebAuthnLoginResponseRequest } from "./webauthn-login-response.request";
@@ -20,15 +22,15 @@ export class WebAuthnLoginAssertionResponseRequest extends WebAuthnLoginResponse
   constructor(credential: PublicKeyCredential) {
     super(credential);
 
-    if (!(credential.response instanceof AuthenticatorAssertionResponse)) {
-      throw new Error("Invalid authenticator response");
-    }
-
     this.response = {
-      authenticatorData: Utils.fromBufferToUrlB64(credential.response.authenticatorData),
-      signature: Utils.fromBufferToUrlB64(credential.response.signature),
-      clientDataJSON: Utils.fromBufferToUrlB64(credential.response.clientDataJSON),
-      userHandle: Utils.fromBufferToUrlB64(credential.response.userHandle),
+      authenticatorData: Utils.fromBufferToUrlB64(
+        credential.response.authenticatorData.buffer as ArrayBuffer,
+      ),
+      signature: Utils.fromBufferToUrlB64(credential.response.signature.buffer as ArrayBuffer),
+      clientDataJSON: Utils.fromBufferToUrlB64(
+        credential.response.clientDataJSON.buffer as ArrayBuffer,
+      ),
+      userHandle: Utils.fromBufferToUrlB64(credential.response.userHandle.buffer as ArrayBuffer),
     };
   }
 
