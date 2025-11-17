@@ -132,6 +132,10 @@ export class PoliciesComponent implements OnInit {
   }
 
   async load() {
+    if (!this.organizationId) {
+      return;
+    }
+
     const response = await this.policyApiService.getPolicies(this.organizationId);
     this.orgPolicies = response.data != null && response.data.length > 0 ? response.data : [];
     this.orgPolicies.forEach((op) => {
