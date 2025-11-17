@@ -7,7 +7,7 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { debounceTime } from "rxjs";
 
@@ -21,12 +21,13 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   IconButtonModule,
+  LinkModule,
   NoItemsModule,
   SearchModule,
   TableDataSource,
   ToastService,
+  TypographyModule,
 } from "@bitwarden/components";
-import { CardComponent } from "@bitwarden/dirt-card";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
@@ -44,14 +45,14 @@ import { ApplicationsLoadingComponent } from "../shared/risk-insights-loading.co
   imports: [
     ApplicationsLoadingComponent,
     HeaderModule,
-    CardComponent,
+    LinkModule,
     SearchModule,
     PipesModule,
     NoItemsModule,
     SharedModule,
     AppTableRowScrollableComponent,
     IconButtonModule,
-    ReactiveFormsModule,
+    TypographyModule,
   ],
 })
 export class AllApplicationsComponent implements OnInit {

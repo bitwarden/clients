@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "حدث خطأ أثناء تمكين دمج المتصفح."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "للأسف، لا يتم دعم تكامل المتصفح إلا في إصدار متجر تطبيقات ماك في الوقت الحالي."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "للأسف، لا يتم دعم تكامل المتصفح في إصدار متجر ويندوز في الوقت الحالي."
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }
