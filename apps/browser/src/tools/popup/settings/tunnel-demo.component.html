@@ -1,37 +1,146 @@
 <popup-page>
-  <popup-header slot="header" pageTitle="Tunnel Demo" showBackButton>
+  <popup-header slot="header" pageTitle="Tunnel Demo - Noise Protocol" showBackButton>
     <ng-container slot="end">
       <app-pop-out></app-pop-out>
     </ng-container>
   </popup-header>
 
-  <bit-section>
+  <!-- Connection Form -->
+  <bit-section *ngIf="!isListening">
     <bit-section-header>
-      <h2 bitTypography="h6">{{ "retrieveCredentials" | i18n }}</h2>
+      <h2 bitTypography="h6">Pair with Remote Device</h2>
     </bit-section-header>
     <bit-card>
-      <form [formGroup]="formGroup" (ngSubmit)="submit()">
+      <form [formGroup]="formGroup" (ngSubmit)="startPairing()">
         <bit-form-field>
-          <bit-label>{{ "tunnelUsername" | i18n }}</bit-label>
-          <input bitInput type="text" formControlName="tunnelUsername" />
-          <bit-hint>Enter your username to connect to the remote tunnel.</bit-hint>
-        </bit-form-field>
-        <bit-form-field>
-          <input
-            type="checkbox"
-            bitCheckbox
-            formControlName="useNoiseProtocol"
-            id="useNoiseProtocol"
-          />
-          <bit-label for="useNoiseProtocol">Use Noise Protocol (XXpsk3) Encryption</bit-label>
+          <bit-label>Proxy URL</bit-label>
+          <input bitInput type="text" formControlName="proxyUrl" />
           <bit-hint
-            >Enable end-to-end encryption using the Noise Protocol Framework with WASM.</bit-hint
+            >WebSocket URL of the tunnel proxy server (default: ws://localhost:8080)</bit-hint
           >
         </bit-form-field>
+
+        <bit-form-field>
+          <bit-label>Username</bit-label>
+          <input bitInput type="text" formControlName="username" />
+          <bit-hint>Your username for this pairing session</bit-hint>
+        </bit-form-field>
+
         <button bitButton buttonType="primary" type="submit" [disabled]="formGroup.invalid">
-          {{ "demoRetrieve" | i18n }}
+          Start Pairing
         </button>
+        <p class="tw-text-sm tw-text-muted tw-mt-2">
+          A pairing code will be generated automatically when you connect.
+        </p>
       </form>
+    </bit-card>
+  </bit-section>
+
+  <!-- Status Display -->
+  <bit-section *ngIf="isListening">
+    <bit-section-header>
+      <h2 bitTypography="h6">Connection Status</h2>
+    </bit-section-header>
+    <bit-card>
+      <div class="tw-space-y-4">
+        <div class="tw-flex tw-justify-between tw-items-center">
+          <span class="tw-font-semibold">Status:</span>
+          <span
+            [ngClass]="{
+              'tw-text-success': isConnected,
+              'tw-text-warning': !isConnected && isListening,
+              'tw-text-muted': !isListening,
+            }"
+          >
+            {{ connectionStatus }}
+          </span>
+        </div>
+
+        <div class="tw-flex tw-justify-between tw-items-center">
+          <span class="tw-font-semibold">Username:</span>
+          <span>{{ formGroup.value.username }}</span>
+        </div>
+
+        <!-- Pairing Code Section -->
+        <div
+          *ngIf="pairingCode"
+          class="tw-border tw-border-solid tw-border-secondary-300 tw-rounded tw-p-4 tw-bg-background-alt"
+        >
+          <h3 bitTypography="h6" class="tw-mb-2">Pairing Code</h3>
+          <div
+            class="tw-font-mono tw-text-lg tw-break-all tw-bg-background tw-p-3 tw-rounded tw-mb-2"
+          >
+            {{ pairingPassword }}
+          </div>
+          <p class="tw-text-sm tw-text-muted tw-mb-3">
+            Share this code with remote devices to establish secure connection
+          </p>
+
+          <h4 bitTypography="body1" class="tw-font-semibold tw-mb-2">Full Pairing Code:</h4>
+          <div
+            class="tw-font-mono tw-text-xs tw-break-all tw-bg-background tw-p-3 tw-rounded tw-mb-2"
+          >
+            {{ pairingCode }}
+          </div>
+          <button bitButton buttonType="secondary" (click)="copyPairingCode()">
+            Copy Pairing Code
+          </button>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="tw-mt-4">
+          <h3 bitTypography="h6" class="tw-mb-2">Activity Log</h3>
+          <div
+            class="tw-max-h-64 tw-overflow-y-auto tw-border tw-border-solid tw-border-secondary-300 tw-rounded tw-p-3 tw-bg-background-alt"
+          >
+            <div *ngIf="activityLog.length === 0" class="tw-text-sm tw-text-muted">
+              No activity yet...
+            </div>
+            <div
+              *ngFor="let entry of activityLog"
+              class="tw-text-sm tw-mb-2 tw-pb-2 tw-border-b tw-border-secondary-100"
+            >
+              <div class="tw-flex tw-justify-between tw-items-start">
+                <span
+                  [ngClass]="{
+                    'tw-text-success': entry.type === 'success',
+                    'tw-text-warning': entry.type === 'warning',
+                    'tw-text-danger': entry.type === 'error',
+                    'tw-text-muted': entry.type === 'info',
+                  }"
+                >
+                  {{ entry.message }}
+                </span>
+                <span class="tw-text-xs tw-text-muted tw-ml-2 tw-whitespace-nowrap">
+                  {{ entry.timestamp | date: "HH:mm:ss" }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button bitButton buttonType="secondary" (click)="disconnect()">Disconnect</button>
+      </div>
+    </bit-card>
+  </bit-section>
+
+  <!-- Info Section -->
+  <bit-section>
+    <bit-section-header>
+      <h2 bitTypography="h6">About This Demo</h2>
+    </bit-section-header>
+    <bit-card>
+      <p class="tw-text-sm tw-text-muted tw-mb-2">
+        This demo implements a secure tunnel using the Noise Protocol Framework with:
+      </p>
+      <ul class="tw-list-disc tw-list-inside tw-text-sm tw-text-muted tw-space-y-1">
+        <li>Noise_XXpsk3_25519_AESGCM_SHA256 pattern</li>
+        <li>X25519 for key exchange (via WASM)</li>
+        <li>AES-GCM for encryption</li>
+        <li>Pre-shared key authentication with HKDF</li>
+        <li>WebSocket transport for real-time communication</li>
+        <li>Biometric verification before sending credentials</li>
+      </ul>
     </bit-card>
   </bit-section>
 </popup-page>
