@@ -8,6 +8,11 @@ import { LogService } from "../../../platform/abstractions/log.service";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { PrfKey } from "../../../types/key";
+import {
+  NavigatorCredentialsService,
+  PublicKeyCredential as CustomPublicKeyCredential,
+  AuthenticatorAssertionResponse as CustomAuthenticatorAssertionResponse,
+} from "../../abstractions/webauthn/navigator-credentials.service";
 import { WebAuthnLoginApiServiceAbstraction } from "../../abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "../../abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { AuthResult } from "../../models/domain/auth-result";
@@ -26,6 +31,7 @@ describe("WebAuthnLoginService", () => {
   const webAuthnLoginPrfKeyService = mock<WebAuthnLoginPrfKeyServiceAbstraction>();
   const navigatorCredentials = mock<CredentialsContainer>();
   const logService = mock<LogService>();
+  const mockNavigatorCredentialsService = mock<NavigatorCredentialsService>();
 
   let originalPublicKeyCredential!: PublicKeyCredential | any;
   let originalAuthenticatorAssertionResponse!: AuthenticatorAssertionResponse | any;
@@ -35,11 +41,6 @@ describe("WebAuthnLoginService", () => {
     // Save off the original classes so we can restore them after all tests are done if they exist
     originalPublicKeyCredential = global.PublicKeyCredential;
     originalAuthenticatorAssertionResponse = global.AuthenticatorAssertionResponse;
-
-    // We must do this to make the mocked classes available for all the
-    // assertCredential(...) tests.
-    global.PublicKeyCredential = MockPublicKeyCredential as any;
-    global.AuthenticatorAssertionResponse = MockAuthenticatorAssertionResponse;
 
     // Save the original navigator
     originalNavigator = global.window.navigator;
@@ -75,11 +76,10 @@ describe("WebAuthnLoginService", () => {
       webAuthnLoginApiService,
       loginStrategyService,
       webAuthnLoginPrfKeyService,
-      window,
+      mockNavigatorCredentialsService,
       logService,
     );
   }
-
   it("instantiates", () => {
     webAuthnLoginService = createWebAuthnLoginService();
     expect(webAuthnLoginService).not.toBeFalsy();
@@ -138,16 +138,15 @@ describe("WebAuthnLoginService", () => {
       const expectedSaltHex = "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890";
       const saltArrayBuffer = Utils.hexStringToArrayBuffer(expectedSaltHex);
 
-      const publicKeyCredential = new MockPublicKeyCredential();
-      const prfResult: ArrayBuffer =
-        publicKeyCredential.getClientExtensionResults().prf?.results?.first;
+      const publicKeyCredential = mockPublicKeyCredential;
+      const prfResult: ArrayBuffer = publicKeyCredential.prf.buffer as ArrayBuffer;
       const prfKey = new SymmetricCryptoKey(new Uint8Array(prfResult)) as PrfKey;
 
       webAuthnLoginPrfKeyService.getLoginWithPrfSalt.mockResolvedValue(saltArrayBuffer);
       webAuthnLoginPrfKeyService.createSymmetricKeyFromPrf.mockResolvedValue(prfKey);
 
       // Mock implementations
-      navigatorCredentials.get.mockResolvedValue(publicKeyCredential);
+      mockNavigatorCredentialsService.get.mockResolvedValue(publicKeyCredential);
 
       // Act
       const result = await webAuthnLoginService.assertCredential(credentialAssertionOptions);
@@ -156,7 +155,7 @@ describe("WebAuthnLoginService", () => {
 
       expect(webAuthnLoginPrfKeyService.getLoginWithPrfSalt).toHaveBeenCalled();
 
-      expect(navigatorCredentials.get).toHaveBeenCalledWith(
+      expect(mockNavigatorCredentialsService.get).toHaveBeenCalledWith(
         expect.objectContaining({
           publicKey: expect.objectContaining({
             ...credentialAssertionOptions.options,
@@ -178,7 +177,9 @@ describe("WebAuthnLoginService", () => {
 
       expect(result.deviceResponse).toBeInstanceOf(WebAuthnLoginAssertionResponseRequest);
       expect(result.deviceResponse.id).toEqual(publicKeyCredential.id);
-      expect(result.deviceResponse.rawId).toEqual(publicKeyCredential.rawIdB64Str);
+      expect(result.deviceResponse.rawId).toEqual(
+        Utils.fromBufferToUrlB64(publicKeyCredential.rawId.buffer as ArrayBuffer),
+      );
       expect(result.deviceResponse.type).toEqual(publicKeyCredential.type);
       // extensions being empty could change in the future but for now it is expected
       expect(result.deviceResponse.extensions).toEqual({});
@@ -186,10 +187,18 @@ describe("WebAuthnLoginService", () => {
       expect("prf" in result.deviceResponse.extensions).toBe(false);
 
       expect(result.deviceResponse.response).toEqual({
-        authenticatorData: publicKeyCredential.response.authenticatorDataB64Str,
-        clientDataJSON: publicKeyCredential.response.clientDataJSONB64Str,
-        signature: publicKeyCredential.response.signatureB64Str,
-        userHandle: publicKeyCredential.response.userHandleB64Str,
+        authenticatorData: Utils.fromBufferToUrlB64(
+          publicKeyCredential.response.authenticatorData.buffer as ArrayBuffer,
+        ),
+        clientDataJSON: Utils.fromBufferToUrlB64(
+          publicKeyCredential.response.clientDataJSON.buffer as ArrayBuffer,
+        ),
+        signature: Utils.fromBufferToUrlB64(
+          publicKeyCredential.response.signature.buffer as ArrayBuffer,
+        ),
+        userHandle: Utils.fromBufferToUrlB64(
+          publicKeyCredential.response.userHandle.buffer as ArrayBuffer,
+        ),
       });
 
       expect(result.prfKey).toEqual(prfKey);
@@ -233,7 +242,7 @@ describe("WebAuthnLoginService", () => {
 
   describe("logIn(...)", () => {
     function buildWebAuthnLoginCredentialAssertionView(): WebAuthnLoginCredentialAssertionView {
-      const publicKeyCredential = new MockPublicKeyCredential();
+      const publicKeyCredential = mockPublicKeyCredential;
 
       const deviceResponse = new WebAuthnLoginAssertionResponseRequest(publicKeyCredential);
 
@@ -270,57 +279,21 @@ function randomBytes(length: number): Uint8Array {
 // AuthenticatorAssertionResponse && PublicKeyCredential are only available in secure contexts
 // so we need to mock them and assign them to the global object to make them available
 // for the tests
-class MockAuthenticatorAssertionResponse implements AuthenticatorAssertionResponse {
-  clientDataJSON: ArrayBuffer = randomBytes(32).buffer;
-  authenticatorData: ArrayBuffer = randomBytes(196).buffer;
-  signature: ArrayBuffer = randomBytes(72).buffer;
-  userHandle: ArrayBuffer = randomBytes(16).buffer;
+const mockAuthenticatorAssertionResponse: CustomAuthenticatorAssertionResponse = {
+  clientDataJSON: randomBytes(32),
+  authenticatorData: randomBytes(196),
+  signature: randomBytes(72),
+  userHandle: randomBytes(16),
+};
 
-  clientDataJSONB64Str = Utils.fromBufferToUrlB64(this.clientDataJSON);
-  authenticatorDataB64Str = Utils.fromBufferToUrlB64(this.authenticatorData);
-  signatureB64Str = Utils.fromBufferToUrlB64(this.signature);
-  userHandleB64Str = Utils.fromBufferToUrlB64(this.userHandle);
-}
-
-class MockPublicKeyCredential implements PublicKeyCredential {
-  authenticatorAttachment = "cross-platform";
-  id = "mockCredentialId";
-  type = "public-key";
-  rawId: ArrayBuffer = randomBytes(32).buffer;
-  rawIdB64Str = Utils.fromBufferToUrlB64(this.rawId);
-
-  response: MockAuthenticatorAssertionResponse = new MockAuthenticatorAssertionResponse();
-
-  // Use random 64 character hex string (32 bytes - matters for symmetric key creation)
-  // to represent the prf key binary data and convert to ArrayBuffer
-  // Creating the array buffer from a known hex value allows us to
-  // assert on the value in tests
-  private prfKeyArrayBuffer: ArrayBuffer = Utils.hexStringToArrayBuffer(
-    "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-  );
-
-  getClientExtensionResults(): any {
-    return {
-      prf: {
-        results: {
-          first: this.prfKeyArrayBuffer,
-        },
-      },
-    };
-  }
-
-  static isConditionalMediationAvailable(): Promise<boolean> {
-    return Promise.resolve(false);
-  }
-
-  static isUserVerifyingPlatformAuthenticatorAvailable(): Promise<boolean> {
-    return Promise.resolve(false);
-  }
-
-  toJSON() {
-    throw new Error("Method not implemented.");
-  }
-}
+const mockPublicKeyCredential: CustomPublicKeyCredential = {
+  authenticatorAttachment: "cross-platform",
+  id: "mockCredentialId",
+  type: "public-key",
+  rawId: randomBytes(32),
+  response: mockAuthenticatorAssertionResponse,
+  prf: randomBytes(32),
+};
 
 function buildCredentialAssertionOptions(): WebAuthnLoginCredentialAssertionOptionsView {
   // Mock credential assertion options
