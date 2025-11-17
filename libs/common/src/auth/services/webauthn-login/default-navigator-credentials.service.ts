@@ -1,9 +1,9 @@
 import { ClientType } from "@bitwarden/client-type";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-import { NavigatorCredentialsServiceAbstraction } from "../../abstractions/webauthn/navigator-credentials.service";
+import { NavigatorCredentialsService } from "../../abstractions/webauthn/navigator-credentials.service";
 
-export class DefaultNavigatorCredentialsService implements NavigatorCredentialsServiceAbstraction {
+export class DefaultNavigatorCredentialsService implements NavigatorCredentialsService {
   private navigatorCredentials: CredentialsContainer;
 
   constructor(
