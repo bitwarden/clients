@@ -105,6 +105,7 @@ import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification-api.service.abstraction";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { NavigatorCredentialsService } from "@bitwarden/common/auth/abstractions/webauthn/navigator-credentials.service";
 import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
@@ -1346,7 +1347,7 @@ const safeProviders: SafeProvider[] = [
       WebAuthnLoginApiServiceAbstraction,
       LoginStrategyServiceAbstraction,
       WebAuthnLoginPrfKeyServiceAbstraction,
-      WINDOW,
+      NavigatorCredentialsService,
       LogService,
     ],
   }),

@@ -19,6 +19,7 @@ autotype = { path = "../autotype" }
 base64 = { workspace = true }
 chromium_importer = { path = "../chromium_importer" }
 desktop_core = { path = "../core" }
+fido2_client = { path = "../fido2_client" }
 hex = { workspace = true }
 napi = { workspace = true, features = ["async"] }
 napi-derive = { workspace = true }

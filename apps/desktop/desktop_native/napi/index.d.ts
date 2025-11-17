@@ -254,3 +254,38 @@ export declare namespace autotype {
   export function getForegroundWindowTitle(): string
   export function typeInput(input: Array<number>, keyboardShortcut: Array<string>): void
 }
+export declare namespace navigator_credentials {
+  export const enum UserVerification {
+    Preferred = 'Preferred',
+    Required = 'Required',
+    Discouraged = 'Discouraged'
+  }
+  export interface PrfConfig {
+    first: Uint8Array
+    second?: Uint8Array
+  }
+  export interface PublicKeyCredentialRequestOptions {
+    challenge: Uint8Array
+    timeout: number
+    rpId: string
+    userVerification: UserVerification
+    allowCredentials: Array<Uint8Array>
+    prf?: PrfConfig
+  }
+  export interface AuthenticatorAssertionResponse {
+    authenticatorData: Uint8Array
+    clientDataJson: Uint8Array
+    signature: Uint8Array
+    userHandle: Uint8Array
+  }
+  export interface PublicKeyCredential {
+    authenticatorAttachment: string
+    id: string
+    rawId: Uint8Array
+    response: AuthenticatorAssertionResponse
+    type: string
+    prf?: Uint8Array
+  }
+  export function get(assertionOptions: PublicKeyCredentialRequestOptions): PublicKeyCredential
+  export function available(): boolean
+}

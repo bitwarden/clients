@@ -5,6 +5,7 @@ members = [
     "bitwarden_chromium_import_helper",
     "chromium_importer",
     "core",
+    "fido2_client",
     "macos_provider",
     "napi",
     "process_isolation",

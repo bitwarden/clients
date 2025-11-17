@@ -23,10 +23,6 @@ export class DefaultLoginComponentService implements LoginComponentService {
     this.clientType = this.platformUtilsService.getClientType();
   }
 
-  isLoginWithPasskeySupported(): boolean {
-    return this.clientType === ClientType.Web;
-  }
-
   /**
    * Redirects the user to the SSO login page, either via route or in a new browser window.
    * @param email The email address of the user attempting to log in

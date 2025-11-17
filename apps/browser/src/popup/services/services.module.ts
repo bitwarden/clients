@@ -51,8 +51,10 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { NavigatorCredentialsService } from "@bitwarden/common/auth/abstractions/webauthn/navigator-credentials.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/auth-request-answering.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
+import { DefaultNavigatorCredentialsService } from "@bitwarden/common/auth/services/webauthn-login/default-navigator-credentials.service";
 import {
   AutofillSettingsService,
   AutofillSettingsServiceAbstraction,
@@ -716,6 +718,11 @@ const safeProviders: SafeProvider[] = [
     provide: NewDeviceVerificationComponentService,
     useClass: ExtensionNewDeviceVerificationComponentService,
     deps: [],
+  }),
+  safeProvider({
+    provide: NavigatorCredentialsService,
+    useClass: DefaultNavigatorCredentialsService,
+    deps: [WINDOW, PlatformUtilsService],
   }),
   safeProvider({
     provide: SessionTimeoutSettingsComponentService,
