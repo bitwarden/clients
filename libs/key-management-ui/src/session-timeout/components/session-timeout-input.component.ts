@@ -10,6 +10,7 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
+  AbstractControlOptions,
   ControlValueAccessor,
   FormBuilder,
   FormControl,
@@ -87,16 +88,16 @@ export class SessionTimeoutInputComponent implements ControlValueAccessor, Valid
   protected maxSessionTimeoutPolicyData: MaximumSessionTimeoutPolicyData | null = null;
   protected policyTimeoutMessage$!: Observable<string | null>;
 
-  readonly form: SessionTimeoutForm = this.formBuilder.group({
-    vaultTimeout: [null as VaultTimeout | null],
-    custom: this.formBuilder.group({
-      hours: [null as number | null, [Validators.required, Validators.min(0)]],
-      minutes: [
-        null as number | null,
-        [Validators.required, Validators.min(0), Validators.max(59)],
-      ],
-    }),
-  });
+  readonly form: SessionTimeoutForm = this.formBuilder.group(
+    {
+      vaultTimeout: [null as VaultTimeout | null],
+      custom: this.formBuilder.group({
+        hours: [0, [Validators.required, Validators.min(0)]],
+        minutes: [0, [Validators.required, Validators.min(0), Validators.max(59)]],
+      }),
+    },
+    { validators: [this.formValidator.bind(this)] } as AbstractControlOptions,
+  );
 
   private onChange: ((vaultTimeout: VaultTimeout) => void) | null = null;
   private validatorChange: (() => void) | null = null;
@@ -111,8 +112,9 @@ export class SessionTimeoutInputComponent implements ControlValueAccessor, Valid
 
   get exceedsPolicyMaximumTimeout(): boolean {
     return (
+      this.maxSessionTimeoutPolicyData?.type === VaultTimeoutStringType.Custom &&
       this.isCustomTimeoutType &&
-      this.customTimeInMinutes() >
+      this.getTotalMinutesFromCustomValue(this.form.value.custom) >
         this.maxSessionTimeoutPolicyMinutes + 60 * this.maxSessionTimeoutPolicyHours
     );
   }
@@ -146,10 +148,15 @@ export class SessionTimeoutInputComponent implements ControlValueAccessor, Valid
 
     // Subscribe to form value changes
     this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
-      if (this.onChange && this.form.valid) {
+      if (this.onChange) {
         const vaultTimeout = this.getVaultTimeout(value);
         if (vaultTimeout != null) {
-          this.onChange(vaultTimeout);
+          // Only call onChange if the form is valid
+          // For non-numeric values, we don't need to validate custom fields
+          const isValid = !this.isCustomTimeoutType || this.form.controls.custom.valid;
+          if (isValid) {
+            this.onChange(vaultTimeout);
+          }
         }
       }
     });
@@ -178,6 +185,8 @@ export class SessionTimeoutInputComponent implements ControlValueAccessor, Valid
           },
           { emitEvent: false },
         );
+
+        this.form.controls.custom.markAllAsTouched();
       });
   }
 
@@ -234,33 +243,45 @@ export class SessionTimeoutInputComponent implements ControlValueAccessor, Valid
   }
 
   validate(_: AbstractControl): ValidationErrors | null {
-    // Check if internal form fields are valid (hours/minutes within range)
-    if (this.isCustomTimeoutType && this.form.controls.custom.invalid) {
-      return { invalidFields: true };
-    }
-
-    if (this.isBelowMinimumTimeout) {
-      return { minTimeoutError: true };
-    }
-
-    if (this.maxSessionTimeoutPolicyData != null) {
-      if (this.exceedsPolicyMaximumTimeout) {
-        return { maxTimeoutError: true };
-      }
-    }
-
-    return null;
+    return this.form.errors;
   }
 
   registerOnValidatorChange(fn: () => void): void {
     this.validatorChange = fn;
   }
 
-  private get isBelowMinimumTimeout(): boolean {
-    return (
-      this.isCustomTimeoutType &&
-      this.customTimeInMinutes() <= SessionTimeoutInputComponent.MIN_CUSTOM_MINUTES
-    );
+  private getTotalMinutesFromCustomValue(customValue: SessionTimeoutFormValue["custom"]): number {
+    const hours = customValue?.hours ?? 0;
+    const minutes = customValue?.minutes ?? 0;
+    return hours * 60 + minutes;
+  }
+
+  private formValidator(control: AbstractControl): ValidationErrors | null {
+    const formValue = control.value as SessionTimeoutFormValue;
+    const isCustomMode = formValue.vaultTimeout === VaultTimeoutStringType.Custom;
+
+    // Only validate when in custom mode
+    if (!isCustomMode) {
+      return null;
+    }
+
+    const hours = formValue.custom?.hours;
+    const minutes = formValue.custom?.minutes;
+
+    if (hours == null || minutes == null) {
+      return { required: true };
+    }
+
+    const totalMinutes = this.getTotalMinutesFromCustomValue(formValue.custom);
+    if (totalMinutes === 0) {
+      return { minTimeoutError: true };
+    }
+
+    if (this.exceedsPolicyMaximumTimeout) {
+      return { maxTimeoutError: true };
+    }
+
+    return null;
   }
 
   private getVaultTimeout(value: SessionTimeoutFormValue): VaultTimeout | null {
@@ -268,15 +289,7 @@ export class SessionTimeoutInputComponent implements ControlValueAccessor, Valid
       return value.vaultTimeout ?? null;
     }
 
-    const hours = value.custom?.hours ?? 0;
-    const minutes = value.custom?.minutes ?? 0;
-    return hours * 60 + minutes;
-  }
-
-  private customTimeInMinutes(): number {
-    const hours = this.form.value.custom?.hours ?? 0;
-    const minutes = this.form.value.custom?.minutes ?? 0;
-    return hours * 60 + minutes;
+    return this.getTotalMinutesFromCustomValue(value.custom);
   }
 
   private async getPolicyTimeoutMessage(
