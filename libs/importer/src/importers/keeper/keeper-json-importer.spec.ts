@@ -575,6 +575,7 @@ describe("Keeper Json Importer", () => {
     expect(login.login.uri).toEqual("https://aarp.org");
 
     // Folder relationships
+    assertInFolder(legacyResult, "AARP", "Inheritance");
     assertInFolder(legacyResult, "AARP", "Sub-inheritance");
   });
 
@@ -633,6 +634,15 @@ describe("Keeper Json Importer", () => {
 
     // Folder relationships
     assertInFolder(legacyResult, "VISA", "Social Media/Cards");
+  });
+
+  it("should create legacy folders and assigned ciphers to them", async () => {
+    const folders = legacyResult.folders;
+    expect(folders.length).toEqual(22);
+
+    // Sort names and compare in bulk so we don't depend on specific ordering
+    const folderNames = folders.map((f) => f.name).sort((a, b) => a.localeCompare(b));
+    expect(folderNames).toEqual(legacyFolderNames);
   });
 
   // TODO: Add more legacy format tests!!!
@@ -701,5 +711,30 @@ describe("Keeper Json Importer", () => {
     "Work/Projects",
     "Work/Projects/2025",
     "Work/Projects/2025/Q4",
+  ];
+
+  const legacyFolderNames = [
+    "abc",
+    "Dev build ",
+    "dfdfgh",
+    "Inheritance",
+    "IT Project",
+    "IT Project/Folder 1",
+    "IT Project/Folder 1/PersonalNested-1-1",
+    "IT Project/Folder 1/PersonalNested-1-2",
+    "IT Project/Folder 2",
+    "Marketing",
+    "name change-folder",
+    "New Marketing Folder",
+    "Personal",
+    "Personal/Shared with Family",
+    "Shared Project Folder",
+    "Social Media",
+    "Social Media/Cards",
+    "Sub-inheritance",
+    "Transferred: Account",
+    "Transferred: Account/Test Item",
+    "Transferred: garrisonconsultinguser@gmail.com",
+    "Transferred: garrisonconsultinguser@gmail.com/Marketing",
   ];
 });
