@@ -23,7 +23,7 @@ export class WebAuthnLoginService implements WebAuthnLoginServiceAbstraction {
     protected webAuthnLoginPrfKeyService: WebAuthnLoginPrfKeyServiceAbstraction,
     protected navigatorCredentialsService: NavigatorCredentialsService,
     protected logService?: LogService,
-  ) { }
+  ) {}
 
   async getCredentialAssertionOptions(): Promise<WebAuthnLoginCredentialAssertionOptionsView> {
     const response = await this.webAuthnLoginApiService.getCredentialAssertionOptions();
