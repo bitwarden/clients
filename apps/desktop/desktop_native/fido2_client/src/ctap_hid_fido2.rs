@@ -11,6 +11,12 @@ use crate::{
     PublicKeyCredentialRequestOptions,
 };
 
+/// Depending on the platform API, the platform MAY do this for you, or may require you to do it manually.
+fn prf_to_hmac(prf_salt: &[u8]) -> [u8; 32] {
+    use sha2::Digest;
+    sha2::Sha256::digest(&[b"WebAuthn PRF".as_slice(), &[0], prf_salt].concat()).into()
+}
+
 fn get_pin() -> Option<String> {
     if let Some(mut input) = PassphraseInput::with_default_binary() {
         input

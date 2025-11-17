@@ -1,19 +1,12 @@
-#[cfg(all(target_os = "linux", target_env = "gnu"))]
+#[cfg(feature = "ctap-hid-fido2")]
 mod ctap_hid_fido2;
-#[cfg(all(target_os = "linux", target_env = "gnu"))]
+#[cfg(feature = "ctap-hid-fido2")]
 use ctap_hid_fido2::*;
 
-#[cfg(not(all(target_os = "linux", target_env = "gnu")))]
+#[cfg(not(feature = "ctap-hid-fido2"))]
 mod unimplemented;
-#[cfg(not(all(target_os = "linux", target_env = "gnu")))]
+#[cfg(not(feature = "ctap-hid-fido2"))]
 use unimplemented::*;
-
-#[cfg(all(target_os = "linux", target_env = "gnu"))]
-/// Depending on the platform API, the platform MAY do this for you, or may require you to do it manually.
-fn prf_to_hmac(prf_salt: &[u8]) -> [u8; 32] {
-    use sha2::Digest;
-    sha2::Sha256::digest(&[b"WebAuthn PRF".as_slice(), &[0], prf_salt].concat()).into()
-}
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum UserVerification {
