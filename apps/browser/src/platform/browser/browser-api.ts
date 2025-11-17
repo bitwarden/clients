@@ -60,8 +60,8 @@ export class BrowserApi {
     }
 
     // Normalize both URLs by removing trailing slashes
-    const normalizedOrigin = sender.origin.replace(/\/$/, "");
-    const normalizedExtensionUrl = extensionUrl.replace(/\/$/, "");
+    const normalizedOrigin = sender.origin.replace(/\/$/, "").toLowerCase();
+    const normalizedExtensionUrl = extensionUrl.replace(/\/$/, "").toLowerCase();
 
     if (!normalizedOrigin.startsWith(normalizedExtensionUrl)) {
       logger?.warning(
