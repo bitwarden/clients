@@ -210,7 +210,7 @@ describe("WebAuthnLoginService", () => {
       const credentialAssertionOptions = buildCredentialAssertionOptions();
 
       // Mock the navigatorCredentials.get to return null
-      navigatorCredentials.get.mockResolvedValue(null);
+      mockNavigatorCredentialsService.get.mockResolvedValue(null);
 
       // Act
       const result = await webAuthnLoginService.assertCredential(credentialAssertionOptions);
@@ -226,7 +226,7 @@ describe("WebAuthnLoginService", () => {
 
       // Mock navigatorCredentials.get to throw an error
       const errorMessage = "Simulated error";
-      navigatorCredentials.get.mockRejectedValue(new Error(errorMessage));
+      mockNavigatorCredentialsService.get.mockRejectedValue(new Error(errorMessage));
 
       // Spy on logService.error
       const logServiceErrorSpy = jest.spyOn(logService, "error");

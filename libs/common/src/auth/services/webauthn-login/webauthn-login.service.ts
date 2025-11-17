@@ -23,7 +23,7 @@ export class WebAuthnLoginService implements WebAuthnLoginServiceAbstraction {
     protected webAuthnLoginPrfKeyService: WebAuthnLoginPrfKeyServiceAbstraction,
     protected navigatorCredentialsService: NavigatorCredentialsService,
     protected logService?: LogService,
-  ) {}
+  ) { }
 
   async getCredentialAssertionOptions(): Promise<WebAuthnLoginCredentialAssertionOptionsView> {
     const response = await this.webAuthnLoginApiService.getCredentialAssertionOptions();
@@ -32,7 +32,7 @@ export class WebAuthnLoginService implements WebAuthnLoginServiceAbstraction {
 
   async assertCredential(
     credentialAssertionOptions: WebAuthnLoginCredentialAssertionOptionsView,
-  ): Promise<WebAuthnLoginCredentialAssertionView> {
+  ): Promise<WebAuthnLoginCredentialAssertionView | undefined> {
     const nativeOptions: CredentialRequestOptions = {
       publicKey: credentialAssertionOptions.options,
     };
@@ -43,6 +43,10 @@ export class WebAuthnLoginService implements WebAuthnLoginServiceAbstraction {
 
     try {
       const response = await this.navigatorCredentialsService.get(nativeOptions);
+      if (response == null) {
+        return undefined;
+      }
+
       // TODO: Remove `any` when typescript typings add support for PRF
       const prfResult = response.prf;
       let symmetricPrfKey: PrfKey | undefined;
