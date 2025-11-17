@@ -1211,9 +1211,9 @@ pub mod navigator_credentials {
         Discouraged,
     }
 
-    impl Into<fido2_client::UserVerification> for UserVerification {
-        fn into(self) -> fido2_client::UserVerification {
-            match self {
+    impl From<UserVerification> for fido2_client::UserVerification {
+        fn from(val: UserVerification) -> Self {
+            match val {
                 UserVerification::Preferred => fido2_client::UserVerification::Preferred,
                 UserVerification::Required => fido2_client::UserVerification::Required,
                 UserVerification::Discouraged => fido2_client::UserVerification::Discouraged,
@@ -1227,11 +1227,11 @@ pub mod navigator_credentials {
         pub second: Option<Uint8Array>,
     }
 
-    impl Into<fido2_client::PrfConfig> for PrfConfig {
-        fn into(self) -> fido2_client::PrfConfig {
+    impl From<PrfConfig> for fido2_client::PrfConfig {
+        fn from(val: PrfConfig) -> Self {
             fido2_client::PrfConfig {
-                first: self.first.to_vec(),
-                second: self.second.map(|s| s.to_vec()),
+                first: val.first.to_vec(),
+                second: val.second.map(|s| s.to_vec()),
             }
         }
     }
@@ -1292,15 +1292,15 @@ pub mod navigator_credentials {
         pub prf: Option<Uint8Array>,
     }
 
-    impl Into<PublicKeyCredential> for fido2_client::PublicKeyCredential {
-        fn into(self) -> PublicKeyCredential {
+    impl From<fido2_client::PublicKeyCredential> for PublicKeyCredential {
+        fn from(val: fido2_client::PublicKeyCredential) -> Self {
             PublicKeyCredential {
-                authenticator_attachment: self.authenticator_attachment,
-                id: self.id,
-                raw_id: Uint8Array::from(self.raw_id),
-                response: self.response.into(),
-                r#type: self.r#type,
-                prf: self.prf.map(|p| Uint8Array::from(p)),
+                authenticator_attachment: val.authenticator_attachment,
+                id: val.id,
+                raw_id: Uint8Array::from(val.raw_id),
+                response: val.response.into(),
+                r#type: val.r#type,
+                prf: val.prf.map(Uint8Array::from),
             }
         }
     }
