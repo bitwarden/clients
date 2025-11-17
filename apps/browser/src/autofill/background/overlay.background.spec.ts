@@ -3682,7 +3682,7 @@ describe("OverlayBackground", () => {
           allowTotpAutofill: false,
           focusedFieldForm: undefined,
           focusedFieldOpid: undefined,
-          inlineMenuFillType: 6,
+          inlineMenuFillType: InlineMenuFillTypes.PasswordGeneration,
         });
       });
     });

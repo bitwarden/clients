@@ -44,6 +44,7 @@ import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
 import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
+import { InlineMenuFillTypes } from "../enums/autofill-overlay.enum";
 import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -103,6 +104,15 @@ describe("AutofillService", () => {
   beforeEach(() => {
     configService = mock<ConfigService>();
     configService.getFeatureFlag$.mockImplementation(() => of(false));
+
+    // Initialize domainSettingsService BEFORE it's used
+    domainSettingsService = new DefaultDomainSettingsService(
+      fakeStateProvider,
+      policyService,
+      accountService,
+    );
+    domainSettingsService.equivalentDomains$ = of(mockEquivalentDomains);
+
     scriptInjectorService = new BrowserScriptInjectorService(
       domainSettingsService,
       platformUtilsService,
@@ -141,12 +151,6 @@ describe("AutofillService", () => {
       userNotificationsSettings,
       messageListener,
     );
-    domainSettingsService = new DefaultDomainSettingsService(
-      fakeStateProvider,
-      policyService,
-      accountService,
-    );
-    domainSettingsService.equivalentDomains$ = of(mockEquivalentDomains);
     jest.spyOn(BrowserApi, "tabSendMessage");
   });
 
@@ -2452,6 +2456,205 @@ describe("AutofillService", () => {
         });
       });
     });
+
+    describe("password change forms with inline menu fill types", () => {
+      let currentPasswordField: AutofillField;
+      let newPasswordField: AutofillField;
+      let confirmPasswordField: AutofillField;
+
+      beforeEach(() => {
+        filledFields = {};
+        currentPasswordField = createAutofillFieldMock({
+          opid: "current-password-opid",
+          htmlID: "currentPassword",
+          htmlName: "currentPassword",
+          type: "password",
+          form: "password-form",
+          elementNumber: 1,
+        });
+
+        newPasswordField = createAutofillFieldMock({
+          opid: "new-password-opid",
+          htmlID: "password",
+          htmlName: "password",
+          type: "password",
+          form: "password-form",
+          elementNumber: 2,
+        });
+
+        confirmPasswordField = createAutofillFieldMock({
+          opid: "confirm-password-opid",
+          htmlID: "passwordConfirmation",
+          htmlName: "passwordConfirmation",
+          type: "password",
+          form: "password-form",
+          elementNumber: 3,
+        });
+      });
+
+      it("should fill only new and confirm password fields when generating password", async () => {
+        pageDetails.forms = {
+          "password-form": createAutofillFormMock({ opid: "password-form" }),
+        };
+        pageDetails.fields = [currentPasswordField, newPasswordField, confirmPasswordField];
+        options.focusedFieldOpid = "new-password-opid";
+        options.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+        options.fillNewPassword = true;
+        jest.spyOn(AutofillService, "fillByOpid");
+
+        await autofillService["generateLoginFillScript"](
+          fillScript,
+          pageDetails,
+          filledFields,
+          options,
+        );
+
+        expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+          fillScript,
+          newPasswordField,
+          options.cipher.login.password,
+        );
+        expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+          fillScript,
+          confirmPasswordField,
+          options.cipher.login.password,
+        );
+
+        expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+          fillScript,
+          currentPasswordField,
+          expect.anything(),
+        );
+      });
+
+      it("should fill only the focused current password field when filling current password", async () => {
+        pageDetails.forms = {
+          "password-form": createAutofillFormMock({ opid: "password-form" }),
+        };
+        pageDetails.fields = [currentPasswordField, newPasswordField, confirmPasswordField];
+        options.focusedFieldOpid = "current-password-opid";
+        options.inlineMenuFillType = InlineMenuFillTypes.CurrentPasswordUpdate;
+        jest.spyOn(AutofillService, "fillByOpid");
+
+        await autofillService["generateLoginFillScript"](
+          fillScript,
+          pageDetails,
+          filledFields,
+          options,
+        );
+
+        expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+          fillScript,
+          currentPasswordField,
+          options.cipher.login.password,
+        );
+
+        expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+          fillScript,
+          newPasswordField,
+          expect.anything(),
+        );
+        expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+          fillScript,
+          confirmPasswordField,
+          expect.anything(),
+        );
+      });
+
+      it("should skip fields with 'current', 'old', or 'existing' keywords during password generation", async () => {
+        const oldPasswordField = createAutofillFieldMock({
+          opid: "old-password-opid",
+          htmlID: "oldPassword",
+          type: "password",
+          form: "password-form",
+          elementNumber: 1,
+        });
+
+        const existingPasswordField = createAutofillFieldMock({
+          opid: "existing-password-opid",
+          htmlID: "existingPassword",
+          type: "password",
+          form: "password-form",
+          elementNumber: 2,
+        });
+
+        pageDetails.forms = {
+          "password-form": createAutofillFormMock({ opid: "password-form" }),
+        };
+        pageDetails.fields = [oldPasswordField, existingPasswordField, newPasswordField];
+        options.focusedFieldOpid = "new-password-opid";
+        options.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+        options.fillNewPassword = true;
+        jest.spyOn(AutofillService, "fillByOpid");
+
+        await autofillService["generateLoginFillScript"](
+          fillScript,
+          pageDetails,
+          filledFields,
+          options,
+        );
+
+        expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+          fillScript,
+          newPasswordField,
+          options.cipher.login.password,
+        );
+
+        expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+          fillScript,
+          oldPasswordField,
+          expect.anything(),
+        );
+        expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+          fillScript,
+          existingPasswordField,
+          expect.anything(),
+        );
+      });
+
+      it("should handle forms with fields that have old password indicators", async () => {
+        const oldPasswordField = createAutofillFieldMock({
+          opid: "old-pwd-opid",
+          htmlID: "old_password",
+          type: "password",
+          form: "password-form",
+          elementNumber: 1,
+        });
+
+        pageDetails.forms = {
+          "password-form": createAutofillFormMock({ opid: "password-form" }),
+        };
+        pageDetails.fields = [oldPasswordField, newPasswordField, confirmPasswordField];
+        options.focusedFieldOpid = "new-password-opid";
+        options.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+        options.fillNewPassword = true;
+        jest.spyOn(AutofillService, "fillByOpid");
+
+        await autofillService["generateLoginFillScript"](
+          fillScript,
+          pageDetails,
+          filledFields,
+          options,
+        );
+
+        expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+          fillScript,
+          oldPasswordField,
+          expect.anything(),
+        );
+
+        expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+          fillScript,
+          newPasswordField,
+          options.cipher.login.password,
+        );
+        expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+          fillScript,
+          confirmPasswordField,
+          options.cipher.login.password,
+        );
+      });
+    });
   });
 
   describe("generateCardFillScript", () => {
@@ -3140,11 +3343,15 @@ describe("AutofillService", () => {
         "example.com",
         "exampleapp.com",
       ]);
-      domainSettingsService.equivalentDomains$ = of([["not-example.com"]]);
       const pageUrl = "https://subdomain.example.com";
       const tabUrl = "https://www.not-example.com";
       const generateFillScriptOptions = createGenerateFillScriptOptionsMock({ tabUrl });
       generateFillScriptOptions.cipher.login.matchesUri = jest.fn().mockReturnValueOnce(false);
+
+      // Mock getUrlEquivalentDomains to return the expected domains
+      jest
+        .spyOn(domainSettingsService, "getUrlEquivalentDomains")
+        .mockReturnValue(of(equivalentDomains));
 
       const result = await autofillService["inUntrustedIframe"](pageUrl, generateFillScriptOptions);
 

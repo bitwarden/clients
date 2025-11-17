@@ -986,11 +986,10 @@ export default class AutofillService implements AutofillServiceInterface {
 
         // Check both login and registration fields to ensure we get all password fields
         const allPasswordFields = [...loginPasswordFields, ...registrationPasswordFields];
-        allPasswordFields.forEach((passField) => {
-          if (passField.form === focusedFieldForm) {
-            passwords.push(passField);
-          }
-        });
+        const matchingPasswordFields = allPasswordFields.filter(
+          (passField) => passField.form === focusedFieldForm,
+        );
+        passwords.push(...matchingPasswordFields);
       }
 
       // If we didn't add any passwords above (either not password generation/update or no matching fields),
