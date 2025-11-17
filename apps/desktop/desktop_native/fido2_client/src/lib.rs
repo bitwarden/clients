@@ -3,11 +3,13 @@ mod ctap_hid_fido2;
 #[cfg(all(target_os = "linux", target_env = "gnu"))]
 use ctap_hid_fido2::*;
 
-#[cfg(not(all(target_os = "linux", target_env = "gnu")))]
-mod unimplemented;
-#[cfg(not(all(target_os = "linux", target_env = "gnu")))]
-use unimplemented::*;
+#[cfg(target_os = "windows")]
+mod windows;
+#[cfg(target_os = "windows")]
+use windows::*;
 
+#[cfg(all(target_os = "linux", target_env = "gnu"))]
+/// Depending on the platform API, the platform MAY do this for you, or may require you to do it manually.
 fn prf_to_hmac(prf_salt: &[u8]) -> [u8; 32] {
     use sha2::Digest;
     sha2::Sha256::digest(&[b"WebAuthn PRF".as_slice(), &[0], prf_salt].concat()).into()
@@ -31,6 +33,7 @@ pub struct AssertionOptions {
     pub prf_eval_second: Option<[u8; 32]>,
 }
 
+#[derive(Debug)]
 pub struct AuthenticatorAssertionResponse {
     pub authenticator_data: Vec<u8>,
     pub client_data_json: Vec<u8>,
@@ -38,6 +41,7 @@ pub struct AuthenticatorAssertionResponse {
     pub user_handle: Vec<u8>,
 }
 
+#[derive(Debug)]
 pub struct PublicKeyCredential {
     pub authenticator_attachment: String,
     pub id: String,
@@ -60,7 +64,13 @@ pub mod fido2_client {
     pub fn get(
         assertion_options: super::AssertionOptions,
     ) -> Result<super::PublicKeyCredential, super::Fido2ClientError> {
-        super::get(assertion_options)
+        println!("Calling Windows FIDO2 client get()");
+        // run in new thread
+        std::thread::spawn(move || {
+            super::get(assertion_options)
+        })
+        .join()
+        .unwrap()
     }
 
     pub fn available() -> bool {
