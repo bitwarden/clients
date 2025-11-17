@@ -4,14 +4,6 @@
 @import "@angular/cdk/overlay-prebuilt.css";
 @import "../../../../../libs/components/src/multi-select/scss/bw.theme";
 
-// cdk-virtual-scroll
-.cdk-virtual-scroll-viewport {
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
 .cdk-virtual-scroll-content-wrapper {
   width: 100%;
 }
