@@ -289,6 +289,11 @@ export class VaultPopupItemsService {
   );
 
   /**
+   * Observable that contains the count of ciphers in the active filtered list.
+   */
+  cipherCount$: Observable<number> = this._activeCipherList$.pipe(map((ciphers) => ciphers.length));
+
+  /**
    * Observable that indicates whether there are no ciphers to show with the current filter.
    */
   noFilteredResults$: Observable<boolean> = this._filteredCipherList$.pipe(
