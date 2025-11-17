@@ -30,6 +30,15 @@ async function run(context) {
     fse.copyFileSync(wrapperScript, wrapperBin);
     fse.chmodSync(wrapperBin, "755");
     console.log("Copied memory-protection wrapper script");
+
+    // TEST: Set SUID on chrome-sandbox during build
+    const chromeSandbox = path.join(appOutDir, "chrome-sandbox");
+    if (fse.existsSync(chromeSandbox)) {
+      fse.chmodSync(chromeSandbox, "4755");
+      console.log("✓ Set SUID permissions on chrome-sandbox (mode 4755)");
+    } else {
+      console.warn("⚠ chrome-sandbox not found at:", chromeSandbox);
+    }
   }
 
   if (["darwin", "mas"].includes(context.electronPlatformName)) {
