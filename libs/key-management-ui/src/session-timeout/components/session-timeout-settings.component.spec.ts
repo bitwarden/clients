@@ -7,7 +7,10 @@ import { BehaviorSubject, filter, firstValueFrom, of } from "rxjs";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { MaximumSessionTimeoutPolicyData } from "@bitwarden/common/key-management/session-timeout";
+import {
+  MaximumSessionTimeoutPolicyData,
+  SessionTimeoutTypeService,
+} from "@bitwarden/common/key-management/session-timeout";
 import {
   VaultTimeout,
   VaultTimeoutAction,
@@ -16,6 +19,7 @@ import {
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -39,6 +43,8 @@ describe("SessionTimeoutSettingsComponent", () => {
   let accountService: FakeAccountService;
   let mockDialogService: MockProxy<DialogService>;
   let mockLogService: MockProxy<LogService>;
+  const mockPlatformUtilsService = mock<PlatformUtilsService>();
+  const mockSessionTimeoutTypeService = mock<SessionTimeoutTypeService>();
 
   const mockUserId = "user-id" as UserId;
   const mockEmail = "test@example.com";
@@ -103,6 +109,8 @@ describe("SessionTimeoutSettingsComponent", () => {
         { provide: AccountService, useValue: accountService },
         { provide: LogService, useValue: mockLogService },
         { provide: DialogService, useValue: mockDialogService },
+        { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+        { provide: SessionTimeoutTypeService, useValue: mockSessionTimeoutTypeService },
       ],
     })
       .overrideComponent(SessionTimeoutSettingsComponent, {
@@ -208,25 +216,6 @@ describe("SessionTimeoutSettingsComponent", () => {
 
       expect(component.formGroup.value.timeout).toBe(expectedTimeout);
       expect(component.formGroup.value.timeoutAction).toBe(expectedAction);
-    }));
-
-    it("should fall back to OnRestart when current option is not available", fakeAsync(() => {
-      availableTimeoutOptions$.next([
-        { name: "oneMinute-used-i18n", value: 1 },
-        { name: "fiveMinutes-used-i18n", value: 5 },
-        { name: "onRestart-used-i18n", value: VaultTimeoutStringType.OnRestart },
-      ]);
-
-      const unavailableTimeout = VaultTimeoutStringType.Never;
-
-      mockVaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockImplementation(() =>
-        of(unavailableTimeout),
-      );
-
-      fixture.detectChanges();
-      flush();
-
-      expect(component.formGroup.value.timeout).toBe(VaultTimeoutStringType.OnRestart);
     }));
 
     it("should disable timeout action control when policy enforces action", fakeAsync(() => {
