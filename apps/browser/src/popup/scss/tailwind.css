@@ -59,6 +59,15 @@
     }
   }
 
+  body {
+    width: 380px;
+    height: 100%;
+    position: relative;
+    min-height: inherit;
+    overflow: hidden;
+    @apply tw-bg-background-alt;
+  }
+
   /**
    * Workaround for slow performance on external monitors on Chrome + MacOS
    * See: https://bugs.chromium.org/p/chromium/issues/detail?id=971701#c64
@@ -73,6 +82,21 @@
   }
   html.force_redraw {
     animation: redraw 1s linear infinite;
+  }
+
+  /** 
+   * Text selection style:
+   * suppress user selection for most elements (to make it more app-like) 
+   */
+  h1,
+  h2,
+  h3,
+  label,
+  a,
+  button,
+  p,
+  img {
+    user-select: none;
   }
 }
 
@@ -139,5 +163,15 @@
     width: 100%;
 
     @apply tw-text-muted;
+  }
+
+  /** 
+   * Text selection style:
+   * Set explicit selection styles (assumes primary accent color has sufficient
+   * contrast against the background, so its inversion is also still readable)
+   */
+  :not(bit-form-field input)::selection {
+    @apply tw-text-contrast;
+    @apply tw-bg-primary-700;
   }
 }

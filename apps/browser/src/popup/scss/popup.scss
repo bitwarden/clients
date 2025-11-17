@@ -15,3 +15,44 @@
 .cdk-virtual-scroll-content-wrapper {
   width: 100%;
 }
+
+// MFA Types for logo styling with no dark theme alternative
+$mfaTypes: 0, 2, 3, 4, 6;
+
+@each $mfaType in $mfaTypes {
+  .mfaType#{$mfaType} {
+    content: url("../images/two-factor/" + $mfaType + ".png");
+    max-width: 100px;
+  }
+}
+
+.mfaType0 {
+  content: url("../images/two-factor/0.png");
+  max-width: 100px;
+  max-height: 45px;
+}
+
+.mfaType1 {
+  max-width: 100px;
+  max-height: 45px;
+
+  &:is(.theme_light *) {
+    content: url("../images/two-factor/1.png");
+  }
+
+  &:is(.theme_dark *) {
+    content: url("../images/two-factor/1-w.png");
+  }
+}
+
+.mfaType7 {
+  max-width: 100px;
+
+  &:is(.theme_light *) {
+    content: url("../images/two-factor/7.png");
+  }
+
+  &:is(.theme_dark *) {
+    content: url("../images/two-factor/7-w.png");
+  }
+}
