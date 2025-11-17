@@ -31,21 +31,21 @@
         <bit-label>{{ "minutes" | i18n }}</bit-label>
       </bit-form-field>
     </div>
-    @if (form.hasError("maxTimeoutError")) {
-      <div class="tw-mt-1 tw-text-danger tw-text-xs" id="session-timeout-maximum-error">
-        <i class="bwi bwi-error" aria-hidden="true"></i>
-        {{
-          "sessionTimeoutSettingsPolicyMaximumError"
-            | i18n: maxSessionTimeoutPolicyHours : maxSessionTimeoutPolicyMinutes
-        }}
-      </div>
-    } @else if (maxSessionTimeoutPolicyData != null) {
-      @let policyTimeoutMessage = policyTimeoutMessage$ | async;
-      @if (policyTimeoutMessage != null) {
-        <bit-hint class="tw-mb-1" id="session-timeout-maximum-error">
-          {{ policyTimeoutMessage }}
-        </bit-hint>
-      }
+  }
+  @if (form.hasError("maxTimeoutError")) {
+    <div class="tw-mt-1 tw-text-danger tw-text-xs" id="session-timeout-maximum-error">
+      <i class="bwi bwi-error" aria-hidden="true"></i>
+      {{
+        "sessionTimeoutSettingsPolicyMaximumError"
+          | i18n: maxSessionTimeoutPolicyHours : maxSessionTimeoutPolicyMinutes
+      }}
+    </div>
+  } @else if (maxSessionTimeoutPolicyData != null) {
+    @let policyTimeoutMessage = policyTimeoutMessage$ | async;
+    @if (policyTimeoutMessage != null) {
+      <bit-hint class="tw-mb-1" id="session-timeout-maximum-error">
+        {{ policyTimeoutMessage }}
+      </bit-hint>
     }
   }
 </div>

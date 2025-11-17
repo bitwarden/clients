@@ -311,8 +311,8 @@ export class SessionTimeoutInputComponent implements ControlValueAccessor, Valid
         return null;
       default:
         if (isVaultTimeoutTypeNumeric(timeout)) {
-          const hours = Math.floor(policyData.minutes / 60);
-          const minutes = policyData.minutes % 60;
+          const hours = Math.floor((timeout as number) / 60);
+          const minutes = (timeout as number) % 60;
           return this.i18nService.t(
             "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes",
             hours,
