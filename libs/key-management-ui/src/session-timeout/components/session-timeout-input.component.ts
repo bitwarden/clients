@@ -95,7 +95,7 @@ export class SessionTimeoutInputComponent implements ControlValueAccessor, Valid
     {
       vaultTimeout: [null as VaultTimeout | null],
       custom: this.formBuilder.group({
-        hours: [0, [Validators.required, Validators.min(0)]],
+        hours: [8, [Validators.required, Validators.min(0)]],
         minutes: [0, [Validators.required, Validators.min(0), Validators.max(59)]],
       }),
     },
@@ -170,11 +170,13 @@ export class SessionTimeoutInputComponent implements ControlValueAccessor, Valid
     // ex: user picks 5 min, goes to custom, we want to show 0 hr, 5 min in the custom fields
     this.form.controls.vaultTimeout.valueChanges
       .pipe(
-        filter((value) => value !== VaultTimeoutStringType.Custom),
+        filter((value) => value != null && value !== VaultTimeoutStringType.Custom),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((value) => {
-        const current = typeof value === "string" ? 0 : Math.max(value ?? 0, 0);
+        const current = isVaultTimeoutTypeNumeric(value)
+          ? (value as number)
+          : VaultTimeoutNumberType.EightHours;
 
         // This cannot emit an event b/c it would cause form.valueChanges to fire again
         // and we are already handling that above so just silently update
