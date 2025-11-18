@@ -256,6 +256,9 @@ export default class RuntimeBackground {
       case "addToLockedVaultPendingNotifications":
         this.lockedVaultPendingNotifications.push(msg.data);
         break;
+      case "abandonAutofillPendingNotifications":
+        this.lockedVaultPendingNotifications = [];
+        break;
       case "lockVault":
         await this.lockService.lock(msg.userId);
         break;

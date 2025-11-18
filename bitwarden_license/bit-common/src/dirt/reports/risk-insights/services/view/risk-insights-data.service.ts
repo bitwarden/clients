@@ -87,7 +87,9 @@ export class RiskInsightsDataService {
     this._destroy$.complete();
   }
 
-  // ----- UI-triggered methods (delegate to orchestrator) -----
+  getCipherIcon(cipherId: string) {
+    return this.orchestrator.getCipherIcon(cipherId);
+  }
   initializeForOrganization(organizationId: OrganizationId) {
     this.orchestrator.initializeForOrganization(organizationId);
   }

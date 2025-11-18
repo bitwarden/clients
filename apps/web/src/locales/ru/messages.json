@@ -349,6 +349,9 @@
   "applicationsNeedingReview": {
     "message": "Приложения, требующие проверки"
   },
+  "newApplicationsCardTitle": {
+    "message": "Обзор новых приложений"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ новых приложений",
     "placeholders": {
@@ -369,6 +372,21 @@
   },
   "noNewApplicationsToReviewAtThisTime": {
     "message": "На данный момент новых приложений для рассмотрения нет"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "В вашей организации есть элементы, сохраненные для $COUNT$ приложений",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Просмотрите приложения, чтобы защитить элементы, наиболее критичные для безопасности вашей организации"
+  },
+  "reviewApplications": {
+    "message": "Обзор приложений"
   },
   "prioritizeCriticalApplications": {
     "message": "Приоритет критичных приложений"
@@ -3232,8 +3250,17 @@
   "nextCharge": {
     "message": "Следующий платеж"
   },
+  "nextChargeHeader": {
+    "message": "Следующий платеж"
+  },
+  "plan": {
+    "message": "План"
+  },
   "details": {
     "message": "Подробности"
+  },
+  "discount": {
+    "message": "скидка"
   },
   "downloadLicense": {
     "message": "Загрузить лицензию"
@@ -4441,6 +4468,30 @@
   },
   "generatingYourAccessIntelligence": {
     "message": "Generating your Access Intelligence..."
+  },
+  "fetchingMemberData": {
+    "message": "Получение данных о пользователях..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "Анализ здоровья пароля..."
+  },
+  "calculatingRiskScores": {
+    "message": "Расчет показателей риска..."
+  },
+  "generatingReportData": {
+    "message": "Генерация данных отчета..."
+  },
+  "savingReport": {
+    "message": "Сохранение отчета..."
+  },
+  "compilingInsights": {
+    "message": "Компиляция информации..."
+  },
+  "loadingProgress": {
+    "message": "Прогресс загрузки"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Это может занять несколько минут."
   },
   "riskInsightsRunReport": {
     "message": "Запустить отчет"
@@ -5804,16 +5855,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "Как включить автоматическое подтверждение пользователя"
   },
-  "autoConfirmStep1": {
-    "message": "Откройте свое расширение Bitwarden."
+  "autoConfirmExtension1": {
+    "message": "Откройте свое расширение Bitwarden"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "Выбрать",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " Включить.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " Включить",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "Успешно открыто расширение браузера Bitwarden. Теперь вы можете активировать автоматическое подтверждение пользователя."
@@ -9525,9 +9576,6 @@
   "loggedInExclamation": {
     "message": "Выполнен вход!"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "assignCollectionAccess": {
     "message": "Назначить доступ к коллекциям"
   },
@@ -12075,5 +12123,45 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Начать пробную версию Families"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Настройте способ разблокировки для изменения действия по тайм-ауту хранилища."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "К настройкам тайм-аута были применены требования корпоративной политики"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Your vault timeout exceeds the restrictions set by your organization."
+  },
+  "neverLockWarning": {
+    "message": "Are you sure you want to use the \"Never\" option? Setting your lock options to \"Never\" stores your vault's encryption key on your device. If you use this option you should ensure that you keep your device properly protected."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
+  },
+  "appearance": {
+    "message": "Appearance"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "Критичные приложения не выбраны"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Вы действительно хотите продолжить?"
   }
 }

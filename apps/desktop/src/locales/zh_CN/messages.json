@@ -1298,7 +1298,7 @@
     "message": "系统空闲时"
   },
   "onSleep": {
-    "message": "系统休眠时"
+    "message": "系统睡眠时"
   },
   "onLocked": {
     "message": "系统锁定时"
@@ -2149,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "启用浏览器集成时出错。"
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "很遗憾，目前仅 Mac App Store 版本支持浏览器集成。"
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "很遗憾，Microsoft Store 版本目前不支持浏览器集成。"
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "升级为高级版"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "超时动作"
+  },
+  "sessionTimeoutHeader": {
+    "message": "会话超时"
   }
 }

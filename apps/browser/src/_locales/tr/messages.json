@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "Tümünü göster"
   },
+  "viewLess": {
+    "message": "View less"
+  },
   "viewLogin": {
     "message": "Hesabı göster"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Sistem kilitlenince"
+  },
+  "onIdle": {
+    "message": "Sistem boştayken"
+  },
+  "onSleep": {
+    "message": "Sistem uyuyunca"
   },
   "onRestart": {
     "message": "Tarayıcı yeniden başlatılınca"
@@ -5800,6 +5809,12 @@
   "upgradeToPremium": {
     "message": "Premium'a yükselt"
   },
+  "loadingVault": {
+    "message": "Kasa yükleniyor"
+  },
+  "vaultLoaded": {
+    "message": "Kasa yüklendi"
+  },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5824,8 @@
   },
   "cardNumberLabel": {
     "message": "Kart numarası"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Zaman aşımı eylemi"
   }
 }
