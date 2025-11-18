@@ -52,6 +52,7 @@ import { VaultPopupListFiltersService } from "../../services/vault-popup-list-fi
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
 import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-password-callout.component";
+import { VaultFadeInOutComponent } from "../vault-fade-in-out/vault-fade-in-out.component";
 import { VaultFadeInOutSkeletonComponent } from "../vault-fade-in-out-skeleton/vault-fade-in-out-skeleton.component";
 import { VaultLoadingSkeletonComponent } from "../vault-loading-skeleton/vault-loading-skeleton.component";
 
@@ -98,6 +99,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
     TypographyModule,
     VaultLoadingSkeletonComponent,
     VaultFadeInOutSkeletonComponent,
+    VaultFadeInOutComponent,
   ],
 })
 export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
@@ -126,7 +128,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
       void this.liveAnnouncer.announce(this.i18nService.translate(key), "polite");
     }),
   );
-  private skeletonFeatureFlag$ = this.configService.getFeatureFlag$(
+  protected skeletonFeatureFlag$ = this.configService.getFeatureFlag$(
     FeatureFlag.VaultLoadingSkeletons,
   );
 
