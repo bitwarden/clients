@@ -11,12 +11,12 @@ export const VaultTimeoutStringType = {
 export const VaultTimeoutNumberType = {
   Immediately: 0,
   OnMinute: 1,
-  EightHours: 8 * 60,
-};
+  EightHours: 480,
+} as const;
 
 export type VaultTimeout =
-  | number // 0 or positive numbers only
   | (typeof VaultTimeoutNumberType)[keyof typeof VaultTimeoutNumberType]
+  | number // 0 or positive numbers (in minutes). See VaultTimeoutNumberType for common numeric presets
   | (typeof VaultTimeoutStringType)[keyof typeof VaultTimeoutStringType];
 
 export interface VaultTimeoutOption {
