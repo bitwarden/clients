@@ -301,14 +301,15 @@ export class SessionTimeoutInputComponent implements ControlValueAccessor, Valid
     const timeout = await this.getPolicyAppliedTimeout(policyData);
 
     switch (timeout) {
+      case null:
+        // Don't display the policy message
+        return null;
       case VaultTimeoutNumberType.Immediately:
         return this.i18nService.t("sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately");
       case VaultTimeoutStringType.OnLocked:
         return this.i18nService.t("sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked");
       case VaultTimeoutStringType.OnRestart:
         return this.i18nService.t("sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart");
-      case null:
-        return null;
       default:
         if (isVaultTimeoutTypeNumeric(timeout)) {
           const hours = Math.floor((timeout as number) / 60);
@@ -337,10 +338,16 @@ export class SessionTimeoutInputComponent implements ControlValueAccessor, Valid
         );
       case "onAppRestart":
         return VaultTimeoutStringType.OnRestart;
-      case "never":
-        return await this.sessionTimeoutTypeService.getHighestAvailable(
+      case "never": {
+        const timeout = await this.sessionTimeoutTypeService.getHighestAvailable(
           VaultTimeoutStringType.Never,
         );
+        if (timeout == VaultTimeoutStringType.Never) {
+          // Don't display policy message, when the policy doesn't change the available timeout options
+          return null;
+        }
+        return timeout;
+      }
       case "custom":
       default:
         return policyData.minutes;
