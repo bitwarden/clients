@@ -59,10 +59,23 @@ impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
     fn get_installed_browsers() -> Result<Vec<String>> {
         let mut browsers = Vec::with_capacity(SUPPORTED_BROWSER_MAP.len());
 
+        #[allow(unused_variables)]  // config only used in non-sandbox mode
         for (browser, config) in SUPPORTED_BROWSER_MAP.iter() {
-            let data_dir = get_browser_data_dir(config)?;
-            if data_dir.exists() {
-                browsers.push((*browser).to_string());
+            #[cfg(all(target_os = "macos", feature = "sandbox"))]
+            {
+                // macOS sandbox mode: check if we have stored security-scoped bookmark
+                if platform::ScopedBrowserAccess::has_stored_access(browser) {
+                    browsers.push((*browser).to_string());
+                }
+            }
+
+            #[cfg(not(all(target_os = "macos", feature = "sandbox")))]
+            {
+                // All other platforms OR macOS without sandbox: check file system directly
+                let data_dir = get_browser_data_dir(config)?;
+                if data_dir.exists() {
+                    browsers.push((*browser).to_string());
+                }
             }
         }
 
@@ -75,10 +88,21 @@ pub fn get_available_profiles(browser_name: &String) -> Result<Vec<ProfileInfo>>
     Ok(get_profile_info(&local_state))
 }
 
+/// Request access to browser directory (sandbox mode only)
+#[cfg(all(target_os = "macos", feature = "sandbox"))]
+pub fn request_browser_access(browser_name: &String) -> Result<()> {
+    let _access = platform::ScopedBrowserAccess::request_and_start(browser_name)?;
+    Ok(())
+}
+
 pub async fn import_logins(
     browser_name: &String,
     profile_id: &String,
 ) -> Result<Vec<LoginImportResult>> {
+    // In sandbox mode, resume access to browser directory
+    #[cfg(all(target_os = "macos", feature = "sandbox"))]
+    let _access = platform::ScopedBrowserAccess::resume(browser_name)?;
+
     let (data_dir, local_state) = load_local_state_for_browser(browser_name)?;
 
     let mut crypto_service = platform::get_crypto_service(browser_name, &local_state)

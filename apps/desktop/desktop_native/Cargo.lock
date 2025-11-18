@@ -610,6 +610,7 @@ dependencies = [
  "cbc",
  "dirs",
  "hex",
+ "libc",
  "oo7",
  "pbkdf2",
  "rand 0.9.1",

@@ -1181,6 +1181,13 @@ pub mod chromium_importer {
             .map(|logins| logins.into_iter().map(LoginImportResult::from).collect())
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
+
+    #[cfg_attr(all(target_os = "macos", feature = "sandbox"), napi)]
+    #[cfg(all(target_os = "macos", feature = "sandbox"))]
+    pub fn request_browser_access(browser: String) -> napi::Result<()> {
+        chromium_importer::chromium::request_browser_access(&browser)
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
 }
 
 #[napi]
