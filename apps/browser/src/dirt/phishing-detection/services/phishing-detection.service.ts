@@ -146,6 +146,7 @@ export class PhishingDetectionService {
             logService.debug("[PhishingDetectionService] Enabling phishing detection service");
             return merge(
               phishingDataService.update$,
+              phishingDataService.exemptionsUpdate$,
               onContinueCommand$,
               onTabUpdated$,
               onCancelCommand$,

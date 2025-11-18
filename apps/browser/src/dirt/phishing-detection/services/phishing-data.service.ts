@@ -1,5 +1,6 @@
 import {
   catchError,
+  combineLatest,
   EMPTY,
   first,
   firstValueFrom,
@@ -32,12 +33,25 @@ export type PhishingData = {
   applicationVersion: string;
 };
 
+export type PhishingExemptions = {
+  domains: string[];
+  timestamp: number;
+};
+
 export const PHISHING_DOMAINS_KEY = new KeyDefinition<PhishingData>(
   PHISHING_DETECTION_DISK,
   "phishingDomains",
   {
     deserializer: (value: PhishingData) =>
       value ?? { domains: [], timestamp: 0, checksum: "", applicationVersion: "" },
+  },
+);
+
+export const PHISHING_EXEMPTIONS_KEY = new KeyDefinition<PhishingExemptions>(
+  PHISHING_DETECTION_DISK,
+  "phishingExemptions",
+  {
+    deserializer: (value: PhishingExemptions) => value ?? { domains: [], timestamp: 0 },
   },
 );
 
@@ -50,8 +64,13 @@ export class PhishingDataService {
   private static readonly RemotePhishingDatabaseTodayUrl =
     "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/refs/heads/master/phishing-domains-NEW-today.txt";
 
+  // TODO: Replace with actual GitHub repository URL for exemptions list
+  private static readonly RemotePhishingExemptionsUrl =
+    "https://raw.githubusercontent.com/bitwarden/exemption-list/main/exemptions.txt";
+
   private _testDomains = this.getTestDomains();
   private _cachedState = this.globalStateProvider.get(PHISHING_DOMAINS_KEY);
+  private _cachedExemptionsState = this.globalStateProvider.get(PHISHING_EXEMPTIONS_KEY);
   private _domains$ = this._cachedState.state$.pipe(
     map(
       (state) =>
@@ -62,9 +81,22 @@ export class PhishingDataService {
         ),
     ),
   );
+  private _exemptions$ = this._cachedExemptionsState.state$.pipe(
+    map(
+      (state) =>
+        new Set(
+          (
+            state?.domains?.filter(
+              (line) => line.trim().length > 0 && !line.trim().startsWith("#"),
+            ) ?? []
+          ).concat(this._testDomains),
+        ),
+    ),
+  );
 
   // How often are new domains added to the remote?
   readonly UPDATE_INTERVAL_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+  readonly EXEMPTIONS_UPDATE_INTERVAL_DURATION = 15 * 60 * 1000; // 15 minutes
 
   private _triggerUpdate$ = new Subject<void>();
   update$ = this._triggerUpdate$.pipe(
@@ -107,6 +139,47 @@ export class PhishingDataService {
     share(),
   );
 
+  private _triggerExemptionsUpdate$ = new Subject<void>();
+  exemptionsUpdate$ = this._triggerExemptionsUpdate$.pipe(
+    startWith(undefined), // Always emit once
+    tap(() => this.logService.info(`[PhishingDataService] Exemptions update triggered...`)),
+    switchMap(() =>
+      this._cachedExemptionsState.state$.pipe(
+        first(), // Only take the first value to avoid an infinite loop when updating the cache below
+        switchMap(async (cachedState) => {
+          const next = await this.getNextExemptions(cachedState);
+          if (next) {
+            await this._cachedExemptionsState.update(() => next);
+            this.logService.info(`[PhishingDataService] exemptions cache updated`);
+          }
+        }),
+        retry({
+          count: 3,
+          delay: (err, count) => {
+            this.logService.error(
+              `[PhishingDataService] Unable to update exemptions. Attempt ${count}.`,
+              err,
+            );
+            return timer(5 * 60 * 1000); // 5 minutes
+          },
+          resetOnSuccess: true,
+        }),
+        catchError(
+          (
+            err: unknown /** Eslint actually crashed if you remove this type: https://github.com/cartant/eslint-plugin-rxjs/issues/122 */,
+          ) => {
+            this.logService.error(
+              "[PhishingDataService] Retries unsuccessful. Unable to update exemptions.",
+              err,
+            );
+            return EMPTY;
+          },
+        ),
+      ),
+    ),
+    share(),
+  );
+
   constructor(
     private apiService: ApiService,
     private taskSchedulerService: TaskSchedulerService,
@@ -121,6 +194,17 @@ export class PhishingDataService {
       ScheduledTaskNames.phishingDomainUpdate,
       this.UPDATE_INTERVAL_DURATION,
     );
+
+    this.taskSchedulerService.registerTaskHandler(
+      ScheduledTaskNames.phishingExemptionsUpdate,
+      () => {
+        this._triggerExemptionsUpdate$.next();
+      },
+    );
+    this.taskSchedulerService.setInterval(
+      ScheduledTaskNames.phishingExemptionsUpdate,
+      this.EXEMPTIONS_UPDATE_INTERVAL_DURATION,
+    );
   }
 
   /**
@@ -130,11 +214,46 @@ export class PhishingDataService {
    * @returns True if the URL is a known phishing domain, false otherwise
    */
   async isPhishingDomain(url: URL): Promise<boolean> {
-    const domains = await firstValueFrom(this._domains$);
-    const result = domains.has(url.hostname);
-    if (result) {
+    // Fetch both exemptions and phishing domains in a single async operation
+    const [exemptions, domains] = await firstValueFrom(
+      combineLatest([this._exemptions$, this._domains$]),
+    );
+
+    // Check exemptions first - if domain is exempted, it's not phishing
+    if (this.isExempted(url.hostname, exemptions)) {
+      this.logService.debug(`[PhishingDataService] Domain exemption match found`);
+      return false;
+    }
+
+    // Check against phishing domains list
+    return domains.has(url.hostname);
+  }
+
+  /**
+   * Checks if a hostname matches any exemption pattern
+   * Supports exact matches and subdomain wildcards (e.g., ".example.com" matches "app.example.com")
+   *
+   * @param hostname The hostname to check
+   * @param exemptions Set of exemption patterns
+   * @returns True if the hostname is exempted
+   */
+  private isExempted(hostname: string, exemptions: Set<string>): boolean {
+    // Check for exact match
+    if (exemptions.has(hostname)) {
       return true;
     }
+
+    // Check for subdomain wildcard match
+    // If ".example.com" is in exemptions, it should match "app.example.com", "www.example.com", etc.
+    for (const exemption of exemptions) {
+      if (exemption.startsWith(".")) {
+        // Wildcard exemption: check if hostname ends with the exemption pattern
+        if (hostname.endsWith(exemption) || hostname === exemption.substring(1)) {
+          return true;
+        }
+      }
+    }
+
     return false;
   }
 
@@ -218,5 +337,55 @@ export class PhishingDataService {
       return domains as string[];
     }
     return [];
+  }
+
+  async getNextExemptions(prev: PhishingExemptions | null): Promise<PhishingExemptions | null> {
+    prev = prev ?? { domains: [], timestamp: 0 };
+    const timestamp = Date.now();
+    const prevAge = timestamp - prev.timestamp;
+    this.logService.info(`[PhishingDataService] Exemptions cache age: ${prevAge}`);
+
+    try {
+      const domains = await this.fetchPhishingExemptions();
+      this.logService.info(`[PhishingDataService] Fetched ${domains.length} exemption domains`);
+      return {
+        domains,
+        timestamp,
+      };
+    } catch (error) {
+      this.logService.error(
+        "[PhishingDataService] Failed to fetch exemptions, keeping previous cache",
+        error,
+      );
+      // Return null to keep existing cache on error
+      return null;
+    }
+  }
+
+  private async fetchPhishingExemptions(): Promise<string[]> {
+    const response = await this.apiService.nativeFetch(
+      new Request(PhishingDataService.RemotePhishingExemptionsUrl),
+    );
+
+    if (!response.ok) {
+      throw new Error(`[PhishingDataService] Failed to fetch exemptions: ${response.status}`);
+    }
+
+    return response.text().then((text) => {
+      const lines = text.split("\n");
+
+      // Clean and normalize domains - strip protocols, paths, and invalid characters
+      return lines.map((line) => {
+        let domain = line.trim();
+
+        // Remove protocol if present (http://, https://, etc.)
+        domain = domain.replace(/^[a-z]+:\/\//i, "");
+
+        // Remove path, query, and fragment if present
+        domain = domain.split("/")[0].split("?")[0].split("#")[0];
+
+        return domain;
+      });
+    });
   }
 }
