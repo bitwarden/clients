@@ -73,6 +73,7 @@ export default {
                 ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
               phishingPageLearnMore: "Learn more about phishing detection",
               protectedBy: (product) => `Protected by ${product}`,
+              reportAsNonPhishing: "Report as a non-phishing site",
               learnMore: "Learn more",
               danger: "error",
             }),

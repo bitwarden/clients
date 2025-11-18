@@ -33,14 +33,20 @@
     <button type="button" (click)="closeTab()" bitButton buttonType="primary" [block]="true">
       {{ "phishingPageCloseTabV2" | i18n }}
     </button>
-    <button
-      class="tw-text-sm"
-      type="button"
-      (click)="continueAnyway()"
-      bitLink
-      linkType="secondary"
-    >
+    <button class="tw-text-sm" type="button" (click)="continueAnyway()" bitLink linkType="primary">
       {{ "phishingPageContinueV2" | i18n }}
     </button>
+    <hr class="!tw-w-full !tw-my-0 !tw-border-secondary-50" />
+    <!-- TODO: Update URL to the actual phishing form page once available -->
+    <a
+      class="tw-text-sm"
+      bitLink
+      linkType="primary"
+      rel="noreferrer"
+      target="_blank"
+      href="https://bitwarden.com/contact/"
+    >
+      {{ "reportAsNonPhishing" | i18n }}
+    </a>
   </div>
 </div>
