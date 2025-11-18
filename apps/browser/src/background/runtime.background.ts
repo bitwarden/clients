@@ -294,7 +294,7 @@ export default class RuntimeBackground {
         await this.openPopup();
         break;
       case VaultMessages.OpenAtRiskPasswords: {
-        if (isExternalMessage(msg)) {
+        if (await this.shouldRejectManyOriginMessage(msg)) {
           return;
         }
 
@@ -303,7 +303,7 @@ export default class RuntimeBackground {
         break;
       }
       case VaultMessages.OpenBrowserExtensionToUrl: {
-        if (isExternalMessage(msg)) {
+        if (await this.shouldRejectManyOriginMessage(msg)) {
           return;
         }
 
@@ -374,6 +374,26 @@ export default class RuntimeBackground {
         break;
       }
     }
+  }
+
+  /**
+   * For messages that can originate from a vault host page or extension, validate referrer or external
+   *
+   * @param message
+   * @returns true if message fails validation
+   */
+  private async shouldRejectManyOriginMessage(message: {
+    webExtSender: chrome.runtime.MessageSender;
+  }): Promise<boolean> {
+    const isValidVaultReferrer = await this.isValidVaultReferrer(
+      Utils.getHostname(message?.webExtSender?.origin),
+    );
+
+    if (isValidVaultReferrer) {
+      return false;
+    }
+
+    return isExternalMessage(message);
   }
 
   /**
