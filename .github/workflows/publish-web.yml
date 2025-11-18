@@ -157,8 +157,8 @@ jobs:
       - name: Log out of Docker
         run: docker logout
 
-  self-host-unified-build:
-    name: Trigger self-host unified build
+  bitwarden-lite-build:
+    name: Trigger Bitwaren Lite build
     runs-on: ubuntu-22.04
     needs:
       - setup
@@ -190,7 +190,7 @@ jobs:
             await github.rest.actions.createWorkflowDispatch({
               owner: 'bitwarden',
               repo: 'self-host',
-              workflow_id: 'build-unified.yml',
+              workflow_id: 'build-bitwarden-lite.yml',
               ref: 'main',
               inputs: {
                 use_latest_core_version: true
