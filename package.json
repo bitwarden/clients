@@ -99,7 +99,7 @@
     "css-loader": "7.1.2",
     "electron": "37.7.0",
     "electron-builder": "26.0.12",
-    "electron-log": "5.4.0",
+    "electron-log": "5.4.3",
     "electron-reload": "2.0.0-alpha.1",
     "electron-store": "8.2.0",
     "electron-updater": "6.6.4",
