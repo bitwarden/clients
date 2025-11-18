@@ -80,11 +80,11 @@
     @else {
       <li class="tw-col-span-1">
         <dirt-activity-card
-          [title]="'applicationsNeedingReview' | i18n"
+          [title]="'reviewNewApplications' | i18n"
           [cardMetrics]="'newApplicationsWithCount' | i18n: newApplicationsCount"
           [metricDescription]="'newApplicationsDescription' | i18n"
           [iconClass]="'bwi-exclamation-triangle'"
-          [iconColorClass]="'tw-text-muted'"
+          [iconColorClass]="'tw-text-warning'"
           [buttonText]="'reviewNow' | i18n"
           [buttonType]="'primary'"
           (buttonClick)="onReviewNewApplications()"
