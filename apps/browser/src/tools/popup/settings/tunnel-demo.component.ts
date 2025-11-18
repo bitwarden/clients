@@ -287,8 +287,8 @@ export class TunnelDemoComponent implements OnInit, OnDestroy {
       title: "Connection Request",
       content: `Remote device requesting connection:\n\nUsername: ${remoteUsername}\nClient ID: ${clientId}\n\nDo you want to approve this connection?`,
       type: "warning",
-      acceptButtonText: { key: "approve" },
-      cancelButtonText: { key: "deny" },
+      // acceptButtonText: { key: "approve" },
+      // cancelButtonText: { key: "deny" },
     });
 
     respond(result);
