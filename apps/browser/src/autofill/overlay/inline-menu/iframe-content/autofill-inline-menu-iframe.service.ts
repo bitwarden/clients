@@ -81,6 +81,8 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    * that is declared.
    */
   initMenuIframe() {
+    // this lint isn't valid in the context of an iframe
+    // eslint-disable-next-line @bitwarden/platform/no-page-script-url-leakage
     this.defaultIframeAttributes.src = chrome.runtime.getURL("overlay/menu.html");
     this.defaultIframeAttributes.title = this.iframeTitle;
 
