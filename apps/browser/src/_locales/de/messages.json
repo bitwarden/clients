@@ -595,7 +595,7 @@
     "message": "Alles anzeigen"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "Weniger anzeigen"
   },
   "viewLogin": {
     "message": "Zugangsdaten anzeigen"
@@ -5808,6 +5808,15 @@
   },
   "upgradeToPremium": {
     "message": "Upgrade auf Premium"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade für umfassende Sicherheit"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
   },
   "loadingVault": {
     "message": "Tresor wird geladen"
