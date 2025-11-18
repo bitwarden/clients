@@ -105,13 +105,13 @@ describe("SessionTimeoutInputComponent", () => {
       expect(component.form.value.custom).toEqual({ hours: 2, minutes: 15 });
     });
 
-    it("sets custom timeout to 0 when a preset string option is selected", () => {
+    it("sets custom timeout to 8 hours when a preset string option is selected", () => {
       // Set custom value to random values
       component.form.controls.custom.setValue({ hours: 1, minutes: 1 });
 
       component.form.controls.vaultTimeout.setValue(VaultTimeoutStringType.OnLocked);
 
-      expect(component.form.value.custom).toEqual({ hours: 0, minutes: 0 });
+      expect(component.form.value.custom).toEqual({ hours: 8, minutes: 0 });
     });
   });
 });
