@@ -181,8 +181,6 @@ export class OverlayNotificationsContentService
     this.currentNotificationBarType = initData.type;
     this.notificationBarIframeElement = globalThis.document.createElement("iframe");
     this.notificationBarIframeElement.id = "bit-notification-bar-iframe";
-    // this lint isn't valid in the context of an iframe
-    // eslint-disable-next-line @bitwarden/platform/no-page-script-url-leakage
     this.notificationBarIframeElement.src = chrome.runtime.getURL("notification/bar.html");
     setElementStyles(
       this.notificationBarIframeElement,

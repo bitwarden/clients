@@ -66,10 +66,29 @@ export default {
   },
 
   create(context) {
+    const scriptVariables = new Set();
+
     return {
-      // Catch any assignment of extension URL to src property
+      // Track createElement("script") calls to identify script variables
+      VariableDeclarator(node) {
+        if (node.init && isScriptCreation(node.init) && node.id && node.id.name) {
+          scriptVariables.add(node.id.name);
+        }
+      },
+
+      // Track assignments where script elements are created
       AssignmentExpression(node) {
-        // Look for pattern: *.src = chrome.runtime.getURL(...) or *.src = browser.runtime.getURL(...)
+        // Track script element creation: variable = document.createElement("script")
+        if (
+          node.operator === "=" &&
+          node.left &&
+          node.left.type === "Identifier" &&
+          isScriptCreation(node.right)
+        ) {
+          scriptVariables.add(node.left.name);
+        }
+
+        // Check for script.src = extension URL pattern
         if (
           node.operator === "=" &&
           node.left &&
@@ -78,11 +97,17 @@ export default {
           node.left.property.name === "src" &&
           isExtensionURLCall(node.right)
         ) {
-          // Flag any assignment to src with extension URL as potentially vulnerable
-          context.report({
-            node: node.right,
-            messageId: "pageScriptUrlLeakage",
-          });
+          // Only flag if this is a script element assignment
+          if (
+            node.left.object &&
+            node.left.object.type === "Identifier" &&
+            scriptVariables.has(node.left.object.name)
+          ) {
+            context.report({
+              node: node.right,
+              messageId: "pageScriptUrlLeakage",
+            });
+          }
         }
       },
     };
