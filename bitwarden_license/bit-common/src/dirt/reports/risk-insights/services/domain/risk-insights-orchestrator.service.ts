@@ -35,6 +35,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { LogService } from "@bitwarden/logging";
 
 import {
@@ -189,6 +190,23 @@ export class RiskInsightsOrchestratorService {
   generateReport(): void {
     this.logService.debug("[RiskInsightsOrchestratorService] Create new report triggered");
     this._generateReportTriggerSubject.next(true);
+  }
+
+  /**
+   * Gets the cipher icon for a given cipher ID
+   *
+   * @param cipherId The ID of the cipher to get the icon for
+   * @returns A CipherViewLike if found, otherwise undefined
+   */
+  getCipherIcon(cipherId: string): CipherViewLike | undefined {
+    const currentCiphers = this._ciphersSubject.value;
+    if (!currentCiphers) {
+      return undefined;
+    }
+
+    const foundCipher = currentCiphers.find((c) => c.id === cipherId);
+
+    return foundCipher;
   }
 
   /**
