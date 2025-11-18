@@ -87,7 +87,7 @@
     "papaparse": "5.5.3",
     "proper-lockfile": "4.1.2",
     "rxjs": "7.8.1",
-    "semver": "7.7.2",
+    "semver": "7.7.3",
     "tldts": "7.0.1",
     "zxcvbn": "4.4.2"
   }
