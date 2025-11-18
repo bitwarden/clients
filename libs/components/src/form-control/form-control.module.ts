@@ -2,10 +2,10 @@ import { NgModule } from "@angular/core";
 
 import { FormControlComponent } from "./form-control.component";
 import { BitHintDirective } from "./hint.directive";
-import { BitLabel } from "./label.component";
+import { BitLabelComponent } from "./label.component";
 
 @NgModule({
-  imports: [BitLabel, FormControlComponent, BitHintDirective],
-  exports: [FormControlComponent, BitLabel, BitHintDirective],
+  imports: [BitLabelComponent, FormControlComponent, BitHintDirective],
+  exports: [FormControlComponent, BitLabelComponent, BitHintDirective],
 })
 export class FormControlModule {}

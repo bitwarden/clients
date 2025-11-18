@@ -47,6 +47,8 @@ import {
     TypographyModule,
   ],
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class PhishingWarning {
   private activatedRoute = inject(ActivatedRoute);
   private messageSender = inject(MessageSender);

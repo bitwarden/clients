@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "Vidi sve"
   },
+  "viewLess": {
+    "message": "View less"
+  },
   "viewLogin": {
     "message": "Prikaži prijavu"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Pri zaključavanju sustava"
+  },
+  "onIdle": {
+    "message": "U stanju besposlenosti"
+  },
+  "onSleep": {
+    "message": "U stanju mirovanja sustava"
   },
   "onRestart": {
     "message": "Pri pokretanju preglednika"
@@ -5800,6 +5809,12 @@
   "upgradeToPremium": {
     "message": " Nadogradi na Premium"
   },
+  "loadingVault": {
+    "message": "Učitavanje trezora"
+  },
+  "vaultLoaded": {
+    "message": "Trezor učitan"
+  },
   "settingDisabledByPolicy": {
     "message": "Ova je postavka onemogućena pravilima tvoje organizacije.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5824,8 @@
   },
   "cardNumberLabel": {
     "message": "Broj kartice"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Radnja kod isteka"
   }
 }

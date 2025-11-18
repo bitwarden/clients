@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "檢視全部"
   },
+  "viewLess": {
+    "message": "View less"
+  },
   "viewLogin": {
     "message": "檢視登入"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "於系統鎖定時"
+  },
+  "onIdle": {
+    "message": "系統閒置時"
+  },
+  "onSleep": {
+    "message": "系統睡眠時"
   },
   "onRestart": {
     "message": "於瀏覽器重新啟動時"
@@ -4975,7 +4984,7 @@
     }
   },
   "defaultLabelWithValue": {
-    "message": "Default ( $VALUE$ )",
+    "message": "預設 （$VALUE$）",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5800,6 +5809,12 @@
   "upgradeToPremium": {
     "message": "升級到 Premium"
   },
+  "loadingVault": {
+    "message": "正在載入密碼庫"
+  },
+  "vaultLoaded": {
+    "message": "已載入密碼庫"
+  },
   "settingDisabledByPolicy": {
     "message": "此設定已被你的組織原則停用。",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5824,8 @@
   },
   "cardNumberLabel": {
     "message": "支付卡號碼"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "逾時後動作"
   }
 }

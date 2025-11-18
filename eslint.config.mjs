@@ -61,7 +61,7 @@ export default tseslint.config(
       "rxjs/no-exposed-subjects": ["error", { allowProtected: true }],
 
       // TODO: Enable these.
-      "@angular-eslint/component-class-suffix": 0,
+      "@angular-eslint/component-class-suffix": "error",
       "@angular-eslint/contextual-lifecycle": "error",
       "@angular-eslint/directive-class-suffix": "error",
       "@angular-eslint/no-empty-lifecycle-method": 0,
