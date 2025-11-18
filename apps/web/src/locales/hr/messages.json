@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Dodijeli članovima zadatke za praćenje napretka"
   },
-  "onceYouReviewApps": {
-    "message": "Nakon što pregledaš prijave i označiš kritične, možeš dodijeliti zadatke članovima za rješavanje rizičnih stavki i ovdje pratiti napredak"
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
   },
   "sendReminders": {
     "message": "Pošalji podsjetnike"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "Nisu nađene aplikacije u $ORG NAME$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "No data found"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Uvezi podatke za prijavu svoje organizacije za početak praćenja sigurnosnih rizika vjerodajnica. Nakon uvoza možeš:"
+  "noDataInOrgDescription": {
+    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
   },
-  "benefit1Title": {
-    "message": "Prioritizirajte rizike"
+  "feature1Title": {
+    "message": "Mark applications as critical"
   },
-  "benefit1Description": {
-    "message": "Usredotoči se na najvažnije aplikacije"
+  "feature1Description": {
+    "message": "This will help you remove risks to your most important applications first."
   },
-  "benefit2Title": {
-    "message": "Vodič za sanaciju"
+  "feature2Title": {
+    "message": "Help members improve their security"
   },
-  "benefit2Description": {
-    "message": "Dodijeli vođene zadatke rizičnim članovima za rotaciju rizičnih vjerodajnica"
+  "feature2Description": {
+    "message": "Assign at-risk members guided security tasks to update credentials."
   },
-  "benefit3Title": {
-    "message": "Prati napredak"
+  "feature3Title": {
+    "message": "Monitor progress"
   },
-  "benefit3Description": {
-    "message": "Prati promjene tijekom vremena za prikaz sigurnosnih poboljšanja"
+  "feature3Description": {
+    "message": "Track changes over time to show security improvements."
   },
-  "noReportRunTitle": {
-    "message": "Za pregled aplikacija, pokreni svoje prvo izvješće"
+  "noReportsRunTitle": {
+    "message": "Generate report"
   },
-  "noReportRunDescription": {
-    "message": "Generiraj izvješće o uvidima u rizike za analizu aplikacije svoje organizacije i identifikaciju lozinki koje su u riziku i kojima je potrebna pozornost. Pokretanje tvojeg prvog izvješća će:"
+  "noReportsRunDescription": {
+    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Niti jedna aplikacija nije označena kao kritična"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Rizični korisnici"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Članovi koji imaju pristup stavkama za aplikacije označene kao kritične"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "These members have access to vulnerable items for critical applications."
   },
   "membersWithAtRiskPasswords": {
     "message": "Članovi s rizičnim lozinkama"
   },
-  "membersWillReceiveNotification": {
-    "message": "Članovi će dobiti obavijest o rješavanju rizičnih prijava putem proširenja preglednika."
+  "membersWillReceiveSecurityTask": {
+    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
   },
   "membersAtRiskCount": {
     "message": "Rizičnih članova: $COUNT$",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Ovi članovi se prijavljuju u aplikacije slabim, izloženim ili ponovno korištenim lozinkama."
+  "atRiskMemberDescription": {
+    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Nema članova koji se prijavljuju slabim, izloženim ili ponovno korištenim lozinkama."
@@ -391,14 +385,14 @@
   "prioritizeCriticalApplications": {
     "message": "Daj prioritet kritičnim aplikacijama"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Odaberi koje su aplikacije najvažnije za tvoju organizaciju, a zatim dodijeli sigurnosne zadatke članovima kako bi se riješili rizici."
+  "selectCriticalAppsDescription": {
+    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "reviewNewApplications": {
     "message": "Pregledaj nove prijave"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "Istaknuli smo rizične stavke za nove aplikacije pohranjene u administratorskoj konzoli koje imaju slabe, otkrivene ili ponovno korištene lozinke."
+  "reviewNewAppsDescription": {
+    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Klikni ikonu zvjezdice za označavanje aplikacije kao kritične"
@@ -9856,8 +9850,8 @@
   "assignTasks": {
     "message": "Dodijeli zadatke"
   },
-  "assignTasksToMembers": {
-    "message": "Dodijeli zadatke članovima za vođeno rješavanje"
+  "assignSecurityTasksToMembers": {
+    "message": "Send notifications to change passwords"
   },
   "assignToCollections": {
     "message": "Dodijeli zbirkama"
