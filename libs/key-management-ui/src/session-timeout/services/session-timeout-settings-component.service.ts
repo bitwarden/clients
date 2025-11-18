@@ -76,64 +76,66 @@ export class SessionTimeoutSettingsComponentService {
         }),
       ),
     ]).pipe(
-      concatMap(async ([availableOptions, policyData, highestPolicyTypeAvailableTimeout]) => {
-        if (policyData == null) {
-          return availableOptions;
-        }
+      concatMap(
+        async ([availableOptions, policyData, highestAvailableEnforcedByPolicyTimeoutType]) => {
+          if (policyData == null) {
+            return availableOptions;
+          }
 
-        return availableOptions.filter((option) => {
-          switch (policyData.type) {
-            case "immediately": {
-              // Policy requires immediate lock.
-              return option.value === highestPolicyTypeAvailableTimeout;
-            }
-
-            case "onSystemLock": {
-              // Allow immediately, numeric values, custom, and any system lock-related options.
-              if (
-                option.value === VaultTimeoutNumberType.Immediately ||
-                isVaultTimeoutTypeNumeric(option.value) ||
-                option.value === VaultTimeoutStringType.Custom ||
-                option.value === VaultTimeoutStringType.OnLocked ||
-                option.value === VaultTimeoutStringType.OnIdle ||
-                option.value === VaultTimeoutStringType.OnSleep
-              ) {
-                return true;
+          return availableOptions.filter((option) => {
+            switch (policyData.type) {
+              case "immediately": {
+                // Policy requires immediate lock.
+                return option.value === highestAvailableEnforcedByPolicyTimeoutType;
               }
 
-              // When on locked is not supported, fallback.
-              return option.value === highestPolicyTypeAvailableTimeout;
+              case "onSystemLock": {
+                // Allow immediately, numeric values, custom, and any system lock-related options.
+                if (
+                  option.value === VaultTimeoutNumberType.Immediately ||
+                  isVaultTimeoutTypeNumeric(option.value) ||
+                  option.value === VaultTimeoutStringType.Custom ||
+                  option.value === VaultTimeoutStringType.OnLocked ||
+                  option.value === VaultTimeoutStringType.OnIdle ||
+                  option.value === VaultTimeoutStringType.OnSleep
+                ) {
+                  return true;
+                }
+
+                // When on locked is not supported, fallback.
+                return option.value === highestAvailableEnforcedByPolicyTimeoutType;
+              }
+
+              case "onAppRestart":
+                // Allow immediately, numeric values, custom, and on app restart
+                return (
+                  option.value === VaultTimeoutNumberType.Immediately ||
+                  isVaultTimeoutTypeNumeric(option.value) ||
+                  option.value === VaultTimeoutStringType.Custom ||
+                  option.value === VaultTimeoutStringType.OnRestart
+                );
+
+              case "custom":
+              case null:
+              case undefined:
+                // Allow immediately, custom, and numeric values within policy limit
+                return (
+                  option.value === VaultTimeoutNumberType.Immediately ||
+                  option.value === VaultTimeoutStringType.Custom ||
+                  (isVaultTimeoutTypeNumeric(option.value) &&
+                    (option.value as number) <= policyData.minutes)
+                );
+
+              case "never":
+                // No policy restriction
+                return true;
+
+              default:
+                throw Error(`Unsupported policy type: ${policyData.type}`);
             }
-
-            case "onAppRestart":
-              // Allow immediately, numeric values, custom, and on app restart
-              return (
-                option.value === VaultTimeoutNumberType.Immediately ||
-                isVaultTimeoutTypeNumeric(option.value) ||
-                option.value === VaultTimeoutStringType.Custom ||
-                option.value === VaultTimeoutStringType.OnRestart
-              );
-
-            case "custom":
-            case null:
-            case undefined:
-              // Allow immediately, custom, and numeric values within policy limit
-              return (
-                option.value === VaultTimeoutNumberType.Immediately ||
-                option.value === VaultTimeoutStringType.Custom ||
-                (isVaultTimeoutTypeNumeric(option.value) &&
-                  (option.value as number) <= policyData.minutes)
-              );
-
-            case "never":
-              // No policy restriction
-              return true;
-
-            default:
-              throw Error(`Unsupported policy type: ${policyData.type}`);
-          }
-        });
-      }),
+          });
+        },
+      ),
     );
   }
 
