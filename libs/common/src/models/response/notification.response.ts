@@ -1,3 +1,4 @@
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { NotificationViewResponse as EndUserNotificationResponse } from "@bitwarden/common/vault/notifications/models";
 
 import { NotificationType, PushNotificationLogOutReasonType } from "../../enums";
@@ -70,6 +71,9 @@ export class NotificationResponse extends BaseResponse {
         break;
       case NotificationType.ProviderBankAccountVerified:
         this.payload = new ProviderBankAccountVerifiedPushNotification(payload);
+        break;
+      case NotificationType.SyncPolicy:
+        this.payload = new SyncPolicyNotification(payload);
         break;
       default:
         break;
@@ -184,6 +188,15 @@ export class ProviderBankAccountVerifiedPushNotification extends BaseResponse {
     super(response);
     this.providerId = this.getResponseProperty("ProviderId");
     this.adminId = this.getResponseProperty("AdminId");
+  }
+}
+
+export class SyncPolicyNotification extends BaseResponse {
+  policy: Policy;
+
+  constructor(response: any) {
+    super(response);
+    this.policy = this.getResponseProperty("Policy");
   }
 }
 

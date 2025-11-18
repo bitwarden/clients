@@ -1021,6 +1021,7 @@ const safeProviders: SafeProvider[] = [
       WebPushConnectionService,
       AuthRequestAnsweringServiceAbstraction,
       ConfigService,
+      InternalPolicyService,
     ],
   }),
   safeProvider({
