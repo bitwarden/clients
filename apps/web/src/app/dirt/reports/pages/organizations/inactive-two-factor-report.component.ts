@@ -72,8 +72,9 @@ export class InactiveTwoFactorReportComponent
 
   async ngOnInit() {
     this.isAdminConsoleActive = true;
-    this.route.parent.parent.params
-      .pipe(takeUntil(this.destroyed$))
+
+    this.route.parent?.parent?.params
+      ?.pipe(takeUntil(this.destroyed$))
       // eslint-disable-next-line rxjs/no-async-subscribe
       .subscribe(async (params) => {
         const userId = await firstValueFrom(
