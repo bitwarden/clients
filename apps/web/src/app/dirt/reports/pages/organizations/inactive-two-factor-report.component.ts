@@ -99,6 +99,9 @@ export class InactiveTwoFactorReportComponent
         (await this.cipherService.getAllFromApiForOrganization(this.organization.id, true)) ?? [];
     }
 
+    // super.getallCiphers() gets ciphers the user has access to via collections
+    // getAllFromApiForOrganization gets all org ciphers
+    // Merge the two lists, removing duplicates
     const cipherMap = new Map<string, CipherView>();
     [...baseCiphers, ...orgCiphers].forEach((cipher) => cipherMap.set(cipher.id, cipher));
     return Array.from(cipherMap.values());

@@ -121,7 +121,7 @@ export abstract class CipherReportComponent implements OnDestroy {
   async filterOrgToggle(status: any) {
     let filter = (c: CipherView) => true;
     if (typeof status === "number" && status === 1) {
-      filter = (c: CipherView) => c.organizationId == null;
+      filter = (c: CipherView) => !c.organizationId;
     } else if (typeof status === "string") {
       const orgId = status as OrganizationId;
       filter = (c: CipherView) => c.organizationId === orgId;
