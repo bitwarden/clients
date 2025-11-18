@@ -1,7 +1,7 @@
 ---
 name: angular-modernization
 description: Modernizes Angular code such as components and directives to follow best practices using both automatic CLI migrations and Bitwarden-specific patterns. YOU must use this skill when someone requests modernization of Angular code.
-allowed-tools: Read, Write, Glob, Bash(npx ng generate @angular:*)
+allowed-tools: Read, Write, Glob
 ---
 
 # Angular Modernization
