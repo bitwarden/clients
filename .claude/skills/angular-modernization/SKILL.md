@@ -1,6 +1,7 @@
 ---
 name: angular-modernization
 description: Modernizes Angular code such as components and directives to follow best practices using both automatic CLI migrations and Bitwarden-specific patterns. YOU must use this skill when someone requests modernization of Angular code.
+allowed-tools: Read, Write, Glob, Bash(npx ng generate @angular:*)
 ---
 
 # Angular Modernization
@@ -80,15 +81,7 @@ npx ng generate @angular/core:inject-migration
 
 Constructor injection → `inject()` function
 
-### 7. Self-Closing Tags
-
-```bash
-npx ng generate @angular/core:self-closing-tags
-```
-
-Updates templates to self-closing syntax
-
-#### 8. Unused Imports
+#### 7. Unused Imports
 
 ```bash
 npx ng generate @angular/core:unused-imports
@@ -110,7 +103,7 @@ See [migration-patterns.md](migration-patterns.md) for detailed examples.
 
 ### Step 3: Validate
 
-- Fix linting and formatting using `npm run lint:fix -- <path>`
+- Fix linting and formatting using `npm run lint:fix`
 - Run tests using `npm run test`
 
 If any errors occur, fix them accordingly.
