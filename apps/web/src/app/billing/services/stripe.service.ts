@@ -290,9 +290,15 @@ export class StripeService {
         const cardExpiry = instance.elements.getElement("cardExpiry");
         const cardCvc = instance.elements.getElement("cardCvc");
 
-        if (cardNumber) {cardNumber.unmount();}
-        if (cardExpiry) {cardExpiry.unmount();}
-        if (cardCvc) {cardCvc.unmount();}
+        if (cardNumber) {
+          cardNumber.unmount();
+        }
+        if (cardExpiry) {
+          cardExpiry.unmount();
+        }
+        if (cardCvc) {
+          cardCvc.unmount();
+        }
       } catch (error) {
         this.logService.error(
           `Error unmounting Stripe elements for instance ${instanceId}:`,
