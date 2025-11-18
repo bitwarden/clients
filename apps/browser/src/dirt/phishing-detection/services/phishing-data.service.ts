@@ -58,6 +58,7 @@ export class PhishingDataService {
         new Set(
           (state?.domains?.filter((line) => line.trim().length > 0) ?? []).concat(
             this._testDomains,
+            "phishing.testcategory.com", // Included for QA to test in prod
           ),
         ),
     ),
