@@ -1,6 +1,7 @@
 import { BehaviorSubject, combineLatest, from, Observable, shareReplay, switchMap } from "rxjs";
 
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
@@ -17,6 +18,7 @@ export class DefaultOrganizationMetadataService implements OrganizationMetadataS
   constructor(
     private billingApiService: BillingApiServiceAbstraction,
     private configService: ConfigService,
+    private platformUtilsService: PlatformUtilsService,
   ) {}
   private refreshMetadataTrigger = new BehaviorSubject<void>(undefined);
 
@@ -67,7 +69,9 @@ export class DefaultOrganizationMetadataService implements OrganizationMetadataS
     featureFlagEnabled: boolean,
   ): Promise<OrganizationBillingMetadataResponse> {
     return featureFlagEnabled
-      ? await this.billingApiService.getOrganizationBillingMetadataVNext(organizationId)
+      ? this.platformUtilsService.isSelfHost()
+        ? await this.billingApiService.getOrganizationBillingMetadataVNextSelfHost(organizationId)
+        : await this.billingApiService.getOrganizationBillingMetadataVNext(organizationId)
       : await this.billingApiService.getOrganizationBillingMetadata(organizationId);
   }
 }
