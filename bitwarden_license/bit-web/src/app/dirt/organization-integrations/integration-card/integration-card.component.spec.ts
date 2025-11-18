@@ -15,13 +15,19 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { HecConnectDialogResultStatus, openHecConnectDialog } from "../integration-dialog";
+import {
+  HecConnectDialogResultStatus,
+  DatadogConnectDialogResultStatus,
+  openHecConnectDialog,
+} from "../integration-dialog";
 
 import { IntegrationCardComponent } from "./integration-card.component";
 
 jest.mock("../integration-dialog", () => ({
   openHecConnectDialog: jest.fn(),
+  openDatadogConnectDialog: jest.fn(),
   HecConnectDialogResultStatus: { Edited: "edit", Delete: "delete" },
+  DatadogConnectDialogResultStatus: { Edited: "edit", Delete: "delete" },
 }));
 
 describe("IntegrationCardComponent", () => {
@@ -496,6 +502,148 @@ describe("IntegrationCardComponent", () => {
       await component.setupConnection();
 
       expect(mockIntegrationService.deleteHec).toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: "",
+        message: mockI18nService.t("mustBeOrgOwnerToPerformAction"),
+      });
+    });
+  });
+
+  describe("saveDatadog", () => {
+    beforeEach(() => {
+      component.integrationSettings = {
+        organizationIntegration: {
+          id: "integration-id",
+          configuration: {},
+          integrationConfiguration: [{ id: "config-id" }],
+        },
+        name: OrganizationIntegrationServiceType.Datadog,
+      } as any;
+      component.organizationId = "org-id" as any;
+      jest.resetAllMocks();
+    });
+
+    it("should show success toast when save is successful for new integration", async () => {
+      const result = {
+        success: DatadogConnectDialogResultStatus.Edited,
+        url: "https://datadog.example.com",
+        apiKey: "test-api-key",
+      };
+
+      jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(false);
+      mockDatadogIntegrationService.saveDatadog.mockResolvedValue({
+        mustBeOwner: false,
+        success: true,
+      });
+
+      await component.saveDatadog(result as any);
+
+      expect(mockDatadogIntegrationService.saveDatadog).toHaveBeenCalledWith(
+        "org-id",
+        OrganizationIntegrationServiceType.Datadog,
+        "https://datadog.example.com",
+        "test-api-key",
+      );
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        title: "",
+        message: mockI18nService.t("success"),
+      });
+    });
+
+    it("should show success toast when update is successful for existing integration", async () => {
+      const result = {
+        success: DatadogConnectDialogResultStatus.Edited,
+        url: "https://datadog.example.com",
+        apiKey: "test-api-key",
+      };
+
+      jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(true);
+      mockDatadogIntegrationService.updateDatadog.mockResolvedValue({
+        mustBeOwner: false,
+        success: true,
+      });
+
+      await component.saveDatadog(result as any);
+
+      expect(mockDatadogIntegrationService.updateDatadog).toHaveBeenCalledWith(
+        "org-id",
+        "integration-id",
+        "config-id",
+        OrganizationIntegrationServiceType.Datadog,
+        "https://datadog.example.com",
+        "test-api-key",
+      );
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        title: "",
+        message: mockI18nService.t("success"),
+      });
+    });
+
+    it("should show mustBeOwner toast when user is not owner during save", async () => {
+      const result = {
+        success: DatadogConnectDialogResultStatus.Edited,
+        url: "https://datadog.example.com",
+        apiKey: "test-api-key",
+      };
+
+      jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(false);
+      mockDatadogIntegrationService.saveDatadog.mockResolvedValue({
+        mustBeOwner: true,
+        success: false,
+      });
+
+      await component.saveDatadog(result as any);
+
+      expect(mockDatadogIntegrationService.saveDatadog).toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: "",
+        message: mockI18nService.t("mustBeOrgOwnerToPerformAction"),
+      });
+    });
+
+    it("should show mustBeOwner toast when user is not owner during update", async () => {
+      const result = {
+        success: DatadogConnectDialogResultStatus.Edited,
+        url: "https://datadog.example.com",
+        apiKey: "test-api-key",
+      };
+
+      jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(true);
+      mockDatadogIntegrationService.updateDatadog.mockResolvedValue({
+        mustBeOwner: true,
+        success: false,
+      });
+
+      await component.saveDatadog(result as any);
+
+      expect(mockDatadogIntegrationService.updateDatadog).toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: "",
+        message: mockI18nService.t("mustBeOrgOwnerToPerformAction"),
+      });
+    });
+
+    it("should not show success toast when mustBeOwner is true", async () => {
+      const result = {
+        success: DatadogConnectDialogResultStatus.Edited,
+        url: "https://datadog.example.com",
+        apiKey: "test-api-key",
+      };
+
+      jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(false);
+      mockDatadogIntegrationService.saveDatadog.mockResolvedValue({
+        mustBeOwner: true,
+        success: false,
+      });
+
+      await component.saveDatadog(result as any);
+
+      expect(toastService.showToast).toHaveBeenCalledTimes(1);
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
         title: "",

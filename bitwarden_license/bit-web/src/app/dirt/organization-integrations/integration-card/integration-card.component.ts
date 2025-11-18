@@ -322,6 +322,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
   }
 
   async saveDatadog(result: DatadogConnectDialogResult) {
+    let saveResponse = { mustBeOwner: false, success: false };
     if (this.isUpdateAvailable) {
       // retrieve org integration and configuration ids
       const orgIntegrationId = this.integrationSettings.organizationIntegration?.id;
@@ -333,7 +334,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       }
 
       // update existing integration and configuration
-      await this.datadogOrganizationIntegrationService.updateDatadog(
+      saveResponse = await this.datadogOrganizationIntegrationService.updateDatadog(
         this.organizationId,
         orgIntegrationId,
         orgIntegrationConfigurationId,
@@ -343,13 +344,19 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       );
     } else {
       // create new integration and configuration
-      await this.datadogOrganizationIntegrationService.saveDatadog(
+      saveResponse = await this.datadogOrganizationIntegrationService.saveDatadog(
         this.organizationId,
         this.integrationSettings.name as OrganizationIntegrationServiceType,
         result.url,
         result.apiKey,
       );
     }
+
+    if (saveResponse.mustBeOwner) {
+      this.showMustBeOwnerToast();
+      return;
+    }
+
     this.toastService.showToast({
       variant: "success",
       title: "",

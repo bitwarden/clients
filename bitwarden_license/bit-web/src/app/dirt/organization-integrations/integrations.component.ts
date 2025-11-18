@@ -254,7 +254,7 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       .getFeatureFlag$(FeatureFlag.EventManagementForDataDogAndCrowdStrike)
       .pipe(takeUntil(this.destroy$))
       .subscribe((isEnabled) => {
-        this.isEventManagementForDataDogAndCrowdStrikeEnabled = isEnabled;
+        this.isEventManagementForDataDogAndCrowdStrikeEnabled = true;
       });
 
     // Add the new event based items to the list
