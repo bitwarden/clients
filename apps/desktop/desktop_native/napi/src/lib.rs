@@ -961,7 +961,7 @@ pub mod logging {
     };
     use tracing::Level;
     use tracing_subscriber::{
-        filter::{EnvFilter, LevelFilter},
+        filter::EnvFilter,
         fmt::format::{DefaultVisitor, Writer},
         layer::SubscriberExt,
         util::SubscriberInitExt,
@@ -1049,9 +1049,17 @@ pub mod logging {
     pub fn init_napi_log(js_log_fn: ThreadsafeFunction<(LogLevel, String), CalleeHandled>) {
         let _ = JS_LOGGER.0.set(js_log_fn);
 
+        // the log level hierarchy is determined by:
+        //    - if RUST_LOG is detected at runtime
+        //    - if RUST_LOG is provided at compile time
+        //    - default to INFO
         let filter = EnvFilter::builder()
-            // set the default log level to INFO.
-            .with_default_directive(LevelFilter::INFO.into())
+            .with_default_directive(
+                option_env!("RUST_LOG")
+                    .unwrap_or("info")
+                    .parse()
+                    .expect("should provide valid log level at compile time."),
+            )
             // parse directives from the RUST_LOG environment variable,
             // overriding the default directive for matching targets.
             .from_env_lossy();
