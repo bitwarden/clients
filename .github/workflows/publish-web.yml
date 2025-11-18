@@ -158,7 +158,7 @@ jobs:
         run: docker logout
 
   bitwarden-lite-build:
-    name: Trigger Bitwaren Lite build
+    name: Trigger Bitwarden Lite build
     runs-on: ubuntu-22.04
     needs: setup
     permissions:
