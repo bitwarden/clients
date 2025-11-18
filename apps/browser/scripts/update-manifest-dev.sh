@@ -22,6 +22,13 @@ if [ -d "$BUILD_DIR" ]; then
   # Generated arbitrary public key from Chrome Dev Console to pin side-loaded extension IDs during development
   DEV_PUBLIC_KEY='MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuIvjtsAVWZM0i5jFhSZcrmwgaf3KWcxM5F16LNDNeivC1EqJ+H5xNZ5R9UN5ueHA2xyyYAOlxY07OcY6CKTGJRJyefbUhszb66sdx26SV5gVkCois99fKBlsbSbd6und/BJYmoFUWvFCNNVH+OxLMqMQWjMMhM2ItLqTYi7dxRE5qd+7LwQpnGG2vTkm/O7nu8U3CtkfcIAGLsiTd7/iuytcMDnC0qFM5tJyY/5I+9QOhpUJ7Ybj3C18BDWDORhqxutWv+MSw//SgUn2/lPQrnrKq7FIVQL7FxxEPqkv4QwFvaixps1cBbMdJ1Ygit1z5JldoSyNxzCa5vVcJLecMQIDAQAB'
 
-  jq --arg key "$DEV_PUBLIC_KEY" '.key = $key' "$MANIFEST_PATH" > "${MANIFEST_PATH}.tmp" && mv "${MANIFEST_PATH}.tmp" "$MANIFEST_PATH"
-  echo "Updated manifest key in $MANIFEST_PATH"
+  MANIFEST_PATH_TMP="${MANIFEST_PATH}.tmp"
+  if jq --arg key "$DEV_PUBLIC_KEY" '.key = $key' "$MANIFEST_PATH" > "$MANIFEST_PATH_TMP"; then
+    mv "$MANIFEST_PATH_TMP" "$MANIFEST_PATH"
+    echo "Updated manifest key in $MANIFEST_PATH"
+  else
+    echo "ERROR: Failed to update manifest with jq"
+    rm -f "$MANIFEST_PATH_TMP"
+    exit 1
+  fi
 fi
