@@ -117,10 +117,23 @@ export class StripeService {
     instanceId: string,
     elementIds: { cardNumber: string; cardExpiry: string; cardCvc: string },
     autoMount: boolean,
+    attempt: number = 1,
   ) {
     // Wait for stripe to be available if script just loaded
     if (!this.stripe) {
-      setTimeout(() => this.initializeInstance(instanceId, elementIds, autoMount), 50);
+      if (attempt < 10) {
+        this.logService.warning(
+          `Stripe not yet loaded for instance ${instanceId}, retrying attempt ${attempt}...`,
+        );
+        setTimeout(
+          () => this.initializeInstance(instanceId, elementIds, autoMount, attempt + 1),
+          50,
+        );
+      } else {
+        this.logService.error(
+          `Stripe failed to load for instance ${instanceId} after ${attempt} attempts`,
+        );
+      }
       return;
     }
 
@@ -245,7 +258,13 @@ export class StripeService {
   ): Promise<string> {
     const instance = this.instances.get(instanceId);
     if (!instance) {
-      throw new Error(`Stripe instance ${instanceId} not found`);
+      const availableInstances = Array.from(this.instances.keys());
+      this.logService.error(
+        `Stripe instance ${instanceId} not found. ` +
+          `Available instances: [${availableInstances.join(", ")}]. ` +
+          `This may occur if the component was destroyed during the payment flow.`,
+      );
+      throw new Error("Payment method initialization failed. Please try again.");
     }
 
     const cardNumber = instance.elements.getElement("cardNumber");
@@ -315,6 +334,11 @@ export class StripeService {
 
     // Only remove script and iframes when no instances remain
     if (this.instanceCount <= 0) {
+      if (this.instanceCount < 0) {
+        this.logService.error(
+          `Stripe instance count became negative (${this.instanceCount}). This indicates a reference counting bug.`,
+        );
+      }
       this.instanceCount = 0;
       this.stripeScriptLoaded = false;
       this.stripe = null;

@@ -481,7 +481,10 @@ describe("StripeService", () => {
 
     it("should throw error if instance not found", async () => {
       await expect(service.setupCardPaymentMethod("non-existent", clientSecret)).rejects.toThrow(
-        "Stripe instance non-existent not found",
+        "Payment method initialization failed. Please try again.",
+      );
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Stripe instance non-existent not found"),
       );
     });
 
