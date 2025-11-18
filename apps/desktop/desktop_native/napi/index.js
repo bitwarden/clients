@@ -78,12 +78,6 @@ switch (platform) {
         throw new Error(`Unsupported architecture on macOS: ${arch}`);
     }
     break;
-  case "freebsd":
-    nativeBinding = loadFirstAvailable(
-      ["desktop_napi.freebsd-x64.node"],
-      "@bitwarden/desktop-napi-freebsd-x64",
-    );
-    break;
   case "linux":
     switch (arch) {
       case "x64":
