@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
+import { BrowserApi } from "../../../../platform/browser/browser-api";
 import {
   NotificationBarIframeInitData,
   NotificationType,
@@ -22,6 +23,7 @@ export class OverlayNotificationsContentService
   private notificationBarIframeElement: HTMLIFrameElement | null = null;
   private notificationBarShadowRoot: ShadowRoot | null = null;
   private currentNotificationBarType: NotificationType | null = null;
+  private readonly extensionOrigin: string;
   private notificationBarContainerStyles: Partial<CSSStyleDeclaration> = {
     height: "400px",
     width: "430px",
@@ -61,6 +63,7 @@ export class OverlayNotificationsContentService
   };
 
   constructor() {
+    this.extensionOrigin = BrowserApi.getRuntimeURL("")?.slice(0, -1);
     void sendExtensionMessage("checkNotificationQueue");
   }
 
@@ -181,7 +184,7 @@ export class OverlayNotificationsContentService
     this.currentNotificationBarType = initData.type;
     this.notificationBarIframeElement = globalThis.document.createElement("iframe");
     this.notificationBarIframeElement.id = "bit-notification-bar-iframe";
-    this.notificationBarIframeElement.src = chrome.runtime.getURL("notification/bar.html");
+    this.notificationBarIframeElement.src = BrowserApi.getRuntimeURL("notification/bar.html");
     setElementStyles(
       this.notificationBarIframeElement,
       {
@@ -303,7 +306,7 @@ export class OverlayNotificationsContentService
    */
   private sendMessageToNotificationBarIframe(message: Record<string, any>) {
     if (this.notificationBarIframeElement) {
-      this.notificationBarIframeElement.contentWindow.postMessage(message, "*");
+      this.notificationBarIframeElement.contentWindow.postMessage(message, this.extensionOrigin);
     }
   }
 

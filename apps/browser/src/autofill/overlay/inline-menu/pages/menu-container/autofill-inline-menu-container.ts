@@ -1,5 +1,6 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
+import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import { generateRandomChars, setElementStyles } from "../../../../utils";
 import {
   InitAutofillInlineMenuElementMessage,
@@ -73,7 +74,7 @@ export class AutofillInlineMenuContainer {
 
   constructor() {
     this.token = generateRandomChars(32);
-    this.extensionOrigin = chrome.runtime.getURL("").slice(0, -1);
+    this.extensionOrigin = BrowserApi.getRuntimeURL("")?.slice(0, -1);
     globalThis.addEventListener("message", this.handleWindowMessage);
   }
 
@@ -196,6 +197,9 @@ export class AutofillInlineMenuContainer {
    */
   private handleWindowMessage = (event: MessageEvent<AutofillInlineMenuContainerWindowMessage>) => {
     const message = event.data;
+    if (!message?.command) {
+      return;
+    }
     if (this.isForeignWindowMessage(event)) {
       return;
     }

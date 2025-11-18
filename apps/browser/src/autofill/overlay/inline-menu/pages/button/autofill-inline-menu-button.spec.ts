@@ -14,7 +14,6 @@ describe("AutofillInlineMenuButton", () => {
   beforeEach(() => {
     document.body.innerHTML = `<autofill-inline-menu-button></autofill-inline-menu-button>`;
     autofillInlineMenuButton = document.querySelector("autofill-inline-menu-button");
-    autofillInlineMenuButton["messageOrigin"] = "https://localhost/";
     jest.spyOn(globalThis.document, "createElement");
     jest.spyOn(globalThis.parent, "postMessage");
   });
@@ -56,7 +55,7 @@ describe("AutofillInlineMenuButton", () => {
       autofillInlineMenuButton["buttonElement"].click();
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-        { command: "autofillInlineMenuButtonClicked", portKey },
+        { command: "autofillInlineMenuButtonClicked", portKey, token: "test-token" },
         "*",
       );
     });
@@ -70,7 +69,7 @@ describe("AutofillInlineMenuButton", () => {
     it("does not post a message to close the autofill inline menu if the element is focused during the focus check", async () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(true);
 
-      postWindowMessage({ command: "checkAutofillInlineMenuButtonFocused" });
+      postWindowMessage({ command: "checkAutofillInlineMenuButtonFocused", token: "test-token" });
       await flushPromises();
 
       expect(globalThis.parent.postMessage).not.toHaveBeenCalledWith({
@@ -84,7 +83,7 @@ describe("AutofillInlineMenuButton", () => {
         .spyOn(autofillInlineMenuButton["buttonElement"], "querySelector")
         .mockReturnValue(autofillInlineMenuButton["buttonElement"]);
 
-      postWindowMessage({ command: "checkAutofillInlineMenuButtonFocused" });
+      postWindowMessage({ command: "checkAutofillInlineMenuButtonFocused", token: "test-token" });
       await flushPromises();
 
       expect(globalThis.parent.postMessage).not.toHaveBeenCalledWith({
@@ -98,7 +97,7 @@ describe("AutofillInlineMenuButton", () => {
       jest
         .spyOn(autofillInlineMenuButton["buttonElement"], "querySelector")
         .mockReturnValue(autofillInlineMenuButton["buttonElement"]);
-      postWindowMessage({ command: "checkAutofillInlineMenuButtonFocused" });
+      postWindowMessage({ command: "checkAutofillInlineMenuButtonFocused", token: "test-token" });
       await flushPromises();
 
       globalThis.document.dispatchEvent(new MouseEvent("mouseout"));
@@ -113,11 +112,11 @@ describe("AutofillInlineMenuButton", () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(false);
       jest.spyOn(autofillInlineMenuButton["buttonElement"], "querySelector").mockReturnValue(null);
 
-      postWindowMessage({ command: "checkAutofillInlineMenuButtonFocused" });
+      postWindowMessage({ command: "checkAutofillInlineMenuButtonFocused", token: "test-token" });
       await flushPromises();
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-        { command: "triggerDelayedAutofillInlineMenuClosure", portKey },
+        { command: "triggerDelayedAutofillInlineMenuClosure", portKey, token: "test-token" },
         "*",
       );
     });
@@ -128,6 +127,7 @@ describe("AutofillInlineMenuButton", () => {
       postWindowMessage({
         command: "updateAutofillInlineMenuButtonAuthStatus",
         authStatus: AuthenticationStatus.Unlocked,
+        token: "test-token",
       });
       await flushPromises();
 
@@ -143,6 +143,7 @@ describe("AutofillInlineMenuButton", () => {
       postWindowMessage({
         command: "updateAutofillInlineMenuColorScheme",
         colorScheme: "dark",
+        token: "test-token",
       });
       await flushPromises();
 

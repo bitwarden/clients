@@ -2949,13 +2949,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     this.postMessageToPort(port, {
       command: `initAutofillInlineMenu${isInlineMenuListPort ? "List" : "Button"}`,
-      iframeUrl: chrome.runtime.getURL(
+      iframeUrl: BrowserApi.getRuntimeURL(
         `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.html`,
       ),
       pageTitle: chrome.i18n.getMessage(
         isInlineMenuListPort ? "bitwardenVault" : "bitwardenOverlayButton",
       ),
-      styleSheetUrl: chrome.runtime.getURL(
+      styleSheetUrl: BrowserApi.getRuntimeURL(
         `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.css`,
       ),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),

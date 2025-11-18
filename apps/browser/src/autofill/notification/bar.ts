@@ -395,6 +395,10 @@ function setupWindowMessageListener() {
 }
 
 function handleWindowMessage(event: MessageEvent) {
+  if (event?.source !== globalThis.parent) {
+    return;
+  }
+
   if (!windowMessageOrigin) {
     windowMessageOrigin = event.origin;
   }
@@ -404,6 +408,10 @@ function handleWindowMessage(event: MessageEvent) {
   }
 
   const message = event.data as NotificationBarWindowMessage;
+  if (!message?.command) {
+    return;
+  }
+
   const handler = notificationBarWindowMessageHandlers[message.command];
   if (!handler) {
     return;

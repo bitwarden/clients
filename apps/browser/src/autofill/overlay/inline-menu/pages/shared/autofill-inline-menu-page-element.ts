@@ -63,10 +63,11 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
    * @param message - The message to post
    */
   protected postMessageToParent(message: AutofillInlineMenuPageElementWindowMessage) {
-    const messageWithAuth: Record<string, unknown> = { portKey: this.portKey, ...message };
-    if (this.token) {
-      messageWithAuth.token = this.token;
-    }
+    const messageWithAuth: Record<string, unknown> = {
+      portKey: this.portKey,
+      ...message,
+      token: this.token,
+    };
     globalThis.parent.postMessage(messageWithAuth, "*");
   }
 
@@ -105,6 +106,10 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
       return;
     }
 
+    if (event.source !== globalThis.parent) {
+      return;
+    }
+
     if (!this.messageOrigin) {
       this.messageOrigin = event.origin;
     }
@@ -115,12 +120,23 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
 
     const message = event?.data;
 
-    if (
-      message?.token &&
-      (message?.command === "initAutofillInlineMenuButton" ||
-        message?.command === "initAutofillInlineMenuList")
-    ) {
+    if (!message?.command) {
+      return;
+    }
+
+    const isInitCommand =
+      message.command === "initAutofillInlineMenuButton" ||
+      message.command === "initAutofillInlineMenuList";
+
+    if (isInitCommand) {
+      if (!message?.token) {
+        return;
+      }
       this.token = message.token;
+    } else {
+      if (message?.token !== this.token) {
+        return;
+      }
     }
 
     const handler = this.windowMessageHandlers[message?.command];
