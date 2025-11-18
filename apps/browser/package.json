@@ -6,8 +6,8 @@
     "build:bit": "npm run build:bit:chrome",
     "build:chrome": "cross-env BROWSER=chrome MANIFEST_VERSION=3 NODE_OPTIONS=\"--max-old-space-size=8192\" webpack",
     "build:bit:chrome": "cross-env BROWSER=chrome MANIFEST_VERSION=3 NODE_OPTIONS=\"--max-old-space-size=8192\" webpack -c ../../bitwarden_license/bit-browser/webpack.config.js",
-    "build:chrome:dev": "npm run build:chrome && npm run update:chrome:dev",
-    "build:bit:chrome:dev": "npm run build:bit:chrome && npm run update:chrome:dev",
+    "build:dev:chrome": "npm run build:chrome && npm run update:chrome:dev",
+    "build:bit:dev:chrome": "npm run build:bit:chrome && npm run update:chrome:dev",
     "build:edge": "cross-env BROWSER=edge MANIFEST_VERSION=3 NODE_OPTIONS=\"--max-old-space-size=8192\" webpack",
     "build:bit:edge": "cross-env BROWSER=edge MANIFEST_VERSION=3 NODE_OPTIONS=\"--max-old-space-size=8192\" webpack -c ../../bitwarden_license/bit-browser/webpack.config.js",
     "build:firefox": "cross-env BROWSER=firefox NODE_OPTIONS=\"--max-old-space-size=8192\" webpack",
@@ -41,8 +41,8 @@
     "build:bit:prod:opera": "cross-env NODE_ENV=production npm run build:bit:opera",
     "build:prod:safari": "cross-env NODE_ENV=production npm run build:safari",
     "build:bit:prod:safari": "cross-env NODE_ENV=production npm run build:bit:safari",
-    "dist:chrome": "npm run build:prod:chrome && mkdir -p dist && ./scripts/compress.sh dist-chrome.zip",
-    "dist:bit:chrome": "npm run build:bit:prod:chrome && mkdir -p dist && ./scripts/compress.sh bit-dist-chrome.zip",
+    "dist:chrome": "npm run build:prod:chrome && mkdir -p dist && ./scripts/compress.sh dist-chrome.zip && npm run update:chrome:dev && ./scripts/compress.sh dist-dev-chrome.zip",
+    "dist:bit:chrome": "npm run build:bit:prod:chrome && mkdir -p dist && ./scripts/compress.sh bit-dist-chrome.zip && npm run update:chrome:dev && ./scripts/compress.sh bit-dist-dev-chrome.zip",
     "dist:edge": "npm run build:prod:edge && mkdir -p dist && ./scripts/compress.sh dist-edge.zip",
     "dist:bit:edge": "npm run build:bit:prod:edge && mkdir -p dist && ./scripts/compress.sh bit-dist-edge.zip",
     "dist:firefox": "npm run build:prod:firefox && mkdir -p dist && ./scripts/compress.sh dist-firefox.zip",
@@ -61,6 +61,6 @@
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll",
     "test:clearCache": "jest --clear-cache",
-    "update:chrome:dev": "./scripts/update-manifest-key.sh"
+    "update:chrome:dev": "./scripts/update-manifest-dev.sh"
   }
 }
