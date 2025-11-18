@@ -205,6 +205,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
         if (
           currentVaultTimeout === VaultTimeoutStringType.Never ||
           currentVaultTimeout === VaultTimeoutStringType.OnRestart ||
+          currentVaultTimeout === VaultTimeoutStringType.OnLocked ||
           currentVaultTimeout === VaultTimeoutStringType.OnIdle ||
           currentVaultTimeout === VaultTimeoutStringType.OnSleep
         ) {
