@@ -218,6 +218,7 @@ jobs:
             source_archive_name_prefix: ""
             archive_name_prefix: ""
             npm_command_prefix: "dist:"
+            npm_package_dev_prefix: "package:dev:"
             readable: "open source license"
             type: "oss"
           - build_prefix: "bit-"
@@ -225,6 +226,7 @@ jobs:
             source_archive_name_prefix: "bit-"
             archive_name_prefix: "bit-"
             npm_command_prefix: "dist:bit:"
+            npm_package_dev_prefix: "package:bit:dev:"
             readable: "commercial license"
             type: "commercial"
         browser:
@@ -342,7 +344,7 @@ jobs:
 
       - name: Package dev extension
         if: ${{ matrix.browser.archive_name_dev != '' }}
-        run: npm run package:dev:${{ matrix.browser.npm_command_suffix }}
+        run: npm run ${{ matrix.license_type.npm_package_dev_prefix }}${{ matrix.browser.npm_command_suffix }}
         working-directory: browser-source/apps/browser
 
       - name: Upload dev extension artifact
