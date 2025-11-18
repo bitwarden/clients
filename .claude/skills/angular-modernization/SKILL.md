@@ -81,7 +81,15 @@ npx ng generate @angular/core:inject-migration
 
 Constructor injection → `inject()` function
 
-#### 7. Unused Imports
+#### 7. Self-Closing Tag
+
+```bash
+npx ng generate @angular/core:self-closing-tag
+```
+
+Updates templates to self-closing syntax
+
+#### 8. Unused Imports
 
 ```bash
 npx ng generate @angular/core:unused-imports
