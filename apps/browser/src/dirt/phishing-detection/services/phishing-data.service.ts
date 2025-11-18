@@ -96,7 +96,7 @@ export class PhishingDataService {
 
   // How often are new domains added to the remote?
   readonly UPDATE_INTERVAL_DURATION = 24 * 60 * 60 * 1000; // 24 hours
-  readonly EXEMPTIONS_UPDATE_INTERVAL_DURATION = 15 * 60 * 1000; // 15 minutes
+  readonly EXEMPTIONS_UPDATE_INTERVAL_DURATION = 60 * 60 * 1000; // 1 hour
 
   private _triggerUpdate$ = new Subject<void>();
   update$ = this._triggerUpdate$.pipe(
