@@ -5809,6 +5809,15 @@
   "upgradeToPremium": {
     "message": "Обновить до Премиум"
   },
+  "upgradeCompleteSecurity": {
+    "message": "Перейти для полной защищенности"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Премиум предоставит вам больше инструментов для обеспечения безопасности, эффективной работы и контроля над ситуацией."
+  },
+  "explorePremium": {
+    "message": "Познакомиться с Премиум"
+  },
   "loadingVault": {
     "message": "Загрузка хранилища"
   },

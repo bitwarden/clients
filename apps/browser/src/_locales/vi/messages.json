@@ -5809,6 +5809,15 @@
   "upgradeToPremium": {
     "message": "Nâng cấp lên gói Cao cấp"
   },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
   "loadingVault": {
     "message": "Loading vault"
   },

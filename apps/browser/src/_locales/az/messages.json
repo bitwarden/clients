@@ -595,7 +595,7 @@
     "message": "Hamısına bax"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "Daha azına bax"
   },
   "viewLogin": {
     "message": "Girişə bax"
@@ -5808,6 +5808,15 @@
   },
   "upgradeToPremium": {
     "message": "\"Premium\"a yüksəlt"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
   },
   "loadingVault": {
     "message": "Seyf yüklənir"

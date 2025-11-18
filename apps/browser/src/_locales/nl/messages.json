@@ -5809,6 +5809,15 @@
   "upgradeToPremium": {
     "message": "Opwaarderen naar Premium"
   },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade voor volledige beveiliging"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium geeft je meer tools om veilig te blijven, efficiënt te werken en in controle te blijven."
+  },
+  "explorePremium": {
+    "message": "Premium verkennen"
+  },
   "loadingVault": {
     "message": "Kluis laden"
   },

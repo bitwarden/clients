@@ -5809,6 +5809,15 @@
   "upgradeToPremium": {
     "message": "Atualizar para o Premium"
   },
+  "upgradeCompleteSecurity": {
+    "message": "Atualize para obter segurança total"
+  },
+  "premiumGivesMoreTools": {
+    "message": "O Premium oferece mais ferramentas para manter a segurança, trabalhar com eficiência e manter o controlo."
+  },
+  "explorePremium": {
+    "message": "Explorar o Premium"
+  },
   "loadingVault": {
     "message": "A carregar o cofre"
   },
