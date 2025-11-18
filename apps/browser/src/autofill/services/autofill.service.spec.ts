@@ -44,6 +44,7 @@ import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
 import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
+import { InlineMenuFillTypes } from "../enums/autofill-overlay.enum";
 import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -2077,6 +2078,193 @@ describe("AutofillService", () => {
             false,
             true,
           );
+        });
+      });
+
+      describe("given password generation with inlineMenuFillType", () => {
+        beforeEach(() => {
+          pageDetails.forms = undefined;
+          pageDetails.fields = []; // Clear fields to start fresh
+          options.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+          options.cipher.login.totp = null; // Disable TOTP for these tests
+        });
+
+        it("includes all password fields from the same form when filling with password generation", async () => {
+          const newPasswordField = createAutofillFieldMock({
+            opid: "new-password",
+            type: "password",
+            form: "validFormId",
+            elementNumber: 2,
+          });
+          const confirmPasswordField = createAutofillFieldMock({
+            opid: "confirm-password",
+            type: "password",
+            form: "validFormId",
+            elementNumber: 3,
+          });
+          pageDetails.fields.push(newPasswordField, confirmPasswordField);
+          options.focusedFieldOpid = newPasswordField.opid;
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(filledFields[newPasswordField.opid]).toBeDefined();
+          expect(filledFields[confirmPasswordField.opid]).toBeDefined();
+        });
+
+        it("finds username field for the first password field when generating passwords", async () => {
+          const newPasswordField = createAutofillFieldMock({
+            opid: "new-password",
+            type: "password",
+            form: "validFormId",
+            elementNumber: 2,
+          });
+          pageDetails.fields.push(newPasswordField);
+          options.focusedFieldOpid = newPasswordField.opid;
+          jest.spyOn(autofillService as any, "findUsernameField");
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(autofillService["findUsernameField"]).toHaveBeenCalledWith(
+            pageDetails,
+            expect.objectContaining({ opid: newPasswordField.opid }),
+            false,
+            false,
+            true,
+          );
+        });
+
+        it("does not include password fields from different forms", async () => {
+          const formAPasswordField = createAutofillFieldMock({
+            opid: "form-a-password",
+            type: "password",
+            form: "formA",
+            elementNumber: 1,
+          });
+          const formBPasswordField = createAutofillFieldMock({
+            opid: "form-b-password",
+            type: "password",
+            form: "formB",
+            elementNumber: 2,
+          });
+          pageDetails.fields = [formAPasswordField, formBPasswordField];
+          options.focusedFieldOpid = formAPasswordField.opid;
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(filledFields[formAPasswordField.opid]).toBeDefined();
+          expect(filledFields[formBPasswordField.opid]).toBeUndefined();
+        });
+      });
+
+      describe("given current password update with inlineMenuFillType", () => {
+        beforeEach(() => {
+          pageDetails.forms = undefined;
+          pageDetails.fields = []; // Clear fields to start fresh
+          options.inlineMenuFillType = InlineMenuFillTypes.CurrentPasswordUpdate;
+          options.cipher.login.totp = null; // Disable TOTP for these tests
+        });
+
+        it("includes all password fields from the same form when updating current password", async () => {
+          const currentPasswordField = createAutofillFieldMock({
+            opid: "current-password",
+            type: "password",
+            form: "validFormId",
+            elementNumber: 1,
+          });
+          const newPasswordField = createAutofillFieldMock({
+            opid: "new-password",
+            type: "password",
+            form: "validFormId",
+            elementNumber: 2,
+          });
+          const confirmPasswordField = createAutofillFieldMock({
+            opid: "confirm-password",
+            type: "password",
+            form: "validFormId",
+            elementNumber: 3,
+          });
+          pageDetails.fields.push(currentPasswordField, newPasswordField, confirmPasswordField);
+          options.focusedFieldOpid = currentPasswordField.opid;
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(filledFields[currentPasswordField.opid]).toBeDefined();
+          expect(filledFields[newPasswordField.opid]).toBeDefined();
+          expect(filledFields[confirmPasswordField.opid]).toBeDefined();
+        });
+
+        it("includes all password fields from the same form without TOTP", async () => {
+          const currentPasswordField = createAutofillFieldMock({
+            opid: "current-password",
+            type: "password",
+            form: "validFormId",
+            elementNumber: 1,
+          });
+          const newPasswordField = createAutofillFieldMock({
+            opid: "new-password",
+            type: "password",
+            form: "validFormId",
+            elementNumber: 2,
+          });
+          pageDetails.fields.push(currentPasswordField, newPasswordField);
+          options.focusedFieldOpid = currentPasswordField.opid;
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(filledFields[currentPasswordField.opid]).toBeDefined();
+          expect(filledFields[newPasswordField.opid]).toBeDefined();
+        });
+
+        it("does not include password fields from different forms during password update", async () => {
+          const formAPasswordField = createAutofillFieldMock({
+            opid: "form-a-password",
+            type: "password",
+            form: "formA",
+            elementNumber: 1,
+          });
+          const formBPasswordField = createAutofillFieldMock({
+            opid: "form-b-password",
+            type: "password",
+            form: "formB",
+            elementNumber: 2,
+          });
+          pageDetails.fields = [formAPasswordField, formBPasswordField];
+          options.focusedFieldOpid = formAPasswordField.opid;
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(filledFields[formAPasswordField.opid]).toBeDefined();
+          expect(filledFields[formBPasswordField.opid]).toBeUndefined();
         });
       });
 

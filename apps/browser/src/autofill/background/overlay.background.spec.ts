@@ -3286,6 +3286,9 @@ describe("OverlayBackground", () => {
           pageDetails: [pageDetailsForTab],
           fillNewPassword: true,
           allowTotpAutofill: true,
+          focusedFieldForm: undefined,
+          focusedFieldOpid: undefined,
+          inlineMenuFillType: undefined,
         });
         expect(overlayBackground["inlineMenuCiphers"].entries()).toStrictEqual(
           new Map([
