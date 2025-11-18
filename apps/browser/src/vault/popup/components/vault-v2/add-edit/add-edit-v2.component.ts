@@ -226,6 +226,7 @@ export class AddEditV2Component implements OnInit, OnDestroy {
 
   /**
    * Reloads the cipher data when the popup is already open and new form data is submitted.
+   * This completely replaces the initialValues to clear any stale data from the previous submission.
    */
   private async reloadCipherData() {
     if (!this.config) {
@@ -241,10 +242,7 @@ export class AddEditV2Component implements OnInit, OnDestroy {
     if (latestCipherInfo != null) {
       this.config = {
         ...this.config,
-        initialValues: {
-          ...this.config.initialValues,
-          ...mapAddEditCipherInfoToInitialValues(latestCipherInfo),
-        },
+        initialValues: mapAddEditCipherInfoToInitialValues(latestCipherInfo),
       };
 
       // Be sure to clear the "cached" cipher info, so it doesn't get used again
