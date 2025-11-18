@@ -1,69 +1,62 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { map, Observable } from "rxjs";
 
-import { User } from "@bitwarden/angular/pipes/user-name.pipe";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { UserId } from "@bitwarden/common/types/guid";
+import { BannerModule, HeaderComponent } from "@bitwarden/components";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+import { DynamicAvatarComponent } from "../../components/dynamic-avatar.component";
+import { SharedModule } from "../../shared";
+import { ProductSwitcherModule } from "../product-switcher/product-switcher.module";
+
 @Component({
   selector: "app-header",
   templateUrl: "./web-header.component.html",
-  standalone: false,
+  imports: [
+    SharedModule,
+    DynamicAvatarComponent,
+    ProductSwitcherModule,
+    BannerModule,
+    HeaderComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WebHeaderComponent {
+  private route = inject(ActivatedRoute);
+  private platformUtilsService = inject(PlatformUtilsService);
+  private vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
+  private messagingService = inject(MessagingService);
+  private accountService = inject(AccountService);
+
   /**
    * Custom title that overrides the route data `titleId`
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() title: string;
+  readonly title = input<string>();
 
   /**
    * Icon to show before the title
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() icon: string;
+  readonly icon = input<string>();
 
-  protected routeData$: Observable<{ titleId: string }>;
-  protected account$: Observable<User & { id: UserId }>;
-  protected canLock$: Observable<boolean>;
-  protected selfHosted: boolean;
-  protected hostname = location.hostname;
-
-  constructor(
-    private route: ActivatedRoute,
-    private platformUtilsService: PlatformUtilsService,
-    private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-    private messagingService: MessagingService,
-    private accountService: AccountService,
-  ) {
-    this.routeData$ = this.route.data.pipe(
-      map((params) => {
-        return {
-          titleId: params.titleId,
-        };
-      }),
-    );
-
-    this.selfHosted = this.platformUtilsService.isSelfHost();
-
-    this.account$ = this.accountService.activeAccount$;
-    this.canLock$ = this.vaultTimeoutSettingsService
-      .availableVaultTimeoutActions$()
-      .pipe(map((actions) => actions.includes(VaultTimeoutAction.Lock)));
-  }
+  protected routeData$: Observable<{ titleId: string }> = this.route.data.pipe(
+    map((params) => {
+      return {
+        titleId: params.titleId,
+      };
+    }),
+  );
+  protected account$: Observable<Account | null> = this.accountService.activeAccount$;
+  protected canLock$: Observable<boolean> = this.vaultTimeoutSettingsService
+    .availableVaultTimeoutActions$()
+    .pipe(map((actions) => actions.includes(VaultTimeoutAction.Lock)));
+  protected readonly selfHosted = this.platformUtilsService.isSelfHost();
+  protected readonly hostname = globalThis.location.hostname;
 
   protected lock() {
     this.messagingService.send("lockVault");

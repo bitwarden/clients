@@ -1,110 +1,87 @@
-<header
-  *ngIf="routeData$ | async as routeData"
-  class="-tw-mt-6 -tw-mx-8 tw-mb-3 tw-flex tw-flex-col tw-py-6 tw-px-8"
-  [ngClass]="{
-    'tw-border-0 tw-border-b tw-border-solid tw-border-secondary-100 tw-bg-background-alt tw-pb-0':
-      tabsContainer.childElementCount !== 0,
-  }"
->
-  <div class="tw-flex">
-    <div class="tw-flex tw-min-w-0 tw-flex-1 tw-flex-col tw-gap-2">
+@let routeData = routeData$ | async;
+@if (routeData) {
+  <bit-header [title]="title() || (routeData.titleId | i18n)" [icon]="icon()">
+    <ng-container slot="breadcrumbs">
       <ng-content select="[slot=breadcrumbs]"></ng-content>
-      <h1
-        bitTypography="h1"
-        noMargin
-        class="tw-m-0 tw-mr-2 tw-leading-10 tw-flex tw-gap-1"
-        [title]="title || (routeData.titleId | i18n)"
+    </ng-container>
+
+    <ng-content></ng-content>
+    <product-switcher></product-switcher>
+
+    @let account = account$ | async;
+    @if (account) {
+      <button
+        type="button"
+        [bitMenuTriggerFor]="accountMenu"
+        class="tw-border-0 tw-bg-transparent tw-p-0 tw-shrink-0"
       >
-        <div class="tw-truncate">
-          <i *ngIf="icon" class="bwi {{ icon }}" aria-hidden="true"></i>
-          {{ title || (routeData.titleId | i18n) }}
-        </div>
-        <div><ng-content select="[slot=title-suffix]"></ng-content></div>
-      </h1>
-    </div>
-    <div class="tw-ml-auto tw-flex tw-flex-col tw-gap-4">
-      <div class="tw-flex tw-min-w-max tw-items-center tw-justify-end tw-gap-2">
-        <ng-content></ng-content>
-        <product-switcher></product-switcher>
-        <ng-container *ngIf="account$ | async as account">
-          <button
-            type="button"
-            [bitMenuTriggerFor]="accountMenu"
-            class="tw-border-0 tw-bg-transparent tw-p-0 tw-shrink-0"
+        <dynamic-avatar [id]="account.id" [text]="account | userName"></dynamic-avatar>
+      </button>
+
+      <bit-menu #accountMenu>
+        <div class="tw-flex tw-min-w-52 tw-max-w-72 tw-flex-col">
+          <div
+            class="tw-flex tw-items-center tw-px-4 tw-py-1 tw-leading-tight tw-text-muted"
+            appStopProp
           >
             <dynamic-avatar [id]="account.id" [text]="account | userName"></dynamic-avatar>
-          </button>
-
-          <bit-menu #accountMenu>
-            <div class="tw-flex tw-min-w-52 tw-max-w-72 tw-flex-col">
-              <div
-                class="tw-flex tw-items-center tw-px-4 tw-py-1 tw-leading-tight tw-text-muted"
-                appStopProp
-              >
-                <dynamic-avatar [id]="account.id" [text]="account | userName"></dynamic-avatar>
-                <div class="tw-ml-2 tw-block tw-overflow-hidden tw-whitespace-nowrap">
-                  <span>{{ "loggedInAs" | i18n }}</span>
-                  <small class="tw-block tw-overflow-hidden tw-whitespace-nowrap">
-                    {{ account | userName }}
-                  </small>
-                </div>
-              </div>
-
-              <ng-container *ngIf="selfHosted">
-                <bit-menu-divider></bit-menu-divider>
-                <span class="tw-break-all tw-px-4 tw-py-1 tw-text-left tw-text-muted">
-                  {{ hostname }}
-                </span>
-              </ng-container>
-
-              <bit-menu-divider></bit-menu-divider>
-
-              <a bitMenuItem routerLink="/settings/account">
-                <i class="bwi bwi-fw bwi-user" aria-hidden="true"></i>
-                {{ "accountSettings" | i18n }}
-              </a>
-              <a bitMenuItem href="https://bitwarden.com/help/" target="_blank" rel="noreferrer">
-                <i class="bwi bwi-fw bwi-question-circle" aria-hidden="true"></i>
-                {{ "getHelp" | i18n }}
-              </a>
-              <a
-                bitMenuItem
-                href="https://bitwarden.com/download/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                <i class="bwi bwi-fw bwi-download" aria-hidden="true"></i>
-                {{ "getApps" | i18n }}
-              </a>
-
-              <bit-menu-divider></bit-menu-divider>
-
-              <button *ngIf="canLock$ | async" bitMenuItem type="button" (click)="lock()">
-                <i class="bwi bwi-fw bwi-lock" aria-hidden="true"></i>
-                {{ "lockNow" | i18n }}
-              </button>
-              <button bitMenuItem type="button" (click)="logout()">
-                <i class="bwi bwi-fw bwi-sign-out" aria-hidden="true"></i>
-                {{ "logOut" | i18n }}
-              </button>
+            <div class="tw-ml-2 tw-block tw-overflow-hidden tw-whitespace-nowrap">
+              <span>{{ "loggedInAs" | i18n }}</span>
+              <small class="tw-block tw-overflow-hidden tw-whitespace-nowrap">
+                {{ account | userName }}
+              </small>
             </div>
-          </bit-menu>
-        </ng-container>
-      </div>
-      <div
-        class="tw-ml-auto"
-        #contentContainer
-        [ngClass]="{ 'tw-hidden': contentContainer.childElementCount === 0 }"
-      >
-        <ng-content select="[slot=secondary]"></ng-content>
-      </div>
-    </div>
-  </div>
-  <div
-    #tabsContainer
-    class="-tw-mx-4 -tw-mb-px"
-    [ngClass]="{ 'tw-hidden': tabsContainer.childElementCount === 0 }"
-  >
-    <ng-content select="[slot=tabs]"></ng-content>
-  </div>
-</header>
+          </div>
+
+          @if (selfHosted) {
+            <bit-menu-divider></bit-menu-divider>
+            <span class="tw-break-all tw-px-4 tw-py-1 tw-text-left tw-text-muted">
+              {{ hostname }}
+            </span>
+          }
+
+          <bit-menu-divider></bit-menu-divider>
+
+          <a bitMenuItem routerLink="/settings/account">
+            <i class="bwi bwi-fw bwi-user" aria-hidden="true"></i>
+            {{ "accountSettings" | i18n }}
+          </a>
+          <a bitMenuItem href="https://bitwarden.com/help/" target="_blank" rel="noreferrer">
+            <i class="bwi bwi-fw bwi-question-circle" aria-hidden="true"></i>
+            {{ "getHelp" | i18n }}
+          </a>
+          <a bitMenuItem href="https://bitwarden.com/download/" target="_blank" rel="noreferrer">
+            <i class="bwi bwi-fw bwi-download" aria-hidden="true"></i>
+            {{ "getApps" | i18n }}
+          </a>
+
+          <bit-menu-divider></bit-menu-divider>
+
+          @if (canLock$ | async) {
+            <button bitMenuItem type="button" (click)="lock()">
+              <i class="bwi bwi-fw bwi-lock" aria-hidden="true"></i>
+              {{ "lockNow" | i18n }}
+            </button>
+          }
+
+          <button bitMenuItem type="button" (click)="logout()">
+            <i class="bwi bwi-fw bwi-sign-out" aria-hidden="true"></i>
+            {{ "logOut" | i18n }}
+          </button>
+        </div>
+      </bit-menu>
+    }
+
+    <ng-container slot="title-suffix">
+      <ng-content select="[slot=title-suffix]"></ng-content>
+    </ng-container>
+
+    <ng-container slot="secondary">
+      <ng-content select="[slot=secondary]"></ng-content>
+    </ng-container>
+
+    <ng-container slot="tabs">
+      <ng-content select="[slot=tabs]"></ng-content>
+    </ng-container>
+  </bit-header>
+}
