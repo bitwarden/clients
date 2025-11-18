@@ -4,6 +4,7 @@ import {
   distinctUntilChanged,
   EMPTY,
   filter,
+  firstValueFrom,
   map,
   merge,
   of,
@@ -18,6 +19,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
+import { GlobalStateProvider, KeyDefinition, PHISHING_DETECTION_DISK } from "@bitwarden/state";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 
@@ -44,6 +46,17 @@ export const PHISHING_DETECTION_CANCEL_COMMAND = new CommandDefinition<{
   tabId: number;
 }>("phishing-detection-cancel");
 
+/**
+ * Key definition for storing hostnames that the user has chosen to ignore
+ */
+export const IGNORED_PHISHING_HOSTNAMES_KEY = new KeyDefinition<string[]>(
+  PHISHING_DETECTION_DISK,
+  "ignoredPhishingHostnames",
+  {
+    deserializer: (value: string[]) => value ?? [],
+  },
+);
+
 export class PhishingDetectionService {
   private static _tabUpdated$ = new Subject<PhishingDetectionNavigationEvent>();
   private static _ignoredHostnames = new Set<string>();
@@ -56,6 +69,7 @@ export class PhishingDetectionService {
     logService: LogService,
     phishingDataService: PhishingDataService,
     messageListener: MessageListener,
+    globalStateProvider: GlobalStateProvider,
   ) {
     if (this._didInit) {
       logService.debug("[PhishingDetectionService] Initialize already called. Aborting.");
@@ -64,6 +78,26 @@ export class PhishingDetectionService {
 
     logService.debug("[PhishingDetectionService] Initialize called. Checking prerequisites...");
 
+    // Load previously ignored hostnames from storage (synchronously to avoid race conditions)
+    const ignoredHostnamesState = globalStateProvider.get(IGNORED_PHISHING_HOSTNAMES_KEY);
+    firstValueFrom(ignoredHostnamesState.state$.pipe(map((hostnames) => hostnames ?? [])))
+      .then((initialHostnames) => {
+        this._ignoredHostnames = new Set(initialHostnames);
+        logService.debug(
+          `[PhishingDetectionService] Loaded ${initialHostnames.length} ignored hostnames from storage`,
+        );
+      })
+      .catch((error) => {
+        logService.error("[PhishingDetectionService] Failed to load ignored hostnames", error);
+      });
+
+    // Subscribe to future state changes
+    const ignoredHostnamesSub = ignoredHostnamesState.state$
+      .pipe(map((hostnames) => hostnames ?? []))
+      .subscribe((hostnames) => {
+        this._ignoredHostnames = new Set(hostnames);
+      });
+
     BrowserApi.addListener(chrome.tabs.onUpdated, this._handleTabUpdated.bind(this));
 
     const onContinueCommand$ = messageListener.messages$(PHISHING_DETECTION_CONTINUE_COMMAND).pipe(
@@ -71,9 +105,21 @@ export class PhishingDetectionService {
         logService.debug(`[PhishingDetectionService] user selected continue for ${message.url}`),
       ),
       concatMap(async (message) => {
-        const url = new URL(message.url);
-        this._ignoredHostnames.add(url.hostname);
-        await BrowserApi.navigateTabToUrl(message.tabId, url);
+        try {
+          const url = new URL(message.url);
+          this._ignoredHostnames.add(url.hostname);
+          // Persist to storage
+          await ignoredHostnamesState.update(() => Array.from(this._ignoredHostnames));
+          logService.debug(
+            `[PhishingDetectionService] Added ${url.hostname} to ignored hostnames (persisted)`,
+          );
+          await BrowserApi.navigateTabToUrl(message.tabId, url);
+        } catch (error) {
+          logService.error(
+            `[PhishingDetectionService] Failed to process continue command for URL: ${message.url}`,
+            error,
+          );
+        }
       }),
     );
 
@@ -97,8 +143,10 @@ export class PhishingDetectionService {
       tap((event) => logService.debug(`[PhishingDetectionService] processing event:`, event)),
       concatMap(async ({ tabId, url, ignored }) => {
         if (ignored) {
-          // The next time this host is visited, block again
-          this._ignoredHostnames.delete(url.hostname);
+          // User has previously chosen to continue to this hostname, skip phishing check
+          logService.debug(
+            `[PhishingDetectionService] Skipping phishing check for ignored hostname: ${url.hostname}`,
+          );
           return;
         }
         const isPhishing = await phishingDataService.isPhishingDomain(url);
@@ -158,6 +206,7 @@ export class PhishingDetectionService {
     this._didInit = true;
     return () => {
       initSub.unsubscribe();
+      ignoredHostnamesSub.unsubscribe();
       this._didInit = false;
 
       // Manually type cast to satisfy the listener signature due to the mixture

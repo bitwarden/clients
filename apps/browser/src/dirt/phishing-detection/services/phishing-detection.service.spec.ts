@@ -5,6 +5,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { MessageListener } from "@bitwarden/messaging";
 
 import { PhishingDataService } from "./phishing-data.service";
@@ -17,6 +18,7 @@ describe("PhishingDetectionService", () => {
   let logService: LogService;
   let phishingDataService: MockProxy<PhishingDataService>;
   let messageListener: MockProxy<MessageListener>;
+  let globalStateProvider: FakeGlobalStateProvider;
 
   beforeEach(() => {
     accountService = { getAccount$: jest.fn(() => of(null)) } as any;
@@ -29,6 +31,7 @@ describe("PhishingDetectionService", () => {
         return new Observable();
       },
     });
+    globalStateProvider = new FakeGlobalStateProvider();
   });
 
   it("should initialize without errors", () => {
@@ -40,6 +43,7 @@ describe("PhishingDetectionService", () => {
         logService,
         phishingDataService,
         messageListener,
+        globalStateProvider,
       );
     }).not.toThrow();
   });

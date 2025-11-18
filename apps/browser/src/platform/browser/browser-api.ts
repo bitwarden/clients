@@ -268,13 +268,31 @@ export class BrowserApi {
   static async closeTab(tabId: number): Promise<void> {
     if (tabId) {
       if (BrowserApi.isWebExtensionsApi) {
-        browser.tabs.remove(tabId).catch((error) => {
+        await browser.tabs.remove(tabId).catch((error) => {
           throw new Error("[BrowserApi] Failed to remove current tab: " + error.message);
         });
       } else if (BrowserApi.isChromeApi) {
-        chrome.tabs.remove(tabId).catch((error) => {
-          throw new Error("[BrowserApi] Failed to remove current tab: " + error.message);
-        });
+        if (BrowserApi.isManifestVersion(3)) {
+          await chrome.tabs.remove(tabId).catch((error) => {
+            throw new Error("[BrowserApi] Failed to remove current tab: " + error.message);
+          });
+        } else {
+          // Manifest V2 uses callbacks
+          return new Promise<void>((resolve, reject) => {
+            chrome.tabs.remove(tabId, () => {
+              if (chrome.runtime.lastError) {
+                reject(
+                  new Error(
+                    "[BrowserApi] Failed to remove current tab: " +
+                      chrome.runtime.lastError.message,
+                  ),
+                );
+              } else {
+                resolve();
+              }
+            });
+          });
+        }
       }
     }
   }
@@ -288,7 +306,7 @@ export class BrowserApi {
   static async navigateTabToUrl(tabId: number, url: URL): Promise<void> {
     if (tabId) {
       if (BrowserApi.isWebExtensionsApi) {
-        browser.tabs.update(tabId, { url: url.href }).catch((error) => {
+        await browser.tabs.update(tabId, { url: url.href }).catch((error) => {
           throw new Error("Failed to navigate tab to URL: " + error.message);
         });
       } else if (BrowserApi.isChromeApi) {
