@@ -21,13 +21,13 @@
     "message": "Ohrozenie hesla"
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "Na úpravu tejto položky nemáte oprávnenie"
   },
   "reviewAtRiskPasswords": {
     "message": "Skontrolujte ohrozené heslá (slabé, odhalené, alebo opätovne použité) naprieč aplikáciami. Vyberte najkritickejšie aplikácie a priorizujte vaším používateľom bezpečnostné opatrenia ohľadom ohrozených hesiel."
   },
   "reviewAtRiskLoginsPrompt": {
-    "message": "Review at-risk logins"
+    "message": "Prehľad ohrozených prihlasovacích mien"
   },
   "dataLastUpdated": {
     "message": "Posledná aktualizácia dát: $DATE$",
@@ -242,7 +242,7 @@
     "message": "Aplikácie označené ako kritické"
   },
   "criticalApplicationsMarkedSuccess": {
-    "message": "$COUNT$ applications marked as critical",
+    "message": "$COUNT$ aplikácií označených ako kritické",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -275,10 +275,10 @@
     "message": "Členovia s prístupom k ohrozeným položkám kritických aplikácii"
   },
   "membersWithAtRiskPasswords": {
-    "message": "Members with at-risk passwords"
+    "message": "Členovia s ohrozenými heslami"
   },
   "membersWillReceiveNotification": {
-    "message": "Members will receive a notification to resolve at-risk logins through the browser extension."
+    "message": "Členovia dostanú notifikáciu aby vyriešili problémy s ohrozeným heslom prostredníctvom rozšírenia pre prehliadače."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ ohrozených členov",
@@ -349,6 +349,9 @@
   "applicationsNeedingReview": {
     "message": "Aplikácie vyžadujú kontrolu"
   },
+  "newApplicationsCardTitle": {
+    "message": "Skontrolovať nové aplikácie"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ nových aplikácií",
     "placeholders": {
@@ -370,11 +373,26 @@
   "noNewApplicationsToReviewAtThisTime": {
     "message": "No new applications to review at this time"
   },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Your organization has items saved for $COUNT$ applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Review applications to secure the items most critical to your organization's security"
+  },
+  "reviewApplications": {
+    "message": "Review applications"
+  },
   "prioritizeCriticalApplications": {
     "message": "Uprednostniť kritické aplikácie"
   },
   "selectCriticalApplicationsDescription": {
-    "message": "Select which applications are most critical to your organization, then assign security tasks to members to resolve risks."
+    "message": "Vyberte ktoré aplikácie sú pre vašu organizáciu najkritickejšie, potom prideľte členom bezpečnostné úlohy pre vyriešenie ohrozených hesiel."
   },
   "reviewNewApplications": {
     "message": "Review new applications"
@@ -383,7 +401,7 @@
     "message": "We've highlighted at-risk items for new applications stored in Admin console that have weak, exposed, or reused passwords."
   },
   "clickIconToMarkAppAsCritical": {
-    "message": "Click the star icon to mark an app as critical"
+    "message": "Aplikáciu označíte za kritickú kliknutím na ikonu hviezdičky"
   },
   "markAsCriticalPlaceholder": {
     "message": "Funkcia označovania za kritické bude implementovaná v budúcej aktualizácii"
@@ -863,7 +881,7 @@
     "message": "Obľúbené"
   },
   "taskSummary": {
-    "message": "Task summary"
+    "message": "Zhrnutie úloh"
   },
   "types": {
     "message": "Typy"
@@ -3232,8 +3250,17 @@
   "nextCharge": {
     "message": "Ďalšia platba"
   },
+  "nextChargeHeader": {
+    "message": "Next Charge"
+  },
+  "plan": {
+    "message": "Plan"
+  },
   "details": {
     "message": "Podrobnosti"
+  },
+  "discount": {
+    "message": "discount"
   },
   "downloadLicense": {
     "message": "Stiahnuť licenciu"
@@ -4440,7 +4467,31 @@
     "message": "Aktualizovať prehliadač"
   },
   "generatingYourAccessIntelligence": {
-    "message": "Generating your Access Intelligence..."
+    "message": "Generuje sa prehľad o prístupe..."
+  },
+  "fetchingMemberData": {
+    "message": "Sťahujú sa dáta o členoch..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "Analyzuje sa odolnosť hesiel..."
+  },
+  "calculatingRiskScores": {
+    "message": "Vypočítava sa úroveň ohrozenia..."
+  },
+  "generatingReportData": {
+    "message": "Generujú sa dáta reportu..."
+  },
+  "savingReport": {
+    "message": "Ukladá sa report..."
+  },
+  "compilingInsights": {
+    "message": "Kompiluje sa prehľad..."
+  },
+  "loadingProgress": {
+    "message": "Priebeh načítania"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Môže to trvať niekoľko minút."
   },
   "riskInsightsRunReport": {
     "message": "Generovať report"
@@ -5460,7 +5511,7 @@
     "description": "Displayed under the limit views field on Send"
   },
   "limitSendViewsCount": {
-    "message": "Zostáva $ACCESSCOUNT$ zobrazení",
+    "message": "Zostávajúce zobrazenia: $ACCESSCOUNT$",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -5503,11 +5554,11 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletedSend": {
-    "message": "Send zmazaný",
+    "message": "Send bol odstránený",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSend": {
-    "message": "Zmazať Send",
+    "message": "Odstrániť Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSendPermanentConfirmation": {
@@ -5804,16 +5855,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "Ako zapnúť automatické potvrdzovanie používateľov"
   },
-  "autoConfirmStep1": {
-    "message": "Otvoriť rozšírenie Bitwarden."
+  "autoConfirmExtension1": {
+    "message": "Otvoriť rozšírenie Bitwarden"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "Vybrať",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " Zapnúť.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " Zapnúť",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "Rozšírenie Bitwarden pre prehliadače úspešne otvorene. Teraz môžete v nastaveniach zapnúť automatické potvrdzovanie používateľov."
@@ -5836,7 +5887,7 @@
     "message": "Vyžaduje sa pravidlo jednej organizácie. "
   },
   "autoConfirmSingleOrgRequiredDesc": {
-    "message": "All members must only belong to this organization to activate this automation."
+    "message": "Pre zapnutie tejto automatizácie musia všetci členovia patriť len do tejto organizácie."
   },
   "autoConfirmSingleOrgExemption": {
     "message": "Pravidlo jednej organizácie sa rozšíri na všetky roly. "
@@ -6569,10 +6620,10 @@
     "message": "Vaše hlavné heslo nespĺňa jednu alebo viacero podmienok vašej organizácie. Ak chcete získať prístup k trezoru, musíte teraz aktualizovať svoje hlavné heslo. Pokračovaním sa odhlásite z aktuálnej relácie a budete sa musieť znova prihlásiť. Aktívne relácie na iných zariadeniach môžu zostať aktívne až jednu hodinu."
   },
   "automaticAppLoginWithSSO": {
-    "message": "Automatic login with SSO"
+    "message": "Automatické prihlásenie prostredníctvom SSO"
   },
   "automaticAppLoginWithSSODesc": {
-    "message": "Extend SSO security and convenience to unmanaged apps. When users launch an app from your identity provider, their login details are automatically filled and submitted, creating a one-click, secure flow from the identity provider to the app."
+    "message": "Rozšírte bezpečnosť a pohodlie jednotného prihlásenia (SSO) na nespravované aplikácie. Keď používatelia spustia aplikáciu od vášho poskytovateľa identít, ich prihlasovacie údaje sa automaticky vyplnia a odošlú, čím sa umožní bezpečná cesta jedným kliknutím od poskytovateľa identít do aplikácie."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identity provider host"
@@ -7348,7 +7399,7 @@
     "message": "Prístup zamietnutý. Nemáte oprávnenie na zobrazenie tejto stránky."
   },
   "noPageAccess": {
-    "message": "You do not have access to this page"
+    "message": "Na túto stránku nemáte prístup"
   },
   "masterPassword": {
     "message": "Hlavné heslo"
@@ -9525,9 +9576,6 @@
   "loggedInExclamation": {
     "message": "Prihlásený!"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "assignCollectionAccess": {
     "message": "Udeliť prístup k zbierke"
   },
@@ -9809,7 +9857,7 @@
     "message": "Priradiť úlohy"
   },
   "assignTasksToMembers": {
-    "message": "Assign tasks to members for guided resolution"
+    "message": "Pre riadené riešenie problémov prideľte úlohy členom"
   },
   "assignToCollections": {
     "message": "Prideliť k zbierkam"
@@ -12075,5 +12123,45 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Začať bezplatnú skúšku pre predplatné Rodiny"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Set up an unlock method to change your vault timeout action."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Your vault timeout exceeds the restrictions set by your organization."
+  },
+  "neverLockWarning": {
+    "message": "Are you sure you want to use the \"Never\" option? Setting your lock options to \"Never\" stores your vault's encryption key on your device. If you use this option you should ensure that you keep your device properly protected."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
+  },
+  "appearance": {
+    "message": "Appearance"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "No critical applications are selected"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Are you sure you want to continue?"
   }
 }

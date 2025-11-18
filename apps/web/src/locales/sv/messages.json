@@ -349,6 +349,9 @@
   "applicationsNeedingReview": {
     "message": "Applikationer som behöver granskning"
   },
+  "newApplicationsCardTitle": {
+    "message": "Granska nya applikationer"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ nya applikationer",
     "placeholders": {
@@ -369,6 +372,21 @@
   },
   "noNewApplicationsToReviewAtThisTime": {
     "message": "Inga nya applikationer att granska just nu"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Your organization has items saved for $COUNT$ applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Review applications to secure the items most critical to your organization's security"
+  },
+  "reviewApplications": {
+    "message": "Review applications"
   },
   "prioritizeCriticalApplications": {
     "message": "Prioritera kritiska applikationer"
@@ -3232,8 +3250,17 @@
   "nextCharge": {
     "message": "Nästa debitering"
   },
+  "nextChargeHeader": {
+    "message": "Next Charge"
+  },
+  "plan": {
+    "message": "Plan"
+  },
   "details": {
     "message": "Detaljer"
+  },
+  "discount": {
+    "message": "discount"
   },
   "downloadLicense": {
     "message": "Hämta licens"
@@ -4441,6 +4468,30 @@
   },
   "generatingYourAccessIntelligence": {
     "message": "Generating your Access Intelligence..."
+  },
+  "fetchingMemberData": {
+    "message": "Hämtar medlemsdata..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "Analyserar lösenordshälsa..."
+  },
+  "calculatingRiskScores": {
+    "message": "Beräknar riskpoäng..."
+  },
+  "generatingReportData": {
+    "message": "Genererar rapportdata..."
+  },
+  "savingReport": {
+    "message": "Sparar rapport..."
+  },
+  "compilingInsights": {
+    "message": "Sammanställer insikter..."
+  },
+  "loadingProgress": {
+    "message": "Loading progress"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Detta kan ta några minuter."
   },
   "riskInsightsRunReport": {
     "message": "Kör rapport"
@@ -5804,16 +5855,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "Så här aktiverar du automatisk användarbekräftelse"
   },
-  "autoConfirmStep1": {
-    "message": "Öppna ditt Bitwarden-tillägg."
+  "autoConfirmExtension1": {
+    "message": "Öppna ditt Bitwarden-tillägg"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "Välj",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " Slå på.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " Slå på",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
@@ -9525,9 +9576,6 @@
   "loggedInExclamation": {
     "message": "Inloggad!"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "assignCollectionAccess": {
     "message": "Tilldela samlingsåtkomst"
   },
@@ -12075,5 +12123,45 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Starta gratis testperiod för Families"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Konfigurera en upplåsningsmetod för att ändra tidsgränsåtgärden för valvet."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Företagets policykrav har tillämpats på dina tidsgränsalternativ"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Ditt valvs tidsgräns överskrider de begränsningar som fastställts av din organisation."
+  },
+  "neverLockWarning": {
+    "message": "Är du säker på att du vill använda alternativet ”Aldrig”? Att ställa in låsningsalternativet till ”Aldrig” lagrar valvets krypteringsnyckel på din enhet. Om du använder det här alternativet bör du se till att du håller enheten ordentligt skyddad."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Tidsgränsåtgärd"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sessionstidsgräns"
+  },
+  "appearance": {
+    "message": "Utseende"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Tidsgränsen överskrider den begränsning som din organisation har ställt in: $HOURS$ timmar och $MINUTES$ minut(er) maximalt",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "No critical applications are selected"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Are you sure you want to continue?"
   }
 }

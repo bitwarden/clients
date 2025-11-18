@@ -1,7 +1,13 @@
 import { Component, Inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { DIALOG_DATA, ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  ButtonModule,
+  DialogModule,
+  DialogService,
+  CenterPositionStrategy,
+} from "@bitwarden/components";
 
 export type BrowserSyncVerificationDialogParams = {
   fingerprint: string[];
@@ -19,6 +25,7 @@ export class BrowserSyncVerificationDialogComponent {
   static open(dialogService: DialogService, data: BrowserSyncVerificationDialogParams) {
     return dialogService.open(BrowserSyncVerificationDialogComponent, {
       data,
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 }

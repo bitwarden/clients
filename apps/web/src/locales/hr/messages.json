@@ -349,6 +349,9 @@
   "applicationsNeedingReview": {
     "message": "Aplikacije koje je potrebno pregledati"
   },
+  "newApplicationsCardTitle": {
+    "message": "Pregledaj nove prijave"
+  },
   "newApplicationsWithCount": {
     "message": "Novih aplikacija: $COUNT$",
     "placeholders": {
@@ -370,6 +373,21 @@
   "noNewApplicationsToReviewAtThisTime": {
     "message": "Trenutno nema novih aplikacija za pregled"
   },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Tvoja organizacija ima spremljene stavke za ovoliko aplikacija: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Pregledaj aplikacije za zaštitu stavki najvažnijih za sigurnost tvoje organizacije"
+  },
+  "reviewApplications": {
+    "message": "Pregledaj aplikacije"
+  },
   "prioritizeCriticalApplications": {
     "message": "Daj prioritet kritičnim aplikacijama"
   },
@@ -377,10 +395,10 @@
     "message": "Odaberi koje su aplikacije najvažnije za tvoju organizaciju, a zatim dodijeli sigurnosne zadatke članovima kako bi se riješili rizici."
   },
   "reviewNewApplications": {
-    "message": "Review new applications"
+    "message": "Pregledaj nove prijave"
   },
   "reviewNewApplicationsDescription": {
-    "message": "We've highlighted at-risk items for new applications stored in Admin console that have weak, exposed, or reused passwords."
+    "message": "Istaknuli smo rizične stavke za nove aplikacije pohranjene u administratorskoj konzoli koje imaju slabe, otkrivene ili ponovno korištene lozinke."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Klikni ikonu zvjezdice za označavanje aplikacije kao kritične"
@@ -3232,8 +3250,17 @@
   "nextCharge": {
     "message": "Sljedeća naplata"
   },
+  "nextChargeHeader": {
+    "message": "Sljedeća naplata"
+  },
+  "plan": {
+    "message": "Paket"
+  },
   "details": {
     "message": "Detalji"
+  },
+  "discount": {
+    "message": "popust"
   },
   "downloadLicense": {
     "message": "Preuzmi licencu"
@@ -4440,7 +4467,31 @@
     "message": "Ažuriraj preglednik"
   },
   "generatingYourAccessIntelligence": {
-    "message": "Generating your Access Intelligence..."
+    "message": "Generiranje tvoje pristupne inteligencije..."
+  },
+  "fetchingMemberData": {
+    "message": "Dohvaćanje podataka o članu…"
+  },
+  "analyzingPasswordHealth": {
+    "message": "Analiziranje zdravlja lozinke…"
+  },
+  "calculatingRiskScores": {
+    "message": "Izračun ocjene rizika…"
+  },
+  "generatingReportData": {
+    "message": "Generiranje izvješća…"
+  },
+  "savingReport": {
+    "message": "Spremanje izvještaja…"
+  },
+  "compilingInsights": {
+    "message": "Sastavljanje uvida…"
+  },
+  "loadingProgress": {
+    "message": "Učitavanje napretka"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Ovo može potrajati nekoliko minuta."
   },
   "riskInsightsRunReport": {
     "message": "Pokreni izvješće"
@@ -5804,16 +5855,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "Kako uključiti automatsku potvrdu korisnika"
   },
-  "autoConfirmStep1": {
-    "message": "Otvori svoje Bitwarden proširenje."
+  "autoConfirmExtension1": {
+    "message": "Otvori svoje Bitwarden proširenje"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "Odaberi",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " Uključi.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " Uključi",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "Uspješno otvoreno Bitwarden proširenje za preglednik. Sada možeš aktivirati postavku automatske potvrde korisnika."
@@ -9525,9 +9576,6 @@
   "loggedInExclamation": {
     "message": "Prijava uspješna!"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "assignCollectionAccess": {
     "message": "Dodijeli pristup zbirki"
   },
@@ -12075,5 +12123,45 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Započni besplatno probno razdoblje za Families"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Postavi metodu otključavanja za promjenu radnje nakon isteka vremenskog ograničenja trezora."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Pravila tvrtke primijenjena su na tvoje mogućnosti vremenskog isteka"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Istek vremenskog ograničenja tvojeg trezora premašuje ograničenje koja je postavila tvoja organizacija."
+  },
+  "neverLockWarning": {
+    "message": "Sigurni želiš koristiti opciju „Nikad”? Postavljanjem opcije zaključavanja na „Nikad” ključ za šifriranje tvojeg trezora sprema se na tvoj uređaj. Pri korištenju ove opcije osiguraj da je tvoj uređaj pravilno zaštićen."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Radnja kod isteka"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Istek sesije"
+  },
+  "appearance": {
+    "message": "Izgled"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Istek vremenskog ograničenja premašuje ograničenje koje je postavila tvoja organizacija: najviše $HOURS$:$MINUTES$.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "No critical applications are selected"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Are you sure you want to continue?"
   }
 }

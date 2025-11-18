@@ -10,7 +10,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, EMPTY, firstValueFrom } from "rxjs";
+import { EMPTY, firstValueFrom } from "rxjs";
 import { distinctUntilChanged, map, tap } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -84,14 +84,11 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
 
   dataLastUpdated: Date | null = null;
 
-  // Empty state properties
-  protected organizationName = "";
-
   // Empty state computed properties
   protected emptyStateBenefits: [string, string][] = [
-    [this.i18nService.t("benefit1Title"), this.i18nService.t("benefit1Description")],
-    [this.i18nService.t("benefit2Title"), this.i18nService.t("benefit2Description")],
-    [this.i18nService.t("benefit3Title"), this.i18nService.t("benefit3Description")],
+    [this.i18nService.t("feature1Title"), this.i18nService.t("feature1Description")],
+    [this.i18nService.t("feature2Title"), this.i18nService.t("feature2Description")],
+    [this.i18nService.t("feature3Title"), this.i18nService.t("feature3Description")],
   ];
   protected emptyStateVideoSrc: string | null = "/videos/risk-insights-mark-as-critical.mp4";
 
@@ -140,17 +137,14 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
-    // Combine report data, vault items check, organization details, and generation state
+    // Subscribe to report data updates
     // This declarative pattern ensures proper cleanup and prevents memory leaks
-    combineLatest([this.dataService.enrichedReportData$, this.dataService.organizationDetails$])
+    this.dataService.enrichedReportData$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(([report, orgDetails]) => {
+      .subscribe((report) => {
         // Update report state
         this.appsCount = report?.reportData.length ?? 0;
         this.dataLastUpdated = report?.creationDate ?? null;
-
-        // Update organization name
-        this.organizationName = orgDetails?.organizationName ?? "";
       });
 
     // Subscribe to drawer state changes
