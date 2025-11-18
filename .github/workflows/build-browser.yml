@@ -340,6 +340,11 @@ jobs:
           path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_name }}
           if-no-files-found: error
 
+      - name: Package dev extension
+        if: ${{ matrix.browser.archive_name_dev != '' }}
+        run: npm run package:dev:${{ matrix.browser.npm_command_suffix }}
+        working-directory: browser-source/apps/browser
+
       - name: Upload dev extension artifact
         if: ${{ matrix.browser.archive_name_dev != '' }}
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
