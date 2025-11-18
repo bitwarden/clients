@@ -33,7 +33,7 @@ class StoryDialogComponent {
   constructor(public dialogService: DialogService) {}
 
   openSimpleDialog() {
-    this.dialogService.open(SimpleDialogContent, {
+    this.dialogService.open(SimpleDialogContentComponent, {
       data: {
         animal: "panda",
       },
@@ -42,7 +42,7 @@ class StoryDialogComponent {
   }
 
   openNonDismissableWithPrimaryButtonDialog() {
-    this.dialogService.open(NonDismissableWithPrimaryButtonContent, {
+    this.dialogService.open(NonDismissableWithPrimaryButtonContentComponent, {
       data: {
         animal: "panda",
       },
@@ -52,7 +52,7 @@ class StoryDialogComponent {
   }
 
   openNonDismissableWithNoButtonsDialog() {
-    this.dialogService.open(NonDismissableWithNoButtonsContent, {
+    this.dialogService.open(NonDismissableWithNoButtonsContentComponent, {
       data: {
         animal: "panda",
       },
@@ -83,7 +83,7 @@ class StoryDialogComponent {
   `,
   imports: [ButtonModule, DialogModule],
 })
-class SimpleDialogContent {
+class SimpleDialogContentComponent {
   constructor(
     public dialogRef: DialogRef,
     @Inject(DIALOG_DATA) private data: Animal,
@@ -114,7 +114,7 @@ class SimpleDialogContent {
   `,
   imports: [ButtonModule, DialogModule],
 })
-class NonDismissableWithPrimaryButtonContent {
+class NonDismissableWithPrimaryButtonContentComponent {
   constructor(
     public dialogRef: DialogRef,
     @Inject(DIALOG_DATA) private data: Animal,
@@ -140,7 +140,7 @@ class NonDismissableWithPrimaryButtonContent {
   `,
   imports: [ButtonModule, DialogModule],
 })
-class NonDismissableWithNoButtonsContent {
+class NonDismissableWithNoButtonsContentComponent {
   constructor(
     public dialogRef: DialogRef,
     @Inject(DIALOG_DATA) private data: Animal,

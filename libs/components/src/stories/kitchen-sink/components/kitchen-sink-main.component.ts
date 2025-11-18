@@ -4,9 +4,9 @@ import { Component, signal } from "@angular/core";
 import { DialogService } from "../../../dialog";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
-import { KitchenSinkForm } from "./kitchen-sink-form.component";
-import { KitchenSinkTable } from "./kitchen-sink-table.component";
-import { KitchenSinkToggleList } from "./kitchen-sink-toggle-list.component";
+import { KitchenSinkFormComponent } from "./kitchen-sink-form.component";
+import { KitchenSinkTableComponent } from "./kitchen-sink-table.component";
+import { KitchenSinkToggleListComponent } from "./kitchen-sink-toggle-list.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -83,7 +83,7 @@ import { KitchenSinkToggleList } from "./kitchen-sink-toggle-list.component";
     </bit-dialog>
   `,
 })
-class KitchenSinkDialog {
+class KitchenSinkDialogComponent {
   constructor(public dialogRef: DialogRef) {}
 }
 
@@ -91,7 +91,12 @@ class KitchenSinkDialog {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-tab-main",
-  imports: [KitchenSinkSharedModule, KitchenSinkTable, KitchenSinkToggleList, KitchenSinkForm],
+  imports: [
+    KitchenSinkSharedModule,
+    KitchenSinkTableComponent,
+    KitchenSinkToggleListComponent,
+    KitchenSinkFormComponent,
+  ],
   template: `
     <bit-banner bannerType="info"> Kitchen Sink test zone </bit-banner>
 
@@ -182,11 +187,11 @@ export class KitchenSinkMainComponent {
   protected readonly drawerOpen = signal(false);
 
   openDialog() {
-    this.dialogService.open(KitchenSinkDialog);
+    this.dialogService.open(KitchenSinkDialogComponent);
   }
 
   openDrawer() {
-    this.dialogService.openDrawer(KitchenSinkDialog);
+    this.dialogService.openDrawer(KitchenSinkDialogComponent);
   }
 
   navItems = [

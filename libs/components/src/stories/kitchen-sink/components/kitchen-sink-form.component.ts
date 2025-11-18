@@ -134,7 +134,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
     </form>
   `,
 })
-export class KitchenSinkForm {
+export class KitchenSinkFormComponent {
   constructor(
     public dialogService: DialogService,
     public formBuilder: FormBuilder,

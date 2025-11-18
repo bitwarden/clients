@@ -9,6 +9,8 @@ import { Component, Input } from "@angular/core";
   providers: [{ provide: CdkStep, useExisting: VerticalStep }],
   standalone: false,
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class VerticalStep extends CdkStep {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals

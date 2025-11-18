@@ -4,7 +4,7 @@ import { ControlValueAccessor, NgControl, Validators } from "@angular/forms";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { BitLabel } from "../form-control/label.component";
+import { BitLabelComponent } from "../form-control/label.component";
 
 let nextId = 0;
 
@@ -32,7 +32,7 @@ export class RadioGroupComponent implements ControlValueAccessor {
   readonly id = input(`bit-radio-group-${nextId++}`);
   @HostBinding("class") classList = ["tw-block", "tw-mb-4"];
 
-  protected readonly label = contentChild(BitLabel);
+  protected readonly label = contentChild(BitLabelComponent);
 
   constructor(@Optional() @Self() private ngControl?: NgControl) {
     if (ngControl != null) {
