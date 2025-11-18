@@ -53,6 +53,8 @@ describe("WorkerWebpushConnectionService", () => {
     stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
     pushManager = mock();
 
+    configService.getFeatureFlag$.mockImplementation(() => of(true));
+
     sut = new WorkerWebPushConnectionService(
       configService,
       webPushApiService,
