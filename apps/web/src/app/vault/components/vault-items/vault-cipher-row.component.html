@@ -208,7 +208,7 @@
           </button>
         }
         @if (!userCanArchive) {
-          <button bitMenuItem (click)="badge.promptForPremium()" type="button">
+          <button bitMenuItem (click)="badge.promptForPremium($event)" type="button">
             <i class="bwi bwi-fw bwi-archive" aria-hidden="true"></i>
             {{ "archiveVerb" | i18n }}
             <!-- Hide app-premium badge from accessibility tools as it results in a button within a button -->
