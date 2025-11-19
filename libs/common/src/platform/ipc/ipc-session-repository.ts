@@ -1,6 +1,6 @@
 import { firstValueFrom, map } from "rxjs";
 
-import { Endpoint, IpcSessionRepository as SdkIpcSessionRepository } from "@bitwarden/sdk-internal";
+import { Endpoint } from "@bitwarden/sdk-internal";
 
 import { GlobalState, IPC_MEMORY, KeyDefinition, StateProvider } from "../state";
 
@@ -15,7 +15,7 @@ const IPC_SESSIONS = KeyDefinition.record<object, string>(IPC_MEMORY, "ipcSessio
  *
  * Interface uses `any` type as defined by the SDK until we get a concrete session type.
  */
-export class IpcSessionRepository implements SdkIpcSessionRepository {
+export class IpcSessionRepository {
   private states: GlobalState<Record<string, any>>;
 
   constructor(private stateProvider: StateProvider) {
