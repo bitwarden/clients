@@ -595,7 +595,7 @@
     "message": "Visa alla"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "Visa mindre"
   },
   "viewLogin": {
     "message": "Visa inloggning"
@@ -5808,6 +5808,15 @@
   },
   "upgradeToPremium": {
     "message": "Uppgradera till Premium"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Uppgradera för fullständig säkerhet"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium ger dig fler verktyg för att hålla dig säker, arbeta effektivt och ha kontroll."
+  },
+  "explorePremium": {
+    "message": "Utforska Premium"
   },
   "loadingVault": {
     "message": "Läser in valv"
