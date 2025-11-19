@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Немате дозволу да уређујете ову ставку"
+  },
   "welcomeBack": {
     "message": "Добродошли назад"
   },
@@ -772,7 +775,7 @@
     "message": "Употребити једнократну пријаву"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Ваша организација захтева јединствену пријаву."
   },
   "submit": {
     "message": "Пошаљи"
@@ -1034,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Морате додати или основни УРЛ сервера или бар једно прилагођено окружење."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Везе морају да користе HTTPS."
   },
   "customEnvironment": {
     "message": "Прилагођено окружење"
@@ -1856,10 +1862,10 @@
     "message": "Закључајте са главном лозинком при поновном покретању"
   },
   "requireMasterPasswordOrPinOnAppRestart": {
-    "message": "Require master password or PIN on app restart"
+    "message": "Потражити главну лозинку или ПИН при поновном покретању"
   },
   "requireMasterPasswordOnAppRestart": {
-    "message": "Require master password on app restart"
+    "message": "Потражити главну лозинку при поновном покретању апликације"
   },
   "deleteAccount": {
     "message": "Брисање налога"
@@ -2143,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "Дошло је до грешке при омогућавању интеграције прегледача."
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Нажалост, интеграција прегледача за сада је подржана само у верзији Mac App Store."
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Нажалост, интеграција прегледача није за сада подржана у Windows Store."
@@ -4177,7 +4180,7 @@
     "message": "Ставка је послата у архиву"
   },
   "itemWasUnarchived": {
-    "message": "Item was unarchived"
+    "message": "Ставка враћена из архиве"
   },
   "archiveItem": {
     "message": "Архивирај ставку"
@@ -4186,9 +4189,39 @@
     "message": "Архивиране ставке су искључене из општих резултата претраге и предлога за ауто попуњавање. Јесте ли сигурни да желите да архивирате ову ставку?"
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "ZIP/Поштански број"
   },
   "cardNumberLabel": {
-    "message": "Card number"
+    "message": "Број картице"
+  },
+  "upgradeNow": {
+    "message": "Надогради сада"
+  },
+  "builtInAuthenticator": {
+    "message": "Уграђени аутентификатор"
+  },
+  "secureFileStorage": {
+    "message": "Сигурно складиштење датотека"
+  },
+  "emergencyAccess": {
+    "message": "Хитан приступ"
+  },
+  "breachMonitoring": {
+    "message": "Праћење повreda безбедности"
+  },
+  "andMoreFeatures": {
+    "message": "И још више!"
+  },
+  "planDescPremium": {
+    "message": "Потпуна онлајн безбедност"
+  },
+  "upgradeToPremium": {
+    "message": "Надоградите на Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

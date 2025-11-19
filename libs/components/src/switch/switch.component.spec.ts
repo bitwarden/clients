@@ -3,10 +3,9 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 
-import { BitLabel } from "../form-control/label.component";
+import { BitLabelComponent } from "../form-control/label.component";
 
 import { SwitchComponent } from "./switch.component";
-import { SwitchModule } from "./switch.module";
 
 describe("SwitchComponent", () => {
   let fixture: ComponentFixture<TestHostComponent>;
@@ -17,7 +16,7 @@ describe("SwitchComponent", () => {
   // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
   @Component({
     selector: "test-host",
-    imports: [FormsModule, BitLabel, ReactiveFormsModule, SwitchModule],
+    imports: [FormsModule, BitLabelComponent, ReactiveFormsModule, SwitchComponent],
     template: `
       <form [formGroup]="formObj">
         <bit-switch formControlName="switch">
@@ -78,7 +77,7 @@ describe("SwitchComponent", () => {
       selector: "test-selected-host",
       template: `<bit-switch [selected]="checked"><bit-label>Element</bit-label></bit-switch>`,
       standalone: true,
-      imports: [SwitchComponent, BitLabel],
+      imports: [SwitchComponent, BitLabelComponent],
     })
     class TestSelectedHostComponent {
       checked = false;

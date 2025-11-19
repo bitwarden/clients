@@ -5,6 +5,7 @@ import {
   firstValueFrom,
   map,
   retry,
+  share,
   startWith,
   Subject,
   switchMap,
@@ -57,6 +58,7 @@ export class PhishingDataService {
         new Set(
           (state?.domains?.filter((line) => line.trim().length > 0) ?? []).concat(
             this._testDomains,
+            "phishing.testcategory.com", // Included for QA to test in prod
           ),
         ),
     ),
@@ -67,7 +69,7 @@ export class PhishingDataService {
 
   private _triggerUpdate$ = new Subject<void>();
   update$ = this._triggerUpdate$.pipe(
-    startWith(), // Always emit once
+    startWith(undefined), // Always emit once
     tap(() => this.logService.info(`[PhishingDataService] Update triggered...`)),
     switchMap(() =>
       this._cachedState.state$.pipe(
@@ -103,6 +105,7 @@ export class PhishingDataService {
         ),
       ),
     ),
+    share(),
   );
 
   constructor(
@@ -131,7 +134,6 @@ export class PhishingDataService {
     const domains = await firstValueFrom(this._domains$);
     const result = domains.has(url.hostname);
     if (result) {
-      this.logService.debug("[PhishingDataService] Caught phishing domain:", url.hostname);
       return true;
     }
     return false;

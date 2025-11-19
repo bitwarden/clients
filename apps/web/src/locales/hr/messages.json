@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Pristup inteligenciji"
   },
-  "riskInsights": {
-    "message": "Uvid u rizik"
-  },
   "passwordRisk": {
     "message": "Rizik lozinke"
   },
+  "noEditPermissions": {
+    "message": "Nemaš dozvolu za uređivanje ove stavke"
+  },
   "reviewAtRiskPasswords": {
     "message": "Pregledaj rizične lozinke (slabe, izložene ili ponovno korištene) u svim aplikacijama. Odaberi svoje najkritičnije aplikacije za davanje prioriteta sigurnosnim radnjama da tvoji korisnici riješe rizične lozinke."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Pregledaj rizične prijave"
   },
   "dataLastUpdated": {
     "message": "Zadnje ažuriranje: $DATE$",
@@ -90,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Dodijeli članovima zadatke za praćenje napretka"
   },
-  "onceYouReviewApps": {
-    "message": "Nakon što pregledaš prijave i označiš kritične, možeš dodijeliti zadatke članovima za rješavanje rizičnih stavki i ovdje pratiti napredak"
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
   },
   "sendReminders": {
     "message": "Pošalji podsjetnike"
@@ -126,6 +129,9 @@
         "example": "3"
       }
     }
+  },
+  "criticalApplicationsMarked": {
+    "message": "kritičnih aplikacija označeno"
   },
   "countOfCriticalApplications": {
     "message": "Kritičnih aplikacija: $COUNT$",
@@ -172,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "No applications found for $ORG NAME$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "No data found"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  "noDataInOrgDescription": {
+    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
   },
-  "benefit1Title": {
-    "message": "Prioritize risks"
+  "feature1Title": {
+    "message": "Mark applications as critical"
   },
-  "benefit1Description": {
-    "message": "Focus on applications that matter the most"
+  "feature1Description": {
+    "message": "This will help you remove risks to your most important applications first."
   },
-  "benefit2Title": {
-    "message": "Guide remediation"
+  "feature2Title": {
+    "message": "Help members improve their security"
   },
-  "benefit2Description": {
-    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  "feature2Description": {
+    "message": "Assign at-risk members guided security tasks to update credentials."
   },
-  "benefit3Title": {
+  "feature3Title": {
     "message": "Monitor progress"
   },
-  "benefit3Description": {
-    "message": "Track changes over time to show security improvements"
+  "feature3Description": {
+    "message": "Track changes over time to show security improvements."
   },
-  "noReportRunTitle": {
-    "message": "Run your first report to see applications"
+  "noReportsRunTitle": {
+    "message": "Generate report"
   },
-  "noReportRunDescription": {
-    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
+  "noReportsRunDescription": {
+    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Niti jedna aplikacija nije označena kao kritična"
@@ -235,6 +235,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Aplikacije označene kao kritične"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ aplikacija označeno kao kritično",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Nije uspjelo označavanje aplikacija kao kritičnih"
   },
@@ -256,8 +265,14 @@
   "atRiskMembers": {
     "message": "Rizični korisnici"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Članovi koji imaju pristup stavkama za aplikacije označene kao kritične"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "These members have access to vulnerable items for critical applications."
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Članovi s rizičnim lozinkama"
+  },
+  "membersWillReceiveSecurityTask": {
+    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
   },
   "membersAtRiskCount": {
     "message": "Rizičnih članova: $COUNT$",
@@ -286,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Ovi članovi se prijavljuju u aplikacije slabim, izloženim ili ponovno korištenim lozinkama."
+  "atRiskMemberDescription": {
+    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Nema članova koji se prijavljuju slabim, izloženim ili ponovno korištenim lozinkama."
@@ -328,6 +343,9 @@
   "applicationsNeedingReview": {
     "message": "Aplikacije koje je potrebno pregledati"
   },
+  "newApplicationsCardTitle": {
+    "message": "Pregledaj nove prijave"
+  },
   "newApplicationsWithCount": {
     "message": "Novih aplikacija: $COUNT$",
     "placeholders": {
@@ -343,35 +361,56 @@
   "reviewNow": {
     "message": "Pregledaj sada"
   },
+  "allCaughtUp": {
+    "message": "Sve ažurno!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "Trenutno nema novih aplikacija za pregled"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Tvoja organizacija ima spremljene stavke za ovoliko aplikacija: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Pregledaj aplikacije za zaštitu stavki najvažnijih za sigurnost tvoje organizacije"
+  },
+  "reviewApplications": {
+    "message": "Pregledaj aplikacije"
+  },
   "prioritizeCriticalApplications": {
     "message": "Daj prioritet kritičnim aplikacijama"
   },
-  "atRiskItems": {
-    "message": "Rizične stavke"
+  "selectCriticalAppsDescription": {
+    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
+  },
+  "reviewNewApplications": {
+    "message": "Pregledaj nove prijave"
+  },
+  "reviewNewAppsDescription": {
+    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Klikni ikonu zvjezdice za označavanje aplikacije kao kritične"
   },
   "markAsCriticalPlaceholder": {
     "message": "Funkcionalnost „Označi kao kritično” bit će implementirana u budućem ažuriranju"
   },
   "applicationReviewSaved": {
-    "message": "Application review saved"
-  },
-  "applicationsMarkedAsCritical": {
-    "message": "$COUNT$ applications marked as critical",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
+    "message": "Provjera aplikacija spremljena"
   },
   "newApplicationsReviewed": {
-    "message": "New applications reviewed"
+    "message": "Nove aplikacije pregledane"
   },
   "errorSavingReviewStatus": {
-    "message": "Error saving review status"
+    "message": "Pogreška pri spremanju statusa pregleda"
   },
   "pleaseTryAgain": {
-    "message": "Please try again"
+    "message": "Molimo pokušaj ponovno"
   },
   "unmarkAsCritical": {
     "message": "Odznači kao kritično"
@@ -834,6 +873,9 @@
   },
   "favorites": {
     "message": "Favoriti"
+  },
+  "taskSummary": {
+    "message": "Sažetak zadatka"
   },
   "types": {
     "message": "Vrste"
@@ -1360,7 +1402,7 @@
     "message": "Jedinstvena prijava (SSO)"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Tvoje organizacija zahtijeva jedinstvenu prijavu."
   },
   "welcomeBack": {
     "message": "Dobro došli natrag"
@@ -3202,8 +3244,17 @@
   "nextCharge": {
     "message": "Sljedeća naplata"
   },
+  "nextChargeHeader": {
+    "message": "Sljedeća naplata"
+  },
+  "plan": {
+    "message": "Paket"
+  },
   "details": {
     "message": "Detalji"
+  },
+  "discount": {
+    "message": "popust"
   },
   "downloadLicense": {
     "message": "Preuzmi licencu"
@@ -4409,8 +4460,32 @@
   "updateBrowser": {
     "message": "Ažuriraj preglednik"
   },
-  "generatingYourRiskInsights": {
-    "message": "Stvaranje tvojih uvida u rizik..."
+  "generatingYourAccessIntelligence": {
+    "message": "Generiranje tvoje pristupne inteligencije..."
+  },
+  "fetchingMemberData": {
+    "message": "Dohvaćanje podataka o članu…"
+  },
+  "analyzingPasswordHealth": {
+    "message": "Analiziranje zdravlja lozinke…"
+  },
+  "calculatingRiskScores": {
+    "message": "Izračun ocjene rizika…"
+  },
+  "generatingReportData": {
+    "message": "Generiranje izvješća…"
+  },
+  "savingReport": {
+    "message": "Spremanje izvještaja…"
+  },
+  "compilingInsights": {
+    "message": "Sastavljanje uvida…"
+  },
+  "loadingProgress": {
+    "message": "Učitavanje napretka"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Ovo može potrajati nekoliko minuta."
   },
   "riskInsightsRunReport": {
     "message": "Pokreni izvješće"
@@ -4498,7 +4573,7 @@
     "message": "Poziv prihvaćen"
   },
   "invitationAcceptedDesc": {
-    "message": "Successfully accepted your invitation."
+    "message": "Tvoj poziv uspješno prihvaćen."
   },
   "inviteInitAcceptedDesc": {
     "message": "Sada imaš pristup organizaciji."
@@ -5774,16 +5849,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "Kako uključiti automatsku potvrdu korisnika"
   },
-  "autoConfirmStep1": {
-    "message": "Otvori svoje Bitwarden proširenje."
+  "autoConfirmExtension1": {
+    "message": "Otvori svoje Bitwarden proširenje"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "Odaberi",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " Uključi.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " Uključi",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "Uspješno otvoreno Bitwarden proširenje za preglednik. Sada možeš aktivirati postavku automatske potvrde korisnika."
@@ -5805,8 +5880,8 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Potrebno je pravilo Isključive organizacije. "
   },
-  "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Svakome tko je dio više od jedne organizacije bit će ukinut pristup sve dok ne napusti ostale organizacije."
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "Svi članovi moraju pripadati samo ovoj organizaciji kako bi aktivirali ovu automatizaciju."
   },
   "autoConfirmSingleOrgExemption": {
     "message": "Pravilo Isključive organizacija će biti primijenjeno na sve uloge."
@@ -5871,6 +5946,19 @@
   "disableHideEmail": {
     "message": "Ne dopusti skrivanje e-pošte kod stvaranja Senda.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Zadano otkrivanje podudaranja URI-ja"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Odredi kada se prijave predlažu za auto-ispunu. Administratori i vlasnici su izuzeti od ovog pravila."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Zadano otkrivanje podudaranja URI-ja"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Odaberite valjanu opciju otkrivanja podudaranja URI-ja.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Izmijenjena polica $ID$.",
@@ -6525,11 +6613,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Tvoja glavna lozinka ne zadovoljava pravila ove organizacije. Za pristup trezoru moraš odmah ažurirati svoju glavnu lozinku. Ako nastaviš, odjaviti ćeš se iz trenutne sesije te ćeš se morati ponovno prijaviti. Aktivne sesije na drugim uređajima mogu ostati aktivne do jedan sat."
   },
-  "automaticAppLogin": {
-    "message": "Automatski prijavi korisnike za dopuštene aplikacije"
+  "automaticAppLoginWithSSO": {
+    "message": "Automatska jedinstvena prijava"
   },
-  "automaticAppLoginDesc": {
-    "message": "Obrasci za prijavu će biti automatski ispunjeni i poslani za aplikacije pokrenute od strane konfiguriranog davatelja identiteta."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Proširi sigurnost i praktičnost SSO-a na neupravljane aplikacije. Kada korisnici pokrenu aplikaciju vašeg davatelja identiteta, njihovi se podaci za prijavu automatski popunjavaju i šalju, stvarajući siguran tijek od davatelja identiteta do aplikacije jednim klikom."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Poslužitelj pružatelja identiteta"
@@ -6541,31 +6629,31 @@
     "message": "Tvoja je organizacija ažurirala tvoje opcije dešifriranja. Postavi glavnu lozinku za pristup svom trezoru."
   },
   "sessionTimeoutPolicyTitle": {
-    "message": "Session timeout"
+    "message": "Istek sesije"
   },
   "sessionTimeoutPolicyDescription": {
-    "message": "Set a maximum session timeout for all members except owners."
+    "message": "Odredi najveće vrijeme isteka sesije za sve članove, osim vlasnika."
   },
   "maximumAllowedTimeout": {
-    "message": "Maximum allowed timeout"
+    "message": "Najveći istek trezora"
   },
   "maximumAllowedTimeoutRequired": {
-    "message": "Maximum allowed timeout is required."
+    "message": "Potreban najveći dozvoljeni istek."
   },
   "sessionTimeoutPolicyInvalidTime": {
-    "message": "Time is invalid. Change at least one value."
+    "message": "Vrijeme nije ispravno. Promijeni barem jednu vrijednost."
   },
   "sessionTimeoutAction": {
-    "message": "Session timeout action"
+    "message": "Radnja kod isteka sesije"
   },
   "immediately": {
-    "message": "Immediately"
+    "message": "Odmah"
   },
   "onSystemLock": {
-    "message": "On system lock"
+    "message": "Pri zaključavanju sustava"
   },
   "onAppRestart": {
-    "message": "On app restart"
+    "message": "Pri ponovnom pokretanju"
   },
   "hours": {
     "message": "sat(i)"
@@ -6574,19 +6662,19 @@
     "message": "min."
   },
   "sessionTimeoutConfirmationNeverTitle": {
-    "message": "Are you certain you want to allow a maximum timeout of \"Never\" for all members?"
+    "message": "Sigurno želiš odrediti „Nikada” kao najveći istek za sve članove?"
   },
   "sessionTimeoutConfirmationNeverDescription": {
-    "message": "This option will save your members' encryption keys on their devices. If you choose this option, ensure that their devices are adequately protected."
+    "message": "Ova će opcija spremiti ključeve za šifriranje tvojih članova na njihove uređaje. Prije uključivanja ove opcije, provjeri jesu li njihovi uređaji adekvatno zaštićeni."
   },
   "learnMoreAboutDeviceProtection": {
-    "message": "Learn more about device protection"
+    "message": "Saznaj više o zaštiti uređaja"
   },
   "sessionTimeoutConfirmationOnSystemLockTitle": {
-    "message": "\"System lock\" will only apply to the browser and desktop app"
+    "message": "„Zaključavanje sustava” će se odnositi samo na aplikaciju radne površine i proširenje"
   },
   "sessionTimeoutConfirmationOnSystemLockDescription": {
-    "message": "The mobile and web app will use \"on app restart\" as their maximum allowed timeout, since the option is not supported."
+    "message": "Mobilna i web aplikacija koristiti će „pri ponovnom pokretanju” kao najveći dozvoljeni istek, jer opcija još nije podržana."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Pravilo tvoje organizacije utječe na istek trezora. Najveće dozvoljeno vrijeme isteka je $HOURS$:$MINUTES$ h.",
@@ -7129,6 +7217,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Moraš dodati ili osnovni URL poslužitelja ili barem jedno prilagođeno okruženje."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL mora koristiti HTTPS."
+  },
   "apiUrl": {
     "message": "URL API poslužitelja"
   },
@@ -7300,6 +7391,9 @@
   },
   "accessDenied": {
     "message": "Pristup odbijen. Nemaš prava vijdeti ovu stranicu."
+  },
+  "noPageAccess": {
+    "message": "Nemaš pristup ovoj stranici"
   },
   "masterPassword": {
     "message": "Glavna lozinka"
@@ -9476,9 +9570,6 @@
   "loggedInExclamation": {
     "message": "Prijava uspješna!"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "assignCollectionAccess": {
     "message": "Dodijeli pristup zbirki"
   },
@@ -9758,6 +9849,9 @@
   },
   "assignTasks": {
     "message": "Dodijeli zadatke"
+  },
+  "assignSecurityTasksToMembers": {
+    "message": "Send notifications to change passwords"
   },
   "assignToCollections": {
     "message": "Dodijeli zbirkama"
@@ -12016,12 +12110,52 @@
     "message": "Argon2id nudi jaču zaštitu od modernih napada. Najbolje za napredne korisnike s moćnim uređajima."
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "Poštanski broj"
   },
   "cardNumberLabel": {
-    "message": "Card number"
+    "message": "Broj kartice"
   },
   "startFreeFamiliesTrial": {
-    "message": "Start free Families trial"
+    "message": "Započni besplatno probno razdoblje za Families"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Postavi metodu otključavanja za promjenu radnje nakon isteka vremenskog ograničenja trezora."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Pravila tvrtke primijenjena su na tvoje mogućnosti vremenskog isteka"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Istek vremenskog ograničenja tvojeg trezora premašuje ograničenje koja je postavila tvoja organizacija."
+  },
+  "neverLockWarning": {
+    "message": "Sigurni želiš koristiti opciju „Nikad”? Postavljanjem opcije zaključavanja na „Nikad” ključ za šifriranje tvojeg trezora sprema se na tvoj uređaj. Pri korištenju ove opcije osiguraj da je tvoj uređaj pravilno zaštićen."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Radnja kod isteka"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Istek sesije"
+  },
+  "appearance": {
+    "message": "Izgled"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Istek vremenskog ograničenja premašuje ograničenje koje je postavila tvoja organizacija: najviše $HOURS$:$MINUTES$.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "No critical applications are selected"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Are you sure you want to continue?"
   }
 }

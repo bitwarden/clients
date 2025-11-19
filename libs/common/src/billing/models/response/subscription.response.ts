@@ -2,12 +2,15 @@
 // @ts-strict-ignore
 import { BaseResponse } from "../../../models/response/base.response";
 
+import { BillingCustomerDiscount } from "./organization-subscription.response";
+
 export class SubscriptionResponse extends BaseResponse {
   storageName: string;
   storageGb: number;
   maxStorageGb: number;
   subscription: BillingSubscriptionResponse;
   upcomingInvoice: BillingSubscriptionUpcomingInvoiceResponse;
+  customerDiscount: BillingCustomerDiscount;
   license: any;
   expiration: string;
 
@@ -20,11 +23,14 @@ export class SubscriptionResponse extends BaseResponse {
     this.expiration = this.getResponseProperty("Expiration");
     const subscription = this.getResponseProperty("Subscription");
     const upcomingInvoice = this.getResponseProperty("UpcomingInvoice");
+    const customerDiscount = this.getResponseProperty("CustomerDiscount");
     this.subscription = subscription == null ? null : new BillingSubscriptionResponse(subscription);
     this.upcomingInvoice =
       upcomingInvoice == null
         ? null
         : new BillingSubscriptionUpcomingInvoiceResponse(upcomingInvoice);
+    this.customerDiscount =
+      customerDiscount == null ? null : new BillingCustomerDiscount(customerDiscount);
   }
 }
 

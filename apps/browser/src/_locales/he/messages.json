@@ -32,7 +32,7 @@
     "message": "השתמש בכניסה יחידה"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "הארגון שלך דורש כניסה יחידה."
   },
   "welcomeBack": {
     "message": "ברוך שובך"
@@ -554,36 +554,36 @@
     "message": "אפס חיפוש"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "ארכיון",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "העבר לארכיון",
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "הסר מהארכיון"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "פריטים בארכיון"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "אין פריטים בארכיון"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "פריטים בארכיון יופיעו כאן ויוחרגו מתוצאות חיפוש כללי והצעות למילוי אוטומטי."
   },
   "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+    "message": "הפריט נשלח לארכיון"
   },
   "itemUnarchived": {
-    "message": "Item was unarchived"
+    "message": "הפריט הוסר מהארכיון"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "העבר פריט לארכיון"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+    "message": "פריטים בארכיון מוחרגים מתוצאות חיפוש כללי והצעות למילוי אוטומטי. האם אתה בטוח שברצונך להעביר פריט זה לארכיון?"
   },
   "edit": {
     "message": "ערוך"
@@ -592,7 +592,10 @@
     "message": "הצג"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "הצג הכל"
+  },
+  "viewLess": {
+    "message": "הצג פחות"
   },
   "viewLogin": {
     "message": "הצג כניסה"
@@ -740,7 +743,7 @@
     "message": "סיסמה ראשית שגויה"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "סיסמה ראשית אינה תקינה. יש לאשר שהדוא\"ל שלך נכון ושהחשבון שלך נוצר ב־$HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "בנעילת המערכת"
+  },
+  "onIdle": {
+    "message": "כשהמערכת מזהה חוסר פעילות"
+  },
+  "onSleep": {
+    "message": "כשהמערכת נכנסת למצב שינה"
   },
   "onRestart": {
     "message": "בהפעלת הדפדפן מחדש"
@@ -1035,10 +1044,10 @@
     "message": "הפריט נשמר"
   },
   "savedWebsite": {
-    "message": "Saved website"
+    "message": "אתר אינטרנט שנשמר"
   },
   "savedWebsites": {
-    "message": "Saved websites ( $COUNT$ )",
+    "message": "אתרי אינטרנט שנשמרו ( $COUNT$ )",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1523,12 +1532,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "בקש זיהוי ביומטרי בפתיחה"
   },
-  "premiumRequired": {
-    "message": "נדרש פרימיום"
-  },
-  "premiumRequiredDesc": {
-    "message": "נדרשת חברות פרימיום כדי להשתמש בתכונה זו."
-  },
   "authenticationTimeout": {
     "message": "פסק זמן לאימות"
   },
@@ -1567,13 +1570,13 @@
     "message": "קרא מפתח אבטחה"
   },
   "readingPasskeyLoading": {
-    "message": "Reading passkey..."
+    "message": "קורא מפתח גישה..."
   },
   "passkeyAuthenticationFailed": {
-    "message": "Passkey authentication failed"
+    "message": "אימות מפתח גישה נכשל"
   },
   "useADifferentLogInMethod": {
-    "message": "Use a different log in method"
+    "message": "השתמש בשיטת כניסה אחרת"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "ממתין לאינטראקציה עם מפתח אבטחה..."
@@ -1641,6 +1644,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "אתה מוכרח להוסיף או את בסיס ה־URL של השרת או לפחות סביבה מותאמת אישית אחת."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "כתובות URL מוכרחות להשתמש ב־HTTPS."
+  },
   "customEnvironment": {
     "message": "סביבה מותאמת אישית"
   },
@@ -1695,28 +1701,28 @@
     "message": "השבת מילוי אוטומטי"
   },
   "confirmAutofill": {
-    "message": "Confirm autofill"
+    "message": "אשר מילוי אוטומטי"
   },
   "confirmAutofillDesc": {
-    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+    "message": "אתר זה אינו תואם את פרטי הכניסה השמורה שלך. לפני שאתה ממלא את אישורי הכניסה שלך, וודא שזהו אתר מהימן."
   },
   "showInlineMenuLabel": {
     "message": "הצג הצעות למילוי אוטומטי על שדות טופס"
   },
   "howDoesBitwardenProtectFromPhishing": {
-    "message": "How does Bitwarden protect your data from phishing?"
+    "message": "כיצד Bitwarden מגנה על הנתונים שלך מדיוג?"
   },
   "currentWebsite": {
-    "message": "Current website"
+    "message": "אתר נוכחי"
   },
   "autofillAndAddWebsite": {
-    "message": "Autofill and add this website"
+    "message": "מלא אוטומטית והוסף אתר אינטרנט זה"
   },
   "autofillWithoutAdding": {
-    "message": "Autofill without adding"
+    "message": "מלא אוטומטית מבלי להוסיף"
   },
   "doNotAutofill": {
-    "message": "Do not autofill"
+    "message": "אל תמלא אוטומטית"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "הצג זהויות כהצעות"
@@ -2009,79 +2015,79 @@
     "message": "הערה"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "כניסה חדשה",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "כרטיס חדש",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "זהות חדשה",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "הערה חדשה",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "מפתח SSH חדש",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
+    "message": "סֵנְד של טקסט חדש",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "סֵנְד של קובץ חדש",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "ערוך כניסה",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "ערוך כרטיס",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "ערוך זהות",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "ערוך הערה",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "ערוך מפתח SSH",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+    "message": "ערוך סֵנְד של טקסט",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+    "message": "ערוך סֵנְד של קובץ",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "הצג כניסה",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "הצג כרטיס",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "הצג זהות",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "הצג הערה",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "הצג מפתח SSH",
     "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
@@ -3256,7 +3262,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "רק הכספת הארגונית המשויכת עם $ORGANIZATION$ תיוצא.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3265,7 +3271,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "רק הכספת הארגונית המשויכת עם $ORGANIZATION$ תיוצא. פריטי האוספים שלי לא יכללו.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3280,7 +3286,7 @@
     "message": "שגיאת פענוח"
   },
   "errorGettingAutoFillData": {
-    "message": "Error getting autofill data"
+    "message": "שגיאה בקבלת נתוני מילוי אוטומטי"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden לא יכל לפענח את פריט(י) הכספת המפורט(ים) להלן."
@@ -4054,13 +4060,13 @@
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "cannotAutofill": {
-    "message": "Cannot autofill"
+    "message": "לא ניתן למלא אוטומטית"
   },
   "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+    "message": "ברירת המחדל להתאמה מוגדרת כ'התאמה מדויקת'. האתר הנוכחי אינו תואם באופן מדויק את פרטי הכניסה השמורים עבור פריט זה."
   },
   "okay": {
-    "message": "Okay"
+    "message": "בסדר"
   },
   "toggleSideNavigation": {
     "message": "החלף מצב ניווט צדדי"
@@ -4977,6 +4983,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "ברירת מחדל ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "הצג זיהוי התאמה $WEBSITE$",
     "placeholders": {
@@ -5586,7 +5602,7 @@
     "message": "אפשרויות כספת"
   },
   "emptyVaultDescription": {
-    "message": "הכספת מגינה על יותר מרק הסיסמאות שלך. אחסן כניסות מאובטחות, זהויות, כרטיסים והערות באופן מאובטח כאן."
+    "message": "הכספת מגנה על יותר מרק הסיסמאות שלך. אחסן כניסות מאובטחות, זהויות, כרטיסים והערות באופן מאובטח כאן."
   },
   "introCarouselLabel": {
     "message": "ברוך בואך אל Bitwarden"
@@ -5631,30 +5647,30 @@
     "message": "ברוך בואך אל הכספת שלך!"
   },
   "phishingPageTitleV2": {
-    "message": "Phishing attempt detected"
+    "message": "זוהה ניסיון דיוג"
   },
   "phishingPageSummary": {
-    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+    "message": "האתר שאתה מנסה לבקר הוא אתר זדוני ידוע וסכנת אבטחה."
   },
   "phishingPageCloseTabV2": {
-    "message": "Close this tab"
+    "message": "סגור כרטיסיה זו"
   },
   "phishingPageContinueV2": {
-    "message": "Continue to this site (not recommended)"
+    "message": "המשך לאתר זה (לא מומלץ)"
   },
   "phishingPageExplanation1": {
-    "message": "This site was found in ",
+    "message": "אתר זה נמצא ב־",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
   },
   "phishingPageExplanation2": {
-    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "message": ", רשימת קוד פתוח של אתרי דיוג ידועים המשמשים לגניבת מידע אישי ורגיש.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
   },
   "phishingPageLearnMore": {
-    "message": "Learn more about phishing detection"
+    "message": "למד עוד על זיהוי דיוג"
   },
   "protectedBy": {
-    "message": "Protected by $PRODUCT$",
+    "message": "מוגן על ידי $PRODUCT$",
     "placeholders": {
       "product": {
         "content": "$1",
@@ -5767,16 +5783,58 @@
     "message": "אשר דומיין של Key Connector"
   },
   "atRiskLoginsSecured": {
-    "message": "Great job securing your at-risk logins!"
+    "message": "עבודה נהדרת באבטחת הכניסות בסיכון שלך!"
+  },
+  "upgradeNow": {
+    "message": "שדרג עכשיו"
+  },
+  "builtInAuthenticator": {
+    "message": "מאמת מובנה"
+  },
+  "secureFileStorage": {
+    "message": "אחסון קבצים מאובטח"
+  },
+  "emergencyAccess": {
+    "message": "גישת חירום"
+  },
+  "breachMonitoring": {
+    "message": "ניטור פרצות"
+  },
+  "andMoreFeatures": {
+    "message": "ועוד!"
+  },
+  "planDescPremium": {
+    "message": "השלם אבטחה מקוונת"
+  },
+  "upgradeToPremium": {
+    "message": "שדרג לפרימיום"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "טוען כספת"
+  },
+  "vaultLoaded": {
+    "message": "הכספת נטענה"
   },
   "settingDisabledByPolicy": {
-    "message": "This setting is disabled by your organization's policy.",
+    "message": "הגדרה זו מושבתת על ידי מדיניות של הארגון שלך.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "מיקוד"
   },
   "cardNumberLabel": {
-    "message": "Card number"
+    "message": "מספר כרטיס"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "פעולת פסק זמן"
   }
 }

@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "Посмотреть все"
   },
+  "viewLess": {
+    "message": "Свернуть"
+  },
   "viewLogin": {
     "message": "Просмотр логина"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Вместе с компьютером"
+  },
+  "onIdle": {
+    "message": "При бездействии"
+  },
+  "onSleep": {
+    "message": "В режиме сна"
   },
   "onRestart": {
     "message": "При перезапуске браузера"
@@ -1523,12 +1532,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Запрашивать биометрию при запуске"
   },
-  "premiumRequired": {
-    "message": "Требуется Премиум"
-  },
-  "premiumRequiredDesc": {
-    "message": "Для использования этой функции необходим Премиум."
-  },
   "authenticationTimeout": {
     "message": "Таймаут аутентификации"
   },
@@ -1640,6 +1643,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Вы должны добавить либо базовый URL сервера, либо хотя бы одно пользовательское окружение."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL должны использовать HTTPS."
   },
   "customEnvironment": {
     "message": "Пользовательское окружение"
@@ -4977,6 +4983,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "По умолчанию ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "Показать обнаружение совпадений $WEBSITE$",
     "placeholders": {
@@ -5769,6 +5785,45 @@
   "atRiskLoginsSecured": {
     "message": "Отличная работа по защите ваших логинов, подверженных риску!"
   },
+  "upgradeNow": {
+    "message": "Изменить сейчас"
+  },
+  "builtInAuthenticator": {
+    "message": "Встроенный аутентификатор"
+  },
+  "secureFileStorage": {
+    "message": "Защищенное хранилище файлов"
+  },
+  "emergencyAccess": {
+    "message": "Экстренный доступ"
+  },
+  "breachMonitoring": {
+    "message": "Мониторинг нарушений"
+  },
+  "andMoreFeatures": {
+    "message": "И многое другое!"
+  },
+  "planDescPremium": {
+    "message": "Полная онлайн-защищенность"
+  },
+  "upgradeToPremium": {
+    "message": "Обновить до Премиум"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Перейти для полной защищенности"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Премиум предоставит вам больше инструментов для обеспечения безопасности, эффективной работы и контроля над ситуацией."
+  },
+  "explorePremium": {
+    "message": "Познакомиться с Премиум"
+  },
+  "loadingVault": {
+    "message": "Загрузка хранилища"
+  },
+  "vaultLoaded": {
+    "message": "Хранилище загружено"
+  },
   "settingDisabledByPolicy": {
     "message": "Этот параметр отключен политикой вашей организации.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5778,5 +5833,8 @@
   },
   "cardNumberLabel": {
     "message": "Номер карты"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Тайм-аут действия"
   }
 }

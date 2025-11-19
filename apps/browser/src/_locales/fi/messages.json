@@ -554,21 +554,21 @@
     "message": "Nollaa haku"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Arkistoi",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Arkistoi",
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Poista arkistosta"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Arkistossa olevat kohteet"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Arkistossa ei ole kohteita"
   },
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
@@ -580,7 +580,7 @@
     "message": "Item was unarchived"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Arkistoi kohde"
   },
   "archiveItemConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
@@ -592,7 +592,10 @@
     "message": "Näytä"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "Näytä kaikki"
+  },
+  "viewLess": {
+    "message": "View less"
   },
   "viewLogin": {
     "message": "View login"
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Kun järjestelmä lukitaan"
+  },
+  "onIdle": {
+    "message": "On system idle"
+  },
+  "onSleep": {
+    "message": "On system sleep"
   },
   "onRestart": {
     "message": "Kun selain käynnistetään uudelleen"
@@ -1523,12 +1532,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Pyydä Biometristä todennusta käynnistettäessä"
   },
-  "premiumRequired": {
-    "message": "Premium vaaditaan"
-  },
-  "premiumRequiredDesc": {
-    "message": "Tämä ominaisuus edellyttää Premium-jäsenyyttä."
-  },
   "authenticationTimeout": {
     "message": "Todennuksen aikakatkaisu"
   },
@@ -1640,6 +1643,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Sinun on lisättävä joko palvelimen perusosoite tai ainakin yksi mukautettu palvelinympäristö."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
   },
   "customEnvironment": {
     "message": "Mukautettu palvelinympäristö"
@@ -2009,11 +2015,11 @@
     "message": "Muistiinpano"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "Uusi kirjautumistieto",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "Uusi kortti",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
@@ -2025,23 +2031,23 @@
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "Uusi SSH-avain",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
+    "message": "Uusi teksti-Send",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "Uusi tiedosto-Send",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "Muokkaa kirjautumistietoa",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "Muokkaa korttia",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
@@ -2053,23 +2059,23 @@
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "Muokkaa SSH avainta",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+    "message": "Muokkaa teksti-Sendiä",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+    "message": "Muokkaa tiedosto-Sendiä",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "Näytä kirjautumistieto",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "Näytä kortti",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
@@ -2081,7 +2087,7 @@
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "Näytä SSH-avain",
     "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
@@ -4977,6 +4983,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Default ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "Näytä vastaavuuden tunnistus $WEBSITE$",
     "placeholders": {
@@ -5769,6 +5785,45 @@
   "atRiskLoginsSecured": {
     "message": "Great job securing your at-risk logins!"
   },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "Loading vault"
+  },
+  "vaultLoaded": {
+    "message": "Vault loaded"
+  },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5778,5 +5833,8 @@
   },
   "cardNumberLabel": {
     "message": "Card number"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
   }
 }

@@ -32,7 +32,7 @@
     "message": "Egyszeri bejelentkezés használata"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "A szervezet egyszeri bejelentkezést igényel."
   },
   "welcomeBack": {
     "message": "Üdvözlet újra"
@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "Összes megtekintése"
   },
+  "viewLess": {
+    "message": "kevesebb megjelenítése"
+  },
   "viewLogin": {
     "message": "Bejelentkezés megtekintése"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Rendszerzároláskor"
+  },
+  "onIdle": {
+    "message": "Rendszer üresjárat esetén"
+  },
+  "onSleep": {
+    "message": "Rendszer alvó mód esetén"
   },
   "onRestart": {
     "message": "Böngésző újraindításkor"
@@ -1523,12 +1532,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Biometria kérése indításkor"
   },
-  "premiumRequired": {
-    "message": "Prémium funkció szükséges"
-  },
-  "premiumRequiredDesc": {
-    "message": "Prémium tagság szükséges ennek a funkciónak eléréséhez a jövőben."
-  },
   "authenticationTimeout": {
     "message": "Hitelesítési időkifutás"
   },
@@ -1640,6 +1643,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Hozzá kell adni az alapszerver webcímét vagy legalább egy egyedi környezetet."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "A webcímeknek HTTPS-t kell használniuk."
   },
   "customEnvironment": {
     "message": "Egyedi környezet"
@@ -4977,6 +4983,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Alapértelmezett ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "$WEBSITE$ egyező érzékelés megjelenítése",
     "placeholders": {
@@ -5769,6 +5785,45 @@
   "atRiskLoginsSecured": {
     "message": "Remek munka a kockázatos bejelentkezések biztosítása!"
   },
+  "upgradeNow": {
+    "message": "Áttérés most"
+  },
+  "builtInAuthenticator": {
+    "message": "Beépített hitelesítő"
+  },
+  "secureFileStorage": {
+    "message": "Biztonságos fájl tárolás"
+  },
+  "emergencyAccess": {
+    "message": "Sürgősségi hozzáférés"
+  },
+  "breachMonitoring": {
+    "message": "Adatszivárgás figyelés"
+  },
+  "andMoreFeatures": {
+    "message": "És még több!"
+  },
+  "planDescPremium": {
+    "message": "Teljes körű online biztonság"
+  },
+  "upgradeToPremium": {
+    "message": "Áttérés Prémium csomagra"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Áttérés a teljes biztonságért"
+  },
+  "premiumGivesMoreTools": {
+    "message": "A Premium több eszközt ad a biztonság megőrzéséhez, a hatékony munkavégzéshez és az irányítás megőrzéséhez."
+  },
+  "explorePremium": {
+    "message": "Premium felfedezése"
+  },
+  "loadingVault": {
+    "message": "Széf betöltése"
+  },
+  "vaultLoaded": {
+    "message": "A széf betöltésre került."
+  },
   "settingDisabledByPolicy": {
     "message": "Ezt a beállítást a szervezet házirendje letiltotta.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5778,5 +5833,8 @@
   },
   "cardNumberLabel": {
     "message": "Kártya szám"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Időkifutási művelet"
   }
 }

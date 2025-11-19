@@ -24,22 +24,24 @@ import {
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
-import { FingerprintDialogComponent, VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
+import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
+import { LockService } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   VaultTimeout,
   VaultTimeoutAction,
   VaultTimeoutOption,
-  VaultTimeoutService,
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -67,6 +69,10 @@ import {
   BiometricStateService,
   BiometricsStatus,
 } from "@bitwarden/key-management";
+import {
+  SessionTimeoutInputComponent,
+  SessionTimeoutSettingsComponent,
+} from "@bitwarden/key-management-ui";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -100,9 +106,10 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     SectionComponent,
     SectionHeaderComponent,
     SelectModule,
+    SessionTimeoutSettingsComponent,
     SpotlightComponent,
     TypographyModule,
-    VaultTimeoutInputComponent,
+    SessionTimeoutInputComponent,
   ],
 })
 export class AccountSecurityComponent implements OnInit, OnDestroy {
@@ -133,17 +140,20 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       ),
     );
 
-  private refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
+  protected readonly consolidatedSessionTimeoutComponent$: Observable<boolean>;
+
+  protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
   private destroy$ = new Subject<void>();
 
   constructor(
     private accountService: AccountService,
+    private configService: ConfigService,
     private pinService: PinServiceAbstraction,
     private policyService: PolicyService,
     private formBuilder: FormBuilder,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
-    private vaultTimeoutService: VaultTimeoutService,
+    private lockService: LockService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     public messagingService: MessagingService,
     private environmentService: EnvironmentService,
@@ -157,7 +167,11 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private vaultNudgesService: NudgesService,
     private validationService: ValidationService,
     private logService: LogService,
-  ) {}
+  ) {
+    this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
+      FeatureFlag.ConsolidatedSessionTimeoutComponent,
+    );
+  }
 
   async ngOnInit() {
     const hasMasterPassword = await this.userVerificationService.hasMasterPassword();
@@ -173,6 +187,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       this.hasVaultTimeoutPolicy = true;
     }
 
+    // Determine platform-specific timeout options
     const showOnLocked =
       !this.platformUtilsService.isFirefox() &&
       !this.platformUtilsService.isSafari() &&
@@ -695,7 +710,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   }
 
   async lock() {
-    await this.vaultTimeoutService.lock();
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    await this.lockService.lock(activeUserId);
   }
 
   async logOut() {

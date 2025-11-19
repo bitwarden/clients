@@ -14,7 +14,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { AriaDisableDirective } from "../a11y";
 import { FormControlModule } from "../form-control/form-control.module";
 import { BitHintComponent } from "../form-control/hint.component";
-import { BitLabel } from "../form-control/label.component";
+import { BitLabelComponent } from "../form-control/label.component";
 
 let nextId = 0;
 
@@ -43,7 +43,7 @@ let nextId = 0;
 })
 export class SwitchComponent implements ControlValueAccessor, AfterViewInit {
   private el = inject(ElementRef<HTMLButtonElement>);
-  private readonly label = contentChild.required(BitLabel);
+  private readonly label = contentChild.required(BitLabelComponent);
 
   /**
    * Model signal for selected state binding when used outside of a form
@@ -58,9 +58,9 @@ export class SwitchComponent implements ControlValueAccessor, AfterViewInit {
 
   private readonly hintComponent = contentChild<BitHintComponent>(BitHintComponent);
 
-  private disabledReasonTextId = `bit-switch-disabled-text-${nextId++}`;
+  protected readonly disabledReasonTextId = `bit-switch-disabled-text-${nextId++}`;
 
-  private readonly describedByIds = computed(() => {
+  protected readonly describedByIds = computed(() => {
     const ids: string[] = [];
 
     if (this.disabledReasonText() && this.disabled()) {
