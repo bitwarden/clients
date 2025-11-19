@@ -1,4 +1,4 @@
-import { Component, input, output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Router } from "@angular/router";
@@ -28,12 +28,11 @@ import {
   UnifiedUpgradeDialogStep,
 } from "./unified-upgrade-dialog.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-upgrade-account",
   template: "",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockUpgradeAccountComponent {
   readonly dialogTitleMessageOverride = input<string | null>(null);
@@ -42,12 +41,11 @@ class MockUpgradeAccountComponent {
   closeClicked = output<UpgradeAccountStatus>();
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-upgrade-payment",
   template: "",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockUpgradePaymentComponent {
   readonly selectedPlanId = input<PersonalSubscriptionPricingTierId | null>(null);
@@ -77,9 +75,55 @@ describe("UnifiedUpgradeDialogComponent", () => {
     planSelectionStepTitleOverride: null,
   };
 
+  /**
+   * Helper function to create and configure a fresh component instance with custom dialog data
+   */
+  async function createComponentWithDialogData(
+    dialogData: UnifiedUpgradeDialogParams,
+    waitForStable = false,
+  ): Promise<{
+    fixture: ComponentFixture<UnifiedUpgradeDialogComponent>;
+    component: UnifiedUpgradeDialogComponent;
+  }> {
+    TestBed.resetTestingModule();
+    jest.clearAllMocks();
+
+    await TestBed.configureTestingModule({
+      imports: [NoopAnimationsModule, UnifiedUpgradeDialogComponent],
+      providers: [
+        { provide: DialogRef, useValue: mockDialogRef },
+        { provide: DIALOG_DATA, useValue: dialogData },
+        { provide: Router, useValue: mockRouter },
+        { provide: PremiumInterestStateService, useValue: mockPremiumInterestStateService },
+      ],
+    })
+      .overrideComponent(UnifiedUpgradeDialogComponent, {
+        remove: {
+          imports: [UpgradeAccountComponent, UpgradePaymentComponent],
+        },
+        add: {
+          imports: [MockUpgradeAccountComponent, MockUpgradePaymentComponent],
+        },
+      })
+      .compileComponents();
+
+    const newFixture = TestBed.createComponent(UnifiedUpgradeDialogComponent);
+    const newComponent = newFixture.componentInstance;
+    newFixture.detectChanges();
+
+    if (waitForStable) {
+      await newFixture.whenStable();
+    }
+
+    return { fixture: newFixture, component: newComponent };
+  }
+
   beforeEach(async () => {
     // Reset mocks
     jest.clearAllMocks();
+
+    // Default mock: no premium interest
+    mockPremiumInterestStateService.getPremiumInterest.mockResolvedValue(false);
 
     await TestBed.configureTestingModule({
       imports: [NoopAnimationsModule, UnifiedUpgradeDialogComponent],
@@ -117,39 +161,55 @@ describe("UnifiedUpgradeDialogComponent", () => {
   });
 
   it("should initialize with custom initial step", async () => {
-    TestBed.resetTestingModule();
-
     const customDialogData: UnifiedUpgradeDialogParams = {
       account: mockAccount,
       initialStep: UnifiedUpgradeDialogStep.Payment,
       selectedPlan: PersonalSubscriptionPricingTierIds.Premium,
     };
 
-    await TestBed.configureTestingModule({
-      imports: [NoopAnimationsModule, UnifiedUpgradeDialogComponent],
-      providers: [
-        { provide: DialogRef, useValue: mockDialogRef },
-        { provide: DIALOG_DATA, useValue: customDialogData },
-        { provide: Router, useValue: mockRouter },
-        { provide: PremiumInterestStateService, useValue: mockPremiumInterestStateService },
-      ],
-    })
-      .overrideComponent(UnifiedUpgradeDialogComponent, {
-        remove: {
-          imports: [UpgradeAccountComponent, UpgradePaymentComponent],
-        },
-        add: {
-          imports: [MockUpgradeAccountComponent, MockUpgradePaymentComponent],
-        },
-      })
-      .compileComponents();
-
-    const customFixture = TestBed.createComponent(UnifiedUpgradeDialogComponent);
-    const customComponent = customFixture.componentInstance;
-    customFixture.detectChanges();
+    const { component: customComponent } = await createComponentWithDialogData(customDialogData);
 
     expect(customComponent["step"]()).toBe(UnifiedUpgradeDialogStep.Payment);
     expect(customComponent["selectedPlan"]()).toBe(PersonalSubscriptionPricingTierIds.Premium);
+  });
+
+  describe("ngOnInit premium interest handling", () => {
+    it("should check premium interest on initialization", async () => {
+      // Component already initialized in beforeEach
+      expect(mockPremiumInterestStateService.getPremiumInterest).toHaveBeenCalledWith(
+        mockAccount.id,
+      );
+    });
+
+    it("should set hasPremiumInterest signal and clear premium interest when it exists", async () => {
+      mockPremiumInterestStateService.getPremiumInterest.mockResolvedValue(true);
+      mockPremiumInterestStateService.clearPremiumInterest.mockResolvedValue(undefined);
+
+      const { component: customComponent } = await createComponentWithDialogData(
+        defaultDialogData,
+        true,
+      );
+
+      expect(mockPremiumInterestStateService.getPremiumInterest).toHaveBeenCalledWith(
+        mockAccount.id,
+      );
+      expect(mockPremiumInterestStateService.clearPremiumInterest).toHaveBeenCalledWith(
+        mockAccount.id,
+      );
+      expect(customComponent["hasPremiumInterest"]()).toBe(true);
+    });
+
+    it("should not set hasPremiumInterest signal or clear when premium interest does not exist", async () => {
+      mockPremiumInterestStateService.getPremiumInterest.mockResolvedValue(false);
+
+      const { component: customComponent } = await createComponentWithDialogData(defaultDialogData);
+
+      expect(mockPremiumInterestStateService.getPremiumInterest).toHaveBeenCalledWith(
+        mockAccount.id,
+      );
+      expect(mockPremiumInterestStateService.clearPremiumInterest).not.toHaveBeenCalled();
+      expect(customComponent["hasPremiumInterest"]()).toBe(false);
+    });
   });
 
   describe("custom dialog title", () => {
@@ -158,8 +218,6 @@ describe("UnifiedUpgradeDialogComponent", () => {
     });
 
     it("should use custom title when provided in dialog config", async () => {
-      TestBed.resetTestingModule();
-
       const customDialogData: UnifiedUpgradeDialogParams = {
         account: mockAccount,
         initialStep: UnifiedUpgradeDialogStep.PlanSelection,
@@ -167,28 +225,7 @@ describe("UnifiedUpgradeDialogComponent", () => {
         planSelectionStepTitleOverride: "upgradeYourPlan",
       };
 
-      await TestBed.configureTestingModule({
-        imports: [NoopAnimationsModule, UnifiedUpgradeDialogComponent],
-        providers: [
-          { provide: DialogRef, useValue: mockDialogRef },
-          { provide: DIALOG_DATA, useValue: customDialogData },
-          { provide: Router, useValue: mockRouter },
-          { provide: PremiumInterestStateService, useValue: mockPremiumInterestStateService },
-        ],
-      })
-        .overrideComponent(UnifiedUpgradeDialogComponent, {
-          remove: {
-            imports: [UpgradeAccountComponent, UpgradePaymentComponent],
-          },
-          add: {
-            imports: [MockUpgradeAccountComponent, MockUpgradePaymentComponent],
-          },
-        })
-        .compileComponents();
-
-      const customFixture = TestBed.createComponent(UnifiedUpgradeDialogComponent);
-      const customComponent = customFixture.componentInstance;
-      customFixture.detectChanges();
+      const { component: customComponent } = await createComponentWithDialogData(customDialogData);
 
       expect(customComponent["planSelectionStepTitleOverride"]()).toBe("upgradeYourPlan");
     });
@@ -221,8 +258,6 @@ describe("UnifiedUpgradeDialogComponent", () => {
     });
 
     it("should be set to true when provided in dialog config", async () => {
-      TestBed.resetTestingModule();
-
       const customDialogData: UnifiedUpgradeDialogParams = {
         account: mockAccount,
         initialStep: null,
@@ -230,108 +265,32 @@ describe("UnifiedUpgradeDialogComponent", () => {
         hideContinueWithoutUpgradingButton: true,
       };
 
-      await TestBed.configureTestingModule({
-        imports: [NoopAnimationsModule, UnifiedUpgradeDialogComponent],
-        providers: [
-          { provide: DialogRef, useValue: mockDialogRef },
-          { provide: DIALOG_DATA, useValue: customDialogData },
-          { provide: Router, useValue: mockRouter },
-          { provide: PremiumInterestStateService, useValue: mockPremiumInterestStateService },
-        ],
-      })
-        .overrideComponent(UnifiedUpgradeDialogComponent, {
-          remove: {
-            imports: [UpgradeAccountComponent, UpgradePaymentComponent],
-          },
-          add: {
-            imports: [MockUpgradeAccountComponent, MockUpgradePaymentComponent],
-          },
-        })
-        .compileComponents();
-
-      const customFixture = TestBed.createComponent(UnifiedUpgradeDialogComponent);
-      const customComponent = customFixture.componentInstance;
-      customFixture.detectChanges();
+      const { component: customComponent } = await createComponentWithDialogData(customDialogData);
 
       expect(customComponent["hideContinueWithoutUpgradingButton"]()).toBe(true);
     });
   });
 
-  describe("onComplete with premium interest", () => {
-    it("should check premium interest, clear it, and route to /vault when premium interest exists", async () => {
+  describe("onComplete", () => {
+    it("should route to /vault when upgrading to premium with premium interest", async () => {
+      // Set up component with premium interest
       mockPremiumInterestStateService.getPremiumInterest.mockResolvedValue(true);
-      mockPremiumInterestStateService.clearPremiumInterest.mockResolvedValue();
+      mockPremiumInterestStateService.clearPremiumInterest.mockResolvedValue(undefined);
       mockRouter.navigate.mockResolvedValue(true);
 
-      const result: UpgradePaymentResult = {
-        status: "upgradedToPremium",
-        organizationId: null,
-      };
+      const { component: customComponent } = await createComponentWithDialogData(
+        defaultDialogData,
+        true,
+      );
 
-      await component["onComplete"](result);
-
+      // Premium interest should be set and cleared during ngOnInit
       expect(mockPremiumInterestStateService.getPremiumInterest).toHaveBeenCalledWith(
         mockAccount.id,
       );
       expect(mockPremiumInterestStateService.clearPremiumInterest).toHaveBeenCalledWith(
         mockAccount.id,
       );
-      expect(mockRouter.navigate).toHaveBeenCalledWith(["/vault"]);
-      expect(mockDialogRef.close).toHaveBeenCalledWith({
-        status: "upgradedToPremium",
-        organizationId: null,
-      });
-    });
-
-    it("should not clear premium interest when upgrading to families", async () => {
-      const result: UpgradePaymentResult = {
-        status: "upgradedToFamilies",
-        organizationId: "org-123",
-      };
-
-      await component["onComplete"](result);
-
-      expect(mockPremiumInterestStateService.getPremiumInterest).not.toHaveBeenCalled();
-      expect(mockPremiumInterestStateService.clearPremiumInterest).not.toHaveBeenCalled();
-      expect(mockDialogRef.close).toHaveBeenCalledWith({
-        status: "upgradedToFamilies",
-        organizationId: "org-123",
-      });
-    });
-
-    it("should use standard redirect when no premium interest exists", async () => {
-      TestBed.resetTestingModule();
-
-      const customDialogData: UnifiedUpgradeDialogParams = {
-        account: mockAccount,
-        redirectOnCompletion: true,
-      };
-
-      mockPremiumInterestStateService.getPremiumInterest.mockResolvedValue(false);
-      mockRouter.navigate.mockResolvedValue(true);
-
-      await TestBed.configureTestingModule({
-        imports: [NoopAnimationsModule, UnifiedUpgradeDialogComponent],
-        providers: [
-          { provide: DialogRef, useValue: mockDialogRef },
-          { provide: DIALOG_DATA, useValue: customDialogData },
-          { provide: Router, useValue: mockRouter },
-          { provide: PremiumInterestStateService, useValue: mockPremiumInterestStateService },
-        ],
-      })
-        .overrideComponent(UnifiedUpgradeDialogComponent, {
-          remove: {
-            imports: [UpgradeAccountComponent, UpgradePaymentComponent],
-          },
-          add: {
-            imports: [MockUpgradeAccountComponent, MockUpgradePaymentComponent],
-          },
-        })
-        .compileComponents();
-
-      const customFixture = TestBed.createComponent(UnifiedUpgradeDialogComponent);
-      const customComponent = customFixture.componentInstance;
-      customFixture.detectChanges();
+      expect(customComponent["hasPremiumInterest"]()).toBe(true);
 
       const result: UpgradePaymentResult = {
         status: "upgradedToPremium",
@@ -340,10 +299,55 @@ describe("UnifiedUpgradeDialogComponent", () => {
 
       await customComponent["onComplete"](result);
 
-      expect(mockPremiumInterestStateService.getPremiumInterest).toHaveBeenCalledWith(
-        mockAccount.id,
-      );
-      expect(mockPremiumInterestStateService.clearPremiumInterest).not.toHaveBeenCalled();
+      // Should route to /vault because hasPremiumInterest signal is true
+      // No additional service calls should be made in onComplete
+      expect(mockPremiumInterestStateService.getPremiumInterest).toHaveBeenCalledTimes(1); // Only from ngOnInit
+      expect(mockPremiumInterestStateService.clearPremiumInterest).toHaveBeenCalledTimes(1); // Only from ngOnInit
+      expect(mockRouter.navigate).toHaveBeenCalledWith(["/vault"]);
+      expect(mockDialogRef.close).toHaveBeenCalledWith({
+        status: "upgradedToPremium",
+        organizationId: null,
+      });
+    });
+
+    it("should close dialog when upgrading to families (premium interest not relevant)", async () => {
+      const result: UpgradePaymentResult = {
+        status: "upgradedToFamilies",
+        organizationId: "org-123",
+      };
+
+      await component["onComplete"](result);
+
+      // Premium interest logic only runs for premium upgrades, not families
+      expect(mockDialogRef.close).toHaveBeenCalledWith({
+        status: "upgradedToFamilies",
+        organizationId: "org-123",
+      });
+    });
+
+    it("should use standard redirect when upgrading to premium without premium interest", async () => {
+      const customDialogData: UnifiedUpgradeDialogParams = {
+        account: mockAccount,
+        redirectOnCompletion: true,
+      };
+
+      // No premium interest
+      mockPremiumInterestStateService.getPremiumInterest.mockResolvedValue(false);
+      mockRouter.navigate.mockResolvedValue(true);
+
+      const { component: customComponent } = await createComponentWithDialogData(customDialogData);
+
+      // Verify no premium interest was set during ngOnInit
+      expect(customComponent["hasPremiumInterest"]()).toBe(false);
+
+      const result: UpgradePaymentResult = {
+        status: "upgradedToPremium",
+        organizationId: null,
+      };
+
+      await customComponent["onComplete"](result);
+
+      // Should use standard redirect because hasPremiumInterest signal is false
       expect(mockRouter.navigate).toHaveBeenCalledWith([
         "/settings/subscription/user-subscription",
       ]);
@@ -354,70 +358,44 @@ describe("UnifiedUpgradeDialogComponent", () => {
     });
   });
 
-  describe("onCloseClicked with premium interest", () => {
-    it("should clear premium interest when modal is closed", async () => {
-      mockPremiumInterestStateService.clearPremiumInterest.mockResolvedValue();
-
+  describe("onCloseClicked", () => {
+    it("should close dialog without clearing premium interest (cleared in ngOnInit)", async () => {
       await component["onCloseClicked"]();
 
-      expect(mockPremiumInterestStateService.clearPremiumInterest).toHaveBeenCalledWith(
-        mockAccount.id,
-      );
+      // Premium interest should have been cleared only once during ngOnInit, not again here
+      expect(mockPremiumInterestStateService.clearPremiumInterest).toHaveBeenCalledTimes(0);
       expect(mockDialogRef.close).toHaveBeenCalledWith({ status: "closed" });
     });
   });
 
-  describe("previousStep with premium interest", () => {
-    it("should NOT clear premium interest when navigating between steps", async () => {
+  describe("previousStep", () => {
+    it("should go back to plan selection when on payment step", async () => {
       component["step"].set(UnifiedUpgradeDialogStep.Payment);
       component["selectedPlan"].set(PersonalSubscriptionPricingTierIds.Premium);
 
       await component["previousStep"]();
 
-      expect(mockPremiumInterestStateService.clearPremiumInterest).not.toHaveBeenCalled();
       expect(component["step"]()).toBe(UnifiedUpgradeDialogStep.PlanSelection);
       expect(component["selectedPlan"]()).toBeNull();
+      expect(mockPremiumInterestStateService.clearPremiumInterest).toHaveBeenCalledTimes(0);
     });
 
-    it("should clear premium interest when backing out of dialog completely", async () => {
-      TestBed.resetTestingModule();
-
+    it("should close dialog when backing out from plan selection step (no premium interest cleared)", async () => {
       const customDialogData: UnifiedUpgradeDialogParams = {
         account: mockAccount,
         initialStep: UnifiedUpgradeDialogStep.Payment,
         selectedPlan: PersonalSubscriptionPricingTierIds.Premium,
       };
 
-      mockPremiumInterestStateService.clearPremiumInterest.mockResolvedValue();
+      mockPremiumInterestStateService.getPremiumInterest.mockResolvedValue(false);
 
-      await TestBed.configureTestingModule({
-        imports: [NoopAnimationsModule, UnifiedUpgradeDialogComponent],
-        providers: [
-          { provide: DialogRef, useValue: mockDialogRef },
-          { provide: DIALOG_DATA, useValue: customDialogData },
-          { provide: Router, useValue: mockRouter },
-          { provide: PremiumInterestStateService, useValue: mockPremiumInterestStateService },
-        ],
-      })
-        .overrideComponent(UnifiedUpgradeDialogComponent, {
-          remove: {
-            imports: [UpgradeAccountComponent, UpgradePaymentComponent],
-          },
-          add: {
-            imports: [MockUpgradeAccountComponent, MockUpgradePaymentComponent],
-          },
-        })
-        .compileComponents();
+      const { component: customComponent } = await createComponentWithDialogData(customDialogData);
 
-      const customFixture = TestBed.createComponent(UnifiedUpgradeDialogComponent);
-      const customComponent = customFixture.componentInstance;
-      customFixture.detectChanges();
-
+      // Start at payment step, go back once to reach plan selection, then go back again to close
       await customComponent["previousStep"]();
 
-      expect(mockPremiumInterestStateService.clearPremiumInterest).toHaveBeenCalledWith(
-        mockAccount.id,
-      );
+      // Premium interest cleared only in ngOnInit, not in previousStep
+      expect(mockPremiumInterestStateService.clearPremiumInterest).toHaveBeenCalledTimes(0);
       expect(mockDialogRef.close).toHaveBeenCalledWith({ status: "closed" });
     });
   });
