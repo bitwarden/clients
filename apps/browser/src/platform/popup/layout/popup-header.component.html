@@ -1,4 +1,4 @@
-<!-- 
+<!--
   end padding is less than start padding to prioritize visual alignment when icon buttons are used at the end of the end slot.
   other elements used at the end of the end slot may need to add their own margin/padding to achieve visual alignment.
 -->
@@ -16,6 +16,7 @@
   <div class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-justify-between tw-w-full">
     <div class="tw-inline-flex tw-items-center tw-gap-2 tw-h-9">
       <button
+        appPageFocus
         bitIconButton="bwi-angle-left"
         type="button"
         *ngIf="showBackButton"
