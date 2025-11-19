@@ -1,8 +1,10 @@
-use crate::password::PASSWORD_NOT_FOUND;
+use std::collections::HashMap;
+
 use anyhow::{anyhow, Result};
 use oo7::dbus::{self};
-use std::collections::HashMap;
 use tracing::info;
+
+use crate::password::PASSWORD_NOT_FOUND;
 
 pub async fn get_password(service: &str, account: &str) -> Result<String> {
     match get_password_new(service, account).await {

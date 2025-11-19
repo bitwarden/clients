@@ -4,15 +4,15 @@ use libc::c_uint;
 use libc::{self, c_int};
 use tracing::info;
 
-// RLIMIT_CORE is the maximum size of a core dump file. Setting both to 0 disables core dumps, on crashes
-// https://github.com/torvalds/linux/blob/1613e604df0cd359cf2a7fbd9be7a0bcfacfabd0/include/uapi/asm-generic/resource.h#L20
+// RLIMIT_CORE is the maximum size of a core dump file. Setting both to 0 disables core dumps, on
+// crashes https://github.com/torvalds/linux/blob/1613e604df0cd359cf2a7fbd9be7a0bcfacfabd0/include/uapi/asm-generic/resource.h#L20
 #[cfg(target_env = "musl")]
 const RLIMIT_CORE: c_int = 4;
 #[cfg(target_env = "gnu")]
 const RLIMIT_CORE: c_uint = 4;
 
-// PR_SET_DUMPABLE makes it so no other running process (root or same user) can dump the memory of this process
-// or attach a debugger to it.
+// PR_SET_DUMPABLE makes it so no other running process (root or same user) can dump the memory of
+// this process or attach a debugger to it.
 // https://github.com/torvalds/linux/blob/a38297e3fb012ddfa7ce0321a7e5a8daeb1872b6/include/uapi/linux/prctl.h#L14
 const PR_SET_DUMPABLE: c_int = 4;
 

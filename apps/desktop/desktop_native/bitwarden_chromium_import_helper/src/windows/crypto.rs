@@ -95,7 +95,8 @@ pub(crate) fn decode_abe_key_blob(blob_data: &[u8]) -> Result<Vec<u8>> {
     let content_offset = content_len_offset + 4;
     let content = get_safe(blob_data, content_offset, content_len)?;
 
-    // When the size is exactly 32 bytes, it's a plain key. It's used in unbranded Chromium builds, Brave, possibly Edge
+    // When the size is exactly 32 bytes, it's a plain key. It's used in unbranded Chromium builds,
+    // Brave, possibly Edge
     if content_len == 32 {
         return Ok(content.to_vec());
     }

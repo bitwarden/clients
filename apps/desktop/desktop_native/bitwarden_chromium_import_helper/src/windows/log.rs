@@ -1,13 +1,13 @@
+use chromium_importer::config::{ENABLE_DEVELOPER_LOGGING, LOG_FILENAME};
 use tracing::{error, level_filters::LevelFilter};
 use tracing_subscriber::{
     fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter, Layer as _,
 };
 
-use chromium_importer::config::{ENABLE_DEVELOPER_LOGGING, LOG_FILENAME};
-
 pub(crate) fn init_logging() {
     if ENABLE_DEVELOPER_LOGGING {
-        // We only log to a file. It's impossible to see stdout/stderr when this exe is launched from ShellExecuteW.
+        // We only log to a file. It's impossible to see stdout/stderr when this exe is launched
+        // from ShellExecuteW.
         match std::fs::File::create(LOG_FILENAME) {
             Ok(file) => {
                 let file_filter = EnvFilter::builder()

@@ -19,7 +19,8 @@ pub mod passwords {
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
-    /// Save the password to the keychain. Adds an entry if none exists otherwise updates the existing entry.
+    /// Save the password to the keychain. Adds an entry if none exists otherwise updates the
+    /// existing entry.
     #[napi]
     pub async fn set_password(
         service: String,
@@ -107,7 +108,8 @@ pub mod biometrics {
     /// base64 encoded key and the base64 encoded challenge used to create it
     /// separated by a `|` character.
     ///
-    /// If the iv is provided, it will be used as the challenge. Otherwise a random challenge will be generated.
+    /// If the iv is provided, it will be used as the challenge. Otherwise a random challenge will
+    /// be generated.
     ///
     /// `format!("<key_base64>|<iv_base64>")`
     #[allow(clippy::unused_async)] // FIXME: Remove unused async!
@@ -556,8 +558,9 @@ pub mod ipc {
     impl IpcServer {
         /// Create and start the IPC server without blocking.
         ///
-        /// @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
-        /// @param callback This function will be called whenever a message is received from a client.
+        /// @param name The endpoint name to listen on. This name uniquely identifies the IPC
+        /// connection and must be the same for both the server and client. @param callback
+        /// This function will be called whenever a message is received from a client.
         #[allow(clippy::unused_async)] // FIXME: Remove unused async!
         #[napi(factory)]
         pub async fn listen(
@@ -598,8 +601,9 @@ pub mod ipc {
 
         /// Send a message over the IPC server to all the connected clients
         ///
-        /// @return The number of clients that the message was sent to. Note that the number of messages
-        /// actually received may be less, as some clients could disconnect before receiving the message.
+        /// @return The number of clients that the message was sent to. Note that the number of
+        /// messages actually received may be less, as some clients could disconnect before
+        /// receiving the message.
         #[napi]
         pub fn send(&self, message: String) -> napi::Result<u32> {
             self.server
@@ -743,8 +747,9 @@ pub mod autofill {
     impl IpcServer {
         /// Create and start the IPC server without blocking.
         ///
-        /// @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
-        /// @param callback This function will be called whenever a message is received from a client.
+        /// @param name The endpoint name to listen on. This name uniquely identifies the IPC
+        /// connection and must be the same for both the server and client. @param callback
+        /// This function will be called whenever a message is received from a client.
         #[allow(clippy::unused_async)] // FIXME: Remove unused async!
         #[napi(factory)]
         pub async fn listen(
@@ -946,18 +951,21 @@ pub mod logging {
     //!
     //! # Example
     //!
-    //! [Elec] 14:34:03.517 › [NAPI] [INFO] desktop_core::ssh_agent::platform_ssh_agent: Starting SSH Agent server {socket=/Users/foo/.bitwarden-ssh-agent.sock}
+    //! [Elec] 14:34:03.517 › [NAPI] [INFO] desktop_core::ssh_agent::platform_ssh_agent: Starting
+    //! SSH Agent server {socket=/Users/foo/.bitwarden-ssh-agent.sock}
 
-    use std::fmt::Write;
-    use std::sync::OnceLock;
+    use std::{fmt::Write, sync::OnceLock};
 
     use napi::threadsafe_function::{
         ErrorStrategy::CalleeHandled, ThreadsafeFunction, ThreadsafeFunctionCallMode,
     };
     use tracing::Level;
-    use tracing_subscriber::fmt::format::{DefaultVisitor, Writer};
     use tracing_subscriber::{
-        filter::EnvFilter, layer::SubscriberExt, util::SubscriberInitExt, Layer,
+        filter::EnvFilter,
+        fmt::format::{DefaultVisitor, Writer},
+        layer::SubscriberExt,
+        util::SubscriberInitExt,
+        Layer,
     };
 
     struct JsLogger(OnceLock<ThreadsafeFunction<(LogLevel, String), CalleeHandled>>);
@@ -1069,6 +1077,8 @@ pub mod logging {
 
 #[napi]
 pub mod chromium_importer {
+    use std::collections::HashMap;
+
     use chromium_importer::{
         chromium::{
             DefaultInstalledBrowserRetriever, LoginImportResult as _LoginImportResult,
@@ -1076,7 +1086,6 @@ pub mod chromium_importer {
         },
         metadata::NativeImporterMetadata as _NativeImporterMetadata,
     };
-    use std::collections::HashMap;
 
     #[napi(object)]
     pub struct ProfileInfo {
