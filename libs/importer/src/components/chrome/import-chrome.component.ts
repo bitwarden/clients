@@ -112,8 +112,17 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
   ) {
     effect(async () => {
-      this.profileList = await this.onLoadProfilesFromBrowser(this.getBrowserName(this.format()));
-      // FIXME: Add error handling and display when profiles could not be loaded/retrieved
+      // Callback is set via @Input after constructor, so check it exists
+      if (this.onLoadProfilesFromBrowser) {
+        try {
+          this.profileList = await this.onLoadProfilesFromBrowser(
+            this.getBrowserName(this.format()),
+          );
+        } catch (error) {
+          this.logService.error("Error loading profiles from browser:", error);
+          // FIXME: Add error handling and display when profiles could not be loaded/retrieved
+        }
+      }
     });
   }
 
