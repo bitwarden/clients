@@ -607,8 +607,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       AUTOFILL_TRIGGER_FORM_FIELD_SUBMIT,
     );
     submitButton.addEventListener(EVENTS.KEYUP, handler);
-    globalThis.document.addEventListener(EVENTS.CLICK, handler);
-    globalThis.document.addEventListener(EVENTS.MOUSEUP, handler);
+    globalThis.document.addEventListener(EVENTS.CLICK, handler, { capture: true });
+    globalThis.document.addEventListener(EVENTS.MOUSEUP, handler, { capture: true });
   };
 
   /**
