@@ -272,27 +272,9 @@ export class BrowserApi {
           throw new Error("[BrowserApi] Failed to remove current tab: " + error.message);
         });
       } else if (BrowserApi.isChromeApi) {
-        if (BrowserApi.isManifestVersion(3)) {
-          await chrome.tabs.remove(tabId).catch((error) => {
-            throw new Error("[BrowserApi] Failed to remove current tab: " + error.message);
-          });
-        } else {
-          // Manifest V2 uses callbacks
-          return new Promise<void>((resolve, reject) => {
-            chrome.tabs.remove(tabId, () => {
-              if (chrome.runtime.lastError) {
-                reject(
-                  new Error(
-                    "[BrowserApi] Failed to remove current tab: " +
-                      chrome.runtime.lastError.message,
-                  ),
-                );
-              } else {
-                resolve();
-              }
-            });
-          });
-        }
+        await chrome.tabs.remove(tabId).catch((error) => {
+          throw new Error("[BrowserApi] Failed to remove current tab: " + error.message);
+        });
       }
     }
   }
