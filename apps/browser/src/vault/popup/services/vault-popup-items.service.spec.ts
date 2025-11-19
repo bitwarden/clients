@@ -211,32 +211,40 @@ describe("VaultPopupItemsService", () => {
     });
   });
 
-  it("should update cipher list when cipherService.ciphers$ emits", async () => {
+  it("should not re-emit autoFillCiphers$ when cipherService.ciphers$ emits but the resulting list is unchanged", async () => {
     const tracker = new ObservableTracker(service.autoFillCiphers$);
 
+    // Initial emission
     await tracker.expectEmission();
+    const initial = tracker.emissions[0];
 
+    // Trigger a ciphers$ emission that doesn't actually change the final list
     ciphersSubject.next({});
 
-    await tracker.expectEmission();
+    // Ensure we do NOT get a second emission
+    await expect(tracker.pauseUntilReceived(2)).rejects.toThrow("Timeout exceeded");
+    expect(tracker.emissions.length).toBe(1);
 
-    // Should only emit twice
-    expect(tracker.emissions.length).toBe(2);
-    await expect(tracker.pauseUntilReceived(3)).rejects.toThrow("Timeout exceeded");
+    // Sanity check: still the same array of ciphers
+    expect(tracker.emissions[0]).toBe(initial);
   });
 
-  it("should update cipher list when cipherService.localData$ emits", async () => {
+  it("should not re-emit autoFillCiphers$ when cipherService.localData$ emits  but the resulting list is unchanged", async () => {
     const tracker = new ObservableTracker(service.autoFillCiphers$);
 
+    // Initial emission
     await tracker.expectEmission();
+    const initial = tracker.emissions[0];
 
+    // Trigger a localData$ emission that doesn't actually change the final list
     localDataSubject.next({});
 
-    await tracker.expectEmission();
+    // Ensure we do NOT get a second emission
+    await expect(tracker.pauseUntilReceived(2)).rejects.toThrow("Timeout exceeded");
+    expect(tracker.emissions.length).toBe(1);
 
-    // Should only emit twice
-    expect(tracker.emissions.length).toBe(2);
-    await expect(tracker.pauseUntilReceived(3)).rejects.toThrow("Timeout exceeded");
+    // Sanity check: still the same array of ciphers
+    expect(tracker.emissions[0]).toBe(initial);
   });
 
   it("should not emit cipher list if syncService.getLastSync returns null", async () => {
@@ -468,13 +476,9 @@ describe("VaultPopupItemsService", () => {
 
   describe("loading$", () => {
     let tracked: ObservableTracker<boolean>;
-    let trackedCiphers: ObservableTracker<any>;
     beforeEach(() => {
       // Start tracking loading$ emissions
       tracked = new ObservableTracker(service.loading$);
-
-      // Track remainingCiphers$ to make cipher observables active
-      trackedCiphers = new ObservableTracker(service.remainingCiphers$);
     });
 
     it("should initialize with true first", async () => {
@@ -482,22 +486,28 @@ describe("VaultPopupItemsService", () => {
     });
 
     it("should emit false once ciphers are available", async () => {
-      expect(tracked.emissions.length).toBe(2);
+      await tracked.pauseUntilReceived(2);
+
       expect(tracked.emissions[0]).toBe(true);
       expect(tracked.emissions[1]).toBe(false);
     });
 
-    it("should cycle when cipherService.ciphers$ emits", async () => {
-      // Restart tracking
-      tracked = new ObservableTracker(service.loading$);
+    it("should cycle when cipherService.ciphers$ emits even if cipher lists don't re-emit", async () => {
+      await tracked.pauseUntilReceived(2);
+
+      const before = [...tracked.emissions];
+
       ciphersSubject.next({});
 
-      await trackedCiphers.pauseUntilReceived(2);
+      await tracked.pauseUntilReceived(before.length + 2);
 
-      expect(tracked.emissions.length).toBe(3);
-      expect(tracked.emissions[0]).toBe(false);
-      expect(tracked.emissions[1]).toBe(true);
-      expect(tracked.emissions[2]).toBe(false);
+      const after = tracked.emissions;
+
+      expect(after.length).toBeGreaterThan(before.length);
+
+      const tail = after.slice(before.length);
+      expect(tail[0]).toBe(true);
+      expect(tail[1]).toBe(false);
     });
   });
 

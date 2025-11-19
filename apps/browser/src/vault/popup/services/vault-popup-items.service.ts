@@ -219,6 +219,7 @@ export class VaultPopupItemsService {
       return this.cipherService.filterCiphersForUrl(ciphers, tab.url, otherTypes);
     }),
     map((ciphers) => ciphers.sort(this.sortCiphersForAutofill.bind(this))),
+    distinctUntilChanged(ciphersEqualByIdAndOrder),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
@@ -231,6 +232,7 @@ export class VaultPopupItemsService {
     map(([autoFillCiphers, ciphers]) =>
       ciphers.filter((cipher) => cipher.favorite && !autoFillCiphers.includes(cipher)),
     ),
+    distinctUntilChanged(ciphersEqualByIdAndOrder),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
@@ -250,6 +252,7 @@ export class VaultPopupItemsService {
         (cipher) => !autoFillCiphers.includes(cipher) && !favoriteCiphers.includes(cipher),
       ),
     ),
+    distinctUntilChanged(ciphersEqualByIdAndOrder),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
@@ -257,8 +260,10 @@ export class VaultPopupItemsService {
    * Observable that indicates whether the service is currently loading ciphers.
    */
   loading$: Observable<boolean> = merge(
+    // Turn loading on whenever we start processing ciphers
     this._ciphersLoading$.pipe(map(() => true)),
-    this.remainingCiphers$.pipe(map(() => false)),
+    // Turn loading off whenever the decrypted cipher list finishes updating
+    this._allDecryptedCiphers$.pipe(map(() => false)),
   ).pipe(startWith(true), distinctUntilChanged(), shareReplay({ refCount: false, bufferSize: 1 }));
 
   /** Observable that indicates whether there is search text present.
@@ -397,4 +402,26 @@ export class VaultPopupItemsService {
  */
 const waitUntilSync = <T>(syncService: SyncService): MonoTypeOperatorFunction<T> => {
   return waitUntil(syncService.activeUserLastSync$().pipe(filter((lastSync) => lastSync != null)));
+};
+
+const ciphersEqualByIdAndOrder = (a: PopupCipherViewLike[], b: PopupCipherViewLike[]): boolean => {
+  if (a === b) {
+    return true;
+  }
+
+  if (!a || !b) {
+    return false;
+  }
+
+  if (a.length !== b.length) {
+    return false;
+  }
+
+  for (let i = 0; i < a.length; i++) {
+    if (a[i]?.id !== b[i]?.id) {
+      return false;
+    }
+  }
+
+  return true;
 };
