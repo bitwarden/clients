@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Giao tác vụ cho thành viên để theo dõi tiến trình"
   },
-  "onceYouReviewApps": {
-    "message": "Sau khi bạn xem xét các ứng dụng và đánh dấu chúng là nghiêm trọng, bạn có thể giao nhiệm vụ cho các thành viên để xử lý các mục có rủi ro và theo dõi tiến độ tại đây"
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
   },
   "sendReminders": {
     "message": "Gửi lời nhắc"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "Không tìm thấy ứng dụng nào cho $ORG NAME$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "No data found"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Nhập dữ liệu đăng nhập của tổ chức bạn để bắt đầu giám sát các rủi ro bảo mật thông tin xác thực. Sau khi nhập, bạn có thể:"
+  "noDataInOrgDescription": {
+    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
   },
-  "benefit1Title": {
-    "message": "Ưu tiên các rủi ro"
+  "feature1Title": {
+    "message": "Mark applications as critical"
   },
-  "benefit1Description": {
-    "message": "Tập trung vào các ứng dụng quan trọng nhất"
+  "feature1Description": {
+    "message": "This will help you remove risks to your most important applications first."
   },
-  "benefit2Title": {
-    "message": "Hướng dẫn khắc phục"
+  "feature2Title": {
+    "message": "Help members improve their security"
   },
-  "benefit2Description": {
-    "message": "Giao nhiệm vụ được hướng dẫn cho các thành viên có rủi ro để xoay vòng thông tin xác thực có rủi ro"
+  "feature2Description": {
+    "message": "Assign at-risk members guided security tasks to update credentials."
   },
-  "benefit3Title": {
-    "message": "Theo dõi tiến độ"
+  "feature3Title": {
+    "message": "Monitor progress"
   },
-  "benefit3Description": {
-    "message": "Theo dõi thay đổi theo thời gian để hiển thị cải tiến bảo mật"
+  "feature3Description": {
+    "message": "Track changes over time to show security improvements."
   },
-  "noReportRunTitle": {
-    "message": "Chạy báo cáo đầu tiên của bạn để xem các ứng dụng"
+  "noReportsRunTitle": {
+    "message": "Generate report"
   },
-  "noReportRunDescription": {
-    "message": "Tạo báo cáo thông tin chi tiết về rủi ro để phân tích các ứng dụng của tổ chức bạn và xác định các mật khẩu có rủi ro cần chú ý. Khi chạy báo cáo đầu tiên, bạn sẽ:"
+  "noReportsRunDescription": {
+    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Bạn chưa đánh dấu ứng dụng nào là quan trọng"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Các thành viên có rủi ro"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Thành viên có quyền truy cập vào các mục có nguy cơ dành cho các ứng dụng quan trọng"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "These members have access to vulnerable items for critical applications."
   },
   "membersWithAtRiskPasswords": {
     "message": "Thành viên có mật khẩu rủi ro"
   },
-  "membersWillReceiveNotification": {
-    "message": "Các thành viên sẽ nhận được thông báo để giải quyết các đăng nhập có rủi ro thông qua tiện ích mở rộng trình duyệt."
+  "membersWillReceiveSecurityTask": {
+    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ thành viên gặp rủi ro",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Các thành viên này đang đăng nhập vào các ứng dụng bằng mật khẩu yếu, dễ bị lộ hoặc được sử dụng lại."
+  "atRiskMemberDescription": {
+    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Không có thành viên nào đăng nhập vào ứng dụng bằng mật khẩu yếu, dễ bị lộ hoặc được sử dụng lại."
@@ -391,14 +385,14 @@
   "prioritizeCriticalApplications": {
     "message": "Ưu tiên các ứng dụng quan trọng"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Chọn những ứng dụng quan trọng nhất đối với tổ chức của bạn, sau đó giao nhiệm vụ bảo mật cho các thành viên để giải quyết rủi ro."
+  "selectCriticalAppsDescription": {
+    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "reviewNewApplications": {
     "message": "Review new applications"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "We've highlighted at-risk items for new applications stored in Admin console that have weak, exposed, or reused passwords."
+  "reviewNewAppsDescription": {
+    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Nhấp vào biểu tượng ngôi sao để đánh dấu một ứng dụng là quan trọng"
@@ -9856,8 +9850,8 @@
   "assignTasks": {
     "message": "Giao tác vụ"
   },
-  "assignTasksToMembers": {
-    "message": "Giao nhiệm vụ cho các thành viên để hướng dẫn giải quyết"
+  "assignSecurityTasksToMembers": {
+    "message": "Send notifications to change passwords"
   },
   "assignToCollections": {
     "message": "Gán vào bộ sưu tập"
