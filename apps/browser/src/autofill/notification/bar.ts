@@ -399,16 +399,23 @@ function handleWindowMessage(event: MessageEvent) {
     return;
   }
 
-  if (!windowMessageOrigin) {
-    windowMessageOrigin = event.origin;
-  }
-
-  if (event.origin !== windowMessageOrigin) {
+  const message = event.data as NotificationBarWindowMessage;
+  if (!message?.command) {
     return;
   }
 
-  const message = event.data as NotificationBarWindowMessage;
-  if (!message?.command) {
+  // set windowMessageOrigin when receiving the trusted initNotificationBar message
+  if (message.command === "initNotificationBar") {
+    if (!windowMessageOrigin) {
+      windowMessageOrigin = event.origin;
+    }
+  }
+
+  if (!windowMessageOrigin) {
+    return;
+  }
+
+  if (event.origin !== windowMessageOrigin) {
     return;
   }
 
