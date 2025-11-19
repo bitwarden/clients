@@ -14,7 +14,6 @@ export class IdentityExport {
     req.lastName = "Doe";
     req.address1 = "123 Any St";
     req.address2 = "Apt #123";
-    req.address3 = "";
     req.city = "New York";
     req.state = "NY";
     req.postalCode = "10001";
@@ -103,7 +102,6 @@ export class IdentityExport {
     this.lastName = safeGetString(o.lastName);
     this.address1 = safeGetString(o.address1);
     this.address2 = safeGetString(o.address2);
-    this.address3 = safeGetString(o.address3);
     this.city = safeGetString(o.city);
     this.state = safeGetString(o.state);
     this.postalCode = safeGetString(o.postalCode);
