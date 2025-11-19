@@ -62,12 +62,15 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
     if (!this.token) {
       return;
     }
+    if (!this.messageOrigin) {
+      return;
+    }
     const messageWithAuth: Record<string, unknown> = {
       portKey: this.portKey,
       ...message,
       token: this.token,
     };
-    globalThis.parent.postMessage(messageWithAuth, "*");
+    globalThis.parent.postMessage(messageWithAuth, this.messageOrigin);
   }
 
   /**
