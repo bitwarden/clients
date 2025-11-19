@@ -150,9 +150,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     }
 
     return (
-      !CipherViewLikeUtils.isArchived(this.cipher) &&
-      !CipherViewLikeUtils.isDeleted(this.cipher) &&
-      !this.cipher.organizationId
+      !CipherViewLikeUtils.isArchived(this.cipher) && !CipherViewLikeUtils.isDeleted(this.cipher)
     );
   }
 
