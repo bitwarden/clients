@@ -1,10 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { OnInit, Directive } from "@angular/core";
-import { firstValueFrom, Observable, switchMap } from "rxjs";
+import { firstValueFrom, from, map, Observable, switchMap, take } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -16,6 +17,7 @@ import { DialogService, SimpleDialogOptions, ToastService } from "@bitwarden/com
 export class PremiumComponent implements OnInit {
   isPremium$: Observable<boolean>;
   price = 10;
+  storageProvidedGb = 0;
   refreshPromise: Promise<any>;
   cloudWebVaultUrl: string;
 
@@ -29,6 +31,7 @@ export class PremiumComponent implements OnInit {
     billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
     accountService: AccountService,
+    private billingApiService: BillingApiServiceAbstraction,
   ) {
     this.isPremium$ = accountService.activeAccount$.pipe(
       switchMap((account) =>
@@ -39,6 +42,15 @@ export class PremiumComponent implements OnInit {
 
   async ngOnInit() {
     this.cloudWebVaultUrl = await firstValueFrom(this.environmentService.cloudWebVaultUrl$);
+    from(this.billingApiService.getPremiumPlan())
+      .pipe(
+        map((response) => response),
+        take(1),
+      )
+      .subscribe((response) => {
+        this.storageProvidedGb = response.storage.provided;
+        this.price = response.seat.price;
+      });
   }
 
   async refresh() {
