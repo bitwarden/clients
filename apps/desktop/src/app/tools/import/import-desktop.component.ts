@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 
@@ -39,6 +40,10 @@ export class ImportDesktopComponent {
   protected disabled = false;
   protected loading = false;
 
+  // Bind callbacks in constructor to maintain reference equality
+  protected readonly onLoadProfilesFromBrowser = this._onLoadProfilesFromBrowser.bind(this);
+  protected readonly onImportFromBrowser = this._onImportFromBrowser.bind(this);
+
   constructor(public dialogRef: DialogRef) {}
 
   /**
@@ -48,11 +53,24 @@ export class ImportDesktopComponent {
     this.dialogRef.close();
   }
 
-  protected onLoadProfilesFromBrowser(browser: string): Promise<chromium_importer.ProfileInfo[]> {
+  private async _onLoadProfilesFromBrowser(
+    browser: string,
+  ): Promise<chromium_importer.ProfileInfo[]> {
+    console.log("[SANDBOX] onLoadProfilesFromBrowser called for:", browser);
+    // Request browser access (required for sandboxed builds, no-op otherwise)
+    try {
+      console.log("[SANDBOX] Calling requestBrowserAccess...");
+      await ipc.tools.chromiumImporter.requestBrowserAccess(browser);
+      console.log("[SANDBOX] requestBrowserAccess completed successfully");
+    } catch (error) {
+      console.error("[SANDBOX] requestBrowserAccess failed:", error);
+      throw error;
+    }
+    console.log("[SANDBOX] Calling getAvailableProfiles...");
     return ipc.tools.chromiumImporter.getAvailableProfiles(browser);
   }
 
-  protected onImportFromBrowser(
+  private _onImportFromBrowser(
     browser: string,
     profile: string,
   ): Promise<chromium_importer.LoginImportResult[]> {

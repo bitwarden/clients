@@ -11,7 +11,12 @@ if (isRelease) {
   process.env.RUST_LOG = 'debug';
 }
 
-execSync(`napi build --platform --js false`, { stdio: 'inherit', env: process.env });
+const featuresArg = process.env.SANDBOX_BUILD === '1' ? '--features sandbox' : '';
+if (featuresArg) {
+  console.log('Building with sandbox feature enabled.');
+}
+
+execSync(`napi build --platform --js false ${featuresArg}`, { stdio: 'inherit', env: process.env });
 
 
 /*  Mac App Store build with sandboxing  - Does this belong here? 

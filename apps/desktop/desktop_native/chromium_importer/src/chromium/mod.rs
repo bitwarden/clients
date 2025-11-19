@@ -63,10 +63,8 @@ impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
         for (browser, config) in SUPPORTED_BROWSER_MAP.iter() {
             #[cfg(all(target_os = "macos", feature = "sandbox"))]
             {
-                // macOS sandbox mode: check if we have stored security-scoped bookmark
-                if platform::ScopedBrowserAccess::has_stored_access(browser) {
-                    browsers.push((*browser).to_string());
-                }
+                // macOS sandbox mode: show all browsers, user will grant access when selected
+                browsers.push((*browser).to_string());
             }
 
             #[cfg(not(all(target_os = "macos", feature = "sandbox")))]
@@ -89,9 +87,13 @@ pub fn get_available_profiles(browser_name: &String) -> Result<Vec<ProfileInfo>>
 }
 
 /// Request access to browser directory (sandbox mode only)
+/// This shows the permission dialog and creates a security-scoped bookmark,
+/// but does NOT start accessing the resource (that happens in resume()).
 #[cfg(all(target_os = "macos", feature = "sandbox"))]
 pub fn request_browser_access(browser_name: &String) -> Result<()> {
-    let _access = platform::ScopedBrowserAccess::request_and_start(browser_name)?;
+    eprintln!("[SANDBOX] request_browser_access called for: {}", browser_name);
+    platform::ScopedBrowserAccess::request_only(browser_name)?;
+    eprintln!("[SANDBOX] request_browser_access completed successfully");
     Ok(())
 }
 

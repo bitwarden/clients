@@ -25,7 +25,7 @@ concurrently(
     },
     {
       name: "Elec",
-      command: `npx wait-on ./build/main.js && npx electron --no-sandbox --inspect=5858 ${args.join(
+      command: `npx wait-on ./build/main.js && npx electron ${process.env.SANDBOX_BUILD ? "" : "--no-sandbox "}--inspect=5858 ${args.join(
         " ",
       )} ./build --watch`,
       prefixColor: "green",

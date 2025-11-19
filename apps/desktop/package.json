@@ -35,6 +35,7 @@
     "build:renderer:watch": "cross-env NODE_ENV=development webpack --config webpack.config.js --config-name renderer --watch",
     "electron": "node ./scripts/start.js",
     "electron:ignore": "node ./scripts/start.js --ignore-certificate-errors",
+    "electron:sandbox": "SANDBOX_BUILD=1 node ./scripts/start.js",
     "flatpak:dev": "npm run clean:dist && electron-builder --dir -p never && flatpak-builder --force-clean --install --user ../../.flatpak/ ./resources/com.bitwarden.desktop.devel.yaml && flatpak run com.bitwarden.desktop",
     "clean:dist": "rimraf ./dist",
     "pack:dir": "npm run clean:dist && electron-builder --dir -p never",

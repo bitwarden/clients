@@ -24,27 +24,21 @@ pub struct ScopedBrowserAccess {
 }
 
 impl ScopedBrowserAccess {
-    /// Request permission from user and start accessing browser directory
-    pub fn request_and_start(browser_name: &str) -> Result<Self> {
+    pub fn request_only(browser_name: &str) -> Result<()> {
         let c_name = CString::new(browser_name)?;
 
-        // Request permission (shows dialog)
         let bookmark_ptr = unsafe { requestBrowserAccess(c_name.as_ptr()) };
         if bookmark_ptr.is_null() {
             return Err(anyhow!("User declined access or browser not found"));
         }
         unsafe { libc::free(bookmark_ptr as *mut libc::c_void) };
 
-        // Start accessing
-        let path_ptr = unsafe { startBrowserAccess(c_name.as_ptr()) };
-        if path_ptr.is_null() {
-            return Err(anyhow!("Failed to start accessing browser directory"));
-        }
-        unsafe { libc::free(path_ptr as *mut libc::c_void) };
+        Ok(())
+    }
 
-        Ok(Self {
-            browser_name: browser_name.to_string(),
-        })
+    pub fn request_and_start(browser_name: &str) -> Result<Self> {
+        Self::request_only(browser_name)?;
+        Self::resume(browser_name)
     }
 
     /// Resume access using previously stored bookmark
@@ -66,7 +60,6 @@ impl ScopedBrowserAccess {
         })
     }
 
-    /// Check if we have stored access (doesn't verify validity)
     pub fn has_stored_access(browser_name: &str) -> bool {
         let Ok(c_name) = CString::new(browser_name) else {
             return false;

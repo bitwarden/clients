@@ -1182,11 +1182,18 @@ pub mod chromium_importer {
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
-    #[cfg_attr(all(target_os = "macos", feature = "sandbox"), napi)]
-    #[cfg(all(target_os = "macos", feature = "sandbox"))]
+    #[napi]
     pub fn request_browser_access(browser: String) -> napi::Result<()> {
-        chromium_importer::chromium::request_browser_access(&browser)
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+        #[cfg(all(target_os = "macos", feature = "sandbox"))]
+        {
+            chromium_importer::chromium::request_browser_access(&browser)
+                .map_err(|e| napi::Error::from_reason(e.to_string()))
+        }
+        #[cfg(not(all(target_os = "macos", feature = "sandbox")))]
+        {
+            // No-op when built without sandbox feature
+            Ok(())
+        }
     }
 }
 

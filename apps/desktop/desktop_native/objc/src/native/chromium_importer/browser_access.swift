@@ -17,33 +17,67 @@ import Foundation
     /// Request access to a specific browser's directory
     /// Returns security bookmark data (used to persist permissions) as base64 string, or nil if user declined
     @objc public func requestAccessToBroswerDir(_ browserName: String) -> String? {
+        NSLog("[SWIFT] requestAccessToBroswerDir called for: \(browserName)")
+        
         guard let relativePath = browserPaths[browserName] else {
-            NSLog("Unknown browser: \(browserName)")
+            NSLog("[SWIFT] Unknown browser: \(browserName)")
             return nil
         }
 
         let homeDir = FileManager.default.homeDirectoryForCurrentUser
         let browserPath = homeDir.appendingPathComponent(relativePath)
+        
+        NSLog("[SWIFT] Browser path: \(browserPath.path)")
 
-        // Open file picker at home directory and provide instructions to grant access to browserPath
-        // Mac OS will automatically request permission to access this location from the sandbox when the location is selected here
-        let openPanel = NSOpenPanel()
-        openPanel.message =
-            "Please select your \(browserName) data folder\n\nExpected location:\n\(browserPath.path)"
-        openPanel.prompt = "Grant Access"
-        openPanel.allowsMultipleSelection = false
-        openPanel.canChooseDirectories = true
-        openPanel.canChooseFiles = false
-        openPanel.directoryURL = browserPath.deletingLastPathComponent()  // home directory
+        // NSOpenPanel must be run on the main thread
+        var selectedURL: URL?
+        var panelResult: NSApplication.ModalResponse = .cancel
 
-        guard openPanel.runModal() == .OK, let url = openPanel.url else {
-            NSLog("User cancelled access request")
+        if Thread.isMainThread {
+            NSLog("[SWIFT] Already on main thread")
+            let openPanel = NSOpenPanel()
+            openPanel.message =
+                "Please select your \(browserName) data folder\n\nExpected location:\n\(browserPath.path)"
+            openPanel.prompt = "Grant Access"
+            openPanel.allowsMultipleSelection = false
+            openPanel.canChooseDirectories = true
+            openPanel.canChooseFiles = false
+            openPanel.directoryURL = browserPath.deletingLastPathComponent()
+
+            NSLog("[SWIFT] About to call openPanel.runModal()")
+            panelResult = openPanel.runModal()
+            selectedURL = openPanel.url
+            NSLog("[SWIFT] runModal returned: \(panelResult.rawValue)")
+        } else {
+            NSLog("[SWIFT] Dispatching to main queue...")
+            DispatchQueue.main.sync {
+                NSLog("[SWIFT] Inside main queue dispatch block")
+                let openPanel = NSOpenPanel()
+                openPanel.message =
+                    "Please select your \(browserName) data folder\n\nExpected location:\n\(browserPath.path)"
+                openPanel.prompt = "Grant Access"
+                openPanel.allowsMultipleSelection = false
+                openPanel.canChooseDirectories = true
+                openPanel.canChooseFiles = false
+                openPanel.directoryURL = browserPath.deletingLastPathComponent()
+
+                NSLog("[SWIFT] About to call openPanel.runModal()")
+                panelResult = openPanel.runModal()
+                selectedURL = openPanel.url
+                NSLog("[SWIFT] runModal returned: \(panelResult.rawValue)")
+            }
+        }
+
+        guard panelResult == .OK, let url = selectedURL else {
+            NSLog("[SWIFT] User cancelled access request or panel failed")
             return nil
         }
+        
+        NSLog("[SWIFT] User selected URL: \(url.path)")
 
         let localStatePath = url.appendingPathComponent("Local State")
         guard FileManager.default.fileExists(atPath: localStatePath.path) else {
-            NSLog("Selected folder doesn't appear to be a valid \(browserName) directory")
+            NSLog("[SWIFT] Selected folder doesn't appear to be a valid \(browserName) directory")
 
             let alert = NSAlert()
             alert.messageText = "Invalid Folder"
@@ -64,9 +98,10 @@ import Foundation
             )
 
             saveBookmark(bookmarkData, forBrowser: browserName)
+            NSLog("[SWIFT] Successfully created and saved bookmark")
             return bookmarkData.base64EncodedString()
         } catch {
-            NSLog("Failed to create bookmark: \(error)")
+            NSLog("[SWIFT] Failed to create bookmark: \(error)")
             return nil
         }
     }
@@ -78,14 +113,6 @@ import Foundation
 
     /// Start accessing a browser directory using stored bookmark
     /// Returns the resolved path, or nil if bookmark is invalid/revoked
-    /*
-    This could return nil if:
-        The user  doesn’t have access to this URL
-        The URL isn’t a security scoped URL
-T       The directory doesn’t need it (~/Downloads)
-
-    https://benscheirman.com/2019/10/troubleshooting-appkit-file-permissions.html
-    */
     @objc public func startAccessingBrowser(_ browserName: String) -> String? {
         guard let bookmarkData = loadBookmark(forBrowser: browserName) else {
             return nil
