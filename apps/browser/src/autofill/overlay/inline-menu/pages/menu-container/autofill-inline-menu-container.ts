@@ -284,7 +284,10 @@ export class AutofillInlineMenuContainer {
    * every time the inline menu container is recreated.
    *
    */
-  private isValidSessionToken(message: { token?: string }): boolean {
+  private isValidSessionToken(message: { token: string }): boolean {
+    if (!this.token || !message?.token || !message?.token.length) {
+      return false;
+    }
     return message.token === this.token;
   }
 

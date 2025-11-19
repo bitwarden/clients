@@ -38,12 +38,8 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
     styleSheetUrl: string,
     translations: Record<string, string>,
     portKey: string,
-    token?: string,
   ): Promise<HTMLLinkElement> {
     this.portKey = portKey;
-    if (token) {
-      this.token = token;
-    }
 
     this.translations = translations;
     globalThis.document.documentElement.setAttribute("lang", this.getTranslation("locale"));
@@ -63,6 +59,9 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
    * @param message - The message to post
    */
   protected postMessageToParent(message: AutofillInlineMenuPageElementWindowMessage) {
+    if (!this.token) {
+      return;
+    }
     const messageWithAuth: Record<string, unknown> = {
       portKey: this.portKey,
       ...message,
@@ -134,7 +133,7 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
       }
       this.token = message.token;
     } else {
-      if (message?.token !== this.token) {
+      if (!this.token || !message?.token || message.token !== this.token) {
         return;
       }
     }
