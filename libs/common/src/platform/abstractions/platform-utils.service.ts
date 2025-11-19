@@ -55,5 +55,5 @@ export abstract class PlatformUtilsService {
   abstract readFromClipboard(): Promise<string>;
   abstract supportsSecureStorage(): boolean;
   abstract getAutofillKeyboardShortcut(): Promise<string>;
-  abstract userAgentPart(): Promise<string>;
+  abstract packageType(): Promise<string>;
 }

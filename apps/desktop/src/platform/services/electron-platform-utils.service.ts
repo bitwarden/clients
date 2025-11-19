@@ -152,7 +152,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     return null;
   }
 
-  async userAgentPart(): Promise<string> {
+  async packageType(): Promise<string> {
     let packageType = "Unsandboxed";
     if (ipc.platform.isMacAppStore) {
       packageType = "MacAppStore";

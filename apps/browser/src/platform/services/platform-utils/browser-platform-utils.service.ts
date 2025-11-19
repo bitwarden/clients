@@ -329,8 +329,23 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return autofillCommand;
   }
 
-  userAgentPart(): Promise<string> {
-    return Promise.resolve("");
+  packageType(): Promise<string> {
+    switch (this.getDevice()) {
+      case DeviceType.ChromeExtension:
+        return Promise.resolve("Chrome Extension");
+      case DeviceType.FirefoxExtension:
+        return Promise.resolve("Firefox Extension");
+      case DeviceType.OperaExtension:
+        return Promise.resolve("Opera Extension");
+      case DeviceType.EdgeExtension:
+        return Promise.resolve("Edge Extension");
+      case DeviceType.VivaldiExtension:
+        return Promise.resolve("Vivaldi Extension");
+      case DeviceType.SafariExtension:
+        return Promise.resolve("Safari Extension");
+      default:
+        return Promise.resolve("Browser Extension");
+    }
   }
 
   /**
