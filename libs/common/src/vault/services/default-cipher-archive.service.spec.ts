@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { of, firstValueFrom } from "rxjs";
+import { of, firstValueFrom, BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -24,12 +24,14 @@ describe("DefaultCipherArchiveService", () => {
 
   const userId = "user-id" as UserId;
   const cipherId = "123" as CipherId;
+  const featureFlag = new BehaviorSubject<boolean>(true);
 
   beforeEach(() => {
     mockCipherService = mock<CipherService>();
     mockApiService = mock<ApiService>();
     mockBillingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     mockConfigService = mock<ConfigService>();
+    mockConfigService.getFeatureFlag$.mockReturnValue(featureFlag.asObservable());
 
     service = new DefaultCipherArchiveService(
       mockCipherService,
@@ -86,7 +88,7 @@ describe("DefaultCipherArchiveService", () => {
   describe("userCanArchive$", () => {
     it("should return true when user has premium and feature flag is enabled", async () => {
       mockBillingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
-      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+      featureFlag.next(true);
 
       const result = await firstValueFrom(service.userCanArchive$(userId));
 
@@ -101,7 +103,7 @@ describe("DefaultCipherArchiveService", () => {
 
     it("should return false when feature flag is disabled", async () => {
       mockBillingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
-      mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
+      featureFlag.next(false);
 
       const result = await firstValueFrom(service.userCanArchive$(userId));
 
@@ -111,7 +113,7 @@ describe("DefaultCipherArchiveService", () => {
 
   describe("hasArchiveFlagEnabled$", () => {
     it("returns true when feature flag is enabled", async () => {
-      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+      featureFlag.next(true);
 
       const result = await firstValueFrom(service.hasArchiveFlagEnabled$);
 
@@ -122,7 +124,7 @@ describe("DefaultCipherArchiveService", () => {
     });
 
     it("returns false when feature flag is disabled", async () => {
-      mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
+      featureFlag.next(false);
 
       const result = await firstValueFrom(service.hasArchiveFlagEnabled$);
 
