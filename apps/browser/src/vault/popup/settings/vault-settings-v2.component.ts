@@ -74,7 +74,7 @@ export class VaultSettingsV2Component implements OnInit, OnDestroy {
     private nudgeService: NudgesService,
     private accountService: AccountService,
     private cipherArchiveService: CipherArchiveService,
-  ) { }
+  ) {}
 
   async ngOnInit() {
     await this.setLastSync();

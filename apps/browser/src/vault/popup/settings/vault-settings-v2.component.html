@@ -47,7 +47,7 @@
           <a bit-item-content [routerLink]="userHasArchivedItems() ? '/archive' : '/premium'">
             <span class="tw-flex tw-items-center tw-gap-2">
               {{ "archiveNoun" | i18n }}
-              @if(!userHasArchivedItems()) {
+              @if (!userHasArchivedItems()) {
                 <app-premium-badge></app-premium-badge>
               }
             </span>
