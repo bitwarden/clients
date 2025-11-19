@@ -268,7 +268,7 @@ jobs:
           fi
 
       - name: Upload unix zip asset
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-${{ env._PACKAGE_VERSION }}.zip
           path: apps/cli/dist/bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-${{ env._PACKAGE_VERSION }}.zip
@@ -482,7 +482,7 @@ jobs:
           }
 
       - name: Upload windows zip asset
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: bw${{ matrix.license_type.artifact_prefix }}-windows-${{ env._PACKAGE_VERSION }}.zip
           path: apps/cli/dist/bw${{ matrix.license_type.artifact_prefix }}-windows-${{ env._PACKAGE_VERSION }}.zip
@@ -490,7 +490,7 @@ jobs:
 
       - name: Upload Chocolatey asset
         if: matrix.license_type.build_prefix == 'bit'
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: bitwarden-cli.${{ env._PACKAGE_VERSION }}.nupkg
           path: apps/cli/dist/chocolatey/bitwarden-cli.${{ env._PACKAGE_VERSION }}.nupkg
@@ -503,7 +503,7 @@ jobs:
 
       - name: Upload NPM Build Directory asset
         if: matrix.license_type.build_prefix == 'bit'
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: bitwarden-cli-${{ env._PACKAGE_VERSION }}-npm-build.zip
           path: apps/cli/bitwarden-cli-${{ env._PACKAGE_VERSION }}-npm-build.zip
@@ -535,7 +535,7 @@ jobs:
           echo "BW Package Version: $_PACKAGE_VERSION"
 
       - name: Get bw linux cli
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
         with:
           name: bw-linux-${{ env._PACKAGE_VERSION }}.zip
           path: apps/cli/dist/snap
@@ -572,7 +572,7 @@ jobs:
         run: sudo snap remove bw
 
       - name: Upload snap asset
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: bw_${{ env._PACKAGE_VERSION }}_amd64.snap
           path: apps/cli/dist/snap/bw_${{ env._PACKAGE_VERSION }}_amd64.snap
