@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "指派成員任務以監控進度"
   },
-  "onceYouReviewApps": {
-    "message": "在您檢視應用程式並將其標記為關鍵後，您可以指派任務給成員，以解決有風險的項目，並在此監控進度"
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
   },
   "sendReminders": {
     "message": "傳送提醒"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "未找到 $ORG NAME$ 的應用程式",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "No data found"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "匯入您組織的登入資料以開始監控憑證安全風險。匯入後您可以："
+  "noDataInOrgDescription": {
+    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
   },
-  "benefit1Title": {
-    "message": "風險優先排序"
+  "feature1Title": {
+    "message": "Mark applications as critical"
   },
-  "benefit1Description": {
-    "message": "專注於最重要的應用程式"
+  "feature1Description": {
+    "message": "This will help you remove risks to your most important applications first."
   },
-  "benefit2Title": {
-    "message": "指導補救措施"
+  "feature2Title": {
+    "message": "Help members improve their security"
   },
-  "benefit2Description": {
-    "message": "指派有風險的成員執行指導任務以輪換有風險的憑證"
+  "feature2Description": {
+    "message": "Assign at-risk members guided security tasks to update credentials."
   },
-  "benefit3Title": {
-    "message": "監控進展"
+  "feature3Title": {
+    "message": "Monitor progress"
   },
-  "benefit3Description": {
-    "message": "追蹤隨時間變化的狀況以顯示安全性改善"
+  "feature3Description": {
+    "message": "Track changes over time to show security improvements."
   },
-  "noReportRunTitle": {
-    "message": "執行您的第一份報告以查看應用程式"
+  "noReportsRunTitle": {
+    "message": "Generate report"
   },
-  "noReportRunDescription": {
-    "message": "產生風險洞察報告以分析組織的應用程式並找出需要注意的高風險密碼。執行第一份報告將會："
+  "noReportsRunDescription": {
+    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
   },
   "noCriticalApplicationsTitle": {
     "message": "您尚未將任何應用程式標記為關鍵"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "具有風險的成員"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "擁有關鍵應用程式中有風險項目存取權的成員"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "These members have access to vulnerable items for critical applications."
   },
   "membersWithAtRiskPasswords": {
     "message": "使用有風險密碼的成員"
   },
-  "membersWillReceiveNotification": {
-    "message": "成員會透過瀏覽器擴充套件接收到有風險登入的通知。"
+  "membersWillReceiveSecurityTask": {
+    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ 位有風險的成員",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "這些成員正在使用弱密碼、外洩密碼或重複密碼登入應用程式。"
+  "atRiskMemberDescription": {
+    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionNone": {
     "message": "目前沒有成員使用弱密碼、外洩密碼或重複密碼登入應用程式。"
@@ -391,14 +385,14 @@
   "prioritizeCriticalApplications": {
     "message": "優先處理關鍵應用程式"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "選擇對組織最關鍵的應用程式，然後將安全任務指派給成員以供解決。"
+  "selectCriticalAppsDescription": {
+    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "reviewNewApplications": {
     "message": "審查新應用程式"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "我們已在管理主控台中標示出新應用程式中密碼薄弱、已外洩或重複使用的高風險項目。"
+  "reviewNewAppsDescription": {
+    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "點擊星形圖示以將應用程式標記為關鍵"
@@ -9856,8 +9850,8 @@
   "assignTasks": {
     "message": "指派任務"
   },
-  "assignTasksToMembers": {
-    "message": "指派任務給成員並引導解決"
+  "assignSecurityTasksToMembers": {
+    "message": "Send notifications to change passwords"
   },
   "assignToCollections": {
     "message": "指派至集合"
@@ -12159,9 +12153,9 @@
     }
   },
   "confirmNoSelectedCriticalApplicationsTitle": {
-    "message": "No critical applications are selected"
+    "message": "未選取任何關鍵應用程式"
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
-    "message": "Are you sure you want to continue?"
+    "message": "您確定要繼續嗎?"
   }
 }
