@@ -329,6 +329,10 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return autofillCommand;
   }
 
+  userAgentPart(): Promise<string> {
+    return Promise.resolve("");
+  }
+
   /**
    * Triggers the offscreen document API to copy the text to the clipboard.
    */

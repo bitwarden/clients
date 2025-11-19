@@ -185,6 +185,10 @@ export class WindowMain {
 
           await this.createWindow();
           resolve();
+
+          const userAgent = this.win.webContents.session.getUserAgent();
+          this.logService.info(`Loaded URL with user agent: ${userAgent}`);
+
           if (this.argvCallback != null) {
             this.argvCallback(process.argv);
           }

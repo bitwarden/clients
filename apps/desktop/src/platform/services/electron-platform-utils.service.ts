@@ -151,4 +151,20 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
   getAutofillKeyboardShortcut(): Promise<string> {
     return null;
   }
+
+  async userAgentPart(): Promise<string> {
+    let packageType = "Unsandboxed";
+    if (ipc.platform.isMacAppStore) {
+      packageType = "MacAppStore";
+    } else if (ipc.platform.isWindowsStore) {
+      packageType = "WindowsStore";
+    } else if (ipc.platform.isAppImage) {
+      packageType = "AppImage";
+    } else if (ipc.platform.isSnapStore) {
+      packageType = "Snap";
+    } else if (ipc.platform.isFlatpak) {
+      packageType = "Flatpak";
+    }
+    return `Bitwarden-Desktop/${await this.getApplicationVersion()} (${packageType})`;
+  }
 }

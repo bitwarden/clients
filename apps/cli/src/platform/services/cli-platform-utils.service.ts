@@ -152,4 +152,8 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
   getAutofillKeyboardShortcut(): Promise<string> {
     return null;
   }
+
+  userAgentPart(): Promise<string> {
+    return Promise.resolve("");
+  }
 }
