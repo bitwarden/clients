@@ -59,9 +59,9 @@ pub fn get_supported_importers<T: InstalledBrowserRetriever>(
 // Tests are cfg-gated based upon OS, and must be compiled/run on each OS for full coverage
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::collections::HashSet;
 
+    use super::*;
     use crate::chromium::{InstalledBrowserRetriever, SUPPORTED_BROWSER_MAP};
 
     pub struct MockInstalledBrowserRetriever {}
