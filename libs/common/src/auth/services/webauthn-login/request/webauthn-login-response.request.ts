@@ -1,3 +1,5 @@
+import { PublicKeyCredential } from "@bitwarden/common/auth/abstractions/webauthn/navigator-credentials.service";
+
 import { Utils } from "../../../../platform/misc/utils";
 
 export abstract class WebAuthnLoginResponseRequest {
@@ -8,7 +10,7 @@ export abstract class WebAuthnLoginResponseRequest {
 
   constructor(credential: PublicKeyCredential) {
     this.id = credential.id;
-    this.rawId = Utils.fromBufferToUrlB64(credential.rawId);
+    this.rawId = Utils.fromBufferToUrlB64(credential.rawId.buffer as ArrayBuffer);
     this.type = credential.type;
 
     // WARNING: do not add PRF information here by mapping

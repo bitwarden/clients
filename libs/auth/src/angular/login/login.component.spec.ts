@@ -2,6 +2,7 @@ import { FormBuilder } from "@angular/forms";
 import { mock } from "jest-mock-extended";
 
 import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
+import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -45,6 +46,7 @@ describe("LoginComponent continue() integration", () => {
     configService.getFeatureFlag.mockResolvedValue(flagEnabled);
     const ssoLoginService: any = { ssoRequiredCache$: { pipe: () => ({}) } };
     const environmentService: any = { environment$: { pipe: () => ({}) } };
+    const webauthnLoginService = mock<WebAuthnLoginServiceAbstraction>();
 
     const component = new LoginComponent(
       activatedRoute,
@@ -71,6 +73,7 @@ describe("LoginComponent continue() integration", () => {
       configService,
       ssoLoginService,
       environmentService,
+      webauthnLoginService,
     );
 
     jest.spyOn(component as any, "toggleLoginUiState").mockResolvedValue(undefined);

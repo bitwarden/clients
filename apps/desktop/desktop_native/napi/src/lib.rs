@@ -1204,3 +1204,125 @@ pub mod autotype {
         })
     }
 }
+
+#[napi]
+pub mod navigator_credentials {
+    use napi::bindgen_prelude::Uint8Array;
+
+    #[napi(string_enum)]
+    pub enum UserVerification {
+        Preferred,
+        Required,
+        Discouraged,
+    }
+
+    impl From<UserVerification> for fido2_client::UserVerification {
+        fn from(val: UserVerification) -> Self {
+            match val {
+                UserVerification::Preferred => fido2_client::UserVerification::Preferred,
+                UserVerification::Required => fido2_client::UserVerification::Required,
+                UserVerification::Discouraged => fido2_client::UserVerification::Discouraged,
+            }
+        }
+    }
+
+    #[napi(object)]
+    pub struct PrfConfig {
+        pub first: Uint8Array,
+        pub second: Option<Uint8Array>,
+    }
+
+    impl From<PrfConfig> for fido2_client::PrfConfig {
+        fn from(val: PrfConfig) -> Self {
+            fido2_client::PrfConfig {
+                first: val.first.to_vec(),
+                second: val.second.map(|s| s.to_vec()),
+            }
+        }
+    }
+
+    #[napi(object)]
+    pub struct PublicKeyCredentialRequestOptions {
+        pub challenge: Uint8Array,
+        pub timeout: i64,
+        pub rp_id: String,
+        pub user_verification: UserVerification,
+        pub allow_credentials: Vec<Uint8Array>,
+        pub prf: Option<PrfConfig>,
+    }
+
+    impl TryInto<fido2_client::PublicKeyCredentialRequestOptions>
+        for PublicKeyCredentialRequestOptions
+    {
+        type Error = napi::Error;
+
+        fn try_into(self) -> Result<fido2_client::PublicKeyCredentialRequestOptions, Self::Error> {
+            Ok(fido2_client::PublicKeyCredentialRequestOptions {
+                challenge: self.challenge.to_vec(),
+                timeout: self.timeout as u64,
+                rp_id: self.rp_id,
+                user_verification: self.user_verification.into(),
+                allow_credentials: self.allow_credentials.iter().map(|c| c.to_vec()).collect(),
+                prf: self.prf.map(|p| p.into()),
+            })
+        }
+    }
+
+    #[napi(object)]
+    pub struct AuthenticatorAssertionResponse {
+        pub authenticator_data: Uint8Array,
+        pub client_data_json: Uint8Array,
+        pub signature: Uint8Array,
+        pub user_handle: Uint8Array,
+    }
+
+    impl From<fido2_client::AuthenticatorAssertionResponse> for AuthenticatorAssertionResponse {
+        fn from(response: fido2_client::AuthenticatorAssertionResponse) -> Self {
+            AuthenticatorAssertionResponse {
+                authenticator_data: Uint8Array::from(response.authenticator_data),
+                client_data_json: Uint8Array::from(response.client_data_json),
+                signature: Uint8Array::from(response.signature),
+                user_handle: Uint8Array::from(response.user_handle),
+            }
+        }
+    }
+
+    #[napi(object)]
+    pub struct PublicKeyCredential {
+        pub authenticator_attachment: String,
+        pub id: String,
+        pub raw_id: Uint8Array,
+        pub response: AuthenticatorAssertionResponse,
+        pub r#type: String,
+        pub prf: Option<Uint8Array>,
+    }
+
+    impl From<fido2_client::PublicKeyCredential> for PublicKeyCredential {
+        fn from(val: fido2_client::PublicKeyCredential) -> Self {
+            PublicKeyCredential {
+                authenticator_attachment: val.authenticator_attachment,
+                id: val.id,
+                raw_id: Uint8Array::from(val.raw_id),
+                response: val.response.into(),
+                r#type: val.r#type,
+                prf: val.prf.map(Uint8Array::from),
+            }
+        }
+    }
+
+    #[napi]
+    pub fn get(
+        assertion_options: PublicKeyCredentialRequestOptions,
+    ) -> napi::Result<PublicKeyCredential> {
+        let options: fido2_client::PublicKeyCredentialRequestOptions =
+            assertion_options.try_into()?;
+        fido2_client::fido2_client::get(options)
+            .map_err(|e| napi::Error::from_reason(format!("FIDO2 Authentication failed: {:?}", e)))
+            .map(|credential| credential.into())
+    }
+
+    #[napi]
+    pub fn available() -> bool {
+        fido2_client::fido2_client::available()
+    }
+}

@@ -26,11 +26,6 @@ export abstract class LoginComponentService {
   getOrgPoliciesFromOrgInvite?: (email: string) => Promise<PasswordPolicies | null>;
 
   /**
-   * Indicates whether login with passkey is supported on the given client
-   */
-  isLoginWithPasskeySupported: () => boolean;
-
-  /**
    * Redirects the user to the SSO login page, either via route or in a new browser window.
    */
   redirectToSsoLogin: (email: string) => Promise<void | null>;

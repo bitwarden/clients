@@ -15,10 +15,7 @@ import { PasswordLoginStrategyData } from "../../login-strategies/password-login
 import { SsoLoginStrategyData } from "../../login-strategies/sso-login.strategy";
 import { UserApiLoginStrategyData } from "../../login-strategies/user-api-login.strategy";
 import { WebAuthnLoginStrategyData } from "../../login-strategies/webauthn-login.strategy";
-import {
-  MockAuthenticatorAssertionResponse,
-  MockPublicKeyCredential,
-} from "../../login-strategies/webauthn-login.strategy.spec";
+import { mockPublicKeyCredential } from "../../login-strategies/webauthn-login.strategy.spec";
 import { AuthRequestLoginCredentials, WebAuthnLoginCredentials } from "../../models";
 
 import { CACHE_KEY } from "./login-strategy.state";
@@ -104,9 +101,8 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
   });
 
   it("should correctly deserialize WebAuthnLoginStrategyData", () => {
-    global.AuthenticatorAssertionResponse = MockAuthenticatorAssertionResponse;
     const actual = { webAuthn: new WebAuthnLoginStrategyData() };
-    const publicKeyCredential = new MockPublicKeyCredential();
+    const publicKeyCredential = mockPublicKeyCredential;
     const deviceResponse = new WebAuthnLoginAssertionResponseRequest(publicKeyCredential);
     const prfKey = new SymmetricCryptoKey(new Uint8Array(64)) as PrfKey;
     actual.webAuthn.credentials = new WebAuthnLoginCredentials("TOKEN", deviceResponse, prfKey);

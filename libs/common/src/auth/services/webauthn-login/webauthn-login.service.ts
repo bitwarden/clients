@@ -6,6 +6,7 @@ import { LoginStrategyServiceAbstraction, WebAuthnLoginCredentials } from "@bitw
 
 import { LogService } from "../../../platform/abstractions/log.service";
 import { PrfKey } from "../../../types/key";
+import { NavigatorCredentialsService } from "../../abstractions/webauthn/navigator-credentials.service";
 import { WebAuthnLoginApiServiceAbstraction } from "../../abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "../../abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "../../abstractions/webauthn/webauthn-login.service.abstraction";
@@ -16,17 +17,13 @@ import { WebAuthnLoginCredentialAssertionView } from "../../models/view/webauthn
 import { WebAuthnLoginAssertionResponseRequest } from "./request/webauthn-login-assertion-response.request";
 
 export class WebAuthnLoginService implements WebAuthnLoginServiceAbstraction {
-  private navigatorCredentials: CredentialsContainer;
-
   constructor(
     private webAuthnLoginApiService: WebAuthnLoginApiServiceAbstraction,
-    private loginStrategyService: LoginStrategyServiceAbstraction,
-    private webAuthnLoginPrfKeyService: WebAuthnLoginPrfKeyServiceAbstraction,
-    private window: Window,
-    private logService?: LogService,
-  ) {
-    this.navigatorCredentials = this.window.navigator.credentials;
-  }
+    protected loginStrategyService: LoginStrategyServiceAbstraction,
+    protected webAuthnLoginPrfKeyService: WebAuthnLoginPrfKeyServiceAbstraction,
+    protected navigatorCredentialsService: NavigatorCredentialsService,
+    protected logService?: LogService,
+  ) {}
 
   async getCredentialAssertionOptions(): Promise<WebAuthnLoginCredentialAssertionOptionsView> {
     const response = await this.webAuthnLoginApiService.getCredentialAssertionOptions();
@@ -35,7 +32,7 @@ export class WebAuthnLoginService implements WebAuthnLoginServiceAbstraction {
 
   async assertCredential(
     credentialAssertionOptions: WebAuthnLoginCredentialAssertionOptionsView,
-  ): Promise<WebAuthnLoginCredentialAssertionView> {
+  ): Promise<WebAuthnLoginCredentialAssertionView | undefined> {
     const nativeOptions: CredentialRequestOptions = {
       publicKey: credentialAssertionOptions.options,
     };
@@ -45,16 +42,18 @@ export class WebAuthnLoginService implements WebAuthnLoginServiceAbstraction {
     } as any;
 
     try {
-      const response = await this.navigatorCredentials.get(nativeOptions);
-      if (!(response instanceof PublicKeyCredential)) {
+      const response = await this.navigatorCredentialsService.get(nativeOptions);
+      if (response == null) {
         return undefined;
       }
+
       // TODO: Remove `any` when typescript typings add support for PRF
-      const prfResult = (response.getClientExtensionResults() as any).prf?.results?.first;
+      const prfResult = response.prf;
       let symmetricPrfKey: PrfKey | undefined;
       if (prfResult != undefined) {
-        symmetricPrfKey =
-          await this.webAuthnLoginPrfKeyService.createSymmetricKeyFromPrf(prfResult);
+        symmetricPrfKey = await this.webAuthnLoginPrfKeyService.createSymmetricKeyFromPrf(
+          prfResult.buffer as ArrayBuffer,
+        );
       }
 
       const deviceResponse = new WebAuthnLoginAssertionResponseRequest(response);
@@ -84,5 +83,9 @@ export class WebAuthnLoginService implements WebAuthnLoginServiceAbstraction {
     );
     const result = await this.loginStrategyService.logIn(credential);
     return result;
+  }
+
+  async available(): Promise<boolean> {
+    return this.navigatorCredentialsService.available();
   }
 }

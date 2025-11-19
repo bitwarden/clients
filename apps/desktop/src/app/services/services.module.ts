@@ -51,6 +51,7 @@ import {
 } from "@bitwarden/common/auth/abstractions/auth.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { NavigatorCredentialsService } from "@bitwarden/common/auth/abstractions/webauthn/navigator-credentials.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ClientType } from "@bitwarden/common/enums";
@@ -119,6 +120,7 @@ import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarde
 import { DesktopLoginApprovalDialogComponentService } from "../../auth/login/desktop-login-approval-dialog-component.service";
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
 import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
+import { RendererNavigatorCredentialsService } from "../../auth/services/renderer-navigator-credentials.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeDefaultSettingPolicy } from "../../autofill/services/desktop-autotype-policy.service";
@@ -309,6 +311,11 @@ const safeProviders: SafeProvider[] = [
     provide: CryptoFunctionServiceAbstraction,
     useClass: WebCryptoFunctionService,
     deps: [WINDOW],
+  }),
+  safeProvider({
+    provide: NavigatorCredentialsService,
+    useClass: RendererNavigatorCredentialsService,
+    deps: [],
   }),
   safeProvider({
     provide: KeyServiceAbstraction,

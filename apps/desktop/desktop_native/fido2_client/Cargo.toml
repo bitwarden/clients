@@ -1,0 +1,19 @@
+[package]
+name = "fido2_client"
+edition = { workspace = true }
+license = { workspace = true }
+version = { workspace = true }
+publish = { workspace = true }
+
+[features]
+default = []
+ctap-hid-fido2 = ["dep:ctap-hid-fido2", "dep:pinentry", "dep:secrecy"]
+
+[dependencies]
+base64 = { workspace = true }
+cc = { version = "1.2.8" }
+ctap-hid-fido2 = { version = "3.5.5", optional = true }
+pinentry = { version = "0.5.0", optional = true }
+secrecy = { version = "0.8.0", optional = true }
+serde = { workspace = true, features = ["derive"] }
+sha2 = { workspace = true }

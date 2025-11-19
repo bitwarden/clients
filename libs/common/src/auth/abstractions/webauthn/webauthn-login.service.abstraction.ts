@@ -38,4 +38,9 @@ export abstract class WebAuthnLoginServiceAbstraction {
    * that needs to be validated for login.
    */
   abstract logIn(assertion: WebAuthnLoginCredentialAssertionView): Promise<AuthResult>;
+
+  /**
+   * Checks if WebAuthnLogin is available in the current environment.
+   */
+  abstract available(): Promise<boolean>;
 }

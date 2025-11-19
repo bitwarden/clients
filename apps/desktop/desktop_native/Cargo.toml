@@ -5,6 +5,7 @@ members = [
     "bitwarden_chromium_import_helper",
     "chromium_importer",
     "core",
+    "fido2_client",
     "macos_provider",
     "napi",
     "process_isolation",
@@ -21,7 +22,7 @@ publish = false
 [workspace.dependencies]
 aes = "=0.8.4"
 aes-gcm = "=0.10.3"
-anyhow = "=1.0.94"
+anyhow = "=1.0.100"
 arboard = { version = "=3.6.0", default-features = false }
 ashpd = "=0.11.0"
 base64 = "=0.22.1"

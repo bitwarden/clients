@@ -62,7 +62,9 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { NavigatorCredentialsService } from "@bitwarden/common/auth/abstractions/webauthn/navigator-credentials.service";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
+import { DefaultNavigatorCredentialsService } from "@bitwarden/common/auth/services/webauthn-login/default-navigator-credentials.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
@@ -468,6 +470,11 @@ const safeProviders: SafeProvider[] = [
     provide: SystemService,
     useClass: WebSystemService,
     deps: [],
+  }),
+  safeProvider({
+    provide: NavigatorCredentialsService,
+    useClass: DefaultNavigatorCredentialsService,
+    deps: [WINDOW, PlatformUtilsService],
   }),
   safeProvider({
     provide: SessionTimeoutSettingsComponentService,
