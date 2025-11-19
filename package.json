@@ -63,7 +63,7 @@
     "@storybook/theming": "8.6.12",
     "@storybook/web-components-webpack5": "8.6.12",
     "@tailwindcss/container-queries": "0.1.1",
-    "@types/chrome": "0.1.27",
+    "@types/chrome": "0.1.28",
     "@types/firefox-webext-browser": "120.0.4",
     "@types/inquirer": "8.2.10",
     "@types/jest": "29.5.14",
