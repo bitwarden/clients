@@ -43,13 +43,16 @@ export function applyMainWindowStyles(window: BrowserWindow, existingWindowState
   window.setMinimumSize(680, 500);
 
   // need to guard against null/undefined values
+  try {
+    if (existingWindowState?.width && existingWindowState?.height) {
+      window.setSize(existingWindowState.width, existingWindowState.height);
+    }
 
-  if (existingWindowState?.width && existingWindowState?.height) {
-    window.setSize(existingWindowState.width, existingWindowState.height);
-  }
-
-  if (existingWindowState?.x && existingWindowState?.y) {
-    window.setPosition(existingWindowState.x, existingWindowState.y);
+    if (existingWindowState?.x && existingWindowState?.y) {
+      window.setPosition(existingWindowState.x, existingWindowState.y);
+    }
+  } catch (e) {
+    this.logService.error("Error applying main window styles:", e);
   }
 
   window.setWindowButtonVisibility?.(true);
