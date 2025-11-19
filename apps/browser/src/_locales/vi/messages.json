@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "Xem tất cả"
   },
+  "viewLess": {
+    "message": "View less"
+  },
   "viewLogin": {
     "message": "Xem đăng nhập"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Mỗi khi khóa máy"
+  },
+  "onIdle": {
+    "message": "On system idle"
+  },
+  "onSleep": {
+    "message": "On system sleep"
   },
   "onRestart": {
     "message": "Mỗi khi khởi động lại trình duyệt"
@@ -5800,6 +5809,21 @@
   "upgradeToPremium": {
     "message": "Nâng cấp lên gói Cao cấp"
   },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "Loading vault"
+  },
+  "vaultLoaded": {
+    "message": "Vault loaded"
+  },
   "settingDisabledByPolicy": {
     "message": "Cài đặt này bị vô hiệu hóa bởi chính sách tổ chức của bạn.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5833,8 @@
   },
   "cardNumberLabel": {
     "message": "Số thẻ"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
   }
 }

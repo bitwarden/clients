@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "An error has occurred while enabling browser integration."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Nettleserintegrasjon støttes dessverre bare i Mac App Store-versjonen for øyeblikket."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Nettleserintegrasjon er for øyeblikket dessverre ikke støttet i Windows Store-versjonen."
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

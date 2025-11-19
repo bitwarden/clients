@@ -16,6 +16,7 @@ import { getWebStoreUrl } from "@bitwarden/common/vault/utils/get-web-store-url"
 import {
   AnonLayoutWrapperDataService,
   ButtonComponent,
+  CenterPositionStrategy,
   DialogRef,
   DialogService,
   IconModule,
@@ -151,6 +152,7 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
         data: {
           onDismiss: this.dismissExtensionPage.bind(this),
         },
+        positionStrategy: new CenterPositionStrategy(),
       },
     );
   }
