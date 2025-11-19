@@ -620,9 +620,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get storageGb() {
-    return this.sub?.maxStorageGb
-      ? this.sub?.maxStorageGb - this.selectedPlan.PasswordManager.baseStorageGb
-      : 0;
+    return Math.max(
+      0,
+      (this.sub?.maxStorageGb ?? 0) - this.selectedPlan.PasswordManager.baseStorageGb,
+    );
   }
 
   passwordManagerSeatTotal(plan: PlanResponse): number {
@@ -646,10 +647,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return 0;
     }
 
-    return (
-      plan.PasswordManager.additionalStoragePricePerGb *
-      (this.sub.maxStorageGb - plan.PasswordManager.baseStorageGb)
-    );
+    return plan.PasswordManager.additionalStoragePricePerGb * this.storageGb;
   }
 
   additionalStoragePriceMonthly(selectedPlan: PlanResponse) {
