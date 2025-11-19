@@ -427,6 +427,7 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsService,
       WINDOW,
       LogService,
+      ConfigService,
     ],
   }),
 ];

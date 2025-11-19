@@ -40,6 +40,7 @@ export enum FeatureFlag {
   WindowsBiometricsV2 = "pm-25373-windows-biometrics-v2",
   UnlockWithMasterPasswordUnlockData = "pm-23246-unlock-with-master-password-unlock-data",
   NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
+  PasskeyUnlock = "pm-2035-passkey-unlock",
 
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
@@ -126,6 +127,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WindowsBiometricsV2]: FALSE,
   [FeatureFlag.UnlockWithMasterPasswordUnlockData]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
+  [FeatureFlag.PasskeyUnlock]: FALSE,
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,
