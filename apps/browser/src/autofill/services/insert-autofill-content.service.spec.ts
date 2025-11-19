@@ -482,7 +482,7 @@ describe("InsertAutofillContentService", () => {
 
       expect(
         insertAutofillContentService["collectAutofillContentService"].getAutofillFieldElementByOpid,
-      ).toBeCalledWith("__1");
+      ).toHaveBeenCalledWith("__1");
       expect((insertAutofillContentService as any)["triggerClickOnElement"]).toHaveBeenCalledWith(
         textInput,
       );
@@ -547,7 +547,7 @@ describe("InsertAutofillContentService", () => {
 
       expect(
         insertAutofillContentService["collectAutofillContentService"].getAutofillFieldElementByOpid,
-      ).toBeCalledWith("__0");
+      ).toHaveBeenCalledWith("__0");
       expect(targetInput.blur).not.toHaveBeenCalled();
       expect(
         insertAutofillContentService["simulateUserMouseClickAndFocusEventInteractions"],
