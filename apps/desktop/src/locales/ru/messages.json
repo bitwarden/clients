@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "У вас нет разрешения на редактирование этого элемента"
+  },
   "welcomeBack": {
     "message": "С возвращением"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "Использовать единый вход"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "Отправить"
   },
@@ -1031,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Вы должны добавить либо базовый URL сервера, либо хотя бы одно пользовательское окружение."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL должны использовать HTTPS."
   },
   "customEnvironment": {
     "message": "Пользовательское окружение"
@@ -1852,6 +1861,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Блокировать мастер-паролем при перезапуске"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Требовать мастер-пароль или PIN при перезапуске приложения"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Требовать мастер-пароль при перезапуске приложения"
+  },
   "deleteAccount": {
     "message": "Удалить аккаунт"
   },
@@ -2134,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "Произошла ошибка при включении интеграции с браузером."
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "К сожалению, интеграция браузера пока поддерживается только в версии Mac App Store."
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "К сожалению, интеграция браузера в версии для Microsoft Store в настоящее время не поддерживается."
@@ -2548,6 +2560,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Минимальный пользовательский тайм-аут составляет 1 минуту."
   },
   "inviteAccepted": {
     "message": "Приглашение принято"
@@ -3861,7 +3876,7 @@
     "message": "Изменить пароль, подверженный риску"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Этот логин находится под угрозой и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
+    "message": "Этот логин подвержен риску и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
   },
   "missingWebsite": {
     "message": "Отсутствует сайт"
@@ -4111,16 +4126,16 @@
     "message": "Bitwarden не проверяет местоположение ввода, поэтому, прежде чем использовать ярлык, убедитесь, что вы находитесь в нужном окне и поле."
   },
   "typeShortcut": {
-    "message": "Type shortcut"
+    "message": "Введите сочетание клавиш"
   },
   "editAutotypeShortcutDescription": {
-    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+    "message": "Включите один или два из следующих модификаторов: Ctrl, Alt, Win или Shift и букву."
   },
   "invalidShortcut": {
-    "message": "Invalid shortcut"
+    "message": "Недопустимое сочетание клавиш"
   },
   "moreBreadcrumbs": {
-    "message": "Больше хлебных крошек",
+    "message": "Дополнительная навигация",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "next": {
@@ -4133,7 +4148,7 @@
     "message": "Подтвердить"
   },
   "enableAutotypeShortcutPreview": {
-    "message": "Enable autotype shortcut (Feature Preview)"
+    "message": "Включить сочетание клавиш ввода (предварительная версия функции)"
   },
   "enableAutotypeShortcutDescription": {
     "message": "Прежде чем использовать ярлык, убедитесь, что вы поставили курсор в нужное поле, чтобы избежать ввода данных в неправильное место."
@@ -4149,7 +4164,7 @@
     "message": "Архивировать",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Разархивировать"
   },
   "itemsInArchive": {
@@ -4161,16 +4176,52 @@
   "noItemsInArchiveDesc": {
     "message": "Архивированные элементы появятся здесь и будут исключены из общих результатов поиска и предложений автозаполнения."
   },
-  "itemSentToArchive": {
-    "message": "Элемент отправлен в архив"
+  "itemWasSentToArchive": {
+    "message": "Элемент был отправлен в архив"
   },
-  "itemRemovedFromArchive": {
-    "message": "Элемент удален из архива"
+  "itemWasUnarchived": {
+    "message": "Элемент был разархивирован"
   },
   "archiveItem": {
     "message": "Архивировать элемент"
   },
   "archiveItemConfirmDesc": {
     "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать этот элемент?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "Почтовый индекс"
+  },
+  "cardNumberLabel": {
+    "message": "Номер карты"
+  },
+  "upgradeNow": {
+    "message": "Изменить сейчас"
+  },
+  "builtInAuthenticator": {
+    "message": "Встроенный аутентификатор"
+  },
+  "secureFileStorage": {
+    "message": "Защищенное хранилище файлов"
+  },
+  "emergencyAccess": {
+    "message": "Экстренный доступ"
+  },
+  "breachMonitoring": {
+    "message": "Мониторинг нарушений"
+  },
+  "andMoreFeatures": {
+    "message": "И многое другое!"
+  },
+  "planDescPremium": {
+    "message": "Полная онлайн-защищенность"
+  },
+  "upgradeToPremium": {
+    "message": "Обновить до Премиум"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Тайм-аут действия"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Тайм-аут сеанса"
   }
 }

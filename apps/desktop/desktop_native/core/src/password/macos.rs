@@ -1,8 +1,9 @@
-use crate::password::PASSWORD_NOT_FOUND;
 use anyhow::Result;
 use security_framework::passwords::{
     delete_generic_password, get_generic_password, set_generic_password,
 };
+
+use crate::password::PASSWORD_NOT_FOUND;
 
 #[allow(clippy::unused_async)]
 pub async fn get_password(service: &str, account: &str) -> Result<String> {

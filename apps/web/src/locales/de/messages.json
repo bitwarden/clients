@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Zugriff auf Informationen"
   },
-  "riskInsights": {
-    "message": "Risiko-Überblick"
-  },
   "passwordRisk": {
     "message": "Passwort-Risiko"
   },
+  "noEditPermissions": {
+    "message": "Du bist nicht berechtigt, diesen Eintrag zu bearbeiten"
+  },
   "reviewAtRiskPasswords": {
     "message": "Überprüfe gefährdete Passwörter (schwach, kompromittiert oder wiederverwendet) in allen Anwendungen. Wähle deine kritischsten Anwendungen aus, um die Sicherheitsmaßnahmen für deine Benutzer zu priorisieren, um gefährdete Passwörter zu beseitigen."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Überprüfung gefährdeter Zugangsdaten"
   },
   "dataLastUpdated": {
     "message": "Daten zuletzt aktualisiert: $DATE$",
@@ -90,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Mitglieder Aufgaben zuweisen, um den Fortschritt zu überwachen"
   },
-  "onceYouReviewApplications": {
-    "message": "Sobald du Anwendungen überprüft und als kritisch markiert hast, werden sie hier angezeigt."
+  "onceYouReviewApps": {
+    "message": "Sobald du die Anwendungen überprüft und als kritisch markiert hast, kannst du Mitgliedern Aufgaben zuweisen, um gefährdete Einträge zu beheben und den Fortschritt hier überwachen"
   },
   "sendReminders": {
     "message": "Erinnerungen senden"
@@ -127,6 +130,9 @@
       }
     }
   },
+  "criticalApplicationsMarked": {
+    "message": "kritische Anwendungen markiert"
+  },
   "countOfCriticalApplications": {
     "message": "$COUNT$ kritische Anwendungen",
     "placeholders": {
@@ -154,6 +160,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ neue gefährdete Passwörter",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Benachrichtigte Mitglieder ($COUNT$)",
     "placeholders": {
@@ -163,8 +178,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "Keine Anwendungen in $ORG NAME$ gefunden",
+  "noApplicationsInOrgTitle": {
+    "message": "Keine Anwendungen für $ORG NAME$ gefunden",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -172,8 +187,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "Während Benutzer Zugangsdaten speichern, werden hier Anwendungen angezeigt, die alle gefährdeten Passwörter anzeigen. Markiere kritische Anwendungen und benachrichtige Benutzer, um Passwörter zu ändern."
+  "noApplicationsInOrgDescription": {
+    "message": "Importiere die Zugangsdaten deiner Organisation, um mit der Überwachung von Sicherheitsrisiken für Zugangsdaten zu starten. Nach dem Import kannst du:"
+  },
+  "benefit1Title": {
+    "message": "Risiken priorisieren"
+  },
+  "benefit1Description": {
+    "message": "Auf Anwendungen konzentrieren, die am wichtigsten sind"
+  },
+  "benefit2Title": {
+    "message": "Anleitung zur Behebung"
+  },
+  "benefit2Description": {
+    "message": "Gefährdeten Mitgliedern gezielte Aufgaben zuweisen, um gefährdete Zugangsdaten zu erneuern"
+  },
+  "benefit3Title": {
+    "message": "Fortschritt überwachen"
+  },
+  "benefit3Description": {
+    "message": "Änderungen im Laufe der Zeit verfolgen, um Sicherheitsverbesserungen anzuzeigen"
+  },
+  "noReportRunTitle": {
+    "message": "Erstelle deinen ersten Bericht, um Anwendungen zu sehen"
+  },
+  "noReportRunDescription": {
+    "message": "Erstelle einen Risikoanalysebericht, um die Anwendungen deines Unternehmens zu analysieren und gefährdete Passwörter zu identifizieren, die Aufmerksamkeit erfordern. Die Erstellung deines ersten Berichts wird:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Du hast keine Anwendung als kritisch markiert"
@@ -202,6 +241,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Als kritisch markierte Anwendungen"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ Anwendungen als kritisch markiert",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Anwendungen konnten nicht als kritisch markiert werden"
   },
@@ -225,6 +273,12 @@
   },
   "membersWithAccessToAtRiskItemsForCriticalApps": {
     "message": "Mitglieder mit Zugriff auf gefährdete Einträge für kritische Anwendungen"
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Mitglieder mit gefährdeten Passwörtern"
+  },
+  "membersWillReceiveNotification": {
+    "message": "Mitglieder erhalten über die Browser-Erweiterung eine Benachrichtigung, um gefährdete Zugangsdaten zu ändern."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ gefährdete Mitglieder",
@@ -295,6 +349,9 @@
   "applicationsNeedingReview": {
     "message": "Anwendungen, die geprüft werden müssen"
   },
+  "newApplicationsCardTitle": {
+    "message": "Neue Anwendungen überprüfen"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ neue Anwendungen",
     "placeholders": {
@@ -310,14 +367,56 @@
   "reviewNow": {
     "message": "Jetzt prüfen"
   },
+  "allCaughtUp": {
+    "message": "Alles erledigt!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "Derzeit gibt es keine neuen Anwendungen zum Überprüfen"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Deine Organisation hat Einträge für $COUNT$ Anwendungen gespeichert",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Überprüfe Anwendungen, um die für die Sicherheit deiner Organisation wichtigsten Einträge zu sichern"
+  },
+  "reviewApplications": {
+    "message": "Anwendungen überprüfen"
+  },
   "prioritizeCriticalApplications": {
     "message": "Kritische Anwendungen priorisieren"
   },
-  "atRiskItems": {
-    "message": "Gefährdete Einträge"
+  "selectCriticalApplicationsDescription": {
+    "message": "Wähle die für deine Organisation kritischsten Anwendungen aus und weise den Mitgliedern Sicherheitsaufgaben zu, um Risiken zu beseitigen."
+  },
+  "reviewNewApplications": {
+    "message": "Neue Anwendungen überprüfen"
+  },
+  "reviewNewApplicationsDescription": {
+    "message": "Wir haben gefährdete Einträge für neue Anwendungen hervorgehoben, die in der Administrator-Konsole gespeichert sind und schwache, kompromittierte oder wiederverwendete Passwörter beinhalten."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Klicke auf das Sternsymbol, um eine App als kritisch zu markieren"
   },
   "markAsCriticalPlaceholder": {
     "message": "Die Funktion \"Als kritisch markieren\" wird in einer zukünftigen Aktualisierung implementiert"
+  },
+  "applicationReviewSaved": {
+    "message": "Anwendungsüberprüfung gespeichert"
+  },
+  "newApplicationsReviewed": {
+    "message": "Neue Anwendungen überprüft"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Fehler beim Speichern des Überprüfungsstatus"
+  },
+  "pleaseTryAgain": {
+    "message": "Bitte versuche es erneut"
   },
   "unmarkAsCritical": {
     "message": "Markierung als kritisch aufheben"
@@ -780,6 +879,9 @@
   },
   "favorites": {
     "message": "Favoriten"
+  },
+  "taskSummary": {
+    "message": "Aufgaben-Übersicht"
   },
   "types": {
     "message": "Typen"
@@ -1303,7 +1405,10 @@
     "message": "Mit Passkey anmelden"
   },
   "useSingleSignOn": {
-    "message": "Single Sign-on verwenden"
+    "message": "Single Sign-On verwenden"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Deine Organisation erfordert Single Sign-On."
   },
   "welcomeBack": {
     "message": "Willkommen zurück"
@@ -2080,9 +2185,6 @@
   "encKeySettings": {
     "message": "Verschlüsselungsschlüssel-Einstellungen"
   },
-  "kdfAlgorithm": {
-    "message": "KDF-Algorithmus"
-  },
   "kdfIterations": {
     "message": "KDF-Iterationen"
   },
@@ -2116,9 +2218,6 @@
   },
   "argon2Desc": {
     "message": "Höhere KDF-Iterationen, -Speicher und -Parallelität helfen dabei, dein Master-Passwort besser vor Brute-Force-Angriffen zu schützen."
-  },
-  "changeKdf": {
-    "message": "KDF ändern"
   },
   "encKeySettingsChanged": {
     "message": "Verschlüsselungsschlüssel-Einstellungen wurden geändert"
@@ -3151,8 +3250,17 @@
   "nextCharge": {
     "message": "Nächste Abbuchung"
   },
+  "nextChargeHeader": {
+    "message": "Next Charge"
+  },
+  "plan": {
+    "message": "Plan"
+  },
   "details": {
     "message": "Details"
+  },
+  "discount": {
+    "message": "discount"
   },
   "downloadLicense": {
     "message": "Lizenz herunterladen"
@@ -3559,7 +3667,7 @@
     "message": "Richtlinien"
   },
   "singleSignOn": {
-    "message": "Single Sign-on"
+    "message": "Single Sign-On"
   },
   "editPolicy": {
     "message": "Richtlinie bearbeiten"
@@ -4358,8 +4466,32 @@
   "updateBrowser": {
     "message": "Browser aktualisieren"
   },
-  "generatingYourRiskInsights": {
-    "message": "Dein Risiko-Überblick wird generiert..."
+  "generatingYourAccessIntelligence": {
+    "message": "Deine Zugangsintelligenz wird generiert..."
+  },
+  "fetchingMemberData": {
+    "message": "Mitgliedsdaten werden abgerufen..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "Passwortsicherheit wird analysiert..."
+  },
+  "calculatingRiskScores": {
+    "message": "Risikobewertung wird berechnet..."
+  },
+  "generatingReportData": {
+    "message": "Berichtsdaten werden generiert..."
+  },
+  "savingReport": {
+    "message": "Bericht wird gespeichert..."
+  },
+  "compilingInsights": {
+    "message": "Analyse wird zusammengestellt..."
+  },
+  "loadingProgress": {
+    "message": "Ladefortschritt"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Dies kann einige Minuten dauern."
   },
   "riskInsightsRunReport": {
     "message": "Bericht ausführen"
@@ -4446,8 +4578,8 @@
   "inviteAccepted": {
     "message": "Einladung angenommen"
   },
-  "inviteAcceptedDesc": {
-    "message": "Du kannst der Organisation beitreten, sobald ein Administrator deine Mitgliedschaft bestätigt hat. Wir werden dich dann per E-Mail benachrichtigen."
+  "invitationAcceptedDesc": {
+    "message": "Deine Einladung wurde erfolgreich angenommen."
   },
   "inviteInitAcceptedDesc": {
     "message": "Du kannst nun auf diese Organisation zugreifen."
@@ -5710,6 +5842,65 @@
     "message": "Erfahre mehr über den ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
+  "availableNow": {
+    "message": "Jetzt verfügbar"
+  },
+  "autoConfirm": {
+    "message": "Automatische Bestätigung neuer Benutzer"
+  },
+  "autoConfirmDescription": {
+    "message": "Neue Benutzer, die in die Organisation eingeladen werden, werden automatisch bestätigt, wenn das Gerät eines Administrators entsperrt wird.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "So aktivierst du die automatische Benutzerbestätigung"
+  },
+  "autoConfirmExtension1": {
+    "message": "Öffne deine Bitwarden-Erweiterung"
+  },
+  "autoConfirmExtension2": {
+    "message": "Wähle",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
+  },
+  "autoConfirmExtension3": {
+    "message": " Einschalten",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Die Bitwarden Browser-Erweiterung wurde erfolgreich geöffnet. Du kannst nun die automatische Benutzerbestätigung aktivieren."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "Neue Benutzer, die zur Organisation eingeladen werden, werden automatisch bestätigt, wenn das Gerät eines Administrators entsperrt wird. Bevor du diese Richtlinie aktivierst, lies bitte Folgendes durch und stimme zu: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potenzielles Sicherheitsrisiko. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Eine automatische Benutzerbestätigung könnte ein Sicherheitsrisiko für die Daten deines Unternehmens darstellen."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Erfahre mehr über die Risiken",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Richtlinie einer einzelnen Organisation erforderlich. "
+  },
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "Alle Mitglieder dürfen nur dieser Organisation angehören, um diese Automatisierung zu aktivieren."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Die Richtlinie für einzelne Organisationen wird für alle Rollen gelten. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "Kein Notfallzugriff. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Der Notfallzugriff wird entfernt."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "Ich akzeptiere diese Risiken und Richtlinien-Aktualisierungen"
+  },
   "personalOwnership": {
     "message": "Persönlichen Tresor entfernen"
   },
@@ -5761,6 +5952,19 @@
   "disableHideEmail": {
     "message": "Benutzern nicht gestatten, ihre E-Mail-Adresse vor Empfängern zu verstecken, wenn sie ein Send erstellen oder bearbeiten.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Standard URI-Übereinstimmungserkennung"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Lege fest, wann Zugangsdaten für Auto-Ausfüllen vorgeschlagen werden. Administratoren und Eigentümer sind von dieser Richtlinie ausgenommen."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Standard URI-Übereinstimmungserkennung"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Bitte wähle eine gültige URI-Übereinstimmungserkennungs-Option aus.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Richtlinie $ID$ geändert.",
@@ -6415,11 +6619,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Dein Master-Passwort entspricht nicht einer oder mehreren Richtlinien deiner Organisation. Um auf den Tresor zugreifen zu können, musst du dein Master-Passwort jetzt aktualisieren. Wenn du fortfährst, wirst du von deiner aktuellen Sitzung abgemeldet und musst dich erneut anmelden. Aktive Sitzungen auf anderen Geräten können noch bis zu einer Stunde lang aktiv bleiben."
   },
-  "automaticAppLogin": {
-    "message": "Benutzer automatisch bei erlaubten Anwendungen anmelden"
+  "automaticAppLoginWithSSO": {
+    "message": "Automatische Anmeldung mit SSO"
   },
-  "automaticAppLoginDesc": {
-    "message": "Anmeldeformulare von Apps, die über deinen konfigurierten Identitätsanbieter gestartet wurden, werden automatisch ausgefüllt und abgesendet."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Erweitere die Sicherheit und den Komfort von SSO auf nicht verwaltete Anwendungen. Wenn Benutzer eine Anwendung über Ihren Identitätsanbieter starten, werden deren Anmeldedaten automatisch ausgefüllt und übermittelt, sodass ein sicherer Ablauf mit nur einem Klick vom Identitätsanbieter zur Anwendung entsteht."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identitätsanbieter Host"
@@ -6430,23 +6634,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "Deine Organisation hat deine Entschlüsselungsoptionen aktualisiert. Bitte lege ein Master-Passwort fest, um auf deinen Tresor zuzugreifen."
   },
-  "maximumVaultTimeout": {
-    "message": "Tresor-Timeout"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Sitzungs-Timeout"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Konfiguriere ein maximales Tresor-Timeout für alle Benutzer."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Lege ein maximales Sitzungs-Timeout für alle Mitglieder außer für Eigentümer fest."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Maximales Tresor-Timeout"
+  "maximumAllowedTimeout": {
+    "message": "Maximal zulässiges Timeout"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "Ungültiger maximaler Tresor-Timeout."
+  "maximumAllowedTimeoutRequired": {
+    "message": "Ein maximal zulässiges Timeout ist erforderlich."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Die Zeit ist ungültig. Ändere mindestens einen Wert."
+  },
+  "sessionTimeoutAction": {
+    "message": "Aktion bei Sitzungs-Timeout"
+  },
+  "immediately": {
+    "message": "Sofort"
+  },
+  "onSystemLock": {
+    "message": "Wenn System gesperrt"
+  },
+  "onAppRestart": {
+    "message": "Beim Neustart der App"
   },
   "hours": {
     "message": "Stunden"
   },
   "minutes": {
     "message": "Minuten"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Bist du sicher, dass du für alle Mitglieder ein maximales Timeout von \"Nie\" zulassen möchtest?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "Mit dieser Option werden die Verschlüsselungsschlüssel deiner Mitglieder auf deren Geräten gespeichert. Wenn du diese Option wählst, stelle sicher, dass deren Geräte ausreichend geschützt sind."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Erfahre mehr über den Geräteschutz"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "\"Wenn System gesperrt\" gilt nur für die Browser-Erweiterung und die Desktop-App"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "Die Smartphone und Web-App verwenden \"Beim Neustart der App\" als maximal zulässiges Timeout, da die Option nicht unterstützt wird."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Deine Unternehmensrichtlinien haben das maximal zulässige Tresor-Timeout auf $HOURS$ Stunde(n) und $MINUTES$ Minute(n) festgelegt.",
@@ -6989,6 +7223,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Du musst entweder die Basis-Server-URL oder mindestens eine benutzerdefinierte Umgebung hinzufügen."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs müssen HTTPS verwenden."
+  },
   "apiUrl": {
     "message": "API Server-URL"
   },
@@ -7160,6 +7397,9 @@
   },
   "accessDenied": {
     "message": "Zugriff verweigert. Du hast keine Berechtigung, diese Seite zu sehen."
+  },
+  "noPageAccess": {
+    "message": "Du hast keinen Zugriff auf diese Seite"
   },
   "masterPassword": {
     "message": "Master-Passwort"
@@ -9336,9 +9576,6 @@
   "loggedInExclamation": {
     "message": "Angemeldet!"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "assignCollectionAccess": {
     "message": "Sammlungszugriff zuweisen"
   },
@@ -9618,6 +9855,9 @@
   },
   "assignTasks": {
     "message": "Aufgaben zuweisen"
+  },
+  "assignTasksToMembers": {
+    "message": "Mitgliedern Aufgaben für eine gezielte Lösung zuweisen"
   },
   "assignToCollections": {
     "message": "Sammlungen zuweisen"
@@ -10361,26 +10601,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Aus"
   },
-  "higherKDFIterations": {
-    "message": "Höhere KDF-Iterationen können helfen, dein Master-Passwort vor Brute-Force-Attacken durch einen Angreifer zu schützen."
-  },
-  "incrementsOf100,000": {
-    "message": "Schritten von 100.000"
-  },
-  "smallIncrements": {
-    "message": "kleinen Schritten"
-  },
   "kdfIterationRecommends": {
     "message": "Wir empfehlen 600.000 oder mehr"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "Auf älteren Geräten kann es durch zu hohe KDF-Iterationen zu Leistungsproblemen kommen. Erhöhe den Wert in $VALUE$ und teste es auf deinen Geräten.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Kontaktiere den Kundensupport, um dein Abonnement wiederherzustellen."
@@ -11024,6 +11246,15 @@
   "domainClaimed": {
     "message": "Domain beansprucht"
   },
+  "itemAddedToFavorites": {
+    "message": "Eintrag zu Favoriten hinzugefügt"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Eintrag aus Favoriten entfernt"
+  },
+  "copyNote": {
+    "message": "Notiz kopieren"
+  },
   "organizationNameMaxLength": {
     "message": "Der Name der Organisation darf 50 Zeichen nicht überschreiten."
   },
@@ -11294,11 +11525,46 @@
     "message": "Archivieren",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Nicht mehr archivieren"
+  },
+  "itemsInArchive": {
+    "message": "Einträge im Archiv"
+  },
   "noItemsInArchive": {
     "message": "Keine Einträge im Archiv"
   },
-  "archivedItemsDescription": {
-    "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Auto-Ausfüllen-Vorschlägen ausgeschlossen."
+  "noItemsInArchiveDesc": {
+    "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen."
+  },
+  "itemWasSentToArchive": {
+    "message": "Eintrag wurde ins Archiv verschoben"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Einträge wurden ins Archiv verschoben"
+  },
+  "itemUnarchived": {
+    "message": "Eintrag wird nicht mehr archiviert"
+  },
+  "bulkArchiveItems": {
+    "message": "Einträge archiviert"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Eintrag nicht mehr archiviert"
+  },
+  "archiveItem": {
+    "message": "Eintrag archivieren",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen. Bist du sicher, dass du diesen Eintrag archivieren möchtest?"
+  },
+  "archiveBulkItems": {
+    "message": "Einträge archivieren",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen. Bist du sicher, dass du diese Einträge archivieren möchtest?"
   },
   "businessUnit": {
     "message": "Geschäftsbereich"
@@ -11801,7 +12067,101 @@
   "continueWithoutUpgrading": {
     "message": "Fortfahren, ohne ein Upgrade durchzuführen"
   },
+  "upgradeYourPlan": {
+    "message": "Tarif upgraden"
+  },
+  "upgradeNow": {
+    "message": "Jetzt upgraden"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Durch das Ausfüllen dieses Formulars wird eine neue Families-Organisation erstellt. Du kannst deine kostenlose Organisation über die Administrator-Konsole upgraden."
+  },
   "upgradeErrorMessage": {
     "message": "Bei der Verarbeitung deines Upgrades ist ein Fehler aufgetreten. Bitte versuche es erneut."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "Du nutzt den Bitwarden Free-Tarif"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade für umfassende Sicherheit"
+  },
+  "viewbusinessplans": {
+    "message": "Unternehmens-Tarife anzeigen"
+  },
+  "updateEncryptionSettings": {
+    "message": "Verschlüsselungseinstellungen aktualisieren"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Aktualisiere deine Verschlüsselungseinstellungen"
+  },
+  "updateSettings": {
+    "message": "Einstellungen aktualisieren"
+  },
+  "algorithm": {
+    "message": "Algorithmus"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Wähle aus, wie Bitwarden deine Tresordaten verschlüsseln soll. Alle Optionen sind sicher, aber stärkere Methoden bieten besseren Schutz - vor allem gegen Brute-Force-Angriffe. Bitwarden empfiehlt die Standardeinstellung für die meisten Benutzer."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Die Erhöhung der Werte über den Standard hinaus wird die Sicherheit verbessern, aber es kann dann länger dauern, bis dein Tresor entsperrt wird."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "Über Verschlüsselungsalgorithmen"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 ist eine bewährte Verschlüsselungsmethode, die Sicherheit und Leistung in einem ausgewogenen Verhältnis vereint. Gut für alle Benutzer."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id bietet einen stärkeren Schutz gegen moderne Attacken. Am besten geeignet für fortgeschrittene Benutzer mit leistungsstarken Geräten."
+  },
+  "zipPostalCodeLabel": {
+    "message": "PLZ / Postleitzahl"
+  },
+  "cardNumberLabel": {
+    "message": "Kartennummer"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Kostenlose Families-Testversion starten"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Richte eine Entsperrmethode ein, um deine Aktion bei Tresor-Timeout zu ändern."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Die Unternehmens-Richtlinienanforderungen wurden auf deine Timeout-Optionen angewendet"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Dein Tresor-Timeout überschreitet die von deinem Unternehmen festgelegten Beschränkungen."
+  },
+  "neverLockWarning": {
+    "message": "Bist du sicher, dass du die Option \"Nie\" verwenden möchtest? Durch das Setzen der Sperroptionen zu \"Nie\" wird der Verschlüsselungsschlüssel deines Tresors auf deinem Gerät gespeichert. Wenn du diese Option verwendest, solltest du sicherstellen, dass dein Gerät ausreichend geschützt ist."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout-Aktion"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sitzungs-Timeout"
+  },
+  "appearance": {
+    "message": "Aussehen"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Das Timeout überschreitet die von deiner Organisation festgelegte Beschränkung: Maximal $HOURS$ Stunde(n) und $MINUTES$ Minute(n)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "No critical applications are selected"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Are you sure you want to continue?"
   }
 }

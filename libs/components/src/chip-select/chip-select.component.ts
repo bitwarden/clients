@@ -1,27 +1,26 @@
 import {
-  AfterViewInit,
   Component,
-  DestroyRef,
   ElementRef,
   HostBinding,
   HostListener,
-  Input,
-  QueryList,
-  ViewChildren,
   booleanAttribute,
-  inject,
+  computed,
+  effect,
   signal,
   input,
   viewChild,
+  viewChildren,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  inject,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
 import { compareValues } from "@bitwarden/common/platform/misc/compare-values";
 
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
-import { MenuComponent, MenuItemDirective, MenuModule } from "../menu";
+import { MenuComponent, MenuItemComponent, MenuModule, MenuTriggerForDirective } from "../menu";
 import { Option } from "../select/option";
 import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
@@ -46,11 +45,15 @@ export type ChipSelectOption<T> = Option<T> & {
       multi: true,
     },
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, AfterViewInit {
+export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
+  private readonly cdr = inject(ChangeDetectorRef);
+
   readonly menu = viewChild(MenuComponent);
-  @ViewChildren(MenuItemDirective) menuItems?: QueryList<MenuItemDirective>;
+  readonly menuItems = viewChildren(MenuItemComponent);
   readonly chipSelectButton = viewChild<ElementRef<HTMLButtonElement>>("chipSelectButton");
+  readonly menuTrigger = viewChild(MenuTriggerForDirective);
 
   /** Text to show when there is no selected option */
   readonly placeholderText = input.required<string>();
@@ -58,24 +61,20 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
   /** Icon to show when there is no selected option or the selected option does not have an icon */
   readonly placeholderIcon = input<string>();
 
-  private _options: ChipSelectOption<T>[] = [];
-
-  // TODO: Skipped for signal migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
   /** The select options to render */
-  @Input({ required: true })
-  get options(): ChipSelectOption<T>[] {
-    return this._options;
-  }
-  set options(value: ChipSelectOption<T>[]) {
-    this._options = value;
-    this.initializeRootTree(value);
-  }
+  readonly options = input.required<ChipSelectOption<T>[]>();
 
-  /** Disables the entire chip */
-  // TODO: Skipped for signal migration because:
-  //  Your application code writes to the input. This prevents migration.
-  @Input({ transform: booleanAttribute }) disabled = false;
+  /** Disables the entire chip (template input) */
+  protected readonly disabledInput = input<boolean, unknown>(false, {
+    alias: "disabled",
+    transform: booleanAttribute,
+  });
+
+  /** Disables the entire chip (programmatic control from CVA) */
+  private readonly disabledState = signal(false);
+
+  /** Combined disabled state from both input and programmatic control */
+  readonly disabled = computed(() => this.disabledInput() || this.disabledState());
 
   /** Chip will stretch to full width of its container */
   readonly fullWidth = input<boolean, unknown>(undefined, { transform: booleanAttribute });
@@ -83,7 +82,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
   /**
    * We have `:focus-within` and `:focus-visible` but no `:focus-visible-within`
    */
-  protected focusVisibleWithin = signal(false);
+  protected readonly focusVisibleWithin = signal(false);
   @HostListener("focusin", ["$event.target"])
   onFocusIn(target: HTMLElement) {
     this.focusVisibleWithin.set(target.matches("[data-fvw-target]:focus-visible"));
@@ -98,10 +97,29 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
     return ["tw-inline-block", this.fullWidth() ? "tw-w-full" : "tw-max-w-52"];
   }
 
-  private destroyRef = inject(DestroyRef);
-
   /** Tree constructed from `this.options` */
   private rootTree?: ChipSelectOption<T> | null;
+
+  constructor() {
+    // Initialize the root tree whenever options change
+    effect(() => {
+      this.initializeRootTree(this.options());
+    });
+
+    // Focus the first menu item when menuItems change (e.g., navigating submenus)
+    effect(() => {
+      // Trigger effect when menuItems changes
+      const items = this.menuItems();
+      const currentMenu = this.menu();
+      const trigger = this.menuTrigger();
+      // Note: `isOpen` is intentionally accessed outside signal tracking (via `trigger?.isOpen`)
+      // to avoid re-focusing when the menu state changes. We only want to focus during
+      // submenu navigation, not on initial open/close.
+      if (items.length > 0 && trigger?.isOpen) {
+        currentMenu?.keyManager?.setFirstItemActive();
+      }
+    });
+  }
 
   /** Options that are currently displayed in the menu */
   protected renderedOptions?: ChipSelectOption<T> | null;
@@ -217,16 +235,6 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
     this.renderedOptions = this.rootTree;
   }
 
-  ngAfterViewInit() {
-    /**
-     * menuItems will change when the user navigates into or out of a submenu. when that happens, we want to
-     * direct their focus to the first item in the new menu
-     */
-    this.menuItems?.changes.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.menu()?.keyManager?.setFirstItemActive();
-    });
-  }
-
   /**
    * Calculate the width of the menu based on whichever is larger, the chip select width or the width of
    * the initially rendered options
@@ -249,6 +257,9 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
   writeValue(obj: T): void {
     this.selectedOption = this.findOption(this.rootTree, obj);
     this.setOrResetRenderedOptions();
+    // OnPush components require manual change detection when writeValue() is called
+    // externally by Angular forms, as the framework doesn't automatically trigger CD
+    this.cdr.markForCheck();
   }
 
   /** Implemented as part of NG_VALUE_ACCESSOR */
@@ -263,7 +274,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
 
   /** Implemented as part of NG_VALUE_ACCESSOR */
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.disabledState.set(isDisabled);
   }
 
   /** Implemented as part of NG_VALUE_ACCESSOR */

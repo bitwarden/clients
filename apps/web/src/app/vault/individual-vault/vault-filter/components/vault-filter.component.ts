@@ -46,6 +46,8 @@ import {
 
 import { OrganizationOptionsComponent } from "./organization-options.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-filter",
   templateUrl: "vault-filter.component.html",
@@ -53,10 +55,18 @@ import { OrganizationOptionsComponent } from "./organization-options.component";
 })
 export class VaultFilterComponent implements OnInit, OnDestroy {
   filters?: VaultFilterList;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() activeFilter: VaultFilter = new VaultFilter();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onEditFolder = new EventEmitter<FolderFilter>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() searchText = "";
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() searchTextChanged = new EventEmitter<string>();
 
   isLoaded = false;

@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Trí tuệ truy cập"
   },
-  "riskInsights": {
-    "message": "Thấu hiểu về rủi ro"
-  },
   "passwordRisk": {
     "message": "Mật khẩu rủi ro"
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "reviewAtRiskPasswords": {
-    "message": "Kiểm tra các mật khẩu có nguy cơ (yếu, bị lộ hoặc được sử dụng lại) trên các ứng dụng. Chọn các ứng dụng quan trọng nhất của bạn để ưu tiên các biện pháp bảo mật cho người dùng nhằm giải quyết các mật khẩu có nguy cơ."
+    "message": "Kiểm tra các mật khẩu có rủi ro (yếu, bị lộ hoặc được sử dụng lại) trên các ứng dụng. Chọn các ứng dụng quan trọng nhất của bạn để ưu tiên các biện pháp bảo mật cho người dùng nhằm giải quyết các mật khẩu có rủi ro."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Xem lại các đăng nhập có rủi ro"
   },
   "dataLastUpdated": {
     "message": "Dữ liệu được cập nhật lần cuối: $DATE$",
@@ -36,7 +39,7 @@
     }
   },
   "noReportRan": {
-    "message": "You have not created a report yet"
+    "message": "Bạn chưa tạo báo cáo nào"
   },
   "notifiedMembers": {
     "message": "Các thành viên được thông báo"
@@ -63,7 +66,7 @@
     "message": "Tạo mục đăng nhập mới"
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "Hoàn thành $PERCENT$%",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -72,7 +75,7 @@
     }
   },
   "securityTasksCompleted": {
-    "message": "$COUNT$ out of $TOTAL$ security tasks completed",
+    "message": "Hoàn thành $COUNT$ trên tổng số $TOTAL$ tác vụ bảo mật",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -85,19 +88,19 @@
     }
   },
   "passwordChangeProgress": {
-    "message": "Password change progress"
+    "message": "Tiến trình thay đổi mật khẩu"
   },
   "assignMembersTasksToMonitorProgress": {
-    "message": "Assign members tasks to monitor progress"
+    "message": "Giao tác vụ cho thành viên để theo dõi tiến trình"
   },
-  "onceYouReviewApplications": {
-    "message": "Once you review applications and mark them as critical, they will display here."
+  "onceYouReviewApps": {
+    "message": "Sau khi bạn xem xét các ứng dụng và đánh dấu chúng là nghiêm trọng, bạn có thể giao nhiệm vụ cho các thành viên để xử lý các mục có rủi ro và theo dõi tiến độ tại đây"
   },
   "sendReminders": {
-    "message": "Send reminders"
+    "message": "Gửi lời nhắc"
   },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Once you mark applications critical, they will display here."
+    "message": "Khi bạn đánh dấu các ứng dụng là quan trọng, chúng sẽ hiển thị tại đây."
   },
   "viewAtRiskMembers": {
     "message": "Xem các thành viên gặp rủi ro"
@@ -127,6 +130,9 @@
       }
     }
   },
+  "criticalApplicationsMarked": {
+    "message": "ứng dụng quan trọng đã được đánh dấu"
+  },
   "countOfCriticalApplications": {
     "message": "$COUNT$ ứng dụng quan trọng",
     "placeholders": {
@@ -146,11 +152,20 @@
     }
   },
   "countOfAtRiskPasswords": {
-    "message": "$COUNT$ passwords at-risk",
+    "message": "$COUNT$ mật khẩu có rủi ro",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ mật khẩu mới có rủi ro",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -163,8 +178,8 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "Không tìm thấy ứng dụng nào trong $ORG NAME$",
+  "noApplicationsInOrgTitle": {
+    "message": "Không tìm thấy ứng dụng nào cho $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -172,8 +187,32 @@
       }
     }
   },
-  "noAppsInOrgDescription": {
-    "message": "Khi người dùng lưu thông tin đăng nhập, các ứng dụng sẽ hiển thị tại đây, bao gồm cả các mật khẩu có nguy cơ bị lộ. Đánh dấu các ứng dụng quan trọng và thông báo cho người dùng cập nhật mật khẩu."
+  "noApplicationsInOrgDescription": {
+    "message": "Nhập dữ liệu đăng nhập của tổ chức bạn để bắt đầu giám sát các rủi ro bảo mật thông tin xác thực. Sau khi nhập, bạn có thể:"
+  },
+  "benefit1Title": {
+    "message": "Ưu tiên các rủi ro"
+  },
+  "benefit1Description": {
+    "message": "Tập trung vào các ứng dụng quan trọng nhất"
+  },
+  "benefit2Title": {
+    "message": "Hướng dẫn khắc phục"
+  },
+  "benefit2Description": {
+    "message": "Giao nhiệm vụ được hướng dẫn cho các thành viên có rủi ro để xoay vòng thông tin xác thực có rủi ro"
+  },
+  "benefit3Title": {
+    "message": "Theo dõi tiến độ"
+  },
+  "benefit3Description": {
+    "message": "Theo dõi thay đổi theo thời gian để hiển thị cải tiến bảo mật"
+  },
+  "noReportRunTitle": {
+    "message": "Chạy báo cáo đầu tiên của bạn để xem các ứng dụng"
+  },
+  "noReportRunDescription": {
+    "message": "Tạo báo cáo thông tin chi tiết về rủi ro để phân tích các ứng dụng của tổ chức bạn và xác định các mật khẩu có rủi ro cần chú ý. Khi chạy báo cáo đầu tiên, bạn sẽ:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Bạn chưa đánh dấu ứng dụng nào là quan trọng"
@@ -188,22 +227,31 @@
     "message": "Đánh dấu các ứng dụng quan trọng"
   },
   "markAsCritical": {
-    "message": "Mark as critical"
+    "message": "Đánh dấu là quan trọng"
   },
   "applicationsSelected": {
-    "message": "applications selected"
+    "message": "ứng dụng đã chọn"
   },
   "selectApplication": {
-    "message": "Select application"
+    "message": "Chọn ứng dụng"
   },
   "unselectApplication": {
-    "message": "Unselect application"
+    "message": "Bỏ chọn ứng dụng"
   },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Các ứng dụng được đánh dấu là quan trọng"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ ứng dụng được đánh dấu là quan trọng",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
-    "message": "Failed to mark applications as critical"
+    "message": "Không thể đánh dấu các ứng dụng là quan trọng"
   },
   "application": {
     "message": "Ứng dụng"
@@ -224,7 +272,13 @@
     "message": "Các thành viên có rủi ro"
   },
   "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Members with access to at-risk items for critical applications"
+    "message": "Thành viên có quyền truy cập vào các mục có nguy cơ dành cho các ứng dụng quan trọng"
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Thành viên có mật khẩu rủi ro"
+  },
+  "membersWillReceiveNotification": {
+    "message": "Các thành viên sẽ nhận được thông báo để giải quyết các đăng nhập có rủi ro thông qua tiện ích mở rộng trình duyệt."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ thành viên gặp rủi ro",
@@ -293,10 +347,13 @@
     "message": "Tổng số ứng dụng"
   },
   "applicationsNeedingReview": {
-    "message": "Applications needing review"
+    "message": "Ứng dụng cần xem lại"
+  },
+  "newApplicationsCardTitle": {
+    "message": "Review new applications"
   },
   "newApplicationsWithCount": {
-    "message": "$COUNT$ new applications",
+    "message": "$COUNT$ ứng dụng mới",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -305,19 +362,61 @@
     }
   },
   "newApplicationsDescription": {
-    "message": "Review new applications to mark as critical and keep your organization secure"
+    "message": "Xem lại các ứng dụng mới để đánh dấu là quan trọng và giữ an toàn cho tổ chức của bạn"
   },
   "reviewNow": {
-    "message": "Review now"
+    "message": "Đánh giá ngay"
+  },
+  "allCaughtUp": {
+    "message": "Tất cả đã hoàn tất!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "Hiện tại không có ứng dụng mới nào để đánh giá"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Your organization has items saved for $COUNT$ applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Review applications to secure the items most critical to your organization's security"
+  },
+  "reviewApplications": {
+    "message": "Review applications"
   },
   "prioritizeCriticalApplications": {
-    "message": "Prioritize critical applications"
+    "message": "Ưu tiên các ứng dụng quan trọng"
   },
-  "atRiskItems": {
-    "message": "At-risk items"
+  "selectCriticalApplicationsDescription": {
+    "message": "Chọn những ứng dụng quan trọng nhất đối với tổ chức của bạn, sau đó giao nhiệm vụ bảo mật cho các thành viên để giải quyết rủi ro."
+  },
+  "reviewNewApplications": {
+    "message": "Review new applications"
+  },
+  "reviewNewApplicationsDescription": {
+    "message": "We've highlighted at-risk items for new applications stored in Admin console that have weak, exposed, or reused passwords."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Nhấp vào biểu tượng ngôi sao để đánh dấu một ứng dụng là quan trọng"
   },
   "markAsCriticalPlaceholder": {
-    "message": "Mark as critical functionality will be implemented in a future update"
+    "message": "Chức năng đánh dấu là quan trọng sẽ được triển khai trong bản cập nhật sau"
+  },
+  "applicationReviewSaved": {
+    "message": "Đã lưu đánh giá ứng dụng"
+  },
+  "newApplicationsReviewed": {
+    "message": "Các ứng dụng mới đã được đánh giá"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Lỗi lưu trạng thái đánh giá"
+  },
+  "pleaseTryAgain": {
+    "message": "Vui lòng thử lại"
   },
   "unmarkAsCritical": {
     "message": "Bỏ đánh dấu là nghiêm trọng"
@@ -780,6 +879,9 @@
   },
   "favorites": {
     "message": "Yêu thích"
+  },
+  "taskSummary": {
+    "message": "Tóm tắt nhiệm vụ"
   },
   "types": {
     "message": "Loại"
@@ -1294,7 +1396,7 @@
     "message": "Giữ cửa sổ này mở và làm theo lời nhắc từ trình duyệt của bạn."
   },
   "passkeyAuthenticationFailed": {
-    "message": "Passkey authentication failed. Please try again."
+    "message": "Xác thực khóa bảo mật không thành công. Vui lòng thử lại."
   },
   "useADifferentLogInMethod": {
     "message": "Dùng phương thức đăng nhập khác"
@@ -1304,6 +1406,9 @@
   },
   "useSingleSignOn": {
     "message": "Dùng đăng nhập một lần"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Tổ chức của bạn yêu cầu đăng nhập một lần."
   },
   "welcomeBack": {
     "message": "Chào mừng bạn trở lại"
@@ -2080,9 +2185,6 @@
   "encKeySettings": {
     "message": "Cài đặt mã khóa"
   },
-  "kdfAlgorithm": {
-    "message": "Thuật toán KDF"
-  },
   "kdfIterations": {
     "message": "Số lần KDF"
   },
@@ -2116,9 +2218,6 @@
   },
   "argon2Desc": {
     "message": "Số lần lặp KDF cao hơn, bộ nhớ và khả năng song song có thể giúp bảo vệ mật khẩu chính của bạn khỏi bị tấn công bằng phương pháp dò tìm (brute force) từ phía kẻ tấn công."
-  },
-  "changeKdf": {
-    "message": "Thay đổi KDF"
   },
   "encKeySettingsChanged": {
     "message": "Đã thay đổi cài đặt mã khóa"
@@ -2951,7 +3050,7 @@
     "message": "Vui lòng đảm bảo tài khoản của bạn có đủ số dư để thực hiện giao dịch này. Nếu tài khoản của bạn không đủ số dư, phương thức thanh toán mặc định đã đăng ký sẽ được sử dụng để thanh toán phần chênh lệch. Bạn có thể nạp tiền vào tài khoản từ trang Thanh toán."
   },
   "notEnoughAccountCredit": {
-    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
+    "message": "Bạn không có đủ tín dụng trong tài khoản cho giao dịch mua này. Bạn có thể thêm tín dụng vào tài khoản từ trang Thanh toán."
   },
   "creditAppliedDesc": {
     "message": "Số dư trong tài khoản của bạn có thể được sử dụng để thực hiện các giao dịch mua hàng. Số dư khả dụng sẽ được tự động áp dụng cho các hóa đơn được tạo ra cho tài khoản này."
@@ -3151,8 +3250,17 @@
   "nextCharge": {
     "message": "Lần thanh toán tiếp theo"
   },
+  "nextChargeHeader": {
+    "message": "Next Charge"
+  },
+  "plan": {
+    "message": "Plan"
+  },
   "details": {
     "message": "Chi tiết"
+  },
+  "discount": {
+    "message": "discount"
   },
   "downloadLicense": {
     "message": "Tải về tệp giấy phép"
@@ -4358,11 +4466,35 @@
   "updateBrowser": {
     "message": "Cập nhật trình duyệt"
   },
-  "generatingYourRiskInsights": {
-    "message": "Đang tạo báo cáo phân tích rủi ro của bạn..."
+  "generatingYourAccessIntelligence": {
+    "message": "Generating your Access Intelligence..."
+  },
+  "fetchingMemberData": {
+    "message": "Fetching member data..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "Analyzing password health..."
+  },
+  "calculatingRiskScores": {
+    "message": "Calculating risk scores..."
+  },
+  "generatingReportData": {
+    "message": "Generating report data..."
+  },
+  "savingReport": {
+    "message": "Saving report..."
+  },
+  "compilingInsights": {
+    "message": "Compiling insights..."
+  },
+  "loadingProgress": {
+    "message": "Loading progress"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "This might take a few minutes."
   },
   "riskInsightsRunReport": {
-    "message": "Run report"
+    "message": "Chạy báo cáo"
   },
   "updateBrowserDesc": {
     "message": "Bạn đang sử dụng trình duyệt web không được hỗ trợ. Kho lưu trữ web có thể không hoạt động đúng cách."
@@ -4446,8 +4578,8 @@
   "inviteAccepted": {
     "message": "Đã chấp nhận lời mời"
   },
-  "inviteAcceptedDesc": {
-    "message": "Bạn có thể truy cập tổ chức này sau khi quản trị viên xác nhận tư cách thành viên của bạn. Chúng tôi sẽ gửi email cho bạn khi được xác nhận."
+  "invitationAcceptedDesc": {
+    "message": "Đã chấp nhận lời mời của bạn thành công."
   },
   "inviteInitAcceptedDesc": {
     "message": "Bạn hiện có thể truy cập tổ chức này."
@@ -5710,6 +5842,65 @@
     "message": "Tìm hiểu thêm về ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
+  "availableNow": {
+    "message": "Khả dụng bây giờ"
+  },
+  "autoConfirm": {
+    "message": "Tự động xác nhận người dùng mới"
+  },
+  "autoConfirmDescription": {
+    "message": "Người dùng mới được mời vào tổ chức sẽ tự động được xác nhận khi thiết bị của quản trị viên đang mở khóa.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "Cách bật xác nhận người dùng tự động"
+  },
+  "autoConfirmExtension1": {
+    "message": "Open your Bitwarden extension"
+  },
+  "autoConfirmExtension2": {
+    "message": "Select",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
+  },
+  "autoConfirmExtension3": {
+    "message": " Turn on",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Đã mở tiện ích mở rộng Bitwarden trong trình duyệt. Giờ bạn có thể bật tùy chọn xác nhận người dùng tự động."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "Người dùng mới được mời vào tổ chức sẽ tự động được xác nhận khi thiết bị của quản trị viên đang mở khóa. Trước khi bật chính sách này, hãy đọc kỹ và đồng ý với các điều sau: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Nguy cơ bảo mật tiềm ẩn. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Tính năng xác nhận người dùng tự động có thể làm tăng rủi ro bảo mật cho dữ liệu của tổ chức bạn."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Tìm hiểu về các rủi ro",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Chính sách một tổ chức là bắt buộc. "
+  },
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "Tất cả thành viên chỉ phải thuộc tổ chức này để kích hoạt tự động hóa này."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Chính sách một tổ chức sẽ áp dụng cho tất cả các vai trò. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "Không có quyền truy cập khẩn cấp. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Quyền truy cập khẩn cấp sẽ bị xóa."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "Tôi chấp nhận những rủi ro và cập nhật chính sách này"
+  },
   "personalOwnership": {
     "message": "Xóa kho lưu trữ riêng lẻ"
   },
@@ -5761,6 +5952,19 @@
   "disableHideEmail": {
     "message": "Luôn hiển thị địa chỉ email của thành viên cho người nhận khi tạo hoặc chỉnh sửa Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Phát hiện khớp URI mặc định"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Xác định thời điểm nên đề xuất tự động điền thông tin đăng nhập. Quản trị viên và chủ sở hữu không bị ràng buộc bởi chính sách này."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Phát hiện khớp URI mặc định"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Vui lòng chọn một tùy chọn phát hiện khớp URI hợp lệ.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Chính sách $ID$ đã được điều chỉnh.",
@@ -6415,11 +6619,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Mật khẩu chính của bạn không đáp ứng một hoặc nhiều chính sách của tổ chức. Để truy cập kho, bạn phải cập nhật mật khẩu chính ngay bây giờ. Việc tiếp tục sẽ đăng xuất phiên hiện tại của bạn và yêu cầu bạn đăng nhập lại. Các phiên hoạt động trên các thiết bị khác có thể vẫn duy trì trong tối đa một giờ."
   },
-  "automaticAppLogin": {
-    "message": "Tự động đăng nhập người dùng cho các ứng dụng được phép"
+  "automaticAppLoginWithSSO": {
+    "message": "Tự động đăng nhập bằng SSO"
   },
-  "automaticAppLoginDesc": {
-    "message": "Các biểu mẫu đăng nhập sẽ tự động được điền và gửi cho các ứng dụng khởi chạy từ nhà cung cấp định danh mà bạn đã cấu hình."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Mở rộng tính năng đăng nhập một lần (SSO) để bảo mật và tiện lợi hơn cho các ứng dụng ngoài hệ thống. Khi người dùng mở một ứng dụng từ nhà cung cấp danh tính của bạn, thông tin đăng nhập sẽ được tự động điền và gửi đi, giúp họ truy cập an toàn chỉ với một lần nhấp."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Máy chủ nhà cung cấp định danh"
@@ -6430,23 +6634,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "Tổ chức của bạn đã cập nhật tùy chọn giải mã. Vui lòng đặt mật khẩu chính để truy cập vào kho lưu trữ của bạn."
   },
-  "maximumVaultTimeout": {
-    "message": "Thời gian chờ của kho"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Thời gian hết phiên"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Đặt thời gian chờ tối đa cho kho dành cho các thành viên."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Đặt thời gian chờ phiên tối đa cho tất cả thành viên ngoại trừ chủ sở hữu."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Thời gian chờ tối đa của kho"
+  "maximumAllowedTimeout": {
+    "message": "Thời gian chờ tối đa được phép"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "Thời gian chờ tối đa của kho không hợp lệ."
+  "maximumAllowedTimeoutRequired": {
+    "message": "Yêu cầu thời gian chờ tối đa được phép."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Thời gian không hợp lệ. Hãy thay đổi ít nhất một giá trị."
+  },
+  "sessionTimeoutAction": {
+    "message": "Hành động khi hết thời gian chờ phiên"
+  },
+  "immediately": {
+    "message": "Ngay lập tức"
+  },
+  "onSystemLock": {
+    "message": "Khi khóa hệ thống"
+  },
+  "onAppRestart": {
+    "message": "Khi khởi động lại ứng dụng"
   },
   "hours": {
     "message": "Giờ"
   },
   "minutes": {
     "message": "Phút"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Bạn có chắc chắn muốn cho phép thời gian chờ tối đa là \"Không bao giờ\" cho tất cả thành viên không?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "Tùy chọn này sẽ lưu các khóa mã hóa của thành viên trên thiết bị của họ. Nếu bạn chọn tùy chọn này, hãy đảm bảo rằng thiết bị của họ được bảo vệ đầy đủ."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Tìm hiểu thêm về bảo vệ thiết bị"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "\"Khóa hệ thống\" sẽ chỉ áp dụng cho trình duyệt và ứng dụng máy tính."
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "Ứng dụng di động và ứng dụng web sẽ đặt giới hạn thời gian chờ tối đa là “khi khởi động lại ứng dụng”, vì tùy chọn này không được hỗ trợ."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Chính sách của tổ chức bạn đã đặt thời gian chờ tối đa của kho là $HOURS$ giờ và $MINUTES$ phút.",
@@ -6989,6 +7223,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Bạn phải thêm URL Máy chủ gốc hoặc ít nhất một môi trường tùy chỉnh."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL phải sử dụng HTTPS."
+  },
   "apiUrl": {
     "message": "URL máy chủ API"
   },
@@ -7160,6 +7397,9 @@
   },
   "accessDenied": {
     "message": "Truy cập bị từ chối. Bạn không có quyền xem trang này."
+  },
+  "noPageAccess": {
+    "message": "Bạn không có quyền truy cập vào trang này"
   },
   "masterPassword": {
     "message": "Mật khẩu chính"
@@ -9336,9 +9576,6 @@
   "loggedInExclamation": {
     "message": "Đã đăng nhập!"
   },
-  "beta": {
-    "message": "Phiên bản Beta"
-  },
   "assignCollectionAccess": {
     "message": "Gán quyền truy cập bộ sưu tập"
   },
@@ -9617,7 +9854,10 @@
     "message": "Gán"
   },
   "assignTasks": {
-    "message": "Assign tasks"
+    "message": "Giao tác vụ"
+  },
+  "assignTasksToMembers": {
+    "message": "Giao nhiệm vụ cho các thành viên để hướng dẫn giải quyết"
   },
   "assignToCollections": {
     "message": "Gán vào bộ sưu tập"
@@ -10015,7 +10255,7 @@
     "message": "Gửi dữ liệu sự kiện đến thực thể Logscale của bạn"
   },
   "datadogEventIntegrationDesc": {
-    "message": "Send vault event data to your Datadog instance"
+    "message": "Gửi dữ liệu sự kiện kho bảo mật đến phiên bản Datadog của bạn"
   },
   "failedToSaveIntegration": {
     "message": "Không thể lưu tích hợp. Vui lòng thử lại sau."
@@ -10361,26 +10601,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Tắt"
   },
-  "higherKDFIterations": {
-    "message": "Số vòng lặp KDF cao hơn có thể giúp bảo vệ mật khẩu chính của bạn khỏi các vụ tấn công brute force."
-  },
-  "incrementsOf100,000": {
-    "message": "tăng theo bội số 100.000"
-  },
-  "smallIncrements": {
-    "message": "bước nhỏ"
-  },
   "kdfIterationRecommends": {
     "message": "Chúng tôi khuyến nghị 600.000 hoặc cao hơn"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "Đối với các thiết bị cũ, đặt KDF quá cao có thể gây ra vấn đề về hiệu suất. Tăng giá trị theo $VALUE$ và kiểm tra thiết bị của bạn.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Liên hệ với Bộ phận Hỗ trợ Khách hàng để khôi phục gói đăng ký của bạn."
@@ -11024,6 +11246,15 @@
   "domainClaimed": {
     "message": "Đã xác nhận tên miền"
   },
+  "itemAddedToFavorites": {
+    "message": "Đã thêm mục vào yêu thích"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Đã xóa mục khỏi yêu thích"
+  },
+  "copyNote": {
+    "message": "Sao chép ghi chú"
+  },
   "organizationNameMaxLength": {
     "message": "Tên tổ chức không được vượt quá 50 ký tự."
   },
@@ -11294,11 +11525,46 @@
     "message": "Lưu trữ",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Hủy lưu trữ"
+  },
+  "itemsInArchive": {
+    "message": "Các mục trong kho lưu trữ"
+  },
   "noItemsInArchive": {
     "message": "Không có mục nào trong kho lưu trữ"
   },
-  "archivedItemsDescription": {
+  "noItemsInArchiveDesc": {
     "message": "Các mục đã lưu trữ sẽ hiển thị ở đây và sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
+  },
+  "itemWasSentToArchive": {
+    "message": "Mục đã được chuyển vào kho lưu trữ"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Các mục đã được chuyển vào lưu trữ"
+  },
+  "itemUnarchived": {
+    "message": "Mục đã được bỏ lưu trữ"
+  },
+  "bulkArchiveItems": {
+    "message": "Các mục đã được lưu trữ"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Các mục đã được bỏ lưu trữ"
+  },
+  "archiveItem": {
+    "message": "Lưu trữ mục",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Các mục đã lưu trữ sẽ bị loại khỏi kết quả tìm kiếm chung và gợi ý tự động điền. Bạn có chắc chắn muốn lưu trữ mục này không?"
+  },
+  "archiveBulkItems": {
+    "message": "Lưu trữ các mục",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Các mục đã lưu trữ sẽ bị loại trừ khỏi kết quả tìm kiếm chung và gợi ý tự động điền. Bạn có chắc chắn muốn lưu trữ các mục này không?"
   },
   "businessUnit": {
     "message": "Bộ phận kinh doanh"
@@ -11772,36 +12038,130 @@
     "message": "Tích hợp liền mạch"
   },
   "families": {
-    "message": "Families"
+    "message": "Gia đình"
   },
   "upgradeToFamilies": {
-    "message": "Upgrade to Families"
+    "message": "Nâng cấp lên gói Gia đình"
   },
   "upgradeToPremium": {
-    "message": "Upgrade to Premium"
+    "message": "Nâng cấp lên gói Cao cấp"
   },
   "familiesUpdated": {
-    "message": "You've upgraded to Families!"
+    "message": "Bạn đã nâng cấp lên Gói Gia đình!"
   },
   "taxCalculationError": {
-    "message": "There was an error calculating tax for your location. Please try again."
+    "message": "Đã xảy ra lỗi khi tính thuế cho vị trí của bạn. Vui lòng thử lại."
   },
   "individualUpgradeWelcomeMessage": {
-    "message": "Welcome to Bitwarden"
+    "message": "Chào mừng đến với Bitwarden"
   },
   "individualUpgradeDescriptionMessage": {
-    "message": "Unlock more security features with Premium, or start sharing items with Families"
+    "message": "Mở khóa thêm các tính năng bảo mật với Premium hoặc bắt đầu chia sẻ mục với Gói Gia đình"
   },
   "individualUpgradeTaxInformationMessage": {
-    "message": "Prices exclude tax and are billed annually."
+    "message": "Giá chưa bao gồm thuế và được thanh toán hằng năm."
   },
   "organizationNameDescription": {
-    "message": "Your organization name will appear in invitations you send to members."
+    "message": "Tên tổ chức của bạn sẽ hiển thị trong các lời mời bạn gửi đến các thành viên."
   },
   "continueWithoutUpgrading": {
-    "message": "Continue without upgrading"
+    "message": "Tiếp tục mà không nâng cấp"
+  },
+  "upgradeYourPlan": {
+    "message": "Nâng cấp gói của bạn"
+  },
+  "upgradeNow": {
+    "message": "Nâng cấp ngay"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Hoàn tất biểu mẫu này sẽ tạo một tổ chức Gia đình mới. Bạn có thể nâng cấp tổ chức Miễn phí của mình từ Bảng điều khiển quản trị."
   },
   "upgradeErrorMessage": {
-    "message": "We encountered an error while processing your upgrade. Please try again."
+    "message": "Chúng tôi gặp lỗi khi xử lý nâng cấp của bạn. Vui lòng thử lại."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "Bạn đang sử dụng gói Bitwarden Miễn phí"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Nâng cấp để tăng cường bảo mật toàn diện"
+  },
+  "viewbusinessplans": {
+    "message": "Xem các gói doanh nghiệp"
+  },
+  "updateEncryptionSettings": {
+    "message": "Cập nhật cài đặt mã hóa"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Cập nhật cài đặt mã hóa của bạn"
+  },
+  "updateSettings": {
+    "message": "Cập nhật cài đặt"
+  },
+  "algorithm": {
+    "message": "Thuật toán"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Chọn cách Bitwarden mã hóa dữ liệu trong kho của bạn. Mọi tùy chọn đều an toàn, nhưng những phương pháp mạnh hơn sẽ giúp bảo vệ tốt hơn - đặc biệt là trước các cuộc tấn công brute-force. Bitwarden khuyến nghị giữ cài đặt mặc định cho hầu hết người dùng."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Tăng các giá trị cao hơn mức mặc định sẽ giúp tăng cường bảo mật, nhưng đồng thời kho của bạn có thể mất nhiều thời gian hơn để mở khóa."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "Về các thuật toán mã hóa"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 là phương pháp mã hóa đã được kiểm chứng, cân bằng tốt giữa tính bảo mật và hiệu suất. Phù hợp cho mọi người dùng."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id mang đến khả năng bảo vệ mạnh hơn trước các hình thức tấn công hiện đại, phù hợp nhất cho người dùng nâng cao với thiết bị mạnh mẽ."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Mã ZIP / Bưu điện"
+  },
+  "cardNumberLabel": {
+    "message": "Số thẻ"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Bắt đầu dùng thử Gói Gia đình miễn phí"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Set up an unlock method to change your vault timeout action."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Your vault timeout exceeds the restrictions set by your organization."
+  },
+  "neverLockWarning": {
+    "message": "Are you sure you want to use the \"Never\" option? Setting your lock options to \"Never\" stores your vault's encryption key on your device. If you use this option you should ensure that you keep your device properly protected."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
+  },
+  "appearance": {
+    "message": "Appearance"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "No critical applications are selected"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Are you sure you want to continue?"
   }
 }

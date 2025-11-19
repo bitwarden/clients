@@ -1,15 +1,18 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { combineLatest, switchMap } from "rxjs";
+import { combineLatest, distinctUntilChanged, map, shareReplay, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NoResults, NoSendsIcon } from "@bitwarden/assets/svg";
+import { VaultLoadingSkeletonComponent } from "@bitwarden/browser/vault/popup/components/vault-loading-skeleton/vault-loading-skeleton.component";
 import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/vault/popup/services/browser-premium-upgrade-prompt.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import {
@@ -31,6 +34,7 @@ import { CurrentAccountComponent } from "../../../auth/popup/account-switching/c
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
+import { VaultFadeInOutSkeletonComponent } from "../../../vault/popup/components/vault-fade-in-out-skeleton/vault-fade-in-out-skeleton.component";
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
@@ -39,6 +43,8 @@ export enum SendState {
   NoResults,
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "send-v2.component.html",
   providers: [
@@ -62,6 +68,8 @@ export enum SendState {
     SendListFiltersComponent,
     SendSearchComponent,
     TypographyModule,
+    VaultFadeInOutSkeletonComponent,
+    VaultLoadingSkeletonComponent,
   ],
 })
 export class SendV2Component implements OnDestroy {
@@ -70,7 +78,26 @@ export class SendV2Component implements OnDestroy {
 
   protected listState: SendState | null = null;
   protected sends$ = this.sendItemsService.filteredAndSortedSends$;
-  protected sendsLoading$ = this.sendItemsService.loading$;
+  private skeletonFeatureFlag$ = this.configService.getFeatureFlag$(
+    FeatureFlag.VaultLoadingSkeletons,
+  );
+  protected sendsLoading$ = this.sendItemsService.loading$.pipe(
+    distinctUntilChanged(),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  /** Spinner Loading State */
+  protected showSpinnerLoaders$ = combineLatest([
+    this.sendsLoading$,
+    this.skeletonFeatureFlag$,
+  ]).pipe(map(([loading, skeletonsEnabled]) => loading && !skeletonsEnabled));
+
+  /** Skeleton Loading State */
+  protected showSkeletonsLoaders$ = combineLatest([
+    this.sendsLoading$,
+    this.skeletonFeatureFlag$,
+  ]).pipe(map(([loading, skeletonsEnabled]) => loading && skeletonsEnabled));
+
   protected title: string = "allSends";
   protected noItemIcon = NoSendsIcon;
   protected noResultsIcon = NoResults;
@@ -82,6 +109,7 @@ export class SendV2Component implements OnDestroy {
     protected sendListFiltersService: SendListFiltersService,
     private policyService: PolicyService,
     private accountService: AccountService,
+    private configService: ConfigService,
   ) {
     combineLatest([
       this.sendItemsService.emptyList$,

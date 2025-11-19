@@ -10,7 +10,7 @@ import {
 import { WrappedSigningKey } from "@bitwarden/common/key-management/types";
 import { KeySuffixOptions, HashPurpose } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
   UserKey,
   MasterKey,
@@ -142,11 +142,10 @@ export abstract class KeyService {
   abstract makeUserKeyV1(): Promise<UserKey>;
   /**
    * Clears the user's stored version of the user key
-   * @param keySuffix The desired version of the key to clear
    * @param userId The desired user
    * @throws Error when userId is null or undefined.
    */
-  abstract clearStoredUserKey(keySuffix: KeySuffixOptions, userId: string): Promise<void>;
+  abstract clearStoredUserKey(userId: string): Promise<void>;
   /**
    * Retrieves the user's master key if it is in state, or derives it from the provided password
    * @param password The user's master password that will be used to derive a master key if one isn't found
@@ -167,16 +166,16 @@ export abstract class KeyService {
    */
   abstract makeMasterKey(password: string, email: string, kdfConfig: KdfConfig): Promise<MasterKey>;
   /**
-   * Encrypts the existing (or provided) user key with the
-   * provided master key
+   * Encrypts the provided user key with the provided master key.
    * @deprecated Interacting with the master key directly is prohibited. Use a high level function from MasterPasswordService instead.
    * @param masterKey The user's master key
    * @param userKey The user key
+   * @throws Error when userKey or masterKey is null/undefined.
    * @returns The user key and the master key protected version of it
    */
   abstract encryptUserKeyWithMasterKey(
     masterKey: MasterKey,
-    userKey?: UserKey,
+    userKey: UserKey,
   ): Promise<[UserKey, EncString]>;
   /**
    * Creates a master password hash from the user's master password. Can
@@ -221,13 +220,7 @@ export abstract class KeyService {
     providerOrgs: ProfileProviderOrganizationResponse[],
     userId: UserId,
   ): Promise<void>;
-  /**
-   * Retrieves a stream of the active users organization keys,
-   * will NOT emit any value if there is no active user.
-   *
-   * @deprecated Use {@link orgKeys$} with a required {@link UserId} instead.
-   */
-  abstract activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
+
   /**
    * Returns the organization's symmetric key
    * @deprecated Use the observable userOrgKeys$ and `map` to the desired {@link OrgKey} instead
@@ -248,17 +241,19 @@ export abstract class KeyService {
 
   /**
    * Stores the provider keys for a given user.
-   * @param orgs The provider orgs for which to save the keys from.
+   * @param providers The provider orgs for which to save the keys from.
    * @param userId The user id of the user for which to store the keys for.
    */
-  abstract setProviderKeys(orgs: ProfileProviderResponse[], userId: UserId): Promise<void>;
+  abstract setProviderKeys(providers: ProfileProviderResponse[], userId: UserId): Promise<void>;
+
   /**
-   *
-   * @throws Error when providerId is null or no active user
-   * @param providerId The desired provider
-   * @returns The provider's symmetric key
+   * Gets an observable of provider keys for the given user.
+   * @param userId The user to get provider keys for.
+   * @return An observable stream of the users providers keys if they are unlocked, or null if the user is not unlocked.
+   * @throws If an invalid user id is passed in.
    */
-  abstract getProviderKey(providerId: string): Promise<ProviderKey | null>;
+  abstract providerKeys$(userId: UserId): Observable<Record<ProviderId, ProviderKey> | null>;
+
   /**
    * Creates a new organization key and encrypts it with the user's public key.
    * This method can also return Provider keys for creating new Provider users.
@@ -345,14 +340,6 @@ export abstract class KeyService {
    * @throws If the provided key is a null-ish value.
    */
   abstract makeKeyPair(key: SymmetricCryptoKey): Promise<[string, EncString]>;
-  /**
-   * Clears the user's pin keys from storage
-   * Note: This will remove the stored pin and as a result,
-   * disable pin protection for the user
-   * @param userId The desired user
-   * @throws Error when provided userId is null or undefined
-   */
-  abstract clearPinKeys(userId: UserId): Promise<void>;
   /**
    * @param keyMaterial The key material to derive the send key from
    * @returns A new send key

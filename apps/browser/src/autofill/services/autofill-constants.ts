@@ -59,6 +59,14 @@ export class AutoFillConstants {
     "neue e-mail",
   ];
 
+  static readonly RegistrationKeywords: string[] = [
+    "register",
+    "signup",
+    "sign-up",
+    "join",
+    "create",
+  ];
+
   static readonly NewsletterFormNames: string[] = ["newsletter"];
 
   static readonly FieldIgnoreList: string[] = ["captcha", "findanything", "forgot"];
