@@ -11,10 +11,10 @@ use super::{ErrorOperations, Win32ErrorOperations, WIN32_SUCCESS};
 
 #[cfg_attr(test, mockall::automock)]
 trait WindowHandleOperations {
-    // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextlengthw
+    // <https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextlengthw>
     fn get_window_text_length_w(&self) -> Result<i32>;
 
-    // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextw
+    // <https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextw>
     fn get_window_text_w(&self, buffer: &mut Vec<u16>) -> Result<i32>;
 }
 
@@ -70,7 +70,7 @@ pub(super) fn get_foreground_window_title() -> Result<String> {
 
 /// Retrieves the foreground window handle and validates it.
 fn get_foreground_window_handle() -> Result<WindowHandle> {
-    // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getforegroundwindow
+    // <https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getforegroundwindow>
     let handle = unsafe { GetForegroundWindow() };
 
     debug!("GetForegroundWindow() called.");
@@ -87,7 +87,7 @@ fn get_foreground_window_handle() -> Result<WindowHandle> {
 ///
 /// # Errors
 ///
-/// - If the length zero and GetLastError() != 0, return the GetLastError() message.
+/// - If the length zero and `GetLastError()` != 0, return the `GetLastError()` message.
 fn get_window_title_length<H, E>(window_handle: &H) -> Result<usize>
 where
     H: WindowHandleOperations,
@@ -128,7 +128,7 @@ where
 /// # Errors
 ///
 /// - If the actual window title length (what the win32 API declares was written into the
-///   buffer), is length zero and GetLastError() != 0 , return the GetLastError() message.
+///   buffer), is length zero and `GetLastError()` != 0 , return the `GetLastError()` message.
 fn get_window_title<H, E>(window_handle: &H, expected_title_length: usize) -> Result<String>
 where
     H: WindowHandleOperations,
@@ -140,7 +140,7 @@ where
         // The upstream will make a contains comparison on what we return, so an empty string
         // will not result on a match.
         warn!("Window title length is zero.");
-        return Ok(String::from(""));
+        return Ok(String::new());
     }
 
     let mut buffer: Vec<u16> = vec![0; expected_title_length + 1]; // add extra space for the null character
@@ -171,7 +171,7 @@ where
 mod tests {
     //! For the mocking of the traits that are static methods, we need to use the `serial_test` crate
     //! in order to mock those, since the mock expectations set have to be global in absence of a `self`.
-    //! More info: https://docs.rs/mockall/latest/mockall/#static-methods
+    //! More info: <https://docs.rs/mockall/latest/mockall/#static-methods>
 
     use super::*;
 
