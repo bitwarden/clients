@@ -22,27 +22,27 @@ pub use signature::*;
 pub(crate) const SUPPORTED_BROWSERS: &[BrowserConfig] = &[
     BrowserConfig {
         name: "Brave",
-        data_dir: "AppData/Local/BraveSoftware/Brave-Browser/User Data",
+        data_dir: &["AppData/Local/BraveSoftware/Brave-Browser/User Data"],
     },
     BrowserConfig {
         name: "Chrome",
-        data_dir: "AppData/Local/Google/Chrome/User Data",
+        data_dir: &["AppData/Local/Google/Chrome/User Data"],
     },
     BrowserConfig {
         name: "Chromium",
-        data_dir: "AppData/Local/Chromium/User Data",
+        data_dir: &["AppData/Local/Chromium/User Data"],
     },
     BrowserConfig {
         name: "Microsoft Edge",
-        data_dir: "AppData/Local/Microsoft/Edge/User Data",
+        data_dir: &["AppData/Local/Microsoft/Edge/User Data"],
     },
     BrowserConfig {
         name: "Opera",
-        data_dir: "AppData/Roaming/Opera Software/Opera Stable",
+        data_dir: &["AppData/Roaming/Opera Software/Opera Stable"],
     },
     BrowserConfig {
         name: "Vivaldi",
-        data_dir: "AppData/Local/Vivaldi/User Data",
+        data_dir: &["AppData/Local/Vivaldi/User Data"],
     },
 ];
 

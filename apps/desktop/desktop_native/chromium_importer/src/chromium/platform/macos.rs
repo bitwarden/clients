@@ -13,31 +13,31 @@ use crate::util;
 pub(crate) const SUPPORTED_BROWSERS: &[BrowserConfig] = &[
     BrowserConfig {
         name: "Chrome",
-        data_dir: "Library/Application Support/Google/Chrome",
+        data_dir: &["Library/Application Support/Google/Chrome"],
     },
     BrowserConfig {
         name: "Chromium",
-        data_dir: "Library/Application Support/Chromium",
+        data_dir: &["Library/Application Support/Chromium"],
     },
     BrowserConfig {
         name: "Microsoft Edge",
-        data_dir: "Library/Application Support/Microsoft Edge",
+        data_dir: &["Library/Application Support/Microsoft Edge"],
     },
     BrowserConfig {
         name: "Brave",
-        data_dir: "Library/Application Support/BraveSoftware/Brave-Browser",
+        data_dir: &["Library/Application Support/BraveSoftware/Brave-Browser"],
     },
     BrowserConfig {
         name: "Arc",
-        data_dir: "Library/Application Support/Arc/User Data",
+        data_dir: &["Library/Application Support/Arc/User Data"],
     },
     BrowserConfig {
         name: "Opera",
-        data_dir: "Library/Application Support/com.operasoftware.Opera",
+        data_dir: &["Library/Application Support/com.operasoftware.Opera"],
     },
     BrowserConfig {
         name: "Vivaldi",
-        data_dir: "Library/Application Support/Vivaldi",
+        data_dir: &["Library/Application Support/Vivaldi"],
     },
 ];
 
