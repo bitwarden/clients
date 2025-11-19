@@ -22,10 +22,10 @@
               bitTypography="h3"
               class="!tw-mb-0"
               aria-describedby="allAppsOrgAtRiskMembersLabel"
-              >{{ applicationSummary.totalAtRiskMemberCount }}</span
+              >{{ applicationSummary().totalAtRiskMemberCount }}</span
             >
             <span bitTypography="body2">{{
-              "cardMetrics" | i18n: applicationSummary.totalMemberCount
+              "cardMetrics" | i18n: applicationSummary().totalMemberCount
             }}</span>
           </div>
           <div class="tw-flex tw-items-baseline tw-mt-1 tw-gap-2">
@@ -62,10 +62,10 @@
               bitTypography="h3"
               class="!tw-mb-0"
               aria-describedby="allAppsOrgAtRiskApplicationsLabel"
-              >{{ applicationSummary.totalAtRiskApplicationCount }}</span
+              >{{ applicationSummary().totalAtRiskApplicationCount }}</span
             >
             <span bitTypography="body2">{{
-              "cardMetrics" | i18n: applicationSummary.totalApplicationCount
+              "cardMetrics" | i18n: applicationSummary().totalApplicationCount
             }}</span>
           </div>
           <div class="tw-flex tw-items-baseline tw-mt-1 tw-gap-2">
@@ -95,11 +95,11 @@
         type="button"
         [buttonType]="'primary'"
         bitButton
-        [disabled]="!selectedUrls.size"
-        [loading]="markingAsCritical"
+        [disabled]="!selectedUrls().size"
+        [loading]="markingAsCritical()"
         (click)="markAppsAsCritical()"
       >
-        <i class="bwi tw-mr-2" [ngClass]="selectedUrls.size ? 'bwi-star-f' : 'bwi-star'"></i>
+        <i class="bwi tw-mr-2" [ngClass]="selectedUrls().size ? 'bwi-star-f' : 'bwi-star'"></i>
         {{ "markAppAsCritical" | i18n }}
       </button>
     </div>
@@ -108,7 +108,7 @@
       [dataSource]="dataSource"
       [showRowCheckBox]="true"
       [showRowMenuForCriticalApps]="false"
-      [selectedUrls]="selectedUrls"
+      [selectedUrls]="selectedUrls()"
       [openApplication]="drawerDetails.invokerId || ''"
       [checkboxChange]="onCheckboxChange"
       [showAppAtRiskMembers]="showAppAtRiskMembers"
