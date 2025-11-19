@@ -147,7 +147,7 @@ export default {
         {
           provide: CipherArchiveService,
           useValue: {
-            showArchiveFeatures$: () => new BehaviorSubject(true).asObservable(),
+            hasArchiveFlagEnabled$: of(true),
           },
         },
       ],

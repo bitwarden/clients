@@ -258,7 +258,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     const [userId, showArchive] = await firstValueFrom(
       combineLatest([
         this.accountService.activeAccount$.pipe(getUserId),
-        this.cipherArchiveService.showArchiveFeatures$(),
+        this.cipherArchiveService.hasArchiveFlagEnabled$,
       ]),
     );
 

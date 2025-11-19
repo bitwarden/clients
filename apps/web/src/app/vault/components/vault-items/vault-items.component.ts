@@ -146,7 +146,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   protected disableMenu$: Observable<boolean>;
   private restrictedTypes: RestrictedCipherType[] = [];
 
-  protected archiveFeatureEnabled$ = this.cipherArchiveService.showArchiveFeatures$();
+  protected archiveFeatureEnabled$ = this.cipherArchiveService.hasArchiveFlagEnabled$;
 
   constructor(
     protected cipherAuthorizationService: CipherAuthorizationService,

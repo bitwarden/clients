@@ -58,7 +58,7 @@ describe("VaultItemsComponent", () => {
         {
           provide: CipherArchiveService,
           useValue: {
-            showArchiveFeatures$: jest.fn().mockReturnValue(of(true)),
+            hasArchiveFlagEnabled$: of(true),
           },
         },
       ],

@@ -225,7 +225,7 @@ export class ItemFooterComponent implements OnInit, OnChanges {
         switchMap((id) =>
           combineLatest([
             this.cipherArchiveService.userCanArchive$(id),
-            this.cipherArchiveService.showArchiveFeatures$(),
+            this.cipherArchiveService.hasArchiveFlagEnabled$,
           ]),
         ),
       ),

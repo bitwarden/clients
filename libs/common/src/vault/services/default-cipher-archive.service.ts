@@ -58,11 +58,9 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
   }
 
   /** Returns true when the archive features should be shown. */
-  showArchiveFeatures$(): Observable<boolean> {
-    return this.configService
-      .getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive)
-      .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
-  }
+  hasArchiveFlagEnabled$: Observable<boolean> = this.configService
+    .getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive)
+    .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
 
   /** Returns true when the user has premium from any means. */
   userHasPremium$(userId: UserId): Observable<boolean> {
