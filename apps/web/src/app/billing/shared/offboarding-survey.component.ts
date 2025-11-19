@@ -129,11 +129,11 @@ export class OffboardingSurveyComponent {
   private getSwitchingReason(): Reason {
     return this.dialogParams.type === "Organization"
       ? {
-          value: "switching_to_free_org",
+          value: "too_expensive",
           text: this.i18nService.t("switchToFreeOrg"),
         }
       : {
-          value: "switching_to_free_plan",
+          value: "too_expensive",
           text: this.i18nService.t("switchToFreePlan"),
         };
   }
