@@ -153,7 +153,7 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
     return null;
   }
 
-  userAgentPart(): Promise<string> {
-    return Promise.resolve("");
+  packageType(): Promise<string> {
+    return Promise.resolve("Cli");
   }
 }
