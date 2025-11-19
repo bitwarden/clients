@@ -1,5 +1,5 @@
-import { Observable, of, timer } from "rxjs";
-import { switchMap } from "rxjs/operators";
+import { defer, Observable, of, timer } from "rxjs";
+import { map, switchMap, tap } from "rxjs/operators";
 
 /**
  * RxJS operator that adds skeleton loading delay behavior.
@@ -16,40 +16,44 @@ export function skeletonLoadingDelay(
   minDisplayTime = 1000,
 ): (source: Observable<boolean>) => Observable<boolean> {
   return (source: Observable<boolean>) => {
-    let skeletonShownAt: number | null = null;
+    return defer(() => {
+      let skeletonShownAt: number | null = null;
 
-    const showSkeleton = (): Observable<boolean> => {
-      if (skeletonShownAt !== null) {
-        return of(true); // Already showing, just emit true
-      }
+      return source.pipe(
+        switchMap((shouldShow): Observable<boolean> => {
+          if (shouldShow) {
+            if (skeletonShownAt !== null) {
+              return of(true); // Already shown, continue showing
+            }
 
-      // Wait before showing, then mark timestamp and emit true
-      return timer(showDelay).pipe(
-        switchMap(() => {
-          skeletonShownAt = Date.now();
-          return of(true);
+            // Wait for delay, then mark the skeleton as shown and emit true
+            return timer(showDelay).pipe(
+              tap(() => {
+                skeletonShownAt = Date.now();
+              }),
+              map(() => true),
+            );
+          } else {
+            if (skeletonShownAt === null) {
+              // Skeleton not shown yet, can emit false immediately
+              return of(false);
+            }
+
+            // Skeleton shown, ensure minimum display time has passed
+            const elapsedTime = Date.now() - skeletonShownAt;
+            const remainingTime = Math.max(0, minDisplayTime - elapsedTime);
+
+            // Wait for remaining time to ensure minimum display time
+            return timer(remainingTime).pipe(
+              tap(() => {
+                // Reset the shown timestamp
+                skeletonShownAt = null;
+              }),
+              map(() => false),
+            );
+          }
         }),
       );
-    };
-
-    const hideSkeleton = (): Observable<boolean> => {
-      if (skeletonShownAt === null) {
-        return of(false); // Never shown, hide immediately
-      }
-
-      // Calculate remaining minimum display time
-      const elapsedTime = Date.now() - skeletonShownAt;
-      const remainingTime = Math.max(0, minDisplayTime - elapsedTime);
-
-      // Wait for remaining time (if any), then reset and hide
-      return timer(remainingTime).pipe(
-        switchMap(() => {
-          skeletonShownAt = null;
-          return of(false);
-        }),
-      );
-    };
-
-    return source.pipe(switchMap((shouldShow) => (shouldShow ? showSkeleton() : hideSkeleton())));
+    });
   };
 }
