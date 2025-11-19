@@ -84,10 +84,9 @@ export class ItemMoreOptionsComponent {
 
   protected autofillAllowed$ = this.vaultPopupAutofillService.autofillAllowed$;
 
-  protected showAutofillConfirmation$ = combineLatest([
-    this.configService.getFeatureFlag$(FeatureFlag.AutofillConfirmation),
-    this.vaultPopupItemsService.hasSearchText$,
-  ]).pipe(map(([isFeatureFlagEnabled, hasSearchText]) => isFeatureFlagEnabled && hasSearchText));
+  protected autofillConfirmationFlagEnabled$ = this.configService
+    .getFeatureFlag$(FeatureFlag.AutofillConfirmation)
+    .pipe(map((isFeatureFlagEnabled) => isFeatureFlagEnabled));
 
   protected uriMatchStrategy$ = this.domainSettingsService.resolvedDefaultUriMatchStrategy$;
 
@@ -202,11 +201,15 @@ export class ItemMoreOptionsComponent {
   async doAutofill() {
     const cipher = await this.cipherService.getFullCipherView(this.cipher);
 
+    if (!(await this.passwordRepromptService.passwordRepromptCheck(this.cipher))) {
+      return;
+    }
+
     const uris = cipher.login?.uris ?? [];
     const cipherHasAllExactMatchLoginUris =
       uris.length > 0 && uris.every((u) => u.uri && u.match === UriMatchStrategy.Exact);
 
-    const showAutofillConfirmation = await firstValueFrom(this.showAutofillConfirmation$);
+    const showAutofillConfirmation = await firstValueFrom(this.autofillConfirmationFlagEnabled$);
     const uriMatchStrategy = await firstValueFrom(this.uriMatchStrategy$);
 
     if (
@@ -220,10 +223,6 @@ export class ItemMoreOptionsComponent {
         acceptButtonText: { key: "okay" },
         cancelButtonText: null,
       });
-      return;
-    }
-
-    if (!(await this.passwordRepromptService.passwordRepromptCheck(this.cipher))) {
       return;
     }
 

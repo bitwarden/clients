@@ -73,12 +73,11 @@ jobs:
       - name: Check Publish Version
         id: version
         env:
-          _INPUT_VERSION: ${{ inputs.version }}
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
-          if [[ "$_INPUT_VERSION" == "latest" || "$_INPUT_VERSION" == "" ]]; then
-            TAG_NAME=$(curl  "https://api.github.com/repos/bitwarden/clients/releases" \
-              | jq -c '.[] | select(.tag_name | contains("desktop")) | .tag_name' \
-              | head -1 | cut -d '"' -f 2)
+          if [[ "$INPUT_VERSION" == "latest" || "$INPUT_VERSION" == "" ]]; then
+            TAG_NAME=$(curl -s "https://api.github.com/repos/bitwarden/clients/releases" \
+              | jq -r '.[] | select(.tag_name | contains("desktop")) | .tag_name' | head -1)
             VERSION="${TAG_NAME#desktop-v}"
 
             echo "Latest Released Version: $VERSION"
@@ -87,7 +86,7 @@ jobs:
             echo "Tag name: $TAG_NAME"
             echo "tag_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
           else
-            VERSION="$_INPUT_VERSION"
+            VERSION="$INPUT_VERSION"
             TAG_NAME="desktop-v$VERSION"
 
             echo "Release Version: $VERSION"
@@ -100,9 +99,9 @@ jobs:
       - name: Get Version Channel
         id: release_channel
         env:
-          _VERSION: ${{ steps.version.outputs.version }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          case "${_VERSION}" in
+          case "${VERSION}" in
             *"alpha"*)
               echo "channel=alpha" >> "$GITHUB_OUTPUT"
               echo "[!] We do not yet support 'alpha'"
@@ -192,22 +191,6 @@ jobs:
           --recursive \
           --quiet
 
-      - name: Update deployment status to Success
-        if: ${{ inputs.publish_type != 'Dry Run' && success() }}
-        uses: chrnorm/deployment-status@9a72af4586197112e0491ea843682b5dc280d806 # v2.0.3
-        with:
-          token: '${{ secrets.GITHUB_TOKEN }}'
-          state: 'success'
-          deployment-id: ${{ needs.setup.outputs.deployment_id }}
-
-      - name: Update deployment status to Failure
-        if: ${{ inputs.publish_type != 'Dry Run' && failure() }}
-        uses: chrnorm/deployment-status@9a72af4586197112e0491ea843682b5dc280d806 # v2.0.3
-        with:
-          token: '${{ secrets.GITHUB_TOKEN }}'
-          state: 'failure'
-          deployment-id: ${{ needs.setup.outputs.deployment_id }}
-
   snap:
     name: Deploy Snap
     runs-on: ubuntu-22.04
@@ -251,14 +234,14 @@ jobs:
 
       - name: Download artifacts
         working-directory: apps/desktop/dist
-        run: wget "https://github.com/bitwarden/clients/releases/download/$_RELEASE_TAG/bitwarden_$_PKG_VERSION_amd64.snap"
+        run: wget "https://github.com/bitwarden/clients/releases/download/${_RELEASE_TAG}/bitwarden_${_PKG_VERSION}_amd64.snap"
 
       - name: Deploy to Snap Store
         if: ${{ inputs.publish_type != 'Dry Run' }}
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ steps.retrieve-secrets.outputs.snapcraft-store-token }}
         run: |
-          snapcraft upload "bitwarden_$_PKG_VERSION_amd64.snap" --release stable
+          snapcraft upload "bitwarden_${_PKG_VERSION}_amd64.snap" --release stable
           snapcraft logout
         working-directory: apps/desktop/dist
 
@@ -312,7 +295,7 @@ jobs:
 
       - name: Download artifacts
         working-directory: apps/desktop/dist
-        run: Invoke-WebRequest -Uri "https://github.com/bitwarden/clients/releases/download/$_RELEASE_TAG/bitwarden.$_PKG_VERSION.nupkg" -OutFile "bitwarden.$_PKG_VERSION.nupkg"
+        run: Invoke-WebRequest -Uri "https://github.com/bitwarden/clients/releases/download/$($env:_RELEASE_TAG)/bitwarden.$($env:_PKG_VERSION).nupkg" -OutFile "bitwarden.$($env:_PKG_VERSION).nupkg"
 
       - name: Push to Chocolatey
         if: ${{ inputs.publish_type != 'Dry Run' }}
@@ -337,7 +320,7 @@ jobs:
           persist-credentials: false
 
       - name: Validate release notes for MAS
-        if: inputs.mas_publish && (inputs.release_notes == '' || inputs.release_notes == null)
+        if: inputs.release_notes == '' || inputs.release_notes == null
         run: |
           echo "❌ Release notes are required when publishing to Mac App Store"
           echo "Please provide release notes using the 'Release Notes' input field"
@@ -345,12 +328,12 @@ jobs:
 
       - name: Download MacOS App Store build number
         working-directory: apps/desktop
-        run: wget "https://github.com/bitwarden/clients/releases/download/$_RELEASE_TAG/macos-build-number.json"
+        run: wget "https://github.com/bitwarden/clients/releases/download/${_RELEASE_TAG}/macos-build-number.json"
 
       - name: Setup Ruby and Install Fastlane
-        uses: ruby/setup-ruby@ca041f971d66735f3e5ff1e21cc13e2d51e7e535 # v1.233.0
+        uses: ruby/setup-ruby@d5126b9b3579e429dd52e51e68624dda2e05be25 # v1.267.0
         with:
-          ruby-version: '3.0'
+          ruby-version: '3.4.7'
           bundler-cache: false
           working-directory: apps/desktop
         
@@ -379,20 +362,20 @@ jobs:
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
-          _RELEASE_NOTES: ${{ inputs.release_notes }}
-          _PUBLISH_TYPE: ${{ inputs.publish_type }}
+          CHANGELOG: ${{ inputs.release_notes }}
+          PUBLISH_TYPE: ${{ inputs.publish_type }}
         working-directory: apps/desktop
         run: |
           BUILD_NUMBER=$(jq -r '.buildNumber' macos-build-number.json)
-          CHANGELOG="$_RELEASE_NOTES"
-          IS_DRY_RUN="$_PUBLISH_TYPE == 'Dry Run'"
 
-          if [ "$IS_DRY_RUN" = "true" ]; then
+          if [ "$PUBLISH_TYPE" = "Dry Run" ]; then
             echo "🧪 DRY RUN MODE - Testing without actual App Store submission"
             echo "📦 Would publish build $BUILD_NUMBER to Mac App Store"
+            IS_DRY_RUN="true"
           else
             echo "🚀 PRODUCTION MODE - Publishing to Mac App Store"
             echo "📦 Publishing build $BUILD_NUMBER to Mac App Store"
+            IS_DRY_RUN="false"
           fi
           
           echo "📝 Release notes (${#CHANGELOG} chars): ${CHANGELOG:0:100}..."
@@ -404,7 +387,7 @@ jobs:
           fi
           
           fastlane publish --verbose \
-            app_version:"$PKG_VERSION" \
+            app_version:"${_PKG_VERSION}" \
             build_number:"$BUILD_NUMBER" \
             changelog:"$CHANGELOG" \
             dry_run:"$IS_DRY_RUN"

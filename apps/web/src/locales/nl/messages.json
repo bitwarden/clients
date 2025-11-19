@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Toegangsintelligentie"
   },
-  "riskInsights": {
-    "message": "Risicoinzichten"
-  },
   "passwordRisk": {
     "message": "Wachtwoordrisico"
   },
+  "noEditPermissions": {
+    "message": "Je hebt geen toestemming om dit item te bewerken"
+  },
   "reviewAtRiskPasswords": {
     "message": "Herzie risicovolle wachtwoorden (zwak, blootgelegd of herbruikt) tussen applicaties. Selecteer je meest belangrijke applicaties om prioriteit te geven aan beveiligingsacties voor je gebruikers om risicovolle wachtwoorden aan te pakken."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Risicovolle logins bekijken"
   },
   "dataLastUpdated": {
     "message": "Datum laatste wijziging: $DATE$",
@@ -126,6 +129,9 @@
         "example": "3"
       }
     }
+  },
+  "criticalApplicationsMarked": {
+    "message": "belangrijke applicaties gemarkeerd"
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ belangrijke applicaties",
@@ -235,6 +241,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Als belangrijk gemarkeerde applicaties"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applicaties als belangrijk gemarkeerd",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Kon applicaties niet als kritiek markeren"
   },
@@ -258,6 +273,12 @@
   },
   "membersWithAccessToAtRiskItemsForCriticalApps": {
     "message": "Leden met toegang tot risico-items voor belangrijke applicaties"
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Leden met risicovolle wachtwoorden"
+  },
+  "membersWillReceiveNotification": {
+    "message": "Leden ontvangen een melding via de browserextensie om risico-logins op te lossen."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ leden lopen risico",
@@ -328,6 +349,9 @@
   "applicationsNeedingReview": {
     "message": "Aanvragen die herzien moeten worden"
   },
+  "newApplicationsCardTitle": {
+    "message": "Nieuwe toepassingen beoordelen"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ nieuwe applicaties",
     "placeholders": {
@@ -343,26 +367,47 @@
   "reviewNow": {
     "message": "Nu beoordelen"
   },
+  "allCaughtUp": {
+    "message": "All caught up!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "No new applications to review at this time"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Je organisatie heeft items opgeslagen voor $COUNT$ applicaties",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Beoordeel applicaties om de items die het meest belangrijk zijn voor de veiligheid van je organisatie te beveiligen"
+  },
+  "reviewApplications": {
+    "message": "Applicaties beoordelen"
+  },
   "prioritizeCriticalApplications": {
     "message": "Belangrijke applicaties prioriteren"
   },
-  "atRiskItems": {
-    "message": "Items in gevaar"
+  "selectCriticalApplicationsDescription": {
+    "message": "Selecteer welke toepassingen het meest belangrijk zijn voor je organisatie en wijs de leden dan beveiligingstaken toe om risico's op te lossen."
+  },
+  "reviewNewApplications": {
+    "message": "Nieuwe toepassingen beoordelen"
+  },
+  "reviewNewApplicationsDescription": {
+    "message": "We hebben items met risico gemarkeerd voor nieuwe toepassingen die zijn opgeslagen in Admin-console die zwakke, onthulde of hergebruikte wachtwoorden hebben."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Klik op het sterpictogram om een app als belangrijk te markeren"
   },
   "markAsCriticalPlaceholder": {
     "message": "Markeren als kritieke functionaliteit wordt geïmplementeerd in een toekomstige update"
   },
   "applicationReviewSaved": {
     "message": "Application review saved"
-  },
-  "applicationsMarkedAsCritical": {
-    "message": "$COUNT$ applications marked as critical",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
   },
   "newApplicationsReviewed": {
     "message": "New applications reviewed"
@@ -834,6 +879,9 @@
   },
   "favorites": {
     "message": "Favorieten"
+  },
+  "taskSummary": {
+    "message": "Taaksamenvatting"
   },
   "types": {
     "message": "Categorieën"
@@ -3202,8 +3250,17 @@
   "nextCharge": {
     "message": "Volgende betaling"
   },
+  "nextChargeHeader": {
+    "message": "Volgende betaling"
+  },
+  "plan": {
+    "message": "Pakket"
+  },
   "details": {
     "message": "Details"
+  },
+  "discount": {
+    "message": "korting"
   },
   "downloadLicense": {
     "message": "Licentie downloaden"
@@ -4409,8 +4466,32 @@
   "updateBrowser": {
     "message": "Webbrowser bijwerken"
   },
-  "generatingYourRiskInsights": {
-    "message": "Je risico-inzichten genereren..."
+  "generatingYourAccessIntelligence": {
+    "message": "Je toegangsinlichtingen genereren..."
+  },
+  "fetchingMemberData": {
+    "message": "Ledengegevens ophalen..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "Wachtwoordgezondheid analyseren..."
+  },
+  "calculatingRiskScores": {
+    "message": "Risicoscores berekenen..."
+  },
+  "generatingReportData": {
+    "message": "Rapportgegevens genereren..."
+  },
+  "savingReport": {
+    "message": "Rapport opslaan..."
+  },
+  "compilingInsights": {
+    "message": "Inzichten compileren..."
+  },
+  "loadingProgress": {
+    "message": "Voortgang laden"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Dit kan een paar minuten duren."
   },
   "riskInsightsRunReport": {
     "message": "Rapport uitvoeren"
@@ -5774,16 +5855,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "Automatische bevestiging van gebruikers inschakelen"
   },
-  "autoConfirmStep1": {
-    "message": "De Bitwarden-extensie openen."
+  "autoConfirmExtension1": {
+    "message": "Bitwarden-extensie openen"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "Selecteer",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " Inschakelen.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " Inschakelen",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "De Bitwarden-browserextensie is succesvol geopend. Je kunt nu de automatische bevestiging van de gebruiker activeren."
@@ -5805,8 +5886,8 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Enkele Organisatie-beleid vereist "
   },
-  "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Iedereen die deel uitmaakt van meer dan één organisatie krijgt zijn toegang ingetrokken totdat deze de andere organisaties verlaat."
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "Alle leden mogen alleen lid zijn van deze organisatie om deze automatisering te activeren."
   },
   "autoConfirmSingleOrgExemption": {
     "message": "Het beleid inzake één organisatie strekt zich uit tot alle rollen. "
@@ -5871,6 +5952,19 @@
   "disableHideEmail": {
     "message": "Gebruikers mogen hun e-mailadres niet verbergen voor ontvangers bij het aanmaken of bewerken van een Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Standaard URI-overeenkomstdetectie"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Bepaal wanneer logins voor autofill worden voorgesteld. Beheerders en eigenaren zijn vrijgesteld van dit beleid."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Standaard URI-overeenkomstdetectie"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Selecteer een geldige optie voor URI match-detectie.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Bewerkt beleid $ID$.",
@@ -6525,11 +6619,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Je hoofdwachtwoord voldoet niet aan en of meerdere oganisatiebeleidsonderdelen. Om toegang te krijgen tot de kluis, moet je je hoofdwachtwoord nu bijwerken. Doorgaan zal je huidige sessie uitloggen, waarna je opnieuw moet inloggen. Actieve sessies op andere apparaten blijven mogelijk nog een uur actief."
   },
-  "automaticAppLogin": {
-    "message": "Gebruikers automatisch inloggen voor toegestane applicaties"
+  "automaticAppLoginWithSSO": {
+    "message": "Automatische login met SSO"
   },
-  "automaticAppLoginDesc": {
-    "message": "Inlogformulieren automatisch invullen en indienen voor apps die zijn gestart vanuit je geconfigureerde identiteitsprovider."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Bereid het gemak en beveiliging van SSO uit naar niet-beheerde apps. Wanneer gebruikers een app starten van je identiteitsprovider, worden de inloggegevens automatisch ingevuld en verzonden, voor een één-klik, beveiligde flow van de identiteitsprovider naar de app."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identiteitsproviderhost"
@@ -7129,6 +7223,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Je moet de basis URL van de server of ten minste één aangepaste omgeving toevoegen."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL's moeten HTTPS gebruiken."
+  },
   "apiUrl": {
     "message": "API-server URL"
   },
@@ -7300,6 +7397,9 @@
   },
   "accessDenied": {
     "message": "Toegang geweigerd. Je hebt geen toestemming om deze pagina te bekijken."
+  },
+  "noPageAccess": {
+    "message": "Je hebt geen toegang tot deze pagina"
   },
   "masterPassword": {
     "message": "Hoofdwachtwoord"
@@ -9476,9 +9576,6 @@
   "loggedInExclamation": {
     "message": "Ingelogd!"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "assignCollectionAccess": {
     "message": "Toegang collectie toewijzen"
   },
@@ -9758,6 +9855,9 @@
   },
   "assignTasks": {
     "message": "Taken toewijzen"
+  },
+  "assignTasksToMembers": {
+    "message": "Taken aan leden toewijzen voor een begeleide oplossing"
   },
   "assignToCollections": {
     "message": "Toewijzen aan collecties"
@@ -12023,5 +12123,45 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Start gratis Families-proefperiode"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Stel een ontgrendelingsmethode in om je kluis time-out actie te wijzigen."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Bedrijfsbeleidseisen zijn toegepast op je time-out instellingen"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Je kluis time-out is hoger dan het maximum van jouw organisatie."
+  },
+  "neverLockWarning": {
+    "message": "Weet je zeker dat je de optie \"Nooit\" wilt gebruiken? De vergrendelingsoptie \"Nooit\" bewaart de sleutel van je kluis op je apparaat. Als je deze optie gebruikt, moet je ervoor zorgen dat je je apparaat naar behoren beschermt."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Time-out actie"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sessietime-out"
+  },
+  "appearance": {
+    "message": "Uiterlijk"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Time-out overschrijdt de beperking van je organisatie: $HOURS$ uur en $MINUTES$ minu(u) t(en) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "Geen belangrijke applicaties geselecteerd"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Weet je zeker dat je wilt doorgaan?"
   }
 }

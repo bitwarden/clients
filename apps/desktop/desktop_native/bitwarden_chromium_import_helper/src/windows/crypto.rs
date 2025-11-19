@@ -2,32 +2,28 @@ use aes_gcm::{aead::Aead, Aes256Gcm, Key, KeyInit};
 use anyhow::{anyhow, Result};
 use base64::{engine::general_purpose, Engine as _};
 use chacha20poly1305::ChaCha20Poly1305;
+use chromium_importer::chromium::crypt_unprotect_data;
 use scopeguard::defer;
 use tracing::debug;
 use windows::{
     core::w,
-    Win32::{
-        Foundation::{LocalFree, HLOCAL},
-        Security::Cryptography::{
-            self, CryptUnprotectData, NCryptOpenKey, NCryptOpenStorageProvider, CERT_KEY_SPEC,
-            CRYPTPROTECT_UI_FORBIDDEN, CRYPT_INTEGER_BLOB, NCRYPT_FLAGS, NCRYPT_KEY_HANDLE,
-            NCRYPT_PROV_HANDLE, NCRYPT_SILENT_FLAG,
-        },
+    Win32::Security::Cryptography::{
+        self, NCryptOpenKey, NCryptOpenStorageProvider, CERT_KEY_SPEC, CRYPTPROTECT_UI_FORBIDDEN,
+        NCRYPT_FLAGS, NCRYPT_KEY_HANDLE, NCRYPT_PROV_HANDLE, NCRYPT_SILENT_FLAG,
     },
 };
 
 use super::impersonate::{start_impersonating, stop_impersonating};
-use crate::dbg_log;
 
 //
 // Base64
 //
 
 pub(crate) fn decode_base64(data_base64: &str) -> Result<Vec<u8>> {
-    dbg_log!("Decoding base64 data: {}", data_base64);
+    debug!("Decoding base64 data: {}", data_base64);
 
     let data = general_purpose::STANDARD.decode(data_base64).map_err(|e| {
-        dbg_log!("Failed to decode base64: {}", e);
+        debug!("Failed to decode base64: {}", e);
         e
     })?;
 
@@ -46,7 +42,7 @@ pub(crate) fn decrypt_with_dpapi_as_system(encrypted: &[u8]) -> Result<Vec<u8>> 
     // Impersonate a SYSTEM process to be able to decrypt data encrypted for the machine
     let system_token = start_impersonating()?;
     defer! {
-        dbg_log!("Stopping impersonation");
+        debug!("Stopping impersonation");
         _ = stop_impersonating(system_token);
     }
 
@@ -55,7 +51,7 @@ pub(crate) fn decrypt_with_dpapi_as_system(encrypted: &[u8]) -> Result<Vec<u8>> 
 
 pub(crate) fn decrypt_with_dpapi_as_user(encrypted: &[u8], expect_appb: bool) -> Result<Vec<u8>> {
     let system_decrypted = decrypt_with_dpapi(encrypted, expect_appb)?;
-    dbg_log!(
+    debug!(
         "Decrypted data with SYSTEM {} bytes",
         system_decrypted.len()
     );
@@ -66,44 +62,13 @@ pub(crate) fn decrypt_with_dpapi_as_user(encrypted: &[u8], expect_appb: bool) ->
 fn decrypt_with_dpapi(data: &[u8], expect_appb: bool) -> Result<Vec<u8>> {
     if expect_appb && (data.len() < 5 || !data.starts_with(b"APPB")) {
         const ERR_MSG: &str = "Ciphertext is too short or does not start with 'APPB'";
-        dbg_log!("{}", ERR_MSG);
+        debug!("{}", ERR_MSG);
         return Err(anyhow!(ERR_MSG));
     }
 
     let data = if expect_appb { &data[4..] } else { data };
 
-    let in_blob = CRYPT_INTEGER_BLOB {
-        cbData: data.len() as u32,
-        pbData: data.as_ptr() as *mut u8,
-    };
-
-    let mut out_blob = CRYPT_INTEGER_BLOB::default();
-
-    let result = unsafe {
-        CryptUnprotectData(
-            &in_blob,
-            None,
-            None,
-            None,
-            None,
-            CRYPTPROTECT_UI_FORBIDDEN,
-            &mut out_blob,
-        )
-    };
-
-    if result.is_ok() && !out_blob.pbData.is_null() && out_blob.cbData > 0 {
-        let decrypted = unsafe {
-            std::slice::from_raw_parts(out_blob.pbData, out_blob.cbData as usize).to_vec()
-        };
-
-        // Free the memory allocated by CryptUnprotectData
-        unsafe { LocalFree(Some(HLOCAL(out_blob.pbData as *mut _))) };
-
-        Ok(decrypted)
-    } else {
-        dbg_log!("CryptUnprotectData failed");
-        Err(anyhow!("CryptUnprotectData failed"))
-    }
+    crypt_unprotect_data(data, CRYPTPROTECT_UI_FORBIDDEN)
 }
 
 //
@@ -231,7 +196,7 @@ fn decrypt_abe_key_blob_chrome_cng(blob: &[u8]) -> Result<Vec<u8>> {
     let decrypted_aes_key: Vec<u8> = {
         let system_token = start_impersonating()?;
         defer! {
-            dbg_log!("Stopping impersonation");
+            debug!("Stopping impersonation");
             _ = stop_impersonating(system_token);
         }
         decrypt_with_cng(&encrypted_aes_key)?

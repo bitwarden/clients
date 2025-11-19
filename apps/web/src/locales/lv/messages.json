@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Piekļuves inteliģence"
   },
-  "riskInsights": {
-    "message": "Risku ieskats"
-  },
   "passwordRisk": {
     "message": "Paroļu risks"
   },
+  "noEditPermissions": {
+    "message": "Nav nepieciešamo atļauju, lai labotu šo vienumu"
+  },
   "reviewAtRiskPasswords": {
     "message": "Riskam pakļautu (vāju, atklātu vai vairākkārt izmantotu) paroļu pārskatīšana dažādās lietotnēs. Jāatlasa viskritiskākās paroles, lai noteiktu svarīgas drošības darbības, ko lietotājiem pielietot riskam pakļautām parolēm."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Pārskatīt riskam pakļautos pieteikšanās vienumus"
   },
   "dataLastUpdated": {
     "message": "Dati pēdējoreiz atjaunināti: $DATE$",
@@ -127,6 +130,9 @@
       }
     }
   },
+  "criticalApplicationsMarked": {
+    "message": "būtiskas lietotnes atzīmētas"
+  },
   "countOfCriticalApplications": {
     "message": "$COUNT$ būtiskas lietotnes",
     "placeholders": {
@@ -173,7 +179,7 @@
     }
   },
   "noApplicationsInOrgTitle": {
-    "message": "No applications found for $ORG NAME$",
+    "message": "$ORG NAME$ netika atrasta neviena lietotne",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -182,31 +188,31 @@
     }
   },
   "noApplicationsInOrgDescription": {
-    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+    "message": "Ievieto savas apvienības pieteikšanās datus, lai uzsāktu to drošības risku uzraudzīšanu. Tiklīdz dati ir ievietoti, Tu vari:"
   },
   "benefit1Title": {
-    "message": "Prioritize risks"
+    "message": "Noteikt risku svarīgumu"
   },
   "benefit1Description": {
-    "message": "Focus on applications that matter the most"
+    "message": "Pievērst uzmanību visbūtiskākajām lietotnēm"
   },
   "benefit2Title": {
-    "message": "Guide remediation"
+    "message": "Virzīt nepilnību novēršanu"
   },
   "benefit2Description": {
-    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+    "message": "Piešķirt riskam pakļautajiem dalībniekiem uzdevumus riskam pakļauto pieteikšanās datu nomaiņai"
   },
   "benefit3Title": {
-    "message": "Monitor progress"
+    "message": "Pārraudzīt virzību"
   },
   "benefit3Description": {
-    "message": "Track changes over time to show security improvements"
+    "message": "Sekot izmaiņām, lai uzrādītu drošības uzlabojumus"
   },
   "noReportRunTitle": {
-    "message": "Run your first report to see applications"
+    "message": "Izveidot savu pirmo atskaiti, lai redzētu lietotnes"
   },
   "noReportRunDescription": {
-    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
+    "message": "Izveidot riska ieskatu atskaiti, lai izvērtētu savas apvienības lietotnes un noteiktu riskam pakļautas paroles, kurēm jāpievērš uzmanība. Pirmās atskaites izveidošana:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Neviena lietotne nav atzīmēta kā kritiska"
@@ -235,6 +241,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Lietotnes, kas atzīmētas kā kritiskas"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ lietotnes atzīmētas kā būtiskas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Neizdevās lietotnes atzīmēt kā būtiskas"
   },
@@ -258,6 +273,12 @@
   },
   "membersWithAccessToAtRiskItemsForCriticalApps": {
     "message": "Dalībnieki ar piekluvi riskam pakļautajiem vienumiem būtiskajām lietotnēm"
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Dalībnieki ar riskam pakļautām parolēm"
+  },
+  "membersWillReceiveNotification": {
+    "message": "Dalībnieki pārlūka paplašinājumā saņems paziņojumu, ka jānomaina riskam pakļautās paroles."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ dalībnieki ir pakļauti riskam",
@@ -328,6 +349,9 @@
   "applicationsNeedingReview": {
     "message": "Lietotnes, kuras ir nepieciešams izskatīt"
   },
+  "newApplicationsCardTitle": {
+    "message": "Pārskatīt jaunās lietotnes"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ jaunas lietotnes",
     "placeholders": {
@@ -343,35 +367,56 @@
   "reviewNow": {
     "message": "Izskatīt tagad"
   },
+  "allCaughtUp": {
+    "message": "Viss ir paveikts."
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "Pašreiz nav jaunu izskatāmu lietotņu"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Tavā apvienībā ir saglabāti vienumi $COUNT$ lietotnēm",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Pārskati lietotnes, lai pastiprinātu drošību vienumiem, kuri ir visbūtiskākie apvienības drošībai"
+  },
+  "reviewApplications": {
+    "message": "Pārskatīt lietotnes"
+  },
   "prioritizeCriticalApplications": {
     "message": "Paaugstināt būtisko lietotņu svarīgumu"
   },
-  "atRiskItems": {
-    "message": "Riskam pakļautie vienumi"
+  "selectCriticalApplicationsDescription": {
+    "message": "Jāatlasa, kuras lietontes apvienībai ir visbūtiskākās, tad jāpiešķir drošības uzdevumi dalībniekiem risku novēršanai."
+  },
+  "reviewNewApplications": {
+    "message": "Pārskatīt jaunās lietotnes"
+  },
+  "reviewNewApplicationsDescription": {
+    "message": "Mēs izcēlām riskam pakļautos vienumus jaunām lietotnēm, kas tiek glabātas pārvaldības konsolē un kurās ir vājas, atklātas vai atkārtoti izmantotas paroles."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Jāklikšķina uz zvaigznes, lai atzīmētu lietotni kā būtisku"
   },
   "markAsCriticalPlaceholder": {
     "message": "Iespēja atzīmēt kā būtisku tiks ieviesta nākotnes atjauninājumā"
   },
   "applicationReviewSaved": {
-    "message": "Application review saved"
-  },
-  "applicationsMarkedAsCritical": {
-    "message": "$COUNT$ applications marked as critical",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
+    "message": "Lietotnes pārskats saglabāts"
   },
   "newApplicationsReviewed": {
-    "message": "New applications reviewed"
+    "message": "Izskatītas jaunas lietotnes"
   },
   "errorSavingReviewStatus": {
-    "message": "Error saving review status"
+    "message": "Kļūda izskatīšanas stāvokļa saglabāšanā"
   },
   "pleaseTryAgain": {
-    "message": "Please try again"
+    "message": "Lūgums mēģināt vēlreiz"
   },
   "unmarkAsCritical": {
     "message": "Noņemt kritiskuma atzīmi"
@@ -835,6 +880,9 @@
   "favorites": {
     "message": "Izlase"
   },
+  "taskSummary": {
+    "message": "Uzdevuma kopsavilkums"
+  },
   "types": {
     "message": "Veidi"
   },
@@ -1188,7 +1236,7 @@
     "message": "Pielikums izdzēsts"
   },
   "deleteAttachmentConfirmation": {
-    "message": "Vai tiešām vēlaties dzēst šo pielikumu?"
+    "message": "Vai tiešām izdzēst šo pielikumu?"
   },
   "attachmentSaved": {
     "message": "Pielikums tika saglabāts."
@@ -1261,7 +1309,7 @@
     "message": "Vienumi pārvietoti"
   },
   "overwritePasswordConfirmation": {
-    "message": "Vai tiešām vēlaties pārrakstīt pašreizējo paroli?"
+    "message": "Vai tiešām pārrakstīt pašreizējo paroli?"
   },
   "editedFolder": {
     "message": "Mape labota"
@@ -1270,7 +1318,7 @@
     "message": "Mape pievienota"
   },
   "deleteFolderConfirmation": {
-    "message": "Vai tiešām vēlaties izdzēst šo mapi?"
+    "message": "Vai tiešām izdzēst šo mapi?"
   },
   "deletedFolder": {
     "message": "Mape izdzēsta"
@@ -1360,7 +1408,7 @@
     "message": "Izmantot vienoto pieteikšanos"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Tava apvienība pieprasa vienoto pieteikšanos."
   },
   "welcomeBack": {
     "message": "Laipni lūdzam atpakaļ"
@@ -1880,7 +1928,7 @@
     }
   },
   "deleteSelectedConfirmation": {
-    "message": "Vai tiešām vēlaties turpināt?"
+    "message": "Vai tiešām turpināt?"
   },
   "moveSelectedItemsDesc": {
     "message": "Jāizvelas mape, kurā pievienot $COUNT$ atlasīto(s) vienumu(s).",
@@ -3202,8 +3250,17 @@
   "nextCharge": {
     "message": "Nākamais maksājums"
   },
+  "nextChargeHeader": {
+    "message": "Nākamais maksājums"
+  },
+  "plan": {
+    "message": "Plāns"
+  },
   "details": {
     "message": "Izklāsts"
+  },
+  "discount": {
+    "message": "atlaide"
   },
   "downloadLicense": {
     "message": "Lejupielādēt licenci"
@@ -3628,10 +3685,10 @@
     "message": "Labot kopu"
   },
   "deleteGroupConfirmation": {
-    "message": "Vai tiešām vēlaties dzēst šo kopu?"
+    "message": "Vai tiešām izdzēst šo kopu?"
   },
   "deleteMultipleGroupsConfirmation": {
-    "message": "Vai tiešām vēlaties dzēst šādu $QUANTITY$ grupu(-as)?",
+    "message": "Vai tiešām izdzēst šo (šīs) $QUANTITY$ kopu(as)?",
     "placeholders": {
       "quantity": {
         "content": "$1",
@@ -4409,8 +4466,32 @@
   "updateBrowser": {
     "message": "Atjaunināt pārlūku"
   },
-  "generatingYourRiskInsights": {
-    "message": "Tiek veidots ieskats par riskiem..."
+  "generatingYourAccessIntelligence": {
+    "message": "Izveido informāciju par Tavu piekļuvi…"
+  },
+  "fetchingMemberData": {
+    "message": "Iegūst dalībnieku datus…"
+  },
+  "analyzingPasswordHealth": {
+    "message": "Izvērtē paroļu veselību…"
+  },
+  "calculatingRiskScores": {
+    "message": "Aprēķina risku novērtējumu…"
+  },
+  "generatingReportData": {
+    "message": "Izveido atskaites datus…"
+  },
+  "savingReport": {
+    "message": "Saglabā atskaiti…"
+  },
+  "compilingInsights": {
+    "message": "Apkopo ieskatus…"
+  },
+  "loadingProgress": {
+    "message": "Ielādē virzību"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Tas var aizņemt dažas minūtes."
   },
   "riskInsightsRunReport": {
     "message": "Izveidot atskaiti"
@@ -5774,16 +5855,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "Kā ieslēgt automātisku lietotōtāju apstiprināšanu"
   },
-  "autoConfirmStep1": {
-    "message": "Jāatver Bitwarden paplašinājums."
+  "autoConfirmExtension1": {
+    "message": "Jāatver Bitwarden paplašinājums"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "Jāatlasa",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": "“Ieslēgt”.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " “Ieslēgt”",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "Bitwarden pārlūka paplašīnājums atvērts sekmīgi. Tagad var ieslēgt automātisko lietotāju apstiprināšanas iestatījumu."
@@ -5805,8 +5886,8 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Nepieciešama vienas vienīgas apvienības pamatnostādne. "
   },
-  "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Ikvienam, kurš ir daļa no vairāk kā vienas apvienības, tiks atsaukta piekļuve, līdz tiks pamestas pārējās apvienības."
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "Visiem dalībniekiem ir jābūt šajā apvienībā, lai aktivētu šo automatizēšanu."
   },
   "autoConfirmSingleOrgExemption": {
     "message": "Vienas vienīgas apvienības pamatnostādne paplašināsies līdz visām lomām. "
@@ -5871,6 +5952,19 @@
   "disableHideEmail": {
     "message": "Vienmēr rādīt dalībnieka e-pasta adresi saņēmējiem, kad tiek izveidots vai labots Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Noklusējuma URI atbilstības noteikšana"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Nosaka, kad pieteikšanās vienumi tiek ieteikti automātiskajai aizpildei. Šī pamatnostādne neattiecas uz pārvaldītājiem un īpašniekiem."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Noklusējuma URI atbilstības noteikšana"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Lūgums atlasīt derīgu URI atbilstības noteikšanas iespēju.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Nosacījums $ID$ izmainīts.",
@@ -6525,11 +6619,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Galvenā parole neatbilst vienam vai vairākiem apvienības nosacījumiem. Ir jāatjaunina galvenā parole, lai varētu piekļūt glabātavai. Turpinot notiks atteikšanās no pašreizējās sesijas, un būs nepieciešams pieteikties no jauna. Citās ierīcēs esošās sesijas var turpināt darboties līdz vienai stundai."
   },
-  "automaticAppLogin": {
-    "message": "Automātiski pieteikt lietotājus atļautajās lietotnēs"
+  "automaticAppLoginWithSSO": {
+    "message": "Automātiska pieteikšanās ar SSO"
   },
-  "automaticAppLoginDesc": {
-    "message": "Pieteikšanās veidlapas tiks automātiski aizpildītas un iesniegtas tajās lietotnēs, kuras ir palaistas no uzstādītā identitāšu nodrošinātāja."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Izvērst SSO drošību un ērtumu nepārvaldītām lietotnēm. Kad lietotāji palaidīs lietotni no identitāšu nodrošinātāja, viņu pieteikšanās informācija tiks automātiski aizpildīta un iesniegta, izveidojot viena klikšķa drošu plūsmu no identitāšu nodrošinātāja uz lietotni."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identitātes nodrošinātāja resursdators"
@@ -7129,6 +7223,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Jāpievieno vai nu servera pamata URL vai vismaz viena pielāgota vide."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL ir jābūt HTTPS."
+  },
   "apiUrl": {
     "message": "API servera URL"
   },
@@ -7300,6 +7397,9 @@
   },
   "accessDenied": {
     "message": "Piekļuve liegta. Nav nepieciešamo atļauju, lai apskatītu šo lapu."
+  },
+  "noPageAccess": {
+    "message": "Nav piekļuves šai lapai"
   },
   "masterPassword": {
     "message": "Galvenā parole"
@@ -9476,9 +9576,6 @@
   "loggedInExclamation": {
     "message": "Pieteicies."
   },
-  "beta": {
-    "message": "Beta"
-  },
   "assignCollectionAccess": {
     "message": "Piešķirt krājumu piekļuvi"
   },
@@ -9758,6 +9855,9 @@
   },
   "assignTasks": {
     "message": "Piešķirt uzdevumus"
+  },
+  "assignTasksToMembers": {
+    "message": "Piešķirt uzdevumus dalībniekiem risinājumam ar norādēm"
   },
   "assignToCollections": {
     "message": "Piešķirt krājumiem"
@@ -12023,5 +12123,45 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Uzsākt ģimenes plāna bezmaksas izmēģinājumu"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Jāuzstāda atslēgšanas veids, lai mainītu glabātavas noildzes darbību."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Noildzes iespējām tika piemērotas uzņēmējdarbības pamatnostādņu prasības"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Glabātavas noildze pārsniedz apvienības uzstādītos ierobežojumus."
+  },
+  "neverLockWarning": {
+    "message": "Vai tiešām izmantot uzstādījumu \"Nekad\"? Uzstādot aizslēgšanas iespēju uz \"Nekad\", šifrēšanas atslēga tiek glabāta ierīcē. Ja šī iespēja tiek izmantota, jāpārliecinās, ka ierīce tiek pienācīgi aizsargāta."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Noildzes darbība"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sesijas noildze"
+  },
+  "appearance": {
+    "message": "Izskats"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Noildze pārsniedz apvienības iestatīto ierobežojumu: ne vairāk kā $HOURS$ stunda(s) un $MINUTES$ minūte(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "Neviena būtiska lietotne nav atlasīta"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Vai tiešām turpināt?"
   }
 }

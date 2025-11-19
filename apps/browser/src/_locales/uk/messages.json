@@ -32,7 +32,7 @@
     "message": "Використати єдиний вхід"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Ваша організація вимагає єдиний вхід (SSO)."
   },
   "welcomeBack": {
     "message": "З поверненням"
@@ -592,7 +592,10 @@
     "message": "Переглянути"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "Переглянути все"
+  },
+  "viewLess": {
+    "message": "View less"
   },
   "viewLogin": {
     "message": "Переглянути запис"
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "З блокуванням системи"
+  },
+  "onIdle": {
+    "message": "On system idle"
+  },
+  "onSleep": {
+    "message": "On system sleep"
   },
   "onRestart": {
     "message": "З перезапуском браузера"
@@ -1035,10 +1044,10 @@
     "message": "Запис збережено"
   },
   "savedWebsite": {
-    "message": "Saved website"
+    "message": "Збережений вебсайт"
   },
   "savedWebsites": {
-    "message": "Saved websites ( $COUNT$ )",
+    "message": "Збережені вебсайти ( $COUNT$ )",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1440,22 +1449,22 @@
     "message": "Застаріле шифрування більше не підтримується. Зверніться до служби підтримки, щоб відновити обліковий запис."
   },
   "premiumMembership": {
-    "message": "Преміум статус"
+    "message": "Передплата Premium"
   },
   "premiumManage": {
     "message": "Керувати передплатою"
   },
   "premiumManageAlert": {
-    "message": "Ви можете керувати своїм статусом у сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
+    "message": "Ви можете керувати передплатою у сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
   },
   "premiumRefresh": {
     "message": "Оновити стан передплати"
   },
   "premiumNotCurrentMember": {
-    "message": "Зараз у вас немає передплати преміум."
+    "message": "Зараз у вас немає передплати Premium."
   },
   "premiumSignUpAndGet": {
-    "message": "Передплатіть преміум і отримайте:"
+    "message": "Передплатіть Premium і отримайте:"
   },
   "ppremiumSignUpStorage": {
     "message": "1 ГБ зашифрованого сховища для файлів."
@@ -1476,25 +1485,25 @@
     "message": "Пріоритетну технічну підтримку."
   },
   "ppremiumSignUpFuture": {
-    "message": "Усі майбутні преміумфункції. Їх буде більше!"
+    "message": "Усі майбутні функції Premium. Їх буде більше!"
   },
   "premiumPurchase": {
-    "message": "Придбати преміум"
+    "message": "Придбати Premium"
   },
   "premiumPurchaseAlertV2": {
-    "message": "Ви можете придбати Преміум у налаштуваннях облікового запису вебпрограмі Bitwarden."
+    "message": "Ви можете придбати Premium у налаштуваннях облікового запису вебпрограми Bitwarden."
   },
   "premiumCurrentMember": {
-    "message": "Ви користуєтеся передплатою преміум!"
+    "message": "Ви користуєтеся передплатою Premium!"
   },
   "premiumCurrentMemberThanks": {
     "message": "Дякуємо за підтримку Bitwarden."
   },
   "premiumFeatures": {
-    "message": "Передплатіть преміум та отримайте:"
+    "message": "Передплатіть Premium та отримайте:"
   },
   "premiumPrice": {
-    "message": "Всього лише $PRICE$ / за рік!",
+    "message": "Лише $PRICE$ / рік!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -1503,7 +1512,7 @@
     }
   },
   "premiumPriceV2": {
-    "message": "Усе лише за $PRICE$ на рік!",
+    "message": "Лише за $PRICE$ на рік за все!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -1522,12 +1531,6 @@
   },
   "enableAutoBiometricsPrompt": {
     "message": "Запитувати біометрію під час запуску"
-  },
-  "premiumRequired": {
-    "message": "Необхідна передплата преміум"
-  },
-  "premiumRequiredDesc": {
-    "message": "Для використання цієї функції необхідна передплата преміум."
   },
   "authenticationTimeout": {
     "message": "Час очікування автентифікації"
@@ -1641,6 +1644,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Необхідно додати URL-адресу основного сервера, або принаймні одне користувацьке середовище."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL-адреси повинні бути HTTPS."
+  },
   "customEnvironment": {
     "message": "Власне середовище"
   },
@@ -1695,28 +1701,28 @@
     "message": "Вимкніть автозаповнення"
   },
   "confirmAutofill": {
-    "message": "Confirm autofill"
+    "message": "Підтвердити автозаповнення"
   },
   "confirmAutofillDesc": {
-    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+    "message": "Адреса цього вебсайту відрізняється від збережених даних вашого запису. Перш ніж заповнити облікові дані, переконайтеся, що це надійний сайт."
   },
   "showInlineMenuLabel": {
     "message": "Пропозиції автозаповнення на полях форм"
   },
   "howDoesBitwardenProtectFromPhishing": {
-    "message": "How does Bitwarden protect your data from phishing?"
+    "message": "Як Bitwarden захищає ваші дані від шахрайства?"
   },
   "currentWebsite": {
-    "message": "Current website"
+    "message": "Поточний вебсайт"
   },
   "autofillAndAddWebsite": {
-    "message": "Autofill and add this website"
+    "message": "Автоматично заповнити й додати цей сайт"
   },
   "autofillWithoutAdding": {
-    "message": "Autofill without adding"
+    "message": "Автоматично заповнити без додавання"
   },
   "doNotAutofill": {
-    "message": "Do not autofill"
+    "message": "Не заповнювати автоматично"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Показувати посвідчення як пропозиції"
@@ -3280,7 +3286,7 @@
     "message": "Помилка розшифрування"
   },
   "errorGettingAutoFillData": {
-    "message": "Error getting autofill data"
+    "message": "Помилка отримання даних автозаповнення"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden не зміг розшифрувати вказані нижче елементи сховища."
@@ -3512,7 +3518,7 @@
     "message": "Помилка Key Connector: переконайтеся, що Key Connector доступний та працює правильно."
   },
   "premiumSubcriptionRequired": {
-    "message": "Необхідна передплата преміум"
+    "message": "Необхідна передплата Premium"
   },
   "organizationIsDisabled": {
     "message": "Організацію вимкнено."
@@ -4054,13 +4060,13 @@
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "cannotAutofill": {
-    "message": "Cannot autofill"
+    "message": "Неможливо автоматично заповнити"
   },
   "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+    "message": "Типово налаштовано \"Точну відповідність\". Адреса поточного вебсайту відрізняється від збережених даних для цього запису."
   },
   "okay": {
-    "message": "Okay"
+    "message": "Гаразд"
   },
   "toggleSideNavigation": {
     "message": "Перемкнути бічну навігацію"
@@ -4891,7 +4897,7 @@
     "message": "Ви дійсно хочете остаточно видалити це вкладення?"
   },
   "premium": {
-    "message": "Преміум"
+    "message": "Premium"
   },
   "freeOrgsCannotUseAttachments": {
     "message": "Організації без передплати не можуть використовувати вкладення"
@@ -4969,6 +4975,16 @@
   },
   "defaultLabel": {
     "message": "Типово ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "defaultLabelWithValue": {
+    "message": "Default ( $VALUE$ )",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5769,14 +5785,56 @@
   "atRiskLoginsSecured": {
     "message": "Ви чудово впоралися із захистом своїх ризикованих записів!"
   },
+  "upgradeNow": {
+    "message": "Покращити"
+  },
+  "builtInAuthenticator": {
+    "message": "Вбудований автентифікатор"
+  },
+  "secureFileStorage": {
+    "message": "Захищене сховище файлів"
+  },
+  "emergencyAccess": {
+    "message": "Екстрений доступ"
+  },
+  "breachMonitoring": {
+    "message": "Моніторинг витоків даних"
+  },
+  "andMoreFeatures": {
+    "message": "Інші можливості!"
+  },
+  "planDescPremium": {
+    "message": "Повна онлайн-безпека"
+  },
+  "upgradeToPremium": {
+    "message": "Покращити до Premium"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "Loading vault"
+  },
+  "vaultLoaded": {
+    "message": "Vault loaded"
+  },
   "settingDisabledByPolicy": {
     "message": "Цей параметр вимкнено політикою вашої організації.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "Поштовий індекс"
   },
   "cardNumberLabel": {
-    "message": "Card number"
+    "message": "Номер картки"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
   }
 }
