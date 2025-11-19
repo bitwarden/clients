@@ -82,7 +82,10 @@
             />
             <bit-hint>{{
               "additionalStorageIntervalDesc"
-                | i18n: "1 GB" : (storagePrice$ | async | currency: "$") : ("year" | i18n)
+                | i18n
+                  : `${(providedStorageGb$ | async)} GB`
+                  : (storagePrice$ | async | currency: "$")
+                  : ("year" | i18n)
             }}</bit-hint>
           </bit-form-field>
         </div>

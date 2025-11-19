@@ -22,8 +22,8 @@ import { debounceTime } from "rxjs/operators";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
-import { DefaultSubscriptionPricingService } from "@bitwarden/common/billing/services/subscription-pricing.service";
 import { PersonalSubscriptionPricingTierIds } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -75,6 +75,7 @@ export class CloudHostedPremiumComponent {
       return {
         seat: premiumPlan.passwordManager.annualPrice,
         storage: premiumPlan.passwordManager.annualPricePerAdditionalStorageGB,
+        providedStorageGb: premiumPlan.passwordManager.providedStorageGB,
       };
     }),
     shareReplay({ bufferSize: 1, refCount: true }),
@@ -83,6 +84,8 @@ export class CloudHostedPremiumComponent {
   premiumPrice$ = this.premiumPrices$.pipe(map((prices) => prices.seat));
 
   storagePrice$ = this.premiumPrices$.pipe(map((prices) => prices.storage));
+
+  providedStorageGb$ = this.premiumPrices$.pipe(map((prices) => prices.providedStorageGb));
 
   protected isLoadingPrices$ = this.premiumPrices$.pipe(
     map(() => false),
@@ -134,7 +137,7 @@ export class CloudHostedPremiumComponent {
     private accountService: AccountService,
     private subscriberBillingClient: SubscriberBillingClient,
     private taxClient: TaxClient,
-    private subscriptionPricingService: DefaultSubscriptionPricingService,
+    private subscriptionPricingService: SubscriptionPricingServiceAbstraction,
   ) {
     this.hasPremiumFromAnyOrganization$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
