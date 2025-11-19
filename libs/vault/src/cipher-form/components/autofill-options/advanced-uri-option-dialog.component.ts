@@ -9,6 +9,7 @@ import {
   DialogService,
   DIALOG_DATA,
   DialogRef,
+  CenterPositionStrategy,
 } from "@bitwarden/components";
 
 export type AdvancedUriOptionDialogParams = {
@@ -17,6 +18,8 @@ export type AdvancedUriOptionDialogParams = {
   onContinue: () => void;
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "advanced-uri-option-dialog.component.html",
   imports: [ButtonLinkDirective, ButtonModule, DialogModule, JslibModule],
@@ -53,6 +56,7 @@ export class AdvancedUriOptionDialogComponent {
     return dialogService.open<boolean>(AdvancedUriOptionDialogComponent, {
       data: params,
       disableClose: true,
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 }

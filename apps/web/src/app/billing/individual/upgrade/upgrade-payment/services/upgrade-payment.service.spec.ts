@@ -2,7 +2,6 @@ import { TestBed } from "@angular/core/testing";
 import { mock, mockReset } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
@@ -11,13 +10,24 @@ import { OrganizationResponse } from "@bitwarden/common/admin-console/models/res
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
+import { PersonalSubscriptionPricingTierIds } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
 
-import { AccountBillingClient, TaxAmounts, TaxClient } from "../../../../clients";
-import { BillingAddress, TokenizedPaymentMethod } from "../../../../payment/types";
-import { PersonalSubscriptionPricingTierIds } from "../../../../types/subscription-pricing-tier";
+import {
+  AccountBillingClient,
+  SubscriberBillingClient,
+  TaxAmounts,
+  TaxClient,
+} from "../../../../clients";
+import {
+  BillingAddress,
+  NonTokenizablePaymentMethods,
+  NonTokenizedPaymentMethod,
+  TokenizedPaymentMethod,
+} from "../../../../payment/types";
 
 import { UpgradePaymentService, PlanDetails } from "./upgrade-payment.service";
 
@@ -26,12 +36,12 @@ describe("UpgradePaymentService", () => {
   const mockAccountBillingClient = mock<AccountBillingClient>();
   const mockTaxClient = mock<TaxClient>();
   const mockLogService = mock<LogService>();
-  const mockApiService = mock<ApiService>();
   const mockSyncService = mock<SyncService>();
   const mockOrganizationService = mock<OrganizationService>();
   const mockAccountService = mock<AccountService>();
+  const mockSubscriberBillingClient = mock<SubscriberBillingClient>();
+  const mockConfigService = mock<ConfigService>();
 
-  mockApiService.refreshIdentityToken.mockResolvedValue({});
   mockSyncService.fullSync.mockResolvedValue(true);
 
   let sut: UpgradePaymentService;
@@ -104,6 +114,7 @@ describe("UpgradePaymentService", () => {
     mockReset(mockLogService);
     mockReset(mockOrganizationService);
     mockReset(mockAccountService);
+    mockReset(mockSubscriberBillingClient);
 
     mockAccountService.activeAccount$ = of(null);
     mockOrganizationService.organizations$.mockReturnValue(of([]));
@@ -111,7 +122,10 @@ describe("UpgradePaymentService", () => {
     TestBed.configureTestingModule({
       providers: [
         UpgradePaymentService,
-
+        {
+          provide: SubscriberBillingClient,
+          useValue: mockSubscriberBillingClient,
+        },
         {
           provide: OrganizationBillingServiceAbstraction,
           useValue: mockOrganizationBillingService,
@@ -119,10 +133,10 @@ describe("UpgradePaymentService", () => {
         { provide: AccountBillingClient, useValue: mockAccountBillingClient },
         { provide: TaxClient, useValue: mockTaxClient },
         { provide: LogService, useValue: mockLogService },
-        { provide: ApiService, useValue: mockApiService },
         { provide: SyncService, useValue: mockSyncService },
         { provide: OrganizationService, useValue: mockOrganizationService },
         { provide: AccountService, useValue: mockAccountService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     });
 
@@ -168,10 +182,11 @@ describe("UpgradePaymentService", () => {
         mockAccountBillingClient,
         mockTaxClient,
         mockLogService,
-        mockApiService,
         mockSyncService,
         mockOrganizationService,
         mockAccountService,
+        mockSubscriberBillingClient,
+        mockConfigService,
       );
 
       // Act & Assert
@@ -219,10 +234,11 @@ describe("UpgradePaymentService", () => {
         mockAccountBillingClient,
         mockTaxClient,
         mockLogService,
-        mockApiService,
         mockSyncService,
         mockOrganizationService,
         mockAccountService,
+        mockSubscriberBillingClient,
+        mockConfigService,
       );
 
       // Act & Assert
@@ -252,16 +268,79 @@ describe("UpgradePaymentService", () => {
         mockAccountBillingClient,
         mockTaxClient,
         mockLogService,
-        mockApiService,
         mockSyncService,
         mockOrganizationService,
         mockAccountService,
+        mockSubscriberBillingClient,
+        mockConfigService,
       );
 
       // Act & Assert
       service.userIsOwnerOfFreeOrg$.subscribe((result) => {
         expect(result).toBe(false);
         done();
+      });
+    });
+  });
+
+  describe("accountCredit$", () => {
+    it("should correctly fetch account credit for subscriber", (done) => {
+      // Arrange
+
+      const mockAccount: Account = {
+        id: "user-id" as UserId,
+        email: "test@example.com",
+        name: "Test User",
+        emailVerified: true,
+      };
+      const expectedCredit = 25.5;
+
+      mockAccountService.activeAccount$ = of(mockAccount);
+      mockSubscriberBillingClient.getCredit.mockResolvedValue(expectedCredit);
+
+      const service = new UpgradePaymentService(
+        mockOrganizationBillingService,
+        mockAccountBillingClient,
+        mockTaxClient,
+        mockLogService,
+        mockSyncService,
+        mockOrganizationService,
+        mockAccountService,
+        mockSubscriberBillingClient,
+        mockConfigService,
+      );
+
+      // Act & Assert
+      service.accountCredit$.subscribe((credit) => {
+        expect(credit).toBe(expectedCredit);
+        expect(mockSubscriberBillingClient.getCredit).toHaveBeenCalledWith({
+          data: mockAccount,
+          type: "account",
+        });
+        done();
+      });
+    });
+
+    it("should handle empty account", (done) => {
+      // Arrange
+      mockAccountService.activeAccount$ = of(null);
+      const service = new UpgradePaymentService(
+        mockOrganizationBillingService,
+        mockAccountBillingClient,
+        mockTaxClient,
+        mockLogService,
+        mockSyncService,
+        mockOrganizationService,
+        mockAccountService,
+        mockSubscriberBillingClient,
+        mockConfigService,
+      );
+      // Act & Assert
+      service?.accountCredit$.subscribe({
+        error: () => {
+          expect(mockSubscriberBillingClient.getCredit).not.toHaveBeenCalled();
+          done();
+        },
       });
     });
   });
@@ -305,10 +384,11 @@ describe("UpgradePaymentService", () => {
         mockAccountBillingClient,
         mockTaxClient,
         mockLogService,
-        mockApiService,
         mockSyncService,
         mockOrganizationService,
         mockAccountService,
+        mockSubscriberBillingClient,
+        mockConfigService,
       );
 
       // Act & Assert
@@ -356,7 +436,7 @@ describe("UpgradePaymentService", () => {
           tier: "families",
           passwordManager: {
             additionalStorage: 0,
-            seats: 6,
+            seats: 1,
             sponsored: false,
           },
         },
@@ -401,28 +481,60 @@ describe("UpgradePaymentService", () => {
         mockTokenizedPaymentMethod,
         mockBillingAddress,
       );
-      expect(mockApiService.refreshIdentityToken).toHaveBeenCalled();
       expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
     });
 
-    it("should throw error if payment method is incomplete", async () => {
+    it("should handle upgrade with account credit payment method and refresh data", async () => {
       // Arrange
-      const incompletePaymentMethod = { type: "card" } as TokenizedPaymentMethod;
+      const accountCreditPaymentMethod: NonTokenizedPaymentMethod = {
+        type: NonTokenizablePaymentMethods.accountCredit,
+      };
+      mockAccountBillingClient.purchasePremiumSubscription.mockResolvedValue();
 
-      // Act & Assert
-      await expect(
-        sut.upgradeToPremium(incompletePaymentMethod, mockBillingAddress),
-      ).rejects.toThrow("Payment method type or token is missing");
+      // Act
+      await sut.upgradeToPremium(accountCreditPaymentMethod, mockBillingAddress);
+
+      // Assert
+      expect(mockAccountBillingClient.purchasePremiumSubscription).toHaveBeenCalledWith(
+        accountCreditPaymentMethod,
+        mockBillingAddress,
+      );
+      expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
     });
 
-    it("should throw error if billing address is incomplete", async () => {
+    it("should validate payment method type and token", async () => {
       // Arrange
-      const incompleteBillingAddress = { country: "US", postalCode: null } as any;
+      const noTypePaymentMethod = { token: "test-token" } as any;
+      const noTokenPaymentMethod = { type: "card" } as TokenizedPaymentMethod;
+
+      // Act & Assert
+      await expect(sut.upgradeToPremium(noTypePaymentMethod, mockBillingAddress)).rejects.toThrow(
+        "Payment method type is missing",
+      );
+
+      await expect(sut.upgradeToPremium(noTokenPaymentMethod, mockBillingAddress)).rejects.toThrow(
+        "Payment method token is missing",
+      );
+    });
+
+    it("should validate billing address fields", async () => {
+      // Arrange
+      const missingCountry = { postalCode: "12345" } as any;
+      const missingPostal = { country: "US" } as any;
+      const nullFields = { country: "US", postalCode: null } as any;
 
       // Act & Assert
       await expect(
-        sut.upgradeToPremium(mockTokenizedPaymentMethod, incompleteBillingAddress),
+        sut.upgradeToPremium(mockTokenizedPaymentMethod, missingCountry),
       ).rejects.toThrow("Billing address information is incomplete");
+
+      await expect(sut.upgradeToPremium(mockTokenizedPaymentMethod, missingPostal)).rejects.toThrow(
+        "Billing address information is incomplete",
+      );
+
+      await expect(sut.upgradeToPremium(mockTokenizedPaymentMethod, nullFields)).rejects.toThrow(
+        "Billing address information is incomplete",
+      );
     });
   });
 
@@ -454,7 +566,7 @@ describe("UpgradePaymentService", () => {
             billingEmail: "test@example.com",
           },
           plan: {
-            type: PlanType.FamiliesAnnually,
+            type: PlanType.FamiliesAnnually2025,
             passwordManagerSeats: 6,
           },
           payment: {
@@ -467,8 +579,71 @@ describe("UpgradePaymentService", () => {
         }),
         "user-id",
       );
-      expect(mockApiService.refreshIdentityToken).toHaveBeenCalled();
       expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
+    });
+
+    it("should use FamiliesAnnually2025 plan when feature flag is disabled", async () => {
+      // Arrange
+      mockConfigService.getFeatureFlag.mockResolvedValue(false);
+      mockOrganizationBillingService.purchaseSubscription.mockResolvedValue({
+        id: "org-id",
+        name: "Test Organization",
+        billingEmail: "test@example.com",
+      } as OrganizationResponse);
+
+      // Act
+      await sut.upgradeToFamilies(
+        mockAccount,
+        mockFamiliesPlanDetails,
+        mockTokenizedPaymentMethod,
+        {
+          organizationName: "Test Organization",
+          billingAddress: mockBillingAddress,
+        },
+      );
+
+      // Assert
+      expect(mockOrganizationBillingService.purchaseSubscription).toHaveBeenCalledWith(
+        expect.objectContaining({
+          plan: {
+            type: PlanType.FamiliesAnnually2025,
+            passwordManagerSeats: 6,
+          },
+        }),
+        "user-id",
+      );
+    });
+
+    it("should use FamiliesAnnually plan when feature flag is enabled", async () => {
+      // Arrange
+      mockConfigService.getFeatureFlag.mockResolvedValue(true);
+      mockOrganizationBillingService.purchaseSubscription.mockResolvedValue({
+        id: "org-id",
+        name: "Test Organization",
+        billingEmail: "test@example.com",
+      } as OrganizationResponse);
+
+      // Act
+      await sut.upgradeToFamilies(
+        mockAccount,
+        mockFamiliesPlanDetails,
+        mockTokenizedPaymentMethod,
+        {
+          organizationName: "Test Organization",
+          billingAddress: mockBillingAddress,
+        },
+      );
+
+      // Assert
+      expect(mockOrganizationBillingService.purchaseSubscription).toHaveBeenCalledWith(
+        expect.objectContaining({
+          plan: {
+            type: PlanType.FamiliesAnnually,
+            passwordManagerSeats: 6,
+          },
+        }),
+        "user-id",
+      );
     });
 
     it("should throw error if password manager seats are 0", async () => {
@@ -504,7 +679,7 @@ describe("UpgradePaymentService", () => {
       expect(mockOrganizationBillingService.purchaseSubscription).toHaveBeenCalledTimes(1);
     });
 
-    it("should throw error if payment method is incomplete", async () => {
+    it("should throw error if payment token is missing with card type", async () => {
       const incompletePaymentMethod = { type: "card" } as TokenizedPaymentMethod;
 
       await expect(
@@ -512,7 +687,15 @@ describe("UpgradePaymentService", () => {
           organizationName: "Test Organization",
           billingAddress: mockBillingAddress,
         }),
-      ).rejects.toThrow("Payment method type or token is missing");
+      ).rejects.toThrow("Payment method token is missing");
+    });
+    it("should throw error if organization name is missing", async () => {
+      await expect(
+        sut.upgradeToFamilies(mockAccount, mockFamiliesPlanDetails, mockTokenizedPaymentMethod, {
+          organizationName: "",
+          billingAddress: mockBillingAddress,
+        }),
+      ).rejects.toThrow("Organization name is required for families upgrade");
     });
   });
 });

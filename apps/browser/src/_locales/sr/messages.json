@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Употребити једнократну пријаву"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Ваша организација захтева јединствену пријаву."
+  },
   "welcomeBack": {
     "message": "Добродошли назад"
   },
@@ -588,6 +591,12 @@
   "view": {
     "message": "Приказ"
   },
+  "viewAll": {
+    "message": "Прегледај све"
+  },
+  "viewLess": {
+    "message": "View less"
+  },
   "viewLogin": {
     "message": "Преглед пријаве"
   },
@@ -789,6 +798,12 @@
   },
   "onLocked": {
     "message": "На закључавање система"
+  },
+  "onIdle": {
+    "message": "On system idle"
+  },
+  "onSleep": {
+    "message": "On system sleep"
   },
   "onRestart": {
     "message": "На покретање прегледача"
@@ -1027,6 +1042,18 @@
   },
   "editedItem": {
     "message": "Ставка уређена"
+  },
+  "savedWebsite": {
+    "message": "Сачувана веб локација"
+  },
+  "savedWebsites": {
+    "message": "Сачувана веб локација ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Сигурно послати ову ставку у отпад?"
@@ -1505,12 +1532,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Захтевај биометрију при покретању"
   },
-  "premiumRequired": {
-    "message": "Потребан Премијум"
-  },
-  "premiumRequiredDesc": {
-    "message": "Премијум чланство је неопходно за употребу ове опције."
-  },
   "authenticationTimeout": {
     "message": "Истекло је време аутентификације"
   },
@@ -1623,6 +1644,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Морате додати или основни УРЛ сервера или бар једно прилагођено окружење."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Везе морају да користе HTTPS."
+  },
   "customEnvironment": {
     "message": "Прилагођено окружење"
   },
@@ -1676,8 +1700,29 @@
   "turnOffAutofill": {
     "message": "Угасити ауто-пуњење"
   },
+  "confirmAutofill": {
+    "message": "Потврди аутопуњење"
+  },
+  "confirmAutofillDesc": {
+    "message": "Овај сајт се не подудара са вашим сачуваним подацима за пријаву. Пре него што унесете своје акредитиве за пријаву, уверите се да је то поуздан сајт."
+  },
   "showInlineMenuLabel": {
     "message": "Прикажи предлоге за ауто-попуњавање у пољима обрасца"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Како Bitwarden штити ваше податке од фишинга?"
+  },
+  "currentWebsite": {
+    "message": "Тренутни сајт"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Ауто-попуни и додај овај сајт"
+  },
+  "autofillWithoutAdding": {
+    "message": "Ауто-попуни без додавања"
+  },
+  "doNotAutofill": {
+    "message": "Не попуни"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Приказати идентитете као предлоге"
@@ -3240,6 +3285,9 @@
   "decryptionError": {
     "message": "Грешка при декрипцији"
   },
+  "errorGettingAutoFillData": {
+    "message": "Грешка при преузимању података за ауто-попуњавање"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden није могао да декриптује ставке из трезора наведене испод."
   },
@@ -4010,6 +4058,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Ауто-попуњавање при учитавању странице је подешено да користи подразумевано подешавање.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Не може да се ауто-попуни"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Подразумевано подударање је подешено на „Тачно подударање“. Тренутна веб локација не одговара тачно сачуваним детаљима за пријаву за ову ставку."
+  },
+  "okay": {
+    "message": "У реду"
   },
   "toggleSideNavigation": {
     "message": "Укључите бочну навигацију"
@@ -4926,6 +4983,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Подразумевано ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "Прикажи откривање подударања $WEBSITE$",
     "placeholders": {
@@ -5715,8 +5782,59 @@
   "confirmKeyConnectorDomain": {
     "message": "Потврдите домен конектора кључа"
   },
+  "atRiskLoginsSecured": {
+    "message": "Сјајан посао обезбеђивања ваших ризичних пријава!"
+  },
+  "upgradeNow": {
+    "message": "Надогради сада"
+  },
+  "builtInAuthenticator": {
+    "message": "Уграђени аутентификатор"
+  },
+  "secureFileStorage": {
+    "message": "Сигурно складиштење датотека"
+  },
+  "emergencyAccess": {
+    "message": "Хитан приступ"
+  },
+  "breachMonitoring": {
+    "message": "Праћење повreda безбедности"
+  },
+  "andMoreFeatures": {
+    "message": "И још више!"
+  },
+  "planDescPremium": {
+    "message": "Потпуна онлајн безбедност"
+  },
+  "upgradeToPremium": {
+    "message": "Надоградите на Premium"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "Loading vault"
+  },
+  "vaultLoaded": {
+    "message": "Vault loaded"
+  },
   "settingDisabledByPolicy": {
-    "message": "This setting is disabled by your organization's policy.",
+    "message": "Ово подешавање је онемогућено смерницама ваше организације.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP/Поштански број"
+  },
+  "cardNumberLabel": {
+    "message": "Број картице"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
   }
 }

@@ -7,7 +7,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DeviceType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService, ItemModule } from "@bitwarden/components";
+import { CenterPositionStrategy, DialogService, ItemModule } from "@bitwarden/components";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
@@ -29,6 +29,8 @@ const RateUrls = {
   [DeviceType.SafariExtension]: "https://apps.apple.com/app/bitwarden/id1352778147",
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "about-page-v2.component.html",
   imports: [
@@ -49,7 +51,9 @@ export class AboutPageV2Component {
   ) {}
 
   about() {
-    this.dialogService.open(AboutDialogComponent);
+    this.dialogService.open(AboutDialogComponent, {
+      positionStrategy: new CenterPositionStrategy(),
+    });
   }
 
   async launchHelp() {

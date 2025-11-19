@@ -94,6 +94,8 @@ import { VaultItemsV2Component } from "./vault-items-v2.component";
 
 const BroadcasterSubscriptionId = "VaultComponent";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault",
   templateUrl: "vault-v2.component.html",
@@ -138,12 +140,20 @@ const BroadcasterSubscriptionId = "VaultComponent";
 export class VaultV2Component<C extends CipherViewLike>
   implements OnInit, OnDestroy, CopyClickListener
 {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(VaultItemsV2Component, { static: true })
   vaultItemsComponent: VaultItemsV2Component<C> | null = null;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(VaultFilterComponent, { static: true })
   vaultFilterComponent: VaultFilterComponent | null = null;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("folderAddEdit", { read: ViewContainerRef, static: true })
   folderAddEditModalRef: ViewContainerRef | null = null;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(CipherFormComponent)
   cipherFormComponent: CipherFormComponent | null = null;
 
@@ -787,7 +797,7 @@ export class VaultV2Component<C extends CipherViewLike>
   async cancelCipher(cipher: CipherView) {
     this.cipherId = cipher.id;
     this.cipher = cipher;
-    this.action = this.cipherId != null ? "view" : null;
+    this.action = this.cipherId ? "view" : null;
     await this.go().catch(() => {});
   }
 

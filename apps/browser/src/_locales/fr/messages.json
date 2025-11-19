@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Utiliser l'authentification unique"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Content de vous revoir"
   },
@@ -559,7 +562,7 @@
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Désarchiver"
   },
   "itemsInArchive": {
     "message": "Éléments dans l'archive"
@@ -571,10 +574,10 @@
     "message": "Les éléments archivés apparaîtront ici et seront exclus des résultats de recherche généraux et des suggestions de remplissage automatique."
   },
   "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+    "message": "L'élément a été envoyé à l'archive"
   },
   "itemUnarchived": {
-    "message": "Item was unarchived"
+    "message": "L'élément a été désarchivé"
   },
   "archiveItem": {
     "message": "Archiver l'élément"
@@ -587,6 +590,12 @@
   },
   "view": {
     "message": "Afficher"
+  },
+  "viewAll": {
+    "message": "View all"
+  },
+  "viewLess": {
+    "message": "View less"
   },
   "viewLogin": {
     "message": "Afficher l'Identifiant"
@@ -789,6 +798,12 @@
   },
   "onLocked": {
     "message": "Au verrouillage"
+  },
+  "onIdle": {
+    "message": "On system idle"
+  },
+  "onSleep": {
+    "message": "On system sleep"
   },
   "onRestart": {
     "message": "Au redémarrage du navigateur"
@@ -1027,6 +1042,18 @@
   },
   "editedItem": {
     "message": "Élément enregistré"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Êtes-vous sûr de vouloir supprimer cet identifiant ?"
@@ -1505,12 +1532,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Demander la biométrie au lancement"
   },
-  "premiumRequired": {
-    "message": "Premium requis"
-  },
-  "premiumRequiredDesc": {
-    "message": "Une adhésion Premium est requise pour utiliser cette fonctionnalité."
-  },
   "authenticationTimeout": {
     "message": "Délai d'authentification dépassé"
   },
@@ -1623,6 +1644,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Vous devez ajouter soit l'URL du serveur de base, soit au moins un environnement personnalisé."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
+  },
   "customEnvironment": {
     "message": "Environnement personnalisé"
   },
@@ -1676,8 +1700,29 @@
   "turnOffAutofill": {
     "message": "Désactiver la saisie automatique"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "Afficher les suggestions de saisie automatique dans les champs d'un formulaire"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Afficher les identités sous forme de suggestions"
@@ -2241,7 +2286,7 @@
     "message": "Déverrouiller avec un code PIN"
   },
   "setYourPinTitle": {
-    "message": "Définir PIN"
+    "message": "Définir NIP"
   },
   "setYourPinButton": {
     "message": "Définir PIN"
@@ -3240,11 +3285,14 @@
   "decryptionError": {
     "message": "Erreur de déchiffrement"
   },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden n’a pas pu déchiffrer le(s) élément(s) du coffre listé(s) ci-dessous."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contacter le service clientèle",
+    "message": "Contacter succès client",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
@@ -4011,6 +4059,15 @@
     "message": "La saisie automatique au chargement de la page est configuré selon les paramètres par défaut.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
+  },
   "toggleSideNavigation": {
     "message": "Basculer la navigation latérale"
   },
@@ -4142,7 +4199,7 @@
     "message": "Vérification requise pour cette action. Définissez un code PIN pour continuer."
   },
   "setPin": {
-    "message": "Définir le code PIN"
+    "message": "Définir le code NIP"
   },
   "verifyWithBiometrics": {
     "message": "Vérifier par biométrie"
@@ -4344,7 +4401,7 @@
     "message": "Code incorrect"
   },
   "incorrectPin": {
-    "message": "Code PIN incorrect"
+    "message": "Code NIP incorrect"
   },
   "multifactorAuthenticationFailed": {
     "message": "Authentification multifacteur échouée"
@@ -4926,6 +4983,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Default ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "Afficher la détection de correspondance $WEBSITE$",
     "placeholders": {
@@ -5304,7 +5371,7 @@
     "message": "Vous pouvez personnaliser vos paramètres de déverrouillage et de délai d'attente pour accéder plus rapidement à votre coffre-fort."
   },
   "unlockPinSet": {
-    "message": "Déverrouiller l'ensemble de codes PIN"
+    "message": "Déverrouiller l'ensemble de codes NIP"
   },
   "unlockWithBiometricSet": {
     "message": "Déverrouiller avec l'ensemble biométrique"
@@ -5580,30 +5647,30 @@
     "message": "Bienvenue dans votre coffre !"
   },
   "phishingPageTitleV2": {
-    "message": "Phishing attempt detected"
+    "message": "Tentative d'hameçonnage détectée"
   },
   "phishingPageSummary": {
-    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+    "message": "Le site que vous essayez de visiter est un site malveillant connu et un risque de sécurité."
   },
   "phishingPageCloseTabV2": {
-    "message": "Close this tab"
+    "message": "Fermer cet onglet"
   },
   "phishingPageContinueV2": {
-    "message": "Continue to this site (not recommended)"
+    "message": "Continuer vers ce site (non recommandé)"
   },
   "phishingPageExplanation1": {
-    "message": "This site was found in ",
+    "message": "Ce site a été trouvé dans ",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
   },
   "phishingPageExplanation2": {
-    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "message": ", une liste open-source de sites d'hameçonnage connus et utilisés pour voler des informations personnelles et sensibles.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
   },
   "phishingPageLearnMore": {
-    "message": "Learn more about phishing detection"
+    "message": "En savoir plus sur la détection d'hameçonnage"
   },
   "protectedBy": {
-    "message": "Protected by $PRODUCT$",
+    "message": "Protégé par $PRODUCT$",
     "placeholders": {
       "product": {
         "content": "$1",
@@ -5715,8 +5782,59 @@
   "confirmKeyConnectorDomain": {
     "message": "Confirmez le domaine de Key Connector"
   },
+  "atRiskLoginsSecured": {
+    "message": "Excellent travail pour sécuriser vos identifiants à risque !"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "Loading vault"
+  },
+  "vaultLoaded": {
+    "message": "Vault loaded"
+  },
   "settingDisabledByPolicy": {
-    "message": "This setting is disabled by your organization's policy.",
+    "message": "Ce paramètre est désactivé par la politique de sécurité de votre organisation.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Code postal"
+  },
+  "cardNumberLabel": {
+    "message": "Numéro de carte"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
   }
 }

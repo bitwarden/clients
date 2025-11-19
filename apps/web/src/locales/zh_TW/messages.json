@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "存取資訊"
   },
-  "riskInsights": {
-    "message": "風險洞察"
-  },
   "passwordRisk": {
     "message": "密碼風險"
   },
+  "noEditPermissions": {
+    "message": "你沒有權限編輯這個項目"
+  },
   "reviewAtRiskPasswords": {
     "message": "檢視全部應用中具有風險的密碼 (弱、被暴露或重複使用)。選擇最重要的應用程式並優先採取安全措施，幫助使用者解決具有風險的密碼。"
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "檢視有風險的登入資訊"
   },
   "dataLastUpdated": {
     "message": "上次資料更新日期：$DATE$",
@@ -90,11 +93,11 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "指派成員任務以監控進度"
   },
-  "onceYouReviewApps": {
-    "message": "在您檢視應用程式並將其標記為關鍵後，您可以指派任務給成員，以解決有風險的項目，並在此監控進度"
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
   },
   "sendReminders": {
-    "message": "發送提醒"
+    "message": "傳送提醒"
   },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "一旦您標記應用程式為關鍵，它們將顯示在此。"
@@ -127,6 +130,9 @@
       }
     }
   },
+  "criticalApplicationsMarked": {
+    "message": "已將應用程式標記為關鍵"
+  },
   "countOfCriticalApplications": {
     "message": "$COUNT$ 個關鍵應用程式",
     "placeholders": {
@@ -154,6 +160,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ 組新密碼存在風險",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "已被通知的成員($COUNT$)",
     "placeholders": {
@@ -163,17 +178,35 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "在$ORG NAME$中找無應用程式",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "No data found"
   },
-  "noAppsInOrgDescription": {
-    "message": "在使用者儲存登入後，應用程式將會顯示在這裡，並同時顯示具有風險的密碼。標註重要應用程式並通知使用者以更新密碼。"
+  "noDataInOrgDescription": {
+    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
+  },
+  "feature1Title": {
+    "message": "Mark applications as critical"
+  },
+  "feature1Description": {
+    "message": "This will help you remove risks to your most important applications first."
+  },
+  "feature2Title": {
+    "message": "Help members improve their security"
+  },
+  "feature2Description": {
+    "message": "Assign at-risk members guided security tasks to update credentials."
+  },
+  "feature3Title": {
+    "message": "Monitor progress"
+  },
+  "feature3Description": {
+    "message": "Track changes over time to show security improvements."
+  },
+  "noReportsRunTitle": {
+    "message": "Generate report"
+  },
+  "noReportsRunDescription": {
+    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
   },
   "noCriticalApplicationsTitle": {
     "message": "您尚未將任何應用程式標記為關鍵"
@@ -202,6 +235,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "被標註重要的應用程式"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "已將 $COUNT$ 個應用程式標記為關鍵",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "標記應用程式為關鍵失敗"
   },
@@ -223,8 +265,14 @@
   "atRiskMembers": {
     "message": "具有風險的成員"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "擁有關鍵應用程式中有風險項目存取權的成員"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "These members have access to vulnerable items for critical applications."
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "使用有風險密碼的成員"
+  },
+  "membersWillReceiveSecurityTask": {
+    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ 位有風險的成員",
@@ -253,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "這些成員正在使用弱密碼、外洩密碼或重複密碼登入應用程式。"
+  "atRiskMemberDescription": {
+    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionNone": {
     "message": "目前沒有成員使用弱密碼、外洩密碼或重複密碼登入應用程式。"
@@ -295,6 +343,9 @@
   "applicationsNeedingReview": {
     "message": "需要檢視的應用程式"
   },
+  "newApplicationsCardTitle": {
+    "message": "審查新應用程式"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ 個新應用程式",
     "placeholders": {
@@ -310,14 +361,56 @@
   "reviewNow": {
     "message": "立即審查"
   },
+  "allCaughtUp": {
+    "message": "全部完成！"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "目前沒有新的應用程式可供審查"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "您的組織已為 $COUNT$ 個應用程式儲存項目",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "審查應用程式以保護對組織安全最重要的項目"
+  },
+  "reviewApplications": {
+    "message": "審核認領"
+  },
   "prioritizeCriticalApplications": {
     "message": "優先處理關鍵應用程式"
   },
-  "atRiskItems": {
-    "message": "有風險的項目"
+  "selectCriticalAppsDescription": {
+    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
+  },
+  "reviewNewApplications": {
+    "message": "審查新應用程式"
+  },
+  "reviewNewAppsDescription": {
+    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "點擊星形圖示以將應用程式標記為關鍵"
   },
   "markAsCriticalPlaceholder": {
     "message": "標記為關鍵功能將在未來更新中實現"
+  },
+  "applicationReviewSaved": {
+    "message": "已儲存應用程式審查"
+  },
+  "newApplicationsReviewed": {
+    "message": "新應用程式已審查"
+  },
+  "errorSavingReviewStatus": {
+    "message": "儲存審查狀態時發生錯誤"
+  },
+  "pleaseTryAgain": {
+    "message": "請再試一次"
   },
   "unmarkAsCritical": {
     "message": "取消標記為關鍵"
@@ -780,6 +873,9 @@
   },
   "favorites": {
     "message": "我的最愛"
+  },
+  "taskSummary": {
+    "message": "任務摘要"
   },
   "types": {
     "message": "類型"
@@ -1304,6 +1400,9 @@
   },
   "useSingleSignOn": {
     "message": "使用單一登入"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "您的組織要求使用單一登入。"
   },
   "welcomeBack": {
     "message": "歡迎回來"
@@ -2080,9 +2179,6 @@
   "encKeySettings": {
     "message": "加密金鑰設定"
   },
-  "kdfAlgorithm": {
-    "message": "KDF 演算法"
-  },
   "kdfIterations": {
     "message": "KDF 疊代"
   },
@@ -2116,9 +2212,6 @@
   },
   "argon2Desc": {
     "message": "更高的 KDF 疊代次數、記憶體占用與平行數量可以避免您的主密碼遭到攻擊者的暴力破解。"
-  },
-  "changeKdf": {
-    "message": "變更 KDF"
   },
   "encKeySettingsChanged": {
     "message": "加密金鑰設定已儲存"
@@ -3151,8 +3244,17 @@
   "nextCharge": {
     "message": "下一次扣款"
   },
+  "nextChargeHeader": {
+    "message": "下一次收費"
+  },
+  "plan": {
+    "message": "方案"
+  },
   "details": {
     "message": "詳細資料"
+  },
+  "discount": {
+    "message": "折扣"
   },
   "downloadLicense": {
     "message": "下載授權證"
@@ -4358,8 +4460,32 @@
   "updateBrowser": {
     "message": "更新瀏覽器"
   },
-  "generatingYourRiskInsights": {
-    "message": "正在生成您的風險洞察..."
+  "generatingYourAccessIntelligence": {
+    "message": "正在產生您的存取智慧分析…"
+  },
+  "fetchingMemberData": {
+    "message": "正在擷取成員資料…"
+  },
+  "analyzingPasswordHealth": {
+    "message": "正在分析密碼安全狀況…"
+  },
+  "calculatingRiskScores": {
+    "message": "正在計算風險分數…"
+  },
+  "generatingReportData": {
+    "message": "正在產生報告資料..."
+  },
+  "savingReport": {
+    "message": "正在儲存報告..."
+  },
+  "compilingInsights": {
+    "message": "正在整理洞察結果…"
+  },
+  "loadingProgress": {
+    "message": "載入進度中"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "這可能需要幾分鐘。"
   },
   "riskInsightsRunReport": {
     "message": "執行報告"
@@ -4446,8 +4572,8 @@
   "inviteAccepted": {
     "message": "邀請已接受"
   },
-  "inviteAcceptedDesc": {
-    "message": "管理員確認您的成員身分後，您便可以存取此組織。到時我們會向您傳送電子郵件通知。"
+  "invitationAcceptedDesc": {
+    "message": "成功接受您的邀請。"
   },
   "inviteInitAcceptedDesc": {
     "message": "您現在可以存取此組織了。"
@@ -5710,6 +5836,65 @@
     "message": "了解更多 ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
+  "availableNow": {
+    "message": "立即可用"
+  },
+  "autoConfirm": {
+    "message": "新使用者自動確認"
+  },
+  "autoConfirmDescription": {
+    "message": "當管理員的裝置已解鎖時，邀請至該組織的新使用者會自動完成確認。",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "如何開啟自動使用者確認"
+  },
+  "autoConfirmExtension1": {
+    "message": "開啟你的 Bitwarden 瀏覽器擴充套件"
+  },
+  "autoConfirmExtension2": {
+    "message": "選擇",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
+  },
+  "autoConfirmExtension3": {
+    "message": " 開啟",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "已成功開啟 Bitwarden 瀏覽器擴充套件。您現在可以啟用自動使用者確認設定。"
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "在管理員的裝置解鎖時，邀請到組織的新使用者將自動獲得確認。開啟此原則之前，請先閱讀並同意以下內容：",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "可能的安全風險。"
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "自動使用者確認可能對你組織的資料造成安全風險。"
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "了解風險",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "需要啟用單一組織原則。"
+  },
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "要使用自動化，所有成員必須僅隸屬於該組織。"
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "單一組織原則將套用到所有角色。"
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "無緊急存取。 "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "將移除緊急存取。"
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "我接受這些風險與原則更新"
+  },
   "personalOwnership": {
     "message": "停用個人密碼庫"
   },
@@ -5761,6 +5946,19 @@
   "disableHideEmail": {
     "message": "建立或編輯 Send 時，始終對收件人顯示成員的電子郵件地址。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "預設的 URI 一致性偵測方式"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "決定何時建議登入項目進行自動填入。管理員與擁有者不受此原則限制。"
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "預設的 URI 一致性偵測方式"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "請選擇有效的 URI 比對偵測選項。",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "原則 $ID$ 已修改。",
@@ -6415,11 +6613,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "您的主密碼不符合一個或多個組織政策規定。您必須立即更新您的主密碼才能存取密碼庫。進行此動作將登出您目前的工作階段，需要您重新登入。其他裝置上的工作階段可能持續長達一小時。"
   },
-  "automaticAppLogin": {
-    "message": "自動登入允許的應用程式使用者"
+  "automaticAppLoginWithSSO": {
+    "message": "自動使用SSO登入"
   },
-  "automaticAppLoginDesc": {
-    "message": "從已設定的身份提供者啟動的應用程式，其登入表單將自動填入並提交。"
+  "automaticAppLoginWithSSODesc": {
+    "message": "將SSO的安全和便利拓展至未受管理的應用程式。當使用者用身分識別提供者啟動應用程式時，登入資訊會自動填寫並提交，建立從身分識別提供者到應用程式的一鍵式安全流程。"
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "身份提供者主機"
@@ -6430,23 +6628,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "您的組織已更新您的解密選項。請設定主密碼以存取您的密碼庫。"
   },
-  "maximumVaultTimeout": {
-    "message": "密碼庫逾時時間"
+  "sessionTimeoutPolicyTitle": {
+    "message": "工作階段逾時"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "為成員設定最大密碼庫逾時時間。"
+  "sessionTimeoutPolicyDescription": {
+    "message": "為除擁有者外的所有成員設定最長工作階段逾時時間。"
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "最大密碼庫逾時時間"
+  "maximumAllowedTimeout": {
+    "message": "最大允許的逾時時間"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "無效的最大密碼庫逾時時間。"
+  "maximumAllowedTimeoutRequired": {
+    "message": "需要最大允許的逾時時間"
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "時間無效。請至少變更一個值。"
+  },
+  "sessionTimeoutAction": {
+    "message": "工作階段逾時動作"
+  },
+  "immediately": {
+    "message": "立即"
+  },
+  "onSystemLock": {
+    "message": "於系統鎖定時"
+  },
+  "onAppRestart": {
+    "message": "應用程式重新啟動時"
   },
   "hours": {
     "message": "小時"
   },
   "minutes": {
     "message": "分鐘"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "您確定要允許所有成員的最長逾時為「永不」嗎？"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "此選項會將成員的加密金鑰儲存在其裝置上。若選擇此選項，請確保這些裝置具備充分的防護。"
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "進一步了解裝置保護"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "「系統鎖定」僅適用於瀏覽器與桌面應用程式"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "由於不支援此選項，行動與網頁應用程式將以「在應用程式重新啟動時」作為其最長允許逾時時間。"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "您的組織政策已限定您密碼庫逾時的時間長度。密碼庫逾時時間最高可以設定到 $HOURS$ 小時 $MINUTES$ 分鐘。",
@@ -6989,6 +7217,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "您必須新增伺服器網域 URL 或至少一個自訂環境。"
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL 必須使用 HTTPS。"
+  },
   "apiUrl": {
     "message": "API 伺服器網址"
   },
@@ -7160,6 +7391,9 @@
   },
   "accessDenied": {
     "message": "拒絕存取。您沒有檢視此頁面的權限。"
+  },
+  "noPageAccess": {
+    "message": "您沒有存取頁面的權限"
   },
   "masterPassword": {
     "message": "主密碼"
@@ -9336,9 +9570,6 @@
   "loggedInExclamation": {
     "message": "已登入！"
   },
-  "beta": {
-    "message": "Beta 版"
-  },
   "assignCollectionAccess": {
     "message": "指派分類存取權限"
   },
@@ -9618,6 +9849,9 @@
   },
   "assignTasks": {
     "message": "指派任務"
+  },
+  "assignSecurityTasksToMembers": {
+    "message": "Send notifications to change passwords"
   },
   "assignToCollections": {
     "message": "指派至集合"
@@ -10361,26 +10595,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "關閉"
   },
-  "higherKDFIterations": {
-    "message": "更高的 KDF 疊代次數、記憶體占用與平行數量可以避免您的主密碼遭到攻擊者的暴力破解。"
-  },
-  "incrementsOf100,000": {
-    "message": "以 100,000 為增量"
-  },
-  "smallIncrements": {
-    "message": "小幅增量"
-  },
   "kdfIterationRecommends": {
     "message": "我們建議使用 600,000 或以上"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "對於較舊的裝置，將 KDF 設定過高可能導致效能問題。請在 $VALUE$ 中增加數值並測試您的裝置。",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": "請聯絡客服以恢復您的訂閱。"
@@ -11023,6 +11239,15 @@
   },
   "domainClaimed": {
     "message": "已宣告網域"
+  },
+  "itemAddedToFavorites": {
+    "message": "項目已加入到最愛"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "項目已從最愛中移除"
+  },
+  "copyNote": {
+    "message": "複製備註"
   },
   "organizationNameMaxLength": {
     "message": "組織名稱不得超過 50 個字元。"
@@ -11856,5 +12081,81 @@
   },
   "viewbusinessplans": {
     "message": "檢視商業方案"
+  },
+  "updateEncryptionSettings": {
+    "message": "更新加密設定"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "更新您的加密設定"
+  },
+  "updateSettings": {
+    "message": "更新設定"
+  },
+  "algorithm": {
+    "message": "演算法"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "選擇 Bitwarden 應如何加密你的密碼庫資料。所有選項都很安全，但更強的方法能提供更好的防護——特別是對抗暴力破解攻擊。對多數使用者，Bitwarden 建議使用預設設定。"
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "將上述數值提高到預設以上可以增進安全性，但也可能導致你的密碼庫解鎖時間變長。"
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "關於加密演算法"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 是經過充分驗證的加密方法，在安全性與效能之間取得平衡，適用於所有使用者。"
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id 對抗現代攻擊提供更強的防護，最適合具有高效能裝置的進階使用者。"
+  },
+  "zipPostalCodeLabel": {
+    "message": "郵編 / 郵政代碼"
+  },
+  "cardNumberLabel": {
+    "message": "支付卡號碼"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "開始免費家庭試用"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "企業政策已套用至您的逾時選項中"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "您的密碼庫逾時時間超過組織設定的限制。"
+  },
+  "neverLockWarning": {
+    "message": "您確定要使用「永不」選項嗎？將鎖定選項設定為「永不」會將密碼庫的加密金鑰儲存在您的裝置上。如果使用此選項，應確保您的裝置是安全的。"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "逾時後動作"
+  },
+  "sessionTimeoutHeader": {
+    "message": "工作階段逾時"
+  },
+  "appearance": {
+    "message": "外觀"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "逾時時間超出了您組織設定的此限制：最多 $HOURS$ 小時 $MINUTES$ 分鐘",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "未選取任何關鍵應用程式"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "您確定要繼續嗎?"
   }
 }

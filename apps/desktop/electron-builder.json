@@ -20,7 +20,7 @@
     "**/node_modules/@bitwarden/desktop-napi/index.js",
     "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node"
   ],
-  "electronVersion": "36.9.3",
+  "electronVersion": "37.7.0",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
@@ -96,6 +96,10 @@
       {
         "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}.exe",
         "to": "desktop_proxy.exe"
+      },
+      {
+        "from": "desktop_native/dist/bitwarden_chromium_import_helper.${platform}-${arch}.exe",
+        "to": "bitwarden_chromium_import_helper.exe"
       }
     ]
   },
@@ -112,7 +116,7 @@
         "to": "libprocess_isolation.so"
       }
     ],
-    "target": ["deb", "freebsd", "rpm", "AppImage", "snap"],
+    "target": ["deb", "rpm", "AppImage", "snap"],
     "desktop": {
       "entry": {
         "Name": "Bitwarden",
@@ -247,9 +251,6 @@
   "rpm": {
     "artifactName": "${productName}-${version}-${arch}.${ext}",
     "fpm": ["--rpm-rpmbuild-define", "_build_id_links none"]
-  },
-  "freebsd": {
-    "artifactName": "${productName}-${version}-${arch}.${ext}"
   },
   "snap": {
     "summary": "Bitwarden is a secure and free password manager for all of your devices.",

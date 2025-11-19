@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "welcomeBack": {
     "message": "Welcome back"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "Use single sign-on"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "Potvrdi"
   },
@@ -1031,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "You must add either the base Server URL or at least one custom environment."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
   },
   "customEnvironment": {
     "message": "Prilagođeno okruženje"
@@ -1852,6 +1861,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Lock with master password on restart"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Require master password or PIN on app restart"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Require master password on app restart"
+  },
   "deleteAccount": {
     "message": "Brisanje računa"
   },
@@ -2134,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "An error has occurred while enabling browser integration."
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Nažalost, za sada je integracija sa preglednikom podržana samo u Mac App Store verziji aplikacije."
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Nažalost, integracija sa preglednikom nije podržana u Windows Store verziji aplikacije."
@@ -4167,7 +4179,7 @@
   "itemWasSentToArchive": {
     "message": "Item was sent to archive"
   },
-  "itemUnarchived": {
+  "itemWasUnarchived": {
     "message": "Item was unarchived"
   },
   "archiveItem": {
@@ -4175,5 +4187,41 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

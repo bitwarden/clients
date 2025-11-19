@@ -1,7 +1,7 @@
 {
   "name": "@bitwarden/desktop",
   "description": "A secure and free password manager for all of your devices.",
-  "version": "2025.10.2",
+  "version": "2025.11.2",
   "keywords": [
     "bitwarden",
     "password",
@@ -40,7 +40,7 @@
     "pack:dir": "npm run clean:dist && electron-builder --dir -p never",
     "pack:lin:flatpak": "flatpak-builder --repo=../../.flatpak-repo ../../.flatpak  ./resources/com.bitwarden.desktop.devel.yaml --install-deps-from=flathub --force-clean &&  flatpak build-bundle ../../.flatpak-repo/ ./dist/com.bitwarden.desktop.flatpak com.bitwarden.desktop",
     "pack:lin": "npm run clean:dist && electron-builder --linux --x64 -p never && export SNAP_FILE=$(realpath ./dist/bitwarden_*.snap) && unsquashfs -d ./dist/tmp-snap/ $SNAP_FILE && mkdir -p ./dist/tmp-snap/meta/polkit/ && cp ./resources/com.bitwarden.desktop.policy  ./dist/tmp-snap/meta/polkit/polkit.com.bitwarden.desktop.policy && rm $SNAP_FILE && snap pack --compression=lzo ./dist/tmp-snap/ && mv ./*.snap ./dist/ && rm -rf ./dist/tmp-snap/",
-    "pack:lin:arm64": "npm run clean:dist && electron-builder --dir -p never && tar -czvf ./dist/bitwarden_desktop_arm64.tar.gz -C ./dist/linux-arm64-unpacked/ .",
+    "pack:lin:arm64": "npm run clean:dist && electron-builder --linux --arm64 -p never && export SNAP_FILE=$(realpath ./dist/bitwarden_*.snap) && unsquashfs -d ./dist/tmp-snap/ $SNAP_FILE && mkdir -p ./dist/tmp-snap/meta/polkit/ && cp ./resources/com.bitwarden.desktop.policy  ./dist/tmp-snap/meta/polkit/polkit.com.bitwarden.desktop.policy && rm $SNAP_FILE && snap pack --compression=lzo ./dist/tmp-snap/ && mv ./*.snap ./dist/ && rm -rf ./dist/tmp-snap/ && tar -czvf ./dist/bitwarden_desktop_arm64.tar.gz -C ./dist/linux-arm64-unpacked/ .",
     "pack:mac": "npm run clean:dist && electron-builder --mac --universal -p never",
     "pack:mac:with-extension": "npm run clean:dist && npm run build:macos-extension:mac && electron-builder --mac --universal -p never",
     "pack:mac:arm64": "npm run clean:dist && electron-builder --mac --arm64 -p never",

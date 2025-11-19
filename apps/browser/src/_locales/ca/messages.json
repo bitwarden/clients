@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Inici de sessió únic"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Benvingut/da de nou"
   },
@@ -320,7 +323,7 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "twoStepLogin": {
-    "message": "Inici de sessió en dues passes"
+    "message": "Inici de sessió en dos passos"
   },
   "logOut": {
     "message": "Tanca la sessió"
@@ -588,6 +591,12 @@
   "view": {
     "message": "Visualitza"
   },
+  "viewAll": {
+    "message": "View all"
+  },
+  "viewLess": {
+    "message": "View less"
+  },
   "viewLogin": {
     "message": "View login"
   },
@@ -790,6 +799,12 @@
   "onLocked": {
     "message": "En bloquejar el sistema"
   },
+  "onIdle": {
+    "message": "On system idle"
+  },
+  "onSleep": {
+    "message": "On system sleep"
+  },
   "onRestart": {
     "message": "En reiniciar el navegador"
   },
@@ -970,7 +985,7 @@
     "message": "Carpeta afegida"
   },
   "twoStepLoginConfirmation": {
-    "message": "L'inici de sessió en dues passes fa que el vostre compte siga més segur, ja que obliga a verificar el vostre inici de sessió amb un altre dispositiu, com ara una clau de seguretat, una aplicació autenticadora, un SMS, una trucada telefònica o un correu electrònic. Es pot habilitar l'inici de sessió en dues passes a la caixa forta web de bitwarden.com. Voleu visitar el lloc web ara?"
+    "message": "L'inici de sessió en dos passos fa que el vostre compte siga més segur, ja que obliga a verificar el vostre inici de sessió amb un altre dispositiu, com ara una clau de seguretat, una aplicació autenticadora, un SMS, una trucada telefònica o un correu electrònic. Es pot habilitar l'inici de sessió en dos passos a la caixa forta web de bitwarden.com. Voleu visitar el lloc web ara?"
   },
   "twoStepLoginConfirmationContent": {
     "message": "Fes que el vostre compte siga més segur configurant l'inici de sessió en dos passos a l'aplicació web de Bitwarden."
@@ -1027,6 +1042,18 @@
   },
   "editedItem": {
     "message": "Element guardat"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Esteu segur que voleu suprimir aquest element?"
@@ -1505,12 +1532,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Demaneu dades biometriques en iniciar"
   },
-  "premiumRequired": {
-    "message": "Premium requerit"
-  },
-  "premiumRequiredDesc": {
-    "message": "Cal una subscripció premium per utilitzar aquesta característica."
-  },
   "authenticationTimeout": {
     "message": "Temps d'espera d'autenticació"
   },
@@ -1564,13 +1585,13 @@
     "message": "Inici de sessió no disponible"
   },
   "noTwoStepProviders": {
-    "message": "Aquest compte té habilitat l'inici de sessió en dues passes, però aquest navegador web no admet cap dels dos proveïdors configurats."
+    "message": "Aquest compte té habilitat l'inici de sessió en dos passos, però aquest navegador web no admet cap dels dos proveïdors configurats."
   },
   "noTwoStepProviders2": {
     "message": "Utilitzeu un navegador web compatible (com ara Chrome) o afegiu proveïdors addicionals que siguen compatibles amb tots els navegadors web (com una aplicació d'autenticació)."
   },
   "twoStepOptions": {
-    "message": "Opcions d'inici de sessió en dues passes"
+    "message": "Opcions d'inici de sessió en dos passos"
   },
   "selectTwoStepLoginMethod": {
     "message": "Select two-step login method"
@@ -1623,6 +1644,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "You must add either the base Server URL or at least one custom environment."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
+  },
   "customEnvironment": {
     "message": "Entorn personalitzat"
   },
@@ -1659,13 +1683,13 @@
     "message": "Suggeriments d'emplenament automàtic"
   },
   "autofillSpotlightTitle": {
-    "message": "Easily find autofill suggestions"
+    "message": "Trobeu fàcilment suggeriments d'emplenament automàtic"
   },
   "autofillSpotlightDesc": {
-    "message": "Turn off your browser's autofill settings, so they don't conflict with Bitwarden."
+    "message": "Desactiveu la configuració d'emplenament automàtic del vostre navegador perquè no entren en conflicte amb Bitwarden."
   },
   "turnOffBrowserAutofill": {
-    "message": "Turn off $BROWSER$ autofill",
+    "message": "Desactiveu l'emplenament automàtic de $BROWSER$",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -1676,8 +1700,29 @@
   "turnOffAutofill": {
     "message": "Turn off autofill"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "Mostra suggeriments d'emplenament automàtic als camps del formulari"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Mostra identitats com a suggeriments"
@@ -1805,7 +1850,7 @@
     "message": "Si feu clic a l'exterior de la finestra emergent per comprovar el vostre correu electrònic amb el codi de verificació, es tancarà aquesta finestra. Voleu obrir aquesta finestra emergent en una finestra nova perquè no es tanque?"
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Mostra les icones del lloc web i recupera els URL de canvi de contrasenya"
   },
   "cardholderName": {
     "message": "Nom del titular de la targeta"
@@ -3240,6 +3285,9 @@
   "decryptionError": {
     "message": "Error de desxifrat"
   },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden no ha pogut desxifrar els elements de la caixa forta que s'indiquen a continuació."
   },
@@ -3681,7 +3729,7 @@
     "message": "Remember this device to make future logins seamless"
   },
   "manageDevices": {
-    "message": "Manage devices"
+    "message": "Gestiona els dispositius"
   },
   "currentSession": {
     "message": "Current session"
@@ -3724,7 +3772,7 @@
     "message": "Needs approval"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Dispositius"
   },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",
@@ -4010,6 +4058,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "S'ha configurat l'emplenament automàtic en carregar la pàgina perquè utilitze la configuració predeterminada.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "Canvia a la navegació lateral"
@@ -4813,22 +4870,22 @@
     "message": "Download Bitwarden"
   },
   "downloadBitwardenOnAllDevices": {
-    "message": "Download Bitwarden on all devices"
+    "message": "Baixa Bitwarden a tots els dispositius"
   },
   "getTheMobileApp": {
     "message": "Get the mobile app"
   },
   "getTheMobileAppDesc": {
-    "message": "Access your passwords on the go with the Bitwarden mobile app."
+    "message": "Accediu a les vostres contrasenyes des de qualsevol lloc amb l'aplicació mòbil Bitwarden."
   },
   "getTheDesktopApp": {
-    "message": "Get the desktop app"
+    "message": "Obteniu l'aplicació d'escriptori"
   },
   "getTheDesktopAppDesc": {
-    "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
+    "message": "Accediu a la vostra caixa forta sense navegador i, a continuació, configureu el desbloqueig amb biometria per accelerar el desbloqueig tant a l'aplicació d'escriptori com a l'extensió del navegador."
   },
   "downloadFromBitwardenNow": {
-    "message": "Download from bitwarden.com now"
+    "message": "Baixeu ara des de bitwarden.com"
   },
   "getItOnGooglePlay": {
     "message": "Get it on Google Play"
@@ -4918,6 +4975,16 @@
   },
   "defaultLabel": {
     "message": "Per defecte ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "defaultLabelWithValue": {
+    "message": "Default ( $VALUE$ )",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5298,10 +5365,10 @@
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
   "unlockVault": {
-    "message": "Unlock your vault in seconds"
+    "message": "Desbloqueja la caixa forta en segons"
   },
   "unlockVaultDesc": {
-    "message": "You can customize your unlock and timeout settings to more quickly access your vault."
+    "message": "Podeu personalitzar la configuració de desbloqueig i temps d'espera per accedir més ràpidament a la vostra caixa forta."
   },
   "unlockPinSet": {
     "message": "Unlock PIN set"
@@ -5538,7 +5605,7 @@
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
   },
   "introCarouselLabel": {
-    "message": "Welcome to Bitwarden"
+    "message": "Benvinguts a Bitwarden"
   },
   "securityPrioritized": {
     "message": "Security, prioritized"
@@ -5577,7 +5644,7 @@
     "message": "Import now"
   },
   "hasItemsVaultNudgeTitle": {
-    "message": "Welcome to your vault!"
+    "message": "Benvigut/da a la vostra caixa forta!"
   },
   "phishingPageTitleV2": {
     "message": "Phishing attempt detected"
@@ -5612,13 +5679,13 @@
     }
   },
   "hasItemsVaultNudgeBodyOne": {
-    "message": "Autofill items for the current page"
+    "message": "Emplena automàticament els elements de la pàgina actual"
   },
   "hasItemsVaultNudgeBodyTwo": {
-    "message": "Favorite items for easy access"
+    "message": "Elements preferits per accedir fàcilment"
   },
   "hasItemsVaultNudgeBodyThree": {
-    "message": "Search your vault for something else"
+    "message": "Cerca altres coses a la caixa forta"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
@@ -5670,20 +5737,20 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "generatorNudgeTitle": {
-    "message": "Quickly create passwords"
+    "message": "Creeu contrasenyes ràpidament"
   },
   "generatorNudgeBodyOne": {
-    "message": "Easily create strong and unique passwords by clicking on",
+    "message": "Creeu fàcilment contrasenyes fortes i úniques fent clic a",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyTwo": {
-    "message": "to help you keep your logins secure.",
+    "message": "per ajudar-vos a mantenir segurs els vostres inicis de sessió.",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyAria": {
-    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "message": "Creeu fàcilment contrasenyes fortes i úniques fent clic al botó Genera contrasenya per ajudar-vos a mantenir segurs els vostres inicis de sessió.",
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
@@ -5715,8 +5782,59 @@
   "confirmKeyConnectorDomain": {
     "message": "Confirm Key Connector domain"
   },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "Loading vault"
+  },
+  "vaultLoaded": {
+    "message": "Vault loaded"
+  },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
   }
 }

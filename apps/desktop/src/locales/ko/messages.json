@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "welcomeBack": {
     "message": "돌아온 것을 환영합니다"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "Single sign-on(SSO) 사용"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "보내기"
   },
@@ -1031,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "You must add either the base Server URL or at least one custom environment."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
   },
   "customEnvironment": {
     "message": "사용자 지정 환경"
@@ -1852,6 +1861,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Lock with master password on restart"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Require master password or PIN on app restart"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Require master password on app restart"
+  },
   "deleteAccount": {
     "message": "계정 삭제"
   },
@@ -2134,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "An error has occurred while enabling browser integration."
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "브라우저와 연결은 현재 Mac App Store 버전에서만 지원됩니다."
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "현재 Microsoft Store 버전에서는 브라우저와 연결이 지원되지 않습니다."
@@ -4167,7 +4179,7 @@
   "itemWasSentToArchive": {
     "message": "Item was sent to archive"
   },
-  "itemUnarchived": {
+  "itemWasUnarchived": {
     "message": "Item was unarchived"
   },
   "archiveItem": {
@@ -4175,5 +4187,41 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

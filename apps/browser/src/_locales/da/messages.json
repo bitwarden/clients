@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Brug Single Sign-On"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Velkommen tilbage"
   },
@@ -588,6 +591,12 @@
   "view": {
     "message": "Vis"
   },
+  "viewAll": {
+    "message": "View all"
+  },
+  "viewLess": {
+    "message": "View less"
+  },
   "viewLogin": {
     "message": "View login"
   },
@@ -789,6 +798,12 @@
   },
   "onLocked": {
     "message": "Når systemet låses"
+  },
+  "onIdle": {
+    "message": "On system idle"
+  },
+  "onSleep": {
+    "message": "On system sleep"
   },
   "onRestart": {
     "message": "Ved genstart af browseren"
@@ -1027,6 +1042,18 @@
   },
   "editedItem": {
     "message": "Element gemt"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Er du sikker på, at du sende til papirkurven?"
@@ -1505,12 +1532,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Bed om biometri ved start"
   },
-  "premiumRequired": {
-    "message": "Premium påkrævet"
-  },
-  "premiumRequiredDesc": {
-    "message": "Premium-medlemskab kræves for at anvende denne funktion."
-  },
   "authenticationTimeout": {
     "message": "Godkendelsestimeout"
   },
@@ -1623,6 +1644,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Der skal tilføjes enten basis server-URL'en eller mindst ét tilpasset miljø."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
+  },
   "customEnvironment": {
     "message": "Brugerdefineret miljø"
   },
@@ -1676,8 +1700,29 @@
   "turnOffAutofill": {
     "message": "Turn off autofill"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "Vis autoudfyld-menu i formularfelter"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Vis identiteter som forslag"
@@ -3240,6 +3285,9 @@
   "decryptionError": {
     "message": "Dekrypteringsfejl"
   },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden kunne ikke dekryptere boks-emne(r) anført nedenfor."
   },
@@ -4010,6 +4058,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Autoudfyldning ved sideindlæsning sat til standardindstillingen.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "Slå sidenavigering til/fra"
@@ -4926,6 +4983,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Default ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "Vis matchdetektion $WEBSITE$",
     "placeholders": {
@@ -5715,8 +5782,59 @@
   "confirmKeyConnectorDomain": {
     "message": "Confirm Key Connector domain"
   },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "Loading vault"
+  },
+  "vaultLoaded": {
+    "message": "Vault loaded"
+  },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
   }
 }

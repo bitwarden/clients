@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Aceder à informação"
   },
-  "riskInsights": {
-    "message": "Perceções do risco"
-  },
   "passwordRisk": {
     "message": "Risco da palavra-passe"
   },
+  "noEditPermissions": {
+    "message": "Não tem permissão para editar este item"
+  },
   "reviewAtRiskPasswords": {
     "message": "Reveja as palavras-passe em risco (fracas, expostas ou reutilizadas) em todas as aplicações. Selecione as suas aplicações mais críticas para dar prioridade a ações de segurança para os seus utilizadores para resolver as palavras-passe em risco."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Rever credenciais em risco"
   },
   "dataLastUpdated": {
     "message": "Última atualização dos dados: $DATE$",
@@ -90,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Atribuir tarefas aos membros para monitorizar o progresso"
   },
-  "onceYouReviewApps": {
-    "message": "Depois de analisar as aplicações e marcá-las como críticas, pode atribuir tarefas aos membros para resolver itens em risco e monitorizar o progresso aqui"
+  "onceYouReviewApplications": {
+    "message": "Depois de rever as aplicações e marcá-las como críticas, atribua tarefas aos seus membros para que alterem as respetivas palavras-passe."
   },
   "sendReminders": {
     "message": "Enviar lembretes"
@@ -127,6 +130,9 @@
       }
     }
   },
+  "criticalApplicationsMarked": {
+    "message": "aplicações críticas marcadas"
+  },
   "countOfCriticalApplications": {
     "message": "$COUNT$ aplicações críticas",
     "placeholders": {
@@ -154,6 +160,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ novas palavras-passe em risco",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Membros notificados ($COUNT$)",
     "placeholders": {
@@ -163,17 +178,35 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "Não foram encontradas aplicações em $ORG NAME$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "Não foram encontrados dados"
   },
-  "noAppsInOrgDescription": {
-    "message": "À medida que os utilizadores guardam as credenciais, as aplicações aparecem aqui, mostrando quaisquer palavras-passe em risco. Marque as aplicações críticas e notifique os utilizadores para atualizarem as palavras-passe."
+  "noDataInOrgDescription": {
+    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
+  },
+  "feature1Title": {
+    "message": "Mark applications as critical"
+  },
+  "feature1Description": {
+    "message": "This will help you remove risks to your most important applications first."
+  },
+  "feature2Title": {
+    "message": "Help members improve their security"
+  },
+  "feature2Description": {
+    "message": "Assign at-risk members guided security tasks to update credentials."
+  },
+  "feature3Title": {
+    "message": "Monitor progress"
+  },
+  "feature3Description": {
+    "message": "Track changes over time to show security improvements."
+  },
+  "noReportsRunTitle": {
+    "message": "Generate report"
+  },
+  "noReportsRunDescription": {
+    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Não marcou nenhuma aplicação como crítica"
@@ -202,6 +235,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Aplicações marcadas como críticas"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ marcadas como críticas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Falha ao marcar aplicações como críticas"
   },
@@ -223,8 +265,14 @@
   "atRiskMembers": {
     "message": "Membros em risco"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Membros com acesso a itens em risco para aplicações críticas"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "These members have access to vulnerable items for critical applications."
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Membros com palavras-passe em risco"
+  },
+  "membersWillReceiveSecurityTask": {
+    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ membros em risco",
@@ -253,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Estes membros estão a iniciar sessão em aplicações com palavras-passe fracas, expostas ou reutilizadas."
+  "atRiskMemberDescription": {
+    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Estes não são membros que iniciam sessão em aplicações com palavras-passe fracas, expostas ou reutilizadas."
@@ -295,6 +343,9 @@
   "applicationsNeedingReview": {
     "message": "Aplicações que necessitam de análise"
   },
+  "newApplicationsCardTitle": {
+    "message": "Rever novas aplicações"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ novas aplicações",
     "placeholders": {
@@ -310,14 +361,56 @@
   "reviewNow": {
     "message": "Analisar agora"
   },
+  "allCaughtUp": {
+    "message": "Tudo em dia!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "Não há novas aplicações para rever neste momento"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "A sua organização tem itens guardados para $COUNT$ aplicações",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Reveja as aplicações para proteger os itens mais críticos para a segurança da sua organização"
+  },
+  "reviewApplications": {
+    "message": "Rever aplicações"
+  },
   "prioritizeCriticalApplications": {
     "message": "Dê prioridade a aplicações críticas"
   },
-  "atRiskItems": {
-    "message": "Itens em risco"
+  "selectCriticalAppsDescription": {
+    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
+  },
+  "reviewNewApplications": {
+    "message": "Rever novas aplicações"
+  },
+  "reviewNewAppsDescription": {
+    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Clique no ícone de estrela para marcar uma app como crítica"
   },
   "markAsCriticalPlaceholder": {
     "message": "A funcionalidade marcada como crítica será implementada numa atualização futura"
+  },
+  "applicationReviewSaved": {
+    "message": "Revisão da aplicação guardada"
+  },
+  "newApplicationsReviewed": {
+    "message": "Novas aplicações revistas"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Erro ao guardar o estado da revisão"
+  },
+  "pleaseTryAgain": {
+    "message": "Por favor, tente novamente"
   },
   "unmarkAsCritical": {
     "message": "Desmarcar como crítica"
@@ -780,6 +873,9 @@
   },
   "favorites": {
     "message": "Favoritos"
+  },
+  "taskSummary": {
+    "message": "Resumo da tarefa"
   },
   "types": {
     "message": "Tipos"
@@ -1304,6 +1400,9 @@
   },
   "useSingleSignOn": {
     "message": "Utilizar início de sessão único"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "A sua organização exige o início de sessão único."
   },
   "welcomeBack": {
     "message": "Bem-vindo de volta"
@@ -2080,9 +2179,6 @@
   "encKeySettings": {
     "message": "Definições da chave de encriptação"
   },
-  "kdfAlgorithm": {
-    "message": "Algoritmo KDF"
-  },
   "kdfIterations": {
     "message": "Iterações KDF"
   },
@@ -2116,9 +2212,6 @@
   },
   "argon2Desc": {
     "message": "Iterações KDF mais altas, memória e paralelismo podem ajudar a proteger a sua palavra-passe mestra de ser forçada por um atacante."
-  },
-  "changeKdf": {
-    "message": "Alterar KDF"
   },
   "encKeySettingsChanged": {
     "message": "Definições da chave de encriptação alteradas"
@@ -3151,8 +3244,17 @@
   "nextCharge": {
     "message": "Próxima cobrança"
   },
+  "nextChargeHeader": {
+    "message": "Próxima cobrança"
+  },
+  "plan": {
+    "message": "Plano"
+  },
   "details": {
     "message": "Detalhes"
+  },
+  "discount": {
+    "message": "desconto"
   },
   "downloadLicense": {
     "message": "Transferir licença"
@@ -4358,8 +4460,32 @@
   "updateBrowser": {
     "message": "Atualizar navegador"
   },
-  "generatingYourRiskInsights": {
-    "message": "A gerar as suas perceções de riscos..."
+  "generatingYourAccessIntelligence": {
+    "message": "A gerar a sua Inteligência de Acesso..."
+  },
+  "fetchingMemberData": {
+    "message": "A obter dados dos membros..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "A analisar a segurança da palavra-passe..."
+  },
+  "calculatingRiskScores": {
+    "message": "A calcular pontuações de risco..."
+  },
+  "generatingReportData": {
+    "message": "A gerar dados do relatório..."
+  },
+  "savingReport": {
+    "message": "A guardar relatório..."
+  },
+  "compilingInsights": {
+    "message": "A compilar insights..."
+  },
+  "loadingProgress": {
+    "message": "A carregar progresso"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Isto pode demorar alguns minutos."
   },
   "riskInsightsRunReport": {
     "message": "Executar relatório"
@@ -4446,8 +4572,8 @@
   "inviteAccepted": {
     "message": "Convite aceite"
   },
-  "inviteAcceptedDesc": {
-    "message": "Pode aceder a esta organização quando um administrador confirmar a sua inscrição. Enviar-lhe-emos um e-mail quando tal acontecer."
+  "invitationAcceptedDesc": {
+    "message": "O seu convite foi aceite com sucesso."
   },
   "inviteInitAcceptedDesc": {
     "message": "Já pode aceder a esta organização."
@@ -5710,6 +5836,65 @@
     "message": "Saiba mais sobre o ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
+  "availableNow": {
+    "message": "Já disponível"
+  },
+  "autoConfirm": {
+    "message": "Confirmação automática de novos utilizadores"
+  },
+  "autoConfirmDescription": {
+    "message": "Os novos utilizadores convidados para a organização serão automaticamente confirmados quando o dispositivo de um administrador for desbloqueado.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "Como ativar a confirmação automática do utilizador"
+  },
+  "autoConfirmExtension1": {
+    "message": "Abra a sua extensão Bitwarden"
+  },
+  "autoConfirmExtension2": {
+    "message": "Selecione",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
+  },
+  "autoConfirmExtension3": {
+    "message": " Ativar",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "A extensão do navegador Bitwarden foi aberta com sucesso. Agora pode ativar a configuração de confirmação automática do utilizador."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "Os novos utilizadores convidados para a organização serão automaticamente confirmados quando o dispositivo de um administrador for desbloqueado. Antes de ativar esta política, reveja e concorde com o seguinte: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potencial risco de segurança. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "A confirmação automática do utilizador pode representar um risco de segurança para os dados da sua organização."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Saiba mais sobre os riscos",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "É necessária uma política de organização única. "
+  },
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "Todos os membros devem pertencer exclusivamente a esta organização para ativar esta automação."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "A política de organização única será estendida a todos os papéis. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "Sem acesso de emergência. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "O acesso de emergência será removido."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "Aceito estes riscos e atualizações da política"
+  },
   "personalOwnership": {
     "message": "Remover cofre pessoal"
   },
@@ -5761,6 +5946,19 @@
   "disableHideEmail": {
     "message": "Mostrar sempre o endereço de e-mail do membro com os destinatários ao criar ou editar um Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Deteção de correspondência de URI predefinida"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Determine quando as credenciais são sugeridas para preenchimento automático. Administradores e proprietários estão isentos desta política."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Deteção de correspondência de URI predefinida"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Por favor, selecione uma opção válida de deteção de correspondência de URI.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Política $ID$ modificada.",
@@ -6415,11 +6613,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "A sua palavra-passe mestra não cumpre uma ou mais políticas da sua organização. Para aceder ao cofre, tem de atualizar a sua palavra-passe mestra agora. Ao prosseguir, terminará a sua sessão atual e terá de iniciar sessão novamente. As sessões ativas noutros dispositivos poderão continuar ativas até uma hora."
   },
-  "automaticAppLogin": {
-    "message": "Iniciar automaticamente a sessão dos utilizadores nas aplicações permitidas"
+  "automaticAppLoginWithSSO": {
+    "message": "Início de sessão automático com SSO"
   },
-  "automaticAppLoginDesc": {
-    "message": "Os formulários de início de sessão serão automaticamente preenchidos e submetidos para aplicações lançadas a partir do seu fornecedor de identidade configurado."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Estenda a segurança e a conveniência do SSO para apps não geridas. Quando os utilizadores iniciam uma aplicação a partir do seu fornecedor de identidade, as suas credenciais são preenchidas e enviadas automaticamente, criando um fluxo seguro com um clique do fornecedor de identidade para a app."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Anfitrião do fornecedor de identidade"
@@ -6430,23 +6628,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "A sua organização atualizou as opções de desencriptação. Por favor, defina uma palavra-passe mestra para aceder ao seu cofre."
   },
-  "maximumVaultTimeout": {
-    "message": "Tempo limite do cofre"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Tempo limite da sessão"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Definir um tempo limite máximo do cofre para os membros."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Defina um tempo limite máximo de sessão para todos os membros, exceto proprietários."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Tempo limite máximo do cofre"
+  "maximumAllowedTimeout": {
+    "message": "Tempo limite máximo permitido"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "Tempo limite máximo do cofre inválido."
+  "maximumAllowedTimeoutRequired": {
+    "message": "É necessário o tempo limite máximo permitido."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "O tempo é inválido. Altere pelo menos um valor."
+  },
+  "sessionTimeoutAction": {
+    "message": "Ação de tempo limite da sessão"
+  },
+  "immediately": {
+    "message": "Imediatamente"
+  },
+  "onSystemLock": {
+    "message": "Ao bloquear o sistema"
+  },
+  "onAppRestart": {
+    "message": "Ao reiniciar a app"
   },
   "hours": {
     "message": "Horas"
   },
   "minutes": {
     "message": "Minutos"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Tem a certeza de que deseja permitir um tempo limite máximo de \"Nunca\" para todos os membros?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "Esta opção guardará as chaves de encriptação dos seus membros nos seus dispositivos. Se escolher esta opção, certifique-se de que os dispositivos deles estão adequadamente protegidos."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Saiba mais sobre a proteção de dispositivos"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "O \"bloqueio do sistema\" só se aplicará ao navegador e à app para computador"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "A app móvel e Web utilizará \"ao reiniciar a app\" como o tempo limite máximo permitido, uma vez que a opção não é suportada."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "As políticas da sua organização definiram o tempo limite máximo permitido do cofre de $HOURS$ hora(s) e $MINUTES$ minuto(s).",
@@ -6989,6 +7217,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Deve adicionar o URL do servidor de base ou pelo menos um ambiente personalizado."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Os URLs devem usar HTTPS."
+  },
   "apiUrl": {
     "message": "URL do servidor da API"
   },
@@ -7160,6 +7391,9 @@
   },
   "accessDenied": {
     "message": "Acesso negado. Não tem permissão para ver esta página."
+  },
+  "noPageAccess": {
+    "message": "Não tem acesso a esta página"
   },
   "masterPassword": {
     "message": "Palavra-passe mestra"
@@ -9336,9 +9570,6 @@
   "loggedInExclamation": {
     "message": "Sessão iniciada!"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "assignCollectionAccess": {
     "message": "Atribuir acesso à coleção"
   },
@@ -9618,6 +9849,9 @@
   },
   "assignTasks": {
     "message": "Atribuir tarefas"
+  },
+  "assignSecurityTasksToMembers": {
+    "message": "Send notifications to change passwords"
   },
   "assignToCollections": {
     "message": "Atribuir às coleções"
@@ -10361,26 +10595,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Desativado"
   },
-  "higherKDFIterations": {
-    "message": "Iterações KDF mais altas podem ajudar a proteger a sua palavra-passe mestra de ser forçada por um atacante."
-  },
-  "incrementsOf100,000": {
-    "message": "incrementos de 100.000"
-  },
-  "smallIncrements": {
-    "message": "pequenos incrementos"
-  },
   "kdfIterationRecommends": {
     "message": "Recomendamos 600.000 ou mais"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "Para dispositivos mais antigos, definir um KDF demasiado alto pode levar a problemas de desempenho. Aumente o valor em $VALUE$ e teste os seus dispositivos.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Contacte o Apoio ao Cliente para restabelecer a sua subscrição."
@@ -11023,6 +11239,15 @@
   },
   "domainClaimed": {
     "message": "Domínio reivindicado"
+  },
+  "itemAddedToFavorites": {
+    "message": "Item adicionado aos favoritos"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removido dos favoritos"
+  },
+  "copyNote": {
+    "message": "Copiar nota"
   },
   "organizationNameMaxLength": {
     "message": "O nome da organização não pode exceder 50 caracteres."
@@ -11852,9 +12077,85 @@
     "message": "Tem o plano gratuito do Bitwarden"
   },
   "upgradeCompleteSecurity": {
-    "message": "Atualize para segurança total"
+    "message": "Atualize para obter segurança total"
   },
   "viewbusinessplans": {
     "message": "Ver planos empresariais"
+  },
+  "updateEncryptionSettings": {
+    "message": "Atualizar definições de encriptação"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Atualize as suas definições de encriptação"
+  },
+  "updateSettings": {
+    "message": "Atualizar definições"
+  },
+  "algorithm": {
+    "message": "Algoritmo"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Escolha como o Bitwarden deve encriptar os dados do seu cofre. Todas as opções são seguras, mas métodos mais fortes oferecem melhor proteção, especialmente contra ataques de força bruta. O Bitwarden recomenda a configuração predefinida para a maioria dos utilizadores."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Aumentar os valores acima do predefinido melhorará a segurança, mas o seu cofre poderá demorar mais tempo a desbloquear como resultado."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "Sobre algoritmos de encriptação"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "O PBKDF2-SHA256 é um método de encriptação bem testado que equilibra segurança e desempenho. Adequado para todos os utilizadores."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "O Argon2id oferece uma proteção mais forte contra ataques modernos. Ideal para utilizadores avançados com dispositivos potentes."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Código postal"
+  },
+  "cardNumberLabel": {
+    "message": "Número do cartão"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Comece o teste gratuito do plano Familiar"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Configure um método de desbloqueio para alterar a ação de tempo limite do seu cofre."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Os requisitos da política empresarial foram aplicados às suas opções de tempo limite"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "O tempo limite do seu cofre excede as restrições definidas pela sua organização."
+  },
+  "neverLockWarning": {
+    "message": "Tem a certeza de que deseja utilizar a opção \"Nunca\"? Ao definir as opções de bloqueio para \"Nunca\" armazena a chave de encriptação do seu cofre no seu dispositivo. Se utilizar esta opção deve assegurar-se de que mantém o seu dispositivo devidamente protegido."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Ação de tempo limite"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Tempo limite da sessão"
+  },
+  "appearance": {
+    "message": "Aspeto"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "O tempo limite excede a restrição definida pela sua organização: $HOURS$ hora(s) e $MINUTES$ minuto(s) no máximo",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "Não foram selecionadas aplicações críticas"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Tem a certeza de que deseja continuar?"
   }
 }

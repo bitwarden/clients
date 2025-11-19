@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "你沒有權限編輯這個項目"
+  },
   "welcomeBack": {
     "message": "歡迎回來"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "使用單一登入"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "您的組織要求使用單一登入。"
+  },
   "submit": {
     "message": "送出"
   },
@@ -1031,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "您必須新增伺服器網域 URL 或至少一個自訂環境。"
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL 必須使用 HTTPS。"
   },
   "customEnvironment": {
     "message": "自訂環境"
@@ -1852,6 +1861,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "重啟後使用主密碼鎖定"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "要求在重新啟動應用程式時輸入密碼或 PIN 碼"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "在應用程式重啟時重新詢問主密碼"
+  },
   "deleteAccount": {
     "message": "刪除帳戶"
   },
@@ -2134,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "啟用瀏覽器整合時發生錯誤。"
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "很遺憾，目前僅 Mac App Store 版本支援瀏覽器整合功能。"
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "很遺憾，Microsoft Store 版本目前尚不支援瀏覽器整合功能。"
@@ -4167,7 +4179,7 @@
   "itemWasSentToArchive": {
     "message": "項目已移至封存"
   },
-  "itemUnarchived": {
+  "itemWasUnarchived": {
     "message": "項目取消封存"
   },
   "archiveItem": {
@@ -4175,5 +4187,41 @@
   },
   "archiveItemConfirmDesc": {
     "message": "封存的項目將不會出現在一般搜尋結果或自動填入建議中。確定要封存此項目嗎？"
+  },
+  "zipPostalCodeLabel": {
+    "message": "郵編 / 郵政代碼"
+  },
+  "cardNumberLabel": {
+    "message": "支付卡號碼"
+  },
+  "upgradeNow": {
+    "message": "立即升級"
+  },
+  "builtInAuthenticator": {
+    "message": "內建驗證器"
+  },
+  "secureFileStorage": {
+    "message": "安全檔案儲存"
+  },
+  "emergencyAccess": {
+    "message": "緊急存取"
+  },
+  "breachMonitoring": {
+    "message": "外洩監控"
+  },
+  "andMoreFeatures": {
+    "message": "以及其他功能功能！"
+  },
+  "planDescPremium": {
+    "message": "完整的線上安全"
+  },
+  "upgradeToPremium": {
+    "message": "升級到 Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "逾時後動作"
+  },
+  "sessionTimeoutHeader": {
+    "message": "工作階段逾時"
   }
 }

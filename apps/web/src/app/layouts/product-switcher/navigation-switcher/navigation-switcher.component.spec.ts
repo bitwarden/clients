@@ -16,6 +16,8 @@ import { ProductSwitcherItem, ProductSwitcherService } from "../shared/product-s
 
 import { NavigationProductSwitcherComponent } from "./navigation-switcher.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-upgrade-nav-button",
   template: "<div>Upgrade Nav Button</div>",
@@ -26,7 +28,7 @@ class MockUpgradeNavButtonComponent {}
 Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: jest.fn().mockImplementation((query) => ({
-    matches: false,
+    matches: true,
     media: query,
     onchange: null,
     addListener: jest.fn(), // deprecated

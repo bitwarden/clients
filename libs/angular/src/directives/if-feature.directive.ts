@@ -20,12 +20,16 @@ export class IfFeatureDirective implements OnInit {
   /**
    * The feature flag to check.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() appIfFeature: FeatureFlag;
 
   /**
    * Optional value to compare against the value of the feature flag in the config service.
    * @default true
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() appIfFeatureValue: AllowedFeatureFlagTypes = true;
 
   private hasView = false;

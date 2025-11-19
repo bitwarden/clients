@@ -14,7 +14,6 @@ import {
   tap,
 } from "rxjs";
 
-import { VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
@@ -34,18 +33,26 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { DialogService } from "@bitwarden/components";
+import { SessionTimeoutInputComponent } from "@bitwarden/key-management-ui";
 import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
 import { HeaderModule } from "../layouts/header/header.module";
 import { SharedModule } from "../shared";
 
+/**
+ * @deprecated Use {@link AppearanceComponent} and {@link SessionTimeoutComponent} instead.
+ *
+ * TODO Cleanup once feature flag enabled: https://bitwarden.atlassian.net/browse/PM-27297
+ */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-preferences",
   templateUrl: "preferences.component.html",
   imports: [
     SharedModule,
     HeaderModule,
-    VaultTimeoutInputComponent,
+    SessionTimeoutInputComponent,
     PermitCipherDetailsPopoverComponent,
   ],
 })
@@ -209,6 +216,8 @@ export class PreferencesComponent implements OnInit, OnDestroy {
       values.vaultTimeout,
       values.vaultTimeoutAction,
     );
+
+    // Save other preferences (theme, locale, favicons)
     await this.domainSettingsService.setShowFavicons(values.enableFavicons);
     await this.themeStateService.setSelectedTheme(values.theme);
     await this.i18nService.setLocale(values.locale);

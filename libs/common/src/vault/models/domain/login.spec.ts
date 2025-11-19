@@ -19,12 +19,20 @@ describe("Login DTO", () => {
     const login = new Login(data);
 
     expect(login).toEqual({
-      passwordRevisionDate: null,
+      passwordRevisionDate: undefined,
       autofillOnPageLoad: undefined,
-      username: null,
-      password: null,
-      totp: null,
+      username: undefined,
+      password: undefined,
+      totp: undefined,
     });
+
+    expect(data.username).toBeUndefined();
+    expect(data.password).toBeUndefined();
+    expect(data.passwordRevisionDate).toBeUndefined();
+    expect(data.totp).toBeUndefined();
+    expect(data.autofillOnPageLoad).toBeUndefined();
+    expect(data.uris).toBeUndefined();
+    expect(data.fido2Credentials).toBeUndefined();
   });
 
   it("Convert from full LoginData", () => {
@@ -193,8 +201,8 @@ describe("Login DTO", () => {
       expect(actual).toBeInstanceOf(Login);
     });
 
-    it("returns null if object is null", () => {
-      expect(Login.fromJSON(null)).toBeNull();
+    it("returns undefined if object is null", () => {
+      expect(Login.fromJSON(null)).toBeUndefined();
     });
   });
 

@@ -6,6 +6,8 @@ import { FormControlComponent } from "./form-control.component";
 // Increments for each instance of this component
 let nextId = 0;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-label",
   templateUrl: "label.component.html",
@@ -15,7 +17,7 @@ let nextId = 0;
     "[id]": "id()",
   },
 })
-export class BitLabel {
+export class BitLabelComponent {
   constructor(
     private elementRef: ElementRef<HTMLInputElement>,
     @Optional() private parentFormControl: FormControlComponent,

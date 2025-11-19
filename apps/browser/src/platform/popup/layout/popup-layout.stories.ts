@@ -29,11 +29,9 @@ import {
   SearchModule,
   SectionComponent,
   ScrollLayoutDirective,
-  SkeletonComponent,
-  SkeletonTextComponent,
-  SkeletonGroupComponent,
 } from "@bitwarden/components";
 
+import { VaultLoadingSkeletonComponent } from "../../../vault/popup/components/vault-loading-skeleton/vault-loading-skeleton.component";
 import { PopupRouterCacheService } from "../view-cache/popup-router-cache.service";
 
 import { PopupFooterComponent } from "./popup-footer.component";
@@ -41,6 +39,8 @@ import { PopupHeaderComponent } from "./popup-header.component";
 import { PopupPageComponent } from "./popup-page.component";
 import { PopupTabNavigationComponent } from "./popup-tab-navigation.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "extension-container",
   template: `
@@ -51,6 +51,8 @@ import { PopupTabNavigationComponent } from "./popup-tab-navigation.component";
 })
 class ExtensionContainerComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "extension-popped-container",
   template: `
@@ -62,6 +64,8 @@ class ExtensionContainerComponent {}
 })
 class ExtensionPoppedContainerComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-placeholder",
   template: /*html*/ `
@@ -95,6 +99,8 @@ class VaultComponent {
   protected data = Array.from(Array(20).keys());
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-add-button",
   template: `
@@ -107,6 +113,8 @@ class VaultComponent {
 })
 class MockAddButtonComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-popout-button",
   template: `
@@ -116,6 +124,8 @@ class MockAddButtonComponent {}
 })
 class MockPopoutButtonComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-current-account",
   template: `
@@ -127,6 +137,8 @@ class MockPopoutButtonComponent {}
 })
 class MockCurrentAccountComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-search",
   template: ` <bit-search placeholder="Search"> </bit-search> `,
@@ -134,6 +146,8 @@ class MockCurrentAccountComponent {}
 })
 class MockSearchComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-banner",
   template: `
@@ -145,6 +159,8 @@ class MockSearchComponent {}
 })
 class MockBannerComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-vault-page",
   template: `
@@ -172,6 +188,8 @@ class MockBannerComponent {}
 })
 class MockVaultPageComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-vault-page-popped",
   template: `
@@ -195,6 +213,8 @@ class MockVaultPageComponent {}
 })
 class MockVaultPagePoppedComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-generator-page",
   template: `
@@ -219,6 +239,8 @@ class MockVaultPagePoppedComponent {}
 })
 class MockGeneratorPageComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-send-page",
   template: `
@@ -243,6 +265,8 @@ class MockGeneratorPageComponent {}
 })
 class MockSendPageComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-settings-page",
   template: `
@@ -267,6 +291,8 @@ class MockSendPageComponent {}
 })
 class MockSettingsPageComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-vault-subpage",
   template: `
@@ -338,9 +364,7 @@ export default {
         SectionComponent,
         IconButtonModule,
         BadgeModule,
-        SkeletonComponent,
-        SkeletonTextComponent,
-        SkeletonGroupComponent,
+        VaultLoadingSkeletonComponent,
       ],
       providers: [
         {
@@ -606,21 +630,9 @@ export const SkeletonLoading: Story = {
     template: /* HTML */ `
       <extension-container>
         <popup-tab-navigation>
-          <popup-page>
+          <popup-page hideOverflow>
             <popup-header slot="header" pageTitle="Page Header"></popup-header>
-            <div>
-              <div class="tw-sr-only" role="status">Loading...</div>
-              <div class="tw-flex tw-flex-col tw-gap-4">
-                <bit-skeleton-text class="tw-w-1/3"></bit-skeleton-text>
-                @for (num of data; track $index) {
-                <bit-skeleton-group>
-                  <bit-skeleton class="tw-size-8" slot="start"></bit-skeleton>
-                  <bit-skeleton-text [lines]="2" class="tw-w-1/2"></bit-skeleton-text>
-                </bit-skeleton-group>
-                <bit-skeleton class="tw-w-full tw-h-[1px]"></bit-skeleton>
-                }
-              </div>
-            </div>
+            <vault-loading-skeleton></vault-loading-skeleton>
           </popup-page>
         </popup-tab-navigation>
       </extension-container>
