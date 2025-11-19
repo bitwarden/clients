@@ -15,16 +15,19 @@
     "message": "Няма важни приложения в риск"
   },
   "accessIntelligence": {
-    "message": "Access Intelligence"
-  },
-  "riskInsights": {
-    "message": "Подробности за рисковете"
+    "message": "Анализ на достъпа"
   },
   "passwordRisk": {
     "message": "Рискова парола"
   },
+  "noEditPermissions": {
+    "message": "Нямате право за редактиране на този елемент"
+  },
   "reviewAtRiskPasswords": {
     "message": "Прегледайте паролите в риск (слаби, преизползвани или разобличени) в различните приложения. Изберете най-важните си приложения, за да дадете приоритет на действията по сигурността за потребителите си, така че те да обърнат внимание на паролите си в риск."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Преглед на елементите за вписване в риск"
   },
   "dataLastUpdated": {
     "message": "Последно обновяване на данните: $DATE$",
@@ -91,7 +94,7 @@
     "message": "Назначете задачи на членовете, за да следите напредъка"
   },
   "onceYouReviewApplications": {
-    "message": "Когато прегледате приложенията и ги отбележите като важни, те ще се появят тук."
+    "message": "След като прегледате приложенията и ги отбележите като важни, можете да зададете задачи на членовете си, за да сменят паролите си."
   },
   "sendReminders": {
     "message": "Изпращане на напомняния"
@@ -127,6 +130,9 @@
       }
     }
   },
+  "criticalApplicationsMarked": {
+    "message": "важни приложения са отбелязани"
+  },
   "countOfCriticalApplications": {
     "message": "$COUNT$ важни приложения",
     "placeholders": {
@@ -154,6 +160,15 @@
       }
     }
   },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ нови пароли в риск",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notifiedMembersWithCount": {
     "message": "Известени членове ($COUNT$)",
     "placeholders": {
@@ -163,17 +178,35 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "Няма намерени приложения в $ORG NAME$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "Няма намерени данни"
   },
-  "noAppsInOrgDescription": {
-    "message": "Когато потребителите запазват данните си за вписване, тук ще се появяват приложения, а също и ще се показват паролите в риск. Можете да отбелязвате важните приложения и да напомняте на потребителите да сменят паролите си."
+  "noDataInOrgDescription": {
+    "message": "Внесете данните за вписване на организацията си, за да започнете да използвате Анализа на достъпа. След като направите това, ще можете да:"
+  },
+  "feature1Title": {
+    "message": "Отбелязвате приложения като важни"
+  },
+  "feature1Description": {
+    "message": "Това ще Ви помогне да отстранявате рисковете първо в най-важните си приложения."
+  },
+  "feature2Title": {
+    "message": "Помагате на членовете да подобряват сигурността си"
+  },
+  "feature2Description": {
+    "message": "Задавайте на членовете в риск задачи по сигурността, които да ги насочват в промяната на данните им."
+  },
+  "feature3Title": {
+    "message": "Следите напредъка"
+  },
+  "feature3Description": {
+    "message": "Следете промените във времето, за да виждате как сигурността се подобрява."
+  },
+  "noReportsRunTitle": {
+    "message": "Създаване на доклад"
+  },
+  "noReportsRunDescription": {
+    "message": "Всичко е готово и можете да започнете да създавате доклади. След като го направите, ще можете да:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Не сте отбелязали нито едно приложение като важно"
@@ -188,10 +221,10 @@
     "message": "Отбелязване на приложението като важно"
   },
   "markAsCritical": {
-    "message": "Mark as critical"
+    "message": "Отбелязване като важно"
   },
   "applicationsSelected": {
-    "message": "applications selected"
+    "message": "избрани приложения"
   },
   "selectApplication": {
     "message": "Select application"
@@ -201,6 +234,15 @@
   },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Applications marked as critical"
+  },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ приложения са отбелязани като важни",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "applicationsMarkedAsCriticalFail": {
     "message": "Приложенията не успяха да бъдат отбелязани като важни"
@@ -223,8 +265,14 @@
   "atRiskMembers": {
     "message": "Членове в риск"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Членове с достъп до елементи в риск за важни приложения"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "Тези членове имат достъп до рисковите елементи за важните приложения."
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Членове с пароли в риск"
+  },
+  "membersWillReceiveSecurityTask": {
+    "message": "Членовете на организацията ще получат задача за промяна на рисковите пароли. Те ще получат известие в разширението за браузър на Битуорден."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ членове в риск",
@@ -253,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Тези членове се вписват в приложенията със слаби, преизползвани или разобличени пароли."
+  "atRiskMemberDescription": {
+    "message": "Тези членове се вписват във важните приложения със слаби, преизползвани или разкрити пароли."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Няма членове, които се вписват в приложенията със слаби, преизползвани или разобличени пароли."
@@ -295,6 +343,9 @@
   "applicationsNeedingReview": {
     "message": "Приложения, които имат нужда от преглед"
   },
+  "newApplicationsCardTitle": {
+    "message": "Преглед на новите приложения"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ нови приложения",
     "placeholders": {
@@ -310,14 +361,56 @@
   "reviewNow": {
     "message": "Преглеждане сега"
   },
-  "prioritizeCriticalApplications": {
-    "message": "Prioritize critical applications"
+  "allCaughtUp": {
+    "message": "Всичко е изпълнено!"
   },
-  "atRiskItems": {
-    "message": "At-risk items"
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "В момента няма нови приложения за преглед"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Вашата организация има запазени елементи за $COUNT$ приложения",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Прегледайте приложенията, за да защитите най-важните за организацията си елементи"
+  },
+  "reviewApplications": {
+    "message": "Преглед на приложенията"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Даване на приоритет на важните приложения"
+  },
+  "selectCriticalAppsDescription": {
+    "message": "Изберете кои приложения са най-важни за организацията Ви. След това ще можете да зададете задачи на членовете, за да отстраните рисковете."
+  },
+  "reviewNewApplications": {
+    "message": "Преглед на новите приложения"
+  },
+  "reviewNewAppsDescription": {
+    "message": "Прегледайте новите приложения с рискови елементи и ги отбележете, ако искате да ги следите внимателно като важни. След това ще можете да задавате задачи на членовете, за да отстраните рисковете."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Щракнете върху иконката със звезда, за да отбележите приложение като важно"
   },
   "markAsCriticalPlaceholder": {
-    "message": "Mark as critical functionality will be implemented in a future update"
+    "message": "Функционалността за отбелязване на нещо като важно ще бъде добавена в бъдеща версия"
+  },
+  "applicationReviewSaved": {
+    "message": "Прегледът на приложението е запазен"
+  },
+  "newApplicationsReviewed": {
+    "message": "Има нови прегледани приложения"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Грешка при запазването на състоянието на преглед"
+  },
+  "pleaseTryAgain": {
+    "message": "Моля, опитайте отново"
   },
   "unmarkAsCritical": {
     "message": "Премахване от важните"
@@ -780,6 +873,9 @@
   },
   "favorites": {
     "message": "Любими"
+  },
+  "taskSummary": {
+    "message": "Обобщение на задачата"
   },
   "types": {
     "message": "Видове"
@@ -1304,6 +1400,9 @@
   },
   "useSingleSignOn": {
     "message": "Използване на еднократна идентификация"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Вашата организация изисква еднократно удостоверяване."
   },
   "welcomeBack": {
     "message": "Добре дошли отново"
@@ -2080,9 +2179,6 @@
   "encKeySettings": {
     "message": "Настройки на шифриращия ключ"
   },
-  "kdfAlgorithm": {
-    "message": "Алгоритъм KDF"
-  },
   "kdfIterations": {
     "message": "Повторения за KDF"
   },
@@ -2116,9 +2212,6 @@
   },
   "argon2Desc": {
     "message": "По-високите стойности за броя на повторения, паметта или степента на успоредно изпълнение на KDF може да защитят главната Ви парола от атаки тип „груба сила“."
-  },
-  "changeKdf": {
-    "message": "Смяна на KDF"
   },
   "encKeySettingsChanged": {
     "message": "Настройките за шифриращия ключ са сменени"
@@ -2951,7 +3044,7 @@
     "message": "Проверете дали към абонамента си имате достатъчно средства за тази покупка. В противен случай разликата от наличното и необходимото се изисква от основния ви метод за плащане, който сте задали."
   },
   "notEnoughAccountCredit": {
-    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
+    "message": "Нямате достатъчно средства в акаунта за тази покупка. Можете да добавите средства в акаунта си на страницата за плащанията."
   },
   "creditAppliedDesc": {
     "message": "Може да използвате кредитите към абонамента си за покупки. Кредитите се използват за покриването на издадените фактури към абонамента."
@@ -3151,8 +3244,17 @@
   "nextCharge": {
     "message": "Следваща промяна"
   },
+  "nextChargeHeader": {
+    "message": "Следващо плащане"
+  },
+  "plan": {
+    "message": "План"
+  },
   "details": {
     "message": "Детайли"
+  },
+  "discount": {
+    "message": "отстъпка"
   },
   "downloadLicense": {
     "message": "Изтегляне на лиценз"
@@ -4358,8 +4460,32 @@
   "updateBrowser": {
     "message": "Обновяване на браузъра"
   },
-  "generatingYourRiskInsights": {
-    "message": "Създаване на Вашата информация относно рисковете…"
+  "generatingYourAccessIntelligence": {
+    "message": "Създаване на Вашия анализ на достъпа…"
+  },
+  "fetchingMemberData": {
+    "message": "Извличане на данните за членовете…"
+  },
+  "analyzingPasswordHealth": {
+    "message": "Анализиране на състоянието на паролите…"
+  },
+  "calculatingRiskScores": {
+    "message": "Изчисляване на оценките на риска…"
+  },
+  "generatingReportData": {
+    "message": "Създаване на данните за доклада…"
+  },
+  "savingReport": {
+    "message": "Запазване на доклада…"
+  },
+  "compilingInsights": {
+    "message": "Събиране на подробности…"
+  },
+  "loadingProgress": {
+    "message": "Зареждане на напредъка"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Това може да отнеме няколко минути."
   },
   "riskInsightsRunReport": {
     "message": "Изпълнение на доклада"
@@ -4446,8 +4572,8 @@
   "inviteAccepted": {
     "message": "Поканата е приета"
   },
-  "inviteAcceptedDesc": {
-    "message": "Ще имате достъп до организацията, след като администраторът ѝ потвърди членството ви. Ще ви изпратим електронно писмо, когато това се случи."
+  "invitationAcceptedDesc": {
+    "message": "Поканата е приета успешно."
   },
   "inviteInitAcceptedDesc": {
     "message": "Вече имате достъп до тази организация."
@@ -5701,7 +5827,7 @@
     "message": "няма да бъде автоматично избрана при създаване на нови елементи"
   },
   "organizationDataOwnershipWarning3": {
-    "message": "не може да се управлява от Конзолата за администриране, докато потребителят не бъде премахнат"
+    "message": "не може да се управлява от Административната конзола, докато потребителят не бъде премахнат"
   },
   "organizationDataOwnershipWarningContentTop": {
     "message": "Изключвайки тази политика, стандартната колекция: "
@@ -5709,6 +5835,65 @@
   "organizationDataOwnershipWarningContentBottom": {
     "message": "Научете повече относно ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
+  },
+  "availableNow": {
+    "message": "Налично сега"
+  },
+  "autoConfirm": {
+    "message": "Автоматично потвърждение на новите потребители"
+  },
+  "autoConfirmDescription": {
+    "message": "Новите потребители, поканени в организацията, ще бъдат потвърждавани автоматично, когато се отключи устройство на администратор.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "Как се включва автоматичното потвърждаване на потребителите"
+  },
+  "autoConfirmExtension1": {
+    "message": "Отворете добавката на Битуорден"
+  },
+  "autoConfirmExtension2": {
+    "message": "Изберете",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
+  },
+  "autoConfirmExtension3": {
+    "message": " Включване",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Добавката за браузър на Битуорден е отворена. Сега можете да включите настройката за автоматично потвърждаване на потребителите."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "Новите потребители, поканени в организацията, ще бъдат потвърждавани автоматично, когато се отключи устройство на администратор. Преди да включите тази настройка, трябва да прегледате и да се съгласите със следното: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Потенциален риск за сигурността. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Автоматичното потвърждение на потребителите може да представлява риск за сигурността на данните на организацията."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Научете повече за рисковете",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Изисква се да е включена политиката за единствена организация. "
+  },
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "За да може да се включи тази автоматизация, всички членове трябва да принадлежат само на тази организация."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Политиката за единствена организация ще се прилага за всички роли. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "Без авариен достъп. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Аварийният достъп ще бъде премахнат."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "Приемам тези рискове и промени в политиката"
   },
   "personalOwnership": {
     "message": "Индивидуално притежание"
@@ -5761,6 +5946,19 @@
   "disableHideEmail": {
     "message": "Потребителите да не могат да скриват адреса на е-пощата си от получателите, когато създават или редактират изпращания.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Стандартно засичане на съвпадения на адреси"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Определя кога данните за вписване да се предлагат за автоматично попълване. Тази политика не засяга администраторите и собствениците."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Стандартно засичане на съвпадения на адреси"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Моля, изберете вариант за засичане на съвпаденията на адреси.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Редактирана политика № $ID$.",
@@ -6415,11 +6613,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Вашата главна парола не отговаря на една или повече политики на организацията Ви. За да получите достъп до трезора, трябва да промените главната си парола сега. Това означава, че ще бъдете отписан(а) от текущата си сесия и ще трябва да се впишете отново. Активните сесии на други устройства може да продължат да бъдат активни още един час."
   },
-  "automaticAppLogin": {
-    "message": "Автоматично вписване на потребителите за разрешените приложения"
+  "automaticAppLoginWithSSO": {
+    "message": "Автоматично вписване чрез еднократно удостоверяване"
   },
-  "automaticAppLoginDesc": {
-    "message": "Формулярите за вписване ще бъдат попълвани и изпращани автоматично за приложенията, стартирани от настроения Ви доставчик на самоличност."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Възползвайте се от сигурността и удобството на еднократното удостоверяване дори и за неуправлявани приложения. Когато потребителите пуснат приложение от Вашия доставчик на самоличности, данните им за вписване ще бъдат автоматично попълнени и изпратени, с едно щракване и по безопасен път от доставчика на самоличност до приложението."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Сървър на доставчика на самоличност"
@@ -6430,23 +6628,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "Вашата организация е променила настройките за шифроване. Задайте главна парола, за да получите достъп до трезора си."
   },
-  "maximumVaultTimeout": {
-    "message": "Време за достъп"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Време на давност за сесията"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "Настройте максимално време за достъп до трезора, което ще важи за всички потребители."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Задайте максимално време на давност на сесиите за достъп за всички членове, без собствениците."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "Максимално време за достъп до трезора"
+  "maximumAllowedTimeout": {
+    "message": "Максимално допустимо време на достъп"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "Неправилно максимално време за достъп."
+  "maximumAllowedTimeoutRequired": {
+    "message": "Максималното допустимо време е задължително."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Времето е зададено грешно. Променете поне една стойност."
+  },
+  "sessionTimeoutAction": {
+    "message": "Действие при изтичане на времето за сесията"
+  },
+  "immediately": {
+    "message": "Незабавно"
+  },
+  "onSystemLock": {
+    "message": "При заключване на системата"
+  },
+  "onAppRestart": {
+    "message": "При рестартиране на приложението"
   },
   "hours": {
     "message": "Часа"
   },
   "minutes": {
     "message": "Минути"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Наистина ли искате да разрешите максималното време за достъп да бъде „Безкрайно“ за всички членове?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "Така ключовете за шифроване на членовете ще бъдат запазени на техните устройства. Ако изберете това, уверете се, че устройствата им са защитени адекватно."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Научете повече относно защитата на устройствата"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "„Заключването на системата“ ще се прилага само за браузъра и приложението за компютър"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "Мобилното приложение и това по уеб ще ползват настройката „При рестартиране на приложението€ като максимално разрешено време за достъп, тъй като другата не се поддържа."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Настройките на организацията Ви влияят върху времето за достъп до трезора Ви. Максималното разрешено време за достъп е $HOURS$ час(а) и $MINUTES$ минути",
@@ -6989,6 +7217,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Трябва да добавите или основния адрес на сървъра, или поне една специална среда."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Адресите трябва да ползват HTTPS."
+  },
   "apiUrl": {
     "message": "Адрес на сървъра за ППИ"
   },
@@ -7150,7 +7381,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$. Моите колекции няма да бъдат включени.",
+    "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$. Колекциите от вида „Моите записи“ няма да бъдат включени.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -7160,6 +7391,9 @@
   },
   "accessDenied": {
     "message": "Достъпът е отказан. Нямате право за преглед на тази страница."
+  },
+  "noPageAccess": {
+    "message": "Нямате достъп до тази страница"
   },
   "masterPassword": {
     "message": "Главна парола"
@@ -9336,9 +9570,6 @@
   "loggedInExclamation": {
     "message": "Вписахте се!"
   },
-  "beta": {
-    "message": "Бета"
-  },
   "assignCollectionAccess": {
     "message": "Задаване на достъп за колекциите"
   },
@@ -9618,6 +9849,9 @@
   },
   "assignTasks": {
     "message": "Назначаване на задачи"
+  },
+  "assignSecurityTasksToMembers": {
+    "message": "Изпращане на известия за промяна на пароли"
   },
   "assignToCollections": {
     "message": "Свързване с колекции"
@@ -10361,26 +10595,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Изключено"
   },
-  "higherKDFIterations": {
-    "message": "По-високите стойности за броя на повторения на KDF може да защитят главната Ви парола от атаки тип „груба сила“."
-  },
-  "incrementsOf100,000": {
-    "message": "стъпки от 100 000"
-  },
-  "smallIncrements": {
-    "message": "малки стъпки"
-  },
   "kdfIterationRecommends": {
     "message": "Препоръчваме 600 000 или повече"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "Задаването на прекалено висока стойност за KDF може да натовари прекомерно по-старите устройства. Увеличете стойността на $VALUE$ и изпробвайте устройствата си.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " Свържете се с поддръжката, за да възобновите абонамента си."
@@ -11024,6 +11240,15 @@
   "domainClaimed": {
     "message": "Домейнът е присвоен"
   },
+  "itemAddedToFavorites": {
+    "message": "Елементът е добавен към любимите"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Елементът е премахнат от любимите"
+  },
+  "copyNote": {
+    "message": "Копиране на бележката"
+  },
   "organizationNameMaxLength": {
     "message": "Името на организацията не може да бъде по-дълго от 50 знака."
   },
@@ -11294,11 +11519,46 @@
     "message": "Архивиране",
     "description": "Verb"
   },
+  "unArchive": {
+    "message": "Изваждане от архива"
+  },
+  "itemsInArchive": {
+    "message": "Елементи в архива"
+  },
   "noItemsInArchive": {
     "message": "Няма елементи в архива"
   },
-  "archivedItemsDescription": {
+  "noItemsInArchiveDesc": {
     "message": "Архивираните елементи ще се показват тук и ще бъдат изключени от общите резултати при търсене и от предложенията за автоматично попълване."
+  },
+  "itemWasSentToArchive": {
+    "message": "Елементът беше преместен в архива"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Елементите бяха преместени в архива"
+  },
+  "itemUnarchived": {
+    "message": "Елементът беше изваден от архива"
+  },
+  "bulkArchiveItems": {
+    "message": "Елементите са архивирани"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Елементите са извадени от архива"
+  },
+  "archiveItem": {
+    "message": "Архивиране на елемента",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Архивираните елементи са изключени от общите резултати при търсене и от предложенията за автоматично попълване. Наистина ли искате да архивирате този елемент?"
+  },
+  "archiveBulkItems": {
+    "message": "Архивиране на елементите",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Архивираните елементи са изключени от общите резултати при търсене и от предложенията за автоматично попълване. Наистина ли искате да архивирате тези елементи?"
   },
   "businessUnit": {
     "message": "Бизнес единица"
@@ -11801,7 +12061,101 @@
   "continueWithoutUpgrading": {
     "message": "Продължаване без надграждане"
   },
+  "upgradeYourPlan": {
+    "message": "Надградете плана си"
+  },
+  "upgradeNow": {
+    "message": "Надграждане сега"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Чрез попълването на този формуляр ще създадете нова Семейна организация. Можете да надградите безплатната си организация от Администраторската конзола."
+  },
   "upgradeErrorMessage": {
     "message": "Възникна грешка при надграждането. Моля, опитайте отново."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "Имате безплатния план на Битуорден"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Надградете, за да се възползвате от пълна защита"
+  },
+  "viewbusinessplans": {
+    "message": "Преглед на плановете за компании"
+  },
+  "updateEncryptionSettings": {
+    "message": "Обновяване на настройките за шифроване"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Обновете настройките си за шифроване"
+  },
+  "updateSettings": {
+    "message": "Обновяване на настройките"
+  },
+  "algorithm": {
+    "message": "Алгоритъм"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Изберете как да шифрова Битуорден данните в трезора Ви. Всички варианти са сигурни, но по-сложните методи дават по-добра защита – особено срещу атаки от вида „груба сила“. За повечето потребители, Битуорден препоръчва стандартната настройка."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Увеличаването на стойностите над стандартните ще подобри сигурността, но може да направи отключването на трезора по-бавно."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "Информация относно алгоритмите за шифроване"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 е изпитан метод за шифроване, който дава баланс между сигурност и бързина. Подходящ за всички потребители."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id предлага по-добра защита срещу съвременните атаки. Подходящ за напреднали потребители с по-мощни устройства."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Пощенски код"
+  },
+  "cardNumberLabel": {
+    "message": "Номер на картата"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Започнете безплатния пробен период на Семейния план"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Задайте метод за отключване, за да може да промените действието при изтичане на времето за достъп до трезора."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Изискванията на политиката за големи компании бяха приложени към настройките на времето за достъп"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Времето за достъп до трезора Ви превишава ограничението, определено от организацията Ви."
+  },
+  "neverLockWarning": {
+    "message": "Уверени ли сте, че искате да зададете стойност „Никога“? Това води до съхранение на шифриращия ключ за трезора във устройството ви. Ако използвате тази възможност, е много важно да имате надлежна защита на устройството си."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Действие при изтичането на времето за достъп"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Изтичане на времето за сесията"
+  },
+  "appearance": {
+    "message": "Външен вид"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Времето за достъп превишава ограничението, зададено от Вашата организация: максимум $HOURS$ час(а) и $MINUTES$ минута/и",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "Няма избрани важни приложения"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Наистина ли искате да продължите?"
   }
 }

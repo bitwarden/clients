@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Não tem permissão para editar este item"
+  },
   "welcomeBack": {
     "message": "Bem-vindo de volta"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "Utilizar início de sessão único"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "A sua organização exige o início de sessão único."
+  },
   "submit": {
     "message": "Submeter"
   },
@@ -1032,6 +1038,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Deve adicionar o URL do servidor de base ou pelo menos um ambiente personalizado."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Os URLs devem usar HTTPS."
+  },
   "customEnvironment": {
     "message": "Ambiente personalizado"
   },
@@ -1292,7 +1301,7 @@
     "message": "Na suspensão do sistema"
   },
   "onLocked": {
-    "message": "No bloqueio do sistema"
+    "message": "Ao bloquear o sistema"
   },
   "onRestart": {
     "message": "Ao reiniciar"
@@ -1852,6 +1861,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Bloquear com a palavra-passe mestra ao reiniciar"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Exigir a palavra-passe mestra ou PIN ao reiniciar a app"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Exigir a palavra-passe mestra ao reiniciar a app"
+  },
   "deleteAccount": {
     "message": "Eliminar conta"
   },
@@ -2134,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "Ocorreu um erro ao ativar a integração do navegador."
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Infelizmente, a integração do navegador só é suportada na versão da Mac App Store por enquanto."
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Infelizmente, a integração do navegador não é atualmente suportada na versão da Microsoft Store."
@@ -2548,6 +2560,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "O tempo limite mínimo personalizado é de 1 minuto."
   },
   "inviteAccepted": {
     "message": "Convite aceite"
@@ -4149,7 +4164,7 @@
     "message": "Arquivar",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Desarquivar"
   },
   "itemsInArchive": {
@@ -4161,16 +4176,52 @@
   "noItemsInArchiveDesc": {
     "message": "Os itens arquivados aparecerão aqui e serão excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático."
   },
-  "itemSentToArchive": {
-    "message": "Item movido para o arquivo"
+  "itemWasSentToArchive": {
+    "message": "O item foi movido para o arquivo"
   },
-  "itemRemovedFromArchive": {
-    "message": "Item removido do arquivo"
+  "itemWasUnarchived": {
+    "message": "O item foi desarquivado"
   },
   "archiveItem": {
     "message": "Arquivar item"
   },
   "archiveItemConfirmDesc": {
     "message": "Os itens arquivados são excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático. Tem a certeza de que pretende arquivar este item?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "Código postal"
+  },
+  "cardNumberLabel": {
+    "message": "Número do cartão"
+  },
+  "upgradeNow": {
+    "message": "Atualizar agora"
+  },
+  "builtInAuthenticator": {
+    "message": "Autenticador incorporado"
+  },
+  "secureFileStorage": {
+    "message": "Armazenamento seguro de ficheiros"
+  },
+  "emergencyAccess": {
+    "message": "Acesso de emergência"
+  },
+  "breachMonitoring": {
+    "message": "Monitorização de violações"
+  },
+  "andMoreFeatures": {
+    "message": "E muito mais!"
+  },
+  "planDescPremium": {
+    "message": "Segurança total online"
+  },
+  "upgradeToPremium": {
+    "message": "Atualizar para o Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Ação de tempo limite"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Tempo limite da sessão"
   }
 }

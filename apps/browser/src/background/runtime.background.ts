@@ -256,13 +256,24 @@ export default class RuntimeBackground {
       case "addToLockedVaultPendingNotifications":
         this.lockedVaultPendingNotifications.push(msg.data);
         break;
+      case "abandonAutofillPendingNotifications":
+        this.lockedVaultPendingNotifications = [];
+        break;
       case "lockVault":
-        await this.main.vaultTimeoutService.lock(msg.userId);
+        await this.lockService.lock(msg.userId);
         break;
       case "lockAll":
         {
           await this.lockService.lockAll();
           this.messagingService.send("lockAllFinished", { requestId: msg.requestId });
+        }
+        break;
+      case "lockUser":
+        {
+          await this.lockService.lock(msg.userId);
+          this.messagingService.send("lockUserFinished", {
+            requestId: msg.requestId,
+          });
         }
         break;
       case "logout":

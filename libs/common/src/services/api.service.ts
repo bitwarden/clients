@@ -117,6 +117,8 @@ import { AttachmentResponse } from "../vault/models/response/attachment.response
 import { CipherResponse } from "../vault/models/response/cipher.response";
 import { OptionalCipherResponse } from "../vault/models/response/optional-cipher.response";
 
+import { InsecureUrlNotAllowedError } from "./api-errors";
+
 export type HttpOperations = {
   createRequest: (url: string, request: RequestInit) => Request;
 };
@@ -408,14 +410,15 @@ export class ApiService implements ApiServiceAbstraction {
     return new CipherResponse(r);
   }
 
-  async getCiphersOrganization(organizationId: string): Promise<ListResponse<CipherResponse>> {
-    const r = await this.send(
-      "GET",
-      "/ciphers/organization-details?organizationId=" + organizationId,
-      null,
-      true,
-      true,
-    );
+  async getCiphersOrganization(
+    organizationId: string,
+    includeMemberItems?: boolean,
+  ): Promise<ListResponse<CipherResponse>> {
+    let url = "/ciphers/organization-details?organizationId=" + organizationId;
+    if (includeMemberItems) {
+      url += `&includeMemberItems=${includeMemberItems}`;
+    }
+    const r = await this.send("GET", url, null, true, true);
     return new ListResponse(r, CipherResponse);
   }
 
@@ -1309,6 +1312,10 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   async fetch(request: Request): Promise<Response> {
+    if (!request.url.startsWith("https://") && !this.platformUtilsService.isDev()) {
+      throw new InsecureUrlNotAllowedError();
+    }
+
     if (request.method === "GET") {
       request.headers.set("Cache-Control", "no-store");
       request.headers.set("Pragma", "no-cache");
@@ -1581,8 +1588,16 @@ export class ApiService implements ApiServiceAbstraction {
     );
     apiUrl = Utils.isNullOrWhitespace(apiUrl) ? env.getApiUrl() : apiUrl;
 
-    // Prevent directory traversal from malicious paths
     const pathParts = path.split("?");
+    // Check for path traversal patterns from any URL.
+    const fullUrlPath = apiUrl + pathParts[0] + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
+
+    const isInvalidUrl = Utils.invalidUrlPatterns(fullUrlPath);
+    if (isInvalidUrl) {
+      throw new Error("The request URL contains dangerous patterns.");
+    }
+
+    // Prevent directory traversal from malicious paths
     const requestUrl =
       apiUrl + Utils.normalizePath(pathParts[0]) + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
 

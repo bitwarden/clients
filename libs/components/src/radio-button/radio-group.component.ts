@@ -4,10 +4,12 @@ import { ControlValueAccessor, NgControl, Validators } from "@angular/forms";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { BitLabel } from "../form-control/label.component";
+import { BitLabelComponent } from "../form-control/label.component";
 
 let nextId = 0;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-radio-group",
   templateUrl: "radio-group.component.html",
@@ -30,7 +32,7 @@ export class RadioGroupComponent implements ControlValueAccessor {
   readonly id = input(`bit-radio-group-${nextId++}`);
   @HostBinding("class") classList = ["tw-block", "tw-mb-4"];
 
-  protected readonly label = contentChild(BitLabel);
+  protected readonly label = contentChild(BitLabelComponent);
 
   constructor(@Optional() @Self() private ngControl?: NgControl) {
     if (ngControl != null) {

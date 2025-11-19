@@ -1,94 +1,52 @@
-use std::{
-    collections::HashMap,
-    fs,
-    os::unix::fs::PermissionsExt,
-    sync::{
-        atomic::{AtomicBool, AtomicU32},
-        Arc, RwLock,
-    },
-};
+use std::{fs, os::unix::fs::PermissionsExt, path::PathBuf, sync::Arc};
 
+use anyhow::anyhow;
 use bitwarden_russh::ssh_agent;
 use homedir::my_home;
 use tokio::{net::UnixListener, sync::Mutex};
-use tokio_util::sync::CancellationToken;
 use tracing::{error, info};
 
+use super::{BitwardenDesktopAgent, SshAgentUIRequest};
 use crate::ssh_agent::peercred_unix_listener_stream::PeercredUnixListenerStream;
 
-use super::{BitwardenDesktopAgent, BitwardenSshKey, SshAgentUIRequest};
+/// User can override the default socket path with this env var
+const ENV_BITWARDEN_SSH_AUTH_SOCK: &str = "BITWARDEN_SSH_AUTH_SOCK";
 
-impl BitwardenDesktopAgent<BitwardenSshKey> {
+const FLATPAK_DATA_DIR: &str = ".var/app/com.bitwarden.desktop/data";
+
+const SOCKFILE_NAME: &str = ".bitwarden-ssh-agent.sock";
+
+impl BitwardenDesktopAgent {
+    /// Starts the Bitwarden Desktop SSH Agent server.
+    /// # Errors
+    /// Will return `Err` if unable to create and set permissions for socket file path or
+    /// if unable to bind to the socket path.
     pub fn start_server(
         auth_request_tx: tokio::sync::mpsc::Sender<SshAgentUIRequest>,
         auth_response_rx: Arc<Mutex<tokio::sync::broadcast::Receiver<(u32, bool)>>>,
     ) -> Result<Self, anyhow::Error> {
-        let agent = BitwardenDesktopAgent {
-            keystore: ssh_agent::KeyStore(Arc::new(RwLock::new(HashMap::new()))),
-            cancellation_token: CancellationToken::new(),
-            show_ui_request_tx: auth_request_tx,
-            get_ui_response_rx: auth_response_rx,
-            request_id: Arc::new(AtomicU32::new(0)),
-            needs_unlock: Arc::new(AtomicBool::new(true)),
-            is_running: Arc::new(AtomicBool::new(false)),
-        };
-        let cloned_agent_state = agent.clone();
-        tokio::spawn(async move {
-            let ssh_path = match std::env::var("BITWARDEN_SSH_AUTH_SOCK") {
-                Ok(path) => path,
-                Err(_) => {
-                    info!("BITWARDEN_SSH_AUTH_SOCK not set, using default path");
+        let agent_state = BitwardenDesktopAgent::new(auth_request_tx, auth_response_rx);
 
-                    let ssh_agent_directory = match my_home() {
-                        Ok(Some(home)) => home,
-                        _ => {
-                            info!("Could not determine home directory");
-                            return;
-                        }
-                    };
+        let socket_path = get_socket_path()?;
 
-                    let is_flatpak = std::env::var("container") == Ok("flatpak".to_string());
-                    if !is_flatpak {
-                        ssh_agent_directory
-                            .join(".bitwarden-ssh-agent.sock")
-                            .to_str()
-                            .expect("Path should be valid")
-                            .to_owned()
-                    } else {
-                        ssh_agent_directory
-                            .join(".var/app/com.bitwarden.desktop/data/.bitwarden-ssh-agent.sock")
-                            .to_str()
-                            .expect("Path should be valid")
-                            .to_owned()
-                    }
-                }
-            };
+        // if the socket is already present and wasn't cleanly removed during a previous
+        // runtime, remove it before beginning anew.
+        remove_path(&socket_path)?;
 
-            info!(socket = %ssh_path, "Starting SSH Agent server");
-            let sockname = std::path::Path::new(&ssh_path);
-            if let Err(e) = std::fs::remove_file(sockname) {
-                error!(error = %e, socket = %ssh_path, "Could not remove existing socket file");
-                if e.kind() != std::io::ErrorKind::NotFound {
-                    return;
-                }
-            }
+        info!(?socket_path, "Starting SSH Agent server");
 
-            match UnixListener::bind(sockname) {
-                Ok(listener) => {
-                    // Only the current user should be able to access the socket
-                    if let Err(e) = fs::set_permissions(sockname, fs::Permissions::from_mode(0o600))
-                    {
-                        error!(error = %e, socket = ?sockname, "Could not set socket permissions");
-                        return;
-                    }
+        match UnixListener::bind(socket_path.clone()) {
+            Ok(listener) => {
+                // Only the current user should be able to access the socket
+                set_user_permissions(&socket_path)?;
 
-                    let stream = PeercredUnixListenerStream::new(listener);
+                let stream = PeercredUnixListenerStream::new(listener);
 
-                    let cloned_keystore = cloned_agent_state.keystore.clone();
-                    let cloned_cancellation_token = cloned_agent_state.cancellation_token.clone();
-                    cloned_agent_state
-                        .is_running
-                        .store(true, std::sync::atomic::Ordering::Relaxed);
+                let cloned_agent_state = agent_state.clone();
+                let cloned_keystore = cloned_agent_state.keystore.clone();
+                let cloned_cancellation_token = cloned_agent_state.cancellation_token.clone();
+
+                tokio::spawn(async move {
                     let _ = ssh_agent::serve(
                         stream,
                         cloned_agent_state.clone(),
@@ -96,17 +54,132 @@ impl BitwardenDesktopAgent<BitwardenSshKey> {
                         cloned_cancellation_token,
                     )
                     .await;
+
                     cloned_agent_state
                         .is_running
                         .store(false, std::sync::atomic::Ordering::Relaxed);
-                    info!("SSH Agent server exited");
-                }
-                Err(e) => {
-                    error!(error = %e, socket = %ssh_path, "Unable to start start agent server");
-                }
-            }
-        });
 
-        Ok(agent)
+                    info!("SSH Agent server exited");
+                });
+
+                agent_state
+                    .is_running
+                    .store(true, std::sync::atomic::Ordering::Relaxed);
+
+                info!(?socket_path, "SSH Agent is running.");
+            }
+            Err(error) => {
+                error!(%error, ?socket_path, "Unable to start start agent server");
+                return Err(error.into());
+            }
+        }
+
+        Ok(agent_state)
+    }
+}
+
+// one of the following:
+//   - only the env var socket path if it is defined
+//   - the $HOME path and our well known extension
+fn get_socket_path() -> Result<PathBuf, anyhow::Error> {
+    if let Ok(path) = std::env::var(ENV_BITWARDEN_SSH_AUTH_SOCK) {
+        Ok(PathBuf::from(path))
+    } else {
+        info!("BITWARDEN_SSH_AUTH_SOCK not set, using default path");
+        get_default_socket_path()
+    }
+}
+
+fn is_flatpak() -> bool {
+    std::env::var("container") == Ok("flatpak".to_string())
+}
+
+// use the $HOME directory
+fn get_default_socket_path() -> Result<PathBuf, anyhow::Error> {
+    let Ok(Some(mut ssh_agent_directory)) = my_home() else {
+        error!("Could not determine home directory");
+        return Err(anyhow!("Could not determine home directory."));
+    };
+
+    if is_flatpak() {
+        ssh_agent_directory = ssh_agent_directory.join(FLATPAK_DATA_DIR);
+    }
+
+    ssh_agent_directory = ssh_agent_directory.join(SOCKFILE_NAME);
+
+    Ok(ssh_agent_directory)
+}
+
+fn set_user_permissions(path: &PathBuf) -> Result<(), anyhow::Error> {
+    fs::set_permissions(path, fs::Permissions::from_mode(0o600))
+        .map_err(|e| anyhow!("Could not set socket permissions for {path:?}: {e}"))
+}
+
+// try to remove the given path if it exists
+fn remove_path(path: &PathBuf) -> Result<(), anyhow::Error> {
+    if let Ok(true) = std::fs::exists(path) {
+        std::fs::remove_file(path).map_err(|e| anyhow!("Error removing socket {path:?}: {e}"))?;
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use rand::{distr::Alphanumeric, Rng};
+
+    use super::*;
+
+    #[test]
+    fn test_default_socket_path_success() {
+        let path = get_default_socket_path().unwrap();
+        let expected = PathBuf::from_iter([
+            std::env::var("HOME").unwrap(),
+            ".bitwarden-ssh-agent.sock".to_string(),
+        ]);
+        assert_eq!(path, expected);
+    }
+
+    fn rand_file_in_temp() -> PathBuf {
+        let mut path = std::env::temp_dir();
+        let s: String = rand::rng()
+            .sample_iter(&Alphanumeric)
+            .take(16)
+            .map(char::from)
+            .collect();
+        path.push(s);
+        path
+    }
+
+    #[test]
+    fn test_remove_path_exists_success() {
+        let path = rand_file_in_temp();
+        fs::write(&path, "").unwrap();
+        remove_path(&path).unwrap();
+
+        assert!(!fs::exists(&path).unwrap());
+    }
+
+    // the remove_path should not fail if the path does not exist
+    #[test]
+    fn test_remove_path_not_found_success() {
+        let path = rand_file_in_temp();
+        remove_path(&path).unwrap();
+
+        assert!(!fs::exists(&path).unwrap());
+    }
+
+    #[test]
+    fn test_sock_path_file_permissions() {
+        let path = rand_file_in_temp();
+        fs::write(&path, "").unwrap();
+
+        set_user_permissions(&path).unwrap();
+
+        let metadata = fs::metadata(&path).unwrap();
+        let permissions = metadata.permissions().mode();
+
+        assert_eq!(permissions, 0o100_600);
+
+        remove_path(&path).unwrap();
     }
 }

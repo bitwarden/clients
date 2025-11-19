@@ -1,4 +1,4 @@
-<!-- 
+<!--
   # Table of Contents
 
     This file contains a single consolidated template for all visual clients.
@@ -21,7 +21,7 @@
         bitInput
         appAutofocus
         (input)="onEmailInput($event)"
-        (keyup.enter)="continuePressed()"
+        (keyup.enter)="ssoRequired ? handleSsoClick() : continuePressed()"
       />
     </bit-form-field>
 
@@ -44,6 +44,8 @@
         block
         buttonType="primary"
         (click)="continuePressed()"
+        [bitTooltip]="ssoRequired ? ('yourOrganizationRequiresSingleSignOn' | i18n) : ''"
+        [addTooltipToDescribedby]="ssoRequired"
         [disabled]="ssoRequired"
       >
         {{ "continue" | i18n }}
@@ -59,6 +61,8 @@
           block
           buttonType="secondary"
           (click)="handleLoginWithPasskeyClick()"
+          [bitTooltip]="ssoRequired ? ('yourOrganizationRequiresSingleSignOn' | i18n) : ''"
+          [addTooltipToDescribedby]="ssoRequired"
           [disabled]="ssoRequired"
         >
           <i class="bwi bwi-passkey tw-mr-1" aria-hidden="true"></i>
@@ -67,7 +71,13 @@
       </ng-container>
 
       <!-- Button to Login with SSO -->
-      <button type="button" bitButton block buttonType="secondary" (click)="handleSsoClick()">
+      <button
+        type="button"
+        bitButton
+        block
+        [buttonType]="ssoRequired ? 'primary' : 'secondary'"
+        (click)="handleSsoClick()"
+      >
         <i class="bwi bwi-provider tw-mr-1" aria-hidden="true"></i>
         {{ "useSingleSignOn" | i18n }}
       </button>

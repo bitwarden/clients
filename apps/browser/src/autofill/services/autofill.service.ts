@@ -400,7 +400,7 @@ export default class AutofillService implements AutofillServiceInterface {
    * Gets the default URI match strategy setting from the domain settings service.
    */
   async getDefaultUriMatchStrategy(): Promise<UriMatchStrategySetting> {
-    return await firstValueFrom(this.domainSettingsService.defaultUriMatchStrategy$);
+    return await firstValueFrom(this.domainSettingsService.resolvedDefaultUriMatchStrategy$);
   }
 
   /**
@@ -451,6 +451,7 @@ export default class AutofillService implements AutofillServiceInterface {
           cipher: options.cipher,
           tabUrl: tab.url,
           defaultUriMatch: defaultUriMatch,
+          focusedFieldOpid: options.focusedFieldOpid,
         });
 
         if (!fillScript || !fillScript.script || !fillScript.script.length) {
@@ -837,7 +838,7 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     const passwords: AutofillField[] = [];
-    const usernames: AutofillField[] = [];
+    const usernames = new Map<string, AutofillField>();
     const totps: AutofillField[] = [];
     let pf: AutofillField = null;
     let username: AutofillField = null;
@@ -856,27 +857,111 @@ export default class AutofillService implements AutofillServiceInterface {
       options.fillNewPassword,
     );
 
+    const loginPasswordFields: AutofillField[] = [];
+    const registrationPasswordFields: AutofillField[] = [];
+
+    passwordFields.forEach((passField) => {
+      if (this.isRegistrationPasswordField(pageDetails, passField)) {
+        registrationPasswordFields.push(passField);
+      } else {
+        loginPasswordFields.push(passField);
+      }
+    });
+
+    // Prefer login fields over registration fields
+    const prioritizedPasswordFields =
+      loginPasswordFields.length > 0 ? loginPasswordFields : registrationPasswordFields;
+
+    const focusedField =
+      options.focusedFieldOpid &&
+      pageDetails.fields.find((f) => f.opid === options.focusedFieldOpid);
+    const focusedForm = focusedField?.form;
+
+    const isFocusedTotpField =
+      focusedField &&
+      options.allowTotpAutofill &&
+      (focusedField.type === "text" ||
+        focusedField.type === "number" ||
+        focusedField.type === "tel") &&
+      (AutofillService.fieldIsFuzzyMatch(focusedField, [
+        ...AutoFillConstants.TotpFieldNames,
+        ...AutoFillConstants.AmbiguousTotpFieldNames,
+      ]) ||
+        focusedField.autoCompleteType === "one-time-code") &&
+      !AutofillService.fieldIsFuzzyMatch(focusedField, [
+        ...AutoFillConstants.RecoveryCodeFieldNames,
+      ]);
+
+    const focusedUsernameField =
+      focusedField &&
+      !isFocusedTotpField &&
+      login.username &&
+      (focusedField.type === "text" ||
+        focusedField.type === "email" ||
+        focusedField.type === "tel") &&
+      focusedField;
+
+    const passwordMatchesFocused = (pf: AutofillField): boolean =>
+      !focusedField
+        ? true
+        : focusedForm != null
+          ? pf.form === focusedForm
+          : focusedUsernameField &&
+            pf.form == null &&
+            this.findUsernameField(pageDetails, pf, false, false, true)?.opid ===
+              focusedUsernameField.opid;
+
+    const getUsernameForPassword = (
+      pf: AutofillField,
+      withoutForm: boolean,
+    ): AutofillField | null => {
+      // use focused username if it matches this password, otherwise fall back to finding username field before password
+      if (focusedUsernameField && passwordMatchesFocused(pf)) {
+        return focusedUsernameField;
+      }
+      return this.findUsernameField(pageDetails, pf, false, false, withoutForm);
+    };
+
+    if (focusedUsernameField && !prioritizedPasswordFields.some(passwordMatchesFocused)) {
+      if (!Object.prototype.hasOwnProperty.call(filledFields, focusedUsernameField.opid)) {
+        filledFields[focusedUsernameField.opid] = focusedUsernameField;
+        AutofillService.fillByOpid(fillScript, focusedUsernameField, login.username);
+        if (options.autoSubmitLogin && focusedUsernameField.form) {
+          fillScript.autosubmit = [focusedUsernameField.form];
+        }
+        return AutofillService.setFillScriptForFocus(
+          { [focusedUsernameField.opid]: focusedUsernameField },
+          fillScript,
+        );
+      }
+    }
+
     for (const formKey in pageDetails.forms) {
       // eslint-disable-next-line
       if (!pageDetails.forms.hasOwnProperty(formKey)) {
         continue;
       }
 
-      passwordFields.forEach((passField) => {
+      prioritizedPasswordFields.forEach((passField) => {
+        if (focusedField && !passwordMatchesFocused(passField)) {
+          return;
+        }
+
         pf = passField;
         passwords.push(pf);
 
         if (login.username) {
-          username = this.findUsernameField(pageDetails, pf, false, false, false);
-
+          username = getUsernameForPassword(pf, false);
           if (username) {
-            usernames.push(username);
+            usernames.set(username.opid, username);
           }
         }
 
         if (options.allowTotpAutofill && login.totp) {
-          totp = this.findTotpField(pageDetails, pf, false, false, false);
-
+          totp =
+            isFocusedTotpField && passwordMatchesFocused(passField)
+              ? focusedField
+              : this.findTotpField(pageDetails, pf, false, false, false);
           if (totp) {
             totps.push(totp);
           }
@@ -885,25 +970,30 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     if (passwordFields.length && !passwords.length) {
-      // The page does not have any forms with password fields. Use the first password field on the page and the
-      // input field just before it as the username.
+      // in the event that password fields exist but weren't processed within form elements.
+      // select matching password if focused, otherwise first in prioritized list. for username, use focused field if it matches, otherwise find field before password.
+      const passwordFieldToUse = focusedField
+        ? prioritizedPasswordFields.find(passwordMatchesFocused) || prioritizedPasswordFields[0]
+        : prioritizedPasswordFields[0];
 
-      pf = passwordFields[0];
-      passwords.push(pf);
+      if (passwordFieldToUse) {
+        passwords.push(passwordFieldToUse);
 
-      if (login.username && pf.elementNumber > 0) {
-        username = this.findUsernameField(pageDetails, pf, false, false, true);
-
-        if (username) {
-          usernames.push(username);
+        if (login.username && passwordFieldToUse.elementNumber > 0) {
+          username = getUsernameForPassword(passwordFieldToUse, true);
+          if (username) {
+            usernames.set(username.opid, username);
+          }
         }
-      }
 
-      if (options.allowTotpAutofill && login.totp && pf.elementNumber > 0) {
-        totp = this.findTotpField(pageDetails, pf, false, false, true);
-
-        if (totp) {
-          totps.push(totp);
+        if (options.allowTotpAutofill && login.totp && passwordFieldToUse.elementNumber > 0) {
+          totp =
+            isFocusedTotpField && passwordMatchesFocused(passwordFieldToUse)
+              ? focusedField
+              : this.findTotpField(pageDetails, passwordFieldToUse, false, false, true);
+          if (totp) {
+            totps.push(totp);
+          }
         }
       }
     }
@@ -937,7 +1027,7 @@ export default class AutofillService implements AutofillServiceInterface {
             totps.push(field);
             return;
           case isFillableUsernameField:
-            usernames.push(field);
+            usernames.set(field.opid, field);
             return;
           default:
             return;
@@ -946,9 +1036,10 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     const formElementsSet = new Set<string>();
-    usernames.forEach((u) => {
-      // eslint-disable-next-line
-      if (filledFields.hasOwnProperty(u.opid)) {
+    const usernamesToFill = focusedUsernameField ? [focusedUsernameField] : [...usernames.values()];
+
+    usernamesToFill.forEach((u) => {
+      if (Object.prototype.hasOwnProperty.call(filledFields, u.opid)) {
         return;
       }
 
@@ -2252,6 +2343,38 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
+   * Determines if a password field is part of a registration/signup form.
+   * @param {AutofillPageDetails} pageDetails
+   * @param {AutofillField} passwordField
+   * @returns {boolean}
+   * @private
+   */
+  private isRegistrationPasswordField(
+    pageDetails: AutofillPageDetails,
+    passwordField: AutofillField,
+  ): boolean {
+    if (!passwordField.form || !pageDetails.forms) {
+      return false;
+    }
+
+    const form = pageDetails.forms[passwordField.form];
+    if (!form) {
+      return false;
+    }
+
+    const formIdentifierValues = [
+      form.htmlID?.toLowerCase?.(),
+      form.htmlName?.toLowerCase?.(),
+      passwordField?.htmlID?.toLowerCase?.(),
+      passwordField?.htmlName?.toLowerCase?.(),
+    ].filter(Boolean);
+
+    return formIdentifierValues.some((value) =>
+      AutoFillConstants.RegistrationKeywords.some((keyword) => value.includes(keyword)),
+    );
+  }
+
+  /**
    * Accepts a pageDetails object with a list of fields and returns a list of
    * fields that are likely to be username fields.
    * @param {AutofillPageDetails} pageDetails
@@ -2284,12 +2407,14 @@ export default class AutofillService implements AutofillServiceInterface {
 
       const includesUsernameFieldName =
         this.findMatchingFieldIndex(f, AutoFillConstants.UsernameFieldNames) > -1;
-      const isInSameForm = f.form === passwordField.form;
+      // only consider fields in same form if both have non-null form values
+      // null forms are treated as separate
+      const isInSameForm =
+        f.form != null && passwordField.form != null && f.form === passwordField.form;
 
       // An email or tel field in the same form as the password field is likely a qualified
       // candidate for autofill, even if visibility checks are unreliable
-      const isQualifiedUsernameField =
-        f.form === passwordField.form && (f.type === "email" || f.type === "tel");
+      const isQualifiedUsernameField = isInSameForm && (f.type === "email" || f.type === "tel");
 
       if (
         !f.disabled &&

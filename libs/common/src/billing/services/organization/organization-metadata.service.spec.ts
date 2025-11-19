@@ -4,6 +4,7 @@ import { BehaviorSubject, firstValueFrom } from "rxjs";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { newGuid } from "@bitwarden/guid";
 
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
@@ -15,6 +16,7 @@ describe("DefaultOrganizationMetadataService", () => {
   let service: DefaultOrganizationMetadataService;
   let billingApiService: jest.Mocked<BillingApiServiceAbstraction>;
   let configService: jest.Mocked<ConfigService>;
+  let platformUtilsService: jest.Mocked<PlatformUtilsService>;
   let featureFlagSubject: BehaviorSubject<boolean>;
 
   const mockOrganizationId = newGuid() as OrganizationId;
@@ -33,11 +35,17 @@ describe("DefaultOrganizationMetadataService", () => {
   beforeEach(() => {
     billingApiService = mock<BillingApiServiceAbstraction>();
     configService = mock<ConfigService>();
+    platformUtilsService = mock<PlatformUtilsService>();
     featureFlagSubject = new BehaviorSubject<boolean>(false);
 
     configService.getFeatureFlag$.mockReturnValue(featureFlagSubject.asObservable());
+    platformUtilsService.isSelfHost.mockReturnValue(false);
 
-    service = new DefaultOrganizationMetadataService(billingApiService, configService);
+    service = new DefaultOrganizationMetadataService(
+      billingApiService,
+      configService,
+      platformUtilsService,
+    );
   });
 
   afterEach(() => {
@@ -142,6 +150,24 @@ describe("DefaultOrganizationMetadataService", () => {
         expect(result3).toEqual(mockResponse1);
         expect(result4).toEqual(mockResponse2);
       });
+
+      it("calls getOrganizationBillingMetadataVNextSelfHost when feature flag is on and isSelfHost is true", async () => {
+        platformUtilsService.isSelfHost.mockReturnValue(true);
+        const mockResponse = createMockMetadataResponse(true, 25);
+        billingApiService.getOrganizationBillingMetadataVNextSelfHost.mockResolvedValue(
+          mockResponse,
+        );
+
+        const result = await firstValueFrom(service.getOrganizationMetadata$(mockOrganizationId));
+
+        expect(platformUtilsService.isSelfHost).toHaveBeenCalled();
+        expect(billingApiService.getOrganizationBillingMetadataVNextSelfHost).toHaveBeenCalledWith(
+          mockOrganizationId,
+        );
+        expect(billingApiService.getOrganizationBillingMetadataVNext).not.toHaveBeenCalled();
+        expect(billingApiService.getOrganizationBillingMetadata).not.toHaveBeenCalled();
+        expect(result).toEqual(mockResponse);
+      });
     });
 
     describe("shareReplay behavior", () => {
@@ -208,7 +234,7 @@ describe("DefaultOrganizationMetadataService", () => {
       }, 10);
     });
 
-    it("does not trigger refresh when feature flag is disabled", async () => {
+    it("does trigger refresh when feature flag is disabled", async () => {
       featureFlagSubject.next(false);
 
       const mockResponse1 = createMockMetadataResponse(false, 10);
@@ -232,11 +258,10 @@ describe("DefaultOrganizationMetadataService", () => {
 
       service.refreshMetadataCache();
 
-      // wait to ensure no additional invocations
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      expect(invocationCount).toBe(1);
-      expect(billingApiService.getOrganizationBillingMetadata).toHaveBeenCalledTimes(1);
+      expect(invocationCount).toBe(2);
+      expect(billingApiService.getOrganizationBillingMetadata).toHaveBeenCalledTimes(2);
 
       subscription.unsubscribe();
     });

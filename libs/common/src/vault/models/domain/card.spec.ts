@@ -22,13 +22,20 @@ describe("Card", () => {
     const card = new Card(data);
 
     expect(card).toEqual({
-      cardholderName: null,
-      brand: null,
-      number: null,
-      expMonth: null,
-      expYear: null,
-      code: null,
+      cardholderName: undefined,
+      brand: undefined,
+      number: undefined,
+      expMonth: undefined,
+      expYear: undefined,
+      code: undefined,
     });
+
+    expect(data.cardholderName).toBeUndefined();
+    expect(data.brand).toBeUndefined();
+    expect(data.number).toBeUndefined();
+    expect(data.expMonth).toBeUndefined();
+    expect(data.expYear).toBeUndefined();
+    expect(data.code).toBeUndefined();
   });
 
   it("Convert", () => {
@@ -94,8 +101,8 @@ describe("Card", () => {
       expect(actual).toBeInstanceOf(Card);
     });
 
-    it("returns null if object is null", () => {
-      expect(Card.fromJSON(null)).toBeNull();
+    it("returns undefined if object is null", () => {
+      expect(Card.fromJSON(null)).toBeUndefined();
     });
   });
 

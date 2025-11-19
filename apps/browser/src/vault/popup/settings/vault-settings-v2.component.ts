@@ -22,6 +22,8 @@ import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-heade
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { BrowserPremiumUpgradePromptService } from "../services/browser-premium-upgrade-prompt.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "vault-settings-v2.component.html",
   imports: [
@@ -43,13 +45,13 @@ export class VaultSettingsV2Component implements OnInit, OnDestroy {
   lastSync = "--";
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
-  protected userCanArchive = toSignal(
+  protected readonly userCanArchive = toSignal(
     this.userId$.pipe(switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId))),
   );
 
-  protected showArchiveItem = toSignal(this.cipherArchiveService.hasArchiveFlagEnabled$());
+  protected readonly showArchiveItem = toSignal(this.cipherArchiveService.hasArchiveFlagEnabled$());
 
-  protected userHasArchivedItems = toSignal(
+  protected readonly userHasArchivedItems = toSignal(
     this.userId$.pipe(
       switchMap((userId) =>
         this.cipherArchiveService.archivedCiphers$(userId).pipe(map((c) => c.length > 0)),
@@ -72,7 +74,7 @@ export class VaultSettingsV2Component implements OnInit, OnDestroy {
     private nudgeService: NudgesService,
     private accountService: AccountService,
     private cipherArchiveService: CipherArchiveService,
-  ) {}
+  ) { }
 
   async ngOnInit() {
     await this.setLastSync();

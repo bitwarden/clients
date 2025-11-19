@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
@@ -14,6 +14,9 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateProvider } from "@bitwarden/common/platform/state";
+import { FakeAccountService, FakeStateProvider } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { EndUserNotificationService } from "@bitwarden/common/vault/notifications";
@@ -24,6 +27,7 @@ import {
   ChangeLoginPasswordService,
   DefaultChangeLoginPasswordService,
   PasswordRepromptService,
+  AtRiskPasswordCalloutService,
 } from "@bitwarden/vault";
 
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
@@ -36,26 +40,31 @@ import { AtRiskPasswordsComponent } from "./at-risk-passwords.component";
 @Component({
   selector: "popup-header",
   template: `<ng-content></ng-content>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockPopupHeaderComponent {
-  @Input() pageTitle: string | undefined;
-  @Input() backAction: (() => void) | undefined;
+  readonly pageTitle = input<string | undefined>(undefined);
+  readonly backAction = input<(() => void) | undefined>(undefined);
 }
 
 @Component({
   selector: "popup-page",
   template: `<ng-content></ng-content>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockPopupPageComponent {
-  @Input() loading: boolean | undefined;
+  readonly loading = input<boolean | undefined>(undefined);
 }
 
 @Component({
   selector: "app-vault-icon",
   template: `<ng-content></ng-content>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 class MockAppIcon {
-  @Input() cipher: CipherView | undefined;
+  readonly cipher = input<CipherView | undefined>(undefined);
 }
 
 describe("AtRiskPasswordsComponent", () => {
@@ -68,6 +77,9 @@ describe("AtRiskPasswordsComponent", () => {
   let mockNotifications$: BehaviorSubject<NotificationView[]>;
   let mockInlineMenuVisibility$: BehaviorSubject<InlineMenuVisibilitySetting>;
   let calloutDismissed$: BehaviorSubject<boolean>;
+  let mockAtRiskPasswordCalloutService: any;
+  let stateProvider: FakeStateProvider;
+  let mockAccountService: FakeAccountService;
   const setInlineMenuVisibility = jest.fn();
   const mockToastService = mock<ToastService>();
   const mockAtRiskPasswordPageService = mock<AtRiskPasswordPageService>();
@@ -88,11 +100,15 @@ describe("AtRiskPasswordsComponent", () => {
         id: "cipher",
         organizationId: "org",
         name: "Item 1",
+        edit: true,
+        viewPassword: true,
       } as CipherView,
       {
         id: "cipher2",
         organizationId: "org",
         name: "Item 2",
+        edit: true,
+        viewPassword: true,
       } as CipherView,
     ]);
     mockOrgs$ = new BehaviorSubject<Organization[]>([
@@ -112,6 +128,11 @@ describe("AtRiskPasswordsComponent", () => {
     mockToastService.showToast.mockClear();
     mockDialogService.open.mockClear();
     mockAtRiskPasswordPageService.isCalloutDismissed.mockReturnValue(calloutDismissed$);
+    mockAccountService = {
+      activeAccount$: of({ id: "user" as UserId }),
+      activeUserId: "user" as UserId,
+    } as unknown as FakeAccountService;
+    stateProvider = new FakeStateProvider(mockAccountService);
 
     await TestBed.configureTestingModule({
       imports: [AtRiskPasswordsComponent],
@@ -141,7 +162,7 @@ describe("AtRiskPasswordsComponent", () => {
           },
         },
         { provide: I18nService, useValue: { t: (key: string) => key } },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: "user" }) } },
+        { provide: AccountService, useValue: mockAccountService },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: PasswordRepromptService, useValue: mock<PasswordRepromptService>() },
         {
@@ -152,6 +173,8 @@ describe("AtRiskPasswordsComponent", () => {
           },
         },
         { provide: ToastService, useValue: mockToastService },
+        { provide: StateProvider, useValue: stateProvider },
+        { provide: AtRiskPasswordCalloutService, useValue: mockAtRiskPasswordCalloutService },
       ],
     })
       .overrideModule(JslibModule, {
@@ -207,6 +230,38 @@ describe("AtRiskPasswordsComponent", () => {
           organizationId: "org",
           name: "Item 1",
           isDeleted: true,
+          edit: true,
+          viewPassword: true,
+        } as CipherView,
+      ]);
+
+      const items = await firstValueFrom(component["atRiskItems$"]);
+      expect(items).toHaveLength(0);
+    });
+
+    it("should not show tasks when cipher does not have edit permission", async () => {
+      mockCiphers$.next([
+        {
+          id: "cipher",
+          organizationId: "org",
+          name: "Item 1",
+          edit: false,
+          viewPassword: true,
+        } as CipherView,
+      ]);
+
+      const items = await firstValueFrom(component["atRiskItems$"]);
+      expect(items).toHaveLength(0);
+    });
+
+    it("should not show tasks when cipher does not have viewPassword permission", async () => {
+      mockCiphers$.next([
+        {
+          id: "cipher",
+          organizationId: "org",
+          name: "Item 1",
+          edit: true,
+          viewPassword: false,
         } as CipherView,
       ]);
 
@@ -260,11 +315,15 @@ describe("AtRiskPasswordsComponent", () => {
           id: "cipher",
           organizationId: "org",
           name: "Item 1",
+          edit: true,
+          viewPassword: true,
         } as CipherView,
         {
           id: "cipher2",
           organizationId: "org2",
           name: "Item 2",
+          edit: true,
+          viewPassword: true,
         } as CipherView,
       ]);
 

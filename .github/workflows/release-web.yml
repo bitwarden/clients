@@ -25,7 +25,9 @@ jobs:
       tag_version: ${{ steps.version.outputs.tag }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Branch check
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
@@ -50,8 +52,7 @@ jobs:
   release:
     name: Create GitHub Release
     runs-on: ubuntu-22.04
-    needs:
-      - setup
+    needs: setup
     permissions:
       contents: write
     steps:
@@ -79,13 +80,15 @@ jobs:
 
       - name: Rename assets
         working-directory: apps/web/artifacts
+        env:
+          RELEASE_VERSION: ${{ needs.setup.outputs.release_version }}
         run: |
-          mv web-*-selfhosted-COMMERCIAL.zip web-${{ needs.setup.outputs.release_version }}-selfhosted-COMMERCIAL.zip
-          mv web-*-selfhosted-open-source.zip web-${{ needs.setup.outputs.release_version }}-selfhosted-open-source.zip
+          mv web-*-selfhosted-COMMERCIAL.zip "web-${RELEASE_VERSION}-selfhosted-COMMERCIAL.zip"
+          mv web-*-selfhosted-open-source.zip "web-${RELEASE_VERSION}-selfhosted-open-source.zip"
 
       - name: Create release
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: ncipollo/release-action@cdcc88a9acf3ca41c16c37bb7d21b9ad48560d87 # v1.15.0
+        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
         with:
           name: "Web v${{ needs.setup.outputs.release_version }}"
           commit: ${{ github.sha }}

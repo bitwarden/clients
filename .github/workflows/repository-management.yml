@@ -57,7 +57,7 @@ jobs:
             BRANCH="rc"
           fi
 
-          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
 
   bump_version:
     name: Bump Version
@@ -97,17 +97,18 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Generate GH App token
-        uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3
+        uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42 # v2.1.4
         id: app-token
         with:
           app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
           private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
 
       - name: Check out branch
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: main
           token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: true
 
       - name: Configure Git
         run: |
@@ -124,7 +125,7 @@ jobs:
         id: current-browser-version
         run: |
           CURRENT_VERSION=$(cat package.json | jq -r '.version')
-          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
         working-directory: apps/browser
 
       - name: Browser - Verify input version
@@ -140,8 +141,7 @@ jobs:
           fi
 
           # Check if version is newer.
-          printf '%s\n' "${CURRENT_VERSION}" "${NEW_VERSION}" | sort -C -V
-          if [ $? -eq 0 ]; then
+          if printf '%s\n' "${CURRENT_VERSION}" "${NEW_VERSION}" | sort -C -V; then
             echo "Version check successful."
           else
             echo "Version check failed."
@@ -161,14 +161,14 @@ jobs:
         id: bump-browser-version-override
         env:
           VERSION: ${{ inputs.version_number_override }}
-        run: npm version --workspace=@bitwarden/browser $VERSION
+        run: npm version --workspace=@bitwarden/browser "$VERSION"
 
       - name: Bump Browser Version - Automatic Calculation
         if: ${{ inputs.bump_browser == true && inputs.version_number_override == '' }}
         id: bump-browser-version-automatic
         env:
           VERSION: ${{ steps.calculate-next-browser-version.outputs.version }}
-        run: npm version --workspace=@bitwarden/browser $VERSION
+        run: npm version --workspace=@bitwarden/browser "$VERSION"
 
       - name: Bump Browser Version - Manifest - Version Override
         if: ${{ inputs.bump_browser == true && inputs.version_number_override != '' }}
@@ -211,7 +211,7 @@ jobs:
         id: current-cli-version
         run: |
           CURRENT_VERSION=$(cat package.json | jq -r '.version')
-          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
         working-directory: apps/cli
 
       - name: CLI - Verify input version
@@ -227,8 +227,7 @@ jobs:
           fi
 
           # Check if version is newer.
-          printf '%s\n' "${CURRENT_VERSION}" "${NEW_VERSION}" | sort -C -V
-          if [ $? -eq 0 ]; then
+          if printf '%s\n' "${CURRENT_VERSION}" "${NEW_VERSION}" | sort -C -V; then
             echo "Version check successful."
           else
             echo "Version check failed."
@@ -248,14 +247,14 @@ jobs:
         id: bump-cli-version-override
         env:
           VERSION: ${{ inputs.version_number_override }}
-        run: npm version --workspace=@bitwarden/cli $VERSION
+        run: npm version --workspace=@bitwarden/cli "$VERSION"
 
       - name: Bump CLI Version - Automatic Calculation
         if: ${{ inputs.bump_cli == true && inputs.version_number_override == '' }}
         id: bump-cli-version-automatic
         env:
           VERSION: ${{ steps.calculate-next-cli-version.outputs.version }}
-        run: npm version --workspace=@bitwarden/cli $VERSION
+        run: npm version --workspace=@bitwarden/cli "$VERSION"
 
       ### Desktop
       - name: Get current Desktop version
@@ -263,7 +262,7 @@ jobs:
         id: current-desktop-version
         run: |
           CURRENT_VERSION=$(cat package.json | jq -r '.version')
-          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
         working-directory: apps/desktop
 
       - name: Desktop - Verify input version
@@ -279,8 +278,7 @@ jobs:
           fi
 
           # Check if version is newer.
-          printf '%s\n' "${CURRENT_VERSION}" "${NEW_VERSION}" | sort -C -V
-          if [ $? -eq 0 ]; then
+          if printf '%s\n' "${CURRENT_VERSION}" "${NEW_VERSION}" | sort -C -V; then
             echo "Version check successful."
           else
             echo "Version check failed."
@@ -300,27 +298,27 @@ jobs:
         id: bump-desktop-version-override
         env:
           VERSION: ${{ inputs.version_number_override }}
-        run: npm version --workspace=@bitwarden/desktop $VERSION
+        run: npm version --workspace=@bitwarden/desktop "$VERSION"
 
       - name: Bump Desktop Version - Root - Automatic Calculation
         if: ${{ inputs.bump_desktop == true && inputs.version_number_override == '' }}
         id: bump-desktop-version-automatic
         env:
           VERSION: ${{ steps.calculate-next-desktop-version.outputs.version }}
-        run: npm version --workspace=@bitwarden/desktop $VERSION
+        run: npm version --workspace=@bitwarden/desktop "$VERSION"
 
       - name: Bump Desktop Version - App - Version Override
         if: ${{ inputs.bump_desktop == true && inputs.version_number_override != '' }}
         env:
           VERSION: ${{ inputs.version_number_override }}
-        run: npm version $VERSION
+        run: npm version "$VERSION"
         working-directory: "apps/desktop/src"
 
       - name: Bump Desktop Version - App - Automatic Calculation
         if: ${{ inputs.bump_desktop == true && inputs.version_number_override == '' }}
         env:
           VERSION: ${{ steps.calculate-next-desktop-version.outputs.version }}
-        run: npm version $VERSION
+        run: npm version "$VERSION"
         working-directory: "apps/desktop/src"
 
       ### Web
@@ -329,7 +327,7 @@ jobs:
         id: current-web-version
         run: |
           CURRENT_VERSION=$(cat package.json | jq -r '.version')
-          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
         working-directory: apps/web
 
       - name: Web - Verify input version
@@ -345,8 +343,7 @@ jobs:
           fi
 
           # Check if version is newer.
-          printf '%s\n' "${CURRENT_VERSION}" "${NEW_VERSION}" | sort -C -V
-          if [ $? -eq 0 ]; then
+          if printf '%s\n' "${CURRENT_VERSION}" "${NEW_VERSION}" | sort -C -V; then
             echo "Version check successful."
           else
             echo "Version check failed."
@@ -366,14 +363,14 @@ jobs:
         id: bump-web-version-override
         env:
           VERSION: ${{ inputs.version_number_override }}
-        run: npm version --workspace=@bitwarden/web-vault $VERSION
+        run: npm version --workspace=@bitwarden/web-vault "$VERSION"
 
       - name: Bump Web Version - Automatic Calculation
         if: ${{ inputs.bump_web == true && inputs.version_number_override == '' }}
         id: bump-web-version-automatic
         env:
           VERSION: ${{ steps.calculate-next-web-version.outputs.version }}
-        run: npm version --workspace=@bitwarden/web-vault $VERSION
+        run: npm version --workspace=@bitwarden/web-vault "$VERSION"
 
       ########################
 
@@ -381,38 +378,50 @@ jobs:
         id: set-final-version-output
         env:
           VERSION: ${{ inputs.version_number_override }}
+          _BUMP_BROWSER_VERSION_OVERRIDE_OUTCOME: ${{ steps.bump-browser-version-override.outcome }}
+          _BUMP_BROWSER_VERSION_AUTOMATIC_OUTCOME: ${{ steps.bump-browser-version-automatic.outcome }}
+          _CALCULATE_NEXT_BROWSER_VERSION: ${{ steps.calculate-next-browser-version.outputs.version }}
+          _BUMP_CLI_VERSION_OVERRIDE_OUTCOME: ${{ steps.bump-cli-version-override.outcome }}
+          _BUMP_CLI_VERSION_AUTOMATIC_OUTCOME: ${{ steps.bump-cli-version-automatic.outcome }}
+          _CALCULATE_NEXT_CLI_VERSION: ${{ steps.calculate-next-cli-version.outputs.version }}
+          _BUMP_DESKTOP_VERSION_OVERRIDE_OUTCOME: ${{ steps.bump-desktop-version-override.outcome }}
+          _BUMP_DESKTOP_VERSION_AUTOMATIC_OUTCOME: ${{ steps.bump-desktop-version-automatic.outcome }}
+          _CALCULATE_NEXT_DESKTOP_VERSION: ${{ steps.calculate-next-desktop-version.outputs.version }}
+          _BUMP_WEB_VERSION_OVERRIDE_OUTCOME: ${{ steps.bump-web-version-override.outcome }}
+          _BUMP_WEB_VERSION_AUTOMATIC_OUTCOME: ${{ steps.bump-web-version-automatic.outcome }}
+          _CALCULATE_NEXT_WEB_VERSION: ${{ steps.calculate-next-web-version.outputs.version }}
         run: |
-          if [[ "${{ steps.bump-browser-version-override.outcome }}" = "success" ]]; then
-            echo "version_browser=$VERSION" >> $GITHUB_OUTPUT
-          elif [[ "${{ steps.bump-browser-version-automatic.outcome }}" = "success" ]]; then
-            echo "version_browser=${{ steps.calculate-next-browser-version.outputs.version }}" >> $GITHUB_OUTPUT
+          if [[ "$_BUMP_BROWSER_VERSION_OVERRIDE_OUTCOME" = "success" ]]; then
+            echo "version_browser=$VERSION" >> "$GITHUB_OUTPUT"
+          elif [[ "$_BUMP_BROWSER_VERSION_AUTOMATIC_OUTCOME" = "success" ]]; then
+            echo "version_browser=$_CALCULATE_NEXT_BROWSER_VERSION" >> "$GITHUB_OUTPUT"
           fi
 
-          if [[ "${{ steps.bump-cli-version-override.outcome }}" = "success" ]]; then
-            echo "version_cli=$VERSION" >> $GITHUB_OUTPUT
-          elif [[ "${{ steps.bump-cli-version-automatic.outcome }}" = "success" ]]; then
-            echo "version_cli=${{ steps.calculate-next-cli-version.outputs.version }}" >> $GITHUB_OUTPUT
+          if [[ "$_BUMP_CLI_VERSION_OVERRIDE_OUTCOME" = "success" ]]; then
+            echo "version_cli=$VERSION" >> "$GITHUB_OUTPUT"
+          elif [[ "$_BUMP_CLI_VERSION_AUTOMATIC_OUTCOME" = "success" ]]; then
+            echo "version_cli=$_CALCULATE_NEXT_CLI_VERSION" >> "$GITHUB_OUTPUT"
           fi
 
-          if [[ "${{ steps.bump-desktop-version-override.outcome }}" = "success" ]]; then
-            echo "version_desktop=$VERSION" >> $GITHUB_OUTPUT
-          elif [[ "${{ steps.bump-desktop-version-automatic.outcome }}" = "success" ]]; then
-            echo "version_desktop=${{ steps.calculate-next-desktop-version.outputs.version }}" >> $GITHUB_OUTPUT
+          if [[ "$_BUMP_DESKTOP_VERSION_OVERRIDE_OUTCOME" = "success" ]]; then
+            echo "version_desktop=$VERSION" >> "$GITHUB_OUTPUT"
+          elif [[ "$_BUMP_DESKTOP_VERSION_AUTOMATIC_OUTCOME" = "success" ]]; then
+            echo "version_desktop=$_CALCULATE_NEXT_DESKTOP_VERSION" >> "$GITHUB_OUTPUT"
           fi
 
-          if [[ "${{ steps.bump-web-version-override.outcome }}" = "success" ]]; then
-            echo "version_web=$VERSION" >> $GITHUB_OUTPUT
-          elif [[ "${{ steps.bump-web-version-automatic.outcome }}" = "success" ]]; then
-            echo "version_web=${{ steps.calculate-next-web-version.outputs.version }}" >> $GITHUB_OUTPUT
+          if [[ "$_BUMP_WEB_VERSION_OVERRIDE_OUTCOME" = "success" ]]; then
+            echo "version_web=$VERSION" >> "$GITHUB_OUTPUT"
+          elif [[ "$_BUMP_WEB_VERSION_AUTOMATIC_OUTCOME" = "success" ]]; then
+            echo "version_web=$_CALCULATE_NEXT_WEB_VERSION" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Check if version changed
         id: version-changed
         run: |
           if [ -n "$(git status --porcelain)" ]; then
-            echo "changes_to_commit=TRUE" >> $GITHUB_OUTPUT
+            echo "changes_to_commit=TRUE" >> "$GITHUB_OUTPUT"
           else
-            echo "changes_to_commit=FALSE" >> $GITHUB_OUTPUT
+            echo "changes_to_commit=FALSE" >> "$GITHUB_OUTPUT"
             echo "No changes to commit!";
           fi
 
@@ -453,24 +462,25 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Generate GH App token
-        uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3
+        uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42 # v2.1.4
         id: app-token
         with:
           app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
           private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
 
       - name: Check out target ref
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: ${{ inputs.target_ref }}
           token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: true
 
       - name: Check if ${{ needs.setup.outputs.branch }} branch exists
         env:
           BRANCH_NAME: ${{ needs.setup.outputs.branch }}
         run: |
-          if [[ $(git ls-remote --heads origin $BRANCH_NAME) ]]; then
-            echo "$BRANCH_NAME already exists! Please delete $BRANCH_NAME before running again." >> $GITHUB_STEP_SUMMARY
+          if [[ $(git ls-remote --heads origin "$BRANCH_NAME") ]]; then
+            echo "$BRANCH_NAME already exists! Please delete $BRANCH_NAME before running again." >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
 
@@ -478,5 +488,5 @@ jobs:
         env:
           BRANCH_NAME: ${{ needs.setup.outputs.branch }}
         run: |
-          git switch --quiet --create $BRANCH_NAME
-          git push --quiet --set-upstream origin $BRANCH_NAME
+          git switch --quiet --create "$BRANCH_NAME"
+          git push --quiet --set-upstream origin "$BRANCH_NAME"

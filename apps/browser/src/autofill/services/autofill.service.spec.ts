@@ -1,6 +1,7 @@
 import { mock, MockProxy, mockReset } from "jest-mock-extended";
 import { BehaviorSubject, of, Subject } from "rxjs";
 
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
@@ -49,6 +50,7 @@ import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
 import {
   createAutofillFieldMock,
+  createAutofillFormMock,
   createAutofillPageDetailsMock,
   createAutofillScriptMock,
   createChromeTabMock,
@@ -86,6 +88,7 @@ describe("AutofillService", () => {
   const totpService = mock<TotpService>();
   const eventCollectionService = mock<EventCollectionService>();
   const logService = mock<LogService>();
+  const policyService = mock<PolicyService>();
   const userVerificationService = mock<UserVerificationService>();
   const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
   const platformUtilsService = mock<PlatformUtilsService>();
@@ -138,7 +141,11 @@ describe("AutofillService", () => {
       userNotificationsSettings,
       messageListener,
     );
-    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
+    domainSettingsService = new DefaultDomainSettingsService(
+      fakeStateProvider,
+      policyService,
+      accountService,
+    );
     domainSettingsService.equivalentDomains$ = of(mockEquivalentDomains);
     jest.spyOn(BrowserApi, "tabSendMessage");
   });
@@ -363,9 +370,7 @@ describe("AutofillService", () => {
       jest.spyOn(autofillService as any, "injectAutofillScriptsInAllTabs");
       jest.spyOn(autofillService, "getAutofillOnPageLoad").mockResolvedValue(true);
 
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      autofillService.reloadAutofillScripts();
+      void autofillService.reloadAutofillScripts();
 
       expect(port1.disconnect).toHaveBeenCalled();
       expect(port2.disconnect).toHaveBeenCalled();
@@ -674,7 +679,9 @@ describe("AutofillService", () => {
           await autofillService.doAutoFill(autofillOptions);
           triggerTestFailure();
         } catch (error) {
-          expect(error.message).toBe(nothingToAutofillError);
+          if (error instanceof Error) {
+            expect(error.message).toBe(nothingToAutofillError);
+          }
         }
       });
 
@@ -685,7 +692,9 @@ describe("AutofillService", () => {
           await autofillService.doAutoFill(autofillOptions);
           triggerTestFailure();
         } catch (error) {
-          expect(error.message).toBe(nothingToAutofillError);
+          if (error instanceof Error) {
+            expect(error.message).toBe(nothingToAutofillError);
+          }
         }
       });
 
@@ -696,7 +705,9 @@ describe("AutofillService", () => {
           await autofillService.doAutoFill(autofillOptions);
           triggerTestFailure();
         } catch (error) {
-          expect(error.message).toBe(nothingToAutofillError);
+          if (error instanceof Error) {
+            expect(error.message).toBe(nothingToAutofillError);
+          }
         }
       });
 
@@ -707,7 +718,9 @@ describe("AutofillService", () => {
           await autofillService.doAutoFill(autofillOptions);
           triggerTestFailure();
         } catch (error) {
-          expect(error.message).toBe(nothingToAutofillError);
+          if (error instanceof Error) {
+            expect(error.message).toBe(nothingToAutofillError);
+          }
         }
       });
 
@@ -721,7 +734,9 @@ describe("AutofillService", () => {
           await autofillService.doAutoFill(autofillOptions);
           triggerTestFailure();
         } catch (error) {
-          expect(error.message).toBe(didNotAutofillError);
+          if (error instanceof Error) {
+            expect(error.message).toBe(didNotAutofillError);
+          }
         }
       });
     });
@@ -760,7 +775,6 @@ describe("AutofillService", () => {
         {
           command: "fillForm",
           fillScript: {
-            metadata: {},
             properties: {
               delay_between_operations: 20,
             },
@@ -857,7 +871,9 @@ describe("AutofillService", () => {
         expect(logService.info).toHaveBeenCalledWith(
           "Autofill on page load was blocked due to an untrusted iframe.",
         );
-        expect(error.message).toBe(didNotAutofillError);
+        if (error instanceof Error) {
+          expect(error.message).toBe(didNotAutofillError);
+        }
       }
     });
 
@@ -892,7 +908,10 @@ describe("AutofillService", () => {
       } catch (error) {
         expect(autofillService["generateFillScript"]).toHaveBeenCalled();
         expect(BrowserApi.tabSendMessage).not.toHaveBeenCalled();
-        expect(error.message).toBe(didNotAutofillError);
+
+        if (error instanceof Error) {
+          expect(error.message).toBe(didNotAutofillError);
+        }
       }
     });
 
@@ -1364,7 +1383,10 @@ describe("AutofillService", () => {
         triggerTestFailure();
       } catch (error) {
         expect(BrowserApi.getTabFromCurrentWindow).toHaveBeenCalled();
-        expect(error.message).toBe("No tab found.");
+
+        if (error instanceof Error) {
+          expect(error.message).toBe("No tab found.");
+        }
       }
     });
 
@@ -1604,7 +1626,6 @@ describe("AutofillService", () => {
 
       expect(autofillService["generateLoginFillScript"]).toHaveBeenCalledWith(
         {
-          metadata: {},
           properties: {},
           script: [
             ["click_on_opid", "username-field"],
@@ -1642,7 +1663,6 @@ describe("AutofillService", () => {
 
       expect(autofillService["generateCardFillScript"]).toHaveBeenCalledWith(
         {
-          metadata: {},
           properties: {},
           script: [
             ["click_on_opid", "username-field"],
@@ -1680,7 +1700,6 @@ describe("AutofillService", () => {
 
       expect(autofillService["generateIdentityFillScript"]).toHaveBeenCalledWith(
         {
-          metadata: {},
           properties: {},
           script: [
             ["click_on_opid", "username-field"],
@@ -2273,7 +2292,7 @@ describe("AutofillService", () => {
         );
         expect(value).toStrictEqual({
           autosubmit: null,
-          metadata: {},
+          itemType: "",
           properties: { delay_between_operations: 20 },
           savedUrls: ["https://www.example.com"],
           script: [
@@ -2288,8 +2307,148 @@ describe("AutofillService", () => {
             ["fill_by_opid", "password", "password"],
             ["focus_by_opid", "password"],
           ],
-          itemType: "",
           untrustedIframe: false,
+        });
+      });
+
+      describe("given a focused username field", () => {
+        let focusedField: AutofillField;
+        let passwordField: AutofillField;
+
+        beforeEach(() => {
+          focusedField = createAutofillFieldMock({
+            opid: "focused-username",
+            type: "text",
+            form: "form1",
+            elementNumber: 1,
+          });
+          passwordField = createAutofillFieldMock({
+            opid: "password",
+            type: "password",
+            form: "form1",
+            elementNumber: 2,
+          });
+          pageDetails.forms = {
+            form1: createAutofillFormMock({ opid: "form1" }),
+          };
+          options.focusedFieldOpid = "focused-username";
+          jest.spyOn(autofillService as any, "inUntrustedIframe").mockResolvedValue(false);
+          jest.spyOn(AutofillService, "fillByOpid");
+        });
+
+        it("will return early when no matching password is found and set autosubmit if enabled", async () => {
+          pageDetails.fields = [focusedField];
+          options.autoSubmitLogin = true;
+
+          const value = await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledTimes(1);
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            focusedField,
+            options.cipher.login.username,
+          );
+          expect(value.autosubmit).toEqual(["form1"]);
+        });
+
+        it("will prioritize focused field and skip passwords in different forms", async () => {
+          const otherUsername = createAutofillFieldMock({
+            opid: "other-username",
+            type: "text",
+            form: "form1",
+            elementNumber: 2,
+          });
+          const passwordDifferentForm = createAutofillFieldMock({
+            opid: "password-different",
+            type: "password",
+            form: "form2",
+            elementNumber: 1,
+          });
+          pageDetails.fields = [focusedField, otherUsername, passwordField, passwordDifferentForm];
+          pageDetails.forms.form2 = createAutofillFormMock({ opid: "form2" });
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            focusedField,
+            options.cipher.login.username,
+          );
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            passwordField,
+            options.cipher.login.password,
+          );
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            otherUsername,
+            expect.anything(),
+          );
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            passwordDifferentForm,
+            expect.anything(),
+          );
+        });
+
+        it("will not fill focused field if already in filledFields", async () => {
+          pageDetails.fields = [focusedField, passwordField];
+          filledFields[focusedField.opid] = focusedField;
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            focusedField,
+            expect.anything(),
+          );
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            passwordField,
+            options.cipher.login.password,
+          );
+        });
+
+        it.each([
+          ["email", "email"],
+          ["tel", "tel"],
+        ])("will treat focused %s field as username field", async (type, opid) => {
+          const focusedTypedField = createAutofillFieldMock({
+            opid: `focused-${opid}`,
+            type: type as "email" | "tel",
+            form: "form1",
+            elementNumber: 1,
+          });
+          pageDetails.fields = [focusedTypedField, passwordField];
+          options.focusedFieldOpid = `focused-${opid}`;
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            focusedTypedField,
+            options.cipher.login.username,
+          );
         });
       });
     });
@@ -2358,11 +2517,10 @@ describe("AutofillService", () => {
     describe("given an invalid autofill field", () => {
       const unmodifiedFillScriptValues: AutofillScript = {
         autosubmit: null,
-        metadata: {},
+        itemType: "",
         properties: { delay_between_operations: 20 },
         savedUrls: [],
         script: [],
-        itemType: "",
         untrustedIframe: false,
       };
 
@@ -2549,7 +2707,6 @@ describe("AutofillService", () => {
         expect(value).toStrictEqual({
           autosubmit: null,
           itemType: "",
-          metadata: {},
           properties: {
             delay_between_operations: 20,
           },

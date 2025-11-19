@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Dùng đăng nhập một lần"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Tổ chức của bạn yêu cầu đăng nhập một lần."
+  },
   "welcomeBack": {
     "message": "Chào mừng bạn trở lại"
   },
@@ -558,7 +561,7 @@
     "message": "Lưu trữ",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Hủy lưu trữ"
   },
   "itemsInArchive": {
@@ -570,11 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Các mục đã lưu trữ sẽ hiển thị ở đây và sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
   },
-  "itemSentToArchive": {
-    "message": "Mục đã được gửi đến kho lưu trữ"
+  "itemWasSentToArchive": {
+    "message": "Mục đã được chuyển vào kho lưu trữ"
   },
-  "itemRemovedFromArchive": {
-    "message": "Mục đã được gỡ khỏi kho lưu trữ"
+  "itemUnarchived": {
+    "message": "Mục đã được bỏ lưu trữ"
   },
   "archiveItem": {
     "message": "Lưu trữ mục"
@@ -587,6 +590,12 @@
   },
   "view": {
     "message": "Xem"
+  },
+  "viewAll": {
+    "message": "Xem tất cả"
+  },
+  "viewLess": {
+    "message": "View less"
   },
   "viewLogin": {
     "message": "Xem đăng nhập"
@@ -789,6 +798,12 @@
   },
   "onLocked": {
     "message": "Mỗi khi khóa máy"
+  },
+  "onIdle": {
+    "message": "On system idle"
+  },
+  "onSleep": {
+    "message": "On system sleep"
   },
   "onRestart": {
     "message": "Mỗi khi khởi động lại trình duyệt"
@@ -1027,6 +1042,18 @@
   },
   "editedItem": {
     "message": "Đã lưu mục"
+  },
+  "savedWebsite": {
+    "message": "Đã lưu trang web"
+  },
+  "savedWebsites": {
+    "message": "Đã lưu trang web ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Bạn có chắc muốn cho nó vào thùng rác?"
@@ -1505,12 +1532,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Yêu cầu sinh trắc học khi khởi chạy"
   },
-  "premiumRequired": {
-    "message": "Cần có tài khoản Cao cấp"
-  },
-  "premiumRequiredDesc": {
-    "message": "Cần là thành viên Cao cấp để sử dụng tính năng này."
-  },
   "authenticationTimeout": {
     "message": "Thời gian chờ xác thực"
   },
@@ -1549,13 +1570,13 @@
     "message": "Đọc khóa bảo mật"
   },
   "readingPasskeyLoading": {
-    "message": "Reading passkey..."
+    "message": "Đang đọc mã khoá..."
   },
   "passkeyAuthenticationFailed": {
-    "message": "Passkey authentication failed"
+    "message": "Xác thực mã khóa thất bại"
   },
   "useADifferentLogInMethod": {
-    "message": "Use a different log in method"
+    "message": "Dùng phương thức đăng nhập khác"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Đang chờ tương tác với khóa bảo mật..."
@@ -1623,6 +1644,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Bạn phải thêm URL máy chủ cơ sở hoặc ít nhất một môi trường tùy chỉnh."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL phải sử dụng HTTPS."
+  },
   "customEnvironment": {
     "message": "Môi trường tùy chỉnh"
   },
@@ -1676,8 +1700,29 @@
   "turnOffAutofill": {
     "message": "Tắt tự động điền"
   },
+  "confirmAutofill": {
+    "message": "Xác nhận tự động điền"
+  },
+  "confirmAutofillDesc": {
+    "message": "Trang web này không khớp với đăng nhập đã lưu của bạn. Trước khi bạn điền thông tin đăng nhập, hãy đảm bảo đây là trang web đáng tin cậy."
+  },
   "showInlineMenuLabel": {
     "message": "Hiển thị các gợi ý tự động điền trên các trường biểu mẫu"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Bitwarden bảo vệ dữ liệu của bạn khỏi lừa đảo như thế nào?"
+  },
+  "currentWebsite": {
+    "message": "Trang web hiện tại"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Tự động điền và thêm trang web này"
+  },
+  "autofillWithoutAdding": {
+    "message": "Tự động điền mà không thêm"
+  },
+  "doNotAutofill": {
+    "message": "Không tự động điền"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Hiển thị danh tính dưới dạng gợi ý"
@@ -3240,6 +3285,9 @@
   "decryptionError": {
     "message": "Lỗi giải mã"
   },
+  "errorGettingAutoFillData": {
+    "message": "Lỗi khi lấy dữ liệu tự động điền"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden không thể giải mã các mục trong kho lưu trữ được liệt kê bên dưới."
   },
@@ -4010,6 +4058,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Tự động điền khi tải trang được đặt thành mặc định trong cài đặt.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Không thể tự động điền"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Phép so khớp mặc định được đặt thành \"Khớp chính xác\". Trang web hiện tại không khớp chính xác với đăng nhập đã lưu cho mục này."
+  },
+  "okay": {
+    "message": "Đồng ý"
   },
   "toggleSideNavigation": {
     "message": "Ẩn/hiện thanh điều hướng bên"
@@ -4926,6 +4983,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Default ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "Hiện phát hiện trùng khớp $WEBSITE$",
     "placeholders": {
@@ -5579,17 +5646,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Chào mừng đến với kho lưu trữ của bạn!"
   },
-  "phishingPageTitle": {
-    "message": "Trang web lừa đảo"
+  "phishingPageTitleV2": {
+    "message": "Đã phát hiện nỗ lực lừa đảo"
   },
-  "phishingPageCloseTab": {
-    "message": "Đóng tab"
+  "phishingPageSummary": {
+    "message": "Trang web bạn đang cố gắng truy cập là một trang độc hại đã được báo cáo và có nguy cơ bảo mật."
   },
-  "phishingPageContinue": {
-    "message": "Tiếp tục"
+  "phishingPageCloseTabV2": {
+    "message": "Đóng thẻ này"
   },
-  "phishingPageLearnWhy": {
-    "message": "Tại sao bạn thấy điều này?"
+  "phishingPageContinueV2": {
+    "message": "Tiếp tục truy cập trang web này (không khuyến khích)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Trang web này được tìm thấy trong ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", một danh sách nguồn mở các trang lừa đảo đã biết được sử dụng để đánh cắp thông tin cá nhân và nhạy cảm.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Tìm hiểu thêm về phát hiện lừa đảo"
+  },
+  "protectedBy": {
+    "message": "Được bảo vệ bởi $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Tự động điền các mục cho trang hiện tại"
@@ -5694,5 +5781,60 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Xác nhận tên miền Key Connector"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Thật tuyệt khi bảo vệ các đăng nhập có nguy cơ của bạn!"
+  },
+  "upgradeNow": {
+    "message": "Nâng cấp ngay"
+  },
+  "builtInAuthenticator": {
+    "message": "Trình xác thực tích hợp"
+  },
+  "secureFileStorage": {
+    "message": "Lưu trữ tệp an toàn"
+  },
+  "emergencyAccess": {
+    "message": "Truy cập khẩn cấp"
+  },
+  "breachMonitoring": {
+    "message": "Giám sát vi phạm"
+  },
+  "andMoreFeatures": {
+    "message": "Và nhiều hơn nữa!"
+  },
+  "planDescPremium": {
+    "message": "Bảo mật trực tuyến toàn diện"
+  },
+  "upgradeToPremium": {
+    "message": "Nâng cấp lên gói Cao cấp"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "Loading vault"
+  },
+  "vaultLoaded": {
+    "message": "Vault loaded"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Cài đặt này bị vô hiệu hóa bởi chính sách tổ chức của bạn.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Mã ZIP / Bưu điện"
+  },
+  "cardNumberLabel": {
+    "message": "Số thẻ"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
   }
 }
