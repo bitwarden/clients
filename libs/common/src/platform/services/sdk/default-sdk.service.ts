@@ -23,7 +23,11 @@ import { KeyService, KdfConfigService, KdfConfig, KdfType } from "@bitwarden/key
 import {
   PasswordManagerClient,
   ClientSettings,
+  EventDefinition,
+  DeviceType as SdkDeviceType,
+  SpanDefinition,
   TokenProvider,
+  TracingLevel,
   UnsignedSharedKey,
   WrappedAccountCryptographicState,
 } from "@bitwarden/sdk-internal";
@@ -48,6 +52,26 @@ import { Rc } from "../../misc/reference-counting/rc";
 import { StateProvider } from "../../state";
 
 import { initializeState } from "./client-managed-state";
+
+const InitializeClientSpan = SdkLoadService.WithSdk(
+  () => new SpanDefinition("initializeUserClient", "DefaultSdkService", TracingLevel.Info, []),
+);
+
+const UserCryptoInitializedEvent = SdkLoadService.WithSdk(
+  () => new EventDefinition("userCryptoInitialized", "DefaultSdkService", TracingLevel.Debug, []),
+);
+
+const OrgCryptoInitializedEvent = SdkLoadService.WithSdk(
+  () => new EventDefinition("orgCryptoInitialized", "DefaultSdkService", TracingLevel.Debug, []),
+);
+
+const ClientStateInitializedEvent = SdkLoadService.WithSdk(
+  () => new EventDefinition("clientStateInitialized", "DefaultSdkService", TracingLevel.Debug, []),
+);
+
+const FeatureFlagsLoadedEvent = SdkLoadService.WithSdk(
+  () => new EventDefinition("featureFlagsLoaded", "DefaultSdkService", TracingLevel.Debug, []),
+);
 
 // A symbol that represents an overridden client that is explicitly set to undefined,
 // blocking the creation of an internal client for that user.
@@ -279,6 +303,9 @@ export class DefaultSdkService implements SdkService {
     accountCryptographicState: WrappedAccountCryptographicState,
     orgKeys: Record<OrganizationId, EncString>,
   ) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    using _span = (await InitializeClientSpan).enter();
+
     await client.crypto().initialize_user_crypto({
       userId: asUuid(userId),
       email: account.email,
@@ -295,6 +322,7 @@ export class DefaultSdkService implements SdkService {
             },
       accountCryptographicState: accountCryptographicState,
     });
+    (await UserCryptoInitializedEvent).record();
 
     // We initialize the org crypto even if the org_keys are
     // null to make sure any existing org keys are cleared.
@@ -303,11 +331,14 @@ export class DefaultSdkService implements SdkService {
         Object.entries(orgKeys).map(([k, v]) => [asUuid(k), v.toJSON() as UnsignedSharedKey]),
       ),
     });
+    (await OrgCryptoInitializedEvent).record();
 
     // Initialize the SDK managed database and the client managed repositories.
     await initializeState(userId, client.platform().state(), this.stateProvider);
+    (await ClientStateInitializedEvent).record();
 
     await this.loadFeatureFlags(client);
+    (await FeatureFlagsLoadedEvent).record();
   }
 
   private async loadFeatureFlags(client: PasswordManagerClient) {
