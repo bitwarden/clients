@@ -218,6 +218,7 @@ jobs:
             source_archive_name_prefix: ""
             archive_name_prefix: ""
             npm_command_prefix: "dist:"
+            npm_package_dev_prefix: "package:dev:"
             readable: "open source license"
             type: "oss"
           - build_prefix: "bit-"
@@ -225,6 +226,7 @@ jobs:
             source_archive_name_prefix: "bit-"
             archive_name_prefix: "bit-"
             npm_command_prefix: "dist:bit:"
+            npm_package_dev_prefix: "package:bit:dev:"
             readable: "commercial license"
             type: "commercial"
         browser:
@@ -232,6 +234,8 @@ jobs:
             npm_command_suffix: "chrome"
             archive_name: "dist-chrome.zip"
             artifact_name: "dist-chrome-MV3"
+            artifact_name_dev: "dev-chrome-MV3"
+            archive_name_dev: "dev-chrome.zip"
           - name: "edge"
             npm_command_suffix: "edge"
             archive_name: "dist-edge.zip"
@@ -336,6 +340,19 @@ jobs:
         with:
           name: ${{ matrix.license_type.artifact_prefix }}${{ matrix.browser.artifact_name }}-${{ env._BUILD_NUMBER }}.zip
           path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_name }}
+          if-no-files-found: error
+
+      - name: Package dev extension
+        if: ${{ matrix.browser.archive_name_dev != '' }}
+        run: npm run ${{ matrix.license_type.npm_package_dev_prefix }}${{ matrix.browser.npm_command_suffix }}
+        working-directory: browser-source/apps/browser
+
+      - name: Upload dev extension artifact
+        if: ${{ matrix.browser.archive_name_dev != '' }}
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: ${{ matrix.license_type.artifact_prefix }}${{ matrix.browser.artifact_name_dev }}-${{ env._BUILD_NUMBER }}.zip
+          path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_name_dev }}
           if-no-files-found: error
 
 

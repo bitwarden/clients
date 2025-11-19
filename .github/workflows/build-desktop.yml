@@ -627,7 +627,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
-          name: Bitwarden-Installer-${{ env._PACKAGE_VERSION }}..exe
+          name: Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/nsis-web/Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
