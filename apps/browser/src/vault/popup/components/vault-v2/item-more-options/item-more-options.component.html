@@ -60,7 +60,7 @@
         <button
           type="button"
           bitMenuItem
-          (click)="badge.promptForPremium()"
+          (click)="badge.promptForPremium($event)"
           [attr.aria-label]="'upgradeToUseArchive' | i18n"
         >
           <div class="tw-flex tw-flex-nowrap tw-items-center tw-gap-2">
