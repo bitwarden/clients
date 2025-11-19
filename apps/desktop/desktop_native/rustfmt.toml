@@ -1,0 +1,7 @@
+# Wrap comments and increase the width of comments to 100
+comment_width = 100
+wrap_comments = true
+
+# Sort and group imports
+group_imports = "StdExternalCrate"
+imports_granularity = "Crate"
