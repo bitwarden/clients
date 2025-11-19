@@ -14,7 +14,7 @@ BUILD_DIR="$SCRIPT_ROOT/../build"
 
 # Check if build directory exists
 if [ -d "$BUILD_DIR" ]; then
-  cd $BUILD_DIR
+  cd "$BUILD_DIR"
 
   # Update manifest with dev public key
   MANIFEST_PATH="./manifest.json"
