@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Atribuir tarefas aos membros para monitorizar o progresso"
   },
-  "onceYouReviewApps": {
-    "message": "Depois de analisar as aplicações e marcá-las como críticas, pode atribuir tarefas aos membros para resolver itens em risco e monitorizar o progresso aqui"
+  "onceYouReviewApplications": {
+    "message": "Depois de rever as aplicações e marcá-las como críticas, atribua tarefas aos seus membros para que alterem as respetivas palavras-passe."
   },
   "sendReminders": {
     "message": "Enviar lembretes"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "Não foram encontradas aplicações para $ORG NAME$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "Não foram encontrados dados"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Importe as credenciais da sua organização para começar a monitorizar os riscos de segurança das credenciais. Após a importação, poderá:"
+  "noDataInOrgDescription": {
+    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
   },
-  "benefit1Title": {
-    "message": "Priorizar os riscos"
+  "feature1Title": {
+    "message": "Mark applications as critical"
   },
-  "benefit1Description": {
-    "message": "Com foco nas aplicações mais importantes"
+  "feature1Description": {
+    "message": "This will help you remove risks to your most important applications first."
   },
-  "benefit2Title": {
-    "message": "Remediação de guias"
+  "feature2Title": {
+    "message": "Help members improve their security"
   },
-  "benefit2Description": {
-    "message": "Atribuir tarefas orientadas aos membros em risco para alterar as credenciais em risco"
+  "feature2Description": {
+    "message": "Assign at-risk members guided security tasks to update credentials."
   },
-  "benefit3Title": {
-    "message": "Monitorizar o progresso"
+  "feature3Title": {
+    "message": "Monitor progress"
   },
-  "benefit3Description": {
-    "message": "Acompanhe as alterações ao longo do tempo para mostrar as melhorias na segurança"
+  "feature3Description": {
+    "message": "Track changes over time to show security improvements."
   },
-  "noReportRunTitle": {
-    "message": "Execute o seu primeiro relatório para ver as aplicações"
+  "noReportsRunTitle": {
+    "message": "Generate report"
   },
-  "noReportRunDescription": {
-    "message": "Gere um relatório de insights de risco para analisar as aplicações da sua organização e identificar palavras-passe em risco que precisam de atenção. A execução do seu primeiro relatório irá:"
+  "noReportsRunDescription": {
+    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Não marcou nenhuma aplicação como crítica"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Membros em risco"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Membros com acesso a itens em risco para aplicações críticas"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "These members have access to vulnerable items for critical applications."
   },
   "membersWithAtRiskPasswords": {
     "message": "Membros com palavras-passe em risco"
   },
-  "membersWillReceiveNotification": {
-    "message": "Os membros receberão uma notificação para resolver as credenciais em risco através da extensão do navegador."
+  "membersWillReceiveSecurityTask": {
+    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ membros em risco",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Estes membros estão a iniciar sessão em aplicações com palavras-passe fracas, expostas ou reutilizadas."
+  "atRiskMemberDescription": {
+    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Estes não são membros que iniciam sessão em aplicações com palavras-passe fracas, expostas ou reutilizadas."
@@ -391,14 +385,14 @@
   "prioritizeCriticalApplications": {
     "message": "Dê prioridade a aplicações críticas"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Selecione quais aplicações são mais críticas para a sua organização e, em seguida, atribua tarefas de segurança aos membros para resolver os riscos."
+  "selectCriticalAppsDescription": {
+    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "reviewNewApplications": {
     "message": "Rever novas aplicações"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "Destacámos os itens em risco para novas aplicações armazenadas na consola de administração que têm palavras-passe fracas, expostas ou reutilizadas."
+  "reviewNewAppsDescription": {
+    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Clique no ícone de estrela para marcar uma app como crítica"
@@ -9856,8 +9850,8 @@
   "assignTasks": {
     "message": "Atribuir tarefas"
   },
-  "assignTasksToMembers": {
-    "message": "Atribuir tarefas aos membros para resolução guiada"
+  "assignSecurityTasksToMembers": {
+    "message": "Send notifications to change passwords"
   },
   "assignToCollections": {
     "message": "Atribuir às coleções"
@@ -12083,7 +12077,7 @@
     "message": "Tem o plano gratuito do Bitwarden"
   },
   "upgradeCompleteSecurity": {
-    "message": "Atualize para segurança total"
+    "message": "Atualize para obter segurança total"
   },
   "viewbusinessplans": {
     "message": "Ver planos empresariais"

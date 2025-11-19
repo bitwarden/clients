@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Mitglieder Aufgaben zuweisen, um den Fortschritt zu überwachen"
   },
-  "onceYouReviewApps": {
-    "message": "Sobald du die Anwendungen überprüft und als kritisch markiert hast, kannst du Mitgliedern Aufgaben zuweisen, um gefährdete Einträge zu beheben und den Fortschritt hier überwachen"
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
   },
   "sendReminders": {
     "message": "Erinnerungen senden"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "Keine Anwendungen für $ORG NAME$ gefunden",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "No data found"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Importiere die Zugangsdaten deiner Organisation, um mit der Überwachung von Sicherheitsrisiken für Zugangsdaten zu starten. Nach dem Import kannst du:"
+  "noDataInOrgDescription": {
+    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
   },
-  "benefit1Title": {
-    "message": "Risiken priorisieren"
+  "feature1Title": {
+    "message": "Mark applications as critical"
   },
-  "benefit1Description": {
-    "message": "Auf Anwendungen konzentrieren, die am wichtigsten sind"
+  "feature1Description": {
+    "message": "This will help you remove risks to your most important applications first."
   },
-  "benefit2Title": {
-    "message": "Anleitung zur Behebung"
+  "feature2Title": {
+    "message": "Help members improve their security"
   },
-  "benefit2Description": {
-    "message": "Gefährdeten Mitgliedern gezielte Aufgaben zuweisen, um gefährdete Zugangsdaten zu erneuern"
+  "feature2Description": {
+    "message": "Assign at-risk members guided security tasks to update credentials."
   },
-  "benefit3Title": {
+  "feature3Title": {
     "message": "Fortschritt überwachen"
   },
-  "benefit3Description": {
-    "message": "Änderungen im Laufe der Zeit verfolgen, um Sicherheitsverbesserungen anzuzeigen"
+  "feature3Description": {
+    "message": "Track changes over time to show security improvements."
   },
-  "noReportRunTitle": {
-    "message": "Erstelle deinen ersten Bericht, um Anwendungen zu sehen"
+  "noReportsRunTitle": {
+    "message": "Generate report"
   },
-  "noReportRunDescription": {
-    "message": "Erstelle einen Risikoanalysebericht, um die Anwendungen deines Unternehmens zu analysieren und gefährdete Passwörter zu identifizieren, die Aufmerksamkeit erfordern. Die Erstellung deines ersten Berichts wird:"
+  "noReportsRunDescription": {
+    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Du hast keine Anwendung als kritisch markiert"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Gefährdete Mitglieder"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Mitglieder mit Zugriff auf gefährdete Einträge für kritische Anwendungen"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "These members have access to vulnerable items for critical applications."
   },
   "membersWithAtRiskPasswords": {
     "message": "Mitglieder mit gefährdeten Passwörtern"
   },
-  "membersWillReceiveNotification": {
-    "message": "Mitglieder erhalten über die Browser-Erweiterung eine Benachrichtigung, um gefährdete Zugangsdaten zu ändern."
+  "membersWillReceiveSecurityTask": {
+    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ gefährdete Mitglieder",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Diese Mitglieder melden sich bei Anwendungen mit schwachen, kompromittierten oder wiederverwendeten Passwörtern an."
+  "atRiskMemberDescription": {
+    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Dies sind keine Mitglieder, die sich in Anwendungen mit schwachen, kompromittierten oder wiederverwendeten Passwörtern anmelden."
@@ -391,14 +385,14 @@
   "prioritizeCriticalApplications": {
     "message": "Kritische Anwendungen priorisieren"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Wähle die für deine Organisation kritischsten Anwendungen aus und weise den Mitgliedern Sicherheitsaufgaben zu, um Risiken zu beseitigen."
+  "selectCriticalAppsDescription": {
+    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "reviewNewApplications": {
     "message": "Neue Anwendungen überprüfen"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "Wir haben gefährdete Einträge für neue Anwendungen hervorgehoben, die in der Administrator-Konsole gespeichert sind und schwache, kompromittierte oder wiederverwendete Passwörter beinhalten."
+  "reviewNewAppsDescription": {
+    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Klicke auf das Sternsymbol, um eine App als kritisch zu markieren"
@@ -3251,16 +3245,16 @@
     "message": "Nächste Abbuchung"
   },
   "nextChargeHeader": {
-    "message": "Next Charge"
+    "message": "Nächste Abbuchung"
   },
   "plan": {
-    "message": "Plan"
+    "message": "Tarif"
   },
   "details": {
     "message": "Details"
   },
   "discount": {
-    "message": "discount"
+    "message": "Rabatt"
   },
   "downloadLicense": {
     "message": "Lizenz herunterladen"
@@ -9856,8 +9850,8 @@
   "assignTasks": {
     "message": "Aufgaben zuweisen"
   },
-  "assignTasksToMembers": {
-    "message": "Mitgliedern Aufgaben für eine gezielte Lösung zuweisen"
+  "assignSecurityTasksToMembers": {
+    "message": "Sende Benachrichtigungen, um Passwörter zu ändern"
   },
   "assignToCollections": {
     "message": "Sammlungen zuweisen"
@@ -10369,7 +10363,7 @@
     "message": "Index"
   },
   "selectAPlan": {
-    "message": "Ein Abo auswählen"
+    "message": "Einen Tarif auswählen"
   },
   "thirtyFivePercentDiscount": {
     "message": "35% Rabatt"
@@ -12159,9 +12153,9 @@
     }
   },
   "confirmNoSelectedCriticalApplicationsTitle": {
-    "message": "No critical applications are selected"
+    "message": "Es sind keine kritischen Anwendungen ausgewählt"
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
-    "message": "Are you sure you want to continue?"
+    "message": "Bist du sicher, dass du fortfahren möchtest?"
   }
 }

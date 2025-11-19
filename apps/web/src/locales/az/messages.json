@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "İrəliləyişi izləmək üçün üzvlərə tapşırıqlar təyin edin"
   },
-  "onceYouReviewApps": {
-    "message": "Tətbiqləri incələyib kritik olaraq işarələdikdən sonra, riskli elementləri həll etməsi üçün üzvlərə tapşırıqlar verə və irəliləyişi burada izləyə bilərsiniz"
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
   },
   "sendReminders": {
     "message": "Xatırlatma göndər"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "$ORG NAME$ üçün heç bir tətbiq tapılmadı",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "No data found"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Kimlik məlumatı təhlükəsizlik risklərini monitorinq etməyə başlamaq üçün təşkilatınızın giriş verilərini daxilə köçürün. Daxilə köçürdükdən sonra əldə edəcəkləriniz:"
+  "noDataInOrgDescription": {
+    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
   },
-  "benefit1Title": {
-    "message": "Riskləri prioritetləşdirmə"
+  "feature1Title": {
+    "message": "Mark applications as critical"
   },
-  "benefit1Description": {
-    "message": "Ən vacib tətbiqlərə fokuslanma"
+  "feature1Description": {
+    "message": "This will help you remove risks to your most important applications first."
   },
-  "benefit2Title": {
-    "message": "Riskləri azaltma bələdçisi"
+  "feature2Title": {
+    "message": "Help members improve their security"
   },
-  "benefit2Description": {
-    "message": "Risk altındakı üzvlərə, riskli kimlik məlumatlarını dəyişmək üçün rəhbər tapşırıqlar təyin edin"
+  "feature2Description": {
+    "message": "Assign at-risk members guided security tasks to update credentials."
   },
-  "benefit3Title": {
-    "message": "İrəliləyişin monitorinqi"
+  "feature3Title": {
+    "message": "Monitor progress"
   },
-  "benefit3Description": {
-    "message": "Təhlükəsizlik təkmilləşdirmələrini göstərmək üçün zamanla dəyişiklikləri izləyin"
+  "feature3Description": {
+    "message": "Track changes over time to show security improvements."
   },
-  "noReportRunTitle": {
-    "message": "Tətbiqləri görmək üçün ilk hesabatınızı çalışdırın"
+  "noReportsRunTitle": {
+    "message": "Generate report"
   },
-  "noReportRunDescription": {
-    "message": "Təşkilatınızın tətbiqlərini təhlil etmək və diqqət edilməli riskli parolları müəyyənləşdirmək üçün risk təhlili hesabatını yaradın. İlk hesabatınızı çalışdırdıqda:"
+  "noReportsRunDescription": {
+    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Heç bir tətbiqi kritik olaraq işarələməmisiniz"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Riskli üzvlər"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Kritik tətbiqlər üçün risk altındakı elementlərə erişimi olan üzvlər"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "These members have access to vulnerable items for critical applications."
   },
   "membersWithAtRiskPasswords": {
     "message": "Riskli parollara sahib üzvlər"
   },
-  "membersWillReceiveNotification": {
-    "message": "Üzvlər, riskli girişləri həll etmək üçün brauzer uzantısı üzərindən bildiriş alacaqlar."
+  "membersWillReceiveSecurityTask": {
+    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ üzv risk altındadır",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Bu üzvlər, tətbiqlərə zəif, ifşa olunmuş və ya təkrar istifadə olunan parollarla giriş edir."
+  "atRiskMemberDescription": {
+    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Tətbiqlərə zəif, ifşa olunmuş və ya təkrar istifadə olunan parollarla giriş edən üzv yoxdur."
@@ -391,14 +385,14 @@
   "prioritizeCriticalApplications": {
     "message": "Kritik tətbiqləri prioritetləşdir"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Təşkilatınız üçün ən kritik sayılan tətbiqləri seçin, daha sonra riskləri həll etmələri üçün üzvlərə təhlükəsizlik tapşırıqları təyin edin."
+  "selectCriticalAppsDescription": {
+    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "reviewNewApplications": {
     "message": "Yeni tətbiqlər incələ"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "Admin konsolunda saxlanılmış və zəif, ifşa olunmuş və ya təkrar istifadə olunmuş parollara sahib yeni tətbiqlər üçün riskli elementləri vurğulamışıq."
+  "reviewNewAppsDescription": {
+    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Bir tətbiqi kritik olaraq işarələmək üçün ulduz ikonuna klikləyin"
@@ -3251,7 +3245,7 @@
     "message": "Növbəti ödəniş"
   },
   "nextChargeHeader": {
-    "message": "Next Charge"
+    "message": "Növbəti ödəniş"
   },
   "plan": {
     "message": "Plan"
@@ -3260,7 +3254,7 @@
     "message": "Təfsilatlar"
   },
   "discount": {
-    "message": "discount"
+    "message": "endirim"
   },
   "downloadLicense": {
     "message": "Lisenziyanı endir"
@@ -9856,8 +9850,8 @@
   "assignTasks": {
     "message": "Tapşırıq təyin et"
   },
-  "assignTasksToMembers": {
-    "message": "Üzvlərə rəhbər həll üçün tapşırıqlar təyin edin"
+  "assignSecurityTasksToMembers": {
+    "message": "Send notifications to change passwords"
   },
   "assignToCollections": {
     "message": "Kolleksiyalara təyin et"
@@ -12159,9 +12153,9 @@
     }
   },
   "confirmNoSelectedCriticalApplicationsTitle": {
-    "message": "No critical applications are selected"
+    "message": "Heç bir kritik tətbiq seçilməyib"
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
-    "message": "Are you sure you want to continue?"
+    "message": "Davam etmək istədiyinizə əminsiniz?"
   }
 }

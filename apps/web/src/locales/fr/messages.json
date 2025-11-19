@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Affecter des tâches aux membres pour surveiller la progression"
   },
-  "onceYouReviewApps": {
-    "message": "Une fois que vous examinez les applications et marquez comme critiques, vous pouvez assigner des tâches aux membres pour résoudre les éléments à risque et suivre les progrès ici"
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
   },
   "sendReminders": {
     "message": "Envoyer des rappels"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "Aucune application trouvée pour $ORG NOM$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "No data found"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Importez les données de connexion de votre organisation pour commencer à surveiller les risques de sécurité des identifiants. Une fois importé, vous pouvez :"
+  "noDataInOrgDescription": {
+    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
   },
-  "benefit1Title": {
-    "message": "Prioriser les risques"
+  "feature1Title": {
+    "message": "Mark applications as critical"
   },
-  "benefit1Description": {
-    "message": "Vous concentrer sur les applications qui comptent le plus"
+  "feature1Description": {
+    "message": "This will help you remove risks to your most important applications first."
   },
-  "benefit2Title": {
-    "message": "Guider la remédiation"
+  "feature2Title": {
+    "message": "Help members improve their security"
   },
-  "benefit2Description": {
-    "message": "Assignez aux membres à risque des tâches guidées pour faire pivoter les identifiants à risque.﻿"
+  "feature2Description": {
+    "message": "Assign at-risk members guided security tasks to update credentials."
   },
-  "benefit3Title": {
-    "message": "Suivre la progression"
+  "feature3Title": {
+    "message": "Monitor progress"
   },
-  "benefit3Description": {
-    "message": "Suivre les changements au fil du temps pour afficher les améliorations de sécurité"
+  "feature3Description": {
+    "message": "Track changes over time to show security improvements."
   },
-  "noReportRunTitle": {
-    "message": "Exécutez votre premier rapport pour voir les applications"
+  "noReportsRunTitle": {
+    "message": "Generate report"
   },
-  "noReportRunDescription": {
-    "message": "Générer un rapport de connaissance des risques pour analyser les applications de votre organisation et identifier les mots de passe à risque qui nécessitent une attention. Exécuter votre premier rapport fera :"
+  "noReportsRunDescription": {
+    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Vous n'avez marqué aucune application comme critique"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Membres à risque"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Les membres ayant accès aux éléments à risque pour les applications critiques"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "These members have access to vulnerable items for critical applications."
   },
   "membersWithAtRiskPasswords": {
     "message": "Membres avec des mots de passe à risque"
   },
-  "membersWillReceiveNotification": {
-    "message": "Les membres recevront une notification pour résoudre les identifiants à risque via l'extension du navigateur."
+  "membersWillReceiveSecurityTask": {
+    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ membres à risque",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Ces membres se connectent à des applications avec des mots de passe faibles, exposés ou réutilisés."
+  "atRiskMemberDescription": {
+    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Aucun membre ne se connecte dans des applications avec des mots de passe faibles, exposés ou réutilisés."
@@ -391,14 +385,14 @@
   "prioritizeCriticalApplications": {
     "message": "Prioriser les applications critiques"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Sélectionnez les applications les plus critiques pour votre organisation, puis attribuez des tâches de sécurité aux membres pour résoudre les risques."
+  "selectCriticalAppsDescription": {
+    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "reviewNewApplications": {
     "message": "Examiner les nouvelles applications"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "Nous avons mis en évidence des éléments à risque pour les nouvelles applications stockées dans la console Admin qui ont des mots de passe faibles, exposés ou réutilisés."
+  "reviewNewAppsDescription": {
+    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Cliquez sur l'icône étoile pour marquer une application comme critique"
@@ -9856,8 +9850,8 @@
   "assignTasks": {
     "message": "Assigner des tâches"
   },
-  "assignTasksToMembers": {
-    "message": "Assigner des tâches aux membres pour une résolution guidée"
+  "assignSecurityTasksToMembers": {
+    "message": "Send notifications to change passwords"
   },
   "assignToCollections": {
     "message": "Assigner aux collections"
@@ -12159,9 +12153,9 @@
     }
   },
   "confirmNoSelectedCriticalApplicationsTitle": {
-    "message": "No critical applications are selected"
+    "message": "Aucune application critique n'est sélectionnée"
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
-    "message": "Are you sure you want to continue?"
+    "message": "Êtes-vous sûr de vouloir continuer ?"
   }
 }
