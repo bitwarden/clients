@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
-  "riskInsights": {
-    "message": "风险洞察"
-  },
   "passwordRisk": {
     "message": "密码风险"
   },
+  "noEditPermissions": {
+    "message": "您没有编辑此项目的权限"
+  },
   "reviewAtRiskPasswords": {
     "message": "审查各个应用程序中存在风险的密码（弱、暴露或重复使用）。选择最关键的应用程序，优先为您的用户采取安全措施，以处理存在风险的密码。"
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "审查存在风险的登录"
   },
   "dataLastUpdated": {
     "message": "数据最后更新于：$DATE$",
@@ -72,7 +75,7 @@
     }
   },
   "securityTasksCompleted": {
-    "message": "总计 $TOTAL$ 个中的 $COUNT$ 个安全任务已完成",
+    "message": "总计 $TOTAL$ 个安全任务中的 $COUNT$ 个已完成",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -90,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "分配成员任务以监测进度"
   },
-  "onceYouReviewApps": {
-    "message": "审查新应用程序并将其标记为关键后，您可以在这里将任务分配给成员以解决存在风险的项目并监测进度"
+  "onceYouReviewApplications": {
+    "message": "审查应用程序并将其标记为关键后，将任务分配给您的成员以更改他们的密码。"
   },
   "sendReminders": {
     "message": "发送提醒"
@@ -106,7 +109,7 @@
     "message": "查看存在风险的应用程序"
   },
   "criticalApplicationsAreAtRisk": {
-    "message": "总计 $TOTAL$ 个中的 $COUNT$ 个关键应用程序因密码风险而存在风险",
+    "message": "总计 $TOTAL$ 个关键应用程序中的 $COUNT$ 个因密码风险而存在风险",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -126,6 +129,9 @@
         "example": "3"
       }
     }
+  },
+  "criticalApplicationsMarked": {
+    "message": "关键应用程序已标记"
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ 个关键应用程序",
@@ -172,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "No applications found for $ORG NAME$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "未找到任何数据"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  "noDataInOrgDescription": {
+    "message": "导入您组织的登录数据以开始使用 Access Intelligence。导入完成后，您将能够："
   },
-  "benefit1Title": {
-    "message": "Prioritize risks"
+  "feature1Title": {
+    "message": "将应用程序标记为关键"
   },
-  "benefit1Description": {
-    "message": "Focus on applications that matter the most"
+  "feature1Description": {
+    "message": "这将帮助您优先消除您最重要的应用程序的风险。"
   },
-  "benefit2Title": {
-    "message": "Guide remediation"
+  "feature2Title": {
+    "message": "帮助成员提升他们的安全性"
   },
-  "benefit2Description": {
-    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  "feature2Description": {
+    "message": "为存在风险的成员分配引导式安全任务，以更新凭证。"
   },
-  "benefit3Title": {
-    "message": "Monitor progress"
+  "feature3Title": {
+    "message": "监测进度"
   },
-  "benefit3Description": {
-    "message": "Track changes over time to show security improvements"
+  "feature3Description": {
+    "message": "追踪一段时间内的变化，以展示安全性的改进。"
   },
-  "noReportRunTitle": {
-    "message": "Run your first report to see applications"
+  "noReportsRunTitle": {
+    "message": "生成报告"
   },
-  "noReportRunDescription": {
-    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
+  "noReportsRunDescription": {
+    "message": "您已准备好开始生成报告。生成报告后，您将能够："
   },
   "noCriticalApplicationsTitle": {
     "message": "您还没有将任何应用程序标记为关键"
@@ -218,7 +218,7 @@
     "message": "选择关键应用程序"
   },
   "markAppAsCritical": {
-    "message": "标记应用程序为关键"
+    "message": "将 App 标记为关键"
   },
   "markAsCritical": {
     "message": "标记为关键"
@@ -234,6 +234,15 @@
   },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "标记为关键的应用程序"
+  },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ 个应用程序标记为关键",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "applicationsMarkedAsCriticalFail": {
     "message": "无法将应用程序标记为关键"
@@ -256,8 +265,14 @@
   "atRiskMembers": {
     "message": "存在风险的成员"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "对关键应用程序中存在风险的项目具有访问权限的成员"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "这些成员拥有关键应用程序中易受攻击项目的访问权限。"
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "密码存在风险的成员"
+  },
+  "membersWillReceiveSecurityTask": {
+    "message": "您的组织成员将被分配更改易受攻击的密码的任务。他们将在 Bitwarden 浏览器扩展中收到通知。"
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ 个成员存在风险",
@@ -286,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "这些成员正登录到具有弱的、暴露的或重复使用的密码的应用程序。"
+  "atRiskMemberDescription": {
+    "message": "这些成员正在登录到具有弱的、暴露的或重复使用的密码的关键应用程序。"
   },
   "atRiskMembersDescriptionNone": {
     "message": "没有成员登录到具有弱的、暴露的或重复使用的密码的应用程序。"
@@ -328,6 +343,9 @@
   "applicationsNeedingReview": {
     "message": "应用程序需要审查"
   },
+  "newApplicationsCardTitle": {
+    "message": "审查新应用程序"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ 个新应用程序",
     "placeholders": {
@@ -343,35 +361,56 @@
   "reviewNow": {
     "message": "立即审查"
   },
-  "prioritizeCriticalApplications": {
-    "message": "关键应用程序优先"
+  "allCaughtUp": {
+    "message": "全部处理完成！"
   },
-  "atRiskItems": {
-    "message": "存在风险的项目"
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "目前没有新应用程序需要审查"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "您的组织已为 $COUNT$ 个应用程序保存了项目",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "审查应用程序以保护对您的组织安全最关键的项目"
+  },
+  "reviewApplications": {
+    "message": "审查应用程序"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "优先处理关键应用程序"
+  },
+  "selectCriticalAppsDescription": {
+    "message": "选择对您的组织最关键的应用程序。然后，您可以将安全任务分配给成员以消除风险。"
+  },
+  "reviewNewApplications": {
+    "message": "审查新应用程序"
+  },
+  "reviewNewAppsDescription": {
+    "message": "审查具有易受攻击项目的新应用程序然后将需要密切监测的应用程序标记为关键。然后，您可以将安全任务分配给成员以消除风险。"
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "点击星形图标以将 App 标记为关键"
   },
   "markAsCriticalPlaceholder": {
     "message": "标记为关键功能将在未来更新中实现"
   },
   "applicationReviewSaved": {
-    "message": "Application review saved"
-  },
-  "applicationsMarkedAsCritical": {
-    "message": "$COUNT$ applications marked as critical",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
+    "message": "应用程序审查已保存"
   },
   "newApplicationsReviewed": {
-    "message": "New applications reviewed"
+    "message": "新应用程序已审查"
   },
   "errorSavingReviewStatus": {
-    "message": "Error saving review status"
+    "message": "保存审查状态时出错"
   },
   "pleaseTryAgain": {
-    "message": "Please try again"
+    "message": "请重试"
   },
   "unmarkAsCritical": {
     "message": "取消标记为关键"
@@ -484,7 +523,7 @@
     "message": "删除网站"
   },
   "defaultLabel": {
-    "message": "默认 ($VALUE$)",
+    "message": "默认（$VALUE$）",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -834,6 +873,9 @@
   },
   "favorites": {
     "message": "收藏夹"
+  },
+  "taskSummary": {
+    "message": "任务摘要"
   },
   "types": {
     "message": "类型"
@@ -1360,7 +1402,7 @@
     "message": "使用单点登录"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "您的组织要求单点登录。"
   },
   "welcomeBack": {
     "message": "欢迎回来"
@@ -2495,23 +2537,23 @@
     "message": "恢复访问权限"
   },
   "premium": {
-    "message": "高级会员",
+    "message": "高级版",
     "description": "Premium membership"
   },
   "premiumMembership": {
     "message": "高级会员"
   },
   "premiumRequired": {
-    "message": "需要高级会员"
+    "message": "需要高级版"
   },
   "premiumRequiredDesc": {
     "message": "使用此功能需要高级会员资格。"
   },
   "youHavePremiumAccess": {
-    "message": "您拥有高级访问权限"
+    "message": "您拥有高级版访问权限"
   },
   "alreadyPremiumFromOrg": {
-    "message": "由于您是拥有高级会员功能的组织的成员，您已经拥有此功能。"
+    "message": "由于您是组织的成员，您已经拥有高级版功能访问权限。"
   },
   "manage": {
     "message": "管理"
@@ -3008,11 +3050,11 @@
     "message": "您账户的信用额度可用于进行消费。任何可用的信用额度将用于自动抵扣此账户的账单。"
   },
   "goPremium": {
-    "message": "升级高级会员",
+    "message": "升级高级版",
     "description": "Another way of saying \"Get a Premium membership\""
   },
   "premiumUpdated": {
-    "message": "您已升级到高级会员。"
+    "message": "您已升级为高级版。"
   },
   "premiumUpgradeUnlockFeatures": {
     "message": "将您的账户升级为高级会员，将解锁一些强大的附加功能。"
@@ -3036,7 +3078,7 @@
     "message": "优先客户支持。"
   },
   "premiumSignUpFuture": {
-    "message": "未来的更多高级功能。敬请期待！"
+    "message": "未来的更多高级版功能。敬请期待！"
   },
   "premiumPrice": {
     "message": "所有功能仅需 $PRICE$ /年！",
@@ -3048,7 +3090,7 @@
     }
   },
   "premiumPriceWithFamilyPlan": {
-    "message": "升级高级会员仅需 $PRICE$ /年，或成为具有 $FAMILYPLANUSERCOUNT$ 位用户以及无限制的家庭共享的高级账户，通过 ",
+    "message": "升级高级版仅需 $PRICE$ /年，或成为具有 $FAMILYPLANUSERCOUNT$ 位用户以及无限制的家庭共享的高级账户，通过 ",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -3067,10 +3109,10 @@
     "message": "附加项目"
   },
   "premiumAccess": {
-    "message": "高级会员"
+    "message": "高级版访问权限"
   },
   "premiumAccessDesc": {
-    "message": "您可以为您的组织所有成员添加高级访问权限，只需 $PRICE$ /$INTERVAL$ 。",
+    "message": "您可以为您的组织所有成员添加高级版访问权限，只需 $PRICE$ /$INTERVAL$ 。",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -3200,10 +3242,19 @@
     "message": "状态"
   },
   "nextCharge": {
-    "message": "下一次扣款"
+    "message": "下一次收费"
+  },
+  "nextChargeHeader": {
+    "message": "下一次收费"
+  },
+  "plan": {
+    "message": "方案"
   },
   "details": {
     "message": "详细信息"
+  },
+  "discount": {
+    "message": "折扣"
   },
   "downloadLicense": {
     "message": "下载许可证"
@@ -3502,7 +3553,7 @@
     "message": "本地托管（可选）"
   },
   "usersGetPremium": {
-    "message": "用户拥有高级会员功能权限"
+    "message": "用户拥有高级版功能访问权限"
   },
   "controlAccessWithGroups": {
     "message": "使用群组控制用户访问权限"
@@ -3778,7 +3829,7 @@
     "message": "加载更多"
   },
   "mobile": {
-    "message": "手机版应用",
+    "message": "移动端",
     "description": "Mobile app"
   },
   "extension": {
@@ -4409,8 +4460,32 @@
   "updateBrowser": {
     "message": "更新浏览器"
   },
-  "generatingYourRiskInsights": {
-    "message": "正在生成风险洞察..."
+  "generatingYourAccessIntelligence": {
+    "message": "正在生成 Access Intelligence..."
+  },
+  "fetchingMemberData": {
+    "message": "正在获取成员数据..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "正在分析密码健康度..."
+  },
+  "calculatingRiskScores": {
+    "message": "正在计算风险评分..."
+  },
+  "generatingReportData": {
+    "message": "正在生成报告数据..."
+  },
+  "savingReport": {
+    "message": "正在保存报告..."
+  },
+  "compilingInsights": {
+    "message": "正在编译洞察..."
+  },
+  "loadingProgress": {
+    "message": "加载进度"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "这可能需要几分钟时间。"
   },
   "riskInsightsRunReport": {
     "message": "运行报告"
@@ -5774,16 +5849,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "如何启用自动用户确认"
   },
-  "autoConfirmStep1": {
-    "message": "打开您的 Bitwarden 扩展。"
+  "autoConfirmExtension1": {
+    "message": "打开您的 Bitwarden 扩展"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "选择",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": "启用。",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": "启用",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "成功打开 Bitwarden 浏览器扩展。您现在可以激活自动用户确认设置。"
@@ -5805,8 +5880,8 @@
   "autoConfirmSingleOrgRequired": {
     "message": "要求单一组织策略。"
   },
-  "autoConfirmSingleOrgRequiredDescription": {
-    "message": "属于多个组织的任何人，他们的访问权限将被撤销，直到他们离开其他组织。"
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "所有成员必须仅属于此组织才能激活此自动化功能。"
   },
   "autoConfirmSingleOrgExemption": {
     "message": "单一组织策略将扩展到所有角色。"
@@ -5871,6 +5946,19 @@
   "disableHideEmail": {
     "message": "创建或编辑 Send 时，始终向接收者显示成员的电子邮箱地址。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "默认 URI 匹配检测"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "确定何时建议登录用于自动填充。管理员和所有者不受此策略的约束。"
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "默认 URI 匹配检测"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "请选择一个有效的 URI 匹配检测选项。",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "修改了策略 $ID$。",
@@ -6525,11 +6613,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "您的主密码不符合某一项或多项组织策略要求。要访问密码库，必须立即更新您的主密码。继续操作将使您退出当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
   },
-  "automaticAppLogin": {
-    "message": "为允许的应用程序自动登录用户"
+  "automaticAppLoginWithSSO": {
+    "message": "使用 SSO 自动登录"
   },
-  "automaticAppLoginDesc": {
-    "message": "从您配置的身份提供程序启动的 App 的登录表单将自动填充并提交。"
+  "automaticAppLoginWithSSODesc": {
+    "message": "将 SSO 的安全性和便捷性扩展到非托管 App。当用户通过身份提供程序启动 App 时，他们的登录信息将自动填写并提交，从而实现从身份提供程序到 App 的一键式安全流程。"
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "身份提供程序主机"
@@ -6821,7 +6909,7 @@
     "message": "Bitwarden 家庭方案包含"
   },
   "sponsoredFamiliesPremiumAccess": {
-    "message": "最多 6 个用户的高级访问权限"
+    "message": "最多 6 个高级版访问权限的用户"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "为家庭成员提供共享集合"
@@ -7129,6 +7217,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "您必须添加基础服务器 URL 或至少添加一个自定义环境。"
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL 必须使用 HTTPS。"
+  },
   "apiUrl": {
     "message": "API 服务器 URL"
   },
@@ -7300,6 +7391,9 @@
   },
   "accessDenied": {
     "message": "访问被拒绝。您没有权限查看此页面。"
+  },
+  "noPageAccess": {
+    "message": "您没有访问该页面的权限"
   },
   "masterPassword": {
     "message": "主密码"
@@ -9476,9 +9570,6 @@
   "loggedInExclamation": {
     "message": "已登录！"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "assignCollectionAccess": {
     "message": "分配集合访问权限"
   },
@@ -9758,6 +9849,9 @@
   },
   "assignTasks": {
     "message": "分配任务"
+  },
+  "assignSecurityTasksToMembers": {
+    "message": "发送通知以更改密码"
   },
   "assignToCollections": {
     "message": "分配到集合"
@@ -10777,7 +10871,7 @@
     "message": "保护您的家庭登录"
   },
   "accessToPremiumFeatures": {
-    "message": "访问高级会员功能"
+    "message": "高级版功能访问权限"
   },
   "additionalStorageGbMessage": {
     "message": "GB 附加存储"
@@ -10816,7 +10910,7 @@
     "message": "RSA 4096-Bit"
   },
   "premiumAccounts": {
-    "message": "6 个高级账户"
+    "message": "6 个高级版账户"
   },
   "unlimitedSharing": {
     "message": "不限数量的共享"
@@ -12023,5 +12117,45 @@
   },
   "startFreeFamiliesTrial": {
     "message": "开始免费家庭版试用"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "设置一个解锁方式以更改您的密码库超时动作。"
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "企业策略要求已应用到您的超时选项中"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "您的密码库超时超出了您组织设置的限制。"
+  },
+  "neverLockWarning": {
+    "message": "确定要使用「从不」选项吗？将锁定选项设置为「从不」会将密码库的加密密钥存储在您的设备上。如果使用此选项，您必须确保您的设备安全。"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "超时动作"
+  },
+  "sessionTimeoutHeader": {
+    "message": "会话超时"
+  },
+  "appearance": {
+    "message": "外观"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "超时超出了您组织设置的限制：最多 $HOURS$ 小时 $MINUTES$ 分钟",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "未选择任何关键应用程序"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "确定要继续吗？"
   }
 }

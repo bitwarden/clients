@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Accéder à Intelligence"
   },
-  "riskInsights": {
-    "message": "Aperçus des Risques"
-  },
   "passwordRisk": {
     "message": "Risque du mot de passe"
   },
+  "noEditPermissions": {
+    "message": "Vous n'avez pas l'autorisation de modifier cet élément"
+  },
   "reviewAtRiskPasswords": {
     "message": "Examinez les mots de passe à risque (faibles, exposés ou réutilisés) à travers les applications. Sélectionnez vos applications les plus critiques pour prioriser les actions de sécurité pour que vos utilisateurs s'occupent des mots de passe à risque."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Examiner les identifiants à risque"
   },
   "dataLastUpdated": {
     "message": "Dernière mise à jour des données : $DATE$",
@@ -90,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Affecter des tâches aux membres pour surveiller la progression"
   },
-  "onceYouReviewApps": {
-    "message": "Une fois que vous examinez les applications et marquez comme critiques, vous pouvez assigner des tâches aux membres pour résoudre les éléments à risque et suivre les progrès ici"
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
   },
   "sendReminders": {
     "message": "Envoyer des rappels"
@@ -126,6 +129,9 @@
         "example": "3"
       }
     }
+  },
+  "criticalApplicationsMarked": {
+    "message": "applications critiques marquées"
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ applications critiques",
@@ -172,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "Aucune application trouvée pour $ORG NOM$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "No data found"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Importez les données de connexion de votre organisation pour commencer à surveiller les risques de sécurité des identifiants. Une fois importé, vous pouvez :"
+  "noDataInOrgDescription": {
+    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
   },
-  "benefit1Title": {
-    "message": "Prioriser les risques"
+  "feature1Title": {
+    "message": "Mark applications as critical"
   },
-  "benefit1Description": {
-    "message": "Vous concentrer sur les applications qui comptent le plus"
+  "feature1Description": {
+    "message": "This will help you remove risks to your most important applications first."
   },
-  "benefit2Title": {
-    "message": "Guider la remédiation"
+  "feature2Title": {
+    "message": "Help members improve their security"
   },
-  "benefit2Description": {
-    "message": "Assignez aux membres à risque des tâches guidées pour faire pivoter les identifiants à risque.﻿"
+  "feature2Description": {
+    "message": "Assign at-risk members guided security tasks to update credentials."
   },
-  "benefit3Title": {
-    "message": "Suivre la progression"
+  "feature3Title": {
+    "message": "Monitor progress"
   },
-  "benefit3Description": {
-    "message": "Suivre les changements au fil du temps pour afficher les améliorations de sécurité"
+  "feature3Description": {
+    "message": "Track changes over time to show security improvements."
   },
-  "noReportRunTitle": {
-    "message": "Exécutez votre premier rapport pour voir les applications"
+  "noReportsRunTitle": {
+    "message": "Generate report"
   },
-  "noReportRunDescription": {
-    "message": "Générer un rapport de connaissance des risques pour analyser les applications de votre organisation et identifier les mots de passe à risque qui nécessitent une attention. Exécuter votre premier rapport fera :"
+  "noReportsRunDescription": {
+    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Vous n'avez marqué aucune application comme critique"
@@ -235,6 +235,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Applications marquées comme critiques"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applications marquées comme critiques",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Échec du marquage de l'application comme étant critique"
   },
@@ -256,8 +265,14 @@
   "atRiskMembers": {
     "message": "Membres à risque"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Les membres ayant accès aux éléments à risque pour les applications critiques"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "These members have access to vulnerable items for critical applications."
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Membres avec des mots de passe à risque"
+  },
+  "membersWillReceiveSecurityTask": {
+    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ membres à risque",
@@ -286,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Ces membres se connectent à des applications avec des mots de passe faibles, exposés ou réutilisés."
+  "atRiskMemberDescription": {
+    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Aucun membre ne se connecte dans des applications avec des mots de passe faibles, exposés ou réutilisés."
@@ -328,6 +343,9 @@
   "applicationsNeedingReview": {
     "message": "Applications nécessitant un examen"
   },
+  "newApplicationsCardTitle": {
+    "message": "Examiner les nouvelles applications"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ nouvelles applications",
     "placeholders": {
@@ -343,26 +361,47 @@
   "reviewNow": {
     "message": "Examiner maintenant"
   },
+  "allCaughtUp": {
+    "message": "Tout est à jour !"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "Aucune nouvelle application à examiner pour le moment"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Votre organisation a des éléments enregistrés pour $COUNT$ applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Examiner les applications pour sécuriser les éléments les plus critiques pour la sécurité de votre organisation"
+  },
+  "reviewApplications": {
+    "message": "Examiner les applications"
+  },
   "prioritizeCriticalApplications": {
     "message": "Prioriser les applications critiques"
   },
-  "atRiskItems": {
-    "message": "Éléments à risque"
+  "selectCriticalAppsDescription": {
+    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
+  },
+  "reviewNewApplications": {
+    "message": "Examiner les nouvelles applications"
+  },
+  "reviewNewAppsDescription": {
+    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Cliquez sur l'icône étoile pour marquer une application comme critique"
   },
   "markAsCriticalPlaceholder": {
     "message": "Marquer comme fonctionnalité critique sera implémentée dans une mise à jour future"
   },
   "applicationReviewSaved": {
     "message": "Révision de l'application enregistrée"
-  },
-  "applicationsMarkedAsCritical": {
-    "message": "$COUNT$ applications marquées comme critiques",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
   },
   "newApplicationsReviewed": {
     "message": "Nouvelles demandes examinées"
@@ -834,6 +873,9 @@
   },
   "favorites": {
     "message": "Favoris"
+  },
+  "taskSummary": {
+    "message": "Résumé de tâche"
   },
   "types": {
     "message": "Types"
@@ -3202,8 +3244,17 @@
   "nextCharge": {
     "message": "Prochain paiement"
   },
+  "nextChargeHeader": {
+    "message": "Prochain paiement"
+  },
+  "plan": {
+    "message": "Forfait"
+  },
   "details": {
     "message": "Détails"
+  },
+  "discount": {
+    "message": "réduction"
   },
   "downloadLicense": {
     "message": "Télécharger la licence"
@@ -4409,8 +4460,32 @@
   "updateBrowser": {
     "message": "Mettre à jour le navigateur"
   },
-  "generatingYourRiskInsights": {
-    "message": "Génération de vos Aperçus de Risque..."
+  "generatingYourAccessIntelligence": {
+    "message": "Génération de votre Intelligence d'Accès..."
+  },
+  "fetchingMemberData": {
+    "message": "Récupération des données des membres..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "Analyse de la santé du mot de passe..."
+  },
+  "calculatingRiskScores": {
+    "message": "Calcul des niveaux de risque..."
+  },
+  "generatingReportData": {
+    "message": "Génération des données du rapport..."
+  },
+  "savingReport": {
+    "message": "Enregistrement du rapport..."
+  },
+  "compilingInsights": {
+    "message": "Compilation des aperçus..."
+  },
+  "loadingProgress": {
+    "message": "Chargement de la progression"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Cela peut prendre quelques minutes."
   },
   "riskInsightsRunReport": {
     "message": "Exécuter le rapport"
@@ -5774,16 +5849,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "Comment activer la confirmation automatique de l'utilisateur"
   },
-  "autoConfirmStep1": {
-    "message": "Ouvrez votre extension Bitwarden."
+  "autoConfirmExtension1": {
+    "message": "Ouvrez votre extension Bitwarden"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "Sélectionner",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " Activer.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " Activer",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "Ouverture réussie de l'extension du navigateur Bitwarden. Vous pouvez maintenant activer le paramètre de confirmation automatique de l'utilisateur."
@@ -5805,8 +5880,8 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Une politique d'organisation unique est requise. "
   },
-  "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Toute personne faisant partie de plus d'une organisation sera révoquée jusqu'à ce qu'elle quitte les autres organisations."
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "Tous les membres doivent appartenir uniquement à cette organisation pour activer cette automatisation."
   },
   "autoConfirmSingleOrgExemption": {
     "message": "La politique d'organisation unique s'étendra à tous les rôles. "
@@ -5871,6 +5946,19 @@
   "disableHideEmail": {
     "message": "Toujours afficher l'adresse électronique du membre avec les destinataires lors de la création ou de l'édition d'un Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Détection de correspondance URL par défaut"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Détermine quand des identifiants sont suggérées pour la saisie automatique. Les administrateurs et les propriétaires sont exemptés de cette politique de sécurité."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Détection de correspondance URL par défaut"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Veuillez sélectionner une option de détection de correspondance URL valide.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Politique $ID$ modifiée.",
@@ -6363,7 +6451,7 @@
     "message": "Bitwarden n'a pas pu déchiffrer le(s) élément(s) du coffre listé(s) ci-dessous."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contacter Customer Success",
+    "message": "Contacter Succès Client",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
@@ -6525,11 +6613,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Votre mot de passe principal ne répond pas aux exigences des politiques de sécurité de cette organisation. Pour pouvoir accéder au coffre, vous devez mettre à jour votre mot de passe principal dès maintenant. En poursuivant, vous serez déconnecté de votre session actuelle et vous devrez vous reconnecter. Les sessions actives sur d'autres appareils peuver rester actives pendant encore une heure."
   },
-  "automaticAppLogin": {
-    "message": "Se connecter automatiquement aux utilisateurs pour les applications autorisées"
+  "automaticAppLoginWithSSO": {
+    "message": "Connexion automatique avec SSO"
   },
-  "automaticAppLoginDesc": {
-    "message": "Les formulaires de connexion seront automatiquement remplis et soumis pour les applications lancées à partir de votre fournisseur d'identité configuré."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Étendre la sécurité et la commodité SSO aux applications non gérées. Lorsque les utilisateurs lancent une application à partir de votre fournisseur d'identité, leurs identifiants de connexion sont automatiquement saisis et soumis, créant une connexion sécuriséw en un clic depuis le fournisseur d'identité vers l'application."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Hôte du fournisseur d'identité"
@@ -7129,6 +7217,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Vous devez ajouter soit l'URL du Serveur de base, soit au moins un environnement personnalisé."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Les URLs doivent utiliser HTTPS."
+  },
   "apiUrl": {
     "message": "URL du serveur API"
   },
@@ -7300,6 +7391,9 @@
   },
   "accessDenied": {
     "message": "Accès Refusé. Vous n'avez pas l'autorisation d'afficher cette page."
+  },
+  "noPageAccess": {
+    "message": "Vous n'avez pas accès à cette page"
   },
   "masterPassword": {
     "message": "Mot de passe principal"
@@ -9476,9 +9570,6 @@
   "loggedInExclamation": {
     "message": "Connecté !"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "assignCollectionAccess": {
     "message": "Assigner l'accès à la collection"
   },
@@ -9758,6 +9849,9 @@
   },
   "assignTasks": {
     "message": "Assigner des tâches"
+  },
+  "assignSecurityTasksToMembers": {
+    "message": "Send notifications to change passwords"
   },
   "assignToCollections": {
     "message": "Assigner aux collections"
@@ -12023,5 +12117,45 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Commencez l'essai gratuit au forfait Familles"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Configurez une méthode de déverrouillage pour changer le délai d'expiration de votre coffre."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Les exigences de la politique de sécurité d'Entreprise ont été appliquées à vos options de délai d'expiration"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Le délai d'expiration de votre coffre dépasse les restrictions définies par votre organisation."
+  },
+  "neverLockWarning": {
+    "message": "Êtes-vous sûr de vouloir utiliser l'option \"Jamais\" ? Définir le verrouillage sur \"Jamais\" stocke la clé de chiffrement de votre coffre sur votre appareil. Si vous utilisez cette option, vous devez vous assurer de correctement protéger votre appareil."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Action à l’expiration"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Expiration de la session"
+  },
+  "appearance": {
+    "message": "Apparence"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Le délai d'expiration dépasse la restriction définie par votre organisation : $HOURS$ heure(s) et $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "Aucune application critique n'est sélectionnée"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Êtes-vous sûr de vouloir continuer ?"
   }
 }

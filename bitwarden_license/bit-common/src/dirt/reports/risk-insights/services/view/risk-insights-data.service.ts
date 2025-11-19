@@ -1,7 +1,7 @@
 import { BehaviorSubject, firstValueFrom, Observable, of, Subject } from "rxjs";
 import { distinctUntilChanged, map } from "rxjs/operators";
 
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 
 import { getAtRiskApplicationList, getAtRiskMemberList } from "../../helpers";
 import {
@@ -10,6 +10,7 @@ import {
   DrawerType,
   RiskInsightsEnrichedData,
   ReportStatus,
+  ReportProgress,
   ApplicationHealthReportDetail,
   OrganizationReportApplication,
 } from "../../models";
@@ -38,6 +39,8 @@ export class RiskInsightsDataService {
   readonly isGeneratingReport$: Observable<boolean> = of(false);
   readonly criticalReportResults$: Observable<RiskInsightsEnrichedData | null> = of(null);
   readonly hasCiphers$: Observable<boolean | null> = of(null);
+  readonly criticalApplicationAtRiskCipherIds$: Observable<CipherId[]> = of([]);
+  readonly reportProgress$: Observable<ReportProgress | null> = of(null);
 
   // New applications that need review (reviewedDate === null)
   readonly newApplications$: Observable<ApplicationHealthReportDetail[]> = of([]);
@@ -62,6 +65,9 @@ export class RiskInsightsDataService {
     this.enrichedReportData$ = this.orchestrator.enrichedReportData$;
     this.criticalReportResults$ = this.orchestrator.criticalReportResults$;
     this.newApplications$ = this.orchestrator.newApplications$;
+    this.criticalApplicationAtRiskCipherIds$ =
+      this.orchestrator.criticalApplicationAtRiskCipherIds$;
+    this.reportProgress$ = this.orchestrator.reportProgress$;
 
     this.hasCiphers$ = this.orchestrator.hasCiphers$.pipe(distinctUntilChanged());
 
@@ -81,7 +87,9 @@ export class RiskInsightsDataService {
     this._destroy$.complete();
   }
 
-  // ----- UI-triggered methods (delegate to orchestrator) -----
+  getCipherIcon(cipherId: string) {
+    return this.orchestrator.getCipherIcon(cipherId);
+  }
   initializeForOrganization(organizationId: OrganizationId) {
     this.orchestrator.initializeForOrganization(organizationId);
   }

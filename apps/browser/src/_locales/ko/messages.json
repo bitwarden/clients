@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "View all"
   },
+  "viewLess": {
+    "message": "View less"
+  },
   "viewLogin": {
     "message": "로그인 보기"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "시스템 잠금 시"
+  },
+  "onIdle": {
+    "message": "On system idle"
+  },
+  "onSleep": {
+    "message": "On system sleep"
   },
   "onRestart": {
     "message": "브라우저 재시작 시"
@@ -1523,12 +1532,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "실행 시 생체 인증 요구하기"
   },
-  "premiumRequired": {
-    "message": "프리미엄 멤버십 필요"
-  },
-  "premiumRequiredDesc": {
-    "message": "이 기능을 사용하려면 프리미엄 멤버십이 필요합니다."
-  },
   "authenticationTimeout": {
     "message": "인증 시간 초과"
   },
@@ -1640,6 +1643,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "기본 서버 URL이나 최소한 하나의 사용자 지정 환경을 추가해야 합니다."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
   },
   "customEnvironment": {
     "message": "사용자 지정 환경"
@@ -4977,6 +4983,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Default ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "$WEBSITE$ 일치 인식 보이기",
     "placeholders": {
@@ -5769,6 +5785,45 @@
   "atRiskLoginsSecured": {
     "message": "Great job securing your at-risk logins!"
   },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "Loading vault"
+  },
+  "vaultLoaded": {
+    "message": "Vault loaded"
+  },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5778,5 +5833,8 @@
   },
   "cardNumberLabel": {
     "message": "Card number"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
   }
 }

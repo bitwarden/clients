@@ -592,7 +592,10 @@
     "message": "Bax"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "Hamısına bax"
+  },
+  "viewLess": {
+    "message": "Daha azına bax"
   },
   "viewLogin": {
     "message": "Girişə bax"
@@ -625,7 +628,7 @@
     "message": "Element sevimlilərə əlavə edildi"
   },
   "itemRemovedFromFavorites": {
-    "message": "Element sevimlilərdən çıxarıldı"
+    "message": "Element sevimlilərdən xaric edildi"
   },
   "notes": {
     "message": "Notlar"
@@ -685,7 +688,7 @@
     "message": "Ayarlarda bir kilid açma üsulu qurun"
   },
   "sessionTimeoutHeader": {
-    "message": "Seans vaxt bitməsi"
+    "message": "Sessiya vaxt bitməsi"
   },
   "vaultTimeoutHeader": {
     "message": "Seyf vaxtının bitməsi"
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Sistem kilidlənəndə"
+  },
+  "onIdle": {
+    "message": "Sistem boşda olduqda"
+  },
+  "onSleep": {
+    "message": "Sistem yuxu rejimində olduqda"
   },
   "onRestart": {
     "message": "Brauzer yenidən başladılanda"
@@ -916,7 +925,7 @@
     "message": "Hesabınızdan çıxış etmisiniz."
   },
   "loginExpired": {
-    "message": "Giriş seansınızın müddəti bitdi."
+    "message": "Giriş sessiyanızın müddəti bitdi."
   },
   "logIn": {
     "message": "Giriş et"
@@ -1035,10 +1044,10 @@
     "message": "Element saxlanıldı"
   },
   "savedWebsite": {
-    "message": "Saved website"
+    "message": "Saxlanılan veb sayt"
   },
   "savedWebsites": {
-    "message": "Saved websites ( $COUNT$ )",
+    "message": "Saxlanılan veb sayt ( $COUNT$ )",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1239,7 +1248,7 @@
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
-    "message": "Parolunuzu dəyişdirdikdən sonra yeni parolunuzla giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saat ərzində çıxış sonlandırılacaq."
+    "message": "Parolunuzu dəyişdirdikdən sonra yeni parolunuzla giriş etməli olacaqsınız. Digər cihazlardakı aktiv sessiyalar bir saat ərzində çıxış sonlandırılacaq."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
     "message": "Hesabın geri qaytarılması prosesini tamamlamaq üçün ana parolunuzu dəyişdirin."
@@ -1523,17 +1532,11 @@
   "enableAutoBiometricsPrompt": {
     "message": "Açılışda biometrik soruşulsun"
   },
-  "premiumRequired": {
-    "message": "Premium üzvlük lazımdır"
-  },
-  "premiumRequiredDesc": {
-    "message": "Bu özəlliyi istifadə etmək üçün premium üzvlük lazımdır."
-  },
   "authenticationTimeout": {
     "message": "Kimlik doğrulama vaxtı bitdi"
   },
   "authenticationSessionTimedOut": {
-    "message": "Kimlik doğrulama seansının vaxtı bitdi. Lütfən giriş prosesini yenidən başladın."
+    "message": "Kimlik doğrulama sessiyasının vaxtı bitdi. Lütfən giriş prosesini yenidən başladın."
   },
   "verificationCodeEmailSent": {
     "message": "Doğrulama poçtu $EMAIL$ ünvanına göndərildi.",
@@ -1641,6 +1644,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Təməl server URL-sini və ya ən azı bir özəl mühiti əlavə etməlisiniz."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL-lər, HTTPS istifadə etməlidir."
+  },
   "customEnvironment": {
     "message": "Özəl mühit"
   },
@@ -1695,28 +1701,28 @@
     "message": "Avto-doldurmanı söndür"
   },
   "confirmAutofill": {
-    "message": "Confirm autofill"
+    "message": "Avto-doldurmanı təsdiqlə"
   },
   "confirmAutofillDesc": {
-    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+    "message": "Bu sayt, saxlanılmış giriş məlumatlarınızla uyuşmur. Giriş məlumatlarınızı doldurmazdan əvvəl, güvənli sayt olduğuna əmin olun."
   },
   "showInlineMenuLabel": {
     "message": "Avto-doldurma təkliflərini form xanalarında göstər"
   },
   "howDoesBitwardenProtectFromPhishing": {
-    "message": "How does Bitwarden protect your data from phishing?"
+    "message": "Bitwarden verilərinizi fişinqdən necə qoruyur?"
   },
   "currentWebsite": {
-    "message": "Current website"
+    "message": "Hazırkı veb sayt"
   },
   "autofillAndAddWebsite": {
-    "message": "Autofill and add this website"
+    "message": "Avto-doldur və bu veb saytı əlavə et"
   },
   "autofillWithoutAdding": {
-    "message": "Autofill without adding"
+    "message": "Əlavə etmədən avto-doldur"
   },
   "doNotAutofill": {
-    "message": "Do not autofill"
+    "message": "Avto-doldurulmasın"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Kimlikləri təklif kimi göstər"
@@ -2152,7 +2158,7 @@
     }
   },
   "passwordSafe": {
-    "message": "Bu parol, veri pozuntularında qeydə alınmayıb. Rahatlıqla istifadə edə bilərsiniz."
+    "message": "Bu parol, veri pozuntularında qeydə alınmayıb. Əmniyyətlə istifadə edə bilərsiniz."
   },
   "baseDomain": {
     "message": "Baza domeni",
@@ -2222,7 +2228,7 @@
     "message": "Təzəlikcə heç nə yaratmamısınız"
   },
   "remove": {
-    "message": "Çıxart"
+    "message": "Xaric et"
   },
   "default": {
     "message": "İlkin"
@@ -3061,10 +3067,10 @@
     "message": "Ana parolu güncəllə"
   },
   "updateMasterPasswordWarning": {
-    "message": "Ana parolunuz təzəlikcə təşkilatınızdakı bir inzibatçı tərəfindən dəyişdirildi. Seyfə erişmək üçün onu indi güncəlləməlisiniz. Davam etsəniz, hazırkı seansdan çıxış edəcəksiniz və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər."
+    "message": "Ana parolunuz təzəlikcə təşkilatınızdakı bir inzibatçı tərəfindən dəyişdirildi. Seyfə erişmək üçün onu indi güncəlləməlisiniz. Davam etsəniz, hazırkı sessiyadan çıxış edəcəksiniz və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv sessiyalar bir saata qədər aktiv qalmağa davam edə bilər."
   },
   "updateWeakMasterPasswordWarning": {
-    "message": "Ana parolunuz təşkilatınızdakı siyasətlərdən birinə və ya bir neçəsinə uyğun gəlmir. Seyfə erişmək üçün ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı seansdan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər."
+    "message": "Ana parolunuz təşkilatınızdakı siyasətlərdən birinə və ya bir neçəsinə uyğun gəlmir. Seyfə erişmək üçün ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı sessiyadan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv sessiyalar bir saata qədər aktiv qalmağa davam edə bilər."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Təşkilatınız, güvənli cihaz şifrələməsini sıradan çıxartdı. Seyfinizə erişmək üçün lütfən ana parol təyin edin."
@@ -3220,7 +3226,7 @@
     "message": "Simvol sayını dəyişdir"
   },
   "sessionTimeout": {
-    "message": "Seansınızın vaxtı bitdi. Lütfən geri qayıdıb yenidən giriş etməyə cəhd edin."
+    "message": "Sessiyanızın vaxtı bitdi. Lütfən geri qayıdıb yenidən giriş etməyə cəhd edin."
   },
   "exportingPersonalVaultTitle": {
     "message": "Fərdi seyfin xaricə köçürülməsi"
@@ -3280,7 +3286,7 @@
     "message": "Şifrə açma xətası"
   },
   "errorGettingAutoFillData": {
-    "message": "Error getting autofill data"
+    "message": "Avto-doldurma verilərini alma xətası"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden, aşağıda sadalanan seyf element(lər)inin şifrəsini aça bilmədi."
@@ -3726,7 +3732,7 @@
     "message": "Cihazları idarə et"
   },
   "currentSession": {
-    "message": "Hazırkı seans"
+    "message": "Hazırkı sessiya"
   },
   "mobile": {
     "message": "Mobil",
@@ -3923,7 +3929,7 @@
     "message": "İstifadəçiyə güvən"
   },
   "sendsTitleNoItems": {
-    "message": "Send, həssas məlumatlar təhlükəsizdir",
+    "message": "Send ilə həssas məlumatlar əmniyyətdədir",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
@@ -4054,13 +4060,13 @@
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "cannotAutofill": {
-    "message": "Cannot autofill"
+    "message": "Avto-doldurula bilmir"
   },
   "cannotAutofillExactMatch": {
     "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
   },
   "okay": {
-    "message": "Okay"
+    "message": "Oldu"
   },
   "toggleSideNavigation": {
     "message": "Yan naviqasiyanı aç/bağla"
@@ -4977,6 +4983,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "İlkin ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "$WEBSITE$ ilə uyuşma aşkarlamasını göstər",
     "placeholders": {
@@ -5702,7 +5718,7 @@
     "message": "Kimliklərinizlə, uzun qeydiyyat və ya əlaqə xanalarını daha tez avtomatik doldurun."
   },
   "newNoteNudgeTitle": {
-    "message": "Həssas verilərinizi güvənli şəkildə saxlayın"
+    "message": "Həssas verilərinizi əmniyyətdə saxlayın"
   },
   "newNoteNudgeBody": {
     "message": "Notlarla, bankçılıq və ya sığorta təfsilatları kimi həssas veriləri təhlükəsiz saxlayın."
@@ -5769,6 +5785,45 @@
   "atRiskLoginsSecured": {
     "message": "Riskli girişlərinizi güvənli hala gətirməyiniz əladır!"
   },
+  "upgradeNow": {
+    "message": "İndi yüksəlt"
+  },
+  "builtInAuthenticator": {
+    "message": "Daxili kimlik doğrulayıcı"
+  },
+  "secureFileStorage": {
+    "message": "Güvənli fayl anbarı"
+  },
+  "emergencyAccess": {
+    "message": "Fövqəladə hal erişimi"
+  },
+  "breachMonitoring": {
+    "message": "Pozuntu monitorinqi"
+  },
+  "andMoreFeatures": {
+    "message": "Və daha çoxu!"
+  },
+  "planDescPremium": {
+    "message": "Tam onlayn təhlükəsizlik"
+  },
+  "upgradeToPremium": {
+    "message": "\"Premium\"a yüksəlt"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "Seyf yüklənir"
+  },
+  "vaultLoaded": {
+    "message": "Seyf yükləndi"
+  },
   "settingDisabledByPolicy": {
     "message": "Bu ayar, təşkilatınızın siyasəti tərəfindən sıradan çıxarılıb.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5778,5 +5833,8 @@
   },
   "cardNumberLabel": {
     "message": "Kart nömrəsi"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Vaxt bitmə əməliyyatı"
   }
 }

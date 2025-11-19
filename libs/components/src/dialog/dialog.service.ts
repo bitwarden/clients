@@ -5,7 +5,7 @@ import {
   DIALOG_DATA,
   DialogCloseOptions,
 } from "@angular/cdk/dialog";
-import { ComponentType, ScrollStrategy } from "@angular/cdk/overlay";
+import { ComponentType, GlobalPositionStrategy, ScrollStrategy } from "@angular/cdk/overlay";
 import { ComponentPortal, Portal } from "@angular/cdk/portal";
 import { Injectable, Injector, TemplateRef, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -17,6 +17,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { DrawerService } from "../drawer/drawer.service";
+import { isAtOrLargerThanBreakpoint } from "../utils/responsive-utils";
 
 import { SimpleConfigurableDialogComponent } from "./simple-dialog/simple-configurable-dialog/simple-configurable-dialog.component";
 import { SimpleDialogOptions } from "./simple-dialog/types";
@@ -62,6 +63,68 @@ export type DialogConfig<D = unknown, R = unknown> = Pick<
   CdkDialogConfig<D, R>,
   "data" | "disableClose" | "ariaModal" | "positionStrategy" | "height" | "width"
 >;
+
+/**
+ * A responsive position strategy that adjusts the dialog position based on the screen size.
+ */
+class ResponsivePositionStrategy extends GlobalPositionStrategy {
+  private abortController: AbortController | null = null;
+
+  /**
+   * The previous breakpoint to avoid unnecessary updates.
+   * `null` means no previous breakpoint has been set.
+   */
+  private prevBreakpoint: "small" | "large" | null = null;
+
+  constructor() {
+    super();
+    if (typeof window !== "undefined") {
+      this.abortController = new AbortController();
+      this.updatePosition(); // Initial position update
+      window.addEventListener("resize", this.updatePosition.bind(this), {
+        signal: this.abortController.signal,
+      });
+    }
+  }
+
+  override dispose() {
+    this.abortController?.abort();
+    this.abortController = null;
+    super.dispose();
+  }
+
+  updatePosition() {
+    const isSmallScreen = !isAtOrLargerThanBreakpoint("md");
+    const currentBreakpoint = isSmallScreen ? "small" : "large";
+    if (this.prevBreakpoint === currentBreakpoint) {
+      return; // No change in breakpoint, no need to update position
+    }
+    this.prevBreakpoint = currentBreakpoint;
+    if (isSmallScreen) {
+      this.bottom().centerHorizontally();
+    } else {
+      this.centerVertically().centerHorizontally();
+    }
+    this.apply();
+  }
+}
+
+/**
+ * Position strategy that centers dialogs regardless of screen size.
+ * Use this for simple dialogs and custom dialogs that should not use
+ * the responsive bottom-sheet behavior on mobile.
+ *
+ * @example
+ * dialogService.open(MyComponent, {
+ *   positionStrategy: new CenterPositionStrategy()
+ * });
+ */
+export class CenterPositionStrategy extends GlobalPositionStrategy {
+  constructor() {
+    super();
+    this.centerHorizontally().centerVertically();
+  }
+}
 
 class DrawerDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   readonly isDrawer = true;
@@ -172,6 +235,7 @@ export class DialogService {
     const _config = {
       backdropClass: this.backDropClasses,
       scrollStrategy: this.defaultScrollStrategy,
+      positionStrategy: config?.positionStrategy ?? new ResponsivePositionStrategy(),
       injector,
       ...config,
     };
@@ -226,6 +290,7 @@ export class DialogService {
     return this.open<boolean, SimpleDialogOptions>(SimpleConfigurableDialogComponent, {
       data: simpleDialogOptions,
       disableClose: simpleDialogOptions.disableClose,
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 

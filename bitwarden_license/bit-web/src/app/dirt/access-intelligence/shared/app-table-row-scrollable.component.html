@@ -46,10 +46,7 @@
         [attr.aria-label]="'viewItem' | i18n"
       >
         <!-- Passing the first cipher of the application for app-vault-icon cipher input requirement -->
-        <app-vault-icon
-          *ngIf="row.cipherIds.length > 0"
-          [cipher]="row.cipherIds[0]"
-        ></app-vault-icon>
+        <app-vault-icon *ngIf="row.iconCipher" [cipher]="row.iconCipher"></app-vault-icon>
       </td>
       <td
         class="tw-cursor-pointer"

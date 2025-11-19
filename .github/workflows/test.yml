@@ -62,7 +62,7 @@ jobs:
         run: npm test -- --coverage --maxWorkers=3
 
       - name: Report test results
-        uses: dorny/test-reporter@6e6a65b7a0bd2c9197df7d0ae36ac5cee784230c # v2.0.0
+        uses: dorny/test-reporter@dc3a92680fcc15842eef52e8c4606ea7ce6bd3f3 # v2.1.1
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository && !cancelled() }}
         with:
           name: Test Results
@@ -71,7 +71,7 @@ jobs:
           fail-on-error: true
 
       - name: Upload results to codecov.io
-        uses: codecov/test-results-action@f2dba722c67b86c6caa034178c6e4d35335f6706 # v1.1.0
+        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
 
       - name: Upload test coverage
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
@@ -148,7 +148,7 @@ jobs:
           components: llvm-tools
 
       - name: Cache cargo registry
-        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
+        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
         with:
           workspaces: "apps/desktop/desktop_native -> target"
 
@@ -190,7 +190,7 @@ jobs:
           path: ./apps/desktop/desktop_native
 
       - name: Upload coverage to codecov.io
-        uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           files: |
             ./lcov.info

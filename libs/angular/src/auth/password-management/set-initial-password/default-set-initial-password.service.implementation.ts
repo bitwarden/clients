@@ -182,7 +182,10 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     if (userKey == null) {
       masterKeyEncryptedUserKey = await this.keyService.makeUserKey(masterKey);
     } else {
-      masterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(masterKey);
+      masterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
+        masterKey,
+        userKey,
+      );
     }
 
     return masterKeyEncryptedUserKey;

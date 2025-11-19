@@ -181,7 +181,9 @@ import { ChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kd
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
 import { KeyApiService } from "@bitwarden/common/key-management/keys/services/abstractions/key-api-service.abstraction";
+import { RotateableKeySetService } from "@bitwarden/common/key-management/keys/services/abstractions/rotateable-key-set.service";
 import { DefaultKeyApiService } from "@bitwarden/common/key-management/keys/services/default-key-api-service.service";
+import { DefaultRotateableKeySetService } from "@bitwarden/common/key-management/keys/services/default-rotateable-key-set.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import {
   InternalMasterPasswordServiceAbstraction,
@@ -226,6 +228,7 @@ import { SystemService } from "@bitwarden/common/platform/abstractions/system.se
 import { ValidationService as ValidationServiceAbstraction } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ActionsService } from "@bitwarden/common/platform/actions";
 import { UnsupportedActionsService } from "@bitwarden/common/platform/actions/unsupported-actions.service";
+import { IpcSessionRepository } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -1085,7 +1088,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: MasterPasswordUnlockService,
     useClass: DefaultMasterPasswordUnlockService,
-    deps: [InternalMasterPasswordServiceAbstraction, KeyService],
+    deps: [InternalMasterPasswordServiceAbstraction, KeyService, LogService],
   }),
   safeProvider({
     provide: KeyConnectorServiceAbstraction,
@@ -1448,7 +1451,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: OrganizationMetadataServiceAbstraction,
     useClass: DefaultOrganizationMetadataService,
-    deps: [BillingApiServiceAbstraction, ConfigService],
+    deps: [BillingApiServiceAbstraction, ConfigService, PlatformUtilsServiceAbstraction],
   }),
   safeProvider({
     provide: BillingAccountProfileStateService,
@@ -1739,9 +1742,19 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
+    provide: RotateableKeySetService,
+    useClass: DefaultRotateableKeySetService,
+    deps: [KeyService, EncryptService],
+  }),
+  safeProvider({
     provide: NewDeviceVerificationComponentService,
     useClass: DefaultNewDeviceVerificationComponentService,
     deps: [],
+  }),
+  safeProvider({
+    provide: IpcSessionRepository,
+    useClass: IpcSessionRepository,
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: PremiumInterestStateService,
