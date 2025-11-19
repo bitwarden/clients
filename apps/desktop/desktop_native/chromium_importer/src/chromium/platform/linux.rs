@@ -31,9 +31,7 @@ pub(crate) const SUPPORTED_BROWSERS: &[BrowserConfig] = &[
     },
     BrowserConfig {
         name: "Opera",
-        data_dir: &[
-            "snap/opera/current/.config/opera",
-            ".config/opera"],
+        data_dir: &["snap/opera/current/.config/opera", ".config/opera"],
     },
 ];
 
