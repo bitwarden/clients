@@ -32,11 +32,6 @@
       {{ "reinstateSubscription" | i18n }}
     </button>
   </bit-callout>
-  <dl *ngIf="selfHosted">
-    <dt>{{ "expiration" | i18n }}</dt>
-    <dd *ngIf="sub.expiration">{{ sub.expiration | date: "mediumDate" }}</dd>
-    <dd *ngIf="!sub.expiration">{{ "neverExpires" | i18n }}</dd>
-  </dl>
   <div class="tw-flex tw-max-w-[1340px] tw-pt-6" *ngIf="!selfHosted">
     <div class="tw-flex tw-gap-16 tw-justify-between tw-w-full">
       <div class="tw-flex tw-flex-col">
@@ -97,19 +92,49 @@
     </div>
   </div>
   <ng-container *ngIf="selfHosted">
-    <div>
-      <button type="button" bitButton buttonType="secondary" (click)="updateLicense()">
-        {{ "updateLicense" | i18n }}
-      </button>
-      <a
-        bitButton
-        buttonType="secondary"
-        href="{{ this.cloudWebVaultUrl }}/#/settings/subscription"
-        target="_blank"
-        rel="noreferrer"
-      >
-        {{ "launchCloudSubscription" | i18n }}
-      </a>
+    <div class="tw-mt-10 tw-text-center">
+      <h2 bitTypography="h2" class="tw-mb-2 tw-mt-0">{{ "youHaveBitwardenPremium" | i18n }}</h2>
+      <div class="tw-text-muted tw-text-xs tw-mb-6 tw-mt-0">
+        {{ "viewAndManagePremiumSubscription" | i18n }}
+      </div>
+    </div>
+    <div class="tw-flex tw-justify-center">
+      <bit-base-card class="tw-w-[800px] tw-p-4 [@media(min-width:650px)]:tw-p-6">
+        <div class="tw-flex tw-flex-col tw-gap-3">
+          <div class="tw-flex tw-items-center tw-justify-between">
+            <div>
+              <h2 bitTypography="h2" class="tw-font-semibold tw-mb-0">
+                {{ "premiumMembership" | i18n }}
+              </h2>
+            </div>
+            <span bitBadge variant="success" *ngIf="isSubscriptionActive">{{
+              "active" | i18n
+            }}</span>
+          </div>
+
+          <p bitTypography="body1" class="tw-m-0" *ngIf="sub.expiration">
+            {{ "youNeedToUpdateLicenseFile" | i18n }}
+            <strong>{{ sub.expiration | date: "MMMM d, y" }}</strong
+            >.
+          </p>
+
+          <div class="tw-flex tw-gap-4">
+            <button type="button" bitButton buttonType="secondary" (click)="updateLicense()">
+              {{ "updateLicense" | i18n }}
+            </button>
+            <a
+              bitButton
+              buttonType="secondary"
+              href="{{ this.cloudWebVaultUrl }}/#/settings/subscription"
+              target="_blank"
+              rel="noreferrer"
+            >
+              {{ "launchCloudSubscription" | i18n }}
+              <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
+            </a>
+          </div>
+        </div>
+      </bit-base-card>
     </div>
   </ng-container>
   <div class="tw-max-w-[1340px]" *ngIf="!selfHosted">

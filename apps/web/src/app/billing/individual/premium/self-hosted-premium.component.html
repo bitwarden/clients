@@ -1,49 +1,88 @@
-<bit-container>
-  <bit-section>
-    <bit-callout type="success">
-      <p>{{ "premiumUpgradeUnlockFeatures" | i18n }}</p>
-      <ul class="bwi-ul">
-        <li>
-          <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
-          {{ "premiumSignUpStorage" | i18n }}
-        </li>
-        <li>
-          <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
-          {{ "premiumSignUpTwoStepOptions" | i18n }}
-        </li>
-        <li>
-          <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
-          {{ "premiumSignUpEmergency" | i18n }}
-        </li>
-        <li>
-          <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
-          {{ "premiumSignUpReports" | i18n }}
-        </li>
-        <li>
-          <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
-          {{ "premiumSignUpTotp" | i18n }}
-        </li>
-        <li>
-          <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
-          {{ "premiumSignUpSupport" | i18n }}
-        </li>
-        <li>
-          <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
-          {{ "premiumSignUpFuture" | i18n }}
-        </li>
-      </ul>
+<div class="tw-max-w-3xl tw-mx-auto">
+  <bit-section *ngIf="shouldShowUpgradeView$ | async">
+    <!-- Free Plan Banner -->
+    <div class="tw-mt-10 tw-mb-4 tw-text-center">
+      <span bitBadge variant="secondary" [truncate]="false">
+        {{ "bitwardenFreeplanMessage" | i18n }}
+      </span>
+    </div>
+
+    <!-- Main Heading -->
+    <div class="tw-text-center tw-rounded">
+      <h2 class="tw-mt-2 tw-text-4xl">
+        {{ "upgradeCompleteSecurity" | i18n }}
+      </h2>
+      <p class="tw-text-sm tw-text-muted tw-mb-6 tw-mt-4">
+        {{ "individualUpgradeDescriptionMessage" | i18n }}
+      </p>
+    </div>
+
+    <!-- Already have a subscription section -->
+    <div class="tw-bg-secondary-100 tw-p-4 tw-rounded-lg tw-border tw-border-secondary-300 tw-mb-6">
+      <p class="tw-font-semibold tw-mb-0">
+        {{ "alreadyHaveSubscriptionQuestion" | i18n }}
+      </p>
+      <p class="tw-text-sm tw-text-muted tw-mb-3">
+        {{ "alreadyHaveSubscriptionSelfHostedMessage" | i18n }}
+      </p>
       <a
-        bitButton
-        href="{{ cloudPremiumPageUrl$ | async }}"
-        target="_blank"
-        rel="noreferrer"
-        buttonType="secondary"
+        bitLink
+        linkType="primary"
+        (click)="openUploadLicenseDialog()"
+        class="tw-cursor-pointer tw-text-sm"
       >
-        {{ "purchasePremium" | i18n }}
+        {{ "uploadYourLicenseFile" | i18n }}
+        <i class="bwi bwi-angle-right tw-ml-1" aria-hidden="true"></i>
       </a>
-    </bit-callout>
+    </div>
+
+    <!-- Two-Card Layout -->
+    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-6 tw-mt-6 tw-justify-center">
+      <!-- Premium Card -->
+      <div>
+        <billing-pricing-card
+          [tagline]="'planDescPremium' | i18n"
+          [button]="{
+            type: 'primary',
+            text: ('upgradeToPremium' | i18n),
+            icon: { type: 'bwi-external-link', position: 'after' },
+          }"
+          [features]="premiumFeatures"
+          (buttonClick)="onPremiumUpgradeClick()"
+        >
+          <h3 slot="title" bitTypography="h3" class="tw-m-0">{{ "premium" | i18n }}</h3>
+        </billing-pricing-card>
+      </div>
+
+      <!-- Families Card -->
+      <div>
+        <billing-pricing-card
+          [tagline]="'planDescFamiliesV2' | i18n"
+          [button]="{
+            type: 'secondary',
+            text: ('upgradeToFamilies' | i18n),
+            icon: { type: 'bwi-external-link', position: 'after' },
+          }"
+          [features]="familiesFeatures"
+          (buttonClick)="onFamiliesUpgradeClick()"
+        >
+          <h3 slot="title" bitTypography="h3" class="tw-m-0">{{ "families" | i18n }}</h3>
+        </billing-pricing-card>
+      </div>
+    </div>
+
+    <!-- View all plans Link -->
+    <div class="tw-text-center tw-mt-6">
+      <a
+        bitLink
+        linkType="primary"
+        href="https://bitwarden.com/pricing/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {{ "viewAllPlans" | i18n }}
+        <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
+      </a>
+    </div>
   </bit-section>
-  <bit-section>
-    <individual-self-hosting-license-uploader (onLicenseFileUploaded)="onLicenseFileUploaded()" />
-  </bit-section>
-</bit-container>
+</div>
