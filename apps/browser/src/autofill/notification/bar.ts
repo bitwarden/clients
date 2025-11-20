@@ -24,6 +24,13 @@ import {
 let notificationBarIframeInitData: NotificationBarIframeInitData = {};
 let windowMessageOrigin: string;
 
+const urlParams = new URLSearchParams(globalThis.location.search);
+const trustedParentOrigin = urlParams.get("parentOrigin");
+
+if (trustedParentOrigin) {
+  windowMessageOrigin = trustedParentOrigin;
+}
+
 const notificationBarWindowMessageHandlers: NotificationBarWindowMessageHandlers = {
   initNotificationBar: ({ message }) => initNotificationBar(message),
   saveCipherAttemptCompleted: ({ message }) => handleSaveCipherConfirmation(message),
@@ -407,11 +414,12 @@ function handleWindowMessage(event: MessageEvent) {
   // set windowMessageOrigin when receiving the trusted initNotificationBar message
   if (message.command === "initNotificationBar") {
     if (!windowMessageOrigin) {
-      if (!message.parentOrigin || message.parentOrigin !== event.origin) {
-        return;
-      }
-      windowMessageOrigin = event.origin;
-    } else if (event.origin !== windowMessageOrigin) {
+      return;
+    }
+    if (event.origin !== windowMessageOrigin) {
+      return;
+    }
+    if (message.parentOrigin && message.parentOrigin !== event.origin) {
       return;
     }
   }
@@ -451,5 +459,8 @@ function getResolvedTheme(theme: Theme) {
 }
 
 function postMessageToParent(message: NotificationBarWindowMessage) {
-  globalThis.parent.postMessage(message, windowMessageOrigin || "*");
+  if (!windowMessageOrigin) {
+    return;
+  }
+  globalThis.parent.postMessage(message, windowMessageOrigin);
 }

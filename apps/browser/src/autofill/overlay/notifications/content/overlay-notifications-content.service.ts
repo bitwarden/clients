@@ -184,7 +184,10 @@ export class OverlayNotificationsContentService
     this.currentNotificationBarType = initData.type;
     this.notificationBarIframeElement = globalThis.document.createElement("iframe");
     this.notificationBarIframeElement.id = "bit-notification-bar-iframe";
-    this.notificationBarIframeElement.src = BrowserApi.getRuntimeURL("notification/bar.html");
+    const parentOrigin = globalThis.location.origin;
+    const iframeUrl = new URL(BrowserApi.getRuntimeURL("notification/bar.html"));
+    iframeUrl.searchParams.set("parentOrigin", parentOrigin);
+    this.notificationBarIframeElement.src = iframeUrl.toString();
     setElementStyles(
       this.notificationBarIframeElement,
       {
