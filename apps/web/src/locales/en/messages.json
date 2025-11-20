@@ -9820,6 +9820,10 @@
     "message": "Not using enough",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "tooExpensive": {
+    "message": "Too expensive",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
   "switchToFreePlan": {
     "message": "Switching to free plan",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
