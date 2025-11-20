@@ -9,7 +9,7 @@ import { intersectionObserver$ } from "./dom-observables";
 export const hasScrollableContent$ = (
   root: HTMLElement,
   target: HTMLElement,
-  threshold: number = 1,
+  threshold: number = 0.5,
 ): Observable<boolean> => {
   return intersectionObserver$(target, { root, threshold }).pipe(
     startWith(null as IntersectionObserverEntry | null),
