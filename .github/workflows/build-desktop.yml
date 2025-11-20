@@ -256,6 +256,13 @@ jobs:
       - name: Build application
         run: npm run dist:lin
 
+      - name: Upload tar.gz artifact
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: bitwarden_${{ env._PACKAGE_VERSION }}_x64.tar.gz
+          path: apps/desktop/dist/bitwarden_desktop_x64.tar.gz
+          if-no-files-found: error
+
       - name: Upload .deb artifact
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
