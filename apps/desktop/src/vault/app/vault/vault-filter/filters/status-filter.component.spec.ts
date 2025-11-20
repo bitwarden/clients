@@ -24,6 +24,7 @@ describe("StatusFilterComponent", () => {
   let accountService: FakeAccountService;
 
   const mockUserId = Utils.newGuid() as UserId;
+  const event = new Event("click");
 
   beforeEach(async () => {
     accountService = mockAccountServiceWith(mockUserId);
@@ -58,14 +59,14 @@ describe("StatusFilterComponent", () => {
       applyFilter.mockClear();
       component["applyFilter"] = applyFilter;
 
-      promptForPremiumSpy = jest.spyOn(component["premiumBadgeComponent"]!, "promptForPremium");
+      promptForPremiumSpy = jest.spyOn(component["premiumBadgeComponent"]()!, "promptForPremium");
     });
 
     it("should apply archive filter when userCanArchive returns true", async () => {
       cipherArchiveService.userCanArchive$.mockReturnValue(of(true));
       cipherArchiveService.archivedCiphers$.mockReturnValue(of([]));
 
-      await component["handleArchiveFilter"]();
+      await component["handleArchiveFilter"](event);
 
       expect(applyFilter).toHaveBeenCalledWith("archive");
       expect(promptForPremiumSpy).not.toHaveBeenCalled();
@@ -78,7 +79,7 @@ describe("StatusFilterComponent", () => {
       cipherArchiveService.userCanArchive$.mockReturnValue(of(false));
       cipherArchiveService.archivedCiphers$.mockReturnValue(of([mockCipher]));
 
-      await component["handleArchiveFilter"]();
+      await component["handleArchiveFilter"](event);
 
       expect(applyFilter).toHaveBeenCalledWith("archive");
       expect(promptForPremiumSpy).not.toHaveBeenCalled();
@@ -88,7 +89,7 @@ describe("StatusFilterComponent", () => {
       cipherArchiveService.userCanArchive$.mockReturnValue(of(false));
       cipherArchiveService.archivedCiphers$.mockReturnValue(of([]));
 
-      await component["handleArchiveFilter"]();
+      await component["handleArchiveFilter"](event);
 
       expect(applyFilter).not.toHaveBeenCalled();
       expect(promptForPremiumSpy).toHaveBeenCalled();

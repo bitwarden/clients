@@ -38,7 +38,7 @@
         <button
           type="button"
           class="filter-button"
-          (click)="handleArchiveFilter()"
+          (click)="handleArchiveFilter($event)"
           [attr.aria-pressed]="activeFilter.status === 'archive'"
         >
           <i class="bwi bwi-fw bwi-archive" aria-hidden="true"></i>&nbsp;{{ "archiveNoun" | i18n }}

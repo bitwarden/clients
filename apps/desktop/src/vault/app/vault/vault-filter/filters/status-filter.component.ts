@@ -1,4 +1,4 @@
-import { Component, ViewChild } from "@angular/core";
+import { Component, viewChild } from "@angular/core";
 import { combineLatest, firstValueFrom, map, switchMap } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
@@ -15,7 +15,7 @@ import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/ciphe
   standalone: false,
 })
 export class StatusFilterComponent extends BaseStatusFilterComponent {
-  @ViewChild(PremiumBadgeComponent) private premiumBadgeComponent?: PremiumBadgeComponent;
+  private readonly premiumBadgeComponent = viewChild(PremiumBadgeComponent);
 
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
   protected canArchive$ = this.userId$.pipe(
@@ -35,17 +35,17 @@ export class StatusFilterComponent extends BaseStatusFilterComponent {
     super();
   }
 
-  protected async handleArchiveFilter() {
+  protected async handleArchiveFilter(event: Event) {
     const [canArchive, hasArchivedCiphers] = await firstValueFrom(
       combineLatest([this.canArchive$, this.hasArchivedCiphers$]),
     );
 
     if (canArchive || hasArchivedCiphers) {
       this.applyFilter("archive");
-    } else if (this.premiumBadgeComponent) {
+    } else if (this.premiumBadgeComponent()) {
       // The `premiumBadgeComponent` should always be defined here, adding the
       // if to satisfy TypeScript.
-      await this.premiumBadgeComponent.promptForPremium();
+      await this.premiumBadgeComponent().promptForPremium(event);
     }
   }
 }
