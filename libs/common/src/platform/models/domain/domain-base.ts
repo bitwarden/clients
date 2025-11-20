@@ -13,16 +13,16 @@ export type DecryptedObject<
 > = Record<TDecryptedKeys, string> & Omit<TEncryptedObject, TDecryptedKeys>;
 
 // extracts shared keys from the domain and view types
-export type EncryptableKeys<D extends Domain, V extends View> = (keyof D &
-  ConditionalKeys<D, EncString | null>) &
-  (keyof V & ConditionalKeys<V, string | null>);
+type EncryptableKeys<D extends Domain, V extends View> = (keyof D &
+  ConditionalKeys<D, EncString | null | undefined>) &
+  (keyof V & ConditionalKeys<V, string | null | undefined>);
 
 type DomainEncryptableKeys<D extends Domain> = {
-  [key in ConditionalKeys<D, EncString | null>]: EncString | null;
+  [key in ConditionalKeys<D, EncString | null | undefined>]?: EncString | null | undefined;
 };
 
 type ViewEncryptableKeys<V extends View> = {
-  [key in ConditionalKeys<V, string | null>]: string | null;
+  [key in ConditionalKeys<V, string | null | undefined>]?: string | null | undefined;
 };
 
 // https://contributing.bitwarden.com/architecture/clients/data-model#domain

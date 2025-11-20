@@ -12,6 +12,7 @@ import {
 } from "@bitwarden/common/autofill/constants";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
+import { ModifyLoginCipherFormData } from "../background/abstractions/overlay-notifications.background";
 import {
   FocusedFieldData,
   NewCardCipherData,
@@ -48,7 +49,6 @@ import {
 import {
   AutofillOverlayContentExtensionMessageHandlers,
   AutofillOverlayContentService as AutofillOverlayContentServiceInterface,
-  InlineMenuFormFieldData,
   SubFrameDataFromWindowMessage,
 } from "./abstractions/autofill-overlay-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
@@ -83,8 +83,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     unsetMostRecentlyFocusedField: () => this.unsetMostRecentlyFocusedField(),
     checkIsMostRecentlyFocusedFieldWithinViewport: () =>
       this.checkIsMostRecentlyFocusedFieldWithinViewport(),
-    bgUnlockPopoutOpened: () => this.blurMostRecentlyFocusedField(true),
     bgVaultItemRepromptPopoutOpened: () => this.blurMostRecentlyFocusedField(true),
+    bgUnlockPopoutOpened: () => this.blurMostRecentlyFocusedField(true),
     redirectAutofillInlineMenuFocusOut: ({ message }) =>
       this.redirectInlineMenuFocusOut(message?.data?.direction),
     getSubFrameOffsets: ({ message }) => this.getSubFrameOffsets(message),
@@ -95,6 +95,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     destroyAutofillInlineMenuListeners: () => this.destroy(),
     getInlineMenuFormFieldData: ({ message }) =>
       this.handleGetInlineMenuFormFieldDataMessage(message),
+    generatedPasswordModifyLogin: () => this.sendGeneratedPasswordModifyLogin(),
   };
   private readonly loginFieldQualifiers: Record<string, CallableFunction> = {
     [AutofillFieldQualifier.username]: this.inlineMenuFieldQualificationService.isUsernameField,
@@ -224,6 +225,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
   }
 
+  refreshMenuLayerPosition = () => this.inlineMenuContentService?.refreshTopLayerPosition();
+
+  getOwnedInlineMenuTagNames = () => this.inlineMenuContentService?.getOwnedTagNames() || [];
+
+  getUnownedTopLayerItems = (includeCandidates?: boolean) =>
+    this.inlineMenuContentService?.getUnownedTopLayerItems(includeCandidates);
+
   /**
    * Clears all cached user filled fields.
    */
@@ -234,6 +242,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       }
     });
   }
+
+  /**
+   * On password generation, send form field data i.e. modified login data
+   */
+  sendGeneratedPasswordModifyLogin = async () => {
+    await this.sendExtensionMessage("generatedPasswordFilled", this.getFormFieldData());
+  };
 
   /**
    * Formats any found user filled fields for a login cipher and sends a message
@@ -637,7 +652,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   /**
    * Returns the form field data used for add login and change password notifications.
    */
-  private getFormFieldData = (): InlineMenuFormFieldData => {
+  private getFormFieldData = (): ModifyLoginCipherFormData => {
     return {
       uri: globalThis.document.URL,
       username: this.userFilledFields["username"]?.value || "",
@@ -959,6 +974,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       inlineMenuFillType: autofillFieldData?.inlineMenuFillType,
       showPasskeys: !!autofillFieldData?.showPasskeys,
       accountCreationFieldType: autofillFieldData?.accountCreationFieldType,
+      focusedFieldForm: autofillFieldData?.form,
+      focusedFieldOpid: autofillFieldData?.opid,
     };
 
     const allFields = this.formFieldElements;
@@ -1069,7 +1086,15 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         pageDetails,
       )
     ) {
-      this.setQualifiedAccountCreationFillType(autofillFieldData);
+      const hasUsernameField = [...this.formFieldElements.values()].some((field) =>
+        this.inlineMenuFieldQualificationService.isUsernameField(field),
+      );
+
+      if (hasUsernameField) {
+        void this.setQualifiedLoginFillType(autofillFieldData);
+      } else {
+        this.setQualifiedAccountCreationFillType(autofillFieldData);
+      }
       return false;
     }
 
@@ -1469,11 +1494,16 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     frameId?: number,
   ): SubFrameOffsetData {
     const iframeRect = iframeElement.getBoundingClientRect();
+    const iframeRectHasSize = iframeRect.width > 0 && iframeRect.height > 0;
     const iframeStyles = globalThis.getComputedStyle(iframeElement);
     const paddingLeft = parseInt(iframeStyles.getPropertyValue("padding-left")) || 0;
     const paddingTop = parseInt(iframeStyles.getPropertyValue("padding-top")) || 0;
     const borderWidthLeft = parseInt(iframeStyles.getPropertyValue("border-left-width")) || 0;
     const borderWidthTop = parseInt(iframeStyles.getPropertyValue("border-top-width")) || 0;
+
+    if (!iframeRect || !iframeRectHasSize || !iframeElement.isConnected) {
+      return null;
+    }
 
     return {
       url: subFrameUrl,
@@ -1508,6 +1538,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
           subFrameData.url,
           subFrameData.frameId,
         );
+
+        if (!subFrameOffsets) {
+          return;
+        }
 
         subFrameData.top += subFrameOffsets.top;
         subFrameData.left += subFrameOffsets.left;
@@ -1640,10 +1674,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     });
     globalThis.addEventListener(EVENTS.RESIZE, repositionHandler);
   }
-
-  private shouldRepositionSubFrameInlineMenuOnScroll = async () => {
-    return await this.sendExtensionMessage("shouldRepositionSubFrameInlineMenuOnScroll");
-  };
 
   /**
    * Removes the listeners that facilitate repositioning

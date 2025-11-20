@@ -55,10 +55,13 @@ export class SendProgram extends BaseProgram {
           "optional password to access this Send. Can also be specified in JSON.",
         ).conflicts("email"),
       )
-      .option(
-        "--email <email>",
-        "optional emails to access this Send. Can also be specified in JSON.",
-        parseEmail,
+      .addOption(
+        new Option(
+          "--email <email>",
+          "optional emails to access this Send. Can also be specified in JSON.",
+        )
+          .argParser(parseEmail)
+          .hideHelp(),
       )
       .option("-a, --maxAccessCount <amount>", "The amount of max possible accesses.")
       .option("--hidden", "Hide <data> in web by default. Valid only if --file is not set.")
@@ -294,6 +297,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.sendService,
           this.serviceContainer.sendApiService,
           this.serviceContainer.environmentService,
+          this.serviceContainer.accountService,
         );
         const response = await cmd.run(id);
         this.processResponse(response);

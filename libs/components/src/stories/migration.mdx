@@ -4,9 +4,27 @@ import { Meta } from "@storybook/addon-docs";
 
 # Migrating to the Component Library
 
+## Background
+
+Bitwarden is in the process of migrating client code to fully use the Component Library.
+
+Previously, the clients used a mix of multiple UI frameworks: Bootstrap, custom "box" styles, and
+this component library, which is built on top of Tailwind.
+
+Bootstrap is now removed from the clients repo in favor of using Tailwind Preflight for global reset
+styles.
+
+Tailwind is used in client code where layout-level html is written in conjunction with Component
+Library components.
+
+Some custom css still lingers in all the clients and is planned to be removed. Do not write more
+custom css.
+
+## Performing a migration
+
 You have been tasked with migrating a component to use the CL. What does that entail?
 
-## Getting Started
+### Getting Started
 
 Before progressing here, please ensure that...
 
@@ -15,13 +33,6 @@ Before progressing here, please ensure that...
 - You are familiar with [Angular reactive forms](https://angular.io/guide/reactive-forms).
 - You are familiar with [Tailwind](https://tailwindcss.com/docs/utility-first).
 
-## Background
-
-The design of Bitwarden is in flux. At the time of writing, the frontend codebase uses a mix of
-multiple UI frameworks: Bootstrap, custom "box" styles, and this component library, which is built
-on top of Tailwind. In short, the "CL migration" is a move to only use the CL and remove everything
-else.
-
 This is very important work. Centralizing around a shared design system will:
 
 - improve user experience by utilizing consistent patterns
@@ -29,11 +40,11 @@ This is very important work. Centralizing around a shared design system will:
 - improve dev & design velocity by having a central location to make UI/UX changes that impact the
   entire project
 
-## Success Criteria
+### Success Criteria
 
 Follow these steps to fully migrate a component.
 
-### Use Storybook
+#### Use Storybook
 
 Don't recreate the wheel.
 
@@ -42,7 +53,7 @@ usecase. Don't waste effort styling a button or building a popover menu from scr
 have those. If a component isn't flexible enough or doesn't exist for your usecase, contact the
 Component Library team.
 
-### Use Tailwind
+#### Use Tailwind
 
 Only use Tailwind for styling. No Bootstrap or other custom CSS is allowed.
 
@@ -50,14 +61,14 @@ This is easy to verify. Bitwarden prefixes all Tailwind classes with `tw-`. If y
 without this prefix, it probably shouldn't be there.
 
 <div class="tw-bg-danger-600/10 tw-p-4">
-  <span class="tw-font-bold tw-text-danger">Bad (Bootstrap)</span>
+  <span class="tw-font-medium tw-text-danger">Bad (Bootstrap)</span>
   ```html
   <div class="mb-2"></div>
   ```
 </div>
 
 <div class="tw-bg-success-600/10 tw-p-4">
-  <span class="tw-font-bold tw-text-success">Good (Tailwind)</span>
+  <span class="tw-font-medium tw-text-success">Good (Tailwind)</span>
   ```html
   <div class="tw-mb-2"></div>
   ```
@@ -66,13 +77,13 @@ without this prefix, it probably shouldn't be there.
 **Exception:** Icon font classes, prefixed with `bwi`, are allowed.
 
 <div class="tw-bg-success-600/10 tw-p-4">
-  <span class="tw-font-bold tw-text-success">Good (Icons)</span>
+  <span class="tw-font-medium tw-text-success">Good (Icons)</span>
   ```html
   <i class="bwi bwi-spinner bwi-lg bwi-spin" aria-hidden="true"></i>
   ```
 </div>
 
-### Use Reactive Forms
+#### Use Reactive Forms
 
 The CL has form components that integrate with Angular's reactive forms: `bit-form-field`,
 `bitSubmit`, `bit-form-control`, etc. All forms should be migrated from template-drive forms to
@@ -80,7 +91,7 @@ reactive forms to make use of these components. Review the
 [form component docs](?path=/docs/component-library-form--docs).
 
 <div class="tw-bg-danger-600/10 tw-p-4">
-    <span class="tw-text-danger tw-font-bold">Bad</span>
+    <span class="tw-text-danger tw-font-medium">Bad</span>
     ```html
     <form #form (ngSubmit)="submit()">
         ...
@@ -89,7 +100,7 @@ reactive forms to make use of these components. Review the
 </div>
 
 <div class="tw-bg-success-600/10 tw-p-4">
-    <span class="tw-text-success tw-font-bold">Good</span>
+    <span class="tw-text-success tw-font-medium">Good</span>
     ```html
     <form [formGroup]="formGroup" [bitSubmit]="submit">
         ...
@@ -97,7 +108,7 @@ reactive forms to make use of these components. Review the
     ```
 </div>
 
-### Dialogs
+#### Dialogs
 
 Legacy Bootstrap modals use the `ModalService`. These should be converted to use the `DialogService`
 and it's [related CL components](?path=/docs/component-library-dialogs--docs). Components that are
@@ -161,11 +172,11 @@ fully migrated should have no reference to the `ModalService`.
 
 <div class="tw-bg-success-600/10 tw-p-4">`FooDialogComponent.open(this.dialogService);`</div>
 
-## Examples
+### Examples
 
 The following examples come from accross the Bitwarden codebase.
 
-### 1.) AboutComponent
+#### 1.) AboutComponent
 
 Codeowner: Platform
 
@@ -176,7 +187,7 @@ This migration updates a `ModalService` component to the `DialogService`.
 **Note:** Most of the internal markup of this component was unchanged, aside from the removal of
 defunct Bootstrap classes.
 
-### 2.) Auth
+#### 2.) Auth
 
 Codeowner: Auth
 
@@ -190,7 +201,7 @@ This PR also does some general refactoring, the main relevant change can be seen
 
 Updates a dialog, similar to example 1, but also adds CL form components and Angular Reactive Forms.
 
-### 3.) AC
+#### 3.) AC
 
 Codeowner: Admin Console
 
@@ -198,7 +209,7 @@ https://github.com/bitwarden/clients/pull/5417
 
 Migrates dialog, form, buttons, and a table.
 
-### 4.) Vault
+#### 4.) Vault
 
 Codeowner: Vault
 
@@ -209,6 +220,6 @@ through the use of inheritance. This PR updates the _web_ template of a cross-cl
 use Tailwind and the CL, and updates the base component implementation to use reactive forms,
 without updating the desktop or browser templates.
 
-## Questions
+### Questions
 
 Please direct any development questions to the Component Library team. Thank you!

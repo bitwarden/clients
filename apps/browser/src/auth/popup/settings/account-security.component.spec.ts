@@ -1,10 +1,12 @@
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { ActivatedRoute } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { LockService } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -15,7 +17,6 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   VaultTimeoutSettingsService,
-  VaultTimeoutService,
   VaultTimeoutStringType,
   VaultTimeoutAction,
 } from "@bitwarden/common/key-management/vault-timeout";
@@ -24,7 +25,6 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -42,6 +42,8 @@ import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popu
 
 import { AccountSecurityComponent } from "./account-security.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-pop-out",
   template: ` <ng-content></ng-content>`,
@@ -62,12 +64,15 @@ describe("AccountSecurityComponent", () => {
   const validationService = mock<ValidationService>();
   const dialogService = mock<DialogService>();
   const platformUtilsService = mock<PlatformUtilsService>();
+  const lockService = mock<LockService>();
+  const configService = mock<ConfigService>();
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       providers: [
         { provide: AccountService, useValue: accountService },
         { provide: AccountSecurityComponent, useValue: mock<AccountSecurityComponent>() },
+        { provide: ActivatedRoute, useValue: mock<ActivatedRoute>() },
         { provide: BiometricsService, useValue: mock<BiometricsService>() },
         { provide: BiometricStateService, useValue: biometricStateService },
         { provide: DialogService, useValue: dialogService },
@@ -79,10 +84,8 @@ describe("AccountSecurityComponent", () => {
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: PolicyService, useValue: policyService },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
-        { provide: StateService, useValue: mock<StateService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: UserVerificationService, useValue: mock<UserVerificationService>() },
-        { provide: VaultTimeoutService, useValue: mock<VaultTimeoutService>() },
         { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
         { provide: StateProvider, useValue: mock<StateProvider>() },
         { provide: CipherService, useValue: mock<CipherService>() },
@@ -90,8 +93,9 @@ describe("AccountSecurityComponent", () => {
         { provide: LogService, useValue: mock<LogService>() },
         { provide: OrganizationService, useValue: mock<OrganizationService>() },
         { provide: CollectionService, useValue: mock<CollectionService>() },
-        { provide: ConfigService, useValue: mock<ConfigService>() },
         { provide: ValidationService, useValue: validationService },
+        { provide: LockService, useValue: lockService },
+        { provide: ConfigService, useValue: configService },
       ],
     })
       .overrideComponent(AccountSecurityComponent, {

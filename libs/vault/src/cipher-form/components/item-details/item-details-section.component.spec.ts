@@ -7,13 +7,15 @@ import { BehaviorSubject, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionType, CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SelectComponent } from "@bitwarden/components";
 
@@ -31,23 +33,26 @@ const createMockCollection = (
   organizationId: string,
   readOnly = false,
   canEdit = true,
+  type: CollectionType = CollectionTypes.DefaultUserCollection,
 ): CollectionView => {
-  return {
-    id,
+  const cv = new CollectionView({
     name,
-    organizationId,
-    externalId: "",
-    readOnly,
-    hidePasswords: false,
-    manage: true,
-    assigned: true,
-    type: CollectionTypes.DefaultUserCollection,
-    isDefaultCollection: true,
-    canEditItems: jest.fn().mockReturnValue(canEdit),
-    canEdit: jest.fn(),
-    canDelete: jest.fn(),
-    canViewCollectionInfo: jest.fn(),
-  };
+    organizationId: organizationId as OrganizationId,
+    id: id as CollectionId,
+  });
+  cv.readOnly = readOnly;
+  cv.manage = true;
+  cv.type = type;
+  cv.externalId = "";
+  cv.hidePasswords = false;
+  cv.assigned = true;
+  cv.canEditName = jest.fn().mockReturnValue(true);
+  cv.canEditItems = jest.fn().mockReturnValue(canEdit);
+  cv.canEdit = jest.fn();
+  cv.canDelete = jest.fn();
+  cv.canViewCollectionInfo = jest.fn();
+
+  return cv;
 };
 
 describe("ItemDetailsSectionComponent", () => {
@@ -59,16 +64,22 @@ describe("ItemDetailsSectionComponent", () => {
   let mockPolicyService: MockProxy<PolicyService>;
 
   const activeAccount$ = new BehaviorSubject<{ email: string }>({ email: "test@example.com" });
-  const getInitialCipherView = jest.fn(() => null);
+  const getInitialCipherView = jest.fn<CipherView | null, []>(() => null);
   const initializedWithCachedCipher = jest.fn(() => false);
+  const disableFormFields = jest.fn();
+  const enableFormFields = jest.fn();
 
   beforeEach(async () => {
     getInitialCipherView.mockClear();
     initializedWithCachedCipher.mockClear();
+    disableFormFields.mockClear();
+    enableFormFields.mockClear();
 
     cipherFormProvider = mock<CipherFormContainer>({
       getInitialCipherView,
       initializedWithCachedCipher,
+      disableFormFields,
+      enableFormFields,
     });
     i18nService = mock<I18nService>();
     i18nService.collator = {
@@ -124,7 +135,7 @@ describe("ItemDetailsSectionComponent", () => {
       tick();
 
       expect(cipherFormProvider.patchCipher).toHaveBeenCalled();
-      const patchFn = cipherFormProvider.patchCipher.mock.lastCall[0];
+      const patchFn = cipherFormProvider.patchCipher.mock.lastCall![0];
 
       const updatedCipher = patchFn(new CipherView());
 
@@ -148,13 +159,13 @@ describe("ItemDetailsSectionComponent", () => {
         folderId: "folder1",
         collectionIds: ["col1"],
         favorite: true,
-      });
+      } as CipherView);
 
       await component.ngOnInit();
       tick();
 
       expect(cipherFormProvider.patchCipher).toHaveBeenCalled();
-      const patchFn = cipherFormProvider.patchCipher.mock.lastCall[0];
+      const patchFn = cipherFormProvider.patchCipher.mock.lastCall![0];
 
       const updatedCipher = patchFn(new CipherView());
 
@@ -417,7 +428,7 @@ describe("ItemDetailsSectionComponent", () => {
         folderId: "folder1",
         collectionIds: ["col1", "col2"],
         favorite: true,
-      });
+      } as CipherView);
       component.config.organizations = [{ id: "org1" } as Organization];
       component.config.collections = [
         createMockCollection("col1", "Collection 1", "org1") as CollectionView,
@@ -429,7 +440,7 @@ describe("ItemDetailsSectionComponent", () => {
       await fixture.whenStable();
 
       expect(cipherFormProvider.patchCipher).toHaveBeenCalled();
-      const patchFn = cipherFormProvider.patchCipher.mock.lastCall[0];
+      const patchFn = cipherFormProvider.patchCipher.mock.lastCall![0];
 
       const updatedCipher = patchFn(new CipherView());
 
@@ -464,7 +475,7 @@ describe("ItemDetailsSectionComponent", () => {
         folderId: "folder1",
         collectionIds: ["col1", "col2", "col3"],
         favorite: true,
-      });
+      } as CipherView);
       component.originalCipherView = {
         name: "cipher1",
         organizationId: "org1",
@@ -509,7 +520,44 @@ describe("ItemDetailsSectionComponent", () => {
 
       expect(component["collectionOptions"].map((c) => c.id)).toEqual(["col1", "col2", "col3"]);
     });
+
+    it("should exclude default collections when the cipher is only assigned to shared collections", async () => {
+      component.config.admin = false;
+      component.config.organizationDataOwnershipDisabled = true;
+      component.config.organizations = [{ id: "org1" } as Organization];
+      component.config.collections = new Array(4)
+        .fill(null)
+        .map((_, i) => i + 1)
+        .map(
+          (i) =>
+            createMockCollection(
+              `col${i}`,
+              `Collection ${i}`,
+              "org1",
+              false,
+              false,
+              i < 4 ? CollectionTypes.SharedCollection : CollectionTypes.DefaultUserCollection,
+            ) as CollectionView,
+        );
+      component.originalCipherView = {
+        name: "cipher1",
+        organizationId: "org1",
+        folderId: "folder1",
+        collectionIds: ["col2", "col3"],
+        favorite: true,
+      } as CipherView;
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      component.itemDetailsForm.controls.organizationId.setValue("org1");
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(component["collectionOptions"].map((c) => c.id)).toEqual(["col1", "col2", "col3"]);
+    });
   });
+
   describe("readonlyCollections", () => {
     beforeEach(() => {
       component.config.mode = "edit";
@@ -589,6 +637,152 @@ describe("ItemDetailsSectionComponent", () => {
 
       const result = await (component as any).getDefaultCollectionId("orgA");
       expect(result).toBeUndefined();
+    });
+  });
+
+  describe("initFromExistingCipher", () => {
+    it("should set organizationId to null when prefillCipher.organizationId is undefined", async () => {
+      component.config.organizationDataOwnershipDisabled = true;
+      component.config.organizations = [{ id: "org1" } as Organization];
+
+      const prefillCipher = {
+        name: "Test Cipher",
+        organizationId: undefined,
+        folderId: null,
+        collectionIds: [],
+        favorite: false,
+      } as unknown as CipherView;
+
+      getInitialCipherView.mockReturnValueOnce(prefillCipher);
+
+      await component.ngOnInit();
+
+      expect(component.itemDetailsForm.controls.organizationId.value).toBeNull();
+    });
+
+    it("should preserve organizationId when prefillCipher.organizationId has a value", async () => {
+      component.config.organizationDataOwnershipDisabled = true;
+      component.config.organizations = [{ id: "org1", name: "Organization 1" } as Organization];
+
+      const prefillCipher = {
+        name: "Test Cipher",
+        organizationId: "org1",
+        folderId: null,
+        collectionIds: [],
+        favorite: false,
+      } as unknown as CipherView;
+
+      getInitialCipherView.mockReturnValueOnce(prefillCipher);
+
+      await component.ngOnInit();
+
+      expect(component.itemDetailsForm.controls.organizationId.value).toBe("org1");
+    });
+  });
+
+  describe("form status when editing a cipher", () => {
+    beforeEach(() => {
+      component.config.mode = "edit";
+      component.config.originalCipher = new Cipher();
+      component.originalCipherView = {
+        name: "cipher1",
+        organizationId: null,
+        folderId: "folder1",
+        collectionIds: ["col1", "col2", "col3"],
+        favorite: true,
+      } as unknown as CipherView;
+    });
+
+    describe("when personal ownership is not allowed", () => {
+      beforeEach(() => {
+        component.config.organizationDataOwnershipDisabled = false; // disallow personal ownership
+        component.config.organizations = [{ id: "orgId" } as Organization];
+      });
+
+      describe("cipher does not belong to an organization", () => {
+        beforeEach(() => {
+          getInitialCipherView.mockReturnValue(component.originalCipherView!);
+        });
+
+        it("enables organizationId", async () => {
+          await component.ngOnInit();
+
+          expect(component.itemDetailsForm.controls.organizationId.disabled).toBe(false);
+        });
+
+        it("disables the rest of the form", async () => {
+          await component.ngOnInit();
+
+          expect(disableFormFields).toHaveBeenCalled();
+          expect(enableFormFields).not.toHaveBeenCalled();
+        });
+      });
+
+      describe("cipher belongs to an organization", () => {
+        beforeEach(() => {
+          component.originalCipherView.organizationId = "org-id";
+          getInitialCipherView.mockReturnValue(component.originalCipherView);
+        });
+
+        it("enables the rest of the form", async () => {
+          await component.ngOnInit();
+
+          expect(disableFormFields).not.toHaveBeenCalled();
+          expect(enableFormFields).toHaveBeenCalled();
+        });
+      });
+
+      describe("setFormState behavior with null/undefined", () => {
+        it("calls disableFormFields when organizationId value is null", async () => {
+          component.originalCipherView.organizationId = null as any;
+          getInitialCipherView.mockReturnValue(component.originalCipherView);
+
+          await component.ngOnInit();
+
+          expect(disableFormFields).toHaveBeenCalled();
+        });
+
+        it("calls disableFormFields when organizationId value is undefined", async () => {
+          component.originalCipherView.organizationId = undefined;
+          getInitialCipherView.mockReturnValue(component.originalCipherView);
+
+          await component.ngOnInit();
+
+          expect(disableFormFields).toHaveBeenCalled();
+        });
+
+        it("calls enableFormFields when organizationId has a string value", async () => {
+          component.originalCipherView.organizationId = "org-id" as any;
+          getInitialCipherView.mockReturnValue(component.originalCipherView);
+
+          await component.ngOnInit();
+
+          expect(enableFormFields).toHaveBeenCalled();
+        });
+      });
+    });
+
+    describe("when an ownership change is not allowed", () => {
+      beforeEach(() => {
+        component.config.organizationDataOwnershipDisabled = true; // allow personal ownership
+        component.originalCipherView!.organizationId = undefined;
+      });
+
+      it("disables organizationId when the cipher is owned by an organization", async () => {
+        component.originalCipherView!.organizationId = "orgId";
+
+        await component.ngOnInit();
+
+        expect(component.itemDetailsForm.controls.organizationId.disabled).toBe(true);
+      });
+
+      it("disables organizationId when personal ownership is allowed and the user has no organizations available", async () => {
+        component.config.organizations = [];
+
+        await component.ngOnInit();
+
+        expect(component.itemDetailsForm.controls.organizationId.disabled).toBe(true);
+      });
     });
   });
 });

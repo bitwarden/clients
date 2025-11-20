@@ -12,7 +12,7 @@
             (change)="$event ? toggleAll() : null"
             [checked]="selection.hasValue() && isAllSelected"
           />
-          <label class="tw-mb-0 !tw-font-bold !tw-text-muted" for="checkAll">{{
+          <label class="tw-mb-0 !tw-font-medium !tw-text-muted" for="checkAll">{{
             "all" | i18n
           }}</label>
         </th>
@@ -56,7 +56,7 @@
             bitIconButton="bwi-ellipsis-v"
             size="small"
             type="button"
-            appA11yTitle="{{ 'options' | i18n }}"
+            label="{{ 'options' | i18n }}"
           ></button>
           <bit-menu #headerMenu>
             <button *ngIf="bulkMoveAllowed" type="button" bitMenuItem (click)="bulkMoveToFolder()">
@@ -83,6 +83,22 @@
               <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
               {{ "assignToCollections" | i18n }}
             </button>
+
+            <button *ngIf="bulkArchiveAllowed" type="button" bitMenuItem (click)="bulkArchive()">
+              <i class="bwi bwi-fw bwi-archive" aria-hidden="true"></i>
+              {{ "archiveVerb" | i18n }}
+            </button>
+
+            <button
+              *ngIf="bulkUnarchiveAllowed"
+              type="button"
+              bitMenuItem
+              (click)="bulkUnarchive()"
+            >
+              <i class="bwi bwi-fw bwi-unarchive" aria-hidden="true"></i>
+              {{ "unArchive" | i18n }}
+            </button>
+
             <button
               *ngIf="canRestoreSelected$ | async"
               type="button"
@@ -146,7 +162,7 @@
           [showPremiumFeatures]="showPremiumFeatures"
           [useEvents]="useEvents"
           [viewingOrgVault]="viewingOrgVault"
-          [cloneable]="canClone(item)"
+          [cloneable]="canClone$(item) | async"
           [organizations]="allOrganizations"
           [collections]="allCollections"
           [checked]="selection.isSelected(item)"
@@ -161,6 +177,8 @@
           "
           (checkedToggled)="selection.toggle(item)"
           (onEvent)="event($event)"
+          [userCanArchive]="userCanArchive"
+          [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy"
         ></tr>
       </ng-container>
     </ng-template>

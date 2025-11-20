@@ -10,6 +10,7 @@
   (close)="onClose()"
   appendTo="body"
   [keyDownFn]="onKeyDown"
+  [attr.aria-label]="selectedOption()?.label ?? placeholder()"
 >
   <ng-template ng-option-tmp let-item="item">
     <div class="tw-flex" [title]="item.label">

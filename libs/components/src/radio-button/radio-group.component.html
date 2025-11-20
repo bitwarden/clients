@@ -1,6 +1,6 @@
-@if (label) {
+@if (label()) {
   <fieldset>
-    <legend class="tw-mb-1 tw-block tw-text-sm tw-font-semibold tw-text-main">
+    <legend class="tw-mb-1 tw-block tw-text-sm tw-font-medium tw-text-main">
       <ng-content select="bit-label"></ng-content>
       @if (required) {
         <span class="tw-text-xs tw-font-normal"> ({{ "required" | i18n }})</span>
@@ -10,7 +10,7 @@
   </fieldset>
 }
 
-@if (!label) {
+@if (!label()) {
   <ng-container *ngTemplateOutlet="content"></ng-container>
 }
 

@@ -1,17 +1,19 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import {
   Unassigned,
   CollectionView,
   CollectionAdminService,
+  CollectionTypes,
 } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -58,33 +60,53 @@ export class VaultHeaderComponent {
    * Boolean to determine the loading state of the header.
    * Shows a loading spinner if set to true
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() loading: boolean = true;
 
   /** Current active filter */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() filter: RoutedVaultFilterModel | undefined;
 
   /** All organizations that can be shown */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() organizations: Organization[] = [];
 
   /** Currently selected collection */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() collection?: TreeNode<CollectionView>;
 
   /** Whether 'Collection' option is shown in the 'New' dropdown */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() canCreateCollections: boolean = false;
 
   /** Emits an event when the new item button is clicked in the header */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onAddCipher = new EventEmitter<CipherType | undefined>();
 
   /** Emits an event when the new collection button is clicked in the 'New' dropdown menu */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onAddCollection = new EventEmitter<null>();
 
   /** Emits an event when the new folder button is clicked in the 'New' dropdown menu */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onAddFolder = new EventEmitter<null>();
 
   /** Emits an event when the edit collection button is clicked in the header */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onEditCollection = new EventEmitter<{ tab: CollectionDialogTabType }>();
 
   /** Emits an event when the delete collection button is clicked in the header */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onDeleteCollection = new EventEmitter<void>();
 
   constructor(
@@ -93,6 +115,7 @@ export class VaultHeaderComponent {
     private dialogService: DialogService,
     private router: Router,
     private configService: ConfigService,
+    private accountService: AccountService,
   ) {}
 
   /**
@@ -137,6 +160,10 @@ export class VaultHeaderComponent {
       return this.i18nService.t("myVault");
     }
 
+    if (this.filter.type === "archive") {
+      return this.i18nService.t("archiveNoun");
+    }
+
     const activeOrganization = this.activeOrganization;
     if (activeOrganization) {
       return `${activeOrganization.name} ${this.i18nService.t("vault").toLowerCase()}`;
@@ -146,9 +173,12 @@ export class VaultHeaderComponent {
   }
 
   protected get icon() {
-    return this.filter?.collectionId && this.filter.collectionId !== All
-      ? "bwi-collection-shared"
-      : "";
+    if (!this.filter?.collectionId || this.filter.collectionId === All) {
+      return "";
+    }
+    return this.collection?.node.type === CollectionTypes.DefaultUserCollection
+      ? "bwi-user"
+      : "bwi-collection-shared";
   }
 
   /**
@@ -215,21 +245,22 @@ export class VaultHeaderComponent {
   }
 
   async addCollection(): Promise<void> {
-    const isBreadcrumbEventLogsEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.PM12276_BreadcrumbEventLogs),
+    const organization = this.organizations?.find(
+      (org) => org.productTierType === ProductTierType.Free,
     );
 
-    if (isBreadcrumbEventLogsEnabled) {
-      const organization = this.organizations?.find(
-        (org) => org.productTierType === ProductTierType.Free,
+    if (this.organizations?.length == 1 && !!organization) {
+      const collections = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) =>
+            this.collectionAdminService.collectionAdminViews$(organization.id, userId),
+          ),
+        ),
       );
-
-      if (this.organizations?.length == 1 && !!organization) {
-        const collections = await this.collectionAdminService.getAll(organization.id);
-        if (collections.length === organization.maxCollections) {
-          await this.showFreeOrgUpgradeDialog(organization);
-          return;
-        }
+      if (collections.length === organization.maxCollections) {
+        await this.showFreeOrgUpgradeDialog(organization);
+        return;
       }
     }
 

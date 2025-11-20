@@ -41,11 +41,14 @@
         <bit-label>{{ "showAnimations" | i18n }}</bit-label>
       </bit-form-control>
     </bit-card>
-    <h2 bitTypography="h6" class="tw-font-bold tw-mt-4">{{ "vaultCustomization" | i18n }}</h2>
+    <h2 bitTypography="h6" class="tw-font-medium tw-mt-4">{{ "vaultCustomization" | i18n }}</h2>
     <bit-card>
       <bit-form-control>
         <input bitCheckbox formControlName="enableFavicon" type="checkbox" />
-        <bit-label>{{ "enableFavicon" | i18n }}</bit-label>
+        <bit-label>
+          {{ "showIconsChangePasswordUrls" | i18n }}
+          <vault-permit-cipher-details-popover></vault-permit-cipher-details-popover>
+        </bit-label>
       </bit-form-control>
       <bit-form-control>
         <input bitCheckbox formControlName="showQuickCopyActions" type="checkbox" />

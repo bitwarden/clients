@@ -1,0 +1,15 @@
+[package]
+name = "process_isolation"
+edition = { workspace = true }
+license = { workspace = true }
+version = { workspace = true }
+publish = { workspace = true }
+
+[lib]
+crate-type = ["cdylib"]
+
+[target.'cfg(target_os = "linux")'.dependencies]
+ctor = { workspace = true }
+desktop_core = { path = "../core" }
+libc = { workspace = true }
+tracing = { workspace = true }

@@ -9,7 +9,6 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
-import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/components/environment-selector.component";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
 import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
@@ -31,7 +30,6 @@ import { AutofillComponent } from "../autofill/popup/settings/autofill.component
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { PopOutComponent } from "../platform/popup/components/pop-out.component";
-import { HeaderComponent } from "../platform/popup/header.component";
 import { PopupFooterComponent } from "../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../platform/popup/layout/popup-page.component";
@@ -41,7 +39,6 @@ import { FilePopoutCalloutComponent } from "../tools/popup/components/file-popou
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { ExtensionAnonLayoutWrapperComponent } from "./components/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
-import { UserVerificationComponent } from "./components/user-verification.component";
 import { ServicesModule } from "./services/services.module";
 import { TabsV2Component } from "./tabs-v2.component";
 
@@ -81,7 +78,6 @@ import "../platform/popup/locales";
     PopupTabNavigationComponent,
     PopupFooterComponent,
     PopupHeaderComponent,
-    HeaderComponent,
     UserVerificationDialogComponent,
     CurrentAccountComponent,
     FormFieldModule,
@@ -94,9 +90,7 @@ import "../platform/popup/locales";
     ColorPasswordPipe,
     ColorPasswordCountPipe,
     TabsV2Component,
-    UserVerificationComponent,
     RemovePasswordComponent,
-    EnvironmentSelectorComponent,
   ],
   exports: [],
   providers: [CurrencyPipe, DatePipe],

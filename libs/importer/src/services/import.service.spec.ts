@@ -2,13 +2,17 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import {
+  CollectionService,
+  CollectionTypes,
+  CollectionView,
+} from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -34,7 +38,6 @@ describe("ImportService", () => {
   let encryptService: MockProxy<EncryptService>;
   let pinService: MockProxy<PinServiceAbstraction>;
   let accountService: MockProxy<AccountService>;
-  let sdkService: MockSdkService;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
 
   beforeEach(() => {
@@ -46,7 +49,6 @@ describe("ImportService", () => {
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     pinService = mock<PinServiceAbstraction>();
-    sdkService = new MockSdkService();
     restrictedItemTypesService = mock<RestrictedItemTypesService>();
 
     importService = new ImportService(
@@ -59,7 +61,6 @@ describe("ImportService", () => {
       encryptService,
       pinService,
       accountService,
-      sdkService,
       restrictedItemTypesService,
     );
   });
@@ -67,7 +68,7 @@ describe("ImportService", () => {
   describe("getImporterInstance", () => {
     describe("Get bitPasswordProtected importer", () => {
       let importer: Importer;
-      const organizationId = Utils.newGuid();
+      const organizationId = Utils.newGuid() as OrganizationId;
       const password = Utils.newGuid();
       const promptForPassword_callback = async () => {
         return password;
@@ -98,7 +99,7 @@ describe("ImportService", () => {
   });
 
   describe("setImportTarget", () => {
-    const organizationId = Utils.newGuid();
+    const organizationId = Utils.newGuid() as OrganizationId;
 
     let importResult: ImportResult;
 
@@ -144,20 +145,29 @@ describe("ImportService", () => {
       );
     });
 
-    const mockImportTargetCollection = new CollectionView();
-    mockImportTargetCollection.id = "myImportTarget";
-    mockImportTargetCollection.name = "myImportTarget";
-    mockImportTargetCollection.organizationId = organizationId;
+    const mockName = "myImportTarget";
+    const mockId = "myImportTarget" as CollectionId;
+    const mockImportTargetCollection = new CollectionView({
+      name: mockName,
+      id: mockId,
+      organizationId,
+    });
 
-    const mockCollection1 = new CollectionView();
-    mockCollection1.id = "collection1";
-    mockCollection1.name = "collection1";
-    mockCollection1.organizationId = organizationId;
+    const mockName1 = "collection1";
+    const mockId1 = "collection1" as CollectionId;
+    const mockCollection1 = new CollectionView({
+      name: mockName1,
+      id: mockId1,
+      organizationId,
+    });
 
-    const mockCollection2 = new CollectionView();
-    mockCollection1.id = "collection2";
-    mockCollection1.name = "collection2";
-    mockCollection1.organizationId = organizationId;
+    const mockName2 = "collection2";
+    const mockId2 = "collection2" as CollectionId;
+    const mockCollection2 = new CollectionView({
+      name: mockName2,
+      id: mockId2,
+      organizationId,
+    });
 
     it("passing importTarget adds it to collections", async () => {
       await importService["setImportTarget"](
@@ -188,7 +198,7 @@ describe("ImportService", () => {
       );
     });
 
-    it("passing importTarget as null on setImportTarget with organizationId throws error", async () => {
+    it("passing importTarget as undefined on setImportTarget with organizationId throws error", async () => {
       const setImportTargetMethod = importService["setImportTarget"](
         null,
         organizationId,
@@ -198,10 +208,10 @@ describe("ImportService", () => {
       await expect(setImportTargetMethod).rejects.toThrow();
     });
 
-    it("passing importTarget as null on setImportTarget throws error", async () => {
+    it("passing importTarget as undefined on setImportTarget throws error", async () => {
       const setImportTargetMethod = importService["setImportTarget"](
         null,
-        "",
+        undefined,
         new Object() as CollectionView,
       );
 
@@ -233,10 +243,39 @@ describe("ImportService", () => {
       importResult.ciphers.push(createCipher({ name: "cipher2" }));
       importResult.folderRelationships.push([0, 0]);
 
-      await importService["setImportTarget"](importResult, "", mockImportTargetFolder);
+      await importService["setImportTarget"](importResult, undefined, mockImportTargetFolder);
       expect(importResult.folderRelationships.length).toEqual(2);
       expect(importResult.folderRelationships[0]).toEqual([1, 0]);
       expect(importResult.folderRelationships[1]).toEqual([0, 1]);
+    });
+
+    it("If importTarget is of type DefaultUserCollection sets it as new root for all ciphers as nesting is not supported", async () => {
+      importResult.collections.push(mockCollection1);
+      importResult.collections.push(mockCollection2);
+      importResult.ciphers.push(createCipher({ name: "cipher1" }));
+      importResult.ciphers.push(createCipher({ name: "cipher2" }));
+      importResult.ciphers.push(createCipher({ name: "cipher3" }));
+
+      importResult.collectionRelationships.push([0, 0]);
+      importResult.collectionRelationships.push([1, 1]);
+      importResult.collectionRelationships.push([2, 0]);
+
+      mockImportTargetCollection.type = CollectionTypes.DefaultUserCollection;
+      await importService["setImportTarget"](
+        importResult,
+        organizationId,
+        mockImportTargetCollection,
+      );
+      expect(importResult.collections.length).toBe(1);
+      expect(importResult.collections[0]).toBe(mockImportTargetCollection);
+
+      expect(importResult.collectionRelationships.length).toEqual(3);
+      expect(importResult.collectionRelationships[0]).toEqual([0, 0]);
+      expect(importResult.collectionRelationships[1]).toEqual([1, 0]);
+      expect(importResult.collectionRelationships[2]).toEqual([2, 0]);
+
+      expect(importResult.collectionRelationships.map((r) => r[0])).toEqual([0, 1, 2]);
+      expect(importResult.collectionRelationships.every((r) => r[1] === 0)).toBe(true);
     });
   });
 });

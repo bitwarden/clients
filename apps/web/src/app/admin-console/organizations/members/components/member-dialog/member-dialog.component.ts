@@ -32,6 +32,7 @@ import {
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -103,6 +104,8 @@ export enum MemberDialogResult {
   Restored = "restored",
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "member-dialog.component.html",
   standalone: false,
@@ -276,9 +279,16 @@ export class MemberDialogComponent implements OnDestroy {
       ),
     );
 
+    const collections = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.collectionAdminService.collectionAdminViews$(this.params.organizationId, userId),
+      ),
+    );
+
     combineLatest({
       organization: this.organization$,
-      collections: this.collectionAdminService.getAll(this.params.organizationId),
+      collections,
       userDetails: userDetails$,
       groups: groups$,
     })

@@ -6,13 +6,13 @@ import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angu
 import { firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { DisableTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/models/request/disable-two-factor-authenticator.request";
 import { UpdateTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/models/request/update-two-factor-authenticator.request";
 import { TwoFactorAuthenticatorResponse } from "@bitwarden/common/auth/models/response/two-factor-authenticator.response";
+import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -53,6 +53,8 @@ declare global {
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-setup-authenticator",
   templateUrl: "two-factor-setup-authenticator.component.html",
@@ -76,6 +78,8 @@ export class TwoFactorSetupAuthenticatorComponent
   extends TwoFactorSetupMethodBaseComponent
   implements OnInit, OnDestroy
 {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onChangeStatus = new EventEmitter<boolean>();
   type = TwoFactorProviderType.Authenticator;
   key: string;
@@ -92,7 +96,7 @@ export class TwoFactorSetupAuthenticatorComponent
   constructor(
     @Inject(DIALOG_DATA) protected data: AuthResponse<TwoFactorAuthenticatorResponse>,
     private dialogRef: DialogRef,
-    apiService: ApiService,
+    twoFactorApiService: TwoFactorApiService,
     i18nService: I18nService,
     userVerificationService: UserVerificationService,
     private formBuilder: FormBuilder,
@@ -104,7 +108,7 @@ export class TwoFactorSetupAuthenticatorComponent
     protected toastService: ToastService,
   ) {
     super(
-      apiService,
+      twoFactorApiService,
       i18nService,
       platformUtilsService,
       logService,
@@ -154,7 +158,7 @@ export class TwoFactorSetupAuthenticatorComponent
     request.key = this.key;
     request.userVerificationToken = this.userVerificationToken;
 
-    const response = await this.apiService.putTwoFactorAuthenticator(request);
+    const response = await this.twoFactorApiService.putTwoFactorAuthenticator(request);
     await this.processResponse(response);
     this.onUpdated.emit(true);
   }
@@ -174,7 +178,7 @@ export class TwoFactorSetupAuthenticatorComponent
     request.type = this.type;
     request.key = this.key;
     request.userVerificationToken = this.userVerificationToken;
-    await this.apiService.deleteTwoFactorAuthenticator(request);
+    await this.twoFactorApiService.deleteTwoFactorAuthenticator(request);
     this.enabled = false;
     this.toastService.showToast({
       variant: "success",

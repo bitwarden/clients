@@ -8,7 +8,7 @@
 </div>
 <form *ngIf="profile && !loading" [formGroup]="formGroup" [bitSubmit]="submit">
   <div class="tw-grid tw-grid-cols-12 tw-gap-6">
-    <div class="tw-col-span-6">
+    <div class="tw-col-span-12 @3xl:tw-col-span-6">
       <bit-form-field>
         <bit-label>{{ "name" | i18n }}</bit-label>
         <input bitInput formControlName="name" />
@@ -18,7 +18,7 @@
         <input bitInput formControlName="email" readonly />
       </bit-form-field>
     </div>
-    <div class="tw-col-span-6">
+    <div class="tw-col-span-12 @3xl:tw-col-span-6 tw-row-start-1 @3xl:tw-row-start-auto">
       <div class="tw-mb-3 tw-flex tw-align-middle tw-items-center">
         <dynamic-avatar text="{{ profile | userName }}" [id]="profile.id" size="large">
         </dynamic-avatar>
@@ -46,11 +46,14 @@
           <i class="bwi bwi-question-circle" aria-hidden="true"></i>
         </a>
       </div>
-      <app-account-fingerprint
-        [fingerprintMaterial]="fingerprintMaterial"
-        fingerprintLabel="{{ 'yourAccountsFingerprint' | i18n }}"
-      >
-      </app-account-fingerprint>
+      @if (fingerprintMaterial && userPublicKey) {
+        <app-account-fingerprint
+          [fingerprintMaterial]="fingerprintMaterial"
+          [publicKeyBuffer]="userPublicKey"
+          fingerprintLabel="{{ 'yourAccountsFingerprint' | i18n }}"
+        >
+        </app-account-fingerprint>
+      }
     </div>
   </div>
   <button bitButton bitFormButton type="submit" buttonType="primary">{{ "save" | i18n }}</button>

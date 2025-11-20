@@ -7,7 +7,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { UnlockCommand } from "./auth/commands/unlock.command";
+import { UnlockCommand } from "./key-management/commands/unlock.command";
 import { Response } from "./models/response";
 import { ListResponse } from "./models/response/list.response";
 import { MessageResponse } from "./models/response/message.response";
@@ -129,7 +129,7 @@ export abstract class BaseProgram {
     if (!userId) {
       fail();
     }
-    const authed = await this.serviceContainer.stateService.getIsAuthenticated({ userId });
+    const authed = await firstValueFrom(this.serviceContainer.tokenService.hasAccessToken$(userId));
     if (!authed) {
       fail();
     }
@@ -182,6 +182,8 @@ export abstract class BaseProgram {
         this.serviceContainer.organizationApiService,
         this.serviceContainer.logout,
         this.serviceContainer.i18nService,
+        this.serviceContainer.masterPasswordUnlockService,
+        this.serviceContainer.configService,
       );
       const response = await command.run(null, null);
       if (!response.success) {

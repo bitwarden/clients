@@ -1,14 +1,12 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { ChangeDetectorRef, Component, OnInit, inject, DestroyRef } from "@angular/core";
+import { ChangeDetectorRef, Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Data, NavigationEnd, Router, RouterModule } from "@angular/router";
-import { filter, switchMap, tap } from "rxjs";
+import { Subject, filter, of, switchMap, tap } from "rxjs";
 
+import { Icon } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { Translation } from "../dialog";
-import { Icon } from "../icon";
 
 import { AnonLayoutWrapperDataService } from "./anon-layout-wrapper-data.service";
 import { AnonLayoutComponent, AnonLayoutMaxWidth } from "./anon-layout.component";
@@ -27,13 +25,9 @@ export interface AnonLayoutWrapperData {
    */
   pageSubtitle?: string | Translation | null;
   /**
-   * The optional icon to display on the page.
+   * The icon to display on the page. Pass null to hide the icon.
    */
-  pageIcon?: Icon | null;
-  /**
-   * Hides the default Bitwarden shield icon.
-   */
-  hideIcon?: boolean;
+  pageIcon: Icon | null;
   /**
    * Optional flag to either show the optional environment selector (false) or just a readonly hostname (true).
    */
@@ -46,20 +40,28 @@ export interface AnonLayoutWrapperData {
    * Hide the card that wraps the default content. Defaults to false.
    */
   hideCardWrapper?: boolean;
+  /**
+   * Hides the background illustration. Defaults to false.
+   */
+  hideBackgroundIllustration?: boolean;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "anon-layout-wrapper.component.html",
   imports: [AnonLayoutComponent, RouterModule],
 })
 export class AnonLayoutWrapperComponent implements OnInit {
-  protected pageTitle: string;
-  protected pageSubtitle: string;
-  protected pageIcon: Icon;
-  protected showReadonlyHostname: boolean;
-  protected maxWidth: AnonLayoutMaxWidth;
-  protected hideCardWrapper: boolean;
-  protected hideIcon: boolean = false;
+  private destroy$ = new Subject<void>();
+
+  protected pageTitle?: string | null;
+  protected pageSubtitle?: string | null;
+  protected pageIcon: Icon | null = null;
+  protected showReadonlyHostname?: boolean | null;
+  protected maxWidth?: AnonLayoutMaxWidth | null;
+  protected hideCardWrapper?: boolean | null;
+  protected hideBackgroundIllustration?: boolean | null;
 
   constructor(
     private router: Router,
@@ -85,7 +87,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
         filter((event) => event instanceof NavigationEnd),
         // reset page data on page changes
         tap(() => this.resetPageData()),
-        switchMap(() => this.route.firstChild?.data || null),
+        switchMap(() => this.route.firstChild?.data || of(null)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((firstChildRouteData: Data | null) => {
@@ -93,7 +95,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
       });
   }
 
-  private setAnonLayoutWrapperDataFromRouteData(firstChildRouteData: Data | null) {
+  private setAnonLayoutWrapperDataFromRouteData(firstChildRouteData?: Data | null) {
     if (!firstChildRouteData) {
       return;
     }
@@ -110,25 +112,22 @@ export class AnonLayoutWrapperComponent implements OnInit {
       this.pageIcon = firstChildRouteData["pageIcon"];
     }
 
-    if (firstChildRouteData["hideIcon"] !== undefined) {
-      this.hideIcon = firstChildRouteData["hideIcon"];
-    }
-
     this.showReadonlyHostname = Boolean(firstChildRouteData["showReadonlyHostname"]);
     this.maxWidth = firstChildRouteData["maxWidth"];
     this.hideCardWrapper = Boolean(firstChildRouteData["hideCardWrapper"]);
+    this.hideBackgroundIllustration = Boolean(firstChildRouteData["hideBackgroundIllustration"]);
   }
 
   private listenForServiceDataChanges() {
     this.anonLayoutWrapperDataService
       .anonLayoutWrapperData$()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data: AnonLayoutWrapperData) => {
+      .subscribe((data: Partial<AnonLayoutWrapperData>) => {
         this.setAnonLayoutWrapperData(data);
       });
   }
 
-  private setAnonLayoutWrapperData(data: AnonLayoutWrapperData) {
+  private setAnonLayoutWrapperData(data: Partial<AnonLayoutWrapperData>) {
     if (!data) {
       return;
     }
@@ -157,10 +156,9 @@ export class AnonLayoutWrapperComponent implements OnInit {
       this.hideCardWrapper = data.hideCardWrapper;
     }
 
-    if (data.hideIcon !== undefined) {
-      this.hideIcon = data.hideIcon;
+    if (data.hideBackgroundIllustration !== undefined) {
+      this.hideBackgroundIllustration = data.hideBackgroundIllustration;
     }
-
     if (data.maxWidth !== undefined) {
       this.maxWidth = data.maxWidth;
     }
@@ -187,6 +185,6 @@ export class AnonLayoutWrapperComponent implements OnInit {
     this.showReadonlyHostname = null;
     this.maxWidth = null;
     this.hideCardWrapper = null;
-    this.hideIcon = null;
+    this.hideBackgroundIllustration = null;
   }
 }

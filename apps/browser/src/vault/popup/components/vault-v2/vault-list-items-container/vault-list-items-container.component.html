@@ -42,7 +42,7 @@
       type="button"
       size="small"
       (click)="onRefresh.emit()"
-      [appA11yTitle]="'refresh' | i18n"
+      [label]="'refresh' | i18n"
     ></button>
     <span bitTypography="body2" slot="end">
       <span
@@ -84,7 +84,7 @@
   <bit-item-group>
     <ng-container *ngFor="let group of cipherGroups()">
       <ng-container *ngIf="group.subHeaderKey">
-        <h3 class="tw-text-muted tw-text-xs tw-font-semibold tw-pl-1 tw-mb-1 bit-compact:tw-m-0">
+        <h3 class="tw-text-muted tw-text-xs tw-font-medium tw-pl-1 tw-mb-1 bit-compact:tw-m-0">
           {{ group.subHeaderKey | i18n }}
         </h3>
       </ng-container>
@@ -106,19 +106,21 @@
               <app-vault-icon [cipher]="cipher"></app-vault-icon>
             </div>
             <span data-testid="item-name">{{ cipher.name }}</span>
-            <i
-              *ngIf="cipher.organizationId"
-              slot="default-trailing"
-              appOrgIcon
-              [tierType]="cipher.organization!.productTierType"
-              [size]="'small'"
-              [appA11yTitle]="orgIconTooltip(cipher)"
-            ></i>
-            <i
-              *ngIf="CipherViewLikeUtils.hasAttachments(cipher)"
-              class="bwi bwi-paperclip bwi-sm"
-              [appA11yTitle]="'attachments' | i18n"
-            ></i>
+            <div slot="default-trailing" class="tw-flex tw-gap-1.5">
+              <i
+                *ngIf="cipher.organizationId"
+                slot="default-trailing"
+                appOrgIcon
+                [tierType]="cipher.organization!.productTierType"
+                [size]="'small'"
+                [appA11yTitle]="orgIconTooltip(cipher)"
+              ></i>
+              <i
+                *ngIf="CipherViewLikeUtils.hasAttachments(cipher)"
+                class="bwi bwi-paperclip bwi-sm"
+                [appA11yTitle]="'attachments' | i18n"
+              ></i>
+            </div>
             <span slot="secondary">{{ CipherViewLikeUtils.subtitle(cipher) }}</span>
           </button>
 
@@ -141,8 +143,7 @@
                 bitIconButton="bwi-external-link"
                 size="small"
                 (click)="launchCipher(cipher)"
-                [attr.aria-label]="'launchWebsiteName' | i18n: cipher.name"
-                [title]="'launchWebsiteName' | i18n: cipher.name"
+                [label]="'launchWebsiteName' | i18n: cipher.name"
               ></button>
             </bit-item-action>
             <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>

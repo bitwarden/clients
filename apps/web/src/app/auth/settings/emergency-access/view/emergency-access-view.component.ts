@@ -2,6 +2,8 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EmergencyAccessId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
@@ -12,6 +14,8 @@ import { EmergencyAccessService } from "../../../emergency-access";
 
 import { EmergencyViewDialogComponent } from "./emergency-view-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "emergency-access-view.component.html",
   providers: [{ provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService }],
@@ -27,6 +31,7 @@ export class EmergencyAccessViewComponent implements OnInit {
     private route: ActivatedRoute,
     private emergencyAccessService: EmergencyAccessService,
     private dialogService: DialogService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
@@ -37,7 +42,8 @@ export class EmergencyAccessViewComponent implements OnInit {
     }
 
     this.id = qParams.id;
-    this.ciphers = await this.emergencyAccessService.getViewOnlyCiphers(qParams.id);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.ciphers = await this.emergencyAccessService.getViewOnlyCiphers(qParams.id, userId);
     this.loaded = true;
   }
 

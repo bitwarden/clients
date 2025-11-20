@@ -8,6 +8,7 @@ import {
   firstValueFrom,
   from,
   lastValueFrom,
+  map,
   of,
   Subject,
   switchMap,
@@ -28,6 +29,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -36,6 +38,8 @@ import { PurgeVaultComponent } from "../../../vault/settings/purge-vault.compone
 
 import { DeleteOrganizationDialogResult, openDeleteOrganizationDialog } from "./components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-org-account",
   templateUrl: "account.component.html",
@@ -179,7 +183,13 @@ export class AccountComponent implements OnInit, OnDestroy {
 
     // Backfill pub/priv key if necessary
     if (!this.org.hasPublicAndPrivateKeys) {
-      const orgShareKey = await this.keyService.getOrgKey(this.organizationId);
+      const orgShareKey = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) => this.keyService.orgKeys$(userId)),
+          map((orgKeys) => orgKeys[this.organizationId as OrganizationId] ?? null),
+        ),
+      );
       const orgKeys = await this.keyService.makeKeyPair(orgShareKey);
       request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
     }

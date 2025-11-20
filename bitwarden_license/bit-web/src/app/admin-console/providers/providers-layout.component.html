@@ -9,7 +9,7 @@
     <bit-nav-item
       icon="bwi-provider"
       [text]="clientsTranslationKey$ | async | i18n"
-      [route]="(isBillable | async) ? 'manage-client-organizations' : 'clients'"
+      route="clients"
     >
       <i
         *ngIf="!provider.enabled && (providerPortalTakeover$ | async)"
@@ -39,12 +39,7 @@
       *ngIf="canAccessBilling$ | async"
     >
       <bit-nav-item [text]="'subscription' | i18n" route="billing/subscription"></bit-nav-item>
-      @if (managePaymentDetailsOutsideCheckout$ | async) {
-        <bit-nav-item
-          [text]="'paymentDetails' | i18n"
-          route="billing/payment-details"
-        ></bit-nav-item>
-      }
+      <bit-nav-item [text]="'paymentDetails' | i18n" route="billing/payment-details"></bit-nav-item>
       <bit-nav-item [text]="'billingHistory' | i18n" route="billing/history"></bit-nav-item>
     </bit-nav-group>
     <bit-nav-item
@@ -54,6 +49,15 @@
       *ngIf="showSettingsTab(provider)"
     ></bit-nav-item>
   </app-side-nav>
+
+  <ng-container *ngIf="subscriber$ | async as subscriber">
+    <app-tax-id-warning
+      [subscriber]="subscriber"
+      [getWarning$]="getTaxIdWarning$"
+      (billingAddressUpdated)="refreshTaxIdWarning()"
+    >
+    </app-tax-id-warning>
+  </ng-container>
 
   <router-outlet></router-outlet>
 </app-layout>

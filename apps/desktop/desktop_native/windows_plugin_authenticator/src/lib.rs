@@ -2,11 +2,12 @@
 #![allow(non_snake_case)]
 #![allow(non_camel_case_types)]
 
-use std::ffi::c_uchar;
-use std::ptr;
-use windows::Win32::Foundation::*;
-use windows::Win32::System::Com::*;
-use windows::Win32::System::LibraryLoader::*;
+use std::{ffi::c_uchar, ptr};
+
+use windows::Win32::{
+    Foundation::*,
+    System::{Com::*, LibraryLoader::*},
+};
 use windows_core::*;
 
 mod pluginauthenticator;
@@ -86,6 +87,8 @@ fn register_com_library() -> std::result::Result<(), String> {
 }
 
 /// Adds Bitwarden as a plugin authenticator.
+// FIXME: Remove unwraps! They panic and terminate the whole application.
+#[allow(clippy::unwrap_used)]
 fn add_authenticator() -> std::result::Result<(), String> {
     let authenticator_name: HSTRING = AUTHENTICATOR_NAME.into();
     let authenticator_name_ptr = PCWSTR(authenticator_name.as_ptr()).as_ptr();

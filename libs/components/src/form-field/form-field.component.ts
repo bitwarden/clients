@@ -1,60 +1,62 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import {
   AfterContentChecked,
   booleanAttribute,
   Component,
-  ContentChild,
   ElementRef,
   HostBinding,
   HostListener,
-  ViewChild,
   signal,
   input,
   Input,
+  contentChild,
+  viewChild,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitHintComponent } from "../form-control/hint.component";
-import { BitLabel } from "../form-control/label.component";
+import { BitLabelComponent } from "../form-control/label.component";
 import { inputBorderClasses } from "../input/input.directive";
 
 import { BitErrorComponent } from "./error.component";
 import { BitFormFieldControl } from "./form-field-control";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-form-field",
   templateUrl: "./form-field.component.html",
   imports: [CommonModule, BitErrorComponent, I18nPipe],
 })
 export class BitFormFieldComponent implements AfterContentChecked {
-  @ContentChild(BitFormFieldControl) input: BitFormFieldControl;
-  @ContentChild(BitHintComponent) hint: BitHintComponent;
-  @ContentChild(BitLabel) label: BitLabel;
+  readonly input = contentChild.required(BitFormFieldControl);
+  readonly hint = contentChild(BitHintComponent);
+  readonly label = contentChild(BitLabelComponent);
 
-  @ViewChild("prefixContainer") prefixContainer: ElementRef<HTMLDivElement>;
-  @ViewChild("suffixContainer") suffixContainer: ElementRef<HTMLDivElement>;
+  readonly prefixContainer = viewChild<ElementRef<HTMLDivElement>>("prefixContainer");
+  readonly suffixContainer = viewChild<ElementRef<HTMLDivElement>>("suffixContainer");
 
-  @ViewChild(BitErrorComponent) error: BitErrorComponent;
+  readonly error = viewChild(BitErrorComponent);
 
   readonly disableMargin = input(false, { transform: booleanAttribute });
 
   /** If `true`, remove the bottom border for `readonly` inputs */
   // TODO: Skipped for signal migration because:
   //  Your application code writes to the input. This prevents migration.
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ transform: booleanAttribute })
   disableReadOnlyBorder = false;
 
-  protected prefixHasChildren = signal(false);
-  protected suffixHasChildren = signal(false);
+  protected readonly prefixHasChildren = signal(false);
+  protected readonly suffixHasChildren = signal(false);
 
   get inputBorderClasses(): string {
     const shouldFocusBorderAppear = this.defaultContentIsFocused();
 
     const groupClasses = [
-      this.input.hasError
+      this.input().hasError
         ? "group-hover/bit-form-field:tw-border-danger-700"
         : "group-hover/bit-form-field:tw-border-primary-600",
       // the next 2 selectors override the above hover selectors when the input (or text area) is non-interactive (i.e. readonly, disabled)
@@ -68,7 +70,7 @@ export class BitFormFieldComponent implements AfterContentChecked {
         : "",
     ];
 
-    const baseInputBorderClasses = inputBorderClasses(this.input.hasError);
+    const baseInputBorderClasses = inputBorderClasses(this.input().hasError);
 
     const borderClasses = baseInputBorderClasses.concat(groupClasses);
 
@@ -89,7 +91,7 @@ export class BitFormFieldComponent implements AfterContentChecked {
    * This is necessary because the `tw-group/bit-form-field` wraps the input and any prefix/suffix
    * buttons
    */
-  protected defaultContentIsFocused = signal(false);
+  protected readonly defaultContentIsFocused = signal(false);
   @HostListener("focusin", ["$event.target"])
   onFocusIn(target: HTMLElement) {
     this.defaultContentIsFocused.set(target.matches("[data-default-content] *:focus-visible"));
@@ -100,19 +102,21 @@ export class BitFormFieldComponent implements AfterContentChecked {
   }
 
   protected get readOnly(): boolean {
-    return this.input.readOnly;
+    return !!this.input().readOnly;
   }
 
   ngAfterContentChecked(): void {
-    if (this.error) {
-      this.input.ariaDescribedBy = this.error.id;
-    } else if (this.hint) {
-      this.input.ariaDescribedBy = this.hint.id;
+    const error = this.error();
+    const hint = this.hint();
+    if (error) {
+      this.input().ariaDescribedBy = error.id;
+    } else if (hint) {
+      this.input().ariaDescribedBy = hint.id;
     } else {
-      this.input.ariaDescribedBy = undefined;
+      this.input().ariaDescribedBy = undefined;
     }
 
-    this.prefixHasChildren.set(this.prefixContainer?.nativeElement.childElementCount > 0);
-    this.suffixHasChildren.set(this.suffixContainer?.nativeElement.childElementCount > 0);
+    this.prefixHasChildren.set((this.prefixContainer()?.nativeElement.childElementCount ?? 0) > 0);
+    this.suffixHasChildren.set((this.suffixContainer()?.nativeElement.childElementCount ?? 0) > 0);
   }
 }

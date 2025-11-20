@@ -3,13 +3,14 @@ import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { MenuItemDirective, BitIconButtonComponent } from "@bitwarden/components";
+import { MenuItemComponent, BitIconButtonComponent } from "@bitwarden/components";
 import { CopyAction, CopyCipherFieldService } from "@bitwarden/vault";
 
 /**
@@ -29,19 +30,24 @@ import { CopyAction, CopyCipherFieldService } from "@bitwarden/vault";
   selector: "[appCopyField]",
 })
 export class CopyCipherFieldDirective implements OnChanges {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({
     alias: "appCopyField",
     required: true,
   })
   action!: Exclude<CopyAction, "hiddenField">;
 
-  @Input({ required: true }) cipher!: CipherViewLike;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input({ required: true })
+  cipher!: CipherViewLike;
 
   constructor(
     private copyCipherFieldService: CopyCipherFieldService,
     private accountService: AccountService,
     private cipherService: CipherService,
-    @Optional() private menuItemDirective?: MenuItemDirective,
+    @Optional() private menuItemComponent?: MenuItemComponent,
     @Optional() private iconButtonComponent?: BitIconButtonComponent,
   ) {}
 
@@ -54,7 +60,7 @@ export class CopyCipherFieldDirective implements OnChanges {
    */
   @HostBinding("class.tw-hidden")
   private get hidden() {
-    return this.disabled && this.menuItemDirective;
+    return this.disabled && this.menuItemComponent;
   }
 
   @HostListener("click")
@@ -81,8 +87,8 @@ export class CopyCipherFieldDirective implements OnChanges {
     }
 
     // If the directive is used on a menu item, update the menu item to prevent keyboard navigation
-    if (this.menuItemDirective) {
-      this.menuItemDirective.disabled = this.disabled ?? false;
+    if (this.menuItemComponent) {
+      this.menuItemComponent.disabled = this.disabled ?? false;
     }
   }
 
@@ -100,7 +106,10 @@ export class CopyCipherFieldDirective implements OnChanges {
       const activeAccountId = await firstValueFrom(
         this.accountService.activeAccount$.pipe(getUserId),
       );
-      const encryptedCipher = await this.cipherService.get(this.cipher.id!, activeAccountId);
+      const encryptedCipher = await this.cipherService.get(
+        uuidAsString(this.cipher.id!),
+        activeAccountId,
+      );
       _cipher = await this.cipherService.decrypt(encryptedCipher, activeAccountId);
     } else {
       _cipher = this.cipher;

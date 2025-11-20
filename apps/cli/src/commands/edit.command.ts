@@ -1,19 +1,22 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import * as inquirer from "inquirer";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
-import { CollectionRequest } from "@bitwarden/admin-console/common";
+import { UpdateCollectionRequest } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
 import { CollectionExport } from "@bitwarden/common/models/export/collection.export";
 import { FolderExport } from "@bitwarden/common/models/export/folder.export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -39,6 +42,7 @@ export class EditCommand {
     private accountService: AccountService,
     private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
     private policyService: PolicyService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {}
 
   async run(
@@ -91,6 +95,10 @@ export class EditCommand {
   private async editCipher(id: string, req: CipherExport) {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipher = await this.cipherService.get(id, activeUserId);
+    const hasPremium = await firstValueFrom(
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
+    );
+
     if (cipher == null) {
       return Response.notFound();
     }
@@ -100,6 +108,17 @@ export class EditCommand {
       return Response.badRequest("You may not edit a deleted item. Use the restore command first.");
     }
     cipherView = CipherExport.toView(req, cipherView);
+
+    // When a user is editing an archived cipher and does not have premium, automatically unarchive it
+    if (cipherView.isArchived && !hasPremium) {
+      const acceptedPrompt = await this.promptForArchiveEdit();
+
+      if (!acceptedPrompt) {
+        return Response.error("Edit cancelled.");
+      }
+
+      cipherView.archivedDate = null;
+    }
 
     const isCipherRestricted =
       await this.cliRestrictedItemTypesService.isCipherRestricted(cipherView);
@@ -201,7 +220,13 @@ export class EditCommand {
       return Response.badRequest("`organizationid` option does not match request object.");
     }
     try {
-      const orgKey = await this.keyService.getOrgKey(req.organizationId);
+      const orgKey = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) => this.keyService.orgKeys$(userId)),
+          map((orgKeys) => orgKeys[options.organizationId as OrganizationId] ?? null),
+        ),
+      );
       if (orgKey == null) {
         throw new Error("No encryption key for this organization.");
       }
@@ -218,19 +243,57 @@ export class EditCommand {
           : req.users.map(
               (u) => new SelectionReadOnlyRequest(u.id, u.readOnly, u.hidePasswords, u.manage),
             );
-      const request = new CollectionRequest();
-      request.name = (await this.encryptService.encryptString(req.name, orgKey)).encryptedString;
-      request.externalId = req.externalId;
-      request.groups = groups;
-      request.users = users;
+      const request = new UpdateCollectionRequest({
+        name: await this.encryptService.encryptString(req.name, orgKey),
+        externalId: req.externalId,
+        users,
+        groups,
+      });
+
       const response = await this.apiService.putCollection(req.organizationId, id, request);
-      const view = CollectionExport.toView(req);
-      view.id = response.id;
+      const view = CollectionExport.toView(req, response.id);
       const res = new OrganizationCollectionResponse(view, groups, users);
       return Response.success(res);
     } catch (e) {
       return Response.error(e);
     }
+  }
+
+  /** Prompt the user to accept movement of their cipher back to the their vault. */
+  private async promptForArchiveEdit(): Promise<boolean> {
+    // When user has disabled interactivity or does not have the ability to prompt,
+    // automatically move the item back to the vault and inform them.
+    if (
+      process.env.BW_SERVE === "true" ||
+      process.env.BW_NOINTERACTION === "true" ||
+      !process.stdin.isTTY
+    ) {
+      CliUtils.writeLn(
+        "Archive is only available with a Premium subscription, which has ended. Your edit was saved and the item was moved back to your vault.",
+      );
+      return true;
+    }
+
+    const answer: inquirer.Answers = await inquirer.createPromptModule({
+      output: process.stderr,
+    })({
+      type: "list",
+      name: "confirm",
+      message:
+        "When you edit and save details for an archived item without a Premium subscription, it'll be moved from your archive back to your vault.",
+      choices: [
+        {
+          name: "Move now",
+          value: "confirmed",
+        },
+        {
+          name: "Cancel",
+          value: "cancel",
+        },
+      ],
+    });
+
+    return answer.confirm === "confirmed";
   }
 }
 

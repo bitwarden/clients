@@ -1,8 +1,16 @@
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { EncString } from "../models/enc-string";
 
 export abstract class EncryptService {
+  /**
+   * A temporary init method to make the encrypt service listen to feature-flag changes.
+   * This will be removed once the feature flag has been rolled out.
+   */
+  abstract init(configService: ConfigService): void;
+
   /**
    * Encrypts a string to an EncString
    * @param plainValue - The value to encrypt
@@ -28,6 +36,9 @@ export abstract class EncryptService {
 
   /**
    * Decrypts an EncString to a string
+   * @throws IMPORTANT: This throws if decryption fails. If decryption failures are expected to happen,
+   * the callsite should log where the failure occurred, and handle it by domain specifc logic (e.g. show a UI error).
+   *
    * @param encString - The EncString containing the encrypted string.
    * @param key - The key to decrypt the value with
    * @returns The decrypted string
@@ -36,10 +47,12 @@ export abstract class EncryptService {
   abstract decryptString(encString: EncString, key: SymmetricCryptoKey): Promise<string>;
   /**
    * Decrypts an EncString to a Uint8Array
+   * @throws IMPORTANT: This throws if decryption fails. If decryption failures are expected to happen,
+   * the callsite should log where the failure occurred, and handle it by domain specifc logic (e.g. show a UI error).
+   *
    * @param encString - The EncString containing the encrypted bytes.
    * @param key - The key to decrypt the value with
    * @returns The decrypted bytes as a Uint8Array
-   * @throws Error if decryption fails
    * @deprecated Bytes are not the right abstraction to encrypt in. Use e.g. key wrapping or file encryption instead
    */
   abstract decryptBytes(encString: EncString, key: SymmetricCryptoKey): Promise<Uint8Array>;

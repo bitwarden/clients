@@ -23,12 +23,16 @@ type ComponentData = {
   };
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-provider-subscription-status",
   templateUrl: "provider-subscription-status.component.html",
   standalone: false,
 })
 export class ProviderSubscriptionStatusComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) subscription: ProviderSubscriptionResponse;
 
   constructor(
@@ -158,7 +162,7 @@ export class ProviderSubscriptionStatusComponent {
       }
       case "incomplete_expired":
       case "canceled": {
-        const canceledText = this.i18nService.t("canceled");
+        const canceledText = this.i18nService.t("providersubscriptionCanceled");
         return {
           status: {
             label: defaultStatusLabel,
@@ -171,7 +175,7 @@ export class ProviderSubscriptionStatusComponent {
           callout: {
             severity: "danger",
             header: canceledText,
-            body: this.i18nService.t("subscriptionCanceled"),
+            body: this.i18nService.t("providersubCanceledmessage"),
           },
         };
       }

@@ -6,10 +6,11 @@ import {
   CipherListView,
   BitwardenClient,
   CipherView as SdkCipherView,
+  DecryptCipherListResult,
 } from "@bitwarden/sdk-internal";
 
 import { LogService } from "../../platform/abstractions/log.service";
-import { SdkService, asUuid } from "../../platform/abstractions/sdk/sdk.service";
+import { SdkService, asUuid, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId, OrganizationId } from "../../types/guid";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
 import { CipherType } from "../enums";
@@ -39,7 +40,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
           return {
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
-            encryptedFor: asUuid<UserId>(encryptionContext.encryptedFor),
+            encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
           };
         }),
         catchError((error: unknown) => {
@@ -74,7 +75,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
           return {
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
-            encryptedFor: asUuid<UserId>(encryptionContext.encryptedFor),
+            encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
           };
         }),
         catchError((error: unknown) => {
@@ -107,7 +108,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
           return {
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
-            encryptedFor: asUuid<UserId>(encryptionContext.encryptedFor),
+            encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
           };
         }),
         catchError((error: unknown) => {
@@ -218,7 +219,10 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     );
   }
 
-  async decryptMany(ciphers: Cipher[], userId: UserId): Promise<CipherListView[]> {
+  async decryptManyWithFailures(
+    ciphers: Cipher[],
+    userId: UserId,
+  ): Promise<[CipherListView[], Cipher[]]> {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         map((sdk) => {
@@ -228,14 +232,17 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
           using ref = sdk.take();
 
-          return ref.value
+          const result: DecryptCipherListResult = ref.value
             .vault()
             .ciphers()
-            .decrypt_list(ciphers.map((cipher) => cipher.toSdkCipher()));
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to decrypt cipher list: ${error}`);
-          return EMPTY;
+            .decrypt_list_with_failures(ciphers.map((cipher) => cipher.toSdkCipher()));
+
+          const decryptedCiphers = result.successes;
+          const failedCiphers: Cipher[] = result.failures
+            .map((cipher) => Cipher.fromSdkCipher(cipher))
+            .filter((cipher): cipher is Cipher => cipher !== undefined);
+
+          return [decryptedCiphers, failedCiphers];
         }),
       ),
     );

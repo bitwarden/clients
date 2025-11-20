@@ -1,9 +1,8 @@
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
-import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
@@ -22,7 +21,6 @@ import { DesktopBiometricsService } from "./biometrics/desktop.biometrics.servic
 // TODO Remove this class once biometric client key half storage is moved https://bitwarden.atlassian.net/browse/PM-22342
 export class ElectronKeyService extends DefaultKeyService {
   constructor(
-    pinService: PinServiceAbstraction,
     masterPasswordService: InternalMasterPasswordServiceAbstraction,
     keyGenerationService: KeyGenerationService,
     cryptoFunctionService: CryptoFunctionService,
@@ -37,7 +35,6 @@ export class ElectronKeyService extends DefaultKeyService {
     private biometricService: DesktopBiometricsService,
   ) {
     super(
-      pinService,
       masterPasswordService,
       keyGenerationService,
       cryptoFunctionService,
@@ -51,10 +48,6 @@ export class ElectronKeyService extends DefaultKeyService {
     );
   }
 
-  override async clearStoredUserKey(keySuffix: KeySuffixOptions, userId: UserId): Promise<void> {
-    await super.clearStoredUserKey(keySuffix, userId);
-  }
-
   protected override async storeAdditionalKeys(key: UserKey, userId: UserId) {
     await super.storeAdditionalKeys(key, userId);
 
@@ -65,7 +58,7 @@ export class ElectronKeyService extends DefaultKeyService {
 
   protected override async getKeyFromStorage(
     keySuffix: KeySuffixOptions,
-    userId?: UserId,
+    userId: UserId,
   ): Promise<UserKey | null> {
     return await super.getKeyFromStorage(keySuffix, userId);
   }

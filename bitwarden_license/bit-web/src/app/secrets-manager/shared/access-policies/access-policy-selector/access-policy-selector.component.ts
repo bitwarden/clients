@@ -20,6 +20,8 @@ import { ApItemViewType } from "./models/ap-item-view.type";
 import { ApItemEnumUtil, ApItemEnum } from "./models/enums/ap-item.enum";
 import { ApPermissionEnum } from "./models/enums/ap-permission.enum";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-access-policy-selector",
   templateUrl: "access-policy-selector.component.html",
@@ -108,23 +110,43 @@ export class AccessPolicySelectorComponent implements ControlValueAccessor, OnIn
 
   disabled: boolean;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() loading: boolean;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() addButtonMode: boolean;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() label: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() hint: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() columnTitle: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() emptyMessage: string;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() permissionList = [
     { perm: ApPermissionEnum.CanRead, labelId: "canRead" },
     { perm: ApPermissionEnum.CanReadWrite, labelId: "canReadWrite" },
   ];
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() initialPermission = ApPermissionEnum.CanRead;
 
   // Pass in a static permission that wil be the only option for a given selector instance.
   // Will ignore permissionList and initialPermission.
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() staticPermission: ApPermissionEnum;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get items(): ApItemViewType[] {
     return this.selectionList.allItems;

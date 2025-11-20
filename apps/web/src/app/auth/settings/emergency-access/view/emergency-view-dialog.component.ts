@@ -35,6 +35,8 @@ class PremiumUpgradePromptNoop implements PremiumUpgradePromptService {
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-emergency-view-dialog",
   templateUrl: "emergency-view-dialog.component.html",
@@ -73,22 +75,20 @@ export class EmergencyViewDialogComponent {
   };
 
   private updateTitle() {
-    const partOne = "viewItemType";
-
     const type = this.cipher.type;
 
     switch (type) {
       case CipherType.Login:
-        this.title = this.i18nService.t(partOne, this.i18nService.t("typeLogin").toLowerCase());
+        this.title = this.i18nService.t("viewItemHeaderLogin");
         break;
       case CipherType.Card:
-        this.title = this.i18nService.t(partOne, this.i18nService.t("typeCard").toLowerCase());
+        this.title = this.i18nService.t("viewItemHeaderCard");
         break;
       case CipherType.Identity:
-        this.title = this.i18nService.t(partOne, this.i18nService.t("typeIdentity").toLowerCase());
+        this.title = this.i18nService.t("viewItemHeaderIdentity");
         break;
       case CipherType.SecureNote:
-        this.title = this.i18nService.t(partOne, this.i18nService.t("note").toLowerCase());
+        this.title = this.i18nService.t("viewItemHeaderNote");
         break;
     }
   }

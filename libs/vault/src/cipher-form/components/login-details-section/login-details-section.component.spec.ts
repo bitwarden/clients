@@ -3,6 +3,7 @@ import { Component } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -22,6 +23,8 @@ import { AutofillOptionsComponent } from "../autofill-options/autofill-options.c
 
 import { LoginDetailsSectionComponent } from "./login-details-section.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-autofill-options",
   template: "",
@@ -41,12 +44,13 @@ describe("LoginDetailsSectionComponent", () => {
   let configService: MockProxy<ConfigService>;
 
   const collect = jest.fn().mockResolvedValue(null);
-  const getInitialCipherView = jest.fn(() => null);
+  const getInitialCipherView = jest.fn((): any => null);
 
   beforeEach(async () => {
     getInitialCipherView.mockClear();
     cipherFormContainer = mock<CipherFormContainer>({
       getInitialCipherView,
+      formStatusChange$: new BehaviorSubject<"enabled" | "disabled">("enabled"),
       website: "example.com",
     });
 

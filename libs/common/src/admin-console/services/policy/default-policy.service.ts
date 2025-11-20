@@ -13,7 +13,7 @@ import { ResetPasswordPolicyOptions } from "../../models/domain/reset-password-p
 
 import { POLICIES } from "./policy-state";
 
-export function policyRecordToArray(policiesMap: { [id: string]: PolicyData }) {
+export function policyRecordToArray(policiesMap: { [id: string]: PolicyData }): Policy[] {
   return Object.values(policiesMap || {}).map((f) => new Policy(f));
 }
 
@@ -40,18 +40,16 @@ export class DefaultPolicyService implements PolicyService {
   }
 
   policiesByType$(policyType: PolicyType, userId: UserId) {
-    const filteredPolicies$ = this.policies$(userId).pipe(
-      map((policies) => policies.filter((p) => p.type === policyType)),
-    );
-
     if (!userId) {
       throw new Error("No userId provided");
     }
 
+    const allPolicies$ = this.policies$(userId);
     const organizations$ = this.organizationService.organizations$(userId);
 
-    return combineLatest([filteredPolicies$, organizations$]).pipe(
+    return combineLatest([allPolicies$, organizations$]).pipe(
       map(([policies, organizations]) => this.enforcedPolicyFilter(policies, organizations)),
+      map((policies) => policies.filter((p) => p.type === policyType)),
     );
   }
 
@@ -77,7 +75,7 @@ export class DefaultPolicyService implements PolicyService {
         policy.enabled &&
         organization.status >= OrganizationUserStatusType.Accepted &&
         organization.usePolicies &&
-        !this.isExemptFromPolicy(policy.type, organization)
+        !this.isExemptFromPolicy(policy.type, organization, policies)
       );
     });
   }
@@ -265,7 +263,11 @@ export class DefaultPolicyService implements PolicyService {
    * Determines whether an orgUser is exempt from a specific policy because of their role
    * Generally orgUsers who can manage policies are exempt from them, but some policies are stricter
    */
-  private isExemptFromPolicy(policyType: PolicyType, organization: Organization) {
+  private isExemptFromPolicy(
+    policyType: PolicyType,
+    organization: Organization,
+    allPolicies: Policy[],
+  ) {
     switch (policyType) {
       case PolicyType.MaximumVaultTimeout:
         // Max Vault Timeout applies to everyone except owners
@@ -283,9 +285,19 @@ export class DefaultPolicyService implements PolicyService {
       case PolicyType.RemoveUnlockWithPin:
         // Remove Unlock with PIN policy
         return false;
+      case PolicyType.AutoConfirm:
+        return false;
       case PolicyType.OrganizationDataOwnership:
         // organization data ownership policy applies to everyone except admins and owners
         return organization.isAdmin;
+      case PolicyType.SingleOrg:
+        // Check if AutoConfirm policy is enabled for this organization
+        return allPolicies.find(
+          (p) =>
+            p.organizationId === organization.id && p.type === PolicyType.AutoConfirm && p.enabled,
+        )
+          ? false
+          : organization.canManagePolicies;
       default:
         return organization.canManagePolicies;
     }

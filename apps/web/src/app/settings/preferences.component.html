@@ -2,7 +2,7 @@
 
 <bit-container>
   <p bitTypography="body1">{{ "preferencesDesc" | i18n }}</p>
-  <form [formGroup]="form" [bitSubmit]="submit" class="tw-w-1/2">
+  <form [formGroup]="form" [bitSubmit]="submit" class="tw-w-full tw-max-w-md">
     <bit-callout type="info" *ngIf="vaultTimeoutPolicyCallout | async as policy">
       <span *ngIf="policy.timeout && policy.action">
         {{
@@ -17,12 +17,12 @@
         {{ "vaultTimeoutActionPolicyInEffect" | i18n: (policy.action | i18n) }}
       </span>
     </bit-callout>
-    <auth-vault-timeout-input
+    <bit-session-timeout-input
       [vaultTimeoutOptions]="vaultTimeoutOptions"
       [formControl]="form.controls.vaultTimeout"
       ngDefaultControl
     >
-    </auth-vault-timeout-input>
+    </bit-session-timeout-input>
     <ng-container *ngIf="availableVaultTimeoutActions$ | async as availableVaultTimeoutActions">
       <bit-radio-group
         formControlName="vaultTimeoutAction"
@@ -48,8 +48,8 @@
       </bit-radio-group>
     </ng-container>
     <bit-form-field>
-      <bit-label
-        >{{ "language" | i18n }}
+      <bit-label>
+        {{ "language" | i18n }}
         <a
           bitLink
           class="tw-float-right"
@@ -67,23 +67,17 @@
       </bit-select>
       <bit-hint>{{ "languageDesc" | i18n }}</bit-hint>
     </bit-form-field>
-    <bit-form-control>
-      <input type="checkbox" bitCheckbox formControlName="enableFavicons" />
-      <bit-label
-        >{{ "enableFavicon" | i18n }}
-        <a
-          bitLink
-          href="https://bitwarden.com/help/website-icons/"
-          target="_blank"
-          rel="noreferrer"
-          appA11yTitle="{{ 'learnMoreAboutWebsiteIcons' | i18n }}"
-          slot="end"
-        >
-          <i class="bwi bwi-question-circle" aria-hidden="true"></i>
-        </a>
-      </bit-label>
-      <bit-hint>{{ "faviconDesc" | i18n }}</bit-hint>
-    </bit-form-control>
+    <div class="tw-flex tw-items-start tw-gap-1.5">
+      <bit-form-control>
+        <input type="checkbox" bitCheckbox formControlName="enableFavicons" />
+        <bit-label>
+          {{ "showIconsChangePasswordUrls" | i18n }}
+        </bit-label>
+      </bit-form-control>
+      <div class="-tw-mt-0.5">
+        <vault-permit-cipher-details-popover></vault-permit-cipher-details-popover>
+      </div>
+    </div>
     <bit-form-field>
       <bit-label>{{ "theme" | i18n }}</bit-label>
       <bit-select formControlName="theme" id="theme">

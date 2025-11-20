@@ -39,13 +39,13 @@
                 type="button"
                 buttonType="danger"
                 (click)="remove(i)"
-                appA11yTitle="{{ 'remove' | i18n }}"
+                label="{{ 'remove' | i18n }}"
               ></button>
             </div>
           </div>
         </div>
       </div>
-      <p bitTypography="body1" class="tw-font-bold tw-mb-2">{{ "nfcSupport" | i18n }}</p>
+      <p bitTypography="body1" class="tw-font-medium tw-mb-2">{{ "nfcSupport" | i18n }}</p>
       <bit-form-control [disableMargin]="true">
         <bit-label>{{ "twoFactorYubikeySupportsNfc" | i18n }}</bit-label>
         <input bitCheckbox type="checkbox" formControlName="anyKeyHasNfc" />

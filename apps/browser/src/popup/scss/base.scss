@@ -151,6 +151,7 @@ textarea {
 
 app-root > div {
   height: 100%;
+  width: 100%;
 }
 
 main::-webkit-scrollbar,
@@ -372,16 +373,16 @@ header:not(bit-callout header, bit-dialog header, popup-page header) {
 }
 
 app-root {
-  position: absolute;
   width: 100%;
-  height: 100%;
-  z-index: 980;
+  height: 100vh;
+  display: flex;
+
   @include themify($themes) {
     background-color: themed("backgroundColor");
   }
 }
 
-main:not(popup-page main) {
+main:not(popup-page main):not(auth-anon-layout main) {
   position: absolute;
   top: 44px;
   bottom: 0;

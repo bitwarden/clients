@@ -10,8 +10,9 @@ import {
   CollectionService,
 } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 // eslint-disable-next-line no-restricted-imports
-import { KeyService } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
@@ -38,6 +39,7 @@ import { DomainSettingsService } from "../../autofill/services/domain-settings.s
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
+import { UserDecryptionResponse } from "../../key-management/models/response/user-decryption.response";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
 import { SendData } from "../../tools/send/models/data/send.data";
@@ -53,7 +55,6 @@ import { FolderData } from "../../vault/models/data/folder.data";
 import { CipherResponse } from "../../vault/models/response/cipher.response";
 import { FolderResponse } from "../../vault/models/response/folder.response";
 import { LogService } from "../abstractions/log.service";
-import { StateService } from "../abstractions/state.service";
 import { MessageSender } from "../messaging";
 import { StateProvider } from "../state";
 
@@ -87,7 +88,6 @@ export class DefaultSyncService extends CoreSyncService {
     sendService: InternalSendService,
     logService: LogService,
     private keyConnectorService: KeyConnectorService,
-    stateService: StateService,
     private providerService: ProviderService,
     folderApiService: FolderApiServiceAbstraction,
     private organizationService: InternalOrganizationServiceAbstraction,
@@ -96,12 +96,14 @@ export class DefaultSyncService extends CoreSyncService {
     private avatarService: AvatarService,
     private logoutCallback: (logoutReason: LogoutReason, userId?: UserId) => Promise<void>,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private tokenService: TokenService,
+    tokenService: TokenService,
     authService: AuthService,
     stateProvider: StateProvider,
+    private securityStateService: SecurityStateService,
+    private kdfConfigService: KdfConfigService,
   ) {
     super(
-      stateService,
+      tokenService,
       folderService,
       folderApiService,
       messageSender,
@@ -135,9 +137,11 @@ export class DefaultSyncService extends CoreSyncService {
 
     const now = new Date();
     let needsSync = false;
+    let needsSyncSucceeded = true;
     try {
       needsSync = await this.needsSyncing(forceSync);
     } catch (e) {
+      needsSyncSucceeded = false;
       if (allowThrowOnError) {
         this.syncCompleted(false, userId);
         throw e;
@@ -145,7 +149,9 @@ export class DefaultSyncService extends CoreSyncService {
     }
 
     if (!needsSync) {
-      await this.setLastSync(now, userId);
+      if (needsSyncSucceeded) {
+        await this.setLastSync(now, userId);
+      }
       return this.syncCompleted(false, userId);
     }
 
@@ -170,6 +176,7 @@ export class DefaultSyncService extends CoreSyncService {
 
       const response = await this.inFlightApiCalls.sync;
 
+      await this.syncUserDecryption(response.profile.id, response.userDecryption);
       await this.syncProfile(response.profile);
       await this.syncFolders(response.folders, response.profile.id);
       await this.syncCollections(response.collections, response.profile.id);
@@ -229,13 +236,34 @@ export class DefaultSyncService extends CoreSyncService {
     if (response?.key) {
       await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, response.id);
     }
-    await this.keyService.setPrivateKey(response.privateKey, response.id);
+
+    // Cleanup: Only the first branch should be kept after the server always returns accountKeys https://bitwarden.atlassian.net/browse/PM-21768
+    if (response.accountKeys != null) {
+      await this.keyService.setPrivateKey(
+        response.accountKeys.publicKeyEncryptionKeyPair.wrappedPrivateKey,
+        response.id,
+      );
+      if (response.accountKeys.signatureKeyPair !== null) {
+        // User is V2 user
+        await this.keyService.setUserSigningKey(
+          response.accountKeys.signatureKeyPair.wrappedSigningKey,
+          response.id,
+        );
+        await this.securityStateService.setAccountSecurityState(
+          response.accountKeys.securityState.securityState,
+          response.id,
+        );
+      }
+    } else {
+      await this.keyService.setPrivateKey(response.privateKey, response.id);
+    }
     await this.keyService.setProviderKeys(response.providers, response.id);
     await this.keyService.setOrgKeys(
       response.organizations,
       response.providerOrganizations,
       response.id,
     );
+
     await this.avatarService.setSyncAvatarColor(response.id, response.avatarColor);
     await this.tokenService.setSecurityStamp(response.securityStamp, response.id);
     await this.accountService.setAccountEmailVerified(response.id, response.emailVerified);
@@ -391,5 +419,23 @@ export class DefaultSyncService extends CoreSyncService {
       });
     }
     return await this.policyService.replace(policies, userId);
+  }
+
+  private async syncUserDecryption(
+    userId: UserId,
+    userDecryption: UserDecryptionResponse | undefined,
+  ) {
+    if (userDecryption == null) {
+      return;
+    }
+    if (userDecryption.masterPasswordUnlock != null) {
+      const masterPasswordUnlockData =
+        userDecryption.masterPasswordUnlock.toMasterPasswordUnlockData();
+      await this.masterPasswordService.setMasterPasswordUnlockData(
+        masterPasswordUnlockData,
+        userId,
+      );
+      await this.kdfConfigService.setKdfConfig(userId, masterPasswordUnlockData.kdf);
+    }
   }
 }

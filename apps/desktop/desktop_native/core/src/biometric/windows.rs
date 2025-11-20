@@ -16,17 +16,18 @@ use windows::{
 };
 use windows_future::IAsyncOperation;
 
+use super::{decrypt, encrypt, windows_focus::set_focus};
 use crate::{
     biometric::{KeyMaterial, OsDerivedKey},
     crypto::CipherString,
 };
 
-use super::{decrypt, encrypt, windows_focus::set_focus};
-
 /// The Windows OS implementation of the biometric trait.
 pub struct Biometric {}
 
 impl super::BiometricTrait for Biometric {
+    // FIXME: Remove unwraps! They panic and terminate the whole application.
+    #[allow(clippy::unwrap_used)]
     async fn prompt(hwnd: Vec<u8>, message: String) -> Result<bool> {
         let h = isize::from_le_bytes(hwnd.clone().try_into().unwrap());
 
@@ -59,7 +60,8 @@ impl super::BiometricTrait for Biometric {
 
         match ucv_available {
             UserConsentVerifierAvailability::Available => Ok(true),
-            UserConsentVerifierAvailability::DeviceBusy => Ok(true), // TODO: Look into removing this and making the check more ad-hoc
+            // TODO: look into removing this and making the check more ad-hoc
+            UserConsentVerifierAvailability::DeviceBusy => Ok(true),
             _ => Ok(false),
         }
     }
@@ -131,7 +133,6 @@ fn random_challenge() -> [u8; 16] {
 #[cfg(test)]
 mod tests {
     use super::*;
-
     use crate::biometric::BiometricTrait;
 
     #[test]

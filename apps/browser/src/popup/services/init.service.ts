@@ -3,11 +3,14 @@ import { inject, Inject, Injectable } from "@angular/core";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
@@ -27,17 +30,21 @@ export class InitService {
     private themingService: AbstractThemingService,
     private sdkLoadService: SdkLoadService,
     private viewCacheService: PopupViewCacheService,
+    private readonly migrationRunner: MigrationRunner,
+    private configService: ConfigService,
+    private encryptService: EncryptService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
   init() {
     return async () => {
       await this.sdkLoadService.loadAndInit();
-      await this.stateService.init({ runMigrations: false }); // Browser background is responsible for migrations
+      await this.migrationRunner.waitForCompletion(); // Browser background is responsible for migrations
       await this.i18nService.init();
       this.twoFactorService.init();
       await this.viewCacheService.init();
       await this.sizeService.init();
+      this.encryptService.init(this.configService);
 
       const htmlEl = window.document.documentElement;
       this.themingService.applyThemeChangesTo(this.document);
