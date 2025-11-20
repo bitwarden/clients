@@ -13,6 +13,7 @@ export enum FeatureFlag {
   /* Admin Console Team */
   CreateDefaultLocation = "pm-19467-create-default-location",
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
+  BlockClaimedDomainAccountCreation = "block-claimed-domain-account-creation",
 
   /* Auth */
   PM22110_DisableAlternateLoginMethods = "pm-22110-disable-alternate-login-methods",
@@ -91,6 +92,7 @@ export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.CreateDefaultLocation]: FALSE,
   [FeatureFlag.AutoConfirm]: FALSE,
+  [FeatureFlag.BlockClaimedDomainAccountCreation]: FALSE,
 
   /* Autofill */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
