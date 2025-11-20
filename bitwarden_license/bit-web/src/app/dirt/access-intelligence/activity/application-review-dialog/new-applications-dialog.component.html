@@ -28,7 +28,7 @@
         </div>
 
         <dirt-review-applications-view
-          [applications]="getApplicationsWithIcons()"
+          [applications]="applicationsWithIcons()"
           [selectedApplications]="selectedApplications()"
           (onToggleSelection)="toggleSelection($event)"
           (onToggleAll)="toggleAll()"

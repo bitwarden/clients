@@ -100,7 +100,15 @@ export class NewApplicationsDialogComponent {
   // Applications selected to save as critical applications
   protected readonly selectedApplications = signal<Set<string>>(new Set());
 
-  readonly applicationIcons = signal<Map<string, CipherIcon>>(new Map<string, CipherIcon>());
+  protected readonly applicationIcons = signal<Map<string, CipherIcon>>(
+    new Map<string, CipherIcon>(),
+  );
+  protected readonly applicationsWithIcons = computed(() => {
+    return this.dialogParams.newApplications.map((app) => {
+      const iconCipher = this.applicationIcons().get(app.applicationName);
+      return { ...app, iconCipher } as ApplicationHealthReportDetail & { iconCipher: CipherIcon };
+    });
+  });
 
   // Used to determine if there are unassigned at-risk cipher IDs
   private readonly _tasks!: Signal<SecurityTask[]>;
@@ -174,16 +182,6 @@ export class NewApplicationsDialogComponent {
         data,
       },
     );
-  }
-
-  getApplicationsWithIcons(): Array<ApplicationHealthReportDetail & { iconCipher: CipherIcon }> {
-    return this.dialogParams.newApplications.map((app) => {
-      const iconCipher = this.applicationIcons().get(app.applicationName);
-      return {
-        ...app,
-        iconCipher,
-      } as ApplicationHealthReportDetail & { iconCipher: CipherIcon };
-    });
   }
 
   /**
