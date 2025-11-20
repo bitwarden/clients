@@ -60,8 +60,10 @@ impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
         let mut browsers = Vec::with_capacity(SUPPORTED_BROWSER_MAP.len());
 
         for (browser, config) in SUPPORTED_BROWSER_MAP.iter() {
-            let data_dir = get_and_validate_data_dir(config)?;
-            browsers.push((*browser).to_string());
+            let data_dir = get_and_validate_data_dir(config);
+            if data_dir.is_ok() {
+                browsers.push((*browser).to_string());
+            }
         }
 
         Ok(browsers)
