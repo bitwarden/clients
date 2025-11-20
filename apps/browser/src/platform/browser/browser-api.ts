@@ -292,10 +292,8 @@ export class BrowserApi {
           throw new Error("Failed to navigate tab to URL: " + error.message);
         });
       } else if (BrowserApi.isChromeApi) {
-        chrome.tabs.update(tabId, { url: url.href }, () => {
-          if (chrome.runtime.lastError) {
-            throw new Error("Failed to navigate tab to URL: " + chrome.runtime.lastError.message);
-          }
+        await chrome.tabs.update(tabId, { url: url.href }).catch((error) => {
+          throw new Error("Failed to navigate tab to URL: " + error.message);
         });
       }
     }

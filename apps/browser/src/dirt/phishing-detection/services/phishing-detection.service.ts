@@ -4,7 +4,6 @@ import {
   distinctUntilChanged,
   EMPTY,
   filter,
-  firstValueFrom,
   map,
   merge,
   of,
@@ -78,25 +77,21 @@ export class PhishingDetectionService {
 
     logService.debug("[PhishingDetectionService] Initialize called. Checking prerequisites...");
 
-    // Load previously ignored hostnames from storage (synchronously to avoid race conditions)
     const ignoredHostnamesState = globalStateProvider.get(IGNORED_PHISHING_HOSTNAMES_KEY);
-    firstValueFrom(ignoredHostnamesState.state$.pipe(map((hostnames) => hostnames ?? [])))
-      .then((initialHostnames) => {
-        this._ignoredHostnames = new Set(initialHostnames);
-        logService.debug(
-          `[PhishingDetectionService] Loaded ${initialHostnames.length} ignored hostnames from storage`,
-        );
-      })
-      .catch((error) => {
-        logService.error("[PhishingDetectionService] Failed to load ignored hostnames", error);
-      });
 
-    // Subscribe to future state changes
+    // Subscribe to state changes (including initial state) to keep in-memory Set in sync
+    // This handles both the initial load and any future updates from other contexts
     const ignoredHostnamesSub = ignoredHostnamesState.state$
-      .pipe(map((hostnames) => hostnames ?? []))
-      .subscribe((hostnames) => {
-        this._ignoredHostnames = new Set(hostnames);
-      });
+      .pipe(
+        map((hostnames) => hostnames ?? []),
+        tap((hostnames) => {
+          this._ignoredHostnames = new Set(hostnames);
+          logService.debug(
+            `[PhishingDetectionService] Loaded/updated ${hostnames.length} ignored hostnames`,
+          );
+        }),
+      )
+      .subscribe();
 
     BrowserApi.addListener(chrome.tabs.onUpdated, this._handleTabUpdated.bind(this));
 
@@ -164,7 +159,7 @@ export class PhishingDetectionService {
 
     const onCancelCommand$ = messageListener
       .messages$(PHISHING_DETECTION_CANCEL_COMMAND)
-      .pipe(switchMap((message) => BrowserApi.closeTab(message.tabId)));
+      .pipe(concatMap(async (message) => await BrowserApi.closeTab(message.tabId)));
 
     const activeAccountHasAccess$ = combineLatest([
       accountService.activeAccount$,
