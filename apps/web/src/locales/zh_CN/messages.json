@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "分配成员任务以监测进度"
   },
-  "onceYouReviewApps": {
-    "message": "审查新应用程序并将其标记为关键后，您可以在这里将任务分配给成员以解决存在风险的项目并监测进度"
+  "onceYouReviewApplications": {
+    "message": "审查应用程序并将其标记为关键后，将任务分配给您的成员以更改他们的密码。"
   },
   "sendReminders": {
     "message": "发送提醒"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "未找到与 $ORG NAME$ 相关的应用程序",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "未找到任何数据"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "导入您组织的登录数据，以开始监测凭据安全风险。导入后您将能够："
+  "noDataInOrgDescription": {
+    "message": "导入您组织的登录数据以开始使用 Access Intelligence。导入完成后，您将能够："
   },
-  "benefit1Title": {
-    "message": "优先处理风险"
+  "feature1Title": {
+    "message": "将应用程序标记为关键"
   },
-  "benefit1Description": {
-    "message": "重点关注最重要的应用程序"
+  "feature1Description": {
+    "message": "这将帮助您优先消除您最重要的应用程序的风险。"
   },
-  "benefit2Title": {
-    "message": "指导补救措施"
+  "feature2Title": {
+    "message": "帮助成员提升他们的安全性"
   },
-  "benefit2Description": {
-    "message": "为存在风险的成员分配引导式任务，以轮换存在风险的凭据"
+  "feature2Description": {
+    "message": "为存在风险的成员分配引导式安全任务，以更新凭证。"
   },
-  "benefit3Title": {
+  "feature3Title": {
     "message": "监测进度"
   },
-  "benefit3Description": {
-    "message": "追踪变化趋势，展示安全改进成效"
+  "feature3Description": {
+    "message": "追踪一段时间内的变化，以展示安全性的改进。"
   },
-  "noReportRunTitle": {
-    "message": "运行您的第一份报告以查看应用程序"
+  "noReportsRunTitle": {
+    "message": "生成报告"
   },
-  "noReportRunDescription": {
-    "message": "生成风险洞察报告，以分析您组织的应用程序并识别需要关注的风险密码。运行您的第一份报告将："
+  "noReportsRunDescription": {
+    "message": "您已准备好开始生成报告。生成报告后，您将能够："
   },
   "noCriticalApplicationsTitle": {
     "message": "您还没有将任何应用程序标记为关键"
@@ -224,7 +218,7 @@
     "message": "选择关键应用程序"
   },
   "markAppAsCritical": {
-    "message": "标记应用程序为关键"
+    "message": "将 App 标记为关键"
   },
   "markAsCritical": {
     "message": "标记为关键"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "存在风险的成员"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "对关键应用程序中存在风险的项目具有访问权限的成员"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "这些成员拥有关键应用程序中易受攻击项目的访问权限。"
   },
   "membersWithAtRiskPasswords": {
     "message": "密码存在风险的成员"
   },
-  "membersWillReceiveNotification": {
-    "message": "成员将通过浏览器扩展收到通知，以解决存在风险的登录。"
+  "membersWillReceiveSecurityTask": {
+    "message": "您的组织成员将被分配更改易受攻击的密码的任务。他们将在 Bitwarden 浏览器扩展中收到通知。"
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ 个成员存在风险",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "这些成员正登录到具有弱的、暴露的或重复使用的密码的应用程序。"
+  "atRiskMemberDescription": {
+    "message": "这些成员正在登录到具有弱的、暴露的或重复使用的密码的关键应用程序。"
   },
   "atRiskMembersDescriptionNone": {
     "message": "没有成员登录到具有弱的、暴露的或重复使用的密码的应用程序。"
@@ -391,14 +385,14 @@
   "prioritizeCriticalApplications": {
     "message": "优先处理关键应用程序"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "选择对您的组织最关键的应用程序，然后将安全任务分配给成员以解决风险。"
+  "selectCriticalAppsDescription": {
+    "message": "选择对您的组织最关键的应用程序。然后，您可以将安全任务分配给成员以消除风险。"
   },
   "reviewNewApplications": {
     "message": "审查新应用程序"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "我们突出显示了存储在管理控制台中的新应用程序的风险项目，这些项目使用了弱、暴露或重复使用的密码。"
+  "reviewNewAppsDescription": {
+    "message": "审查具有易受攻击项目的新应用程序然后将需要密切监测的应用程序标记为关键。然后，您可以将安全任务分配给成员以消除风险。"
   },
   "clickIconToMarkAppAsCritical": {
     "message": "点击星形图标以将 App 标记为关键"
@@ -2543,23 +2537,23 @@
     "message": "恢复访问权限"
   },
   "premium": {
-    "message": "高级会员",
+    "message": "高级版",
     "description": "Premium membership"
   },
   "premiumMembership": {
     "message": "高级会员"
   },
   "premiumRequired": {
-    "message": "需要高级会员"
+    "message": "需要高级版"
   },
   "premiumRequiredDesc": {
     "message": "使用此功能需要高级会员资格。"
   },
   "youHavePremiumAccess": {
-    "message": "您拥有高级访问权限"
+    "message": "您拥有高级版访问权限"
   },
   "alreadyPremiumFromOrg": {
-    "message": "由于您是拥有高级会员功能的组织的成员，您已经拥有此功能。"
+    "message": "由于您是组织的成员，您已经拥有高级版功能访问权限。"
   },
   "manage": {
     "message": "管理"
@@ -3056,7 +3050,7 @@
     "message": "您账户的信用额度可用于进行消费。任何可用的信用额度将用于自动抵扣此账户的账单。"
   },
   "goPremium": {
-    "message": "升级高级会员",
+    "message": "升级高级版",
     "description": "Another way of saying \"Get a Premium membership\""
   },
   "premiumUpdated": {
@@ -3084,7 +3078,7 @@
     "message": "优先客户支持。"
   },
   "premiumSignUpFuture": {
-    "message": "未来的更多高级功能。敬请期待！"
+    "message": "未来的更多高级版功能。敬请期待！"
   },
   "premiumPrice": {
     "message": "所有功能仅需 $PRICE$ /年！",
@@ -3096,7 +3090,7 @@
     }
   },
   "premiumPriceWithFamilyPlan": {
-    "message": "升级高级会员仅需 $PRICE$ /年，或成为具有 $FAMILYPLANUSERCOUNT$ 位用户以及无限制的家庭共享的高级账户，通过 ",
+    "message": "升级高级版仅需 $PRICE$ /年，或成为具有 $FAMILYPLANUSERCOUNT$ 位用户以及无限制的家庭共享的高级账户，通过 ",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -3115,10 +3109,10 @@
     "message": "附加项目"
   },
   "premiumAccess": {
-    "message": "高级会员"
+    "message": "高级版访问权限"
   },
   "premiumAccessDesc": {
-    "message": "您可以为您的组织所有成员添加高级访问权限，只需 $PRICE$ /$INTERVAL$ 。",
+    "message": "您可以为您的组织所有成员添加高级版访问权限，只需 $PRICE$ /$INTERVAL$ 。",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -3559,7 +3553,7 @@
     "message": "本地托管（可选）"
   },
   "usersGetPremium": {
-    "message": "用户拥有高级会员功能权限"
+    "message": "用户拥有高级版功能访问权限"
   },
   "controlAccessWithGroups": {
     "message": "使用群组控制用户访问权限"
@@ -6915,7 +6909,7 @@
     "message": "Bitwarden 家庭方案包含"
   },
   "sponsoredFamiliesPremiumAccess": {
-    "message": "最多 6 个用户的高级访问权限"
+    "message": "最多 6 个高级版访问权限的用户"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "为家庭成员提供共享集合"
@@ -9856,8 +9850,8 @@
   "assignTasks": {
     "message": "分配任务"
   },
-  "assignTasksToMembers": {
-    "message": "将任务分配给成员以引导式解决"
+  "assignSecurityTasksToMembers": {
+    "message": "发送通知以更改密码"
   },
   "assignToCollections": {
     "message": "分配到集合"
@@ -10877,7 +10871,7 @@
     "message": "保护您的家庭登录"
   },
   "accessToPremiumFeatures": {
-    "message": "访问高级会员功能"
+    "message": "高级版功能访问权限"
   },
   "additionalStorageGbMessage": {
     "message": "GB 附加存储"
@@ -10916,7 +10910,7 @@
     "message": "RSA 4096-Bit"
   },
   "premiumAccounts": {
-    "message": "6 个高级账户"
+    "message": "6 个高级版账户"
   },
   "unlimitedSharing": {
     "message": "不限数量的共享"
@@ -12159,9 +12153,9 @@
     }
   },
   "confirmNoSelectedCriticalApplicationsTitle": {
-    "message": "No critical applications are selected"
+    "message": "未选择任何关键应用程序"
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
-    "message": "Are you sure you want to continue?"
+    "message": "确定要继续吗？"
   }
 }
