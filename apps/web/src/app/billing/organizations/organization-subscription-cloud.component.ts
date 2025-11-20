@@ -344,6 +344,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
       data: {
         type: "Organization",
         id: this.organizationId,
+        plan: this.sub.plan.type,
       },
     });
 
