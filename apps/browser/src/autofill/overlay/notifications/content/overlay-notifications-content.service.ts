@@ -257,7 +257,11 @@ export class OverlayNotificationsContentService
         return;
       }
 
-      this.sendMessageToNotificationBarIframe({ command: "initNotificationBar", initData });
+      this.sendMessageToNotificationBarIframe({
+        command: "initNotificationBar",
+        initData,
+        parentOrigin: globalThis.location.origin,
+      });
       globalThis.removeEventListener("message", handleInitNotificationBarMessage);
     };
 

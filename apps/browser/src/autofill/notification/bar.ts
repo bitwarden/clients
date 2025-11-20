@@ -407,7 +407,12 @@ function handleWindowMessage(event: MessageEvent) {
   // set windowMessageOrigin when receiving the trusted initNotificationBar message
   if (message.command === "initNotificationBar") {
     if (!windowMessageOrigin) {
+      if (!message.parentOrigin || message.parentOrigin !== event.origin) {
+        return;
+      }
       windowMessageOrigin = event.origin;
+    } else if (event.origin !== windowMessageOrigin) {
+      return;
     }
   }
 
