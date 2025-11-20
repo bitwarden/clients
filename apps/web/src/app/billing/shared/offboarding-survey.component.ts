@@ -4,6 +4,7 @@ import { ChangeDetectionStrategy, Component, Inject } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
 import { BillingApiServiceAbstraction as BillingApiService } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { PlanType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -21,6 +22,7 @@ type UserOffboardingParams = {
 type OrganizationOffboardingParams = {
   type: "Organization";
   id: string;
+  plan: PlanType;
 };
 
 export type OffboardingSurveyDialogParams = UserOffboardingParams | OrganizationOffboardingParams;
@@ -127,14 +129,20 @@ export class OffboardingSurveyComponent {
   };
 
   private getSwitchingReason(): Reason {
-    return this.dialogParams.type === "Organization"
-      ? {
-          value: "too_expensive",
-          text: this.i18nService.t("switchToFreeOrg"),
-        }
-      : {
-          value: "too_expensive",
-          text: this.i18nService.t("switchToFreePlan"),
-        };
+    if (this.dialogParams.type === "User") {
+      return {
+        value: "too_expensive",
+        text: this.i18nService.t("switchToFreePlan"),
+      };
+    }
+
+    const isFamilyPlan =
+      this.dialogParams.plan in
+      [PlanType.FamiliesAnnually, PlanType.FamiliesAnnually2019, PlanType.FamiliesAnnually2025];
+
+    return {
+      value: "too_expensive",
+      text: this.i18nService.t(isFamilyPlan ? "switchToFreeOrg" : "tooExpensive"),
+    };
   }
 }
