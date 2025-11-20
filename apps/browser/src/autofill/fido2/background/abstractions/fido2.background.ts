@@ -13,6 +13,7 @@ type SharedFido2ScriptRegistrationOptions = SharedFido2ScriptInjectionDetails & 
   matches: string[];
   excludeMatches: string[];
   allFrames: true;
+  world?: "MAIN" | "ISOLATED";
 };
 
 type Fido2ExtensionMessage = {
