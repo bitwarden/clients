@@ -21,7 +21,7 @@ describe("platformPopoutGuard", () => {
     getPlatformInfoSpy = jest.spyOn(BrowserApi, "getPlatformInfo");
     inPopoutSpy = jest.spyOn(BrowserPopupUtils, "inPopout");
     inSidebarSpy = jest.spyOn(BrowserPopupUtils, "inSidebar");
-    openPopoutSpy = jest.spyOn(BrowserPopupUtils, "openPopout").mockResolvedValue();
+    openPopoutSpy = jest.spyOn(BrowserPopupUtils, "openPopout").mockImplementation();
 
     TestBed.configureTestingModule({});
   });
