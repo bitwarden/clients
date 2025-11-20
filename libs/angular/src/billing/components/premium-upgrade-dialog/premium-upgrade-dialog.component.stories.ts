@@ -31,6 +31,7 @@ const mockPremiumTier: PersonalSubscriptionPricingTier = {
     type: "standalone",
     annualPrice: 10,
     annualPricePerAdditionalStorageGB: 4,
+    providedStorageGB: 1,
     features: [
       { key: "builtInAuthenticator", value: "Built-in authenticator" },
       { key: "secureFileStorage", value: "Secure file storage" },

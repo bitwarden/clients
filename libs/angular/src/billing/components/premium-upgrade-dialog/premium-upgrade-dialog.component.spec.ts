@@ -40,6 +40,7 @@ describe("PremiumUpgradeDialogComponent", () => {
       type: "standalone",
       annualPrice: 10,
       annualPricePerAdditionalStorageGB: 4,
+      providedStorageGB: 1,
       features: [
         { key: "feature1", value: "Feature 1" },
         { key: "feature2", value: "Feature 2" },
@@ -58,6 +59,7 @@ describe("PremiumUpgradeDialogComponent", () => {
       users: 6,
       annualPrice: 40,
       annualPricePerAdditionalStorageGB: 4,
+      providedStorageGB: 1,
       features: [{ key: "featureA", value: "Feature A" }],
     },
   };
