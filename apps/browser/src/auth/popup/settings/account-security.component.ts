@@ -32,6 +32,8 @@ import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/phishing-detection-settings.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
@@ -130,6 +132,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     pinLockWithMasterPassword: false,
     biometric: false,
     enableAutoBiometricsPrompt: true,
+    enablePhishingDetection: true,
   });
 
   protected showAccountSecurityNudge$: Observable<boolean> =
@@ -141,6 +144,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     );
 
   protected readonly consolidatedSessionTimeoutComponent$: Observable<boolean>;
+  protected readonly phishingDetectionFeatureEnabled$: Observable<boolean>;
+  protected readonly phishingDetectionAvailable$: Observable<boolean>;
 
   protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
   private destroy$ = new Subject<void>();
@@ -167,9 +172,28 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private vaultNudgesService: NudgesService,
     private validationService: ValidationService,
     private logService: LogService,
+    private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
       FeatureFlag.ConsolidatedSessionTimeoutComponent,
+    );
+
+    this.phishingDetectionFeatureEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.PhishingDetection,
+    );
+
+    // Check if user has premium and feature is enabled
+    this.phishingDetectionAvailable$ = combineLatest([
+      this.accountService.activeAccount$,
+      this.phishingDetectionFeatureEnabled$,
+    ]).pipe(
+      switchMap(([account, featureEnabled]) => {
+        if (!account || !featureEnabled) {
+          return of(false);
+        }
+        return this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id);
+      }),
     );
   }
 
@@ -250,6 +274,9 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(),
       enableAutoBiometricsPrompt: await firstValueFrom(
         this.biometricStateService.promptAutomatically$,
+      ),
+      enablePhishingDetection: await firstValueFrom(
+        this.phishingDetectionSettingsService.enablePhishingDetection$,
       ),
     };
     this.form.patchValue(initialValues, { emitEvent: false });
@@ -356,6 +383,15 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       .pipe(
         concatMap(async (enabled) => {
           await this.biometricStateService.setPromptAutomatically(enabled);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    this.form.controls.enablePhishingDetection.valueChanges
+      .pipe(
+        concatMap(async (enabled) => {
+          await this.phishingDetectionSettingsService.setEnablePhishingDetection(enabled);
         }),
         takeUntil(this.destroy$),
       )

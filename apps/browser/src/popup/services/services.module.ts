@@ -66,6 +66,10 @@ import {
   UserNotificationSettingsServiceAbstraction,
 } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import {
+  PhishingDetectionSettingsService,
+  PhishingDetectionSettingsServiceAbstraction,
+} from "@bitwarden/common/dirt/services/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
@@ -506,6 +510,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: UserNotificationSettingsServiceAbstraction,
     useClass: UserNotificationSettingsService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: PhishingDetectionSettingsServiceAbstraction,
+    useClass: PhishingDetectionSettingsService,
     deps: [StateProvider],
   }),
   safeProvider({

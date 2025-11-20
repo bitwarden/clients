@@ -14,6 +14,8 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/phishing-detection-settings.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   VaultTimeoutSettingsService,
@@ -66,6 +68,8 @@ describe("AccountSecurityComponent", () => {
   const platformUtilsService = mock<PlatformUtilsService>();
   const lockService = mock<LockService>();
   const configService = mock<ConfigService>();
+  const phishingDetectionSettingsService = mock<PhishingDetectionSettingsServiceAbstraction>();
+  const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -96,6 +100,11 @@ describe("AccountSecurityComponent", () => {
         { provide: ValidationService, useValue: validationService },
         { provide: LockService, useValue: lockService },
         { provide: ConfigService, useValue: configService },
+        {
+          provide: PhishingDetectionSettingsServiceAbstraction,
+          useValue: phishingDetectionSettingsService,
+        },
+        { provide: BillingAccountProfileStateService, useValue: billingAccountProfileStateService },
       ],
     })
       .overrideComponent(AccountSecurityComponent, {
@@ -125,6 +134,9 @@ describe("AccountSecurityComponent", () => {
     );
     biometricStateService.promptAutomatically$ = of(false);
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);
+    phishingDetectionSettingsService.enablePhishingDetection$ = of(true);
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+    billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
   });
 
   afterEach(() => {
