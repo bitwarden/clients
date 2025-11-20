@@ -37,6 +37,7 @@ export const NudgeType = {
   NewNoteItemStatus: "new-note-item-status",
   NewSshItemStatus: "new-ssh-item-status",
   GeneratorNudgeStatus: "generator-nudge-status",
+  PremiumUpgrade: "premium-upgrade",
 } as const;
 
 export type NudgeType = UnionOfValues<typeof NudgeType>;

@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "Переглянути все"
   },
+  "viewLess": {
+    "message": "View less"
+  },
   "viewLogin": {
     "message": "Переглянути запис"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "З блокуванням системи"
+  },
+  "onIdle": {
+    "message": "On system idle"
+  },
+  "onSleep": {
+    "message": "On system sleep"
   },
   "onRestart": {
     "message": "З перезапуском браузера"
@@ -5800,6 +5809,21 @@
   "upgradeToPremium": {
     "message": "Покращити до Premium"
   },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "Loading vault"
+  },
+  "vaultLoaded": {
+    "message": "Vault loaded"
+  },
   "settingDisabledByPolicy": {
     "message": "Цей параметр вимкнено політикою вашої організації.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5833,8 @@
   },
   "cardNumberLabel": {
     "message": "Номер картки"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
   }
 }

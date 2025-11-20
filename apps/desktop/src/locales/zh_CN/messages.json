@@ -1298,7 +1298,7 @@
     "message": "系统空闲时"
   },
   "onSleep": {
-    "message": "系统休眠时"
+    "message": "系统睡眠时"
   },
   "onLocked": {
     "message": "系统锁定时"
@@ -1503,7 +1503,7 @@
     "message": "优先客户支持。"
   },
   "premiumSignUpFuture": {
-    "message": "所有未来的高级功能。即将推出！"
+    "message": "未来的更多高级版功能。敬请期待！"
   },
   "premiumPurchase": {
     "message": "购买高级版"
@@ -2029,7 +2029,7 @@
     "message": "Bitwarden 可以存储并填充两步验证码。选择相机图标来拍摄此网站的验证器二维码，或将密钥复制并粘贴到此字段。"
   },
   "premium": {
-    "message": "高级会员",
+    "message": "高级版",
     "description": "Premium membership"
   },
   "freeOrgsCannotUseAttachments": {
@@ -2149,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "启用浏览器集成时出错。"
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "很遗憾，目前仅 Mac App Store 版本支持浏览器集成。"
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "很遗憾，Microsoft Store 版本目前不支持浏览器集成。"
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "升级为高级版"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "超时动作"
+  },
+  "sessionTimeoutHeader": {
+    "message": "会话超时"
   }
 }

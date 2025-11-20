@@ -1,9 +1,12 @@
-//! This module provides hardened storage for single cryptographic keys. These are meant for encrypting large amounts of memory.
-//! Some platforms restrict how many keys can be protected by their APIs, which necessitates this layer of indirection. This significantly
-//! reduces the complexity of each platform specific implementation, since all that's needed is implementing protecting a single fixed sized key
-//! instead of protecting many arbitrarily sized secrets. This significantly lowers the effort to maintain each implementation.
+//! This module provides hardened storage for single cryptographic keys. These are meant for
+//! encrypting large amounts of memory. Some platforms restrict how many keys can be protected by
+//! their APIs, which necessitates this layer of indirection. This significantly reduces the
+//! complexity of each platform specific implementation, since all that's needed is implementing
+//! protecting a single fixed sized key instead of protecting many arbitrarily sized secrets. This
+//! significantly lowers the effort to maintain each implementation.
 //!
-//! The implementations include DPAPI on Windows, `keyctl` on Linux, and `memfd_secret` on Linux, and a fallback implementation using mlock.
+//! The implementations include DPAPI on Windows, `keyctl` on Linux, and `memfd_secret` on Linux,
+//! and a fallback implementation using mlock.
 
 use tracing::info;
 
@@ -20,12 +23,13 @@ pub use crypto::EncryptedMemory;
 
 use crate::secure_memory::secure_key::crypto::DecryptionError;
 
-/// An ephemeral key that is protected using a platform mechanism. It is generated on construction freshly, and can be used
-/// to encrypt and decrypt segments of memory. Since the key is ephemeral, persistent data cannot be encrypted with this key.
-/// On Linux and Windows, in most cases the protection mechanisms prevent memory dumps/debuggers from reading the key.
+/// An ephemeral key that is protected using a platform mechanism. It is generated on construction
+/// freshly, and can be used to encrypt and decrypt segments of memory. Since the key is ephemeral,
+/// persistent data cannot be encrypted with this key. On Linux and Windows, in most cases the
+/// protection mechanisms prevent memory dumps/debuggers from reading the key.
 ///
-/// Note: This can be circumvented if code can be injected into the process and is only effective in combination with the
-/// memory isolation provided in `process_isolation`.
+/// Note: This can be circumvented if code can be injected into the process and is only effective in
+/// combination with the memory isolation provided in `process_isolation`.
 /// - https://github.com/zer1t0/keydump
 #[allow(unused)]
 pub(crate) struct SecureMemoryEncryptionKey(CrossPlatformSecureKeyContainer);
@@ -55,7 +59,8 @@ impl SecureMemoryEncryptionKey {
 /// from memory attacks.
 #[allow(unused)]
 trait SecureKeyContainer: Sync + Send {
-    /// Returns the key as a byte slice. This slice does not have additional memory protections applied.
+    /// Returns the key as a byte slice. This slice does not have additional memory protections
+    /// applied.
     fn as_key(&self) -> crypto::MemoryEncryptionKey;
     /// Creates a new SecureKeyContainer from the provided key.
     fn from_key(key: crypto::MemoryEncryptionKey) -> Self;

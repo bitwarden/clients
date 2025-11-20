@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 
+import { LogService } from "@bitwarden/logging";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 
 import { BrowserApi } from "../browser/browser-api";
@@ -11,14 +12,14 @@ import { portName } from "./port-name";
 export class BackgroundMemoryStorageService extends SerializedMemoryStorageService {
   private _ports: chrome.runtime.Port[] = [];
 
-  constructor() {
+  constructor(private readonly logService: LogService) {
     super();
 
     BrowserApi.addListener(chrome.runtime.onConnect, (port) => {
       if (port.name !== portName(chrome.storage.session)) {
         return;
       }
-      if (!BrowserApi.senderIsInternal(port.sender)) {
+      if (!BrowserApi.senderIsInternal(port.sender, this.logService)) {
         return;
       }
 
