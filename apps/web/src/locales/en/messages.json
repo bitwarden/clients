@@ -12161,5 +12161,8 @@
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Are you sure you want to continue?"
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }
