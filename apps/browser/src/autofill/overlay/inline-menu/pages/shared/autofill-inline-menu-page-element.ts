@@ -59,10 +59,8 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
    * @param message - The message to post
    */
   protected postMessageToParent(message: AutofillInlineMenuPageElementWindowMessage) {
-    if (!this.token) {
-      return;
-    }
-    if (!this.messageOrigin) {
+    // never send messages containing authentication tokens without a valid token and an established messageOrigin
+    if (!this.token || !this.messageOrigin) {
       return;
     }
     const messageWithAuth: Record<string, unknown> = {
