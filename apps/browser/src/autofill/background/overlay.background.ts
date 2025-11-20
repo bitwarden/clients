@@ -1177,6 +1177,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       allowTotpAutofill: true,
       focusedFieldForm: this.focusedFieldData?.focusedFieldForm,
       focusedFieldOpid: this.focusedFieldData?.focusedFieldOpid,
+      inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
     });
 
     if (totpCode) {
@@ -1863,6 +1864,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       allowTotpAutofill: false,
       focusedFieldForm: this.focusedFieldData?.focusedFieldForm,
       focusedFieldOpid: this.focusedFieldData?.focusedFieldOpid,
+      inlineMenuFillType: InlineMenuFillTypes.PasswordGeneration,
     });
 
     globalThis.setTimeout(async () => {
