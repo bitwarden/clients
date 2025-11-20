@@ -15,7 +15,7 @@
     "message": "Няма важни приложения в риск"
   },
   "accessIntelligence": {
-    "message": "Access Intelligence"
+    "message": "Анализ на достъпа"
   },
   "passwordRisk": {
     "message": "Рискова парола"
@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Назначете задачи на членовете, за да следите напредъка"
   },
-  "onceYouReviewApps": {
-    "message": "След като прегледате приложенията и отбележите някои като важни, можете да зададете задачи на членовете, така че те да се занимаят с нещата в риск, а Вие да следите напредъка тук"
+  "onceYouReviewApplications": {
+    "message": "След като прегледате приложенията и ги отбележите като важни, можете да зададете задачи на членовете си, за да сменят паролите си."
   },
   "sendReminders": {
     "message": "Изпращане на напомняния"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "Няма намерени приложения за $ORG NAME$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "Няма намерени данни"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Внесете данните за вписване на организацията си, за да започнете да следите рисковете по сигурността им. След внасянето ще можете:"
+  "noDataInOrgDescription": {
+    "message": "Внесете данните за вписване на организацията си, за да започнете да използвате Анализа на достъпа. След като направите това, ще можете да:"
   },
-  "benefit1Title": {
-    "message": "Да приоритизирате рисковете"
+  "feature1Title": {
+    "message": "Отбелязвате приложения като важни"
   },
-  "benefit1Description": {
-    "message": "Фокусирайте се върху приложенията, които са най-важни"
+  "feature1Description": {
+    "message": "Това ще Ви помогне да отстранявате рисковете първо в най-важните си приложения."
   },
-  "benefit2Title": {
-    "message": "Да давате насоки за подобряване"
+  "feature2Title": {
+    "message": "Помагате на членовете да подобряват сигурността си"
   },
-  "benefit2Description": {
-    "message": "Давайте задачи на членовете в риск, така че те да не забравят да променят данните си"
+  "feature2Description": {
+    "message": "Задавайте на членовете в риск задачи по сигурността, които да ги насочват в промяната на данните им."
   },
-  "benefit3Title": {
-    "message": "Да следите напредъка"
+  "feature3Title": {
+    "message": "Следите напредъка"
   },
-  "benefit3Description": {
-    "message": "Следете промените във времето, за да виждате как сигурността се подобрява"
+  "feature3Description": {
+    "message": "Следете промените във времето, за да виждате как сигурността се подобрява."
   },
-  "noReportRunTitle": {
-    "message": "Създайте първия си доклад, за да видите приложенията"
+  "noReportsRunTitle": {
+    "message": "Създаване на доклад"
   },
-  "noReportRunDescription": {
-    "message": "Създайте доклад с подробности за рисковете, за да анализирате приложенията в организацията си и да установите кои пароли са в риск и имат нужда от внимание. Създаването на първия доклад ще:"
+  "noReportsRunDescription": {
+    "message": "Всичко е готово и можете да започнете да създавате доклади. След като го направите, ще можете да:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Не сте отбелязали нито едно приложение като важно"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Членове в риск"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Членове с достъп до елементи в риск за важни приложения"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "Тези членове имат достъп до рисковите елементи за важните приложения."
   },
   "membersWithAtRiskPasswords": {
     "message": "Членове с пароли в риск"
   },
-  "membersWillReceiveNotification": {
-    "message": "Членовете ще получат известие, за да отстранят проблема с данните си за вписване в риск, чрез добавката за браузъра."
+  "membersWillReceiveSecurityTask": {
+    "message": "Членовете на организацията ще получат задача за промяна на рисковите пароли. Те ще получат известие в разширението за браузър на Битуорден."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ членове в риск",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Тези членове се вписват в приложенията със слаби, преизползвани или разобличени пароли."
+  "atRiskMemberDescription": {
+    "message": "Тези членове се вписват във важните приложения със слаби, преизползвани или разкрити пароли."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Няма членове, които се вписват в приложенията със слаби, преизползвани или разобличени пароли."
@@ -349,6 +343,9 @@
   "applicationsNeedingReview": {
     "message": "Приложения, които имат нужда от преглед"
   },
+  "newApplicationsCardTitle": {
+    "message": "Преглед на новите приложения"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ нови приложения",
     "placeholders": {
@@ -370,17 +367,32 @@
   "noNewApplicationsToReviewAtThisTime": {
     "message": "В момента няма нови приложения за преглед"
   },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Вашата организация има запазени елементи за $COUNT$ приложения",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Прегледайте приложенията, за да защитите най-важните за организацията си елементи"
+  },
+  "reviewApplications": {
+    "message": "Преглед на приложенията"
+  },
   "prioritizeCriticalApplications": {
     "message": "Даване на приоритет на важните приложения"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Изберете кои приложения са най-важни за организацията Ви, а след това раздайте задачи на членовете, за да отстраните рисковете."
+  "selectCriticalAppsDescription": {
+    "message": "Изберете кои приложения са най-важни за организацията Ви. След това ще можете да зададете задачи на членовете, за да отстраните рисковете."
   },
   "reviewNewApplications": {
     "message": "Преглед на новите приложения"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "Отбелязахме елементите в риск за новите приложения съхранявани в Административната конзола, които имат слаби, преизползвани или разкрити пароли."
+  "reviewNewAppsDescription": {
+    "message": "Прегледайте новите приложения с рискови елементи и ги отбележете, ако искате да ги следите внимателно като важни. След това ще можете да задавате задачи на членовете, за да отстраните рисковете."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Щракнете върху иконката със звезда, за да отбележите приложение като важно"
@@ -3232,8 +3244,17 @@
   "nextCharge": {
     "message": "Следваща промяна"
   },
+  "nextChargeHeader": {
+    "message": "Следващо плащане"
+  },
+  "plan": {
+    "message": "План"
+  },
   "details": {
     "message": "Детайли"
+  },
+  "discount": {
+    "message": "отстъпка"
   },
   "downloadLicense": {
     "message": "Изтегляне на лиценз"
@@ -4440,7 +4461,31 @@
     "message": "Обновяване на браузъра"
   },
   "generatingYourAccessIntelligence": {
-    "message": "Generating your Access Intelligence..."
+    "message": "Създаване на Вашия анализ на достъпа…"
+  },
+  "fetchingMemberData": {
+    "message": "Извличане на данните за членовете…"
+  },
+  "analyzingPasswordHealth": {
+    "message": "Анализиране на състоянието на паролите…"
+  },
+  "calculatingRiskScores": {
+    "message": "Изчисляване на оценките на риска…"
+  },
+  "generatingReportData": {
+    "message": "Създаване на данните за доклада…"
+  },
+  "savingReport": {
+    "message": "Запазване на доклада…"
+  },
+  "compilingInsights": {
+    "message": "Събиране на подробности…"
+  },
+  "loadingProgress": {
+    "message": "Зареждане на напредъка"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Това може да отнеме няколко минути."
   },
   "riskInsightsRunReport": {
     "message": "Изпълнение на доклада"
@@ -5804,16 +5849,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "Как се включва автоматичното потвърждаване на потребителите"
   },
-  "autoConfirmStep1": {
-    "message": "Отворете добавката на Битуорден."
+  "autoConfirmExtension1": {
+    "message": "Отворете добавката на Битуорден"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "Изберете",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " Включване.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " Включване",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "Добавката за браузър на Битуорден е отворена. Сега можете да включите настройката за автоматично потвърждаване на потребителите."
@@ -9525,9 +9570,6 @@
   "loggedInExclamation": {
     "message": "Вписахте се!"
   },
-  "beta": {
-    "message": "Бета"
-  },
   "assignCollectionAccess": {
     "message": "Задаване на достъп за колекциите"
   },
@@ -9808,8 +9850,8 @@
   "assignTasks": {
     "message": "Назначаване на задачи"
   },
-  "assignTasksToMembers": {
-    "message": "Задавайте задачи на членовете, за да отстраняват проблемите"
+  "assignSecurityTasksToMembers": {
+    "message": "Изпращане на известия за промяна на пароли"
   },
   "assignToCollections": {
     "message": "Свързване с колекции"
@@ -12075,5 +12117,45 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Започнете безплатния пробен период на Семейния план"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Задайте метод за отключване, за да може да промените действието при изтичане на времето за достъп до трезора."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Изискванията на политиката за големи компании бяха приложени към настройките на времето за достъп"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Времето за достъп до трезора Ви превишава ограничението, определено от организацията Ви."
+  },
+  "neverLockWarning": {
+    "message": "Уверени ли сте, че искате да зададете стойност „Никога“? Това води до съхранение на шифриращия ключ за трезора във устройството ви. Ако използвате тази възможност, е много важно да имате надлежна защита на устройството си."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Действие при изтичането на времето за достъп"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Изтичане на времето за сесията"
+  },
+  "appearance": {
+    "message": "Външен вид"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Времето за достъп превишава ограничението, зададено от Вашата организация: максимум $HOURS$ час(а) и $MINUTES$ минута/и",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "Няма избрани важни приложения"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Наистина ли искате да продължите?"
   }
 }

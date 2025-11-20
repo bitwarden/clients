@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "הצג הכל"
   },
+  "viewLess": {
+    "message": "הצג פחות"
+  },
   "viewLogin": {
     "message": "הצג כניסה"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "בנעילת המערכת"
+  },
+  "onIdle": {
+    "message": "כשהמערכת מזהה חוסר פעילות"
+  },
+  "onSleep": {
+    "message": "כשהמערכת נכנסת למצב שינה"
   },
   "onRestart": {
     "message": "בהפעלת הדפדפן מחדש"
@@ -4975,7 +4984,7 @@
     }
   },
   "defaultLabelWithValue": {
-    "message": "Default ( $VALUE$ )",
+    "message": "ברירת מחדל ( $VALUE$ )",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5777,28 +5786,43 @@
     "message": "עבודה נהדרת באבטחת הכניסות בסיכון שלך!"
   },
   "upgradeNow": {
-    "message": "Upgrade now"
+    "message": "שדרג עכשיו"
   },
   "builtInAuthenticator": {
-    "message": "Built-in authenticator"
+    "message": "מאמת מובנה"
   },
   "secureFileStorage": {
-    "message": "Secure file storage"
+    "message": "אחסון קבצים מאובטח"
   },
   "emergencyAccess": {
-    "message": "Emergency access"
+    "message": "גישת חירום"
   },
   "breachMonitoring": {
-    "message": "Breach monitoring"
+    "message": "ניטור פרצות"
   },
   "andMoreFeatures": {
-    "message": "And more!"
+    "message": "ועוד!"
   },
   "planDescPremium": {
-    "message": "Complete online security"
+    "message": "השלם אבטחה מקוונת"
   },
   "upgradeToPremium": {
-    "message": "Upgrade to Premium"
+    "message": "שדרג לפרימיום"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "טוען כספת"
+  },
+  "vaultLoaded": {
+    "message": "הכספת נטענה"
   },
   "settingDisabledByPolicy": {
     "message": "הגדרה זו מושבתת על ידי מדיניות של הארגון שלך.",
@@ -5809,5 +5833,8 @@
   },
   "cardNumberLabel": {
     "message": "מספר כרטיס"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "פעולת פסק זמן"
   }
 }
