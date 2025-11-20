@@ -3,9 +3,10 @@ use std::io::Write;
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use windows::Win32::Foundation::*;
-use windows::Win32::System::LibraryLoader::*;
-use windows::core::*;
+use windows::{
+    core::PCSTR,
+    Win32::{Foundation::*, System::LibraryLoader::*},
+};
 
 use crate::com_buffer::ComBuffer;
 
