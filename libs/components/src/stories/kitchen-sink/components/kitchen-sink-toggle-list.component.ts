@@ -28,7 +28,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
     }
   `,
 })
-export class KitchenSinkToggleList {
+export class KitchenSinkToggleListComponent {
   selectedToggle: "all" | "large" | "small" = "all";
 
   companyList = [

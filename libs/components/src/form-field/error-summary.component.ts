@@ -16,7 +16,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
   },
   imports: [I18nPipe],
 })
-export class BitErrorSummary {
+export class BitErrorSummaryComponent {
   readonly formGroup = input<UntypedFormGroup>();
 
   get errorCount(): number {

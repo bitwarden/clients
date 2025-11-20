@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "Apskatīt visu"
   },
+  "viewLess": {
+    "message": "Skatīt mazāk"
+  },
   "viewLogin": {
     "message": "Apskatīt pieteikšanās vienumu"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Pēc sistēmas aizslēgšanas"
+  },
+  "onIdle": {
+    "message": "Sistēmas dīkstāvē"
+  },
+  "onSleep": {
+    "message": "Pēc sistēmas iemigšanas"
   },
   "onRestart": {
     "message": "Pēc pārlūka pārsāknēšanas"
@@ -5800,6 +5809,21 @@
   "upgradeToPremium": {
     "message": "Uzlabot uz Premium"
   },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "Ielādē glabātavu"
+  },
+  "vaultLoaded": {
+    "message": "Glabātava ielādēta"
+  },
   "settingDisabledByPolicy": {
     "message": "Šis iestatījums ir atspējots apvienības pamatnostādnēs.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5833,8 @@
   },
   "cardNumberLabel": {
     "message": "Kartes numurs"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Noildzes darbība"
   }
 }

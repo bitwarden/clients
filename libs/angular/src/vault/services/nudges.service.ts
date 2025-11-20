@@ -39,6 +39,7 @@ export const NudgeType = {
   NewSshItemStatus: "new-ssh-item-status",
   GeneratorNudgeStatus: "generator-nudge-status",
   AutoConfirmNudge: "auto-confirm-nudge",
+  PremiumUpgrade: "premium-upgrade",
 } as const;
 
 export type NudgeType = UnionOfValues<typeof NudgeType>;

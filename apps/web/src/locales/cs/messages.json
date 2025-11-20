@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Přiřadit úkoly členů ke sledování průběhu"
   },
-  "onceYouReviewApps": {
-    "message": "Jakmile zkontrolujete aplikace a označíte je jako kritické, můžete přidělit členům úkoly k řešení ohrožených položek a sledovat průběh zde"
+  "onceYouReviewApplications": {
+    "message": "Jakmile zkontrolujete aplikace a označíte je jako kritické, přiřaďte svým členům úkoly ke změně jejich hesel."
   },
   "sendReminders": {
     "message": "Odeslat připomenutí"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "Pro $ORG NAME$ nebyly nalezeny žádné aplikace",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "Nebyla nalezena žádná data"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Importujte přihlašovací údaje Vaší organizace a začněte sledovat bezpečnostní rizika spojená s přihlašovacími údaji. Po importu získáte přístup k:"
+  "noDataInOrgDescription": {
+    "message": "Importujte přihlašovací údaje Vaší organizace a začněte s Access Intelligence. Jakmile to uděláte, budete moci:"
   },
-  "benefit1Title": {
-    "message": "Upřednostnit rizika"
+  "feature1Title": {
+    "message": "Označit aplikace jako kritické"
   },
-  "benefit1Description": {
-    "message": "Zaměřit se na aplikace, na které záleží nejvíce"
+  "feature1Description": {
+    "message": "To Vám pomůže nejprve odebrat rizika pro Vaše nejdůležitější aplikace."
   },
-  "benefit2Title": {
-    "message": "Průvodce nápravou"
+  "feature2Title": {
+    "message": "Pomoci členům zlepšit jejich zabezpečení"
   },
-  "benefit2Description": {
-    "message": "Přiřadit ohroženým členům řízené úkoly, aby střídali používání ohrožených přihlašovacích údajů"
+  "feature2Description": {
+    "message": "Přiřaďte ohroženým členům řízené bezpečnostní úkoly k aktualizaci přihlašovacích údajů."
   },
-  "benefit3Title": {
+  "feature3Title": {
     "message": "Sledovat průběh"
   },
-  "benefit3Description": {
+  "feature3Description": {
     "message": "Sleduje změny v průběhu času pro zobrazení zlepšení zabezpečení."
   },
-  "noReportRunTitle": {
-    "message": "Spustit první hlášení pro zobrazení aplikací"
+  "noReportsRunTitle": {
+    "message": "Vygenerovat přehled"
   },
-  "noReportRunDescription": {
-    "message": "Vygenerujte zprávu o rizicích, abyste mohli analyzovat aplikace Vaší organizace a identifikovat riziková hesla, která vyžadují pozornost. Spuštěním první zprávy:"
+  "noReportsRunDescription": {
+    "message": "Jste připraveni začít generovat přehledy. Jakmile je vytvoříte, budete moci:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Neoznačili jste žádné aplikace jako kritické"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Ohrožení členové"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Členové s přístupem k rizikovým položkám pro kritické aplikace"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "Tito členové mají přístup k zranitelným položkám pro kritické aplikace."
   },
   "membersWithAtRiskPasswords": {
     "message": "Členové s ohroženými hesly"
   },
-  "membersWillReceiveNotification": {
-    "message": "Členové obdrží oznámení, aby vyřešili ohrožená přihlášení prostřednictvím rozšíření prohlížeče."
+  "membersWillReceiveSecurityTask": {
+    "message": "Členům Vaší organizace bude přiřazen úkol ke změně zranitelných hesel. Obdrželi oznámení v rámci jejich rozšíření prohlížeče Bitwarden."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ členů v ohrožení",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Tito členové se přihlašují do aplikací se slabými, odhalenými nebo znovu použitými hesly."
+  "atRiskMemberDescription": {
+    "message": "Tito členové se přihlašují do kritických aplikací s odhalenými nebo znovu použitými hesly."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Žádní členové se nepřihlašují do aplikací se slabými, odhalenými nebo znovu použitými hesly."
@@ -349,6 +343,9 @@
   "applicationsNeedingReview": {
     "message": "Aplikace, které vyžadují kontrolu"
   },
+  "newApplicationsCardTitle": {
+    "message": "Zkontrolovat nové aplikace"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ nových aplikací",
     "placeholders": {
@@ -370,17 +367,32 @@
   "noNewApplicationsToReviewAtThisTime": {
     "message": "Nyní nejsou k dispozici žádné nové kontroly"
   },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Vaše organizace má položky uložené pro $COUNT$ aplikací",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Zkontrolujte aplikace pro zabezpečení položek nejkritičtějších pro bezpečnost Vaší organizace"
+  },
+  "reviewApplications": {
+    "message": "Zkontrolovat aplikace"
+  },
   "prioritizeCriticalApplications": {
     "message": "Upřednostnit kritické aplikace"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Vybere, které aplikace jsou pro Vaši organizaci nejkritičtější, a pro řešení rizik přiřaďte členům bezpečnostní úkoly."
+  "selectCriticalAppsDescription": {
+    "message": "Vyberte, které aplikace jsou pro Vaši organizaci nejkritičtější. Potom budete moci přidělit členům bezpečnostní úkoly pro odebrání rizik."
   },
   "reviewNewApplications": {
     "message": "Zkontrolovat nové aplikace"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "Zvýraznili jsme rizikové položky pro nové aplikace uložené v administrátorské konzoli, které mají slabá, exponovaná nebo znovu použitá hesla."
+  "reviewNewAppsDescription": {
+    "message": "Zkontrolujte nové aplikace s citlivými položkami a označte ty, které chcete pečlivě sledovat jako kritické. Potom budete moci přidělit členům bezpečnostní úkoly, abyste odebrali rizika."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Klepnutím na ikonu hvězdičky označte aplikaci jako kritickou"
@@ -3232,8 +3244,17 @@
   "nextCharge": {
     "message": "Další platba"
   },
+  "nextChargeHeader": {
+    "message": "Další platba"
+  },
+  "plan": {
+    "message": "Plán"
+  },
   "details": {
     "message": "Podrobnosti"
+  },
+  "discount": {
+    "message": "sleva"
   },
   "downloadLicense": {
     "message": "Stáhnout licenci"
@@ -4441,6 +4462,30 @@
   },
   "generatingYourAccessIntelligence": {
     "message": "Generování Vaší přístupové inteligence..."
+  },
+  "fetchingMemberData": {
+    "message": "Načítání dat člena..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "Analyzování zdraví hesla..."
+  },
+  "calculatingRiskScores": {
+    "message": "Výpočet skóre rizik..."
+  },
+  "generatingReportData": {
+    "message": "Generování dat hlášení..."
+  },
+  "savingReport": {
+    "message": "Ukládání hlášení..."
+  },
+  "compilingInsights": {
+    "message": "Sestavování přehledů..."
+  },
+  "loadingProgress": {
+    "message": "Průběh načítání"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Může to trvat několik minut."
   },
   "riskInsightsRunReport": {
     "message": "Spustit hlášení"
@@ -5804,16 +5849,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "Jak zapnout automatické potvrzení uživatele"
   },
-  "autoConfirmStep1": {
-    "message": "Otevřete rozšíření Bitwarden."
+  "autoConfirmExtension1": {
+    "message": "Otevřít rozšíření Bitwarden"
   },
-  "autoConfirmStep2a": {
-    "message": "Vyberte",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension2": {
+    "message": "Vybrat",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " Zapnout.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " Zapnout",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "Rozšíření prohlížeče Bitwarden bylo úspěšně otevřeno. Nyní můžete aktivovat automatické potvrzení uživatele."
@@ -9525,9 +9570,6 @@
   "loggedInExclamation": {
     "message": "Přihlášeno!"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "assignCollectionAccess": {
     "message": "Přiřadit přístup ke sbírce"
   },
@@ -9808,8 +9850,8 @@
   "assignTasks": {
     "message": "Přiřadit úkoly"
   },
-  "assignTasksToMembers": {
-    "message": "Přiřadit úkoly členům k řízenému řešení"
+  "assignSecurityTasksToMembers": {
+    "message": "Odeslat oznámení pro změnu hesla"
   },
   "assignToCollections": {
     "message": "Přiřadit ke sbírkám"
@@ -12075,5 +12117,45 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Zahájit bezplatnou zkušební verzi pro rodiny"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Nastavte metodu odemknutí, abyste změnili časový limit Vašeho trezoru."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Na volby časového limitu byly uplatněny požadavky podnikových zásad"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Časový limit Vašeho trezoru překračuje omezení stanovená Vaší organizací."
+  },
+  "neverLockWarning": {
+    "message": "Opravdu chcete použít volbu \"Nikdy\"? Nastavením volby uzamčení na \"Nikdy\" bude šifrovací klíč k trezoru uložen přímo ve Vašem zařízení. Pokud tuto možnost použijete, měli byste Vaše zařízení řádně zabezpečit a chránit."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Akce vypršení časového limitu"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Časový limit relace"
+  },
+  "appearance": {
+    "message": "Vzhled"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Časový limit překračuje omezení stanovené Vaší organizací: maximálně $HOURS$ hodin a $MINUTES$ minut",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "Nejsou vybrány žádné kritické aplikace"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Opravdu chcete pokračovat?"
   }
 }

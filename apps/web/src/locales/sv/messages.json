@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Tilldela medlemmar uppgifter för att övervaka framsteg"
   },
-  "onceYouReviewApps": {
-    "message": "När du har granskat applikationer och markerat dem som kritiska kan du tilldela uppgifter till medlemmar för att åtgärda riskutsatta objekt och övervaka framsteg här"
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
   },
   "sendReminders": {
     "message": "Skicka påminnelser"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "Inga applikationer hittades för $ORG NAME$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "Ingen data hittades"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Importera din organisations inloggningsdata för att börja övervaka säkerhetsrisker för autentiseringsuppgifter. När de har importerats kan du:"
+  "noDataInOrgDescription": {
+    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
   },
-  "benefit1Title": {
-    "message": "Prioritera risker"
+  "feature1Title": {
+    "message": "Markera applikationer som kritiska"
   },
-  "benefit1Description": {
-    "message": "Fokusera på applikationer som betyder mest"
+  "feature1Description": {
+    "message": "This will help you remove risks to your most important applications first."
   },
-  "benefit2Title": {
-    "message": "Guide åtgärder"
+  "feature2Title": {
+    "message": "Hjälp medlemmar att förbättra sin säkerhet"
   },
-  "benefit2Description": {
-    "message": "Tilldela riskutsatta medlemmar vägledda uppgifter för att byta ut riskutsatta autentiseringsuppgifter"
+  "feature2Description": {
+    "message": "Assign at-risk members guided security tasks to update credentials."
   },
-  "benefit3Title": {
+  "feature3Title": {
     "message": "Övervaka framsteg"
   },
-  "benefit3Description": {
-    "message": "Spåra förändringar över tid för att visa säkerhetsförbättringar"
+  "feature3Description": {
+    "message": "Track changes over time to show security improvements."
   },
-  "noReportRunTitle": {
-    "message": "Kör din första rapport för att se applikationer"
+  "noReportsRunTitle": {
+    "message": "Generera rapport"
   },
-  "noReportRunDescription": {
-    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
+  "noReportsRunDescription": {
+    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Du har inte markerat några applikationer som kritiska"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Riskutsatta medlemmar"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Members with access to at-risk items for critical applications"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "These members have access to vulnerable items for critical applications."
   },
   "membersWithAtRiskPasswords": {
     "message": "Members with at-risk passwords"
   },
-  "membersWillReceiveNotification": {
-    "message": "Members will receive a notification to resolve at-risk logins through the browser extension."
+  "membersWillReceiveSecurityTask": {
+    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ medlemmar i riskzonen",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Dessa medlemmar loggar in i applikationer med svaga, exponerade eller återanvända lösenord."
+  "atRiskMemberDescription": {
+    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Det finns inga medlemmar som loggar in i applikationer med svaga, exponerade eller återanvända lösenord."
@@ -349,6 +343,9 @@
   "applicationsNeedingReview": {
     "message": "Applikationer som behöver granskning"
   },
+  "newApplicationsCardTitle": {
+    "message": "Granska nya applikationer"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ nya applikationer",
     "placeholders": {
@@ -370,17 +367,32 @@
   "noNewApplicationsToReviewAtThisTime": {
     "message": "Inga nya applikationer att granska just nu"
   },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Your organization has items saved for $COUNT$ applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Review applications to secure the items most critical to your organization's security"
+  },
+  "reviewApplications": {
+    "message": "Granska applikationer"
+  },
   "prioritizeCriticalApplications": {
     "message": "Prioritera kritiska applikationer"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Select which applications are most critical to your organization, then assign security tasks to members to resolve risks."
+  "selectCriticalAppsDescription": {
+    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "reviewNewApplications": {
     "message": "Granska nya applikationer"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "Vi har markerat objekt i riskzonen för nya applikationer som lagras i administratörskonsolen och som har svaga, exponerade eller återanvända lösenord."
+  "reviewNewAppsDescription": {
+    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Click the star icon to mark an app as critical"
@@ -3232,8 +3244,17 @@
   "nextCharge": {
     "message": "Nästa debitering"
   },
+  "nextChargeHeader": {
+    "message": "Nästa betalning"
+  },
+  "plan": {
+    "message": "Plan"
+  },
   "details": {
     "message": "Detaljer"
+  },
+  "discount": {
+    "message": "rabatt"
   },
   "downloadLicense": {
     "message": "Hämta licens"
@@ -4441,6 +4462,30 @@
   },
   "generatingYourAccessIntelligence": {
     "message": "Generating your Access Intelligence..."
+  },
+  "fetchingMemberData": {
+    "message": "Hämtar medlemsdata..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "Analyserar lösenordshälsa..."
+  },
+  "calculatingRiskScores": {
+    "message": "Beräknar riskpoäng..."
+  },
+  "generatingReportData": {
+    "message": "Genererar rapportdata..."
+  },
+  "savingReport": {
+    "message": "Sparar rapport..."
+  },
+  "compilingInsights": {
+    "message": "Sammanställer insikter..."
+  },
+  "loadingProgress": {
+    "message": "Loading progress"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Detta kan ta några minuter."
   },
   "riskInsightsRunReport": {
     "message": "Kör rapport"
@@ -5804,16 +5849,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "Så här aktiverar du automatisk användarbekräftelse"
   },
-  "autoConfirmStep1": {
-    "message": "Öppna ditt Bitwarden-tillägg."
+  "autoConfirmExtension1": {
+    "message": "Öppna ditt Bitwarden-tillägg"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "Välj",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " Slå på.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " Slå på",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
@@ -9525,9 +9570,6 @@
   "loggedInExclamation": {
     "message": "Inloggad!"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "assignCollectionAccess": {
     "message": "Tilldela samlingsåtkomst"
   },
@@ -9808,8 +9850,8 @@
   "assignTasks": {
     "message": "Tilldela uppgifter"
   },
-  "assignTasksToMembers": {
-    "message": "Assign tasks to members for guided resolution"
+  "assignSecurityTasksToMembers": {
+    "message": "Skicka aviseringar om att ändra lösenord"
   },
   "assignToCollections": {
     "message": "Tilldela till samlingar"
@@ -12075,5 +12117,45 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Starta gratis testperiod för Families"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Konfigurera en upplåsningsmetod för att ändra tidsgränsåtgärden för valvet."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Företagets policykrav har tillämpats på dina tidsgränsalternativ"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Ditt valvs tidsgräns överskrider de begränsningar som fastställts av din organisation."
+  },
+  "neverLockWarning": {
+    "message": "Är du säker på att du vill använda alternativet ”Aldrig”? Att ställa in låsningsalternativet till ”Aldrig” lagrar valvets krypteringsnyckel på din enhet. Om du använder det här alternativet bör du se till att du håller enheten ordentligt skyddad."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Tidsgränsåtgärd"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sessionstidsgräns"
+  },
+  "appearance": {
+    "message": "Utseende"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Tidsgränsen överskrider den begränsning som din organisation har ställt in: $HOURS$ timmar och $MINUTES$ minut(er) maximalt",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "No critical applications are selected"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Är du säker på att du vill fortsätta?"
   }
 }
