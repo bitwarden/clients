@@ -16,6 +16,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
@@ -29,6 +30,7 @@ import {
   IconButtonModule,
   DialogService,
   ToastService,
+  BadgeModule,
 } from "@bitwarden/components";
 import {
   CipherFormConfig,
@@ -156,6 +158,7 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     AsyncActionsModule,
     PopOutComponent,
     IconButtonModule,
+    BadgeModule,
   ],
 })
 export class AddEditV2Component implements OnInit {
@@ -173,6 +176,11 @@ export class AddEditV2Component implements OnInit {
 
   private fido2PopoutSessionData$ = fido2PopoutSessionData$();
   private fido2PopoutSessionData: Fido2SessionData;
+
+  protected userId$ = this.accountService.activeAccount$.pipe(getUserId);
+  protected userCanArchive$ = this.userId$.pipe(
+    switchMap((userId) => this.archiveService.userCanArchive$(userId)),
+  );
 
   private get inFido2PopoutWindow() {
     return BrowserPopupUtils.inPopout(window) && this.fido2PopoutSessionData.isFido2Session;
@@ -196,6 +204,7 @@ export class AddEditV2Component implements OnInit {
     private dialogService: DialogService,
     protected cipherAuthorizationService: CipherAuthorizationService,
     private accountService: AccountService,
+    private archiveService: CipherArchiveService,
   ) {
     this.subscribeToParams();
   }
@@ -299,9 +308,7 @@ export class AddEditV2Component implements OnInit {
           }
           config.initialValues = await this.setInitialValuesFromParams(params);
 
-          const activeUserId = await firstValueFrom(
-            this.accountService.activeAccount$.pipe(getUserId),
-          );
+          const activeUserId = await firstValueFrom(this.userId$);
 
           // The browser notification bar and overlay use addEditCipherInfo$ to pass modified cipher details to the form
           // Attempt to fetch them here and overwrite the initialValues if present
@@ -398,7 +405,7 @@ export class AddEditV2Component implements OnInit {
     }
 
     try {
-      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const activeUserId = await firstValueFrom(this.userId$);
       await this.deleteCipher(activeUserId);
     } catch (e) {
       this.logService.error(e);
