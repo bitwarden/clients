@@ -168,6 +168,57 @@ export class CipherService implements CipherServiceAbstraction {
     );
   });
 
+  private cipherListWithoutLocalData$ = perUserCache$((userId: UserId) => {
+    return this.configService.getFeatureFlag$(FeatureFlag.PM22134SdkCipherListView).pipe(
+      switchMap((useSdk) => {
+        if (!useSdk) {
+          return this.cipherViews$(userId).pipe(
+            // filter out "null" decrypt-in-progress if it ever appears
+            filter((ciphers): ciphers is CipherView[] => ciphers != null),
+          );
+        }
+
+        return combineLatest([
+          this.encryptedCiphersState(userId).state$,
+          this.keyService.cipherDecryptionKeys$(userId, true),
+        ]).pipe(
+          filter(([cipherDataState, keys]) => cipherDataState != null && keys != null),
+          map(([cipherDataState]) => Object.values(cipherDataState)),
+          switchMap(async (cipherDataArray) => {
+            const ciphers = cipherDataArray.map((c) => new Cipher(c));
+            const [decrypted, failures] = await this.decryptCiphersWithSdk(ciphers, userId, false);
+            await this.setFailedDecryptedCiphers(failures, userId);
+            return decrypted;
+          }),
+        );
+      }),
+    );
+  });
+
+  ciphersWithLocalData$(userId: UserId): Observable<CipherViewLike[]> {
+    return combineLatest([this.cipherListViews$(userId), this.localData$(userId)]).pipe(
+      map(([ciphers, localData]) => {
+        if (!ciphers) {
+          return [] as CipherViewLike[];
+        }
+
+        return ciphers.map((cipher) => {
+          const cipherId = uuidAsString(cipher.id) as CipherId;
+          const local = localData?.[cipherId];
+
+          if (!local) {
+            return cipher as CipherViewLike;
+          }
+
+          return {
+            ...(cipher as CipherViewLike),
+            localData: local,
+          } as CipherViewLike;
+        });
+      }),
+    );
+  }
+
   /**
    * Observable that emits an array of decrypted ciphers for the active user.
    * This observable will not emit until the encrypted ciphers have either been loaded from state or after sync.
@@ -178,10 +229,9 @@ export class CipherService implements CipherServiceAbstraction {
   cipherViews$ = perUserCache$((userId: UserId): Observable<CipherView[] | null> => {
     return combineLatest([
       this.encryptedCiphersState(userId).state$,
-      this.localData$(userId),
       this.keyService.cipherDecryptionKeys$(userId),
     ]).pipe(
-      filter(([ciphers, _, keys]) => ciphers != null && keys != null), // Skip if ciphers haven't been loaded yor synced yet
+      filter(([ciphers, keys]) => ciphers != null && keys != null),
       switchMap(() => this.getAllDecrypted(userId)),
       tap(() => {
         this.messageSender.send("updateOverlayCiphers");
@@ -796,27 +846,18 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     const cipherId = id as CipherId;
-    if (ciphersLocalData[cipherId]) {
-      ciphersLocalData[cipherId].lastUsedDate = new Date().getTime();
-    } else {
-      ciphersLocalData[cipherId] = { lastUsedDate: new Date().getTime() };
-    }
+    const now = new Date().getTime();
 
-    await this.localDataState(userId).update(() => ciphersLocalData);
-
-    const decryptedCipherCache = await this.getDecryptedCiphers(userId);
-    if (!decryptedCipherCache) {
+    if (ciphersLocalData[cipherId]?.lastUsedDate === now) {
       return;
     }
 
-    for (let i = 0; i < decryptedCipherCache.length; i++) {
-      const cached = decryptedCipherCache[i];
-      if (cached.id === id) {
-        cached.localData = ciphersLocalData[id as CipherId];
-        break;
-      }
-    }
-    await this.setDecryptedCiphers(decryptedCipherCache, userId);
+    ciphersLocalData[cipherId] = {
+      ...(ciphersLocalData[cipherId] ?? {}),
+      lastUsedDate: now,
+    };
+
+    await this.localDataState(userId).update(() => ciphersLocalData);
   }
 
   async updateLastLaunchedDate(id: string, userId: UserId): Promise<void> {

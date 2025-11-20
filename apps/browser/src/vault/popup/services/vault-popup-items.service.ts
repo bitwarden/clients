@@ -109,7 +109,10 @@ export class VaultPopupItemsService {
       map((a) => a?.id),
       filter((userId): userId is UserId => userId != null),
       switchMap((userId) =>
-        merge(this.cipherService.ciphers$(userId), this.cipherService.localData$(userId)).pipe(
+        merge(
+          this.cipherService.ciphers$(userId),
+          this.cipherService.ciphersWithLocalData$(userId),
+        ).pipe(
           runInsideAngular(this.ngZone),
           tap(() => this._ciphersLoading$.next()),
           waitUntilSync(this.syncService),
@@ -163,6 +166,7 @@ export class VaultPopupItemsService {
         }),
       ),
     ),
+    shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
   /**
