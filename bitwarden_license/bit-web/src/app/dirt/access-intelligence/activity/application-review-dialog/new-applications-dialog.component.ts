@@ -33,6 +33,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { CipherIcon } from "../../shared/app-table-row-scrollable.component";
 import { AccessIntelligenceSecurityTasksService } from "../../shared/security-tasks.service";
 
 import { AssignTasksViewComponent } from "./assign-tasks-view.component";
@@ -99,6 +100,8 @@ export class NewApplicationsDialogComponent {
   // Applications selected to save as critical applications
   protected readonly selectedApplications = signal<Set<string>>(new Set());
 
+  readonly applicationIcons = signal<Map<string, CipherIcon>>(new Map<string, CipherIcon>());
+
   // Used to determine if there are unassigned at-risk cipher IDs
   private readonly _tasks!: Signal<SecurityTask[]>;
 
@@ -150,6 +153,7 @@ export class NewApplicationsDialogComponent {
     private securityTasksService: AccessIntelligenceSecurityTasksService,
     private toastService: ToastService,
   ) {
+    this.setApplicationsWithIcons(this.dialogParams.newApplications);
     // Setup the _tasks signal by manually passing in the injector
     this._tasks = toSignal(this.securityTasksService.tasks$, {
       initialValue: [],
@@ -172,8 +176,14 @@ export class NewApplicationsDialogComponent {
     );
   }
 
-  getApplications() {
-    return this.dialogParams.newApplications;
+  getApplicationsWithIcons(): Array<ApplicationHealthReportDetail & { iconCipher: CipherIcon }> {
+    return this.dialogParams.newApplications.map((app) => {
+      const iconCipher = this.applicationIcons().get(app.applicationName);
+      return {
+        ...app,
+        iconCipher,
+      } as ApplicationHealthReportDetail & { iconCipher: CipherIcon };
+    });
   }
 
   /**
@@ -182,6 +192,22 @@ export class NewApplicationsDialogComponent {
    */
   protected hasNoCriticalApplications(): boolean {
     return !this.dialogParams.hasExistingCriticalApplications;
+  }
+
+  /**
+   * Maps applications to a corresponding iconCipher
+   *
+   * @param applications
+   */
+  setApplicationsWithIcons(applications: ApplicationHealthReportDetail[]) {
+    // Map the report data to include the iconCipher for each application
+    const iconCiphers = new Map<string, CipherIcon>();
+    applications.forEach((app) => {
+      const iconCipher =
+        app.cipherIds.length > 0 ? this.dataService.getCipherIcon(app.cipherIds[0]) : undefined;
+      iconCiphers.set(app.applicationName, iconCipher);
+    });
+    this.applicationIcons.set(iconCiphers);
   }
 
   /**

@@ -62,7 +62,7 @@
             </td>
             <td bitTypography="body1" class="tw-py-3 tw-px-2">
               <div class="tw-flex tw-items-center tw-gap-2">
-                <i class="bwi bwi-globe tw-text-muted" aria-hidden="true"></i>
+                <app-vault-icon *ngIf="app.iconCipher" [cipher]="app.iconCipher"></app-vault-icon>
                 <span>{{ app.applicationName }}</span>
               </div>
             </td>
