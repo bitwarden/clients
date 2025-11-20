@@ -595,7 +595,7 @@
     "message": "檢視全部"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "顯示較少"
   },
   "viewLogin": {
     "message": "檢視登入"
@@ -5808,6 +5808,15 @@
   },
   "upgradeToPremium": {
     "message": "升級到 Premium"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
   },
   "loadingVault": {
     "message": "正在載入密碼庫"

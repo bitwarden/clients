@@ -33,7 +33,8 @@ impl InputOperations for Win32InputOperations {
 /// Attempts to type the input text wherever the user's cursor is.
 ///
 /// `input` must be a vector of utf-16 encoded characters to insert.
-/// `keyboard_shortcut` must be a vector of Strings, where valid shortcut keys: Control, Alt, Super, Shift, letters a - Z
+/// `keyboard_shortcut` must be a vector of Strings, where valid shortcut keys: Control, Alt, Super,
+/// Shift, letters a - Z
 ///
 /// https://learn.microsoft.com/en-in/windows/win32/api/winuser/nf-winuser-sendinput
 pub(super) fn type_input(input: Vec<u16>, keyboard_shortcut: Vec<String>) -> Result<()> {
@@ -234,15 +235,15 @@ where
 
 #[cfg(test)]
 mod tests {
-    //! For the mocking of the traits that are static methods, we need to use the `serial_test` crate
-    //! in order to mock those, since the mock expectations set have to be global in absence of a `self`.
-    //! More info: https://docs.rs/mockall/latest/mockall/#static-methods
+    //! For the mocking of the traits that are static methods, we need to use the `serial_test`
+    //! crate in order to mock those, since the mock expectations set have to be global in
+    //! absence of a `self`. More info: https://docs.rs/mockall/latest/mockall/#static-methods
 
-    use super::*;
-
-    use crate::windowing::MockErrorOperations;
     use serial_test::serial;
     use windows::Win32::Foundation::WIN32_ERROR;
+
+    use super::*;
+    use crate::windowing::MockErrorOperations;
 
     #[test]
     fn get_alphabetic_hot_key_succeeds() {

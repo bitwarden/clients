@@ -1,8 +1,7 @@
-use crate::secure_memory::secure_key::crypto::MemoryEncryptionKey;
-
-use super::crypto::KEY_SIZE;
-use super::SecureKeyContainer;
 use linux_keyutils::{KeyRing, KeyRingIdentifier};
+
+use super::{crypto::KEY_SIZE, SecureKeyContainer};
+use crate::secure_memory::secure_key::crypto::MemoryEncryptionKey;
 
 /// The keys are bound to the process keyring.
 const KEY_RING_IDENTIFIER: KeyRingIdentifier = KeyRingIdentifier::Process;
@@ -26,9 +25,9 @@ pub(super) struct KeyctlSecureKeyContainer {
     id: String,
 }
 
-// SAFETY: The key id is fully owned by this struct and not exposed or cloned, and cleaned up on drop.
-// Further, since we use `KeyRingIdentifier::Process` and not `KeyRingIdentifier::Thread`, the key
-// is accessible across threads within the same process bound.
+// SAFETY: The key id is fully owned by this struct and not exposed or cloned, and cleaned up on
+// drop. Further, since we use `KeyRingIdentifier::Process` and not `KeyRingIdentifier::Thread`, the
+// key is accessible across threads within the same process bound.
 unsafe impl Send for KeyctlSecureKeyContainer {}
 // SAFETY: The container is non-mutable and thus safe to share between threads.
 unsafe impl Sync for KeyctlSecureKeyContainer {}
