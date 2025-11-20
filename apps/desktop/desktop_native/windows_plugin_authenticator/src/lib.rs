@@ -13,14 +13,21 @@ mod util;
 mod webauthn;
 mod win_webauthn;
 
-use std::collections::HashSet;
+use std::{collections::HashSet, sync::Arc, time::Duration};
 
 // Re-export main functionality
 pub use types::UserVerificationRequirement;
 
 use win_webauthn::{PluginAddAuthenticatorOptions, WebAuthnPlugin};
 
-use crate::win_webauthn::{AuthenticatorInfo, CtapVersion, PublicKeyCredentialParameters};
+use crate::{
+    ipc2::{ConnectionStatus, TimedCallback, WindowsProviderClient},
+    win_webauthn::{
+        AuthenticatorInfo, CtapVersion, PluginAuthenticator, PluginCancelOperationRequest,
+        PluginGetAssertionRequest, PluginLockStatus, PluginMakeCredentialRequest,
+        PublicKeyCredentialParameters,
+    },
+};
 
 const AUTHENTICATOR_NAME: &str = "Bitwarden Desktop";
 const RPID: &str = "bitwarden.com";
@@ -42,7 +49,8 @@ pub fn register() -> std::result::Result<(), String> {
 
     let clsid = CLSID.try_into().expect("valid GUID string");
     let plugin = WebAuthnPlugin::new(clsid);
-    let r = plugin.register_server();
+
+    let r = plugin.register_server(BitwardenPluginAuthenticator);
     tracing::debug!("Registered the com library: {:?}", r);
 
     tracing::debug!("Parsing authenticator options");
@@ -78,4 +86,57 @@ pub fn register() -> std::result::Result<(), String> {
     tracing::debug!("Added the authenticator: {response:?}");
 
     Ok(())
+}
+
+struct BitwardenPluginAuthenticator;
+
+impl BitwardenPluginAuthenticator {
+    fn get_client(&self) -> WindowsProviderClient {
+        tracing::debug!("Connecting to client via IPC");
+        let client = WindowsProviderClient::connect();
+        tracing::debug!("Connected to client via IPC successfully");
+        client
+    }
+}
+
+impl PluginAuthenticator for BitwardenPluginAuthenticator {
+    fn make_credential(
+        &self,
+        request: PluginMakeCredentialRequest,
+    ) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+        tracing::debug!("Received MakeCredential: {request:?}");
+        Err(format!("MakeCredential not implemented").into())
+    }
+
+    fn get_assertion(
+        &self,
+        request: PluginGetAssertionRequest,
+    ) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+        tracing::debug!("Received GetAssertion: {request:?}");
+        Err(format!("GetAssertion not implemented").into())
+    }
+
+    fn cancel_operation(
+        &self,
+        request: PluginCancelOperationRequest,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        Ok(())
+    }
+
+    fn lock_status(&self) -> Result<PluginLockStatus, Box<dyn std::error::Error>> {
+        let callback = Arc::new(TimedCallback::new());
+        let client = self.get_client();
+        client.get_lock_status(callback.clone());
+        match callback.wait_for_response(Duration::from_secs(3)) {
+            Ok(Ok(response)) => {
+                if response.is_unlocked {
+                    Ok(PluginLockStatus::PluginUnlocked)
+                } else {
+                    Ok(PluginLockStatus::PluginLocked)
+                }
+            }
+            Ok(Err(err)) => Err(format!("GetLockStatus() call failed: {err}").into()),
+            Err(_) => Err(format!("GetLockStatus() call timed out").into()),
+        }
+    }
 }

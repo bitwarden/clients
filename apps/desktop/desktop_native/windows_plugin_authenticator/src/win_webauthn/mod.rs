@@ -7,8 +7,12 @@ use std::{error::Error, fmt::Display, ptr::NonNull};
 use windows::core::GUID;
 
 pub use types::{
-    AuthenticatorInfo, CtapVersion, PluginAddAuthenticatorOptions, PublicKeyCredentialParameters,
+    AuthenticatorInfo, CtapVersion, PluginAddAuthenticatorOptions, PluginCancelOperationRequest,
+    PluginGetAssertionRequest, PluginLockStatus, PluginMakeCredentialRequest,
+    PublicKeyCredentialParameters,
 };
+
+pub use com::PluginAuthenticator;
 
 use crate::win_webauthn::{
     types::{
@@ -59,9 +63,15 @@ impl WebAuthnPlugin {
 
     /// Registers a COM server with Windows.
     ///
+    /// The handler should be an instance of your type that implements PluginAuthenticator.
+    /// The same instance will be shared across all COM calls.
+    ///
     /// This only needs to be called on installation of your application.
-    pub fn register_server(&self) -> Result<(), WinWebAuthnError> {
-        com::register_server(&self.clsid.0)
+    pub fn register_server<T>(&self, handler: T) -> Result<(), WinWebAuthnError>
+    where
+        T: PluginAuthenticator + Send + Sync + 'static,
+    {
+        com::register_server(&self.clsid.0, handler)
     }
 
     /// Initializes the COM library for use on the calling thread,
