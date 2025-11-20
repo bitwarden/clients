@@ -130,12 +130,9 @@ describe("AutoSubmitLoginBackground", () => {
           url: validAutoSubmitUrl,
           tabId: webRequestDetails.tabId,
         });
-        expect(chrome.webNavigation.onCompleted.addListener).toHaveBeenCalledWith(
-          expect.any(Function),
-          {
-            url: [{ hostEquals: validAutoSubmitHost }],
-          },
-        );
+        expect(chrome.webNavigation.onCompleted.addListener).toBeCalledWith(expect.any(Function), {
+          url: [{ hostEquals: validAutoSubmitHost }],
+        });
       });
 
       it("sets up the auto-submit workflow when the web request occurs in a sub frame and the initiator of the request is a valid auto-submit host", async () => {
@@ -148,12 +145,9 @@ describe("AutoSubmitLoginBackground", () => {
 
         triggerWebRequestOnBeforeRequestEvent(webRequestDetails);
 
-        expect(chrome.webNavigation.onCompleted.addListener).toHaveBeenCalledWith(
-          expect.any(Function),
-          {
-            url: [{ hostEquals: subFrameHost }],
-          },
-        );
+        expect(chrome.webNavigation.onCompleted.addListener).toBeCalledWith(expect.any(Function), {
+          url: [{ hostEquals: subFrameHost }],
+        });
       });
 
       describe("injecting the auto-submit login content script", () => {
@@ -188,7 +182,7 @@ describe("AutoSubmitLoginBackground", () => {
           triggerWebNavigationOnCompletedEvent(webNavigationDetails);
           await flushPromises();
 
-          expect(scriptInjectorService.inject).toHaveBeenCalledWith({
+          expect(scriptInjectorService.inject).toBeCalledWith({
             tabId: webRequestDetails.tabId,
             injectDetails: {
               file: "content/auto-submit-login.js",
@@ -312,7 +306,7 @@ describe("AutoSubmitLoginBackground", () => {
 
           triggerWebRequestOnBeforeRequestEvent(webRequestDetails);
 
-          expect(chrome.webNavigation.onCompleted.addListener).toHaveBeenCalledWith(
+          expect(chrome.webNavigation.onCompleted.addListener).toBeCalledWith(
             autoSubmitLoginBackground["handleAutoSubmitHostNavigationCompleted"],
             { url: [{ hostEquals: validAutoSubmitHost }] },
           );
@@ -432,12 +426,9 @@ describe("AutoSubmitLoginBackground", () => {
           }),
         );
 
-        expect(chrome.webNavigation.onCompleted.addListener).toHaveBeenCalledWith(
-          expect.any(Function),
-          {
-            url: [{ hostEquals: validAutoSubmitHost }],
-          },
-        );
+        expect(chrome.webNavigation.onCompleted.addListener).toBeCalledWith(expect.any(Function), {
+          url: [{ hostEquals: validAutoSubmitHost }],
+        });
       });
     });
 
@@ -486,7 +477,7 @@ describe("AutoSubmitLoginBackground", () => {
           sendMockExtensionMessage(message, sender);
           await flushPromises();
 
-          expect(autofillService.doAutoFillOnTab).toHaveBeenCalledWith(
+          expect(autofillService.doAutoFillOnTab).toBeCalledWith(
             [
               {
                 frameId: sender.frameId,

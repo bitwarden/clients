@@ -60,7 +60,7 @@ describe("migrator default methods", () => {
       describe("up", () => {
         it("should update the version", async () => {
           await sut.updateVersion(helper, "up");
-          expect(storage.save).toHaveBeenCalledWith("stateVersion", 1);
+          expect(storage.save).toBeCalledWith("stateVersion", 1);
           expect(helper.currentVersion).toBe(1);
         });
       });
@@ -69,7 +69,7 @@ describe("migrator default methods", () => {
         it("should update the version", async () => {
           helper.currentVersion = 1;
           await sut.updateVersion(helper, "down");
-          expect(storage.save).toHaveBeenCalledWith("stateVersion", 0);
+          expect(storage.save).toBeCalledWith("stateVersion", 0);
           expect(helper.currentVersion).toBe(0);
         });
       });

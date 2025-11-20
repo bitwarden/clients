@@ -2878,7 +2878,7 @@ describe("OverlayBackground", () => {
           { command: "closeAutofillInlineMenu", overlayElement: undefined },
           { frameId: 0 },
         );
-        expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
+        expect(tabSendMessageDataSpy).toBeCalledWith(
           sender.tab,
           "addToLockedVaultPendingNotifications",
           {

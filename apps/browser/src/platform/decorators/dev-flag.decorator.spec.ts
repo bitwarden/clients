@@ -23,13 +23,13 @@ describe("devFlag decorator", () => {
     devFlagEnabledMock.mockReturnValue(false);
     expect(() => {
       new TestClass().test();
-    }).toThrow("This method should not be called, it is protected by a disabled dev flag.");
+    }).toThrowError("This method should not be called, it is protected by a disabled dev flag.");
   });
 
   it("should not throw an error if the dev flag is enabled", () => {
     devFlagEnabledMock.mockReturnValue(true);
     expect(() => {
       new TestClass().test();
-    }).not.toThrow();
+    }).not.toThrowError();
   });
 });

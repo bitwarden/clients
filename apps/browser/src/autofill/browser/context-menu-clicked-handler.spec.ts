@@ -105,9 +105,9 @@ describe("ContextMenuClickedHandler", () => {
     it("can generate password", async () => {
       await sut.run(createData(GENERATE_PASSWORD_ID), { id: 5 } as any);
 
-      expect(generatePasswordToClipboard).toHaveBeenCalledTimes(1);
+      expect(generatePasswordToClipboard).toBeCalledTimes(1);
 
-      expect(generatePasswordToClipboard).toHaveBeenCalledWith({
+      expect(generatePasswordToClipboard).toBeCalledWith({
         id: 5,
       });
     });
@@ -118,9 +118,9 @@ describe("ContextMenuClickedHandler", () => {
 
       await sut.run(createData(`${AUTOFILL_ID}_1`, AUTOFILL_ID), { id: 5 } as any);
 
-      expect(autofill).toHaveBeenCalledTimes(1);
+      expect(autofill).toBeCalledTimes(1);
 
-      expect(autofill).toHaveBeenCalledWith({ id: 5 }, cipher);
+      expect(autofill).toBeCalledWith({ id: 5 }, cipher);
     });
 
     it("copies username to clipboard", async () => {
@@ -132,7 +132,7 @@ describe("ContextMenuClickedHandler", () => {
         url: "https://test.com",
       } as any);
 
-      expect(copyToClipboard).toHaveBeenCalledTimes(1);
+      expect(copyToClipboard).toBeCalledTimes(1);
 
       expect(copyToClipboard).toHaveBeenCalledWith({
         text: "TEST_USERNAME",
@@ -149,7 +149,7 @@ describe("ContextMenuClickedHandler", () => {
         url: "https://test.com",
       } as any);
 
-      expect(copyToClipboard).toHaveBeenCalledTimes(1);
+      expect(copyToClipboard).toBeCalledTimes(1);
 
       expect(copyToClipboard).toHaveBeenCalledWith({
         text: "TEST_PASSWORD",

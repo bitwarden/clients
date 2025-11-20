@@ -91,28 +91,28 @@ describe("MigrationBuilder", () => {
         const helper = new MigrationHelper(0, mock(), mock(), "general", clientType);
         const spy = jest.spyOn(migrator, "migrate");
         await sut.migrate(helper);
-        expect(spy).toHaveBeenCalledWith(helper);
+        expect(spy).toBeCalledWith(helper);
       });
 
       it("should rollback", async () => {
         const helper = new MigrationHelper(1, mock(), mock(), "general", clientType);
         const spy = jest.spyOn(rollback_migrator, "rollback");
         await sut.migrate(helper);
-        expect(spy).toHaveBeenCalledWith(helper);
+        expect(spy).toBeCalledWith(helper);
       });
 
       it("should update version on migrate", async () => {
         const helper = new MigrationHelper(0, mock(), mock(), "general", clientType);
         const spy = jest.spyOn(migrator, "updateVersion");
         await sut.migrate(helper);
-        expect(spy).toHaveBeenCalledWith(helper, "up");
+        expect(spy).toBeCalledWith(helper, "up");
       });
 
       it("should update version on rollback", async () => {
         const helper = new MigrationHelper(1, mock(), mock(), "general", clientType);
         const spy = jest.spyOn(rollback_migrator, "updateVersion");
         await sut.migrate(helper);
-        expect(spy).toHaveBeenCalledWith(helper, "down");
+        expect(spy).toBeCalledWith(helper, "down");
       });
 
       it("should not run the migrator if the current version does not match the from version", async () => {
@@ -120,8 +120,8 @@ describe("MigrationBuilder", () => {
         const migrate = jest.spyOn(migrator, "migrate");
         const rollback = jest.spyOn(rollback_migrator, "rollback");
         await sut.migrate(helper);
-        expect(migrate).not.toHaveBeenCalled();
-        expect(rollback).not.toHaveBeenCalled();
+        expect(migrate).not.toBeCalled();
+        expect(rollback).not.toBeCalled();
       });
 
       it("should not update version if the current version does not match the from version", async () => {
@@ -129,8 +129,8 @@ describe("MigrationBuilder", () => {
         const migrate = jest.spyOn(migrator, "updateVersion");
         const rollback = jest.spyOn(rollback_migrator, "updateVersion");
         await sut.migrate(helper);
-        expect(migrate).not.toHaveBeenCalled();
-        expect(rollback).not.toHaveBeenCalled();
+        expect(migrate).not.toBeCalled();
+        expect(rollback).not.toBeCalled();
       });
     });
 

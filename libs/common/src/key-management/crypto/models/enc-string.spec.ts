@@ -107,7 +107,7 @@ describe("EncString", () => {
 
       it("result should be cached", async () => {
         const decrypted = await encString.decrypt(null);
-        expect(encryptService.decryptString).toHaveBeenCalledTimes(1);
+        expect(encryptService.decryptString).toBeCalledTimes(1);
 
         expect(decrypted).toBe("decrypted");
       });
