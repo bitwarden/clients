@@ -336,7 +336,6 @@ export class TunnelClientService {
     });
 
     // Initialize Noise Protocol as responder
-    await this.noiseProtocolService.initialize();
     this.noiseProtocol = this.noiseProtocolService.createProtocol(
       false,
       this.staticKeypair,

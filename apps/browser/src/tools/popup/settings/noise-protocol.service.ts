@@ -1,63 +1,25 @@
 import { Injectable } from "@angular/core";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import * as sdk from "@bitwarden/sdk-internal";
 
 type KeyPair = { publicKey: Uint8Array; secretKey: Uint8Array };
 
 /**
- * Noise Protocol WASM adapter for browser extension
- * Wraps the Rust/WASM implementation to provide secure Noise_XXpsk3_25519_AESGCM_SHA256 handshakes
+ * Noise Protocol service using Bitwarden SDK
+ * Wraps the SDK's Noise Protocol implementation to provide secure Noise_XXpsk3_25519_AESGCM_SHA256 handshakes
  */
 @Injectable({
   providedIn: "root",
 })
 export class NoiseProtocolService {
-  private wasmModule: any = null;
-  private isInitialized = false;
-
   constructor(private logService: LogService) {}
-
-  /**
-   * Initialize the WASM module
-   * Must be called before using any other methods
-   */
-  async initialize(): Promise<void> {
-    if (this.isInitialized) {
-      return;
-    }
-
-    try {
-      // Import the WASM module - hardcoded path for demo
-      // The WASM file will be in the build output directory alongside other assets
-      const wasmModule = await import("./rust_noise.js");
-
-      // Initialize WASM - for --target web, the default export is the init function
-      if (typeof wasmModule.default === "function") {
-        // Pass the WASM file path explicitly to avoid import.meta.url issues in bundled code
-        await wasmModule.default("./rust_noise_bg.wasm");
-      } else if (typeof wasmModule.init === "function") {
-        // Fallback for other targets
-        await wasmModule.init();
-      }
-
-      this.wasmModule = wasmModule;
-      this.isInitialized = true;
-      this.logService.info("[NoiseProtocol] WASM module initialized");
-    } catch (error) {
-      this.logService.error("[NoiseProtocol] Failed to initialize WASM module:", error);
-      throw new Error(`Failed to initialize Noise Protocol WASM: ${error}`);
-    }
-  }
 
   /**
    * Create a new Noise Protocol instance
    */
   createProtocol(isInitiator: boolean, staticKeypair?: KeyPair, psk?: Uint8Array): NoiseProtocol {
-    if (!this.isInitialized || !this.wasmModule) {
-      throw new Error("NoiseProtocolService not initialized. Call initialize() first.");
-    }
-
-    return new NoiseProtocol(this.wasmModule, isInitiator, staticKeypair, psk, this.logService);
+    return new NoiseProtocol(isInitiator, staticKeypair, psk, this.logService);
   }
 
   /**
@@ -69,8 +31,6 @@ export class NoiseProtocolService {
     staticKeypair?: KeyPair,
     psk?: Uint8Array,
   ): Promise<NoiseProtocol> {
-    await this.initialize();
-
     const noise = this.createProtocol(isInitiator, staticKeypair, psk);
 
     if (isInitiator) {
@@ -98,35 +58,42 @@ export class NoiseProtocolService {
 }
 
 /**
- * Noise Protocol wrapper using Rust/WASM implementation
+ * Noise Protocol wrapper using Bitwarden SDK
  * Implements Noise_XXpsk3_25519_AESGCM_SHA256 pattern
  */
 export class NoiseProtocol {
-  private wasmProtocol: any;
-  private isInitiator: boolean;
+  private handle: number;
 
   constructor(
-    wasmModule: any,
     isInitiator: boolean,
     staticKeypair?: KeyPair,
     psk?: Uint8Array,
     private logService?: LogService,
   ) {
-    this.isInitiator = isInitiator;
-
     try {
       // Convert optional parameters
       const staticSecretKey = staticKeypair ? staticKeypair.secretKey : null;
       const pskBytes = psk ? psk : null;
 
-      // Create WASM protocol instance
-      this.wasmProtocol = new wasmModule.NoiseProtocol(isInitiator, staticSecretKey, pskBytes);
-
       this.log(
-        `Noise XX handshake initialized (${isInitiator ? "initiator" : "responder"}, PSK: ${psk ? "yes" : "no"})`,
+        `Creating Noise protocol instance (${isInitiator ? "initiator" : "responder"}, ` +
+          `staticKey: ${staticSecretKey ? staticSecretKey.length : "none"} bytes, ` +
+          `PSK: ${pskBytes ? pskBytes.length : "none"} bytes)`,
       );
+
+      // Create SDK protocol instance using the built-in noise functions
+      this.handle = sdk.create_noise_protocol(isInitiator, staticSecretKey, pskBytes);
+
+      if (this.handle === undefined || this.handle === null) {
+        throw new Error("Failed to create NoiseProtocol - SDK returned invalid handle");
+      }
+
+      this.log(`Noise XX handshake initialized successfully (handle: ${this.handle})`);
     } catch (error) {
-      this.logError("Failed to create WASM NoiseProtocol:", error);
+      this.logError("Failed to create SDK NoiseProtocol:", error);
+      if (error instanceof Error) {
+        this.logError("Error stack:", error.stack);
+      }
       throw error;
     }
   }
@@ -137,7 +104,7 @@ export class NoiseProtocol {
   writeMessage(payload?: Uint8Array): Uint8Array {
     try {
       const payloadArray = payload && payload.length > 0 ? payload : null;
-      const message = this.wasmProtocol.writeMessage(payloadArray);
+      const message = sdk.noise_write_message(this.handle, payloadArray);
 
       this.log(`Sent handshake message (length: ${message.length})`);
       return message;
@@ -152,7 +119,7 @@ export class NoiseProtocol {
    */
   readMessage(message: Uint8Array): Uint8Array {
     try {
-      const payload = this.wasmProtocol.readMessage(message);
+      const payload = sdk.noise_read_message(this.handle, message);
 
       this.log(
         `Received handshake message (length: ${message.length}, payload: ${payload.length})`,
@@ -169,7 +136,7 @@ export class NoiseProtocol {
    */
   split(): void {
     try {
-      this.wasmProtocol.split();
+      sdk.noise_split(this.handle);
       this.log("Handshake complete - transport keys derived");
     } catch (error) {
       this.logError("Failed to split:", error);
@@ -182,7 +149,7 @@ export class NoiseProtocol {
    */
   encryptMessage(plaintext: Uint8Array): Uint8Array {
     try {
-      const ciphertext = this.wasmProtocol.encryptMessage(plaintext);
+      const ciphertext = sdk.noise_encrypt_message(this.handle, plaintext);
 
       this.log(`Message encrypted (length: ${ciphertext.length})`);
       return ciphertext;
@@ -197,7 +164,7 @@ export class NoiseProtocol {
    */
   decryptMessage(ciphertext: Uint8Array): Uint8Array {
     try {
-      const plaintext = this.wasmProtocol.decryptMessage(ciphertext);
+      const plaintext = sdk.noise_decrypt_message(this.handle, ciphertext);
 
       this.log(`Message decrypted (length: ${plaintext.length})`);
       return plaintext;
@@ -211,15 +178,27 @@ export class NoiseProtocol {
    * Check if handshake is complete
    */
   isHandshakeComplete(): boolean {
-    return this.wasmProtocol.isHandshakeComplete();
+    return sdk.noise_is_handshake_complete(this.handle);
   }
 
   /**
    * Get static public key
-   * Note: WASM implementation doesn't expose this directly
+   * Note: SDK implementation doesn't expose this directly
    */
   getStaticPublicKey(): Uint8Array {
-    throw new Error("getStaticPublicKey not yet implemented for WASM");
+    throw new Error("getStaticPublicKey not yet implemented for SDK Noise");
+  }
+
+  /**
+   * Destroy the protocol instance and free resources
+   */
+  destroy(): void {
+    try {
+      sdk.destroy_noise_protocol(this.handle);
+      this.log("Noise protocol instance destroyed");
+    } catch (error) {
+      this.logError("Failed to destroy noise protocol:", error);
+    }
   }
 
   private log(message: string) {
