@@ -11,7 +11,10 @@ export declare namespace passwords {
    * Throws {@link Error} with message {@link PASSWORD_NOT_FOUND} if the password does not exist.
    */
   export function getPassword(service: string, account: string): Promise<string>
-  /** Save the password to the keychain. Adds an entry if none exists otherwise updates the existing entry. */
+  /**
+   * Save the password to the keychain. Adds an entry if none exists otherwise updates the
+   * existing entry.
+   */
   export function setPassword(service: string, account: string, password: string): Promise<void>
   /**
    * Delete the stored password from the keychain.
@@ -35,7 +38,8 @@ export declare namespace biometrics {
    * base64 encoded key and the base64 encoded challenge used to create it
    * separated by a `|` character.
    *
-   * If the iv is provided, it will be used as the challenge. Otherwise a random challenge will be generated.
+   * If the iv is provided, it will be used as the challenge. Otherwise a random challenge will
+   * be generated.
    *
    * `format!("<key_base64>|<iv_base64>")`
    */
@@ -119,8 +123,9 @@ export declare namespace ipc {
     /**
      * Create and start the IPC server without blocking.
      *
-     * @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
-     * @param callback This function will be called whenever a message is received from a client.
+     * @param name The endpoint name to listen on. This name uniquely identifies the IPC
+     * connection and must be the same for both the server and client. @param callback
+     * This function will be called whenever a message is received from a client.
      */
     static listen(name: string, callback: (error: null | Error, message: IpcMessage) => void): Promise<IpcServer>
     /** Return the path to the IPC server. */
@@ -130,8 +135,9 @@ export declare namespace ipc {
     /**
      * Send a message over the IPC server to all the connected clients
      *
-     * @return The number of clients that the message was sent to. Note that the number of messages
-     * actually received may be less, as some clients could disconnect before receiving the message.
+     * @return The number of clients that the message was sent to. Note that the number of
+     * messages actually received may be less, as some clients could disconnect before
+     * receiving the message.
      */
     send(message: string): number
   }
@@ -199,8 +205,9 @@ export declare namespace autofill {
     /**
      * Create and start the IPC server without blocking.
      *
-     * @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
-     * @param callback This function will be called whenever a message is received from a client.
+     * @param name The endpoint name to listen on. This name uniquely identifies the IPC
+     * connection and must be the same for both the server and client. @param callback
+     * This function will be called whenever a message is received from a client.
      */
     static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void, assertionWithoutUserInterfaceCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void, nativeStatusCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: NativeStatus) => void): Promise<IpcServer>
     /** Return the path to the IPC server. */

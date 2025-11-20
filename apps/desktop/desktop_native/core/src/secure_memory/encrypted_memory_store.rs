@@ -10,8 +10,8 @@ use crate::secure_memory::{
 /// allows circumventing length and amount limitations on platform specific secure memory APIs since
 /// only a single short item needs to be protected.
 ///
-/// The key is briefly in process memory during encryption and decryption, in memory that is protected
-/// from swapping to disk via mlock, and then zeroed out immediately after use.
+/// The key is briefly in process memory during encryption and decryption, in memory that is
+/// protected from swapping to disk via mlock, and then zeroed out immediately after use.
 #[allow(unused)]
 pub(crate) struct EncryptedMemoryStore {
     map: std::collections::HashMap<String, EncryptedMemory>,

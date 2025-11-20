@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "En fejl opstod under aktivering af webbrowserintegration."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Desværre understøttes browserintegration indtil videre kun i Mac App Store-versionen."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Desværre understøttes browserintegration pt. ikke i Microsoft Store-versionen."
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

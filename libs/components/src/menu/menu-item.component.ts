@@ -10,7 +10,7 @@ import { Component, ElementRef, HostBinding, Input } from "@angular/core";
   templateUrl: "menu-item.component.html",
   imports: [NgClass],
 })
-export class MenuItemDirective implements FocusableOption {
+export class MenuItemComponent implements FocusableOption {
   @HostBinding("class") classList = [
     "tw-block",
     "tw-w-full",

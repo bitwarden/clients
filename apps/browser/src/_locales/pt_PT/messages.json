@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "Ver tudo"
   },
+  "viewLess": {
+    "message": "Ver menos"
+  },
   "viewLogin": {
     "message": "Ver credencial"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Ao bloquear o sistema"
+  },
+  "onIdle": {
+    "message": "Na inatividade do sistema"
+  },
+  "onSleep": {
+    "message": "Na suspensão do sistema"
   },
   "onRestart": {
     "message": "Ao reiniciar o navegador"
@@ -5800,6 +5809,21 @@
   "upgradeToPremium": {
     "message": "Atualizar para o Premium"
   },
+  "upgradeCompleteSecurity": {
+    "message": "Atualize para obter segurança total"
+  },
+  "premiumGivesMoreTools": {
+    "message": "O Premium oferece mais ferramentas para manter a segurança, trabalhar com eficiência e manter o controlo."
+  },
+  "explorePremium": {
+    "message": "Explorar o Premium"
+  },
+  "loadingVault": {
+    "message": "A carregar o cofre"
+  },
+  "vaultLoaded": {
+    "message": "Cofre carregado"
+  },
   "settingDisabledByPolicy": {
     "message": "Esta configuração está desativada pela política da sua organização.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5833,8 @@
   },
   "cardNumberLabel": {
     "message": "Número do cartão"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Ação de tempo limite"
   }
 }

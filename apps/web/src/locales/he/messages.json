@@ -21,13 +21,13 @@
     "message": "סיכון סיסמה"
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "אין לך הרשאות לערוך את הפריט הזה"
   },
   "reviewAtRiskPasswords": {
     "message": "סקור סיסמאות בסיכון (חלשות, חשופות, או משומשות) בין יישומים. בחר את היישומים הכי קריטיים שלך על מנת לתעדף פעולות אבטחה עבור המשתמשים שלך כדי לטפל בסיסמאות בסיכון."
   },
   "reviewAtRiskLoginsPrompt": {
-    "message": "Review at-risk logins"
+    "message": "סקור כניסות בסיכון"
   },
   "dataLastUpdated": {
     "message": "הנתונים עודכנו לאחרונה: $DATE$",
@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "הקצה משימות לחברים כדי לנטר התקדמות"
   },
-  "onceYouReviewApps": {
-    "message": "לאחר שתסקור יישומים ותסמן אותם כקריטיים, באפשרותך להקצות משימות לחברים כדי לפתור פריטים בסיכון ולנטר התקדמות כאן"
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
   },
   "sendReminders": {
     "message": "שלח תזכורות"
@@ -131,7 +131,7 @@
     }
   },
   "criticalApplicationsMarked": {
-    "message": "critical applications marked"
+    "message": "יישומים קריטיים סומנו"
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ יישומים קריטיים",
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "לא נמצאו יישומים עבור $ORG NAME",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "No data found"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "ייבא את נתוני הכניסה של הארגון שלך כדי להתחיל בניטור סיכוני אבטחה של אישורים. לאחר הייבוא תוכל:"
+  "noDataInOrgDescription": {
+    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
   },
-  "benefit1Title": {
-    "message": "לתעדף סיכונים"
+  "feature1Title": {
+    "message": "Mark applications as critical"
   },
-  "benefit1Description": {
-    "message": "התמקדות ביישומים החשובים ביותר"
+  "feature1Description": {
+    "message": "This will help you remove risks to your most important applications first."
   },
-  "benefit2Title": {
-    "message": "להדריך תיקון"
+  "feature2Title": {
+    "message": "Help members improve their security"
   },
-  "benefit2Description": {
-    "message": "הקצה משימות מודרכות לחברים בסיכון כדי להחליף אישורים בסיכון"
+  "feature2Description": {
+    "message": "Assign at-risk members guided security tasks to update credentials."
   },
-  "benefit3Title": {
-    "message": "לנטר התקדמות"
+  "feature3Title": {
+    "message": "Monitor progress"
   },
-  "benefit3Description": {
-    "message": "עקוב אחר שינויים לאורך זמן כדי להציג שיפורי אבטחה"
+  "feature3Description": {
+    "message": "Track changes over time to show security improvements."
   },
-  "noReportRunTitle": {
-    "message": "הרץ את הדוח הראשון שלך כדי לראות יישומים"
+  "noReportsRunTitle": {
+    "message": "Generate report"
   },
-  "noReportRunDescription": {
-    "message": "ייצר דוח תובנות סיכון כדי לנתח את היישומים של הארגון שלך ולזהות סיסמאות בסיכון שצריכות תשומת לב. הרצת הדוח הראשון שלך תגרום ל:"
+  "noReportsRunDescription": {
+    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
   },
   "noCriticalApplicationsTitle": {
     "message": "לא סימנת אף יישום כקריטי"
@@ -242,7 +236,7 @@
     "message": "יישומים המסומנים כקריטיים"
   },
   "criticalApplicationsMarkedSuccess": {
-    "message": "$COUNT$ applications marked as critical",
+    "message": "$COUNT$ יישומים סומנו כקריטיים",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "חברים בסיכון"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "חברים עם גישה לפריטים בסיכון עבור יישומים קריטיים"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "These members have access to vulnerable items for critical applications."
   },
   "membersWithAtRiskPasswords": {
-    "message": "Members with at-risk passwords"
+    "message": "חברים עם סיסמאות בסיכון"
   },
-  "membersWillReceiveNotification": {
-    "message": "Members will receive a notification to resolve at-risk logins through the browser extension."
+  "membersWillReceiveSecurityTask": {
+    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ חברים בסיכון",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "חברים אלה נכנסו אל יישומים עם סיסמאות חלשות, חשופות, או משומשות."
+  "atRiskMemberDescription": {
+    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionNone": {
     "message": "אין חברים שנכנסו אל יישומים עם סיסמאות חלשות, חשופות, או משומשות."
@@ -349,6 +343,9 @@
   "applicationsNeedingReview": {
     "message": "יישומים צריכים סקירה"
   },
+  "newApplicationsCardTitle": {
+    "message": "סקור יישומים חדשים"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ יישומים חדשים",
     "placeholders": {
@@ -365,22 +362,37 @@
     "message": "סקור עכשיו"
   },
   "allCaughtUp": {
-    "message": "All caught up!"
+    "message": "הכל טופל!"
   },
   "noNewApplicationsToReviewAtThisTime": {
     "message": "No new applications to review at this time"
   },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Your organization has items saved for $COUNT$ applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Review applications to secure the items most critical to your organization's security"
+  },
+  "reviewApplications": {
+    "message": "סקור יישומים"
+  },
   "prioritizeCriticalApplications": {
     "message": "תעדוף יישומים קריטיים"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Select which applications are most critical to your organization, then assign security tasks to members to resolve risks."
+  "selectCriticalAppsDescription": {
+    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "reviewNewApplications": {
-    "message": "Review new applications"
+    "message": "סקור יישומים חדשים"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "We've highlighted at-risk items for new applications stored in Admin console that have weak, exposed, or reused passwords."
+  "reviewNewAppsDescription": {
+    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Click the star icon to mark an app as critical"
@@ -863,7 +875,7 @@
     "message": "מועדפים"
   },
   "taskSummary": {
-    "message": "Task summary"
+    "message": "סיכום משימה"
   },
   "types": {
     "message": "סוגים"
@@ -3232,8 +3244,17 @@
   "nextCharge": {
     "message": "החיוב הבא"
   },
+  "nextChargeHeader": {
+    "message": "החיוב הבא"
+  },
+  "plan": {
+    "message": "תוכנית"
+  },
   "details": {
     "message": "פרטים"
+  },
+  "discount": {
+    "message": "הנחה"
   },
   "downloadLicense": {
     "message": "הורד רישיון"
@@ -4441,6 +4462,30 @@
   },
   "generatingYourAccessIntelligence": {
     "message": "Generating your Access Intelligence..."
+  },
+  "fetchingMemberData": {
+    "message": "Fetching member data..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "Analyzing password health..."
+  },
+  "calculatingRiskScores": {
+    "message": "Calculating risk scores..."
+  },
+  "generatingReportData": {
+    "message": "Generating report data..."
+  },
+  "savingReport": {
+    "message": "Saving report..."
+  },
+  "compilingInsights": {
+    "message": "Compiling insights..."
+  },
+  "loadingProgress": {
+    "message": "Loading progress"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "This might take a few minutes."
   },
   "riskInsightsRunReport": {
     "message": "הרץ דוח"
@@ -5804,16 +5849,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "איך להפעיל אישור משתמש אוטומטי"
   },
-  "autoConfirmStep1": {
-    "message": "פתח את הרחבת Bitwarden שלך."
+  "autoConfirmExtension1": {
+    "message": "פתח את הרחבת Bitwarden שלך"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "בחר",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " הפעל.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " הפעל",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "הרחבת Bitwarden לדפדפן נפתחה בהצלחה. כעת ביכולתך להפעיל את הגדרת אישור אוטומטי של משתמשים."
@@ -5903,13 +5948,13 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "uriMatchDetectionPolicy": {
-    "message": "Default URI match detection"
+    "message": "ברירת מחדל לזיהוי התאמת URI"
   },
   "uriMatchDetectionPolicyDesc": {
     "message": "Determine when logins are suggested for autofill. Admins and owners are exempt from this policy."
   },
   "uriMatchDetectionOptionsLabel": {
-    "message": "Default URI match detection"
+    "message": "ברירת מחדל לזיהוי התאמת URI"
   },
   "invalidUriMatchDefaultPolicySetting": {
     "message": "Please select a valid URI match detection option.",
@@ -9525,9 +9570,6 @@
   "loggedInExclamation": {
     "message": "נכנסת!"
   },
-  "beta": {
-    "message": "בטא"
-  },
   "assignCollectionAccess": {
     "message": "הקצה גישה לאוסף"
   },
@@ -9808,8 +9850,8 @@
   "assignTasks": {
     "message": "הקצה משימות"
   },
-  "assignTasksToMembers": {
-    "message": "Assign tasks to members for guided resolution"
+  "assignSecurityTasksToMembers": {
+    "message": "Send notifications to change passwords"
   },
   "assignToCollections": {
     "message": "הקצה לאוספים"
@@ -12075,5 +12117,45 @@
   },
   "startFreeFamiliesTrial": {
     "message": "התחל ניסיון משפחות בחינם"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "הגדר שיטת ביטול נעילה כדי לשנות את פעולת פסק הזמן לכספת שלך."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "דרישות מדיניות ארגונית הוחלו על אפשרויות פסק הזמן שלך"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "פסק הזמן לכספת שלך חורג מהמגבלות שנקבעו על ידי הארגון שלך."
+  },
+  "neverLockWarning": {
+    "message": "האם אתה בטוח שברצונך להשתמש באפשרות \"אף פעם לא\"? במצב זה הסיסמה לכספת שלך תשמר על המכשיר שלך. אם תשתמש באפשרות זו עליך לוודא כי המכשיר מאובטח כראוי."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "פעולת פסק זמן"
+  },
+  "sessionTimeoutHeader": {
+    "message": "פסק זמן להפעלה"
+  },
+  "appearance": {
+    "message": "מראה"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "פסק זמן חורג את ההגבלה שהוגדרה על ידי הארגון שלך: $HOURS$ שעות ו־$MINUTES$ דקות לכל היותר",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "לא סומנו יישומים קריטים"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Are you sure you want to continue?"
   }
 }

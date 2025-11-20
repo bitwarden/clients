@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -8,7 +8,6 @@ import { debounceTime, EMPTY, from, map, switchMap, take } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
-  ApplicationHealthReportDetailEnriched,
   CriticalAppsService,
   RiskInsightsDataService,
   RiskInsightsReportService,
@@ -17,29 +16,38 @@ import { createNewSummaryData } from "@bitwarden/bit-common/dirt/reports/risk-in
 import { OrganizationReportSummary } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { NoItemsModule, SearchModule, TableDataSource, ToastService } from "@bitwarden/components";
-import { CardComponent } from "@bitwarden/dirt-card";
+import {
+  LinkModule,
+  NoItemsModule,
+  SearchModule,
+  TableDataSource,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
 import { RiskInsightsTabType } from "../models/risk-insights.models";
-import { AppTableRowScrollableComponent } from "../shared/app-table-row-scrollable.component";
+import {
+  ApplicationTableDataSource,
+  AppTableRowScrollableComponent,
+} from "../shared/app-table-row-scrollable.component";
 import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks.service";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "dirt-critical-applications",
   templateUrl: "./critical-applications.component.html",
   imports: [
-    CardComponent,
     HeaderModule,
+    LinkModule,
     SearchModule,
     NoItemsModule,
     PipesModule,
     SharedModule,
     AppTableRowScrollableComponent,
+    TypographyModule,
   ],
 })
 export class CriticalApplicationsComponent implements OnInit {
@@ -48,7 +56,7 @@ export class CriticalApplicationsComponent implements OnInit {
   protected organizationId: OrganizationId;
   noItemsIcon = Security;
 
-  protected dataSource = new TableDataSource<ApplicationHealthReportDetailEnriched>();
+  protected dataSource = new TableDataSource<ApplicationTableDataSource>();
   protected applicationSummary = {} as OrganizationReportSummary;
 
   protected selectedIds: Set<number> = new Set<number>();
@@ -72,9 +80,24 @@ export class CriticalApplicationsComponent implements OnInit {
   async ngOnInit() {
     this.dataService.criticalReportResults$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (criticalReport) => {
-        this.dataSource.data = criticalReport?.reportData ?? [];
-        this.applicationSummary = criticalReport?.summaryData ?? createNewSummaryData();
-        this.enableRequestPasswordChange = criticalReport?.summaryData?.totalAtRiskMemberCount > 0;
+        if (criticalReport != null) {
+          // Map the report data to include the iconCipher for each application
+          const tableDataWithIcon = criticalReport.reportData.map((app) => ({
+            ...app,
+            iconCipher:
+              app.cipherIds.length > 0
+                ? this.dataService.getCipherIcon(app.cipherIds[0])
+                : undefined,
+          }));
+          this.dataSource.data = tableDataWithIcon;
+
+          this.applicationSummary = criticalReport.summaryData;
+          this.enableRequestPasswordChange = criticalReport.summaryData.totalAtRiskMemberCount > 0;
+        } else {
+          this.dataSource.data = [];
+          this.applicationSummary = createNewSummaryData();
+          this.enableRequestPasswordChange = false;
+        }
       },
       error: () => {
         this.dataSource.data = [];
