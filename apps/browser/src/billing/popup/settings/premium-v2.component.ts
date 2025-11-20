@@ -8,6 +8,7 @@ import { PremiumComponent as BasePremiumComponent } from "@bitwarden/angular/bil
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -59,6 +60,7 @@ export class PremiumV2Component extends BasePremiumComponent {
     billingAccountProfileStateService: BillingAccountProfileStateService,
     toastService: ToastService,
     accountService: AccountService,
+    billingApiService: BillingApiServiceAbstraction,
   ) {
     super(
       i18nService,
@@ -70,6 +72,7 @@ export class PremiumV2Component extends BasePremiumComponent {
       billingAccountProfileStateService,
       toastService,
       accountService,
+      billingApiService,
     );
 
     // Support old price string. Can be removed in future once all translations are properly updated.
