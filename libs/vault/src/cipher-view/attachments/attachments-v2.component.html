@@ -9,7 +9,9 @@
       [organizationId]="organizationId"
       [admin]="admin"
       [submitBtn]="submitBtn"
+      (onUploadStarted)="uploadStarted()"
       (onUploadSuccess)="uploadSuccessful()"
+      (onUploadFailed)="uploadFailed()"
       (onRemoveSuccess)="removalSuccessful()"
     ></app-cipher-attachments>
   </ng-container>
