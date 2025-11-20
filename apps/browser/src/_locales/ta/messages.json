@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "View all"
   },
+  "viewLess": {
+    "message": "View less"
+  },
   "viewLogin": {
     "message": "உள்நுழைவைக் காண்க"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "சிஸ்டம் பூட்டப்பட்டவுடன்"
+  },
+  "onIdle": {
+    "message": "On system idle"
+  },
+  "onSleep": {
+    "message": "On system sleep"
   },
   "onRestart": {
     "message": "உலாவி மறுதொடக்கம் செய்யப்பட்டவுடன்"
@@ -1523,12 +1532,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "தொடங்கும் போது பயோமெட்ரிக்ஸைக் கேட்கவும்"
   },
-  "premiumRequired": {
-    "message": "பிரீமியம் தேவை"
-  },
-  "premiumRequiredDesc": {
-    "message": "இந்த அம்சத்தைப் பயன்படுத்த ஒரு பிரீமியம் மெம்பர்ஷிப் தேவை."
-  },
   "authenticationTimeout": {
     "message": "அங்கீகரிப்பு டைம் அவுட்"
   },
@@ -1640,6 +1643,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "நீங்கள் பேஸ் சர்வர் URL-ஐ அல்லது குறைந்தது ஒரு தனிப்பயன் சூழலைச் சேர்க்க வேண்டும்."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
   },
   "customEnvironment": {
     "message": "தனிப்பயன் சூழல்"
@@ -4977,6 +4983,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Default ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "பொருத்தமான கண்டறிதலைக் காட்டு $WEBSITE$",
     "placeholders": {
@@ -5769,6 +5785,45 @@
   "atRiskLoginsSecured": {
     "message": "Great job securing your at-risk logins!"
   },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "Loading vault"
+  },
+  "vaultLoaded": {
+    "message": "Vault loaded"
+  },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5778,5 +5833,8 @@
   },
   "cardNumberLabel": {
     "message": "Card number"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
   }
 }

@@ -1,4 +1,4 @@
-<popup-page [loading]="loading$ | async">
+<popup-page [loading]="showSpinnerLoaders$ | async" [hideOverflow]="showSkeletonsLoaders$ | async">
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
       <app-new-item-dropdown [initialValues]="newItemItemValues$ | async"></app-new-item-dropdown>
@@ -30,6 +30,15 @@
 
   <!-- Show search & filters outside of the scroll area of the page -->
   <ng-container slot="above-scroll-area">
+    <ng-container *ngIf="showPremiumSpotlight$ | async">
+      <bit-spotlight
+        [title]="'upgradeCompleteSecurity' | i18n"
+        [subtitle]="'premiumGivesMoreTools' | i18n"
+        [buttonText]="'explorePremium' | i18n"
+        (onButtonClick)="showPremiumDialog()"
+        (onDismiss)="dismissVaultNudgeSpotlight(NudgeType.PremiumUpgrade)"
+      ></bit-spotlight>
+    </ng-container>
     <ng-container *ngIf="vaultState === VaultStateEnum.Empty && showEmptyVaultSpotlight$ | async">
       <bit-spotlight
         [title]="'emptyVaultNudgeTitle' | i18n"
@@ -103,4 +112,10 @@
       ></app-vault-list-items-container>
     </ng-container>
   </ng-container>
+
+  @if (showSkeletonsLoaders$ | async) {
+    <vault-fade-in-out-skeleton>
+      <vault-loading-skeleton></vault-loading-skeleton>
+    </vault-fade-in-out-skeleton>
+  }
 </popup-page>

@@ -32,7 +32,7 @@
     "message": "Jedinstvena prijava (SSO)"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Tvoja organizacija zahtijeva jedinstvenu prijavu."
   },
   "welcomeBack": {
     "message": "Dobro došli natrag"
@@ -592,7 +592,10 @@
     "message": "Prikaz"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "Vidi sve"
+  },
+  "viewLess": {
+    "message": "View less"
   },
   "viewLogin": {
     "message": "Prikaži prijavu"
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Pri zaključavanju sustava"
+  },
+  "onIdle": {
+    "message": "U stanju besposlenosti"
+  },
+  "onSleep": {
+    "message": "U stanju mirovanja sustava"
   },
   "onRestart": {
     "message": "Pri pokretanju preglednika"
@@ -1035,10 +1044,10 @@
     "message": "Stavka izmijenjena"
   },
   "savedWebsite": {
-    "message": "Saved website"
+    "message": "Spremljeno mrežno mjesto"
   },
   "savedWebsites": {
-    "message": "Saved websites ( $COUNT$ )",
+    "message": "Spremljena mrežna mjesta ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1523,12 +1532,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Traži biometrijsku autentifikaciju pri pokretanju"
   },
-  "premiumRequired": {
-    "message": "Potrebno premium članstvo"
-  },
-  "premiumRequiredDesc": {
-    "message": "Za korištenje ove značajke potrebno je Premium članstvo."
-  },
   "authenticationTimeout": {
     "message": "Istek vremena za autentifikaciju"
   },
@@ -1641,6 +1644,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Moraš dodati ili osnovni URL poslužitelja ili barem jedno prilagođeno okruženje."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL mora koristiti HTTPS."
+  },
   "customEnvironment": {
     "message": "Prilagođeno okruženje"
   },
@@ -1695,28 +1701,28 @@
     "message": "Isključi auto-ispunu"
   },
   "confirmAutofill": {
-    "message": "Confirm autofill"
+    "message": "Potvrdi auto-ispunu"
   },
   "confirmAutofillDesc": {
-    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+    "message": "Ova stranica ne odgovara tvojim spremljenim podacima za prijavu. Prije nego što uneseš svoje podatke za prijavu, provjeri je li riječ o pouzdanoj stranici."
   },
   "showInlineMenuLabel": {
     "message": "Prikaži prijedloge auto-ispune na poljima obrazaca"
   },
   "howDoesBitwardenProtectFromPhishing": {
-    "message": "How does Bitwarden protect your data from phishing?"
+    "message": "Kako Bitwarden štiti tvoje podatke od phishinga?"
   },
   "currentWebsite": {
-    "message": "Current website"
+    "message": "Trenutna web stranica"
   },
   "autofillAndAddWebsite": {
-    "message": "Autofill and add this website"
+    "message": "Auto-ispuni i dodaj ovu stranicu"
   },
   "autofillWithoutAdding": {
-    "message": "Autofill without adding"
+    "message": "Auto-ispuni bez dodavanja"
   },
   "doNotAutofill": {
-    "message": "Do not autofill"
+    "message": "Nemoj auto-ispuniti"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Prikaži identitete kao prijedloge"
@@ -3280,7 +3286,7 @@
     "message": "Pogreška pri dešifriranju"
   },
   "errorGettingAutoFillData": {
-    "message": "Error getting autofill data"
+    "message": "Greška kod dohvata podataka za auto-ispunu"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden nije mogao dešifrirati sljedeće stavke trezora."
@@ -4054,13 +4060,13 @@
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "cannotAutofill": {
-    "message": "Cannot autofill"
+    "message": "Nije moguća auto-ispuna"
   },
   "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+    "message": "Zadano podudaranje postavljeno je na „Točno podudaranje”. Trenutna web-stranica ne podudara se točno sa spremljenim podacima ove stavke za prijavu."
   },
   "okay": {
-    "message": "Okay"
+    "message": "U redu"
   },
   "toggleSideNavigation": {
     "message": "U/Isključi bočnu navigaciju"
@@ -4977,6 +4983,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Zadano ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "Prikaži otkrivanje podudaranja $WEBSITE$",
     "placeholders": {
@@ -5769,14 +5785,56 @@
   "atRiskLoginsSecured": {
     "message": "Rizične prijave su osigurane!"
   },
+  "upgradeNow": {
+    "message": "Nadogradi sada"
+  },
+  "builtInAuthenticator": {
+    "message": "Ugrađeni autentifikator"
+  },
+  "secureFileStorage": {
+    "message": "Sigurna pohrana datoteka"
+  },
+  "emergencyAccess": {
+    "message": "Pristup u nuždi"
+  },
+  "breachMonitoring": {
+    "message": "Nadzor proboja"
+  },
+  "andMoreFeatures": {
+    "message": "I više!"
+  },
+  "planDescPremium": {
+    "message": "Dovrši online sigurnost"
+  },
+  "upgradeToPremium": {
+    "message": " Nadogradi na Premium"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "Učitavanje trezora"
+  },
+  "vaultLoaded": {
+    "message": "Trezor učitan"
+  },
   "settingDisabledByPolicy": {
     "message": "Ova je postavka onemogućena pravilima tvoje organizacije.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "Poštanski broj"
   },
   "cardNumberLabel": {
-    "message": "Card number"
+    "message": "Broj kartice"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Radnja kod isteka"
   }
 }

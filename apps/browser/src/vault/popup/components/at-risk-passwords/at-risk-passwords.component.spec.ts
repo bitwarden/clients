@@ -61,6 +61,8 @@ class MockPopupPageComponent {
   template: `<ng-content></ng-content>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 class MockAppIcon {
   readonly cipher = input<CipherView | undefined>(undefined);
 }

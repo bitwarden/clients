@@ -1,5 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, HostBinding, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  input,
+} from "@angular/core";
 
 import { FocusableElement } from "../shared/focusable-element";
 
@@ -44,27 +51,56 @@ const hoverStyles: Record<BadgeVariant, string[]> = {
   ],
 };
 /**
-  * Badges are primarily used as labels, counters, and small buttons.
-
-  * Typically Badges are only used with text set to `text-xs`. If additional sizes are needed, the component configurations may be reviewed and adjusted.
-
-  * The Badge directive can be used on a `<span>` (non clickable events), or an `<a>` or `<button>` tag
-
-  * > `NOTE:` The Focus and Hover states only apply to badges used for interactive events.
-  *
-  * > `NOTE:` The `disabled` state only applies to buttons.
-  *
-*/
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+ * Badges are primarily used as labels, counters, and small buttons.
+ * Typically Badges are only used with text set to `text-xs`. If additional sizes are needed, the component configurations may be reviewed and adjusted.
+ *
+ * The Badge directive can be used on a `<span>` (non clickable events), or an `<a>` or `<button>` tag
+ *
+ * > `NOTE:` The Focus and Hover states only apply to badges used for interactive events.
+ *
+ * > `NOTE:` The `disabled` state only applies to buttons.
+ */
 @Component({
   selector: "span[bitBadge], a[bitBadge], button[bitBadge]",
   providers: [{ provide: FocusableElement, useExisting: BadgeComponent }],
   imports: [CommonModule],
   templateUrl: "badge.component.html",
+  host: {
+    "[class]": "classList()",
+    "[attr.title]": "titleAttr()",
+  },
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BadgeComponent implements FocusableElement {
-  @HostBinding("class") get classList() {
+  private readonly el = inject(ElementRef<HTMLElement>);
+
+  private readonly hasHoverEffects = this.el.nativeElement.nodeName !== "SPAN";
+
+  /**
+   * Optional override for the automatic badge title attribute when truncating.
+   * When truncating is enabled and this is not provided, the badge will automatically
+   * use its text content as the title.
+   */
+  readonly title = input<string>();
+
+  /**
+   * Visual variant that determines the badge's color scheme.
+   */
+  readonly variant = input<BadgeVariant>("primary");
+
+  /**
+   * Whether to truncate long text with ellipsis when it exceeds maxWidthClass.
+   * When enabled, a title attribute is automatically added for accessibility.
+   */
+  readonly truncate = input(true);
+
+  /**
+   * Tailwind max-width class to apply when truncating is enabled.
+   * Must be a valid Tailwind max-width utility class (e.g., "tw-max-w-40", "tw-max-w-xs").
+   */
+  readonly maxWidthClass = input<`tw-max-w-${string}`>("tw-max-w-40");
+
+  protected readonly classList = computed(() => {
     return [
       "tw-inline-block",
       "tw-py-1",
@@ -94,39 +130,17 @@ export class BadgeComponent implements FocusableElement {
       .concat(styles[this.variant()])
       .concat(this.hasHoverEffects ? [...hoverStyles[this.variant()], "tw-min-w-10"] : [])
       .concat(this.truncate() ? this.maxWidthClass() : []);
-  }
-  @HostBinding("attr.title") get titleAttr() {
+  });
+
+  protected readonly titleAttr = computed(() => {
     const title = this.title();
     if (title !== undefined) {
       return title;
     }
-    return this.truncate() ? this?.el?.nativeElement?.textContent?.trim() : null;
-  }
-
-  /**
-   * Optional override for the automatic badge title when truncating.
-   */
-  readonly title = input<string>();
-
-  /**
-   * Variant, sets the background color of the badge.
-   */
-  readonly variant = input<BadgeVariant>("primary");
-
-  /**
-   * Truncate long text
-   */
-  readonly truncate = input(true);
-
-  readonly maxWidthClass = input<`tw-max-w-${string}`>("tw-max-w-40");
+    return this.truncate() ? this.el.nativeElement?.textContent?.trim() : null;
+  });
 
   getFocusTarget() {
     return this.el.nativeElement;
-  }
-
-  private hasHoverEffects = false;
-
-  constructor(private el: ElementRef<HTMLElement>) {
-    this.hasHoverEffects = el?.nativeElement?.nodeName != "SPAN";
   }
 }
