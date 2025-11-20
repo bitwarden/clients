@@ -1,8 +1,11 @@
 import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit, signal } from "@angular/core";
+import { Router } from "@angular/router";
 
+import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { PersonalSubscriptionPricingTierId } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   ButtonModule,
@@ -14,7 +17,6 @@ import {
 
 import { AccountBillingClient, TaxClient } from "../../../clients";
 import { BillingServicesModule } from "../../../services";
-import { PersonalSubscriptionPricingTierId } from "../../../types/subscription-pricing-tier";
 import { UpgradeAccountComponent } from "../upgrade-account/upgrade-account.component";
 import { UpgradePaymentService } from "../upgrade-payment/services/upgrade-payment.service";
 import {
@@ -50,6 +52,7 @@ export type UnifiedUpgradeDialogResult = {
  * @property {PersonalSubscriptionPricingTierId | null} [selectedPlan] - Pre-selected subscription plan, if any.
  * @property {string | null} [dialogTitleMessageOverride] - Optional custom i18n key to override the default dialog title.
  * @property {boolean} [hideContinueWithoutUpgradingButton] - Whether to hide the "Continue without upgrading" button.
+ * @property {boolean} [redirectOnCompletion] - Whether to redirect after successful upgrade. Premium upgrades redirect to subscription settings, Families upgrades redirect to organization vault.
  */
 export type UnifiedUpgradeDialogParams = {
   account: Account;
@@ -57,8 +60,11 @@ export type UnifiedUpgradeDialogParams = {
   selectedPlan?: PersonalSubscriptionPricingTierId | null;
   planSelectionStepTitleOverride?: string | null;
   hideContinueWithoutUpgradingButton?: boolean;
+  redirectOnCompletion?: boolean;
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-unified-upgrade-dialog",
   imports: [
@@ -74,11 +80,13 @@ export type UnifiedUpgradeDialogParams = {
 })
 export class UnifiedUpgradeDialogComponent implements OnInit {
   // Use signals for dialog state because inputs depend on parent component
-  protected step = signal<UnifiedUpgradeDialogStep>(UnifiedUpgradeDialogStep.PlanSelection);
-  protected selectedPlan = signal<PersonalSubscriptionPricingTierId | null>(null);
-  protected account = signal<Account | null>(null);
-  protected planSelectionStepTitleOverride = signal<string | null>(null);
-  protected hideContinueWithoutUpgradingButton = signal<boolean>(false);
+  protected readonly step = signal<UnifiedUpgradeDialogStep>(
+    UnifiedUpgradeDialogStep.PlanSelection,
+  );
+  protected readonly selectedPlan = signal<PersonalSubscriptionPricingTierId | null>(null);
+  protected readonly account = signal<Account | null>(null);
+  protected readonly planSelectionStepTitleOverride = signal<string | null>(null);
+  protected readonly hideContinueWithoutUpgradingButton = signal<boolean>(false);
 
   protected readonly PaymentStep = UnifiedUpgradeDialogStep.Payment;
   protected readonly PlanSelectionStep = UnifiedUpgradeDialogStep.PlanSelection;
@@ -86,6 +94,8 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
   constructor(
     private dialogRef: DialogRef<UnifiedUpgradeDialogResult>,
     @Inject(DIALOG_DATA) private params: UnifiedUpgradeDialogParams,
+    private router: Router,
+    private premiumInterestStateService: PremiumInterestStateService,
   ) {}
 
   ngOnInit(): void {
@@ -102,7 +112,9 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
     this.selectedPlan.set(planId);
     this.nextStep();
   }
-  protected onCloseClicked(): void {
+  protected async onCloseClicked(): Promise<void> {
+    // Clear premium interest when user closes/abandons modal
+    await this.premiumInterestStateService.clearPremiumInterest(this.params.account.id);
     this.close({ status: UnifiedUpgradeDialogStatus.Closed });
   }
 
@@ -116,18 +128,20 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
     }
   }
 
-  protected previousStep(): void {
+  protected async previousStep(): Promise<void> {
     // If we are on the payment step and there was no initial step, go back to plan selection this is to prevent
     // going back to payment step if the dialog was opened directly to payment step
     if (this.step() === UnifiedUpgradeDialogStep.Payment && this.params?.initialStep == null) {
       this.step.set(UnifiedUpgradeDialogStep.PlanSelection);
       this.selectedPlan.set(null);
     } else {
+      // Clear premium interest when backing out of dialog completely
+      await this.premiumInterestStateService.clearPremiumInterest(this.params.account.id);
       this.close({ status: UnifiedUpgradeDialogStatus.Closed });
     }
   }
 
-  protected onComplete(result: UpgradePaymentResult): void {
+  protected async onComplete(result: UpgradePaymentResult): Promise<void> {
     let status: UnifiedUpgradeDialogStatus;
     switch (result.status) {
       case "upgradedToPremium":
@@ -142,7 +156,33 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
       default:
         status = UnifiedUpgradeDialogStatus.Closed;
     }
+
     this.close({ status, organizationId: result.organizationId });
+
+    // Check premium interest and route to vault for marketing-initiated premium upgrades
+    if (status === UnifiedUpgradeDialogStatus.UpgradedToPremium) {
+      const hasPremiumInterest = await this.premiumInterestStateService.getPremiumInterest(
+        this.params.account.id,
+      );
+      if (hasPremiumInterest) {
+        await this.premiumInterestStateService.clearPremiumInterest(this.params.account.id);
+        await this.router.navigate(["/vault"]);
+        return; // Exit early, don't use redirectOnCompletion
+      }
+    }
+
+    // Use redirectOnCompletion for standard upgrade flows
+    if (
+      this.params.redirectOnCompletion &&
+      (status === UnifiedUpgradeDialogStatus.UpgradedToPremium ||
+        status === UnifiedUpgradeDialogStatus.UpgradedToFamilies)
+    ) {
+      const redirectUrl =
+        status === UnifiedUpgradeDialogStatus.UpgradedToFamilies
+          ? `/organizations/${result.organizationId}/vault`
+          : "/settings/subscription/user-subscription";
+      await this.router.navigate([redirectUrl]);
+    }
   }
 
   /**

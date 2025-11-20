@@ -5,7 +5,6 @@ import { ActivatedRoute } from "@angular/router";
 import { concatMap, takeUntil, map, lastValueFrom, firstValueFrom } from "rxjs";
 import { first, tap } from "rxjs/operators";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import {
   getOrganizationById,
   OrganizationService,
@@ -15,6 +14,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -26,6 +26,8 @@ import { TwoFactorSetupDuoComponent } from "../../../auth/settings/two-factor/tw
 import { TwoFactorSetupComponent as BaseTwoFactorSetupComponent } from "../../../auth/settings/two-factor/two-factor-setup.component";
 import { TwoFactorVerifyComponent } from "../../../auth/settings/two-factor/two-factor-verify.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-setup",
   templateUrl: "../../../auth/settings/two-factor/two-factor-setup.component.html",
@@ -35,7 +37,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
   tabbedHeader = false;
   constructor(
     dialogService: DialogService,
-    apiService: ApiService,
+    twoFactorApiService: TwoFactorApiService,
     messagingService: MessagingService,
     policyService: PolicyService,
     private route: ActivatedRoute,
@@ -47,7 +49,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
   ) {
     super(
       dialogService,
-      apiService,
+      twoFactorApiService,
       messagingService,
       policyService,
       billingAccountProfileStateService,
@@ -116,7 +118,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
   }
 
   protected getTwoFactorProviders() {
-    return this.apiService.getTwoFactorOrganizationProviders(this.organizationId);
+    return this.twoFactorApiService.getTwoFactorOrganizationProviders(this.organizationId);
   }
 
   protected filterProvider(type: TwoFactorProviderType): boolean {

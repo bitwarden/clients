@@ -10,8 +10,10 @@ import {
   contentChildren,
 } from "@angular/core";
 
-import { MenuItemDirective } from "./menu-item.directive";
+import { MenuItemComponent } from "./menu-item.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-menu",
   templateUrl: "./menu.component.html",
@@ -20,9 +22,11 @@ import { MenuItemDirective } from "./menu-item.directive";
 })
 export class MenuComponent implements AfterContentInit {
   readonly templateRef = viewChild.required(TemplateRef);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() closed = new EventEmitter<void>();
-  readonly menuItems = contentChildren(MenuItemDirective, { descendants: true });
-  keyManager?: FocusKeyManager<MenuItemDirective>;
+  readonly menuItems = contentChildren(MenuItemComponent, { descendants: true });
+  keyManager?: FocusKeyManager<MenuItemComponent>;
 
   readonly ariaRole = input<"menu" | "dialog">("menu");
 

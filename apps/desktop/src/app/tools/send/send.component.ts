@@ -40,12 +40,16 @@ export type Action = (typeof Action)[keyof typeof Action];
 
 const BroadcasterSubscriptionId = "SendComponent";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send",
   templateUrl: "send.component.html",
   imports: [CommonModule, JslibModule, FormsModule, NavComponent, AddEditComponent],
 })
 export class SendComponent extends BaseSendComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(AddEditComponent) addEditComponent: AddEditComponent;
 
   sendId: string;

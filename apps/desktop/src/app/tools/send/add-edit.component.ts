@@ -19,12 +19,23 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CalloutModule, DialogService, ToastService } from "@bitwarden/components";
 
+import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send-add-edit",
   templateUrl: "add-edit.component.html",
   imports: [CommonModule, JslibModule, ReactiveFormsModule, CalloutModule],
+  providers: [
+    {
+      provide: PremiumUpgradePromptService,
+      useClass: DesktopPremiumUpgradePromptService,
+    },
+  ],
 })
 export class AddEditComponent extends BaseAddEditComponent {
   constructor(
@@ -43,6 +54,7 @@ export class AddEditComponent extends BaseAddEditComponent {
     billingAccountProfileStateService: BillingAccountProfileStateService,
     accountService: AccountService,
     toastService: ToastService,
+    premiumUpgradePromptService: PremiumUpgradePromptService,
   ) {
     super(
       i18nService,
@@ -60,6 +72,7 @@ export class AddEditComponent extends BaseAddEditComponent {
       billingAccountProfileStateService,
       accountService,
       toastService,
+      premiumUpgradePromptService,
     );
   }
 

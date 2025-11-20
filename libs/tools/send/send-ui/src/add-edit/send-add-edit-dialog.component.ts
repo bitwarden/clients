@@ -88,6 +88,8 @@ export function nameOfSendItemDialogResult(
 /**
  * Component for adding or editing a send item.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "send-add-edit-dialog.component.html",
   imports: [

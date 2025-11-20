@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Použít jednotné přihlášení"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Vaše organizace vyžaduje jednotné přihlášení."
+  },
   "welcomeBack": {
     "message": "Vítejte zpět"
   },
@@ -558,7 +561,7 @@
     "message": "Archivovat",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Odebrat z archivu"
   },
   "itemsInArchive": {
@@ -570,10 +573,10 @@
   "noItemsInArchiveDesc": {
     "message": "Zde se zobrazí archivované položky a budou vyloučeny z obecných výsledků vyhledávání a návrhů automatického vyplňování."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Položka byla přesunuta do archivu"
   },
-  "itemRemovedFromArchive": {
+  "itemUnarchived": {
     "message": "Položka byla odebrána z archivu"
   },
   "archiveItem": {
@@ -587,6 +590,12 @@
   },
   "view": {
     "message": "Zobrazit"
+  },
+  "viewAll": {
+    "message": "Zobrazit vše"
+  },
+  "viewLess": {
+    "message": "Zobrazit méně"
   },
   "viewLogin": {
     "message": "Zobrazit přihlašovací údaje"
@@ -789,6 +798,12 @@
   },
   "onLocked": {
     "message": "Při uzamknutí systému"
+  },
+  "onIdle": {
+    "message": "Při nečinnosti systému"
+  },
+  "onSleep": {
+    "message": "Při přechodu do režimu spánku"
   },
   "onRestart": {
     "message": "Při restartu prohlížeče"
@@ -1027,6 +1042,18 @@
   },
   "editedItem": {
     "message": "Položka byla uložena"
+  },
+  "savedWebsite": {
+    "message": "Uložená webová stránka"
+  },
+  "savedWebsites": {
+    "message": "Uložené webové stránky ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Opravdu chcete položku přesunout do koše?"
@@ -1505,12 +1532,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Ověřit biometrické údaje při spuštění"
   },
-  "premiumRequired": {
-    "message": "Je vyžadováno členství Premium"
-  },
-  "premiumRequiredDesc": {
-    "message": "Pro použití této funkce je potřebné členství Premium."
-  },
   "authenticationTimeout": {
     "message": "Časový limit ověření"
   },
@@ -1623,6 +1644,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Musíte přidat buď základní adresu URL serveru nebo alespoň jedno vlastní prostředí."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL adresy musí používat HTTPS."
+  },
   "customEnvironment": {
     "message": "Vlastní prostředí"
   },
@@ -1676,8 +1700,29 @@
   "turnOffAutofill": {
     "message": "Vypnout automatické vyplňování"
   },
+  "confirmAutofill": {
+    "message": "Potvrdit automatické vyplňování"
+  },
+  "confirmAutofillDesc": {
+    "message": "Tato stránka neodpovídá Vašim uloženým přihlašovacím údajům. Před vyplněním přihlašovacích údajů se ujistěte, že se jedná o důvěryhodný web."
+  },
   "showInlineMenuLabel": {
     "message": "Zobrazit návrhy automatického vyplňování v polích formuláře"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Jak Bitwarden chrání Vaše data před phishingem?"
+  },
+  "currentWebsite": {
+    "message": "Aktuální webová stránka"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Automatické vyplňování a přidání této stránky"
+  },
+  "autofillWithoutAdding": {
+    "message": "Automatické vyplňování bez přidání"
+  },
+  "doNotAutofill": {
+    "message": "Nevyplňovat automaticky"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Zobrazit identity jako návrhy"
@@ -3240,6 +3285,9 @@
   "decryptionError": {
     "message": "Chyba dešifrování"
   },
+  "errorGettingAutoFillData": {
+    "message": "Chyba při načítání dat automatického vyplňování"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden nemohl dešifrovat níže uvedené položky v trezoru."
   },
@@ -4010,6 +4058,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Automatické vyplnění při načítání stránky bylo nastaveno na výchozí nastavení.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Nelze automaticky vyplňovat"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Výchozí shoda je nastavena na \"Přesná shoda\". Aktuální web neodpovídá přesně uloženým přihlašovacím údajům pro tuto položku."
+  },
+  "okay": {
+    "message": "OK"
   },
   "toggleSideNavigation": {
     "message": "Přepnout boční navigaci"
@@ -4926,6 +4983,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Výchozí ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "Zobrazit detekci shody $WEBSITE$",
     "placeholders": {
@@ -5579,17 +5646,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Vítejte ve Vašem trezoru!"
   },
-  "phishingPageTitle": {
-    "message": "Phishingové webová stránka"
+  "phishingPageTitleV2": {
+    "message": "Zjištěn pokus o phishing"
   },
-  "phishingPageCloseTab": {
-    "message": "Zavřít kartu"
+  "phishingPageSummary": {
+    "message": "Stránka, kterou se pokoušíte navštívit, je známá škodlivá stránka a bezpečnostní riziko."
   },
-  "phishingPageContinue": {
-    "message": "Pokračovat"
+  "phishingPageCloseTabV2": {
+    "message": "Zavřít tuto kartu"
   },
-  "phishingPageLearnWhy": {
-    "message": "Proč to vidíte?"
+  "phishingPageContinueV2": {
+    "message": "Pokračovat na tuto stránku (nedoporučeno)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Tato stránka byla nalezena v ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", open-source seznamu známých phishingových stránek používaných pro krádež osobních a citlivých informací.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Další informace o detekci phishingu"
+  },
+  "protectedBy": {
+    "message": "Chráněno produktem $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Položky automatického vyplňování aktuální stránky"
@@ -5694,5 +5781,60 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Potvrdit doménu Key Connectoru"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Skvělá práce při zabezpečení přihlašovacích údajů v ohrožení!"
+  },
+  "upgradeNow": {
+    "message": "Aktualizovat nyní"
+  },
+  "builtInAuthenticator": {
+    "message": "Vestavěný autentifikátor"
+  },
+  "secureFileStorage": {
+    "message": "Zabezpečené úložiště souborů"
+  },
+  "emergencyAccess": {
+    "message": "Nouzový přístup"
+  },
+  "breachMonitoring": {
+    "message": "Sledování úniků"
+  },
+  "andMoreFeatures": {
+    "message": "A ještě více!"
+  },
+  "planDescPremium": {
+    "message": "Dokončit online zabezpečení"
+  },
+  "upgradeToPremium": {
+    "message": "Aktualizovat na Premium"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Aktualizujte pro úplné zabezpečení"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Verze Premium Vám poskytne více nástrojů k zabezpečení, efektivní práci a udržení kontroly."
+  },
+  "explorePremium": {
+    "message": "Objevit Premium"
+  },
+  "loadingVault": {
+    "message": "Načítání trezoru"
+  },
+  "vaultLoaded": {
+    "message": "Trezor byl načten"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Toto nastavení je zakázáno zásadami Vaší organizace.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / PSČ"
+  },
+  "cardNumberLabel": {
+    "message": "Číslo karty"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Akce vypršení časového limitu"
   }
 }

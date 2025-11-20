@@ -42,6 +42,8 @@ import { ChangePlanDialogResultType, openChangePlanDialog } from "./change-plan-
 import { DownloadLicenceDialogComponent } from "./download-license.component";
 import { SecretsManagerSubscriptionOptions } from "./sm-adjust-subscription.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "organization-subscription-cloud.component.html",
   standalone: false,
@@ -298,6 +300,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
       return this.i18nService.t("subscriptionFreePlan", this.sub.seats.toString());
     } else if (
       this.sub.planType === PlanType.FamiliesAnnually ||
+      this.sub.planType === PlanType.FamiliesAnnually2025 ||
       this.sub.planType === PlanType.FamiliesAnnually2019 ||
       this.sub.planType === PlanType.TeamsStarter2023 ||
       this.sub.planType === PlanType.TeamsStarter

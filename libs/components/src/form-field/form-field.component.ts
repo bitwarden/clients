@@ -16,12 +16,14 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitHintComponent } from "../form-control/hint.component";
-import { BitLabel } from "../form-control/label.component";
+import { BitLabelComponent } from "../form-control/label.component";
 import { inputBorderClasses } from "../input/input.directive";
 
 import { BitErrorComponent } from "./error.component";
 import { BitFormFieldControl } from "./form-field-control";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-form-field",
   templateUrl: "./form-field.component.html",
@@ -30,7 +32,7 @@ import { BitFormFieldControl } from "./form-field-control";
 export class BitFormFieldComponent implements AfterContentChecked {
   readonly input = contentChild.required(BitFormFieldControl);
   readonly hint = contentChild(BitHintComponent);
-  readonly label = contentChild(BitLabel);
+  readonly label = contentChild(BitLabelComponent);
 
   readonly prefixContainer = viewChild<ElementRef<HTMLDivElement>>("prefixContainer");
   readonly suffixContainer = viewChild<ElementRef<HTMLDivElement>>("suffixContainer");
@@ -42,11 +44,13 @@ export class BitFormFieldComponent implements AfterContentChecked {
   /** If `true`, remove the bottom border for `readonly` inputs */
   // TODO: Skipped for signal migration because:
   //  Your application code writes to the input. This prevents migration.
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ transform: booleanAttribute })
   disableReadOnlyBorder = false;
 
-  protected prefixHasChildren = signal(false);
-  protected suffixHasChildren = signal(false);
+  protected readonly prefixHasChildren = signal(false);
+  protected readonly suffixHasChildren = signal(false);
 
   get inputBorderClasses(): string {
     const shouldFocusBorderAppear = this.defaultContentIsFocused();
@@ -87,7 +91,7 @@ export class BitFormFieldComponent implements AfterContentChecked {
    * This is necessary because the `tw-group/bit-form-field` wraps the input and any prefix/suffix
    * buttons
    */
-  protected defaultContentIsFocused = signal(false);
+  protected readonly defaultContentIsFocused = signal(false);
   @HostListener("focusin", ["$event.target"])
   onFocusIn(target: HTMLElement) {
     this.defaultContentIsFocused.set(target.matches("[data-default-content] *:focus-visible"));

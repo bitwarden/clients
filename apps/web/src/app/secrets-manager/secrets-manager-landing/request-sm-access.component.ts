@@ -19,6 +19,8 @@ import { RequestSMAccessRequest } from "../models/requests/request-sm-access.req
 
 import { SmLandingApiService } from "./sm-landing-api.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-request-sm-access",
   templateUrl: "request-sm-access.component.html",

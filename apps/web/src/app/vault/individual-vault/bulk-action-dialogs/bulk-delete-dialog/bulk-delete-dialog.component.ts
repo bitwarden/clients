@@ -14,6 +14,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherBulkDeleteRequest } from "@bitwarden/common/vault/models/request/cipher-bulk-delete.request";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
+  CenterPositionStrategy,
   DIALOG_DATA,
   DialogConfig,
   DialogRef,
@@ -48,10 +49,15 @@ export const openBulkDeleteDialog = (
 ) => {
   return dialogService.open<BulkDeleteDialogResult, BulkDeleteDialogParams>(
     BulkDeleteDialogComponent,
-    config,
+    {
+      positionStrategy: new CenterPositionStrategy(),
+      ...config,
+    },
   );
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "bulk-delete-dialog.component.html",
   standalone: false,

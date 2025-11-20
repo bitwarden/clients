@@ -37,6 +37,8 @@ class MockOrganizationService implements Partial<OrganizationService> {
     return MockOrganizationService._orgs.asObservable();
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   set mockOrgs(orgs: Organization[]) {
     MockOrganizationService._orgs.next(orgs);
@@ -54,6 +56,8 @@ class MockProviderService implements Partial<ProviderService> {
     return MockProviderService._providers.asObservable();
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   set mockProviders(providers: Provider[]) {
     MockProviderService._providers.next(providers);
@@ -93,6 +97,8 @@ class MockConfigService implements Partial<ConfigService> {
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "story-layout",
   template: `<ng-content></ng-content>`,
@@ -100,6 +106,8 @@ class MockConfigService implements Partial<ConfigService> {
 })
 class StoryLayoutComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "story-content",
   template: ``,

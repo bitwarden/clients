@@ -2,7 +2,7 @@ import { ChangeDetectorRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
+import { Observable, of } from "rxjs";
 
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -13,7 +13,6 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { ToastService } from "@bitwarden/components";
-import { UserId } from "@bitwarden/user-core";
 
 import { CipherFormConfig } from "../abstractions/cipher-form-config.service";
 import { CipherFormService } from "../abstractions/cipher-form.service";
@@ -72,7 +71,7 @@ describe("CipherFormComponent", () => {
     });
 
     it("should remove archivedDate when user cannot archive and cipher is archived", async () => {
-      mockAccountService.activeAccount$ = of({ id: "user-id" as UserId } as Account);
+      mockAccountService.activeAccount$ = of({ id: "user-id" }) as Observable<Account | null>;
       mockCipherArchiveService.userCanArchive$.mockReturnValue(of(false));
       mockAddEditFormService.saveCipher = jest.fn().mockResolvedValue(new CipherView());
 
@@ -153,6 +152,15 @@ describe("CipherFormComponent", () => {
       await component.ngOnInit();
 
       expect(component["updatedCipherView"]?.login.fido2Credentials).toBeNull();
+    });
+
+    it("does not clear archiveDate on updatedCipherView", async () => {
+      cipherView.archivedDate = new Date();
+      decryptCipher.mockResolvedValue(cipherView);
+
+      await component.ngOnInit();
+
+      expect(component["updatedCipherView"]?.archivedDate).toBe(cipherView.archivedDate);
     });
   });
 

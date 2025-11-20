@@ -23,6 +23,8 @@ import { RoutedVaultFilterService } from "../../../../vault/individual-vault/vau
 import { AdminConsoleCipherFormConfigService } from "../../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import { UnsecuredWebsitesReportComponent as BaseUnsecuredWebsitesReportComponent } from "../unsecured-websites-report.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-unsecured-websites-report",
   templateUrl: "../unsecured-websites-report.component.html",
@@ -89,7 +91,7 @@ export class UnsecuredWebsitesReportComponent
   }
 
   getAllCiphers(): Promise<CipherView[]> {
-    return this.cipherService.getAllFromApiForOrganization(this.organization.id);
+    return this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
   }
 
   protected canManageCipher(c: CipherView): boolean {

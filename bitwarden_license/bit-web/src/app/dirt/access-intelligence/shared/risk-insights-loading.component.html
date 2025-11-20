@@ -1,0 +1,23 @@
+<div class="tw-flex tw-justify-center tw-items-center tw-min-h-[60vh]">
+  <div class="tw-flex tw-flex-col tw-items-center tw-gap-4">
+    <!-- Progress bar -->
+    <div class="tw-w-64" role="progressbar" attr.aria-label="{{ 'loadingProgress' | i18n }}">
+      <bit-progress
+        [barWidth]="progress()"
+        [showText]="false"
+        size="default"
+        bgColor="primary"
+      ></bit-progress>
+    </div>
+
+    <!-- Status message and subtitle -->
+    <div class="tw-text-center tw-flex tw-flex-col tw-gap-1">
+      <span class="tw-text-main tw-text-base tw-font-medium tw-leading-4">
+        {{ currentMessage() | i18n }}
+      </span>
+      <span class="tw-text-muted tw-text-sm tw-font-normal tw-leading-4">
+        {{ "thisMightTakeFewMinutes" | i18n }}
+      </span>
+    </div>
+  </div>
+</div>

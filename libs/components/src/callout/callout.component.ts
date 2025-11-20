@@ -28,6 +28,8 @@ let nextId = 0;
  * sparingly, as they command a large amount of visual attention. Avoid using more than 1 callout in
  * the same location.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-callout",
   templateUrl: "callout.component.html",

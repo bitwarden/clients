@@ -139,6 +139,7 @@
         "@babel/core",
         "@babel/preset-env",
         "@bitwarden/sdk-internal",
+        "@bitwarden/commercial-sdk-internal",
         "@electron/fuses",
         "@electron/notarize",
         "@electron/rebuild",
@@ -186,7 +187,6 @@
         "json5",
         "keytar",
         "libc",
-        "log",
         "lowdb",
         "mini-css-extract-plugin",
         "napi",
@@ -215,6 +215,8 @@
         "simplelog",
         "style-loader",
         "sysinfo",
+        "tracing",
+        "tracing-subscriber",
         "ts-node",
         "ts-loader",
         "tsconfig-paths-webpack-plugin",
@@ -229,6 +231,7 @@
         "webpack-node-externals",
         "widestring",
         "windows",
+        "windows-core",
         "windows-future",
         "windows-registry",
         "zbus",
@@ -252,6 +255,11 @@
       // We need to group all zbus-related packages together to avoid build errors caused by version incompatibilities.
       groupName: "zbus",
       matchPackageNames: ["zbus", "zbus_polkit"],
+    },
+    {
+      // We need to group all windows-related packages together to avoid build errors caused by version incompatibilities.
+      groupName: "windows",
+      matchPackageNames: ["windows", "windows-core", "windows-future", "windows-registry"],
     },
     {
       // We group all webpack build-related minor and patch updates together to reduce PR noise.
@@ -400,7 +408,16 @@
       reviewers: ["team:team-vault-dev"],
     },
     {
-      matchPackageNames: ["aes", "big-integer", "cbc", "rsa", "russh-cryptovec", "sha2"],
+      matchPackageNames: [
+        "aes",
+        "big-integer",
+        "cbc",
+        "rsa",
+        "russh-cryptovec",
+        "sha2",
+        "memsec",
+        "linux-keyutils",
+      ],
       description: "Key Management owned dependencies",
       commitMessagePrefix: "[deps] KM:",
       reviewers: ["team:team-key-management-dev"],

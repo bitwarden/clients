@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { combineLatest, firstValueFrom, map, Observable } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -8,10 +8,10 @@ import {
   CollectionService,
   CollectionWithIdRequest,
   CollectionView,
+  CollectionTypes,
 } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { DeviceType } from "@bitwarden/common/enums";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { ImportCiphersRequest } from "@bitwarden/common/models/request/import-ciphers.request";
@@ -20,8 +20,6 @@ import { KvpRequest } from "@bitwarden/common/models/request/kvp.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SemanticLogger } from "@bitwarden/common/tools/log";
-import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -98,24 +96,20 @@ import {
   PasswordDepot17XmlImporter,
 } from "../importers";
 import { Importer } from "../importers/importer";
-import { ImporterMetadata, Importers, Loader } from "../metadata";
 import {
   featuredImportOptions,
   ImportOption,
   ImportType,
   regularImportOptions,
 } from "../models/import-options";
-import { ImportResult } from "../models/import-result";
+import { CollectionRelationship, FolderRelationship, ImportResult } from "../models/import-result";
 import { ImportApiServiceAbstraction } from "../services/import-api.service.abstraction";
 import { ImportServiceAbstraction } from "../services/import.service.abstraction";
-import { availableLoaders as availableLoaders } from "../util";
 
 export class ImportService implements ImportServiceAbstraction {
   featuredImportOptions = featuredImportOptions as readonly ImportOption[];
 
   regularImportOptions = regularImportOptions as readonly ImportOption[];
-
-  private logger: SemanticLogger;
 
   constructor(
     private cipherService: CipherService,
@@ -128,53 +122,10 @@ export class ImportService implements ImportServiceAbstraction {
     private pinService: PinServiceAbstraction,
     private accountService: AccountService,
     private restrictedItemTypesService: RestrictedItemTypesService,
-    private system: SystemServiceProvider,
-  ) {
-    this.logger = system.log({ type: "ImportService" });
-  }
+  ) {}
 
   getImportOptions(): ImportOption[] {
     return this.featuredImportOptions.concat(this.regularImportOptions);
-  }
-
-  metadata$(type$: Observable<ImportType>): Observable<ImporterMetadata> {
-    const client = this.system.environment.getClientType();
-    const capabilities$ = combineLatest([type$]).pipe(
-      map(([type]) => {
-        let loaders = availableLoaders(type, client);
-
-        // Mac App Store is currently disabled due to sandboxing.
-        let isUnsupported = this.system.environment.isMacAppStore();
-
-        // disable the chromium loader for Brave on Windows only
-        if (type === "bravecsv") {
-          try {
-            const device = this.system.environment.getDevice();
-            const isWindowsDesktop = device === DeviceType.WindowsDesktop;
-            if (isWindowsDesktop) {
-              isUnsupported = true;
-            }
-          } catch {
-            isUnsupported = true;
-          }
-        }
-        // If the browser is unsupported, remove the chromium loader
-        if (isUnsupported) {
-          loaders = loaders?.filter((loader) => loader !== Loader.chromium);
-        }
-
-        const capabilities: ImporterMetadata = { type, loaders };
-        if (type in Importers) {
-          capabilities.instructions = Importers[type].instructions;
-        }
-
-        this.logger.debug({ importType: type, capabilities }, "capabilities updated");
-
-        return capabilities;
-      }),
-    );
-
-    return capabilities$;
   }
 
   async import(
@@ -523,19 +474,20 @@ export class ImportService implements ImportServiceAbstraction {
 
   private async setImportTarget(
     importResult: ImportResult,
-    organizationId: string,
+    organizationId: OrganizationId | undefined,
     importTarget: FolderView | CollectionView,
   ) {
     if (!importTarget) {
       return;
     }
 
+    // Importing into an organization
     if (organizationId) {
       if (!(importTarget instanceof CollectionView)) {
         throw new Error(this.i18nService.t("errorAssigningTargetCollection"));
       }
 
-      const noCollectionRelationShips: [number, number][] = [];
+      const noCollectionRelationShips: CollectionRelationship[] = [];
       importResult.ciphers.forEach((c, index) => {
         if (
           !Array.isArray(importResult.collectionRelationships) ||
@@ -545,15 +497,28 @@ export class ImportService implements ImportServiceAbstraction {
         }
       });
 
-      const collections: CollectionView[] = [...importResult.collections];
-      importResult.collections = [importTarget as CollectionView];
+      // My Items collections do not support collection nesting.
+      // Flatten all ciphers from nested collections into the import target.
+      if (importTarget.type === CollectionTypes.DefaultUserCollection) {
+        importResult.collections = [importTarget];
+
+        const flattenRelationships: CollectionRelationship[] = [];
+        importResult.ciphers.forEach((c, index) => {
+          flattenRelationships.push([index, 0]);
+        });
+        importResult.collectionRelationships = flattenRelationships;
+        return;
+      }
+
+      const collections = [...importResult.collections];
+      importResult.collections = [importTarget];
       collections.map((x) => {
         const f = new CollectionView(x);
         f.name = `${importTarget.name}/${x.name}`;
         importResult.collections.push(f);
       });
 
-      const relationships: [number, number][] = [...importResult.collectionRelationships];
+      const relationships = [...importResult.collectionRelationships];
       importResult.collectionRelationships = [...noCollectionRelationShips];
       relationships.map((x) => {
         importResult.collectionRelationships.push([x[0], x[1] + 1]);
@@ -562,11 +527,12 @@ export class ImportService implements ImportServiceAbstraction {
       return;
     }
 
+    // Importing into personal vault
     if (!(importTarget instanceof FolderView)) {
       throw new Error(this.i18nService.t("errorAssigningTargetFolder"));
     }
 
-    const noFolderRelationShips: [number, number][] = [];
+    const noFolderRelationShips: FolderRelationship[] = [];
     importResult.ciphers.forEach((c, index) => {
       if (Utils.isNullOrEmpty(c.folderId)) {
         c.folderId = importTarget.id;
@@ -574,8 +540,8 @@ export class ImportService implements ImportServiceAbstraction {
       }
     });
 
-    const folders: FolderView[] = [...importResult.folders];
-    importResult.folders = [importTarget as FolderView];
+    const folders = [...importResult.folders];
+    importResult.folders = [importTarget];
     folders.map((x) => {
       const newFolderName = `${importTarget.name}/${x.name}`;
       const f = new FolderView();
@@ -583,7 +549,7 @@ export class ImportService implements ImportServiceAbstraction {
       importResult.folders.push(f);
     });
 
-    const relationships: [number, number][] = [...importResult.folderRelationships];
+    const relationships = [...importResult.folderRelationships];
     importResult.folderRelationships = [...noFolderRelationShips];
     relationships.map((x) => {
       importResult.folderRelationships.push([x[0], x[1] + 1]);

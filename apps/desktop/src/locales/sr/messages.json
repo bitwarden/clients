@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Немате дозволу да уређујете ову ставку"
+  },
   "welcomeBack": {
     "message": "Добродошли назад"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "Употребити једнократну пријаву"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Ваша организација захтева јединствену пријаву."
+  },
   "submit": {
     "message": "Пошаљи"
   },
@@ -1031,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Морате додати или основни УРЛ сервера или бар једно прилагођено окружење."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Везе морају да користе HTTPS."
   },
   "customEnvironment": {
     "message": "Прилагођено окружење"
@@ -1852,6 +1861,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Закључајте са главном лозинком при поновном покретању"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Потражити главну лозинку или ПИН при поновном покретању"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Потражити главну лозинку при поновном покретању апликације"
+  },
   "deleteAccount": {
     "message": "Брисање налога"
   },
@@ -2134,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "Дошло је до грешке при омогућавању интеграције прегледача."
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Нажалост, интеграција прегледача за сада је подржана само у верзији Mac App Store."
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Нажалост, интеграција прегледача није за сада подржана у Windows Store."
@@ -2548,6 +2560,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Минимално прилагођено временско ограничење је 1 минут."
   },
   "inviteAccepted": {
     "message": "Позив прихваћен"
@@ -4136,7 +4151,7 @@
     "message": "Омогућите пречицу ауто-уноса (преглед функције)"
   },
   "enableAutotypeShortcutDescription": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+    "message": "Будите сигурни да сте у исправном пољу пре употребе пречице да бисте избегли попуњавање података на погрешно место."
   },
   "editShortcut": {
     "message": "Уреди пречицу"
@@ -4149,7 +4164,7 @@
     "message": "Архивирај",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Врати из архиве"
   },
   "itemsInArchive": {
@@ -4161,16 +4176,52 @@
   "noItemsInArchiveDesc": {
     "message": "Архивиране ставке ће се овде појавити и бити искључени из општих резултата претраге и сугестија о ауто-пуњењу."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Ставка је послата у архиву"
   },
-  "itemRemovedFromArchive": {
-    "message": "Ставка је уклоњена из архиве"
+  "itemWasUnarchived": {
+    "message": "Ставка враћена из архиве"
   },
   "archiveItem": {
     "message": "Архивирај ставку"
   },
   "archiveItemConfirmDesc": {
     "message": "Архивиране ставке су искључене из општих резултата претраге и предлога за ауто попуњавање. Јесте ли сигурни да желите да архивирате ову ставку?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP/Поштански број"
+  },
+  "cardNumberLabel": {
+    "message": "Број картице"
+  },
+  "upgradeNow": {
+    "message": "Надогради сада"
+  },
+  "builtInAuthenticator": {
+    "message": "Уграђени аутентификатор"
+  },
+  "secureFileStorage": {
+    "message": "Сигурно складиштење датотека"
+  },
+  "emergencyAccess": {
+    "message": "Хитан приступ"
+  },
+  "breachMonitoring": {
+    "message": "Праћење повreda безбедности"
+  },
+  "andMoreFeatures": {
+    "message": "И још више!"
+  },
+  "planDescPremium": {
+    "message": "Потпуна онлајн безбедност"
+  },
+  "upgradeToPremium": {
+    "message": "Надоградите на Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

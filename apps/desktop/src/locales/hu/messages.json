@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Nincs jogosulltság ezen elem szerkesztéséhez."
+  },
   "welcomeBack": {
     "message": "Üdvözlet újra"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "Egyszeri bejelentkezés használata"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "A szervezet egyszeri bejelentkezést igényel."
+  },
   "submit": {
     "message": "Beküldés"
   },
@@ -1031,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Hozzá kell adni az alapszerver webcímét vagy legalább egy egyedi környezetet."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "A webcímeknek HTTPS-t kell használniuk."
   },
   "customEnvironment": {
     "message": "Egyedi környezet"
@@ -1852,6 +1861,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Lezárás mesterjelszóval újraindításkor"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Mesterjelszó vagy PIN kód szükséges az alkalmazás indításakor."
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Mesterjelszó szükséges az alkalmazás indításakor."
+  },
   "deleteAccount": {
     "message": "Fiók törlése"
   },
@@ -2134,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "Hiba történt a böngésző integrációjának engedélyezése közben."
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Sajnos a böngésző integrációt egyelőre csak a Mac App Store verzió támogatja."
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "A böngésző integrációt egyelőre csak a Windows Store verzió támogatja."
@@ -2548,6 +2560,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "A minimális egyedi időkifutás 1 perc."
   },
   "inviteAccepted": {
     "message": "A meghívás elfogadásra került."
@@ -4149,7 +4164,7 @@
     "message": "Archívum",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Visszavétel archívumból"
   },
   "itemsInArchive": {
@@ -4161,16 +4176,52 @@
   "noItemsInArchiveDesc": {
     "message": "Az archivált elemek itt jelennek meg és kizárásra kerülnek az általános keresési eredményekből és az automatikus kitöltési javaslatokból."
   },
-  "itemSentToArchive": {
-    "message": "Archívumba küldött elemek száma"
+  "itemWasSentToArchive": {
+    "message": "Az elem az archivumba került."
   },
-  "itemRemovedFromArchive": {
-    "message": "Az elem kikerült az archívumból."
+  "itemWasUnarchived": {
+    "message": "Az elem visszavéelre került az archivumból."
   },
   "archiveItem": {
     "message": "Elem archiválása"
   },
   "archiveItemConfirmDesc": {
     "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "Irányítószám"
+  },
+  "cardNumberLabel": {
+    "message": "Kártya szám"
+  },
+  "upgradeNow": {
+    "message": "Áttérés most"
+  },
+  "builtInAuthenticator": {
+    "message": "Beépített hitelesítő"
+  },
+  "secureFileStorage": {
+    "message": "Biztonságos fájl tárolás"
+  },
+  "emergencyAccess": {
+    "message": "Sürgősségi hozzáférés"
+  },
+  "breachMonitoring": {
+    "message": "Adatszivárgás figyelés"
+  },
+  "andMoreFeatures": {
+    "message": "És még több!"
+  },
+  "planDescPremium": {
+    "message": "Teljes körű online biztonság"
+  },
+  "upgradeToPremium": {
+    "message": "Áttérés Prémium csomagra"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Időkifutási művelet"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Munkamenet időkifutás"
   }
 }

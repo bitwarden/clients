@@ -8,6 +8,7 @@ import { Subject, filter, firstValueFrom, map, timeout } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
+import { LockService } from "@bitwarden/auth/common";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -16,7 +17,6 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
-import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -33,6 +33,8 @@ import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-root",
   templateUrl: "app.component.html",
@@ -56,8 +58,8 @@ export class AppComponent implements OnDestroy, OnInit {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private ngZone: NgZone,
-    private vaultTimeoutService: VaultTimeoutService,
     private keyService: KeyService,
+    private lockService: LockService,
     private collectionService: CollectionService,
     private searchService: SearchService,
     private serverNotificationsService: ServerNotificationsService,
@@ -111,11 +113,13 @@ export class AppComponent implements OnDestroy, OnInit {
             // note: the message.logoutReason isn't consumed anymore because of the process reload clearing any toasts.
             await this.logOut(message.redirect);
             break;
-          case "lockVault":
-            await this.vaultTimeoutService.lock();
+          case "lockVault": {
+            const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+            await this.lockService.lock(userId);
             break;
+          }
           case "locked":
-            await this.processReloadService.startProcessReload(this.authService);
+            await this.processReloadService.startProcessReload();
             break;
           case "lockedUrl":
             break;
@@ -142,18 +146,6 @@ export class AppComponent implements OnDestroy, OnInit {
                 "billing",
                 "subscription",
               ]);
-            }
-            break;
-          }
-          case "premiumRequired": {
-            const premiumConfirmed = await this.dialogService.openSimpleDialog({
-              title: { key: "premiumRequired" },
-              content: { key: "premiumRequiredDesc" },
-              acceptButtonText: { key: "upgrade" },
-              type: "success",
-            });
-            if (premiumConfirmed) {
-              await this.router.navigate(["settings/subscription/premium"]);
             }
             break;
           }
@@ -258,7 +250,6 @@ export class AppComponent implements OnDestroy, OnInit {
     await Promise.all([
       this.keyService.clearKeys(userId),
       this.cipherService.clear(userId),
-      // ! DO NOT REMOVE folderService.clear ! For more information see PM-25660
       this.folderService.clear(userId),
       this.biometricStateService.logout(userId),
     ]);
@@ -278,7 +269,7 @@ export class AppComponent implements OnDestroy, OnInit {
         await this.router.navigate(["/"]);
       }
 
-      await this.processReloadService.startProcessReload(this.authService);
+      await this.processReloadService.startProcessReload();
 
       // Normally we would need to reset the loading state to false or remove the layout_frontend
       // class from the body here, but the process reload completely reloads the app so
