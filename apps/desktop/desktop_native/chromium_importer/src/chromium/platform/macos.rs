@@ -2,9 +2,10 @@ use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use security_framework::passwords::get_generic_password;
 
-use crate::chromium::{BrowserConfig, CryptoService, LocalState};
-
-use crate::util;
+use crate::{
+    chromium::{BrowserConfig, CryptoService, LocalState},
+    util,
+};
 
 //
 // Public API
