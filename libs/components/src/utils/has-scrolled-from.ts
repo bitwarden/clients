@@ -24,16 +24,11 @@ export const hasScrolledFrom = (scrollable?: Signal<CdkScrollable>): Signal<Scro
     switchMap((_scrollable) =>
       _scrollable.elementScrolled().pipe(
         startWith(null),
-        map(() => {
-          document.body.prepend(`[topOffset:${_scrollable.measureScrollOffset("top")}]`);
-          document.body.prepend(`[bottomOffset:${_scrollable.measureScrollOffset("bottom")}]`);
-
-          return {
-            top: _scrollable.measureScrollOffset("top") > 0,
-            // Using 1 as the threshold here because `_scrollable.measureScrollOffset("bottom")` returns '0.5' at the bottom most position in Chrome
-            bottom: _scrollable.measureScrollOffset("bottom") > 1,
-          };
-        }),
+        map(() => ({
+          top: _scrollable.measureScrollOffset("top") > 0,
+          // Using 1 as the threshold here because `_scrollable.measureScrollOffset("bottom")` returns '0.5' at the bottom most position in Chrome
+          bottom: _scrollable.measureScrollOffset("bottom") > 1,
+        })),
       ),
     ),
   );
