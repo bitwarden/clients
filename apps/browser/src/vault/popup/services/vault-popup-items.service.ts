@@ -401,11 +401,7 @@ const waitUntilSync = <T>(syncService: SyncService): MonoTypeOperatorFunction<T>
   return waitUntil(syncService.activeUserLastSync$().pipe(filter((lastSync) => lastSync != null)));
 };
 
-const ciphersEqualByIdAndOrder = (
-  a: PopupCipherViewLike[],
-  b: PopupCipherViewLike[],
-  context?: string,
-): boolean => {
+const ciphersEqualByIdAndOrder = (a: PopupCipherViewLike[], b: PopupCipherViewLike[]): boolean => {
   if (a === b) {
     return true;
   }
@@ -419,7 +415,16 @@ const ciphersEqualByIdAndOrder = (
   }
 
   for (let i = 0; i < a.length; i++) {
-    if (a[i]?.id !== b[i]?.id) {
+    const ac = a[i];
+    const bc = b[i];
+
+    // Different ID → changed
+    if (ac?.id !== bc?.id) {
+      return false;
+    }
+
+    // Same ID but different object reference → changed cipher → re-emit
+    if (ac !== bc) {
       return false;
     }
   }

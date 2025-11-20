@@ -46,6 +46,7 @@ describe("VaultPopupItemsService", () => {
   let mockOrg: Organization;
   let mockCollections: CollectionView[];
   let activeUserLastSync$: BehaviorSubject<Date | null>;
+  let cipherList$: BehaviorSubject<CipherView[]>;
   let viewCacheService: {
     signal: jest.Mock;
     mockSignal: WritableSignal<string | null>;
@@ -88,7 +89,7 @@ describe("VaultPopupItemsService", () => {
     cipherList[2].favorite = true;
     cipherList[3].favorite = true;
 
-    const cipherList$ = new BehaviorSubject<CipherView[]>(cipherList);
+    cipherList$ = new BehaviorSubject<CipherView[]>(cipherList);
 
     cipherServiceMock.cipherListViews$.mockReturnValue(cipherList$.asObservable());
 
@@ -363,29 +364,52 @@ describe("VaultPopupItemsService", () => {
       searchService.isSearchable.mockImplementation(async (text) => text.length > 2);
     });
 
-    it("should exclude autofill and favorite ciphers", (done) => {
-      service.remainingCiphers$.subscribe((ciphers) => {
-        // 2 autofill ciphers, 2 favorite ciphers = 6 remaining ciphers to show
-        expect(ciphers.length).toBe(6);
-        done();
-      });
+    it("should re-emit remainingCiphers$ when a cipher object changes, even if the list and ids are the same", async () => {
+      const tracker = new ObservableTracker(service.remainingCiphers$);
+
+      await tracker.expectEmission();
+      const initial = tracker.emissions[0];
+
+      const [changedId] = initial.map((c: PopupCipherViewLike) => c.id);
+      const updated = cipherList$.value.map((c) =>
+        c.id === changedId
+          ? ({
+              ...c,
+              name: `${c.name} (updated)`,
+            } as CipherView)
+          : c,
+      );
+
+      cipherList$.next(updated);
+      ciphersSubject.next({});
+
+      await tracker.expectEmission();
+      expect(tracker.emissions.length).toBe(2);
+
+      const [before, after] = tracker.emissions;
+      expect(before).not.toBe(after);
+      expect(after.find((c: PopupCipherViewLike) => c.id === changedId)?.name).toContain(
+        "(updated)",
+      );
     });
 
-    it("should filter remainingCiphers$ down to search term", (done) => {
-      const cipherList = Object.values(allCiphers);
-      const searchText = "Login";
+    it("should re-emit remainingCiphers$ when only the order of ciphers changes", async () => {
+      const tracker = new ObservableTracker(service.remainingCiphers$);
 
-      searchService.searchCiphers.mockImplementation(async () => {
-        return cipherList.filter((cipher) => {
-          return cipher.name.includes(searchText);
-        });
-      });
+      await tracker.expectEmission();
 
-      service.remainingCiphers$.subscribe((ciphers) => {
-        // There are 6 remaining ciphers but only 2 with "Login" in the name
-        expect(ciphers.length).toBe(2);
-        done();
-      });
+      const reordered = [...cipherList$.value].reverse();
+      cipherList$.next(reordered);
+      ciphersSubject.next({});
+
+      await tracker.expectEmission();
+      expect(tracker.emissions.length).toBe(2);
+
+      const [before, after] = tracker.emissions;
+      expect(before).not.toBe(after);
+      expect(before.map((c: PopupCipherViewLike) => c.id).reverse()).toEqual(
+        after.map((c: PopupCipherViewLike) => c.id),
+      );
     });
   });
 
