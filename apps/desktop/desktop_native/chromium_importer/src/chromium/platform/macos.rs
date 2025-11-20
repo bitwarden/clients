@@ -2,9 +2,86 @@ use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use security_framework::passwords::get_generic_password;
 
-use crate::chromium::{BrowserConfig, CryptoService, LocalState};
+#[cfg(feature = "sandbox")]
+use std::ffi::CString;
+#[cfg(feature = "sandbox")]
+use std::os::raw::c_char;
 
+use crate::chromium::{BrowserConfig, CryptoService, LocalState};
 use crate::util;
+
+//
+// Sandbox
+//
+
+#[cfg(feature = "sandbox")]
+extern "C" {
+    fn requestBrowserAccess(browser_name: *const c_char) -> *mut c_char;
+    fn hasStoredBrowserAccess(browser_name: *const c_char) -> bool;
+    fn startBrowserAccess(browser_name: *const c_char) -> *mut c_char;
+    fn stopBrowserAccess(browser_name: *const c_char);
+}
+
+#[cfg(feature = "sandbox")]
+pub struct ScopedBrowserAccess {
+    browser_name: String,
+}
+
+#[cfg(feature = "sandbox")]
+impl ScopedBrowserAccess {
+    pub fn request_only(browser_name: &str) -> Result<()> {
+        let c_name = CString::new(browser_name)?;
+
+        let bookmark_ptr = unsafe { requestBrowserAccess(c_name.as_ptr()) };
+        if bookmark_ptr.is_null() {
+            return Err(anyhow!("User declined access or browser not found"));
+        }
+        unsafe { libc::free(bookmark_ptr as *mut libc::c_void) };
+
+        Ok(())
+    }
+
+    pub fn request_and_start(browser_name: &str) -> Result<Self> {
+        Self::request_only(browser_name)?;
+        Self::resume(browser_name)
+    }
+
+    /// Resume access using previously stored bookmark
+    pub fn resume(browser_name: &str) -> Result<Self> {
+        let c_name = CString::new(browser_name)?;
+
+        if !unsafe { hasStoredBrowserAccess(c_name.as_ptr()) } {
+            return Err(anyhow!("No stored access for this browser"));
+        }
+
+        let path_ptr = unsafe { startBrowserAccess(c_name.as_ptr()) };
+        if path_ptr.is_null() {
+            return Err(anyhow!("Failed to resume access (bookmark may be stale)"));
+        }
+        unsafe { libc::free(path_ptr as *mut libc::c_void) };
+
+        Ok(Self {
+            browser_name: browser_name.to_string(),
+        })
+    }
+
+    pub fn has_stored_access(browser_name: &str) -> bool {
+        let Ok(c_name) = CString::new(browser_name) else {
+            return false;
+        };
+        unsafe { hasStoredBrowserAccess(c_name.as_ptr()) }
+    }
+}
+
+#[cfg(feature = "sandbox")]
+impl Drop for ScopedBrowserAccess {
+    fn drop(&mut self) {
+        let Ok(c_name) = CString::new(self.browser_name.as_str()) else {
+            return;
+        };
+        unsafe { stopBrowserAccess(c_name.as_ptr()) };
+    }
+}
 
 //
 // Public API
