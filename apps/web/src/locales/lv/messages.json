@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Piešķirt dalībniekiem uzdevumus, lai pārraudzītu virzību"
   },
-  "onceYouReviewApps": {
-    "message": "Tiklīdz lietotnes būs pārskatītas un atzīmētas kā būtiskas, dalībniekiem varēs piešķirt uzdevumus atrisināt riskam pakļautos vienumus un šeit pārskatīt virzību"
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
   },
   "sendReminders": {
     "message": "Nosūtīt atgādinājumus"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "$ORG NAME$ netika atrasta neviena lietotne",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "No data found"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Ievieto savas apvienības pieteikšanās datus, lai uzsāktu to drošības risku uzraudzīšanu. Tiklīdz dati ir ievietoti, Tu vari:"
+  "noDataInOrgDescription": {
+    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
   },
-  "benefit1Title": {
-    "message": "Noteikt risku svarīgumu"
+  "feature1Title": {
+    "message": "Mark applications as critical"
   },
-  "benefit1Description": {
-    "message": "Pievērst uzmanību visbūtiskākajām lietotnēm"
+  "feature1Description": {
+    "message": "This will help you remove risks to your most important applications first."
   },
-  "benefit2Title": {
-    "message": "Virzīt nepilnību novēršanu"
+  "feature2Title": {
+    "message": "Help members improve their security"
   },
-  "benefit2Description": {
-    "message": "Piešķirt riskam pakļautajiem dalībniekiem uzdevumus riskam pakļauto pieteikšanās datu nomaiņai"
+  "feature2Description": {
+    "message": "Assign at-risk members guided security tasks to update credentials."
   },
-  "benefit3Title": {
-    "message": "Pārraudzīt virzību"
+  "feature3Title": {
+    "message": "Monitor progress"
   },
-  "benefit3Description": {
-    "message": "Sekot izmaiņām, lai uzrādītu drošības uzlabojumus"
+  "feature3Description": {
+    "message": "Track changes over time to show security improvements."
   },
-  "noReportRunTitle": {
-    "message": "Izveidot savu pirmo atskaiti, lai redzētu lietotnes"
+  "noReportsRunTitle": {
+    "message": "Generate report"
   },
-  "noReportRunDescription": {
-    "message": "Izveidot riska ieskatu atskaiti, lai izvērtētu savas apvienības lietotnes un noteiktu riskam pakļautas paroles, kurēm jāpievērš uzmanība. Pirmās atskaites izveidošana:"
+  "noReportsRunDescription": {
+    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Neviena lietotne nav atzīmēta kā kritiska"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Riskam pakļautie dalībnieki"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Dalībnieki ar piekluvi riskam pakļautajiem vienumiem būtiskajām lietotnēm"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "These members have access to vulnerable items for critical applications."
   },
   "membersWithAtRiskPasswords": {
     "message": "Dalībnieki ar riskam pakļautām parolēm"
   },
-  "membersWillReceiveNotification": {
-    "message": "Dalībnieki pārlūka paplašinājumā saņems paziņojumu, ka jānomaina riskam pakļautās paroles."
+  "membersWillReceiveSecurityTask": {
+    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ dalībnieki ir pakļauti riskam",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Šie dalībnieki piesakās lietotnēs ar vājām, atklātām vai atkārtoti izmantotām parolēm."
+  "atRiskMemberDescription": {
+    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Nav dalībnieku, kas piesakās lietotnēs ar vājām, atklātām vai atkārtoti izmantotām parolēm."
@@ -349,6 +343,9 @@
   "applicationsNeedingReview": {
     "message": "Lietotnes, kuras ir nepieciešams izskatīt"
   },
+  "newApplicationsCardTitle": {
+    "message": "Pārskatīt jaunās lietotnes"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ jaunas lietotnes",
     "placeholders": {
@@ -370,17 +367,32 @@
   "noNewApplicationsToReviewAtThisTime": {
     "message": "Pašreiz nav jaunu izskatāmu lietotņu"
   },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Tavā apvienībā ir saglabāti vienumi $COUNT$ lietotnēm",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Pārskati lietotnes, lai pastiprinātu drošību vienumiem, kuri ir visbūtiskākie apvienības drošībai"
+  },
+  "reviewApplications": {
+    "message": "Pārskatīt lietotnes"
+  },
   "prioritizeCriticalApplications": {
     "message": "Paaugstināt būtisko lietotņu svarīgumu"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Jāatlasa, kuras lietontes apvienībai ir visbūtiskākās, tad jāpiešķir drošības uzdevumi dalībniekiem risku novēršanai."
+  "selectCriticalAppsDescription": {
+    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "reviewNewApplications": {
-    "message": "Review new applications"
+    "message": "Pārskatīt jaunās lietotnes"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "We've highlighted at-risk items for new applications stored in Admin console that have weak, exposed, or reused passwords."
+  "reviewNewAppsDescription": {
+    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Jāklikšķina uz zvaigznes, lai atzīmētu lietotni kā būtisku"
@@ -1218,7 +1230,7 @@
     "message": "Pielikums izdzēsts"
   },
   "deleteAttachmentConfirmation": {
-    "message": "Vai tiešām vēlaties dzēst šo pielikumu?"
+    "message": "Vai tiešām izdzēst šo pielikumu?"
   },
   "attachmentSaved": {
     "message": "Pielikums tika saglabāts."
@@ -1291,7 +1303,7 @@
     "message": "Vienumi pārvietoti"
   },
   "overwritePasswordConfirmation": {
-    "message": "Vai tiešām vēlaties pārrakstīt pašreizējo paroli?"
+    "message": "Vai tiešām pārrakstīt pašreizējo paroli?"
   },
   "editedFolder": {
     "message": "Mape labota"
@@ -1300,7 +1312,7 @@
     "message": "Mape pievienota"
   },
   "deleteFolderConfirmation": {
-    "message": "Vai tiešām vēlaties izdzēst šo mapi?"
+    "message": "Vai tiešām izdzēst šo mapi?"
   },
   "deletedFolder": {
     "message": "Mape izdzēsta"
@@ -1910,7 +1922,7 @@
     }
   },
   "deleteSelectedConfirmation": {
-    "message": "Vai tiešām vēlaties turpināt?"
+    "message": "Vai tiešām turpināt?"
   },
   "moveSelectedItemsDesc": {
     "message": "Jāizvelas mape, kurā pievienot $COUNT$ atlasīto(s) vienumu(s).",
@@ -3232,8 +3244,17 @@
   "nextCharge": {
     "message": "Nākamais maksājums"
   },
+  "nextChargeHeader": {
+    "message": "Nākamais maksājums"
+  },
+  "plan": {
+    "message": "Plāns"
+  },
   "details": {
     "message": "Izklāsts"
+  },
+  "discount": {
+    "message": "atlaide"
   },
   "downloadLicense": {
     "message": "Lejupielādēt licenci"
@@ -3658,10 +3679,10 @@
     "message": "Labot kopu"
   },
   "deleteGroupConfirmation": {
-    "message": "Vai tiešām vēlaties dzēst šo kopu?"
+    "message": "Vai tiešām izdzēst šo kopu?"
   },
   "deleteMultipleGroupsConfirmation": {
-    "message": "Vai tiešām vēlaties dzēst šādu $QUANTITY$ grupu(-as)?",
+    "message": "Vai tiešām izdzēst šo (šīs) $QUANTITY$ kopu(as)?",
     "placeholders": {
       "quantity": {
         "content": "$1",
@@ -4440,7 +4461,31 @@
     "message": "Atjaunināt pārlūku"
   },
   "generatingYourAccessIntelligence": {
-    "message": "Generating your Access Intelligence..."
+    "message": "Izveido informāciju par Tavu piekļuvi…"
+  },
+  "fetchingMemberData": {
+    "message": "Iegūst dalībnieku datus…"
+  },
+  "analyzingPasswordHealth": {
+    "message": "Izvērtē paroļu veselību…"
+  },
+  "calculatingRiskScores": {
+    "message": "Aprēķina risku novērtējumu…"
+  },
+  "generatingReportData": {
+    "message": "Izveido atskaites datus…"
+  },
+  "savingReport": {
+    "message": "Saglabā atskaiti…"
+  },
+  "compilingInsights": {
+    "message": "Apkopo ieskatus…"
+  },
+  "loadingProgress": {
+    "message": "Ielādē virzību"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Tas var aizņemt dažas minūtes."
   },
   "riskInsightsRunReport": {
     "message": "Izveidot atskaiti"
@@ -5804,16 +5849,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "Kā ieslēgt automātisku lietotōtāju apstiprināšanu"
   },
-  "autoConfirmStep1": {
-    "message": "Jāatver Bitwarden paplašinājums."
+  "autoConfirmExtension1": {
+    "message": "Jāatver Bitwarden paplašinājums"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "Jāatlasa",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": "“Ieslēgt”.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " “Ieslēgt”",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "Bitwarden pārlūka paplašīnājums atvērts sekmīgi. Tagad var ieslēgt automātisko lietotāju apstiprināšanas iestatījumu."
@@ -9525,9 +9570,6 @@
   "loggedInExclamation": {
     "message": "Pieteicies."
   },
-  "beta": {
-    "message": "Beta"
-  },
   "assignCollectionAccess": {
     "message": "Piešķirt krājumu piekļuvi"
   },
@@ -9808,8 +9850,8 @@
   "assignTasks": {
     "message": "Piešķirt uzdevumus"
   },
-  "assignTasksToMembers": {
-    "message": "Piešķirt uzdevumus dalībniekiem risinājumam ar norādēm"
+  "assignSecurityTasksToMembers": {
+    "message": "Send notifications to change passwords"
   },
   "assignToCollections": {
     "message": "Piešķirt krājumiem"
@@ -12075,5 +12117,45 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Uzsākt ģimenes plāna bezmaksas izmēģinājumu"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Jāuzstāda atslēgšanas veids, lai mainītu glabātavas noildzes darbību."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Noildzes iespējām tika piemērotas uzņēmējdarbības pamatnostādņu prasības"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Glabātavas noildze pārsniedz apvienības uzstādītos ierobežojumus."
+  },
+  "neverLockWarning": {
+    "message": "Vai tiešām izmantot uzstādījumu \"Nekad\"? Uzstādot aizslēgšanas iespēju uz \"Nekad\", šifrēšanas atslēga tiek glabāta ierīcē. Ja šī iespēja tiek izmantota, jāpārliecinās, ka ierīce tiek pienācīgi aizsargāta."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Noildzes darbība"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sesijas noildze"
+  },
+  "appearance": {
+    "message": "Izskats"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Noildze pārsniedz apvienības iestatīto ierobežojumu: ne vairāk kā $HOURS$ stunda(s) un $MINUTES$ minūte(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "Neviena būtiska lietotne nav atlasīta"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Vai tiešām turpināt?"
   }
 }

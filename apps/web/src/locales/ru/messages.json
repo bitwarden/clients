@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Назначайте членам команды задачи по мониторингу прогресса"
   },
-  "onceYouReviewApps": {
-    "message": "Как только вы оцените приложения и пометите их как критичные, вы можете назначить задачи участникам касающиеся элементов, подверженных риску, и следить за прогрессом здесь"
+  "onceYouReviewApplications": {
+    "message": "После того как вы просмотрите приложения и отметите их как критичные, назначьте своим пользователям задачи по смене паролей."
   },
   "sendReminders": {
     "message": "Отправить напоминания"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "Не найдено приложений для $ORG NAME$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "Данные не найдены"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Импортируйте логины вашей организации, чтобы начать мониторинг угроз безопасности учетных данных. После импорта вы получите доступ к:"
+  "noDataInOrgDescription": {
+    "message": "Импортируйте данные логинов вашей организации, чтобы начать работу с Access Intelligence. Как только вы это сделаете, вы сможете:"
   },
-  "benefit1Title": {
-    "message": "Приоритет рисков"
+  "feature1Title": {
+    "message": "Пометить приложения как критичные"
   },
-  "benefit1Description": {
-    "message": "Сосредоточьтесь на наиболее важных приложениях"
+  "feature1Description": {
+    "message": "Это поможет вам в первую очередь устранить риски для ваших наиболее важных приложений."
   },
-  "benefit2Title": {
-    "message": "Руководство по восстановлению"
+  "feature2Title": {
+    "message": "Помогите пользователями повысить безопасность"
   },
-  "benefit2Description": {
-    "message": "Назначайте участникам, подверженным риску, управляемые задания для ротации учетных данных"
+  "feature2Description": {
+    "message": "Назначайте участникам, находящимся в группе риска, управляемые задачи по обеспечению безопасности для обновления учетных данных."
   },
-  "benefit3Title": {
+  "feature3Title": {
     "message": "Отслеживать прогресс"
   },
-  "benefit3Description": {
-    "message": "Отслеживать изменения с течением времени, чтобы показать улучшения безопасности"
+  "feature3Description": {
+    "message": "Отслеживать изменения с течением времени, чтобы показать улучшения безопасности."
   },
-  "noReportRunTitle": {
-    "message": "Запустите ваш первый отчет для просмотра приложений"
+  "noReportsRunTitle": {
+    "message": "Создать отчет"
   },
-  "noReportRunDescription": {
-    "message": "Создайте аналитический отчет о рисках для анализа приложений вашей организации и выявления паролей, подверженных риску, которые требуют внимания. Запуск первого отчета позволит:"
+  "noReportsRunDescription": {
+    "message": "Вы готовы приступить к созданию отчетов. После создания вы сможете:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Вы не отметили ни одного приложения в качестве критичного"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Участники, подверженные риску"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Участники, имеющие доступ к элементам, подверженным риску, для критичных приложений"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "Эти пользователи имеют доступ к уязвимым элементам критичных приложений."
   },
   "membersWithAtRiskPasswords": {
     "message": "Пользователи, пароли которых подверженны риску"
   },
-  "membersWillReceiveNotification": {
-    "message": "Пользователи получат уведомление о разрешении подверженных риску логинов с помощью расширения браузера."
+  "membersWillReceiveSecurityTask": {
+    "message": "Сотрудникам вашей организации будет поручено изменить уязвимые пароли. Они получат уведомление в своем расширении Bitwarden для браузера."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ участников, подверженных риску",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Эти пользователи входят в приложения со слабыми, скомпрометированными или повторно используемыми паролями."
+  "atRiskMemberDescription": {
+    "message": "Эти пользователи входят в критичные приложения со слабыми, скомпрометированными или повторно используемыми паролями."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Нет пользователей, входящих в приложения со слабыми, скомпрометированными или повторно используемыми паролями."
@@ -349,6 +343,9 @@
   "applicationsNeedingReview": {
     "message": "Приложения, требующие проверки"
   },
+  "newApplicationsCardTitle": {
+    "message": "Обзор новых приложений"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ новых приложений",
     "placeholders": {
@@ -370,17 +367,32 @@
   "noNewApplicationsToReviewAtThisTime": {
     "message": "На данный момент новых приложений для рассмотрения нет"
   },
+  "organizationHasItemsSavedForApplications": {
+    "message": "В вашей организации есть элементы, сохраненные для $COUNT$ приложений",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Просмотрите приложения, чтобы защитить элементы, наиболее критичные для безопасности вашей организации"
+  },
+  "reviewApplications": {
+    "message": "Обзор приложений"
+  },
   "prioritizeCriticalApplications": {
     "message": "Приоритет критичных приложений"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Выберите, какие приложения наиболее критичны для вашей организации, а затем назначьте пользователям задачи по обеспечению безопасности для устранения рисков."
+  "selectCriticalAppsDescription": {
+    "message": "Выберите, какие приложения наиболее критичны для вашей организации. Затем вы сможете назначить пользователям задачи по обеспечению безопасности по устранению рисков."
   },
   "reviewNewApplications": {
     "message": "Обзор новых приложений"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "Мы выделили элементы, подверженные риску, для новых приложений, хранящихся в консоли администратора, которые имеют слабые, незащищенные или повторно используемые пароли."
+  "reviewNewAppsDescription": {
+    "message": "Просмотрите новые приложения, содержащие уязвимые элементы, и отметьте те, за которыми вы хотели бы внимательно следить, как критичные. После этого вы сможете назначать пользователям задачи по обеспечению безопасности для устранения рисков."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Нажмите на значок звездочки, чтобы отметить приложение как критичное"
@@ -3232,8 +3244,17 @@
   "nextCharge": {
     "message": "Следующий платеж"
   },
+  "nextChargeHeader": {
+    "message": "Следующий платеж"
+  },
+  "plan": {
+    "message": "План"
+  },
   "details": {
     "message": "Подробности"
+  },
+  "discount": {
+    "message": "скидка"
   },
   "downloadLicense": {
     "message": "Загрузить лицензию"
@@ -4441,6 +4462,30 @@
   },
   "generatingYourAccessIntelligence": {
     "message": "Generating your Access Intelligence..."
+  },
+  "fetchingMemberData": {
+    "message": "Получение данных о пользователях..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "Анализ здоровья пароля..."
+  },
+  "calculatingRiskScores": {
+    "message": "Расчет показателей риска..."
+  },
+  "generatingReportData": {
+    "message": "Генерация данных отчета..."
+  },
+  "savingReport": {
+    "message": "Сохранение отчета..."
+  },
+  "compilingInsights": {
+    "message": "Компиляция информации..."
+  },
+  "loadingProgress": {
+    "message": "Прогресс загрузки"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Это может занять несколько минут."
   },
   "riskInsightsRunReport": {
     "message": "Запустить отчет"
@@ -5804,16 +5849,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "Как включить автоматическое подтверждение пользователя"
   },
-  "autoConfirmStep1": {
-    "message": "Откройте свое расширение Bitwarden."
+  "autoConfirmExtension1": {
+    "message": "Откройте свое расширение Bitwarden"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "Выбрать",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " Включить.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " Включить",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "Успешно открыто расширение браузера Bitwarden. Теперь вы можете активировать автоматическое подтверждение пользователя."
@@ -9525,9 +9570,6 @@
   "loggedInExclamation": {
     "message": "Выполнен вход!"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "assignCollectionAccess": {
     "message": "Назначить доступ к коллекциям"
   },
@@ -9808,8 +9850,8 @@
   "assignTasks": {
     "message": "Назначить задачи"
   },
-  "assignTasksToMembers": {
-    "message": "Назначайте задачи пользователям для управляемого решения"
+  "assignSecurityTasksToMembers": {
+    "message": "Отправляйте уведомления о смене паролей"
   },
   "assignToCollections": {
     "message": "Назначить коллекциям"
@@ -12075,5 +12117,45 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Начать пробную версию Families"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Настройте способ разблокировки для изменения действия по тайм-ауту хранилища."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "К настройкам тайм-аута были применены требования корпоративной политики"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Your vault timeout exceeds the restrictions set by your organization."
+  },
+  "neverLockWarning": {
+    "message": "Are you sure you want to use the \"Never\" option? Setting your lock options to \"Never\" stores your vault's encryption key on your device. If you use this option you should ensure that you keep your device properly protected."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
+  },
+  "appearance": {
+    "message": "Appearance"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "Критичные приложения не выбраны"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Вы действительно хотите продолжить?"
   }
 }

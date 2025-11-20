@@ -23,27 +23,15 @@ anyhow = { workspace = true }
 arboard = { workspace = true, features = ["wayland-data-control"] }
 base64 = { workspace = true }
 bitwarden-russh = { workspace = true }
-byteorder = { workspace = true }
 bytes = { workspace = true }
 cbc = { workspace = true, features = ["alloc"] }
 chacha20poly1305 = { workspace = true }
 dirs = { workspace = true }
-ed25519 = { workspace = true, features = ["pkcs8"] }
 futures = { workspace = true }
-homedir = { workspace = true }
 interprocess = { workspace = true, features = ["tokio"] }
 memsec = { workspace = true, features = ["alloc_ext"] }
-pin-project = { workspace = true }
-pkcs8 = { workspace = true, features = ["alloc", "encryption", "pem"] }
 rand = { workspace = true }
-rsa = { workspace = true }
-russh-cryptovec = { workspace = true }
-scopeguard = { workspace = true }
-secmem-proc = { workspace = true }
-serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true }
 sha2 = { workspace = true }
-ssh-encoding = { workspace = true }
 ssh-key = { workspace = true, features = [
     "encryption",
     "ed25519",
@@ -53,13 +41,17 @@ ssh-key = { workspace = true, features = [
 sysinfo = { workspace = true, features = ["windows"] }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["io-util", "sync", "macros", "net"] }
-tokio-stream = { workspace = true, features = ["net"] }
 tokio-util = { workspace = true, features = ["codec"] }
 tracing = { workspace = true }
 typenum = { workspace = true }
 zeroizing-alloc = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
+pin-project = { workspace = true }
+scopeguard = { workspace = true }
+secmem-proc = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
 widestring = { workspace = true, optional = true }
 windows = { workspace = true, features = [
     "Foundation",
@@ -76,21 +68,20 @@ windows = { workspace = true, features = [
 ], optional = true }
 windows-future = { workspace = true }
 
-[target.'cfg(windows)'.dev-dependencies]
-keytar = { workspace = true }
-
 [target.'cfg(target_os = "macos")'.dependencies]
 core-foundation = { workspace = true, optional = true }
+homedir = { workspace = true }
+secmem-proc = { workspace = true }
 security-framework = { workspace = true, optional = true }
 security-framework-sys = { workspace = true, optional = true }
 desktop_objc = { path = "../objc" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-oo7 = { workspace = true }
+ashpd = { workspace = true }
+homedir = { workspace = true }
 libc = { workspace = true }
 linux-keyutils = { workspace = true }
-ashpd = { workspace = true }
-
+oo7 = { workspace = true }
 zbus = { workspace = true, optional = true }
 zbus_polkit = { workspace = true, optional = true }
 

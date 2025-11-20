@@ -58,9 +58,9 @@ jobs:
       - name: Get Version Channel
         id: release_channel
         env:
-          _VERSION: ${{ steps.version.outputs.version }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          case "$_VERSION" in
+          case "$VERSION" in
             *"alpha"*)
               echo "channel=alpha" >> "$GITHUB_OUTPUT"
               echo "[!] We do not yet support 'alpha'"
@@ -96,10 +96,10 @@ jobs:
         env:
           PKG_VERSION: ${{ steps.version.outputs.version }}
         working-directory: apps/desktop/artifacts
-        run: mv "Bitwarden-$PKG_VERSION-universal.pkg" "Bitwarden-$PKG_VERSION-universal.pkg.archive"
+        run: mv "Bitwarden-${PKG_VERSION}-universal.pkg" "Bitwarden-${PKG_VERSION}-universal.pkg.archive"
 
       - name: Create Release
-        uses: ncipollo/release-action@cdcc88a9acf3ca41c16c37bb7d21b9ad48560d87 # v1.15.0
+        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
         if: ${{ steps.release_channel.outputs.channel == 'latest' && github.event.inputs.release_type != 'Dry Run' }}
         env:
           PKG_VERSION: ${{ steps.version.outputs.version }}
@@ -107,7 +107,6 @@ jobs:
         with:
           artifacts: "apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-amd64.deb,
             apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-x86_64.rpm,
-            apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-x64.freebsd,
             apps/desktop/artifacts/bitwarden_${{ env.PKG_VERSION }}_amd64.snap,
             apps/desktop/artifacts/bitwarden_${{ env.PKG_VERSION }}_arm64.snap,
             apps/desktop/artifacts/bitwarden_${{ env.PKG_VERSION }}_arm64.tar.gz,
