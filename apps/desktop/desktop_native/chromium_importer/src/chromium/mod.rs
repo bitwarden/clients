@@ -59,7 +59,7 @@ impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
     fn get_installed_browsers() -> Result<Vec<String>> {
         let mut browsers = Vec::with_capacity(SUPPORTED_BROWSER_MAP.len());
 
-        #[allow(unused_variables)]  // config only used in non-sandbox mode
+        #[allow(unused_variables)]  // config only used outside of sandbox
         for (browser, config) in SUPPORTED_BROWSER_MAP.iter() {
             #[cfg(all(target_os = "macos", feature = "sandbox"))]
             {
@@ -69,7 +69,7 @@ impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
 
             #[cfg(not(all(target_os = "macos", feature = "sandbox")))]
             {
-                // All other platforms OR macOS without sandbox: check file system directly
+                // When not in sandbox check file system directly
                 let data_dir = get_browser_data_dir(config)?;
                 if data_dir.exists() {
                     browsers.push((*browser).to_string());
@@ -88,12 +88,14 @@ pub fn get_available_profiles(browser_name: &String) -> Result<Vec<ProfileInfo>>
 
 /// Request access to browser directory (sandbox mode only)
 /// This shows the permission dialog and creates a security-scoped bookmark,
-/// but does NOT start accessing the resource (that happens in resume()).
 #[cfg(all(target_os = "macos", feature = "sandbox"))]
 pub fn request_browser_access(browser_name: &String) -> Result<()> {
-    eprintln!("[SANDBOX] request_browser_access called for: {}", browser_name);
+    println!("request_browser_access() called for: {}", browser_name);
+
     platform::ScopedBrowserAccess::request_only(browser_name)?;
-    eprintln!("[SANDBOX] request_browser_access completed successfully");
+
+    println!("request_browser_access() completed successfully");
+
     Ok(())
 }
 
@@ -101,7 +103,7 @@ pub async fn import_logins(
     browser_name: &String,
     profile_id: &String,
 ) -> Result<Vec<LoginImportResult>> {
-    // In sandbox mode, resume access to browser directory
+    // In sandbox mode, resume access to browser directory (use the formerly created bookmark)
     #[cfg(all(target_os = "macos", feature = "sandbox"))]
     let _access = platform::ScopedBrowserAccess::resume(browser_name)?;
 

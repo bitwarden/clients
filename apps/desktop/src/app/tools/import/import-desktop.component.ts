@@ -40,7 +40,6 @@ export class ImportDesktopComponent {
   protected disabled = false;
   protected loading = false;
 
-  // Bind callbacks in constructor to maintain reference equality
   protected readonly onLoadProfilesFromBrowser = this._onLoadProfilesFromBrowser.bind(this);
   protected readonly onImportFromBrowser = this._onImportFromBrowser.bind(this);
 

@@ -120,7 +120,6 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
           );
         } catch (error) {
           this.logService.error("Error loading profiles from browser:", error);
-          // FIXME: Add error handling and display when profiles could not be loaded/retrieved
         }
       }
     });

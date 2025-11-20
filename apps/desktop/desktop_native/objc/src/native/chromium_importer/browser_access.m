@@ -2,8 +2,6 @@
 #import "browser_access.h"
 #import "../utils.h"
 
-// Import the Swift-generated header
-// The name matches the module-name in build.rs: "Bitwarden"
 #import "Bitwarden-Swift.h" 
 
 static BrowserAccessManager* sharedManager = nil;

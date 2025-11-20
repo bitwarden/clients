@@ -11,7 +11,7 @@ use crate::chromium::{BrowserConfig, CryptoService, LocalState};
 use crate::util;
 
 //
-// Sandbox
+// Sandbox specific (for Mac App Store Builds)
 //
 
 #[cfg(feature = "sandbox")]
@@ -29,34 +29,34 @@ pub struct ScopedBrowserAccess {
 
 #[cfg(feature = "sandbox")]
 impl ScopedBrowserAccess {
+    /// Request access to browser directory and create a security bookmark if access is approved
     pub fn request_only(browser_name: &str) -> Result<()> {
+        println!("request_only() called for {}", browser_name);
+
         let c_name = CString::new(browser_name)?;
 
         let bookmark_ptr = unsafe { requestBrowserAccess(c_name.as_ptr()) };
         if bookmark_ptr.is_null() {
-            return Err(anyhow!("User declined access or browser not found"));
+            return Err(anyhow!("User declined access"));
         }
         unsafe { libc::free(bookmark_ptr as *mut libc::c_void) };
 
         Ok(())
     }
 
-    pub fn request_and_start(browser_name: &str) -> Result<Self> {
-        Self::request_only(browser_name)?;
-        Self::resume(browser_name)
-    }
-
-    /// Resume access using previously stored bookmark
+    /// Resume browser directory access using previously created security bookmark
     pub fn resume(browser_name: &str) -> Result<Self> {
+        println!("resume() called for {}", browser_name);
+
         let c_name = CString::new(browser_name)?;
 
         if !unsafe { hasStoredBrowserAccess(c_name.as_ptr()) } {
-            return Err(anyhow!("No stored access for this browser"));
+            return Err(anyhow!("Access has not been granted for this browser"));
         }
 
         let path_ptr = unsafe { startBrowserAccess(c_name.as_ptr()) };
         if path_ptr.is_null() {
-            return Err(anyhow!("Failed to resume access (bookmark may be stale)"));
+            return Err(anyhow!("Failed to use browser existing security access, it may be stale"));
         }
         unsafe { libc::free(path_ptr as *mut libc::c_void) };
 
@@ -65,7 +65,17 @@ impl ScopedBrowserAccess {
         })
     }
 
+    /// First requests access to browser directory and then ensures access is still usable 
+    pub fn request_and_start(browser_name: &str) -> Result<Self> {
+        println!("request_and_start() called for {}", browser_name);
+
+        Self::request_only(browser_name)?;
+        Self::resume(browser_name)
+    }
+
     pub fn has_stored_access(browser_name: &str) -> bool {
+        println!("has_stored_access() called for {}", browser_name);
+
         let Ok(c_name) = CString::new(browser_name) else {
             return false;
         };
@@ -76,6 +86,8 @@ impl ScopedBrowserAccess {
 #[cfg(feature = "sandbox")]
 impl Drop for ScopedBrowserAccess {
     fn drop(&mut self) {
+        println!("drop ScopedBrowserAccess has been called");
+
         let Ok(c_name) = CString::new(self.browser_name.as_str()) else {
             return;
         };

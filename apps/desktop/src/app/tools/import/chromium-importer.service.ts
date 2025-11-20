@@ -9,6 +9,7 @@ export class ChromiumImporterService {
       return await chromium_importer.getMetadata();
     });
 
+    // Used on Mac OS App Store builds to request permissions to browser entries outside the sandbox
     ipcMain.handle("chromium_importer.requestBrowserAccess", async (event, browser: string) => {
       console.log("[IPC] requestBrowserAccess handler called for:", browser);
       console.log("[IPC] chromium_importer keys:", Object.keys(chromium_importer));
@@ -21,7 +22,6 @@ export class ChromiumImporterService {
         console.log("[IPC] Calling native requestBrowserAccess");
         return await chromium_importer.requestBrowserAccess(browser);
       }
-      // No-op if not compiled with sandbox support
       console.log("[IPC] requestBrowserAccess not found, returning no-op");
       return;
     });

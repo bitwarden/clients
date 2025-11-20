@@ -17,12 +17,3 @@ if (featuresArg) {
 }
 
 execSync(`napi build --platform --js false ${featuresArg}`, { stdio: 'inherit', env: process.env });
-
-
-/*  Mac App Store build with sandboxing  - Does this belong here? 
-
-const target = process.env.npm_config_target || '';
-const featuresArg = target.includes('mas') ? '--features sandbox' : '';
-execSync(`napi build --platform --js false ${featuresArg}`, { stdio: 'inherit', env: process.env });
-
-*/
