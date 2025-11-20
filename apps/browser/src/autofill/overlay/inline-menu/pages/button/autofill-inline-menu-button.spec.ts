@@ -1,5 +1,6 @@
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
+import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import { createInitAutofillInlineMenuButtonMessageMock } from "../../../../spec/autofill-mocks";
 import { flushPromises, postWindowMessage } from "../../../../spec/testing-utils";
 
@@ -10,6 +11,7 @@ describe("AutofillInlineMenuButton", () => {
 
   let autofillInlineMenuButton: AutofillInlineMenuButton;
   const portKey: string = "inlineMenuButtonPortKey";
+  const expectedOrigin = BrowserApi.getRuntimeURL("")?.slice(0, -1) || "chrome-extension://id";
 
   beforeEach(() => {
     document.body.innerHTML = `<autofill-inline-menu-button></autofill-inline-menu-button>`;
@@ -56,7 +58,7 @@ describe("AutofillInlineMenuButton", () => {
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
         { command: "autofillInlineMenuButtonClicked", portKey, token: "test-token" },
-        "*",
+        expectedOrigin,
       );
     });
   });
@@ -117,7 +119,7 @@ describe("AutofillInlineMenuButton", () => {
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
         { command: "triggerDelayedAutofillInlineMenuClosure", portKey, token: "test-token" },
-        "*",
+        expectedOrigin,
       );
     });
 

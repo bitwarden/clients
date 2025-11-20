@@ -3,6 +3,7 @@ import { mock } from "jest-mock-extended";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
+import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
 import {
   createAutofillOverlayCipherDataMock,
@@ -23,6 +24,7 @@ describe("AutofillInlineMenuList", () => {
 
   let autofillInlineMenuList: AutofillInlineMenuList | null;
   const portKey: string = "inlineMenuListPortKey";
+  const expectedOrigin = BrowserApi.getRuntimeURL("")?.slice(0, -1) || "chrome-extension://id";
   const events: { eventName: any; callback: any }[] = [];
 
   beforeEach(() => {
@@ -68,7 +70,7 @@ describe("AutofillInlineMenuList", () => {
 
         expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
           { command: "unlockVault", portKey, token: "test-token" },
-          "*",
+          expectedOrigin,
         );
       });
     });
@@ -140,7 +142,7 @@ describe("AutofillInlineMenuList", () => {
             addNewCipherType: CipherType.Login,
             token: "test-token",
           },
-          "*",
+          expectedOrigin,
         );
       });
     });
@@ -331,7 +333,7 @@ describe("AutofillInlineMenuList", () => {
                 portKey,
                 token: "test-token",
               },
-              "*",
+              expectedOrigin,
             );
           });
 
@@ -504,7 +506,7 @@ describe("AutofillInlineMenuList", () => {
               portKey,
               token: "test-token",
             },
-            "*",
+            expectedOrigin,
           );
         });
 
@@ -598,7 +600,7 @@ describe("AutofillInlineMenuList", () => {
               addNewCipherType: CipherType.Login,
               token: "test-token",
             },
-            "*",
+            expectedOrigin,
           );
         });
 
@@ -843,7 +845,7 @@ describe("AutofillInlineMenuList", () => {
 
           expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
             { command: "fillGeneratedPassword", portKey, token: "test-token" },
-            "*",
+            expectedOrigin,
           );
         });
 
@@ -859,7 +861,7 @@ describe("AutofillInlineMenuList", () => {
 
             expect(globalThis.parent.postMessage).not.toHaveBeenCalledWith(
               { command: "fillGeneratedPassword", portKey },
-              "*",
+              expectedOrigin,
             );
           });
 
@@ -874,7 +876,7 @@ describe("AutofillInlineMenuList", () => {
 
             expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
               { command: "fillGeneratedPassword", portKey, token: "test-token" },
-              "*",
+              expectedOrigin,
             );
           });
 
@@ -913,7 +915,7 @@ describe("AutofillInlineMenuList", () => {
 
           expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
             { command: "refreshGeneratedPassword", portKey, token: "test-token" },
-            "*",
+            expectedOrigin,
           );
         });
 
@@ -929,7 +931,7 @@ describe("AutofillInlineMenuList", () => {
 
             expect(globalThis.parent.postMessage).not.toHaveBeenCalledWith(
               { command: "refreshGeneratedPassword", portKey },
-              "*",
+              expectedOrigin,
             );
           });
 
@@ -944,7 +946,7 @@ describe("AutofillInlineMenuList", () => {
 
             expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
               { command: "refreshGeneratedPassword", portKey, token: "test-token" },
-              "*",
+              expectedOrigin,
             );
           });
 
@@ -1030,7 +1032,7 @@ describe("AutofillInlineMenuList", () => {
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
         { command: "checkAutofillInlineMenuButtonFocused", portKey, token: "test-token" },
-        "*",
+        expectedOrigin,
       );
     });
 
@@ -1219,7 +1221,7 @@ describe("AutofillInlineMenuList", () => {
 
         expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
           { command: "autofillInlineMenuBlurred", portKey, token: "test-token" },
-          "*",
+          expectedOrigin,
         );
       });
     });
@@ -1247,7 +1249,7 @@ describe("AutofillInlineMenuList", () => {
             portKey,
             token: "test-token",
           },
-          "*",
+          expectedOrigin,
         );
       });
 
@@ -1261,7 +1263,7 @@ describe("AutofillInlineMenuList", () => {
             portKey,
             token: "test-token",
           },
-          "*",
+          expectedOrigin,
         );
       });
 
@@ -1275,7 +1277,7 @@ describe("AutofillInlineMenuList", () => {
             portKey,
             token: "test-token",
           },
-          "*",
+          expectedOrigin,
         );
       });
     });
@@ -1316,7 +1318,7 @@ describe("AutofillInlineMenuList", () => {
           portKey,
           token: "test-token",
         },
-        "*",
+        expectedOrigin,
       );
     });
   });

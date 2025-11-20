@@ -446,8 +446,5 @@ function getResolvedTheme(theme: Theme) {
 }
 
 function postMessageToParent(message: NotificationBarWindowMessage) {
-  if (!windowMessageOrigin) {
-    return;
-  }
-  globalThis.parent.postMessage(message, windowMessageOrigin);
+  globalThis.parent.postMessage(message, windowMessageOrigin || "*");
 }
