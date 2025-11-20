@@ -26,8 +26,18 @@ export function platformPopoutGuard(
 
     // Open popout if conditions met
     if ((isPlatformMatch || forcePopout) && !inPopout && !inSidebar) {
-      // Use state.url which contains the target route path with query params
-      await BrowserPopupUtils.openPopout(`popup/index.html#${state.url}`);
+      // Add autoClosePopout query param to signal the popout should close after completion
+      const [path, existingQuery] = state.url.split("?");
+      const params = new URLSearchParams(existingQuery || "");
+      params.set("autoClosePopout", "true");
+      const urlWithAutoClose = `${path}?${params.toString()}`;
+
+      // Open the popout window
+      await BrowserPopupUtils.openPopout(`popup/index.html#${urlWithAutoClose}`);
+
+      // Close the original popup window
+      BrowserApi.closePopup(window);
+
       return false; // Block navigation - popout will reload
     }
 

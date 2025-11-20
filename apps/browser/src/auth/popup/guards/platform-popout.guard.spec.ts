@@ -11,6 +11,7 @@ describe("platformPopoutGuard", () => {
   let inPopoutSpy: jest.SpyInstance;
   let inSidebarSpy: jest.SpyInstance;
   let openPopoutSpy: jest.SpyInstance;
+  let closePopupSpy: jest.SpyInstance;
 
   const mockRoute = {} as ActivatedRouteSnapshot;
   const mockState: RouterStateSnapshot = {
@@ -22,6 +23,7 @@ describe("platformPopoutGuard", () => {
     inPopoutSpy = jest.spyOn(BrowserPopupUtils, "inPopout");
     inSidebarSpy = jest.spyOn(BrowserPopupUtils, "inSidebar");
     openPopoutSpy = jest.spyOn(BrowserPopupUtils, "openPopout").mockImplementation();
+    closePopupSpy = jest.spyOn(BrowserApi, "closePopup").mockImplementation();
 
     TestBed.configureTestingModule({});
   });
@@ -45,8 +47,9 @@ describe("platformPopoutGuard", () => {
       expect(inPopoutSpy).toHaveBeenCalledWith(window);
       expect(inSidebarSpy).toHaveBeenCalledWith(window);
       expect(openPopoutSpy).toHaveBeenCalledWith(
-        "popup/index.html#/login-with-passkey?param=value",
+        "popup/index.html#/login-with-passkey?param=value&autoClosePopout=true",
       );
+      expect(closePopupSpy).toHaveBeenCalledWith(window);
       expect(result).toBe(false);
     });
 
@@ -57,6 +60,7 @@ describe("platformPopoutGuard", () => {
       const result = await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
 
       expect(openPopoutSpy).not.toHaveBeenCalled();
+      expect(closePopupSpy).not.toHaveBeenCalled();
       expect(result).toBe(true);
     });
 
@@ -67,6 +71,7 @@ describe("platformPopoutGuard", () => {
       const result = await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
 
       expect(openPopoutSpy).not.toHaveBeenCalled();
+      expect(closePopupSpy).not.toHaveBeenCalled();
       expect(result).toBe(true);
     });
   });
@@ -100,8 +105,9 @@ describe("platformPopoutGuard", () => {
       const result = await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
 
       expect(openPopoutSpy).toHaveBeenCalledWith(
-        "popup/index.html#/login-with-passkey?param=value",
+        "popup/index.html#/login-with-passkey?param=value&autoClosePopout=true",
       );
+      expect(closePopupSpy).toHaveBeenCalledWith(window);
       expect(result).toBe(false);
     });
 
@@ -131,8 +137,9 @@ describe("platformPopoutGuard", () => {
         const result = await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
 
         expect(openPopoutSpy).toHaveBeenCalledWith(
-          "popup/index.html#/login-with-passkey?param=value",
+          "popup/index.html#/login-with-passkey?param=value&autoClosePopout=true",
         );
+        expect(closePopupSpy).toHaveBeenCalledWith(window);
         expect(result).toBe(false);
       },
     );
@@ -163,7 +170,10 @@ describe("platformPopoutGuard", () => {
       const guard = platformPopoutGuard(["linux"]);
       await TestBed.runInInjectionContext(() => guard(mockRoute, stateWithQuery));
 
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/path?foo=bar&baz=qux");
+      expect(openPopoutSpy).toHaveBeenCalledWith(
+        "popup/index.html#/path?foo=bar&baz=qux&autoClosePopout=true",
+      );
+      expect(closePopupSpy).toHaveBeenCalledWith(window);
     });
 
     it("should handle urls without query parameters", async () => {
@@ -174,7 +184,10 @@ describe("platformPopoutGuard", () => {
       const guard = platformPopoutGuard(["linux"]);
       await TestBed.runInInjectionContext(() => guard(mockRoute, stateWithoutQuery));
 
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/simple-path");
+      expect(openPopoutSpy).toHaveBeenCalledWith(
+        "popup/index.html#/simple-path?autoClosePopout=true",
+      );
+      expect(closePopupSpy).toHaveBeenCalledWith(window);
     });
   });
 });
