@@ -595,7 +595,7 @@
     "message": "查看全部"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "查看更少"
   },
   "viewLogin": {
     "message": "查看登录"
@@ -1485,7 +1485,7 @@
     "message": "优先客户支持。"
   },
   "ppremiumSignUpFuture": {
-    "message": "未来的更多高级功能。敬请期待！"
+    "message": "未来的更多高级版功能。敬请期待！"
   },
   "premiumPurchase": {
     "message": "购买高级版"
@@ -4897,7 +4897,7 @@
     "message": "确定要永久删除此附件吗？"
   },
   "premium": {
-    "message": "高级会员"
+    "message": "高级版"
   },
   "freeOrgsCannotUseAttachments": {
     "message": "免费组织无法使用附件"
@@ -5808,6 +5808,15 @@
   },
   "upgradeToPremium": {
     "message": "升级为高级版"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "升级以获得全面的安全防护"
+  },
+  "premiumGivesMoreTools": {
+    "message": "高级版为您提供更多工具，助您保障安全、高效工作并掌控一切。"
+  },
+  "explorePremium": {
+    "message": "探索高级版"
   },
   "loadingVault": {
     "message": "正在加载密码库"

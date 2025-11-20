@@ -595,7 +595,7 @@
     "message": "Tümünü göster"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "Daha az göster"
   },
   "viewLogin": {
     "message": "Hesabı göster"
@@ -5808,6 +5808,15 @@
   },
   "upgradeToPremium": {
     "message": "Premium'a yükselt"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
   },
   "loadingVault": {
     "message": "Kasa yükleniyor"
