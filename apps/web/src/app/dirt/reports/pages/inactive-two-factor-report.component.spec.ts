@@ -1,3 +1,4 @@
+import { CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
@@ -29,14 +30,13 @@ describe("InactiveTwoFactorReportComponent", () => {
   const userId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(userId);
 
-  beforeEach(() => {
+  beforeEach(async () => {
     let cipherFormConfigServiceMock: MockProxy<CipherFormConfigService>;
     organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(of([]));
     syncServiceMock = mock<SyncService>();
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    TestBed.configureTestingModule({
+
+    await TestBed.configureTestingModule({
       declarations: [InactiveTwoFactorReportComponent, I18nPipe],
       providers: [
         {
@@ -80,9 +80,7 @@ describe("InactiveTwoFactorReportComponent", () => {
           useValue: adminConsoleCipherFormConfigServiceMock,
         },
       ],
-      schemas: [],
-      // FIXME(PM-18598): Replace unknownElements and unknownProperties with actual imports
-      errorOnUnknownElements: false,
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
   });
 

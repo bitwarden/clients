@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Directive, OnDestroy } from "@angular/core";
 import {
   BehaviorSubject,
@@ -36,7 +34,7 @@ import {
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
 @Directive()
-export class CipherReportComponent implements OnDestroy {
+export abstract class CipherReportComponent implements OnDestroy {
   isAdminConsoleActive = false;
 
   loading = false;
@@ -44,16 +42,16 @@ export class CipherReportComponent implements OnDestroy {
   ciphers: CipherView[] = [];
   allCiphers: CipherView[] = [];
   dataSource = new TableDataSource<CipherView>();
-  organization: Organization;
-  organizations: Organization[];
+  organization: Organization | undefined = undefined;
+  organizations: Organization[] = [];
   organizations$: Observable<Organization[]>;
 
   filterStatus: any = [0];
   showFilterToggle: boolean = false;
   vaultMsg: string = "vault";
-  currentFilterStatus: number | string;
+  currentFilterStatus: number | string = 0;
   protected filterOrgStatus$ = new BehaviorSubject<number | string>(0);
-  private destroyed$: Subject<void> = new Subject();
+  protected destroyed$: Subject<void> = new Subject();
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
 
   constructor(
@@ -107,7 +105,7 @@ export class CipherReportComponent implements OnDestroy {
     if (filterId === 0) {
       cipherCount = this.allCiphers.length;
     } else if (filterId === 1) {
-      cipherCount = this.allCiphers.filter((c) => c.organizationId === null).length;
+      cipherCount = this.allCiphers.filter((c) => !c.organizationId).length;
     } else {
       this.organizations.filter((org: Organization) => {
         if (org.id === filterId) {
@@ -121,9 +119,9 @@ export class CipherReportComponent implements OnDestroy {
   }
 
   async filterOrgToggle(status: any) {
-    let filter = null;
+    let filter = (c: CipherView) => true;
     if (typeof status === "number" && status === 1) {
-      filter = (c: CipherView) => c.organizationId == null;
+      filter = (c: CipherView) => !c.organizationId;
     } else if (typeof status === "string") {
       const orgId = status as OrganizationId;
       filter = (c: CipherView) => c.organizationId === orgId;
@@ -185,7 +183,7 @@ export class CipherReportComponent implements OnDestroy {
     cipher: CipherView,
     activeCollectionId?: CollectionId,
   ) {
-    const disableForm = cipher ? !cipher.edit && !this.organization.canEditAllCiphers : false;
+    const disableForm = cipher ? !cipher.edit && !this.organization?.canEditAllCiphers : false;
 
     this.vaultItemDialogRef = VaultItemDialogComponent.open(this.dialogService, {
       mode,
@@ -230,10 +228,11 @@ export class CipherReportComponent implements OnDestroy {
       let updatedCipher = await this.cipherService.get(cipher.id, activeUserId);
 
       if (this.isAdminConsoleActive) {
-        updatedCipher = await this.adminConsoleCipherFormConfigService.getCipher(
-          cipher.id as CipherId,
-          this.organization,
-        );
+        updatedCipher =
+          (await this.adminConsoleCipherFormConfigService.getCipher(
+            cipher.id as CipherId,
+            this.organization!,
+          )) ?? updatedCipher;
       }
 
       // convert cipher to cipher view model
