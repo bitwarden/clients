@@ -166,7 +166,6 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
     // The disable endpoint only requires user verification, not provider configuration.
     const result = await UserVerificationDialogComponent.open(this.dialogService, {
       title: "twoStepLogin",
-      bodyText: "disableXTwoStepLogin",
       verificationType: {
         type: "custom",
         verificationFn: async (secret) => {
