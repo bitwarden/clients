@@ -33,12 +33,12 @@ export class RouterFocusManagerService {
     return this.router.events
       .pipe(
         takeUntilDestroyed(),
+        filter((navEvent) => navEvent instanceof NavigationEnd),
         /**
          * On first page load, we do not want to skip the user over the navigation content,
          * so we opt out of the default focus management behavior.
          */
         skip(1),
-        filter((navEvent) => navEvent instanceof NavigationEnd),
         map(() => {
           const currentNavData = this.router.getCurrentNavigation()?.extras;
 
