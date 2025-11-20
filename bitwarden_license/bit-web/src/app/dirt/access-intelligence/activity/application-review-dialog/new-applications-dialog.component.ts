@@ -161,7 +161,7 @@ export class NewApplicationsDialogComponent {
     private securityTasksService: AccessIntelligenceSecurityTasksService,
     private toastService: ToastService,
   ) {
-    this.setApplicationsWithIcons(this.dialogParams.newApplications);
+    this.setApplicationIconMap(this.dialogParams.newApplications);
     // Setup the _tasks signal by manually passing in the injector
     this._tasks = toSignal(this.securityTasksService.tasks$, {
       initialValue: [],
@@ -197,7 +197,7 @@ export class NewApplicationsDialogComponent {
    *
    * @param applications
    */
-  setApplicationsWithIcons(applications: ApplicationHealthReportDetail[]) {
+  setApplicationIconMap(applications: ApplicationHealthReportDetail[]) {
     // Map the report data to include the iconCipher for each application
     const iconCiphers = new Map<string, CipherIcon>();
     applications.forEach((app) => {
