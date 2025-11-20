@@ -118,6 +118,11 @@ export class SendV2Component implements OnDestroy {
 
   protected sendsDisabled = false;
 
+  private readonly sendTypeTitles: Record<SendType, string> = {
+    [SendType.File]: "fileSends",
+    [SendType.Text]: "textSends",
+  };
+
   constructor(
     protected sendItemsService: SendItemsService,
     protected sendListFiltersService: SendListFiltersService,
@@ -134,11 +139,7 @@ export class SendV2Component implements OnDestroy {
       .pipe(takeUntilDestroyed())
       .subscribe(([emptyList, noFilteredResults, currentFilter]) => {
         if (currentFilter?.sendType !== null) {
-          if (currentFilter.sendType === SendType.File) {
-            this.title = "fileSends";
-          } else if (currentFilter.sendType === SendType.Text) {
-            this.title = "textSends";
-          }
+          this.title = this.sendTypeTitles[currentFilter.sendType] ?? "allSends";
         } else {
           this.title = "allSends";
         }

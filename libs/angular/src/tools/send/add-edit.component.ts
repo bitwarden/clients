@@ -37,8 +37,7 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-/** A preset duration (in hours) for expiration/deletion. */
-export const DatePreset = Object.freeze({
+const DatePreset = Object.freeze({
   /** One-hour duration. */
   OneHour: 1,
   /** One-day duration (24 hours). */

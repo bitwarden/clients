@@ -1,16 +1,16 @@
-import { DatePreset, isDatePreset, asDatePreset, nameOfDatePreset } from "./add-edit.component";
+import { isDatePreset, asDatePreset, nameOfDatePreset } from "./add-edit.component";
 
 // Organized by unit: each describe block focuses on a single utility's behavior.
 describe("isDatePreset", () => {
   it("returns true for all valid DatePreset values (numbers, 'never', and Custom)", () => {
     const validPresets: Array<any> = [
-      DatePreset.OneHour,
-      DatePreset.OneDay,
-      DatePreset.TwoDays,
-      DatePreset.ThreeDays,
-      DatePreset.SevenDays,
-      DatePreset.ThirtyDays,
-      DatePreset.Custom,
+      1, // OneHour
+      24, // OneDay
+      48, // TwoDays
+      72, // ThreeDays
+      168, // SevenDays
+      720, // ThirtyDays
+      0, // Custom
       "never",
     ];
     validPresets.forEach((preset) => {
@@ -29,13 +29,13 @@ describe("isDatePreset", () => {
 describe("asDatePreset", () => {
   it("returns the same value for valid DatePreset inputs", () => {
     const validPresets: Array<any> = [
-      DatePreset.OneHour,
-      DatePreset.OneDay,
-      DatePreset.TwoDays,
-      DatePreset.ThreeDays,
-      DatePreset.SevenDays,
-      DatePreset.ThirtyDays,
-      DatePreset.Custom,
+      1, // OneHour
+      24, // OneDay
+      48, // TwoDays
+      72, // ThreeDays
+      168, // SevenDays
+      720, // ThirtyDays
+      0, // Custom
       "never",
     ];
     validPresets.forEach((preset) => {
@@ -53,8 +53,8 @@ describe("asDatePreset", () => {
 
 describe("nameOfDatePreset", () => {
   it("returns the correct key for valid DatePreset values", () => {
-    expect(nameOfDatePreset(DatePreset.OneHour)).toBe("OneHour");
-    expect(nameOfDatePreset(DatePreset.Custom)).toBe("Custom");
+    expect(nameOfDatePreset(1)).toBe("OneHour");
+    expect(nameOfDatePreset(0)).toBe("Custom");
     expect(nameOfDatePreset("never")).toBe("Never");
   });
 
