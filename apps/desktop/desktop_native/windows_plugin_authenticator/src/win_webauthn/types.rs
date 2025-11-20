@@ -6,14 +6,14 @@ use base64::{engine::general_purpose::STANDARD, Engine as _};
 use ciborium::Value;
 use windows::{
     core::{GUID, HRESULT},
-    Win32::System::LibraryLoader::GetProcAddress,
+    Win32::{Foundation::HWND, System::LibraryLoader::GetProcAddress},
 };
-use windows_core::s;
+use windows_core::{s, PCWSTR};
 
 use crate::win_webauthn::{util::WindowsString, Clsid, ErrorKind, WinWebAuthnError};
 
 macro_rules! webauthn_call {
-    ($symbol:literal as fn $fn_name:ident($($arg:ident: $arg_type:ty,)+) -> $result_type:ty) => (
+    ($symbol:literal as fn $fn_name:ident($($arg:ident: $arg_type:ty),+) -> $result_type:ty) => (
         pub(super) fn $fn_name($($arg: $arg_type),*) -> Result<$result_type, WinWebAuthnError> {
             let library = super::util::load_webauthn_lib()?;
             let response = unsafe {
@@ -178,12 +178,12 @@ impl Drop for PluginAddAuthenticatorResponse {
 webauthn_call!("WebAuthNPluginAddAuthenticator" as
 fn webauthn_plugin_add_authenticator(
     pPluginAddAuthenticatorOptions: *const WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS,
-    ppPluginAddAuthenticatorResponse: *mut *mut WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE,
+    ppPluginAddAuthenticatorResponse: *mut *mut WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE
 ) -> HRESULT);
 
 webauthn_call!("WebAuthNPluginFreeAddAuthenticatorResponse" as
 fn webauthn_plugin_free_add_authenticator_response(
-    pPluginAddAuthenticatorOptions: *mut WebAuthnPluginAddAuthenticatorResponse,
+    pPluginAddAuthenticatorOptions: *mut WebAuthnPluginAddAuthenticatorResponse
 ) -> ());
 
 /// List of its supported protocol versions and extensions, its AAGUID, and
@@ -338,6 +338,409 @@ impl From<&CtapVersion> for String {
             CtapVersion::Fido2_1 => "FIDO_2_1",
         }
         .to_string()
+    }
+}
+
+/// Used when creating and asserting credentials.
+/// Header File Name: _WEBAUTHN_PLUGIN_OPERATION_REQUEST
+/// Header File Usage: MakeCredential()
+///                    GetAssertion()
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub(super) struct WEBAUTHN_PLUGIN_OPERATION_REQUEST {
+    /// Window handle to client that requesting a WebAuthn credential.
+    pub hWnd: HWND,
+    pub transactionId: GUID,
+    pub cbRequestSignature: u32,
+    /// Signature over request made with the signing key created during authenticator registration.
+    pub pbRequestSignature: *mut u8,
+    pub requestType: WebAuthnPluginRequestType,
+    pub cbEncodedRequest: u32,
+    pub pbEncodedRequest: *const u8,
+}
+
+/// Used as a response when creating and asserting credentials.
+/// Header File Name: _WEBAUTHN_PLUGIN_OPERATION_RESPONSE
+/// Header File Usage: MakeCredential()
+///                    GetAssertion()
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub(super) struct WEBAUTHN_PLUGIN_OPERATION_RESPONSE {
+    pub cbEncodedResponse: u32,
+    pub pbEncodedResponse: *mut u8,
+}
+
+/// Plugin request type enum as defined in the IDL
+#[repr(u32)]
+#[derive(Debug, Copy, Clone)]
+pub enum WebAuthnPluginRequestType {
+    CTAP2_CBOR = 0x01,
+}
+
+#[derive(Debug)]
+pub struct PluginMakeCredentialRequest {}
+// pub struct PluginMakeCredentialResponse {}
+
+// Windows API types for WebAuthn (from webauthn.h.sample)
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
+    pub dwVersion: u32,
+    pub pwszRpId: *const u16, // PCWSTR
+    pub cbRpId: u32,
+    pub pbRpId: *const u8,
+    pub cbClientDataHash: u32,
+    pub pbClientDataHash: *const u8,
+    pub CredentialList: WEBAUTHN_CREDENTIAL_LIST,
+    pub cbCborExtensionsMap: u32,
+    pub pbCborExtensionsMap: *const u8,
+    pub pAuthenticatorOptions: *const WebAuthnCtapCborAuthenticatorOptions,
+    // Add other fields as needed...
+}
+
+#[derive(Debug)]
+pub struct PluginGetAssertionRequest {
+    inner: *const WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST,
+    pub window_handle: HWND,
+    pub transaction_id: GUID,
+    pub request_signature: Vec<u8>,
+}
+
+impl PluginGetAssertionRequest {
+    pub fn rp_id(&self) -> &str {
+        unsafe {
+            let request = &*self.inner;
+            let slice = std::slice::from_raw_parts(request.pbRpId, request.cbRpId as usize);
+            str::from_utf8_unchecked(slice)
+        }
+    }
+
+    pub fn client_data_hash(&self) -> &[u8] {
+        let inner = self.as_ref();
+        // SAFETY: Verified by Windows
+        unsafe {
+            std::slice::from_raw_parts(inner.pbClientDataHash, inner.cbClientDataHash as usize)
+        }
+    }
+
+    pub fn credential_list(&self) -> CredentialList {
+        self.as_ref().CredentialList
+    }
+
+    // TODO: Support extensions
+    // pub fn extensions(&self) -> Options<Extensions> {}
+
+    pub fn authenticator_options(&self) -> WebAuthnCtapCborAuthenticatorOptions {
+        unsafe { *self.as_ref().pAuthenticatorOptions }
+    }
+}
+
+impl AsRef<WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST> for PluginGetAssertionRequest {
+    fn as_ref(&self) -> &WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
+        unsafe { &*self.inner }
+    }
+}
+
+impl Drop for PluginGetAssertionRequest {
+    fn drop(&mut self) {
+        if !self.inner.is_null() {
+            // leak memory if we cannot find the free function
+            _ = webauthn_free_decoded_get_assertion_request(
+                self.inner as *mut WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST,
+            );
+        }
+    }
+}
+
+impl TryFrom<NonNull<WEBAUTHN_PLUGIN_OPERATION_REQUEST>> for PluginGetAssertionRequest {
+    type Error = WinWebAuthnError;
+
+    fn try_from(value: NonNull<WEBAUTHN_PLUGIN_OPERATION_REQUEST>) -> Result<Self, Self::Error> {
+        unsafe {
+            let request = value.as_ref();
+            if !matches!(request.requestType, WebAuthnPluginRequestType::CTAP2_CBOR) {
+                return Err(WinWebAuthnError::new(
+                    ErrorKind::Serialization,
+                    "Unknown plugin operation request type",
+                ));
+            }
+            let mut assertion_request: *mut WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST =
+                std::ptr::null_mut();
+            webauthn_decode_get_assertion_request(
+                request.cbEncodedRequest,
+                request.pbEncodedRequest,
+                &mut assertion_request,
+            )?
+            .ok()
+            .map_err(|err| {
+                WinWebAuthnError::with_cause(
+                    ErrorKind::WindowsInternal,
+                    "Failed to decode get assertion request",
+                    err,
+                )
+            })?;
+            Ok(Self {
+                inner: assertion_request as *const WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST,
+                window_handle: request.hWnd,
+                transaction_id: request.transactionId,
+                request_signature: Vec::from_raw_parts(
+                    request.pbRequestSignature,
+                    request.cbEncodedRequest as usize,
+                    request.cbEncodedRequest as usize,
+                ),
+            })
+        }
+    }
+}
+// Windows API function signatures for decoding get assertion requests
+webauthn_call!("WebAuthNDecodeGetAssertionRequest" as fn webauthn_decode_get_assertion_request(
+    cbEncoded: u32,
+    pbEncoded: *const u8,
+    ppGetAssertionRequest: *mut *mut WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST
+) -> HRESULT);
+
+webauthn_call!("WebAuthNFreeDecodedGetAssertionRequest" as fn webauthn_free_decoded_get_assertion_request(
+    pGetAssertionRequest: *mut WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST
+) -> ());
+
+// pub struct PluginGetAssertionResponse {}
+
+pub(super) struct WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST {
+    transactionId: GUID,
+    cbRequestSignature: u32,
+    pbRequestSignature: *const u8,
+}
+
+pub struct PluginCancelOperationRequest {
+    inner: NonNull<WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST>,
+}
+
+impl PluginCancelOperationRequest {
+    /// Request transaction ID
+    fn transaction_id(&self) -> GUID {
+        self.as_ref().transactionId
+    }
+
+    /// Request signature.
+    fn request_signature(&self) -> &[u8] {
+        unsafe {
+            std::slice::from_raw_parts(
+                self.as_ref().pbRequestSignature,
+                self.as_ref().cbRequestSignature as usize,
+            )
+        }
+    }
+}
+
+impl AsRef<WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST> for PluginCancelOperationRequest {
+    fn as_ref(&self) -> &WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST {
+        // SAFETY: Pointer is received from Windows so we assume it is correct.
+        unsafe { self.inner.as_ref() }
+    }
+}
+
+impl From<NonNull<WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST>> for PluginCancelOperationRequest {
+    fn from(value: NonNull<WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST>) -> Self {
+        Self { inner: value }
+    }
+}
+
+/// Plugin lock status enum as defined in the IDL
+#[repr(u32)]
+#[derive(Debug, Copy, Clone)]
+pub enum PluginLockStatus {
+    PluginLocked = 0,
+    PluginUnlocked = 1,
+}
+struct CredentialId(Vec<u8>);
+
+impl TryFrom<Vec<u8>> for CredentialId {
+    type Error = WinWebAuthnError;
+
+    fn try_from(value: Vec<u8>) -> Result<Self, Self::Error> {
+        if value.len() > 1023 {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::Serialization,
+                &format!(
+                    "Credential ID exceeds maximum length of 1023, received {}",
+                    value.len()
+                ),
+            ));
+        }
+        Ok(CredentialId(value))
+    }
+}
+
+impl AsRef<[u8]> for CredentialId {
+    fn as_ref(&self) -> &[u8] {
+        self.0.as_ref()
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct WEBAUTHN_CREDENTIAL_EX {
+    dwVersion: u32,
+    cbId: u32,
+    pbId: *const u8,
+    pwszCredentialType: *const u16, // LPCWSTR
+    dwTransports: u32,
+}
+
+impl WEBAUTHN_CREDENTIAL_EX {
+    pub fn credential_id(&self) -> Option<&[u8]> {
+        if self.cbId == 0 || self.pbId.is_null() {
+            None
+        } else {
+            unsafe { Some(std::slice::from_raw_parts(self.pbId, self.cbId as usize)) }
+        }
+    }
+
+    pub fn credential_type(&self) -> Result<String, WinWebAuthnError> {
+        if self.pwszCredentialType.is_null() {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::WindowsInternal,
+                "Received invalid credential ID",
+            ));
+        }
+        unsafe {
+            PCWSTR(self.pwszCredentialType).to_string().map_err(|err| {
+                WinWebAuthnError::with_cause(
+                    ErrorKind::WindowsInternal,
+                    "Invalid credential ID",
+                    err,
+                )
+            })
+        }
+    }
+
+    pub fn transports(&self) -> Vec<CtapTransport> {
+        let mut transports = Vec::new();
+        let mut t = self.dwTransports;
+        if t == 0 {
+            return transports;
+        };
+        const TRANSPORTS: [CtapTransport; 7] = [
+            CtapTransport::Usb,
+            CtapTransport::Nfc,
+            CtapTransport::Ble,
+            CtapTransport::Test,
+            CtapTransport::Internal,
+            CtapTransport::Hybrid,
+            CtapTransport::SmartCard,
+        ];
+        for a in TRANSPORTS {
+            if t == 0 {
+                break;
+            }
+            if a as u32 & t > 0 {
+                transports.push(a.clone());
+                t -= a as u32;
+            }
+        }
+        transports
+    }
+}
+
+pub struct CredentialEx {
+    inner: NonNull<WEBAUTHN_CREDENTIAL_EX>,
+}
+
+impl AsRef<WEBAUTHN_CREDENTIAL_EX> for CredentialEx {
+    fn as_ref(&self) -> &WEBAUTHN_CREDENTIAL_EX {
+        // SAFETY: We initialize memory manually in constructors.
+        unsafe { self.inner.as_ref() }
+    }
+}
+
+impl From<NonNull<WEBAUTHN_CREDENTIAL_EX>> for CredentialEx {
+    fn from(value: NonNull<WEBAUTHN_CREDENTIAL_EX>) -> Self {
+        Self { inner: value }
+    }
+}
+
+#[repr(u32)]
+#[derive(Clone, Copy)]
+pub enum CtapTransport {
+    Usb = 1,
+    Nfc = 2,
+    Ble = 4,
+    Test = 8,
+    Internal = 0x10,
+    Hybrid = 0x20,
+    SmartCard = 0x40,
+}
+/// Windows WebAuthn Authenticator Options structure
+/// Header File Name: _WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct WebAuthnCtapCborAuthenticatorOptions {
+    dwVersion: u32,
+    // LONG lUp: +1=TRUE, 0=Not defined, -1=FALSE
+    lUp: i32,
+    // LONG lUv: +1=TRUE, 0=Not defined, -1=FALSE
+    lUv: i32,
+    // LONG lRequireResidentKey: +1=TRUE, 0=Not defined, -1=FALSE
+    lRequireResidentKey: i32,
+}
+
+impl WebAuthnCtapCborAuthenticatorOptions {
+    pub fn version(&self) -> u32 {
+        self.dwVersion
+    }
+
+    pub fn user_presence(&self) -> Option<bool> {
+        Self::to_optional_bool(self.lUp)
+    }
+
+    pub fn user_verification(&self) -> Option<bool> {
+        Self::to_optional_bool(self.lUv)
+    }
+
+    pub fn require_resident_key(&self) -> Option<bool> {
+        Self::to_optional_bool(self.lRequireResidentKey)
+    }
+
+    fn to_optional_bool(value: i32) -> Option<bool> {
+        match value {
+            x if x > 0 => Some(true),
+            x if x < 0 => Some(false),
+            _ => None,
+        }
+    }
+}
+type WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS = WebAuthnCtapCborAuthenticatorOptions;
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct CredentialList {
+    pub cCredentials: u32,
+    pub ppCredentials: *const *const WEBAUTHN_CREDENTIAL_EX,
+}
+
+type WEBAUTHN_CREDENTIAL_LIST = CredentialList;
+pub struct CredentialListIterator<'a> {
+    pos: usize,
+    list: &'a [*const WEBAUTHN_CREDENTIAL_EX],
+}
+
+impl<'a> Iterator for CredentialListIterator<'a> {
+    type Item = &'a WEBAUTHN_CREDENTIAL_EX;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let current = self.list.get(self.pos);
+        self.pos += 1;
+        current.and_then(|c| unsafe { c.as_ref() })
+    }
+}
+
+impl CredentialList {
+    pub fn iter(&self) -> CredentialListIterator<'_> {
+        unsafe {
+            CredentialListIterator {
+                pos: 0,
+                list: std::slice::from_raw_parts(self.ppCredentials, self.cCredentials as usize),
+            }
+        }
     }
 }
 
