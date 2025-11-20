@@ -7,9 +7,9 @@ use std::{error::Error, fmt::Display, ptr::NonNull};
 use windows::core::GUID;
 
 pub use types::{
-    AuthenticatorInfo, CtapVersion, PluginAddAuthenticatorOptions, PluginCancelOperationRequest,
-    PluginGetAssertionRequest, PluginLockStatus, PluginMakeCredentialRequest,
-    PublicKeyCredentialParameters,
+    AuthenticatorInfo, CtapTransport, CtapVersion, PluginAddAuthenticatorOptions,
+    PluginCancelOperationRequest, PluginGetAssertionRequest, PluginLockStatus,
+    PluginMakeCredentialRequest, PluginMakeCredentialResponse, PublicKeyCredentialParameters,
 };
 
 pub use com::PluginAuthenticator;

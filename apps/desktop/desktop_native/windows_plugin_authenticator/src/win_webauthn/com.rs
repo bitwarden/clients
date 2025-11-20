@@ -105,27 +105,44 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
         response: *mut WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
     ) -> HRESULT {
         tracing::debug!("MakeCredential called");
-        // Convert to legacy format for internal processing
-        if request.is_null() || response.is_null() {
-            tracing::debug!("MakeCredential: Invalid request or response pointers passed");
-            return HRESULT(-1);
+        if response.is_null() {
+            tracing::warn!(
+                "GetAssertion called with null response pointer from Windows. Aborting request."
+            );
+            return E_INVALIDARG;
         }
-        // TODO: verify request signature
-        return HRESULT(-1);
+        let op_request_ptr = match NonNull::new(request as *mut WEBAUTHN_PLUGIN_OPERATION_REQUEST) {
+            Some(p) => p,
+            None => {
+                tracing::warn!(
+                    "GetAssertion called with null request pointer from Windows. Aborting request."
+                );
+                return E_INVALIDARG;
+            }
+        };
 
-        /*
-        match self.handler.make_credential(request) {
-            Ok(response) => {
-                // todo DECODE
+        // TODO: verify request signature
+
+        let registration_request = match op_request_ptr.try_into() {
+            Ok(r) => r,
+            Err(err) => {
+                tracing::error!("Could not deserialize MakeCredential request: {err}");
+                return E_FAIL;
+            }
+        };
+        match self.handler.make_credential(registration_request) {
+            Ok(registration_response) => {
+                let (ptr, len) = ComBuffer::from_buffer(registration_response);
+                (*response).cbEncodedResponse = len;
+                (*response).pbEncodedResponse = ptr;
                 tracing::debug!("MakeCredential completed successfully");
                 S_OK
             }
             Err(err) => {
                 tracing::error!("MakeCredential failed: {err}");
-                HRESULT(-1)
+                E_FAIL
             }
         }
-        */
     }
 
     unsafe fn GetAssertion(
@@ -162,13 +179,6 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
                 let (ptr, len) = ComBuffer::from_buffer(assertion_response);
                 (*response).cbEncodedResponse = len;
                 (*response).pbEncodedResponse = ptr;
-                /*
-                std::ptr::copy_nonoverlapping(
-                    assertion_response.as_ptr(),
-                    (*response).pbEncodedResponse,
-                    assertion_response.len(),
-                );
-                */
                 tracing::debug!("GetAssertion completed successfully");
                 S_OK
             }

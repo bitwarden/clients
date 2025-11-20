@@ -21,7 +21,10 @@ pub fn get_assertion(
     let client_data_hash = request.client_data_hash().to_vec();
 
     // Extract user verification requirement from authenticator options
-    let user_verification = match request.authenticator_options().user_verification() {
+    let user_verification = match request
+        .authenticator_options()
+        .and_then(|opts| opts.user_verification())
+    {
         Some(true) => UserVerification::Required,
         Some(false) => UserVerification::Discouraged,
         None => UserVerification::Preferred,
@@ -29,7 +32,7 @@ pub fn get_assertion(
 
     // Extract allowed credentials from credential list
     let allowed_credential_ids: Vec<Vec<u8>> = request
-        .credential_list()
+        .allow_credentials()
         .iter()
         .filter_map(|cred| cred.credential_id())
         .map(|id| id.to_vec())

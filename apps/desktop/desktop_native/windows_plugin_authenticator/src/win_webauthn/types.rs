@@ -1,17 +1,22 @@
 //! Types and functions defined in the Windows WebAuthn API.
 
-use std::{collections::HashSet, mem::MaybeUninit, ptr::NonNull};
+use std::{collections::HashSet, fmt::Display, mem::MaybeUninit, ptr::NonNull};
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use ciborium::Value;
 use windows::{
     core::{GUID, HRESULT},
-    Win32::{Foundation::HWND, System::LibraryLoader::GetProcAddress},
+    Win32::{
+        Foundation::HWND, System::LibraryLoader::GetProcAddress,
+        UI::WindowsAndMessaging::WindowFromPoint,
+    },
 };
 use windows_core::{s, PCWSTR};
 
 use crate::win_webauthn::{
-    com::ComBuffer, util::WindowsString, Clsid, ErrorKind, WinWebAuthnError,
+    com::ComBuffer,
+    util::{ArrayPointerIterator, WindowsString},
+    Clsid, ErrorKind, WinWebAuthnError,
 };
 
 macro_rules! webauthn_call {
@@ -379,14 +384,719 @@ pub enum WebAuthnPluginRequestType {
     CTAP2_CBOR = 0x01,
 }
 
-#[derive(Debug)]
-pub struct PluginMakeCredentialRequest {}
-// pub struct PluginMakeCredentialResponse {}
-
-// Windows API types for WebAuthn (from webauthn.h.sample)
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
+pub struct WEBAUTHN_RP_ENTITY_INFORMATION {
+    dwVersion: u32,
+    pwszId: *const u16,   // PCWSTR
+    pwszName: *const u16, // PCWSTR
+    pwszIcon: *const u16, // PCWSTR
+}
+
+impl WEBAUTHN_RP_ENTITY_INFORMATION {
+    /// Relying party ID.
+    pub fn id(&self) -> Result<String, WinWebAuthnError> {
+        if self.pwszId.is_null() {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::WindowsInternal,
+                "Received invalid RP ID",
+            ));
+        }
+        unsafe {
+            PCWSTR(self.pwszId).to_string().map_err(|err| {
+                WinWebAuthnError::with_cause(ErrorKind::WindowsInternal, "Invalid RP ID", err)
+            })
+        }
+    }
+
+    /// Relying party name.
+    pub fn name(&self) -> Result<String, WinWebAuthnError> {
+        if self.pwszName.is_null() {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::WindowsInternal,
+                "Received invalid RP name",
+            ));
+        }
+        unsafe {
+            PCWSTR(self.pwszName).to_string().map_err(|err| {
+                WinWebAuthnError::with_cause(ErrorKind::WindowsInternal, "Invalid RP name", err)
+            })
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct WEBAUTHN_USER_ENTITY_INFORMATION {
+    pub dwVersion: u32,
+    pub cbId: u32,                   // DWORD
+    pub pbId: *const u8,             // PBYTE
+    pub pwszName: *const u16,        // PCWSTR
+    pub pwszIcon: *const u16,        // PCWSTR
+    pub pwszDisplayName: *const u16, // PCWSTR
+}
+
+impl WEBAUTHN_USER_ENTITY_INFORMATION {
+    /// User handle.
+    pub fn id(&self) -> Result<&[u8], WinWebAuthnError> {
+        if self.cbId == 0 || self.pbId.is_null() {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::WindowsInternal,
+                "Received invalid user ID",
+            ));
+        }
+        unsafe { Ok(std::slice::from_raw_parts(self.pbId, self.cbId as usize)) }
+    }
+
+    /// User name.
+    pub fn name(&self) -> Result<String, WinWebAuthnError> {
+        if self.pwszName.is_null() {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::WindowsInternal,
+                "Received invalid user name",
+            ));
+        }
+        unsafe {
+            PCWSTR(self.pwszName).to_string().map_err(|err| {
+                WinWebAuthnError::with_cause(ErrorKind::WindowsInternal, "Invalid user name", err)
+            })
+        }
+    }
+
+    /// User display name.
+    pub fn display_name(&self) -> Result<String, WinWebAuthnError> {
+        if self.pwszDisplayName.is_null() {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::WindowsInternal,
+                "Received invalid user name",
+            ));
+        }
+        unsafe {
+            PCWSTR(self.pwszDisplayName).to_string().map_err(|err| {
+                WinWebAuthnError::with_cause(
+                    ErrorKind::WindowsInternal,
+                    "Invalid user display name",
+                    err,
+                )
+            })
+        }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct WEBAUTHN_COSE_CREDENTIAL_PARAMETER {
+    pub dwVersion: u32,
+    pub pwszCredentialType: *const u16, // LPCWSTR
+    pub lAlg: i32,                      // LONG - COSE algorithm identifier
+}
+
+impl WEBAUTHN_COSE_CREDENTIAL_PARAMETER {
+    pub fn credential_type(&self) -> Result<String, WinWebAuthnError> {
+        if self.pwszCredentialType.is_null() {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::WindowsInternal,
+                "Invalid credential type",
+            ));
+        }
+        unsafe {
+            PCWSTR(self.pwszCredentialType).to_string().map_err(|err| {
+                WinWebAuthnError::with_cause(
+                    ErrorKind::WindowsInternal,
+                    "Invalid credential type",
+                    err,
+                )
+            })
+        }
+    }
+    pub fn alg(&self) -> i32 {
+        self.lAlg
+    }
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct WEBAUTHN_COSE_CREDENTIAL_PARAMETERS {
+    cCredentialParameters: u32,
+    pCredentialParameters: *const WEBAUTHN_COSE_CREDENTIAL_PARAMETER,
+}
+
+impl WEBAUTHN_COSE_CREDENTIAL_PARAMETERS {
+    pub fn iter(&self) -> ArrayPointerIterator<'_, WEBAUTHN_COSE_CREDENTIAL_PARAMETER> {
+        unsafe {
+            ArrayPointerIterator::new(
+                self.pCredentialParameters,
+                self.cCredentialParameters as usize,
+            )
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+struct WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST {
+    pub dwVersion: u32,
+    pub cbRpId: u32,
+    pub pbRpId: *const u8,
+    pub cbClientDataHash: u32,
+    pub pbClientDataHash: *const u8,
+    pub pRpInformation: *const WEBAUTHN_RP_ENTITY_INFORMATION,
+    pub pUserInformation: *const WEBAUTHN_USER_ENTITY_INFORMATION,
+    pub WebAuthNCredentialParameters: WEBAUTHN_COSE_CREDENTIAL_PARAMETERS, // Matches C++ sample
+    pub CredentialList: WEBAUTHN_CREDENTIAL_LIST,
+    pub cbCborExtensionsMap: u32,
+    pub pbCborExtensionsMap: *const u8,
+    pub pAuthenticatorOptions: *const WebAuthnCtapCborAuthenticatorOptions,
+    // Add other fields as needed...
+}
+
+#[derive(Debug)]
+pub struct PluginMakeCredentialRequest {
+    inner: *const WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
+    pub window_handle: HWND,
+    pub transaction_id: GUID,
+    pub request_signature: Vec<u8>,
+}
+
+impl PluginMakeCredentialRequest {
+    pub fn client_data_hash(&self) -> Result<&[u8], WinWebAuthnError> {
+        if self.as_ref().cbClientDataHash == 0 || self.as_ref().pbClientDataHash.is_null() {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::WindowsInternal,
+                "Received invalid client data hash",
+            ));
+        }
+        unsafe {
+            Ok(std::slice::from_raw_parts(
+                self.as_ref().pbClientDataHash,
+                self.as_ref().cbClientDataHash as usize,
+            ))
+        }
+    }
+
+    pub fn rp_information(&self) -> Option<&WEBAUTHN_RP_ENTITY_INFORMATION> {
+        let ptr = self.as_ref().pRpInformation;
+        if ptr.is_null() {
+            return None;
+        }
+        unsafe { Some(&*ptr) }
+    }
+
+    pub fn user_information(&self) -> Option<&WEBAUTHN_USER_ENTITY_INFORMATION> {
+        let ptr = self.as_ref().pUserInformation;
+        if ptr.is_null() {
+            return None;
+        }
+        unsafe { Some(&*ptr) }
+    }
+
+    pub fn pub_key_cred_params(&self) -> WEBAUTHN_COSE_CREDENTIAL_PARAMETERS {
+        self.as_ref().WebAuthNCredentialParameters
+    }
+
+    pub fn exclude_credentials(&self) -> CredentialList {
+        self.as_ref().CredentialList
+    }
+
+    /// CTAP CBOR extensions map
+    pub fn extensions(&self) -> Option<&[u8]> {
+        let (len, ptr) = (
+            self.as_ref().cbCborExtensionsMap,
+            self.as_ref().pbCborExtensionsMap,
+        );
+        if len == 0 || ptr.is_null() {
+            return None;
+        }
+        unsafe { Some(std::slice::from_raw_parts(ptr, len as usize)) }
+    }
+
+    pub fn authenticator_options(&self) -> Option<WebAuthnCtapCborAuthenticatorOptions> {
+        let ptr = self.as_ref().pAuthenticatorOptions;
+        if ptr.is_null() {
+            return None;
+        }
+        unsafe { Some(*ptr) }
+    }
+}
+
+impl AsRef<WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST> for PluginMakeCredentialRequest {
+    fn as_ref(&self) -> &WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST {
+        unsafe { &*self.inner }
+    }
+}
+
+impl Drop for PluginMakeCredentialRequest {
+    fn drop(&mut self) {
+        if !self.inner.is_null() {
+            // leak memory if we cannot find the free function
+            _ = webauthn_free_decoded_make_credential_request(
+                self.inner as *mut WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
+            );
+        }
+    }
+}
+
+impl TryFrom<NonNull<WEBAUTHN_PLUGIN_OPERATION_REQUEST>> for PluginMakeCredentialRequest {
+    type Error = WinWebAuthnError;
+
+    fn try_from(value: NonNull<WEBAUTHN_PLUGIN_OPERATION_REQUEST>) -> Result<Self, Self::Error> {
+        unsafe {
+            let request = value.as_ref();
+            if !matches!(request.requestType, WebAuthnPluginRequestType::CTAP2_CBOR) {
+                return Err(WinWebAuthnError::new(
+                    ErrorKind::Serialization,
+                    "Unknown plugin operation request type",
+                ));
+            }
+            let mut registration_request = MaybeUninit::uninit();
+            webauthn_decode_make_credential_request(
+                request.cbEncodedRequest,
+                request.pbEncodedRequest,
+                registration_request.as_mut_ptr(),
+            )?
+            .ok()
+            .map_err(|err| {
+                WinWebAuthnError::with_cause(
+                    ErrorKind::WindowsInternal,
+                    "Failed to decode get assertion request",
+                    err,
+                )
+            })?;
+
+            let registration_request = registration_request.assume_init();
+            Ok(Self {
+                inner: registration_request as *const WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
+                window_handle: request.hWnd,
+                transaction_id: request.transactionId,
+                request_signature: Vec::from_raw_parts(
+                    request.pbRequestSignature,
+                    request.cbEncodedRequest as usize,
+                    request.cbEncodedRequest as usize,
+                ),
+            })
+        }
+    }
+}
+
+// Windows API function signatures for decoding make credential requests
+webauthn_call!("WebAuthNDecodeMakeCredentialRequest" as fn webauthn_decode_make_credential_request(
+    cbEncoded: u32,
+    pbEncoded: *const u8,
+    ppMakeCredentialRequest: *mut *mut WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST
+) -> HRESULT);
+
+webauthn_call!("WebAuthNFreeDecodedMakeCredentialRequest" as fn webauthn_free_decoded_make_credential_request(
+    pMakeCredentialRequest: *mut WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST
+) -> ());
+
+// pub struct PluginMakeCredentialResponse {}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+struct WEBAUTHN_CREDENTIAL_ATTESTATION {
+    /// Version of this structure, to allow for modifications in the future.
+    dwVersion: u32,
+
+    /// Attestation format type
+    pwszFormatType: *const u16, // PCWSTR
+
+    /// Size of cbAuthenticatorData.
+    cbAuthenticatorData: u32,
+    /// Authenticator data that was created for this credential.
+    //_Field_size_bytes_(cbAuthenticatorData)
+    pbAuthenticatorData: *const u8,
+
+    /// Size of CBOR encoded attestation information
+    /// 0 => encoded as CBOR null value.
+    cbAttestation: u32,
+    ///Encoded CBOR attestation information
+    // _Field_size_bytes_(cbAttestation)
+    pbAttestation: *const u8,
+
+    dwAttestationDecodeType: u32,
+    /// Following depends on the dwAttestationDecodeType
+    ///  WEBAUTHN_ATTESTATION_DECODE_NONE
+    ///      NULL - not able to decode the CBOR attestation information
+    ///  WEBAUTHN_ATTESTATION_DECODE_COMMON
+    ///      PWEBAUTHN_COMMON_ATTESTATION;
+    pvAttestationDecode: *const u8,
+
+    /// The CBOR encoded Attestation Object to be returned to the RP.
+    cbAttestationObject: u32,
+    // _Field_size_bytes_(cbAttestationObject)
+    pbAttestationObject: *const u8,
+
+    /// The CredentialId bytes extracted from the Authenticator Data.
+    /// Used by Edge to return to the RP.
+    cbCredentialId: u32,
+    // _Field_size_bytes_(cbCredentialId)
+    pbCredentialId: *const u8,
+
+    //
+    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_2
+    //
+    /// Since VERSION 2
+    Extensions: WEBAUTHN_EXTENSIONS,
+
+    //
+    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_3
+    //
+    /// One of the WEBAUTHN_CTAP_TRANSPORT_* bits will be set corresponding to
+    /// the transport that was used.
+    dwUsedTransport: u32,
+
+    //
+    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_4
+    //
+    bEpAtt: bool,
+    bLargeBlobSupported: bool,
+    bResidentKey: bool,
+
+    //
+    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_5
+    //
+    bPrfEnabled: bool,
+
+    //
+    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_6
+    //
+    cbUnsignedExtensionOutputs: u32,
+    // _Field_size_bytes_(cbUnsignedExtensionOutputs)
+    pbUnsignedExtensionOutputs: *const u8,
+
+    //
+    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_7
+    //
+    pHmacSecret: *const WEBAUTHN_HMAC_SECRET_SALT,
+
+    // ThirdPartyPayment Credential or not.
+    bThirdPartyPayment: bool,
+
+    //
+    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_8
+    //
+
+    // Multiple WEBAUTHN_CTAP_TRANSPORT_* bits will be set corresponding to
+    // the transports that are supported.
+    dwTransports: u32,
+
+    // UTF-8 encoded JSON serialization of the client data.
+    cbClientDataJSON: u32,
+    // _Field_size_bytes_(cbClientDataJSON)
+    pbClientDataJSON: *const u8,
+
+    // UTF-8 encoded JSON serialization of the RegistrationResponse.
+    cbRegistrationResponseJSON: u32,
+    // _Field_size_bytes_(cbRegistrationResponseJSON)
+    pbRegistrationResponseJSON: *const u8,
+}
+
+pub enum AttestationFormat {
+    Packed,
+    Tpm,
+    AndroidKey,
+    FidoU2f,
+    None,
+    Compound,
+    Apple,
+}
+
+impl Display for AttestationFormat {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::Packed => "packed",
+            Self::Tpm => "tpm",
+            Self::AndroidKey => "android-key",
+            Self::FidoU2f => "fido-u2f",
+            Self::None => "none",
+            Self::Compound => "compound",
+            Self::Apple => "apple",
+        })
+    }
+}
+
+pub enum AttestationDecodeType {
+    None,
+    Common(),
+}
+
+struct WEBAUTHN_HMAC_SECRET_SALT {
+    /// Size of pbFirst.
+    cbFirst: u32,
+    // _Field_size_bytes_(cbFirst)
+    /// Required
+    pbFirst: *mut u8,
+
+    /// Size of pbSecond.
+    cbSecond: u32,
+    // _Field_size_bytes_(cbSecond)
+    pbSecond: *mut u8,
+}
+
+pub struct HmacSecretSalt {
+    first: Vec<u8>,
+    second: Option<Vec<u8>>,
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+struct WEBAUTHN_EXTENSION {
+    pwszExtensionIdentifier: *const u16,
+    cbExtension: u32,
+    pvExtension: *mut u8,
+}
+
+pub enum CredProtectOutput {
+    UserVerificationAny,
+    UserVerificationOptional,
+    UserVerificationOptionalWithCredentialIdList,
+    UserVerificationRequired,
+}
+pub enum WebAuthnExtensionMakeCredentialOutput {
+    HmacSecret(bool),
+    CredProtect(CredProtectOutput),
+    CredBlob(bool),
+    MinPinLength(u32),
+    // LargeBlob,
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+struct WEBAUTHN_EXTENSIONS {
+    cExtensions: u32,
+    // _Field_size_(cExtensions)
+    pExtensions: *const WEBAUTHN_EXTENSION,
+}
+
+pub struct PluginMakeCredentialResponse {
+    /// Attestation format type
+    pub format_type: String, // PCWSTR
+
+    /// Authenticator data that was created for this credential.
+    pub authenticator_data: Vec<u8>,
+
+    ///Encoded CBOR attestation information
+    pub attestation_statement: Option<Vec<u8>>,
+
+    // dwAttestationDecodeType: u32,
+    /// Following depends on the dwAttestationDecodeType
+    ///  WEBAUTHN_ATTESTATION_DECODE_NONE
+    ///      NULL - not able to decode the CBOR attestation information
+    ///  WEBAUTHN_ATTESTATION_DECODE_COMMON
+    ///      PWEBAUTHN_COMMON_ATTESTATION;
+    // pub pvAttestationDecode: *mut u8,
+
+    /// The CBOR-encoded Attestation Object to be returned to the RP.
+    pub attestation_object: Option<Vec<u8>>,
+
+    /// The CredentialId bytes extracted from the Authenticator Data.
+    /// Used by Edge to return to the RP.
+    pub credential_id: Option<Vec<u8>>,
+
+    //
+    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_2
+    //
+    /// Since VERSION 2
+    pub extensions: Option<Vec<WebAuthnExtensionMakeCredentialOutput>>,
+
+    //
+    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_3
+    //
+    /// One of the WEBAUTHN_CTAP_TRANSPORT_* bits will be set corresponding to
+    /// the transport that was used.
+    pub used_transport: CtapTransport,
+
+    //
+    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_4
+    //
+    pub ep_att: bool,
+    pub large_blob_supported: bool,
+    pub resident_key: bool,
+
+    //
+    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_5
+    //
+    pub prf_enabled: bool,
+
+    //
+    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_6
+    //
+    pub unsigned_extension_outputs: Option<Vec<u8>>,
+
+    //
+    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_7
+    //
+    pub hmac_secret: Option<HmacSecretSalt>,
+
+    /// ThirdPartyPayment Credential or not.
+    pub third_party_payment: bool,
+
+    //
+    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_8
+    //
+    /// Multiple WEBAUTHN_CTAP_TRANSPORT_* bits will be set corresponding to
+    /// the transports that are supported.
+    pub transports: Option<Vec<CtapTransport>>,
+
+    /// UTF-8 encoded JSON serialization of the client data.
+    pub client_data_json: Option<Vec<u8>>,
+
+    /// UTF-8 encoded JSON serialization of the RegistrationResponse.
+    pub registration_response_json: Option<Vec<u8>>,
+}
+
+impl PluginMakeCredentialResponse {
+    pub fn to_ctap_response(mut self) -> Result<Vec<u8>, WinWebAuthnError> {
+        let attestation = self.try_into()?;
+        let mut response_len = 0;
+        let mut response_ptr = std::ptr::null_mut();
+        let result = webauthn_encode_make_credential_response(
+            &attestation,
+            &mut response_len,
+            &mut response_ptr,
+        )?
+        .ok()
+        .map_err(|err| {
+            WinWebAuthnError::with_cause(
+                ErrorKind::WindowsInternal,
+                "WebAuthNEncodeMakeCredentialResponse() failed",
+                err,
+            )
+        })?;
+
+        if response_ptr.is_null() {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::WindowsInternal,
+                "Received null pointer from WebAuthNEncodeMakeCredentialResponse",
+            ));
+        }
+        let response = unsafe {
+            Vec::from_raw_parts(response_ptr, response_len as usize, response_len as usize)
+        };
+
+        Ok(response)
+    }
+}
+
+impl TryFrom<PluginMakeCredentialResponse> for WEBAUTHN_CREDENTIAL_ATTESTATION {
+    type Error = WinWebAuthnError;
+
+    fn try_from(value: PluginMakeCredentialResponse) -> Result<Self, Self::Error> {
+        // Convert format type to UTF-16
+        let format_type_utf16 = value.format_type.to_utf16();
+        let pwszFormatType = format_type_utf16.as_ptr();
+        std::mem::forget(format_type_utf16);
+
+        // Get authenticator data pointer and length
+        let pbAuthenticatorData = value.authenticator_data.as_ptr();
+        let cbAuthenticatorData = value.authenticator_data.len() as u32;
+        std::mem::forget(value.authenticator_data);
+
+        // Get optional attestation statement pointer and length
+        let (pbAttestation, cbAttestation) = match value.attestation_statement.as_ref() {
+            Some(data) => (data.as_ptr(), data.len() as u32),
+            None => (std::ptr::null(), 0),
+        };
+        std::mem::forget(value.attestation_statement);
+
+        // Get optional attestation object pointer and length
+        let (pbAttestationObject, cbAttestationObject) = match value.attestation_object.as_ref() {
+            Some(data) => (data.as_ptr(), data.len() as u32),
+            None => (std::ptr::null(), 0),
+        };
+        std::mem::forget(value.attestation_object);
+
+        // Get optional credential ID pointer and length
+        let (pbCredentialId, cbCredentialId) = match value.credential_id.as_ref() {
+            Some(data) => (data.as_ptr(), data.len() as u32),
+            None => (std::ptr::null(), 0),
+        };
+        std::mem::forget(value.credential_id);
+
+        // Convert extensions (TODO: implement proper extension conversion)
+        let extensions = WEBAUTHN_EXTENSIONS {
+            cExtensions: 0,
+            pExtensions: std::ptr::null(),
+        };
+
+        // Convert used transport enum to bitmask
+        let dwUsedTransport = value.used_transport as u32;
+
+        // Get optional unsigned extension outputs pointer and length
+        let (pbUnsignedExtensionOutputs, cbUnsignedExtensionOutputs) =
+            match value.unsigned_extension_outputs.as_ref() {
+                Some(data) => (data.as_ptr(), data.len() as u32),
+                None => (std::ptr::null(), 0),
+            };
+        std::mem::forget(value.unsigned_extension_outputs);
+
+        // Convert optional HMAC secret (TODO: implement proper conversion)
+        let pHmacSecret = std::ptr::null();
+
+        // Convert optional transports to bitmask
+        let dwTransports = value
+            .transports
+            .as_ref()
+            .map_or(0, |t| t.iter().map(|transport| *transport as u32).sum());
+
+        // Get optional client data JSON pointer and length
+        let (pbClientDataJSON, cbClientDataJSON) = match value.client_data_json.as_ref() {
+            Some(data) => (data.as_ptr(), data.len() as u32),
+            None => (std::ptr::null(), 0),
+        };
+        std::mem::forget(value.client_data_json);
+
+        // Get optional registration response JSON pointer and length
+        let (pbRegistrationResponseJSON, cbRegistrationResponseJSON) =
+            match value.registration_response_json.as_ref() {
+                Some(data) => (data.as_ptr(), data.len() as u32),
+                None => (std::ptr::null(), 0),
+            };
+        std::mem::forget(value.registration_response_json);
+
+        let attestation = WEBAUTHN_CREDENTIAL_ATTESTATION {
+            // Use version 8 to include all fields
+            dwVersion: 8,
+            pwszFormatType,
+            cbAuthenticatorData,
+            pbAuthenticatorData,
+            cbAttestation,
+            pbAttestation,
+            // TODO: Support decode type. Just using WEBAUTHN_ATTESTATION_DECODE_NONE (0) for now.
+            dwAttestationDecodeType: 0,
+            pvAttestationDecode: std::ptr::null(),
+            cbAttestationObject,
+            pbAttestationObject,
+            cbCredentialId,
+            pbCredentialId,
+            Extensions: extensions,
+            dwUsedTransport,
+            bEpAtt: value.ep_att,
+            bLargeBlobSupported: value.large_blob_supported,
+            bResidentKey: value.resident_key,
+            bPrfEnabled: value.prf_enabled,
+            cbUnsignedExtensionOutputs,
+            pbUnsignedExtensionOutputs,
+            pHmacSecret,
+            bThirdPartyPayment: value.third_party_payment,
+            dwTransports,
+            cbClientDataJSON,
+            pbClientDataJSON,
+            cbRegistrationResponseJSON,
+            pbRegistrationResponseJSON,
+        };
+        Ok(attestation)
+    }
+}
+
+webauthn_call!("WebAuthNEncodeMakeCredentialResponse" as fn webauthn_encode_make_credential_response(
+    cbEncoded: *const WEBAUTHN_CREDENTIAL_ATTESTATION,
+    pbEncoded: *mut u32,
+    response_bytes: *mut *mut u8
+) -> HRESULT);
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+struct WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
     pub dwVersion: u32,
     pub pwszRpId: *const u16, // PCWSTR
     pub cbRpId: u32,
@@ -425,15 +1135,19 @@ impl PluginGetAssertionRequest {
         }
     }
 
-    pub fn credential_list(&self) -> CredentialList {
+    pub fn allow_credentials(&self) -> CredentialList {
         self.as_ref().CredentialList
     }
 
     // TODO: Support extensions
     // pub fn extensions(&self) -> Options<Extensions> {}
 
-    pub fn authenticator_options(&self) -> WebAuthnCtapCborAuthenticatorOptions {
-        unsafe { *self.as_ref().pAuthenticatorOptions }
+    pub fn authenticator_options(&self) -> Option<WebAuthnCtapCborAuthenticatorOptions> {
+        let ptr = self.as_ref().pAuthenticatorOptions;
+        if ptr.is_null() {
+            return None;
+        }
+        unsafe { Some(*ptr) }
     }
 }
 
@@ -749,26 +1463,29 @@ pub struct CredentialList {
 
 type WEBAUTHN_CREDENTIAL_LIST = CredentialList;
 pub struct CredentialListIterator<'a> {
-    pos: usize,
-    list: &'a [*const WEBAUTHN_CREDENTIAL_EX],
+    inner: ArrayPointerIterator<'a, *const WEBAUTHN_CREDENTIAL_EX>,
 }
 
 impl<'a> Iterator for CredentialListIterator<'a> {
     type Item = &'a WEBAUTHN_CREDENTIAL_EX;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let current = self.list.get(self.pos);
-        self.pos += 1;
-        current.and_then(|c| unsafe { c.as_ref() })
+        let item = self.inner.next()?;
+        // SAFETY: This type can only be constructed from this library using
+        // responses from Windows APIs, and we trust that the pointer and length
+        // of each inner item of the array is valid.
+        unsafe { item.as_ref() }
     }
 }
 
 impl CredentialList {
     pub fn iter(&self) -> CredentialListIterator<'_> {
+        // SAFETY: This type can only be constructed from this library using
+        // responses from Windows APIs. The pointer is checked for null safety
+        // on construction.
         unsafe {
             CredentialListIterator {
-                pos: 0,
-                list: std::slice::from_raw_parts(self.ppCredentials, self.cCredentials as usize),
+                inner: ArrayPointerIterator::new(self.ppCredentials, self.cCredentials as usize),
             }
         }
     }

@@ -22,6 +22,7 @@ use win_webauthn::{PluginAddAuthenticatorOptions, WebAuthnPlugin};
 
 use crate::{
     ipc2::{ConnectionStatus, TimedCallback, WindowsProviderClient},
+    make_credential::make_credential,
     win_webauthn::{
         AuthenticatorInfo, CtapVersion, PluginAuthenticator, PluginCancelOperationRequest,
         PluginGetAssertionRequest, PluginLockStatus, PluginMakeCredentialRequest,
@@ -105,7 +106,8 @@ impl PluginAuthenticator for BitwardenPluginAuthenticator {
         request: PluginMakeCredentialRequest,
     ) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
         tracing::debug!("Received MakeCredential: {request:?}");
-        Err(format!("MakeCredential not implemented").into())
+        let client = self.get_client();
+        make_credential::make_credential(&client, request)
     }
 
     fn get_assertion(

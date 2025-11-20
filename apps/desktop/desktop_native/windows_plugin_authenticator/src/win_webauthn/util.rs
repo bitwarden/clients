@@ -68,3 +68,34 @@ impl WindowsString for str {
         (ptr as *mut u16, byte_count)
     }
 }
+
+pub struct ArrayPointerIterator<'a, T> {
+    pos: usize,
+    list: Option<&'a [T]>,
+}
+
+impl<T> ArrayPointerIterator<'_, T> {
+    /// Safety constraints: The caller must ensure that the pointer and length is
+    /// valid. A null pointer returns an empty iterator.
+    pub unsafe fn new(data: *const T, len: usize) -> Self {
+        let slice = if !data.is_null() {
+            Some(std::slice::from_raw_parts(data, len))
+        } else {
+            None
+        };
+        Self {
+            pos: 0,
+            list: slice,
+        }
+    }
+}
+
+impl<'a, T> Iterator for ArrayPointerIterator<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let current = self.list?.get(self.pos);
+        self.pos += 1;
+        current
+    }
+}
