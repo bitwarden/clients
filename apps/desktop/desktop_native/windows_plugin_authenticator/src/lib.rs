@@ -113,7 +113,8 @@ impl PluginAuthenticator for BitwardenPluginAuthenticator {
         request: PluginGetAssertionRequest,
     ) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
         tracing::debug!("Received GetAssertion: {request:?}");
-        Err(format!("GetAssertion not implemented").into())
+        let client = self.get_client();
+        assert::get_assertion(&client, request)
     }
 
     fn cancel_operation(

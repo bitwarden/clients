@@ -134,35 +134,42 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
         response: *mut WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
     ) -> HRESULT {
         tracing::debug!("GetAssertion called");
-        if request.is_null() || response.is_null() {
-            tracing::warn!("GetAssertion called with invalid arguments");
+        if response.is_null() {
+            tracing::warn!(
+                "GetAssertion called with null response pointer from Windows. Aborting request."
+            );
             return E_INVALIDARG;
         }
+        let op_request_ptr = match NonNull::new(request as *mut WEBAUTHN_PLUGIN_OPERATION_REQUEST) {
+            Some(p) => p,
+            None => {
+                tracing::warn!(
+                    "GetAssertion called with null request pointer from Windows. Aborting request."
+                );
+                return E_INVALIDARG;
+            }
+        };
         // TODO: verify request signature
-        let assertion_request: PluginGetAssertionRequest =
-            match NonNull::new(request as *mut WEBAUTHN_PLUGIN_OPERATION_REQUEST)
-                .map(PluginGetAssertionRequest::try_from)
-            {
-                Some(Ok(assertion_request)) => assertion_request,
-                Some(Err(err)) => {
-                    tracing::error!("Could not deserialize GetAssertion request: {err}");
-                    return E_FAIL;
-                }
-                None => {
-                    tracing::warn!("GetOperation received null request");
-                    return E_INVALIDARG;
-                }
-            };
+        let assertion_request = match op_request_ptr.try_into() {
+            Ok(assertion_request) => assertion_request,
+            Err(err) => {
+                tracing::error!("Could not deserialize GetAssertion request: {err}");
+                return E_FAIL;
+            }
+        };
         match self.handler.get_assertion(assertion_request) {
             Ok(assertion_response) => {
-                let response = &mut *response;
-                response.cbEncodedResponse = assertion_response.len() as u32;
+                let (ptr, len) = ComBuffer::from_buffer(assertion_response);
+                (*response).cbEncodedResponse = len;
+                (*response).pbEncodedResponse = ptr;
+                /*
                 std::ptr::copy_nonoverlapping(
                     assertion_response.as_ptr(),
-                    response.pbEncodedResponse,
+                    (*response).pbEncodedResponse,
                     assertion_response.len(),
                 );
-                tracing::error!("GetAssertion completed successfully");
+                */
+                tracing::debug!("GetAssertion completed successfully");
                 S_OK
             }
             Err(err) => {

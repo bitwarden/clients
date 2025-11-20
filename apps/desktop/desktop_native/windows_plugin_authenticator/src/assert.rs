@@ -7,10 +7,6 @@ use std::{
 };
 use windows::core::{s, HRESULT};
 
-use crate::ipc2::{
-    PasskeyAssertionRequest, PasskeyAssertionResponse, Position, TimedCallback, UserVerification,
-    WindowsProviderClient,
-};
 use crate::util::{delay_load, wstr_to_string};
 use crate::webauthn::WEBAUTHN_CREDENTIAL_LIST;
 use crate::{
@@ -18,6 +14,13 @@ use crate::{
         parse_credential_list, WebAuthnPluginOperationRequest, WebAuthnPluginOperationResponse,
     },
     ipc2::PasskeyAssertionWithoutUserInterfaceRequest,
+};
+use crate::{
+    ipc2::{
+        PasskeyAssertionRequest, PasskeyAssertionResponse, Position, TimedCallback,
+        UserVerification, WindowsProviderClient,
+    },
+    win_webauthn::{ErrorKind, HwndExt, PluginGetAssertionRequest, WinWebAuthnError},
 };
 
 // Windows API types for WebAuthn (from webauthn.h.sample)
@@ -161,12 +164,12 @@ fn send_assertion_request(
 }
 
 /// Creates a WebAuthn get assertion response from Bitwarden's assertion response
-unsafe fn create_get_assertion_response(
+fn create_get_assertion_response(
     credential_id: Vec<u8>,
     authenticator_data: Vec<u8>,
     signature: Vec<u8>,
     user_handle: Vec<u8>,
-) -> std::result::Result<*mut WebAuthnPluginOperationResponse, HRESULT> {
+) -> std::result::Result<Vec<u8>, WinWebAuthnError> {
     // Construct a CTAP2 response with the proper structure
 
     // Create CTAP2 GetAssertion response map according to CTAP2 specification
@@ -223,15 +226,22 @@ unsafe fn create_get_assertion_response(
     // Encode to CBOR with error handling
     let mut cbor_data = Vec::new();
     if let Err(e) = ciborium::ser::into_writer(&cbor_value, &mut cbor_data) {
-        tracing::debug!("ERROR: Failed to encode CBOR assertion response: {:?}", e);
-        return Err(HRESULT(-1));
+        return Err(WinWebAuthnError::with_cause(
+            ErrorKind::Serialization,
+            "Failed to encode CBOR assertion response",
+            e,
+        ));
     }
 
     tracing::debug!("Formatted CBOR assertion response: {:?}", cbor_data);
+    Ok(cbor_data)
+}
 
-    let response_len = cbor_data.len();
-
+unsafe fn write_response(
+    cbor_data: &[u8],
+) -> Result<*mut WebAuthnPluginOperationResponse, HRESULT> {
     // Allocate memory for the response data
+    let response_len = cbor_data.len();
     let layout = Layout::from_size_align(response_len, 1).map_err(|_| HRESULT(-1))?;
     let response_ptr = alloc(layout);
     if response_ptr.is_null() {
@@ -258,6 +268,71 @@ unsafe fn create_get_assertion_response(
     );
 
     Ok(operation_response_ptr)
+}
+
+pub fn get_assertion(
+    ipc_client: &WindowsProviderClient,
+    request: PluginGetAssertionRequest,
+) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+    // Extract RP information
+    let rp_id = request.rp_id().to_string();
+
+    // Extract client data hash
+    let client_data_hash = request.client_data_hash().to_vec();
+
+    // Extract user verification requirement from authenticator options
+    let user_verification = match request.authenticator_options().user_verification() {
+        Some(true) => UserVerification::Required,
+        Some(false) => UserVerification::Discouraged,
+        None => UserVerification::Preferred,
+    };
+
+    // Extract allowed credentials from credential list
+    let allowed_credential_ids: Vec<Vec<u8>> = request
+        .credential_list()
+        .iter()
+        .filter_map(|cred| cred.credential_id())
+        .map(|id| id.to_vec())
+        .collect();
+
+    let transaction_id = request.transaction_id.to_u128().to_le_bytes().to_vec();
+    let client_pos = request
+        .window_handle
+        .center_position()
+        .unwrap_or((640, 480));
+
+    tracing::debug!(
+        "Get assertion request - RP: {}, Allowed credentials: {:?}",
+        rp_id,
+        allowed_credential_ids
+    );
+
+    // Send assertion request
+    let assertion_request = PasskeyAssertionRequest {
+        rp_id,
+        client_data_hash,
+        allowed_credentials: allowed_credential_ids,
+        user_verification,
+        window_xy: Position {
+            x: client_pos.0,
+            y: client_pos.1,
+        },
+        context: transaction_id,
+    };
+    let passkey_response = send_assertion_request(ipc_client, assertion_request)
+        .map_err(|err| format!("Failed to get assertion response from IPC channel: {err}"))?;
+    tracing::debug!("Assertion response received: {:?}", passkey_response);
+
+    // Create proper WebAuthn response from passkey_response
+    tracing::debug!("Creating WebAuthn get assertion response");
+
+    let response = create_get_assertion_response(
+        passkey_response.credential_id,
+        passkey_response.authenticator_data,
+        passkey_response.signature,
+        passkey_response.user_handle,
+    )?;
+    Ok(response)
 }
 
 /// Implementation of PluginGetAssertion moved from com_provider.rs
@@ -378,6 +453,11 @@ pub unsafe fn plugin_get_assertion(
         passkey_response.user_handle,
     )
     .map_err(|err| {
+        tracing::error!("Failed to encode WebAuthn assertion response as CBOR: {err}");
+        HRESULT(-1)
+    })
+    .and_then(|cbor| write_response(&cbor))
+    .map_err(|err| {
         tracing::error!("Failed to create WebAuthn assertion response: {err}");
         HRESULT(-1)
     })?;
@@ -391,7 +471,7 @@ pub unsafe fn plugin_get_assertion(
 mod tests {
     use std::ptr::slice_from_raw_parts;
 
-    use super::create_get_assertion_response;
+    use super::{create_get_assertion_response, write_response};
 
     #[test]
     fn test_create_native_assertion_response() {
@@ -400,13 +480,14 @@ mod tests {
         let signature = vec![9, 10, 11, 12];
         let user_handle = vec![13, 14, 15, 16];
         let slice = unsafe {
-            let response = *create_get_assertion_response(
+            let cbor = create_get_assertion_response(
                 credential_id,
                 authenticator_data,
                 signature,
                 user_handle,
             )
             .unwrap();
+            let response = *write_response(&cbor).unwrap();
             &*slice_from_raw_parts(
                 response.encoded_response_pointer,
                 response.encoded_response_byte_count as usize,
