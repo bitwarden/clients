@@ -13,6 +13,7 @@ pub use types::{
 };
 
 pub use com::PluginAuthenticator;
+pub use util::HwndExt;
 
 use crate::win_webauthn::{
     types::{

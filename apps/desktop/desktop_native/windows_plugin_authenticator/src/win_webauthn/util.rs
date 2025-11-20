@@ -1,8 +1,9 @@
 use windows::{
     core::s,
     Win32::{
-        Foundation::{FreeLibrary, HMODULE},
+        Foundation::{FreeLibrary, HMODULE, HWND, RECT},
         System::LibraryLoader::{LoadLibraryExA, LOAD_LIBRARY_SEARCH_SYSTEM32},
+        UI::WindowsAndMessaging::GetWindowRect,
     },
 };
 
@@ -25,6 +26,22 @@ pub(super) fn free_webauthn_lib(library: HMODULE) -> Result<(), WinWebAuthnError
                 err,
             )
         })
+    }
+}
+pub trait HwndExt {
+    fn center_position(&self) -> windows::core::Result<(i32, i32)>;
+}
+
+impl HwndExt for HWND {
+    fn center_position(&self) -> windows::core::Result<(i32, i32)> {
+        let mut window: RECT = RECT::default();
+        unsafe {
+            GetWindowRect(*self, &mut window)?;
+        }
+        // TODO: We may need to adjust for scaling.
+        let center_x = (window.right + window.left) / 2;
+        let center_y = (window.bottom + window.top) / 2;
+        Ok((center_x, center_y))
     }
 }
 
