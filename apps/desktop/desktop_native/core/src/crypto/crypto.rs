@@ -5,9 +5,8 @@ use aes::cipher::{
     BlockEncryptMut, KeyIvInit,
 };
 
-use crate::error::{CryptoError, Result};
-
 use super::CipherString;
+use crate::error::{CryptoError, Result};
 
 pub fn decrypt_aes256(iv: &[u8; 16], data: &[u8], key: GenericArray<u8, U32>) -> Result<Vec<u8>> {
     let iv = GenericArray::from_slice(iv);
@@ -16,7 +15,8 @@ pub fn decrypt_aes256(iv: &[u8; 16], data: &[u8], key: GenericArray<u8, U32>) ->
         .decrypt_padded_mut::<Pkcs7>(&mut data)
         .map_err(|_| CryptoError::KeyDecrypt)?;
 
-    // Data is decrypted in place and returns a subslice of the original Vec, to avoid cloning it, we truncate to the subslice length
+    // Data is decrypted in place and returns a subslice of the original Vec, to avoid cloning it,
+    // we truncate to the subslice length
     let decrypted_len = decrypted_key_slice.len();
     data.truncate(decrypted_len);
 
