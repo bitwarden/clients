@@ -1,6 +1,6 @@
 //! Types and functions defined in the Windows WebAuthn API.
 
-use std::{collections::HashSet, ptr::NonNull};
+use std::{collections::HashSet, mem::MaybeUninit, ptr::NonNull};
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use ciborium::Value;
@@ -10,7 +10,9 @@ use windows::{
 };
 use windows_core::{s, PCWSTR};
 
-use crate::win_webauthn::{util::WindowsString, Clsid, ErrorKind, WinWebAuthnError};
+use crate::win_webauthn::{
+    com::ComBuffer, util::WindowsString, Clsid, ErrorKind, WinWebAuthnError,
+};
 
 macro_rules! webauthn_call {
     ($symbol:literal as fn $fn_name:ident($($arg:ident: $arg_type:ty),+) -> $result_type:ty) => (
