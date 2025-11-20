@@ -136,9 +136,11 @@ export class OffboardingSurveyComponent {
       };
     }
 
-    const isFamilyPlan =
-      this.dialogParams.plan in
-      [PlanType.FamiliesAnnually, PlanType.FamiliesAnnually2019, PlanType.FamiliesAnnually2025];
+    const isFamilyPlan = [
+      PlanType.FamiliesAnnually,
+      PlanType.FamiliesAnnually2019,
+      PlanType.FamiliesAnnually2025,
+    ].includes(this.dialogParams.plan);
 
     return {
       value: "too_expensive",
