@@ -276,6 +276,14 @@ export class Program extends BaseProgram {
         writeLn("", true);
       })
       .option("--check", "Check lock status.", async () => {
+        const activeAccount = await firstValueFrom(
+          this.serviceContainer.accountService.activeAccount$,
+        );
+        if (activeAccount?.id) {
+          await this.serviceContainer.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(
+            activeAccount.id,
+          );
+        }
         await this.exitIfNotAuthed();
 
         const authStatus = await this.serviceContainer.authService.getAuthStatus();
