@@ -6,7 +6,6 @@ version = { workspace = true }
 publish = { workspace = true }
 
 [dependencies]
-anyhow = { workspace = true }
 desktop_core = { path = "../core" }
 futures = { workspace = true }
 tokio = { workspace = true, features = ["io-std", "io-util", "macros", "rt"] }

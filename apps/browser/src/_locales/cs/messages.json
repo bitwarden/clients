@@ -5809,6 +5809,15 @@
   "upgradeToPremium": {
     "message": "Aktualizovat na Premium"
   },
+  "upgradeCompleteSecurity": {
+    "message": "Aktualizujte pro úplné zabezpečení"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Verze Premium Vám poskytne více nástrojů k zabezpečení, efektivní práci a udržení kontroly."
+  },
+  "explorePremium": {
+    "message": "Objevit Premium"
+  },
   "loadingVault": {
     "message": "Načítání trezoru"
   },

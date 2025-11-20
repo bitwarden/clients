@@ -6,9 +6,8 @@ use homedir::my_home;
 use tokio::{net::UnixListener, sync::Mutex};
 use tracing::{error, info};
 
-use crate::ssh_agent::peercred_unix_listener_stream::PeercredUnixListenerStream;
-
 use super::{BitwardenDesktopAgent, SshAgentUIRequest};
+use crate::ssh_agent::peercred_unix_listener_stream::PeercredUnixListenerStream;
 
 /// User can override the default socket path with this env var
 const ENV_BITWARDEN_SSH_AUTH_SOCK: &str = "BITWARDEN_SSH_AUTH_SOCK";

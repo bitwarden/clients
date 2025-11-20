@@ -5809,6 +5809,15 @@
   "upgradeToPremium": {
     "message": "Uzlabot uz Premium"
   },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
   "loadingVault": {
     "message": "Ielādē glabātavu"
   },
