@@ -43,6 +43,7 @@ describe("WorkerWebpushConnectionService", () => {
   let stateProvider: FakeStateProvider;
   let pushManager: MockProxy<PushManager>;
   const userId = "testUser1" as UserId;
+  const userVisibleOnly = false;
 
   let sut: WorkerWebPushConnectionService;
 
@@ -52,11 +53,14 @@ describe("WorkerWebpushConnectionService", () => {
     stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
     pushManager = mock();
 
+    configService.getFeatureFlag$.mockImplementation(() => of(true));
+
     sut = new WorkerWebPushConnectionService(
       configService,
       webPushApiService,
       mock<ServiceWorkerRegistration>({ pushManager: pushManager }),
       stateProvider,
+      userVisibleOnly,
     );
   });
 

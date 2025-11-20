@@ -12,6 +12,7 @@ import {
   withLatestFrom,
 } from "rxjs";
 
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { PushTechnology } from "../../../enums/push-technology.enum";
 import { NotificationResponse } from "../../../models/response/notification.response";
 import { UserId } from "../../../types/guid";
@@ -51,6 +52,7 @@ export class WorkerWebPushConnectionService implements WebPushConnectionService 
     private readonly webPushApiService: WebPushNotificationsApiService,
     private readonly serviceWorkerRegistration: ServiceWorkerRegistration,
     private readonly stateProvider: StateProvider,
+    private readonly userVisibleOnly: boolean,
   ) {}
 
   start(): Subscription {
@@ -77,32 +79,41 @@ export class WorkerWebPushConnectionService implements WebPushConnectionService 
   supportStatus$(userId: UserId): Observable<SupportStatus<WebPushConnector>> {
     // Check the server config to see if it supports sending WebPush server notifications
     // FIXME: get config of server for the specified userId, once ConfigService supports it
-    return this.configService.serverConfig$.pipe(
-      map((config) =>
-        config?.push?.pushTechnology === PushTechnology.WebPush ? config.push.vapidPublicKey : null,
-      ),
-      // No need to re-emit when there is new server config if the vapidPublicKey is still there and the exact same
-      distinctUntilChanged(),
-      map((publicKey) => {
-        if (publicKey == null) {
-          return {
-            type: "not-supported",
-            reason: "server-not-configured",
-          } satisfies SupportStatus<WebPushConnector>;
-        }
 
-        return {
-          type: "supported",
-          service: new MyWebPushConnector(
-            publicKey,
-            userId,
-            this.webPushApiService,
-            this.serviceWorkerRegistration,
-            this.pushEvent,
-            this.pushChangeEvent,
-            this.stateProvider,
+    return this.configService.getFeatureFlag$(FeatureFlag.WebPushForEdgeAndOpera).pipe(
+      distinctUntilChanged(),
+      switchMap((webPushForEdgeAndOpera) => {
+        return this.configService.serverConfig$.pipe(
+          map((config) =>
+            config?.push?.pushTechnology === PushTechnology.WebPush
+              ? config.push.vapidPublicKey
+              : null,
           ),
-        } satisfies SupportStatus<WebPushConnector>;
+          // No need to re-emit when there is new server config if the vapidPublicKey is still there and the exact same
+          distinctUntilChanged(),
+          map((publicKey) => {
+            if (publicKey == null) {
+              return {
+                type: "not-supported",
+                reason: "server-not-configured",
+              } satisfies SupportStatus<WebPushConnector>;
+            }
+
+            return {
+              type: "supported",
+              service: new MyWebPushConnector(
+                publicKey,
+                userId,
+                this.webPushApiService,
+                this.serviceWorkerRegistration,
+                this.pushEvent,
+                this.pushChangeEvent,
+                this.stateProvider,
+                this.userVisibleOnly && webPushForEdgeAndOpera,
+              ),
+            } satisfies SupportStatus<WebPushConnector>;
+          }),
+        );
       }),
     );
   }
@@ -119,9 +130,13 @@ class MyWebPushConnector implements WebPushConnector {
     private readonly pushEvent$: Observable<PushEvent>,
     private readonly pushChangeEvent$: Observable<PushSubscriptionChangeEvent>,
     private readonly stateProvider: StateProvider,
+    private readonly userVisibleOnly: boolean,
   ) {
     const subscriptionUsersState = this.stateProvider.getGlobal(WEB_PUSH_SUBSCRIPTION_USERS);
-    this.notifications$ = this.getOrCreateSubscription$(this.vapidPublicKey).pipe(
+    this.notifications$ = this.getOrCreateSubscription$(
+      this.userVisibleOnly,
+      this.vapidPublicKey,
+    ).pipe(
       withLatestFrom(subscriptionUsersState.state$.pipe(map((x) => x ?? {}))),
       concatMap(async ([[isExistingSubscription, subscription], subscriptionUsers]) => {
         if (subscription == null) {
@@ -152,21 +167,21 @@ class MyWebPushConnector implements WebPushConnector {
     );
   }
 
-  private async pushManagerSubscribe(key: string) {
+  private async pushManagerSubscribe(userVisibleOnly: boolean, key: string) {
     return await this.serviceWorkerRegistration.pushManager.subscribe({
-      userVisibleOnly: false,
+      userVisibleOnly: userVisibleOnly,
       applicationServerKey: key,
     });
   }
 
-  private getOrCreateSubscription$(key: string) {
+  private getOrCreateSubscription$(userVisibleOnly: boolean, key: string) {
     return concat(
       defer(async () => {
         const existingSubscription =
           await this.serviceWorkerRegistration.pushManager.getSubscription();
 
         if (existingSubscription == null) {
-          return [false, await this.pushManagerSubscribe(key)] as const;
+          return [false, await this.pushManagerSubscribe(userVisibleOnly, key)] as const;
         }
 
         const subscriptionKey = Utils.fromBufferToUrlB64(
@@ -179,7 +194,7 @@ class MyWebPushConnector implements WebPushConnector {
         if (subscriptionKey !== key) {
           // There is a subscription, but it's not for the current server, unsubscribe and then make a new one
           await existingSubscription.unsubscribe();
-          return [false, await this.pushManagerSubscribe(key)] as const;
+          return [false, await this.pushManagerSubscribe(userVisibleOnly, key)] as const;
         }
 
         return [true, existingSubscription] as const;

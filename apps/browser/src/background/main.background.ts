@@ -83,7 +83,7 @@ import { isUrlInList } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
-import { ClientType } from "@bitwarden/common/enums";
+import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import {
   DefaultKeyGenerationService,
@@ -1144,12 +1144,16 @@ export default class MainBackground {
       const registration = (self as unknown as { registration: ServiceWorkerRegistration })
         ?.registration;
 
+      const webPushUserVisibleOnly =
+        this.platformUtilsService.getDevice() == DeviceType.EdgeExtension;
+
       if (registration != null) {
         this.webPushConnectionService = new WorkerWebPushConnectionService(
           this.configService,
           new WebPushNotificationsApiService(this.apiService, this.appIdService),
           registration,
           this.stateProvider,
+          webPushUserVisibleOnly,
         );
       } else {
         this.webPushConnectionService = new UnsupportedWebPushConnectionService();
