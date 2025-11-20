@@ -337,8 +337,8 @@ jobs:
         run: |
           cd $HOME
           $fetchedUrl = "https://github.com/yao-pkg/pkg-fetch/releases/download/v$env:_WIN_PKG_VERSION/node-v$env:_WIN_PKG_FETCH_VERSION-win-x64"
-          New-Item -ItemType directory -Path .\.pkg-cache
-          New-Item -ItemType directory -Path .\.pkg-cache\v$env:_WIN_PKG_VERSION
+          New-Item -ItemType directory -Path .\.pkg-cache -Force
+          New-Item -ItemType directory -Path .\.pkg-cache\v$env:_WIN_PKG_VERSION -Force
           Invoke-RestMethod -Uri $fetchedUrl `
             -OutFile ".\.pkg-cache\v$env:_WIN_PKG_VERSION\fetched-v$env:_WIN_PKG_FETCH_VERSION-win-x64"
 
