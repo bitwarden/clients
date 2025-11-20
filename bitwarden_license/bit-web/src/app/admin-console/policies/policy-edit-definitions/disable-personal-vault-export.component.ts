@@ -9,7 +9,7 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 export class DisablePersonalVaultExportPolicy extends BasePolicyEditDefinition {
   name = "disableExport";
-  description = "disableExportDescription";
+  description = "disablePersonalVaultExportDescription";
   type = PolicyType.DisablePersonalVaultExport;
   component = DisablePersonalVaultExportPolicyComponent;
 }

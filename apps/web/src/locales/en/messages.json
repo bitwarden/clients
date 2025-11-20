@@ -6744,7 +6744,7 @@
   "disableExport": {
     "message": "Remove export"
   },
-  "disableExportDescription": {
+  "disablePersonalVaultExportDescription": {
     "message": "Do not allow members to export data from their individual vault."
   },
   "vaultExportDisabled": {
