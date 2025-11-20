@@ -14,6 +14,7 @@ import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/pop
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
+  BitIconButtonComponent,
   ButtonModule,
   CardComponent,
   DialogModule,
@@ -38,6 +39,7 @@ import { UserId } from "@bitwarden/user-core";
     SwitchComponent,
     CardComponent,
     SpotlightComponent,
+    BitIconButtonComponent,
   ],
 })
 export class AdminSettingsComponent implements OnInit {
@@ -75,7 +77,7 @@ export class AdminSettingsComponent implements OnInit {
       .pipe(
         switchMap(async (newValue) => {
           if (newValue) {
-            const ref = AutoConfirmWarningDialog.open(this.dialogService);
+            const ref = AutoConfirmWarningDialogComponent.open(this.dialogService);
             const result = await lastValueFrom(ref.closed);
 
             if (result) {
@@ -132,10 +134,10 @@ export class AdminSettingsComponent implements OnInit {
   `,
   imports: [ButtonModule, DialogModule, CommonModule, JslibModule],
 })
-class AutoConfirmWarningDialog {
+class AutoConfirmWarningDialogComponent {
   constructor(public dialogRef: DialogRef<boolean>) {}
 
   static open(dialogService: DialogService) {
-    return dialogService.open<boolean>(AutoConfirmWarningDialog);
+    return dialogService.open<boolean>(AutoConfirmWarningDialogComponent);
   }
 }
