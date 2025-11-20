@@ -19,7 +19,7 @@ export class FolderExport {
   }
 
   static toDomain(req: FolderExport, domain = new FolderDomain()) {
-    domain.name = req.name ? new EncString(req.name) : undefined;
+    domain.name = new EncString(req.name);
     return domain;
   }
 
