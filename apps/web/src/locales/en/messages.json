@@ -6747,10 +6747,10 @@
   "vaultTimeoutRangeError": {
     "message": "Vault timeout is not within allowed range."
   },
-  "disablePersonalVaultExport": {
+  "disableExport": {
     "message": "Remove export"
   },
-  "disablePersonalVaultExportDescription": {
+  "disableExportDescription": {
     "message": "Do not allow members to export data from their individual vault."
   },
   "vaultExportDisabled": {
