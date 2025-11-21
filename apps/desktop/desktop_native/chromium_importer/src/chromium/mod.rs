@@ -59,7 +59,7 @@ impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
     fn get_installed_browsers() -> Result<Vec<String>> {
         let mut browsers = Vec::with_capacity(SUPPORTED_BROWSER_MAP.len());
 
-        #[allow(unused_variables)]  // config only used outside of sandbox
+        #[allow(unused_variables)] // config only used outside of sandbox
         for (browser, config) in SUPPORTED_BROWSER_MAP.iter() {
             #[cfg(all(target_os = "macos", feature = "sandbox"))]
             {
@@ -90,11 +90,7 @@ pub fn get_available_profiles(browser_name: &String) -> Result<Vec<ProfileInfo>>
 /// This shows the permission dialog and creates a security-scoped bookmark,
 #[cfg(all(target_os = "macos", feature = "sandbox"))]
 pub fn request_browser_access(browser_name: &String) -> Result<()> {
-    println!("request_browser_access() called for: {}", browser_name);
-
     platform::ScopedBrowserAccess::request_only(browser_name)?;
-
-    println!("request_browser_access() completed successfully");
 
     Ok(())
 }

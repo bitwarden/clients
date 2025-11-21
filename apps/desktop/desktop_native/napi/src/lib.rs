@@ -1184,8 +1184,6 @@ pub mod chromium_importer {
 
     #[napi]
     pub fn request_browser_access(browser: String) -> napi::Result<()> {
-        println!("request_browser_access() was called from napi");
-
         #[cfg(all(target_os = "macos", feature = "sandbox"))]
         {
             chromium_importer::chromium::request_browser_access(&browser)

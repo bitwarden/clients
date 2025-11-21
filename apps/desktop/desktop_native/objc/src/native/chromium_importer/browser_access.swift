@@ -17,24 +17,24 @@ import Foundation
     /// Request access to a specific browser's directory
     /// Returns security bookmark data (used to persist permissions) as base64 string, or nil if user declined
     @objc public func requestAccessToBroswerDir(_ browserName: String) -> String? {
-        NSLog("[SWIFT] requestAccessToBroswerDir called for: \(browserName)")
+        // NSLog("[SWIFT] requestAccessToBroswerDir called for: \(browserName)")
         
         guard let relativePath = browserPaths[browserName] else {
-            NSLog("[SWIFT] Unknown browser: \(browserName)")
+            // NSLog("[SWIFT] Unknown browser: \(browserName)")
             return nil
         }
 
         let homeDir = FileManager.default.homeDirectoryForCurrentUser
         let browserPath = homeDir.appendingPathComponent(relativePath)
         
-        NSLog("[SWIFT] Browser path: \(browserPath.path)")
+        // NSLog("[SWIFT] Browser path: \(browserPath.path)")
 
         // NSOpenPanel must be run on the main thread
         var selectedURL: URL?
         var panelResult: NSApplication.ModalResponse = .cancel
 
         if Thread.isMainThread {
-            NSLog("[SWIFT] Already on main thread")
+            // NSLog("[SWIFT] Already on main thread")
             let openPanel = NSOpenPanel()
             openPanel.message =
                 "Please select your \(browserName) data folder\n\nExpected location:\n\(browserPath.path)"
@@ -42,16 +42,16 @@ import Foundation
             openPanel.allowsMultipleSelection = false
             openPanel.canChooseDirectories = true
             openPanel.canChooseFiles = false
-            openPanel.directoryURL = browserPath.deletingLastPathComponent()
+            openPanel.directoryURL = browserPath
 
-            NSLog("[SWIFT] About to call openPanel.runModal()")
+            // NSLog("[SWIFT] About to call openPanel.runModal()")
             panelResult = openPanel.runModal()
             selectedURL = openPanel.url
-            NSLog("[SWIFT] runModal returned: \(panelResult.rawValue)")
+            // NSLog("[SWIFT] runModal returned: \(panelResult.rawValue)")
         } else {
-            NSLog("[SWIFT] Dispatching to main queue...")
+            // NSLog("[SWIFT] Dispatching to main queue...")
             DispatchQueue.main.sync {
-                NSLog("[SWIFT] Inside main queue dispatch block")
+                // NSLog("[SWIFT] Inside main queue dispatch block")
                 let openPanel = NSOpenPanel()
                 openPanel.message =
                     "Please select your \(browserName) data folder\n\nExpected location:\n\(browserPath.path)"
@@ -59,25 +59,25 @@ import Foundation
                 openPanel.allowsMultipleSelection = false
                 openPanel.canChooseDirectories = true
                 openPanel.canChooseFiles = false
-                openPanel.directoryURL = browserPath.deletingLastPathComponent()
+                openPanel.directoryURL = browserPath
 
-                NSLog("[SWIFT] About to call openPanel.runModal()")
+                // NSLog("[SWIFT] About to call openPanel.runModal()")
                 panelResult = openPanel.runModal()
                 selectedURL = openPanel.url
-                NSLog("[SWIFT] runModal returned: \(panelResult.rawValue)")
+                // NSLog("[SWIFT] runModal returned: \(panelResult.rawValue)")
             }
         }
 
         guard panelResult == .OK, let url = selectedURL else {
-            NSLog("[SWIFT] User cancelled access request or panel failed")
+            // NSLog("[SWIFT] User cancelled access request or panel failed")
             return nil
         }
         
-        NSLog("[SWIFT] User selected URL: \(url.path)")
+        // NSLog("[SWIFT] User selected URL: \(url.path)")
 
         let localStatePath = url.appendingPathComponent("Local State")
         guard FileManager.default.fileExists(atPath: localStatePath.path) else {
-            NSLog("[SWIFT] Selected folder doesn't appear to be a valid \(browserName) directory")
+            // NSLog("[SWIFT] Selected folder doesn't appear to be a valid \(browserName) directory")
 
             let alert = NSAlert()
             alert.messageText = "Invalid Folder"
@@ -98,10 +98,10 @@ import Foundation
             )
 
             saveBookmark(bookmarkData, forBrowser: browserName)
-            NSLog("[SWIFT] Successfully created and saved bookmark")
+           //  NSLog("[SWIFT] Successfully created and saved bookmark")
             return bookmarkData.base64EncodedString()
         } catch {
-            NSLog("[SWIFT] Failed to create bookmark: \(error)")
+            // NSLog("[SWIFT] Failed to create bookmark: \(error)")
             return nil
         }
     }
@@ -128,7 +128,7 @@ import Foundation
             )
 
             if isStale {
-                NSLog("Security bookmark for \(browserName) is stale, attempting to re-create it")
+                // NSLog("Security bookmark for \(browserName) is stale, attempting to re-create it")
                 do {
                     let newBookmarkData = try url.bookmarkData(
                         options: .withSecurityScope,
@@ -138,19 +138,19 @@ import Foundation
 
                     saveBookmark(newBookmarkData, forBrowser: browserName)
                 } catch {
-                    NSLog("Failed to create bookmark: \(error)")
+                    // NSLog("Failed to create bookmark: \(error)")
                     return nil
                 }
             }
 
             guard url.startAccessingSecurityScopedResource() else {
-                NSLog("Failed to start accessing security-scoped resource")
+                // NSLog("Failed to start accessing security-scoped resource")
                 return nil
             }
 
             return url.path
         } catch {
-            NSLog("Failed to resolve bookmark: \(error)")
+            // NSLog("Failed to resolve bookmark: \(error)")
             return nil
         }
     }
@@ -172,7 +172,7 @@ import Foundation
 
             url.stopAccessingSecurityScopedResource()
         } catch {
-            NSLog("Failed to resolve bookmark for stop: \(error)")
+            // NSLog("Failed to resolve bookmark for stop: \(error)")
         }
     }
 
