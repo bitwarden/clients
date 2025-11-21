@@ -35,6 +35,12 @@ export type CopyAction =
   | "publicKey"
   | "keyFingerprint";
 
+/**
+ * Copy actions that can be used with the appCopyField directive.
+ * Excludes "hiddenField" which requires special handling.
+ */
+export type CopyFieldAction = Exclude<CopyAction, "hiddenField">;
+
 type CopyActionInfo = {
   /**
    * The i18n key for the type of field being copied. Will be used to display a toast message.

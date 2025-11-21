@@ -10,7 +10,7 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { IconButtonModule, ItemModule, MenuModule } from "@bitwarden/components";
 import { CopyableCipherFields } from "@bitwarden/sdk-internal";
-import { CopyAction, CopyCipherFieldDirective } from "@bitwarden/vault";
+import { CopyFieldAction, CopyCipherFieldDirective } from "@bitwarden/vault";
 
 import { VaultPopupCopyButtonsService } from "../../../services/vault-popup-copy-buttons.service";
 
@@ -18,7 +18,7 @@ type CipherItem = {
   /** Translation key for the respective value */
   key: string;
   /** Property key on `CipherView` to retrieve the copy value */
-  field: CopyAction;
+  field: CopyFieldAction;
 };
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -48,7 +48,7 @@ export class ItemCopyActionsComponent {
    * singleCopyableLogin uses appCopyField instead of appCopyClick. This allows for the TOTP
    * code to be copied correctly. See #14167
    */
-  get singleCopyableLogin() {
+  get singleCopyableLogin(): CipherItem | null {
     const loginItems: CipherItem[] = [
       { key: "copyUsername", field: "username" },
       { key: "copyPassword", field: "password" },
@@ -62,7 +62,7 @@ export class ItemCopyActionsComponent {
     ) {
       return {
         key: this.i18nService.t("copyUsername"),
-        field: "username",
+        field: "username" as const,
       };
     }
     return this.findSingleCopyableItem(loginItems);
