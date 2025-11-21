@@ -2436,6 +2436,9 @@
       }
     }
   },
+  "topLayerHijackWarning": {
+    "message": "Ez az oldal zavarja a Bitwarden élményt. Biztonsági intézkedésként ideiglenesen letiltásra került a Bitwarden belső menü."
+  },
   "setMasterPassword": {
     "message": "Mesterjelszó beállítása"
   },
