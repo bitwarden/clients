@@ -70,7 +70,7 @@
     }
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "Vous n'avez pas l'autorisation de modifier cet élément"
   },
   "welcomeBack": {
     "message": "Content de vous revoir"
@@ -4195,33 +4195,33 @@
     "message": "Numéro de carte"
   },
   "upgradeNow": {
-    "message": "Upgrade now"
+    "message": "Mettre à niveau maintenant"
   },
   "builtInAuthenticator": {
-    "message": "Built-in authenticator"
+    "message": "Authentificateur intégré"
   },
   "secureFileStorage": {
-    "message": "Secure file storage"
+    "message": "Stockage sécurisé de fichier"
   },
   "emergencyAccess": {
-    "message": "Emergency access"
+    "message": "Accès d'urgence"
   },
   "breachMonitoring": {
-    "message": "Breach monitoring"
+    "message": "Surveillance des fuites"
   },
   "andMoreFeatures": {
-    "message": "And more!"
+    "message": "Et encore plus !"
   },
   "planDescPremium": {
-    "message": "Complete online security"
+    "message": "Sécurité en ligne complète"
   },
   "upgradeToPremium": {
-    "message": "Upgrade to Premium"
+    "message": "Mettre à niveau vers Premium"
   },
   "sessionTimeoutSettingsAction": {
-    "message": "Timeout action"
+    "message": "Action à l’expiration"
   },
   "sessionTimeoutHeader": {
-    "message": "Session timeout"
+    "message": "Délai d'expiration de la session"
   }
 }
