@@ -2436,6 +2436,9 @@
       }
     }
   },
+  "topLayerHijackWarning": {
+    "message": "Эта страница мешает работе Bitwarden. Встроенное меню Bitwarden было временно отключено в целях безопасности."
+  },
   "setMasterPassword": {
     "message": "Задать мастер-пароль"
   },
