@@ -18,6 +18,7 @@ export class AuthResult {
   email: string;
   requiresEncryptionKeyMigration: boolean;
   requiresDeviceVerification: boolean;
+  ssoOrganizationIdentifier?: string;
 
   get requiresTwoFactor() {
     return this.twoFactorProviders != null;

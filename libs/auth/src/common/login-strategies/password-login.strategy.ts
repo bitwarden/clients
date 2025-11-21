@@ -10,6 +10,7 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
+import { IdentitySsoRequiredResponse } from "@bitwarden/common/auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
@@ -162,14 +163,20 @@ export class PasswordLoginStrategy extends LoginStrategy {
     identityResponse:
       | IdentityTokenResponse
       | IdentityTwoFactorResponse
-      | IdentityDeviceVerificationResponse,
+      | IdentityDeviceVerificationResponse
+      | IdentitySsoRequiredResponse,
     credentials: PasswordLoginCredentials,
     authResult: AuthResult,
   ): Promise<void> {
     // TODO: PM-21084 - investigate if we should be sending down masterPasswordPolicy on the
     // IdentityDeviceVerificationResponse like we do for the IdentityTwoFactorResponse
     // If the response is a device verification response, we don't need to evaluate the password
-    if (identityResponse instanceof IdentityDeviceVerificationResponse) {
+    // If SSO is required, we also do not evaluate the password here, since the user needs to first
+    // authenticate with their SSO IdP Provider
+    if (
+      identityResponse instanceof IdentityDeviceVerificationResponse ||
+      identityResponse instanceof IdentitySsoRequiredResponse
+    ) {
       return;
     }
 
