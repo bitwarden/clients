@@ -1,3 +1,4 @@
+// FIXME - all exports should be considered obsolete, all new code should define types instead of interfaces.
 export interface KeeperJsonExport {
   shared_folders?: SharedFoldersEntity[] | null;
   records?: RecordsEntity[] | null;
