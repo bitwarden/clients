@@ -32,7 +32,7 @@
     "message": "Utiliser l'authentification unique"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Votre organisation exige l’authentification unique."
   },
   "welcomeBack": {
     "message": "Content de vous revoir"
@@ -592,10 +592,10 @@
     "message": "Afficher"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "Tout afficher"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "Afficher moins"
   },
   "viewLogin": {
     "message": "Afficher l'Identifiant"
@@ -800,10 +800,10 @@
     "message": "Au verrouillage"
   },
   "onIdle": {
-    "message": "On system idle"
+    "message": "À l'inactivité du système"
   },
   "onSleep": {
-    "message": "On system sleep"
+    "message": "À la mise en veille du système"
   },
   "onRestart": {
     "message": "Au redémarrage du navigateur"
@@ -1044,10 +1044,10 @@
     "message": "Élément enregistré"
   },
   "savedWebsite": {
-    "message": "Saved website"
+    "message": "Site Web enregistré"
   },
   "savedWebsites": {
-    "message": "Saved websites ( $COUNT$ )",
+    "message": "Sites Web enregistrés ( $COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1645,7 +1645,7 @@
     "message": "Vous devez ajouter soit l'URL du serveur de base, soit au moins un environnement personnalisé."
   },
   "selfHostedEnvMustUseHttps": {
-    "message": "URLs must use HTTPS."
+    "message": "Les URL doivent utiliser HTTPS."
   },
   "customEnvironment": {
     "message": "Environnement personnalisé"
@@ -1701,28 +1701,28 @@
     "message": "Désactiver la saisie automatique"
   },
   "confirmAutofill": {
-    "message": "Confirm autofill"
+    "message": "Confirmer la saisie automatique"
   },
   "confirmAutofillDesc": {
-    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+    "message": "Ce site ne correspond pas à vos identifiants de connexion enregistrés. Avant de remplir vos identifiants de connexion, assurez-vous que c'est un site de confiance."
   },
   "showInlineMenuLabel": {
     "message": "Afficher les suggestions de saisie automatique dans les champs d'un formulaire"
   },
   "howDoesBitwardenProtectFromPhishing": {
-    "message": "How does Bitwarden protect your data from phishing?"
+    "message": "Comment Bitwarden protège-t-il vos données contre l'hameçonnage ?"
   },
   "currentWebsite": {
-    "message": "Current website"
+    "message": "Site internet actuel"
   },
   "autofillAndAddWebsite": {
-    "message": "Autofill and add this website"
+    "message": "Saisir automatiquement et ajouter ce site"
   },
   "autofillWithoutAdding": {
-    "message": "Autofill without adding"
+    "message": "Saisir automatiquement sans ajouter"
   },
   "doNotAutofill": {
-    "message": "Do not autofill"
+    "message": "Ne pas saisir automatiquement"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Afficher les identités sous forme de suggestions"
@@ -2435,6 +2435,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
   },
   "setMasterPassword": {
     "message": "Définir le mot de passe principal"
@@ -3286,7 +3289,7 @@
     "message": "Erreur de déchiffrement"
   },
   "errorGettingAutoFillData": {
-    "message": "Error getting autofill data"
+    "message": "Erreur lors de l'obtention des données de saisie automatique"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden n’a pas pu déchiffrer le(s) élément(s) du coffre listé(s) ci-dessous."
@@ -4060,13 +4063,13 @@
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "cannotAutofill": {
-    "message": "Cannot autofill"
+    "message": "Impossible de saisir automatiquement"
   },
   "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+    "message": "La correspondance par défaut est définie à 'Correspondance exacte'. Le site internet actuel ne correspond pas exactement aux informations de l'identifiant de connexion enregistrées pour cet élément."
   },
   "okay": {
-    "message": "Okay"
+    "message": "Ok"
   },
   "toggleSideNavigation": {
     "message": "Basculer la navigation latérale"
@@ -4984,7 +4987,7 @@
     }
   },
   "defaultLabelWithValue": {
-    "message": "Default ( $VALUE$ )",
+    "message": "Par défaut ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5786,43 +5789,43 @@
     "message": "Excellent travail pour sécuriser vos identifiants à risque !"
   },
   "upgradeNow": {
-    "message": "Upgrade now"
+    "message": "Mettre à niveau maintenant"
   },
   "builtInAuthenticator": {
-    "message": "Built-in authenticator"
+    "message": "Authentificateur intégré"
   },
   "secureFileStorage": {
-    "message": "Secure file storage"
+    "message": "Stockage sécurisé de fichier"
   },
   "emergencyAccess": {
-    "message": "Emergency access"
+    "message": "Accès d'urgence"
   },
   "breachMonitoring": {
-    "message": "Breach monitoring"
+    "message": "Surveillance des fuites"
   },
   "andMoreFeatures": {
-    "message": "And more!"
+    "message": "Et encore plus !"
   },
   "planDescPremium": {
-    "message": "Complete online security"
+    "message": "Sécurité en ligne complète"
   },
   "upgradeToPremium": {
-    "message": "Upgrade to Premium"
+    "message": "Mettre à niveau vers Premium"
   },
   "upgradeCompleteSecurity": {
-    "message": "Upgrade for complete security"
+    "message": "Mettre à niveau pour une sécurité complète"
   },
   "premiumGivesMoreTools": {
-    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+    "message": "Premium vous donne plus d'outils pour rester en sécurité, travailler efficacement et garder le contrôle."
   },
   "explorePremium": {
-    "message": "Explore Premium"
+    "message": "Explorer Premium"
   },
   "loadingVault": {
-    "message": "Loading vault"
+    "message": "Chargement du coffre"
   },
   "vaultLoaded": {
-    "message": "Vault loaded"
+    "message": "Coffre chargé"
   },
   "settingDisabledByPolicy": {
     "message": "Ce paramètre est désactivé par la politique de sécurité de votre organisation.",
@@ -5835,6 +5838,6 @@
     "message": "Numéro de carte"
   },
   "sessionTimeoutSettingsAction": {
-    "message": "Timeout action"
+    "message": "Action à l’expiration"
   }
 }
