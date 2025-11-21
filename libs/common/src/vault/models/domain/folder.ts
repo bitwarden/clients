@@ -32,7 +32,7 @@ export class Folder extends Domain {
     encryptService: EncryptService,
   ): Promise<FolderView> {
     const folderView = new FolderView();
-    folderView.id = this.id ?? "";
+    folderView.id = this.id;
     folderView.revisionDate = this.revisionDate;
     try {
       folderView.name = await encryptService.decryptString(this.name, key);
