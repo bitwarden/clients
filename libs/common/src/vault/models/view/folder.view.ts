@@ -1,7 +1,6 @@
 import { Jsonify } from "type-fest";
 
 import { View } from "../../../models/view/view";
-import { DecryptedObject } from "../../../platform/models/domain/domain-base";
 import { Folder } from "../domain/folder";
 import { ITreeNodeObject } from "../domain/tree-node";
 
@@ -10,7 +9,7 @@ export class FolderView implements View, ITreeNodeObject {
   name: string = "";
   revisionDate: Date;
 
-  constructor(f?: Folder | DecryptedObject<Folder, "name">) {
+  constructor(f?: Folder) {
     if (!f) {
       this.revisionDate = new Date();
       return;
