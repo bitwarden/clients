@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule, CurrencyPipe, Location } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
 import { PremiumComponent as BasePremiumComponent } from "@bitwarden/angular/billing/components/premium.component";
@@ -45,7 +45,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     SectionComponent,
   ],
 })
-export class PremiumV2Component extends BasePremiumComponent {
+export class PremiumV2Component extends BasePremiumComponent implements OnInit {
   priceString: string;
 
   constructor(
@@ -74,14 +74,16 @@ export class PremiumV2Component extends BasePremiumComponent {
       accountService,
       billingApiService,
     );
-
+  }
+  async ngOnInit() {
+    await super.ngOnInit();
     // Support old price string. Can be removed in future once all translations are properly updated.
     const thePrice = this.currencyPipe.transform(this.price, "$");
     // Safari extension crashes due to $1 appearing in the price string ($10.00). Escape the $ to fix.
     const formattedPrice = this.platformUtilsService.isSafari()
       ? thePrice.replace("$", "$$$")
       : thePrice;
-    this.priceString = i18nService.t("premiumPriceV2", formattedPrice);
+    this.priceString = this.i18nService.t("premiumPriceV2", formattedPrice);
     if (this.priceString.indexOf("%price%") > -1) {
       this.priceString = this.priceString.replace("%price%", thePrice);
     }

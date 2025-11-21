@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { OnInit, Directive } from "@angular/core";
-import { firstValueFrom, from, map, Observable, switchMap, take } from "rxjs";
+import { firstValueFrom, Observable, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -42,15 +42,9 @@ export class PremiumComponent implements OnInit {
 
   async ngOnInit() {
     this.cloudWebVaultUrl = await firstValueFrom(this.environmentService.cloudWebVaultUrl$);
-    from(this.billingApiService.getPremiumPlan())
-      .pipe(
-        map((response) => response),
-        take(1),
-      )
-      .subscribe((response) => {
-        this.storageProvidedGb = response.storage.provided;
-        this.price = response.seat.price;
-      });
+    const premiumResponse = await this.billingApiService.getPremiumPlan();
+    this.storageProvidedGb = premiumResponse.storage.provided;
+    this.price = premiumResponse.seat.price;
   }
 
   async refresh() {
