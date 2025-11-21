@@ -38,9 +38,9 @@
     "libs/**/*"
   ],
   "devDependencies": {
-    "@angular-devkit/build-angular": "19.2.14",
+    "@angular-devkit/build-angular": "19.2.19",
     "@angular-eslint/schematics": "19.6.0",
-    "@angular/cli": "19.2.14",
+    "@angular/cli": "19.2.19",
     "@angular/compiler-cli": "19.2.14",
     "@babel/core": "7.24.9",
     "@babel/preset-env": "7.24.8",
@@ -49,7 +49,7 @@
     "@electron/rebuild": "4.0.1",
     "@eslint/compat": "1.2.9",
     "@lit-labs/signals": "0.1.2",
-    "@ngtools/webpack": "19.2.14",
+    "@ngtools/webpack": "19.2.19",
     "@storybook/addon-a11y": "8.6.12",
     "@storybook/addon-actions": "8.6.12",
     "@storybook/addon-designs": "8.2.1",
