@@ -33,16 +33,6 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract ciphers$(userId: UserId): Observable<Record<CipherId, CipherData>>;
   abstract localData$(userId: UserId): Observable<Record<CipherId, LocalData>>;
   /**
-   * Emits decrypted (or list-view) ciphers merged with their LocalData.
-   *
-   * The emitted items must be treated as {@link CipherViewLike},
-   * since the underlying implementation may emit either `CipherView`
-   * or `CipherListView` depending on feature flags.
-   *
-   * Never emits `null`; always emits an array (empty or populated).
-   */
-  abstract ciphersWithLocalData$(userId: UserId): Observable<CipherViewLike[]>;
-  /**
    *  An observable monitoring the add/edit cipher info saved to memory.
    */
   abstract addEditCipherInfo$(userId: UserId): Observable<AddEditCipherInfo>;
