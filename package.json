@@ -175,7 +175,7 @@
     "@nx/js": "21.3.11",
     "@nx/webpack": "21.3.11",
     "big-integer": "1.6.52",
-    "braintree-web-drop-in": "1.44.0",
+    "braintree-web-drop-in": "1.46.0",
     "buffer": "6.0.3",
     "bufferutil": "4.0.9",
     "chalk": "4.1.2",
