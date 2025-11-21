@@ -5,7 +5,9 @@ import type { autofill } from "@bitwarden/desktop-napi";
 import { Command } from "../platform/main/autofill/command";
 import { RunCommandParams, RunCommandResult } from "../platform/main/autofill/native-autofill.main";
 
+import { AutotypeConfig } from "./models/autotype-configure";
 import { AutotypeVaultData } from "./models/autotype-vault-data";
+import { AUTOTYPE_IPC_CHANNELS } from "./models/ipc-channels";
 
 export default {
   runCommand: <C extends Command>(params: RunCommandParams<C>): Promise<RunCommandResult<C>> =>
@@ -129,8 +131,11 @@ export default {
       },
     );
   },
-  configureAutotype: (enabled: boolean, keyboardShortcut: string[]) => {
-    ipcRenderer.send("autofill.configureAutotype", { enabled, keyboardShortcut });
+  configureAutotype: (config: AutotypeConfig) => {
+    ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.CONFIGURE, config);
+  },
+  toggleAutotype: (enable: boolean) => {
+    ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.TOGGLE, enable);
   },
   listenAutotypeRequest: (
     fn: (
@@ -139,7 +144,7 @@ export default {
     ) => void,
   ) => {
     ipcRenderer.on(
-      "autofill.listenAutotypeRequest",
+      AUTOTYPE_IPC_CHANNELS.LISTEN,
       (
         event,
         data: {
@@ -150,14 +155,15 @@ export default {
 
         fn(windowTitle, (error, vaultData) => {
           if (error) {
-            ipcRenderer.send("autofill.completeError", {
+            ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR, {
               windowTitle,
               error: error.message,
             });
             return;
           }
+
           if (vaultData !== null) {
-            ipcRenderer.send("autofill.completeAutotypeRequest", vaultData);
+            ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.EXECUTE, vaultData);
           }
         });
       },
