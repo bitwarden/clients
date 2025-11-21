@@ -96,10 +96,7 @@ pub fn request_browser_access(browser_name: &str) -> Result<()> {
     Ok(())
 }
 
-pub async fn import_logins(
-    browser_name: &str,
-    profile_id: &str,
-) -> Result<Vec<LoginImportResult>> {
+pub async fn import_logins(browser_name: &str, profile_id: &str) -> Result<Vec<LoginImportResult>> {
     // In sandbox mode, resume access to browser directory (use the formerly created bookmark)
     #[cfg(all(target_os = "macos", feature = "sandbox"))]
     let _access = platform::ScopedBrowserAccess::resume(browser_name)?;
@@ -244,11 +241,7 @@ struct EncryptedLogin {
     encrypted_note: Vec<u8>,
 }
 
-fn get_logins(
-    browser_dir: &Path,
-    profile_id: &str,
-    filename: &str,
-) -> Result<Vec<EncryptedLogin>> {
+fn get_logins(browser_dir: &Path, profile_id: &str, filename: &str) -> Result<Vec<EncryptedLogin>> {
     let login_data_path = browser_dir.join(profile_id).join(filename);
 
     // Sometimes database files are not present, so nothing to import
