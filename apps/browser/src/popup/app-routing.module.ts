@@ -324,7 +324,7 @@ const routes: Routes = [
     path: "add-send",
     component: SendAddEditV2Component,
     canActivate: [authGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
+    data: { elevation: 1, doNotSaveUrl: true } satisfies RouteDataProperties,
   },
   {
     path: "edit-send",

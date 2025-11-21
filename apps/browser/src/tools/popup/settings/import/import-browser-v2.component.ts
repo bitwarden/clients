@@ -20,6 +20,8 @@ import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-fo
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
 
+import { ImportFilePopoutDialogContainerComponent } from "./import-file-popout-dialog-container.component";
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -35,6 +37,7 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
     PopupFooterComponent,
     PopupHeaderComponent,
     PopOutComponent,
+    ImportFilePopoutDialogContainerComponent,
   ],
   providers: [
     ...ImporterProviders,

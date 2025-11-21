@@ -1,23 +1,22 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
-import { Router } from "@angular/router";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ButtonModule, DialogModule, DialogService, TypographyModule } from "@bitwarden/components";
 
 import BrowserPopupUtils from "../../../../platform/browser/browser-popup-utils";
+import { PopupRouterCacheService } from "../../../../platform/popup/view-cache/popup-router-cache.service";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "send-file-popout-dialog",
-  templateUrl: "./send-file-popout-dialog.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "import-file-popout-dialog",
+  templateUrl: "./import-file-popout-dialog.component.html",
   imports: [JslibModule, CommonModule, DialogModule, ButtonModule, TypographyModule],
 })
-export class SendFilePopoutDialogComponent {
+export class ImportFilePopoutDialogComponent {
   constructor(
     private dialogService: DialogService,
-    private router: Router,
+    private popupRouterCacheService: PopupRouterCacheService,
   ) {}
 
   async popOutWindow() {
@@ -27,6 +26,6 @@ export class SendFilePopoutDialogComponent {
   // If the user selects "cancel" when presented the dialog, navigate back to the main Send tab
   async close() {
     this.dialogService.closeAll();
-    await this.router.navigate(["/tabs/send"]);
+    await this.popupRouterCacheService.back();
   }
 }
