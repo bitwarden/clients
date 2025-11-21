@@ -13,6 +13,7 @@ export enum FeatureFlag {
   /* Admin Console Team */
   CreateDefaultLocation = "pm-19467-create-default-location",
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
+  BlockClaimedDomainAccountCreation = "block-claimed-domain-account-creation",
 
   /* Auth */
   PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
@@ -90,6 +91,7 @@ export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.CreateDefaultLocation]: FALSE,
   [FeatureFlag.AutoConfirm]: FALSE,
+  [FeatureFlag.BlockClaimedDomainAccountCreation]: FALSE,
 
   /* Autofill */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
