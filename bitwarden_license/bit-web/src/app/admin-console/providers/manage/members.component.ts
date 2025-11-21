@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Component, DestroyRef, Signal } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, firstValueFrom, lastValueFrom, switchMap } from "rxjs";
 import { first, map } from "rxjs/operators";
@@ -19,6 +19,8 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -27,6 +29,7 @@ import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { BaseMembersComponent } from "@bitwarden/web-vault/app/admin-console/common/base-members.component";
 import {
+  MaxBulkReinviteCount,
   peopleFilter,
   PeopleTableDataSource,
 } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
@@ -56,7 +59,7 @@ class MembersTableDataSource extends PeopleTableDataSource<ProviderUser> {
 })
 export class MembersComponent extends BaseMembersComponent<ProviderUser> {
   accessEvents = false;
-  dataSource = new MembersTableDataSource();
+  dataSource: MembersTableDataSource;
   loading = true;
   providerId: string;
   rowHeight = 70;
@@ -65,6 +68,8 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
 
   userStatusType = ProviderUserStatusType;
   userType = ProviderUserType;
+
+  private readonly increasedBulkLimitEnabled: Signal<boolean>;
 
   constructor(
     apiService: ApiService,
@@ -81,6 +86,9 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
     private providerService: ProviderService,
     private router: Router,
     private accountService: AccountService,
+    private configService: ConfigService,
+    private environmentService: EnvironmentService,
+    private destroyRef: DestroyRef,
   ) {
     super(
       apiService,
@@ -93,6 +101,16 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       organizationManagementPreferencesService,
       toastService,
     );
+
+    this.dataSource = new MembersTableDataSource(
+      this.configService,
+      this.environmentService,
+      this.destroyRef,
+    );
+
+    this.increasedBulkLimitEnabled = toSignal(this.dataSource.isIncreasedLimitEnabled$, {
+      initialValue: false,
+    });
 
     combineLatest([
       this.activatedRoute.parent.params,
@@ -134,10 +152,12 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return;
     }
 
+    const users = this.getCheckedUsers();
+
     const dialogRef = BulkConfirmDialogComponent.open(this.dialogService, {
       data: {
         providerId: this.providerId,
-        users: this.dataSource.getCheckedUsers(),
+        users: users,
       },
     });
 
@@ -150,8 +170,10 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return;
     }
 
-    const checkedUsers = this.dataSource.getCheckedUsers();
-    const checkedInvitedUsers = checkedUsers.filter(
+    // When feature flag is enabled: limits to 4000 users (self-hosted defaults to 500)
+    // When feature flag is disabled: returns all checked users (no limit enforcement)
+    const users = this.getCheckedUsers(MaxBulkReinviteCount);
+    const checkedInvitedUsers = users.filter(
       (user) => user.status === ProviderUserStatusType.Invited,
     );
 
@@ -172,7 +194,7 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
 
       const dialogRef = BulkStatusComponent.open(this.dialogService, {
         data: {
-          users: checkedUsers,
+          users: users,
           filteredUsers: checkedInvitedUsers,
           request,
           successfulMessage: this.i18nService.t("bulkReinviteMessage"),
@@ -193,10 +215,12 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return;
     }
 
+    const users = this.getCheckedUsers();
+
     const dialogRef = BulkRemoveDialogComponent.open(this.dialogService, {
       data: {
         providerId: this.providerId,
-        users: this.dataSource.getCheckedUsers(),
+        users: users,
       },
     });
 
@@ -283,4 +307,22 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return { success: false, error: error.message };
     }
   };
+
+  /**
+   * Gets the checked users, with conditional limit enforcement.
+   *
+   * When the increased bulk limit feature is **enabled**:
+   * - Enforces limits on checked users (500 default, or 4000 for bulk reinvite)
+   *
+   * When the increased bulk limit feature is **disabled**:
+   * - Returns ALL checked users without limit enforcement (preserves legacy behavior)
+   *
+   * @param limit Optional limit to enforce when feature is enabled. If not specified, uses default (500).
+   * @returns The checked users, limited only when feature flag is enabled.
+   */
+  private getCheckedUsers(limit?: number): ProviderUser[] {
+    return this.increasedBulkLimitEnabled()
+      ? this.dataSource.enforceCheckedUserLimit(limit)
+      : this.dataSource.getCheckedUsers();
+  }
 }
