@@ -110,22 +110,32 @@ pub fn get(options: AssertionOptions) -> Result<PublicKeyCredential, Fido2Client
         )
     };
 
+    let user_handle = unsafe {
+        std::slice::from_raw_parts(
+            assertion.pbUserId as *const u8,
+            assertion.cbUserId as usize,
+        )
+    };
+    let hmac = assertion.pHmacSecret;
+    let hmac1 = unsafe { *hmac };
+    let prf = unsafe { std::slice::from_raw_parts(
+        hmac1.pbFirst as *const u8,
+        hmac1.cbFirst as usize,
+    ) };
+
     Ok(PublicKeyCredential {
         id: BASE64_URL_SAFE_NO_PAD.encode(id),
         raw_id: id.to_vec(),
         response: crate::AuthenticatorAssertionResponse {
-            authenticator_data: public_key_credential.response.authenticator_data.to_vec(),
-            client_data_json: public_key_credential.response.client_data_json.to_vec(),
+            authenticator_data: authenticator_data.to_vec(),
+            client_data_json: client_data_json.as_bytes().to_vec(),
             signature: signature.to_vec(),
-            user_handle: public_key_credential.response.user_handle.map(|h| h.to_vec()).unwrap_or_default(),
+            user_handle: user_handle.to_vec(),
         },
-        prf: public_key_credential.extensions.hmac_get_secret.map(|hmac| {
-            let mut prf_bytes = [0u8; 32];
-            prf_bytes.copy_from_slice(&hmac.output1.to_vec().as_slice()[..32]);
-            prf_bytes
-        }),
+        // PRF (hmac-get-secret) extension parsing is not implemented here yet; return None.
+        prf: Some(prf.to_vec().try_into().unwrap()),
         authenticator_attachment: "cross-platform".to_string(),
-        r#type: public_key_credential.type_,
+        r#type: "public-key".to_string(),
     })
 }
 
