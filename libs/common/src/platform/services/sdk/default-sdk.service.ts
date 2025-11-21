@@ -20,7 +20,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 // eslint-disable-next-line no-restricted-imports
 import { KeyService, KdfConfigService, KdfConfig, KdfType } from "@bitwarden/key-management";
 import {
-  BitwardenClient,
+  PasswordManagerClient,
   ClientSettings,
   DeviceType as SdkDeviceType,
   TokenProvider,
@@ -70,9 +70,9 @@ class JsTokenProvider implements TokenProvider {
 
 export class DefaultSdkService implements SdkService {
   private sdkClientOverrides = new BehaviorSubject<{
-    [userId: UserId]: Rc<BitwardenClient> | typeof UnsetClient;
+    [userId: UserId]: Rc<PasswordManagerClient> | typeof UnsetClient;
   }>({});
-  private sdkClientCache = new Map<UserId, Observable<Rc<BitwardenClient>>>();
+  private sdkClientCache = new Map<UserId, Observable<Rc<PasswordManagerClient>>>();
 
   client$ = this.environmentService.environment$.pipe(
     concatMap(async (env) => {
@@ -107,14 +107,14 @@ export class DefaultSdkService implements SdkService {
     private userAgent: string | null = null,
   ) {}
 
-  userClient$(userId: UserId): Observable<Rc<BitwardenClient>> {
+  userClient$(userId: UserId): Observable<Rc<PasswordManagerClient>> {
     return this.sdkClientOverrides.pipe(
       takeWhile((clients) => clients[userId] !== UnsetClient, false),
       map((clients) => {
         if (clients[userId] === UnsetClient) {
           throw new Error("Encountered UnsetClient even though it should have been filtered out");
         }
-        return clients[userId] as Rc<BitwardenClient>;
+        return clients[userId] as Rc<PasswordManagerClient>;
       }),
       distinctUntilChanged(),
       switchMap((clientOverride) => {
@@ -129,7 +129,7 @@ export class DefaultSdkService implements SdkService {
     );
   }
 
-  setClient(userId: UserId, client: BitwardenClient | undefined) {
+  setClient(userId: UserId, client: PasswordManagerClient | undefined) {
     const previousValue = this.sdkClientOverrides.value[userId];
 
     this.sdkClientOverrides.next({
@@ -149,7 +149,7 @@ export class DefaultSdkService implements SdkService {
    * @param userId The user id for which to create the client
    * @returns An observable that emits the client for the user
    */
-  private internalClient$(userId: UserId): Observable<Rc<BitwardenClient>> {
+  private internalClient$(userId: UserId): Observable<Rc<PasswordManagerClient>> {
     const cached = this.sdkClientCache.get(userId);
     if (cached !== undefined) {
       return cached;
@@ -187,7 +187,7 @@ export class DefaultSdkService implements SdkService {
       switchMap(
         ([env, account, kdfParams, privateKey, userKey, signingKey, orgKeys, securityState]) => {
           // Create our own observable to be able to implement clean-up logic
-          return new Observable<Rc<BitwardenClient>>((subscriber) => {
+          return new Observable<Rc<PasswordManagerClient>>((subscriber) => {
             const createAndInitializeClient = async () => {
               if (env == null || kdfParams == null || privateKey == null || userKey == null) {
                 return undefined;
@@ -214,7 +214,7 @@ export class DefaultSdkService implements SdkService {
               return client;
             };
 
-            let client: Rc<BitwardenClient> | undefined;
+            let client: Rc<PasswordManagerClient> | undefined;
             createAndInitializeClient()
               .then((c) => {
                 client = c === undefined ? undefined : new Rc(c);
@@ -239,7 +239,7 @@ export class DefaultSdkService implements SdkService {
 
   private async initializeClient(
     userId: UserId,
-    client: BitwardenClient,
+    client: PasswordManagerClient,
     account: AccountInfo,
     kdfParams: KdfConfig,
     privateKey: EncryptedString,
@@ -281,7 +281,7 @@ export class DefaultSdkService implements SdkService {
     await this.loadFeatureFlags(client);
   }
 
-  private async loadFeatureFlags(client: BitwardenClient) {
+  private async loadFeatureFlags(client: PasswordManagerClient) {
     const serverConfig = await firstValueFrom(this.configService.serverConfig$);
 
     const featureFlagMap = new Map(
