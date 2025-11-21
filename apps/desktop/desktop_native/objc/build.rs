@@ -4,15 +4,15 @@ fn main() {
 
     use glob::glob;
 
-    let out_dir = std::env::var("OUT_DIR").unwrap();
+    let out_dir = std::env::var("OUT_DIR").expect("env var OUT_DIR is invalid or not set");
 
     // Compile Swift files FIRST (generates Bitwarden-Swift.h for browser_access.m)
     let swift_files: Vec<String> = glob("src/native/**/*.swift")
         .expect("Failed to read Swift glob pattern")
         .filter_map(Result::ok)
-        .map(|p| {
+        .filter_map(|p| {
             println!("cargo::rerun-if-changed={}", p.display());
-            p.to_str().unwrap().to_string()
+            p.to_str().map(|s| s.to_string())
         })
         .collect();
 
