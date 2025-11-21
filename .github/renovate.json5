@@ -363,6 +363,8 @@
         "@types/jsdom",
         "@types/papaparse",
         "@types/zxcvbn",
+        "async-trait",
+        "clap",
         "jsdom",
         "jszip",
         "oidc-client-ts",
