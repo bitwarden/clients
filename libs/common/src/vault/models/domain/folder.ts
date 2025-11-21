@@ -18,6 +18,7 @@ export class Folder extends Domain {
       return;
     }
 
+    this.id = obj.id;
     this.name = new EncString(obj.name);
     this.revisionDate = new Date(obj.revisionDate);
   }

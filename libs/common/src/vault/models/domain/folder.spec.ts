@@ -60,8 +60,8 @@ describe("Folder", () => {
     it("initializes empty properties when no FolderData is provided", () => {
       const folder = new Folder();
 
-      expect(folder.id).toBe(undefined);
-      expect(folder.name).toBe(undefined);
+      expect(folder.id).toBe("");
+      expect(folder.name).toBeInstanceOf(EncString);
       expect(folder.revisionDate).toBeInstanceOf(Date);
     });
   });
@@ -74,7 +74,7 @@ describe("Folder", () => {
       const revisionDate = new Date("2022-08-04T01:06:40.441Z");
       const actual = Folder.fromJSON({
         revisionDate: revisionDate.toISOString(),
-        name: "name",
+        name: "name_fromJSON",
         id: "id",
       });
 
