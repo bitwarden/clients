@@ -7,13 +7,13 @@ import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
  */
 export class DefaultSdkClientFactory implements SdkClientFactory {
   /**
-   * Initializes a Bitwarden client. Assumes the SDK is already loaded.
-   * @param args Bitwarden client constructor parameters
-   * @returns A BitwardenClient
+   * Initializes a Password Manager client. Assumes the SDK is already loaded.
+   * @param args Password Manager client constructor parameters
+   * @returns A PasswordManagerClient
    */
   async createSdkClient(
-    ...args: ConstructorParameters<typeof sdk.BitwardenClient>
-  ): Promise<sdk.BitwardenClient> {
-    return Promise.resolve(new sdk.BitwardenClient(...args));
+    ...args: ConstructorParameters<typeof sdk.PasswordManagerClient>
+  ): Promise<sdk.PasswordManagerClient> {
+    return Promise.resolve(new sdk.PasswordManagerClient(...args));
   }
 }
