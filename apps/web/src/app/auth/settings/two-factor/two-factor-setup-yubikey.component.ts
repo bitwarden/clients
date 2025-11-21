@@ -13,7 +13,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { UpdateTwoFactorYubikeyOtpRequest } from "@bitwarden/common/auth/models/request/update-two-factor-yubikey-otp.request";
 import { TwoFactorYubiKeyResponse } from "@bitwarden/common/auth/models/response/two-factor-yubi-key.response";
-import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -74,9 +74,6 @@ export class TwoFactorSetupYubiKeyComponent
   keys: Key[] = [];
   anyKeyHasNfc = false;
 
-  formPromise: Promise<TwoFactorYubiKeyResponse> | undefined;
-  disablePromise: Promise<unknown> | undefined;
-
   override componentName = "app-two-factor-yubikey";
   formGroup:
     | FormGroup<{
@@ -95,7 +92,7 @@ export class TwoFactorSetupYubiKeyComponent
 
   constructor(
     @Inject(DIALOG_DATA) protected data: AuthResponse<TwoFactorYubiKeyResponse>,
-    twoFactorApiService: TwoFactorApiService,
+    twoFactorService: TwoFactorService,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
     logService: LogService,
@@ -105,7 +102,7 @@ export class TwoFactorSetupYubiKeyComponent
     protected toastService: ToastService,
   ) {
     super(
-      twoFactorApiService,
+      twoFactorService,
       i18nService,
       platformUtilsService,
       logService,
@@ -178,7 +175,7 @@ export class TwoFactorSetupYubiKeyComponent
     request.key5 = keys != null && keys.length > 4 ? (keys[4]?.key ?? "") : "";
     request.nfc = this.formGroup.value.anyKeyHasNfc ?? false;
 
-    this.processResponse(await this.twoFactorApiService.putTwoFactorYubiKey(request));
+    this.processResponse(await this.twoFactorService.putTwoFactorYubiKey(request));
     this.refreshFormArrayData();
     this.toastService.showToast({
       title: this.i18nService.t("success"),
