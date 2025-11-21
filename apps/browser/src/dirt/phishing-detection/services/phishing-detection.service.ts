@@ -72,7 +72,11 @@ export class PhishingDetectionService {
       ),
       concatMap(async (message) => {
         const url = new URL(message.url);
+        // Store the hostname so we ignore all URLs on this domain for the session
         this._ignoredHostnames.add(url.hostname);
+        logService.debug(
+          `[PhishingDetectionService] Added ${url.hostname} to ignored hostnames for this session`,
+        );
         await BrowserApi.navigateTabToUrl(message.tabId, url);
       }),
     );
@@ -97,8 +101,10 @@ export class PhishingDetectionService {
       tap((event) => logService.debug(`[PhishingDetectionService] processing event:`, event)),
       concatMap(async ({ tabId, url, ignored }) => {
         if (ignored) {
-          // The next time this host is visited, block again
-          this._ignoredHostnames.delete(url.hostname);
+          // User chose to continue to this hostname - allow all pages on this domain for the session
+          logService.debug(
+            `[PhishingDetectionService] Skipping check for ${url.hostname} (user allowed this session)`,
+          );
           return;
         }
         const isPhishing = await phishingDataService.isPhishingDomain(url);

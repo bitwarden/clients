@@ -21,50 +21,52 @@ import { LogService } from "@bitwarden/logging";
 import { GlobalStateProvider, KeyDefinition, PHISHING_DETECTION_DISK } from "@bitwarden/state";
 
 export type PhishingData = {
-  domains: string[];
+  domains: string[]; // Note: Despite the name, this now stores full phishing URLs/links
   timestamp: number;
   checksum: string;
 
   /**
    * We store the application version to refetch the entire dataset on a new client release.
-   * This counteracts daily appends updates not removing inactive or false positive domains.
+   * This counteracts daily appends updates not removing inactive or false positive links.
    */
   applicationVersion: string;
 };
 
 export const PHISHING_DOMAINS_KEY = new KeyDefinition<PhishingData>(
   PHISHING_DETECTION_DISK,
-  "phishingDomains",
+  "phishingDomains", // Key name kept for backward compatibility with existing cached data
   {
     deserializer: (value: PhishingData) =>
       value ?? { domains: [], timestamp: 0, checksum: "", applicationVersion: "" },
   },
 );
 
-/** Coordinates fetching, caching, and patching of known phishing domains */
+/** Coordinates fetching, caching, and patching of known phishing links */
 export class PhishingDataService {
   private static readonly RemotePhishingDatabaseUrl =
-    "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/master/phishing-domains-ACTIVE.txt";
+    "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/master/phishing-links-ACTIVE.txt";
   private static readonly RemotePhishingDatabaseChecksumUrl =
-    "https://raw.githubusercontent.com/Phishing-Database/checksums/refs/heads/master/phishing-domains-ACTIVE.txt.md5";
+    "https://raw.githubusercontent.com/Phishing-Database/checksums/refs/heads/master/phishing-links-ACTIVE.txt.md5";
   private static readonly RemotePhishingDatabaseTodayUrl =
-    "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/refs/heads/master/phishing-domains-NEW-today.txt";
+    "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/refs/heads/master/phishing-links-NEW-today.txt";
 
-  private _testDomains = this.getTestDomains();
+  private _testLinks = this.getTestLinks();
   private _cachedState = this.globalStateProvider.get(PHISHING_DOMAINS_KEY);
-  private _domains$ = this._cachedState.state$.pipe(
+  private _links$ = this._cachedState.state$.pipe(
     map(
       (state) =>
         new Set(
-          (state?.domains?.filter((line) => line.trim().length > 0) ?? []).concat(
-            this._testDomains,
-            "phishing.testcategory.com", // Included for QA to test in prod
-          ),
+          (state?.domains?.filter((line) => line.trim().length > 0) ?? [])
+            .map((line) => line.toLowerCase().replace(/\/$/, "")) // Normalize URLs
+            .concat(
+              this._testLinks,
+              "http://phishing.testcategory.com", // Included for QA to test in prod
+            ),
         ),
     ),
   );
 
-  // How often are new domains added to the remote?
+  // How often are new links added to the remote?
   readonly UPDATE_INTERVAL_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
   private _triggerUpdate$ = new Subject<void>();
@@ -125,17 +127,47 @@ export class PhishingDataService {
   }
 
   /**
-   * Checks if the given URL is a known phishing domain
+   * Checks if the given URL is a known phishing link
    *
    * @param url The URL to check
-   * @returns True if the URL is a known phishing domain, false otherwise
+   * @returns True if the URL is a known phishing link, false otherwise
    */
   async isPhishingDomain(url: URL): Promise<boolean> {
-    const domains = await firstValueFrom(this._domains$);
-    const result = domains.has(url.hostname);
-    if (result) {
-      return true;
+    const links = await firstValueFrom(this._links$);
+
+    // Normalize the URL for comparison (remove trailing slash, convert to lowercase)
+    const normalizedUrl = url.href.toLowerCase().replace(/\/$/, "");
+
+    // Strategy: Check for prefix matches to catch URLs with additional path segments
+    // For example, if database has "http://phish.com/login", we want to match:
+    // - "http://phish.com/login" (exact match)
+    // - "http://phish.com/login/oauth" (subpath match)
+    // - "http://phish.com/login?param=value" (with query params)
+
+    for (const link of links) {
+      // Exact match (handles trailing slash differences)
+      if (link === normalizedUrl || link === normalizedUrl + "/") {
+        return true;
+      }
+
+      // Prefix match: Check if the current URL starts with the phishing link
+      // This handles cases where the user visits a subpath of a known phishing URL
+      if (normalizedUrl.startsWith(link + "/") || normalizedUrl.startsWith(link + "?")) {
+        return true;
+      }
+
+      // Also check if the link in database has a trailing slash
+      if (link.endsWith("/")) {
+        const linkWithoutSlash = link.slice(0, -1);
+        if (
+          normalizedUrl === linkWithoutSlash ||
+          normalizedUrl.startsWith(linkWithoutSlash + "/")
+        ) {
+          return true;
+        }
+      }
     }
+
     return false;
   }
 
@@ -148,7 +180,7 @@ export class PhishingDataService {
     const applicationVersion = await this.platformUtilsService.getApplicationVersion();
 
     // If checksum matches, return existing data with new timestamp & version
-    const remoteChecksum = await this.fetchPhishingDomainsChecksum();
+    const remoteChecksum = await this.fetchPhishingLinksChecksum();
     if (remoteChecksum && prev.checksum === remoteChecksum) {
       this.logService.info(
         `[PhishingDataService] Remote checksum matches local checksum, updating timestamp only.`,
@@ -157,34 +189,32 @@ export class PhishingDataService {
     }
     // Checksum is different, data needs to be updated.
 
-    // Approach 1: Fetch only new domains and append
+    // Approach 1: Fetch only new links and append
     const isOneDayOldMax = prevAge <= this.UPDATE_INTERVAL_DURATION;
     if (isOneDayOldMax && applicationVersion === prev.applicationVersion) {
-      const dailyDomains: string[] = await this.fetchPhishingDomains(
+      const dailyLinks: string[] = await this.fetchPhishingLinks(
         PhishingDataService.RemotePhishingDatabaseTodayUrl,
       );
-      this.logService.info(
-        `[PhishingDataService] ${dailyDomains.length} new phishing domains added`,
-      );
+      this.logService.info(`[PhishingDataService] ${dailyLinks.length} new phishing links added`);
       return {
-        domains: prev.domains.concat(dailyDomains),
+        domains: prev.domains.concat(dailyLinks),
         checksum: remoteChecksum,
         timestamp,
         applicationVersion,
       };
     }
 
-    // Approach 2: Fetch all domains
-    const domains = await this.fetchPhishingDomains(PhishingDataService.RemotePhishingDatabaseUrl);
+    // Approach 2: Fetch all links
+    const links = await this.fetchPhishingLinks(PhishingDataService.RemotePhishingDatabaseUrl);
     return {
-      domains,
+      domains: links,
       timestamp,
       checksum: remoteChecksum,
       applicationVersion,
     };
   }
 
-  private async fetchPhishingDomainsChecksum() {
+  private async fetchPhishingLinksChecksum() {
     const response = await this.apiService.nativeFetch(
       new Request(PhishingDataService.RemotePhishingDatabaseChecksumUrl),
     );
@@ -194,29 +224,29 @@ export class PhishingDataService {
     return response.text();
   }
 
-  private async fetchPhishingDomains(url: string) {
+  private async fetchPhishingLinks(url: string) {
     const response = await this.apiService.nativeFetch(new Request(url));
 
     if (!response.ok) {
-      throw new Error(`[PhishingDataService] Failed to fetch domains: ${response.status}`);
+      throw new Error(`[PhishingDataService] Failed to fetch links: ${response.status}`);
     }
 
     return response.text().then((text) => text.split("\n"));
   }
 
-  private getTestDomains() {
+  private getTestLinks() {
     const flag = devFlagEnabled("testPhishingUrls");
     if (!flag) {
       return [];
     }
 
-    const domains = devFlagValue("testPhishingUrls") as unknown[];
-    if (domains && domains instanceof Array) {
+    const links = devFlagValue("testPhishingUrls") as unknown[];
+    if (links && links instanceof Array) {
       this.logService.debug(
-        "[PhishingDetectionService] Dev flag enabled for testing phishing detection. Adding test phishing domains:",
-        domains,
+        "[PhishingDetectionService] Dev flag enabled for testing phishing detection. Adding test phishing links:",
+        links,
       );
-      return domains as string[];
+      return links as string[];
     }
     return [];
   }
