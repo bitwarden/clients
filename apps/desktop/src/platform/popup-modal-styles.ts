@@ -63,19 +63,12 @@ export function applyMainWindowStyles(window: BrowserWindow, existingWindowState
       }
     }
 
-    if (
-      typeof existingWindowState.x === "number" &&
-      typeof existingWindowState.y === "number" &&
-      Number.isFinite(existingWindowState.x) &&
-      Number.isFinite(existingWindowState.y)
-    ) {
-      try {
-        // Ensure values are integers as Electron expects integer pixel values
-        window.setPosition(Math.round(existingWindowState.x), Math.round(existingWindowState.y));
-      } catch {
-        // Silently fail - window will use default position
-      }
-    }
+  if (existingWindowState?.width && existingWindowState?.height) {
+    window.setSize(Math.floor(existingWindowState.width), Math.floor(existingWindowState.height));
+  }
+
+  if (existingWindowState?.x && existingWindowState?.y) {
+    window.setPosition(Math.floor(existingWindowState.x), Math.floor(existingWindowState.y));
   }
 
   window.setWindowButtonVisibility?.(true);
