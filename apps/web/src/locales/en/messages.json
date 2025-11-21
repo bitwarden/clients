@@ -1975,9 +1975,6 @@
   "exportFrom": {
     "message": "Export from"
   },
-  "exportVault": {
-    "message": "Export vault"
-  },
   "exportSecrets": {
     "message": "Export secrets"
   },
@@ -1992,9 +1989,6 @@
   },
   "confirmMasterPassword": {
     "message": "Confirm master password"
-  },
-  "confirmFormat": {
-    "message": "Confirm format"
   },
   "filePassword": {
     "message": "File password"
@@ -2305,6 +2299,9 @@
   },
   "tools": {
     "message": "Tools"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Import data"
