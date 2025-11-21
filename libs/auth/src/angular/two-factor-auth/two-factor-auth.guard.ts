@@ -8,7 +8,7 @@ import {
 } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 
 import { LoginStrategyServiceAbstraction } from "../../common";
 

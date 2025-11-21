@@ -8,7 +8,7 @@ import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-p
 import { EmailTokenRequest } from "@bitwarden/common/auth/models/request/email-token.request";
 import { EmailRequest } from "@bitwarden/common/auth/models/request/email.request";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -40,7 +40,7 @@ export class ChangeEmailComponent implements OnInit {
   constructor(
     private accountService: AccountService,
     private apiService: ApiService,
-    private twoFactorApiService: TwoFactorApiService,
+    private twoFactorService: TwoFactorService,
     private i18nService: I18nService,
     private keyService: KeyService,
     private messagingService: MessagingService,
@@ -52,7 +52,7 @@ export class ChangeEmailComponent implements OnInit {
   async ngOnInit() {
     this.userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
-    const twoFactorProviders = await this.twoFactorApiService.getTwoFactorProviders();
+    const twoFactorProviders = await this.twoFactorService.getEnabledTwoFactorProviders();
     this.showTwoFactorEmailWarning = twoFactorProviders.data.some(
       (p) => p.type === TwoFactorProviderType.Email && p.enabled,
     );
