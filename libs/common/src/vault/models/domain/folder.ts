@@ -8,26 +8,16 @@ import { FolderData } from "../data/folder.data";
 import { FolderView } from "../view/folder.view";
 
 export class Folder extends Domain {
-  id?: string;
-  name?: EncString;
-  revisionDate: Date;
+  id: string = "";
+  name: EncString = new EncString("");
+  revisionDate: Date = new Date();
 
   constructor(obj?: FolderData) {
     super();
     if (obj == null) {
-      this.revisionDate = new Date();
       return;
     }
 
-    this.buildDomainModel(
-      this,
-      obj,
-      {
-        id: null,
-        name: null,
-      },
-      ["id"],
-    );
     this.name = new EncString(obj.name);
     this.revisionDate = new Date(obj.revisionDate);
   }
@@ -44,7 +34,7 @@ export class Folder extends Domain {
     folderView.id = this.id ?? "";
     folderView.revisionDate = this.revisionDate;
     try {
-      folderView.name = await encryptService.decryptString(this.name ?? new EncString(""), key);
+      folderView.name = await encryptService.decryptString(this.name, key);
     } catch (e) {
       // Note: This should be replaced by the owning team with appropriate, domain-specific behavior.
       // eslint-disable-next-line no-console
@@ -58,10 +48,11 @@ export class Folder extends Domain {
     if (obj == null) {
       return null;
     }
-    return new Folder({
-      name: obj.name ?? "",
-      revisionDate: obj.revisionDate,
-      id: obj.id ?? "",
-    });
+
+    const folder = new Folder();
+    folder.id = obj.id;
+    folder.name = EncString.fromJSON(obj.name);
+    folder.revisionDate = new Date(obj.revisionDate);
+    return folder;
   }
 }
