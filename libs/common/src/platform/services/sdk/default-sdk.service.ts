@@ -33,7 +33,6 @@ import { ApiService } from "../../../abstractions/api.service";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { DeviceType } from "../../../enums/device-type.enum";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
-import { SecurityStateService } from "../../../key-management/security-state/abstractions/security-state.service";
 import { OrganizationId, UserId } from "../../../types/guid";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
@@ -100,7 +99,7 @@ export class DefaultSdkService implements SdkService {
     private accountService: AccountService,
     private kdfConfigService: KdfConfigService,
     private keyService: KeyService,
-    private securityStateService: SecurityStateService,
+    private accountCryptographicStateService: AccountCryptographicStateService,
     private apiService: ApiService,
     private stateProvider: StateProvider,
     private configService: ConfigService,
@@ -160,105 +159,70 @@ export class DefaultSdkService implements SdkService {
       distinctUntilChanged(),
     );
     const kdfParams$ = this.kdfConfigService.getKdfConfig$(userId).pipe(distinctUntilChanged());
-    const privateKey$ = this.keyService
-      .userEncryptedPrivateKey$(userId)
-      .pipe(distinctUntilChanged());
-    const signingKey$ = this.keyService.userSigningKey$(userId).pipe(distinctUntilChanged());
     const userKey$ = this.keyService.userKey$(userId).pipe(distinctUntilChanged());
     const orgKeys$ = this.keyService.encryptedOrgKeys$(userId).pipe(
       distinctUntilChanged(compareValues), // The upstream observable emits different objects with the same values
     );
-    const securityState$ = this.securityStateService
-      .accountSecurityState$(userId)
-      .pipe(distinctUntilChanged(compareValues));
-    const signedPublicKey$ = this.keyService
-      .userSignedPublicKey$(userId)
+    const accountCryptographicState$ = this.accountCryptographicStateService
+      .accountCryptographicState$(userId)
       .pipe(distinctUntilChanged(compareValues));
 
     const client$ = combineLatest([
       this.environmentService.getEnvironment$(userId),
       account$,
       kdfParams$,
-      privateKey$,
       userKey$,
-      signingKey$,
       orgKeys$,
-      securityState$,
-      signedPublicKey$,
+      accountCryptographicState$,
       SdkLoadService.Ready, // Makes sure we wait (once) for the SDK to be loaded
     ]).pipe(
       // switchMap is required to allow the clean-up logic to be executed when `combineLatest` emits a new value.
-      switchMap(
-        ([
-          env,
-          account,
-          kdfParams,
-          privateKey,
-          userKey,
-          signingKey,
-          orgKeys,
-          securityState,
-          signedPublicKey,
-        ]) => {
-          // Create our own observable to be able to implement clean-up logic
-          return new Observable<Rc<BitwardenClient>>((subscriber) => {
-            const createAndInitializeClient = async () => {
-              if (env == null || kdfParams == null || privateKey == null || userKey == null) {
-                return undefined;
-              }
+      switchMap(([env, account, kdfParams, userKey, orgKeys, accountCryptographicState]) => {
+        // Create our own observable to be able to implement clean-up logic
+        return new Observable<Rc<BitwardenClient>>((subscriber) => {
+          const createAndInitializeClient = async () => {
+            if (
+              env == null ||
+              kdfParams == null ||
+              accountCryptographicState == null ||
+              userKey == null
+            ) {
+              return undefined;
+            }
 
-              const settings = this.toSettings(env);
-              const client = await this.sdkClientFactory.createSdkClient(
-                new JsTokenProvider(this.apiService, userId),
-                settings,
-              );
+            const settings = this.toSettings(env);
+            const client = await this.sdkClientFactory.createSdkClient(
+              new JsTokenProvider(this.apiService, userId),
+              settings,
+            );
 
-              let accountCryptographicState: WrappedUserAccountCryptographicState;
-              if (signingKey != null && securityState != null && signedPublicKey != null) {
-                accountCryptographicState = {
-                  V2: {
-                    private_key: privateKey,
-                    signing_key: signingKey,
-                    security_state: securityState,
-                    signed_public_key: signedPublicKey,
-                  },
-                };
-              } else {
-                accountCryptographicState = {
-                  V1: {
-                    private_key: privateKey,
-                  },
-                };
-              }
+            await this.initializeClient(
+              userId,
+              client,
+              account,
+              kdfParams,
+              userKey,
+              accountCryptographicState,
+              orgKeys,
+            );
 
-              await this.initializeClient(
-                userId,
-                client,
-                account,
-                kdfParams,
-                userKey,
-                accountCryptographicState,
-                orgKeys,
-              );
+            return client;
+          };
 
-              return client;
-            };
+          let client: Rc<BitwardenClient> | undefined;
+          createAndInitializeClient()
+            .then((c) => {
+              client = c === undefined ? undefined : new Rc(c);
 
-            let client: Rc<BitwardenClient> | undefined;
-            createAndInitializeClient()
-              .then((c) => {
-                client = c === undefined ? undefined : new Rc(c);
+              subscriber.next(client);
+            })
+            .catch((e) => {
+              subscriber.error(e);
+            });
 
-                subscriber.next(client);
-              })
-              .catch((e) => {
-                subscriber.error(e);
-              });
-
-            return () => client?.markForDisposal();
-          });
-        },
-      ),
+          return () => client?.markForDisposal();
+        });
+      }),
       tap({ finalize: () => this.sdkClientCache.delete(userId) }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
