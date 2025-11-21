@@ -69,7 +69,7 @@
       }"
     >
       <ng-content select="[bitDialogContent]"></ng-content>
-      <div #scrollBottom></div>
+      <div #scrollBottom class="tw-h-[1px]"></div>
     </div>
   </div>
   @let isScrollable = isScrollable$ | async;
@@ -84,7 +84,9 @@
       'tw-border-secondary-100': showFooterBorder,
     }"
   >
-    <p>{{ isScrollable }}</p>
+    <span>has not scrolled from top {{ !bodyHasScrolledFrom().top }}</span>
+    <span>is scrollable {{ isScrollable }}</span>
+    <span>has scrolled from bottom {{ bodyHasScrolledFrom().bottom }}</span>
     <ng-content select="[bitDialogFooter]"></ng-content>
   </footer>
 </section>
