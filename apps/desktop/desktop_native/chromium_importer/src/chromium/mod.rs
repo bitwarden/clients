@@ -82,7 +82,7 @@ impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
     }
 }
 
-pub fn get_available_profiles(browser_name: &String) -> Result<Vec<ProfileInfo>> {
+pub fn get_available_profiles(browser_name: &str) -> Result<Vec<ProfileInfo>> {
     let (_, local_state) = load_local_state_for_browser(browser_name)?;
     Ok(get_profile_info(&local_state))
 }
@@ -90,7 +90,7 @@ pub fn get_available_profiles(browser_name: &String) -> Result<Vec<ProfileInfo>>
 /// Request access to browser directory (sandbox mode only)
 /// This shows the permission dialog and creates a security-scoped bookmark,
 #[cfg(all(target_os = "macos", feature = "sandbox"))]
-pub fn request_browser_access(browser_name: &String) -> Result<()> {
+pub fn request_browser_access(browser_name: &str) -> Result<()> {
     platform::ScopedBrowserAccess::request_only(browser_name)?;
 
     Ok(())
@@ -193,9 +193,9 @@ struct OsCrypt {
     app_bound_encrypted_key: Option<String>,
 }
 
-fn load_local_state_for_browser(browser_name: &String) -> Result<(PathBuf, LocalState)> {
+fn load_local_state_for_browser(browser_name: &str) -> Result<(PathBuf, LocalState)> {
     let config = SUPPORTED_BROWSER_MAP
-        .get(browser_name.as_str())
+        .get(browser_name)
         .ok_or_else(|| anyhow!("Unsupported browser: {}", browser_name))?;
 
     let data_dir = get_browser_data_dir(config)?;
