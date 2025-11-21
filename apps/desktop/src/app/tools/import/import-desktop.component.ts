@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 
@@ -55,17 +54,8 @@ export class ImportDesktopComponent {
   private async _onLoadProfilesFromBrowser(
     browser: string,
   ): Promise<chromium_importer.ProfileInfo[]> {
-    console.log("[SANDBOX] onLoadProfilesFromBrowser called for:", browser);
     // Request browser access (required for sandboxed builds, no-op otherwise)
-    try {
-      console.log("[SANDBOX] Calling requestBrowserAccess...");
-      await ipc.tools.chromiumImporter.requestBrowserAccess(browser);
-      console.log("[SANDBOX] requestBrowserAccess completed successfully");
-    } catch (error) {
-      console.error("[SANDBOX] requestBrowserAccess failed:", error);
-      throw error;
-    }
-    console.log("[SANDBOX] Calling getAvailableProfiles...");
+    await ipc.tools.chromiumImporter.requestBrowserAccess(browser);
     return ipc.tools.chromiumImporter.getAvailableProfiles(browser);
   }
 

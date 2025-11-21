@@ -42,40 +42,14 @@ function positionWindow(window: BrowserWindow, position?: Position) {
 export function applyMainWindowStyles(window: BrowserWindow, existingWindowState: WindowState) {
   window.setMinimumSize(680, 500);
 
-  // need to guard against null/undefined values and ensure values are valid
-  if (existingWindowState) {
-    if (
-      typeof existingWindowState.width === "number" &&
-      typeof existingWindowState.height === "number" &&
-      Number.isFinite(existingWindowState.width) &&
-      Number.isFinite(existingWindowState.height) &&
-      existingWindowState.width > 0 &&
-      existingWindowState.height > 0
-    ) {
-      try {
-        // Ensure values are integers as Electron expects integer pixel values
-        window.setSize(
-          Math.round(existingWindowState.width),
-          Math.round(existingWindowState.height),
-        );
-      } catch {
-        // Silently fail - window will use default size
-      }
-    }
+  // need to guard against null/undefined values
 
-    if (
-      typeof existingWindowState.x === "number" &&
-      typeof existingWindowState.y === "number" &&
-      Number.isFinite(existingWindowState.x) &&
-      Number.isFinite(existingWindowState.y)
-    ) {
-      try {
-        // Ensure values are integers as Electron expects integer pixel values
-        window.setPosition(Math.round(existingWindowState.x), Math.round(existingWindowState.y));
-      } catch {
-        // Silently fail - window will use default position
-      }
-    }
+  if (existingWindowState?.width && existingWindowState?.height) {
+    window.setSize(Math.floor(existingWindowState.width), Math.floor(existingWindowState.height));
+  }
+
+  if (existingWindowState?.x && existingWindowState?.y) {
+    window.setPosition(Math.floor(existingWindowState.x), Math.floor(existingWindowState.y));
   }
 
   window.setWindowButtonVisibility?.(true);

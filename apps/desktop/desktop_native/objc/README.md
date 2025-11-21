@@ -3,7 +3,7 @@
 
 ### TLDR
 #### Build & run locally using `npm run electron:sandbox` 
-#### `build-desktop.yml` section `macos-package-mas` was modified: 
+#### `build-desktop.yml` section `macos-package-mas` was modified to support this in CI builds: 
 ```
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
