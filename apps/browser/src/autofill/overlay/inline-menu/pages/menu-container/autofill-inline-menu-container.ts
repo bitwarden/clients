@@ -128,14 +128,9 @@ export class AutofillInlineMenuContainer {
     }
     try {
       const urlObj = new URL(url);
-      const allowedProtocols = [
-        "chrome-extension:",
-        "moz-extension:",
-        // safari-extension is deprecated and may be able to remove, this is for legacy support but not sure how much this is needed
-        "safari-extension:",
-      ];
+      const isExtensionProtocol = /^[a-z]+-extension:$/i.test(urlObj.protocol);
 
-      if (!allowedProtocols.includes(urlObj.protocol)) {
+      if (!isExtensionProtocol) {
         return false;
       }
 
