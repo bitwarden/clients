@@ -1,8 +1,5 @@
 {
   "extends": "../../tsconfig.base",
-  "angularCompilerOptions": {
-    "strictTemplates": true
-  },
   "include": ["src"],
   "exclude": ["src/**/*.spec.ts"]
 }
