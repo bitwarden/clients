@@ -5809,9 +5809,9 @@
     "message": "דרוש שכל הפריטים יהיו בבעלות ארגון, מה שמסיר את האפשרות לאחסן פריטים ברמת החשבון.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
-    "message": "כל הפריטים יהיו בבעלות הארגון ויישמרו בו, מה שמאפשר בקרות, נראות, ודיווח כלל־ארגוניות. כאשר אפשרות זו מופעלת, אוסף ברירת מחדל יהיה זמין עבור כל חבר כדי לאחסן פריטים. למד עוד על ניהול ה",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  "organizationDataOwnershipDescContent": {
+    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "מחזור החיים של אישורים",
@@ -12117,6 +12117,15 @@
   },
   "startFreeFamiliesTrial": {
     "message": "התחל ניסיון משפחות בחינם"
+  },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Block account creation for claimed domains"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "A domain must be claimed before activating this policy."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "הגדר שיטת ביטול נעילה כדי לשנות את פעולת פסק הזמן לכספת שלך."
