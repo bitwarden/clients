@@ -145,8 +145,8 @@ export class PhishingDataService {
     // - "http://phish.com/login?param=value" (with query params)
 
     for (const link of links) {
-      // Exact match (handles trailing slash differences)
-      if (link === normalizedUrl || link === normalizedUrl + "/") {
+      // Exact match (both link and normalizedUrl have trailing slashes removed)
+      if (link === normalizedUrl) {
         return true;
       }
 
@@ -154,17 +154,6 @@ export class PhishingDataService {
       // This handles cases where the user visits a subpath of a known phishing URL
       if (normalizedUrl.startsWith(link + "/") || normalizedUrl.startsWith(link + "?")) {
         return true;
-      }
-
-      // Also check if the link in database has a trailing slash
-      if (link.endsWith("/")) {
-        const linkWithoutSlash = link.slice(0, -1);
-        if (
-          normalizedUrl === linkWithoutSlash ||
-          normalizedUrl.startsWith(linkWithoutSlash + "/")
-        ) {
-          return true;
-        }
       }
     }
 
