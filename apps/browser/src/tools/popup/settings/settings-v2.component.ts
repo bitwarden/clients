@@ -3,9 +3,9 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import {
   combineLatest,
-  defer,
   filter,
   firstValueFrom,
+  from,
   map,
   Observable,
   shareReplay,
@@ -55,11 +55,11 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 export class SettingsV2Component {
   NudgeType = NudgeType;
 
-  protected isBrowserAutofillSettingOverridden$ = defer(async () => {
-    return await this.autofillBrowserSettingsService.isBrowserAutofillSettingOverridden(
+  protected isBrowserAutofillSettingOverridden$ = from(
+    this.autofillBrowserSettingsService.isBrowserAutofillSettingOverridden(
       BrowserApi.getBrowserClientVendor(window),
-    );
-  }).pipe(shareReplay({ bufferSize: 1, refCount: true }));
+    ),
+  );
 
   private authenticatedAccount$: Observable<Account> = this.accountService.activeAccount$.pipe(
     filter((account): account is Account => account !== null),
@@ -68,7 +68,6 @@ export class SettingsV2Component {
 
   protected hasPremium$ = this.authenticatedAccount$.pipe(
     switchMap((account) => this.accountProfileStateService.hasPremiumFromAnySource$(account.id)),
-    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   showDownloadBitwardenNudge$: Observable<boolean> = this.authenticatedAccount$.pipe(
@@ -104,7 +103,7 @@ export class SettingsV2Component {
     private readonly dialogService: DialogService,
   ) {}
 
-  openUpgradeDialog() {
+  protected openUpgradeDialog() {
     PremiumUpgradeDialogComponent.open(this.dialogService);
   }
 

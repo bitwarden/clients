@@ -143,7 +143,7 @@ describe("SettingsV2Component", () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    component.openUpgradeDialog();
+    component["openUpgradeDialog"]();
     expect(openSpy).toHaveBeenCalledTimes(1);
     expect(openSpy).toHaveBeenCalledWith(dialogService);
   });
