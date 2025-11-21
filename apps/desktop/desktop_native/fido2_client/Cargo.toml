@@ -20,4 +20,12 @@ futures-util = "0.3.31"
 sha2 = { workspace = true }
 webauthn-rs-proto = { path = "../../../../../webauthn-rs/webauthn-rs-proto" }
 base64urlsafedata = { path= "../../../../../webauthn-rs/base64urlsafedata" }
+windows = { version = "=0.52.0", features = [
+    "Win32_Graphics_Gdi",
+    "Win32_Networking_WindowsWebServices",
+    "Win32_Foundation",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_System_LibraryLoader",
+    "Win32_Graphics_Dwm",
+]}
 

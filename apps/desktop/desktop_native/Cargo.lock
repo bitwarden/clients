@@ -1480,6 +1480,7 @@ dependencies = [
  "tokio",
  "webauthn-authenticator-rs",
  "webauthn-rs-proto",
+ "windows 0.52.0",
 ]
 
 [[package]]
