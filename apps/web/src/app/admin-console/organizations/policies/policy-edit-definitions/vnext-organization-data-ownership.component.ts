@@ -37,6 +37,7 @@ export class vNextOrganizationDataOwnershipPolicy extends BasePolicyEditDefiniti
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  selector: "vnext-organization-data-ownership-policy-edit",
   templateUrl: "vnext-organization-data-ownership.component.html",
   imports: [SharedModule],
 })

@@ -15,6 +15,7 @@ export class RemoveUnlockWithPinPolicy extends BasePolicyEditDefinition {
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  selector: "remove-unlock-with-pin-policy-edit",
   templateUrl: "remove-unlock-with-pin.component.html",
   imports: [SharedModule],
 })

@@ -29,6 +29,7 @@ export class AutoConfirmPolicy extends BasePolicyEditDefinition {
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  selector: "auto-confirm-policy-edit",
   templateUrl: "auto-confirm-policy.component.html",
   imports: [SharedModule],
 })

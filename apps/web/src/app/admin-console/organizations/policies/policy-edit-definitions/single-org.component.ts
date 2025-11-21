@@ -15,6 +15,7 @@ export class SingleOrgPolicy extends BasePolicyEditDefinition {
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  selector: "single-org-policy-edit",
   templateUrl: "single-org.component.html",
   imports: [SharedModule],
 })
