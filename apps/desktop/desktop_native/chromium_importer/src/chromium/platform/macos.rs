@@ -7,8 +7,10 @@ use std::ffi::CString;
 #[cfg(feature = "sandbox")]
 use std::os::raw::c_char;
 
-use crate::chromium::{BrowserConfig, CryptoService, LocalState};
-use crate::util;
+use crate::{
+    chromium::{BrowserConfig, CryptoService, LocalState},
+    util,
+};
 
 //
 // Sandbox specific (for Mac App Store Builds)

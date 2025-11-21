@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Назначайте членам команды задачи по мониторингу прогресса"
   },
-  "onceYouReviewApps": {
-    "message": "Как только вы оцените приложения и пометите их как критичные, вы можете назначить задачи участникам касающиеся элементов, подверженных риску, и следить за прогрессом здесь"
+  "onceYouReviewApplications": {
+    "message": "После того как вы просмотрите приложения и отметите их как критичные, назначьте своим пользователям задачи по смене паролей."
   },
   "sendReminders": {
     "message": "Отправить напоминания"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "Не найдено приложений для $ORG NAME$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "Данные не найдены"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Импортируйте логины вашей организации, чтобы начать мониторинг угроз безопасности учетных данных. После импорта вы получите доступ к:"
+  "noDataInOrgDescription": {
+    "message": "Импортируйте данные логинов вашей организации, чтобы начать работу с Access Intelligence. Как только вы это сделаете, вы сможете:"
   },
-  "benefit1Title": {
-    "message": "Приоритет рисков"
+  "feature1Title": {
+    "message": "Пометить приложения как критичные"
   },
-  "benefit1Description": {
-    "message": "Сосредоточьтесь на наиболее важных приложениях"
+  "feature1Description": {
+    "message": "Это поможет вам в первую очередь устранить риски для ваших наиболее важных приложений."
   },
-  "benefit2Title": {
-    "message": "Руководство по восстановлению"
+  "feature2Title": {
+    "message": "Помогите пользователями повысить безопасность"
   },
-  "benefit2Description": {
-    "message": "Назначайте участникам, подверженным риску, управляемые задания для ротации учетных данных"
+  "feature2Description": {
+    "message": "Назначайте участникам, находящимся в группе риска, управляемые задачи по обеспечению безопасности для обновления учетных данных."
   },
-  "benefit3Title": {
+  "feature3Title": {
     "message": "Отслеживать прогресс"
   },
-  "benefit3Description": {
-    "message": "Отслеживать изменения с течением времени, чтобы показать улучшения безопасности"
+  "feature3Description": {
+    "message": "Отслеживать изменения с течением времени, чтобы показать улучшения безопасности."
   },
-  "noReportRunTitle": {
-    "message": "Запустите ваш первый отчет для просмотра приложений"
+  "noReportsRunTitle": {
+    "message": "Создать отчет"
   },
-  "noReportRunDescription": {
-    "message": "Создайте аналитический отчет о рисках для анализа приложений вашей организации и выявления паролей, подверженных риску, которые требуют внимания. Запуск первого отчета позволит:"
+  "noReportsRunDescription": {
+    "message": "Вы готовы приступить к созданию отчетов. После создания вы сможете:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Вы не отметили ни одного приложения в качестве критичного"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Участники, подверженные риску"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Участники, имеющие доступ к элементам, подверженным риску, для критичных приложений"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "Эти пользователи имеют доступ к уязвимым элементам критичных приложений."
   },
   "membersWithAtRiskPasswords": {
     "message": "Пользователи, пароли которых подверженны риску"
   },
-  "membersWillReceiveNotification": {
-    "message": "Пользователи получат уведомление о разрешении подверженных риску логинов с помощью расширения браузера."
+  "membersWillReceiveSecurityTask": {
+    "message": "Сотрудникам вашей организации будет поручено изменить уязвимые пароли. Они получат уведомление в своем расширении Bitwarden для браузера."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ участников, подверженных риску",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Эти пользователи входят в приложения со слабыми, скомпрометированными или повторно используемыми паролями."
+  "atRiskMemberDescription": {
+    "message": "Эти пользователи входят в критичные приложения со слабыми, скомпрометированными или повторно используемыми паролями."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Нет пользователей, входящих в приложения со слабыми, скомпрометированными или повторно используемыми паролями."
@@ -391,14 +385,14 @@
   "prioritizeCriticalApplications": {
     "message": "Приоритет критичных приложений"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Выберите, какие приложения наиболее критичны для вашей организации, а затем назначьте пользователям задачи по обеспечению безопасности для устранения рисков."
+  "selectCriticalAppsDescription": {
+    "message": "Выберите, какие приложения наиболее критичны для вашей организации. Затем вы сможете назначить пользователям задачи по обеспечению безопасности по устранению рисков."
   },
   "reviewNewApplications": {
     "message": "Обзор новых приложений"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "Мы выделили элементы, подверженные риску, для новых приложений, хранящихся в консоли администратора, которые имеют слабые, незащищенные или повторно используемые пароли."
+  "reviewNewAppsDescription": {
+    "message": "Просмотрите новые приложения, содержащие уязвимые элементы, и отметьте те, за которыми вы хотели бы внимательно следить, как критичные. После этого вы сможете назначать пользователям задачи по обеспечению безопасности для устранения рисков."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Нажмите на значок звездочки, чтобы отметить приложение как критичное"
@@ -5815,9 +5809,9 @@
     "message": "Необходимо, чтобы все элементы принадлежали организации, что исключает возможность их хранения на уровне аккаунта.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
+  "organizationDataOwnershipDescContent": {
     "message": "Все элементы будут принадлежать организации и сохраняться в ней, что позволит осуществлять контроль, видимость и отчетность в масштабах всей организации. При включении для каждого участника будет доступна коллекция по умолчанию для хранения элементов. Узнайте больше об управлении ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "жизненным циклом учетных данных",
@@ -9856,8 +9850,8 @@
   "assignTasks": {
     "message": "Назначить задачи"
   },
-  "assignTasksToMembers": {
-    "message": "Назначайте задачи пользователям для управляемого решения"
+  "assignSecurityTasksToMembers": {
+    "message": "Отправляйте уведомления о смене паролей"
   },
   "assignToCollections": {
     "message": "Назначить коллекциям"
@@ -12123,6 +12117,15 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Начать пробную версию Families"
+  },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Блокировать создание аккаунта для заявленных доменов"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Запретите пользователям создавать аккаунты за пределами вашей организации, используя адреса email из заявленных доменов."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "Перед активацией этой политики необходимо заявить домен."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Настройте способ разблокировки для изменения действия по тайм-ауту хранилища."
