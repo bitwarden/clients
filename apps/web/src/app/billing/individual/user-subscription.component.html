@@ -93,14 +93,14 @@
   </div>
   <ng-container *ngIf="selfHosted">
     <div class="tw-mt-10 tw-text-center">
-      <h2 bitTypography="h2" class="tw-mb-2 tw-mt-0">{{ "youHaveBitwardenPremium" | i18n }}</h2>
-      <div class="tw-text-muted tw-text-xs tw-mb-6 tw-mt-0">
+      <h2 class="tw-text-4xl tw-my-0">{{ "youHaveBitwardenPremium" | i18n }}</h2>
+      <div class="tw-text-muted tw-text-xs tw-mb-4 tw-mt-0">
         {{ "viewAndManagePremiumSubscription" | i18n }}
       </div>
     </div>
     <div class="tw-flex tw-justify-center">
       <bit-base-card class="tw-w-[800px] tw-p-4 [@media(min-width:650px)]:tw-p-6">
-        <div class="tw-flex tw-flex-col tw-gap-3">
+        <div class="tw-flex tw-flex-col tw-gap-5">
           <div class="tw-flex tw-items-center tw-justify-between">
             <div>
               <h2 bitTypography="h2" class="tw-font-semibold tw-mb-0">
@@ -129,7 +129,7 @@
               target="_blank"
               rel="noreferrer"
             >
-              {{ "launchCloudSubscription" | i18n }}
+              {{ "launchCloudSubscriptionSentenceCase" | i18n }}
               <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
             </a>
           </div>

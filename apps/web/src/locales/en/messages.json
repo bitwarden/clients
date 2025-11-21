@@ -3271,6 +3271,9 @@
   "launchCloudSubscription": {
     "message": "Launch Cloud Subscription"
   },
+  "launchCloudSubscriptionSentenceCase": {
+    "message": "Launch cloud subscription"
+  },
   "storage": {
     "message": "Storage"
   },
