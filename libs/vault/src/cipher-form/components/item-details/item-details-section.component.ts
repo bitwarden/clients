@@ -192,11 +192,6 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   get showOwnership() {
-    // Don't show ownership field for archived ciphers
-    if (this.originalCipherView?.isArchived) {
-      return false;
-    }
-
     // Show ownership field when editing with available orgs
     const isEditingWithOrgs = this.organizations.length > 0 && this.config.mode === "edit";
 
