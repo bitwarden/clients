@@ -414,7 +414,10 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       creationDate: this.creationDate.toISOString(),
       deletedDate: this.deletedDate?.toISOString(),
       archivedDate: this.archivedDate?.toISOString(),
-      reprompt: this.reprompt,
+      reprompt:
+        this.reprompt === CipherRepromptType.Password
+          ? CipherRepromptType.Password
+          : CipherRepromptType.None,
       // Initialize all cipher-type-specific properties as undefined
       login: undefined,
       identity: undefined,
