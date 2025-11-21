@@ -15,7 +15,7 @@ import {
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { BitHintComponent } from "../form-control/hint.component";
+import { BitHintDirective } from "../form-control/hint.directive";
 import { BitLabelComponent } from "../form-control/label.component";
 import { inputBorderClasses } from "../input/input.directive";
 
@@ -31,7 +31,7 @@ import { BitFormFieldControl } from "./form-field-control";
 })
 export class BitFormFieldComponent implements AfterContentChecked {
   readonly input = contentChild.required(BitFormFieldControl);
-  readonly hint = contentChild(BitHintComponent);
+  readonly hint = contentChild(BitHintDirective);
   readonly label = contentChild(BitLabelComponent);
 
   readonly prefixContainer = viewChild<ElementRef<HTMLDivElement>>("prefixContainer");

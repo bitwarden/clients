@@ -24,6 +24,8 @@ import { KeyService } from "@bitwarden/key-management";
   selector: "app-user-verification",
   standalone: false,
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28232): Use Directive suffix
+// eslint-disable-next-line @angular-eslint/directive-class-suffix
 export class UserVerificationComponent implements ControlValueAccessor, OnInit, OnDestroy {
   private _invalidSecret = false;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals

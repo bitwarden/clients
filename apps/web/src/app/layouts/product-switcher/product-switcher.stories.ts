@@ -30,6 +30,8 @@ import { ProductSwitcherService } from "./shared/product-switcher.service";
   selector: "[mockOrgs]",
   standalone: false,
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28232): Use Directive suffix
+// eslint-disable-next-line @angular-eslint/directive-class-suffix
 class MockOrganizationService implements Partial<OrganizationService> {
   private static _orgs = new BehaviorSubject<Organization[]>([]);
 
@@ -49,6 +51,8 @@ class MockOrganizationService implements Partial<OrganizationService> {
   selector: "[mockProviders]",
   standalone: false,
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28232): Use Directive suffix
+// eslint-disable-next-line @angular-eslint/directive-class-suffix
 class MockProviderService implements Partial<ProviderService> {
   private static _providers = new BehaviorSubject<Provider[]>([]);
 
