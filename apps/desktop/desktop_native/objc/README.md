@@ -27,8 +27,4 @@ in `apps/desktop/desktop_native/napi/src/lib.rs` which returns an `Ok` unit vari
 
 - `resume()` is responsible for determining if a security scoped bookmark exists and is valid, if so, it will be used to access the browser directory. 
 
-- `request_and_start()` encapsulates both of the functions described above into a single function call. 
-
-- `has_stored_access()` and `drop()` are self-explanatory helper functions. 
-
 - See directory `apps/desktop/desktop_native/objc/src/native/chromium_importer` for the native Objective-C and Swift code. Instead of removing debug output I've commented out `NSLog` statements since they may be useful in the future. 

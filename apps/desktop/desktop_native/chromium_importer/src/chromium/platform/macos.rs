@@ -66,19 +66,6 @@ impl ScopedBrowserAccess {
             browser_name: browser_name.to_string(),
         })
     }
-
-    /// First requests access to browser directory and then ensures access is still usable
-    pub fn request_and_start(browser_name: &str) -> Result<Self> {
-        Self::request_only(browser_name)?;
-        Self::resume(browser_name)
-    }
-
-    pub fn has_stored_access(browser_name: &str) -> bool {
-        let Ok(c_name) = CString::new(browser_name) else {
-            return false;
-        };
-        unsafe { hasStoredBrowserAccess(c_name.as_ptr()) }
-    }
 }
 
 #[cfg(feature = "sandbox")]

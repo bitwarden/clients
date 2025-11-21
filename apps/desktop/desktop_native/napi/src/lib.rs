@@ -1192,6 +1192,7 @@ pub mod chromium_importer {
     }
 
     #[napi]
+    #[allow(unused_variables)]
     pub fn request_browser_access(browser: String) -> napi::Result<()> {
         #[cfg(all(target_os = "macos", feature = "sandbox"))]
         {
