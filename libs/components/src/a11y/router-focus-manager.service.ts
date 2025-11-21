@@ -1,11 +1,16 @@
 import { inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
-import { skip, filter, map } from "rxjs";
+import { skip, filter, map, combineLatestWith } from "rxjs";
+
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 @Injectable({ providedIn: "root" })
 export class RouterFocusManagerService {
   private router = inject(Router);
+
+  private configService = inject(ConfigService);
 
   /**
    * Handles SPA route focus management. SPA apps don't automatically notify screenreader
@@ -33,7 +38,8 @@ export class RouterFocusManagerService {
     return this.router.events
       .pipe(
         takeUntilDestroyed(),
-        filter((navEvent) => navEvent instanceof NavigationEnd),
+        combineLatestWith(this.configService.getFeatureFlag$(FeatureFlag.RouterFocusManagement)),
+        filter(([navEvent, flagEnabled]) => flagEnabled && navEvent instanceof NavigationEnd),
         /**
          * On first page load, we do not want to skip the user over the navigation content,
          * so we opt out of the default focus management behavior.
