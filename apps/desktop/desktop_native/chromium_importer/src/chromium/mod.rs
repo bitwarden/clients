@@ -97,8 +97,8 @@ pub fn request_browser_access(browser_name: &str) -> Result<()> {
 }
 
 pub async fn import_logins(
-    browser_name: &String,
-    profile_id: &String,
+    browser_name: &str,
+    profile_id: &str,
 ) -> Result<Vec<LoginImportResult>> {
     // In sandbox mode, resume access to browser directory (use the formerly created bookmark)
     #[cfg(all(target_os = "macos", feature = "sandbox"))]
@@ -246,7 +246,7 @@ struct EncryptedLogin {
 
 fn get_logins(
     browser_dir: &Path,
-    profile_id: &String,
+    profile_id: &str,
     filename: &str,
 ) -> Result<Vec<EncryptedLogin>> {
     let login_data_path = browser_dir.join(profile_id).join(filename);
