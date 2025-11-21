@@ -3060,6 +3060,9 @@
     "message": "Upgrade your account to a Premium membership and unlock some great additional features."
   },
   "premiumSignUpStorage": {
+    "message": "1 GB encrypted storage for file attachments."  
+  },
+  "premiumSignUpStorageV2": {
     "message": "$SIZE$ encrypted storage for file attachments.",
     "placeholders": {
       "size": {
