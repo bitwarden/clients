@@ -595,7 +595,7 @@
     "message": "Alles anzeigen"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "Weniger anzeigen"
   },
   "viewLogin": {
     "message": "Zugangsdaten anzeigen"
@@ -2435,6 +2435,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
   },
   "setMasterPassword": {
     "message": "Master-Passwort festlegen"
@@ -5808,6 +5811,15 @@
   },
   "upgradeToPremium": {
     "message": "Upgrade auf Premium"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade für umfassende Sicherheit"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gibt dir mehr Werkzeuge, um sicher zu bleiben, effizient zu arbeiten und die Kontrolle zu behalten."
+  },
+  "explorePremium": {
+    "message": "Premium erkunden"
   },
   "loadingVault": {
     "message": "Tresor wird geladen"

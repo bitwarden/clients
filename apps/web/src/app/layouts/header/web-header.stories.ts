@@ -53,7 +53,7 @@ class MockStateService {
   template: `<button type="button" bitIconButton="bwi-filter" label="Switch products"></button>`,
   standalone: false,
 })
-class MockProductSwitcher {}
+class MockProductSwitcherComponent {}
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -62,7 +62,7 @@ class MockProductSwitcher {}
   template: `<bit-avatar [text]="name$ | async"></bit-avatar>`,
   imports: [CommonModule, AvatarModule],
 })
-class MockDynamicAvatar implements Partial<DynamicAvatarComponent> {
+class MockDynamicAvatarComponent implements Partial<DynamicAvatarComponent> {
   protected name$ = combineLatest([
     this.stateService.accounts$,
     this.stateService.activeAccount$,
@@ -100,9 +100,9 @@ export default {
         TabsModule,
         TypographyModule,
         NavigationModule,
-        MockDynamicAvatar,
+        MockDynamicAvatarComponent,
       ],
-      declarations: [WebHeaderComponent, MockProductSwitcher],
+      declarations: [WebHeaderComponent, MockProductSwitcherComponent],
       providers: [
         { provide: StateService, useClass: MockStateService },
         {
