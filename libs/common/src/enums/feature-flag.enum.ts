@@ -14,6 +14,7 @@ export enum FeatureFlag {
   CreateDefaultLocation = "pm-19467-create-default-location",
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
   BlockClaimedDomainAccountCreation = "block-claimed-domain-account-creation",
+  IncreaseBulkReinviteLimitForCloud = "pm-28251-increase-bulk-reinvite-limit-for-cloud",
 
   /* Auth */
   PM22110_DisableAlternateLoginMethods = "pm-22110-disable-alternate-login-methods",
@@ -93,6 +94,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.CreateDefaultLocation]: FALSE,
   [FeatureFlag.AutoConfirm]: FALSE,
   [FeatureFlag.BlockClaimedDomainAccountCreation]: FALSE,
+  [FeatureFlag.IncreaseBulkReinviteLimitForCloud]: FALSE,
 
   /* Autofill */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
