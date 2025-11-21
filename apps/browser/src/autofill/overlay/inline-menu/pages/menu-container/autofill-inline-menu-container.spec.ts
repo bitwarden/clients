@@ -184,4 +184,38 @@ describe("AutofillInlineMenuContainer", () => {
       expect(port.postMessage).not.toHaveBeenCalled();
     });
   });
+
+  describe("isExtensionUrlWithOrigin", () => {
+    it("validates extension URLs with matching origin", () => {
+      const url = "chrome-extension://test-id/path/to/file.html";
+      const origin = "chrome-extension://test-id";
+
+      expect(autofillInlineMenuContainer["isExtensionUrlWithOrigin"](url, origin)).toBe(true);
+    });
+
+    it("rejects extension URLs with mismatched origin", () => {
+      const url = "chrome-extension://test-id/path/to/file.html";
+      const origin = "chrome-extension://different-id";
+
+      expect(autofillInlineMenuContainer["isExtensionUrlWithOrigin"](url, origin)).toBe(false);
+    });
+
+    it("validates extension URL against its own origin when no expectedOrigin provided", () => {
+      const url = "moz-extension://test-id/path/to/file.html";
+
+      expect(autofillInlineMenuContainer["isExtensionUrlWithOrigin"](url)).toBe(true);
+    });
+
+    it("rejects non-extension protocols", () => {
+      const url = "https://example.com/path";
+      const origin = "https://example.com";
+
+      expect(autofillInlineMenuContainer["isExtensionUrlWithOrigin"](url, origin)).toBe(false);
+    });
+
+    it("rejects empty or invalid URLs", () => {
+      expect(autofillInlineMenuContainer["isExtensionUrlWithOrigin"]("")).toBe(false);
+      expect(autofillInlineMenuContainer["isExtensionUrlWithOrigin"]("not-a-url")).toBe(false);
+    });
+  });
 });

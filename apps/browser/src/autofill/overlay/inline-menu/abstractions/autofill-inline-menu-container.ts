@@ -17,6 +17,7 @@ export type InitAutofillInlineMenuElementMessage = AutofillInlineMenuContainerMe
   translations: Record<string, string>;
   ciphers: InlineMenuCipherData[] | null;
   portName: string;
+  extensionOrigin?: string;
 };
 
 export type AutofillInlineMenuContainerWindowMessage = AutofillInlineMenuContainerMessage &
