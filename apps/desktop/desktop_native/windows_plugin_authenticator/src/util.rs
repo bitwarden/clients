@@ -5,10 +5,27 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use windows::{
     core::PCSTR,
-    Win32::{Foundation::*, System::LibraryLoader::*},
+    Win32::{Foundation::*, System::LibraryLoader::*, UI::WindowsAndMessaging::GetWindowRect},
 };
 
 use crate::com_buffer::ComBuffer;
+
+pub trait HwndExt {
+    fn center_position(&self) -> windows::core::Result<(i32, i32)>;
+}
+
+impl HwndExt for HWND {
+    fn center_position(&self) -> windows::core::Result<(i32, i32)> {
+        let mut window: RECT = RECT::default();
+        unsafe {
+            GetWindowRect(*self, &mut window)?;
+        }
+        // TODO: We may need to adjust for scaling.
+        let center_x = (window.right + window.left) / 2;
+        let center_y = (window.bottom + window.top) / 2;
+        Ok((center_x, center_y))
+    }
+}
 
 pub unsafe fn delay_load<T>(library: PCSTR, function: PCSTR) -> Option<T> {
     let library = LoadLibraryExA(library, None, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);

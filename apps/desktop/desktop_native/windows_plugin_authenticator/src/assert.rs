@@ -1,13 +1,15 @@
 use serde_json;
 use std::{sync::Arc, time::Duration};
 
-use crate::ipc2::PasskeyAssertionWithoutUserInterfaceRequest;
+use win_webauthn::plugin::PluginGetAssertionRequest;
+
 use crate::{
     ipc2::{
-        PasskeyAssertionRequest, PasskeyAssertionResponse, Position, TimedCallback,
-        UserVerification, WindowsProviderClient,
+        PasskeyAssertionRequest, PasskeyAssertionResponse,
+        PasskeyAssertionWithoutUserInterfaceRequest, Position, TimedCallback, UserVerification,
+        WindowsProviderClient,
     },
-    win_webauthn::{plugin::PluginGetAssertionRequest, ErrorKind, HwndExt, WinWebAuthnError},
+    util::HwndExt,
 };
 
 pub fn get_assertion(
@@ -123,7 +125,7 @@ fn create_get_assertion_response(
     authenticator_data: Vec<u8>,
     signature: Vec<u8>,
     user_handle: Vec<u8>,
-) -> std::result::Result<Vec<u8>, WinWebAuthnError> {
+) -> std::result::Result<Vec<u8>, Box<dyn std::error::Error>> {
     // Construct a CTAP2 response with the proper structure
 
     // Create CTAP2 GetAssertion response map according to CTAP2 specification
@@ -180,11 +182,7 @@ fn create_get_assertion_response(
     // Encode to CBOR with error handling
     let mut cbor_data = Vec::new();
     if let Err(e) = ciborium::ser::into_writer(&cbor_value, &mut cbor_data) {
-        return Err(WinWebAuthnError::with_cause(
-            ErrorKind::Serialization,
-            "Failed to encode CBOR assertion response",
-            e,
-        ));
+        return Err(format!("Failed to encode CBOR assertion response: {e}"))?;
     }
 
     tracing::debug!("Formatted CBOR assertion response: {:?}", cbor_data);

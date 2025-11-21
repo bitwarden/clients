@@ -8,7 +8,7 @@ members = [
     "macos_provider",
     "napi",
     "process_isolation",
-    "proxy",
+    "proxy", "win_webauthn",
     "windows_plugin_authenticator"
 ]
 

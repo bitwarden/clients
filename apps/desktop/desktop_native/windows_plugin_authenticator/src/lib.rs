@@ -11,25 +11,23 @@ mod make_credential;
 mod types;
 mod util;
 mod webauthn;
-mod win_webauthn;
 
 use std::{collections::HashSet, sync::Arc, time::Duration};
 
 // Re-export main functionality
 pub use types::UserVerificationRequirement;
 
-use win_webauthn::plugin::{PluginAddAuthenticatorOptions, WebAuthnPlugin};
+use win_webauthn::{
+    plugin::{
+        PluginAddAuthenticatorOptions, PluginAuthenticator, PluginCancelOperationRequest,
+        PluginGetAssertionRequest, PluginLockStatus, PluginMakeCredentialRequest, WebAuthnPlugin,
+    },
+    AuthenticatorInfo, CtapVersion, PublicKeyCredentialParameters,
+};
 
 use crate::{
     ipc2::{ConnectionStatus, TimedCallback, WindowsProviderClient},
     make_credential::make_credential,
-    win_webauthn::{
-        plugin::{
-            PluginAuthenticator, PluginCancelOperationRequest, PluginGetAssertionRequest,
-            PluginLockStatus, PluginMakeCredentialRequest,
-        },
-        AuthenticatorInfo, CtapVersion, PublicKeyCredentialParameters,
-    },
 };
 
 const AUTHENTICATOR_NAME: &str = "Bitwarden Desktop";

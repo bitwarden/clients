@@ -6,9 +6,6 @@ use std::{error::Error, fmt::Display};
 
 pub use types::{AuthenticatorInfo, CtapTransport, CtapVersion, PublicKeyCredentialParameters};
 
-use plugin::PluginAuthenticator;
-pub use util::HwndExt;
-
 #[derive(Debug)]
 pub struct WinWebAuthnError {
     kind: ErrorKind,
@@ -40,7 +37,7 @@ impl WinWebAuthnError {
 }
 
 #[derive(Debug)]
-pub enum ErrorKind {
+enum ErrorKind {
     DllLoad,
     Serialization,
     WindowsInternal,

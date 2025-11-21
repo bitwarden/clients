@@ -1,25 +1,23 @@
 //! Types pertaining to registering a plugin implementation and handling plugin
 //! authenticator requests.
 
-use std::{collections::HashSet, fmt::Display, mem::MaybeUninit, ptr::NonNull};
+#![allow(non_snake_case)]
+
+use std::{mem::MaybeUninit, ptr::NonNull};
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
-use ciborium::Value;
 use windows::{
     core::{GUID, HRESULT},
-    Win32::{
-        Foundation::HWND, System::LibraryLoader::GetProcAddress,
-        UI::WindowsAndMessaging::WindowFromPoint,
-    },
+    Win32::{Foundation::HWND, System::LibraryLoader::GetProcAddress},
 };
-use windows_core::{s, PCWSTR};
+use windows_core::s;
 
-use crate::win_webauthn::{
-    util::{webauthn_call, ArrayPointerIterator, WindowsString},
+use crate::{
+    util::{webauthn_call, WindowsString},
     ErrorKind, WinWebAuthnError,
 };
 
-use crate::win_webauthn::types::{
+use crate::types::{
     AuthenticatorInfo, CredentialList, CtapTransport, HmacSecretSalt,
     WebAuthnExtensionMakeCredentialOutput, WEBAUTHN_COSE_CREDENTIAL_PARAMETERS,
     WEBAUTHN_CREDENTIAL_ATTESTATION, WEBAUTHN_CREDENTIAL_LIST, WEBAUTHN_EXTENSIONS,

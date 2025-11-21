@@ -1,8 +1,7 @@
 //! Functions for interacting with Windows COM.
-
+#[allow(non_snake_case)]
 use std::{
     alloc,
-    error::Error,
     mem::MaybeUninit,
     ptr::{self, NonNull},
     sync::{Arc, OnceLock},
@@ -18,13 +17,12 @@ use windows::{
 use windows_core::{IInspectable, Interface};
 
 use super::types::{
-    PluginCancelOperationRequest, PluginGetAssertionRequest, PluginLockStatus,
-    PluginMakeCredentialRequest, WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
-    WEBAUTHN_PLUGIN_OPERATION_REQUEST, WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
+    PluginLockStatus, WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST, WEBAUTHN_PLUGIN_OPERATION_REQUEST,
+    WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
 };
 
 use super::PluginAuthenticator;
-use crate::win_webauthn::{ErrorKind, WinWebAuthnError};
+use crate::{ErrorKind, WinWebAuthnError};
 
 static HANDLER: OnceLock<Arc<dyn PluginAuthenticator + Send + Sync>> = OnceLock::new();
 

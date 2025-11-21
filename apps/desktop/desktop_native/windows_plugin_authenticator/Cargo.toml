@@ -15,16 +15,13 @@ windows = { workspace = true, features = [
     "Win32_System_LibraryLoader",
 ] }
 windows-core = { workspace = true }
-hex = { workspace = true }
-reqwest = { version = "0.12", features = ["json", "blocking"] }
 serde_json = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 tracing = { workspace = true }
-tracing-subscriber = { workspace = true }
 ciborium = "0.2"
-sha2 = "0.10"
 tokio = { workspace = true }
 base64 = { workspace = true }
+win_webauthn = { path = "../win_webauthn" }
 
 [lints]
 workspace = true

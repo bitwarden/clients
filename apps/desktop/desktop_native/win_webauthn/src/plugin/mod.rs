@@ -12,7 +12,7 @@ pub use types::{
 };
 
 use super::{ErrorKind, WinWebAuthnError};
-use crate::win_webauthn::util::WindowsString;
+use crate::util::WindowsString;
 
 #[derive(Clone, Copy)]
 pub struct Clsid(GUID);

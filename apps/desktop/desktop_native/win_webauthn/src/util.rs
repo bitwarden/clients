@@ -1,13 +1,12 @@
 use windows::{
     core::s,
     Win32::{
-        Foundation::{FreeLibrary, HMODULE, HWND, RECT},
+        Foundation::{FreeLibrary, HMODULE},
         System::LibraryLoader::{LoadLibraryExA, LOAD_LIBRARY_SEARCH_SYSTEM32},
-        UI::WindowsAndMessaging::GetWindowRect,
     },
 };
 
-use crate::win_webauthn::{
+use crate::{
     // com::ComBuffer,
     ErrorKind,
     WinWebAuthnError,
@@ -16,7 +15,7 @@ use crate::win_webauthn::{
 macro_rules! webauthn_call {
     ($symbol:literal as fn $fn_name:ident($($arg:ident: $arg_type:ty),+) -> $result_type:ty) => (
         pub(super) fn $fn_name($($arg: $arg_type),*) -> Result<$result_type, WinWebAuthnError> {
-            let library = crate::win_webauthn::util::load_webauthn_lib()?;
+            let library = crate::util::load_webauthn_lib()?;
             let response = unsafe {
                 let address = GetProcAddress(library, s!($symbol)).ok_or(
                     WinWebAuthnError::new(
@@ -33,7 +32,7 @@ macro_rules! webauthn_call {
                 ) -> $result_type = std::mem::transmute_copy(&address);
                 function($($arg),*)
             };
-            crate::win_webauthn::util::free_webauthn_lib(library)?;
+            crate::util::free_webauthn_lib(library)?;
             Ok(response)
         }
     )
@@ -60,23 +59,6 @@ pub(super) fn free_webauthn_lib(library: HMODULE) -> Result<(), WinWebAuthnError
         })
     }
 }
-pub trait HwndExt {
-    fn center_position(&self) -> windows::core::Result<(i32, i32)>;
-}
-
-impl HwndExt for HWND {
-    fn center_position(&self) -> windows::core::Result<(i32, i32)> {
-        let mut window: RECT = RECT::default();
-        unsafe {
-            GetWindowRect(*self, &mut window)?;
-        }
-        // TODO: We may need to adjust for scaling.
-        let center_x = (window.right + window.left) / 2;
-        let center_y = (window.bottom + window.top) / 2;
-        Ok((center_x, center_y))
-    }
-}
-
 pub(super) trait WindowsString {
     fn to_utf16(&self) -> Vec<u16>;
 

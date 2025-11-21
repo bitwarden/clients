@@ -3,13 +3,17 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
 
-use crate::ipc2::{
-    PasskeyRegistrationRequest, PasskeyRegistrationResponse, Position, TimedCallback,
-    UserVerification, WindowsProviderClient,
-};
-use crate::win_webauthn::{
+use win_webauthn::{
     plugin::{PluginMakeCredentialRequest, PluginMakeCredentialResponse},
-    CtapTransport, ErrorKind, HwndExt, WinWebAuthnError,
+    CtapTransport,
+};
+
+use crate::{
+    ipc2::{
+        PasskeyRegistrationRequest, PasskeyRegistrationResponse, Position, TimedCallback,
+        UserVerification, WindowsProviderClient,
+    },
+    util::HwndExt,
 };
 
 pub fn make_credential(
@@ -149,19 +153,13 @@ fn send_registration_request(
 /// Creates a CTAP make credential response from Bitwarden's WebAuthn registration response
 fn create_make_credential_response(
     attestation_object: Vec<u8>,
-) -> std::result::Result<Vec<u8>, WinWebAuthnError> {
+) -> std::result::Result<Vec<u8>, Box<dyn std::error::Error>> {
     use ciborium::Value;
     // Use the attestation object directly as the encoded response
     let att_obj_items = ciborium::from_reader::<Value, _>(&attestation_object[..])
-        .map_err(|err| {
-            WinWebAuthnError::with_cause(
-                ErrorKind::Serialization,
-                "Failed to deserialize WebAuthn attestation object",
-                err,
-            )
-        })?
+        .map_err(|err| format!("Failed to deserialize WebAuthn attestation object: {err}"))?
         .into_map()
-        .map_err(|_| WinWebAuthnError::new(ErrorKind::Serialization, "object is not a CBOR map"))?;
+        .map_err(|_| "object is not a CBOR map".to_string())?;
 
     let webauthn_att_obj: HashMap<&str, &Value> = att_obj_items
         .iter()
@@ -171,18 +169,12 @@ fn create_make_credential_response(
     let att_fmt = webauthn_att_obj
         .get("fmt")
         .and_then(|s| s.as_text())
-        .ok_or(WinWebAuthnError::new(
-            ErrorKind::Serialization,
-            "could not read `fmt` key as a string",
-        ))?
+        .ok_or("could not read `fmt` key as a string".to_string())?
         .to_string();
     let authenticator_data = webauthn_att_obj
         .get("authData")
         .and_then(|d| d.as_bytes())
-        .ok_or(WinWebAuthnError::new(
-            ErrorKind::Serialization,
-            "could not read `authData` key as bytes",
-        ))?
+        .ok_or("could not read `authData` key as bytes".to_string())?
         .clone();
     let attestation = PluginMakeCredentialResponse {
         format_type: att_fmt,
@@ -203,7 +195,7 @@ fn create_make_credential_response(
         client_data_json: None,
         registration_response_json: None,
     };
-    attestation.to_ctap_response()
+    Ok(attestation.to_ctap_response()?)
 }
 
 #[cfg(test)]
