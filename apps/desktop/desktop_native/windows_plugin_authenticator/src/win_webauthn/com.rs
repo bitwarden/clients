@@ -107,7 +107,7 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
         tracing::debug!("MakeCredential called");
         if response.is_null() {
             tracing::warn!(
-                "GetAssertion called with null response pointer from Windows. Aborting request."
+                "MakeCredential called with null response pointer from Windows. Aborting request."
             );
             return E_INVALIDARG;
         }
@@ -115,7 +115,7 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
             Some(p) => p,
             None => {
                 tracing::warn!(
-                    "GetAssertion called with null request pointer from Windows. Aborting request."
+                    "MakeCredential called with null request pointer from Windows. Aborting request."
                 );
                 return E_INVALIDARG;
             }
