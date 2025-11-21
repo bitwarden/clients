@@ -13,8 +13,8 @@ home = "=0.5.0"
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 secrecy = "0.8.0"
-hex = { workspace = true }
-webauthn-authenticator-rs = { path = "../../../../../webauthn-rs/webauthn-authenticator-rs/", features = ["win10"] }
+hex.workspace = true
+webauthn-authenticator-rs = { version = "0.5.3", features = ["ctap2", "cable", "usb", "win10"] }
 tokio.workspace = true
 futures-util = "0.3.31"
 sha2 = { workspace = true }
