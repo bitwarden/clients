@@ -10,7 +10,6 @@ default = []
 
 [target.'cfg(target_os = "macos")'.dependencies]
 anyhow = { workspace = true }
-thiserror = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
 tracing = { workspace = true }
 
