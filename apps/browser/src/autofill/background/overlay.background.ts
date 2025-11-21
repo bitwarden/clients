@@ -2949,25 +2949,21 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       (await this.checkFocusedFieldHasValue(port.sender.tab)) &&
       (await this.shouldShowSaveLoginInlineMenuList(port.sender.tab));
 
-    const iframeUrl = chrome.runtime.getURL(
+    const iframeUrl = BrowserApi.getRuntimeURL(
       `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.html`,
     );
-    const styleSheetUrl = chrome.runtime.getURL(
+    const styleSheetUrl = BrowserApi.getRuntimeURL(
       `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.css`,
     );
-    const extensionOrigin = new URL(iframeUrl).origin;
+    const extensionOrigin = iframeUrl ? new URL(iframeUrl).origin : null;
 
     this.postMessageToPort(port, {
       command: `initAutofillInlineMenu${isInlineMenuListPort ? "List" : "Button"}`,
-      iframeUrl: BrowserApi.getRuntimeURL(
-        `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.html`,
-      ),
+      iframeUrl,
       pageTitle: chrome.i18n.getMessage(
         isInlineMenuListPort ? "bitwardenVault" : "bitwardenOverlayButton",
       ),
-      styleSheetUrl: BrowserApi.getRuntimeURL(
-        `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.css`,
-      ),
+      styleSheetUrl,
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       translations: this.getInlineMenuTranslations(),
       ciphers: isInlineMenuListPort ? await this.getInlineMenuCipherData() : null,
