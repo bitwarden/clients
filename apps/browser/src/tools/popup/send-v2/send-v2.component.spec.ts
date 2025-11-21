@@ -37,7 +37,7 @@ import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-heade
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popup-router-cache.service";
 
-import { SendV2Component } from "./send-v2.component";
+import { SendState, SendV2Component } from "./send-v2.component";
 
 describe("SendV2Component", () => {
   let component: SendV2Component;
@@ -142,12 +142,12 @@ describe("SendV2Component", () => {
   it("should set listState to Empty when emptyList$ emits true", () => {
     sendItemsServiceEmptyList$.next(true);
     fixture.detectChanges();
-    expect(component["listState"]).toBe(component["sendState"].Empty);
+    expect(component["listState"]).toBe(SendState.Empty);
   });
 
   it("should set listState to NoResults when noFilteredResults$ emits true", () => {
     sendItemsServiceNoFilteredResults$.next(true);
     fixture.detectChanges();
-    expect(component["listState"]).toBe(component["sendState"].NoResults);
+    expect(component["listState"]).toBe(SendState.NoResults);
   });
 });

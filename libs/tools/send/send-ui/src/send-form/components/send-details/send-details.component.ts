@@ -73,13 +73,6 @@ export function asDatePreset(value: unknown): DatePreset | undefined {
   return isDatePreset(value) ? (value as DatePreset) : undefined;
 }
 
-/**
- * Retrieves the symbolic name for a DatePreset value.
- */
-export function nameOfDatePreset(value: DatePreset): keyof typeof DatePreset | undefined {
-  return namesByDatePreset.get(value);
-}
-
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
