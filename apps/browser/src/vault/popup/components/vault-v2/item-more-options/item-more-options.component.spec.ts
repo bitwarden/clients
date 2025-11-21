@@ -106,7 +106,10 @@ describe("ItemMoreOptionsComponent", () => {
         },
         { provide: CollectionService, useValue: { decryptedCollections$: () => of([]) } },
         { provide: RestrictedItemTypesService, useValue: { restricted$: of([]) } },
-        { provide: CipherArchiveService, useValue: { userCanArchive$: () => of(true) } },
+        {
+          provide: CipherArchiveService,
+          useValue: { userCanArchive$: () => of(true), hasArchiveFlagEnabled$: () => of(true) },
+        },
         { provide: ToastService, useValue: { showToast: () => {} } },
         { provide: Router, useValue: { navigate: () => Promise.resolve(true) } },
         { provide: PasswordRepromptService, useValue: passwordRepromptService },
