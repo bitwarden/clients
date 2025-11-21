@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { AutofillInlineMenuContentService } from "../overlay/inline-menu/content/autofill-inline-menu-content.service";
 import { AutofillOverlayContentService } from "../services/autofill-overlay-content.service";
 import DomElementVisibilityService from "../services/dom-element-visibility.service";
@@ -11,7 +9,7 @@ import AutofillInit from "./autofill-init";
 
 (function (windowContext) {
   if (!windowContext.bitwardenAutofillInit) {
-    let inlineMenuContentService: AutofillInlineMenuContentService;
+    let inlineMenuContentService: undefined | AutofillInlineMenuContentService;
     if (globalThis.self === globalThis.top) {
       inlineMenuContentService = new AutofillInlineMenuContentService();
     }

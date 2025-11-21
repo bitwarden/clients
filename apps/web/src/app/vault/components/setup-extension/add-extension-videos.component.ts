@@ -4,13 +4,18 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { debounceTime, fromEvent } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { DarkImageSourceDirective } from "@bitwarden/vault";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-add-extension-videos",
   templateUrl: "./add-extension-videos.component.html",
-  imports: [CommonModule, JslibModule],
+  imports: [CommonModule, JslibModule, DarkImageSourceDirective],
 })
 export class AddExtensionVideosComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChildren("video", { read: ElementRef }) protected videoElements!: QueryList<
     ElementRef<HTMLVideoElement>
   >;
@@ -34,8 +39,8 @@ export class AddExtensionVideosComponent {
   /** CSS classes for the video container, pulled into the class only for readability. */
   protected videoContainerClass = [
     "tw-absolute tw-left-0 tw-top-0 tw-w-[15rem] tw-opacity-0 md:tw-opacity-100 md:tw-relative lg:tw-w-[17rem] tw-max-w-full tw-aspect-[0.807]",
-    `[${this.cssOverlayVariable}:0.7] after:tw-absolute after:tw-top-0 after:tw-left-0 after:tw-size-full after:tw-bg-primary-100 after:tw-content-[''] after:tw-rounded-lg after:tw-opacity-[--overlay-opacity]`,
-    `[${this.cssBorderVariable}:0] before:tw-absolute before:tw-top-0 before:tw-left-0 before:tw-w-full before:tw-h-2 before:tw-bg-primary-600 before:tw-content-[''] before:tw-rounded-t-lg before:tw-opacity-[--border-opacity]`,
+    `[--overlay-opacity:0.7] after:tw-absolute after:tw-top-0 after:tw-left-0 after:tw-size-full after:tw-bg-primary-100 after:tw-content-[''] after:tw-rounded-lg after:tw-opacity-[--overlay-opacity]`,
+    `[--border-opacity:0] before:tw-absolute before:tw-top-0 before:tw-left-0 before:tw-w-full before:tw-h-2 before:tw-bg-primary-600 before:tw-content-[''] before:tw-rounded-t-lg before:tw-opacity-[--border-opacity]`,
     "after:tw-transition-opacity after:tw-duration-400 after:tw-ease-linear",
     "before:tw-transition-opacity before:tw-duration-400 before:tw-ease-linear",
   ].join(" ");

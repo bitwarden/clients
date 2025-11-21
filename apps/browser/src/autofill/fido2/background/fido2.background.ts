@@ -176,6 +176,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
         { file: await this.getFido2PageScriptAppendFileName() },
         { file: Fido2ContentScript.ContentScript },
       ],
+      world: "MAIN",
       ...this.sharedRegistrationOptions,
     });
   }
@@ -218,7 +219,10 @@ export class Fido2Background implements Fido2BackgroundInterface {
       tabId: tab.id,
       injectDetails: { frame: "all_frames", ...this.sharedInjectionDetails },
       mv2Details: { file: await this.getFido2PageScriptAppendFileName() },
-      mv3Details: { file: Fido2ContentScript.PageScript, world: "MAIN" },
+      mv3Details: {
+        file: Fido2ContentScript.PageScript,
+        world: chrome.scripting.ExecutionWorld.MAIN,
+      },
     });
 
     void this.scriptInjectorService.inject({

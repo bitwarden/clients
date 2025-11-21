@@ -1,28 +1,32 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Directive, HostBinding, HostListener, input } from "@angular/core";
+import { Directive, computed, input } from "@angular/core";
 
 import { DisclosureComponent } from "./disclosure.component";
 
+/**
+ * Directive that connects a trigger element (like a button) to a disclosure component.
+ * Automatically handles click events to toggle the disclosure open/closed state and
+ * manages ARIA attributes for accessibility.
+ */
 @Directive({
   selector: "[bitDisclosureTriggerFor]",
   exportAs: "disclosureTriggerFor",
+  host: {
+    "[attr.aria-expanded]": "ariaExpanded()",
+    "[attr.aria-controls]": "ariaControls()",
+    "(click)": "toggle()",
+  },
 })
 export class DisclosureTriggerForDirective {
   /**
    * Accepts template reference for a bit-disclosure component instance
    */
-  readonly disclosure = input<DisclosureComponent>(undefined, { alias: "bitDisclosureTriggerFor" });
+  readonly disclosure = input.required<DisclosureComponent>({ alias: "bitDisclosureTriggerFor" });
 
-  @HostBinding("attr.aria-expanded") get ariaExpanded() {
-    return this.disclosure().open;
-  }
+  protected readonly ariaExpanded = computed(() => this.disclosure().open());
 
-  @HostBinding("attr.aria-controls") get ariaControls() {
-    return this.disclosure().id;
-  }
+  protected readonly ariaControls = computed(() => this.disclosure().id);
 
-  @HostListener("click") click() {
-    this.disclosure().open = !this.disclosure().open;
+  protected toggle() {
+    this.disclosure().open.update((open) => !open);
   }
 }

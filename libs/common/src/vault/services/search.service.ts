@@ -1,12 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import * as lunr from "lunr";
-import { Observable, firstValueFrom, map } from "rxjs";
+import { BehaviorSubject, Observable, firstValueFrom, map } from "rxjs";
 import { Jsonify } from "type-fest";
+
+import { perUserCache$ } from "@bitwarden/common/vault/utils/observable-utilities";
 
 import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
+import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import {
   SingleUserState,
   StateProvider,
@@ -20,6 +23,9 @@ import { FieldType } from "../enums";
 import { CipherType } from "../enums/cipher-type";
 import { CipherView } from "../models/view/cipher.view";
 import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
+
+// Time to wait before performing a search after the user stops typing.
+export const SearchTextDebounceInterval = 200; // milliseconds
 
 export type SerializedLunrIndex = {
   version: string;
@@ -75,6 +81,12 @@ export class SearchService implements SearchServiceAbstraction {
   private readonly defaultSearchableMinLength: number = 2;
   private searchableMinLength: number = this.defaultSearchableMinLength;
 
+  private _isCipherSearching$ = new BehaviorSubject<boolean>(false);
+  isCipherSearching$: Observable<boolean> = this._isCipherSearching$.asObservable();
+
+  private _isSendSearching$ = new BehaviorSubject<boolean>(false);
+  isSendSearching$: Observable<boolean> = this._isSendSearching$.asObservable();
+
   constructor(
     private logService: LogService,
     private i18nService: I18nService,
@@ -101,11 +113,19 @@ export class SearchService implements SearchServiceAbstraction {
     return this.stateProvider.getUser(userId, LUNR_SEARCH_INDEX);
   }
 
-  private index$(userId: UserId): Observable<lunr.Index | null> {
+  private index$ = perUserCache$((userId: UserId) => {
     return this.searchIndexState(userId).state$.pipe(
-      map((searchIndex) => (searchIndex ? lunr.Index.load(searchIndex) : null)),
+      map((searchIndex) => {
+        let index: lunr.Index | null = null;
+        if (searchIndex) {
+          const loadTime = performance.now();
+          index = lunr.Index.load(searchIndex);
+          this.logService.measure(loadTime, "Vault", "SearchService", "index load");
+        }
+        return index;
+      }),
     );
-  }
+  });
 
   private searchIndexEntityIdState(userId: UserId): SingleUserState<IndexedEntityId | null> {
     return this.stateProvider.getUser(userId, LUNR_SEARCH_INDEXED_ENTITY_ID);
@@ -129,17 +149,22 @@ export class SearchService implements SearchServiceAbstraction {
     await this.searchIsIndexingState(userId).update(() => null);
   }
 
-  async isSearchable(userId: UserId, query: string): Promise<boolean> {
-    const time = performance.now();
+  async isSearchable(userId: UserId, query: string | null): Promise<boolean> {
     query = SearchService.normalizeSearchQuery(query);
-    const index = await this.getIndexForSearch(userId);
-    const notSearchable =
-      query == null ||
-      (index == null && query.length < this.searchableMinLength) ||
-      (index != null && query.length < this.searchableMinLength && query.indexOf(">") !== 0);
 
-    this.logService.measure(time, "Vault", "SearchService", "isSearchable");
-    return !notSearchable;
+    // Nothing to search if the query is null
+    if (query == null || query === "") {
+      return false;
+    }
+
+    const isLunrQuery = query.indexOf(">") === 0;
+    if (isLunrQuery) {
+      // Lunr queries always require an index
+      return (await this.getIndexForSearch(userId)) != null;
+    }
+
+    // Regular queries only require a minimum length
+    return query.length >= this.searchableMinLength;
   }
 
   async indexCiphers(
@@ -204,7 +229,9 @@ export class SearchService implements SearchServiceAbstraction {
     filter: ((cipher: C) => boolean) | ((cipher: C) => boolean)[] = null,
     ciphers: C[],
   ): Promise<C[]> {
+    this._isCipherSearching$.next(true);
     const results: C[] = [];
+    const searchStartTime = performance.now();
     if (query != null) {
       query = SearchService.normalizeSearchQuery(query.trim().toLowerCase());
     }
@@ -223,6 +250,7 @@ export class SearchService implements SearchServiceAbstraction {
     }
 
     if (!(await this.isSearchable(userId, query))) {
+      this._isCipherSearching$.next(false);
       return ciphers;
     }
 
@@ -236,11 +264,14 @@ export class SearchService implements SearchServiceAbstraction {
     const index = await this.getIndexForSearch(userId);
     if (index == null) {
       // Fall back to basic search if index is not available
-      return this.searchCiphersBasic(ciphers, query);
+      const basicResults = this.searchCiphersBasic(ciphers, query);
+      this.logService.measure(searchStartTime, "Vault", "SearchService", "basic search complete");
+      this._isCipherSearching$.next(false);
+      return basicResults;
     }
 
     const ciphersMap = new Map<string, C>();
-    ciphers.forEach((c) => ciphersMap.set(c.id, c));
+    ciphers.forEach((c) => ciphersMap.set(uuidAsString(c.id), c));
 
     let searchResults: lunr.Index.Result[] = null;
     const isQueryString = query != null && query.length > 1 && query.indexOf(">") === 0;
@@ -270,19 +301,29 @@ export class SearchService implements SearchServiceAbstraction {
         }
       });
     }
+    this.logService.measure(searchStartTime, "Vault", "SearchService", "search complete");
+    this._isCipherSearching$.next(false);
     return results;
   }
 
-  searchCiphersBasic<C extends CipherViewLike>(ciphers: C[], query: string, deleted = false) {
+  searchCiphersBasic<C extends CipherViewLike>(
+    ciphers: C[],
+    query: string,
+    deleted = false,
+    archived = false,
+  ) {
     query = SearchService.normalizeSearchQuery(query.trim().toLowerCase());
     return ciphers.filter((c) => {
       if (deleted !== CipherViewLikeUtils.isDeleted(c)) {
         return false;
       }
+      if (archived !== CipherViewLikeUtils.isArchived(c)) {
+        return false;
+      }
       if (c.name != null && c.name.toLowerCase().indexOf(query) > -1) {
         return true;
       }
-      if (query.length >= 8 && c.id.startsWith(query)) {
+      if (query.length >= 8 && uuidAsString(c.id).startsWith(query)) {
         return true;
       }
       const subtitle = CipherViewLikeUtils.subtitle(c);
@@ -304,8 +345,10 @@ export class SearchService implements SearchServiceAbstraction {
   }
 
   searchSends(sends: SendView[], query: string) {
+    this._isSendSearching$.next(true);
     query = SearchService.normalizeSearchQuery(query.trim().toLocaleLowerCase());
     if (query === null) {
+      this._isSendSearching$.next(false);
       return sends;
     }
     const sendsMatched: SendView[] = [];
@@ -328,6 +371,7 @@ export class SearchService implements SearchServiceAbstraction {
         lowPriorityMatched.push(s);
       }
     });
+    this._isSendSearching$.next(false);
     return sendsMatched.concat(lowPriorityMatched);
   }
 
@@ -404,11 +448,30 @@ export class SearchService implements SearchServiceAbstraction {
       if (u.uri == null || u.uri === "") {
         return;
       }
-      if (u.hostname != null) {
-        uris.push(u.hostname);
-        return;
-      }
+
+      // Match ports
+      const portMatch = u.uri.match(/:(\d+)(?:[/?#]|$)/);
+      const port = portMatch?.[1];
+
       let uri = u.uri;
+
+      if (u.hostname !== null) {
+        uris.push(u.hostname);
+        if (port) {
+          uris.push(`${u.hostname}:${port}`);
+          uris.push(port);
+        }
+        return;
+      } else {
+        const slash = uri.indexOf("/");
+        const hostPart = slash > -1 ? uri.substring(0, slash) : uri;
+        uris.push(hostPart);
+        if (port) {
+          uris.push(`${hostPart}`);
+          uris.push(port);
+        }
+      }
+
       if (u.match !== UriMatchStrategy.RegularExpression) {
         const protocolIndex = uri.indexOf("://");
         if (protocolIndex > -1) {

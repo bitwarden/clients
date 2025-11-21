@@ -14,12 +14,10 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   EncryptedString,
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -34,7 +32,6 @@ export class WebRegistrationFinishService
     private policyApiService: PolicyApiServiceAbstraction,
     private logService: LogService,
     private policyService: PolicyService,
-    private configService: ConfigService,
   ) {
     super(keyService, accountApiService);
   }
@@ -77,18 +74,6 @@ export class WebRegistrationFinishService
     );
 
     return masterPasswordPolicyOpts;
-  }
-
-  override async determineLoginSuccessRoute(): Promise<string> {
-    const endUserActivationFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM19315EndUserActivationMvp,
-    );
-
-    if (endUserActivationFlagEnabled) {
-      return "/setup-extension";
-    } else {
-      return super.determineLoginSuccessRoute();
-    }
   }
 
   // Note: the org invite token and email verification are mutually exclusive. Only one will be present.

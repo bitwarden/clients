@@ -1,18 +1,15 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { LoginApprovalComponent } from "@bitwarden/auth/angular";
 import { DevicePendingAuthRequest } from "@bitwarden/common/auth/abstractions/devices/responses/device.response";
-import { BadgeModule, DialogService, ItemModule } from "@bitwarden/components";
+import { BadgeModule, ItemModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DeviceDisplayData } from "./device-management.component";
-import { clearAuthRequestAndResortDevices } from "./resort-devices.helper";
 
 /** Displays user devices in an item list view */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   standalone: true,
   selector: "auth-device-management-item-group",
@@ -20,25 +17,17 @@ import { clearAuthRequestAndResortDevices } from "./resort-devices.helper";
   imports: [BadgeModule, CommonModule, ItemModule, I18nPipe],
 })
 export class DeviceManagementItemGroupComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() devices: DeviceDisplayData[] = [];
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
+  @Output() onAuthRequestAnswered = new EventEmitter<DevicePendingAuthRequest>();
 
-  constructor(private dialogService: DialogService) {}
-
-  protected async approveOrDenyAuthRequest(pendingAuthRequest: DevicePendingAuthRequest | null) {
+  protected answerAuthRequest(pendingAuthRequest: DevicePendingAuthRequest | null) {
     if (pendingAuthRequest == null) {
       return;
     }
-
-    const loginApprovalDialog = LoginApprovalComponent.open(this.dialogService, {
-      notificationId: pendingAuthRequest.id,
-    });
-
-    const result = await firstValueFrom(loginApprovalDialog.closed);
-
-    if (result !== undefined && typeof result === "boolean") {
-      // Auth request was approved or denied, so clear the
-      // pending auth request and re-sort the device array
-      this.devices = clearAuthRequestAndResortDevices(this.devices, pendingAuthRequest);
-    }
+    this.onAuthRequestAnswered.emit(pendingAuthRequest);
   }
 }

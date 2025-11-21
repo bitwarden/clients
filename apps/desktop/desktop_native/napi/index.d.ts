@@ -11,7 +11,10 @@ export declare namespace passwords {
    * Throws {@link Error} with message {@link PASSWORD_NOT_FOUND} if the password does not exist.
    */
   export function getPassword(service: string, account: string): Promise<string>
-  /** Save the password to the keychain. Adds an entry if none exists otherwise updates the existing entry. */
+  /**
+   * Save the password to the keychain. Adds an entry if none exists otherwise updates the
+   * existing entry.
+   */
   export function setPassword(service: string, account: string, password: string): Promise<void>
   /**
    * Delete the stored password from the keychain.
@@ -35,7 +38,8 @@ export declare namespace biometrics {
    * base64 encoded key and the base64 encoded challenge used to create it
    * separated by a `|` character.
    *
-   * If the iv is provided, it will be used as the challenge. Otherwise a random challenge will be generated.
+   * If the iv is provided, it will be used as the challenge. Otherwise a random challenge will
+   * be generated.
    *
    * `format!("<key_base64>|<iv_base64>")`
    */
@@ -48,6 +52,18 @@ export declare namespace biometrics {
     keyB64: string
     ivB64: string
   }
+}
+export declare namespace biometrics_v2 {
+  export function initBiometricSystem(): BiometricLockSystem
+  export function authenticate(biometricLockSystem: BiometricLockSystem, hwnd: Buffer, message: string): Promise<boolean>
+  export function authenticateAvailable(biometricLockSystem: BiometricLockSystem): Promise<boolean>
+  export function enrollPersistent(biometricLockSystem: BiometricLockSystem, userId: string, key: Buffer): Promise<void>
+  export function provideKey(biometricLockSystem: BiometricLockSystem, userId: string, key: Buffer): Promise<void>
+  export function unlock(biometricLockSystem: BiometricLockSystem, userId: string, hwnd: Buffer): Promise<Buffer>
+  export function unlockAvailable(biometricLockSystem: BiometricLockSystem, userId: string): Promise<boolean>
+  export function hasPersistent(biometricLockSystem: BiometricLockSystem, userId: string): Promise<boolean>
+  export function unenroll(biometricLockSystem: BiometricLockSystem, userId: string): Promise<void>
+  export class BiometricLockSystem {   }
 }
 export declare namespace clipboards {
   export function read(): Promise<string>
@@ -82,7 +98,7 @@ export declare namespace sshagent {
 export declare namespace processisolations {
   export function disableCoredumps(): Promise<void>
   export function isCoreDumpingDisabled(): Promise<boolean>
-  export function disableMemoryAccess(): Promise<void>
+  export function isolateProcess(): Promise<void>
 }
 export declare namespace powermonitors {
   export function onLock(callback: (err: Error | null, ) => any): Promise<void>
@@ -107,8 +123,9 @@ export declare namespace ipc {
     /**
      * Create and start the IPC server without blocking.
      *
-     * @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
-     * @param callback This function will be called whenever a message is received from a client.
+     * @param name The endpoint name to listen on. This name uniquely identifies the IPC
+     * connection and must be the same for both the server and client. @param callback
+     * This function will be called whenever a message is received from a client.
      */
     static listen(name: string, callback: (error: null | Error, message: IpcMessage) => void): Promise<IpcServer>
     /** Return the path to the IPC server. */
@@ -118,8 +135,9 @@ export declare namespace ipc {
     /**
      * Send a message over the IPC server to all the connected clients
      *
-     * @return The number of clients that the message was sent to. Note that the number of messages
-     * actually received may be less, as some clients could disconnect before receiving the message.
+     * @return The number of clients that the message was sent to. Note that the number of
+     * messages actually received may be less, as some clients could disconnect before
+     * receiving the message.
      */
     send(message: string): number
   }
@@ -182,8 +200,9 @@ export declare namespace autofill {
     /**
      * Create and start the IPC server without blocking.
      *
-     * @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
-     * @param callback This function will be called whenever a message is received from a client.
+     * @param name The endpoint name to listen on. This name uniquely identifies the IPC
+     * connection and must be the same for both the server and client. @param callback
+     * This function will be called whenever a message is received from a client.
      */
     static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void, assertionWithoutUserInterfaceCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void): Promise<IpcServer>
     /** Return the path to the IPC server. */
@@ -208,6 +227,37 @@ export declare namespace logging {
   }
   export function initNapiLog(jsLogFn: (err: Error | null, arg0: LogLevel, arg1: string) => any): void
 }
+export declare namespace chromium_importer {
+  export interface ProfileInfo {
+    id: string
+    name: string
+  }
+  export interface Login {
+    url: string
+    username: string
+    password: string
+    note: string
+  }
+  export interface LoginImportFailure {
+    url: string
+    username: string
+    error: string
+  }
+  export interface LoginImportResult {
+    login?: Login
+    failure?: LoginImportFailure
+  }
+  export interface NativeImporterMetadata {
+    id: string
+    loaders: Array<string>
+    instructions: string
+  }
+  /** Returns OS aware metadata describing supported Chromium based importers as a JSON string. */
+  export function getMetadata(): Record<string, NativeImporterMetadata>
+  export function getAvailableProfiles(browser: string): Array<ProfileInfo>
+  export function importLogins(browser: string, profileId: string): Promise<Array<LoginImportResult>>
+}
 export declare namespace autotype {
   export function getForegroundWindowTitle(): string
+  export function typeInput(input: Array<number>, keyboardShortcut: Array<string>): void
 }

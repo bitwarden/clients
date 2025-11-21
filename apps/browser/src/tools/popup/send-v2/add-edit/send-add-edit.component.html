@@ -16,7 +16,7 @@
     <button bitButton type="submit" form="sendForm" buttonType="primary" #submitBtn>
       {{ "save" | i18n }}
     </button>
-    <button bitButton type="button" buttonType="secondary" popupBackAction>
+    <button bitButton type="button" buttonType="secondary" [popupBackAction]>
       {{ "cancel" | i18n }}
     </button>
     <button
@@ -26,7 +26,7 @@
       slot="end"
       bitIconButton="bwi-trash"
       [bitAction]="deleteSend"
-      appA11yTitle="{{ 'delete' | i18n }}"
+      label="{{ 'delete' | i18n }}"
     ></button>
   </popup-footer>
 </popup-page>

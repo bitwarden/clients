@@ -24,9 +24,13 @@ jobs:
     outputs:
       release_version: ${{ steps.version.outputs.version }}
       tag_version: ${{ steps.version.outputs.tag }}
+    permissions:
+      contents: read
     steps:
       - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Branch check
         if: ${{ inputs.publish_type != 'Dry Run' }}
@@ -52,6 +56,10 @@ jobs:
     name: Release self-host docker
     runs-on: ubuntu-22.04
     needs: setup
+    permissions:
+      id-token: write
+      contents: read
+      deployments: write
     env:
       _BRANCH_NAME: ${{ github.ref_name }}
       _RELEASE_VERSION: ${{ needs.setup.outputs.release_version }}
@@ -66,13 +74,17 @@ jobs:
           echo "Github Release Option: $_RELEASE_OPTION"
 
       - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       ########## ACR ##########
-      - name: Login to Azure - PROD Subscription
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_PROD_KV_CREDENTIALS }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Login to Azure ACR
         run: az acr login -n bitwardenprod
@@ -92,34 +104,37 @@ jobs:
       - name: Pull branch image
         run: |
           if [[ "${{ inputs.publish_type }}" == "Dry Run" ]]; then
-            docker pull $_AZ_REGISTRY/web:latest
+            docker pull "$_AZ_REGISTRY/web:latest"
           else
-            docker pull $_AZ_REGISTRY/web:$_BRANCH_NAME
+            docker pull "$_AZ_REGISTRY/web:$_BRANCH_NAME"
           fi
 
       - name: Tag version
         run: |
           if [[ "${{ inputs.publish_type }}" == "Dry Run" ]]; then
-            docker tag $_AZ_REGISTRY/web:latest $_AZ_REGISTRY/web:dryrun
-            docker tag $_AZ_REGISTRY/web:latest $_AZ_REGISTRY/web-sh:dryrun
+            docker tag "$_AZ_REGISTRY/web:latest" "$_AZ_REGISTRY/web:dryrun"
+            docker tag "$_AZ_REGISTRY/web:latest" "$_AZ_REGISTRY/web-sh:dryrun"
           else
-            docker tag $_AZ_REGISTRY/web:$_BRANCH_NAME $_AZ_REGISTRY/web:$_RELEASE_VERSION
-            docker tag $_AZ_REGISTRY/web:$_BRANCH_NAME $_AZ_REGISTRY/web-sh:$_RELEASE_VERSION
-            docker tag $_AZ_REGISTRY/web:$_BRANCH_NAME $_AZ_REGISTRY/web:latest
-            docker tag $_AZ_REGISTRY/web:$_BRANCH_NAME $_AZ_REGISTRY/web-sh:latest
+            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web:$_RELEASE_VERSION"
+            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web-sh:$_RELEASE_VERSION"
+            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web:latest"
+            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web-sh:latest"
           fi
 
       - name: Push version
         run: |
           if [[ "${{ inputs.publish_type }}" == "Dry Run" ]]; then
-            docker push $_AZ_REGISTRY/web:dryrun
-            docker push $_AZ_REGISTRY/web-sh:dryrun
+            docker push "$_AZ_REGISTRY/web:dryrun"
+            docker push "$_AZ_REGISTRY/web-sh:dryrun"
           else
-            docker push $_AZ_REGISTRY/web:$_RELEASE_VERSION
-            docker push $_AZ_REGISTRY/web-sh:$_RELEASE_VERSION
-            docker push $_AZ_REGISTRY/web:latest
-            docker push $_AZ_REGISTRY/web-sh:latest
+            docker push "$_AZ_REGISTRY/web:$_RELEASE_VERSION"
+            docker push "$_AZ_REGISTRY/web-sh:$_RELEASE_VERSION"
+            docker push "$_AZ_REGISTRY/web:latest"
+            docker push "$_AZ_REGISTRY/web-sh:latest"
           fi
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Update deployment status to Success
         if: ${{ inputs.publish_type != 'Dry Run' && success() }}
@@ -142,16 +157,19 @@ jobs:
       - name: Log out of Docker
         run: docker logout
 
-  self-host-unified-build:
-    name: Trigger self-host unified build
+  bitwarden-lite-build:
+    name: Trigger Bitwarden Lite build
     runs-on: ubuntu-22.04
-    needs:
-      - setup
+    needs: setup
+    permissions:
+      id-token: write
     steps:
-      - name: Log in to Azure - CI subscription
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve GitHub PAT secrets
         id: retrieve-secret-pat
@@ -160,15 +178,18 @@ jobs:
           keyvault: "bitwarden-ci"
           secrets: "github-pat-bitwarden-devops-bot-repo-scope"
 
-      - name: Trigger self-host build
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Trigger Bitwarden Lite build
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           github-token: ${{ steps.retrieve-secret-pat.outputs.github-pat-bitwarden-devops-bot-repo-scope }}
           script: |
             await github.rest.actions.createWorkflowDispatch({
               owner: 'bitwarden',
               repo: 'self-host',
-              workflow_id: 'build-unified.yml',
+              workflow_id: 'build-bitwarden-lite.yml',
               ref: 'main',
               inputs: {
                 use_latest_core_version: true

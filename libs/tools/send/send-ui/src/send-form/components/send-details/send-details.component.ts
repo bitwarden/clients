@@ -47,6 +47,8 @@ export interface DatePresetSelectOption {
   value: DatePreset | string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-send-details",
   templateUrl: "./send-details.component.html",
@@ -68,7 +70,11 @@ export interface DatePresetSelectOption {
   ],
 })
 export class SendDetailsComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() config: SendFormConfig;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() originalSendView?: SendView;
 
   FileSendType = SendType.File;

@@ -83,3 +83,97 @@ impl KeyMaterial {
         Ok(Sha256::digest(self.digest_material()))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use base64::{engine::general_purpose::STANDARD as base64_engine, Engine};
+
+    use crate::{
+        biometric::{decrypt, encrypt, KeyMaterial},
+        crypto::CipherString,
+    };
+
+    fn key_material() -> KeyMaterial {
+        KeyMaterial {
+            os_key_part_b64: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=".to_owned(),
+            client_key_part_b64: Some("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=".to_owned()),
+        }
+    }
+
+    #[test]
+    fn test_encrypt() {
+        let key_material = key_material();
+        let iv_b64 = "l9fhDUP/wDJcKwmEzcb/3w==".to_owned();
+        let secret = encrypt("secret", &key_material, &iv_b64)
+            .unwrap()
+            .parse::<CipherString>()
+            .unwrap();
+
+        match secret {
+            CipherString::AesCbc256_B64 { iv, data: _ } => {
+                assert_eq!(iv_b64, base64_engine.encode(iv));
+            }
+            _ => panic!("Invalid cipher string"),
+        }
+    }
+
+    #[test]
+    fn test_decrypt() {
+        let secret =
+            CipherString::from_str("0.l9fhDUP/wDJcKwmEzcb/3w==|uP4LcqoCCj5FxBDP77NV6Q==").unwrap(); // output from test_encrypt
+        let key_material = key_material();
+        assert_eq!(decrypt(&secret, &key_material).unwrap(), "secret")
+    }
+
+    #[test]
+    fn key_material_produces_valid_key() {
+        let result = key_material().derive_key().unwrap();
+        assert_eq!(result.len(), 32);
+    }
+
+    #[test]
+    fn key_material_uses_os_part() {
+        let mut key_material = key_material();
+        let result = key_material.derive_key().unwrap();
+        key_material.os_key_part_b64 = "BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=".to_owned();
+        let result2 = key_material.derive_key().unwrap();
+        assert_ne!(result, result2);
+    }
+
+    #[test]
+    fn key_material_uses_client_part() {
+        let mut key_material = key_material();
+        let result = key_material.derive_key().unwrap();
+        key_material.client_key_part_b64 =
+            Some("BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=".to_owned());
+        let result2 = key_material.derive_key().unwrap();
+        assert_ne!(result, result2);
+    }
+
+    #[test]
+    fn key_material_produces_consistent_os_only_key() {
+        let mut key_material = key_material();
+        key_material.client_key_part_b64 = None;
+        let result = key_material.derive_key().unwrap();
+        assert_eq!(
+            result,
+            [
+                81, 100, 62, 172, 151, 119, 182, 58, 123, 38, 129, 116, 209, 253, 66, 118, 218,
+                237, 236, 155, 201, 234, 11, 198, 229, 171, 246, 144, 71, 188, 84, 246
+            ]
+            .into()
+        );
+    }
+
+    #[test]
+    fn key_material_produces_unique_os_only_key() {
+        let mut key_material = key_material();
+        key_material.client_key_part_b64 = None;
+        let result = key_material.derive_key().unwrap();
+        key_material.os_key_part_b64 = "BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=".to_owned();
+        let result2 = key_material.derive_key().unwrap();
+        assert_ne!(result, result2);
+    }
+}

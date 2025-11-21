@@ -8,6 +8,7 @@ import {
 } from "../../../platform/models/domain/decrypt-parameters";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "../../../types/csprng";
+import { UnsignedPublicKey } from "../../types";
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
 
 export class WebCryptoFunctionService implements CryptoFunctionService {
@@ -146,34 +147,6 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     return new Uint8Array(buffer);
   }
 
-  // Safely compare two values in a way that protects against timing attacks (Double HMAC Verification).
-  // ref: https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2011/february/double-hmac-verification/
-  // ref: https://paragonie.com/blog/2015/11/preventing-timing-attacks-on-string-comparison-with-double-hmac-strategy
-  async compare(a: Uint8Array, b: Uint8Array): Promise<boolean> {
-    const macKey = await this.randomBytes(32);
-    const signingAlgorithm = {
-      name: "HMAC",
-      hash: { name: "SHA-256" },
-    };
-    const impKey = await this.subtle.importKey("raw", macKey, signingAlgorithm, false, ["sign"]);
-    const mac1 = await this.subtle.sign(signingAlgorithm, impKey, a);
-    const mac2 = await this.subtle.sign(signingAlgorithm, impKey, b);
-
-    if (mac1.byteLength !== mac2.byteLength) {
-      return false;
-    }
-
-    const arr1 = new Uint8Array(mac1);
-    const arr2 = new Uint8Array(mac2);
-    for (let i = 0; i < arr2.length; i++) {
-      if (arr1[i] !== arr2[i]) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
   hmacFast(value: string, key: string, algorithm: "sha1" | "sha256" | "sha512"): Promise<string> {
     const hmac = forge.hmac.create();
     hmac.start(algorithm, key);
@@ -182,6 +155,9 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     return Promise.resolve(bytes);
   }
 
+  // Safely compare two values in a way that protects against timing attacks (Double HMAC Verification).
+  // ref: https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2011/february/double-hmac-verification/
+  // ref: https://paragonie.com/blog/2015/11/preventing-timing-attacks-on-string-comparison-with-double-hmac-strategy
   async compareFast(a: string, b: string): Promise<boolean> {
     const rand = await this.randomBytes(32);
     const bytes = new Uint32Array(rand);
@@ -202,14 +178,6 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
 
     const equals = mac1 === mac2;
     return equals;
-  }
-
-  async aesEncrypt(data: Uint8Array, iv: Uint8Array, key: Uint8Array): Promise<Uint8Array> {
-    const impKey = await this.subtle.importKey("raw", key, { name: "AES-CBC" } as any, false, [
-      "encrypt",
-    ]);
-    const buffer = await this.subtle.encrypt({ name: "AES-CBC", iv: iv }, impKey, data);
-    return new Uint8Array(buffer);
   }
 
   aesDecryptFastParameters(
@@ -342,7 +310,7 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
       "encrypt",
     ]);
     const buffer = await this.subtle.exportKey("spki", impPublicKey);
-    return new Uint8Array(buffer);
+    return new Uint8Array(buffer) as UnsignedPublicKey;
   }
 
   async aesGenerateKey(bitLength = 128 | 192 | 256 | 512): Promise<CsprngArray> {

@@ -1,4 +1,4 @@
-import { OrganizationWarningsResponse } from "@bitwarden/common/billing/models/response/organization-warnings.response";
+import { ChangePlanFrequencyRequest } from "@bitwarden/common/billing/models/request/change-plan-frequency.request";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { OrganizationBillingApiServiceAbstraction } from "../../abstractions/organizations/organization-billing-api.service.abstraction";
@@ -52,18 +52,6 @@ export class OrganizationBillingApiService implements OrganizationBillingApiServ
     return r?.map((i: any) => new BillingTransactionResponse(i)) || [];
   }
 
-  async getWarnings(id: string): Promise<OrganizationWarningsResponse> {
-    const response = await this.apiService.send(
-      "GET",
-      `/organizations/${id}/billing/warnings`,
-      null,
-      true,
-      true,
-    );
-
-    return new OrganizationWarningsResponse(response);
-  }
-
   async setupBusinessUnit(
     id: string,
     request: {
@@ -82,5 +70,18 @@ export class OrganizationBillingApiService implements OrganizationBillingApiServ
     );
 
     return response as string;
+  }
+
+  async changeSubscriptionFrequency(
+    organizationId: string,
+    request: ChangePlanFrequencyRequest,
+  ): Promise<void> {
+    return await this.apiService.send(
+      "POST",
+      "/organizations/" + organizationId + "/billing/change-frequency",
+      request,
+      true,
+      false,
+    );
   }
 }

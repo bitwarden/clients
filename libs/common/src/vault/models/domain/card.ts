@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { Card as SdkCard } from "@bitwarden/sdk-internal";
@@ -7,16 +5,17 @@ import { Card as SdkCard } from "@bitwarden/sdk-internal";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { CardData } from "../data/card.data";
 import { CardView } from "../view/card.view";
 
 export class Card extends Domain {
-  cardholderName: EncString;
-  brand: EncString;
-  number: EncString;
-  expMonth: EncString;
-  expYear: EncString;
-  code: EncString;
+  cardholderName?: EncString;
+  brand?: EncString;
+  number?: EncString;
+  expMonth?: EncString;
+  expYear?: EncString;
+  code?: EncString;
 
   constructor(obj?: CardData) {
     super();
@@ -24,23 +23,16 @@ export class Card extends Domain {
       return;
     }
 
-    this.buildDomainModel(
-      this,
-      obj,
-      {
-        cardholderName: null,
-        brand: null,
-        number: null,
-        expMonth: null,
-        expYear: null,
-        code: null,
-      },
-      [],
-    );
+    this.cardholderName = conditionalEncString(obj.cardholderName);
+    this.brand = conditionalEncString(obj.brand);
+    this.number = conditionalEncString(obj.number);
+    this.expMonth = conditionalEncString(obj.expMonth);
+    this.expYear = conditionalEncString(obj.expYear);
+    this.code = conditionalEncString(obj.code);
   }
 
   async decrypt(
-    orgId: string,
+    orgId: string | undefined,
     context = "No Cipher Context",
     encKey?: SymmetricCryptoKey,
   ): Promise<CardView> {
@@ -48,7 +40,7 @@ export class Card extends Domain {
       this,
       new CardView(),
       ["cardholderName", "brand", "number", "expMonth", "expYear", "code"],
-      orgId,
+      orgId ?? null,
       encKey,
       "DomainType: Card; " + context,
     );
@@ -67,25 +59,20 @@ export class Card extends Domain {
     return c;
   }
 
-  static fromJSON(obj: Partial<Jsonify<Card>>): Card {
+  static fromJSON(obj: Partial<Jsonify<Card>> | undefined): Card | undefined {
     if (obj == null) {
-      return null;
+      return undefined;
     }
 
-    const cardholderName = EncString.fromJSON(obj.cardholderName);
-    const brand = EncString.fromJSON(obj.brand);
-    const number = EncString.fromJSON(obj.number);
-    const expMonth = EncString.fromJSON(obj.expMonth);
-    const expYear = EncString.fromJSON(obj.expYear);
-    const code = EncString.fromJSON(obj.code);
-    return Object.assign(new Card(), obj, {
-      cardholderName,
-      brand,
-      number,
-      expMonth,
-      expYear,
-      code,
-    });
+    const card = new Card();
+    card.cardholderName = encStringFrom(obj.cardholderName);
+    card.brand = encStringFrom(obj.brand);
+    card.number = encStringFrom(obj.number);
+    card.expMonth = encStringFrom(obj.expMonth);
+    card.expYear = encStringFrom(obj.expYear);
+    card.code = encStringFrom(obj.code);
+
+    return card;
   }
 
   /**
@@ -95,12 +82,32 @@ export class Card extends Domain {
    */
   toSdkCard(): SdkCard {
     return {
-      cardholderName: this.cardholderName?.toJSON(),
-      brand: this.brand?.toJSON(),
-      number: this.number?.toJSON(),
-      expMonth: this.expMonth?.toJSON(),
-      expYear: this.expYear?.toJSON(),
-      code: this.code?.toJSON(),
+      cardholderName: this.cardholderName?.toSdk(),
+      brand: this.brand?.toSdk(),
+      number: this.number?.toSdk(),
+      expMonth: this.expMonth?.toSdk(),
+      expYear: this.expYear?.toSdk(),
+      code: this.code?.toSdk(),
     };
+  }
+
+  /**
+   * Maps an SDK Card object to a Card
+   * @param obj - The SDK Card object
+   */
+  static fromSdkCard(obj?: SdkCard): Card | undefined {
+    if (!obj) {
+      return undefined;
+    }
+
+    const card = new Card();
+    card.cardholderName = encStringFrom(obj.cardholderName);
+    card.brand = encStringFrom(obj.brand);
+    card.number = encStringFrom(obj.number);
+    card.expMonth = encStringFrom(obj.expMonth);
+    card.expYear = encStringFrom(obj.expYear);
+    card.code = encStringFrom(obj.code);
+
+    return card;
   }
 }

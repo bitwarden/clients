@@ -1,5 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import {
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import {
@@ -23,8 +30,6 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -43,6 +48,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import {
+  AtRiskPasswordCalloutService,
   ChangeLoginPasswordService,
   DefaultChangeLoginPasswordService,
   PasswordRepromptService,
@@ -77,9 +83,11 @@ import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
   providers: [
     AtRiskPasswordPageService,
     { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
+    AtRiskPasswordCalloutService,
   ],
   selector: "vault-at-risk-passwords",
   templateUrl: "./at-risk-passwords.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AtRiskPasswordsComponent implements OnInit {
   private taskService = inject(TaskService);
@@ -96,15 +104,15 @@ export class AtRiskPasswordsComponent implements OnInit {
   private platformUtilsService = inject(PlatformUtilsService);
   private dialogService = inject(DialogService);
   private endUserNotificationService = inject(EndUserNotificationService);
-  private configService = inject(ConfigService);
   private destroyRef = inject(DestroyRef);
+  private atRiskPasswordCalloutService = inject(AtRiskPasswordCalloutService);
 
   /**
    * The cipher that is currently being launched. Used to show a loading spinner on the badge button.
    * The UI utilize a bitBadge which does not support async actions (like bitButton does).
    * @protected
    */
-  protected launchingCipher = signal<CipherView | null>(null);
+  protected readonly launchingCipher = signal<CipherView | null>(null);
 
   private activeUserData$ = this.accountService.activeAccount$.pipe(
     filterOutNullish(),
@@ -156,6 +164,8 @@ export class AtRiskPasswordsComponent implements OnInit {
             t.type === SecurityTaskType.UpdateAtRiskCredential &&
             t.cipherId != null &&
             ciphers[t.cipherId] != null &&
+            ciphers[t.cipherId].edit &&
+            ciphers[t.cipherId].viewPassword &&
             !ciphers[t.cipherId].isDeleted,
         )
         .map((t) => ciphers[t.cipherId!]),
@@ -201,9 +211,12 @@ export class AtRiskPasswordsComponent implements OnInit {
       }
     }
 
-    if (await this.configService.getFeatureFlag(FeatureFlag.EndUserNotifications)) {
-      this.markTaskNotificationsAsRead();
-    }
+    this.markTaskNotificationsAsRead();
+
+    this.atRiskPasswordCalloutService.updateAtRiskPasswordState(userId, {
+      hasInteractedWithTasks: true,
+      tasksBannerDismissed: false,
+    });
   }
 
   private markTaskNotificationsAsRead() {
@@ -258,6 +271,10 @@ export class AtRiskPasswordsComponent implements OnInit {
     await this.atRiskPasswordPageService.dismissCallout(userId);
   }
 
+  protected hasLoginUri(cipher: CipherView) {
+    return cipher.login?.hasUris;
+  }
+
   launchChangePassword = async (cipher: CipherView) => {
     try {
       this.launchingCipher.set(cipher);
@@ -278,7 +295,7 @@ export class AtRiskPasswordsComponent implements OnInit {
    * which can conflict with the `PopupRouterCacheService`. This replaces the
    * built-in back button behavior so the user always navigates to the vault.
    */
-  protected async navigateToVault() {
+  protected navigateToVault = async () => {
     await this.router.navigate(["/tabs/vault"]);
-  }
+  };
 }

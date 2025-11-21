@@ -22,6 +22,7 @@ export default {
           useFactory: () => {
             return new I18nMockService({
               close: "Close",
+              loading: "Loading",
             });
           },
         },
@@ -49,10 +50,10 @@ export const Base: Story = {
   render: (args) => {
     return {
       props: args,
-      template: `
+      template: /*html*/ `
         <bit-banner ${formatArgsForCodeSnippet<BannerComponent>(args)}>
           Content Really Long Text Lorem Ipsum Ipsum Ipsum
-          <button bitLink linkType="secondary">Button</button>
+          <button type="button" bitLink linkType="secondary">Button</button>
         </bit-banner>
       `,
     };

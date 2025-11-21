@@ -13,7 +13,6 @@ import {
   ObservableStorageService,
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { Theme } from "@bitwarden/common/platform/enums";
-import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { Message } from "@bitwarden/common/platform/messaging";
 import { HttpOperations } from "@bitwarden/common/services/api.service";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
@@ -33,13 +32,9 @@ export const OBSERVABLE_DISK_LOCAL_STORAGE = new SafeInjectionToken<
 >("OBSERVABLE_DISK_LOCAL_STORAGE");
 export const MEMORY_STORAGE = new SafeInjectionToken<AbstractStorageService>("MEMORY_STORAGE");
 export const SECURE_STORAGE = new SafeInjectionToken<AbstractStorageService>("SECURE_STORAGE");
-export const STATE_FACTORY = new SafeInjectionToken<StateFactory>("STATE_FACTORY");
 export const LOGOUT_CALLBACK = new SafeInjectionToken<
   (logoutReason: LogoutReason, userId?: string) => Promise<void>
 >("LOGOUT_CALLBACK");
-export const LOCKED_CALLBACK = new SafeInjectionToken<(userId?: string) => Promise<void>>(
-  "LOCKED_CALLBACK",
-);
 export const SUPPORTS_SECURE_STORAGE = new SafeInjectionToken<boolean>("SUPPORTS_SECURE_STORAGE");
 export const LOCALES_DIRECTORY = new SafeInjectionToken<string>("LOCALES_DIRECTORY");
 export const SYSTEM_LANGUAGE = new SafeInjectionToken<string>("SYSTEM_LANGUAGE");

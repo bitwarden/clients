@@ -1,6 +1,5 @@
-import { ConditionalExcept, ConditionalKeys, Constructor } from "type-fest";
+import { ConditionalExcept, ConditionalKeys } from "type-fest";
 
-import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { View } from "../../../models/view/view";
 
@@ -15,15 +14,15 @@ export type DecryptedObject<
 
 // extracts shared keys from the domain and view types
 type EncryptableKeys<D extends Domain, V extends View> = (keyof D &
-  ConditionalKeys<D, EncString | null>) &
-  (keyof V & ConditionalKeys<V, string | null>);
+  ConditionalKeys<D, EncString | null | undefined>) &
+  (keyof V & ConditionalKeys<V, string | null | undefined>);
 
 type DomainEncryptableKeys<D extends Domain> = {
-  [key in ConditionalKeys<D, EncString | null>]: EncString | null;
+  [key in ConditionalKeys<D, EncString | null | undefined>]?: EncString | null | undefined;
 };
 
 type ViewEncryptableKeys<V extends View> = {
-  [key in ConditionalKeys<V, string | null>]: string | null;
+  [key in ConditionalKeys<V, string | null | undefined>]?: string | null | undefined;
 };
 
 // https://contributing.bitwarden.com/architecture/clients/data-model#domain
@@ -88,67 +87,5 @@ export default class Domain {
     }
 
     return viewModel as V;
-  }
-
-  /**
-   * Decrypts the requested properties of the domain object with the provided key and encrypt service.
-   *
-   * If a property is null, the result will be null.
-   * @see {@link EncString.decryptWithKey} for more details on decryption behavior.
-   *
-   * @param encryptedProperties The properties to decrypt. Type restricted to EncString properties of the domain object.
-   * @param key The key to use for decryption.
-   * @param encryptService The encryption service to use for decryption.
-   * @param _ The constructor of the domain object. Used for type inference if the domain object is not automatically inferred.
-   * @returns An object with the requested properties decrypted and the rest of the domain object untouched.
-   */
-  protected async decryptObjWithKey<
-    TThis extends Domain,
-    const TEncryptedKeys extends EncStringKeys<TThis>,
-  >(
-    this: TThis,
-    encryptedProperties: TEncryptedKeys[],
-    key: SymmetricCryptoKey,
-    encryptService: EncryptService,
-    _: Constructor<TThis> = this.constructor as Constructor<TThis>,
-    objectContext: string = "No Domain Context",
-  ): Promise<DecryptedObject<TThis, TEncryptedKeys>> {
-    const decryptedObjects = [];
-
-    for (const prop of encryptedProperties) {
-      const value = this[prop] as EncString;
-      const decrypted = await this.decryptProperty(
-        prop,
-        value,
-        key,
-        encryptService,
-        `Property: ${prop.toString()}; ObjectContext: ${objectContext}`,
-      );
-      decryptedObjects.push(decrypted);
-    }
-
-    const decryptedObject = decryptedObjects.reduce(
-      (acc, obj) => {
-        return { ...acc, ...obj };
-      },
-      { ...this },
-    );
-    return decryptedObject as DecryptedObject<TThis, TEncryptedKeys>;
-  }
-
-  private async decryptProperty<const TEncryptedKeys extends EncStringKeys<this>>(
-    propertyKey: TEncryptedKeys,
-    value: EncString,
-    key: SymmetricCryptoKey,
-    encryptService: EncryptService,
-    decryptTrace: string,
-  ) {
-    let decrypted: string | null = null;
-    if (value) {
-      decrypted = await value.decryptWithKey(key, encryptService, decryptTrace);
-    }
-    return {
-      [propertyKey]: decrypted,
-    };
   }
 }

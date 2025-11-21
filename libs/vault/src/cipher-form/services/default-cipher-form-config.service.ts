@@ -48,9 +48,10 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
       await firstValueFrom(
         combineLatest([
           this.organizations$(activeUserId),
-          this.collectionService.encryptedCollections$.pipe(
+          this.collectionService.encryptedCollections$(activeUserId).pipe(
+            map((collections) => collections ?? []),
             switchMap((c) =>
-              this.collectionService.decryptedCollections$.pipe(
+              this.collectionService.decryptedCollections$(activeUserId).pipe(
                 filter((d) => d.length === c.length), // Ensure all collections have been decrypted
               ),
             ),
@@ -58,9 +59,12 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
           this.organizationDataOwnershipDisabled$,
           this.folderService.folders$(activeUserId).pipe(
             switchMap((f) =>
-              this.folderService.folderViews$(activeUserId).pipe(
-                filter((d) => d.length - 1 === f.length), // -1 for "No Folder" in folderViews$
-              ),
+              this.folderService
+                .folderViews$(activeUserId)
+                // Ensure the folders have decrypted. f.length === 0 indicates we don't have any
+                // folders to wait for, and d.length > 0 indicates that `folderViews` has emitted the
+                // array, which includes the "No Folder" default folder.
+                .pipe(filter((d) => d.length > 0 || f.length === 0)),
             ),
           ),
           this.getCipher(activeUserId, cipherId),

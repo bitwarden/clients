@@ -4,12 +4,10 @@ import * as JSZip from "jszip";
 import * as papa from "papaparse";
 import { firstValueFrom } from "rxjs";
 
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { CipherWithIdExport, FolderWithIdExport } from "@bitwarden/common/models/export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
@@ -49,7 +47,6 @@ export class IndividualVaultExportService
     encryptService: EncryptService,
     cryptoFunctionService: CryptoFunctionService,
     kdfConfigService: KdfConfigService,
-    private accountService: AccountService,
     private apiService: ApiService,
     private restrictedItemTypesService: RestrictedItemTypesService,
   ) {
@@ -57,10 +54,10 @@ export class IndividualVaultExportService
   }
 
   /** Creates an export of an individual vault (My Vault). Based on the provided format it will either be unencrypted, encrypted or password protected and in case zip is selected will include attachments
+   * @param userId The userId of the account requesting the export
    * @param format The format of the export
    */
-  async getExport(format: ExportFormat = "csv"): Promise<ExportedVault> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+  async getExport(userId: UserId, format: ExportFormat = "csv"): Promise<ExportedVault> {
     if (format === "encrypted_json") {
       return this.getEncryptedExport(userId);
     } else if (format === "zip") {
@@ -70,12 +67,15 @@ export class IndividualVaultExportService
   }
 
   /** Creates a password protected export of an individual vault (My Vault) as a JSON file
+   * @param userId The userId of the account requesting the export
    * @param password The password to encrypt the export with
    * @returns A password-protected encrypted individual vault export
    */
-  async getPasswordProtectedExport(password: string): Promise<ExportedVaultAsString> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const exportVault = await this.getExport("json");
+  async getPasswordProtectedExport(
+    userId: UserId,
+    password: string,
+  ): Promise<ExportedVaultAsString> {
+    const exportVault = await this.getExport(userId, "json");
 
     if (exportVault.type !== "text/plain") {
       throw new Error("Unexpected export type");
@@ -201,6 +201,10 @@ export class IndividualVaultExportService
   }
 
   private async getEncryptedExport(activeUserId: UserId): Promise<ExportedVaultAsString> {
+    if (!activeUserId) {
+      throw new Error("User ID must not be null or undefined");
+    }
+
     let folders: Folder[] = [];
     let ciphers: Cipher[] = [];
     const promises = [];
@@ -225,7 +229,7 @@ export class IndividualVaultExportService
 
     await Promise.all(promises);
 
-    const userKey = await this.keyService.getUserKey(activeUserId);
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
     const encKeyValidation = await this.encryptService.encryptString(Utils.newGuid(), userKey);
 
     const jsonDoc: BitwardenEncryptedIndividualJsonExport = {

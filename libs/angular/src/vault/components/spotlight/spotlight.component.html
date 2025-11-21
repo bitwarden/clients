@@ -1,9 +1,9 @@
 <div
-  class="tw-rounded-2xl tw-bg-primary-100 tw-border-primary-600 tw-border-solid tw-border tw-p-4 tw-pt-3 tw-flex tw-flex-col tw-gap-2 tw-mb-4"
+  class="tw-rounded-2xl tw-bg-primary-100 tw-border-primary-600 tw-border-solid tw-border tw-p-4 tw-pt-2 tw-flex tw-flex-col tw-gap-2 tw-mb-4"
 >
   <div class="tw-flex tw-justify-between tw-items-start tw-flex-grow">
     <div>
-      <h2 bitTypography="h4" class="tw-font-semibold !tw-mb-1">{{ title }}</h2>
+      <h2 bitTypography="h4" class="tw-font-medium !tw-mb-1">{{ title }}</h2>
       <p
         *ngIf="subtitle"
         class="tw-text-main tw-mb-0"
@@ -18,8 +18,8 @@
       size="small"
       *ngIf="!persistent"
       (click)="handleDismiss()"
-      [attr.title]="'close' | i18n"
-      [attr.aria-label]="'close' | i18n"
+      class="-tw-me-2"
+      [label]="'close' | i18n"
     ></button>
   </div>
 

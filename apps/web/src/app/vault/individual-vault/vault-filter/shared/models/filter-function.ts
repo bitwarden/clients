@@ -9,7 +9,10 @@ import { All, RoutedVaultFilterModel } from "./routed-vault-filter.model";
 
 export type FilterFunction = (cipher: CipherViewLike) => boolean;
 
-export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunction {
+export function createFilterFunction(
+  filter: RoutedVaultFilterModel,
+  archiveEnabled?: boolean,
+): FilterFunction {
   return (cipher) => {
     const type = CipherViewLikeUtils.getType(cipher);
     const isDeleted = CipherViewLikeUtils.isDeleted(cipher);
@@ -38,6 +41,15 @@ export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunc
     // Hide trash unless explicitly selected
     if (filter.type !== "trash" && isDeleted) {
       return false;
+    }
+    // Archive filter logic is only applied if the feature flag is enabled
+    if (archiveEnabled) {
+      if (filter.type === "archive" && !CipherViewLikeUtils.isArchived(cipher)) {
+        return false;
+      }
+      if (filter.type !== "archive" && CipherViewLikeUtils.isArchived(cipher)) {
+        return false;
+      }
     }
     // No folder
     if (filter.folderId === Unassigned && cipher.folderId != null) {
@@ -69,7 +81,7 @@ export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunc
       filter.collectionId !== undefined &&
       filter.collectionId !== All &&
       filter.collectionId !== Unassigned &&
-      (cipher.collectionIds == null || !cipher.collectionIds.includes(filter.collectionId))
+      (cipher.collectionIds == null || !cipher.collectionIds.includes(filter.collectionId as any))
     ) {
       return false;
     }

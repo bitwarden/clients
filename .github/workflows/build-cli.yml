@@ -59,30 +59,30 @@ jobs:
       has_secrets: ${{ steps.check-secrets.outputs.has_secrets }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Get Package Version
         id: retrieve-package-version
         run: |
           PKG_VERSION=$(jq -r .version package.json)
-          echo "package_version=$PKG_VERSION" >> $GITHUB_OUTPUT
+          echo "package_version=$PKG_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Get Node Version
         id: retrieve-node-version
+        working-directory: ./
         run: |
           NODE_NVMRC=$(cat .nvmrc)
-          NODE_VERSION=${NODE_NVMRC/v/''}
-          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
+          NODE_VERSION="${NODE_NVMRC/v/''}"
+          echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Check secrets
         id: check-secrets
-        env:
-          AZURE_KV_CI_SERVICE_PRINCIPAL: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
         run: |
-          has_secrets=${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL != '' }}
-          echo "has_secrets=$has_secrets" >> $GITHUB_OUTPUT
+          has_secrets=${{ secrets.AZURE_CLIENT_ID != '' }}
+          echo "has_secrets=$has_secrets" >> "$GITHUB_OUTPUT"
 
 
   cli:
@@ -93,35 +93,44 @@ jobs:
           [
             { base: "linux", distro: "ubuntu-22.04", target_suffix: "" },
             { base: "linux", distro: "ubuntu-22.04-arm", target_suffix: "-arm64" },
-            { base: "mac", distro: "macos-13", target_suffix: "" },
-            { base: "mac", distro: "macos-14", target_suffix: "-arm64" }
+            { base: "mac", distro: "macos-15-intel", target_suffix: "" },
+            { base: "mac", distro: "macos-15", target_suffix: "-arm64" }
           ]
         license_type:
           [
-            { build_prefix: "oss", artifact_prefix: "-oss", readable: "open source license" },
-            { build_prefix: "bit", artifact_prefix: "", readable: "commercial license" }
+            { type: "oss", build_prefix: "oss", artifact_prefix: "-oss", readable: "open source license" },
+            { type: "commercial", build_prefix: "bit", artifact_prefix: "", readable: "commercial license" }
           ]
     runs-on: ${{ matrix.os.distro }}
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
-      _WIN_PKG_FETCH_VERSION: 20.11.1
+      _WIN_PKG_FETCH_VERSION: 22.15.1
       _WIN_PKG_VERSION: 3.5
+    permissions:
+      contents: read
+      id-token: write
+
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Setup Unix Vars
         run: |
-          echo "LOWER_RUNNER_OS=$(echo $RUNNER_OS | awk '{print tolower($0)}')" >> $GITHUB_ENV
-          echo "SHORT_RUNNER_OS=$(echo $RUNNER_OS | awk '{print substr($0, 1, 3)}' | \
-            awk '{print tolower($0)}')" >> $GITHUB_ENV
+          LOWER_RUNNER_OS="$(printf '%s' "$RUNNER_OS" | awk '{print tolower($0)}')"
+          SHORT_RUNNER_OS="$(printf '%s' "$RUNNER_OS" | awk '{print substr($0, 1, 3)}' | awk '{print tolower($0)}')"
+
+          {
+            echo "LOWER_RUNNER_OS=$LOWER_RUNNER_OS"
+            echo "SHORT_RUNNER_OS=$SHORT_RUNNER_OS"
+          } >> "$GITHUB_ENV"
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -129,6 +138,11 @@ jobs:
 
       - name: Install
         run: npm ci
+        working-directory: ./
+
+      - name: Remove commercial packages
+        if: ${{ matrix.license_type.type == 'oss' }}
+        run: rm -rf node_modules/@bitwarden/commercial-sdk-internal
         working-directory: ./
 
       - name: Download SDK Artifacts
@@ -152,84 +166,109 @@ jobs:
           npm link ../sdk-internal
 
       - name: Build & Package Unix
-        run: npm run dist:${{ matrix.license_type.build_prefix }}:${{ env.SHORT_RUNNER_OS }}${{ matrix.os.target_suffix }} --quiet
+        env:
+          _SHORT_RUNNER_OS: ${{ env.SHORT_RUNNER_OS }}
+        run: npm run "dist:${{ matrix.license_type.build_prefix }}:$_SHORT_RUNNER_OS${{ matrix.os.target_suffix }}" --quiet
 
       - name: Login to Azure
         if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Get certificates
         if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          mkdir -p $HOME/certificates
+          mkdir -p "$HOME/certificates"
 
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-app-cert |
-            jq -r .value | base64 -d > $HOME/certificates/devid-app-cert.p12
+            jq -r .value | base64 -d > "$HOME/certificates/devid-app-cert.p12"
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-clients
+          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Set up keychain
         if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
         env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
-          security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security default-keychain -s build.keychain
-          security unlock-keychain -p $KEYCHAIN_PASSWORD build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security set-keychain-settings -lut 1200 build.keychain
 
           security import "$HOME/certificates/devid-app-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
 
       - name: Sign binary
         if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
         env:
           MACOS_CERTIFICATE_NAME: "Developer ID Application: 8bit Solutions LLC"
-        run: codesign --sign "$MACOS_CERTIFICATE_NAME" --verbose=3 --force --options=runtime --entitlements ./entitlements.plist --timestamp ./dist/${{ matrix.license_type.build_prefix }}/${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}/bw
+          _LOWER_RUNNER_OS: ${{ env.LOWER_RUNNER_OS }}
+        run: codesign --sign "$MACOS_CERTIFICATE_NAME" --verbose=3 --force --options=runtime --entitlements ./entitlements.plist --timestamp "./dist/${{ matrix.license_type.build_prefix }}/$_LOWER_RUNNER_OS${{ matrix.os.target_suffix }}/bw"
 
       - name: Zip Unix
+        env:
+          _LOWER_RUNNER_OS: ${{ env.LOWER_RUNNER_OS }}
+          _PACKAGE_VERSION: ${{ env._PACKAGE_VERSION }}
         run: |
-          cd ./dist/${{ matrix.license_type.build_prefix }}/${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}
-          zip ../../bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-${{ env._PACKAGE_VERSION }}.zip ./bw
+          cd "./dist/${{ matrix.license_type.build_prefix }}/$_LOWER_RUNNER_OS${{ matrix.os.target_suffix }}"
+          zip "../../bw${{ matrix.license_type.artifact_prefix }}-$_LOWER_RUNNER_OS${{ matrix.os.target_suffix }}-$_PACKAGE_VERSION.zip" ./bw
 
       - name: Set up private auth key
         if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
+        env:
+          _APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
         run: |
           mkdir ~/private_keys
           cat << EOF > ~/private_keys/AuthKey_6TV9MKN3GP.p8
-          ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
+          $_APP_STORE_CONNECT_AUTH_KEY
           EOF
 
       - name: Notarize app
         if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
         env:
-          APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
+          APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
+          _LOWER_RUNNER_OS: ${{ env.LOWER_RUNNER_OS }}
         run: |
           echo "Create keychain profile"
           xcrun notarytool store-credentials "notarytool-profile" --key-id "$APP_STORE_CONNECT_AUTH_KEY" --key "$APP_STORE_CONNECT_AUTH_KEY_PATH" --issuer "$APP_STORE_CONNECT_TEAM_ISSUER"
 
-          codesign --sign "Developer ID Application: 8bit Solutions LLC" --verbose=3 --force --options=runtime --timestamp ./dist/bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-${{ env._PACKAGE_VERSION }}.zip
+          codesign --sign "Developer ID Application: 8bit Solutions LLC" --verbose=3 --force --options=runtime --timestamp "./dist/bw${{ matrix.license_type.artifact_prefix }}-$_LOWER_RUNNER_OS${{ matrix.os.target_suffix }}-$_PACKAGE_VERSION.zip"
 
           echo "Notarize app"
-          xcrun notarytool submit ./dist/bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-${{ env._PACKAGE_VERSION }}.zip --keychain-profile "notarytool-profile" --wait
+          xcrun notarytool submit "./dist/bw${{ matrix.license_type.artifact_prefix }}-$_LOWER_RUNNER_OS${{ matrix.os.target_suffix }}-$_PACKAGE_VERSION.zip" --keychain-profile "notarytool-profile" --wait
 
       - name: Version Test
+        env:
+          _PACKAGE_VERSION: ${{ env._PACKAGE_VERSION }}
+          _LOWER_RUNNER_OS: ${{ env.LOWER_RUNNER_OS }}
         run: |
-          unzip "./dist/bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-${{ env._PACKAGE_VERSION }}.zip" -d "./test"
+          unzip "./dist/bw${{ matrix.license_type.artifact_prefix }}-$_LOWER_RUNNER_OS${{ matrix.os.target_suffix }}-$_PACKAGE_VERSION.zip" -d "./test"
           testVersion=$(./test/bw -v)
           echo "version: $_PACKAGE_VERSION"
           echo "testVersion: $testVersion"
-          if [[ $testVersion != $_PACKAGE_VERSION ]]; then
+          if [[ $testVersion != "$_PACKAGE_VERSION" ]]; then
             echo "Version test failed."
             exit 1
           fi
 
       - name: Upload unix zip asset
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-${{ env._PACKAGE_VERSION }}.zip
           path: apps/cli/dist/bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-${{ env._PACKAGE_VERSION }}.zip
@@ -257,21 +296,25 @@ jobs:
       matrix:
         license_type:
           [
-            { build_prefix: "oss", artifact_prefix: "-oss", readable: "open source license" },
-            { build_prefix: "bit", artifact_prefix: "", readable: "commercial license" }
+            { type: "oss", build_prefix: "oss", artifact_prefix: "-oss", readable: "open source license" },
+            { type: "commercial", build_prefix: "bit", artifact_prefix: "", readable: "commercial license" }
           ]
     runs-on: windows-2022
+    permissions:
+      contents: read
+      id-token: write
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
-      _WIN_PKG_FETCH_VERSION: 20.11.1
+      _WIN_PKG_FETCH_VERSION: 22.15.1
       _WIN_PKG_VERSION: 3.5
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Install AST
         run: dotnet tool install --global AzureSignTool --version 4.0.1
@@ -283,7 +326,7 @@ jobs:
           choco install nasm --no-progress
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -344,11 +387,13 @@ jobs:
           ResourceHacker -open version-info.rc -save version-info.res -action compile
           ResourceHacker -open %WIN_PKG_BUILT% -save %WIN_PKG_BUILT% -action addoverwrite -resource version-info.res
 
-      - name: Login to Azure
+      - name: Log in to Azure
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -362,8 +407,17 @@ jobs:
             code-signing-client-secret,
             code-signing-cert-name"
 
+      - name: Log out from Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Install
         run: npm ci
+        working-directory: ./
+
+      - name: Remove commercial packages
+        if: ${{ matrix.license_type.type == 'oss' }}
+        run: Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "node_modules/@bitwarden/commercial-sdk-internal"
         working-directory: ./
 
       - name: Download SDK Artifacts
@@ -404,11 +458,13 @@ jobs:
       - name: Package Chocolatey
         shell: pwsh
         if: ${{ matrix.license_type.build_prefix == 'bit' }}
+        env:
+          _PACKAGE_VERSION: ${{ env._PACKAGE_VERSION }}
         run: |
           Copy-Item -Path stores/chocolatey -Destination dist/chocolatey -Recurse
           Copy-Item dist/${{ matrix.license_type.build_prefix }}/windows/bw.exe -Destination dist/chocolatey/tools
           Copy-Item ${{ github.workspace }}/LICENSE.txt -Destination dist/chocolatey/tools
-          choco pack dist/chocolatey/bitwarden-cli.nuspec --version ${{ env._PACKAGE_VERSION }} --out dist/chocolatey
+          choco pack dist/chocolatey/bitwarden-cli.nuspec --version "$env:_PACKAGE_VERSION" --out dist/chocolatey
 
       - name: Zip Windows
         shell: cmd
@@ -426,7 +482,7 @@ jobs:
           }
 
       - name: Upload windows zip asset
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: bw${{ matrix.license_type.artifact_prefix }}-windows-${{ env._PACKAGE_VERSION }}.zip
           path: apps/cli/dist/bw${{ matrix.license_type.artifact_prefix }}-windows-${{ env._PACKAGE_VERSION }}.zip
@@ -434,18 +490,20 @@ jobs:
 
       - name: Upload Chocolatey asset
         if: matrix.license_type.build_prefix == 'bit'
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: bitwarden-cli.${{ env._PACKAGE_VERSION }}.nupkg
           path: apps/cli/dist/chocolatey/bitwarden-cli.${{ env._PACKAGE_VERSION }}.nupkg
           if-no-files-found: error
 
       - name: Zip NPM Build Artifact
-        run: Get-ChildItem -Path .\build | Compress-Archive -DestinationPath .\bitwarden-cli-${{ env._PACKAGE_VERSION }}-npm-build.zip
+        env:
+          _PACKAGE_VERSION: ${{ env._PACKAGE_VERSION }}
+        run: Get-ChildItem -Path .\build | Compress-Archive -DestinationPath ".\bitwarden-cli-${env:_PACKAGE_VERSION}-npm-build.zip"
 
       - name: Upload NPM Build Directory asset
         if: matrix.license_type.build_prefix == 'bit'
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: bitwarden-cli-${{ env._PACKAGE_VERSION }}-npm-build.zip
           path: apps/cli/bitwarden-cli-${{ env._PACKAGE_VERSION }}-npm-build.zip
@@ -462,11 +520,14 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Print environment
+        env:
+          _PACKAGE_VERSION: ${{ env._PACKAGE_VERSION }}
         run: |
           whoami
           echo "GitHub ref: $GITHUB_REF"
@@ -474,15 +535,17 @@ jobs:
           echo "BW Package Version: $_PACKAGE_VERSION"
 
       - name: Get bw linux cli
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
         with:
           name: bw-linux-${{ env._PACKAGE_VERSION }}.zip
           path: apps/cli/dist/snap
 
       - name: Setup Snap Package
+        env:
+          _PACKAGE_VERSION: ${{ env._PACKAGE_VERSION }}
         run: |
           cp -r stores/snap/* -t dist/snap
-          sed -i s/__version__/${{ env._PACKAGE_VERSION }}/g dist/snap/snapcraft.yaml
+          sed -i "s/__version__/$_PACKAGE_VERSION/g" "dist/snap/snapcraft.yaml"
           cd dist/snap
           ls -alth
 
@@ -509,7 +572,7 @@ jobs:
         run: sudo snap remove bw
 
       - name: Upload snap asset
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: bw_${{ env._PACKAGE_VERSION }}_amd64.snap
           path: apps/cli/dist/snap/bw_${{ env._PACKAGE_VERSION }}_amd64.snap
@@ -520,6 +583,9 @@ jobs:
     name: Check for failures
     if: always()
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
     needs:
       - setup
       - cli
@@ -534,11 +600,13 @@ jobs:
           && contains(needs.*.result, 'failure')
         run: exit 1
 
-      - name: Login to Azure - Prod Subscription
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
         if: failure()
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -547,6 +615,10 @@ jobs:
         with:
           keyvault: "bitwarden-ci"
           secrets: "devops-alerts-slack-webhook-url"
+
+      - name: Log out from Azure
+        if: failure()
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Notify Slack on failure
         uses: act10ns/slack@44541246747a30eb3102d87f7a4cc5471b0ffb7d # v2.1.0

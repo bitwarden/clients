@@ -5,9 +5,6 @@
 // fingerprint dialog
 export * from "./fingerprint-dialog/fingerprint-dialog.component";
 
-// icons
-export * from "./icons";
-
 // input password
 export * from "./input-password/input-password.component";
 export * from "./input-password/password-input-result";
@@ -41,18 +38,10 @@ export * from "./registration/registration-env-selector/registration-env-selecto
 export * from "./registration/registration-finish/registration-finish.service";
 export * from "./registration/registration-finish/default-registration-finish.service";
 
-// set password (JIT user)
-export * from "./set-password-jit/set-password-jit.component";
-export * from "./set-password-jit/set-password-jit.service.abstraction";
-export * from "./set-password-jit/default-set-password-jit.service";
-
 // user verification
 export * from "./user-verification/user-verification-dialog.component";
 export * from "./user-verification/user-verification-dialog.types";
 export * from "./user-verification/user-verification-form-input.component";
-
-// vault timeout
-export * from "./vault-timeout-input/vault-timeout-input.component";
 
 // sso
 export * from "./sso/sso.component";
@@ -62,15 +51,13 @@ export * from "./sso/default-sso-component.service";
 // self hosted environment configuration dialog
 export * from "./self-hosted-env-config-dialog/self-hosted-env-config-dialog.component";
 
-// login approval
-export * from "./login-approval/login-approval.component";
-export * from "./login-approval/default-login-approval-component.service";
-
 // two factor auth
 export * from "./two-factor-auth";
 
 // device verification
 export * from "./new-device-verification/new-device-verification.component";
+export * from "./new-device-verification/new-device-verification-component.service";
+export * from "./new-device-verification/default-new-device-verification-component.service";
 
 // validators
 export * from "./validators/compare-inputs.validator";

@@ -1,7 +1,7 @@
 import { Component, Directive, importProvidersFrom, Input } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
-import { BehaviorSubject, firstValueFrom, Observable, of } from "rxjs";
+import { BehaviorSubject, Observable, of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -10,6 +10,9 @@ import { ProviderService } from "@bitwarden/common/admin-console/abstractions/pr
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag, FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -34,6 +37,8 @@ class MockOrganizationService implements Partial<OrganizationService> {
     return MockOrganizationService._orgs.asObservable();
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   set mockOrgs(orgs: Organization[]) {
     MockOrganizationService._orgs.next(orgs);
@@ -47,10 +52,12 @@ class MockOrganizationService implements Partial<OrganizationService> {
 class MockProviderService implements Partial<ProviderService> {
   private static _providers = new BehaviorSubject<Provider[]>([]);
 
-  async getAll() {
-    return await firstValueFrom(MockProviderService._providers);
+  providers$() {
+    return MockProviderService._providers.asObservable();
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   set mockProviders(providers: Provider[]) {
     MockProviderService._providers.next(providers);
@@ -78,6 +85,20 @@ class MockPlatformUtilsService implements Partial<PlatformUtilsService> {
   }
 }
 
+class MockBillingAccountProfileStateService implements Partial<BillingAccountProfileStateService> {
+  hasPremiumFromAnySource$(userId: UserId): Observable<boolean> {
+    return of(false);
+  }
+}
+
+class MockConfigService implements Partial<ConfigService> {
+  getFeatureFlag$<Flag extends FeatureFlag>(key: Flag): Observable<FeatureFlagValueType<Flag>> {
+    return of(false);
+  }
+}
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "story-layout",
   template: `<ng-content></ng-content>`,
@@ -85,6 +106,8 @@ class MockPlatformUtilsService implements Partial<PlatformUtilsService> {
 })
 class StoryLayoutComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "story-content",
   template: ``,
@@ -114,6 +137,11 @@ export default {
         MockProviderService,
         { provide: SyncService, useClass: MockSyncService },
         { provide: PlatformUtilsService, useClass: MockPlatformUtilsService },
+        {
+          provide: BillingAccountProfileStateService,
+          useClass: MockBillingAccountProfileStateService,
+        },
+        { provide: ConfigService, useClass: MockConfigService },
         MockPlatformUtilsService,
         ProductSwitcherService,
         {
@@ -124,6 +152,7 @@ export default {
               switchProducts: "Switch Products",
               secureYourInfrastructure: "Secure your infrastructure",
               protectYourFamilyOrBusiness: "Protect your family or business",
+              loading: "Loading",
             });
           },
         },
@@ -179,7 +208,7 @@ type Story = StoryObj<
 const Template: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
     <router-outlet [mockOrgs]="mockOrgs" [mockProviders]="mockProviders"></router-outlet>
     <div class="tw-flex tw-gap-[200px]">
       <div>
@@ -191,7 +220,7 @@ const Template: Story = {
         <product-switcher-content #content></product-switcher-content>
         <div class="tw-h-40">
           <div class="cdk-overlay-pane bit-menu-panel">
-            <ng-container *ngTemplateOutlet="content?.menu?.templateRef"></ng-container>
+            <ng-container *ngTemplateOutlet="content?.menu?.templateRef()"></ng-container>
           </div>
         </div>
       </div>

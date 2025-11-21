@@ -41,6 +41,15 @@
   "invalidMasterPassword": {
     "message": "Invalid master password."
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "sessionTimeout": {
     "message": "Your session has timed out. Please go back and try logging in again."
   },
@@ -215,5 +224,23 @@
   },
   "youHaveBeenLoggedOut": {
     "message": "You have been logged out."
+  },
+  "myItems": {
+    "message": "My Items"
+  },
+  "organizationUsingKeyConnectorConfirmLoggedOut": {
+    "message": "An organization you are a member of is using Key Connector. In order to access the vault, you must confirm the Key Connector domain now via the web vault. You have been logged out."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Please confirm the domain below with your organization administrator. Key Connector domain: $KEYCONNECTORDOMAIN$",
+    "placeholders": {
+      "keyConnectorDomain": {
+        "content": "$1",
+        "example": "Key Connector domain"
+      }
+    }
+  },
+  "confirm": {
+    "message": "Confirm"
   }
 }

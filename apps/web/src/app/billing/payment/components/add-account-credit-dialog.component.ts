@@ -14,13 +14,13 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogConfig, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
 import { SharedModule } from "../../../shared";
-import { BillingClient } from "../../services";
-import { BillableEntity } from "../../types";
+import { BitwardenSubscriber } from "../../types";
 
 type DialogParams = {
-  owner: BillableEntity;
+  subscriber: BitwardenSubscriber;
 };
 
 type DialogResult = "cancelled" | "error" | "launched";
@@ -52,11 +52,13 @@ const positiveNumberValidator =
     return null;
   };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <form [formGroup]="formGroup" [bitSubmit]="submit">
       <bit-dialog>
-        <span bitDialogTitle class="tw-font-semibold">
+        <span bitDialogTitle class="tw-font-medium">
           {{ "addCredit" | i18n }}
         </span>
         <div bitDialogContent>
@@ -125,9 +127,11 @@ const positiveNumberValidator =
   `,
   standalone: true,
   imports: [SharedModule],
-  providers: [BillingClient],
+  providers: [SubscriberBillingClient],
 })
 export class AddAccountCreditDialogComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("payPalForm", { read: ElementRef, static: true }) payPalForm!: ElementRef;
 
   protected payPalConfig = process.env.PAYPAL_CONFIG as PayPalConfig;
@@ -143,22 +147,22 @@ export class AddAccountCreditDialogComponent {
 
   protected payPalCustom$ = this.configService.cloudRegion$.pipe(
     map((cloudRegion) => {
-      switch (this.dialogParams.owner.type) {
+      switch (this.dialogParams.subscriber.type) {
         case "account": {
-          return `user_id=${this.dialogParams.owner.data.id},account_credit=1,region=${cloudRegion}`;
+          return `user_id:${this.dialogParams.subscriber.data.id},account_credit:1,region:${cloudRegion}`;
         }
         case "organization": {
-          return `organization_id=${this.dialogParams.owner.data.id},account_credit=1,region=${cloudRegion}`;
+          return `organization_id:${this.dialogParams.subscriber.data.id},account_credit:1,region:${cloudRegion}`;
         }
         case "provider": {
-          return `provider_id=${this.dialogParams.owner.data.id},account_credit=1,region=${cloudRegion}`;
+          return `provider_id:${this.dialogParams.subscriber.data.id},account_credit:1,region:${cloudRegion}`;
         }
       }
     }),
   );
 
   constructor(
-    private billingClient: BillingClient,
+    private billingClient: SubscriberBillingClient,
     private configService: ConfigService,
     @Inject(DIALOG_DATA) private dialogParams: DialogParams,
     private dialogRef: DialogRef<DialogResult>,
@@ -175,7 +179,7 @@ export class AddAccountCreditDialogComponent {
     }
 
     if (this.formGroup.value.paymentMethod === "bitPay") {
-      const result = await this.billingClient.addCreditWithBitPay(this.dialogParams.owner, {
+      const result = await this.billingClient.addCreditWithBitPay(this.dialogParams.subscriber, {
         amount: this.amount!,
         redirectUrl: this.redirectUrl,
       });
@@ -225,13 +229,13 @@ export class AddAccountCreditDialogComponent {
   }
 
   get payPalSubject(): string {
-    switch (this.dialogParams.owner.type) {
+    switch (this.dialogParams.subscriber.type) {
       case "account": {
-        return this.dialogParams.owner.data.email;
+        return this.dialogParams.subscriber.data.email;
       }
       case "organization":
       case "provider": {
-        return this.dialogParams.owner.data.name;
+        return this.dialogParams.subscriber.data.name;
       }
     }
   }

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { NgClass } from "@angular/common";
 import {
   AfterContentChecked,
@@ -8,14 +6,16 @@ import {
   ElementRef,
   HostBinding,
   signal,
-  ViewChild,
   input,
+  viewChild,
 } from "@angular/core";
 
 import { ToggleGroupComponent } from "./toggle-group.component";
 
 let nextId = 0;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-toggle",
   templateUrl: "./toggle.component.html",
@@ -24,17 +24,17 @@ let nextId = 0;
 export class ToggleComponent<TValue> implements AfterContentChecked, AfterViewInit {
   id = nextId++;
 
-  readonly value = input<TValue>();
-  @ViewChild("labelContent") labelContent: ElementRef<HTMLSpanElement>;
-  @ViewChild("bitBadgeContainer") bitBadgeContainer: ElementRef<HTMLSpanElement>;
+  readonly value = input.required<TValue>();
+  readonly labelContent = viewChild<ElementRef<HTMLSpanElement>>("labelContent");
+  readonly bitBadgeContainer = viewChild<ElementRef<HTMLSpanElement>>("bitBadgeContainer");
 
   constructor(private groupComponent: ToggleGroupComponent<TValue>) {}
 
   @HostBinding("tabIndex") tabIndex = "-1";
   @HostBinding("class") classList = ["tw-group/toggle", "tw-flex", "tw-min-w-16"];
 
-  protected bitBadgeContainerHasChidlren = signal(false);
-  protected labelTitle = signal<string>(null);
+  protected readonly bitBadgeContainerHasChidlren = signal(false);
+  protected readonly labelTitle = signal<string | null>(null);
 
   get name() {
     return this.groupComponent.name;
@@ -56,7 +56,7 @@ export class ToggleComponent<TValue> implements AfterContentChecked, AfterViewIn
       "tw-items-center",
       "tw-justify-center",
       "tw-gap-1.5",
-      "!tw-font-semibold",
+      "!tw-font-medium",
       "tw-leading-5",
       "tw-transition",
       "tw-text-center",
@@ -100,12 +100,12 @@ export class ToggleComponent<TValue> implements AfterContentChecked, AfterViewIn
 
   ngAfterContentChecked() {
     this.bitBadgeContainerHasChidlren.set(
-      this.bitBadgeContainer?.nativeElement.childElementCount > 0,
+      (this.bitBadgeContainer()?.nativeElement.childElementCount ?? 0) > 0,
     );
   }
 
   ngAfterViewInit() {
-    const labelText = this.labelContent?.nativeElement.innerText;
+    const labelText = this.labelContent()?.nativeElement.innerText;
     if (labelText) {
       this.labelTitle.set(labelText);
     }

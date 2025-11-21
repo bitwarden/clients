@@ -2,17 +2,12 @@
   <app-side-nav variant="secondary" *ngIf="organization$ | async as organization">
     <bit-nav-logo [openIcon]="logo" route="." [label]="'adminConsole' | i18n"></bit-nav-logo>
     <org-switcher [filter]="orgFilter" [hideNewButton]="hideNewOrgButton$ | async"></org-switcher>
-    <bit-nav-group
-      icon="bwi-filter"
-      *ngIf="organization.useRiskInsights && organization.canAccessReports"
+    <bit-nav-item
+      icon="bwi-dashboard"
+      *ngIf="organization.useAccessIntelligence && organization.canAccessReports"
       [text]="'accessIntelligence' | i18n"
       route="access-intelligence"
-    >
-      <bit-nav-item
-        [text]="'riskInsights' | i18n"
-        route="access-intelligence/risk-insights"
-      ></bit-nav-item>
-    </bit-nav-group>
+    ></bit-nav-item>
     <bit-nav-item
       icon="bwi-collection-shared"
       [text]="'collections' | i18n"
@@ -55,10 +50,7 @@
       <bit-nav-item
         [text]="'eventLogs' | i18n"
         route="reporting/events"
-        *ngIf="
-          (organization.canAccessEventLogs && organization.useEvents) ||
-          (organization.isOwner && (isBreadcrumbEventLogsEnabled$ | async))
-        "
+        *ngIf="organization.canAccessEventLogs || organization.isOwner"
       ></bit-nav-item>
       <bit-nav-item
         [text]="'reports' | i18n"
@@ -74,10 +66,9 @@
     >
       <bit-nav-item [text]="'subscription' | i18n" route="billing/subscription"></bit-nav-item>
       <ng-container *ngIf="(showPaymentAndHistory$ | async) && (organizationIsUnmanaged$ | async)">
-        @let paymentDetailsPageData = paymentDetailsPageData$ | async;
         <bit-nav-item
-          [text]="paymentDetailsPageData.textKey | i18n"
-          [route]="paymentDetailsPageData.route"
+          [text]="'paymentDetails' | i18n"
+          route="billing/payment-details"
         ></bit-nav-item>
         <bit-nav-item [text]="'billingHistory' | i18n" route="billing/history"></bit-nav-item>
       </ng-container>
@@ -102,7 +93,7 @@
       <bit-nav-item
         [text]="'policies' | i18n"
         route="settings/policies"
-        *ngIf="canShowPoliciesTab$ | async"
+        *ngIf="organization.canManagePolicies"
       ></bit-nav-item>
       <bit-nav-item
         [text]="'twoStepLogin' | i18n"
@@ -143,13 +134,15 @@
   </app-side-nav>
 
   <ng-container *ngIf="organization$ | async as organization">
-    <bit-banner
-      *ngIf="organization.isProviderUser"
-      [showClose]="false"
-      class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
-    >
+    <bit-banner *ngIf="organization.isProviderUser" [showClose]="false">
       {{ "accessingUsingProvider" | i18n: organization.providerName }}
     </bit-banner>
+    <app-tax-id-warning
+      [subscriber]="subscriber$ | async"
+      [getWarning$]="getTaxIdWarning$"
+      (billingAddressUpdated)="refreshTaxIdWarning()"
+    >
+    </app-tax-id-warning>
   </ng-container>
 
   <router-outlet></router-outlet>

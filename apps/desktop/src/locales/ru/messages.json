@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Поиск в хранилище"
   },
+  "resetSearch": {
+    "message": "Сбросить поиск"
+  },
   "addItem": {
     "message": "Добавить элемент"
   },
@@ -65,6 +68,9 @@
         "example": "Company Name"
       }
     }
+  },
+  "noEditPermissions": {
+    "message": "У вас нет разрешения на редактирование этого элемента"
   },
   "welcomeBack": {
     "message": "С возвращением"
@@ -699,6 +705,12 @@
   "attachmentSaved": {
     "message": "Вложение сохранено."
   },
+  "addAttachment": {
+    "message": "Добавить вложение"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Максимальный размер файла 500 МБ"
+  },
   "file": {
     "message": "Файл"
   },
@@ -761,6 +773,9 @@
   },
   "useSingleSignOn": {
     "message": "Использовать единый вход"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
   },
   "submit": {
     "message": "Отправить"
@@ -951,9 +966,6 @@
   "insertU2f": {
     "message": "Вставьте ключ безопасности в USB-порт компьютера. Если у ключа есть кнопка, нажмите ее."
   },
-  "recoveryCodeDesc": {
-    "message": "Потеряли доступ ко всем вариантам двухэтапной аутентификации? Используйте код восстановления, чтобы отключить двухэтапную аутентификацию для вашего аккаунта."
-  },
   "recoveryCodeTitle": {
     "message": "Код восстановления"
   },
@@ -1025,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Вы должны добавить либо базовый URL сервера, либо хотя бы одно пользовательское окружение."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL должны использовать HTTPS."
   },
   "customEnvironment": {
     "message": "Пользовательское окружение"
@@ -1216,17 +1231,32 @@
   "invalidMasterPassword": {
     "message": "Неверный мастер-пароль"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Неверный мастер-пароль. Подтвердите, что ваш адрес email указан верно и ваш аккаунт был создан на $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Двухэтапная аутентификация делает аккаунт более защищенным, поскольку требуется подтверждение входа при помощи другого устройства, например, ключа безопасности, приложения-аутентификатора, SMS, телефонного звонка или электронной почты. Двухэтапная аутентификация включается на bitwarden.com. Перейти на сайт сейчас?"
   },
   "twoStepLogin": {
     "message": "Двухэтапная аутентификация"
   },
+  "vaultTimeoutHeader": {
+    "message": "Тайм-аут хранилища"
+  },
   "vaultTimeout": {
     "message": "Тайм-аут хранилища"
   },
   "vaultTimeout1": {
     "message": "Тайм-аут"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Тайм-аут действия"
   },
   "vaultTimeoutDesc": {
     "message": "Выберите тайм-аут для хранилища и действие, которое необходимо предпринять."
@@ -1290,11 +1320,8 @@
     "message": "Автоматически удалять скопированные значения из буфера обмена.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Показать значки сайтов"
-  },
-  "faviconDesc": {
-    "message": "Отображать узнаваемое изображение рядом с каждым логином."
+  "showIconsChangePasswordUrls": {
+    "message": "Показывать значки сайтов и извлекать URL изменения пароля"
   },
   "enableMinToTray": {
     "message": "Сворачивать в область уведомлений"
@@ -1813,9 +1840,6 @@
   "unlockWithWindowsHello": {
     "message": "Разблокировать с Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Дополнительные настройки Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Разблокировать с помощью системной аутентификации"
   },
@@ -1831,26 +1855,17 @@
   "touchIdConsentMessage": {
     "message": "разблокировать ваше хранилище"
   },
-  "autoPromptWindowsHello": {
-    "message": "Запрашивать Windows Hello при запуске приложения"
-  },
-  "autoPromptPolkit": {
-    "message": "Запрашивать системную аутентификацию при запуске"
-  },
   "autoPromptTouchId": {
     "message": "Запрашивать Touch ID при запуске приложения"
   },
-  "requirePasswordOnStart": {
-    "message": "Требовать пароль или PIN-код при запуске приложения"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Требовать пароль при запуске приложения"
-  },
-  "recommendedForSecurity": {
-    "message": "Рекомендуется для обеспечения безопасности."
-  },
   "lockWithMasterPassOnRestart1": {
     "message": "Блокировать мастер-паролем при перезапуске"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Требовать мастер-пароль или PIN при перезапуске приложения"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Требовать мастер-пароль при перезапуске приложения"
   },
   "deleteAccount": {
     "message": "Удалить аккаунт"
@@ -2134,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "Произошла ошибка при включении интеграции с браузером."
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "К сожалению, интеграция браузера пока поддерживается только в версии Mac App Store."
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "К сожалению, интеграция браузера в версии для Microsoft Store в настоящее время не поддерживается."
@@ -2520,6 +2532,38 @@
   "vaultTimeoutTooLarge": {
     "message": "Тайм-аут вашего хранилища превышает ограничения, установленные вашей организацией."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "К настройкам тайм-аута были применены требования корпоративной политики"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "В соответствии с политиками вашей организации максимально допустимый тайм-аут хранилища составляет $HOURS$ час. и $MINUTES$ мин.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Время ожидания превышает установленное организацией максимальное ограничение: $HOURS$ час. $MINUTES$ мин.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Минимальный пользовательский тайм-аут составляет 1 минуту."
+  },
   "inviteAccepted": {
     "message": "Приглашение принято"
   },
@@ -2631,6 +2675,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Будет экспортировано только хранилище организации, связанное с $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Будет экспортировано только хранилище организации, связанное с $ORGANIZATION$. Коллекции Мои элементы включены не будут.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -3001,9 +3063,6 @@
     "message": "Показать количество символов",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Вы пытаетесь получить доступ к своему аккаунту?"
-  },
   "accessAttemptBy": {
     "message": "Попытка доступа $EMAIL$",
     "placeholders": {
@@ -3012,6 +3071,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Запрос входа для $EMAIL$ на $DEVICE$ одобрен",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Вы отклонили попытку авторизации с другого устройства. Если это были вы, попробуйте авторизоваться с этого устройства еще раз."
+  },
+  "webApp": {
+    "message": "Веб-приложение"
+  },
+  "mobile": {
+    "message": "Мобильный",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Расширение",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Компьютер",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Сервер"
+  },
+  "loginRequest": {
+    "message": "Запрос на вход"
   },
   "deviceType": {
     "message": "Тип устройства"
@@ -3027,22 +3130,6 @@
   },
   "denyAccess": {
     "message": "Отказать в доступе"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Вход подтвержден для $EMAIL$ на $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Вы отклонили попытку авторизации с другого устройства. Если это действительно были вы, попробуйте авторизоваться с этого устройства еще раз."
   },
   "justNow": {
     "message": "Только что"
@@ -3235,7 +3322,7 @@
     "message": "В целях обеспечения безопасности вашего аккаунта продолжайте только в том случае, если вы являетесь членом этой организации, у вас включено восстановление аккаунта, а отображаемый ниже отпечаток совпадает с отпечатком организации."
   },
   "orgTrustWarning1": {
-    "message": "В этой организации действует политика, которая позволит вам участвовать в восстановлении аккаунта. Регистрация позволит администраторам организации изменить ваш пароль. Продолжайте, только если вы знаете эту организацию и фраза отпечатков, показанная ниже, совпадает с отпечатками организации."
+    "message": "Эта организация имеет корпоративную политику, которая зарегистрирует вас в системе восстановления аккаунта. Регистрация позволит администраторам организации изменить ваш пароль. Продолжайте только в том случае, если вы узнаете эту организацию и фраза отпечатка, отображаемая ниже, соответствует отпечатку организации."
   },
   "trustUser": {
     "message": "Доверенный пользователь"
@@ -3440,15 +3527,11 @@
   "selectImportCollection": {
     "message": "Выберите коллекцию"
   },
-  "importTargetHint": {
-    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в коллекцию"
+  },
+  "importTargetHintFolder": {
+    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в папку"
   },
   "importUnassignedItemsError": {
     "message": "Файл содержит неназначенные элементы."
@@ -3543,6 +3626,12 @@
   },
   "awaitingSSODesc": {
     "message": "Пожалуйста, продолжите вход, используя учетные данные вашей компании."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Импорт непосредственно из браузера"
+  },
+  "browserProfile": {
+    "message": "Профиль браузера"
   },
   "seeDetailedInstructions": {
     "message": "Подробные инструкции см. на нашем справочном сайте по адресу",
@@ -3786,6 +3875,12 @@
   "changeAtRiskPassword": {
     "message": "Изменить пароль, подверженный риску"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Этот логин подвержен риску и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
+  },
+  "missingWebsite": {
+    "message": "Отсутствует сайт"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Вы не можете удалить коллекции с правами только на просмотр: $COLLECTIONS$",
     "placeholders": {
@@ -3880,6 +3975,12 @@
     "message": "Узнайте больше об агенте SSH",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "Об этой настройке"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden будет использовать сохраненные URI логинов, чтобы определить, какой значок или URL для смены пароля следует использовать для улучшения вашего взаимодействия. При использовании этого сервиса никакая информация не собирается и не сохраняется."
   },
   "assignToCollections": {
     "message": "Назначить коллекциям"
@@ -4015,10 +4116,112 @@
       }
     }
   },
-  "enableAutotype": {
-    "message": "Включить автоввод ярлыка"
+  "showMore": {
+    "message": "Больше"
+  },
+  "showLess": {
+    "message": "Меньше"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden не проверяет местоположение ввода, поэтому, прежде чем использовать ярлык, убедитесь, что вы находитесь в нужном окне и поле."
+  },
+  "typeShortcut": {
+    "message": "Введите сочетание клавиш"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Включите один или два из следующих модификаторов: Ctrl, Alt, Win или Shift и букву."
+  },
+  "invalidShortcut": {
+    "message": "Недопустимое сочетание клавиш"
+  },
+  "moreBreadcrumbs": {
+    "message": "Дополнительная навигация",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Далее"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Подтвердите домен соединителя ключей"
+  },
+  "confirm": {
+    "message": "Подтвердить"
+  },
+  "enableAutotypeShortcutPreview": {
+    "message": "Включить сочетание клавиш ввода (предварительная версия функции)"
+  },
+  "enableAutotypeShortcutDescription": {
+    "message": "Прежде чем использовать ярлык, убедитесь, что вы поставили курсор в нужное поле, чтобы избежать ввода данных в неправильное место."
+  },
+  "editShortcut": {
+    "message": "Изменить ярлык"
+  },
+  "archiveNoun": {
+    "message": "Архив",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Архивировать",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Разархивировать"
+  },
+  "itemsInArchive": {
+    "message": "Элементы в архиве"
+  },
+  "noItemsInArchive": {
+    "message": "В архиве нет элементов"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Архивированные элементы появятся здесь и будут исключены из общих результатов поиска и предложений автозаполнения."
+  },
+  "itemWasSentToArchive": {
+    "message": "Элемент был отправлен в архив"
+  },
+  "itemWasUnarchived": {
+    "message": "Элемент был разархивирован"
+  },
+  "archiveItem": {
+    "message": "Архивировать элемент"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать этот элемент?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "Почтовый индекс"
+  },
+  "cardNumberLabel": {
+    "message": "Номер карты"
+  },
+  "upgradeNow": {
+    "message": "Изменить сейчас"
+  },
+  "builtInAuthenticator": {
+    "message": "Встроенный аутентификатор"
+  },
+  "secureFileStorage": {
+    "message": "Защищенное хранилище файлов"
+  },
+  "emergencyAccess": {
+    "message": "Экстренный доступ"
+  },
+  "breachMonitoring": {
+    "message": "Мониторинг нарушений"
+  },
+  "andMoreFeatures": {
+    "message": "И многое другое!"
+  },
+  "planDescPremium": {
+    "message": "Полная онлайн-защищенность"
+  },
+  "upgradeToPremium": {
+    "message": "Обновить до Премиум"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Тайм-аут действия"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Тайм-аут сеанса"
   }
 }

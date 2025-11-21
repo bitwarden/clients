@@ -1,0 +1,31 @@
+<div [formGroup]="formGroup">
+  <bit-session-timeout-input
+    [vaultTimeoutOptions]="availableTimeoutOptions$ | async"
+    [formControl]="formGroup.controls.timeout"
+    ngDefaultControl
+  >
+  </bit-session-timeout-input>
+
+  <bit-form-field [disableMargin]="true">
+    <bit-label>{{ "sessionTimeoutSettingsAction" | i18n }}</bit-label>
+    <bit-select
+      id="timeoutAction"
+      [formControl]="formGroup.controls.timeoutAction"
+      [required]="false"
+    >
+      @for (action of availableTimeoutActions(); track action) {
+        <bit-option [value]="action" [label]="action | i18n"></bit-option>
+      }
+    </bit-select>
+
+    @if (!canLock) {
+      <bit-hint>{{ "unlockMethodNeededToChangeTimeoutActionDesc" | i18n }}<br /></bit-hint>
+    }
+  </bit-form-field>
+
+  @if (hasVaultTimeoutPolicy$ | async) {
+    <bit-hint class="tw-mt-4">
+      {{ "vaultTimeoutPolicyAffectingOptions" | i18n }}
+    </bit-hint>
+  }
+</div>

@@ -17,6 +17,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -50,6 +51,7 @@ import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-p
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { PopupCloseWarningService } from "../../../../../popup/services/popup-close-warning.service";
 import { BrowserCipherFormGenerationService } from "../../../services/browser-cipher-form-generation.service";
+import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
 import { BrowserTotpCaptureService } from "../../../services/browser-totp-capture.service";
 import {
   fido2PopoutSessionData$,
@@ -129,6 +131,8 @@ class QueryParams {
 
 export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-add-edit-v2",
   templateUrl: "add-edit-v2.component.html",
@@ -136,6 +140,7 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     { provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService },
     { provide: TotpCaptureService, useClass: BrowserTotpCaptureService },
     { provide: CipherFormGenerationService, useClass: BrowserCipherFormGenerationService },
+    { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
   ],
   imports: [
     CommonModule,
@@ -268,6 +273,7 @@ export class AddEditV2Component implements OnInit {
       // Clear popup history so after closing/reopening, Back won’t return to the add-edit form
       await this.popupRouterCacheService.setHistory([]);
     }
+    await BrowserApi.sendMessage("addEditCipherSubmitted");
   }
 
   subscribeToParams(): void {
@@ -367,20 +373,15 @@ export class AddEditV2Component implements OnInit {
   }
 
   setHeader(mode: CipherFormMode, type: CipherType) {
-    const partOne = mode === "edit" || mode === "partial-edit" ? "editItemHeader" : "newItemHeader";
-
-    switch (type) {
-      case CipherType.Login:
-        return this.i18nService.t(partOne, this.i18nService.t("typeLogin"));
-      case CipherType.Card:
-        return this.i18nService.t(partOne, this.i18nService.t("typeCard"));
-      case CipherType.Identity:
-        return this.i18nService.t(partOne, this.i18nService.t("typeIdentity"));
-      case CipherType.SecureNote:
-        return this.i18nService.t(partOne, this.i18nService.t("note"));
-      case CipherType.SshKey:
-        return this.i18nService.t(partOne, this.i18nService.t("typeSshKey"));
-    }
+    const isEditMode = mode === "edit" || mode === "partial-edit";
+    const translation = {
+      [CipherType.Login]: isEditMode ? "editItemHeaderLogin" : "newItemHeaderLogin",
+      [CipherType.Card]: isEditMode ? "editItemHeaderCard" : "newItemHeaderCard",
+      [CipherType.Identity]: isEditMode ? "editItemHeaderIdentity" : "newItemHeaderIdentity",
+      [CipherType.SecureNote]: isEditMode ? "editItemHeaderNote" : "newItemHeaderNote",
+      [CipherType.SshKey]: isEditMode ? "editItemHeaderSshKey" : "newItemHeaderSshKey",
+    };
+    return this.i18nService.t(translation[type]);
   }
 
   delete = async () => {

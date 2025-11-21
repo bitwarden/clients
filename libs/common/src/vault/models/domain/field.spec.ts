@@ -1,6 +1,14 @@
+import {
+  Field as SdkField,
+  FieldType,
+  LoginLinkedIdType,
+  CardLinkedIdType,
+  IdentityLinkedIdType,
+} from "@bitwarden/sdk-internal";
+
 import { mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
-import { CardLinkedId, FieldType, IdentityLinkedId, LoginLinkedId } from "../../enums";
+import { CardLinkedId, IdentityLinkedId, LoginLinkedId } from "../../enums";
 import { FieldData } from "../../models/data/field.data";
 import { Field } from "../../models/domain/field";
 
@@ -21,9 +29,9 @@ describe("Field", () => {
     const field = new Field(data);
 
     expect(field).toEqual({
-      type: undefined,
-      name: null,
-      value: null,
+      type: FieldType.Text,
+      name: undefined,
+      value: undefined,
       linkedId: undefined,
     });
   });
@@ -33,9 +41,9 @@ describe("Field", () => {
 
     expect(field).toEqual({
       type: FieldType.Text,
-      name: { encryptedString: "encName", encryptionType: 0 },
-      value: { encryptedString: "encValue", encryptionType: 0 },
-      linkedId: null,
+      name: new EncString("encName"),
+      value: new EncString("encValue"),
+      linkedId: undefined,
     });
   });
 
@@ -74,12 +82,14 @@ describe("Field", () => {
       expect(actual).toEqual({
         name: "myName_fromJSON",
         value: "myValue_fromJSON",
+        type: FieldType.Text,
+        linkedId: undefined,
       });
       expect(actual).toBeInstanceOf(Field);
     });
 
-    it("returns null if object is null", () => {
-      expect(Field.fromJSON(null)).toBeNull();
+    it("returns undefined if object is null", () => {
+      expect(Field.fromJSON(null)).toBeUndefined();
     });
   });
 
@@ -102,6 +112,35 @@ describe("Field", () => {
       identityField.type = FieldType.Linked;
       identityField.linkedId = IdentityLinkedId.LicenseNumber;
       expect(identityField.toSdkField().linkedId).toBe(415);
+    });
+
+    it("should map from SDK Field", () => {
+      // Test Login LinkedId
+      const loginField: SdkField = {
+        name: undefined,
+        value: undefined,
+        type: FieldType.Linked,
+        linkedId: LoginLinkedIdType.Username,
+      };
+      expect(Field.fromSdkField(loginField)!.linkedId).toBe(100);
+
+      // Test Card LinkedId
+      const cardField: SdkField = {
+        name: undefined,
+        value: undefined,
+        type: FieldType.Linked,
+        linkedId: CardLinkedIdType.Number,
+      };
+      expect(Field.fromSdkField(cardField)!.linkedId).toBe(305);
+
+      // Test Identity LinkedId
+      const identityFieldSdkField: SdkField = {
+        name: undefined,
+        value: undefined,
+        type: FieldType.Linked,
+        linkedId: IdentityLinkedIdType.LicenseNumber,
+      };
+      expect(Field.fromSdkField(identityFieldSdkField)!.linkedId).toBe(415);
     });
   });
 });

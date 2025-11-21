@@ -1,14 +1,13 @@
 {
   "extends": "./tsconfig",
   "files": [
+    "../../bitwarden_license/bit-common/src/platform/sdk/sdk-alias.d.ts",
+
     "../../apps/web/src/polyfills.ts",
     "../../apps/web/src/main.ts",
     "../../apps/web/src/theme.ts",
 
     "../../bitwarden_license/bit-web/src/main.ts"
   ],
-  "include": [
-    "../../apps/web/src/connectors/*.ts",
-    "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts"
-  ]
+  "include": ["../../apps/web/src/connectors/*.ts"]
 }

@@ -10,6 +10,7 @@ module.exports = {
   prefix: "tw-",
   content: [
     "./src/**/*.{html,ts}",
+    "../../libs/assets/src/**/*.{html,ts}",
     "../../libs/components/src/**/*.{html,ts}",
     "../../libs/key-management-ui/src/**/*.{html,ts}",
     "../../libs/auth/src/**/*.{html,ts}",
@@ -63,18 +64,12 @@ module.exports = {
         100: rgba("--color-notification-100"),
         600: rgba("--color-notification-600"),
       },
-      // art styles deprecated, use 'illustration' instead
-      art: {
-        primary: rgba("--color-art-primary"),
-        accent: rgba("--color-art-accent"),
-      },
       text: {
         main: rgba("--color-text-main"),
         muted: rgba("--color-text-muted"),
         contrast: rgba("--color-text-contrast"),
         alt2: rgba("--color-text-alt2"),
         code: rgba("--color-text-code"),
-        headers: rgba("--color-text-headers"),
       },
       background: {
         DEFAULT: rgba("--color-background"),
@@ -88,6 +83,7 @@ module.exports = {
         contrast: "var(--color-hover-contrast)",
       },
       "marketing-logo": rgba("--color-marketing-logo"),
+      "bw-blue": rgba("--color-bw-blue"),
       illustration: {
         outline: rgba("--color-illustration-outline"),
         "bg-primary": rgba("--color-illustration-bg-primary"),
@@ -101,7 +97,6 @@ module.exports = {
       main: rgba("--color-text-main"),
       muted: rgba("--color-text-muted"),
       contrast: rgba("--color-text-contrast"),
-      headers: rgba("--color-text-headers"),
       alt2: rgba("--color-text-alt2"),
       code: rgba("--color-text-code"),
       black: colors.black,
@@ -138,6 +133,11 @@ module.exports = {
         600: rgba("--color-notification-600"),
       },
     },
+    fontFamily: {
+      sans: "var(--font-sans)",
+      serif: "var(--font-serif)",
+      mono: "var(--font-mono)",
+    },
     ringOffsetColor: ({ theme }) => ({
       DEFAULT: theme("colors.background"),
       ...theme("colors"),
@@ -155,7 +155,31 @@ module.exports = {
         "90vw": "90vw",
       }),
       fontSize: {
-        "3xl": ["1.75rem", "2rem"],
+        "3xl": ["1.875rem", "150%"],
+        "2xl": ["1.5rem", "150%"],
+        xl: ["1.25rem", "150%"],
+        lg: ["1.125rem", "150%"],
+        md: ["1rem", "150%"],
+        base: ["1rem", "150%"],
+        sm: ["0.875rem", "150%"],
+        xs: [".75rem", "150%"],
+      },
+      container: {
+        "@5xl": "1100px",
+      },
+      keyframes: {
+        slideUp: {
+          "0%": { opacity: "0", transform: "translateY(50px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        slideDown: {
+          "0%": { opacity: "0", transform: "translateY(-50px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+      },
+      animation: {
+        "slide-up": "slideUp 0.3s ease-out",
+        "slide-down": "slideDown 0.3s ease-out",
       },
     },
   },
@@ -196,5 +220,6 @@ module.exports = {
     plugin(function ({ addVariant }) {
       addVariant("bit-compact", ".bit-compact &");
     }),
+    require("@tailwindcss/container-queries"),
   ],
 };

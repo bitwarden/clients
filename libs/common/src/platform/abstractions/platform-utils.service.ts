@@ -21,8 +21,9 @@ export abstract class PlatformUtilsService {
   abstract isOpera(): boolean;
   abstract isVivaldi(): boolean;
   abstract isSafari(): boolean;
+  abstract isChromium(): boolean;
   abstract isMacAppStore(): boolean;
-  abstract isViewOpen(): Promise<boolean>;
+  abstract isPopupOpen(): Promise<boolean>;
   abstract launchUri(uri: string, options?: any): void;
   abstract getApplicationVersion(): Promise<string>;
   abstract getApplicationVersionNumber(): Promise<string>;

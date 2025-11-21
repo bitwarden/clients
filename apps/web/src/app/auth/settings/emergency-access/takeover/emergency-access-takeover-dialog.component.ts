@@ -48,8 +48,9 @@ export type EmergencyAccessTakeoverDialogResultType =
  *
  * @link https://bitwarden.com/help/emergency-access/
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "auth-emergency-access-takeover-dialog",
   templateUrl: "./emergency-access-takeover-dialog.component.html",
   imports: [
@@ -62,6 +63,8 @@ export type EmergencyAccessTakeoverDialogResultType =
   ],
 })
 export class EmergencyAccessTakeoverDialogComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(InputPasswordComponent)
   inputPasswordComponent: InputPasswordComponent | undefined = undefined;
 
@@ -116,10 +119,12 @@ export class EmergencyAccessTakeoverDialogComponent implements OnInit {
     this.parentSubmittingBehaviorSubject.next(true);
 
     try {
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.emergencyAccessService.takeover(
         this.dialogData.emergencyAccessId,
         passwordInputResult.newPassword,
         this.dialogData.grantorEmail,
+        activeUserId,
       );
     } catch (e) {
       this.logService.error(e);

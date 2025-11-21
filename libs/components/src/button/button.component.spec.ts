@@ -5,19 +5,19 @@ import { By } from "@angular/platform-browser";
 import { ButtonModule } from "./index";
 
 describe("Button", () => {
-  let fixture: ComponentFixture<TestApp>;
-  let testAppComponent: TestApp;
+  let fixture: ComponentFixture<TestAppComponent>;
+  let testAppComponent: TestAppComponent;
   let buttonDebugElement: DebugElement;
   let disabledButtonDebugElement: DebugElement;
   let linkDebugElement: DebugElement;
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [TestApp],
+      imports: [TestAppComponent],
     });
 
     await TestBed.compileComponents();
-    fixture = TestBed.createComponent(TestApp);
+    fixture = TestBed.createComponent(TestAppComponent);
     testAppComponent = fixture.debugElement.componentInstance;
     buttonDebugElement = fixture.debugElement.query(By.css("button"));
     disabledButtonDebugElement = fixture.debugElement.query(By.css("button#disabled"));
@@ -34,26 +34,30 @@ describe("Button", () => {
     expect(buttonDebugElement.nativeElement.disabled).toBeFalsy();
   });
 
-  it("should be disabled when disabled is true", () => {
+  it("should be aria-disabled and not html attribute disabled when disabled is true", () => {
     testAppComponent.disabled = true;
     fixture.detectChanges();
-
-    expect(buttonDebugElement.nativeElement.disabled).toBeTruthy();
+    expect(buttonDebugElement.attributes["aria-disabled"]).toBe("true");
+    expect(buttonDebugElement.nativeElement.disabled).toBeFalsy();
     // Anchor tags cannot be disabled.
   });
 
-  it("should be disabled when attribute disabled is true", () => {
-    expect(disabledButtonDebugElement.nativeElement.disabled).toBeTruthy();
+  it("should be aria-disabled not html attribute disabled when attribute disabled is true", () => {
+    fixture.detectChanges();
+    expect(disabledButtonDebugElement.attributes["aria-disabled"]).toBe("true");
+    expect(disabledButtonDebugElement.nativeElement.disabled).toBeFalsy();
   });
 
   it("should be disabled when loading is true", () => {
     testAppComponent.loading = true;
     fixture.detectChanges();
 
-    expect(buttonDebugElement.nativeElement.disabled).toBeTruthy();
+    expect(buttonDebugElement.attributes["aria-disabled"]).toBe("true");
   });
 });
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "test-app",
   template: `
@@ -82,7 +86,7 @@ describe("Button", () => {
   `,
   imports: [ButtonModule],
 })
-class TestApp {
+class TestAppComponent {
   buttonType?: string;
   block?: boolean;
   disabled?: boolean;

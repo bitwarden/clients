@@ -21,7 +21,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -78,7 +78,7 @@ describe("vault filter service", () => {
     configService.getFeatureFlag$.mockReturnValue(of(true));
     organizationService.memberOrganizations$.mockReturnValue(organizations);
     folderService.folderViews$.mockReturnValue(folderViews);
-    collectionService.decryptedCollections$ = collectionViews;
+    collectionService.decryptedCollections$.mockReturnValue(collectionViews);
     policyService.policyAppliesToUser$
       .calledWith(PolicyType.OrganizationDataOwnership, mockUserId)
       .mockReturnValue(organizationDataOwnershipPolicy);
@@ -247,6 +247,9 @@ describe("vault filter service", () => {
           createCollectionView("id-3", "Collection 1/Collection 3", "org test id"),
         ];
         collectionViews.next(storedCollections);
+        collectionService.groupByOrganization.mockReturnValue(
+          new Map([["org test id" as OrganizationId, storedCollections]]),
+        );
 
         const result = await firstValueFrom(vaultFilterService.collectionTree$);
 
@@ -260,6 +263,9 @@ describe("vault filter service", () => {
           createCollectionView("id-3", "Collection 1/Collection 2/Collection 3", "org test id"),
         ];
         collectionViews.next(storedCollections);
+        collectionService.groupByOrganization.mockReturnValue(
+          new Map([["org test id" as OrganizationId, storedCollections]]),
+        );
 
         const result = await firstValueFrom(vaultFilterService.collectionTree$);
 
@@ -276,6 +282,9 @@ describe("vault filter service", () => {
           createCollectionView("id-4", "Collection 1/Collection 4", "org test id"),
         ];
         collectionViews.next(storedCollections);
+        collectionService.groupByOrganization.mockReturnValue(
+          new Map([["org test id" as OrganizationId, storedCollections]]),
+        );
 
         const result = await firstValueFrom(vaultFilterService.collectionTree$);
 
@@ -294,6 +303,9 @@ describe("vault filter service", () => {
           createCollectionView("id-3", "Collection 1/Collection 2/Collection 3", "org test id"),
         ];
         collectionViews.next(storedCollections);
+        collectionService.groupByOrganization.mockReturnValue(
+          new Map([["org test id" as OrganizationId, storedCollections]]),
+        );
 
         const result = await firstValueFrom(vaultFilterService.collectionTree$);
 
@@ -302,7 +314,7 @@ describe("vault filter service", () => {
         expect(c3.parent.node.id).toEqual("id-1");
       });
 
-      it.only("calls sortDefaultCollections with the correct args", async () => {
+      it("calls sortDefaultCollections with the correct args", async () => {
         const storedOrgs = [
           createOrganization("id-defaultOrg1", "org1"),
           createOrganization("id-defaultOrg2", "org2"),
@@ -326,6 +338,9 @@ describe("vault filter service", () => {
           ),
         ];
         collectionViews.next(storedCollections);
+        collectionService.groupByOrganization.mockReturnValue(
+          new Map([["org test id" as OrganizationId, storedCollections]]),
+        );
 
         await firstValueFrom(vaultFilterService.collectionTree$);
 
@@ -368,11 +383,16 @@ describe("vault filter service", () => {
     orgId: string,
     type?: CollectionType,
   ): CollectionView {
-    const collection = new CollectionView();
-    collection.id = id;
-    collection.name = name;
-    collection.organizationId = orgId;
-    collection.type = type || CollectionTypes.SharedCollection;
+    const collection = new CollectionView({
+      id: id as CollectionId,
+      name,
+      organizationId: orgId as OrganizationId,
+    });
+
+    if (type) {
+      collection.type = type;
+    }
+
     return collection;
   }
 });

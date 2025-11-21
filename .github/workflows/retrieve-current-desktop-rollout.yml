@@ -11,11 +11,15 @@ jobs:
   rollout:
     name: Retrieve Rollout Percentage
     runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
     steps:
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -26,16 +30,19 @@ jobs:
             aws-electron-access-key,
             aws-electron-bucket-name"
 
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Download channel update info files from S3
         env:
           AWS_ACCESS_KEY_ID: ${{ steps.retrieve-secrets.outputs.aws-electron-access-id }}
           AWS_SECRET_ACCESS_KEY: ${{ steps.retrieve-secrets.outputs.aws-electron-access-key }}
           AWS_DEFAULT_REGION: 'us-west-2'
           AWS_S3_BUCKET_NAME: ${{ steps.retrieve-secrets.outputs.aws-electron-bucket-name }}
-        run: aws s3 cp $AWS_S3_BUCKET_NAME/desktop/latest.yml . --quiet
+        run: aws s3 cp "$AWS_S3_BUCKET_NAME/desktop/latest.yml" . --quiet
 
       - name: Get current rollout percentage
         run: |
           CURRENT_PCT=$(sed -r -n "s/stagingPercentage:\s([0-9]+)/\1/p" latest.yml)
           CURRENT_VERSION=$(sed -r -n "s/version:\s(.*)/\1/p" latest.yml)
-          echo "Desktop ${CURRENT_VERSION} rollout percentage is ${CURRENT_PCT}%" >> $GITHUB_STEP_SUMMARY
+          echo "Desktop ${CURRENT_VERSION} rollout percentage is ${CURRENT_PCT}%" >> "$GITHUB_STEP_SUMMARY"

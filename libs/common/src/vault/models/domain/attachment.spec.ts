@@ -32,13 +32,19 @@ describe("Attachment", () => {
     const attachment = new Attachment(data);
 
     expect(attachment).toEqual({
-      id: null,
-      url: null,
+      id: undefined,
+      url: undefined,
       size: undefined,
-      sizeName: null,
-      key: null,
-      fileName: null,
+      sizeName: undefined,
+      key: undefined,
+      fileName: undefined,
     });
+    expect(data.id).toBeUndefined();
+    expect(data.url).toBeUndefined();
+    expect(data.fileName).toBeUndefined();
+    expect(data.key).toBeUndefined();
+    expect(data.size).toBeUndefined();
+    expect(data.sizeName).toBeUndefined();
   });
 
   it("Convert", () => {
@@ -79,6 +85,8 @@ describe("Attachment", () => {
       attachment.key = mockEnc("key");
       attachment.fileName = mockEnc("fileName");
 
+      const userKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+      keyService.getUserKey.mockResolvedValue(userKey as UserKey);
       encryptService.decryptFileData.mockResolvedValue(makeStaticByteArray(32));
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
@@ -93,6 +101,7 @@ describe("Attachment", () => {
         sizeName: "1.1 KB",
         fileName: "fileName",
         key: expect.any(SymmetricCryptoKey),
+        encryptedKey: attachment.key,
       });
     });
 
@@ -109,7 +118,7 @@ describe("Attachment", () => {
 
         await attachment.decrypt(null, "", providedKey);
 
-        expect(keyService.getUserKeyWithLegacySupport).not.toHaveBeenCalled();
+        expect(keyService.getUserKey).not.toHaveBeenCalled();
         expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(attachment.key, providedKey);
       });
 
@@ -125,11 +134,11 @@ describe("Attachment", () => {
 
       it("gets the user's decryption key if required", async () => {
         const userKey = mock<UserKey>();
-        keyService.getUserKeyWithLegacySupport.mockResolvedValue(userKey);
+        keyService.getUserKey.mockResolvedValue(userKey);
 
         await attachment.decrypt(null, "", null);
 
-        expect(keyService.getUserKeyWithLegacySupport).toHaveBeenCalled();
+        expect(keyService.getUserKey).toHaveBeenCalled();
         expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(attachment.key, userKey);
       });
     });
@@ -151,8 +160,8 @@ describe("Attachment", () => {
       expect(actual).toBeInstanceOf(Attachment);
     });
 
-    it("returns null if object is null", () => {
-      expect(Attachment.fromJSON(null)).toBeNull();
+    it("returns undefined if object is null", () => {
+      expect(Attachment.fromJSON(null)).toBeUndefined();
     });
   });
 

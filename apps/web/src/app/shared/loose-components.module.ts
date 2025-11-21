@@ -1,29 +1,7 @@
 import { NgModule } from "@angular/core";
 
-import {
-  PasswordCalloutComponent,
-  UserVerificationFormInputComponent,
-  VaultTimeoutInputComponent,
-} from "@bitwarden/auth/angular";
-import { LayoutComponent, NavigationModule } from "@bitwarden/components";
-
-import { OrganizationLayoutComponent } from "../admin-console/organizations/layouts/organization-layout.component";
-import { EventsComponent as OrgEventsComponent } from "../admin-console/organizations/manage/events.component";
-import { UserConfirmComponent as OrgUserConfirmComponent } from "../admin-console/organizations/manage/user-confirm.component";
-import { VerifyRecoverDeleteOrgComponent } from "../admin-console/organizations/manage/verify-recover-delete-org.component";
-import { AcceptFamilySponsorshipComponent } from "../admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { RecoverDeleteComponent } from "../auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "../auth/recover-two-factor.component";
-import { SetPasswordComponent } from "../auth/set-password.component";
-import { DangerZoneComponent } from "../auth/settings/account/danger-zone.component";
-import { EmergencyAccessConfirmComponent } from "../auth/settings/emergency-access/confirm/emergency-access-confirm.component";
-import { EmergencyAccessAddEditComponent } from "../auth/settings/emergency-access/emergency-access-add-edit.component";
-import { EmergencyAccessComponent } from "../auth/settings/emergency-access/emergency-access.component";
-import { EmergencyAccessTakeoverComponent } from "../auth/settings/emergency-access/takeover/emergency-access-takeover.component";
-import { EmergencyAccessViewComponent } from "../auth/settings/emergency-access/view/emergency-access-view.component";
-import { UserVerificationModule } from "../auth/shared/components/user-verification";
-import { UpdatePasswordComponent } from "../auth/update-password.component";
-import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { VerifyEmailTokenComponent } from "../auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "../auth/verify-recover-delete.component";
 import { FreeBitwardenFamiliesComponent } from "../billing/members/free-bitwarden-families.component";
@@ -41,89 +19,37 @@ import { UnsecuredWebsitesReportComponent as OrgUnsecuredWebsitesReportComponent
 import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from "../dirt/reports/pages/organizations/weak-passwords-report.component";
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { HeaderModule } from "../layouts/header/header.module";
-import { PremiumBadgeComponent } from "../vault/components/premium-badge.component";
 import { OrganizationBadgeModule } from "../vault/individual-vault/organization-badge/organization-badge.module";
 import { PipesModule } from "../vault/individual-vault/pipes/pipes.module";
 
-import { AccountFingerprintComponent } from "./components/account-fingerprint/account-fingerprint.component";
 import { SharedModule } from "./shared.module";
 
 // Please do not add to this list of declarations - we should refactor these into modules when doing so makes sense until there are none left.
 // If you are building new functionality, please create or extend a feature module instead.
 @NgModule({
-  imports: [
-    SharedModule,
-    UserVerificationModule,
-    AccountFingerprintComponent,
-    OrganizationBadgeModule,
-    PipesModule,
-    PasswordCalloutComponent,
-    UserVerificationFormInputComponent,
-    DangerZoneComponent,
-    LayoutComponent,
-    NavigationModule,
-    HeaderModule,
-    OrganizationLayoutComponent,
-    VerifyRecoverDeleteOrgComponent,
-    VaultTimeoutInputComponent,
-    PremiumBadgeComponent,
-  ],
+  imports: [SharedModule, HeaderModule, OrganizationBadgeModule, PipesModule],
   declarations: [
-    AcceptFamilySponsorshipComponent,
-    EmergencyAccessAddEditComponent,
-    EmergencyAccessComponent,
-    EmergencyAccessConfirmComponent,
-    EmergencyAccessTakeoverComponent,
-    EmergencyAccessViewComponent,
-    OrgEventsComponent,
     OrgExposedPasswordsReportComponent,
     OrgInactiveTwoFactorReportComponent,
     OrgReusedPasswordsReportComponent,
     OrgUnsecuredWebsitesReportComponent,
-    OrgUserConfirmComponent,
     OrgWeakPasswordsReportComponent,
     RecoverDeleteComponent,
     RecoverTwoFactorComponent,
     RemovePasswordComponent,
-    SetPasswordComponent,
     SponsoredFamiliesComponent,
     FreeBitwardenFamiliesComponent,
     SponsoringOrgRowComponent,
-    UpdatePasswordComponent,
-    UpdateTempPasswordComponent,
     VerifyEmailTokenComponent,
     VerifyRecoverDeleteComponent,
   ],
   exports: [
-    UserVerificationModule,
-    PremiumBadgeComponent,
-    EmergencyAccessAddEditComponent,
-    EmergencyAccessComponent,
-    EmergencyAccessConfirmComponent,
-    EmergencyAccessTakeoverComponent,
-    EmergencyAccessViewComponent,
-    OrganizationLayoutComponent,
-    OrgEventsComponent,
-    OrgExposedPasswordsReportComponent,
-    OrgInactiveTwoFactorReportComponent,
-    OrgReusedPasswordsReportComponent,
-    OrgUnsecuredWebsitesReportComponent,
-    OrgUserConfirmComponent,
-    OrgWeakPasswordsReportComponent,
-    PremiumBadgeComponent,
     RecoverDeleteComponent,
     RecoverTwoFactorComponent,
     RemovePasswordComponent,
-    SetPasswordComponent,
     SponsoredFamiliesComponent,
-    FreeBitwardenFamiliesComponent,
-    SponsoringOrgRowComponent,
-    UpdateTempPasswordComponent,
-    UpdatePasswordComponent,
     VerifyEmailTokenComponent,
     VerifyRecoverDeleteComponent,
-    HeaderModule,
-    DangerZoneComponent,
   ],
 })
 export class LooseComponentsModule {}

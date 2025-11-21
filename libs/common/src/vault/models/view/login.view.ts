@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { LoginView as SdkLoginView } from "@bitwarden/sdk-internal";
 
 import { UriMatchStrategySetting } from "../../../models/domain/domain-service";
@@ -15,15 +13,15 @@ import { LoginUriView } from "./login-uri.view";
 
 export class LoginView extends ItemView {
   @linkedFieldOption(LinkedId.Username, { sortPosition: 0 })
-  username: string = null;
+  username: string | undefined;
   @linkedFieldOption(LinkedId.Password, { sortPosition: 1 })
-  password: string = null;
+  password: string | undefined;
 
-  passwordRevisionDate?: Date = null;
-  totp: string = null;
+  passwordRevisionDate?: Date;
+  totp: string | undefined;
   uris: LoginUriView[] = [];
-  autofillOnPageLoad: boolean = null;
-  fido2Credentials: Fido2CredentialView[] = null;
+  autofillOnPageLoad: boolean | undefined;
+  fido2Credentials: Fido2CredentialView[] = [];
 
   constructor(l?: Login) {
     super();
@@ -35,15 +33,15 @@ export class LoginView extends ItemView {
     this.autofillOnPageLoad = l.autofillOnPageLoad;
   }
 
-  get uri(): string {
-    return this.hasUris ? this.uris[0].uri : null;
+  get uri(): string | undefined {
+    return this.hasUris ? this.uris[0].uri : undefined;
   }
 
-  get maskedPassword(): string {
-    return this.password != null ? "••••••••" : null;
+  get maskedPassword(): string | undefined {
+    return this.password != null ? "••••••••" : undefined;
   }
 
-  get subTitle(): string {
+  get subTitle(): string | undefined {
     // if there's a passkey available, use that as a fallback
     if (Utils.isNullOrEmpty(this.username) && this.fido2Credentials?.length > 0) {
       return this.fido2Credentials[0].userName;
@@ -60,14 +58,14 @@ export class LoginView extends ItemView {
     return !Utils.isNullOrWhitespace(this.totp);
   }
 
-  get launchUri(): string {
+  get launchUri(): string | undefined {
     if (this.hasUris) {
       const uri = this.uris.find((u) => u.canLaunch);
       if (uri != null) {
         return uri.launchUri;
       }
     }
-    return null;
+    return undefined;
   }
 
   get hasUris(): boolean {
@@ -81,26 +79,33 @@ export class LoginView extends ItemView {
   matchesUri(
     targetUri: string,
     equivalentDomains: Set<string>,
-    defaultUriMatch: UriMatchStrategySetting = null,
+    defaultUriMatch?: UriMatchStrategySetting,
+    /** When present, will override the match strategy for the cipher if it is `Never` with `Domain` */
+    overrideNeverMatchStrategy?: true,
   ): boolean {
     if (this.uris == null) {
       return false;
     }
 
-    return this.uris.some((uri) => uri.matchesUri(targetUri, equivalentDomains, defaultUriMatch));
+    return this.uris.some((uri) =>
+      uri.matchesUri(targetUri, equivalentDomains, defaultUriMatch, overrideNeverMatchStrategy),
+    );
   }
 
-  static fromJSON(obj: Partial<DeepJsonify<LoginView>>): LoginView {
-    const passwordRevisionDate =
-      obj.passwordRevisionDate == null ? null : new Date(obj.passwordRevisionDate);
-    const uris = obj.uris.map((uri) => LoginUriView.fromJSON(uri));
-    const fido2Credentials = obj.fido2Credentials?.map((key) => Fido2CredentialView.fromJSON(key));
+  static fromJSON(obj: Partial<DeepJsonify<LoginView>> | undefined): LoginView {
+    if (obj == undefined) {
+      return new LoginView();
+    }
 
-    return Object.assign(new LoginView(), obj, {
-      passwordRevisionDate,
-      uris,
-      fido2Credentials,
-    });
+    const loginView = Object.assign(new LoginView(), obj) as LoginView;
+
+    loginView.passwordRevisionDate =
+      obj.passwordRevisionDate == null ? undefined : new Date(obj.passwordRevisionDate);
+    loginView.uris = obj.uris?.map((uri) => LoginUriView.fromJSON(uri)) ?? [];
+    loginView.fido2Credentials =
+      obj.fido2Credentials?.map((key) => Fido2CredentialView.fromJSON(key)) ?? [];
+
+    return loginView;
   }
 
   /**
@@ -111,23 +116,39 @@ export class LoginView extends ItemView {
    * the FIDO2 credentials in encrypted form. We can decrypt them later using a separate
    * call to client.vault().ciphers().decrypt_fido2_credentials().
    */
-  static fromSdkLoginView(obj: SdkLoginView): LoginView | undefined {
-    if (obj == null) {
-      return undefined;
-    }
-
+  static fromSdkLoginView(obj: SdkLoginView): LoginView {
     const loginView = new LoginView();
 
-    loginView.username = obj.username ?? null;
-    loginView.password = obj.password ?? null;
+    loginView.username = obj.username;
+    loginView.password = obj.password;
     loginView.passwordRevisionDate =
-      obj.passwordRevisionDate == null ? null : new Date(obj.passwordRevisionDate);
-    loginView.totp = obj.totp ?? null;
-    loginView.autofillOnPageLoad = obj.autofillOnPageLoad ?? null;
-    loginView.uris = obj.uris?.map((uri) => LoginUriView.fromSdkLoginUriView(uri)) || [];
+      obj.passwordRevisionDate == null ? undefined : new Date(obj.passwordRevisionDate);
+    loginView.totp = obj.totp;
+    loginView.autofillOnPageLoad = obj.autofillOnPageLoad;
+    loginView.uris =
+      obj.uris
+        ?.filter((uri) => uri.uri != null && uri.uri !== "")
+        .map((uri) => LoginUriView.fromSdkLoginUriView(uri)!) || [];
     // FIDO2 credentials are not decrypted here, they remain encrypted
-    loginView.fido2Credentials = null;
+    loginView.fido2Credentials = [];
 
     return loginView;
+  }
+
+  /**
+   * Converts the LoginView to an SDK LoginView.
+   *
+   * Note: FIDO2 credentials remain encrypted in the SDK view so they are not included here.
+   */
+  toSdkLoginView(): SdkLoginView {
+    return {
+      username: this.username,
+      password: this.password,
+      passwordRevisionDate: this.passwordRevisionDate?.toISOString(),
+      totp: this.totp,
+      autofillOnPageLoad: this.autofillOnPageLoad ?? undefined,
+      uris: this.uris?.map((uri) => uri.toSdkLoginUriView()),
+      fido2Credentials: undefined, // FIDO2 credentials are handled separately and remain encrypted
+    };
   }
 }

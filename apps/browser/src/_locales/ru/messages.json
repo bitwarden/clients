@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Использовать единый вход"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Ваша организация требует единого входа."
+  },
   "welcomeBack": {
     "message": "С возвращением"
   },
@@ -547,11 +550,55 @@
   "searchVault": {
     "message": "Поиск в хранилище"
   },
+  "resetSearch": {
+    "message": "Сбросить поиск"
+  },
+  "archiveNoun": {
+    "message": "Архив",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Архивировать",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Разархивировать"
+  },
+  "itemsInArchive": {
+    "message": "Элементы в архиве"
+  },
+  "noItemsInArchive": {
+    "message": "В архиве нет элементов"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Архивированные элементы появятся здесь и будут исключены из общих результатов поиска и предложений автозаполнения."
+  },
+  "itemWasSentToArchive": {
+    "message": "Элемент был отправлен в архив"
+  },
+  "itemUnarchived": {
+    "message": "Элемент был разархивирован"
+  },
+  "archiveItem": {
+    "message": "Архивировать элемент"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать этот элемент?"
+  },
   "edit": {
     "message": "Изменить"
   },
   "view": {
     "message": "Просмотр"
+  },
+  "viewAll": {
+    "message": "Посмотреть все"
+  },
+  "viewLess": {
+    "message": "Свернуть"
+  },
+  "viewLogin": {
+    "message": "Просмотр логина"
   },
   "noItemsInList": {
     "message": "Нет элементов для отображения."
@@ -695,6 +742,15 @@
   "invalidMasterPassword": {
     "message": "Неверный мастер-пароль"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Неверный мастер-пароль. Подтвердите, что ваш адрес email указан верно и ваш аккаунт был создан на $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "vaultTimeout": {
     "message": "Тайм-аут хранилища"
   },
@@ -742,6 +798,12 @@
   },
   "onLocked": {
     "message": "Вместе с компьютером"
+  },
+  "onIdle": {
+    "message": "При бездействии"
+  },
+  "onSleep": {
+    "message": "В режиме сна"
   },
   "onRestart": {
     "message": "При перезапуске браузера"
@@ -980,6 +1042,18 @@
   },
   "editedItem": {
     "message": "Элемент сохранен"
+  },
+  "savedWebsite": {
+    "message": "Сохраненный сайт"
+  },
+  "savedWebsites": {
+    "message": "Сохраненные сайты ( $COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Вы действительно хотите отправить в корзину?"
@@ -1458,12 +1532,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Запрашивать биометрию при запуске"
   },
-  "premiumRequired": {
-    "message": "Требуется Премиум"
-  },
-  "premiumRequiredDesc": {
-    "message": "Для использования этой функции необходим Премиум."
-  },
   "authenticationTimeout": {
     "message": "Таймаут аутентификации"
   },
@@ -1501,6 +1569,15 @@
   "readSecurityKey": {
     "message": "Считать ключ безопасности"
   },
+  "readingPasskeyLoading": {
+    "message": "Чтение passkey..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Не удалось выполнить аутентификацию с помощью passkey"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Использовать другой способ авторизации"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Ожидание взаимодействия с ключом безопасности..."
   },
@@ -1518,9 +1595,6 @@
   },
   "selectTwoStepLoginMethod": {
     "message": "Выбрать другой метод двухэтапной аутентификации"
-  },
-  "recoveryCodeDesc": {
-    "message": "Потеряли доступ ко всем вариантам двухэтапной аутентификации? Используйте код восстановления, чтобы отключить двухэтапную аутентификацию для вашей учетной записи."
   },
   "recoveryCodeTitle": {
     "message": "Код восстановления"
@@ -1569,6 +1643,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Вы должны добавить либо базовый URL сервера, либо хотя бы одно пользовательское окружение."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL должны использовать HTTPS."
   },
   "customEnvironment": {
     "message": "Пользовательское окружение"
@@ -1623,8 +1700,29 @@
   "turnOffAutofill": {
     "message": "Отключить автозаполнение"
   },
+  "confirmAutofill": {
+    "message": "Подтвердите автозаполнение"
+  },
+  "confirmAutofillDesc": {
+    "message": "Этот сайт не соответствует вашим сохраненным логинам. Прежде чем заполнять логин, убедитесь, что это надежный сайт."
+  },
   "showInlineMenuLabel": {
     "message": "Показывать предположения автозаполнения в полях формы"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Как Bitwarden защищает ваши данные от фишинга?"
+  },
+  "currentWebsite": {
+    "message": "Текущий сайт"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Заполнить и добавить этот сайт"
+  },
+  "autofillWithoutAdding": {
+    "message": "Заполнить без добавления"
+  },
+  "doNotAutofill": {
+    "message": "Не заполнять"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Показывать Личную информацию как предложения"
@@ -1679,9 +1777,6 @@
   },
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Вы можете отключить автозаполнение при загрузке страницы для отдельных логинов в режиме редактирования элемента."
-  },
-  "itemAutoFillOnPageLoad": {
-    "message": "Автозаполнение при загрузке страницы (если включено в настройках)"
   },
   "autoFillOnPageLoadUseDefault": {
     "message": "Использовать настройки по умолчанию"
@@ -1754,23 +1849,8 @@
   "popup2faCloseMessage": {
     "message": "Щелчок за пределами этого окна для просмотра кода проверки из электронной почты приведет к его закрытию. Открыть bitwarden в новом окне?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Этот браузер не может обрабатывать запросы U2F в этом всплывающем окне. Вы хотите открыть это всплывающее окно в новом окне, чтобы иметь возможность войти в систему, используя U2F?"
-  },
-  "enableFavicon": {
-    "message": "Показать значки сайтов"
-  },
-  "faviconDesc": {
-    "message": "Отображать узнаваемое изображение рядом с каждым логином."
-  },
-  "faviconDescAlt": {
-    "message": "Показывать узнаваемое изображение рядом с каждым логином. Применяется ко всем авторизованным аккаунтам."
-  },
-  "enableBadgeCounter": {
-    "message": "Показать счетчик на значке"
-  },
-  "badgeCounterDesc": {
-    "message": "Показывает количество логинов для текущей веб-страницы."
+  "showIconsChangePasswordUrls": {
+    "message": "Показывать значки сайтов и извлекать URL изменения пароля"
   },
   "cardholderName": {
     "message": "Имя владельца карты"
@@ -1934,32 +2014,81 @@
   "typeNote": {
     "message": "Заметка"
   },
-  "newItemHeader": {
-    "message": "Новый $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Новый логин",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "Изменить $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Новая карта",
+    "description": "Header for new card item type"
   },
-  "viewItemHeader": {
-    "message": "Просмотр $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "Новая личная информация",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Новая заметка",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Новый ключ SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Новая текстовая Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Новая файловая Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Изменить логин",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Редактировать карту",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Редактировать личную информацию",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Редактировать заметку",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Редактировать ключ SSH",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Изменить тестовую Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Изменить файловую Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Просмотр логина",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Просмотр карты",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Просмотр личной информации",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Просмотр заметки",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Просмотр ключа SSH",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "История паролей"
@@ -2306,6 +2435,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Эта страница мешает работе Bitwarden. Встроенное меню Bitwarden было временно отключено в целях безопасности."
   },
   "setMasterPassword": {
     "message": "Задать мастер-пароль"
@@ -3132,11 +3264,32 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Будет экспортировано только хранилище организации, связанное с $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Будет экспортировано только хранилище организации, связанное с $ORGANIZATION$. Коллекции Мои элементы включены не будут.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Ошибка"
   },
   "decryptionError": {
     "message": "Ошибка расшифровки"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Ошибка получения данных автозаполнения"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden не удалось расшифровать элемент(ы) хранилища, перечисленные ниже."
@@ -3521,9 +3674,6 @@
   "autofillPageLoadPolicyActivated": {
     "message": "Автозаполнение при загрузке страницы было активировано политиками вашей организации."
   },
-  "howToAutofill": {
-    "message": "Как использовать автозаполнение"
-  },
   "autofillSelectInfoWithCommand": {
     "message": "Выберите элемент на этой странице, используйте сочетание клавиш: $COMMAND$ или ознакомьтесь с другими параметрами в настройках.",
     "placeholders": {
@@ -3654,25 +3804,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Этот запрос больше не действителен."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Вы пытаетесь получить доступ к своему аккаунту?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Вход подтвержден для $EMAIL$ на $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Вы отклонили попытку авторизации с другого устройства. Если это действительно были вы, попробуйте авторизоваться с этого устройства еще раз."
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "Запрос на вход истек."
   },
@@ -3795,7 +3926,7 @@
     "message": "В целях обеспечения безопасности вашего аккаунта продолжайте только в том случае, если вы являетесь членом этой организации, у вас включено восстановление аккаунта, а отображаемый ниже отпечаток совпадает с отпечатком организации."
   },
   "orgTrustWarning1": {
-    "message": "В этой организации действует политика, которая позволит вам участвовать в восстановлении аккаунта. Регистрация позволит администраторам организации изменить ваш пароль. Продолжайте, только если вы знаете эту организацию и фраза отпечатков, показанная ниже, совпадает с отпечатками организации."
+    "message": "Эта организация имеет корпоративную политику, которая зарегистрирует вас в системе восстановления аккаунта. Регистрация позволит администраторам организации изменить ваш пароль. Продолжайте только в том случае, если вы узнаете эту организацию и фраза отпечатка, отображаемая ниже, соответствует отпечатку организации."
   },
   "trustUser": {
     "message": "Доверенный пользователь"
@@ -3927,17 +4058,18 @@
   "aliasDomain": {
     "message": "Псевдоним домена"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Элементы с повторным запросом мастер-пароля не могут быть автоматически заполнены при загрузке страницы. Автозаполнение при загрузке страницы выключено.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Автозаполнение при загрузке страницы использует настройку по умолчанию.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Для редактирования этого поля отключите повторный запрос мастер-пароля",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  "cannotAutofill": {
+    "message": "Не удалось заполнить"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "По умолчанию установлено значение 'Точное соответствие'. Текущий сайт не полностью соответствует сохраненным для этого элемента логинам."
+  },
+  "okay": {
+    "message": "OK"
   },
   "toggleSideNavigation": {
     "message": "Переключить боковую навигацию"
@@ -4147,15 +4279,11 @@
   "selectImportCollection": {
     "message": "Выберите коллекцию"
   },
-  "importTargetHint": {
-    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в коллекцию"
+  },
+  "importTargetHintFolder": {
+    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в папку"
   },
   "importUnassignedItemsError": {
     "message": "Файл содержит неназначенные элементы."
@@ -4211,9 +4339,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Passkey не будет скопирован в клонированный элемент. Продолжить клонирование этого элемента?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Необходима верификация со стороны инициирующего сайта. Для аккаунтов без мастер-пароля эта возможность пока не реализована."
   },
   "logInWithPasskeyQuestion": {
     "message": "Войти с passkey?"
@@ -4861,6 +4986,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "По умолчанию ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "Показать обнаружение совпадений $WEBSITE$",
     "placeholders": {
@@ -4899,9 +5034,6 @@
         "example": "Visa"
       }
     }
-  },
-  "enableAnimations": {
-    "message": "Включить анимацию"
   },
   "showAnimations": {
     "message": "Показать анимацию"
@@ -5115,14 +5247,8 @@
   "itemLocation": {
     "message": "Расположение элемента"
   },
-  "fileSend": {
-    "message": "Файловая Send"
-  },
   "fileSends": {
     "message": "Файловая Send"
-  },
-  "textSend": {
-    "message": "Текстовая Send"
   },
   "textSends": {
     "message": "Текстовая Send"
@@ -5132,6 +5258,18 @@
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Показывать количество вариантов автозаполнения логина на значке расширения"
+  },
+  "accountAccessRequested": {
+    "message": "Запрошен доступ к аккаунту"
+  },
+  "confirmAccessAttempt": {
+    "message": "Подтвердить попытку доступа $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "showQuickCopyActions": {
     "message": "Показать быстрые действия копирования в хранилище"
@@ -5171,9 +5309,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Минимальный пользовательский тайм-аут составляет 1 минуту."
-  },
-  "additionalContentAvailable": {
-    "message": "Дополнительный контент доступен"
   },
   "fileSavedToDevice": {
     "message": "Файл сохранен на устройстве. Управляйте им из загрузок устройства."
@@ -5242,7 +5377,7 @@
     "message": "Установить PIN--код разблокировки"
   },
   "unlockWithBiometricSet": {
-    "message": "Разблокировать с помощью биометрии"
+    "message": "Разблокировка с помощью биометрии настроена"
   },
   "authenticating": {
     "message": "Аутентификация"
@@ -5460,6 +5595,12 @@
   "changeAtRiskPassword": {
     "message": "Изменить пароль, подверженный риску"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Этот логин подвержен риску и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
+  },
+  "missingWebsite": {
+    "message": "Отсутствует сайт"
+  },
   "settingsVaultOptions": {
     "message": "Настройки хранилища"
   },
@@ -5507,6 +5648,38 @@
   },
   "hasItemsVaultNudgeTitle": {
     "message": "Добро пожаловать в ваше хранилище!"
+  },
+  "phishingPageTitleV2": {
+    "message": "Обнаружена попытка фишинга"
+  },
+  "phishingPageSummary": {
+    "message": "Сайт, который вы пытаетесь посетить, является заведомо вредоносным сайтом и представляет угрозу безопасности."
+  },
+  "phishingPageCloseTabV2": {
+    "message": "Закрыть эту вкладку"
+  },
+  "phishingPageContinueV2": {
+    "message": "Перейти на этот сайт (не рекомендуется)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Этот сайт был найден в ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", списке известных фишинговых сайтов, используемых для кражи персональной и конфиденциальной информации.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Узнайте больше об обнаружении фишинга"
+  },
+  "protectedBy": {
+    "message": "Защищено $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Автозаполнение элементов на текущей странице"
@@ -5583,11 +5756,88 @@
     "message": "Легко создавайте надежные и уникальные пароли, нажатием на кнопку 'Сгенерировать пароль', чтобы обеспечить безопасность ваших логинов.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "Об этой настройке"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden будет использовать сохраненные URI логинов, чтобы определить, какой значок или URL для смены пароля следует использовать для улучшения вашего взаимодействия. При использовании этого сервиса никакая информация не собирается и не сохраняется."
+  },
   "noPermissionsViewPage": {
     "message": "У вас нет прав для просмотра этой страницы. Попробуйте авторизоваться под другим аккаунтом."
   },
   "wasmNotSupported": {
     "message": "WebAssembly не поддерживается вашим браузером или не включен. WebAssembly необходим для использования приложения Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Больше"
+  },
+  "showLess": {
+    "message": "Меньше"
+  },
+  "next": {
+    "message": "Далее"
+  },
+  "moreBreadcrumbs": {
+    "message": "Дополнительная навигация",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Подтвердите домен соединителя ключей"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Отличная работа по защите ваших логинов, подверженных риску!"
+  },
+  "upgradeNow": {
+    "message": "Изменить сейчас"
+  },
+  "builtInAuthenticator": {
+    "message": "Встроенный аутентификатор"
+  },
+  "secureFileStorage": {
+    "message": "Защищенное хранилище файлов"
+  },
+  "emergencyAccess": {
+    "message": "Экстренный доступ"
+  },
+  "breachMonitoring": {
+    "message": "Мониторинг нарушений"
+  },
+  "andMoreFeatures": {
+    "message": "И многое другое!"
+  },
+  "planDescPremium": {
+    "message": "Полная онлайн-защищенность"
+  },
+  "upgradeToPremium": {
+    "message": "Обновить до Премиум"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Перейти для полной защищенности"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Премиум предоставит вам больше инструментов для обеспечения безопасности, эффективной работы и контроля над ситуацией."
+  },
+  "explorePremium": {
+    "message": "Познакомиться с Премиум"
+  },
+  "loadingVault": {
+    "message": "Загрузка хранилища"
+  },
+  "vaultLoaded": {
+    "message": "Хранилище загружено"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Этот параметр отключен политикой вашей организации.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Почтовый индекс"
+  },
+  "cardNumberLabel": {
+    "message": "Номер карты"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Тайм-аут действия"
   }
 }

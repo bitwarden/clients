@@ -1,64 +1,15 @@
-import { ServerConfig } from "../../../platform/abstractions/config/server-config";
-import { Decryptable } from "../../../platform/interfaces/decryptable.interface";
-import { Encrypted } from "../../../platform/interfaces/encrypted";
-import { InitializerMetadata } from "../../../platform/interfaces/initializer-metadata.interface";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { EncString } from "../models/enc-string";
 
 export abstract class EncryptService {
   /**
-   * @deprecated
-   * Encrypts a string or Uint8Array to an EncString
-   * @param plainValue - The value to encrypt
-   * @param key - The key to encrypt the value with
+   * A temporary init method to make the encrypt service listen to feature-flag changes.
+   * This will be removed once the feature flag has been rolled out.
    */
-  abstract encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString>;
-  /**
-   * @deprecated
-   * Encrypts a value to a Uint8Array
-   * @param plainValue - The value to encrypt
-   * @param key - The key to encrypt the value with
-   */
-  abstract encryptToBytes(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncArrayBuffer>;
-  /**
-   * @deprecated
-   * Decrypts an EncString to a string
-   * @param encString - The EncString to decrypt
-   * @param key - The key to decrypt the EncString with
-   * @param decryptTrace - A string to identify the context of the object being decrypted. This can include: field name, encryption type, cipher id, key type, but should not include
-   * sensitive information like encryption keys or data. This is used for logging when decryption errors occur in order to identify what failed to decrypt
-   * @returns The decrypted string
-   */
-  abstract decryptToUtf8(
-    encString: EncString,
-    key: SymmetricCryptoKey,
-    decryptTrace?: string,
-  ): Promise<string>;
-  /**
-   * @deprecated
-   * Decrypts an Encrypted object to a Uint8Array
-   * @param encThing - The Encrypted object to decrypt
-   * @param key - The key to decrypt the Encrypted object with
-   * @param decryptTrace - A string to identify the context of the object being decrypted. This can include: field name, encryption type, cipher id, key type, but should not include
-   * sensitive information like encryption keys or data. This is used for logging when decryption errors occur in order to identify what failed to decrypt
-   * @returns The decrypted Uint8Array
-   */
-  abstract decryptToBytes(
-    encThing: Encrypted,
-    key: SymmetricCryptoKey,
-    decryptTrace?: string,
-  ): Promise<Uint8Array | null>;
-
-  /**
-   * @deprecated Replaced by BulkEncryptService, remove once the feature is tested and the featureflag PM-4154-multi-worker-encryption-service is removed
-   * @param items The items to decrypt
-   * @param key The key to decrypt the items with
-   */
-  abstract decryptItems<T extends InitializerMetadata>(
-    items: Decryptable<T>[],
-    key: SymmetricCryptoKey,
-  ): Promise<T[]>;
+  abstract init(configService: ConfigService): void;
 
   /**
    * Encrypts a string to an EncString
@@ -85,6 +36,9 @@ export abstract class EncryptService {
 
   /**
    * Decrypts an EncString to a string
+   * @throws IMPORTANT: This throws if decryption fails. If decryption failures are expected to happen,
+   * the callsite should log where the failure occurred, and handle it by domain specifc logic (e.g. show a UI error).
+   *
    * @param encString - The EncString containing the encrypted string.
    * @param key - The key to decrypt the value with
    * @returns The decrypted string
@@ -93,10 +47,12 @@ export abstract class EncryptService {
   abstract decryptString(encString: EncString, key: SymmetricCryptoKey): Promise<string>;
   /**
    * Decrypts an EncString to a Uint8Array
+   * @throws IMPORTANT: This throws if decryption fails. If decryption failures are expected to happen,
+   * the callsite should log where the failure occurred, and handle it by domain specifc logic (e.g. show a UI error).
+   *
    * @param encString - The EncString containing the encrypted bytes.
    * @param key - The key to decrypt the value with
    * @returns The decrypted bytes as a Uint8Array
-   * @throws Error if decryption fails
    * @deprecated Bytes are not the right abstraction to encrypt in. Use e.g. key wrapping or file encryption instead
    */
   abstract decryptBytes(encString: EncString, key: SymmetricCryptoKey): Promise<Uint8Array>;
@@ -203,12 +159,6 @@ export abstract class EncryptService {
   ): Promise<SymmetricCryptoKey>;
 
   /**
-   * @deprecated Use @see {@link encapsulateKeyUnsigned} instead
-   * @param data - The data to encrypt
-   * @param publicKey - The public key to encrypt with
-   */
-  abstract rsaEncrypt(data: Uint8Array, publicKey: Uint8Array): Promise<EncString>;
-  /**
    * @deprecated Use @see {@link decapsulateKeyUnsigned} instead
    * @param data - The ciphertext to decrypt
    * @param privateKey - The privateKey to decrypt with
@@ -224,6 +174,4 @@ export abstract class EncryptService {
     value: string | Uint8Array,
     algorithm: "sha1" | "sha256" | "sha512",
   ): Promise<string>;
-
-  abstract onServerConfigChange(newConfig: ServerConfig): void;
 }

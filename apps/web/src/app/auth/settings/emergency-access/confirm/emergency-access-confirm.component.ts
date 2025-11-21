@@ -8,6 +8,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { DialogConfig, DialogRef, DIALOG_DATA, DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
+import { SharedModule } from "../../../../shared";
+
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum EmergencyAccessConfirmDialogResult {
@@ -23,10 +25,11 @@ type EmergencyAccessConfirmDialogData = {
   /** user public key */
   publicKey: Uint8Array;
 };
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "emergency-access-confirm",
   templateUrl: "emergency-access-confirm.component.html",
-  standalone: false,
+  imports: [SharedModule],
 })
 export class EmergencyAccessConfirmComponent implements OnInit {
   loading = true;

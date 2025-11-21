@@ -4,8 +4,6 @@ import { of } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
-  PinLockType,
-  PinServiceAbstraction,
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
@@ -21,6 +19,8 @@ import {
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
 import { InternalMasterPasswordServiceAbstraction } from "../../../key-management/master-password/abstractions/master-password.service.abstraction";
+import { PinLockType } from "../../../key-management/pin/pin-lock-type";
+import { PinServiceAbstraction } from "../../../key-management/pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService } from "../../../key-management/vault-timeout";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { HashPurpose } from "../../../platform/enums";
@@ -191,6 +191,140 @@ describe("UserVerificationService", () => {
     });
   });
 
+  describe("buildRequest", () => {
+    beforeEach(() => {
+      accountService = mockAccountServiceWith(mockUserId);
+      i18nService.t
+        .calledWith("verificationCodeRequired")
+        .mockReturnValue("Verification code is required");
+      i18nService.t
+        .calledWith("masterPasswordRequired")
+        .mockReturnValue("Master Password is required");
+    });
+
+    describe("OTP verification", () => {
+      it("should build request with OTP secret", async () => {
+        const verification = {
+          type: VerificationType.OTP,
+          secret: "123456",
+        } as any;
+
+        const result = await sut.buildRequest(verification);
+
+        expect(result.otp).toBe("123456");
+      });
+
+      it("should throw if OTP secret is empty", async () => {
+        const verification = {
+          type: VerificationType.OTP,
+          secret: "",
+        } as any;
+
+        await expect(sut.buildRequest(verification)).rejects.toThrow(
+          "Verification code is required",
+        );
+      });
+
+      it("should throw if OTP secret is null", async () => {
+        const verification = {
+          type: VerificationType.OTP,
+          secret: null,
+        } as any;
+
+        await expect(sut.buildRequest(verification)).rejects.toThrow(
+          "Verification code is required",
+        );
+      });
+    });
+
+    describe("Master password verification", () => {
+      beforeEach(() => {
+        kdfConfigService.getKdfConfig.mockResolvedValue("kdfConfig" as unknown as KdfConfig);
+        masterPasswordService.saltForUser$.mockReturnValue(of("salt" as any));
+        masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue({
+          masterPasswordAuthenticationHash: "hash",
+        } as any);
+      });
+
+      it("should build request with master password secret", async () => {
+        const verification = {
+          type: VerificationType.MasterPassword,
+          secret: "password123",
+        } as any;
+
+        const result = await sut.buildRequest(verification);
+
+        expect(result.masterPasswordHash).toBe("hash");
+      });
+
+      it("should use default SecretVerificationRequest if no custom class provided", async () => {
+        const verification = {
+          type: VerificationType.MasterPassword,
+          secret: "password123",
+        } as any;
+
+        const result = await sut.buildRequest(verification);
+
+        expect(result).toHaveProperty("masterPasswordHash");
+      });
+
+      it("should get KDF config for the active user", async () => {
+        const verification = {
+          type: VerificationType.MasterPassword,
+          secret: "password123",
+        } as any;
+
+        await sut.buildRequest(verification);
+
+        expect(kdfConfigService.getKdfConfig).toHaveBeenCalledWith(mockUserId);
+      });
+
+      it("should get salt for the active user", async () => {
+        const verification = {
+          type: VerificationType.MasterPassword,
+          secret: "password123",
+        } as any;
+
+        await sut.buildRequest(verification);
+
+        expect(masterPasswordService.saltForUser$).toHaveBeenCalledWith(mockUserId);
+      });
+
+      it("should call makeMasterPasswordAuthenticationData with correct parameters", async () => {
+        const verification = {
+          type: VerificationType.MasterPassword,
+          secret: "password123",
+        } as any;
+
+        await sut.buildRequest(verification);
+
+        expect(masterPasswordService.makeMasterPasswordAuthenticationData).toHaveBeenCalledWith(
+          "password123",
+          "kdfConfig",
+          "salt",
+        );
+      });
+
+      it("should throw if master password secret is empty", async () => {
+        const verification = {
+          type: VerificationType.MasterPassword,
+          secret: "",
+        } as any;
+
+        await expect(sut.buildRequest(verification)).rejects.toThrow("Master Password is required");
+      });
+
+      it("should throw if master password secret is null", async () => {
+        const verification = {
+          type: VerificationType.MasterPassword,
+          secret: null,
+        } as any;
+
+        await expect(sut.buildRequest(verification)).rejects.toThrow("Master Password is required");
+      });
+    });
+  });
+
   describe("verifyUserByMasterPassword", () => {
     beforeAll(() => {
       i18nService.t.calledWith("invalidMasterPassword").mockReturnValue("Invalid master password");
@@ -228,7 +362,6 @@ describe("UserVerificationService", () => {
         expect(result).toEqual({
           policyOptions: null,
           masterKey: "masterKey",
-          kdfConfig: "kdfConfig",
           email: "email",
         });
       });
@@ -288,7 +421,6 @@ describe("UserVerificationService", () => {
         expect(result).toEqual({
           policyOptions: "MasterPasswordPolicyOptions",
           masterKey: "masterKey",
-          kdfConfig: "kdfConfig",
           email: "email",
         });
       });

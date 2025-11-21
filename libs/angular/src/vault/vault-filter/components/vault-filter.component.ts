@@ -10,6 +10,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { ITreeNodeObject } from "@bitwarden/common/vault/models/domain/tree-node";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
@@ -21,15 +22,33 @@ import { VaultFilter } from "../models/vault-filter.model";
 // and refactor desktop/browser vault filters
 @Directive()
 export class VaultFilterComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() activeFilter: VaultFilter = new VaultFilter();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() hideFolders = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() hideCollections = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() hideFavorites = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() hideTrash = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() hideOrganizations = false;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onFilterChange = new EventEmitter<VaultFilter>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onAddFolder = new EventEmitter<never>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onEditFolder = new EventEmitter<FolderView>();
 
   private activeUserId: UserId;
@@ -42,9 +61,12 @@ export class VaultFilterComponent implements OnInit {
   collections: DynamicTreeNode<CollectionView>;
   folders$: Observable<DynamicTreeNode<FolderView>>;
 
+  protected showArchiveVaultFilter = false;
+
   constructor(
     protected vaultFilterService: DeprecatedVaultFilterService,
     protected accountService: AccountService,
+    protected cipherArchiveService: CipherArchiveService,
   ) {}
 
   get displayCollections() {
@@ -65,6 +87,15 @@ export class VaultFilterComponent implements OnInit {
     }
     this.folders$ = await this.vaultFilterService.buildNestedFolders();
     this.collections = await this.initCollections();
+
+    const userCanArchive = await firstValueFrom(
+      this.cipherArchiveService.userCanArchive$(this.activeUserId),
+    );
+    const showArchiveVault = await firstValueFrom(
+      this.cipherArchiveService.showArchiveVault$(this.activeUserId),
+    );
+
+    this.showArchiveVaultFilter = userCanArchive || showArchiveVault;
     this.isLoaded = true;
   }
 

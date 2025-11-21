@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { SshKey as SdkSshKey } from "@bitwarden/sdk-internal";
@@ -11,9 +9,9 @@ import { SshKeyData } from "../data/ssh-key.data";
 import { SshKeyView } from "../view/ssh-key.view";
 
 export class SshKey extends Domain {
-  privateKey: EncString;
-  publicKey: EncString;
-  keyFingerprint: EncString;
+  privateKey!: EncString;
+  publicKey!: EncString;
+  keyFingerprint!: EncString;
 
   constructor(obj?: SshKeyData) {
     super();
@@ -21,20 +19,13 @@ export class SshKey extends Domain {
       return;
     }
 
-    this.buildDomainModel(
-      this,
-      obj,
-      {
-        privateKey: null,
-        publicKey: null,
-        keyFingerprint: null,
-      },
-      [],
-    );
+    this.privateKey = new EncString(obj.privateKey);
+    this.publicKey = new EncString(obj.publicKey);
+    this.keyFingerprint = new EncString(obj.keyFingerprint);
   }
 
   decrypt(
-    orgId: string,
+    orgId: string | undefined,
     context = "No Cipher Context",
     encKey?: SymmetricCryptoKey,
   ): Promise<SshKeyView> {
@@ -42,7 +33,7 @@ export class SshKey extends Domain {
       this,
       new SshKeyView(),
       ["privateKey", "publicKey", "keyFingerprint"],
-      orgId,
+      orgId ?? null,
       encKey,
       "DomainType: SshKey; " + context,
     );
@@ -58,19 +49,17 @@ export class SshKey extends Domain {
     return c;
   }
 
-  static fromJSON(obj: Partial<Jsonify<SshKey>>): SshKey {
+  static fromJSON(obj: Jsonify<SshKey> | undefined): SshKey | undefined {
     if (obj == null) {
-      return null;
+      return undefined;
     }
 
-    const privateKey = EncString.fromJSON(obj.privateKey);
-    const publicKey = EncString.fromJSON(obj.publicKey);
-    const keyFingerprint = EncString.fromJSON(obj.keyFingerprint);
-    return Object.assign(new SshKey(), obj, {
-      privateKey,
-      publicKey,
-      keyFingerprint,
-    });
+    const sshKey = new SshKey();
+    sshKey.privateKey = EncString.fromJSON(obj.privateKey);
+    sshKey.publicKey = EncString.fromJSON(obj.publicKey);
+    sshKey.keyFingerprint = EncString.fromJSON(obj.keyFingerprint);
+
+    return sshKey;
   }
 
   /**
@@ -80,9 +69,26 @@ export class SshKey extends Domain {
    */
   toSdkSshKey(): SdkSshKey {
     return {
-      privateKey: this.privateKey.toJSON(),
-      publicKey: this.publicKey.toJSON(),
-      fingerprint: this.keyFingerprint.toJSON(),
+      privateKey: this.privateKey.toSdk(),
+      publicKey: this.publicKey.toSdk(),
+      fingerprint: this.keyFingerprint.toSdk(),
     };
+  }
+
+  /**
+   * Maps an SDK SshKey object to a SshKey
+   * @param obj - The SDK SshKey object
+   */
+  static fromSdkSshKey(obj?: SdkSshKey): SshKey | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+
+    const sshKey = new SshKey();
+    sshKey.privateKey = EncString.fromJSON(obj.privateKey);
+    sshKey.publicKey = EncString.fromJSON(obj.publicKey);
+    sshKey.keyFingerprint = EncString.fromJSON(obj.fingerprint);
+
+    return sshKey;
   }
 }

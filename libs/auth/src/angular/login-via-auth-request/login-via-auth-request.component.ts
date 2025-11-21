@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { IsActiveMatchOptions, Router, RouterModule } from "@angular/router";
-import { Observable, filter, firstValueFrom, map, merge, race, take, timer } from "rxjs";
+import { Observable, firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -56,6 +56,8 @@ const matchOptions: IsActiveMatchOptions = {
   matrixParams: "ignored",
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./login-via-auth-request.component.html",
   imports: [ButtonModule, CommonModule, JslibModule, LinkModule, RouterModule],
@@ -185,17 +187,15 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       this.accountService.activeAccount$.pipe(map((a) => a?.email));
     const loginEmail$: Observable<string | null> = this.loginEmailService.loginEmail$;
 
-    // Use merge as we want to get the first value from either observable.
-    const firstEmail$ = merge(loginEmail$, activeAccountEmail$).pipe(
-      filter((e): e is string => !!e), // convert null/undefined to false and filter out so we narrow type to string
-      take(1), // complete after first value
-    );
+    let loginEmail: string | undefined = (await firstValueFrom(loginEmail$)) ?? undefined;
 
-    const emailRetrievalTimeout$ = timer(2500).pipe(map(() => undefined as undefined));
+    if (!loginEmail) {
+      loginEmail = (await firstValueFrom(activeAccountEmail$)) ?? undefined;
+    }
 
     // Wait for either the first email or the timeout to occur so we can proceed
     // neither above observable will complete, so we have to add a timeout
-    this.email = await firstValueFrom(race(firstEmail$, emailRetrievalTimeout$));
+    this.email = loginEmail;
 
     if (!this.email) {
       await this.handleMissingEmail();

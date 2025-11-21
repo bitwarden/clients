@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { mock } from "jest-mock-extended";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -114,7 +112,6 @@ export function createGenerateFillScriptOptionsMock(customFields = {}): Generate
   return {
     skipUsernameOnlyFill: false,
     onlyEmptyFields: false,
-    onlyVisibleFields: false,
     fillNewPassword: false,
     allowTotpAutofill: false,
     autoSubmitLogin: false,
@@ -145,7 +142,6 @@ export function createAutofillScriptMock(
 
   return {
     autosubmit: null,
-    metadata: {},
     properties: {
       delay_between_operations: 20,
     },
@@ -300,7 +296,7 @@ export function createMutationRecordMock(customFields = {}): MutationRecord {
     oldValue: "default-oldValue",
     previousSibling: null,
     removedNodes: mock<NodeList>(),
-    target: null,
+    target: mock<Node>(),
     type: "attributes",
     ...customFields,
   };

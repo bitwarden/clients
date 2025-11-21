@@ -28,6 +28,8 @@ const template = /*html*/ `
   </form>
 `;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-example",
   template,
@@ -38,10 +40,14 @@ class ExampleComponent {
     checkbox: [false, Validators.requiredTrue],
   });
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() set checked(value: boolean) {
     this.formObj.patchValue({ checkbox: value });
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() set disabled(disable: boolean) {
     if (disable) {
       this.formObj.disable();
@@ -218,7 +224,10 @@ export const Indeterminate: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <input type="checkbox" bitCheckbox [indeterminate]="true">
+      <label>
+        Indeterminate
+        <input type="checkbox" bitCheckbox [indeterminate]="true">
+      </label>
     `,
   }),
 };
@@ -256,6 +265,9 @@ export const InTableRow: Story = {
                 bitCheckbox
                 id="checkOne"
               />
+              <label for="checkOne" class="tw-sr-only">
+                Check row 0
+              </label>
             </td>
             <td bitCell>Lorem</td>
             <td bitCell>Ipsum</td>

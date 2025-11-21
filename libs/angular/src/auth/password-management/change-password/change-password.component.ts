@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
+import { LockIcon } from "@bitwarden/assets/svg";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -24,7 +25,6 @@ import {
   AnonLayoutWrapperDataService,
   DialogService,
   ToastService,
-  Icons,
   CalloutComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -39,12 +39,16 @@ import { ChangePasswordService } from "./change-password.service.abstraction";
  * and by design to maintain a strong security posture as some flows could have the user
  * end up at a change password without having one before.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "auth-change-password",
   templateUrl: "change-password.component.html",
   imports: [InputPasswordComponent, I18nPipe, CalloutComponent, CommonModule],
 })
 export class ChangePasswordComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() inputPasswordFlow: InputPasswordFlow = InputPasswordFlow.ChangePassword;
 
   activeAccount: Account | null = null;
@@ -97,13 +101,13 @@ export class ChangePasswordComponent implements OnInit {
 
     if (this.forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset) {
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageIcon: Icons.LockIcon,
+        pageIcon: LockIcon,
         pageTitle: { key: "updateMasterPassword" },
         pageSubtitle: { key: "accountRecoveryUpdateMasterPasswordSubtitle" },
       });
     } else if (this.forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) {
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageIcon: Icons.LockIcon,
+        pageIcon: LockIcon,
         pageTitle: { key: "updateMasterPassword" },
         pageSubtitle: { key: "updateMasterPasswordSubtitle" },
         maxWidth: "lg",
@@ -178,6 +182,9 @@ export class ChangePasswordComponent implements OnInit {
 
         // TODO: PM-23515 eventually use the logout service instead of messaging service once it is available without circular dependencies
         this.messagingService.send("logout");
+
+        // Close the popout if we are in a browser extension popout.
+        this.changePasswordService.closeBrowserExtensionPopout?.();
       }
     } catch (error) {
       this.logService.error(error);

@@ -1,16 +1,18 @@
 import { Component } from "@angular/core";
 import { Params } from "@angular/router";
 
-import { Icons } from "@bitwarden/components";
+import { BitwardenLogo } from "@bitwarden/assets/svg";
 import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-setup-provider",
   templateUrl: "setup-provider.component.html",
   standalone: false,
 })
 export class SetupProviderComponent extends BaseAcceptComponent {
-  protected logo = Icons.BitwardenLogo;
+  protected logo = BitwardenLogo;
   failedShortMessage = "inviteAcceptFailedShort";
   failedMessage = "inviteAcceptFailed";
 

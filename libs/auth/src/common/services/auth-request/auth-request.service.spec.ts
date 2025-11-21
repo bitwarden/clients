@@ -1,7 +1,8 @@
 import { mock } from "jest-mock-extended";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
@@ -9,11 +10,11 @@ import { FakeMasterPasswordService } from "@bitwarden/common/key-management/mast
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { AuthRequestPushNotification } from "@bitwarden/common/models/response/notification.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
 
 import { DefaultAuthRequestApiService } from "./auth-request-api.service";
@@ -29,10 +30,11 @@ describe("AuthRequestService", () => {
   const encryptService = mock<EncryptService>();
   const apiService = mock<ApiService>();
   const authRequestApiService = mock<DefaultAuthRequestApiService>();
+  const accountService = mock<AccountService>();
 
   let mockPrivateKey: Uint8Array;
   let mockPublicKey: Uint8Array;
-  const mockUserId = Utils.newGuid() as UserId;
+  const mockUserId = newGuid() as UserId;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -46,6 +48,7 @@ describe("AuthRequestService", () => {
       apiService,
       stateProvider,
       authRequestApiService,
+      accountService,
     );
 
     mockPrivateKey = new Uint8Array(64);
@@ -86,9 +89,6 @@ describe("AuthRequestService", () => {
 
   describe("approveOrDenyAuthRequest", () => {
     beforeEach(() => {
-      encryptService.rsaEncrypt.mockResolvedValue({
-        encryptedString: "ENCRYPTED_STRING",
-      } as EncString);
       encryptService.encapsulateKeyUnsigned.mockResolvedValue({
         encryptedString: "ENCRYPTED_STRING",
       } as EncString);
@@ -97,6 +97,8 @@ describe("AuthRequestService", () => {
     it("should throw if auth request is missing id or key", async () => {
       const authRequestNoId = new AuthRequestResponse({ id: "", key: "KEY" });
       const authRequestNoPublicKey = new AuthRequestResponse({ id: "123", publicKey: "" });
+
+      accountService.activeAccount$ = of({ id: mockUserId } as any);
 
       await expect(sut.approveOrDenyAuthRequest(true, authRequestNoId)).rejects.toThrow(
         "Auth request has no id",
@@ -107,8 +109,9 @@ describe("AuthRequestService", () => {
     });
 
     it("should use the user key if the master key and hash do not exist", async () => {
-      keyService.getUserKey.mockResolvedValueOnce(
-        new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
+      accountService.activeAccount$ = of({ id: mockUserId } as any);
+      keyService.userKey$.mockReturnValue(
+        of(new SymmetricCryptoKey(new Uint8Array(64)) as UserKey),
       );
 
       await sut.approveOrDenyAuthRequest(

@@ -1,10 +1,13 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { map, Observable } from "rxjs";
+import { combineLatest, map, Observable } from "rxjs";
+
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { UserId } from "../../../types/guid";
+import { PolicyType } from "../../enums";
 import { OrganizationData } from "../../models/data/organization.data";
 import { Organization } from "../../models/domain/organization";
+import { PolicyService } from "../policy/policy.service.abstraction";
 
 export function canAccessVaultTab(org: Organization): boolean {
   return org.canViewAllCollections;
@@ -53,6 +56,20 @@ export function canAccessOrgAdmin(org: Organization): boolean {
   );
 }
 
+export function canAccessEmergencyAccess(
+  userId: UserId,
+  configService: ConfigService,
+  policyService: PolicyService,
+) {
+  return combineLatest([
+    configService.getFeatureFlag$(FeatureFlag.AutoConfirm),
+    policyService.policiesByType$(PolicyType.AutoConfirm, userId),
+  ]).pipe(map(([enabled, policies]) => !enabled || !policies.some((p) => p.enabled)));
+}
+
+/**
+ * @deprecated Please use the general `getById` custom rxjs operator instead.
+ */
 export function getOrganizationById(id: string) {
   return map<Organization[], Organization | undefined>((orgs) => orgs.find((o) => o.id === id));
 }
@@ -68,20 +85,20 @@ export abstract class OrganizationService {
    * Publishes state for all organizations under the specified user.
    * @returns An observable list of organizations
    */
-  organizations$: (userId: UserId) => Observable<Organization[]>;
+  abstract organizations$(userId: UserId): Observable<Organization[]>;
 
   // @todo Clean these up. Continuing to expand them is not recommended.
   // @see https://bitwarden.atlassian.net/browse/AC-2252
-  memberOrganizations$: (userId: UserId) => Observable<Organization[]>;
+  abstract memberOrganizations$(userId: UserId): Observable<Organization[]>;
   /**
    * Emits true if the user can create or manage a Free Bitwarden Families sponsorship.
    */
-  canManageSponsorships$: (userId: UserId) => Observable<boolean>;
+  abstract canManageSponsorships$(userId: UserId): Observable<boolean>;
   /**
    * Emits true if any of the user's organizations have a Free Bitwarden Families sponsorship available.
    */
-  familySponsorshipAvailable$: (userId: UserId) => Observable<boolean>;
-  hasOrganizations: (userId: UserId) => Observable<boolean>;
+  abstract familySponsorshipAvailable$(userId: UserId): Observable<boolean>;
+  abstract hasOrganizations(userId: UserId): Observable<boolean>;
 }
 
 /**
@@ -96,7 +113,7 @@ export abstract class InternalOrganizationServiceAbstraction extends Organizatio
    * @param organization The organization state being saved.
    * @param userId The userId to replace state for.
    */
-  upsert: (OrganizationData: OrganizationData, userId: UserId) => Promise<void>;
+  abstract upsert(OrganizationData: OrganizationData, userId: UserId): Promise<void>;
 
   /**
    * Replaces state for the entire registered organization list for the specified user.
@@ -107,5 +124,8 @@ export abstract class InternalOrganizationServiceAbstraction extends Organizatio
    * user.
    * @param userId The userId to replace state for.
    */
-  replace: (organizations: { [id: string]: OrganizationData }, userId: UserId) => Promise<void>;
+  abstract replace(
+    organizations: { [id: string]: OrganizationData },
+    userId: UserId,
+  ): Promise<void>;
 }

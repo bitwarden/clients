@@ -1,6 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from "@angular/core";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -20,6 +18,7 @@ import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/se
 import { CipherReportComponent } from "./cipher-report.component";
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-inactive-two-factor-report",
   templateUrl: "inactive-two-factor-report.component.html",
   standalone: false,
@@ -40,6 +39,7 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
     syncService: SyncService,
     cipherFormConfigService: CipherFormConfigService,
     adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
+    protected changeDetectorRef: ChangeDetectorRef,
   ) {
     super(
       cipherService,
@@ -84,6 +84,7 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
 
       this.filterCiphersByOrg(inactive2faCiphers);
       this.cipherDocs = docs;
+      this.changeDetectorRef.markForCheck();
     }
   }
 
@@ -107,7 +108,18 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
       const u = login.uris[i];
       if (u.uri != null && u.uri !== "") {
         const uri = u.uri.replace("www.", "");
+        const host = Utils.getHost(uri);
         const domain = Utils.getDomain(uri);
+        // check host first
+        if (host != null && this.services.has(host)) {
+          if (this.services.get(host) != null) {
+            docFor2fa = this.services.get(host) || "";
+          }
+          isInactive2faCipher = true;
+          break;
+        }
+
+        // then check domain
         if (domain != null && this.services.has(domain)) {
           if (this.services.get(domain) != null) {
             docFor2fa = this.services.get(domain) || "";
@@ -144,6 +156,7 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
       }
       this.services.set(serviceData.domain, serviceData.documentation);
     }
+    this.changeDetectorRef.markForCheck();
   }
 
   /**

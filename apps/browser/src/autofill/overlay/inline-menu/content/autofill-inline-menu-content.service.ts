@@ -22,6 +22,19 @@ import {
 import { AutofillInlineMenuButtonIframe } from "../iframe-content/autofill-inline-menu-button-iframe";
 import { AutofillInlineMenuListIframe } from "../iframe-content/autofill-inline-menu-list-iframe";
 
+const experienceValidationBackoffThresholds = {
+  topLayer: {
+    countLimit: 5,
+    timeSpanLimit: 5000,
+  },
+  popoverAttribute: {
+    countLimit: 10,
+    timeSpanLimit: 5000,
+  },
+};
+
+type BackoffCheckType = keyof typeof experienceValidationBackoffThresholds;
+
 export class AutofillInlineMenuContentService implements AutofillInlineMenuContentServiceInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;
   private readonly generateRandomCustomElementName = generateRandomCustomElementName;
@@ -29,10 +42,25 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private isFirefoxBrowser =
     globalThis.navigator.userAgent.indexOf(" Firefox/") !== -1 ||
     globalThis.navigator.userAgent.indexOf(" Gecko/") !== -1;
-  private buttonElement: HTMLElement;
-  private listElement: HTMLElement;
+  private buttonElement?: HTMLElement;
+  private listElement?: HTMLElement;
+  private htmlMutationObserver: MutationObserver;
+  private bodyMutationObserver: MutationObserver;
   private inlineMenuElementsMutationObserver: MutationObserver;
   private containerElementMutationObserver: MutationObserver;
+  private refreshCountWithinTimeThreshold: { [key in BackoffCheckType]: number } = {
+    topLayer: 0,
+    popoverAttribute: 0,
+  };
+  private lastTrackedTimestamp = {
+    topLayer: Date.now(),
+    popoverAttribute: Date.now(),
+  };
+  /**
+   * Distinct from preventing inline menu script injection, this is for cases
+   * where the page is subsequently determined to be risky.
+   */
+  private inlineMenuEnabled = true;
   private mutationObserverIterations = 0;
   private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
   private handlePersistentLastChildOverrideTimeout: number | NodeJS.Timeout;
@@ -138,6 +166,10 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * Updates the position of both the inline menu button and inline menu list.
    */
   private async appendInlineMenuElements({ overlayElement }: AutofillExtensionMessage) {
+    if (!this.inlineMenuEnabled) {
+      return;
+    }
+
     if (overlayElement === AutofillOverlayElement.Button) {
       return this.appendButtonElement();
     }
@@ -149,6 +181,10 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * Updates the position of the inline menu button.
    */
   private async appendButtonElement(): Promise<void> {
+    if (!this.inlineMenuEnabled) {
+      return;
+    }
+
     if (!this.buttonElement) {
       this.createButtonElement();
       this.updateCustomElementDefaultStyles(this.buttonElement);
@@ -157,6 +193,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     if (!(await this.isInlineMenuButtonVisible())) {
       this.appendInlineMenuElementToDom(this.buttonElement);
       this.updateInlineMenuElementIsVisibleStatus(AutofillOverlayElement.Button, true);
+      this.buttonElement.showPopover();
     }
   }
 
@@ -164,6 +201,10 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * Updates the position of the inline menu list.
    */
   private async appendListElement(): Promise<void> {
+    if (!this.inlineMenuEnabled) {
+      return;
+    }
+
     if (!this.listElement) {
       this.createListElement();
       this.updateCustomElementDefaultStyles(this.listElement);
@@ -172,6 +213,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     if (!(await this.isInlineMenuListVisible())) {
       this.appendInlineMenuElementToDom(this.listElement);
       this.updateInlineMenuElementIsVisibleStatus(AutofillOverlayElement.List, true);
+      this.listElement.showPopover();
     }
   }
 
@@ -215,8 +257,13 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * to create the element if it already exists in the DOM.
    */
   private createButtonElement() {
+    if (!this.inlineMenuEnabled) {
+      return;
+    }
+
     if (this.isFirefoxBrowser) {
       this.buttonElement = globalThis.document.createElement("div");
+      this.buttonElement.setAttribute("popover", "manual");
       new AutofillInlineMenuButtonIframe(this.buttonElement);
 
       return;
@@ -232,7 +279,9 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
         }
       },
     );
+
     this.buttonElement = globalThis.document.createElement(customElementName);
+    this.buttonElement.setAttribute("popover", "manual");
   }
 
   /**
@@ -240,8 +289,13 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * to create the element if it already exists in the DOM.
    */
   private createListElement() {
+    if (!this.inlineMenuEnabled) {
+      return;
+    }
+
     if (this.isFirefoxBrowser) {
       this.listElement = globalThis.document.createElement("div");
+      this.listElement.setAttribute("popover", "manual");
       new AutofillInlineMenuListIframe(this.listElement);
 
       return;
@@ -257,7 +311,9 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
         }
       },
     );
+
     this.listElement = globalThis.document.createElement(customElementName);
+    this.listElement.setAttribute("popover", "manual");
   }
 
   /**
@@ -281,6 +337,9 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * that the inline menu elements are always present at the bottom of the menu container.
    */
   private setupMutationObserver = () => {
+    this.htmlMutationObserver = new MutationObserver(this.handlePageMutations);
+    this.bodyMutationObserver = new MutationObserver(this.handlePageMutations);
+
     this.inlineMenuElementsMutationObserver = new MutationObserver(
       this.handleInlineMenuElementMutationObserverUpdate,
     );
@@ -288,6 +347,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     this.containerElementMutationObserver = new MutationObserver(
       this.handleContainerElementMutationObserverUpdate,
     );
+
+    this.observePageAttributes();
   };
 
   /**
@@ -304,6 +365,25 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     if (this.listElement) {
       this.inlineMenuElementsMutationObserver?.observe(this.listElement, { attributes: true });
     }
+  }
+
+  /**
+   * Sets up mutation observers to verify that the page `html` and `body` attributes
+   * are not altered in a way that would impact safe display of the inline menu.
+   */
+  private observePageAttributes() {
+    if (document.documentElement) {
+      this.htmlMutationObserver?.observe(document.documentElement, { attributes: true });
+    }
+
+    if (document.body) {
+      this.bodyMutationObserver?.observe(document.body, { attributes: true });
+    }
+  }
+
+  private unobservePageAttributes() {
+    this.htmlMutationObserver?.disconnect();
+    this.bodyMutationObserver?.disconnect();
   }
 
   /**
@@ -347,14 +427,23 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       }
 
       const element = record.target as HTMLElement;
-      if (record.attributeName !== "style") {
-        this.removeModifiedElementAttributes(element);
+      if (record.attributeName === "popover" && this.inlineMenuEnabled) {
+        const attributeValue = element.getAttribute(record.attributeName);
+        if (attributeValue !== "manual") {
+          this.refreshPopoverAttribute(element);
+        }
 
         continue;
       }
 
-      element.removeAttribute("style");
-      this.updateCustomElementDefaultStyles(element);
+      if (record.attributeName === "style") {
+        element.removeAttribute("style");
+        this.updateCustomElementDefaultStyles(element);
+
+        continue;
+      }
+
+      this.removeModifiedElementAttributes(element);
     }
   };
 
@@ -368,7 +457,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     const attributes = Array.from(element.attributes);
     for (let attributeIndex = 0; attributeIndex < attributes.length; attributeIndex++) {
       const attribute = attributes[attributeIndex];
-      if (attribute.name === "style") {
+      if (attribute.name === "style" || attribute.name === "popover") {
         continue;
       }
 
@@ -395,11 +484,174 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     });
   };
 
+  private checkPageRisks = async () => {
+    const pageIsOpaque = await this.getPageIsOpaque();
+
+    const risksFound = !pageIsOpaque || !this.inlineMenuEnabled;
+
+    if (risksFound) {
+      this.closeInlineMenu();
+    }
+
+    return risksFound;
+  };
+
+  /*
+   * Checks for known risks at the page level
+   */
+  private handlePageMutations = async (mutations: MutationRecord[]) => {
+    if (mutations.some(({ type }) => type === "attributes")) {
+      await this.checkPageRisks();
+    }
+  };
+
+  /**
+   * Returns the name of the generated container tags for usage internally to avoid
+   * unintentional targeting of the owned experience.
+   */
+  getOwnedTagNames = (): string[] => {
+    return [
+      ...(this.buttonElement?.tagName ? [this.buttonElement.tagName] : []),
+      ...(this.listElement?.tagName ? [this.listElement.tagName] : []),
+    ];
+  };
+
+  /**
+   * Queries and return elements (excluding those of the inline menu) that exist in the
+   * top-layer via popover or dialog
+   * @param {boolean} [includeCandidates=false] indicate whether top-layer candidate (which
+   * may or may not be active) should be included in the query
+   */
+  getUnownedTopLayerItems = (includeCandidates = false) => {
+    const inlineMenuTagExclusions = [
+      ...(this.buttonElement?.tagName ? [`:not(${this.buttonElement.tagName})`] : []),
+      ...(this.listElement?.tagName ? [`:not(${this.listElement.tagName})`] : []),
+      ":popover-open",
+    ].join("");
+    const selector = [
+      ":modal",
+      inlineMenuTagExclusions,
+      ...(includeCandidates ? ["[popover], dialog"] : []),
+    ].join(",");
+    const otherTopLayeritems = globalThis.document.querySelectorAll(selector);
+
+    return otherTopLayeritems;
+  };
+
+  /**
+   * Internally track owned injected experience refreshes as a side-effect
+   * of host page interference.
+   */
+  private checkAndUpdateRefreshCount = (countType: BackoffCheckType) => {
+    if (!this.inlineMenuEnabled) {
+      return;
+    }
+
+    const { countLimit, timeSpanLimit } = experienceValidationBackoffThresholds[countType];
+    const now = Date.now();
+    const timeSinceLastTrackedRefresh = now - this.lastTrackedTimestamp[countType];
+    const currentlyWithinTimeThreshold = timeSinceLastTrackedRefresh <= timeSpanLimit;
+    const withinCountThreshold = this.refreshCountWithinTimeThreshold[countType] <= countLimit;
+
+    if (currentlyWithinTimeThreshold) {
+      if (withinCountThreshold) {
+        this.refreshCountWithinTimeThreshold[countType]++;
+      } else {
+        // Set inline menu to be off; page is aggressively trying to take top position of top layer
+        this.inlineMenuEnabled = false;
+        void this.checkPageRisks();
+
+        const warningMessage = chrome.i18n.getMessage("topLayerHijackWarning");
+        globalThis.window.alert(warningMessage);
+      }
+    } else {
+      this.lastTrackedTimestamp[countType] = now;
+      this.refreshCountWithinTimeThreshold[countType] = 0;
+    }
+  };
+
+  private refreshPopoverAttribute = (element: HTMLElement) => {
+    this.checkAndUpdateRefreshCount("popoverAttribute");
+    element.setAttribute("popover", "manual");
+    element.showPopover();
+  };
+
+  refreshTopLayerPosition = () => {
+    if (!this.inlineMenuEnabled) {
+      return;
+    }
+
+    const otherTopLayerItems = this.getUnownedTopLayerItems();
+
+    // No need to refresh if there are no other top-layer items
+    if (!otherTopLayerItems.length) {
+      return;
+    }
+
+    const buttonInDocument =
+      this.buttonElement &&
+      (globalThis.document.getElementsByTagName(this.buttonElement.tagName)[0] as HTMLElement);
+    const listInDocument =
+      this.listElement &&
+      (globalThis.document.getElementsByTagName(this.listElement.tagName)[0] as HTMLElement);
+
+    if (buttonInDocument) {
+      buttonInDocument.hidePopover();
+      buttonInDocument.showPopover();
+    }
+
+    if (listInDocument) {
+      listInDocument.hidePopover();
+      listInDocument.showPopover();
+    }
+
+    if (buttonInDocument || listInDocument) {
+      this.checkAndUpdateRefreshCount("topLayer");
+    }
+  };
+
+  /**
+   * Checks the opacity of the page body and body parent, since the inline menu experience
+   * will inherit the opacity, despite being otherwise encapsulated from styling changes
+   * of parents below the body. Assumes the target element will be a direct child of the page
+   * `body` (enforced elsewhere).
+   */
+  private getPageIsOpaque = () => {
+    // @TODO for definitive checks, traverse up the node tree from the inline menu container;
+    // nodes can exist between `html` and `body`
+    /**
+     * `querySelectorAll` for (non-standard) cases where the page has additional copies of
+     * page nodes that should be unique
+     */
+    const pageElements = globalThis.document.querySelectorAll("html, body");
+
+    if (!pageElements.length) {
+      return false;
+    }
+
+    return [...pageElements].every((element) => {
+      // These are computed style values, so we don't need to worry about non-float values
+      // for `opacity`, here
+      const elementOpacity = globalThis.window.getComputedStyle(element)?.opacity || "0";
+
+      // Any value above this is considered "opaque" for our purposes
+      const opacityThreshold = 0.6;
+
+      return parseFloat(elementOpacity) > opacityThreshold;
+    });
+  };
+
   /**
    * Processes the mutation of the element that contains the inline menu. Will trigger when an
    * idle moment in the execution of the main thread is detected.
    */
   private processContainerElementMutation = async (containerElement: HTMLElement) => {
+    // If the page contains risks, tear down and prevent building the inline menu experience.
+    const pageRisksFound = await this.checkPageRisks();
+    if (pageRisksFound) {
+      return;
+    }
+
     const lastChild = containerElement.lastElementChild;
     const secondToLastChild = lastChild?.previousElementSibling;
     const lastChildIsInlineMenuList = lastChild === this.listElement;
@@ -540,5 +792,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   destroy() {
     this.closeInlineMenu();
     this.clearPersistentLastChildOverrideTimeout();
+    this.unobservePageAttributes();
   }
 }
