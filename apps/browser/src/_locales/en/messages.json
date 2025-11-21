@@ -4757,14 +4757,17 @@
   "accountSecurity": {
     "message": "Account security"
   },
-  "securityFeatures": {
-    "message": "Security features"
+  "PhishingBlocker": {
+    "message": "Phishing Blocker"
   },
   "enablePhishingDetection": {
-    "message": "Enable phishing detection"
+    "message": "Phishing detection"
   },
   "enablePhishingDetectionDesc": {
-    "message": "Automatically warn when visiting known phishing websites"
+    "message": "Display warning before accessing suspected phishing sites"
+  },
+  "on": {
+    "message": "On"
   },
   "notifications": {
     "message": "Notifications"

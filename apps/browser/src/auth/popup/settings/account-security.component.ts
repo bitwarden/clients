@@ -52,6 +52,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import {
   DialogRef,
+  BadgeComponent,
   CardComponent,
   CheckboxModule,
   DialogService,
@@ -91,6 +92,7 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
 @Component({
   templateUrl: "account-security.component.html",
   imports: [
+    BadgeComponent,
     CardComponent,
     CheckboxModule,
     CommonModule,

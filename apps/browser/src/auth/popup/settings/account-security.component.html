@@ -130,7 +130,7 @@
 
     <bit-section *ngIf="phishingDetectionAvailable$ | async">
       <bit-section-header>
-        <h2 bitTypography="h6">{{ "securityFeatures" | i18n }}</h2>
+        <h2 bitTypography="h6">{{ "PhishingBlocker" | i18n }}</h2>
       </bit-section-header>
       <bit-card>
         <bit-form-control disableMargin>
@@ -141,7 +141,17 @@
             formControlName="enablePhishingDetection"
           />
           <bit-label for="enablePhishingDetection" class="tw-whitespace-normal">
-            {{ "enablePhishingDetection" | i18n }}
+            <span class="tw-inline-flex tw-items-center tw-gap-2">
+              <span>{{ "enablePhishingDetection" | i18n }}</span>
+              <span
+                bitBadge
+                variant="success"
+                class="!tw-align-middle"
+                *ngIf="form.value.enablePhishingDetection"
+              >
+                {{ "on" | i18n }}
+              </span>
+            </span>
           </bit-label>
           <bit-hint>
             {{ "enablePhishingDetectionDesc" | i18n }}
