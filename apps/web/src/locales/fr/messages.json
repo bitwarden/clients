@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Affecter des tâches aux membres pour surveiller la progression"
   },
-  "onceYouReviewApps": {
-    "message": "Une fois que vous examinez les applications et marquez comme critiques, vous pouvez assigner des tâches aux membres pour résoudre les éléments à risque et suivre les progrès ici"
+  "onceYouReviewApplications": {
+    "message": "Une fois que vous passez en revue les demandes et que vous les marquez comme critiques, attribuez des tâches à vos membres pour changer leurs mots de passe."
   },
   "sendReminders": {
     "message": "Envoyer des rappels"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "Aucune application trouvée pour $ORG NOM$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "Aucune donnée n’a été trouvée"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Importez les données de connexion de votre organisation pour commencer à surveiller les risques de sécurité des identifiants. Une fois importé, vous pouvez :"
+  "noDataInOrgDescription": {
+    "message": "Importez les données de connexion de votre organisation pour commencer avec Intelligence. Une fois que vous aurez fait cela, vous pourrez :"
   },
-  "benefit1Title": {
-    "message": "Prioriser les risques"
+  "feature1Title": {
+    "message": "Marquer les applications comme critiques"
   },
-  "benefit1Description": {
-    "message": "Vous concentrer sur les applications qui comptent le plus"
+  "feature1Description": {
+    "message": "Cela vous aidera à éliminer les risques pour vos applications les plus importantes en premier."
   },
-  "benefit2Title": {
-    "message": "Guider la remédiation"
+  "feature2Title": {
+    "message": "Aider les membres à améliorer leur sécurité"
   },
-  "benefit2Description": {
-    "message": "Assignez aux membres à risque des tâches guidées pour faire pivoter les identifiants à risque.﻿"
+  "feature2Description": {
+    "message": "Assigner des membres à risque des tâches de sécurité guidées pour mettre à jour les identifiants."
   },
-  "benefit3Title": {
+  "feature3Title": {
     "message": "Suivre la progression"
   },
-  "benefit3Description": {
-    "message": "Suivre les changements au fil du temps pour afficher les améliorations de sécurité"
+  "feature3Description": {
+    "message": "Suivez les changements au fil du temps pour afficher les améliorations de sécurité."
   },
-  "noReportRunTitle": {
-    "message": "Exécutez votre premier rapport pour voir les applications"
+  "noReportsRunTitle": {
+    "message": "Générer un rapport"
   },
-  "noReportRunDescription": {
-    "message": "Générer un rapport de connaissance des risques pour analyser les applications de votre organisation et identifier les mots de passe à risque qui nécessitent une attention. Exécuter votre premier rapport fera :"
+  "noReportsRunDescription": {
+    "message": "Vous êtes prêt à commencer à générer des rapports. Une fois que vous en aurez généré, vous pourrez :"
   },
   "noCriticalApplicationsTitle": {
     "message": "Vous n'avez marqué aucune application comme critique"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Membres à risque"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Les membres ayant accès aux éléments à risque pour les applications critiques"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "Ces membres ont accès à des éléments vulnérables pour des applications critiques."
   },
   "membersWithAtRiskPasswords": {
     "message": "Membres avec des mots de passe à risque"
   },
-  "membersWillReceiveNotification": {
-    "message": "Les membres recevront une notification pour résoudre les identifiants à risque via l'extension du navigateur."
+  "membersWillReceiveSecurityTask": {
+    "message": "Les membres de votre organisation seront assignés à une tâche pour changer les mots de passe vulnérables. Ils recevront une notification dans leur extension de navigateur Bitwarden."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ membres à risque",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Ces membres se connectent à des applications avec des mots de passe faibles, exposés ou réutilisés."
+  "atRiskMemberDescription": {
+    "message": "Ces membres se connectent à des applications critiques avec des mots de passe faibles, exposés ou réutilisés."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Aucun membre ne se connecte dans des applications avec des mots de passe faibles, exposés ou réutilisés."
@@ -391,14 +385,14 @@
   "prioritizeCriticalApplications": {
     "message": "Prioriser les applications critiques"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Sélectionnez les applications les plus critiques pour votre organisation, puis attribuez des tâches de sécurité aux membres pour résoudre les risques."
+  "selectCriticalAppsDescription": {
+    "message": "Sélectionnez les applications les plus importantes pour votre organisation. Ensuite, vous pourrez assigner des tâches de sécurité aux membres pour supprimer les risques."
   },
   "reviewNewApplications": {
     "message": "Examiner les nouvelles applications"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "Nous avons mis en évidence des éléments à risque pour les nouvelles applications stockées dans la console Admin qui ont des mots de passe faibles, exposés ou réutilisés."
+  "reviewNewAppsDescription": {
+    "message": "Examinez les nouvelles applications avec des éléments vulnérables et marquez celles que vous souhaitez surveiller de près comme étant critiques. Ensuite, vous pourrez assigner des tâches de sécurité aux membres pour supprimer les risques."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Cliquez sur l'icône étoile pour marquer une application comme critique"
@@ -5815,9 +5809,9 @@
     "message": "Exiger que tous les éléments appartiennent à une organisation, en supprimant la possibilité de sauvegarder des éléments au niveau du compte.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
-    "message": "Tous les éléments seront détenus et enregistrés dans l'organisation, ce qui activera les contrôles, la visibilité et les rapports à l'échelle de l'organisation. Quand activé, une collection par défaut est disponible pour chaque membre pour enregistrer des éléments. En savoir plus sur la gestion de ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  "organizationDataOwnershipDescContent": {
+    "message": "Tous les éléments seront détenus et enregistrés dans l'organisation, ce qui activera les contrôles, la visibilité et les rapports à l'échelle de l'organisation. Une fois activé, une collection par défaut sera disponible pour chaque membre pour enregistrer des éléments. En savoir plus sur la gestion de ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "cycle de vie des identifiants",
@@ -9856,8 +9850,8 @@
   "assignTasks": {
     "message": "Assigner des tâches"
   },
-  "assignTasksToMembers": {
-    "message": "Assigner des tâches aux membres pour une résolution guidée"
+  "assignSecurityTasksToMembers": {
+    "message": "Envoyer des notifications pour modifier les mots de passe"
   },
   "assignToCollections": {
     "message": "Assigner aux collections"
@@ -12124,6 +12118,15 @@
   "startFreeFamiliesTrial": {
     "message": "Commencez l'essai gratuit au forfait Familles"
   },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Bloquer la création de compte pour les domaines réclamés"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Empêcher les utilisateurs de créer des comptes en dehors de votre organisation en utilisant les adresses courriel des domaines revendiqués."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "Un domaine doit être réclamé avant d'activer cette politique de sécurité."
+  },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Configurez une méthode de déverrouillage pour changer le délai d'expiration de votre coffre."
   },
@@ -12159,9 +12162,9 @@
     }
   },
   "confirmNoSelectedCriticalApplicationsTitle": {
-    "message": "No critical applications are selected"
+    "message": "Aucune application critique n'est sélectionnée"
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
-    "message": "Are you sure you want to continue?"
+    "message": "Êtes-vous sûr de vouloir continuer ?"
   }
 }

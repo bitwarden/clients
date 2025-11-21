@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Pre sledovanie progresu, priraďte členom úlohy"
   },
-  "onceYouReviewApps": {
-    "message": "Keď skontrolujete a označíte kritické aplikácie, môžete na tomto mieste prideliť členom úlohy pre ohrozené položky a sledovať progres"
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
   },
   "sendReminders": {
     "message": "Poslať upomienky"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "Neboli nájdené žiadne aplikácie v $ORG NAME$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "No data found"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Pre začatie monitorovania bezpečnostných problémov importujte prihlasovacie údaje vašej organizácie. Po importe budete mať k dispozícii:"
+  "noDataInOrgDescription": {
+    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
   },
-  "benefit1Title": {
-    "message": "Prioritizácia bezpečnostných problémov"
+  "feature1Title": {
+    "message": "Mark applications as critical"
   },
-  "benefit1Description": {
-    "message": "Zamerajte sa na najdôležitejšie aplikácie"
+  "feature1Description": {
+    "message": "This will help you remove risks to your most important applications first."
   },
-  "benefit2Title": {
-    "message": "Sprievodca nápravou"
+  "feature2Title": {
+    "message": "Help members improve their security"
   },
-  "benefit2Description": {
-    "message": "Prideľte ohrozeným členom úlohy pre obnovu ohrozených prihlasovacích údajov"
+  "feature2Description": {
+    "message": "Assign at-risk members guided security tasks to update credentials."
   },
-  "benefit3Title": {
-    "message": "Monitorovanie progresu"
+  "feature3Title": {
+    "message": "Monitor progress"
   },
-  "benefit3Description": {
-    "message": "Zobrazte zlepšenie zabezpečenia sledovaním zmien v priebehu času"
+  "feature3Description": {
+    "message": "Track changes over time to show security improvements."
   },
-  "noReportRunTitle": {
-    "message": "Pre prehľad aplikácií generujte váš prvý report"
+  "noReportsRunTitle": {
+    "message": "Generate report"
   },
-  "noReportRunDescription": {
-    "message": "Generujte prehľad rizík pre analýzu aplikácií vo vašej organizácii a identifikujte ohrozene heslá ktoré vyžadujú vašu pozornosť. Spustením vášho prvého reportu:"
+  "noReportsRunDescription": {
+    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Neoznačili ste žiadne aplikácie ako kritické"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Ohrozených členov"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Členovia s prístupom k ohrozeným položkám kritických aplikácii"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "These members have access to vulnerable items for critical applications."
   },
   "membersWithAtRiskPasswords": {
     "message": "Členovia s ohrozenými heslami"
   },
-  "membersWillReceiveNotification": {
-    "message": "Členovia dostanú notifikáciu aby vyriešili problémy s ohrozeným heslom prostredníctvom rozšírenia pre prehliadače."
+  "membersWillReceiveSecurityTask": {
+    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ ohrozených členov",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Títo členovia sa prihlasujú do aplikácií so slabým, uniknutým alebo viacnásobne použitým heslom."
+  "atRiskMemberDescription": {
+    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionNone": {
     "message": "These are no members logging into applications with weak, exposed, or reused passwords."
@@ -368,13 +362,13 @@
     "message": "Skontrolovať teraz"
   },
   "allCaughtUp": {
-    "message": "All caught up!"
+    "message": "Všetko hotové!"
   },
   "noNewApplicationsToReviewAtThisTime": {
-    "message": "No new applications to review at this time"
+    "message": "Žiadne nové aplikácie na kontrolu"
   },
   "organizationHasItemsSavedForApplications": {
-    "message": "Your organization has items saved for $COUNT$ applications",
+    "message": "Vaša organizácia ma uložené položky pre $COUNT$ aplikácii",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -383,22 +377,22 @@
     }
   },
   "reviewApplicationsToSecureItems": {
-    "message": "Review applications to secure the items most critical to your organization's security"
+    "message": "Pre zabezpečenie položiek najkritickejších pre bezpečnosť vašej organizácie, skontrolujte aplikácie"
   },
   "reviewApplications": {
-    "message": "Review applications"
+    "message": "Skontrolovať aplikácie"
   },
   "prioritizeCriticalApplications": {
     "message": "Uprednostniť kritické aplikácie"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Vyberte ktoré aplikácie sú pre vašu organizáciu najkritickejšie, potom prideľte členom bezpečnostné úlohy pre vyriešenie ohrozených hesiel."
+  "selectCriticalAppsDescription": {
+    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "reviewNewApplications": {
     "message": "Review new applications"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "We've highlighted at-risk items for new applications stored in Admin console that have weak, exposed, or reused passwords."
+  "reviewNewAppsDescription": {
+    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Aplikáciu označíte za kritickú kliknutím na ikonu hviezdičky"
@@ -3251,16 +3245,16 @@
     "message": "Ďalšia platba"
   },
   "nextChargeHeader": {
-    "message": "Next Charge"
+    "message": "Ďalšia platba"
   },
   "plan": {
-    "message": "Plan"
+    "message": "Plán"
   },
   "details": {
     "message": "Podrobnosti"
   },
   "discount": {
-    "message": "discount"
+    "message": "zľava"
   },
   "downloadLicense": {
     "message": "Stiahnuť licenciu"
@@ -5815,9 +5809,9 @@
     "message": "Odstrániť možnosť uložiť položku pod kontom a požadovať aby všetky položky boli vlastnené organizáciou.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
-    "message": "Všetky položky budú vo vlastníctve organizácie a uložené v nej, čo umožní kontrolu, prehľadnosť a vykazovanie v rámci celej organizácie. Po zapnutí bude každému členovi k dispozícii predvolená zbierka na ukladanie položiek. Dozvedieť sa viac o správe ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  "organizationDataOwnershipDescContent": {
+    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "životného cyklu položiek",
@@ -5954,16 +5948,16 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "uriMatchDetectionPolicy": {
-    "message": "Default URI match detection"
+    "message": "Predvolené zisťovanie zhody URI"
   },
   "uriMatchDetectionPolicyDesc": {
-    "message": "Determine when logins are suggested for autofill. Admins and owners are exempt from this policy."
+    "message": "Určite kedy budú ponúknuté položky pre automatické vypĺňanie. Správcovia a majitelia majú pre toto pravidlo výnimku."
   },
   "uriMatchDetectionOptionsLabel": {
-    "message": "Default URI match detection"
+    "message": "Predvolené zisťovanie zhody URI"
   },
   "invalidUriMatchDefaultPolicySetting": {
-    "message": "Please select a valid URI match detection option.",
+    "message": "Prosím vyberte platnú predvoľbu zisťovania zhody URI.",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
@@ -9856,8 +9850,8 @@
   "assignTasks": {
     "message": "Priradiť úlohy"
   },
-  "assignTasksToMembers": {
-    "message": "Pre riadené riešenie problémov prideľte úlohy členom"
+  "assignSecurityTasksToMembers": {
+    "message": "Send notifications to change passwords"
   },
   "assignToCollections": {
     "message": "Prideliť k zbierkam"
@@ -12124,6 +12118,15 @@
   "startFreeFamiliesTrial": {
     "message": "Začať bezplatnú skúšku pre predplatné Rodiny"
   },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Block account creation for claimed domains"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "A domain must be claimed before activating this policy."
+  },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Set up an unlock method to change your vault timeout action."
   },
@@ -12159,9 +12162,9 @@
     }
   },
   "confirmNoSelectedCriticalApplicationsTitle": {
-    "message": "No critical applications are selected"
+    "message": "Nie sú vybrané žiadne kritické aplikácie"
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
-    "message": "Are you sure you want to continue?"
+    "message": "Ste si istí, že chcete pokračovať?"
   }
 }
