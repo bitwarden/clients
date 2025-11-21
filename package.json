@@ -126,7 +126,7 @@
     "postcss": "8.5.3",
     "postcss-loader": "8.1.1",
     "prettier": "3.6.2",
-    "prettier-plugin-tailwindcss": "0.6.11",
+    "prettier-plugin-tailwindcss": "0.7.1",
     "process": "0.11.10",
     "remark-gfm": "4.0.1",
     "rimraf": "6.0.1",
