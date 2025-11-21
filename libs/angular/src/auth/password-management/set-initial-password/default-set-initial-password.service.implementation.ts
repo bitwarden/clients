@@ -18,12 +18,14 @@ import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/mode
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/user-account-cryptography/account-cryptographic-state.service";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService, KdfConfig } from "@bitwarden/key-management";
+
 
 import {
   SetInitialPasswordService,
@@ -44,6 +46,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     protected organizationApiService: OrganizationApiServiceAbstraction,
     protected organizationUserApiService: OrganizationUserApiService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
+    protected accountCryptographicStateService: AccountCryptographicStateService,
   ) {}
 
   async setInitialPassword(
@@ -162,6 +165,14 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         throw new Error("encrypted private key not found. Could not set private key in state.");
       }
       await this.keyService.setPrivateKey(keyPair[1].encryptedString, userId);
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        {
+          V1: {
+            private_key: keyPair[1].encryptedString,
+          },
+        },
+        userId,
+      );
     }
 
     await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId);
