@@ -1,16 +1,29 @@
 <form [formGroup]="updateLicenseForm" [bitSubmit]="submitLicenseDialog">
-  <bit-dialog dialogSize="default" [title]="'updateLicense' | i18n">
+  <bit-dialog
+    dialogSize="default"
+    [title]="(fromUserSubscription ? 'uploadLicense' : 'uploadLicenseFile') | i18n"
+  >
     <ng-container bitDialogContent>
-      <bit-form-field>
-        <bit-label>{{ "licenseFile" | i18n }}</bit-label>
-        <div>
-          <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
+      <p class="tw-mb-4">{{ "uploadLicenseFileDesc" | i18n: "bitwarden_license.json" }}</p>
+      <div class="tw-mb-4">
+        <label class="tw-block tw-text-sm tw-text-muted tw-mb-2">{{
+          (fromUserSubscription ? "uploadYourPremiumLicenseFile" : "uploadYourLicenseFile") | i18n
+        }}</label>
+        <div class="tw-mb-2">
+          <button
+            bitButton
+            type="button"
+            buttonType="unstyled"
+            class="tw-text-primary-600 tw-p-0 tw-border-0 tw-bg-transparent hover:tw-underline tw-cursor-pointer"
+            (click)="fileSelector.click()"
+          >
             {{ "chooseFile" | i18n }}
           </button>
-          {{ licenseFile ? licenseFile.name : ("noFileChosen" | i18n) }}
+          <span class="tw-ml-2 tw-text-muted">{{
+            licenseFile ? licenseFile.name : ("noFileChosen" | i18n)
+          }}</span>
         </div>
         <input
-          bitInput
           #fileSelector
           type="file"
           formControlName="file"
@@ -18,12 +31,12 @@
           hidden
           class="tw-hidden"
         />
-        <bit-hint>{{ "licenseFileDesc" | i18n: "bitwarden_premium_license.json" }}</bit-hint>
-      </bit-form-field>
+        <p class="tw-text-sm tw-text-muted">{{ "maxFileSizeSansPunctuation" | i18n }}</p>
+      </div>
     </ng-container>
     <ng-container bitDialogFooter>
-      <button type="submit" buttonType="primary" bitButton bitFormButton>
-        {{ "submit" | i18n }}
+      <button type="submit" buttonType="primary" bitButton bitFormButton [disabled]="!licenseFile">
+        {{ "upload" | i18n }}
       </button>
       <button
         bitButton

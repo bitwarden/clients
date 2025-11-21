@@ -1,9 +1,9 @@
 <app-header>
-  <bit-tab-nav-bar slot="tabs" *ngIf="!selfHosted">
+  <bit-tab-nav-bar slot="tabs">
     <bit-tab-link [route]="(hasPremium$ | async) ? 'user-subscription' : 'premium'">{{
-      "subscription" | i18n
+      "subscribe" | i18n
     }}</bit-tab-link>
-    <bit-tab-link route="payment-details">{{ "paymentDetails" | i18n }}</bit-tab-link>
+    <bit-tab-link route="payment-details">{{ "paymentMethod" | i18n }}</bit-tab-link>
     <bit-tab-link route="billing-history">{{ "billingHistory" | i18n }}</bit-tab-link>
   </bit-tab-nav-bar>
 </app-header>

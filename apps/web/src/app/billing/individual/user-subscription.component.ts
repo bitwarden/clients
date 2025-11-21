@@ -159,7 +159,9 @@ export class UserSubscriptionComponent implements OnInit {
     if (this.loading) {
       return;
     }
-    const dialogRef = UpdateLicenseDialogComponent.open(this.dialogService);
+    const dialogRef = UpdateLicenseDialogComponent.open(this.dialogService, {
+      data: { fromUserSubscription: true },
+    });
     const result = await lastValueFrom(dialogRef.closed);
     if (result === UpdateLicenseDialogResult.Updated) {
       await this.load();
@@ -258,5 +260,12 @@ export class UserSubscriptionComponent implements OnInit {
       percentOff: discount.percentOff,
       amountOff: discount.amountOff,
     };
+  }
+
+  get isSubscriptionActive(): boolean {
+    if (!this.sub?.expiration) {
+      return false;
+    }
+    return new Date(this.sub.expiration) > new Date();
   }
 }
