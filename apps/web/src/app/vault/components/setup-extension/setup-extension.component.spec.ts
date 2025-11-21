@@ -4,7 +4,6 @@ import { Router, RouterModule } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
-import { BrowserExtensionIcon } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DeviceType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -12,7 +11,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-import { AnonLayoutWrapperDataService } from "@bitwarden/components";
 
 import { WebBrowserInteractionService } from "../../services/web-browser-interaction.service";
 
@@ -25,14 +23,12 @@ describe("SetupExtensionComponent", () => {
   const navigate = jest.fn().mockResolvedValue(true);
   const openExtension = jest.fn().mockResolvedValue(true);
   const update = jest.fn().mockResolvedValue(true);
-  const setAnonLayoutWrapperData = jest.fn();
   const extensionInstalled$ = new BehaviorSubject<boolean | null>(null);
 
   beforeEach(async () => {
     navigate.mockClear();
     openExtension.mockClear();
     update.mockClear();
-    setAnonLayoutWrapperData.mockClear();
     window.matchMedia = jest.fn().mockReturnValue(false);
 
     await TestBed.configureTestingModule({
@@ -43,7 +39,6 @@ describe("SetupExtensionComponent", () => {
         { provide: PlatformUtilsService, useValue: { getDevice: () => DeviceType.UnknownBrowser } },
         { provide: SYSTEM_THEME_OBSERVABLE, useValue: new BehaviorSubject("system") },
         { provide: ThemeStateService, useValue: { selectedTheme$: new BehaviorSubject("system") } },
-        { provide: AnonLayoutWrapperDataService, useValue: { setAnonLayoutWrapperData } },
         {
           provide: AccountService,
           useValue: { activeAccount$: new BehaviorSubject({ account: { id: "account-id" } }) },
@@ -133,14 +128,6 @@ describe("SetupExtensionComponent", () => {
         tick();
 
         expect(component["state"]).toBe(SetupExtensionState.ManualOpen);
-        expect(setAnonLayoutWrapperData).toHaveBeenCalledWith({
-          pageTitle: {
-            key: "somethingWentWrong",
-          },
-          pageIcon: BrowserExtensionIcon,
-          hideCardWrapper: false,
-          maxWidth: "md",
-        });
       }));
     });
   });
