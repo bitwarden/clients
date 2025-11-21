@@ -15,21 +15,21 @@ fn prf_to_hmac(prf_salt: &[u8]) -> [u8; 32] {
     sha2::Sha256::digest(&[b"WebAuthn PRF".as_slice(), &[0], prf_salt].concat()).into()
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum UserVerification {
     Discouraged,
     Preferred,
     Required,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AssertionOptions {
     pub challenge: Vec<u8>,
     pub timeout: u64,
     pub rpid: String,
     pub user_verification: UserVerification,
     pub allow_credentials: Vec<Vec<u8>>,
-    pub prf_eval_first: [u8; 32],
+    pub prf_eval_first: Option<[u8; 32]>,
     pub prf_eval_second: Option<[u8; 32]>,
 }
 
@@ -66,11 +66,9 @@ pub mod fido2_client {
     ) -> Result<super::PublicKeyCredential, super::Fido2ClientError> {
         println!("Calling Windows FIDO2 client get()");
         // run in new thread
-        std::thread::spawn(move || {
-            super::get(assertion_options)
-        })
-        .join()
-        .unwrap()
+        std::thread::spawn(move || super::get(assertion_options))
+            .join()
+            .unwrap()
     }
 
     pub fn available() -> bool {
