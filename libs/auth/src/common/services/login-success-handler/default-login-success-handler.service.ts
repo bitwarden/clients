@@ -1,5 +1,4 @@
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -23,20 +22,14 @@ export class DefaultLoginSuccessHandlerService implements LoginSuccessHandlerSer
     await this.userAsymmetricKeysRegenerationService.regenerateIfNeeded(userId);
     await this.loginEmailService.clearLoginEmail();
 
-    const disableAlternateLoginMethodsFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM22110_DisableAlternateLoginMethods,
-    );
+    const ssoLoginEmail = await this.ssoLoginService.getSsoEmail();
 
-    if (disableAlternateLoginMethodsFlagEnabled) {
-      const ssoLoginEmail = await this.ssoLoginService.getSsoEmail();
-
-      if (!ssoLoginEmail) {
-        this.logService.error("SSO login email not found.");
-        return;
-      }
-
-      await this.ssoLoginService.updateSsoRequiredCache(ssoLoginEmail, userId);
-      await this.ssoLoginService.clearSsoEmail();
+    if (!ssoLoginEmail) {
+      this.logService.error("SSO login email not found.");
+      return;
     }
+
+    await this.ssoLoginService.updateSsoRequiredCache(ssoLoginEmail, userId);
+    await this.ssoLoginService.clearSsoEmail();
   }
 }
