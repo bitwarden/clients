@@ -1,7 +1,8 @@
 #[cfg(target_os = "macos")]
 fn main() {
-    use glob::glob;
     use std::process::Command;
+
+    use glob::glob;
 
     let out_dir = std::env::var("OUT_DIR").unwrap();
 

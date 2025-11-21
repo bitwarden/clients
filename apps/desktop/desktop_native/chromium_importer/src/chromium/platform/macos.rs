@@ -1,11 +1,11 @@
-use anyhow::{anyhow, Result};
-use async_trait::async_trait;
-use security_framework::passwords::get_generic_password;
-
 #[cfg(feature = "sandbox")]
 use std::ffi::CString;
 #[cfg(feature = "sandbox")]
 use std::os::raw::c_char;
+
+use anyhow::{anyhow, Result};
+use async_trait::async_trait;
+use security_framework::passwords::get_generic_password;
 
 use crate::{
     chromium::{BrowserConfig, CryptoService, LocalState},
