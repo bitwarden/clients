@@ -19,7 +19,7 @@ fn main() {
     if !swift_files.is_empty() {
         // Compile Swift into a static library
         let status = Command::new("swiftc")
-            .args(&[
+            .args([
                 "-emit-library",
                 "-static",
                 "-module-name",
