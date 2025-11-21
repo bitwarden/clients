@@ -1238,7 +1238,7 @@ impl Into<fido2_client::AssertionOptions> for CredentialAssertionOptions {
             rpid: self.rpid,
             user_verification: self.user_verification.into(),
             allow_credentials: self.allow_credentials,
-            prf_eval_first: self.prf_eval_first.to_vec().try_into().unwrap_or([0u8; 32]),
+            prf_eval_first: Some(self.prf_eval_first.to_vec().try_into().unwrap_or([0u8; 32])),
             prf_eval_second: None,
         }
     }
