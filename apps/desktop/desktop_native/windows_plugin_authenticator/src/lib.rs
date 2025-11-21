@@ -18,15 +18,17 @@ use std::{collections::HashSet, sync::Arc, time::Duration};
 // Re-export main functionality
 pub use types::UserVerificationRequirement;
 
-use win_webauthn::{PluginAddAuthenticatorOptions, WebAuthnPlugin};
+use win_webauthn::plugin::{PluginAddAuthenticatorOptions, WebAuthnPlugin};
 
 use crate::{
     ipc2::{ConnectionStatus, TimedCallback, WindowsProviderClient},
     make_credential::make_credential,
     win_webauthn::{
-        AuthenticatorInfo, CtapVersion, PluginAuthenticator, PluginCancelOperationRequest,
-        PluginGetAssertionRequest, PluginLockStatus, PluginMakeCredentialRequest,
-        PublicKeyCredentialParameters,
+        plugin::{
+            PluginAuthenticator, PluginCancelOperationRequest, PluginGetAssertionRequest,
+            PluginLockStatus, PluginMakeCredentialRequest,
+        },
+        AuthenticatorInfo, CtapVersion, PublicKeyCredentialParameters,
     },
 };
 

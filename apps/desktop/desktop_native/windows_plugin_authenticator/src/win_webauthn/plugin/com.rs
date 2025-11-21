@@ -17,13 +17,14 @@ use windows::{
 };
 use windows_core::{IInspectable, Interface};
 
-use crate::win_webauthn::types::{
+use super::types::{
     PluginCancelOperationRequest, PluginGetAssertionRequest, PluginLockStatus,
     PluginMakeCredentialRequest, WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
     WEBAUTHN_PLUGIN_OPERATION_REQUEST, WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
 };
 
-use super::{ErrorKind, WinWebAuthnError};
+use super::PluginAuthenticator;
+use crate::win_webauthn::{ErrorKind, WinWebAuthnError};
 
 static HANDLER: OnceLock<Arc<dyn PluginAuthenticator + Send + Sync>> = OnceLock::new();
 
@@ -52,28 +53,6 @@ impl IClassFactory_Impl for Factory_Impl {
         // TODO: Implement lock server
         Ok(())
     }
-}
-
-pub trait PluginAuthenticator {
-    /// Process a request to create a new credential.
-    ///
-    /// Returns a [CTAP authenticatorMakeCredential response structure](https://fidoalliance.org/specs/fido-v2.2-ps-20250714/fido-client-to-authenticator-protocol-v2.2-ps-20250714.html#authenticatormakecredential-response-structure).
-    fn make_credential(
-        &self,
-        request: PluginMakeCredentialRequest,
-    ) -> Result<Vec<u8>, Box<dyn Error>>;
-
-    /// Process a request to assert a credential.
-    ///
-    /// Returns a [CTAP authenticatorGetAssertion response structure](https://fidoalliance.org/specs/fido-v2.2-ps-20250714/fido-client-to-authenticator-protocol-v2.2-ps-20250714.html#authenticatorgetassertion-response-structure).
-    fn get_assertion(&self, request: PluginGetAssertionRequest) -> Result<Vec<u8>, Box<dyn Error>>;
-
-    /// Cancel an ongoing operation.
-    fn cancel_operation(&self, request: PluginCancelOperationRequest)
-        -> Result<(), Box<dyn Error>>;
-
-    /// Retrieve lock status.
-    fn lock_status(&self) -> Result<PluginLockStatus, Box<dyn Error>>;
 }
 
 // IPluginAuthenticator interface

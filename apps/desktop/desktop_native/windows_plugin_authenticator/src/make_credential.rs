@@ -8,8 +8,8 @@ use crate::ipc2::{
     UserVerification, WindowsProviderClient,
 };
 use crate::win_webauthn::{
-    CtapTransport, ErrorKind, HwndExt, PluginMakeCredentialRequest, PluginMakeCredentialResponse,
-    WinWebAuthnError,
+    plugin::{PluginMakeCredentialRequest, PluginMakeCredentialResponse},
+    CtapTransport, ErrorKind, HwndExt, WinWebAuthnError,
 };
 
 pub fn make_credential(

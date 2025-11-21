@@ -7,7 +7,7 @@ use crate::{
         PasskeyAssertionRequest, PasskeyAssertionResponse, Position, TimedCallback,
         UserVerification, WindowsProviderClient,
     },
-    win_webauthn::{ErrorKind, HwndExt, PluginGetAssertionRequest, WinWebAuthnError},
+    win_webauthn::{plugin::PluginGetAssertionRequest, ErrorKind, HwndExt, WinWebAuthnError},
 };
 
 pub fn get_assertion(

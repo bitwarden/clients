@@ -7,7 +7,39 @@ use windows::{
     },
 };
 
-use crate::win_webauthn::{com::ComBuffer, ErrorKind, WinWebAuthnError};
+use crate::win_webauthn::{
+    // com::ComBuffer,
+    ErrorKind,
+    WinWebAuthnError,
+};
+
+macro_rules! webauthn_call {
+    ($symbol:literal as fn $fn_name:ident($($arg:ident: $arg_type:ty),+) -> $result_type:ty) => (
+        pub(super) fn $fn_name($($arg: $arg_type),*) -> Result<$result_type, WinWebAuthnError> {
+            let library = crate::win_webauthn::util::load_webauthn_lib()?;
+            let response = unsafe {
+                let address = GetProcAddress(library, s!($symbol)).ok_or(
+                    WinWebAuthnError::new(
+                        ErrorKind::DllLoad,
+                        &format!(
+                            "Failed to load function {}",
+                            $symbol
+                        ),
+                    ),
+                )?;
+
+                let function: unsafe extern "cdecl" fn(
+                    $($arg: $arg_type),*
+                ) -> $result_type = std::mem::transmute_copy(&address);
+                function($($arg),*)
+            };
+            crate::win_webauthn::util::free_webauthn_lib(library)?;
+            Ok(response)
+        }
+    )
+}
+
+pub(crate) use webauthn_call;
 
 pub(super) fn load_webauthn_lib() -> Result<HMODULE, WinWebAuthnError> {
     unsafe {
@@ -49,7 +81,7 @@ pub(super) trait WindowsString {
     fn to_utf16(&self) -> Vec<u16>;
 
     // Copies a string to a buffer from the OLE allocator
-    fn to_com_utf16(&self) -> (*mut u16, u32);
+    // fn to_com_utf16(&self) -> (*mut u16, u32);
 }
 
 impl WindowsString for str {
@@ -58,6 +90,7 @@ impl WindowsString for str {
         self.encode_utf16().chain(std::iter::once(0)).collect()
     }
 
+    /*
     fn to_com_utf16(&self) -> (*mut u16, u32) {
         let wide_bytes: Vec<u8> = self
             .to_utf16()
@@ -67,6 +100,7 @@ impl WindowsString for str {
         let (ptr, byte_count) = ComBuffer::from_buffer(&wide_bytes);
         (ptr as *mut u16, byte_count)
     }
+    */
 }
 
 pub struct ArrayPointerIterator<'a, T> {
