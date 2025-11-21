@@ -1,11 +1,11 @@
 <div
   class="tw-flex tw-items-center tw-gap-4 tw-p-2 tw-ps-4 tw-text-main tw-border-transparent tw-bg-clip-padding tw-border-solid tw-border-b tw-border-0"
-  [ngClass]="bannerClass"
+  [class]="bannerClass()"
   [attr.role]="useAlertRole() ? 'status' : null"
   [attr.aria-live]="useAlertRole() ? 'polite' : null"
 >
-  @if (icon(); as icon) {
-    <i class="bwi tw-align-middle tw-text-base" [ngClass]="icon" aria-hidden="true"></i>
+  @if (displayIcon(); as icon) {
+    <i class="bwi tw-align-middle tw-text-base" [class]="icon" aria-hidden="true"></i>
   }
   <!-- Overriding focus-visible color for link buttons for a11y against colored background -->
   <span class="tw-grow tw-text-base [&>button[bitlink]:focus-visible:before]:!tw-ring-text-main">
