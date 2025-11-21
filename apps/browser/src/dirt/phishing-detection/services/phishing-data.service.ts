@@ -63,10 +63,8 @@ export class PhishingDataService {
     "https://raw.githubusercontent.com/Phishing-Database/checksums/refs/heads/master/phishing-domains-ACTIVE.txt.md5";
   private static readonly RemotePhishingDatabaseTodayUrl =
     "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/refs/heads/master/phishing-domains-NEW-today.txt";
-
-  // TODO: Replace with actual GitHub repository URL for exemptions list
   private static readonly RemotePhishingExemptionsUrl =
-    "https://raw.githubusercontent.com/bitwarden/exemption-list/main/exemptions.txt";
+    "https://raw.githubusercontent.com/bitwarden/phishing-exemption-list/refs/heads/main/exemptions.txt";
 
   private _testDomains = this.getTestDomains();
   private _cachedState = this.globalStateProvider.get(PHISHING_DOMAINS_KEY);
