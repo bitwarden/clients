@@ -2949,6 +2949,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       (await this.checkFocusedFieldHasValue(port.sender.tab)) &&
       (await this.shouldShowSaveLoginInlineMenuList(port.sender.tab));
 
+    const iframeUrl = chrome.runtime.getURL(
+      `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.html`,
+    );
+    const styleSheetUrl = chrome.runtime.getURL(
+      `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.css`,
+    );
+    const extensionOrigin = new URL(iframeUrl).origin;
+
     this.postMessageToPort(port, {
       command: `initAutofillInlineMenu${isInlineMenuListPort ? "List" : "Button"}`,
       iframeUrl: BrowserApi.getRuntimeURL(
@@ -2973,6 +2981,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       showSaveLoginMenu,
       showInlineMenuAccountCreation,
       authStatus,
+      extensionOrigin,
     });
     this.updateInlineMenuPosition(
       port.sender,
