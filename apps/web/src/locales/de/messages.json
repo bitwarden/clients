@@ -5809,9 +5809,9 @@
     "message": "Verlangen, dass alle Einträge Eigentum einer Organisation sein müssen, wodurch die Möglichkeit, Einträge auf Kontoebene zu speichern, entfällt.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
-    "message": "Alle Einträge sind Eigentum der Organisation und werden in ihr gespeichert, was eine organisationsweite Kontrolle, Sichtbarkeit und Berichterstattung ermöglicht. Wenn diese Funktion aktiviert ist, steht jedem Mitglied eine Standardsammlung zur Verfügung, in der es Einträge speichern kann. Erfahre mehr über die Verwaltung des ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  "organizationDataOwnershipDescContent": {
+    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "Zugangsdaten-Lebenszyklus",
@@ -12117,6 +12117,15 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Kostenlose Families-Testversion starten"
+  },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Block account creation for claimed domains"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "A domain must be claimed before activating this policy."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Richte eine Entsperrmethode ein, um deine Aktion bei Tresor-Timeout zu ändern."

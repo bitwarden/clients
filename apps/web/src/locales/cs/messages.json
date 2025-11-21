@@ -5809,9 +5809,9 @@
     "message": "Vyžaduje, aby byly všechny položky vlastněny organizací s odebráním volby ukládat položky na úrovni účtu.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
+  "organizationDataOwnershipDescContent": {
     "message": "Všechny položky budou vlastněny a uloženy v organizaci, což umožní organizaci ovládání, viditelnost a hlášení. Pokud je zapnuto, bude k dispozici výchozí sbírka pro každého člena pro ukládání položek. Další informace o správě ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "životního cyklu pověření",
@@ -12117,6 +12117,15 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Zahájit bezplatnou zkušební verzi pro rodiny"
+  },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Blokovat vytvoření účtu pro nárokované domény"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Zabrání uživatelům ve vytváření účtů mimo Vaši organizaci pomocí e-mailových adres z nárokovaných domén."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "Před aktivací této zásady musí být nárokována doména."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Nastavte metodu odemknutí, abyste změnili časový limit Vašeho trezoru."
