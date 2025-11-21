@@ -450,7 +450,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     }
 
     // User is fully logged in so handle any post login logic before executing navigation
-    await this.loginSuccessHandlerService.run(authResult.userId);
+    await this.loginSuccessHandlerService.run(authResult.userId, authResult.masterPassword);
 
     // Save off the OrgSsoIdentifier for use in the TDE flows
     // - TDE login decryption options component

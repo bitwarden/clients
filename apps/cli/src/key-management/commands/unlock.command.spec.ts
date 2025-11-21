@@ -7,6 +7,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { MasterPasswordVerificationResponse } from "@bitwarden/common/auth/types/verification";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -40,6 +41,7 @@ describe("UnlockCommand", () => {
   const organizationApiService = mock<OrganizationApiServiceAbstraction>();
   const logout = jest.fn();
   const i18nService = mock<I18nService>();
+  const encryptedMigrator = mock<EncryptedMigrator>();
   const masterPasswordUnlockService = mock<MasterPasswordUnlockService>();
   const configService = mock<ConfigService>();
 
@@ -92,6 +94,7 @@ describe("UnlockCommand", () => {
       organizationApiService,
       logout,
       i18nService,
+      encryptedMigrator,
       masterPasswordUnlockService,
       configService,
     );
