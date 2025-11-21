@@ -2532,24 +2532,8 @@
   "vaultTimeoutTooLarge": {
     "message": "Your vault timeout exceeds the restrictions set by your organization."
   },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
-  },
   "vaultTimeoutPolicyInEffect": {
     "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
-    "placeholders": {
-      "hours": {
-        "content": "$1",
-        "example": "5"
-      },
-      "minutes": {
-        "content": "$2",
-        "example": "5"
-      }
-    }
-  },
-  "vaultTimeoutPolicyMaximumError": {
-    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -4223,5 +4207,43 @@
   },
   "sessionTimeoutHeader": {
     "message": "Session timeout"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "This setting is managed by your organization."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Your organization has set the default session timeout to on system lock."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Your organization has set the default session timeout to on restart."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization. $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "On restart"
   }
 }

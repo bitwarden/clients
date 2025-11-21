@@ -8,7 +8,10 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
-  MaximumVaultTimeoutPolicyData,
+  MaximumSessionTimeoutPolicyData,
+  SessionTimeoutTypeService,
+} from "@bitwarden/common/key-management/session-timeout";
+import {
   VaultTimeout,
   VaultTimeoutAction,
   VaultTimeoutOption,
@@ -16,6 +19,7 @@ import {
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -39,6 +43,8 @@ describe("SessionTimeoutSettingsComponent", () => {
   let accountService: FakeAccountService;
   let mockDialogService: MockProxy<DialogService>;
   let mockLogService: MockProxy<LogService>;
+  const mockPlatformUtilsService = mock<PlatformUtilsService>();
+  const mockSessionTimeoutTypeService = mock<SessionTimeoutTypeService>();
 
   const mockUserId = "user-id" as UserId;
   const mockEmail = "test@example.com";
@@ -79,8 +85,9 @@ describe("SessionTimeoutSettingsComponent", () => {
     mockVaultTimeoutSettingsService.availableVaultTimeoutActions$.mockImplementation(() =>
       of([VaultTimeoutAction.Lock, VaultTimeoutAction.LogOut]),
     );
-    mockSessionTimeoutSettingsComponentService.availableTimeoutOptions$ =
-      availableTimeoutOptions$.asObservable();
+    mockSessionTimeoutSettingsComponentService.policyFilteredTimeoutOptions$.mockImplementation(
+      (userId) => availableTimeoutOptions$.asObservable(),
+    );
     mockPolicyService.policiesByType$.mockImplementation(() => of([]));
 
     await TestBed.configureTestingModule({
@@ -102,6 +109,8 @@ describe("SessionTimeoutSettingsComponent", () => {
         { provide: AccountService, useValue: accountService },
         { provide: LogService, useValue: mockLogService },
         { provide: DialogService, useValue: mockDialogService },
+        { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+        { provide: SessionTimeoutTypeService, useValue: mockSessionTimeoutTypeService },
       ],
     })
       .overrideComponent(SessionTimeoutSettingsComponent, {
@@ -209,27 +218,8 @@ describe("SessionTimeoutSettingsComponent", () => {
       expect(component.formGroup.value.timeoutAction).toBe(expectedAction);
     }));
 
-    it("should fall back to OnRestart when current option is not available", fakeAsync(() => {
-      availableTimeoutOptions$.next([
-        { name: "oneMinute-used-i18n", value: 1 },
-        { name: "fiveMinutes-used-i18n", value: 5 },
-        { name: "onRestart-used-i18n", value: VaultTimeoutStringType.OnRestart },
-      ]);
-
-      const unavailableTimeout = VaultTimeoutStringType.Never;
-
-      mockVaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockImplementation(() =>
-        of(unavailableTimeout),
-      );
-
-      fixture.detectChanges();
-      flush();
-
-      expect(component.formGroup.value.timeout).toBe(VaultTimeoutStringType.OnRestart);
-    }));
-
     it("should disable timeout action control when policy enforces action", fakeAsync(() => {
-      const policyData: MaximumVaultTimeoutPolicyData = {
+      const policyData: MaximumSessionTimeoutPolicyData = {
         minutes: 15,
         action: VaultTimeoutAction.LogOut,
       };
@@ -273,7 +263,7 @@ describe("SessionTimeoutSettingsComponent", () => {
 
       expect(component.formGroup.controls.timeoutAction.enabled).toBe(true);
 
-      const policyData: MaximumVaultTimeoutPolicyData = {
+      const policyData: MaximumSessionTimeoutPolicyData = {
         minutes: 15,
         action: VaultTimeoutAction.LogOut,
       };

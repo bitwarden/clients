@@ -75,6 +75,7 @@ import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
   VaultTimeoutService,
   VaultTimeoutStringType,
@@ -169,6 +170,7 @@ import { InlineMenuFieldQualificationService } from "../../autofill/services/inl
 import { ForegroundBrowserBiometricsService } from "../../key-management/biometrics/foreground-browser-biometrics";
 import { ExtensionLockComponentService } from "../../key-management/lock/services/extension-lock-component.service";
 import { BrowserSessionTimeoutSettingsComponentService } from "../../key-management/session-timeout/services/browser-session-timeout-settings-component.service";
+import { BrowserSessionTimeoutTypeService } from "../../key-management/session-timeout/services/browser-session-timeout-type.service";
 import { ForegroundVaultTimeoutService } from "../../key-management/vault-timeout/foreground-vault-timeout.service";
 import { BrowserActionsService } from "../../platform/actions/browser-actions.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -718,9 +720,19 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: SessionTimeoutTypeService,
+    useClass: BrowserSessionTimeoutTypeService,
+    deps: [PlatformUtilsService],
+  }),
+  safeProvider({
     provide: SessionTimeoutSettingsComponentService,
     useClass: BrowserSessionTimeoutSettingsComponentService,
-    deps: [I18nServiceAbstraction, PlatformUtilsService, MessagingServiceAbstraction],
+    deps: [
+      I18nServiceAbstraction,
+      SessionTimeoutTypeService,
+      PolicyService,
+      MessagingServiceAbstraction,
+    ],
   }),
 ];
 

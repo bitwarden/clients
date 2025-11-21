@@ -203,6 +203,7 @@ import {
 
 import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { CliProcessReloadService } from "../key-management/cli-process-reload.service";
+import { CliSessionTimeoutTypeService } from "../key-management/session-timeout/services/cli-session-timeout-type.service";
 import { flagEnabled } from "../platform/flags";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
 import { CliSdkLoadService } from "../platform/services/cli-sdk-load.service";
@@ -514,6 +515,8 @@ export class ServiceContainer {
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
     this.policyService = new DefaultPolicyService(this.stateProvider, this.organizationService);
 
+    const sessionTimeoutTypeService = new CliSessionTimeoutTypeService();
+
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
       pinStateService,
@@ -525,6 +528,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.logService,
       VaultTimeoutStringType.Never, // default vault timeout
+      sessionTimeoutTypeService,
     );
 
     const refreshAccessTokenErrorCallback = () => {

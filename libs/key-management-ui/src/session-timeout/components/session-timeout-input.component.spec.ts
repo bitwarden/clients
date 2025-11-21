@@ -1,16 +1,18 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { BehaviorSubject } from "rxjs";
+import { mock } from "jest-mock-extended";
+import { BehaviorSubject, of } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import {
-  VaultTimeoutSettingsService,
-  VaultTimeoutStringType,
-} from "@bitwarden/common/key-management/vault-timeout";
+import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
+import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { LogService } from "@bitwarden/logging";
+
+import { SessionTimeoutSettingsComponentService } from "../services/session-timeout-settings-component.service";
 
 import { SessionTimeoutInputComponent } from "./session-timeout-input.component";
 
@@ -18,24 +20,12 @@ describe("SessionTimeoutInputComponent", () => {
   let component: SessionTimeoutInputComponent;
   let fixture: ComponentFixture<SessionTimeoutInputComponent>;
   const policiesByType$ = jest.fn().mockReturnValue(new BehaviorSubject({}));
-  const availableVaultTimeoutActions$ = jest.fn().mockReturnValue(new BehaviorSubject([]));
   const mockUserId = Utils.newGuid() as UserId;
   const accountService = mockAccountServiceWith(mockUserId);
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [SessionTimeoutInputComponent],
-      providers: [
-        { provide: PolicyService, useValue: { policiesByType$ } },
-        { provide: AccountService, useValue: accountService },
-        { provide: VaultTimeoutSettingsService, useValue: { availableVaultTimeoutActions$ } },
-        { provide: I18nService, useValue: { t: (key: string) => key } },
-      ],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(SessionTimeoutInputComponent);
-    component = fixture.componentInstance;
-    component.vaultTimeoutOptions = [
+  const sessionTimeoutSettingsComponentService = mock<SessionTimeoutSettingsComponentService>();
+  sessionTimeoutSettingsComponentService.policyFilteredTimeoutOptions$.mockImplementation(() =>
+    of([
       { name: "oneMinute", value: 1 },
       { name: "fiveMinutes", value: 5 },
       { name: "fifteenMinutes", value: 15 },
@@ -43,7 +33,44 @@ describe("SessionTimeoutInputComponent", () => {
       { name: "oneHour", value: 60 },
       { name: "fourHours", value: 240 },
       { name: "onRefresh", value: VaultTimeoutStringType.OnRestart },
-    ];
+    ]),
+  );
+
+  const sessionTimeoutTypeService = mock<SessionTimeoutTypeService>();
+  sessionTimeoutTypeService.isAvailable.mockResolvedValue(true);
+
+  const i18nService = mock<I18nService>();
+  i18nService.t.mockImplementation((key) => `${key}-used-i18n`);
+
+  const logService = mock<LogService>();
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [SessionTimeoutInputComponent],
+      providers: [
+        { provide: PolicyService, useValue: { policiesByType$ } },
+        { provide: AccountService, useValue: accountService },
+        { provide: I18nService, useValue: i18nService },
+        { provide: LogService, useValue: logService },
+        {
+          provide: SessionTimeoutSettingsComponentService,
+          useValue: sessionTimeoutSettingsComponentService,
+        },
+        { provide: SessionTimeoutTypeService, useValue: sessionTimeoutTypeService },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(SessionTimeoutInputComponent);
+    component = fixture.componentInstance;
+    fixture.componentRef.setInput("availableTimeoutOptions", [
+      { name: "oneMinute", value: 1 },
+      { name: "fiveMinutes", value: 5 },
+      { name: "fifteenMinutes", value: 15 },
+      { name: "thirtyMinutes", value: 30 },
+      { name: "oneHour", value: 60 },
+      { name: "fourHours", value: 240 },
+      { name: "onRefresh", value: VaultTimeoutStringType.OnRestart },
+    ]);
     fixture.detectChanges();
   });
 

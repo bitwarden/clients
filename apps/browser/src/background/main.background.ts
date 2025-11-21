@@ -297,6 +297,7 @@ import { SafariApp } from "../browser/safariApp";
 import { PhishingDataService } from "../dirt/phishing-detection/services/phishing-data.service";
 import { PhishingDetectionService } from "../dirt/phishing-detection/services/phishing-detection.service";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
+import { BrowserSessionTimeoutTypeService } from "../key-management/session-timeout/services/browser-session-timeout-type.service";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
 import { BrowserActionsService } from "../platform/actions/browser-actions.service";
 import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
@@ -743,6 +744,10 @@ export default class MainBackground {
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
     this.policyService = new DefaultPolicyService(this.stateProvider, this.organizationService);
 
+    const sessionTimeoutTypeService = new BrowserSessionTimeoutTypeService(
+      this.platformUtilsService,
+    );
+
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
       pinStateService,
@@ -754,6 +759,7 @@ export default class MainBackground {
       this.stateProvider,
       this.logService,
       VaultTimeoutStringType.OnRestart, // default vault timeout
+      sessionTimeoutTypeService,
     );
 
     this.biometricsService = new BackgroundBrowserBiometricsService(
