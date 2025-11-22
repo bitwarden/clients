@@ -4,6 +4,8 @@ import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, of, Subj
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 
 import { awaitAsync } from "../../../../spec";
@@ -42,6 +44,7 @@ describe("NotificationsService", () => {
   let webPushNotificationConnectionService: MockProxy<WebPushConnectionService>;
   let authRequestAnsweringService: MockProxy<AuthRequestAnsweringServiceAbstraction>;
   let configService: MockProxy<ConfigService>;
+  let policyService: MockProxy<InternalPolicyService>;
 
   let activeAccount: BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>;
   let accounts: BehaviorSubject<ObservedValueOf<AccountService["accounts$"]>>;
@@ -71,6 +74,7 @@ describe("NotificationsService", () => {
     webPushNotificationConnectionService = mock<WorkerWebPushConnectionService>();
     authRequestAnsweringService = mock<AuthRequestAnsweringServiceAbstraction>();
     configService = mock<ConfigService>();
+    policyService = mock<InternalPolicyService>();
 
     // For these tests, use the active-user implementation (feature flag disabled)
     configService.getFeatureFlag$.mockImplementation(() => of(true));
@@ -123,6 +127,7 @@ describe("NotificationsService", () => {
       webPushNotificationConnectionService,
       authRequestAnsweringService,
       configService,
+      policyService,
     );
   });
 
@@ -389,6 +394,69 @@ describe("NotificationsService", () => {
         await sut["processNotification"](notification, mockUser1);
 
         expect(logoutCallback).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("NotificationType.SyncPolicy", () => {
+      it("should call policyService.upsert with the policy from the notification", async () => {
+        const mockPolicy = {
+          id: "policy-id",
+          organizationId: "org-id",
+          type: PolicyType.TwoFactorAuthentication,
+          enabled: true,
+          data: { test: "data" },
+        };
+
+        policyService.upsert.mockResolvedValue();
+
+        const notification = new NotificationResponse({
+          type: NotificationType.SyncPolicy,
+          payload: { Policy: mockPolicy },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(policyService.upsert).toHaveBeenCalledTimes(1);
+        expect(policyService.upsert).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: mockPolicy.id,
+            organizationId: mockPolicy.organizationId,
+            type: mockPolicy.type,
+            enabled: mockPolicy.enabled,
+          }),
+          mockUser1,
+        );
+      });
+
+      it("should handle SyncPolicy notification with minimal policy data", async () => {
+        const mockPolicy = {
+          id: "policy-id-2",
+          organizationId: "org-id-2",
+          type: PolicyType.RequireSso,
+          enabled: false,
+        };
+
+        policyService.upsert.mockResolvedValue();
+
+        const notification = new NotificationResponse({
+          type: NotificationType.SyncPolicy,
+          payload: { Policy: mockPolicy },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(policyService.upsert).toHaveBeenCalledTimes(1);
+        expect(policyService.upsert).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: mockPolicy.id,
+            organizationId: mockPolicy.organizationId,
+            type: mockPolicy.type,
+            enabled: mockPolicy.enabled,
+          }),
+          mockUser1,
+        );
       });
     });
   });
