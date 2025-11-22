@@ -1,6 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { EncString } from "../../key-management/crypto/models/enc-string";
+import { conditionalEncString } from "@bitwarden/common/vault/utils/domain-utils";
+
 import { Identity as IdentityDomain } from "../../vault/models/domain/identity";
 import { IdentityView } from "../../vault/models/view/identity.view";
 
@@ -15,7 +14,6 @@ export class IdentityExport {
     req.lastName = "Doe";
     req.address1 = "123 Any St";
     req.address2 = "Apt #123";
-    req.address3 = null;
     req.city = "New York";
     req.state = "NY";
     req.postalCode = "10001";
@@ -53,45 +51,45 @@ export class IdentityExport {
   }
 
   static toDomain(req: IdentityExport, domain = new IdentityDomain()) {
-    domain.title = req.title != null ? new EncString(req.title) : null;
-    domain.firstName = req.firstName != null ? new EncString(req.firstName) : null;
-    domain.middleName = req.middleName != null ? new EncString(req.middleName) : null;
-    domain.lastName = req.lastName != null ? new EncString(req.lastName) : null;
-    domain.address1 = req.address1 != null ? new EncString(req.address1) : null;
-    domain.address2 = req.address2 != null ? new EncString(req.address2) : null;
-    domain.address3 = req.address3 != null ? new EncString(req.address3) : null;
-    domain.city = req.city != null ? new EncString(req.city) : null;
-    domain.state = req.state != null ? new EncString(req.state) : null;
-    domain.postalCode = req.postalCode != null ? new EncString(req.postalCode) : null;
-    domain.country = req.country != null ? new EncString(req.country) : null;
-    domain.company = req.company != null ? new EncString(req.company) : null;
-    domain.email = req.email != null ? new EncString(req.email) : null;
-    domain.phone = req.phone != null ? new EncString(req.phone) : null;
-    domain.ssn = req.ssn != null ? new EncString(req.ssn) : null;
-    domain.username = req.username != null ? new EncString(req.username) : null;
-    domain.passportNumber = req.passportNumber != null ? new EncString(req.passportNumber) : null;
-    domain.licenseNumber = req.licenseNumber != null ? new EncString(req.licenseNumber) : null;
+    domain.title = conditionalEncString(req.title);
+    domain.firstName = conditionalEncString(req.firstName);
+    domain.middleName = conditionalEncString(req.middleName);
+    domain.lastName = conditionalEncString(req.lastName);
+    domain.address1 = conditionalEncString(req.address1);
+    domain.address2 = conditionalEncString(req.address2);
+    domain.address3 = conditionalEncString(req.address3);
+    domain.city = conditionalEncString(req.city);
+    domain.state = conditionalEncString(req.state);
+    domain.postalCode = conditionalEncString(req.postalCode);
+    domain.country = conditionalEncString(req.country);
+    domain.company = conditionalEncString(req.company);
+    domain.email = conditionalEncString(req.email);
+    domain.phone = conditionalEncString(req.phone);
+    domain.ssn = conditionalEncString(req.ssn);
+    domain.username = conditionalEncString(req.username);
+    domain.passportNumber = conditionalEncString(req.passportNumber);
+    domain.licenseNumber = conditionalEncString(req.licenseNumber);
     return domain;
   }
 
-  title: string;
-  firstName: string;
-  middleName: string;
-  lastName: string;
-  address1: string;
-  address2: string;
-  address3: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
-  company: string;
-  email: string;
-  phone: string;
-  ssn: string;
-  username: string;
-  passportNumber: string;
-  licenseNumber: string;
+  title?: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  address1?: string;
+  address2?: string;
+  address3?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+  company?: string;
+  email?: string;
+  phone?: string;
+  ssn?: string;
+  username?: string;
+  passportNumber?: string;
+  licenseNumber?: string;
 
   constructor(o?: IdentityView | IdentityDomain) {
     if (o == null) {

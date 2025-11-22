@@ -78,8 +78,8 @@ function generateCipherView(deleted: boolean) {
         },
         LoginView,
       ),
-      collectionIds: null,
-      deletedDate: deleted ? new Date() : null,
+      collectionIds: [],
+      deletedDate: deleted ? new Date() : undefined,
     },
     CipherView,
   );
@@ -98,8 +98,8 @@ function generateCipherDomain(deleted: boolean) {
         },
         Login,
       ),
-      collectionIds: null,
-      deletedDate: deleted ? new Date() : null,
+      collectionIds: [],
+      deletedDate: deleted ? new Date() : undefined,
     },
     Cipher,
   );
