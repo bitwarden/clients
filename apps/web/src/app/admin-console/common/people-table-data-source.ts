@@ -1,14 +1,30 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { DestroyRef } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { combineLatest, map, Observable, shareReplay } from "rxjs";
+
 import {
   OrganizationUserStatusType,
   ProviderUserStatusType,
 } from "@bitwarden/common/admin-console/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { TableDataSource } from "@bitwarden/components";
 
 import { StatusType, UserViewTypes } from "./base-members.component";
 
+/**
+ * Default maximum for most bulk operations (confirm, remove, delete, etc.)
+ */
 const MaxCheckedCount = 500;
+
+/**
+ * Increased maximum for bulk reinvite operations on cloud environments
+ * when the feature flag is enabled.
+ */
+export const MaxBulkReinviteCount = 4000;
 
 /**
  * Returns true if the user matches the status, or where the status is `null`, if the user is active (not revoked).
@@ -56,6 +72,36 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
   confirmedUserCount: number;
   revokedUserCount: number;
 
+  /**
+   * Observable that emits `true` when the increased bulk limit feature is enabled
+   * (feature flag enabled AND cloud environment), `false` otherwise.
+   *
+   * This is shared via `shareReplay` to avoid duplicate subscriptions in components.
+   */
+  readonly isIncreasedLimitEnabled$: Observable<boolean>;
+
+  private maxAllowedCheckedCount: number = MaxCheckedCount;
+
+  constructor(
+    configService: ConfigService,
+    environmentService: EnvironmentService,
+    destroyRef: DestroyRef,
+  ) {
+    super();
+
+    this.isIncreasedLimitEnabled$ = combineLatest([
+      configService.getFeatureFlag$(FeatureFlag.IncreaseBulkReinviteLimitForCloud),
+      environmentService.environment$.pipe(map((env) => env.isCloud())),
+    ]).pipe(
+      map(([featureFlagEnabled, isCloud]) => featureFlagEnabled && isCloud),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+
+    this.isIncreasedLimitEnabled$.pipe(takeUntilDestroyed(destroyRef)).subscribe((enabled) => {
+      this.maxAllowedCheckedCount = enabled ? MaxBulkReinviteCount : MaxCheckedCount;
+    });
+  }
+
   override set data(data: T[]) {
     super.data = data;
 
@@ -102,7 +148,9 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
     const filteredUsers = this.filteredData;
 
     const selectCount =
-      filteredUsers.length > MaxCheckedCount ? MaxCheckedCount : filteredUsers.length;
+      filteredUsers.length > this.maxAllowedCheckedCount
+        ? this.maxAllowedCheckedCount
+        : filteredUsers.length;
     for (let i = 0; i < selectCount; i++) {
       this.checkUser(filteredUsers[i], select);
     }
@@ -131,5 +179,40 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
       updatedData[index] = user;
       this.data = updatedData;
     }
+  }
+
+  /**
+   * Enforces a limit on checked users by unchecking those beyond the limit and
+   * returns the users that stay within that limit.
+   *
+   * This method has a side effect: users beyond the effective limit are automatically
+   * unchecked so the UI reflects the final selection used for bulk actions.
+   *
+   * The effective limit comes from the max count allowed by the environment and
+   * feature flag (set in the constructor). Different bulk actions request
+   * different limits:
+   * - Most actions use 500
+   * - Reinvite can use 4000 when the feature flag is enabled on cloud
+   *
+   * @param limit The requested limit. Defaults to MaxCheckedCount (500).
+   * @returns The checked users after enforcing the limit.
+   */
+  enforceCheckedUserLimit(limit: number = MaxCheckedCount): T[] {
+    const checked = this.getCheckedUsers();
+
+    // Respect the maximum allowed by the feature flag/environment
+    const effectiveLimit = Math.min(limit, this.maxAllowedCheckedCount);
+
+    if (checked.length <= effectiveLimit) {
+      return checked;
+    }
+
+    // Uncheck users beyond the limit
+    for (const user of checked.slice(effectiveLimit)) {
+      this.checkUser(user, false);
+    }
+
+    // Return the first N users
+    return checked.slice(0, effectiveLimit);
   }
 }
