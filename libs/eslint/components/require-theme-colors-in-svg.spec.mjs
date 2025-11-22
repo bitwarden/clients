@@ -4,7 +4,6 @@ import rule from "./require-theme-colors-in-svg.mjs";
 const ruleTester = new RuleTester({
   languageOptions: {
     parserOptions: {
-      project: [__dirname + "/../tsconfig.spec.json"],
       projectService: {
         allowDefaultProject: ["*.ts*"],
       },
