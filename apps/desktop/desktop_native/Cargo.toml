@@ -22,7 +22,7 @@ publish = false
 aes = "=0.8.4"
 aes-gcm = "=0.10.3"
 anyhow = "=1.0.94"
-arboard = { version = "=3.6.0", default-features = false }
+arboard = { version = "=3.6.1", default-features = false }
 ashpd = "=0.11.0"
 base64 = "=0.22.1"
 bitwarden-russh = { git = "https://github.com/bitwarden/bitwarden-russh.git", rev = "a641316227227f8777fdf56ac9fa2d6b5f7fe662" }
