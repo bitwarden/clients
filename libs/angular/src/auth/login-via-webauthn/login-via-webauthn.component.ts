@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
-import { Router, RouterModule } from "@angular/router";
+import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -19,6 +19,7 @@ import { ClientType } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import {
@@ -49,6 +50,7 @@ export type State = "assert" | "assertFailed";
 })
 export class LoginViaWebAuthnComponent implements OnInit {
   protected currentState: State = "assert";
+  private shouldAutoClosePopout = false;
 
   protected readonly Icons = {
     TwoFactorAuthSecurityKeyIcon,
@@ -70,6 +72,7 @@ export class LoginViaWebAuthnComponent implements OnInit {
   constructor(
     private webAuthnLoginService: WebAuthnLoginServiceAbstraction,
     private router: Router,
+    private route: ActivatedRoute,
     private logService: LogService,
     private validationService: ValidationService,
     private i18nService: I18nService,
@@ -77,9 +80,14 @@ export class LoginViaWebAuthnComponent implements OnInit {
     private keyService: KeyService,
     private platformUtilsService: PlatformUtilsService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
+    private messagingService: MessagingService,
   ) {}
 
   ngOnInit(): void {
+    // Check if we should auto-close the popout after successful authentication
+    this.shouldAutoClosePopout =
+      this.route.snapshot.queryParamMap.get("autoClosePopout") === "true";
+
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.authenticate();
@@ -121,6 +129,17 @@ export class LoginViaWebAuthnComponent implements OnInit {
       const userKey = await firstValueFrom(this.keyService.userKey$(authResult.userId));
       if (userKey) {
         await this.loginSuccessHandlerService.run(authResult.userId);
+      }
+
+      // If autoClosePopout is enabled and we're in a browser extension,
+      // re-open the regular popup and close this popout window
+      if (
+        this.shouldAutoClosePopout &&
+        this.platformUtilsService.getClientType() === ClientType.Browser
+      ) {
+        this.messagingService.send("openPopup");
+        window.close();
+        return;
       }
 
       await this.router.navigate([this.successRoute]);
