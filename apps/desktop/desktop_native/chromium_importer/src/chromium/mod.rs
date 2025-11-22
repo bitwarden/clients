@@ -60,10 +60,21 @@ impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
     fn get_installed_browsers() -> Result<Vec<String>> {
         let mut browsers = Vec::with_capacity(SUPPORTED_BROWSER_MAP.len());
 
+        #[allow(unused_variables)] // config only used outside of sandbox
         for (browser, config) in SUPPORTED_BROWSER_MAP.iter() {
-            let data_dir = get_browser_data_dir(config)?;
-            if data_dir.exists() {
+            #[cfg(all(target_os = "macos", feature = "sandbox"))]
+            {
+                // macOS sandbox mode: show all browsers, user will grant access when selected
                 browsers.push((*browser).to_string());
+            }
+
+            #[cfg(not(all(target_os = "macos", feature = "sandbox")))]
+            {
+                // When not in sandbox check file system directly
+                let data_dir = get_browser_data_dir(config)?;
+                if data_dir.exists() {
+                    browsers.push((*browser).to_string());
+                }
             }
         }
 
@@ -71,15 +82,25 @@ impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
     }
 }
 
-pub fn get_available_profiles(browser_name: &String) -> Result<Vec<ProfileInfo>> {
+pub fn get_available_profiles(browser_name: &str) -> Result<Vec<ProfileInfo>> {
     let (_, local_state) = load_local_state_for_browser(browser_name)?;
     Ok(get_profile_info(&local_state))
 }
 
-pub async fn import_logins(
-    browser_name: &String,
-    profile_id: &String,
-) -> Result<Vec<LoginImportResult>> {
+/// Request access to browser directory (sandbox mode only)
+/// This shows the permission dialog and creates a security-scoped bookmark,
+#[cfg(all(target_os = "macos", feature = "sandbox"))]
+pub fn request_browser_access(browser_name: &str) -> Result<()> {
+    platform::ScopedBrowserAccess::request_only(browser_name)?;
+
+    Ok(())
+}
+
+pub async fn import_logins(browser_name: &str, profile_id: &str) -> Result<Vec<LoginImportResult>> {
+    // In sandbox mode, resume access to browser directory (use the formerly created bookmark)
+    #[cfg(all(target_os = "macos", feature = "sandbox"))]
+    let _access = platform::ScopedBrowserAccess::resume(browser_name)?;
+
     let (data_dir, local_state) = load_local_state_for_browser(browser_name)?;
 
     let mut crypto_service = platform::get_crypto_service(browser_name, &local_state)
@@ -169,9 +190,9 @@ struct OsCrypt {
     app_bound_encrypted_key: Option<String>,
 }
 
-fn load_local_state_for_browser(browser_name: &String) -> Result<(PathBuf, LocalState)> {
+fn load_local_state_for_browser(browser_name: &str) -> Result<(PathBuf, LocalState)> {
     let config = SUPPORTED_BROWSER_MAP
-        .get(browser_name.as_str())
+        .get(browser_name)
         .ok_or_else(|| anyhow!("Unsupported browser: {}", browser_name))?;
 
     let data_dir = get_browser_data_dir(config)?;
@@ -220,11 +241,7 @@ struct EncryptedLogin {
     encrypted_note: Vec<u8>,
 }
 
-fn get_logins(
-    browser_dir: &Path,
-    profile_id: &String,
-    filename: &str,
-) -> Result<Vec<EncryptedLogin>> {
+fn get_logins(browser_dir: &Path, profile_id: &str, filename: &str) -> Result<Vec<EncryptedLogin>> {
     let login_data_path = browser_dir.join(profile_id).join(filename);
 
     // Sometimes database files are not present, so nothing to import

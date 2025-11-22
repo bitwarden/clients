@@ -39,6 +39,9 @@ export class ImportDesktopComponent {
   protected disabled = false;
   protected loading = false;
 
+  protected readonly onLoadProfilesFromBrowser = this._onLoadProfilesFromBrowser.bind(this);
+  protected readonly onImportFromBrowser = this._onImportFromBrowser.bind(this);
+
   constructor(public dialogRef: DialogRef) {}
 
   /**
@@ -48,11 +51,15 @@ export class ImportDesktopComponent {
     this.dialogRef.close();
   }
 
-  protected onLoadProfilesFromBrowser(browser: string): Promise<chromium_importer.ProfileInfo[]> {
+  private async _onLoadProfilesFromBrowser(
+    browser: string,
+  ): Promise<chromium_importer.ProfileInfo[]> {
+    // Request browser access (required for sandboxed builds, no-op otherwise)
+    await ipc.tools.chromiumImporter.requestBrowserAccess(browser);
     return ipc.tools.chromiumImporter.getAvailableProfiles(browser);
   }
 
-  protected onImportFromBrowser(
+  private _onImportFromBrowser(
     browser: string,
     profile: string,
   ): Promise<chromium_importer.LoginImportResult[]> {

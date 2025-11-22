@@ -1,3 +1,8 @@
+#[cfg(feature = "sandbox")]
+use std::ffi::CString;
+#[cfg(feature = "sandbox")]
+use std::os::raw::c_char;
+
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use security_framework::passwords::get_generic_password;
@@ -6,6 +11,72 @@ use crate::{
     chromium::{BrowserConfig, CryptoService, LocalState},
     util,
 };
+
+//
+// Sandbox specific (for Mac App Store Builds)
+//
+
+#[cfg(feature = "sandbox")]
+extern "C" {
+    fn requestBrowserAccess(browser_name: *const c_char) -> *mut c_char;
+    fn hasStoredBrowserAccess(browser_name: *const c_char) -> bool;
+    fn startBrowserAccess(browser_name: *const c_char) -> *mut c_char;
+    fn stopBrowserAccess(browser_name: *const c_char);
+}
+
+#[cfg(feature = "sandbox")]
+pub struct ScopedBrowserAccess {
+    browser_name: String,
+}
+
+#[cfg(feature = "sandbox")]
+impl ScopedBrowserAccess {
+    /// Request access to browser directory and create a security bookmark if access is approved
+    pub fn request_only(browser_name: &str) -> Result<()> {
+        let c_name = CString::new(browser_name)?;
+
+        let bookmark_ptr = unsafe { requestBrowserAccess(c_name.as_ptr()) };
+        if bookmark_ptr.is_null() {
+            return Err(anyhow!(
+                "User denied access or selected an invalid browser directory"
+            ));
+        }
+        unsafe { libc::free(bookmark_ptr as *mut libc::c_void) };
+
+        Ok(())
+    }
+
+    /// Resume browser directory access using previously created security bookmark
+    pub fn resume(browser_name: &str) -> Result<Self> {
+        let c_name = CString::new(browser_name)?;
+
+        if !unsafe { hasStoredBrowserAccess(c_name.as_ptr()) } {
+            return Err(anyhow!("Access has not been granted for this browser"));
+        }
+
+        let path_ptr = unsafe { startBrowserAccess(c_name.as_ptr()) };
+        if path_ptr.is_null() {
+            return Err(anyhow!(
+                "Failed to use browser existing security access, it may be stale"
+            ));
+        }
+        unsafe { libc::free(path_ptr as *mut libc::c_void) };
+
+        Ok(Self {
+            browser_name: browser_name.to_string(),
+        })
+    }
+}
+
+#[cfg(feature = "sandbox")]
+impl Drop for ScopedBrowserAccess {
+    fn drop(&mut self) {
+        let Ok(c_name) = CString::new(self.browser_name.as_str()) else {
+            return;
+        };
+        unsafe { stopBrowserAccess(c_name.as_ptr()) };
+    }
+}
 
 //
 // Public API
@@ -43,7 +114,7 @@ pub(crate) const SUPPORTED_BROWSERS: &[BrowserConfig] = &[
 ];
 
 pub(crate) fn get_crypto_service(
-    browser_name: &String,
+    browser_name: &str,
     _local_state: &LocalState,
 ) -> Result<Box<dyn CryptoService>> {
     let config = KEYCHAIN_CONFIG

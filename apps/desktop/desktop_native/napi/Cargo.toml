@@ -12,6 +12,7 @@ crate-type = ["cdylib"]
 [features]
 default = []
 manual_test = []
+sandbox = ["chromium_importer/sandbox"]
 
 [dependencies]
 anyhow = { workspace = true }

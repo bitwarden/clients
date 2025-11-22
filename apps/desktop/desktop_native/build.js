@@ -28,7 +28,11 @@ let crossPlatform = process.argv.length > 2 && process.argv[2] === "cross-platfo
 function buildNapiModule(target, release = true) {
     const targetArg = target ? `--target ${target}` : "";
     const releaseArg = release ? "--release" : "";
-    child_process.execSync(`npm run build -- ${releaseArg} ${targetArg}`, { stdio: 'inherit', cwd: path.join(__dirname, "napi") });
+    child_process.execSync(`npm run build -- ${releaseArg} ${targetArg}`, {
+        stdio: 'inherit',
+        cwd: path.join(__dirname, "napi"),
+        env: process.env  // Pass environment variables including SANDBOX_BUILD
+    });
 }
 
 function buildProxyBin(target, release = true) {

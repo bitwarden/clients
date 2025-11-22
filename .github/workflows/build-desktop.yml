@@ -1681,6 +1681,9 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
+        env:
+          # required to bypass sandbox (MAS only)
+          SANDBOX_BUILD: 1  
         run: node build.js cross-platform
 
       - name: Build

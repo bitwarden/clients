@@ -20,6 +20,7 @@ serde_json = { workspace = true }
 cbc = { workspace = true, features = ["alloc"] }
 pbkdf2 = "=0.12.2"
 security-framework = { workspace = true }
+libc = { workspace = true }
 sha1 = "=0.10.6"
 
 [target.'cfg(target_os = "windows")'.dependencies]
@@ -42,3 +43,6 @@ sha1 = "=0.10.6"
 
 [lints]
 workspace = true
+
+[features]
+sandbox = []
