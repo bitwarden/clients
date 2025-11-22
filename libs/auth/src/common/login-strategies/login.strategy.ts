@@ -196,7 +196,7 @@ export abstract class LoginStrategy {
     // We must set user decryption options before retrieving vault timeout settings
     // as the user decryption options help determine the available timeout actions.
     await this.userDecryptionOptionsService.setUserDecryptionOptions(
-      UserDecryptionOptions.fromResponse(tokenResponse),
+      UserDecryptionOptions.fromIdentityTokenResponse(tokenResponse),
     );
 
     if (tokenResponse.userDecryptionOptions?.masterPasswordUnlock != null) {
