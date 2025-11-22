@@ -197,6 +197,7 @@ export abstract class LoginStrategy {
     // as the user decryption options help determine the available timeout actions.
     await this.userDecryptionOptionsService.setUserDecryptionOptions(
       UserDecryptionOptions.fromResponse(tokenResponse),
+      userId,
     );
 
     if (tokenResponse.userDecryptionOptions?.masterPasswordUnlock != null) {

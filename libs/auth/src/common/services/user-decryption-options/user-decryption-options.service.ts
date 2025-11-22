@@ -45,7 +45,12 @@ export class UserDecryptionOptionsService
     return this.stateProvider.getUser(userId, USER_DECRYPTION_OPTIONS).state$;
   }
 
-  async setUserDecryptionOptions(userDecryptionOptions: UserDecryptionOptions): Promise<void> {
-    await this.userDecryptionOptionsState.update((_) => userDecryptionOptions);
+  async setUserDecryptionOptions(
+    userDecryptionOptions: UserDecryptionOptions,
+    userId: UserId,
+  ): Promise<void> {
+    await this.stateProvider
+      .getUser(userId, USER_DECRYPTION_OPTIONS)
+      .update((_) => userDecryptionOptions);
   }
 }
