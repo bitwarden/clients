@@ -4,13 +4,9 @@ use anyhow::{anyhow, Result};
 #[allow(clippy::module_inception)]
 #[cfg_attr(target_os = "linux", path = "unix.rs")]
 #[cfg_attr(target_os = "macos", path = "macos.rs")]
-#[cfg_attr(target_os = "windows", path = "windows.rs")]
 mod biometric;
 
 pub use biometric::Biometric;
-
-#[cfg(target_os = "windows")]
-pub mod windows_focus;
 
 use base64::{engine::general_purpose::STANDARD as base64_engine, Engine};
 use sha2::{Digest, Sha256};

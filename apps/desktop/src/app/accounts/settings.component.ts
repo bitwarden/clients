@@ -148,7 +148,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   userHasPinSet: boolean;
 
   pinEnabled$: Observable<boolean> = of(true);
-  isWindowsV2BiometricsEnabled: boolean = false;
 
   consolidatedSessionTimeoutComponent$: Observable<boolean>;
 
@@ -296,8 +295,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     this.vaultTimeoutOptions = await this.generateVaultTimeoutOptions();
-
-    this.isWindowsV2BiometricsEnabled = await this.biometricsService.isWindowsV2BiometricsEnabled();
 
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
 
@@ -621,7 +618,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       // On Windows if a user turned off PIN without having a MP and has biometrics + require MP/PIN on restart enabled.
       if (
         this.isWindows &&
-        this.isWindowsV2BiometricsEnabled &&
         this.supportsBiometric &&
         this.form.value.requireMasterPasswordOnAppRestart &&
         this.form.value.biometric &&

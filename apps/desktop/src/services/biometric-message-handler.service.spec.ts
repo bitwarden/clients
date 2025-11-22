@@ -504,18 +504,4 @@ describe("BiometricMessageHandlerService", () => {
     );
   });
 
-  describe("init", () => {
-    it("enables Windows v2 biometrics when feature flag enabled", async () => {
-      configService.getFeatureFlag.mockReturnValue(true);
-
-      await service.init();
-      expect(biometricsService.enableWindowsV2Biometrics).toHaveBeenCalled();
-    });
-    it("does not enable Windows v2 biometrics when feature flag disabled", async () => {
-      configService.getFeatureFlag.mockReturnValue(false);
-
-      await service.init();
-      expect(biometricsService.enableWindowsV2Biometrics).not.toHaveBeenCalled();
-    });
-  });
 });
