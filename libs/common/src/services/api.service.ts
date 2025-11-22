@@ -1325,6 +1325,7 @@ export class ApiService implements ApiServiceAbstraction {
       "Bitwarden-Client-Version",
       await this.platformUtilsService.getApplicationVersionNumber(),
     );
+    request.headers.set("Bitwarden-Package-Type", await this.platformUtilsService.packageType());
     return this.nativeFetch(request);
   }
 
