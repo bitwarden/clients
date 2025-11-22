@@ -24,7 +24,7 @@
           class="tw-text-sm tw-font-medium tw-cursor-pointer"
           (click)="toggleSavedUrlExpandedState()"
         >
-          {{ (savedUrlsExpanded() ? "viewLess" : "viewAll") | i18n }}
+          {{ (savedUrlsExpanded() ? "showLess" : "showAll") | i18n }}
         </button>
       </div>
       <div class="tw-pt-2" [ngClass]="savedUrlsListClass()">
