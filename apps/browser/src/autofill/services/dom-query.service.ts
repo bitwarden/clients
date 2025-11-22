@@ -6,7 +6,7 @@ import { DomQueryService as DomQueryServiceInterface } from "./abstractions/dom-
 
 export class DomQueryService implements DomQueryServiceInterface {
   /** Non-null asserted. */
-  private pageContainsShadowDom!: boolean;
+  private _pageContainsShadowDom!: boolean;
   private ignoredTreeWalkerNodes = new Set([
     "svg",
     "script",
@@ -31,6 +31,14 @@ export class DomQueryService implements DomQueryServiceInterface {
 
   constructor() {
     void this.init();
+  }
+
+  /**
+   * Returns whether the page contains shadow DOM elements.
+   * This value is cached after the initial check.
+   */
+  get pageContainsShadowDom(): boolean {
+    return this._pageContainsShadowDom;
   }
 
   /**
@@ -79,8 +87,8 @@ export class DomQueryService implements DomQueryServiceInterface {
    * Checks if the page contains any shadow DOM elements.
    */
   checkPageContainsShadowDom = (): boolean => {
-    this.pageContainsShadowDom = this.queryShadowRoots(globalThis.document.body, true).length > 0;
-    return this.pageContainsShadowDom;
+    this._pageContainsShadowDom = this.queryShadowRoots(globalThis.document.body, true).length > 0;
+    return this._pageContainsShadowDom;
   };
 
   /**
@@ -109,7 +117,7 @@ export class DomQueryService implements DomQueryServiceInterface {
   ): T[] {
     let elements = this.queryElements<T>(root, queryString);
 
-    const shadowRoots = this.pageContainsShadowDom ? this.recursivelyQueryShadowRoots(root) : [];
+    const shadowRoots = this._pageContainsShadowDom ? this.recursivelyQueryShadowRoots(root) : [];
     for (let index = 0; index < shadowRoots.length; index++) {
       const shadowRoot = shadowRoots[index];
       elements = elements.concat(this.queryElements<T>(shadowRoot, queryString));

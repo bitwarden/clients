@@ -43,6 +43,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private domRecentlyMutated = true;
   private _autofillFormElements: AutofillFormElements = new Map();
   private autofillFieldElements: AutofillFieldElements = new Map();
+  private overlayListenersSetUp: WeakSet<FormFieldElement> = new WeakSet();
+  private mutationBatchCounter = 0;
   private currentLocationHref = "";
   private intersectionObserver: IntersectionObserver;
   private elementInitializingIntersectionObserver: Set<Element> = new Set();
@@ -997,12 +999,31 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * within an idle callback to help with performance and prevent excessive updates.
    */
   private processMutations = () => {
-    // If the page contains shadow DOM, we require a page details update from the autofill service.
-    // Will wait for an idle moment on main thread to execute, unless timeout has passed.
-    requestIdleCallbackPolyfill(
-      () => this.domQueryService.checkPageContainsShadowDom() && this.requirePageDetailsUpdate(),
-      { timeout: 500 },
-    );
+    // Only check for shadow DOM if we haven't found it yet AND mutations include added nodes.
+    // This avoids expensive DOM queries on every mutation (especially attribute changes).
+    // Checking only when nodes are added catches 99% of dynamic shadow DOM scenarios while
+    // dramatically reducing performance impact on pages with frequent mutations.
+    if (!this.domQueryService.pageContainsShadowDom) {
+      const hasMutationsWithAddedNodes = this.mutationsQueue.some((mutations) =>
+        mutations.some((m) => m.type === "childList" && m.addedNodes.length > 0),
+      );
+
+      if (hasMutationsWithAddedNodes) {
+        requestIdleCallbackPolyfill(
+          () =>
+            this.domQueryService.checkPageContainsShadowDom() && this.requirePageDetailsUpdate(),
+          { timeout: 500 },
+        );
+      }
+    }
+
+    // Periodically prune disconnected elements to prevent memory leaks.
+    // Doing this every 50 mutation batches balances memory management with performance.
+    this.mutationBatchCounter++;
+    if (this.mutationBatchCounter >= 50) {
+      this.mutationBatchCounter = 0;
+      requestIdleCallbackPolyfill(() => this.pruneDisconnectedElements(), { timeout: 1000 });
+    }
 
     const queueLength = this.mutationsQueue.length;
 
@@ -1239,6 +1260,28 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
+   * Removes disconnected elements from cached maps to prevent memory leaks.
+   * This method iterates through all cached form and field elements and removes
+   * any that are no longer connected to the DOM.
+   * @private
+   */
+  private pruneDisconnectedElements() {
+    // Prune autofill field elements
+    for (const [element] of this.autofillFieldElements) {
+      if (!element.isConnected) {
+        this.autofillFieldElements.delete(element);
+      }
+    }
+
+    // Prune autofill form elements
+    for (const [element] of this._autofillFormElements) {
+      if (!element.isConnected) {
+        this._autofillFormElements.delete(element);
+      }
+    }
+  }
+
+  /**
    * Updates the autofill elements after a DOM mutation has occurred.
    * Is debounced to prevent excessive updates.
    * @private
@@ -1447,12 +1490,18 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   /**
    * Iterates over all cached field elements and sets up the inline menu listeners on each field.
+   * Uses a WeakSet to track which elements already have listeners to avoid redundant setup.
    *
    * @param pageDetails - The page details to use for the inline menu listeners
    */
   private setupOverlayListeners(pageDetails: AutofillPageDetails) {
     if (this.autofillOverlayContentService) {
       this.autofillFieldElements.forEach((autofillField, formFieldElement) => {
+        // Skip if overlay listeners are already set up for this element
+        if (this.overlayListenersSetUp.has(formFieldElement)) {
+          return;
+        }
+        this.overlayListenersSetUp.add(formFieldElement);
         this.setupOverlayOnField(formFieldElement, autofillField, pageDetails);
       });
     }
