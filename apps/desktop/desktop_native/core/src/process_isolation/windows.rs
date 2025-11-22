@@ -1,4 +1,5 @@
 use anyhow::{bail, Result};
+use secmem_proc::Config;
 use tracing::info;
 
 pub fn disable_coredumps() -> Result<()> {
@@ -13,9 +14,11 @@ pub fn isolate_process() -> Result<()> {
     let pid: u32 = std::process::id();
     info!(pid, "Isolating main process via DACL.");
 
-    secmem_proc::harden_process().map_err(|e| {
+    let mut conf = Config::DEFAULT;
+    conf.set_anti_tracing(false);
+    conf.harden_process().map_err(|e| {
         anyhow::anyhow!(
-            "failed to isolate process, memory may be accessible by other processes {}",
+            "failed to disable memory dumping, memory may be accessible by other processes {}",
             e
         )
     })
