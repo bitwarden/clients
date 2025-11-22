@@ -349,6 +349,13 @@ export class SsoLoginStrategy extends LoginStrategy {
     tokenResponse: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
+    if (tokenResponse.accountKeysResponseModel) {
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        tokenResponse.accountKeysResponseModel.toWrappedAccountCryptographicState(),
+        userId,
+      );
+    }
+
     if (tokenResponse.hasMasterKeyEncryptedUserKey()) {
       // User has masterKeyEncryptedUserKey, so set the userKeyEncryptedPrivateKey
       // Note: new JIT provisioned SSO users will not yet have a user asymmetric key pair

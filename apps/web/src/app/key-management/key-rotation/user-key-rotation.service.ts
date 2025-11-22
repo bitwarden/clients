@@ -10,6 +10,7 @@ import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-st
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 import {
+  SignedPublicKey,
   SignedSecurityState,
   UnsignedPublicKey,
   WrappedPrivateKey,
@@ -308,9 +309,11 @@ export class UserKeyRotationService {
       userId: asUuid(userId),
       kdfParams: kdfConfig.toSdkConfig(),
       email: email,
-      privateKey: cryptographicStateParameters.publicKeyEncryptionKeyPair.wrappedPrivateKey,
-      signingKey: undefined,
-      securityState: undefined,
+      accountCryptographicState: {
+        V1: {
+          private_key: cryptographicStateParameters.publicKeyEncryptionKeyPair.wrappedPrivateKey,
+        },
+      },
       method: {
         decryptedKey: { decrypted_user_key: cryptographicStateParameters.userKey.toBase64() },
       },
@@ -334,9 +337,15 @@ export class UserKeyRotationService {
       userId: asUuid(userId),
       kdfParams: kdfConfig.toSdkConfig(),
       email: email,
-      privateKey: cryptographicStateParameters.publicKeyEncryptionKeyPair.wrappedPrivateKey,
-      signingKey: cryptographicStateParameters.signingKey,
-      securityState: cryptographicStateParameters.securityState,
+      accountCryptographicState: {
+        V2: {
+          private_key: cryptographicStateParameters.publicKeyEncryptionKeyPair.wrappedPrivateKey,
+          signing_key: cryptographicStateParameters.signingKey,
+          security_state: cryptographicStateParameters.securityState,
+          signed_public_key:
+            cryptographicStateParameters.publicKeyEncryptionKeyPair.signedPublicKey,
+        },
+      },
       method: {
         decryptedKey: { decrypted_user_key: cryptographicStateParameters.userKey.toBase64() },
       },
@@ -632,6 +641,10 @@ export class UserKeyRotationService {
         this.securityStateService.accountSecurityState$(user.id),
         "User security state",
       );
+      const signedPublicKey = await this.firstValueFromOrThrow(
+        this.keyService.userSignedPublicKey$(user.id),
+        "User signed public key",
+      );
 
       return {
         masterKeyKdfConfig,
@@ -642,6 +655,7 @@ export class UserKeyRotationService {
           publicKeyEncryptionKeyPair: {
             wrappedPrivateKey: currentUserKeyWrappedPrivateKey,
             publicKey: publicKey,
+            signedPublicKey: signedPublicKey,
           },
           signingKey: signingKey!,
           securityState: securityState!,
@@ -679,6 +693,7 @@ export type V2CryptographicStateParameters = {
   publicKeyEncryptionKeyPair: {
     wrappedPrivateKey: WrappedPrivateKey;
     publicKey: UnsignedPublicKey;
+    signedPublicKey: SignedPublicKey;
   };
   signingKey: WrappedSigningKey;
   securityState: SignedSecurityState;

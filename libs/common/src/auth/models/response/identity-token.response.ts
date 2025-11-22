@@ -1,3 +1,4 @@
+import { PrivateKeysResponseModel } from "@bitwarden/common/key-management/keys/response/private-keys.response";
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -20,6 +21,7 @@ export class IdentityTokenResponse extends BaseResponse {
   // Decryption Information
   resetMasterPassword: boolean;
   privateKey: string; // userKeyEncryptedPrivateKey
+  accountKeysResponseModel: PrivateKeysResponseModel | null = null;
   key?: EncString; // masterKeyEncryptedUserKey
   twoFactorToken: string;
   kdfConfig: KdfConfig;
@@ -55,6 +57,11 @@ export class IdentityTokenResponse extends BaseResponse {
 
     this.resetMasterPassword = this.getResponseProperty("ResetMasterPassword");
     this.privateKey = this.getResponseProperty("PrivateKey");
+    if (this.getResponseProperty("AccountKeys") != null) {
+      this.accountKeysResponseModel = new PrivateKeysResponseModel(
+        this.getResponseProperty("AccountKeys"),
+      );
+    }
     const key = this.getResponseProperty("Key");
     if (key) {
       this.key = new EncString(key);
