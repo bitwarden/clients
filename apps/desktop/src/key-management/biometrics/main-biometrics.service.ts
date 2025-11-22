@@ -8,6 +8,7 @@ import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-management";
 
 import { WindowMain } from "../../main/window.main";
+import { isFlatpak } from "../../utils";
 
 import { DesktopBiometricsService } from "./desktop.biometrics.service";
 import { LinuxBiometricsSystem, WindowsBiometricsSystem } from "./native-v2";
@@ -145,7 +146,7 @@ export class MainBiometricsService extends DesktopBiometricsService {
   }
 
   async canEnableBiometricUnlock(): Promise<boolean> {
-    return true;
+    return !isFlatpak();
   }
 
   async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
