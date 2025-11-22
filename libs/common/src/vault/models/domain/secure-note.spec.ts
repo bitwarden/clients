@@ -1,3 +1,4 @@
+import { mockContainerService } from "../../../../spec";
 import { SecureNoteType } from "../../enums";
 import { SecureNoteData } from "../data/secure-note.data";
 
@@ -10,6 +11,8 @@ describe("SecureNote", () => {
     data = {
       type: SecureNoteType.Generic,
     };
+
+    mockContainerService();
   });
 
   it("Convert from empty", () => {
