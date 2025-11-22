@@ -2,17 +2,15 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, filter } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 import { PasswordProtectedKeyEnvelope } from "@bitwarden/sdk-internal";
 
 import { MockSdkService } from "../..//platform/spec/mock-sdk.service";
-import { FakeAccountService, mockAccountServiceWith, mockEnc } from "../../../spec";
 import { LogService } from "../../platform/abstractions/log.service";
 import { Utils } from "../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../types/guid";
-import { PinKey, UserKey } from "../../types/key";
-import { KeyGenerationService } from "../crypto";
+import { UserKey } from "../../types/key";
 import { EncryptService } from "../crypto/abstractions/encrypt.service";
 import { EncryptedString, EncString } from "../crypto/models/enc-string";
 
@@ -22,16 +20,10 @@ import { PinService } from "./pin.service.implementation";
 describe("PinService", () => {
   let sut: PinService;
 
-  let accountService: FakeAccountService;
-
   const encryptService = mock<EncryptService>();
-  const kdfConfigService = mock<KdfConfigService>();
-  const keyGenerationService = mock<KeyGenerationService>();
   const logService = mock<LogService>();
   const mockUserId = Utils.newGuid() as UserId;
   const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
-  const mockPinKey = new SymmetricCryptoKey(randomBytes(32)) as PinKey;
-  const mockUserEmail = "user@example.com";
   const mockPin = "1234";
   const mockUserKeyEncryptedPin = new EncString("userKeyEncryptedPin");
   const mockEphemeralEnvelope = "mock-ephemeral-envelope" as PasswordProtectedKeyEnvelope;
@@ -42,7 +34,6 @@ describe("PinService", () => {
   const behaviorSubject = new BehaviorSubject<{ userId: UserId; userKey: UserKey }>(null);
 
   beforeEach(() => {
-    accountService = mockAccountServiceWith(mockUserId, { email: mockUserEmail });
     (keyService as any)["unlockedUserKeys$"] = behaviorSubject
       .asObservable()
       .pipe(filter((x) => x != null));
@@ -50,16 +41,7 @@ describe("PinService", () => {
       .mockDeep()
       .unseal_password_protected_key_envelope.mockReturnValue(new Uint8Array(64));
 
-    sut = new PinService(
-      accountService,
-      encryptService,
-      kdfConfigService,
-      keyGenerationService,
-      logService,
-      keyService,
-      sdkService,
-      pinStateService,
-    );
+    sut = new PinService(encryptService, logService, keyService, sdkService, pinStateService);
   });
 
   it("should instantiate the PinService", () => {
@@ -89,26 +71,6 @@ describe("PinService", () => {
       );
     });
 
-    it("should migrate legacy persistent PIN if needed", async () => {
-      // Arrange
-      pinStateService.getPinLockType.mockResolvedValue("PERSISTENT");
-      pinStateService.getLegacyPinKeyEncryptedUserKeyPersistent.mockResolvedValue(
-        mockEnc("legacy-key"),
-      );
-      const getPinSpy = jest.spyOn(sut, "getPin").mockResolvedValue(mockPin);
-      const setPinSpy = jest.spyOn(sut, "setPin").mockResolvedValue();
-
-      // Act
-      await sut.userUnlocked(mockUserId);
-
-      // Assert
-      expect(getPinSpy).toHaveBeenCalledWith(mockUserId);
-      expect(setPinSpy).toHaveBeenCalledWith(mockPin, "PERSISTENT", mockUserId);
-      expect(logService.info).toHaveBeenCalledWith(
-        "[Pin Service] Migrating legacy PIN key to PinProtectedUserKeyEnvelope",
-      );
-    });
-
     it("should do nothing if no migration or setup is needed", async () => {
       // Arrange
       pinStateService.getPinLockType.mockResolvedValue("DISABLED");
@@ -121,28 +83,6 @@ describe("PinService", () => {
       // Assert
       expect(getPinSpy).not.toHaveBeenCalled();
       expect(setPinSpy).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("makePinKey()", () => {
-    beforeEach(() => {
-      jest.clearAllMocks();
-    });
-
-    it("should make a PinKey", async () => {
-      // Arrange
-      keyGenerationService.deriveKeyFromPassword.mockResolvedValue(mockPinKey);
-
-      // Act
-      await sut.makePinKey(mockPin, mockUserEmail, DEFAULT_KDF_CONFIG);
-
-      // Assert
-      expect(keyGenerationService.deriveKeyFromPassword).toHaveBeenCalledWith(
-        mockPin,
-        mockUserEmail,
-        DEFAULT_KDF_CONFIG,
-      );
-      expect(keyGenerationService.stretchKey).toHaveBeenCalledWith(mockPinKey);
     });
   });
 
@@ -383,7 +323,6 @@ describe("PinService", () => {
       jest.clearAllMocks();
       pinStateService.userKeyEncryptedPin$.mockReset();
       pinStateService.getPinProtectedUserKeyEnvelope.mockReset();
-      pinStateService.getLegacyPinKeyEncryptedUserKeyPersistent.mockReset();
     });
 
     it("should throw an error if userId is null", async () => {
@@ -423,32 +362,5 @@ describe("PinService", () => {
       // Assert
       expect(result).toEqual(mockUserKey);
     });
-
-    it("should return userkey with legacy pin PERSISTENT", async () => {
-      keyGenerationService.deriveKeyFromPassword.mockResolvedValue(mockPinKey);
-      keyGenerationService.stretchKey.mockResolvedValue(mockPinKey);
-      kdfConfigService.getKdfConfig.mockResolvedValue(DEFAULT_KDF_CONFIG);
-      encryptService.unwrapSymmetricKey.mockResolvedValue(mockUserKey);
-
-      // Arrange
-      const mockPin = "1234";
-      pinStateService.userKeyEncryptedPin$.mockReturnValueOnce(
-        new BehaviorSubject(mockUserKeyEncryptedPin),
-      );
-      pinStateService.getLegacyPinKeyEncryptedUserKeyPersistent.mockResolvedValueOnce(
-        mockUserKeyEncryptedPin,
-      );
-
-      // Act
-      const result = await sut.decryptUserKeyWithPin(mockPin, mockUserId);
-
-      // Assert
-      expect(result).toEqual(mockUserKey);
-    });
   });
 });
-
-// Test helpers
-function randomBytes(length: number): Uint8Array {
-  return new Uint8Array(Array.from({ length }, (_, k) => k % 255));
-}

@@ -1,8 +1,5 @@
-// eslint-disable-next-line no-restricted-imports
-import { KdfConfig } from "@bitwarden/key-management";
-
 import { UserId } from "../../types/guid";
-import { PinKey, UserKey } from "../../types/key";
+import { UserKey } from "../../types/key";
 
 import { PinLockType } from "./pin-lock-type";
 
@@ -69,10 +66,4 @@ export abstract class PinServiceAbstraction {
    * @deprecated This is not deprecated, but only meant to be called by KeyService. DO NOT USE IT.
    */
   abstract userUnlocked(userId: UserId): Promise<void>;
-
-  /**
-   * Makes a PinKey from the provided PIN.
-   * @deprecated - Note: This is currently re-used by vault exports, which is still permitted but should be refactored out to use a different construct.
-   */
-  abstract makePinKey(pin: string, salt: string, kdfConfig: KdfConfig): Promise<PinKey>;
 }

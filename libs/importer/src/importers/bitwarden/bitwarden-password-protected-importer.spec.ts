@@ -2,8 +2,8 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { emptyGuid, OrganizationId } from "@bitwarden/common/types/guid";
@@ -24,7 +24,7 @@ describe("BitwardenPasswordProtectedImporter", () => {
   let encryptService: MockProxy<EncryptService>;
   let i18nService: MockProxy<I18nService>;
   let cipherService: MockProxy<CipherService>;
-  let pinService: MockProxy<PinServiceAbstraction>;
+  let keyGenerationService: MockProxy<KeyGenerationService>;
   let accountService: MockProxy<AccountService>;
   const password = Utils.newGuid();
   const promptForPassword_callback = async () => {
@@ -36,7 +36,7 @@ describe("BitwardenPasswordProtectedImporter", () => {
     encryptService = mock<EncryptService>();
     i18nService = mock<I18nService>();
     cipherService = mock<CipherService>();
-    pinService = mock<PinServiceAbstraction>();
+    keyGenerationService = mock<KeyGenerationService>();
     accountService = mock<AccountService>();
 
     accountService.activeAccount$ = of({
@@ -71,7 +71,7 @@ describe("BitwardenPasswordProtectedImporter", () => {
       encryptService,
       i18nService,
       cipherService,
-      pinService,
+      keyGenerationService,
       accountService,
       promptForPassword_callback,
     );
@@ -105,7 +105,7 @@ describe("BitwardenPasswordProtectedImporter", () => {
         encryptService,
         i18nService,
         cipherService,
-        pinService,
+        keyGenerationService,
         accountService,
         promptForPassword_callback,
       );
