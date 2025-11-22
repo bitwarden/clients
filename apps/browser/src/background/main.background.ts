@@ -1473,6 +1473,7 @@ export default class MainBackground {
       this.logService,
       this.phishingDataService,
       messageListener,
+      this.globalStateProvider,
     );
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
