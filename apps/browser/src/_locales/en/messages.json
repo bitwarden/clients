@@ -5681,6 +5681,9 @@
       }
     }
   },
+  "reportAsNonPhishing": {
+    "message": "Report as a non-phishing site"
+  },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"
   },
