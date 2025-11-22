@@ -17,8 +17,12 @@ export const hasScrollableContent$ = (
     observeOn(animationFrameScheduler),
     map((entry: IntersectionObserverEntry | null) => {
       if (!entry) {
+        document.body.prepend(
+          `[without entry: root ${root.scrollHeight} > client ${root.clientHeight}]`,
+        );
         return root.scrollHeight > root.clientHeight;
       }
+      document.body.prepend(`[with entry: ${!entry.isIntersecting}]`);
       return !entry.isIntersecting;
     }),
     distinctUntilChanged(),
