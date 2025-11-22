@@ -45,14 +45,14 @@ describe("PhishingDataService", () => {
       platformUtilsService,
     );
 
-    fetchChecksumSpy = jest.spyOn(service as any, "fetchPhishingDomainsChecksum");
-    fetchDomainsSpy = jest.spyOn(service as any, "fetchPhishingDomains");
+    fetchChecksumSpy = jest.spyOn(service as any, "fetchPhishingLinksChecksum");
+    fetchDomainsSpy = jest.spyOn(service as any, "fetchPhishingLinks");
   });
 
   describe("isPhishingDomains", () => {
-    it("should detect a phishing domain", async () => {
+    it("should detect a phishing link with exact URL match", async () => {
       setMockState({
-        domains: ["phish.com", "badguy.net"],
+        domains: ["http://phish.com", "http://badguy.net"],
         timestamp: Date.now(),
         checksum: "abc123",
         applicationVersion: "1.0.0",
@@ -62,9 +62,33 @@ describe("PhishingDataService", () => {
       expect(result).toBe(true);
     });
 
+    it("should detect a phishing link with path prefix match", async () => {
+      setMockState({
+        domains: ["http://phish.com/login", "http://badguy.net"],
+        timestamp: Date.now(),
+        checksum: "abc123",
+        applicationVersion: "1.0.0",
+      });
+      const url = new URL("http://phish.com/login");
+      const result = await service.isPhishingDomain(url);
+      expect(result).toBe(true);
+    });
+
+    it("should detect a phishing link when visiting a subpath", async () => {
+      setMockState({
+        domains: ["http://phish.com/login", "http://badguy.net"],
+        timestamp: Date.now(),
+        checksum: "abc123",
+        applicationVersion: "1.0.0",
+      });
+      const url = new URL("http://phish.com/login/oauth");
+      const result = await service.isPhishingDomain(url);
+      expect(result).toBe(true);
+    });
+
     it("should not detect a safe domain", async () => {
       setMockState({
-        domains: ["phish.com", "badguy.net"],
+        domains: ["http://phish.com", "http://badguy.net"],
         timestamp: Date.now(),
         checksum: "abc123",
         applicationVersion: "1.0.0",
@@ -74,14 +98,26 @@ describe("PhishingDataService", () => {
       expect(result).toBe(false);
     });
 
-    it("should match against root domain", async () => {
+    it("should handle trailing slashes correctly", async () => {
       setMockState({
-        domains: ["phish.com", "badguy.net"],
+        domains: ["http://phish.com/"],
         timestamp: Date.now(),
         checksum: "abc123",
         applicationVersion: "1.0.0",
       });
-      const url = new URL("http://phish.com/about");
+      const url = new URL("http://phish.com");
+      const result = await service.isPhishingDomain(url);
+      expect(result).toBe(true);
+    });
+
+    it("should match case-insensitively", async () => {
+      setMockState({
+        domains: ["http://phish.com"],
+        timestamp: Date.now(),
+        checksum: "abc123",
+        applicationVersion: "1.0.0",
+      });
+      const url = new URL("HTTP://PHISH.COM");
       const result = await service.isPhishingDomain(url);
       expect(result).toBe(true);
     });
