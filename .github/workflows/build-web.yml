@@ -307,7 +307,7 @@ jobs:
           zip -r web-$_VERSION-${{ matrix.artifact_name }}.zip build
 
       - name: Upload ${{ matrix.artifact_name }} artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip
           path: apps/web/web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip
@@ -334,7 +334,7 @@ jobs:
       - name: Scan Docker image
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         id: container-scan
-        uses: anchore/scan-action@1638637db639e0ade3258b51db49a9a137574c3e # v6.5.1
+        uses: anchore/scan-action@568b89d27fc18c60e56937bff480c91c772cd993 # v7.1.0
         with:
           image: ${{ steps.image-name.outputs.name }}
           fail-build: false
