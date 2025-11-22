@@ -1011,6 +1011,150 @@ describe("ApiService", () => {
       expect(nativeFetch).toHaveBeenCalledTimes(3);
       expect(logoutCallback).toHaveBeenCalledWith("sessionExpired");
     });
+
+    it("handles concurrent requests that both receive 401 and share token refresh", async () => {
+      // This test verifies the race condition scenario:
+      // 1. Request A starts with valid token
+      // 2. Request B starts with valid token
+      // 3. Request A gets 401, triggers refresh
+      // 4. Request B gets 401 while A is refreshing
+      // 5. Request B should wait for A's refresh to complete (via refreshTokenPromise cache)
+      // 6. Both requests retry with the new token
+
+      environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+        of({
+          getApiUrl: () => "https://example.com",
+          getIdentityUrl: () => "https://identity.example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+
+      httpOperations.createRequest.mockImplementation((url, request) => {
+        return {
+          url: url,
+          cache: request.cache,
+          credentials: request.credentials,
+          method: request.method,
+          mode: request.mode,
+          signal: request.signal,
+          headers: new Headers(request.headers),
+        } satisfies Partial<Request> as unknown as Request;
+      });
+
+      tokenService.getAccessToken.calledWith(testActiveUser).mockResolvedValue("expired_token");
+
+      // First two calls: token doesn't need refresh yet
+      // Subsequent calls: token needs refresh
+      tokenService.tokenNeedsRefresh
+        .calledWith(testActiveUser)
+        .mockResolvedValueOnce(false) // Request A initial
+        .mockResolvedValueOnce(false) // Request B initial
+        .mockResolvedValue(true); // Both retries after 401
+
+      tokenService.getRefreshToken.calledWith(testActiveUser).mockResolvedValue("refresh_token");
+
+      tokenService.decodeAccessToken
+        .calledWith(testActiveUser)
+        .mockResolvedValue({ client_id: "web" });
+
+      tokenService.decodeAccessToken
+        .calledWith("new_access_token")
+        .mockResolvedValue({ sub: testActiveUser });
+
+      vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$
+        .calledWith(testActiveUser)
+        .mockReturnValue(of(VaultTimeoutAction.Lock));
+
+      vaultTimeoutSettingsService.getVaultTimeoutByUserId$
+        .calledWith(testActiveUser)
+        .mockReturnValue(of(VaultTimeoutStringType.Never));
+
+      tokenService.setTokens
+        .calledWith(
+          "new_access_token",
+          VaultTimeoutAction.Lock,
+          VaultTimeoutStringType.Never,
+          "new_refresh_token",
+        )
+        .mockResolvedValue({ accessToken: "new_access_token" });
+
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+      let apiRequestCount = 0;
+      let refreshRequestCount = 0;
+
+      nativeFetch.mockImplementation((request) => {
+        if (request.url.includes("identity")) {
+          refreshRequestCount++;
+          // Simulate slow token refresh to expose race condition
+          return new Promise((resolve) =>
+            setTimeout(
+              () =>
+                resolve({
+                  ok: true,
+                  status: 200,
+                  json: () =>
+                    Promise.resolve({
+                      access_token: "new_access_token",
+                      token_type: "Bearer",
+                      refresh_token: "new_refresh_token",
+                    }),
+                } satisfies Partial<Response> as Response),
+              100,
+            ),
+          );
+        }
+
+        apiRequestCount++;
+        const currentCall = apiRequestCount;
+
+        // First two calls (Request A and B initial attempts): both return 401
+        if (currentCall === 1 || currentCall === 2) {
+          return Promise.resolve({
+            ok: false,
+            status: 401,
+            json: () => Promise.resolve({ message: "Unauthorized" }),
+            headers: new Headers({
+              "content-type": "application/json",
+            }),
+          } satisfies Partial<Response> as Response);
+        }
+
+        // Third and fourth calls (retries after refresh): both succeed
+        if (currentCall === 3 || currentCall === 4) {
+          expect(request.headers.get("Authorization")).toBe("Bearer new_access_token");
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            json: () => Promise.resolve({ data: `success-${currentCall}` }),
+            headers: new Headers({
+              "content-type": "application/json",
+            }),
+          } satisfies Partial<Response> as Response);
+        }
+
+        throw new Error(`Unexpected API call #${currentCall}: ${request.method} ${request.url}`);
+      });
+
+      sut.nativeFetch = nativeFetch;
+
+      // Make two concurrent requests
+      const [responseA, responseB] = await Promise.all([
+        sut.send("GET", "/endpoint-a", null, testActiveUser, true, null, null),
+        sut.send("GET", "/endpoint-b", null, testActiveUser, true, null, null),
+      ]);
+
+      // Both requests should succeed
+      expect(responseA).toMatchObject({ data: expect.stringContaining("success") });
+      expect(responseB).toMatchObject({ data: expect.stringContaining("success") });
+
+      // Verify only ONE token refresh was made (they shared the refresh)
+      expect(refreshRequestCount).toBe(1);
+
+      // Verify the total number of API requests: 2 initial + 2 retries = 4
+      expect(apiRequestCount).toBe(4);
+
+      // Verify setTokens was only called once
+      expect(tokenService.setTokens).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("When 403 Forbidden response is received from API request", () => {
