@@ -1,6 +1,10 @@
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum SendType {
-  Text = 0,
-  File = 1,
-}
+/** A type of Send. */
+export const SendType = Object.freeze({
+  /** Send contains plain text. */
+  Text: 0,
+  /** Send contains a file. */
+  File: 1,
+} as const);
+
+/** A type of Send. */
+export type SendType = (typeof SendType)[keyof typeof SendType];
