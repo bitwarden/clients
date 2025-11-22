@@ -44,7 +44,7 @@
     "@angular/compiler-cli": "19.2.14",
     "@babel/core": "7.24.9",
     "@babel/preset-env": "7.24.8",
-    "@compodoc/compodoc": "1.1.26",
+    "@compodoc/compodoc": "1.1.32",
     "@electron/notarize": "3.0.1",
     "@electron/rebuild": "4.0.1",
     "@eslint/compat": "1.2.9",
