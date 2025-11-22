@@ -74,14 +74,13 @@ describe("Folder", () => {
       const revisionDate = new Date("2022-08-04T01:06:40.441Z");
       const actual = Folder.fromJSON({
         revisionDate: revisionDate.toISOString(),
-        name: "name_fromJSON",
+        name: "name",
         id: "id",
       });
 
       expect(actual?.id).toBe("id");
       expect(actual?.revisionDate).toEqual(revisionDate);
-      expect(actual?.name).toBeInstanceOf(EncString);
-      expect((actual?.name as EncString).encryptedString).toBe("name");
+      expect(actual?.name).toBe("name_fromJSON");
     });
   });
 
