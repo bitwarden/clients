@@ -1009,7 +1009,7 @@ describe("ApiService", () => {
       ).rejects.toMatchObject({ message: "Still Unauthorized" });
 
       expect(nativeFetch).toHaveBeenCalledTimes(3);
-      expect(logoutCallback).toHaveBeenCalledWith("sessionExpired");
+      expect(logoutCallback).toHaveBeenCalledWith("invalidAccessToken");
     });
 
     it("handles concurrent requests that both receive 401 and share token refresh", async () => {
@@ -1199,7 +1199,7 @@ describe("ApiService", () => {
         async () => await sut.send("GET", "/something", null, true, true, null, null),
       ).rejects.toMatchObject({ message: "Forbidden" });
 
-      expect(logoutCallback).toHaveBeenCalledWith("sessionExpired");
+      expect(logoutCallback).toHaveBeenCalledWith("invalidAccessToken");
     });
 
     it("does not attempt to log out unauthenticated user", async () => {
