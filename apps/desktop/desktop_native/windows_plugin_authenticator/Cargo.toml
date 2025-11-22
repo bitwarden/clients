@@ -13,6 +13,7 @@ windows = { workspace = true, features = [
     "Win32_Security",
     "Win32_System_Com",
     "Win32_System_LibraryLoader",
+    "Win32_UI_HiDpi",
 ] }
 windows-core = { workspace = true }
 serde_json = { workspace = true }

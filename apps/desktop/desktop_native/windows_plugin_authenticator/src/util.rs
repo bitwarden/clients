@@ -3,12 +3,15 @@ use std::io::Write;
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use windows::Win32::UI::HiDpi::GetDpiForWindow;
 use windows::{
     core::PCSTR,
     Win32::{Foundation::*, System::LibraryLoader::*, UI::WindowsAndMessaging::GetWindowRect},
 };
 
 use crate::com_buffer::ComBuffer;
+
+const BASE_DPI: u32 = 96;
 
 pub trait HwndExt {
     fn center_position(&self) -> windows::core::Result<(i32, i32)>;
@@ -19,11 +22,26 @@ impl HwndExt for HWND {
         let mut window: RECT = RECT::default();
         unsafe {
             GetWindowRect(*self, &mut window)?;
+
+            // Calculate center in physical pixels
+            let center = (
+                (window.right + window.left) / 2,
+                (window.bottom + window.top) / 2,
+            );
+
+            // Convert from physical to logical pixels
+            let dpi = GetDpiForWindow(*self);
+            if dpi == BASE_DPI {
+                return Ok(center);
+            }
+            let scaling_factor: f64 = dpi as f64 / 96.0;
+            let scaled_center = (
+                center.0 as f64 / scaling_factor,
+                center.1 as f64 / scaling_factor,
+            );
+
+            Ok((scaled_center.0 as i32, scaled_center.1 as i32))
         }
-        // TODO: We may need to adjust for scaling.
-        let center_x = (window.right + window.left) / 2;
-        let center_y = (window.bottom + window.top) / 2;
-        Ok((center_x, center_y))
     }
 }
 
