@@ -1755,7 +1755,7 @@ export class ApiService implements ApiServiceAbstraction {
       (response.status === HttpStatusCode.Unauthorized ||
         response.status === HttpStatusCode.Forbidden)
     ) {
-      await this.logoutCallback("sessionExpired");
+      await this.logoutCallback("invalidAccessToken");
     }
 
     const responseJson = await this.getJsonResponse(response);
