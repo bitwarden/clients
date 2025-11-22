@@ -997,7 +997,7 @@ jobs:
           python-version: '3.14'
 
       - name: Set up Node-gyp
-        run: python3 -m pip install setuptools
+        run: python -m pip install setuptools
 
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
@@ -1013,6 +1013,7 @@ jobs:
           rustup show
           echo "GitHub ref: $GITHUB_REF"
           echo "GitHub event: $GITHUB_EVENT"
+          xcodebuild -showsdks
 
       - name: Cache Build
         id: build-cache
@@ -1234,7 +1235,7 @@ jobs:
           python-version: '3.14'
 
       - name: Set up Node-gyp
-        run: python3 -m pip install setuptools
+        run: python -m pip install setuptools
 
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
@@ -1250,6 +1251,7 @@ jobs:
           rustup show
           echo "GitHub ref: $GITHUB_REF"
           echo "GitHub event: $GITHUB_EVENT"
+          xcodebuild -showsdks
 
       - name: Get Build Cache
         id: build-cache
@@ -1506,7 +1508,7 @@ jobs:
           python-version: '3.14'
 
       - name: Set up Node-gyp
-        run: python3 -m pip install setuptools
+        run: python -m pip install setuptools
 
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
@@ -1522,6 +1524,7 @@ jobs:
           rustup show
           echo "GitHub ref: $GITHUB_REF"
           echo "GitHub event: $GITHUB_EVENT"
+          xcodebuild -showsdks
 
       - name: Get Build Cache
         id: build-cache

@@ -1,6 +1,8 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import {
   Subject,
+  combineLatest,
+  debounceTime,
   distinctUntilChanged,
   filter,
   firstValueFrom,
@@ -8,10 +10,11 @@ import {
   mergeMap,
   switchMap,
   takeUntil,
-  EMPTY,
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -48,6 +51,7 @@ import type { NativeWindowObject } from "./desktop-fido2-user-interface.service"
 @Injectable()
 export class DesktopAutofillService implements OnDestroy {
   private destroy$ = new Subject<void>();
+  private registrationRequest: autofill.PasskeyRegistrationRequest;
 
   constructor(
     private logService: LogService,
@@ -55,6 +59,7 @@ export class DesktopAutofillService implements OnDestroy {
     private configService: ConfigService,
     private fido2AuthenticatorService: Fido2AuthenticatorServiceAbstraction<NativeWindowObject>,
     private accountService: AccountService,
+    private authService: AuthService,
     private platformUtilsService: PlatformUtilsService,
   ) {}
 
@@ -68,26 +73,54 @@ export class DesktopAutofillService implements OnDestroy {
       .getFeatureFlag$(FeatureFlag.MacOsNativeCredentialSync)
       .pipe(
         distinctUntilChanged(),
-        switchMap((enabled) => {
-          if (!enabled) {
-            return EMPTY;
-          }
-
-          return this.accountService.activeAccount$.pipe(
-            map((account) => account?.id),
-            filter((userId): userId is UserId => userId != null),
-            switchMap((userId) => this.cipherService.cipherViews$(userId)),
+        filter((enabled) => enabled === true), // Only proceed if feature is enabled
+        switchMap(() => {
+          return combineLatest([
+            this.accountService.activeAccount$.pipe(
+              map((account) => account?.id),
+              filter((userId): userId is UserId => userId != null),
+            ),
+            this.authService.activeAccountStatus$,
+          ]).pipe(
+            // Only proceed when the vault is unlocked
+            filter(([, status]) => status === AuthenticationStatus.Unlocked),
+            // Then get cipher views
+            switchMap(([userId]) => this.cipherService.cipherViews$(userId)),
           );
         }),
-        // TODO: This will unset all the autofill credentials on the OS
-        // when the account locks. We should instead explicilty clear the credentials
-        // when the user logs out. Maybe by subscribing to the encrypted ciphers observable instead.
+        debounceTime(100), // just a precaution to not spam the sync if there are multiple changes (we typically observe a null change)
+        // No filter for empty arrays here - we want to sync even if there are 0 items
+        filter((cipherViewMap) => cipherViewMap !== null),
+
         mergeMap((cipherViewMap) => this.sync(Object.values(cipherViewMap ?? []))),
         takeUntil(this.destroy$),
       )
       .subscribe();
 
+    // Listen for sign out to clear credentials
+    this.authService.activeAccountStatus$
+      .pipe(
+        filter((status) => status === AuthenticationStatus.LoggedOut),
+        mergeMap(() => this.sync([])), // sync an empty array
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
     this.listenIpc();
+  }
+
+  async adHocSync(): Promise<any> {
+    this.logService.debug("Performing AdHoc sync");
+    const account = await firstValueFrom(this.accountService.activeAccount$);
+    const userId = account?.id;
+
+    if (!userId) {
+      throw new Error("No active user found");
+    }
+
+    const cipherViewMap = await firstValueFrom(this.cipherService.cipherViews$(userId));
+    this.logService.info("Performing AdHoc sync", Object.values(cipherViewMap ?? []));
+    await this.sync(Object.values(cipherViewMap ?? []));
   }
 
   /** Give metadata about all available credentials in the users vault */
@@ -130,6 +163,11 @@ export class DesktopAutofillService implements OnDestroy {
       }));
     }
 
+    this.logService.info("Syncing autofill credentials", {
+      fido2Credentials,
+      passwordCredentials,
+    });
+
     const syncResult = await ipc.autofill.runCommand<NativeAutofillSyncCommand>({
       namespace: "autofill",
       command: "sync",
@@ -155,107 +193,152 @@ export class DesktopAutofillService implements OnDestroy {
     });
   }
 
+  get lastRegistrationRequest() {
+    return this.registrationRequest;
+  }
+
   listenIpc() {
-    ipc.autofill.listenPasskeyRegistration((clientId, sequenceNumber, request, callback) => {
-      this.logService.warning("listenPasskeyRegistration", clientId, sequenceNumber, request);
-      this.logService.warning(
-        "listenPasskeyRegistration2",
-        this.convertRegistrationRequest(request),
-      );
+    ipc.autofill.listenPasskeyRegistration(async (clientId, sequenceNumber, request, callback) => {
+      if (!(await this.configService.getFeatureFlag(FeatureFlag.MacOsNativeCredentialSync))) {
+        this.logService.debug(
+          "listenPasskeyRegistration: MacOsNativeCredentialSync feature flag is disabled",
+        );
+        callback(new Error("MacOsNativeCredentialSync feature flag is disabled"), null);
+        return;
+      }
+
+      this.registrationRequest = request;
+
+      this.logService.debug("listenPasskeyRegistration", clientId, sequenceNumber, request);
+      this.logService.debug("listenPasskeyRegistration2", this.convertRegistrationRequest(request));
 
       const controller = new AbortController();
-      void this.fido2AuthenticatorService
-        .makeCredential(
+
+      try {
+        const response = await this.fido2AuthenticatorService.makeCredential(
           this.convertRegistrationRequest(request),
-          { windowXy: request.windowXy },
+          { windowXy: normalizePosition(request.windowXy) },
           controller,
-        )
-        .then((response) => {
-          callback(null, this.convertRegistrationResponse(request, response));
-        })
-        .catch((error) => {
-          this.logService.error("listenPasskeyRegistration error", error);
-          callback(error, null);
-        });
+        );
+
+        callback(null, this.convertRegistrationResponse(request, response));
+      } catch (error) {
+        this.logService.error("listenPasskeyRegistration error", error);
+        callback(error, null);
+      }
     });
 
     ipc.autofill.listenPasskeyAssertionWithoutUserInterface(
       async (clientId, sequenceNumber, request, callback) => {
-        this.logService.warning(
+        if (!(await this.configService.getFeatureFlag(FeatureFlag.MacOsNativeCredentialSync))) {
+          this.logService.debug(
+            "listenPasskeyAssertionWithoutUserInterface: MacOsNativeCredentialSync feature flag is disabled",
+          );
+          callback(new Error("MacOsNativeCredentialSync feature flag is disabled"), null);
+          return;
+        }
+
+        this.logService.debug(
           "listenPasskeyAssertion without user interface",
           clientId,
           sequenceNumber,
           request,
         );
 
-        // For some reason the credentialId is passed as an empty array in the request, so we need to
-        // get it from the cipher. For that we use the recordIdentifier, which is the cipherId.
-        if (request.recordIdentifier && request.credentialId.length === 0) {
-          const activeUserId = await firstValueFrom(
-            this.accountService.activeAccount$.pipe(getOptionalUserId),
-          );
-          if (!activeUserId) {
-            this.logService.error("listenPasskeyAssertion error", "Active user not found");
-            callback(new Error("Active user not found"), null);
-            return;
-          }
-
-          const cipher = await this.cipherService.get(request.recordIdentifier, activeUserId);
-          if (!cipher) {
-            this.logService.error("listenPasskeyAssertion error", "Cipher not found");
-            callback(new Error("Cipher not found"), null);
-            return;
-          }
-
-          const decrypted = await this.cipherService.decrypt(cipher, activeUserId);
-
-          const fido2Credential = decrypted.login.fido2Credentials?.[0];
-          if (!fido2Credential) {
-            this.logService.error("listenPasskeyAssertion error", "Fido2Credential not found");
-            callback(new Error("Fido2Credential not found"), null);
-            return;
-          }
-
-          request.credentialId = Array.from(
-            new Uint8Array(parseCredentialId(decrypted.login.fido2Credentials?.[0].credentialId)),
-          );
-        }
-
         const controller = new AbortController();
-        void this.fido2AuthenticatorService
-          .getAssertion(
-            this.convertAssertionRequest(request),
-            { windowXy: request.windowXy },
+
+        try {
+          // For some reason the credentialId is passed as an empty array in the request, so we need to
+          // get it from the cipher. For that we use the recordIdentifier, which is the cipherId.
+          if (request.recordIdentifier && request.credentialId.length === 0) {
+            const activeUserId = await firstValueFrom(
+              this.accountService.activeAccount$.pipe(getOptionalUserId),
+            );
+            if (!activeUserId) {
+              this.logService.error("listenPasskeyAssertion error", "Active user not found");
+              callback(new Error("Active user not found"), null);
+              return;
+            }
+
+            const cipher = await this.cipherService.get(request.recordIdentifier, activeUserId);
+            if (!cipher) {
+              this.logService.error("listenPasskeyAssertion error", "Cipher not found");
+              callback(new Error("Cipher not found"), null);
+              return;
+            }
+
+            const decrypted = await this.cipherService.decrypt(cipher, activeUserId);
+
+            const fido2Credential = decrypted.login.fido2Credentials?.[0];
+            if (!fido2Credential) {
+              this.logService.error("listenPasskeyAssertion error", "Fido2Credential not found");
+              callback(new Error("Fido2Credential not found"), null);
+              return;
+            }
+
+            request.credentialId = Array.from(
+              new Uint8Array(parseCredentialId(decrypted.login.fido2Credentials?.[0].credentialId)),
+            );
+          }
+
+          const response = await this.fido2AuthenticatorService.getAssertion(
+            this.convertAssertionRequest(request, true),
+            { windowXy: normalizePosition(request.windowXy) },
             controller,
-          )
-          .then((response) => {
-            callback(null, this.convertAssertionResponse(request, response));
-          })
-          .catch((error) => {
-            this.logService.error("listenPasskeyAssertion error", error);
-            callback(error, null);
-          });
+          );
+
+          callback(null, this.convertAssertionResponse(request, response));
+        } catch (error) {
+          this.logService.error("listenPasskeyAssertion error", error);
+          callback(error, null);
+          return;
+        }
       },
     );
 
     ipc.autofill.listenPasskeyAssertion(async (clientId, sequenceNumber, request, callback) => {
-      this.logService.warning("listenPasskeyAssertion", clientId, sequenceNumber, request);
+      if (!(await this.configService.getFeatureFlag(FeatureFlag.MacOsNativeCredentialSync))) {
+        this.logService.debug(
+          "listenPasskeyAssertion: MacOsNativeCredentialSync feature flag is disabled",
+        );
+        callback(new Error("MacOsNativeCredentialSync feature flag is disabled"), null);
+        return;
+      }
+
+      this.logService.debug("listenPasskeyAssertion", clientId, sequenceNumber, request);
 
       const controller = new AbortController();
-      void this.fido2AuthenticatorService
-        .getAssertion(
+      try {
+        const response = await this.fido2AuthenticatorService.getAssertion(
           this.convertAssertionRequest(request),
-          { windowXy: request.windowXy },
+          { windowXy: normalizePosition(request.windowXy) },
           controller,
-        )
-        .then((response) => {
-          callback(null, this.convertAssertionResponse(request, response));
-        })
-        .catch((error) => {
-          this.logService.error("listenPasskeyAssertion error", error);
-          callback(error, null);
-        });
+        );
+
+        callback(null, this.convertAssertionResponse(request, response));
+      } catch (error) {
+        this.logService.error("listenPasskeyAssertion error", error);
+        callback(error, null);
+      }
     });
+
+    // Listen for native status messages
+    ipc.autofill.listenNativeStatus(async (clientId, sequenceNumber, status) => {
+      if (!(await this.configService.getFeatureFlag(FeatureFlag.MacOsNativeCredentialSync))) {
+        this.logService.debug(
+          "listenNativeStatus: MacOsNativeCredentialSync feature flag is disabled",
+        );
+        return;
+      }
+
+      this.logService.info("Received native status", status.key, status.value);
+      if (status.key === "request-sync") {
+        // perform ad-hoc sync
+        await this.adHocSync();
+      }
+    });
+
+    ipc.autofill.listenerReady();
   }
 
   private convertRegistrationRequest(
@@ -277,7 +360,10 @@ export class DesktopAutofillService implements OnDestroy {
         alg,
         type: "public-key",
       })),
-      excludeCredentialDescriptorList: [],
+      excludeCredentialDescriptorList: request.excludedCredentials.map((credentialId) => ({
+        id: new Uint8Array(credentialId),
+        type: "public-key" as const,
+      })),
       requireResidentKey: true,
       requireUserVerification:
         request.userVerification === "required" || request.userVerification === "preferred",
@@ -309,18 +395,19 @@ export class DesktopAutofillService implements OnDestroy {
     request:
       | autofill.PasskeyAssertionRequest
       | autofill.PasskeyAssertionWithoutUserInterfaceRequest,
+    assumeUserPresence: boolean = false,
   ): Fido2AuthenticatorGetAssertionParams {
     let allowedCredentials;
     if ("credentialId" in request) {
       allowedCredentials = [
         {
-          id: new Uint8Array(request.credentialId),
+          id: new Uint8Array(request.credentialId).buffer,
           type: "public-key" as const,
         },
       ];
     } else {
       allowedCredentials = request.allowedCredentials.map((credentialId) => ({
-        id: new Uint8Array(credentialId),
+        id: new Uint8Array(credentialId).buffer,
         type: "public-key" as const,
       }));
     }
@@ -333,7 +420,7 @@ export class DesktopAutofillService implements OnDestroy {
       requireUserVerification:
         request.userVerification === "required" || request.userVerification === "preferred",
       fallbackSupported: false,
-      assumeUserPresence: true, // For desktop assertions, it's safe to assume UP has been checked by OS dialogues
+      assumeUserPresence,
     };
   }
 
@@ -357,4 +444,14 @@ export class DesktopAutofillService implements OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+}
+
+function normalizePosition(position: { x: number; y: number }): { x: number; y: number } {
+  // Add 100 pixels to the x-coordinate to offset the native OS dialog positioning.
+  const xPostionOffset = 100;
+
+  return {
+    x: Math.round(position.x + xPostionOffset),
+    y: Math.round(position.y),
+  };
 }

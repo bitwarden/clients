@@ -6,8 +6,6 @@
 	<string>LTZ2PFU5D6.com.bitwarden.desktop</string>
 	<key>com.apple.developer.team-identifier</key>
 	<string>LTZ2PFU5D6</string>
-	<key>com.apple.developer.authentication-services.autofill-credential-provider</key>
-	<true/>
 	<key>com.apple.security.cs.allow-jit</key>
 	<true/>
 </dict>

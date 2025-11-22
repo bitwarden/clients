@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { Router } from "@angular/router";
+import { Router, ActivatedRoute } from "@angular/router";
 import {
   BehaviorSubject,
   filter,
@@ -159,6 +159,7 @@ export class LockComponent implements OnInit, OnDestroy {
     private keyService: KeyService,
     private platformUtilsService: PlatformUtilsService,
     private router: Router,
+    private activatedRoute: ActivatedRoute,
     private dialogService: DialogService,
     private messagingService: MessagingService,
     private biometricStateService: BiometricStateService,
@@ -697,7 +698,13 @@ export class LockComponent implements OnInit, OnDestroy {
     }
 
     // determine success route based on client type
-    if (this.clientType != null) {
+    // The disable-redirect parameter allows callers to prevent automatic navigation after unlock,
+    // useful when the lock component is used in contexts where custom post-unlock behavior is needed
+    // such as passkey modals.
+    if (
+      this.clientType != null &&
+      this.activatedRoute.snapshot.paramMap.get("disable-redirect") === null
+    ) {
       const successRoute = clientTypeToSuccessRouteRecord[this.clientType];
       await this.router.navigate([successRoute]);
     }
