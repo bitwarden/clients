@@ -27,7 +27,7 @@ export type MasterKeyWrappedUserKey = Opaque<EncString, "MasterKeyWrappedUserKey
 /**
  * Encapsulates the data needed to unlock a vault using a master password.
  * It contains the masterKeyWrappedUserKey along with the KDF settings and salt used to derive the master key.
- * It is currently backwards compatible to master-key based unlock, but this will not the case in the future.
+ * It is currently backwards compatible to master-key based unlock, but this will not be the case in the future.
  * Features relating to master-password-based unlock should use this abstraction.
  */
 export class MasterPasswordUnlockData {
@@ -70,7 +70,7 @@ export class MasterPasswordUnlockData {
 
 /**
  * Encapsulates the data required to authenticate using a master password.
- * It contains the serverAuthorizationMasterKeyHash, along with the KDF settings and salt used to derive it.
+ * It contains the masterPasswordAuthenticationHash, along with the KDF settings and salt used to derive it.
  * The encapsulated abstraction prevents authentication issues resulting from unsynchronized state.
  */
 export type MasterPasswordAuthenticationData = {
