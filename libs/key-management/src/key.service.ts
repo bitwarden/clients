@@ -27,7 +27,7 @@ import {
   EncryptedString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { WrappedSigningKey } from "@bitwarden/common/key-management/types";
+import { SignedPublicKey, WrappedSigningKey } from "@bitwarden/common/key-management/types";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -45,6 +45,7 @@ import {
   USER_EVER_HAD_USER_KEY,
   USER_KEY,
   USER_KEY_ENCRYPTED_SIGNING_KEY,
+  USER_SIGNED_PUBLIC_KEY,
 } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
@@ -1004,5 +1005,13 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         );
       }),
     );
+  }
+
+  async setSignedPublicKey(signedPublicKey: SignedPublicKey, userId: UserId): Promise<void> {
+    await this.stateProvider.setUserState(USER_SIGNED_PUBLIC_KEY, signedPublicKey, userId);
+  }
+
+  userSignedPublicKey$(userId: UserId): Observable<SignedPublicKey | null> {
+    return this.stateProvider.getUserState$(USER_SIGNED_PUBLIC_KEY, userId);
   }
 }
