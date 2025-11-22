@@ -83,6 +83,10 @@ import { isUrlInList } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
+import {
+  PhishingDetectionSettingsService,
+  PhishingDetectionSettingsServiceAbstraction,
+} from "@bitwarden/common/dirt/services/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import {
@@ -496,6 +500,7 @@ export default class MainBackground {
 
   // DIRT
   private phishingDataService: PhishingDataService;
+  private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction;
 
   constructor() {
     const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) =>
@@ -1466,6 +1471,10 @@ export default class MainBackground {
       this.platformUtilsService,
     );
 
+    this.phishingDetectionSettingsService = new PhishingDetectionSettingsService(
+      this.stateProvider,
+    );
+
     PhishingDetectionService.initialize(
       this.accountService,
       this.billingAccountProfileStateService,
@@ -1473,6 +1482,7 @@ export default class MainBackground {
       this.logService,
       this.phishingDataService,
       messageListener,
+      this.phishingDetectionSettingsService,
     );
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);

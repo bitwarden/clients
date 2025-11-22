@@ -3,6 +3,7 @@ import { Observable, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/phishing-detection-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageListener } from "@bitwarden/messaging";
@@ -17,6 +18,7 @@ describe("PhishingDetectionService", () => {
   let logService: LogService;
   let phishingDataService: MockProxy<PhishingDataService>;
   let messageListener: MockProxy<MessageListener>;
+  let phishingDetectionSettingsService: MockProxy<PhishingDetectionSettingsServiceAbstraction>;
 
   beforeEach(() => {
     accountService = { getAccount$: jest.fn(() => of(null)) } as any;
@@ -29,6 +31,9 @@ describe("PhishingDetectionService", () => {
         return new Observable();
       },
     });
+    phishingDetectionSettingsService = mock<PhishingDetectionSettingsServiceAbstraction>({
+      enablePhishingDetection$: of(true),
+    });
   });
 
   it("should initialize without errors", () => {
@@ -40,6 +45,7 @@ describe("PhishingDetectionService", () => {
         logService,
         phishingDataService,
         messageListener,
+        phishingDetectionSettingsService,
       );
     }).not.toThrow();
   });
@@ -61,6 +67,7 @@ describe("PhishingDetectionService", () => {
   //     logService,
   //     phishingDataService,
   //     messageListener,
+  //     phishingDetectionSettingsService,
   //   );
   // });
 
@@ -81,6 +88,7 @@ describe("PhishingDetectionService", () => {
   //     logService,
   //     phishingDataService,
   //     messageListener,
+  //     phishingDetectionSettingsService,
   //   );
   // });
 });
