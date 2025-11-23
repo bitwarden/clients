@@ -10,4 +10,5 @@ export type LogoutReason =
   | "setInitialPassword"
   | "sessionExpired"
   | "userInitiated"
+  | "userKeyRotation"
   | "vaultTimeout";

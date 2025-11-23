@@ -271,7 +271,7 @@ export class SetInitialPasswordComponent implements OnInit {
 
       this.showSuccessToastByUserType();
 
-      await this.logoutService.logout(this.userId);
+      await this.logoutService.logout(this.userId, "setInitialPassword");
       // navigate to root so redirect guard can properly route next active user or null user to correct page
       await this.router.navigate(["/"]);
     } catch (e) {

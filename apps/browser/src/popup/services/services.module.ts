@@ -675,7 +675,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LogoutService,
     useClass: ExtensionLogoutService,
-    deps: [MessagingServiceAbstraction, AccountSwitcherService],
+    deps: [MessagingServiceAbstraction, AccountSwitcherService, LogService],
   }),
   safeProvider({
     provide: CompactModeService,
