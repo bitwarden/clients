@@ -450,7 +450,6 @@ export abstract class ApiService {
    * @returns The access token, or an Error if no access token exists.
    */
   abstract getActiveBearerToken(userId: UserId): Promise<string>;
-
   abstract fetch(request: Request): Promise<Response>;
   abstract nativeFetch(request: Request): Promise<Response>;
 
