@@ -31,5 +31,16 @@ describe("DefaultLogoutService", () => {
       await logoutService.logout(userId, logoutReason);
       expect(messagingService.send).toHaveBeenCalledWith("logout", { userId, logoutReason });
     });
+
+    it("logs the logout with userId and reason", async () => {
+      const userId = "test-user-id" as UserId;
+      const logoutReason: LogoutReason = "sessionExpired";
+      await logoutService.logout(userId, logoutReason);
+      expect(logService.info).toHaveBeenCalledWith(
+        "Logging out user %s for reason: %s",
+        userId,
+        logoutReason,
+      );
+    });
   });
 });
