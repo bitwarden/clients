@@ -596,6 +596,7 @@ export class AppComponent implements OnInit, OnDestroy {
     let toastOptions: ToastOptions;
 
     switch (logoutReason) {
+      case "invalidAccessToken":
       case "invalidSecurityStamp":
       case "sessionExpired": {
         toastOptions = {

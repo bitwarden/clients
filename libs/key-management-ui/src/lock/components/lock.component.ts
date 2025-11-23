@@ -371,7 +371,7 @@ export class LockComponent implements OnInit, OnDestroy {
     });
 
     if (confirmed && this.activeAccount != null) {
-      await this.logoutService.logout(this.activeAccount.id);
+      await this.logoutService.logout(this.activeAccount.id, "userInitiated");
       // navigate to root so redirect guard can properly route next active user or null user to correct page
       await this.router.navigate(["/"]);
     }

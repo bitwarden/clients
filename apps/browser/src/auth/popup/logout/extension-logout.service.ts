@@ -6,6 +6,7 @@ import {
 } from "@bitwarden/auth/common";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { LogService } from "@bitwarden/logging";
 
 import { AccountSwitcherService } from "../account-switching/services/account-switcher.service";
 
@@ -13,14 +14,17 @@ export class ExtensionLogoutService extends DefaultLogoutService implements Logo
   constructor(
     protected messagingService: MessagingService,
     private accountSwitcherService: AccountSwitcherService,
+    protected logService: LogService,
   ) {
-    super(messagingService);
+    super(messagingService, logService);
   }
 
   override async logout(
     userId: UserId,
-    logoutReason?: LogoutReason,
+    logoutReason: LogoutReason,
   ): Promise<NewActiveUser | undefined> {
+    this.logService.info("Logging out user %s for reason: %s", userId, logoutReason);
+
     // logout can result in an account switch to the next up user
     const accountSwitchFinishPromise =
       this.accountSwitcherService.listenForSwitchAccountFinish(null);

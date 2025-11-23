@@ -1256,7 +1256,7 @@ export default class MainBackground {
       this.authService,
     );
 
-    const logoutService = new DefaultLogoutService(this.messagingService);
+    const logoutService = new DefaultLogoutService(this.messagingService, this.logService);
     this.lockService = new ExtensionLockService(
       this.accountService,
       this.biometricsService,
