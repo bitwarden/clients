@@ -6,6 +6,9 @@ import { CipherView } from "../models/view/cipher.view";
 import { CipherViewLike } from "../utils/cipher-view-like-utils";
 
 export abstract class SearchService {
+  abstract isCipherSearching$: Observable<boolean>;
+  abstract isSendSearching$: Observable<boolean>;
+
   abstract indexedEntityId$(userId: UserId): Observable<IndexedEntityId | null>;
 
   abstract clearIndex(userId: UserId): Promise<void>;
@@ -30,6 +33,7 @@ export abstract class SearchService {
     ciphers: C[],
     query: string,
     deleted?: boolean,
+    archived?: boolean,
   ): C[];
   abstract searchSends(sends: SendView[], query: string): SendView[];
 }

@@ -1,7 +1,7 @@
 {
   "name": "@bitwarden/cli",
   "description": "A secure and free password manager for all of your devices.",
-  "version": "2025.9.0",
+  "version": "2025.11.0",
   "keywords": [
     "bitwarden",
     "password",
@@ -13,7 +13,7 @@
   "homepage": "https://bitwarden.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bitwarden/clients"
+    "url": "git+https://github.com/bitwarden/clients.git"
   },
   "license": "SEE LICENSE IN LICENSE.txt",
   "scripts": {
@@ -68,14 +68,14 @@
     "big-integer": "1.6.52",
     "browser-hrtime": "1.1.8",
     "chalk": "4.1.2",
-    "commander": "11.1.0",
+    "commander": "14.0.0",
     "core-js": "3.45.0",
     "form-data": "4.0.4",
     "https-proxy-agent": "7.0.6",
     "inquirer": "8.2.6",
     "jsdom": "26.1.0",
     "jszip": "3.10.1",
-    "koa": "2.16.1",
+    "koa": "2.16.3",
     "koa-bodyparser": "4.4.1",
     "koa-json": "2.0.2",
     "lowdb": "1.0.0",
@@ -87,7 +87,7 @@
     "papaparse": "5.5.3",
     "proper-lockfile": "4.1.2",
     "rxjs": "7.8.1",
-    "semver": "7.7.2",
+    "semver": "7.7.3",
     "tldts": "7.0.1",
     "zxcvbn": "4.4.2"
   }

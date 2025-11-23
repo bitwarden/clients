@@ -4,23 +4,25 @@ import { firstValueFrom, Observable, Subject, switchMap, takeUntil, takeWhile } 
 
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
 import { OrganizationIntegrationServiceType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
+import { OrganizationIntegrationType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-type";
+import { DatadogOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/datadog-organization-integration-service";
 import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { IntegrationType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { IntegrationGridComponent } from "./integration-grid/integration-grid.component";
 import { FilterIntegrationsPipe } from "./integrations.pipe";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "ac-integrations",
   templateUrl: "./integrations.component.html",
@@ -29,7 +31,7 @@ import { FilterIntegrationsPipe } from "./integrations.pipe";
 export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
   tabIndex: number = 0;
   organization$: Observable<Organization> = new Observable<Organization>();
-  isEventBasedIntegrationsEnabled: boolean = false;
+  isEventManagementForDataDogAndCrowdStrikeEnabled: boolean = false;
   private destroy$ = new Subject<void>();
 
   // initialize the integrations list with default integrations
@@ -202,6 +204,14 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       type: IntegrationType.EVENT,
     },
     {
+      name: "Sumo Logic",
+      linkURL: "https://bitwarden.com/help/sumo-logic-siem/",
+      image: "../../../../../../../images/integrations/logo-sumo-logic-siem.svg",
+      imageDarkMode: "../../../../../../../images/integrations/logo-sumo-logic-siem-darkmode.svg",
+      type: IntegrationType.EVENT,
+      newBadgeExpiration: "2025-12-31",
+    },
+    {
       name: "Microsoft Intune",
       linkURL: "https://bitwarden.com/help/deploy-browser-extensions-with-intune/",
       image: "../../../../../../../images/integrations/logo-microsoft-intune-color.svg",
@@ -218,7 +228,7 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     this.organization$ = this.route.params.pipe(
       switchMap((params) =>
         this.organizationService.organizations$(userId).pipe(
-          getOrganizationById(params.organizationId),
+          getById(params.organizationId),
           // Filter out undefined values
           takeWhile((org: Organization | undefined) => !!org),
         ),
@@ -228,6 +238,7 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     // Sets the organization ID which also loads the integrations$
     this.organization$.pipe(takeUntil(this.destroy$)).subscribe((org) => {
       this.hecOrganizationIntegrationService.setOrganizationIntegrations(org.id);
+      this.datadogOrganizationIntegrationService.setOrganizationIntegrations(org.id);
     });
   }
 
@@ -237,27 +248,40 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private configService: ConfigService,
     private hecOrganizationIntegrationService: HecOrganizationIntegrationService,
+    private datadogOrganizationIntegrationService: DatadogOrganizationIntegrationService,
   ) {
     this.configService
-      .getFeatureFlag$(FeatureFlag.EventBasedOrganizationIntegrations)
+      .getFeatureFlag$(FeatureFlag.EventManagementForDataDogAndCrowdStrike)
       .pipe(takeUntil(this.destroy$))
       .subscribe((isEnabled) => {
-        this.isEventBasedIntegrationsEnabled = isEnabled;
+        this.isEventManagementForDataDogAndCrowdStrikeEnabled = isEnabled;
       });
 
     // Add the new event based items to the list
-    if (this.isEventBasedIntegrationsEnabled) {
+    if (this.isEventManagementForDataDogAndCrowdStrikeEnabled) {
       const crowdstrikeIntegration: Integration = {
         name: OrganizationIntegrationServiceType.CrowdStrike,
-        linkURL: "",
+        linkURL: "https://bitwarden.com/help/crowdstrike-siem/",
         image: "../../../../../../../images/integrations/logo-crowdstrike-black.svg",
         type: IntegrationType.EVENT,
         description: "crowdstrikeEventIntegrationDesc",
-        isConnected: false,
         canSetupConnection: true,
+        integrationType: OrganizationIntegrationType.Hec,
       };
 
       this.integrationsList.push(crowdstrikeIntegration);
+
+      const datadogIntegration: Integration = {
+        name: OrganizationIntegrationServiceType.Datadog,
+        linkURL: "https://bitwarden.com/help/datadog-siem/",
+        image: "../../../../../../../images/integrations/logo-datadog-color.svg",
+        type: IntegrationType.EVENT,
+        description: "datadogEventIntegrationDesc",
+        canSetupConnection: true,
+        integrationType: OrganizationIntegrationType.Datadog,
+      };
+
+      this.integrationsList.push(datadogIntegration);
     }
 
     // For all existing event based configurations loop through and assign the
@@ -265,6 +289,31 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     this.hecOrganizationIntegrationService.integrations$
       .pipe(takeUntil(this.destroy$))
       .subscribe((integrations) => {
+        // reset all integrations to null first - in case one was deleted
+        this.integrationsList.forEach((i) => {
+          if (i.integrationType === OrganizationIntegrationType.Hec) {
+            i.organizationIntegration = null;
+          }
+        });
+
+        integrations.map((integration) => {
+          const item = this.integrationsList.find((i) => i.name === integration.serviceType);
+          if (item) {
+            item.organizationIntegration = integration;
+          }
+        });
+      });
+
+    this.datadogOrganizationIntegrationService.integrations$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((integrations) => {
+        // reset all integrations to null first - in case one was deleted
+        this.integrationsList.forEach((i) => {
+          if (i.integrationType === OrganizationIntegrationType.Datadog) {
+            i.organizationIntegration = null;
+          }
+        });
+
         integrations.map((integration) => {
           const item = this.integrationsList.find((i) => i.name === integration.serviceType);
           if (item) {

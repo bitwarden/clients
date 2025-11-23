@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "அனைத்து பயன்பாடுகளும்"
   },
+  "activity": {
+    "message": "Activity"
+  },
   "appLogoLabel": {
     "message": "பிட்வார்டன் லோகோ"
   },
@@ -14,14 +17,17 @@
   "accessIntelligence": {
     "message": "அணுகல் நுண்ணறிவு"
   },
-  "riskInsights": {
-    "message": "ஆபத்து நுண்ணறிவு"
-  },
   "passwordRisk": {
     "message": "கடவுச்சொல் ஆபத்து"
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "reviewAtRiskPasswords": {
     "message": "பயன்பாடுகள் முழுவதும் ஆபத்தான கடவுச்சொற்களை (பலவீனமான, அம்பலப்படுத்தப்பட்ட, அல்லது மீண்டும் பயன்படுத்தப்பட்ட) மதிப்பாய்வு செய்யவும். உங்கள் பயனர்களுக்கான ஆபத்தான கடவுச்சொற்களை நிவர்த்தி செய்ய பாதுகாப்பு நடவடிக்கைகளுக்கு முன்னுரிமை அளிக்க, உங்கள் மிக முக்கியமான பயன்பாடுகளைத் தேர்ந்தெடுக்கவும்."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Review at-risk logins"
   },
   "dataLastUpdated": {
     "message": "கடைசியாகத் தரவு புதுப்பிக்கப்பட்டது: $DATE$",
@@ -31,6 +37,9 @@
         "example": "2021-01-01"
       }
     }
+  },
+  "noReportRan": {
+    "message": "You have not created a report yet"
   },
   "notifiedMembers": {
     "message": "அறிவிக்கப்பட்ட உறுப்பினர்கள்"
@@ -56,12 +65,107 @@
   "createNewLoginItem": {
     "message": "புதிய உள்நுழைவு உருப்படியை உருவாக்கவும்"
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "securityTasksCompleted": {
+    "message": "$COUNT$ out of $TOTAL$ security tasks completed",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "passwordChangeProgress": {
+    "message": "Password change progress"
+  },
+  "assignMembersTasksToMonitorProgress": {
+    "message": "Assign members tasks to monitor progress"
+  },
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
+  },
+  "sendReminders": {
+    "message": "Send reminders"
+  },
+  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
+    "message": "Once you mark applications critical, they will display here."
+  },
+  "viewAtRiskMembers": {
+    "message": "View at-risk members"
+  },
+  "viewAtRiskApplications": {
+    "message": "View at-risk applications"
+  },
+  "criticalApplicationsAreAtRisk": {
+    "message": "$COUNT$ out of $TOTAL$ critical applications are at-risk due to at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "criticalApplicationsWithCount": {
     "message": "முக்கியமான பயன்பாடுகள் ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "criticalApplicationsMarked": {
+    "message": "critical applications marked"
+  },
+  "countOfCriticalApplications": {
+    "message": "$COUNT$ critical applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfApplicationsAtRisk": {
+    "message": "$COUNT$ applications at-risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "countOfAtRiskPasswords": {
+    "message": "$COUNT$ passwords at-risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "newPasswordsAtRisk": {
+    "message": "$COUNT$ new passwords at-risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -74,17 +178,35 @@
       }
     }
   },
-  "noAppsInOrgTitle": {
-    "message": "$ORG NAME$ இல் எந்தப் பயன்பாடுகளும் கண்டறியப்படவில்லை",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "No data found"
   },
-  "noAppsInOrgDescription": {
-    "message": "பயனர்கள் உள்நுழைவுகளை சேமிக்கும்போது, ​​பயன்பாடுகள் இங்கே தோன்றி, எந்தவொரு ஆபத்தான கடவுச்சொற்களையும் காண்பிக்கும். முக்கியமான பயன்பாடுகளைக் குறியிட்டு, கடவுச்சொற்களைப் புதுப்பிக்க பயனர்களுக்குத் தெரிவிக்கவும்."
+  "noDataInOrgDescription": {
+    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
+  },
+  "feature1Title": {
+    "message": "Mark applications as critical"
+  },
+  "feature1Description": {
+    "message": "This will help you remove risks to your most important applications first."
+  },
+  "feature2Title": {
+    "message": "Help members improve their security"
+  },
+  "feature2Description": {
+    "message": "Assign at-risk members guided security tasks to update credentials."
+  },
+  "feature3Title": {
+    "message": "Monitor progress"
+  },
+  "feature3Description": {
+    "message": "Track changes over time to show security improvements."
+  },
+  "noReportsRunTitle": {
+    "message": "Generate report"
+  },
+  "noReportsRunDescription": {
+    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
   },
   "noCriticalApplicationsTitle": {
     "message": "You haven’t marked any applications as critical"
@@ -98,8 +220,32 @@
   "markAppAsCritical": {
     "message": "பயன்பாட்டை முக்கியமானதாகக் குறியிடு"
   },
+  "markAsCritical": {
+    "message": "Mark as critical"
+  },
+  "applicationsSelected": {
+    "message": "applications selected"
+  },
+  "selectApplication": {
+    "message": "Select application"
+  },
+  "unselectApplication": {
+    "message": "Unselect application"
+  },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "பயன்பாடுகள் முக்கியமானதாகக் குறியிடப்பட்டன"
+  },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Failed to mark applications as critical"
   },
   "application": {
     "message": "பயன்பாடு"
@@ -119,6 +265,24 @@
   "atRiskMembers": {
     "message": "ஆபத்தில் உள்ள உறுப்பினர்கள்"
   },
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "These members have access to vulnerable items for critical applications."
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Members with at-risk passwords"
+  },
+  "membersWillReceiveSecurityTask": {
+    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
+  },
+  "membersAtRiskCount": {
+    "message": "$COUNT$ members at-risk",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "atRiskMembersWithCount": {
     "message": "ஆபத்தில் உள்ள உறுப்பினர்கள் ($COUNT$)",
     "placeholders": {
@@ -137,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "இந்த உறுப்பினர்கள் பலவீனமான, அம்பலப்படுத்தப்பட்ட அல்லது மீண்டும் பயன்படுத்தப்பட்ட கடவுச்சொற்களுடன் பயன்பாடுகளில் உள்நுழைகிறார்கள்."
+  "atRiskMemberDescription": {
+    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionNone": {
     "message": "பலவீனமான, அம்பலப்படுத்தப்பட்ட அல்லது மீண்டும் பயன்படுத்தப்பட்ட கடவுச்சொற்களுடன் பயன்பாடுகளில் உள்நுழையும் உறுப்பினர்கள் யாரும் இல்லை."
@@ -175,6 +339,78 @@
   },
   "totalApplications": {
     "message": "மொத்த பயன்பாடுகள்"
+  },
+  "applicationsNeedingReview": {
+    "message": "Applications needing review"
+  },
+  "newApplicationsCardTitle": {
+    "message": "Review new applications"
+  },
+  "newApplicationsWithCount": {
+    "message": "$COUNT$ new applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "newApplicationsDescription": {
+    "message": "Review new applications to mark as critical and keep your organization secure"
+  },
+  "reviewNow": {
+    "message": "Review now"
+  },
+  "allCaughtUp": {
+    "message": "All caught up!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "No new applications to review at this time"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Your organization has items saved for $COUNT$ applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Review applications to secure the items most critical to your organization's security"
+  },
+  "reviewApplications": {
+    "message": "Review applications"
+  },
+  "prioritizeCriticalApplications": {
+    "message": "Prioritize critical applications"
+  },
+  "selectCriticalAppsDescription": {
+    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
+  },
+  "reviewNewApplications": {
+    "message": "Review new applications"
+  },
+  "reviewNewAppsDescription": {
+    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Click the star icon to mark an app as critical"
+  },
+  "markAsCriticalPlaceholder": {
+    "message": "Mark as critical functionality will be implemented in a future update"
+  },
+  "applicationReviewSaved": {
+    "message": "Application review saved"
+  },
+  "newApplicationsReviewed": {
+    "message": "New applications reviewed"
+  },
+  "errorSavingReviewStatus": {
+    "message": "Error saving review status"
+  },
+  "pleaseTryAgain": {
+    "message": "Please try again"
   },
   "unmarkAsCritical": {
     "message": "முக்கியமானதாக இருந்து குறியீட்டை நீக்கு"
@@ -638,6 +874,9 @@
   "favorites": {
     "message": "பிடித்தவை"
   },
+  "taskSummary": {
+    "message": "Task summary"
+  },
   "types": {
     "message": "வகைகள்"
   },
@@ -734,32 +973,81 @@
   "viewItem": {
     "message": "பொருளைக் காண்"
   },
-  "newItemHeader": {
-    "message": "புதிய $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "editItemHeader": {
-    "message": "திருத்து $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
   },
-  "viewItemType": {
-    "message": "காண் $ITEMTYPE$",
-    "placeholders": {
-      "itemtype": {
-        "content": "$1",
-        "example": "login"
-      }
-    }
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "new": {
     "message": "புதியது",
@@ -1101,6 +1389,9 @@
   "readingPasskeyLoadingInfo": {
     "message": "இந்த சாளரத்தை திறந்து வைத்து, உங்கள் உலாவியில் கேட்கப்படும் வழிமுறைகளைப் பின்பற்றவும்."
   },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey authentication failed. Please try again."
+  },
   "useADifferentLogInMethod": {
     "message": "வேறு உள்நுழைவு முறையைப் பயன்படுத்து"
   },
@@ -1109,6 +1400,9 @@
   },
   "useSingleSignOn": {
     "message": "ஒற்றை உள்நுழைவைப் பயன்படுத்து"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
   },
   "welcomeBack": {
     "message": "மீண்டும் வருக"
@@ -1395,6 +1689,15 @@
   "invalidMasterPassword": {
     "message": "தவறான முதன்மை கடவுச்சொல்"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "invalidFilePassword": {
     "message": "தவறான கோப்பு கடவுச்சொல், ஏற்றுமதி கோப்பை உருவாக்கியபோது நீங்கள் உள்ளிட்ட கடவுச்சொல்லைப் பயன்படுத்தவும்."
   },
@@ -1403,6 +1706,30 @@
   },
   "noItemsInList": {
     "message": "பட்டியலிட உருப்படிகள் எதுவும் இல்லை."
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "இந்தத் தொகுப்பிலுள்ள எல்லா உருப்படிகளையும் பார்க்க உங்களுக்கு அனுமதி இல்லை."
@@ -1509,9 +1836,6 @@
   },
   "selectTwoStepLoginMethod": {
     "message": "இரு-படி உள்நுழைவு முறையைத் தேர்ந்தெடுக்கவும்"
-  },
-  "recoveryCodeDesc": {
-    "message": "உங்கள் இரு-படி உள்நுழைவு வழங்குநர்கள் அனைத்திற்கும் அணுகலை இழந்தீர்களா? உங்கள் கணக்கிலிருந்து அனைத்து இரு-படி உள்நுழைவு வழங்குநர்களையும் அணைக்க உங்கள் மீட்டெடுப்பு குறியீட்டைப் பயன்படுத்தவும்."
   },
   "recoveryCodeTitle": {
     "message": "மீட்டெடுப்பு குறியீடு"
@@ -1855,9 +2179,6 @@
   "encKeySettings": {
     "message": "என்க்ரிப்ஷன் சாவி அமைப்புகள்"
   },
-  "kdfAlgorithm": {
-    "message": "KDF அல்காரிதம்"
-  },
   "kdfIterations": {
     "message": "KDF மறுநிகழ்வுகள்"
   },
@@ -1891,9 +2212,6 @@
   },
   "argon2Desc": {
     "message": "அதிக KDF இட்டரேஷன்கள், நினைவகம் மற்றும் பாரலலிசம் உங்கள் முதன்மை கடவுச்சொல்லை தாக்குபவர் ப்ரூட் ஃபோர்ஸ் செய்வதிலிருந்து பாதுகாக்க உதவும்."
-  },
-  "changeKdf": {
-    "message": "KDF-ஐ மாற்றவும்"
   },
   "encKeySettingsChanged": {
     "message": "என்கிரிப்ஷன் கீ அமைப்புகள் சேமிக்கப்பட்டன"
@@ -2725,6 +3043,9 @@
   "makeSureEnoughCredit": {
     "message": "இந்த வாங்குதலுக்கு உங்கள் கணக்கில் போதுமான கடன் இருப்பதை உறுதிசெய்யவும். உங்கள் கணக்கில் போதுமான கடன் இல்லையென்றால், வேறுபாட்டிற்கு கோப்பில் உள்ள உங்கள் இயல்புநிலை கட்டண முறை பயன்படுத்தப்படும். பில்லிங் பக்கத்திலிருந்து உங்கள் கணக்கில் நீங்கள் கடனைச் சேர்க்கலாம்."
   },
+  "notEnoughAccountCredit": {
+    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
+  },
   "creditAppliedDesc": {
     "message": "உங்கள் கணக்கின் கடனை வாங்குதல்களுக்குப் பயன்படுத்தலாம். கிடைக்கக்கூடிய எந்தக் கடனும் இந்த கணக்கிற்காக உருவாக்கப்பட்ட பில்களுக்கு தானாகவே பயன்படுத்தப்படும்."
   },
@@ -2923,8 +3244,17 @@
   "nextCharge": {
     "message": "அடுத்த கட்டணம்"
   },
+  "nextChargeHeader": {
+    "message": "Next Charge"
+  },
+  "plan": {
+    "message": "Plan"
+  },
   "details": {
     "message": "விவரங்கள்"
+  },
+  "discount": {
+    "message": "discount"
   },
   "downloadLicense": {
     "message": "லைசன்ஸ் கோப்பைப் பதிவிறக்கவும்"
@@ -4130,8 +4460,35 @@
   "updateBrowser": {
     "message": "உலாவியைப் புதுப்பிக்கவும்"
   },
-  "generatingYourRiskInsights": {
-    "message": "உங்கள் இடர் நுண்ணறிவுகளை உருவாக்குகிறது..."
+  "generatingYourAccessIntelligence": {
+    "message": "Generating your Access Intelligence..."
+  },
+  "fetchingMemberData": {
+    "message": "Fetching member data..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "Analyzing password health..."
+  },
+  "calculatingRiskScores": {
+    "message": "Calculating risk scores..."
+  },
+  "generatingReportData": {
+    "message": "Generating report data..."
+  },
+  "savingReport": {
+    "message": "Saving report..."
+  },
+  "compilingInsights": {
+    "message": "Compiling insights..."
+  },
+  "loadingProgress": {
+    "message": "Loading progress"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "This might take a few minutes."
+  },
+  "riskInsightsRunReport": {
+    "message": "Run report"
   },
   "updateBrowserDesc": {
     "message": "ஆதரிக்கப்படாத இணைய உலாவியைப் பயன்படுத்துகிறீர்கள். இணையப் பெட்டகம் சரியாகச் செயல்படாமல் போகலாம்."
@@ -4215,8 +4572,8 @@
   "inviteAccepted": {
     "message": "அழைப்பு ஏற்கப்பட்டது"
   },
-  "inviteAcceptedDesc": {
-    "message": "ஒரு நிர்வாகி உங்கள் உறுப்பினரை உறுதிப்படுத்தியவுடன் இந்த நிறுவனத்தை நீங்கள் அணுகலாம். அது நடக்கும்போது நாங்கள் உங்களுக்கு ஒரு மின்னஞ்சல் அனுப்புவோம்."
+  "invitationAcceptedDesc": {
+    "message": "Successfully accepted your invitation."
   },
   "inviteInitAcceptedDesc": {
     "message": "நீங்கள் இப்போது இந்த நிறுவனத்தை அணுகலாம்."
@@ -4699,6 +5056,12 @@
   "organizationIsDisabled": {
     "message": "நிறுவனம் இடைநிறுத்தப்பட்டது"
   },
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
   "secretsAccessSuspended": {
     "message": "இடைநிறுத்தப்பட்ட நிறுவனங்களை அணுக முடியாது. உதவிக்கு உங்கள் நிறுவன உரிமையாளரைத் தொடர்புகொள்ளவும்."
   },
@@ -4710,9 +5073,6 @@
   },
   "serviceAccountsCannotCreate": {
     "message": "இடைநிறுத்தப்பட்ட நிறுவனங்களில் சேவை கணக்குகளை உருவாக்க முடியாது. உதவிக்கு உங்கள் நிறுவன உரிமையாளரைத் தொடர்புகொள்ளவும்."
-  },
-  "disabledOrganizationFilterError": {
-    "message": "இடைநிறுத்தப்பட்ட நிறுவனங்களில் உள்ள பொருட்களை அணுக முடியாது. உதவிக்கு உங்கள் நிறுவன உரிமையாளரைத் தொடர்புகொள்ளவும்."
   },
   "licenseIsExpired": {
     "message": "உரிமம் காலாவதியாகிவிட்டது."
@@ -5087,9 +5447,13 @@
   "ssoIdentifier": {
     "message": "SSO அடையாளங்காட்டி"
   },
-  "ssoIdentifierHintPartOne": {
-    "message": "SSO உடன் உள்நுழைய இந்த ஐடியை உங்கள் உறுப்பினர்களுக்கு வழங்கவும். இந்த படியைத் தவிர்க்க, அமைக்கவும் ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
+  "ssoIdentifierHint": {
+    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
+  },
+  "claimedDomainsLearnMore": {
+    "message": "Learn more",
+    "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
     "message": "SSO இணைப்பை நீக்கு"
@@ -5445,9 +5809,9 @@
     "message": "கணக்கு மட்டத்தில் பொருட்களை சேமிக்கும் விருப்பத்தை நீக்கி, அனைத்து பொருட்களும் ஒரு நிறுவனத்திற்கு சொந்தமானதாக இருக்க வேண்டும்.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
-    "message": "அனைத்து பொருட்களும் நிறுவனத்திற்குச் சொந்தமானதாகவும், சேமிக்கப்படுவதாகவும் இருக்கும், இது நிறுவனம் முழுவதும் கட்டுப்பாடுகள், தெரிவுநிலை மற்றும் அறிக்கையிடலை செயல்படுத்துகிறது. இயக்கப்படும் போது, ஒவ்வொரு உறுப்பினருக்கும் பொருட்களைச் சேமிக்க ஒரு இயல்புநிலை கலெக்‌ஷன் கிடைக்கும். நிர்வகிப்பது பற்றி மேலும் அறிக ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  "organizationDataOwnershipDescContent": {
+    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "சான்றளிப்பு வாழ்க்கைச் சுழற்சி",
@@ -5472,6 +5836,65 @@
     "message": "பற்றி மேலும் அறிக ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
+  "availableNow": {
+    "message": "Available now"
+  },
+  "autoConfirm": {
+    "message": "Automatic confirmation of new users"
+  },
+  "autoConfirmDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
+    "description": "This is the description of the policy as it appears in the 'Policies' page"
+  },
+  "howToTurnOnAutoConfirm": {
+    "message": "How to turn on automatic user confirmation"
+  },
+  "autoConfirmExtension1": {
+    "message": "Open your Bitwarden extension"
+  },
+  "autoConfirmExtension2": {
+    "message": "Select",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
+  },
+  "autoConfirmExtension3": {
+    "message": " Turn on",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
+  },
+  "autoConfirmExtensionOpened": {
+    "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
+  },
+  "autoConfirmPolicyEditDescription": {
+    "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "description": "This is the description of the policy as it appears inside the policy edit dialog"
+  },
+  "autoConfirmAcceptSecurityRiskTitle": {
+    "message": "Potential security risk. "
+  },
+  "autoConfirmAcceptSecurityRiskDescription": {
+    "message": "Automatic user confirmation could pose a security risk to your organization’s data."
+  },
+  "autoConfirmAcceptSecurityRiskLearnMore": {
+    "message": "Learn about the risks",
+    "description": "The is the link copy for the first check box option in the edit policy dialog"
+  },
+  "autoConfirmSingleOrgRequired": {
+    "message": "Single organization policy required. "
+  },
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "All members must only belong to this organization to activate this automation."
+  },
+  "autoConfirmSingleOrgExemption": {
+    "message": "Single organization policy will extend to all roles. "
+  },
+  "autoConfirmNoEmergencyAccess": {
+    "message": "No emergency access. "
+  },
+  "autoConfirmNoEmergencyAccessDescription": {
+    "message": "Emergency Access will be removed."
+  },
+  "autoConfirmCheckBoxLabel": {
+    "message": "I accept these risks and policy updates"
+  },
   "personalOwnership": {
     "message": "தனிப்பட்ட வால்ட்டை அகற்று"
   },
@@ -5483,6 +5906,13 @@
   },
   "personalOwnershipSubmitError": {
     "message": "எண்டர்பிரைஸ் கொள்கையின் காரணமாக, உங்கள் தனிப்பட்ட வால்ட்டில் பொருட்களைச் சேமிப்பதில் இருந்து நீங்கள் கட்டுப்படுத்தப்பட்டுள்ளீர்கள். உரிமை விருப்பத்தை ஒரு நிறுவனத்திற்கு மாற்றி, கிடைக்கக்கூடிய கலெக்‌ஷன்களிலிருந்து தேர்வு செய்யவும்."
+  },
+  "desktopAutotypePolicy": {
+    "message": "Desktop Autotype Default Setting"
+  },
+  "desktopAutotypePolicyDesc": {
+    "message": "Turn Desktop Autotype ON by default for members. Members can turn Autotype off manually in the Desktop client.",
+    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
   },
   "disableSend": {
     "message": "Send-ஐ அகற்று"
@@ -5516,6 +5946,19 @@
   "disableHideEmail": {
     "message": "ஒரு Send-ஐ உருவாக்கும்போது அல்லது திருத்தும்போது பெறுநர்களுடன் உறுப்பினரின் மின்னஞ்சல் முகவரியை எப்போதும் காட்டவும்.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Default URI match detection"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Determine when logins are suggested for autofill. Admins and owners are exempt from this policy."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Default URI match detection"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Please select a valid URI match detection option.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "$ID$ கொள்கை மாற்றியமைக்கப்பட்டது.",
@@ -6170,11 +6613,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "உங்கள் மாஸ்டர் கடவுச்சொல் ஒன்று அல்லது அதற்கு மேற்பட்ட உங்கள் நிறுவன கொள்கைகளைப் பூர்த்தி செய்யவில்லை. பெட்டகத்தை அணுக, நீங்கள் இப்போது உங்கள் மாஸ்டர் கடவுச்சொல்லைப் புதுப்பிக்க வேண்டும். தொடர்வது உங்கள் தற்போதைய அமர்விலிருந்து உங்களை வெளியேற்றும், மேலும் நீங்கள் மீண்டும் உள்நுழைய வேண்டும். பிற சாதனங்களில் உள்ள செயலில் உள்ள அமர்வுகள் ஒரு மணி நேரம் வரை செயலில் இருக்கலாம்."
   },
-  "automaticAppLogin": {
-    "message": "அனுமதிக்கப்பட்ட பயன்பாடுகளுக்குப் பயனர்களைத் தானாகவே உள்நுழை"
+  "automaticAppLoginWithSSO": {
+    "message": "Automatic login with SSO"
   },
-  "automaticAppLoginDesc": {
-    "message": "உங்கள் கட்டமைக்கப்பட்ட அடையாள வழங்குநரிடமிருந்து தொடங்கப்பட்ட பயன்பாடுகளுக்கு உள்நுழைவு படிவங்கள் தானாகவே நிரப்பப்பட்டு சமர்ப்பிக்கப்படும்."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Extend SSO security and convenience to unmanaged apps. When users launch an app from your identity provider, their login details are automatically filled and submitted, creating a one-click, secure flow from the identity provider to the app."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "அடையாள வழங்குநர் ஹோஸ்ட்"
@@ -6185,23 +6628,53 @@
   "tdeDisabledMasterPasswordRequired": {
     "message": "உங்கள் நிறுவனம் உங்கள் குறியாக்க நீக்குதல் விருப்பங்களை புதுப்பித்துள்ளது. உங்கள் பெட்டகத்தை அணுக ஒரு மாஸ்டர் கடவுச்சொல்லை அமைக்கவும்."
   },
-  "maximumVaultTimeout": {
-    "message": "பெட்டக காலக்கெடு"
+  "sessionTimeoutPolicyTitle": {
+    "message": "Session timeout"
   },
-  "maximumVaultTimeoutDesc": {
-    "message": "உறுப்பினர்களுக்கான அதிகபட்ச பெட்டக காலக்கெடுவை அமைக்கவும்."
+  "sessionTimeoutPolicyDescription": {
+    "message": "Set a maximum session timeout for all members except owners."
   },
-  "maximumVaultTimeoutLabel": {
-    "message": "அதிகபட்ச பெட்டக காலக்கெடு"
+  "maximumAllowedTimeout": {
+    "message": "Maximum allowed timeout"
   },
-  "invalidMaximumVaultTimeout": {
-    "message": "செல்லாத அதிகபட்ச பெட்டக காலக்கெடு."
+  "maximumAllowedTimeoutRequired": {
+    "message": "Maximum allowed timeout is required."
+  },
+  "sessionTimeoutPolicyInvalidTime": {
+    "message": "Time is invalid. Change at least one value."
+  },
+  "sessionTimeoutAction": {
+    "message": "Session timeout action"
+  },
+  "immediately": {
+    "message": "Immediately"
+  },
+  "onSystemLock": {
+    "message": "On system lock"
+  },
+  "onAppRestart": {
+    "message": "On app restart"
   },
   "hours": {
     "message": "மணிநேரம்"
   },
   "minutes": {
     "message": "நிமிடங்கள்"
+  },
+  "sessionTimeoutConfirmationNeverTitle": {
+    "message": "Are you certain you want to allow a maximum timeout of \"Never\" for all members?"
+  },
+  "sessionTimeoutConfirmationNeverDescription": {
+    "message": "This option will save your members' encryption keys on their devices. If you choose this option, ensure that their devices are adequately protected."
+  },
+  "learnMoreAboutDeviceProtection": {
+    "message": "Learn more about device protection"
+  },
+  "sessionTimeoutConfirmationOnSystemLockTitle": {
+    "message": "\"System lock\" will only apply to the browser and desktop app"
+  },
+  "sessionTimeoutConfirmationOnSystemLockDescription": {
+    "message": "The mobile and web app will use \"on app restart\" as their maximum allowed timeout, since the option is not supported."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "உங்கள் நிறுவன கொள்கைகள் உங்கள் அதிகபட்ச அனுமதிக்கப்பட்ட பெட்டக காலக்கெடுவை $HOURS$ மணிநேரங்கள் மற்றும் $MINUTES$ நிமிடங்களுக்கு அமைத்துள்ளன.",
@@ -6648,6 +7121,15 @@
   "disabledSso": {
     "message": "SSO இயக்கப்பட்டது"
   },
+  "emailMustLoginWithSso": {
+    "message": "$EMAIL$ must login with Single Sign-on",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "enabledKeyConnector": {
     "message": "கீ கனெக்டர் செயல்படுத்தப்பட்டது"
   },
@@ -6734,6 +7216,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "நீங்கள் அடிப்படை சேவையக URL அல்லது குறைந்தபட்சம் ஒரு தனிப்பயன் சூழலையாவது சேர்க்க வேண்டும்."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
   },
   "apiUrl": {
     "message": "API சேவையக URL"
@@ -6886,8 +7371,29 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "accessDenied": {
     "message": "அணுகல் மறுக்கப்பட்டது. இந்தப் பக்கத்தைப் பார்க்க உங்களுக்கு அனுமதி இல்லை."
+  },
+  "noPageAccess": {
+    "message": "You do not have access to this page"
   },
   "masterPassword": {
     "message": "மாஸ்டர் கடவுச்சொல்"
@@ -7039,6 +7545,9 @@
   },
   "unknownSecret": {
     "message": "அறியப்படாத ரகசியம், இந்த ரகசியத்தை அணுகுவதற்கு நீங்கள் அனுமதி கோர வேண்டியிருக்கலாம்."
+  },
+  "unknownServiceAccount": {
+    "message": "Unknown machine account, you may need to request permission to access this machine account."
   },
   "unknownProject": {
     "message": "அறியப்படாத திட்டம், இந்த திட்டத்தை அணுகுவதற்கு நீங்கள் அனுமதி கோர வேண்டியிருக்கலாம்."
@@ -8287,12 +8796,6 @@
   "groupSlashUser": {
     "message": "குழு/பயனர்"
   },
-  "lowKdfIterations": {
-    "message": "குறைந்த KDF இட்டரேஷன்ஸ்"
-  },
-  "updateLowKdfIterationsDesc": {
-    "message": "புதிய பாதுகாப்புப் பரிந்துரைகளை பூர்த்தி செய்யவும் மற்றும் கணக்கு பாதுகாப்பை மேம்படுத்தவும் உங்கள் குறியாக்க அமைப்புகளைப் புதுப்பிக்கவும்."
-  },
   "kdfSettingsChangeLogoutWarning": {
     "message": "தொடர்வது அனைத்து செயலில் உள்ள அமர்வுகளிலிருந்தும் உங்களை வெளியேற்றும். நீங்கள் மீண்டும் உள்நுழைய வேண்டும் மற்றும் இரண்டு-படி உள்நுழைவை முடிக்க வேண்டும், ஏதேனும் இருந்தால். தரவு இழப்பைத் தடுக்க உங்கள் குறியாக்க அமைப்புகளை மாற்றுவதற்கு முன் உங்கள் பெட்டகத்தை ஏற்றுமதி செய்யுமாறு பரிந்துரைக்கிறோம்."
   },
@@ -8396,8 +8899,8 @@
       }
     }
   },
-  "accessedProjectWithId": {
-    "message": "திட்டம் Id: $PROJECT_ID$ அணுகப்பட்டது.",
+  "accessedProjectWithIdentifier": {
+    "message": "Accessed a project with identifier: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8423,10 +8926,89 @@
       }
     }
   },
+  "nameUnavailableServiceAccountDeleted": {
+    "message": "Deleted machine account Id: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "editedProjectWithId": {
     "message": "ஒரு திட்டத்தை திருத்தப்பட்டது: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedUserToServiceAccountWithId": {
+    "message": "Added user: $USER_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedUserToServiceAccountWithId": {
+    "message": "Removed user: $USER_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "user_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "removedGroupFromServiceAccountWithId": {
+    "message": "Removed group: $GROUP_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountCreatedWithId": {
+    "message": "Created machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "addedGroupToServiceAccountId": {
+    "message": "Added group: $GROUP_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "group_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      },
+      "service_account_id": {
+        "content": "$2",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "serviceAccountDeletedWithId": {
+    "message": "Deleted machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "placeholders": {
+      "service_account_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -8988,9 +9570,6 @@
   "loggedInExclamation": {
     "message": "உள்நுழைந்துவிட்டீர்கள்!"
   },
-  "beta": {
-    "message": "பீட்டா"
-  },
   "assignCollectionAccess": {
     "message": "சேகரிப்பு அணுகலை ஒதுக்கவும்"
   },
@@ -9267,6 +9846,12 @@
   },
   "assign": {
     "message": "ஒதுக்கு"
+  },
+  "assignTasks": {
+    "message": "Assign tasks"
+  },
+  "assignSecurityTasksToMembers": {
+    "message": "Send notifications to change passwords"
   },
   "assignToCollections": {
     "message": "சேகரிப்புகளுக்கு ஒதுக்கு"
@@ -9663,8 +10248,17 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "உங்கள் Logscale இன்ஸ்டன்ஸுக்கு நிகழ்வுத் தரவை அனுப்பவும்"
   },
+  "datadogEventIntegrationDesc": {
+    "message": "Send vault event data to your Datadog instance"
+  },
   "failedToSaveIntegration": {
     "message": "ஒருங்கிணைப்பைச் சேமிக்கத் தவறிவிட்டது. பின்னர் மீண்டும் முயற்சிக்கவும்."
+  },
+  "mustBeOrgOwnerToPerformAction": {
+    "message": "You must be the organization owner to perform this action."
+  },
+  "failedToDeleteIntegration": {
+    "message": "Failed to delete integration. Please try again later."
   },
   "deviceIdMissing": {
     "message": "சாதன ஐடி இல்லை"
@@ -9761,6 +10355,9 @@
   },
   "bearerToken": {
     "message": "பியரர் டோக்கன்"
+  },
+  "repositoryNameHint": {
+    "message": "Name of the repository to ingest into"
   },
   "index": {
     "message": "குறியீடு"
@@ -9901,12 +10498,6 @@
       }
     }
   },
-  "lowKDFIterationsBanner": {
-    "message": "குறைந்த KDF இட்டரேஷன்கள். உங்கள் கணக்கின் பாதுகாப்பை மேம்படுத்த, உங்கள் இட்டரேஷன்களை அதிகரிக்கவும்."
-  },
-  "changeKDFSettings": {
-    "message": "KDF அமைப்புகளை மாற்றவும்"
-  },
   "secureYourInfrastructure": {
     "message": "உங்கள் கட்டமைப்பைப் பாதுகாக்கவும்"
   },
@@ -10004,26 +10595,8 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "முடக்கப்பட்டுள்ளது"
   },
-  "higherKDFIterations": {
-    "message": "அதிக KDF இட்டரேஷன்கள், தாக்குபவரால் உங்கள் முதன்மை கடவுச்சொல் வலுக்கட்டாயமாகப் பயன்படுத்தப்படுவதிலிருந்து பாதுகாக்க உதவும்."
-  },
-  "incrementsOf100,000": {
-    "message": "100,000 ஆக அதிகரிப்பது"
-  },
-  "smallIncrements": {
-    "message": "சிறிய அதிகரிப்புகள்"
-  },
   "kdfIterationRecommends": {
     "message": "600,000 அல்லது அதற்கு மேல் இருக்க நாங்கள் பரிந்துரைக்கிறோம்"
-  },
-  "kdfToHighWarningIncreaseInIncrements": {
-    "message": "பழைய சாதனங்களுக்கு, உங்கள் KDF-ஐ மிக அதிகமாக அமைப்பது, செயல்திறன் சிக்கல்களுக்கு வழிவகுக்கலாம். $VALUE$-இல் மதிப்பை அதிகரித்து, உங்கள் சாதனங்களைச் சோதிக்கவும்.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "increments of 100,000"
-      }
-    }
   },
   "providerReinstate": {
     "message": " உங்கள் சந்தாவை மீண்டும் செயல்படுத்த, வாடிக்கையாளர் ஆதரவைத் தொடர்பு கொள்ளவும்."
@@ -10210,14 +10783,8 @@
   "learnMoreAboutApi": {
     "message": "Bitwarden's API பற்றி மேலும் அறிக"
   },
-  "fileSend": {
-    "message": "கோப்பு அனுப்பு"
-  },
   "fileSends": {
     "message": "கோப்பு அனுப்புதல்கள்"
-  },
-  "textSend": {
-    "message": "உரை அனுப்பு"
   },
   "textSends": {
     "message": "உரை அனுப்புதல்கள்"
@@ -10673,6 +11240,15 @@
   "domainClaimed": {
     "message": "டொமைன் கோரப்பட்டது"
   },
+  "itemAddedToFavorites": {
+    "message": "Item added to favorites"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removed from favorites"
+  },
+  "copyNote": {
+    "message": "Copy note"
+  },
   "organizationNameMaxLength": {
     "message": "அமைப்பின் பெயர் 50 எழுத்துகளைத் தாண்டக்கூடாது."
   },
@@ -10932,6 +11508,58 @@
   "cannotCreateCollection": {
     "message": "இலவச நிறுவனங்களில் 2 சேகரிப்புகள் வரை இருக்கலாம். கூடுதல் சேகரிப்புகளைச் சேர்க்க கட்டணத் திட்டத்திற்கு மேம்படுத்தவும்."
   },
+  "searchArchive": {
+    "message": "Search archive"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemsWereSentToArchive": {
+    "message": "Items were sent to archive"
+  },
+  "itemUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "bulkArchiveItems": {
+    "message": "Items archived"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Items unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item",
+    "description": "Verb"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "archiveBulkItems": {
+    "message": "Archive items",
+    "description": "Verb"
+  },
+  "archiveBulkItemsConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive these items?"
+  },
   "businessUnit": {
     "message": "வணிகப் பிரிவு"
   },
@@ -11038,6 +11666,12 @@
   },
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden நீட்டிப்பு நிறுவப்பட்டது!"
+  },
+  "openTheBitwardenExtension": {
+    "message": "Open the Bitwarden extension"
+  },
+  "bitwardenExtensionInstalledOpenExtension": {
+    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
   },
   "openExtensionToAutofill": {
     "message": "உள்நுழைந்து தானாக நிரப்பத் தொடங்க நீட்டிப்பைத் திறக்கவும்."
@@ -11264,5 +11898,273 @@
   },
   "verifyNow": {
     "message": "Verify now."
+  },
+  "additionalStorageGB": {
+    "message": "Additional storage GB"
+  },
+  "additionalServiceAccountsV2": {
+    "message": "Additional machine accounts"
+  },
+  "secretsManagerSeats": {
+    "message": "Secrets Manager seats"
+  },
+  "additionalStorage": {
+    "message": "Additional Storage"
+  },
+  "expandPurchaseDetails": {
+    "message": "Expand purchase details"
+  },
+  "collapsePurchaseDetails": {
+    "message": "Collapse purchase details"
+  },
+  "familiesMembership": {
+    "message": "Families membership"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "planDescFamiliesV2": {
+    "message": "Premium security for your family"
+  },
+  "planDescFreeV2": {
+    "message": "Share with $COUNT$ other user",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "planDescEnterpriseV2": {
+    "message": "Advanced capabilities for any organization"
+  },
+  "planNameCustom": {
+    "message": "Custom plan"
+  },
+  "planDescCustom": {
+    "message": "Bitwarden scales with businesses of all sizes to secure passwords and sensitive information. If you're part of a large enterprise, contact sales to request a quote."
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "familiesUnlimitedSharing": {
+    "message": "Unlimited sharing - choose who sees what"
+  },
+  "familiesUnlimitedCollections": {
+    "message": "Unlimited family collections"
+  },
+  "familiesSharedStorage": {
+    "message": "Shared storage for important family info"
+  },
+  "limitedUsersV2": {
+    "message": "Up to $COUNT$ members",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedCollectionsV2": {
+    "message": "Up to $COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "alwaysFree": {
+    "message": "Always free"
+  },
+  "twoSecretsIncluded": {
+    "message": "2 secrets"
+  },
+  "projectsIncludedV2": {
+    "message": "$COUNT$ project(s)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "secureItemSharing": {
+    "message": "Secure item sharing"
+  },
+  "scimSupport": {
+    "message": "SCIM support"
+  },
+  "includedMachineAccountsV2": {
+    "message": "$COUNT$ machine accounts",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "enterpriseSecurityPolicies": {
+    "message": "Enterprise security policies"
+  },
+  "selfHostOption": {
+    "message": "Self-host option"
+  },
+  "complimentaryFamiliesPlan": {
+    "message": "Complimentary families plan for all users"
+  },
+  "strengthenCybersecurity": {
+    "message": "Strengthen cybersecurity"
+  },
+  "boostProductivity": {
+    "message": "Boost productivity"
+  },
+  "seamlessIntegration": {
+    "message": "Seamless integration"
+  },
+  "families": {
+    "message": "Families"
+  },
+  "upgradeToFamilies": {
+    "message": "Upgrade to Families"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "familiesUpdated": {
+    "message": "You've upgraded to Families!"
+  },
+  "taxCalculationError": {
+    "message": "There was an error calculating tax for your location. Please try again."
+  },
+  "individualUpgradeWelcomeMessage": {
+    "message": "Welcome to Bitwarden"
+  },
+  "individualUpgradeDescriptionMessage": {
+    "message": "Unlock more security features with Premium, or start sharing items with Families"
+  },
+  "individualUpgradeTaxInformationMessage": {
+    "message": "Prices exclude tax and are billed annually."
+  },
+  "organizationNameDescription": {
+    "message": "Your organization name will appear in invitations you send to members."
+  },
+  "continueWithoutUpgrading": {
+    "message": "Continue without upgrading"
+  },
+  "upgradeYourPlan": {
+    "message": "Upgrade your plan"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "formWillCreateNewFamiliesOrgMessage": {
+    "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."
+  },
+  "upgradeErrorMessage": {
+    "message": "We encountered an error while processing your upgrade. Please try again."
+  },
+  "bitwardenFreeplanMessage": {
+    "message": "You have the Bitwarden Free plan"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "viewbusinessplans": {
+    "message": "View business plans"
+  },
+  "updateEncryptionSettings": {
+    "message": "Update encryption settings"
+  },
+  "updateYourEncryptionSettings": {
+    "message": "Update your encryption settings"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
+  "algorithm": {
+    "message": "Algorithm"
+  },
+  "encryptionKeySettingsHowShouldWeEncryptYourData": {
+    "message": "Choose how Bitwarden should encrypt your vault data. All options are secure, but stronger methods offer better protection - especially against brute-force attacks. Bitwarden recommends the default setting for most users."
+  },
+  "encryptionKeySettingsIncreaseImproveSecurity": {
+    "message": "Increasing the values above the default will improve security, but your vault may take longer to unlock as a result."
+  },
+  "encryptionKeySettingsAlgorithmPopoverTitle": {
+    "message": "About encryption algorithms"
+  },
+  "encryptionKeySettingsAlgorithmPopoverPBKDF2": {
+    "message": "PBKDF2-SHA256 is a well-tested encryption method that balances security and performance. Good for all users."
+  },
+  "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
+    "message": "Argon2id offers stronger protection against modern attacks. Best for advanced users with powerful devices."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
+  },
+  "startFreeFamiliesTrial": {
+    "message": "Start free Families trial"
+  },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Block account creation for claimed domains"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "A domain must be claimed before activating this policy."
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Set up an unlock method to change your vault timeout action."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Your vault timeout exceeds the restrictions set by your organization."
+  },
+  "neverLockWarning": {
+    "message": "Are you sure you want to use the \"Never\" option? Setting your lock options to \"Never\" stores your vault's encryption key on your device. If you use this option you should ensure that you keep your device properly protected."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
+  },
+  "appearance": {
+    "message": "Appearance"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "No critical applications are selected"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Are you sure you want to continue?"
   }
 }

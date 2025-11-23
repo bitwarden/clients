@@ -1,9 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, Inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Inject } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
 import { BillingApiServiceAbstraction as BillingApiService } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { PlanType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -21,6 +22,7 @@ type UserOffboardingParams = {
 type OrganizationOffboardingParams = {
   type: "Organization";
   id: string;
+  plan: PlanType;
 };
 
 export type OffboardingSurveyDialogParams = UserOffboardingParams | OrganizationOffboardingParams;
@@ -49,45 +51,17 @@ export const openOffboardingSurvey = (
 @Component({
   selector: "app-cancel-subscription-form",
   templateUrl: "offboarding-survey.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class OffboardingSurveyComponent {
   protected ResultType = OffboardingSurveyDialogResultType;
   protected readonly MaxFeedbackLength = 400;
 
-  protected readonly reasons: Reason[] = [
-    {
-      value: null,
-      text: this.i18nService.t("selectPlaceholder"),
-    },
-    {
-      value: "missing_features",
-      text: this.i18nService.t("missingFeatures"),
-    },
-    {
-      value: "switched_service",
-      text: this.i18nService.t("movingToAnotherTool"),
-    },
-    {
-      value: "too_complex",
-      text: this.i18nService.t("tooDifficultToUse"),
-    },
-    {
-      value: "unused",
-      text: this.i18nService.t("notUsingEnough"),
-    },
-    {
-      value: "too_expensive",
-      text: this.i18nService.t("tooExpensive"),
-    },
-    {
-      value: "other",
-      text: this.i18nService.t("other"),
-    },
-  ];
+  protected readonly reasons: Reason[] = [];
 
   protected formGroup = this.formBuilder.group({
-    reason: [this.reasons[0].value, [Validators.required]],
+    reason: [null, [Validators.required]],
     feedback: ["", [Validators.maxLength(this.MaxFeedbackLength)]],
   });
 
@@ -99,7 +73,35 @@ export class OffboardingSurveyComponent {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private toastService: ToastService,
-  ) {}
+  ) {
+    this.reasons = [
+      {
+        value: null,
+        text: this.i18nService.t("selectPlaceholder"),
+      },
+      {
+        value: "missing_features",
+        text: this.i18nService.t("missingFeatures"),
+      },
+      {
+        value: "switched_service",
+        text: this.i18nService.t("movingToAnotherTool"),
+      },
+      {
+        value: "too_complex",
+        text: this.i18nService.t("tooDifficultToUse"),
+      },
+      {
+        value: "unused",
+        text: this.i18nService.t("notUsingEnough"),
+      },
+      this.getSwitchingReason(),
+      {
+        value: "other",
+        text: this.i18nService.t("other"),
+      },
+    ];
+  }
 
   submit = async () => {
     this.formGroup.markAllAsTouched();
@@ -125,4 +127,24 @@ export class OffboardingSurveyComponent {
 
     this.dialogRef.close(this.ResultType.Submitted);
   };
+
+  private getSwitchingReason(): Reason {
+    if (this.dialogParams.type === "User") {
+      return {
+        value: "too_expensive",
+        text: this.i18nService.t("switchToFreePlan"),
+      };
+    }
+
+    const isFamilyPlan = [
+      PlanType.FamiliesAnnually,
+      PlanType.FamiliesAnnually2019,
+      PlanType.FamiliesAnnually2025,
+    ].includes(this.dialogParams.plan);
+
+    return {
+      value: "too_expensive",
+      text: this.i18nService.t(isFamilyPlan ? "switchToFreeOrg" : "tooExpensive"),
+    };
+  }
 }

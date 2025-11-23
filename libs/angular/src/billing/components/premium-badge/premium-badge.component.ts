@@ -1,31 +1,35 @@
-import { Component, input, output } from "@angular/core";
+import { Component, input } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { BadgeModule } from "@bitwarden/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-premium-badge",
   standalone: true,
   template: `
-    <button type="button" *appNotPremium bitBadge variant="success" (click)="promptForPremium()">
+    <button
+      type="button"
+      *appNotPremium
+      bitBadge
+      variant="success"
+      (click)="promptForPremium($event)"
+    >
       {{ "premium" | i18n }}
     </button>
   `,
   imports: [BadgeModule, JslibModule],
 })
 export class PremiumBadgeComponent {
-  /** Skip sending the premiumRequired message (default: false). */
-  skipMessaging = input(false);
-  onClick = output();
+  readonly organizationId = input<string>();
 
-  constructor(private messagingService: MessagingService) {}
+  constructor(private premiumUpgradePromptService: PremiumUpgradePromptService) {}
 
-  async promptForPremium() {
-    this.onClick.emit();
-    if (this.skipMessaging()) {
-      return;
-    }
-    this.messagingService.send("premiumRequired");
+  async promptForPremium(event: Event) {
+    event.stopPropagation();
+    event.preventDefault();
+    await this.premiumUpgradePromptService.promptForPremium(this.organizationId());
   }
 }

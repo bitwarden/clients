@@ -1,6 +1,7 @@
 import { combineLatest, timer } from "rxjs";
 import { filter, concatMap } from "rxjs/operators";
 
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -29,6 +30,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     private biometricStateService: BiometricStateService,
     private messagingService: MessagingService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    private pinService: PinServiceAbstraction,
   ) {
     super();
     // Always connect to the native messaging background if biometrics are enabled, not just when it is used
@@ -101,6 +103,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
         if (await this.keyService.validateUserKey(userKey, userId)) {
           await this.biometricStateService.setBiometricUnlockEnabled(true);
           await this.keyService.setUserKey(userKey, userId);
+          await this.pinService.userUnlocked(userId);
           // to update badge and other things
           this.messagingService.send("switchAccount", { userId });
           return userKey;

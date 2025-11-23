@@ -22,7 +22,6 @@ import {
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums/product-tier-type.enum";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
@@ -46,7 +45,7 @@ import { SecurityTask } from "@bitwarden/common/vault/tasks/models/security-task
 
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
-import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
+import { AuthPopoutType, openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
@@ -67,7 +66,6 @@ import { TemporaryNotificationChangeLoginService } from "../services/notificatio
 import {
   AddChangePasswordNotificationQueueMessage,
   AddLoginQueueMessage,
-  AddUnlockVaultQueueMessage,
   AddLoginMessageData,
   NotificationQueueMessageItem,
   LockedVaultPendingNotificationsData,
@@ -91,6 +89,7 @@ export default class NotificationBackground {
     ExtensionCommand.AutofillCard,
     ExtensionCommand.AutofillIdentity,
   ]);
+  private unlockPopoutTabId?: number;
   private readonly extensionMessageHandlers: NotificationBackgroundExtensionMessageHandlers = {
     bgAdjustNotificationBar: ({ message, sender }) =>
       this.handleAdjustNotificationBarMessage(message, sender),
@@ -116,12 +115,10 @@ export default class NotificationBackground {
     bgSaveCipher: ({ message, sender }) => this.handleSaveCipherMessage(message, sender),
     bgHandleReprompt: ({ message, sender }: any) =>
       this.handleCipherUpdateRepromptResponse(message),
-    bgUnlockPopoutOpened: ({ message, sender }) => this.unlockVault(message, sender.tab),
     checkNotificationQueue: ({ sender }) => this.checkNotificationQueue(sender.tab),
     collectPageDetailsResponse: ({ message }) =>
       this.handleCollectPageDetailsResponseMessage(message),
     getWebVaultUrlForNotification: () => this.getWebVaultUrl(),
-    notificationRefreshFlagValue: () => this.getNotificationFlag(),
     unlockCompleted: ({ message, sender }) => this.handleUnlockCompleted(message, sender),
   };
 
@@ -150,6 +147,7 @@ export default class NotificationBackground {
     }
 
     this.setupExtensionMessageListener();
+    this.setupUnlockPopoutCloseListener();
 
     this.cleanupNotificationQueue();
   }
@@ -217,14 +215,26 @@ export default class NotificationBackground {
       let cipherView: CipherView;
       if (cipherQueueMessage.type === NotificationType.ChangePassword) {
         const {
-          data: { cipherId },
+          data: { cipherIds },
         } = cipherQueueMessage;
-        cipherView = await this.getDecryptedCipherById(cipherId, activeUserId);
+        const cipherViews = await this.cipherService.getAllDecrypted(activeUserId);
+        return cipherViews
+          .filter((cipher) => cipherIds.includes(cipher.id))
+          .map((cipherView) => {
+            const organizationType = getOrganizationType(cipherView.organizationId);
+            return this.convertToNotificationCipherData(
+              cipherView,
+              iconsServerUrl,
+              showFavicons,
+              organizationType,
+            );
+          });
       } else {
         cipherView = this.convertAddLoginQueueMessageToCipherView(cipherQueueMessage);
       }
 
       const organizationType = getOrganizationType(cipherView.organizationId);
+
       return [
         this.convertToNotificationCipherData(
           cipherView,
@@ -352,15 +362,6 @@ export default class NotificationBackground {
   }
 
   /**
-   * Gets the current value of the notification refresh feature flag
-   * @returns Promise<boolean> indicating if the feature is enabled
-   */
-  async getNotificationFlag(): Promise<boolean> {
-    const flagValue = await this.configService.getFeatureFlag(FeatureFlag.NotificationRefresh);
-    return flagValue;
-  }
-
-  /**
    * Gets the current authentication status of the user.
    * @returns Promise<AuthenticationStatus> - The current authentication status of the user.
    */
@@ -465,11 +466,6 @@ export default class NotificationBackground {
     data: ModifyLoginCipherFormData,
     tab: chrome.tabs.Tab,
   ): Promise<boolean> {
-    const flag = await this.getNotificationFlag();
-    if (!flag) {
-      return false;
-    }
-
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
@@ -573,16 +569,6 @@ export default class NotificationBackground {
       return true;
     }
 
-    const changePasswordIsEnabled = await this.getEnableChangedPasswordPrompt();
-
-    if (
-      changePasswordIsEnabled &&
-      usernameMatches.length === 1 &&
-      usernameMatches[0].login.password !== login.password
-    ) {
-      await this.pushChangePasswordToQueue(usernameMatches[0].id, loginDomain, login.password, tab);
-      return true;
-    }
     return false;
   }
 
@@ -621,45 +607,92 @@ export default class NotificationBackground {
     data: ModifyLoginCipherFormData,
     tab: chrome.tabs.Tab,
   ): Promise<boolean> {
-    const changeData = {
-      url: data.uri,
-      currentPassword: data.password,
-      newPassword: data.newPassword,
-    };
-
-    const loginDomain = Utils.getDomain(changeData.url);
-    if (loginDomain == null) {
+    const changePasswordIsEnabled = await this.getEnableChangedPasswordPrompt();
+    if (!changePasswordIsEnabled) {
       return false;
     }
-
-    if ((await this.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      await this.pushChangePasswordToQueue(null, loginDomain, changeData.newPassword, tab, true);
-      return true;
+    const authStatus = await this.getAuthStatus();
+    if (authStatus === AuthenticationStatus.LoggedOut) {
+      return false;
     }
-
-    let id: string = null;
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
-    if (activeUserId == null) {
+    if (activeUserId === null) {
+      return false;
+    }
+    const loginDomain = Utils.getDomain(data.uri);
+    if (loginDomain === null) {
       return false;
     }
 
-    const ciphers = await this.cipherService.getAllDecryptedForUrl(changeData.url, activeUserId);
-    if (changeData.currentPassword != null) {
-      const passwordMatches = ciphers.filter(
-        (c) => c.login.password === changeData.currentPassword,
-      );
-      if (passwordMatches.length === 1) {
-        id = passwordMatches[0].id;
-      }
-    } else if (ciphers.length === 1) {
-      id = ciphers[0].id;
-    }
-    if (id != null) {
-      await this.pushChangePasswordToQueue(id, loginDomain, changeData.newPassword, tab);
+    const username: string | null = data.username || null;
+    const currentPassword = data.password || null;
+    const newPassword = data.newPassword || null;
+
+    if (authStatus === AuthenticationStatus.Locked && newPassword !== null) {
+      await this.pushChangePasswordToQueue(null, loginDomain, newPassword, tab, true);
       return true;
     }
+
+    let ciphers: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
+      data.uri,
+      activeUserId,
+    );
+
+    const normalizedUsername: string = username ? username.toLowerCase() : "";
+
+    const shouldMatchUsername = typeof username === "string" && username.length > 0;
+
+    if (shouldMatchUsername) {
+      // Presence of a username should filter ciphers further.
+      ciphers = ciphers.filter(
+        (cipher) =>
+          cipher.login.username !== null &&
+          cipher.login.username.toLowerCase() === normalizedUsername,
+      );
+    }
+
+    if (ciphers.length === 1) {
+      const [cipher] = ciphers;
+      if (
+        username !== null &&
+        newPassword === null &&
+        cipher.login.username === normalizedUsername &&
+        cipher.login.password === currentPassword
+      ) {
+        // Assumed to be a login
+        return false;
+      }
+    }
+
+    if (currentPassword && !newPassword) {
+      // Only use current password for change if no new password present.
+      if (ciphers.length > 0) {
+        await this.pushChangePasswordToQueue(
+          ciphers.map((cipher) => cipher.id),
+          loginDomain,
+          currentPassword,
+          tab,
+        );
+        return true;
+      }
+    }
+
+    if (newPassword) {
+      // Otherwise include all known ciphers.
+      if (ciphers.length > 0) {
+        await this.pushChangePasswordToQueue(
+          ciphers.map((cipher) => cipher.id),
+          loginDomain,
+          newPassword,
+          tab,
+        );
+
+        return true;
+      }
+    }
+
     return false;
   }
 
@@ -683,36 +716,8 @@ export default class NotificationBackground {
     });
   }
 
-  /**
-   * Sets up a notification to unlock the vault when the user
-   * attempts to autofill a cipher while the vault is locked.
-   *
-   * @param message - Extension message, determines if the notification should be skipped
-   * @param tab - The tab that the message was sent from
-   */
-  private async unlockVault(message: NotificationBackgroundExtensionMessage, tab: chrome.tabs.Tab) {
-    const notificationRefreshFlagEnabled = await this.getNotificationFlag();
-    if (message.data?.skipNotification) {
-      return;
-    }
-
-    if (notificationRefreshFlagEnabled) {
-      return;
-    }
-
-    const currentAuthStatus = await this.getAuthStatus();
-    if (currentAuthStatus !== AuthenticationStatus.Locked || this.notificationQueue.length) {
-      return;
-    }
-
-    const loginDomain = Utils.getDomain(tab.url);
-    if (loginDomain) {
-      await this.pushUnlockVaultToQueue(loginDomain, tab);
-    }
-  }
-
   private async pushChangePasswordToQueue(
-    cipherId: string,
+    cipherIds: CipherView["id"][],
     loginDomain: string,
     newPassword: string,
     tab: chrome.tabs.Tab,
@@ -723,7 +728,7 @@ export default class NotificationBackground {
     const launchTimestamp = new Date().getTime();
     const message: AddChangePasswordNotificationQueueMessage = {
       type: NotificationType.ChangePassword,
-      data: { cipherId: cipherId, newPassword: newPassword },
+      data: { cipherIds: cipherIds, newPassword: newPassword },
       domain: loginDomain,
       tab: tab,
       launchTimestamp,
@@ -732,20 +737,6 @@ export default class NotificationBackground {
     };
     this.notificationQueue.push(message);
     await this.checkNotificationQueue(tab);
-  }
-
-  private async pushUnlockVaultToQueue(loginDomain: string, tab: chrome.tabs.Tab) {
-    this.removeTabFromNotificationQueue(tab);
-    const launchTimestamp = new Date().getTime();
-    const message: AddUnlockVaultQueueMessage = {
-      type: NotificationType.UnlockVault,
-      domain: loginDomain,
-      tab: tab,
-      launchTimestamp,
-      expires: new Date(launchTimestamp + 0.5 * 60000), // 30 seconds
-      wasVaultLocked: true,
-    };
-    await this.sendNotificationQueueMessage(tab, message);
   }
 
   /**
@@ -776,12 +767,12 @@ export default class NotificationBackground {
       return;
     }
 
-    await this.saveOrUpdateCredentials(sender.tab, message.edit, message.folder);
+    await this.saveOrUpdateCredentials(sender.tab, message.cipherId, message.edit, message.folder);
   }
 
   async handleCipherUpdateRepromptResponse(message: NotificationBackgroundExtensionMessage) {
     if (message.success) {
-      await this.saveOrUpdateCredentials(message.tab, false, undefined, true);
+      await this.saveOrUpdateCredentials(message.tab, message.cipherId, false, undefined, true);
     } else {
       await BrowserApi.tabSendMessageData(message.tab, "saveCipherAttemptCompleted", {
         error: "Password reprompt failed",
@@ -800,6 +791,7 @@ export default class NotificationBackground {
    */
   private async saveOrUpdateCredentials(
     tab: chrome.tabs.Tab,
+    cipherId: CipherView["id"],
     edit: boolean,
     folderId?: string,
     skipReprompt: boolean = false,
@@ -824,7 +816,7 @@ export default class NotificationBackground {
 
       if (queueMessage.type === NotificationType.ChangePassword) {
         const {
-          data: { cipherId, newPassword },
+          data: { newPassword },
         } = queueMessage;
         const cipherView = await this.getDecryptedCipherById(cipherId, activeUserId);
 
@@ -906,12 +898,11 @@ export default class NotificationBackground {
     }
     const cipher = await this.cipherService.encrypt(cipherView, userId);
 
-    const shouldGetTasks = await this.getNotificationFlag();
     try {
       if (!cipherView.edit) {
         throw new Error("You do not have permission to edit this cipher.");
       }
-      const tasks = shouldGetTasks ? await this.getSecurityTasks(userId) : [];
+      const tasks = await this.getSecurityTasks(userId);
       const updatedCipherTask = tasks.find((task) => task.cipherId === cipherView?.id);
       const cipherHasTask = !!updatedCipherTask?.id;
 
@@ -1174,6 +1165,7 @@ export default class NotificationBackground {
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ): Promise<void> {
+    this.unlockPopoutTabId = undefined;
     const messageData = message.data as LockedVaultPendingNotificationsData;
     const retryCommand = messageData.commandToRetry.message.command as ExtensionCommandType;
     if (this.allowedRetryCommands.has(retryCommand)) {
@@ -1282,7 +1274,6 @@ export default class NotificationBackground {
     cipherView.folderId = folderId;
     cipherView.type = CipherType.Login;
     cipherView.login = loginView;
-    cipherView.organizationId = null;
 
     return cipherView;
   }
@@ -1324,5 +1315,44 @@ export default class NotificationBackground {
   ) {
     const tabDomain = Utils.getDomain(tab.url);
     return tabDomain === queueMessage.domain || tabDomain === Utils.getDomain(queueMessage.tab.url);
+  }
+
+  private setupUnlockPopoutCloseListener() {
+    chrome.tabs.onRemoved.addListener(async (tabId: number) => {
+      await this.handleUnlockPopoutClosed(tabId);
+    });
+  }
+
+  /**
+   * If the unlock popout is closed while the vault
+   * is still locked and there are pending autofill notifications, abandon them.
+   */
+  private async handleUnlockPopoutClosed(removedTabId: number) {
+    const authStatus = await this.getAuthStatus();
+    if (authStatus >= AuthenticationStatus.Unlocked) {
+      this.unlockPopoutTabId = undefined;
+      return;
+    }
+
+    if (this.unlockPopoutTabId === removedTabId) {
+      this.unlockPopoutTabId = undefined;
+      this.messagingService.send("abandonAutofillPendingNotifications");
+      return;
+    }
+
+    if (this.unlockPopoutTabId) {
+      return;
+    }
+
+    const extensionUrl = chrome.runtime.getURL("popup/index.html");
+    const unlockPopoutTabs = (await BrowserApi.tabsQuery({ url: `${extensionUrl}*` })).filter(
+      (tab) => tab.url?.includes(`singleActionPopout=${AuthPopoutType.unlockExtension}`),
+    );
+
+    if (unlockPopoutTabs.length === 0) {
+      this.messagingService.send("abandonAutofillPendingNotifications");
+    } else if (unlockPopoutTabs[0].id) {
+      this.unlockPopoutTabId = unlockPopoutTabs[0].id;
+    }
   }
 }

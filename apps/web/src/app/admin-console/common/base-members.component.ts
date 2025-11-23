@@ -24,6 +24,7 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationUserView } from "../organizations/core/views/organization-user.view";
 import { UserConfirmComponent } from "../organizations/manage/user-confirm.component";
+import { MemberActionResult } from "../organizations/members/services/member-actions/member-actions.service";
 
 import { PeopleTableDataSource, peopleFilter } from "./people-table-data-source";
 
@@ -75,7 +76,7 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
   /**
    * The currently executing promise - used to avoid multiple user actions executing at once.
    */
-  actionPromise?: Promise<void>;
+  actionPromise?: Promise<MemberActionResult>;
 
   protected searchControl = new FormControl("", { nonNullable: true });
   protected statusToggle = new BehaviorSubject<StatusType | undefined>(undefined);
@@ -101,13 +102,13 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
 
   abstract edit(user: UserView, organization?: Organization): void;
   abstract getUsers(organization?: Organization): Promise<ListResponse<UserView> | UserView[]>;
-  abstract removeUser(id: string, organization?: Organization): Promise<void>;
-  abstract reinviteUser(id: string, organization?: Organization): Promise<void>;
+  abstract removeUser(id: string, organization?: Organization): Promise<MemberActionResult>;
+  abstract reinviteUser(id: string, organization?: Organization): Promise<MemberActionResult>;
   abstract confirmUser(
     user: UserView,
     publicKey: Uint8Array,
     organization?: Organization,
-  ): Promise<void>;
+  ): Promise<MemberActionResult>;
   abstract invite(organization?: Organization): void;
 
   async load(organization?: Organization) {
@@ -140,12 +141,16 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
 
     this.actionPromise = this.removeUser(user.id, organization);
     try {
-      await this.actionPromise;
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("removedUserId", this.userNamePipe.transform(user)),
-      });
-      this.dataSource.removeUser(user);
+      const result = await this.actionPromise;
+      if (result.success) {
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("removedUserId", this.userNamePipe.transform(user)),
+        });
+        this.dataSource.removeUser(user);
+      } else {
+        throw new Error(result.error);
+      }
     } catch (e) {
       this.validationService.showError(e);
     }
@@ -159,11 +164,15 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
 
     this.actionPromise = this.reinviteUser(user.id, organization);
     try {
-      await this.actionPromise;
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("hasBeenReinvited", this.userNamePipe.transform(user)),
-      });
+      const result = await this.actionPromise;
+      if (result.success) {
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("hasBeenReinvited", this.userNamePipe.transform(user)),
+        });
+      } else {
+        throw new Error(result.error);
+      }
     } catch (e) {
       this.validationService.showError(e);
     }
@@ -174,14 +183,18 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
     const confirmUser = async (publicKey: Uint8Array) => {
       try {
         this.actionPromise = this.confirmUser(user, publicKey, organization);
-        await this.actionPromise;
-        user.status = this.userStatusType.Confirmed;
-        this.dataSource.replaceUser(user);
+        const result = await this.actionPromise;
+        if (result.success) {
+          user.status = this.userStatusType.Confirmed;
+          this.dataSource.replaceUser(user);
 
-        this.toastService.showToast({
-          variant: "success",
-          message: this.i18nService.t("hasBeenConfirmed", this.userNamePipe.transform(user)),
-        });
+          this.toastService.showToast({
+            variant: "success",
+            message: this.i18nService.t("hasBeenConfirmed", this.userNamePipe.transform(user)),
+          });
+        } else {
+          throw new Error(result.error);
+        }
       } catch (e) {
         this.validationService.showError(e);
         throw e;
@@ -208,7 +221,7 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
         const dialogRef = UserConfirmComponent.open(this.dialogService, {
           data: {
             name: this.userNamePipe.transform(user),
-            userId: user.id,
+            userId: user.userId,
             publicKey: publicKey,
             confirmUser: () => confirmUser(publicKey),
           },

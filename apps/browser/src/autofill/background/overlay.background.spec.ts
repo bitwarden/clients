@@ -1,6 +1,7 @@
 import { mock, MockProxy, mockReset } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import {
@@ -105,6 +106,7 @@ describe("OverlayBackground", () => {
   let platformUtilsService: MockProxy<BrowserPlatformUtilsService>;
   let enablePasskeysMock$: BehaviorSubject<boolean>;
   let vaultSettingsServiceMock: MockProxy<VaultSettingsService>;
+  const policyService = mock<PolicyService>();
   let fido2ActiveRequestManager: Fido2ActiveRequestManager;
   let selectedThemeMock$: BehaviorSubject<ThemeType>;
   let inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
@@ -156,7 +158,11 @@ describe("OverlayBackground", () => {
     fakeStateProvider = new FakeStateProvider(accountService);
     showFaviconsMock$ = new BehaviorSubject(true);
     neverDomainsMock$ = new BehaviorSubject({});
-    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
+    domainSettingsService = new DefaultDomainSettingsService(
+      fakeStateProvider,
+      policyService,
+      accountService,
+    );
     domainSettingsService.showFavicons$ = showFaviconsMock$;
     domainSettingsService.neverDomains$ = neverDomainsMock$;
     logService = mock<LogService>();
@@ -3280,6 +3286,9 @@ describe("OverlayBackground", () => {
           pageDetails: [pageDetailsForTab],
           fillNewPassword: true,
           allowTotpAutofill: true,
+          focusedFieldForm: undefined,
+          focusedFieldOpid: undefined,
+          inlineMenuFillType: undefined,
         });
         expect(overlayBackground["inlineMenuCiphers"].entries()).toStrictEqual(
           new Map([
@@ -3371,7 +3380,7 @@ describe("OverlayBackground", () => {
             });
             await flushPromises();
             triggerWebRequestOnCompletedEvent(
-              mock<chrome.webRequest.WebResponseCacheDetails>({
+              mock<chrome.webRequest.OnCompletedDetails>({
                 statusCode: 401,
               }),
             );
@@ -3389,8 +3398,9 @@ describe("OverlayBackground", () => {
               usePasskey: true,
               portKey,
             });
+            await flushPromises();
             triggerWebRequestOnCompletedEvent(
-              mock<chrome.webRequest.WebResponseCacheDetails>({
+              mock<chrome.webRequest.OnCompletedDetails>({
                 statusCode: 200,
               }),
             );
@@ -3673,6 +3683,9 @@ describe("OverlayBackground", () => {
           pageDetails: [overlayBackground["pageDetailsForTab"][sender.tab.id].get(sender.frameId)],
           fillNewPassword: true,
           allowTotpAutofill: false,
+          focusedFieldForm: undefined,
+          focusedFieldOpid: undefined,
+          inlineMenuFillType: InlineMenuFillTypes.PasswordGeneration,
         });
       });
     });

@@ -31,36 +31,50 @@
             </h2>
             <ng-container *ngIf="showSecurity">
               <bit-section disableMargin>
-                <bit-section-header>
-                  <h2 bitTypography="h6">{{ "vaultTimeoutHeader" | i18n }}</h2>
-                </bit-section-header>
+                @if (consolidatedSessionTimeoutComponent$ | async) {
+                  <bit-section-header>
+                    <h2 bitTypography="h6">{{ "sessionTimeoutHeader" | i18n }}</h2>
+                  </bit-section-header>
 
-                <auth-vault-timeout-input
-                  [vaultTimeoutOptions]="vaultTimeoutOptions"
-                  [formControl]="form.controls.vaultTimeout"
-                  ngDefaultControl
-                >
-                </auth-vault-timeout-input>
+                  <bit-session-timeout-settings
+                    [refreshTimeoutActionSettings]="refreshTimeoutSettings$"
+                  />
+                } @else {
+                  <bit-section-header>
+                    <h2 bitTypography="h6">{{ "vaultTimeoutHeader" | i18n }}</h2>
+                  </bit-section-header>
 
-                <bit-form-field disableMargin>
-                  <bit-label for="vaultTimeoutAction">{{ "vaultTimeoutAction1" | i18n }}</bit-label>
-                  <bit-select id="vaultTimeoutAction" formControlName="vaultTimeoutAction">
-                    <bit-option
-                      *ngFor="let action of availableVaultTimeoutActions"
-                      [value]="action"
-                      [label]="action | i18n"
+                  <bit-session-timeout-input
+                    [vaultTimeoutOptions]="vaultTimeoutOptions"
+                    [formControl]="form.controls.vaultTimeout"
+                    ngDefaultControl
+                  >
+                  </bit-session-timeout-input>
+
+                  <bit-form-field disableMargin>
+                    <bit-label for="vaultTimeoutAction">{{
+                      "vaultTimeoutAction1" | i18n
+                    }}</bit-label>
+                    <bit-select id="vaultTimeoutAction" formControlName="vaultTimeoutAction">
+                      <bit-option
+                        *ngFor="let action of availableVaultTimeoutActions"
+                        [value]="action"
+                        [label]="action | i18n"
+                      >
+                      </bit-option>
+                    </bit-select>
+
+                    <bit-hint
+                      *ngIf="!availableVaultTimeoutActions.includes(VaultTimeoutAction.Lock)"
                     >
-                    </bit-option>
-                  </bit-select>
+                      {{ "unlockMethodNeededToChangeTimeoutActionDesc" | i18n }}<br />
+                    </bit-hint>
+                  </bit-form-field>
 
-                  <bit-hint *ngIf="!availableVaultTimeoutActions.includes(VaultTimeoutAction.Lock)">
-                    {{ "unlockMethodNeededToChangeTimeoutActionDesc" | i18n }}<br />
+                  <bit-hint *ngIf="hasVaultTimeoutPolicy" class="tw-mt-4">
+                    {{ "vaultTimeoutPolicyAffectingOptions" | i18n }}
                   </bit-hint>
-                </bit-form-field>
-
-                <bit-hint *ngIf="hasVaultTimeoutPolicy" class="tw-mt-4">
-                  {{ "vaultTimeoutPolicyAffectingOptions" | i18n }}
-                </bit-hint>
+                }
               </bit-section>
               <div class="form-group tw-mt-4" *ngIf="(pinEnabled$ | async) || this.form.value.pin">
                 <div class="checkbox">
@@ -80,6 +94,31 @@
                 <small class="help-block" *ngIf="this.form.value.biometric && this.isMac">{{
                   "additionalTouchIdSettings" | i18n
                 }}</small>
+              </div>
+              <div
+                class="form-group"
+                *ngIf="
+                  supportsBiometric &&
+                  form.value.biometric &&
+                  isWindows &&
+                  (userHasMasterPassword || (form.value.pin && userHasPinSet)) &&
+                  isWindowsV2BiometricsEnabled
+                "
+              >
+                <div class="checkbox form-group-child">
+                  <label for="requireMasterPasswordOnAppRestart">
+                    <input
+                      id="requireMasterPasswordOnAppRestart"
+                      type="checkbox"
+                      formControlName="requireMasterPasswordOnAppRestart"
+                    />
+                    @if (pinEnabled$ | async) {
+                      {{ "requireMasterPasswordOrPinOnAppRestart" | i18n }}
+                    } @else {
+                      {{ "requireMasterPasswordOnAppRestart" | i18n }}
+                    }
+                  </label>
+                </div>
               </div>
               <div
                 class="form-group"
@@ -339,22 +378,27 @@
                       formControlName="enableAutotype"
                       (change)="saveEnableAutotype()"
                     />
-                    {{ "enableAutotypeTransitionKey" | i18n }}
-                    <button
-                      type="button"
-                      bitBadge
-                      variant="success"
-                      (click)="openPremiumDialog()"
-                      *ngIf="!hasPremium"
-                    >
-                      {{ "premium" | i18n }}
-                    </button>
+                    <div class="tw-flex tw-items-center tw-gap-2">
+                      {{ "enableAutotypeShortcutPreview" | i18n }}
+                      <div>
+                        <code>{{ form.value.autotypeShortcut }}</code>
+                      </div>
+                      <app-premium-badge></app-premium-badge>
+                    </div>
                   </label>
                 </div>
                 <small class="help-block" *ngIf="form.value.enableAutotype">
                   <b>{{ "important" | i18n }}</b>
-                  {{ "enableAutotypeDescriptionTransitionKey" | i18n }}
-                  <b>{{ "editShortcut" | i18n }}</b></small
+                  {{ "enableAutotypeShortcutDescription" | i18n }}
+                  <a
+                    class="settings-link"
+                    tabindex="0"
+                    *ngIf="this.form.value.enableAutotype"
+                    (click)="saveAutotypeShortcut()"
+                    (keydown.enter)="saveAutotypeShortcut(); $event.preventDefault()"
+                  >
+                    {{ "editShortcut" | i18n }}
+                  </a></small
                 >
               </div>
               <div class="form-group">

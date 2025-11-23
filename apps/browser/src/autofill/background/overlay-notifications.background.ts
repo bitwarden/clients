@@ -228,7 +228,9 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    *
    * @param details - The details of the web request
    */
-  private handleOnBeforeRequestEvent = (details: chrome.webRequest.WebRequestDetails) => {
+  private handleOnBeforeRequestEvent = (
+    details: chrome.webRequest.OnBeforeRequestDetails,
+  ): undefined => {
     if (this.isPostSubmissionFormRedirection(details)) {
       this.setupNotificationInitTrigger(
         details.tabId,
@@ -275,7 +277,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    *
    * @param details - The details of the web request
    */
-  private isPostSubmissionFormRedirection = (details: chrome.webRequest.WebRequestDetails) => {
+  private isPostSubmissionFormRedirection = (details: chrome.webRequest.OnBeforeRequestDetails) => {
     return (
       details.method?.toUpperCase() === "GET" &&
       this.activeFormSubmissionRequests.has(details.requestId) &&
@@ -289,7 +291,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    *
    * @param details - The details of the web request
    */
-  private isValidFormSubmissionRequest = (details: chrome.webRequest.WebRequestDetails) => {
+  private isValidFormSubmissionRequest = (details: chrome.webRequest.OnBeforeRequestDetails) => {
     return (
       !this.requestHostIsInvalid(details) &&
       this.formSubmissionRequestMethods.has(details.method?.toUpperCase())
@@ -325,7 +327,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    *
    * @param details - The details of the web response
    */
-  private handleOnCompletedRequestEvent = async (details: chrome.webRequest.WebResponseDetails) => {
+  private handleOnCompletedRequestEvent = async (details: chrome.webRequest.OnCompletedDetails) => {
     if (
       this.requestHostIsInvalid(details) ||
       !this.activeFormSubmissionRequests.has(details.requestId)
@@ -382,8 +384,8 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    * @param modifyLoginData - The modified login form data
    */
   private delayNotificationInitUntilTabIsComplete = async (
-    tabId: chrome.webRequest.ResourceRequest["tabId"],
-    requestId: chrome.webRequest.ResourceRequest["requestId"],
+    tabId: chrome.webRequest.WebRequestDetails["tabId"],
+    requestId: chrome.webRequest.WebRequestDetails["requestId"],
     modifyLoginData: ModifyLoginCipherFormData,
   ) => {
     const handleWebNavigationOnCompleted = async () => {
@@ -403,7 +405,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    * @param tab - The tab details
    */
   private processNotifications = async (
-    requestId: chrome.webRequest.ResourceRequest["requestId"],
+    requestId: chrome.webRequest.WebRequestDetails["requestId"],
     modifyLoginData: ModifyLoginCipherFormData,
     tab: chrome.tabs.Tab,
     config: { skippable: NotificationType[] } = { skippable: [] },
@@ -453,12 +455,12 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     notificationType: NotificationType,
   ): boolean => {
     switch (notificationType) {
-      case NotificationTypes.Change:
-        return modifyLoginData?.newPassword && !modifyLoginData.username;
       case NotificationTypes.Add:
         return (
           modifyLoginData?.username && !!(modifyLoginData.password || modifyLoginData.newPassword)
         );
+      case NotificationTypes.Change:
+        return !!(modifyLoginData.password || modifyLoginData.newPassword);
       case NotificationTypes.AtRiskPassword:
         return !modifyLoginData.newPassword;
       case NotificationTypes.Unlock:
@@ -477,7 +479,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    * @param tab - The tab details
    */
   private clearCompletedWebRequest = (
-    requestId: chrome.webRequest.ResourceRequest["requestId"],
+    requestId: chrome.webRequest.WebRequestDetails["requestId"],
     tabId: chrome.tabs.Tab["id"],
   ) => {
     this.activeFormSubmissionRequests.delete(requestId);
@@ -492,7 +494,12 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    *
    * @param details - The details of the web request
    */
-  private requestHostIsInvalid = (details: chrome.webRequest.ResourceRequest) => {
+  private requestHostIsInvalid = (
+    details: SetPartial<
+      chrome.webRequest.WebRequestDetails,
+      "documentId" | "documentLifecycle" | "frameType"
+    >,
+  ) => {
     return !details.url?.startsWith("http") || details.tabId < 0;
   };
 
@@ -553,7 +560,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    * @param tabId - The id of the tab that was updated
    * @param changeInfo - The change info of the tab
    */
-  private handleTabUpdated = (tabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {
+  private handleTabUpdated = (tabId: number, changeInfo: chrome.tabs.OnUpdatedInfo) => {
     if (changeInfo.status !== "loading" || !changeInfo.url) {
       return;
     }

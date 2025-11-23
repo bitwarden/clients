@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { UriMatchStrategySetting } from "@bitwarden/common/models/domain/domain-service";
@@ -8,6 +6,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { AutofillMessageCommand } from "../../enums/autofill-message.enums";
+import { InlineMenuFillType } from "../../enums/autofill-overlay.enum";
 import AutofillField from "../../models/autofill-field";
 import AutofillForm from "../../models/autofill-form";
 import AutofillPageDetails from "../../models/autofill-page-details";
@@ -25,12 +24,14 @@ export interface AutoFillOptions {
   tab: chrome.tabs.Tab;
   skipUsernameOnlyFill?: boolean;
   onlyEmptyFields?: boolean;
-  onlyVisibleFields?: boolean;
   fillNewPassword?: boolean;
   skipLastUsed?: boolean;
   allowUntrustedIframe?: boolean;
   allowTotpAutofill?: boolean;
   autoSubmitLogin?: boolean;
+  focusedFieldForm?: string;
+  focusedFieldOpid?: string;
+  inlineMenuFillType?: InlineMenuFillType;
 }
 
 export interface FormData {
@@ -43,13 +44,14 @@ export interface FormData {
 export interface GenerateFillScriptOptions {
   skipUsernameOnlyFill: boolean;
   onlyEmptyFields: boolean;
-  onlyVisibleFields: boolean;
   fillNewPassword: boolean;
   allowTotpAutofill: boolean;
   autoSubmitLogin: boolean;
   cipher: CipherView;
   tabUrl: string;
   defaultUriMatch: UriMatchStrategySetting;
+  focusedFieldOpid?: string;
+  inlineMenuFillType?: InlineMenuFillType;
 }
 
 export type CollectPageDetailsResponseMessage = {
@@ -65,29 +67,39 @@ export const COLLECT_PAGE_DETAILS_RESPONSE_COMMAND =
   );
 
 export abstract class AutofillService {
-  collectPageDetailsFromTab$: (tab: chrome.tabs.Tab) => Observable<PageDetail[]>;
-  loadAutofillScriptsOnInstall: () => Promise<void>;
-  reloadAutofillScripts: () => Promise<void>;
-  injectAutofillScripts: (
+  /** Non-null asserted. */
+  collectPageDetailsFromTab$!: (tab: chrome.tabs.Tab) => Observable<PageDetail[]>;
+  /** Non-null asserted. */
+  loadAutofillScriptsOnInstall!: () => Promise<void>;
+  /** Non-null asserted. */
+  reloadAutofillScripts!: () => Promise<void>;
+  /** Non-null asserted. */
+  injectAutofillScripts!: (
     tab: chrome.tabs.Tab,
     frameId?: number,
     triggeringOnPageLoad?: boolean,
   ) => Promise<void>;
-  getFormsWithPasswordFields: (pageDetails: AutofillPageDetails) => FormData[];
-  doAutoFill: (options: AutoFillOptions) => Promise<string | null>;
-  doAutoFillOnTab: (
+  /** Non-null asserted. */
+  getFormsWithPasswordFields!: (pageDetails: AutofillPageDetails) => FormData[];
+  /** Non-null asserted. */
+  doAutoFill!: (options: AutoFillOptions) => Promise<string | null>;
+  /** Non-null asserted. */
+  doAutoFillOnTab!: (
     pageDetails: PageDetail[],
     tab: chrome.tabs.Tab,
     fromCommand: boolean,
     autoSubmitLogin?: boolean,
   ) => Promise<string | null>;
-  doAutoFillActiveTab: (
+  /** Non-null asserted. */
+  doAutoFillActiveTab!: (
     pageDetails: PageDetail[],
     fromCommand: boolean,
     cipherType?: CipherType,
   ) => Promise<string | null>;
-  setAutoFillOnPageLoadOrgPolicy: () => Promise<void>;
-  isPasswordRepromptRequired: (
+  /** Non-null asserted. */
+  setAutoFillOnPageLoadOrgPolicy!: () => Promise<void>;
+  /** Non-null asserted. */
+  isPasswordRepromptRequired!: (
     cipher: CipherView,
     tab: chrome.tabs.Tab,
     action?: string,

@@ -21,6 +21,8 @@ interface Animal {
   animal: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-layout>
@@ -45,7 +47,7 @@ class StoryDialogComponent {
   }
 
   openDialogNonDismissable() {
-    this.dialogService.open(NonDismissableContent, {
+    this.dialogService.open(NonDismissableContentComponent, {
       data: {
         animal: "panda",
       },
@@ -62,6 +64,8 @@ class StoryDialogComponent {
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-dialog title="Dialog Title" dialogSize="large">
@@ -91,6 +95,8 @@ class StoryDialogContentComponent {
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-dialog
@@ -111,7 +117,7 @@ class StoryDialogContentComponent {
   `,
   imports: [DialogModule, ButtonModule],
 })
-class NonDismissableContent {
+class NonDismissableContentComponent {
   constructor(
     public dialogRef: DialogRef,
     @Inject(DIALOG_DATA) private data: Animal,
@@ -155,6 +161,7 @@ export default {
               toggleSideNavigation: "Toggle side navigation",
               yes: "Yes",
               no: "No",
+              loading: "Loading",
             });
           },
         },

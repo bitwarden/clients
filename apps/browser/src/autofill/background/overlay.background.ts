@@ -1127,11 +1127,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     { inlineMenuCipherId, usePasskey }: OverlayPortMessage,
     { sender }: chrome.runtime.Port,
   ) {
+    await BrowserApi.tabSendMessage(
+      sender.tab,
+      { command: "collectPageDetails" },
+      { frameId: this.focusedFieldData?.frameId },
+    );
+
     const pageDetailsForTab = this.pageDetailsForTab[sender.tab.id];
     if (!inlineMenuCipherId || !pageDetailsForTab?.size) {
       return;
     }
-
     const cipher = this.inlineMenuCiphers.get(inlineMenuCipherId);
     if (usePasskey && cipher.login?.hasFido2Credentials) {
       await this.authenticatePasskeyCredential(
@@ -1170,6 +1175,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       pageDetails,
       fillNewPassword: true,
       allowTotpAutofill: true,
+      focusedFieldForm: this.focusedFieldData?.focusedFieldForm,
+      focusedFieldOpid: this.focusedFieldData?.focusedFieldOpid,
+      inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
     });
 
     if (totpCode) {
@@ -1232,7 +1240,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param details - The web request details
    */
   private handlePasskeyAuthenticationOnCompleted = (
-    details: chrome.webRequest.WebResponseCacheDetails,
+    details: chrome.webRequest.OnCompletedDetails,
   ) => {
     chrome.webRequest.onCompleted.removeListener(this.handlePasskeyAuthenticationOnCompleted);
 
@@ -1854,6 +1862,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       pageDetails,
       fillNewPassword: true,
       allowTotpAutofill: false,
+      focusedFieldForm: this.focusedFieldData?.focusedFieldForm,
+      focusedFieldOpid: this.focusedFieldData?.focusedFieldOpid,
+      inlineMenuFillType: InlineMenuFillTypes.PasswordGeneration,
     });
 
     globalThis.setTimeout(async () => {
@@ -2102,7 +2113,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       "addToLockedVaultPendingNotifications",
       retryMessage,
     );
-    await this.openUnlockPopout(sender.tab, true);
+    await this.openUnlockPopout(sender.tab);
   }
 
   /**
@@ -2938,17 +2949,21 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       (await this.checkFocusedFieldHasValue(port.sender.tab)) &&
       (await this.shouldShowSaveLoginInlineMenuList(port.sender.tab));
 
+    const iframeUrl = chrome.runtime.getURL(
+      `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.html`,
+    );
+    const styleSheetUrl = chrome.runtime.getURL(
+      `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.css`,
+    );
+    const extensionOrigin = new URL(iframeUrl).origin;
+
     this.postMessageToPort(port, {
       command: `initAutofillInlineMenu${isInlineMenuListPort ? "List" : "Button"}`,
-      iframeUrl: chrome.runtime.getURL(
-        `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.html`,
-      ),
+      iframeUrl,
       pageTitle: chrome.i18n.getMessage(
         isInlineMenuListPort ? "bitwardenVault" : "bitwardenOverlayButton",
       ),
-      styleSheetUrl: chrome.runtime.getURL(
-        `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.css`,
-      ),
+      styleSheetUrl,
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       translations: this.getInlineMenuTranslations(),
       ciphers: isInlineMenuListPort ? await this.getInlineMenuCipherData() : null,
@@ -2962,6 +2977,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       showSaveLoginMenu,
       showInlineMenuAccountCreation,
       authStatus,
+      extensionOrigin,
     });
     this.updateInlineMenuPosition(
       port.sender,

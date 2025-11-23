@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "welcomeBack": {
     "message": "மீண்டும் வருக"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "ஒற்றை உள்நுழையைப் பயன்படுத்து"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "சமர்ப்பி"
   },
@@ -960,9 +966,6 @@
   "insertU2f": {
     "message": "உங்கள் கணினியின் USB போர்ட்டில் உங்கள் பாதுகாப்பு விசையைச் செருகவும். அதற்கு ஒரு பொத்தான் இருந்தால், அதைத் தொடவும்."
   },
-  "recoveryCodeDesc": {
-    "message": "உங்கள் இரண்டு-காரணி வழங்குநர்கள் அனைத்திற்கான அணுகலை இழந்தீர்களா? உங்கள் கணக்கில் உள்ள அனைத்து இரண்டு-காரணி வழங்குநர்களையும் முடக்க உங்கள் மீட்புக் குறியீட்டைப் பயன்படுத்தவும்."
-  },
   "recoveryCodeTitle": {
     "message": "மீட்புக் குறியீடு"
   },
@@ -1034,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "நீங்கள் அடிப்படை சேவையக URL-ஐயாவது அல்லது குறைந்தது ஒரு தனிப்பயன் சூழலையாவது சேர்க்க வேண்டும்."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
   },
   "customEnvironment": {
     "message": "தனிப்பயன் சூழல்"
@@ -1224,6 +1230,15 @@
   },
   "invalidMasterPassword": {
     "message": "தவறான முதன்மை கடவுச்சொல்"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "twoStepLoginConfirmation": {
     "message": "இரண்டு-படி உள்நுழைவு உங்கள் கணக்கை ஒரு பாதுகாப்பு விசை, அங்கீகரிப்பான் செயலி, SMS, ஃபோன் அழைப்பு அல்லது மின்னஞ்சல் போன்ற மற்றொரு சாதனம் மூலம் உங்கள் உள்நுழைவை சரிபார்க்க கோருவதன் மூலம் அதை மேலும் பாதுகாக்கிறது. bitwarden.com இணைய பெட்டகத்தில் இரண்டு-படி உள்நுழைவை அமைக்கலாம். இப்போது இணையதளத்திற்குச் செல்ல விரும்புகிறீர்களா?"
@@ -1846,6 +1861,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "மறுதொடக்கம் செய்யும் போது முதன்மை கடவுச்சொல்லுடன் பூட்டவும்"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Require master password or PIN on app restart"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Require master password on app restart"
+  },
   "deleteAccount": {
     "message": "கணக்கை நீக்கவும்"
   },
@@ -2128,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "உலாவி ஒருங்கிணைப்பை இயக்கும்போது ஒரு பிழை ஏற்பட்டது."
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "துரதிர்ஷ்டவசமாக உலாவி ஒருங்கிணைப்பு தற்போது Mac App Store பதிப்பில் மட்டுமே ஆதரிக்கப்படுகிறது."
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "துரதிர்ஷ்டவசமாக உலாவி ஒருங்கிணைப்பு தற்போது Microsoft Store பதிப்பில் ஆதரிக்கப்படவில்லை."
@@ -2543,6 +2561,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum custom timeout is 1 minute."
+  },
   "inviteAccepted": {
     "message": "அழைப்பு ஏற்கப்பட்டது"
   },
@@ -2654,6 +2675,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -4083,11 +4122,17 @@
   "showLess": {
     "message": "குறைவாகக் காட்டு"
   },
-  "enableAutotype": {
-    "message": "தானியங்கு வகையை இயக்கு"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden உள்ளீட்டு இடங்களைச் சரிபார்க்காது, ஷார்ட்கட்டைப் பயன்படுத்துவதற்கு முன் சரியான சாளரம் மற்றும் புலத்தில் நீங்கள் இருக்கிறீர்கள் என்பதை உறுதிப்படுத்திக் கொள்ளுங்கள்."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "moreBreadcrumbs": {
     "message": "மேலும் பிரெட்க்ரம்புகள்",
@@ -4102,13 +4147,81 @@
   "confirm": {
     "message": "உறுதிப்படுத்து"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "தானியங்கு வகை குறுக்குவழியை இயக்கு"
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
-    "message": "தவறான இடத்தில் தரவை நிரப்புவதைத் தவிர்க்க, குறுக்குவழியைப் பயன்படுத்துவதற்கு முன்பு நீங்கள் சரியான புலத்தில் இருப்பதை உறுதிப்படுத்திக் கொள்ளுங்கள்."
+  "enableAutotypeShortcutDescription": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
   },
   "editShortcut": {
     "message": "குறுக்குவழியைத் திருத்து"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

@@ -31,17 +31,19 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Generate GH App token
-        uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3
+        uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42 # v2.1.4
         id: app-token
         with:
           app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
           private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
+          permission-contents: write # for committing and pushing to the current branch
 
       - name: Check out target ref
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: main
           token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: true
 
       - name: Configure Git
         run: |
@@ -52,7 +54,7 @@ jobs:
         id: current-desktop-version
         run: |
           CURRENT_VERSION=$(cat package.json | jq -r '.version')
-          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
         working-directory: apps/desktop
 
       - name: Calculate next Desktop release version
@@ -65,12 +67,12 @@ jobs:
         id: bump-desktop-version-automatic
         env:
           VERSION: ${{ steps.calculate-next-desktop-version.outputs.version }}
-        run: npm version --workspace=@bitwarden/desktop $VERSION
+        run: npm version --workspace=@bitwarden/desktop "$VERSION"
 
       - name: Bump Desktop Version - App - Automatic Calculation
         env:
           VERSION: ${{ steps.calculate-next-desktop-version.outputs.version }}
-        run: npm version $VERSION
+        run: npm version "$VERSION"
         working-directory: "apps/desktop/src"
 
       - name: Commit files

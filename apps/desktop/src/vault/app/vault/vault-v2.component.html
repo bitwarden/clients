@@ -19,6 +19,7 @@
       (onClone)="cloneCipher($event)"
       (onDelete)="deleteCipher()"
       (onCancel)="cancelCipher($event)"
+      (onArchiveToggle)="refreshCurrentCipher()"
       [masterPasswordAlreadyPrompted]="cipherRepromptId === cipherId"
     ></app-vault-item-footer>
     <div class="content">
@@ -42,17 +43,10 @@
                 (click)="openAttachmentsDialog()"
                 [disabled]="formDisabled"
               >
-                <p class="tw-m-0">
+                <div class="tw-flex tw-items-center tw-gap-2">
                   {{ "attachments" | i18n }}
-                  <span
-                    *ngIf="!(canAccessAttachments$ | async)"
-                    bitBadge
-                    variant="success"
-                    class="tw-ml-2"
-                  >
-                    {{ "premium" | i18n }}
-                  </span>
-                </p>
+                  <app-premium-badge></app-premium-badge>
+                </div>
                 <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
               </button>
             </bit-item>

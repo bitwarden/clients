@@ -23,22 +23,32 @@ const defaultIcon: Record<BannerType, string> = {
   * - Avoid stacking multiple banners.
   * - Banners can contain a button or anchor that uses the `bitLink` directive with `linkType="secondary"`.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-banner",
   templateUrl: "./banner.component.html",
   imports: [CommonModule, IconButtonModule, I18nPipe],
+  host: {
+    // Account for bit-layout's padding
+    class:
+      "tw-flex tw-flex-col [bit-layout_&]:-tw-mx-8 [bit-layout_&]:-tw-my-6 [bit-layout_&]:tw-pb-6",
+  },
 })
 export class BannerComponent implements OnInit {
   readonly bannerType = input<BannerType>("info");
 
-  readonly icon = model<string>();
+  // passing `null` will remove the icon from element from the banner
+  readonly icon = model<string | null>();
   readonly useAlertRole = input(true);
   readonly showClose = input(true);
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onClose = new EventEmitter<void>();
 
   ngOnInit(): void {
-    if (!this.icon()) {
+    if (!this.icon() && this.icon() !== null) {
       this.icon.set(defaultIcon[this.bannerType()]);
     }
   }

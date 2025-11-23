@@ -52,6 +52,7 @@ import { ScriptInjectorService } from "../../platform/services/abstractions/scri
 // eslint-disable-next-line no-restricted-imports
 import { openVaultItemPasswordRepromptPopout } from "../../vault/popup/utils/vault-popout-window";
 import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
+import { InlineMenuFillTypes } from "../enums/autofill-overlay.enum";
 import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -161,7 +162,7 @@ export default class AutofillService implements AutofillServiceInterface {
 
     // Create a timeout observable that emits an empty array if pageDetailsFromTab$ hasn't emitted within 1 second.
     const pageDetailsTimeout$ = timer(1000).pipe(
-      map(() => []),
+      map((): any => []),
       takeUntil(sharedPageDetailsFromTab$),
     );
 
@@ -400,7 +401,7 @@ export default class AutofillService implements AutofillServiceInterface {
    * Gets the default URI match strategy setting from the domain settings service.
    */
   async getDefaultUriMatchStrategy(): Promise<UriMatchStrategySetting> {
-    return await firstValueFrom(this.domainSettingsService.defaultUriMatchStrategy$);
+    return await firstValueFrom(this.domainSettingsService.resolvedDefaultUriMatchStrategy$);
   }
 
   /**
@@ -434,16 +435,25 @@ export default class AutofillService implements AutofillServiceInterface {
           return;
         }
 
-        const fillScript = await this.generateFillScript(pd.details, {
+        // If we have a focused form, filter the page details to only include fields from that form
+        const details = options.focusedFieldForm
+          ? {
+              ...pd.details,
+              fields: pd.details.fields.filter((f) => f.form === options.focusedFieldForm),
+            }
+          : pd.details;
+
+        const fillScript = await this.generateFillScript(details, {
           skipUsernameOnlyFill: options.skipUsernameOnlyFill || false,
           onlyEmptyFields: options.onlyEmptyFields || false,
-          onlyVisibleFields: options.onlyVisibleFields || false,
           fillNewPassword: options.fillNewPassword || false,
           allowTotpAutofill: options.allowTotpAutofill || false,
           autoSubmitLogin: options.autoSubmitLogin || false,
           cipher: options.cipher,
           tabUrl: tab.url,
           defaultUriMatch: defaultUriMatch,
+          focusedFieldOpid: options.focusedFieldOpid,
+          inlineMenuFillType: options.inlineMenuFillType,
         });
 
         if (!fillScript || !fillScript.script || !fillScript.script.length) {
@@ -571,7 +581,6 @@ export default class AutofillService implements AutofillServiceInterface {
       skipLastUsed: !fromCommand,
       skipUsernameOnlyFill: !fromCommand,
       onlyEmptyFields: !fromCommand,
-      onlyVisibleFields: !fromCommand,
       fillNewPassword: fromCommand,
       allowUntrustedIframe: fromCommand,
       allowTotpAutofill: fromCommand,
@@ -676,7 +685,6 @@ export default class AutofillService implements AutofillServiceInterface {
       skipLastUsed: !fromCommand,
       skipUsernameOnlyFill: !fromCommand,
       onlyEmptyFields: !fromCommand,
-      onlyVisibleFields: !fromCommand,
       fillNewPassword: false,
       allowUntrustedIframe: fromCommand,
       allowTotpAutofill: false,
@@ -832,7 +840,7 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     const passwords: AutofillField[] = [];
-    const usernames: AutofillField[] = [];
+    const usernames = new Map<string, AutofillField>();
     const totps: AutofillField[] = [];
     let pf: AutofillField = null;
     let username: AutofillField = null;
@@ -843,22 +851,91 @@ export default class AutofillService implements AutofillServiceInterface {
 
     fillScript.untrustedIframe = await this.inUntrustedIframe(pageDetails.url, options);
 
-    let passwordFields = AutofillService.loadPasswordFields(
+    const passwordFields = AutofillService.loadPasswordFields(
       pageDetails,
       false,
       false,
       options.onlyEmptyFields,
       options.fillNewPassword,
     );
-    if (!passwordFields.length && !options.onlyVisibleFields) {
-      // not able to find any viewable password fields. maybe there are some "hidden" ones?
-      passwordFields = AutofillService.loadPasswordFields(
-        pageDetails,
-        true,
-        true,
-        options.onlyEmptyFields,
-        options.fillNewPassword,
-      );
+
+    const loginPasswordFields: AutofillField[] = [];
+    const registrationPasswordFields: AutofillField[] = [];
+
+    passwordFields.forEach((passField) => {
+      if (this.isRegistrationPasswordField(pageDetails, passField)) {
+        registrationPasswordFields.push(passField);
+      } else {
+        loginPasswordFields.push(passField);
+      }
+    });
+
+    // Prefer login fields over registration fields
+    const prioritizedPasswordFields =
+      loginPasswordFields.length > 0 ? loginPasswordFields : registrationPasswordFields;
+
+    const focusedField =
+      options.focusedFieldOpid &&
+      pageDetails.fields.find((f) => f.opid === options.focusedFieldOpid);
+    const focusedForm = focusedField?.form;
+
+    const isFocusedTotpField =
+      focusedField &&
+      options.allowTotpAutofill &&
+      (focusedField.type === "text" ||
+        focusedField.type === "number" ||
+        focusedField.type === "tel") &&
+      (AutofillService.fieldIsFuzzyMatch(focusedField, [
+        ...AutoFillConstants.TotpFieldNames,
+        ...AutoFillConstants.AmbiguousTotpFieldNames,
+      ]) ||
+        focusedField.autoCompleteType === "one-time-code") &&
+      !AutofillService.fieldIsFuzzyMatch(focusedField, [
+        ...AutoFillConstants.RecoveryCodeFieldNames,
+      ]);
+
+    const focusedUsernameField =
+      focusedField &&
+      !isFocusedTotpField &&
+      login.username &&
+      (focusedField.type === "text" ||
+        focusedField.type === "email" ||
+        focusedField.type === "tel") &&
+      focusedField;
+
+    const passwordMatchesFocused = (pf: AutofillField): boolean =>
+      !focusedField
+        ? true
+        : focusedForm != null
+          ? pf.form === focusedForm
+          : focusedUsernameField &&
+            pf.form == null &&
+            this.findUsernameField(pageDetails, pf, false, false, true)?.opid ===
+              focusedUsernameField.opid;
+
+    const getUsernameForPassword = (
+      pf: AutofillField,
+      withoutForm: boolean,
+    ): AutofillField | null => {
+      // use focused username if it matches this password, otherwise fall back to finding username field before password
+      if (focusedUsernameField && passwordMatchesFocused(pf)) {
+        return focusedUsernameField;
+      }
+      return this.findUsernameField(pageDetails, pf, false, false, withoutForm);
+    };
+
+    if (focusedUsernameField && !prioritizedPasswordFields.some(passwordMatchesFocused)) {
+      if (!Object.prototype.hasOwnProperty.call(filledFields, focusedUsernameField.opid)) {
+        filledFields[focusedUsernameField.opid] = focusedUsernameField;
+        AutofillService.fillByOpid(fillScript, focusedUsernameField, login.username);
+        if (options.autoSubmitLogin && focusedUsernameField.form) {
+          fillScript.autosubmit = [focusedUsernameField.form];
+        }
+        return AutofillService.setFillScriptForFocus(
+          { [focusedUsernameField.opid]: focusedUsernameField },
+          fillScript,
+        );
+      }
     }
 
     for (const formKey in pageDetails.forms) {
@@ -867,31 +944,26 @@ export default class AutofillService implements AutofillServiceInterface {
         continue;
       }
 
-      passwordFields.forEach((passField) => {
+      prioritizedPasswordFields.forEach((passField) => {
+        if (focusedField && !passwordMatchesFocused(passField)) {
+          return;
+        }
+
         pf = passField;
         passwords.push(pf);
 
         if (login.username) {
-          username = this.findUsernameField(pageDetails, pf, false, false, false);
-
-          if (!username && !options.onlyVisibleFields) {
-            // not able to find any viewable username fields. maybe there are some "hidden" ones?
-            username = this.findUsernameField(pageDetails, pf, true, true, false);
-          }
-
+          username = getUsernameForPassword(pf, false);
           if (username) {
-            usernames.push(username);
+            usernames.set(username.opid, username);
           }
         }
 
         if (options.allowTotpAutofill && login.totp) {
-          totp = this.findTotpField(pageDetails, pf, false, false, false);
-
-          if (!totp && !options.onlyVisibleFields) {
-            // not able to find any viewable totp fields. maybe there are some "hidden" ones?
-            totp = this.findTotpField(pageDetails, pf, true, true, false);
-          }
-
+          totp =
+            isFocusedTotpField && passwordMatchesFocused(passField)
+              ? focusedField
+              : this.findTotpField(pageDetails, pf, false, false, false);
           if (totp) {
             totps.push(totp);
           }
@@ -900,35 +972,57 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     if (passwordFields.length && !passwords.length) {
-      // The page does not have any forms with password fields. Use the first password field on the page and the
-      // input field just before it as the username.
+      // in the event that password fields exist but weren't processed within form elements.
+      const isPasswordGeneration =
+        options.inlineMenuFillType === InlineMenuFillTypes.PasswordGeneration;
+      const isCurrentPasswordUpdate =
+        options.inlineMenuFillType === InlineMenuFillTypes.CurrentPasswordUpdate;
 
-      pf = passwordFields[0];
-      passwords.push(pf);
+      // For password generation or current password update, include all password fields from the same form
+      // This ensures we have access to all fields regardless of their login/registration classification
+      if ((isPasswordGeneration || isCurrentPasswordUpdate) && focusedField) {
+        // Add all password fields from the same form as the focused field
+        const focusedFieldForm = focusedField.form;
 
-      if (login.username && pf.elementNumber > 0) {
-        username = this.findUsernameField(pageDetails, pf, false, false, true);
+        // Check both login and registration fields to ensure we get all password fields
+        const allPasswordFields = [...loginPasswordFields, ...registrationPasswordFields];
+        allPasswordFields.forEach((passField) => {
+          if (passField.form === focusedFieldForm) {
+            passwords.push(passField);
+          }
+        });
+      }
 
-        if (!username && !options.onlyVisibleFields) {
-          // not able to find any viewable username fields. maybe there are some "hidden" ones?
-          username = this.findUsernameField(pageDetails, pf, true, true, true);
-        }
+      // If we didn't add any passwords above (either not password generation/update or no matching fields),
+      // select matching password if focused, otherwise first in prioritized list.
+      if (!passwords.length) {
+        const passwordFieldToUse = focusedField
+          ? prioritizedPasswordFields.find(passwordMatchesFocused) || prioritizedPasswordFields[0]
+          : prioritizedPasswordFields[0];
 
-        if (username) {
-          usernames.push(username);
+        if (passwordFieldToUse) {
+          passwords.push(passwordFieldToUse);
         }
       }
 
-      if (options.allowTotpAutofill && login.totp && pf.elementNumber > 0) {
-        totp = this.findTotpField(pageDetails, pf, false, false, true);
-
-        if (!totp && !options.onlyVisibleFields) {
-          // not able to find any viewable username fields. maybe there are some "hidden" ones?
-          totp = this.findTotpField(pageDetails, pf, true, true, true);
+      // Handle username and TOTP for the first password field
+      const firstPasswordField = passwords[0];
+      if (firstPasswordField) {
+        if (login.username && firstPasswordField.elementNumber > 0) {
+          username = getUsernameForPassword(firstPasswordField, true);
+          if (username) {
+            usernames.set(username.opid, username);
+          }
         }
 
-        if (totp) {
-          totps.push(totp);
+        if (options.allowTotpAutofill && login.totp && firstPasswordField.elementNumber > 0) {
+          totp =
+            isFocusedTotpField && passwordMatchesFocused(firstPasswordField)
+              ? focusedField
+              : this.findTotpField(pageDetails, firstPasswordField, false, false, true);
+          if (totp) {
+            totps.push(totp);
+          }
         }
       }
     }
@@ -962,7 +1056,7 @@ export default class AutofillService implements AutofillServiceInterface {
             totps.push(field);
             return;
           case isFillableUsernameField:
-            usernames.push(field);
+            usernames.set(field.opid, field);
             return;
           default:
             return;
@@ -971,9 +1065,10 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     const formElementsSet = new Set<string>();
-    usernames.forEach((u) => {
-      // eslint-disable-next-line
-      if (filledFields.hasOwnProperty(u.opid)) {
+    const usernamesToFill = focusedUsernameField ? [focusedUsernameField] : [...usernames.values()];
+
+    usernamesToFill.forEach((u) => {
+      if (Object.prototype.hasOwnProperty.call(filledFields, u.opid)) {
         return;
       }
 
@@ -997,7 +1092,7 @@ export default class AutofillService implements AutofillServiceInterface {
       fillScript.autosubmit = Array.from(formElementsSet);
     }
 
-    if (options.allowTotpAutofill) {
+    if (options.allowTotpAutofill && login?.totp) {
       await Promise.all(
         totps.map(async (t, i) => {
           if (Object.prototype.hasOwnProperty.call(filledFields, t.opid)) {
@@ -1005,10 +1100,10 @@ export default class AutofillService implements AutofillServiceInterface {
           }
 
           filledFields[t.opid] = t;
-          const totpResponse = await firstValueFrom(
-            this.totpService.getCode$(options.cipher.login.totp),
-          );
+
+          const totpResponse = await firstValueFrom(this.totpService.getCode$(login.totp));
           let totpValue = totpResponse.code;
+
           if (totpValue.length == totps.length) {
             totpValue = totpValue.charAt(i);
           }
@@ -2277,6 +2372,38 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
+   * Determines if a password field is part of a registration/signup form.
+   * @param {AutofillPageDetails} pageDetails
+   * @param {AutofillField} passwordField
+   * @returns {boolean}
+   * @private
+   */
+  private isRegistrationPasswordField(
+    pageDetails: AutofillPageDetails,
+    passwordField: AutofillField,
+  ): boolean {
+    if (!passwordField.form || !pageDetails.forms) {
+      return false;
+    }
+
+    const form = pageDetails.forms[passwordField.form];
+    if (!form) {
+      return false;
+    }
+
+    const formIdentifierValues = [
+      form.htmlID?.toLowerCase?.(),
+      form.htmlName?.toLowerCase?.(),
+      passwordField?.htmlID?.toLowerCase?.(),
+      passwordField?.htmlName?.toLowerCase?.(),
+    ].filter(Boolean);
+
+    return formIdentifierValues.some((value) =>
+      AutoFillConstants.RegistrationKeywords.some((keyword) => value.includes(keyword)),
+    );
+  }
+
+  /**
    * Accepts a pageDetails object with a list of fields and returns a list of
    * fields that are likely to be username fields.
    * @param {AutofillPageDetails} pageDetails
@@ -2295,6 +2422,8 @@ export default class AutofillService implements AutofillServiceInterface {
     withoutForm: boolean,
   ): AutofillField | null {
     let usernameField: AutofillField = null;
+    let usernameFieldInSameForm: AutofillField = null;
+
     for (let i = 0; i < pageDetails.fields.length; i++) {
       const f = pageDetails.fields[i];
       if (AutofillService.forCustomFieldsOnly(f)) {
@@ -2307,22 +2436,36 @@ export default class AutofillService implements AutofillServiceInterface {
 
       const includesUsernameFieldName =
         this.findMatchingFieldIndex(f, AutoFillConstants.UsernameFieldNames) > -1;
+      // only consider fields in same form if both have non-null form values
+      // null forms are treated as separate
+      const isInSameForm =
+        f.form != null && passwordField.form != null && f.form === passwordField.form;
+
+      // An email or tel field in the same form as the password field is likely a qualified
+      // candidate for autofill, even if visibility checks are unreliable
+      const isQualifiedUsernameField = isInSameForm && (f.type === "email" || f.type === "tel");
 
       if (
         !f.disabled &&
         (canBeReadOnly || !f.readonly) &&
-        (withoutForm || f.form === passwordField.form || includesUsernameFieldName) &&
-        (canBeHidden || f.viewable) &&
+        (withoutForm || isInSameForm || includesUsernameFieldName) &&
+        (canBeHidden || f.viewable || isQualifiedUsernameField) &&
         (f.type === "text" || f.type === "email" || f.type === "tel")
       ) {
-        usernameField = f;
-        // We found an exact match. No need to keep looking.
-        if (includesUsernameFieldName) {
-          break;
+        // Prioritize fields in the same form as the password field
+        if (isInSameForm) {
+          usernameFieldInSameForm = f;
+          if (includesUsernameFieldName) {
+            return f;
+          }
+        } else {
+          usernameField = f;
         }
       }
     }
-    return usernameField;
+
+    // Prefer username field in same form, fall back to any username field
+    return usernameFieldInSameForm || usernameField;
   }
 
   /**
@@ -2546,6 +2689,7 @@ export default class AutofillService implements AutofillServiceInterface {
       "label-tag",
       "placeholder",
       "label-left",
+      "label-right",
       "label-top",
       "label-aria",
       "dataSetValues",
@@ -2642,7 +2786,7 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
-   * Updates a fill script to place the `cilck_on_opid`, `focus_on_opid`, and `fill_by_opid`
+   * Updates a fill script to place the `click_on_opid`, `focus_on_opid`, and `fill_by_opid`
    * fill script actions associated with the provided field.
    * @param {AutofillScript} fillScript
    * @param {AutofillField} field

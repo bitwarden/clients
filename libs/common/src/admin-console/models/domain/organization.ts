@@ -38,6 +38,7 @@ export class Organization {
   useSecretsManager: boolean;
   usePasswordManager: boolean;
   useActivateAutofillPolicy: boolean;
+  useAutomaticUserConfirmation: boolean;
   selfHost: boolean;
   usersGetPremium: boolean;
   seats: number;
@@ -92,7 +93,7 @@ export class Organization {
    * matches one of the verified domains of that organization, and the user is a member of it.
    */
   userIsManagedByOrganization: boolean;
-  useRiskInsights: boolean;
+  useAccessIntelligence: boolean;
   useAdminSponsoredFamilies: boolean;
   isAdminInitiated: boolean;
   ssoEnabled: boolean;
@@ -124,6 +125,7 @@ export class Organization {
     this.useSecretsManager = obj.useSecretsManager;
     this.usePasswordManager = obj.usePasswordManager;
     this.useActivateAutofillPolicy = obj.useActivateAutofillPolicy;
+    this.useAutomaticUserConfirmation = obj.useAutomaticUserConfirmation;
     this.selfHost = obj.selfHost;
     this.usersGetPremium = obj.usersGetPremium;
     this.seats = obj.seats;
@@ -155,7 +157,7 @@ export class Organization {
     this.limitItemDeletion = obj.limitItemDeletion;
     this.allowAdminAccessToAllCollectionItems = obj.allowAdminAccessToAllCollectionItems;
     this.userIsManagedByOrganization = obj.userIsManagedByOrganization;
-    this.useRiskInsights = obj.useRiskInsights;
+    this.useAccessIntelligence = obj.useAccessIntelligence;
     this.useAdminSponsoredFamilies = obj.useAdminSponsoredFamilies;
     this.isAdminInitiated = obj.isAdminInitiated;
     this.ssoEnabled = obj.ssoEnabled;
@@ -306,6 +308,14 @@ export class Organization {
 
   get canManageUsersPassword() {
     return this.isAdmin || this.permissions.manageResetPassword;
+  }
+
+  get canEnableAutoConfirmPolicy() {
+    return (
+      (this.canManageUsers || this.canManagePolicies) &&
+      this.useAutomaticUserConfirmation &&
+      !this.isProviderUser
+    );
   }
 
   get canManageDeviceApprovals() {

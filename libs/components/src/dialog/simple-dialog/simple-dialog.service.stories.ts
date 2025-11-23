@@ -9,12 +9,14 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { ButtonModule } from "../../button";
 import { I18nMockService } from "../../utils/i18n-mock.service";
 import { DialogModule } from "../dialog.module";
-import { DialogService } from "../dialog.service";
+import { CenterPositionStrategy, DialogService } from "../dialog.service";
 
 interface Animal {
   animal: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <button type="button" bitButton (click)="openSimpleDialog()">Open Simple Dialog</button>
@@ -31,32 +33,37 @@ class StoryDialogComponent {
   constructor(public dialogService: DialogService) {}
 
   openSimpleDialog() {
-    this.dialogService.open(SimpleDialogContent, {
+    this.dialogService.open(SimpleDialogContentComponent, {
       data: {
         animal: "panda",
       },
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 
   openNonDismissableWithPrimaryButtonDialog() {
-    this.dialogService.open(NonDismissableWithPrimaryButtonContent, {
+    this.dialogService.open(NonDismissableWithPrimaryButtonContentComponent, {
       data: {
         animal: "panda",
       },
       disableClose: true,
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 
   openNonDismissableWithNoButtonsDialog() {
-    this.dialogService.open(NonDismissableWithNoButtonsContent, {
+    this.dialogService.open(NonDismissableWithNoButtonsContentComponent, {
       data: {
         animal: "panda",
       },
       disableClose: true,
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-simple-dialog>
@@ -76,7 +83,7 @@ class StoryDialogComponent {
   `,
   imports: [ButtonModule, DialogModule],
 })
-class SimpleDialogContent {
+class SimpleDialogContentComponent {
   constructor(
     public dialogRef: DialogRef,
     @Inject(DIALOG_DATA) private data: Animal,
@@ -87,6 +94,8 @@ class SimpleDialogContent {
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-simple-dialog>
@@ -105,7 +114,7 @@ class SimpleDialogContent {
   `,
   imports: [ButtonModule, DialogModule],
 })
-class NonDismissableWithPrimaryButtonContent {
+class NonDismissableWithPrimaryButtonContentComponent {
   constructor(
     public dialogRef: DialogRef,
     @Inject(DIALOG_DATA) private data: Animal,
@@ -116,6 +125,8 @@ class NonDismissableWithPrimaryButtonContent {
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-simple-dialog>
@@ -129,7 +140,7 @@ class NonDismissableWithPrimaryButtonContent {
   `,
   imports: [ButtonModule, DialogModule],
 })
-class NonDismissableWithNoButtonsContent {
+class NonDismissableWithNoButtonsContentComponent {
   constructor(
     public dialogRef: DialogRef,
     @Inject(DIALOG_DATA) private data: Animal,

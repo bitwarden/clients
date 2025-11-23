@@ -25,7 +25,7 @@ const render: Story["render"] = (args) => ({
     ...args,
   },
   template: `
-    <bit-dialog [dialogSize]="dialogSize" [disablePadding]="disablePadding">
+    <bit-dialog [dialogSize]="dialogSize" [disablePadding]="disablePadding" disableAnimations>
       <span bitDialogTitle>Access selector</span>
       <span bitDialogContent>
         <bit-access-selector

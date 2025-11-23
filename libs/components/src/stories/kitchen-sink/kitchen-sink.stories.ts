@@ -19,10 +19,10 @@ import { I18nMockService } from "../../utils/i18n-mock.service";
 import { positionFixedWrapperDecorator } from "../storybook-decorators";
 
 import { DialogVirtualScrollBlockComponent } from "./components/dialog-virtual-scroll-block.component";
-import { KitchenSinkForm } from "./components/kitchen-sink-form.component";
+import { KitchenSinkFormComponent } from "./components/kitchen-sink-form.component";
 import { KitchenSinkMainComponent } from "./components/kitchen-sink-main.component";
-import { KitchenSinkTable } from "./components/kitchen-sink-table.component";
-import { KitchenSinkToggleList } from "./components/kitchen-sink-toggle-list.component";
+import { KitchenSinkTableComponent } from "./components/kitchen-sink-table.component";
+import { KitchenSinkToggleListComponent } from "./components/kitchen-sink-toggle-list.component";
 import { KitchenSinkSharedModule } from "./kitchen-sink-shared.module";
 
 export default {
@@ -33,10 +33,10 @@ export default {
     moduleMetadata({
       imports: [
         KitchenSinkSharedModule,
-        KitchenSinkForm,
+        KitchenSinkFormComponent,
         KitchenSinkMainComponent,
-        KitchenSinkTable,
-        KitchenSinkToggleList,
+        KitchenSinkTableComponent,
+        KitchenSinkToggleListComponent,
       ],
     }),
     applicationConfig({
@@ -64,6 +64,7 @@ export default {
               toggleSideNavigation: "Toggle side navigation",
               yes: "Yes",
               no: "No",
+              loading: "Loading",
             });
           },
         },
@@ -197,5 +198,14 @@ export const VirtualScrollBlockingDialog: Story = {
     const dialogButton = getAllByLabelText(canvas, "Options")[0];
 
     await userEvent.click(dialogButton);
+  },
+};
+
+export const ResponsiveSidebar: Story = {
+  render: Default.render,
+  parameters: {
+    chromatic: {
+      viewports: [640, 1280],
+    },
   },
 };

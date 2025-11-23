@@ -1,5 +1,13 @@
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
-import { combineLatest, map, Observable, Subject, switchMap, takeUntil } from "rxjs";
+import {
+  combineLatest,
+  firstValueFrom,
+  map,
+  Observable,
+  Subject,
+  switchMap,
+  takeUntil,
+} from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -14,6 +22,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -30,6 +39,8 @@ import { LinkSsoService } from "../../../../auth/core/services";
 import { OptionsInput } from "../shared/components/vault-filter-section.component";
 import { OrganizationFilter } from "../shared/models/vault-filter.type";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-organization-options",
   templateUrl: "organization-options.component.html",
@@ -65,6 +76,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     private keyService: KeyService,
     private accountService: AccountService,
     private linkSsoService: LinkSsoService,
+    private ssoLoginService: SsoLoginServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -167,6 +179,8 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
         title: "",
         message: this.i18nService.t("unlinkedSso"),
       });
+
+      await this.removeEmailFromSsoRequiredCacheIfPresent();
     } catch (e) {
       this.logService.error(e);
     }
@@ -186,14 +200,28 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     try {
       this.actionPromise = this.organizationApiService.leave(org.id);
       await this.actionPromise;
+
       this.toastService.showToast({
         variant: "success",
         title: "",
         message: this.i18nService.t("leftOrganization"),
       });
+
+      await this.removeEmailFromSsoRequiredCacheIfPresent();
     } catch (e) {
       this.logService.error(e);
     }
+  }
+
+  private async removeEmailFromSsoRequiredCacheIfPresent() {
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+
+    if (!activeAccount) {
+      this.logService.error("Active account not found.");
+      return;
+    }
+
+    await this.ssoLoginService.removeFromSsoRequiredCacheIfPresent(activeAccount.email);
   }
 
   async toggleResetPasswordEnrollment(org: Organization) {

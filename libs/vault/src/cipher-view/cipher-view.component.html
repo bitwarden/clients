@@ -1,90 +1,85 @@
-<ng-container *ngIf="!!cipher">
-  <bit-callout *ngIf="cardIsExpired" type="info" [title]="'cardExpiredTitle' | i18n">
+<ng-container *ngIf="!!cipher()">
+  <bit-callout *ngIf="cardIsExpired()" type="info" [title]="'cardExpiredTitle' | i18n">
     {{ "cardExpiredMessage" | i18n }}
   </bit-callout>
 
   <bit-callout
-    *ngIf="!hasLoginUri && hadPendingChangePasswordTask"
+    *ngIf="!hasLoginUri() && hadPendingChangePasswordTask()"
     type="warning"
     [title]="'missingWebsite' | i18n"
   >
     {{ "changeAtRiskPasswordAndAddWebsite" | i18n }}
   </bit-callout>
 
-  <bit-callout *ngIf="hasLoginUri && hadPendingChangePasswordTask" type="warning" [title]="''">
-    <i class="bwi bwi-exclamation-triangle tw-text-warning" aria-hidden="true"></i>
-    <a bitLink href="#" appStopClick (click)="launchChangePassword()">
+  <bit-callout *ngIf="showChangePasswordLink()" type="warning" [title]="''">
+    <a bitLink href="#" appStopClick (click)="launchChangePassword()" linkType="secondary">
       {{ "changeAtRiskPassword" | i18n }}
       <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
     </a>
   </bit-callout>
 
   <!-- HELPER TEXT -->
-  <p
-    class="tw-text-sm tw-text-muted"
-    bitTypography="helper"
-    *ngIf="cipher?.isDeleted && !cipher?.edit"
-  >
+  <p class="tw-text-muted" bitTypography="helper" *ngIf="cipher()?.isDeleted && !cipher()?.edit">
     {{ "noEditPermissions" | i18n }}
   </p>
 
   <!-- ITEM DETAILS -->
   <app-item-details-v2
-    [cipher]="cipher"
-    [organization]="organization$ | async"
-    [collections]="collections"
-    [folder]="folder$ | async"
-    [hideOwner]="isAdminConsole"
+    [cipher]="cipher()"
+    [organization]="organization()"
+    [collections]="resolvedCollections()"
+    [folder]="folder()"
+    [hideOwner]="isAdminConsole()"
   >
   </app-item-details-v2>
 
   <!-- LOGIN CREDENTIALS -->
   <app-login-credentials-view
-    *ngIf="hasLogin"
-    [cipher]="cipher"
+    *ngIf="hasLogin()"
+    [cipher]="cipher()"
     [activeUserId]="activeUserId$ | async"
-    [hadPendingChangePasswordTask]="hadPendingChangePasswordTask && cipher?.login.uris.length > 0"
+    [showChangePasswordLink]="showChangePasswordLink()"
     (handleChangePassword)="launchChangePassword()"
   ></app-login-credentials-view>
 
   <!-- AUTOFILL OPTIONS -->
   <app-autofill-options-view
-    *ngIf="hasAutofill"
-    [loginUris]="cipher.login.uris"
-    [cipherId]="cipher.id"
+    *ngIf="hasAutofill()"
+    [loginUris]="cipher()!.login.uris"
+    [cipherId]="cipher()!.id"
   >
   </app-autofill-options-view>
 
   <!-- CARD DETAILS -->
-  <app-card-details-view *ngIf="hasCard" [cipher]="cipher"></app-card-details-view>
+  <app-card-details-view *ngIf="hasCard()" [cipher]="cipher()"></app-card-details-view>
 
   <!-- IDENTITY SECTIONS -->
-  <app-view-identity-sections *ngIf="cipher.identity" [cipher]="cipher">
+  <app-view-identity-sections *ngIf="cipher()?.identity" [cipher]="cipher()">
   </app-view-identity-sections>
 
   <!-- SshKEY SECTIONS -->
-  <app-sshkey-view *ngIf="hasSshKey" [sshKey]="cipher.sshKey"></app-sshkey-view>
+  <app-sshkey-view *ngIf="hasSshKey()" [sshKey]="cipher()!.sshKey"></app-sshkey-view>
 
   <!-- ADDITIONAL OPTIONS -->
-  <ng-container *ngIf="cipher.notes">
-    <app-additional-options [notes]="cipher.notes"> </app-additional-options>
+  <ng-container *ngIf="cipher()?.notes">
+    <app-additional-options [notes]="cipher()!.notes"> </app-additional-options>
   </ng-container>
 
   <!-- CUSTOM FIELDS -->
-  <ng-container *ngIf="cipher.hasFields">
-    <app-custom-fields-v2 [cipher]="cipher"> </app-custom-fields-v2>
+  <ng-container *ngIf="cipher()?.hasFields">
+    <app-custom-fields-v2 [cipher]="cipher()"> </app-custom-fields-v2>
   </ng-container>
 
   <!-- ATTACHMENTS SECTION -->
-  <ng-container *ngIf="cipher.hasAttachments">
+  <ng-container *ngIf="cipher()?.hasAttachments">
     <app-attachments-v2-view
-      [emergencyAccessId]="emergencyAccessId"
-      [cipher]="cipher"
-      [admin]="isAdminConsole"
+      [emergencyAccessId]="emergencyAccessId()"
+      [cipher]="cipher()"
+      [admin]="isAdminConsole()"
     >
     </app-attachments-v2-view>
   </ng-container>
 
   <!-- ITEM HISTORY SECTION -->
-  <app-item-history-v2 [cipher]="cipher"> </app-item-history-v2>
+  <app-item-history-v2 [cipher]="cipher()"> </app-item-history-v2>
 </ng-container>

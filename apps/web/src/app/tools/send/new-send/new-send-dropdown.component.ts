@@ -10,6 +10,8 @@ import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { ButtonModule, DialogService, MenuModule } from "@bitwarden/components";
 import { DefaultSendFormConfigService, SendAddEditDialogComponent } from "@bitwarden/send-ui";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-new-send-dropdown",
   templateUrl: "new-send-dropdown.component.html",
@@ -21,6 +23,8 @@ import { DefaultSendFormConfigService, SendAddEditDialogComponent } from "@bitwa
  */
 export class NewSendDropdownComponent {
   /** If true, the plus icon will be hidden */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() hideIcon: boolean = false;
 
   /** SendType provided for the markup to pass back the selected type of Send */

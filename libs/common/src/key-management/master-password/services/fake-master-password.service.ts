@@ -33,6 +33,10 @@ export class FakeMasterPasswordService implements InternalMasterPasswordServiceA
     this.masterKeyHashSubject.next(initialMasterKeyHash);
   }
 
+  emailToSalt(email: string): MasterPasswordSalt {
+    return this.mock.emailToSalt(email);
+  }
+
   saltForUser$(userId: UserId): Observable<MasterPasswordSalt> {
     return this.mock.saltForUser$(userId);
   }
@@ -114,5 +118,9 @@ export class FakeMasterPasswordService implements InternalMasterPasswordServiceA
     userId: UserId,
   ): Promise<void> {
     return this.mock.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
+  }
+
+  masterPasswordUnlockData$(userId: UserId): Observable<MasterPasswordUnlockData | null> {
+    return this.mock.masterPasswordUnlockData$(userId);
   }
 }

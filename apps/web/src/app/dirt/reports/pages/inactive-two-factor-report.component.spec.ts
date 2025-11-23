@@ -1,3 +1,4 @@
+import { CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
@@ -29,14 +30,13 @@ describe("InactiveTwoFactorReportComponent", () => {
   const userId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(userId);
 
-  beforeEach(() => {
+  beforeEach(async () => {
     let cipherFormConfigServiceMock: MockProxy<CipherFormConfigService>;
     organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(of([]));
     syncServiceMock = mock<SyncService>();
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    TestBed.configureTestingModule({
+
+    await TestBed.configureTestingModule({
       declarations: [InactiveTwoFactorReportComponent, I18nPipe],
       providers: [
         {
@@ -80,9 +80,7 @@ describe("InactiveTwoFactorReportComponent", () => {
           useValue: adminConsoleCipherFormConfigServiceMock,
         },
       ],
-      schemas: [],
-      // FIXME(PM-18598): Replace unknownElements and unknownProperties with actual imports
-      errorOnUnknownElements: false,
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
   });
 
@@ -120,5 +118,154 @@ describe("InactiveTwoFactorReportComponent", () => {
 
   it("should call fullSync method of syncService", () => {
     expect(syncServiceMock.fullSync).toHaveBeenCalledWith(false);
+  });
+
+  describe("isInactive2faCipher", () => {
+    beforeEach(() => {
+      // Add both domain and host to services map
+      component.services.set("example.com", "https://example.com/2fa-doc");
+      component.services.set("sub.example.com", "https://sub.example.com/2fa-doc");
+      fixture.detectChanges();
+    });
+    it("should return true and documentation for cipher with matching domain", () => {
+      const cipher = createCipherView({
+        login: {
+          uris: [{ uri: "https://example.com/login" }],
+        },
+      });
+      const [doc, isInactive] = (component as any).isInactive2faCipher(cipher);
+      expect(isInactive).toBe(true);
+      expect(doc).toBe("https://example.com/2fa-doc");
+    });
+
+    it("should return true and documentation for cipher with matching host", () => {
+      const cipher = createCipherView({
+        login: {
+          uris: [{ uri: "https://sub.example.com/login" }],
+        },
+      });
+      const [doc, isInactive] = (component as any).isInactive2faCipher(cipher);
+      expect(isInactive).toBe(true);
+      expect(doc).toBe("https://sub.example.com/2fa-doc");
+    });
+
+    it("should return false for cipher with non-matching domain or host", () => {
+      const cipher = createCipherView({
+        login: {
+          uris: [{ uri: "https://otherdomain.com/login" }],
+        },
+      });
+      const [doc, isInactive] = (component as any).isInactive2faCipher(cipher);
+      expect(isInactive).toBe(false);
+      expect(doc).toBe("");
+    });
+
+    it("should return false if cipher type is not Login", () => {
+      const cipher = createCipherView({
+        type: 2,
+        login: {
+          uris: [{ uri: "https://example.com/login" }],
+        },
+      });
+      const [doc, isInactive] = (component as any).isInactive2faCipher(cipher);
+      expect(isInactive).toBe(false);
+      expect(doc).toBe("");
+    });
+
+    it("should return false if cipher has TOTP", () => {
+      const cipher = createCipherView({
+        login: {
+          totp: "some-totp",
+          uris: [{ uri: "https://example.com/login" }],
+        },
+      });
+      const [doc, isInactive] = (component as any).isInactive2faCipher(cipher);
+      expect(isInactive).toBe(false);
+      expect(doc).toBe("");
+    });
+
+    it("should return false if cipher is deleted", () => {
+      const cipher = createCipherView({
+        isDeleted: true,
+        login: {
+          uris: [{ uri: "https://example.com/login" }],
+        },
+      });
+      const [doc, isInactive] = (component as any).isInactive2faCipher(cipher);
+      expect(isInactive).toBe(false);
+      expect(doc).toBe("");
+    });
+
+    it("should return false if cipher does not have edit access and no organization", () => {
+      component.organization = null;
+      const cipher = createCipherView({
+        edit: false,
+        login: {
+          uris: [{ uri: "https://example.com/login" }],
+        },
+      });
+      const [doc, isInactive] = (component as any).isInactive2faCipher(cipher);
+      expect(isInactive).toBe(false);
+      expect(doc).toBe("");
+    });
+
+    it("should return false if cipher does not have viewPassword", () => {
+      const cipher = createCipherView({
+        viewPassword: false,
+        login: {
+          uris: [{ uri: "https://example.com/login" }],
+        },
+      });
+      const [doc, isInactive] = (component as any).isInactive2faCipher(cipher);
+      expect(isInactive).toBe(false);
+      expect(doc).toBe("");
+    });
+
+    it("should check all uris and return true if any matches domain or host", () => {
+      const cipher = createCipherView({
+        login: {
+          uris: [
+            { uri: "https://otherdomain.com/login" },
+            { uri: "https://sub.example.com/dashboard" },
+          ],
+        },
+      });
+      const [doc, isInactive] = (component as any).isInactive2faCipher(cipher);
+      expect(isInactive).toBe(true);
+      expect(doc).toBe("https://sub.example.com/2fa-doc");
+    });
+
+    it("should return false if uris array is empty", () => {
+      const cipher = createCipherView({
+        login: {
+          uris: [],
+        },
+      });
+      const [doc, isInactive] = (component as any).isInactive2faCipher(cipher);
+      expect(isInactive).toBe(false);
+      expect(doc).toBe("");
+    });
+
+    function createCipherView({
+      type = 1,
+      login = {},
+      isDeleted = false,
+      edit = true,
+      viewPassword = true,
+    }: any): any {
+      return {
+        id: "test-id",
+        type,
+        login: {
+          totp: null,
+          hasUris: true,
+          uris: [],
+          ...login,
+        },
+        isDeleted,
+        edit,
+        viewPassword,
+      };
+    }
   });
 });

@@ -42,6 +42,8 @@ type TotpCodeValues = {
   totpCodeFormatted?: string;
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-login-credentials-view",
   templateUrl: "login-credentials-view.component.html",
@@ -61,10 +63,20 @@ type TotpCodeValues = {
   ],
 })
 export class LoginCredentialsViewComponent implements OnChanges {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() cipher: CipherView;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() activeUserId: UserId;
-  @Input() hadPendingChangePasswordTask: boolean;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() showChangePasswordLink: boolean;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() handleChangePassword = new EventEmitter<void>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("passwordInput")
   private passwordInput!: ElementRef<HTMLInputElement>;
 
@@ -105,10 +117,6 @@ export class LoginCredentialsViewComponent implements OnChanges {
       this.passwordRevealed = false;
       this.showPasswordCount = false;
     }
-  }
-
-  async getPremium() {
-    await this.premiumUpgradeService.promptForPremium(this.cipher.organizationId);
   }
 
   async pwToggleValue(passwordVisible: boolean) {

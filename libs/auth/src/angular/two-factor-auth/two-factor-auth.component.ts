@@ -32,12 +32,12 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -75,6 +75,8 @@ import {
   TwoFactorOptionsDialogResult,
 } from "./two-factor-options.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-auth",
   templateUrl: "two-factor-auth.component.html",
@@ -99,6 +101,8 @@ import {
   ],
 })
 export class TwoFactorAuthComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("continueButton", { read: ElementRef, static: false }) continueButton:
     | ElementRef
     | undefined = undefined;
@@ -114,6 +118,8 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   twoFactorProviders: Map<TwoFactorProviderType, { [key: string]: string }> | null = null;
   selectedProviderData: { [key: string]: string } | undefined;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("duoComponent") duoComponent!: TwoFactorAuthDuoComponent;
 
   form = this.formBuilder.group({

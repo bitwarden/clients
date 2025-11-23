@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { BehaviorSubject } from "rxjs";
+import { ActivatedRoute } from "@angular/router";
+import { BehaviorSubject, of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -16,6 +17,7 @@ describe("BrowserExtensionPromptComponent", () => {
   let component: BrowserExtensionPromptComponent;
   const start = jest.fn();
   const openExtension = jest.fn();
+  const registerPopupUrl = jest.fn();
   const pageState$ = new BehaviorSubject<BrowserPromptState>(BrowserPromptState.Loading);
   const setAttribute = jest.fn();
   const getAttribute = jest.fn().mockReturnValue("width=1010");
@@ -23,6 +25,7 @@ describe("BrowserExtensionPromptComponent", () => {
   beforeEach(async () => {
     start.mockClear();
     openExtension.mockClear();
+    registerPopupUrl.mockClear();
     setAttribute.mockClear();
     getAttribute.mockClear();
 
@@ -41,11 +44,19 @@ describe("BrowserExtensionPromptComponent", () => {
       providers: [
         {
           provide: BrowserExtensionPromptService,
-          useValue: { start, openExtension, pageState$ },
+          useValue: { start, openExtension, registerPopupUrl, pageState$ },
         },
         {
           provide: I18nService,
           useValue: { t: (key: string) => key },
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            queryParamMap: of({
+              get: (key: string) => null,
+            }),
+          },
         },
       ],
     }).compileComponents();
@@ -92,7 +103,7 @@ describe("BrowserExtensionPromptComponent", () => {
       button.click();
 
       expect(openExtension).toHaveBeenCalledTimes(1);
-      expect(openExtension).toHaveBeenCalledWith(true);
+      expect(openExtension).toHaveBeenCalledWith("openAtRiskPasswords", true);
     });
   });
 
@@ -155,8 +166,8 @@ describe("BrowserExtensionPromptComponent", () => {
 
     it("shows manual open error message", () => {
       const manualText = fixture.debugElement.query(By.css("p")).nativeElement;
-      expect(manualText.textContent.trim()).toContain("openExtensionManuallyPart1");
-      expect(manualText.textContent.trim()).toContain("openExtensionManuallyPart2");
+      expect(manualText.textContent.trim()).toContain("openExtensionFromToolbarPart1");
+      expect(manualText.textContent.trim()).toContain("openExtensionFromToolbarPart2");
     });
   });
 });

@@ -30,25 +30,26 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
 import { UserId } from "@bitwarden/user-core";
+import { Trial } from "@bitwarden/web-vault/app/billing/trial-initiation/trial-billing-step/trial-billing-step.service";
 
-import {
-  OrganizationCreatedEvent,
-  SubscriptionProduct,
-  TrialOrganizationType,
-} from "../../../billing/accounts/trial-initiation/trial-billing-step.component";
 import { RouterService } from "../../../core/router.service";
+import { OrganizationCreatedEvent } from "../trial-billing-step/trial-billing-step.component";
 import { VerticalStepperComponent } from "../vertical-stepper/vertical-stepper.component";
 
 export type InitiationPath =
   | "Password Manager trial from marketing website"
   | "Secrets Manager trial from marketing website";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-complete-trial-initiation",
   templateUrl: "complete-trial-initiation.component.html",
   standalone: false,
 })
 export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("stepper", { static: false }) verticalStepper!: VerticalStepperComponent;
 
   inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAccountRegistration;
@@ -95,7 +96,6 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   });
 
   private destroy$ = new Subject<void>();
-  protected readonly SubscriptionProduct = SubscriptionProduct;
   protected readonly ProductType = ProductType;
   protected trialPaymentOptional$ = this.configService.getFeatureFlag$(
     FeatureFlag.TrialPaymentOptional,
@@ -251,7 +251,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     this.loading = true;
     let trialInitiationPath: InitiationPath = "Password Manager trial from marketing website";
     let plan: PlanInformation = {
-      type: this.getPlanType(),
+      type: await this.getPlanType(),
       passwordManagerSeats: 1,
     };
 
@@ -293,14 +293,21 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     this.verticalStepper.previous();
   }
 
-  getPlanType() {
+  async getPlanType() {
+    const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM26462_Milestone_3,
+    );
+    const familyPlan = milestone3FeatureEnabled
+      ? PlanType.FamiliesAnnually
+      : PlanType.FamiliesAnnually2025;
+
     switch (this.productTier) {
       case ProductTierType.Teams:
         return PlanType.TeamsAnnually;
       case ProductTierType.Enterprise:
         return PlanType.EnterpriseAnnually;
       case ProductTierType.Families:
-        return PlanType.FamiliesAnnually;
+        return familyPlan;
       case ProductTierType.Free:
         return PlanType.Free;
       default:
@@ -336,14 +343,6 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       default:
         return "";
     }
-  }
-
-  get trialOrganizationType(): TrialOrganizationType | null {
-    if (this.productTier === ProductTierType.Free) {
-      return null;
-    }
-
-    return this.productTier;
   }
 
   readonly showBillingStep$ = this.trialPaymentOptional$.pipe(
@@ -433,5 +432,27 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
         this.submitting = false;
         return null;
       });
+  }
+
+  get trial(): Trial {
+    const product =
+      this.product === ProductType.PasswordManager ? "passwordManager" : "secretsManager";
+
+    const tier =
+      this.productTier === ProductTierType.Families
+        ? "families"
+        : this.productTier === ProductTierType.Teams
+          ? "teams"
+          : "enterprise";
+
+    return {
+      organization: {
+        name: this.orgInfoFormGroup.value.name!,
+        email: this.orgInfoFormGroup.value.billingEmail!,
+      },
+      product,
+      tier,
+      length: this.trialLength,
+    };
   }
 }

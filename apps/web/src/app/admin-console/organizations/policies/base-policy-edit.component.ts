@@ -8,6 +8,20 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
+
+import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit-dialog.component";
+
+/**
+ * Interface for policy dialog components.
+ * Any component that implements this interface can be used as a custom policy edit dialog.
+ */
+export interface PolicyDialogComponent {
+  open: (
+    dialogService: DialogService,
+    config: DialogConfig<PolicyEditDialogData>,
+  ) => DialogRef<PolicyEditDialogResult>;
+}
 
 /**
  * A metadata class that defines how a policy is displayed in the Admin Console Policies page for editing.
@@ -31,6 +45,12 @@ export abstract class BasePolicyEditDefinition {
    * The component used to edit this policy. See {@link BasePolicyEditComponent}.
    */
   abstract component: Constructor<BasePolicyEditComponent>;
+
+  /**
+   * The dialog component that will be opened when editing this policy.
+   * This allows customizing the look and feel of each policy's dialog contents.
+   */
+  editDialogComponent?: PolicyDialogComponent;
 
   /**
    * If true, the {@link description} will be reused in the policy edit modal. Set this to false if you
@@ -58,7 +78,11 @@ export abstract class BasePolicyEditDefinition {
  */
 @Directive()
 export abstract class BasePolicyEditComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() policyResponse: PolicyResponse | undefined;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() policy: BasePolicyEditDefinition | undefined;
 
   /**
@@ -85,7 +109,6 @@ export abstract class BasePolicyEditComponent implements OnInit {
     }
 
     const request: PolicyRequest = {
-      type: this.policy.type,
       enabled: this.enabled.value ?? false,
       data: this.buildRequestData(),
     };

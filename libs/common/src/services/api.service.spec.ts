@@ -14,13 +14,13 @@ import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "../key-management/vault-timeout";
-import { BreachAccountResponse } from "../models/response/breach-account.response";
 import { ErrorResponse } from "../models/response/error.response";
 import { AppIdService } from "../platform/abstractions/app-id.service";
 import { Environment, EnvironmentService } from "../platform/abstractions/environment.service";
 import { LogService } from "../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
 
+import { InsecureUrlNotAllowedError } from "./api-errors";
 import { ApiService, HttpOperations } from "./api.service";
 
 describe("ApiService", () => {
@@ -413,25 +413,38 @@ describe("ApiService", () => {
     },
   );
 
-  describe("getHibpBreach", () => {
-    it("should properly URL encode username with special characters", async () => {
-      const mockResponse = [{ name: "test" }];
-      const username = "connect#bwpm@simplelogin.co";
+  it("throws error when trying to fetch an insecure URL", async () => {
+    environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+      of({
+        getApiUrl: () => "http://example.com",
+      } satisfies Partial<Environment> as Environment),
+    );
 
-      jest.spyOn(sut, "send").mockResolvedValue(mockResponse);
-
-      const result = await sut.getHibpBreach(username);
-
-      expect(sut.send).toHaveBeenCalledWith(
-        "GET",
-        "/hibp/breach?username=" + encodeURIComponent(username),
-        null,
-        true,
-        true,
-      );
-      expect(result).toBeInstanceOf(Array);
-      expect(result).toHaveLength(1);
-      expect(result[0]).toBeInstanceOf(BreachAccountResponse);
+    httpOperations.createRequest.mockImplementation((url, request) => {
+      return {
+        url: url,
+        cache: request.cache,
+        credentials: request.credentials,
+        method: request.method,
+        mode: request.mode,
+        signal: request.signal ?? undefined,
+        headers: new Headers(request.headers),
+      } satisfies Partial<Request> as unknown as Request;
     });
+
+    const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+    nativeFetch.mockImplementation((request) => {
+      return Promise.resolve({
+        ok: true,
+        status: 204,
+        headers: new Headers(),
+      } satisfies Partial<Response> as Response);
+    });
+    sut.nativeFetch = nativeFetch;
+
+    await expect(
+      async () => await sut.send("GET", "/something", null, true, true, null),
+    ).rejects.toThrow(InsecureUrlNotAllowedError);
+    expect(nativeFetch).not.toHaveBeenCalled();
   });
 });

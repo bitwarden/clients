@@ -1,5 +1,6 @@
 import { BehaviorSubject, firstValueFrom, map, Subject, switchMap, takeUntil, zip } from "rxjs";
 
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import {
   OrganizationId,
   OrganizationIntegrationId,
@@ -20,6 +21,11 @@ import { OrganizationIntegrationType } from "../models/organization-integration-
 import { OrganizationIntegrationApiService } from "./organization-integration-api.service";
 import { OrganizationIntegrationConfigurationApiService } from "./organization-integration-configuration-api.service";
 
+export type HecModificationFailureReason = {
+  mustBeOwner: boolean;
+  success: boolean;
+};
+
 export class HecOrganizationIntegrationService {
   private organizationId$ = new BehaviorSubject<OrganizationId | null>(null);
   private _integrations$ = new BehaviorSubject<OrganizationIntegration[]>([]);
@@ -34,7 +40,7 @@ export class HecOrganizationIntegrationService {
           const data$ = await this.setIntegrations(orgId);
           return await firstValueFrom(data$);
         } else {
-          return this._integrations$.getValue();
+          return [] as OrganizationIntegration[];
         }
       }),
       takeUntil(this.destroy$),
@@ -56,6 +62,10 @@ export class HecOrganizationIntegrationService {
    * @param orgId
    */
   setOrganizationIntegrations(orgId: OrganizationId) {
+    if (orgId == this.organizationId$.getValue()) {
+      return;
+    }
+    this._integrations$.next([]);
     this.organizationId$.next(orgId);
   }
 
@@ -73,31 +83,39 @@ export class HecOrganizationIntegrationService {
     url: string,
     bearerToken: string,
     index: string,
-  ) {
+  ): Promise<HecModificationFailureReason> {
     if (organizationId != this.organizationId$.getValue()) {
       throw new Error("Organization ID mismatch");
     }
 
-    const hecConfig = new HecConfiguration(url, bearerToken, service);
-    const newIntegrationResponse = await this.integrationApiService.createOrganizationIntegration(
-      organizationId,
-      new OrganizationIntegrationRequest(OrganizationIntegrationType.Hec, hecConfig.toString()),
-    );
-
-    const newTemplate = new HecTemplate(index, service);
-    const newIntegrationConfigResponse =
-      await this.integrationConfigurationApiService.createOrganizationIntegrationConfiguration(
+    try {
+      const hecConfig = new HecConfiguration(url, bearerToken, service);
+      const newIntegrationResponse = await this.integrationApiService.createOrganizationIntegration(
         organizationId,
-        newIntegrationResponse.id,
-        new OrganizationIntegrationConfigurationRequest(null, null, null, newTemplate.toString()),
+        new OrganizationIntegrationRequest(OrganizationIntegrationType.Hec, hecConfig.toString()),
       );
 
-    const newIntegration = this.mapResponsesToOrganizationIntegration(
-      newIntegrationResponse,
-      newIntegrationConfigResponse,
-    );
-    if (newIntegration !== null) {
-      this._integrations$.next([...this._integrations$.getValue(), newIntegration]);
+      const newTemplate = new HecTemplate(index, service);
+      const newIntegrationConfigResponse =
+        await this.integrationConfigurationApiService.createOrganizationIntegrationConfiguration(
+          organizationId,
+          newIntegrationResponse.id,
+          new OrganizationIntegrationConfigurationRequest(null, null, null, newTemplate.toString()),
+        );
+
+      const newIntegration = this.mapResponsesToOrganizationIntegration(
+        newIntegrationResponse,
+        newIntegrationConfigResponse,
+      );
+      if (newIntegration !== null) {
+        this._integrations$.next([...this._integrations$.getValue(), newIntegration]);
+      }
+      return { mustBeOwner: false, success: true };
+    } catch (error) {
+      if (error instanceof ErrorResponse && error.statusCode === 404) {
+        return { mustBeOwner: true, success: false };
+      }
+      throw error;
     }
   }
 
@@ -119,40 +137,89 @@ export class HecOrganizationIntegrationService {
     url: string,
     bearerToken: string,
     index: string,
-  ) {
+  ): Promise<HecModificationFailureReason> {
     if (organizationId != this.organizationId$.getValue()) {
       throw new Error("Organization ID mismatch");
     }
 
-    const hecConfig = new HecConfiguration(url, bearerToken, service);
-    const updatedIntegrationResponse =
-      await this.integrationApiService.updateOrganizationIntegration(
-        organizationId,
-        OrganizationIntegrationId,
-        new OrganizationIntegrationRequest(OrganizationIntegrationType.Hec, hecConfig.toString()),
+    try {
+      const hecConfig = new HecConfiguration(url, bearerToken, service);
+      const updatedIntegrationResponse =
+        await this.integrationApiService.updateOrganizationIntegration(
+          organizationId,
+          OrganizationIntegrationId,
+          new OrganizationIntegrationRequest(OrganizationIntegrationType.Hec, hecConfig.toString()),
+        );
+
+      const updatedTemplate = new HecTemplate(index, service);
+      const updatedIntegrationConfigResponse =
+        await this.integrationConfigurationApiService.updateOrganizationIntegrationConfiguration(
+          organizationId,
+          OrganizationIntegrationId,
+          OrganizationIntegrationConfigurationId,
+          new OrganizationIntegrationConfigurationRequest(
+            null,
+            null,
+            null,
+            updatedTemplate.toString(),
+          ),
+        );
+
+      const updatedIntegration = this.mapResponsesToOrganizationIntegration(
+        updatedIntegrationResponse,
+        updatedIntegrationConfigResponse,
       );
 
-    const updatedTemplate = new HecTemplate(index, service);
-    const updatedIntegrationConfigResponse =
-      await this.integrationConfigurationApiService.updateOrganizationIntegrationConfiguration(
+      if (updatedIntegration !== null) {
+        const unchangedIntegrations = this._integrations$
+          .getValue()
+          .filter((i) => i.id !== OrganizationIntegrationId);
+        this._integrations$.next([...unchangedIntegrations, updatedIntegration]);
+      }
+      return { mustBeOwner: false, success: true };
+    } catch (error) {
+      if (error instanceof ErrorResponse && error.statusCode === 404) {
+        return { mustBeOwner: true, success: false };
+      }
+      throw error;
+    }
+  }
+
+  async deleteHec(
+    organizationId: OrganizationId,
+    OrganizationIntegrationId: OrganizationIntegrationId,
+    OrganizationIntegrationConfigurationId: OrganizationIntegrationConfigurationId,
+  ): Promise<HecModificationFailureReason> {
+    if (organizationId != this.organizationId$.getValue()) {
+      throw new Error("Organization ID mismatch");
+    }
+
+    try {
+      // delete the configuration first due to foreign key constraint
+      await this.integrationConfigurationApiService.deleteOrganizationIntegrationConfiguration(
         organizationId,
         OrganizationIntegrationId,
         OrganizationIntegrationConfigurationId,
-        new OrganizationIntegrationConfigurationRequest(
-          null,
-          null,
-          null,
-          updatedTemplate.toString(),
-        ),
       );
 
-    const updatedIntegration = this.mapResponsesToOrganizationIntegration(
-      updatedIntegrationResponse,
-      updatedIntegrationConfigResponse,
-    );
+      // delete the integration
+      await this.integrationApiService.deleteOrganizationIntegration(
+        organizationId,
+        OrganizationIntegrationId,
+      );
 
-    if (updatedIntegration !== null) {
-      this._integrations$.next([...this._integrations$.getValue(), updatedIntegration]);
+      // update the local observable
+      const updatedIntegrations = this._integrations$
+        .getValue()
+        .filter((i) => i.id !== OrganizationIntegrationId);
+      this._integrations$.next(updatedIntegrations);
+
+      return { mustBeOwner: false, success: true };
+    } catch (error) {
+      if (error instanceof ErrorResponse && error.statusCode === 404) {
+        return { mustBeOwner: true, success: false };
+      }
+      throw error;
     }
   }
 
@@ -247,22 +314,24 @@ export class HecOrganizationIntegrationService {
         const promises: Promise<void>[] = [];
 
         responses.forEach((integration) => {
-          const promise = this.integrationConfigurationApiService
-            .getOrganizationIntegrationConfigurations(orgId, integration.id)
-            .then((response) => {
-              // Hec events will only have one OrganizationIntegrationConfiguration
-              const config = response[0];
+          if (integration.type === OrganizationIntegrationType.Hec) {
+            const promise = this.integrationConfigurationApiService
+              .getOrganizationIntegrationConfigurations(orgId, integration.id)
+              .then((response) => {
+                // Hec events will only have one OrganizationIntegrationConfiguration
+                const config = response[0];
 
-              const orgIntegration = this.mapResponsesToOrganizationIntegration(
-                integration,
-                config,
-              );
+                const orgIntegration = this.mapResponsesToOrganizationIntegration(
+                  integration,
+                  config,
+                );
 
-              if (orgIntegration !== null) {
-                integrations.push(orgIntegration);
-              }
-            });
-          promises.push(promise);
+                if (orgIntegration !== null) {
+                  integrations.push(orgIntegration);
+                }
+              });
+            promises.push(promise);
+          }
         });
         return Promise.all(promises).then(() => {
           return integrations;

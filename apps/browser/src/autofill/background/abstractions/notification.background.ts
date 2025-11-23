@@ -35,7 +35,7 @@ interface NotificationQueueMessage {
 }
 
 type ChangePasswordNotificationData = {
-  cipherId: CipherView["id"];
+  cipherIds: CipherView["id"][];
   newPassword: string;
 };
 
@@ -141,14 +141,13 @@ type NotificationBackgroundExtensionMessageHandlers = {
     sender,
   }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgNeverSave: ({ sender }: BackgroundSenderParam) => Promise<void>;
-  bgUnlockPopoutOpened: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgReopenUnlockPopout: ({ sender }: BackgroundSenderParam) => Promise<void>;
   checkNotificationQueue: ({ sender }: BackgroundSenderParam) => Promise<void>;
   collectPageDetailsResponse: ({ message }: BackgroundMessageParam) => Promise<void>;
   bgGetEnableChangedPasswordPrompt: () => Promise<boolean>;
   bgGetEnableAddedLoginPrompt: () => Promise<boolean>;
   bgGetExcludedDomains: () => Promise<NeverDomains>;
-  bgGetActiveUserServerConfig: () => Promise<ServerConfig>;
+  bgGetActiveUserServerConfig: () => Promise<ServerConfig | null>;
   getWebVaultUrlForNotification: () => Promise<string>;
 };
 
