@@ -444,7 +444,7 @@ export abstract class ApiService {
 
   /**
    * Retrieves the bearer access token for the user.
-   * If the access token is expired or within 5 minutes of expiration, attemps to refresh the token
+   * If the access token is expired or within 5 minutes of expiration, attempts to refresh the token
    * and persists the refresh token to state before returning it.
    * @param userId The user for whom we're retrieving the access token
    * @returns The access token, or an Error if no access token exists.
