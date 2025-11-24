@@ -16,7 +16,7 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { SortDirection, TableDataSource } from "@bitwarden/components";
+import { DialogService, SortDirection, TableDataSource } from "@bitwarden/components";
 import { OrganizationId } from "@bitwarden/sdk-internal";
 
 import { GroupView } from "../../../admin-console/organizations/core";
@@ -32,7 +32,7 @@ import { VaultItemEvent } from "./vault-item-event";
 export const RowHeight = 75;
 export const RowHeightClass = `tw-h-[75px]`;
 
-const MaxSelectionCount = 500;
+const SelectionWarningThreshold = 500;
 
 type ItemPermission = CollectionPermission | "NoAccess";
 
@@ -148,6 +148,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   constructor(
     protected cipherAuthorizationService: CipherAuthorizationService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
+    private dialogService: DialogService,
   ) {
     this.canDeleteSelected$ = this.selection.changed.pipe(
       startWith(null),
@@ -226,9 +227,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   get isAllSelected() {
-    return this.editableItems
-      .slice(0, MaxSelectionCount)
-      .every((item) => this.selection.isSelected(item));
+    return this.editableItems.every((item) => this.selection.isSelected(item));
   }
 
   get isEmpty() {
@@ -335,10 +334,50 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     return collection.canViewCollectionInfo(organization);
   }
 
-  protected toggleAll() {
-    this.isAllSelected
-      ? this.selection.clear()
-      : this.selection.select(...this.editableItems.slice(0, MaxSelectionCount));
+  protected async toggleAll() {
+    if (this.isAllSelected) {
+      this.selection.clear();
+      return;
+    }
+
+    // If there are more than the warning threshold, show a warning dialog
+    if (this.editableItems.length > SelectionWarningThreshold) {
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "selectAllItems" },
+        content: {
+          key: "selectAllItemsWarning",
+          placeholders: [this.editableItems.length.toString()],
+        },
+        type: "warning",
+        acceptButtonText: { key: "continue" },
+        cancelButtonText: { key: "cancel" },
+      });
+
+      if (!confirmed) {
+        return;
+      }
+
+      // Ask if they want all items or just the first 500
+      // Yes = select all, No = select first 500 only
+      const selectAll = await this.dialogService.openSimpleDialog({
+        title: { key: "selectItems" },
+        content: {
+          key: "selectAllOrFirst500",
+          placeholders: [SelectionWarningThreshold.toString()],
+        },
+        type: "info",
+        acceptButtonText: { key: "selectAll" },
+        cancelButtonText: { key: "selectFirst500" },
+      });
+
+      if (selectAll) {
+        this.selection.select(...this.editableItems);
+      } else {
+        this.selection.select(...this.editableItems.slice(0, SelectionWarningThreshold));
+      }
+    } else {
+      this.selection.select(...this.editableItems);
+    }
   }
 
   protected event(event: VaultItemEvent<C>) {
