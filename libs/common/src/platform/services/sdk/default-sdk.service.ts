@@ -22,14 +22,12 @@ import { KeyService, KdfConfigService, KdfConfig, KdfType } from "@bitwarden/key
 import {
   BitwardenClient,
   ClientSettings,
-  DeviceType as SdkDeviceType,
   TokenProvider,
   UnsignedSharedKey,
 } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
-import { DeviceType } from "../../../enums/device-type.enum";
 import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { SecurityStateService } from "../../../key-management/security-state/abstractions/security-state.service";
 import { SignedSecurityState, WrappedSigningKey } from "../../../key-management/types";
@@ -39,7 +37,12 @@ import { Environment, EnvironmentService } from "../../abstractions/environment.
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
-import { asUuid, SdkService, UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
+import {
+  asUuid,
+  SdkService,
+  toSdkDevice,
+  UserNotLoggedInError,
+} from "../../abstractions/sdk/sdk.service";
 import { compareValues } from "../../misc/compare-values";
 import { Rc } from "../../misc/reference-counting/rc";
 import { StateProvider } from "../../state";
@@ -297,65 +300,8 @@ export class DefaultSdkService implements SdkService {
     return {
       apiUrl: env.getApiUrl(),
       identityUrl: env.getIdentityUrl(),
-      deviceType: this.toDevice(this.platformUtilsService.getDevice()),
+      deviceType: toSdkDevice(this.platformUtilsService.getDevice()),
       userAgent: this.userAgent ?? navigator.userAgent,
     };
-  }
-
-  private toDevice(device: DeviceType): SdkDeviceType {
-    switch (device) {
-      case DeviceType.Android:
-        return "Android";
-      case DeviceType.iOS:
-        return "iOS";
-      case DeviceType.ChromeExtension:
-        return "ChromeExtension";
-      case DeviceType.FirefoxExtension:
-        return "FirefoxExtension";
-      case DeviceType.OperaExtension:
-        return "OperaExtension";
-      case DeviceType.EdgeExtension:
-        return "EdgeExtension";
-      case DeviceType.WindowsDesktop:
-        return "WindowsDesktop";
-      case DeviceType.MacOsDesktop:
-        return "MacOsDesktop";
-      case DeviceType.LinuxDesktop:
-        return "LinuxDesktop";
-      case DeviceType.ChromeBrowser:
-        return "ChromeBrowser";
-      case DeviceType.FirefoxBrowser:
-        return "FirefoxBrowser";
-      case DeviceType.OperaBrowser:
-        return "OperaBrowser";
-      case DeviceType.EdgeBrowser:
-        return "EdgeBrowser";
-      case DeviceType.IEBrowser:
-        return "IEBrowser";
-      case DeviceType.UnknownBrowser:
-        return "UnknownBrowser";
-      case DeviceType.AndroidAmazon:
-        return "AndroidAmazon";
-      case DeviceType.UWP:
-        return "UWP";
-      case DeviceType.SafariBrowser:
-        return "SafariBrowser";
-      case DeviceType.VivaldiBrowser:
-        return "VivaldiBrowser";
-      case DeviceType.VivaldiExtension:
-        return "VivaldiExtension";
-      case DeviceType.SafariExtension:
-        return "SafariExtension";
-      case DeviceType.Server:
-        return "Server";
-      case DeviceType.WindowsCLI:
-        return "WindowsCLI";
-      case DeviceType.MacOsCLI:
-        return "MacOsCLI";
-      case DeviceType.LinuxCLI:
-        return "LinuxCLI";
-      default:
-        return "SDK";
-    }
   }
 }

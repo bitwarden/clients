@@ -1,6 +1,7 @@
 import { Observable } from "rxjs";
 
-import { BitwardenClient, Uuid } from "@bitwarden/sdk-internal";
+import { DeviceType } from "@bitwarden/common/enums";
+import { BitwardenClient, Uuid, DeviceType as SdkDeviceType } from "@bitwarden/sdk-internal";
 
 import { UserId } from "../../../types/guid";
 import { Rc } from "../../misc/reference-counting/rc";
@@ -15,6 +16,63 @@ export class UserNotLoggedInError extends Error {
 export class InvalidUuid extends Error {
   constructor(uuid: string) {
     super(`Invalid UUID: ${uuid}`);
+  }
+}
+
+export function toSdkDevice(device: DeviceType): SdkDeviceType {
+  switch (device) {
+    case DeviceType.Android:
+      return "Android";
+    case DeviceType.iOS:
+      return "iOS";
+    case DeviceType.ChromeExtension:
+      return "ChromeExtension";
+    case DeviceType.FirefoxExtension:
+      return "FirefoxExtension";
+    case DeviceType.OperaExtension:
+      return "OperaExtension";
+    case DeviceType.EdgeExtension:
+      return "EdgeExtension";
+    case DeviceType.WindowsDesktop:
+      return "WindowsDesktop";
+    case DeviceType.MacOsDesktop:
+      return "MacOsDesktop";
+    case DeviceType.LinuxDesktop:
+      return "LinuxDesktop";
+    case DeviceType.ChromeBrowser:
+      return "ChromeBrowser";
+    case DeviceType.FirefoxBrowser:
+      return "FirefoxBrowser";
+    case DeviceType.OperaBrowser:
+      return "OperaBrowser";
+    case DeviceType.EdgeBrowser:
+      return "EdgeBrowser";
+    case DeviceType.IEBrowser:
+      return "IEBrowser";
+    case DeviceType.UnknownBrowser:
+      return "UnknownBrowser";
+    case DeviceType.AndroidAmazon:
+      return "AndroidAmazon";
+    case DeviceType.UWP:
+      return "UWP";
+    case DeviceType.SafariBrowser:
+      return "SafariBrowser";
+    case DeviceType.VivaldiBrowser:
+      return "VivaldiBrowser";
+    case DeviceType.VivaldiExtension:
+      return "VivaldiExtension";
+    case DeviceType.SafariExtension:
+      return "SafariExtension";
+    case DeviceType.Server:
+      return "Server";
+    case DeviceType.WindowsCLI:
+      return "WindowsCLI";
+    case DeviceType.MacOsCLI:
+      return "MacOsCLI";
+    case DeviceType.LinuxCLI:
+      return "LinuxCLI";
+    default:
+      return "SDK";
   }
 }
 
