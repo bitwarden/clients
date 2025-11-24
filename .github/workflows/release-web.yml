@@ -52,8 +52,7 @@ jobs:
   release:
     name: Create GitHub Release
     runs-on: ubuntu-22.04
-    needs:
-      - setup
+    needs: setup
     permissions:
       contents: write
     steps:
@@ -82,14 +81,14 @@ jobs:
       - name: Rename assets
         working-directory: apps/web/artifacts
         env:
-          _RELEASE_VERSION: ${{ needs.setup.outputs.release_version }}
+          RELEASE_VERSION: ${{ needs.setup.outputs.release_version }}
         run: |
-          mv web-*-selfhosted-COMMERCIAL.zip "web-$_RELEASE_VERSION-selfhosted-COMMERCIAL.zip"
-          mv web-*-selfhosted-open-source.zip "web-$_RELEASE_VERSION-selfhosted-open-source.zip"
+          mv web-*-selfhosted-COMMERCIAL.zip "web-${RELEASE_VERSION}-selfhosted-COMMERCIAL.zip"
+          mv web-*-selfhosted-open-source.zip "web-${RELEASE_VERSION}-selfhosted-open-source.zip"
 
       - name: Create release
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: ncipollo/release-action@cdcc88a9acf3ca41c16c37bb7d21b9ad48560d87 # v1.15.0
+        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
         with:
           name: "Web v${{ needs.setup.outputs.release_version }}"
           commit: ${{ github.sha }}

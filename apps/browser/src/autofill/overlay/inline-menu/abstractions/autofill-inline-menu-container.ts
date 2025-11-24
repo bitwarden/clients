@@ -5,6 +5,7 @@ import { InlineMenuCipherData } from "../../../background/abstractions/overlay.b
 export type AutofillInlineMenuContainerMessage = {
   command: string;
   portKey: string;
+  token?: string;
 };
 
 export type InitAutofillInlineMenuElementMessage = AutofillInlineMenuContainerMessage & {
@@ -16,6 +17,7 @@ export type InitAutofillInlineMenuElementMessage = AutofillInlineMenuContainerMe
   translations: Record<string, string>;
   ciphers: InlineMenuCipherData[] | null;
   portName: string;
+  extensionOrigin?: string;
 };
 
 export type AutofillInlineMenuContainerWindowMessage = AutofillInlineMenuContainerMessage &

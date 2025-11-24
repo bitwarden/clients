@@ -1,5 +1,6 @@
 import {
   combineLatest,
+  combineLatestWith,
   from,
   map,
   Observable,
@@ -141,8 +142,13 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
     );
 
   private families$: Observable<PersonalSubscriptionPricingTier> = this.plansResponse$.pipe(
-    map((plans) => {
-      const familiesPlan = plans.data.find((plan) => plan.type === PlanType.FamiliesAnnually)!;
+    combineLatestWith(this.configService.getFeatureFlag$(FeatureFlag.PM26462_Milestone_3)),
+    map(([plans, milestone3FeatureEnabled]) => {
+      const familiesPlan = plans.data.find(
+        (plan) =>
+          plan.type ===
+          (milestone3FeatureEnabled ? PlanType.FamiliesAnnually : PlanType.FamiliesAnnually2025),
+      )!;
 
       return {
         id: PersonalSubscriptionPricingTierIds.Families,

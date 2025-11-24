@@ -366,7 +366,6 @@ describe("deviceTrustService", () => {
 
       let makeDeviceKeySpy: jest.SpyInstance;
       let rsaGenerateKeyPairSpy: jest.SpyInstance;
-      let cryptoSvcGetUserKeySpy: jest.SpyInstance;
       let cryptoSvcRsaEncryptSpy: jest.SpyInstance;
       let encryptServiceWrapDecapsulationKeySpy: jest.SpyInstance;
       let encryptServiceWrapEncapsulationKeySpy: jest.SpyInstance;
@@ -402,6 +401,8 @@ describe("deviceTrustService", () => {
           "mockDeviceKeyEncryptedDevicePrivateKey",
         );
 
+        keyService.userKey$.mockReturnValue(of(mockUserKey));
+
         // TypeScript will allow calling private methods if the object is of type 'any'
         makeDeviceKeySpy = jest
           .spyOn(deviceTrustService as any, "makeDeviceKey")
@@ -410,10 +411,6 @@ describe("deviceTrustService", () => {
         rsaGenerateKeyPairSpy = jest
           .spyOn(cryptoFunctionService, "rsaGenerateKeyPair")
           .mockResolvedValue(mockDeviceRsaKeyPair);
-
-        cryptoSvcGetUserKeySpy = jest
-          .spyOn(keyService, "getUserKey")
-          .mockResolvedValue(mockUserKey);
 
         cryptoSvcRsaEncryptSpy = jest
           .spyOn(encryptService, "encapsulateKeyUnsigned")
@@ -448,7 +445,7 @@ describe("deviceTrustService", () => {
 
         expect(makeDeviceKeySpy).toHaveBeenCalledTimes(1);
         expect(rsaGenerateKeyPairSpy).toHaveBeenCalledTimes(1);
-        expect(cryptoSvcGetUserKeySpy).toHaveBeenCalledTimes(1);
+        expect(keyService.userKey$).toHaveBeenCalledTimes(1);
 
         expect(cryptoSvcRsaEncryptSpy).toHaveBeenCalledTimes(1);
 
@@ -473,18 +470,13 @@ describe("deviceTrustService", () => {
       });
 
       it("throws specific error if user key is not found", async () => {
-        // setup the spy to return null
-        cryptoSvcGetUserKeySpy.mockResolvedValue(null);
+        keyService.userKey$.mockReturnValueOnce(of(null));
         // check if the expected error is thrown
         await expect(deviceTrustService.trustDevice(mockUserId)).rejects.toThrow(
           "User symmetric key not found",
         );
 
-        // reset the spy
-        cryptoSvcGetUserKeySpy.mockReset();
-
-        // setup the spy to return undefined
-        cryptoSvcGetUserKeySpy.mockResolvedValue(undefined);
+        keyService.userKey$.mockReturnValueOnce(of(undefined));
         // check if the expected error is thrown
         await expect(deviceTrustService.trustDevice(mockUserId)).rejects.toThrow(
           "User symmetric key not found",
@@ -501,11 +493,6 @@ describe("deviceTrustService", () => {
           method: "rsaGenerateKeyPair",
           spy: () => rsaGenerateKeyPairSpy,
           errorText: "rsaGenerateKeyPair error",
-        },
-        {
-          method: "getUserKey",
-          spy: () => cryptoSvcGetUserKeySpy,
-          errorText: "getUserKey error",
         },
         {
           method: "rsaEncrypt",

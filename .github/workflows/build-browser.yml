@@ -193,7 +193,7 @@ jobs:
           zip -r browser-source.zip browser-source
 
       - name: Upload browser source
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: ${{matrix.license_type.archive_name_prefix}}browser-source-${{ env._BUILD_NUMBER }}.zip
           path: browser-source.zip
@@ -218,6 +218,7 @@ jobs:
             source_archive_name_prefix: ""
             archive_name_prefix: ""
             npm_command_prefix: "dist:"
+            npm_package_dev_prefix: "package:dev:"
             readable: "open source license"
             type: "oss"
           - build_prefix: "bit-"
@@ -225,6 +226,7 @@ jobs:
             source_archive_name_prefix: "bit-"
             archive_name_prefix: "bit-"
             npm_command_prefix: "dist:bit:"
+            npm_package_dev_prefix: "package:bit:dev:"
             readable: "commercial license"
             type: "commercial"
         browser:
@@ -232,6 +234,8 @@ jobs:
             npm_command_suffix: "chrome"
             archive_name: "dist-chrome.zip"
             artifact_name: "dist-chrome-MV3"
+            artifact_name_dev: "dev-chrome-MV3"
+            archive_name_dev: "dev-chrome.zip"
           - name: "edge"
             npm_command_suffix: "edge"
             archive_name: "dist-edge.zip"
@@ -268,7 +272,7 @@ jobs:
           npm --version
 
       - name: Download browser source
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
         with:
           name: ${{matrix.license_type.source_archive_name_prefix}}browser-source-${{ env._BUILD_NUMBER }}.zip
 
@@ -332,16 +336,29 @@ jobs:
         working-directory: browser-source/apps/browser
 
       - name: Upload extension artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: ${{ matrix.license_type.artifact_prefix }}${{ matrix.browser.artifact_name }}-${{ env._BUILD_NUMBER }}.zip
           path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_name }}
           if-no-files-found: error
 
+      - name: Package dev extension
+        if: ${{ matrix.browser.archive_name_dev != '' }}
+        run: npm run ${{ matrix.license_type.npm_package_dev_prefix }}${{ matrix.browser.npm_command_suffix }}
+        working-directory: browser-source/apps/browser
+
+      - name: Upload dev extension artifact
+        if: ${{ matrix.browser.archive_name_dev != '' }}
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: ${{ matrix.license_type.artifact_prefix }}${{ matrix.browser.artifact_name_dev }}-${{ env._BUILD_NUMBER }}.zip
+          path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_name_dev }}
+          if-no-files-found: error
+
 
   build-safari:
     name: Build Safari - ${{ matrix.license_type.readable }}
-    runs-on: macos-13
+    runs-on: macos-15
     permissions:
       contents: read
       id-token: write
@@ -506,7 +523,7 @@ jobs:
           ls -la
 
       - name: Upload Safari artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: ${{matrix.license_type.archive_name_prefix}}dist-safari-${{ env._BUILD_NUMBER }}.zip
           path: apps/browser/dist/${{matrix.license_type.archive_name_prefix}}dist-safari.zip
@@ -548,7 +565,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Upload Sources
-        uses: crowdin/github-action@f214c8723025f41fc55b2ad26e67b60b80b1885d # v2.7.1
+        uses: crowdin/github-action@08713f00a50548bfe39b37e8f44afb53e7a802d4 # v2.12.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}

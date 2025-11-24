@@ -15,16 +15,19 @@
     "message": "Няма важни приложения в риск"
   },
   "accessIntelligence": {
-    "message": "Access Intelligence"
-  },
-  "riskInsights": {
-    "message": "Подробности за рисковете"
+    "message": "Анализ на достъпа"
   },
   "passwordRisk": {
     "message": "Рискова парола"
   },
+  "noEditPermissions": {
+    "message": "Нямате право за редактиране на този елемент"
+  },
   "reviewAtRiskPasswords": {
     "message": "Прегледайте паролите в риск (слаби, преизползвани или разобличени) в различните приложения. Изберете най-важните си приложения, за да дадете приоритет на действията по сигурността за потребителите си, така че те да обърнат внимание на паролите си в риск."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Преглед на елементите за вписване в риск"
   },
   "dataLastUpdated": {
     "message": "Последно обновяване на данните: $DATE$",
@@ -90,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Назначете задачи на членовете, за да следите напредъка"
   },
-  "onceYouReviewApps": {
-    "message": "След като прегледате приложенията и отбележите някои като важни, можете да зададете задачи на членовете, така че те да се занимаят с нещата в риск, а Вие да следите напредъка тук"
+  "onceYouReviewApplications": {
+    "message": "След като прегледате приложенията и ги отбележите като важни, можете да зададете задачи на членовете си, за да сменят паролите си."
   },
   "sendReminders": {
     "message": "Изпращане на напомняния"
@@ -126,6 +129,9 @@
         "example": "3"
       }
     }
+  },
+  "criticalApplicationsMarked": {
+    "message": "важни приложения са отбелязани"
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ важни приложения",
@@ -172,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "No applications found for $ORG NAME$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "Няма намерени данни"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  "noDataInOrgDescription": {
+    "message": "Внесете данните за вписване на организацията си, за да започнете да използвате Анализа на достъпа. След като направите това, ще можете да:"
   },
-  "benefit1Title": {
-    "message": "Prioritize risks"
+  "feature1Title": {
+    "message": "Отбелязвате приложения като важни"
   },
-  "benefit1Description": {
-    "message": "Focus on applications that matter the most"
+  "feature1Description": {
+    "message": "Това ще Ви помогне да отстранявате рисковете първо в най-важните си приложения."
   },
-  "benefit2Title": {
-    "message": "Guide remediation"
+  "feature2Title": {
+    "message": "Помагате на членовете да подобряват сигурността си"
   },
-  "benefit2Description": {
-    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  "feature2Description": {
+    "message": "Задавайте на членовете в риск задачи по сигурността, които да ги насочват в промяната на данните им."
   },
-  "benefit3Title": {
-    "message": "Monitor progress"
+  "feature3Title": {
+    "message": "Следите напредъка"
   },
-  "benefit3Description": {
-    "message": "Track changes over time to show security improvements"
+  "feature3Description": {
+    "message": "Следете промените във времето, за да виждате как сигурността се подобрява."
   },
-  "noReportRunTitle": {
-    "message": "Run your first report to see applications"
+  "noReportsRunTitle": {
+    "message": "Създаване на доклад"
   },
-  "noReportRunDescription": {
-    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
+  "noReportsRunDescription": {
+    "message": "Всичко е готово и можете да започнете да създавате доклади. След като го направите, ще можете да:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Не сте отбелязали нито едно приложение като важно"
@@ -235,6 +235,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Applications marked as critical"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ приложения са отбелязани като важни",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Приложенията не успяха да бъдат отбелязани като важни"
   },
@@ -256,8 +265,14 @@
   "atRiskMembers": {
     "message": "Членове в риск"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Членове с достъп до елементи в риск за важни приложения"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "Тези членове имат достъп до рисковите елементи за важните приложения."
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Членове с пароли в риск"
+  },
+  "membersWillReceiveSecurityTask": {
+    "message": "Членовете на организацията ще получат задача за промяна на рисковите пароли. Те ще получат известие в разширението за браузър на Битуорден."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ членове в риск",
@@ -286,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Тези членове се вписват в приложенията със слаби, преизползвани или разобличени пароли."
+  "atRiskMemberDescription": {
+    "message": "Тези членове се вписват във важните приложения със слаби, преизползвани или разкрити пароли."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Няма членове, които се вписват в приложенията със слаби, преизползвани или разобличени пароли."
@@ -328,6 +343,9 @@
   "applicationsNeedingReview": {
     "message": "Приложения, които имат нужда от преглед"
   },
+  "newApplicationsCardTitle": {
+    "message": "Преглед на новите приложения"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ нови приложения",
     "placeholders": {
@@ -343,35 +361,56 @@
   "reviewNow": {
     "message": "Преглеждане сега"
   },
+  "allCaughtUp": {
+    "message": "Всичко е изпълнено!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "В момента няма нови приложения за преглед"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Вашата организация има запазени елементи за $COUNT$ приложения",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Прегледайте приложенията, за да защитите най-важните за организацията си елементи"
+  },
+  "reviewApplications": {
+    "message": "Преглед на приложенията"
+  },
   "prioritizeCriticalApplications": {
     "message": "Даване на приоритет на важните приложения"
   },
-  "atRiskItems": {
-    "message": "Елементи в риск"
+  "selectCriticalAppsDescription": {
+    "message": "Изберете кои приложения са най-важни за организацията Ви. След това ще можете да зададете задачи на членовете, за да отстраните рисковете."
+  },
+  "reviewNewApplications": {
+    "message": "Преглед на новите приложения"
+  },
+  "reviewNewAppsDescription": {
+    "message": "Прегледайте новите приложения с рискови елементи и ги отбележете, ако искате да ги следите внимателно като важни. След това ще можете да задавате задачи на членовете, за да отстраните рисковете."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Щракнете върху иконката със звезда, за да отбележите приложение като важно"
   },
   "markAsCriticalPlaceholder": {
     "message": "Функционалността за отбелязване на нещо като важно ще бъде добавена в бъдеща версия"
   },
   "applicationReviewSaved": {
-    "message": "Application review saved"
-  },
-  "applicationsMarkedAsCritical": {
-    "message": "$COUNT$ applications marked as critical",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
+    "message": "Прегледът на приложението е запазен"
   },
   "newApplicationsReviewed": {
-    "message": "New applications reviewed"
+    "message": "Има нови прегледани приложения"
   },
   "errorSavingReviewStatus": {
-    "message": "Error saving review status"
+    "message": "Грешка при запазването на състоянието на преглед"
   },
   "pleaseTryAgain": {
-    "message": "Please try again"
+    "message": "Моля, опитайте отново"
   },
   "unmarkAsCritical": {
     "message": "Премахване от важните"
@@ -834,6 +873,9 @@
   },
   "favorites": {
     "message": "Любими"
+  },
+  "taskSummary": {
+    "message": "Обобщение на задачата"
   },
   "types": {
     "message": "Видове"
@@ -1360,7 +1402,7 @@
     "message": "Използване на еднократна идентификация"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Вашата организация изисква еднократно удостоверяване."
   },
   "welcomeBack": {
     "message": "Добре дошли отново"
@@ -3202,8 +3244,17 @@
   "nextCharge": {
     "message": "Следваща промяна"
   },
+  "nextChargeHeader": {
+    "message": "Следващо плащане"
+  },
+  "plan": {
+    "message": "План"
+  },
   "details": {
     "message": "Детайли"
+  },
+  "discount": {
+    "message": "отстъпка"
   },
   "downloadLicense": {
     "message": "Изтегляне на лиценз"
@@ -4409,8 +4460,32 @@
   "updateBrowser": {
     "message": "Обновяване на браузъра"
   },
-  "generatingYourRiskInsights": {
-    "message": "Създаване на Вашата информация относно рисковете…"
+  "generatingYourAccessIntelligence": {
+    "message": "Създаване на Вашия анализ на достъпа…"
+  },
+  "fetchingMemberData": {
+    "message": "Извличане на данните за членовете…"
+  },
+  "analyzingPasswordHealth": {
+    "message": "Анализиране на състоянието на паролите…"
+  },
+  "calculatingRiskScores": {
+    "message": "Изчисляване на оценките на риска…"
+  },
+  "generatingReportData": {
+    "message": "Създаване на данните за доклада…"
+  },
+  "savingReport": {
+    "message": "Запазване на доклада…"
+  },
+  "compilingInsights": {
+    "message": "Събиране на подробности…"
+  },
+  "loadingProgress": {
+    "message": "Зареждане на напредъка"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Това може да отнеме няколко минути."
   },
   "riskInsightsRunReport": {
     "message": "Изпълнение на доклада"
@@ -5734,9 +5809,9 @@
     "message": "Изискване на всички елементи да бъдат притежавани от организация, премахвайки възможността за съхраняване на елементи в отделен акаунт.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
-    "message": "Всички елементи ще се притежават от и съхраняват в организацията, което ще означава, че управлението, видимостта и докладите ще се извършват от организацията. Когато това и включено, всеки член ще може да съхранява елементите си в стандартна колекция. Научете повече относно управлението на ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  "organizationDataOwnershipDescContent": {
+    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "жизнения цикъл на данните за удостоверяване",
@@ -5752,7 +5827,7 @@
     "message": "няма да бъде автоматично избрана при създаване на нови елементи"
   },
   "organizationDataOwnershipWarning3": {
-    "message": "не може да се управлява от Конзолата за администриране, докато потребителят не бъде премахнат"
+    "message": "не може да се управлява от Административната конзола, докато потребителят не бъде премахнат"
   },
   "organizationDataOwnershipWarningContentTop": {
     "message": "Изключвайки тази политика, стандартната колекция: "
@@ -5774,16 +5849,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "Как се включва автоматичното потвърждаване на потребителите"
   },
-  "autoConfirmStep1": {
-    "message": "Отворете добавката на Битуорден."
+  "autoConfirmExtension1": {
+    "message": "Отворете добавката на Битуорден"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "Изберете",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " Включване.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " Включване",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "Добавката за браузър на Битуорден е отворена. Сега можете да включите настройката за автоматично потвърждаване на потребителите."
@@ -5805,8 +5880,8 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Изисква се да е включена политиката за единствена организация. "
   },
-  "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Достъпът ще бъде преустановен за всеки, който е част от повече от една организация, докато не напусне другите организации."
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "За да може да се включи тази автоматизация, всички членове трябва да принадлежат само на тази организация."
   },
   "autoConfirmSingleOrgExemption": {
     "message": "Политиката за единствена организация ще се прилага за всички роли. "
@@ -5871,6 +5946,19 @@
   "disableHideEmail": {
     "message": "Потребителите да не могат да скриват адреса на е-пощата си от получателите, когато създават или редактират изпращания.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Стандартно засичане на съвпадения на адреси"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Определя кога данните за вписване да се предлагат за автоматично попълване. Тази политика не засяга администраторите и собствениците."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Стандартно засичане на съвпадения на адреси"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Моля, изберете вариант за засичане на съвпаденията на адреси.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Редактирана политика № $ID$.",
@@ -6525,11 +6613,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Вашата главна парола не отговаря на една или повече политики на организацията Ви. За да получите достъп до трезора, трябва да промените главната си парола сега. Това означава, че ще бъдете отписан(а) от текущата си сесия и ще трябва да се впишете отново. Активните сесии на други устройства може да продължат да бъдат активни още един час."
   },
-  "automaticAppLogin": {
-    "message": "Автоматично вписване на потребителите за разрешените приложения"
+  "automaticAppLoginWithSSO": {
+    "message": "Автоматично вписване чрез еднократно удостоверяване"
   },
-  "automaticAppLoginDesc": {
-    "message": "Формулярите за вписване ще бъдат попълвани и изпращани автоматично за приложенията, стартирани от настроения Ви доставчик на самоличност."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Възползвайте се от сигурността и удобството на еднократното удостоверяване дори и за неуправлявани приложения. Когато потребителите пуснат приложение от Вашия доставчик на самоличности, данните им за вписване ще бъдат автоматично попълнени и изпратени, с едно щракване и по безопасен път от доставчика на самоличност до приложението."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Сървър на доставчика на самоличност"
@@ -7129,6 +7217,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Трябва да добавите или основния адрес на сървъра, или поне една специална среда."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Адресите трябва да ползват HTTPS."
+  },
   "apiUrl": {
     "message": "Адрес на сървъра за ППИ"
   },
@@ -7300,6 +7391,9 @@
   },
   "accessDenied": {
     "message": "Достъпът е отказан. Нямате право за преглед на тази страница."
+  },
+  "noPageAccess": {
+    "message": "Нямате достъп до тази страница"
   },
   "masterPassword": {
     "message": "Главна парола"
@@ -9476,9 +9570,6 @@
   "loggedInExclamation": {
     "message": "Вписахте се!"
   },
-  "beta": {
-    "message": "Бета"
-  },
   "assignCollectionAccess": {
     "message": "Задаване на достъп за колекциите"
   },
@@ -9758,6 +9849,9 @@
   },
   "assignTasks": {
     "message": "Назначаване на задачи"
+  },
+  "assignSecurityTasksToMembers": {
+    "message": "Изпращане на известия за промяна на пароли"
   },
   "assignToCollections": {
     "message": "Свързване с колекции"
@@ -12023,5 +12117,54 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Започнете безплатния пробен период на Семейния план"
+  },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Block account creation for claimed domains"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "A domain must be claimed before activating this policy."
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Задайте метод за отключване, за да може да промените действието при изтичане на времето за достъп до трезора."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Изискванията на политиката за големи компании бяха приложени към настройките на времето за достъп"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Времето за достъп до трезора Ви превишава ограничението, определено от организацията Ви."
+  },
+  "neverLockWarning": {
+    "message": "Уверени ли сте, че искате да зададете стойност „Никога“? Това води до съхранение на шифриращия ключ за трезора във устройството ви. Ако използвате тази възможност, е много важно да имате надлежна защита на устройството си."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Действие при изтичането на времето за достъп"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Изтичане на времето за сесията"
+  },
+  "appearance": {
+    "message": "Външен вид"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Времето за достъп превишава ограничението, зададено от Вашата организация: максимум $HOURS$ час(а) и $MINUTES$ минута/и",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "Няма избрани важни приложения"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Наистина ли искате да продължите?"
   }
 }
