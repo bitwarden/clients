@@ -88,7 +88,7 @@ describe("DefaultRegisterSdkService", () => {
       });
 
       it("creates an internal SDK client when called the first time", async () => {
-        await firstValueFrom(service.userClient$(userId));
+        await firstValueFrom(service.registerClient(userId));
 
         expect(sdkClientFactory.createSdkClient).toHaveBeenCalled();
       });
@@ -98,8 +98,8 @@ describe("DefaultRegisterSdkService", () => {
         const subject_2 = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
 
         // Use subjects to ensure the subscription is kept alive
-        service.userClient$(userId).subscribe(subject_1);
-        service.userClient$(userId).subscribe(subject_2);
+        service.registerClient(userId).subscribe(subject_1);
+        service.registerClient(userId).subscribe(subject_2);
 
         // Wait for the next tick to ensure all async operations are done
         await new Promise(process.nextTick);
@@ -112,8 +112,8 @@ describe("DefaultRegisterSdkService", () => {
       it("destroys the internal SDK client when all subscriptions are closed", async () => {
         const subject_1 = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
         const subject_2 = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
-        const subscription_1 = service.userClient$(userId).subscribe(subject_1);
-        const subscription_2 = service.userClient$(userId).subscribe(subject_2);
+        const subscription_1 = service.registerClient(userId).subscribe(subject_1);
+        const subscription_2 = service.registerClient(userId).subscribe(subject_2);
         await new Promise(process.nextTick);
 
         subscription_1.unsubscribe();
@@ -129,7 +129,7 @@ describe("DefaultRegisterSdkService", () => {
         });
         accountService.accounts$ = accounts$;
 
-        const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
+        const userClientTracker = new ObservableTracker(service.registerClient(userId), false);
         await userClientTracker.pauseUntilReceived(1);
 
         accounts$.next({});
@@ -150,7 +150,7 @@ describe("DefaultRegisterSdkService", () => {
       });
 
       it("throws UserNotLoggedInError when user has no account", async () => {
-        const result = () => firstValueFrom(service.userClient$(userId));
+        const result = () => firstValueFrom(service.registerClient(userId));
 
         await expect(result).rejects.toThrow(UserNotLoggedInError);
       });

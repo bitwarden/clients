@@ -52,5 +52,5 @@ export abstract class RegisterSdkService {
    *
    * @param userId The user id for which to retrieve the client
    */
-  abstract userClient$(userId: UserId): Observable<Rc<BitwardenClient>>;
+  abstract registerClient(userId: UserId): Observable<Rc<BitwardenClient>>;
 }

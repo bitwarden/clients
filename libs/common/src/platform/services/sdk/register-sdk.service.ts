@@ -84,7 +84,7 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
     private userAgent: string | null = null,
   ) {}
 
-  userClient$(userId: UserId): Observable<Rc<BitwardenClient>> {
+  registerClient(userId: UserId): Observable<Rc<BitwardenClient>> {
     return this.sdkClientOverrides.pipe(
       takeWhile((clients) => clients[userId] !== UnsetClient, false),
       map((clients) => {
