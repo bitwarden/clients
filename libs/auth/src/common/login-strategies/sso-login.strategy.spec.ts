@@ -501,67 +501,6 @@ describe("SsoLoginStrategy", () => {
         HasMasterPassword: false,
         KeyConnectorOption: { KeyConnectorUrl: keyConnectorUrl },
       });
-      tokenResponse.keyConnectorUrl = keyConnectorUrl;
-    });
-
-    it("gets and sets the master key if Key Connector is enabled and the user doesn't have a master password", async () => {
-      const masterKey = new SymmetricCryptoKey(
-        new Uint8Array(64).buffer as CsprngArray,
-      ) as MasterKey;
-
-      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-      masterPasswordService.masterKeySubject.next(masterKey);
-
-      await ssoLoginStrategy.logIn(credentials);
-
-      expect(keyConnectorService.setMasterKeyFromUrl).toHaveBeenCalledWith(keyConnectorUrl, userId);
-    });
-
-    it("converts new SSO user with no master password to Key Connector on first login", async () => {
-      tokenResponse.key = undefined;
-      tokenResponse.kdfConfig = new Argon2KdfConfig(10, 64, 4);
-
-      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-
-      await ssoLoginStrategy.logIn(credentials);
-
-      expect(keyConnectorService.setNewSsoUserKeyConnectorConversionData).toHaveBeenCalledWith(
-        {
-          kdfConfig: new Argon2KdfConfig(10, 64, 4),
-          keyConnectorUrl: keyConnectorUrl,
-          organizationId: ssoOrgId,
-        },
-        userId,
-      );
-    });
-
-    it("decrypts and sets the user key if Key Connector is enabled and the user doesn't have a master password", async () => {
-      const userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
-      const masterKey = new SymmetricCryptoKey(
-        new Uint8Array(64).buffer as CsprngArray,
-      ) as MasterKey;
-
-      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-      masterPasswordService.masterKeySubject.next(masterKey);
-      masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(userKey);
-
-      await ssoLoginStrategy.logIn(credentials);
-
-      expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
-        masterKey,
-        userId,
-        undefined,
-      );
-      expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, userId);
-    });
-  });
-
-  describe("Key Connector Pre-TDE", () => {
-    let tokenResponse: IdentityTokenResponse;
-    beforeEach(() => {
-      tokenResponse = identityTokenResponseFactory();
-      tokenResponse.userDecryptionOptions = null;
-      tokenResponse.keyConnectorUrl = keyConnectorUrl;
     });
 
     it("gets and sets the master key if Key Connector is enabled and the user doesn't have a master password", async () => {
