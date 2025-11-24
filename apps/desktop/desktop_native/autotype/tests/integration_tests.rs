@@ -6,6 +6,7 @@ use std::{
     time::Duration,
 };
 
+use autotype::{get_foreground_window_title, type_input};
 use serial_test::serial;
 use tracing::debug;
 use windows::Win32::{
@@ -15,8 +16,6 @@ use windows::Win32::{
     UI::WindowsAndMessaging::*,
 };
 use windows_core::{s, w, Result, PCSTR, PCWSTR};
-
-use autotype::{get_foreground_window_title, type_input};
 
 struct TestWindow {
     hwnd: HWND,
