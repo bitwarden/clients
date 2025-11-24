@@ -90,6 +90,7 @@ describe("ExposedPasswordsReportComponent", () => {
   });
 
   beforeEach(() => {
+    jest.clearAllMocks();
     fixture = TestBed.createComponent(ExposedPasswordsReportComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

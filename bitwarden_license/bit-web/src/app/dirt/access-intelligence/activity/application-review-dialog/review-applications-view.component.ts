@@ -5,6 +5,9 @@ import { FormsModule } from "@angular/forms";
 import { ApplicationHealthReportDetail } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { ButtonModule, DialogModule, SearchModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
+
+import { CipherIcon } from "../../shared/app-table-row-scrollable.component";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,10 +21,12 @@ import { I18nPipe } from "@bitwarden/ui-common";
     SearchModule,
     TypographyModule,
     I18nPipe,
+    SharedModule,
   ],
 })
 export class ReviewApplicationsViewComponent {
-  readonly applications = input.required<ApplicationHealthReportDetail[]>();
+  readonly applications =
+    input.required<Array<ApplicationHealthReportDetail & { iconCipher: CipherIcon }>>();
   readonly selectedApplications = input.required<Set<string>>();
 
   protected readonly searchText = signal<string>("");

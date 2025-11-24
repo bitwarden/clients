@@ -194,7 +194,7 @@
     "message": "帮助成员提升他们的安全性"
   },
   "feature2Description": {
-    "message": "为存在风险的成员分配引导式安全任务，以更新凭证。"
+    "message": "为存在风险的成员分配指导性安全任务，以更新其凭据。"
   },
   "feature3Title": {
     "message": "监测进度"
@@ -266,7 +266,7 @@
     "message": "存在风险的成员"
   },
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
-    "message": "这些成员拥有关键应用程序中易受攻击项目的访问权限。"
+    "message": "这些成员拥有对关键应用程序中易受攻击项目的访问权限。"
   },
   "membersWithAtRiskPasswords": {
     "message": "密码存在风险的成员"
@@ -392,7 +392,7 @@
     "message": "审查新应用程序"
   },
   "reviewNewAppsDescription": {
-    "message": "审查具有易受攻击项目的新应用程序然后将需要密切监测的应用程序标记为关键。然后，您可以将安全任务分配给成员以消除风险。"
+    "message": "审查具有易受攻击项目的新应用程序，并将需要密切监测的应用程序标记为关键。然后，您可以将安全任务分配给成员以消除风险。"
   },
   "clickIconToMarkAppAsCritical": {
     "message": "点击星形图标以将 App 标记为关键"
@@ -5809,9 +5809,9 @@
     "message": "要求所有项目归组织所有，禁用此选项以在账户级别存储项目。",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
-    "message": "所有项目都将归组织所有并保存到组织中，从而实现整个组织范围内的控制、可见性和报告。开启后，每个成员都可以使用默认集合来存储项目。进一步了解如何管理",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  "organizationDataOwnershipDescContent": {
+    "message": "所有项目都将归组织所有并保存至组织，从而实现组织范围的控制、可见性和报告功能。启用后，每个成员都将拥有一个默认集合来存储项目。进一步了解",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "凭据的生命周期",
@@ -9851,7 +9851,7 @@
     "message": "分配任务"
   },
   "assignSecurityTasksToMembers": {
-    "message": "发送通知以更改密码"
+    "message": "发送更改密码的通知"
   },
   "assignToCollections": {
     "message": "分配到集合"
@@ -12117,6 +12117,15 @@
   },
   "startFreeFamiliesTrial": {
     "message": "开始免费家庭版试用"
+  },
+  "blockClaimedDomainAccountCreation": {
+    "message": "阻止为已声明的域名创建账户"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "禁止用户使用已声明域名的电子邮件地址在组织外部创建账户。"
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "必须先声明域名，然后才能激活此策略。"
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "设置一个解锁方式以更改您的密码库超时动作。"

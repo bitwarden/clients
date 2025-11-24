@@ -52,6 +52,7 @@ import { ScriptInjectorService } from "../../platform/services/abstractions/scri
 // eslint-disable-next-line no-restricted-imports
 import { openVaultItemPasswordRepromptPopout } from "../../vault/popup/utils/vault-popout-window";
 import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
+import { InlineMenuFillTypes } from "../enums/autofill-overlay.enum";
 import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -452,6 +453,7 @@ export default class AutofillService implements AutofillServiceInterface {
           tabUrl: tab.url,
           defaultUriMatch: defaultUriMatch,
           focusedFieldOpid: options.focusedFieldOpid,
+          inlineMenuFillType: options.inlineMenuFillType,
         });
 
         if (!fillScript || !fillScript.script || !fillScript.script.length) {
@@ -971,26 +973,53 @@ export default class AutofillService implements AutofillServiceInterface {
 
     if (passwordFields.length && !passwords.length) {
       // in the event that password fields exist but weren't processed within form elements.
-      // select matching password if focused, otherwise first in prioritized list. for username, use focused field if it matches, otherwise find field before password.
-      const passwordFieldToUse = focusedField
-        ? prioritizedPasswordFields.find(passwordMatchesFocused) || prioritizedPasswordFields[0]
-        : prioritizedPasswordFields[0];
+      const isPasswordGeneration =
+        options.inlineMenuFillType === InlineMenuFillTypes.PasswordGeneration;
+      const isCurrentPasswordUpdate =
+        options.inlineMenuFillType === InlineMenuFillTypes.CurrentPasswordUpdate;
 
-      if (passwordFieldToUse) {
-        passwords.push(passwordFieldToUse);
+      // For password generation or current password update, include all password fields from the same form
+      // This ensures we have access to all fields regardless of their login/registration classification
+      if ((isPasswordGeneration || isCurrentPasswordUpdate) && focusedField) {
+        // Add all password fields from the same form as the focused field
+        const focusedFieldForm = focusedField.form;
 
-        if (login.username && passwordFieldToUse.elementNumber > 0) {
-          username = getUsernameForPassword(passwordFieldToUse, true);
+        // Check both login and registration fields to ensure we get all password fields
+        const allPasswordFields = [...loginPasswordFields, ...registrationPasswordFields];
+        allPasswordFields.forEach((passField) => {
+          if (passField.form === focusedFieldForm) {
+            passwords.push(passField);
+          }
+        });
+      }
+
+      // If we didn't add any passwords above (either not password generation/update or no matching fields),
+      // select matching password if focused, otherwise first in prioritized list.
+      if (!passwords.length) {
+        const passwordFieldToUse = focusedField
+          ? prioritizedPasswordFields.find(passwordMatchesFocused) || prioritizedPasswordFields[0]
+          : prioritizedPasswordFields[0];
+
+        if (passwordFieldToUse) {
+          passwords.push(passwordFieldToUse);
+        }
+      }
+
+      // Handle username and TOTP for the first password field
+      const firstPasswordField = passwords[0];
+      if (firstPasswordField) {
+        if (login.username && firstPasswordField.elementNumber > 0) {
+          username = getUsernameForPassword(firstPasswordField, true);
           if (username) {
             usernames.set(username.opid, username);
           }
         }
 
-        if (options.allowTotpAutofill && login.totp && passwordFieldToUse.elementNumber > 0) {
+        if (options.allowTotpAutofill && login.totp && firstPasswordField.elementNumber > 0) {
           totp =
-            isFocusedTotpField && passwordMatchesFocused(passwordFieldToUse)
+            isFocusedTotpField && passwordMatchesFocused(firstPasswordField)
               ? focusedField
-              : this.findTotpField(pageDetails, passwordFieldToUse, false, false, true);
+              : this.findTotpField(pageDetails, firstPasswordField, false, false, true);
           if (totp) {
             totps.push(totp);
           }

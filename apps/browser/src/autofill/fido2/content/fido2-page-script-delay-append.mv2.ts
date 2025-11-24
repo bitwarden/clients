@@ -8,6 +8,9 @@
   }
 
   const script = globalContext.document.createElement("script");
+  // This script runs in world: MAIN, eliminating the risk associated with this lint error.
+  // DOM injection is still needed for the iframe timing hack.
+  // eslint-disable-next-line @bitwarden/platform/no-page-script-url-leakage
   script.src = chrome.runtime.getURL("content/fido2-page-script.js");
   script.async = false;
 

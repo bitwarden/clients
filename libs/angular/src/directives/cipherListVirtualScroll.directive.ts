@@ -45,6 +45,8 @@ export function _cipherListVirtualScrollStrategyFactory(cipherListDir: CipherLis
     },
   ],
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28232): Use Directive suffix
+// eslint-disable-next-line @angular-eslint/directive-class-suffix
 export class CipherListVirtualScroll extends CdkFixedSizeVirtualScroll {
   _scrollStrategy: CipherListVirtualScrollStrategy;
 

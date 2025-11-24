@@ -2436,6 +2436,9 @@
       }
     }
   },
+  "topLayerHijackWarning": {
+    "message": "此頁面正在干擾 Bitwarden 的使用體驗。為了安全起見，已暫時停用 Bitwarden 的內嵌選單。"
+  },
   "setMasterPassword": {
     "message": "設定主密碼"
   },
@@ -5810,13 +5813,13 @@
     "message": "升級到 Premium"
   },
   "upgradeCompleteSecurity": {
-    "message": "Upgrade for complete security"
+    "message": "升級以獲得完整的安全防護"
   },
   "premiumGivesMoreTools": {
-    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+    "message": "進階版提供更多工具，協助您維持安全、高效工作並保持掌控。"
   },
   "explorePremium": {
-    "message": "Explore Premium"
+    "message": "探索進階版"
   },
   "loadingVault": {
     "message": "正在載入密碼庫"

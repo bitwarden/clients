@@ -22,7 +22,7 @@ import { TwoFactorYubiKeyResponse } from "@bitwarden/common/auth/models/response
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-import { TwoFactorApiService } from "./two-factor-api.service";
+import { TwoFactorApiService } from "../abstractions/two-factor-api.service";
 
 export class DefaultTwoFactorApiService implements TwoFactorApiService {
   constructor(private apiService: ApiService) {}

@@ -9,6 +9,6 @@ let nextId = 0;
     class: "tw-text-muted tw-font-normal tw-inline-block tw-mt-1 tw-text-xs",
   },
 })
-export class BitHintComponent {
+export class BitHintDirective {
   @HostBinding() id = `bit-hint-${nextId++}`;
 }

@@ -35,7 +35,7 @@ import { TableComponent } from "./table.component";
 @Directive({
   selector: "[bitRowDef]",
 })
-export class BitRowDef {
+export class BitRowDefDirective {
   constructor(public template: TemplateRef<any>) {}
 }
 
@@ -69,7 +69,7 @@ export class TableScrollComponent
   /** Optional trackBy function. */
   readonly trackBy = input<TrackByFunction<any> | undefined>();
 
-  protected readonly rowDef = contentChild(BitRowDef);
+  protected readonly rowDef = contentChild(BitRowDefDirective);
 
   /**
    * Height of the thead element (in pixels).

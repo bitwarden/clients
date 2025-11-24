@@ -9,6 +9,7 @@ import { SessionTimeoutPolicy } from "../../key-management/policies/session-time
 import {
   ActivateAutofillPolicy,
   AutomaticAppLoginPolicy,
+  BlockClaimedDomainAccountCreationPolicy,
   DisablePersonalVaultExportPolicy,
 } from "./policy-edit-definitions";
 
@@ -23,6 +24,7 @@ const policyEditRegister: BasePolicyEditDefinition[] = [
   new FreeFamiliesSponsorshipPolicy(),
   new ActivateAutofillPolicy(),
   new AutomaticAppLoginPolicy(),
+  new BlockClaimedDomainAccountCreationPolicy(),
 ];
 
 export const bitPolicyEditRegister = ossPolicyEditRegister.concat(policyEditRegister);

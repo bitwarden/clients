@@ -2436,6 +2436,9 @@
       }
     }
   },
+  "topLayerHijackWarning": {
+    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
+  },
   "setMasterPassword": {
     "message": "Ana parolu ayarla"
   },
@@ -5810,13 +5813,13 @@
     "message": "\"Premium\"a yüksəlt"
   },
   "upgradeCompleteSecurity": {
-    "message": "Upgrade for complete security"
+    "message": "Tam təhlükəsizlik üçün yüksəldin"
   },
   "premiumGivesMoreTools": {
-    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+    "message": "Premium, güvəndə qalmağınız, səmərəli çalışmağınız və nəzarətə sahib olmağınız üçün daha çox alət verir."
   },
   "explorePremium": {
-    "message": "Explore Premium"
+    "message": "Premium-u kəşf et"
   },
   "loadingVault": {
     "message": "Seyf yüklənir"

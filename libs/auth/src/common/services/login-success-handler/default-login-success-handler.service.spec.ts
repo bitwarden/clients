@@ -1,7 +1,6 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -58,62 +57,35 @@ describe("DefaultLoginSuccessHandlerService", () => {
       expect(loginEmailService.clearLoginEmail).toHaveBeenCalled();
     });
 
-    describe("when PM22110_DisableAlternateLoginMethods flag is disabled", () => {
+    it("should get SSO email", async () => {
+      await service.run(userId);
+
+      expect(ssoLoginService.getSsoEmail).toHaveBeenCalled();
+    });
+
+    describe("given SSO email is not found", () => {
       beforeEach(() => {
-        configService.getFeatureFlag.mockResolvedValue(false);
+        ssoLoginService.getSsoEmail.mockResolvedValue(null);
       });
 
-      it("should not check SSO requirements", async () => {
+      it("should log error and return early", async () => {
         await service.run(userId);
 
-        expect(ssoLoginService.getSsoEmail).not.toHaveBeenCalled();
+        expect(logService.error).toHaveBeenCalledWith("SSO login email not found.");
         expect(ssoLoginService.updateSsoRequiredCache).not.toHaveBeenCalled();
       });
     });
 
-    describe("given PM22110_DisableAlternateLoginMethods flag is enabled", () => {
+    describe("given SSO email is found", () => {
       beforeEach(() => {
-        configService.getFeatureFlag.mockResolvedValue(true);
+        ssoLoginService.getSsoEmail.mockResolvedValue(testEmail);
       });
 
-      it("should check feature flag", async () => {
+      it("should call updateSsoRequiredCache() and clearSsoEmail()", async () => {
         await service.run(userId);
 
-        expect(configService.getFeatureFlag).toHaveBeenCalledWith(
-          FeatureFlag.PM22110_DisableAlternateLoginMethods,
-        );
-      });
-
-      it("should get SSO email", async () => {
-        await service.run(userId);
-
-        expect(ssoLoginService.getSsoEmail).toHaveBeenCalled();
-      });
-
-      describe("given SSO email is not found", () => {
-        beforeEach(() => {
-          ssoLoginService.getSsoEmail.mockResolvedValue(null);
-        });
-
-        it("should log error and return early", async () => {
-          await service.run(userId);
-
-          expect(logService.error).toHaveBeenCalledWith("SSO login email not found.");
-          expect(ssoLoginService.updateSsoRequiredCache).not.toHaveBeenCalled();
-        });
-      });
-
-      describe("given SSO email is found", () => {
-        beforeEach(() => {
-          ssoLoginService.getSsoEmail.mockResolvedValue(testEmail);
-        });
-
-        it("should call updateSsoRequiredCache() and clearSsoEmail()", async () => {
-          await service.run(userId);
-
-          expect(ssoLoginService.updateSsoRequiredCache).toHaveBeenCalledWith(testEmail, userId);
-          expect(ssoLoginService.clearSsoEmail).toHaveBeenCalled();
-        });
+        expect(ssoLoginService.updateSsoRequiredCache).toHaveBeenCalledWith(testEmail, userId);
+        expect(ssoLoginService.clearSsoEmail).toHaveBeenCalled();
       });
     });
   });

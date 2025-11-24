@@ -2436,6 +2436,9 @@
       }
     }
   },
+  "topLayerHijackWarning": {
+    "message": "Táto stránka narúša zážitok zo Bitwardenu. Inline ponuka Bitwardenu bola dočasne vypnutá ako bezpečnostné opatrenie."
+  },
   "setMasterPassword": {
     "message": "Nastaviť hlavné heslo"
   },

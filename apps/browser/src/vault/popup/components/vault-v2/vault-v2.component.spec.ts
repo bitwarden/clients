@@ -23,6 +23,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService } from "@bitwarden/components";
@@ -258,6 +259,10 @@ describe("VaultV2Component", () => {
           useValue: {
             getFeatureFlag$: (_: string) => of(false),
           },
+        },
+        {
+          provide: SearchService,
+          useValue: { isCipherSearching$: of(false) },
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],

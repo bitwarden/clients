@@ -21,7 +21,8 @@
         </bit-label>
         <textarea rows="4" bitInput formControlName="feedback"></textarea>
         <bit-hint>{{
-          "charactersCurrentAndMaximum" | i18n: formGroup.value.feedback.length : MaxFeedbackLength
+          "charactersCurrentAndMaximum"
+            | i18n: formGroup.value.feedback?.length ?? 0 : MaxFeedbackLength
         }}</bit-hint>
       </bit-form-field>
     </div>
