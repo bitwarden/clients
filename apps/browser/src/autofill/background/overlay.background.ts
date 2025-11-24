@@ -1177,6 +1177,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       allowTotpAutofill: true,
       focusedFieldForm: this.focusedFieldData?.focusedFieldForm,
       focusedFieldOpid: this.focusedFieldData?.focusedFieldOpid,
+      inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
     });
 
     if (totpCode) {
@@ -1863,6 +1864,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       allowTotpAutofill: false,
       focusedFieldForm: this.focusedFieldData?.focusedFieldForm,
       focusedFieldOpid: this.focusedFieldData?.focusedFieldOpid,
+      inlineMenuFillType: InlineMenuFillTypes.PasswordGeneration,
     });
 
     globalThis.setTimeout(async () => {
@@ -2947,17 +2949,21 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       (await this.checkFocusedFieldHasValue(port.sender.tab)) &&
       (await this.shouldShowSaveLoginInlineMenuList(port.sender.tab));
 
+    const iframeUrl = chrome.runtime.getURL(
+      `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.html`,
+    );
+    const styleSheetUrl = chrome.runtime.getURL(
+      `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.css`,
+    );
+    const extensionOrigin = new URL(iframeUrl).origin;
+
     this.postMessageToPort(port, {
       command: `initAutofillInlineMenu${isInlineMenuListPort ? "List" : "Button"}`,
-      iframeUrl: chrome.runtime.getURL(
-        `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.html`,
-      ),
+      iframeUrl,
       pageTitle: chrome.i18n.getMessage(
         isInlineMenuListPort ? "bitwardenVault" : "bitwardenOverlayButton",
       ),
-      styleSheetUrl: chrome.runtime.getURL(
-        `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.css`,
-      ),
+      styleSheetUrl,
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       translations: this.getInlineMenuTranslations(),
       ciphers: isInlineMenuListPort ? await this.getInlineMenuCipherData() : null,
@@ -2971,6 +2977,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       showSaveLoginMenu,
       showInlineMenuAccountCreation,
       authStatus,
+      extensionOrigin,
     });
     this.updateInlineMenuPosition(
       port.sender,
