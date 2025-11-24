@@ -163,13 +163,13 @@ describe("CipherFormComponent", () => {
       expect(component["updatedCipherView"]?.login.fido2Credentials).toBeNull();
     });
 
-    it("clears archiveDate on updatedCipherView", async () => {
+    it("does not clear archiveDate on updatedCipherView", async () => {
       cipherView.archivedDate = new Date();
       decryptCipher.mockResolvedValue(cipherView);
 
       await component.ngOnInit();
 
-      expect(component["updatedCipherView"]?.archivedDate).toBeNull();
+      expect(component["updatedCipherView"]?.archivedDate).toBe(cipherView.archivedDate);
     });
   });
 

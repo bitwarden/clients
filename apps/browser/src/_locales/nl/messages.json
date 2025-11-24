@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "Alles weergeven"
   },
+  "viewLess": {
+    "message": "Minder weergeven"
+  },
   "viewLogin": {
     "message": "Login bekijken"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Bij systeemvergrendeling"
+  },
+  "onIdle": {
+    "message": "Bij systeeminactiviteit"
+  },
+  "onSleep": {
+    "message": "Bij slaapmodus"
   },
   "onRestart": {
     "message": "Bij herstart van de browser"
@@ -2426,6 +2435,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Deze pagina verstoort de Bitwarden-ervaring. Het inline-menu van Bitwarden is tijdelijk uitgeschakeld als veiligheidsmaatregel."
   },
   "setMasterPassword": {
     "message": "Hoofdwachtwoord instellen"
@@ -5800,6 +5812,21 @@
   "upgradeToPremium": {
     "message": "Opwaarderen naar Premium"
   },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade voor volledige beveiliging"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium geeft je meer tools om veilig te blijven, efficiënt te werken en in controle te blijven."
+  },
+  "explorePremium": {
+    "message": "Premium verkennen"
+  },
+  "loadingVault": {
+    "message": "Kluis laden"
+  },
+  "vaultLoaded": {
+    "message": "Kluis geladen"
+  },
   "settingDisabledByPolicy": {
     "message": "Deze instelling is uitgeschakeld door het beleid van uw organisatie.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5836,8 @@
   },
   "cardNumberLabel": {
     "message": "Kaartnummer"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Time-out actie"
   }
 }

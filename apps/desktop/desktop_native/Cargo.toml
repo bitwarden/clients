@@ -39,8 +39,7 @@ futures = "=0.3.31"
 hex = "=0.4.3"
 homedir = "=0.3.4"
 interprocess = "=2.2.1"
-keytar = "=0.1.6"
-libc = "=0.2.172"
+libc = "=0.2.177"
 linux-keyutils = "=0.2.4"
 memsec = "=0.7.0"
 napi = "=2.16.17"
@@ -64,7 +63,6 @@ ssh-key = { version = "=0.6.7", default-features = false }
 sysinfo = "=0.35.0"
 thiserror = "=2.0.12"
 tokio = "=1.45.0"
-tokio-stream = "=0.1.15"
 tokio-util = "=0.7.13"
 tracing = "=0.1.41"
 tracing-subscriber = { version = "=0.3.20", features = [
@@ -72,7 +70,7 @@ tracing-subscriber = { version = "=0.3.20", features = [
     "env-filter",
     "tracing-log",
 ] }
-typenum = "=1.18.0"
+typenum = "=1.19.0"
 uniffi = "=0.28.3"
 widestring = "=1.2.0"
 windows = "=0.61.1"

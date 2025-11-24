@@ -47,12 +47,12 @@ bitwarden_license/bit-web/src/app/dirt @bitwarden/team-data-insights-and-reporti
 libs/dirt @bitwarden/team-data-insights-and-reporting-dev
 libs/common/src/dirt @bitwarden/team-data-insights-and-reporting-dev
 
-## Localization/Crowdin (Platform and Tools team)
-apps/browser/src/_locales @bitwarden/team-tools-dev @bitwarden/team-platform-dev
-apps/browser/store/locales @bitwarden/team-tools-dev @bitwarden/team-platform-dev
-apps/cli/src/locales @bitwarden/team-tools-dev @bitwarden/team-platform-dev
-apps/desktop/src/locales @bitwarden/team-tools-dev @bitwarden/team-platform-dev
-apps/web/src/locales @bitwarden/team-tools-dev @bitwarden/team-platform-dev
+## Localization/Crowdin (Platform team)
+apps/browser/src/_locales @bitwarden/team-platform-dev
+apps/browser/store/locales @bitwarden/team-platform-dev
+apps/cli/src/locales @bitwarden/team-platform-dev
+apps/desktop/src/locales @bitwarden/team-platform-dev
+apps/web/src/locales @bitwarden/team-platform-dev
 
 ## Vault team files ##
 apps/browser/src/vault @bitwarden/team-vault-dev

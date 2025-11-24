@@ -5,7 +5,7 @@ import { Router, RouterModule } from "@angular/router";
 import { firstValueFrom, pairwise, startWith } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { BrowserExtensionIcon, Party } from "@bitwarden/assets/svg";
+import { Party } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -14,8 +14,8 @@ import { StateProvider } from "@bitwarden/common/platform/state";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { getWebStoreUrl } from "@bitwarden/common/vault/utils/get-web-store-url";
 import {
-  AnonLayoutWrapperDataService,
   ButtonComponent,
+  CenterPositionStrategy,
   DialogRef,
   DialogService,
   IconModule,
@@ -67,7 +67,6 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
   private stateProvider = inject(StateProvider);
   private accountService = inject(AccountService);
   private document = inject(DOCUMENT);
-  private anonLayoutWrapperDataService = inject(AnonLayoutWrapperDataService);
 
   protected SetupExtensionState = SetupExtensionState;
   protected PartyIcon = Party;
@@ -143,6 +142,16 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
     }
   }
 
+  get showSuccessUI(): boolean {
+    const successStates = [
+      SetupExtensionState.Success,
+      SetupExtensionState.AlreadyInstalled,
+      SetupExtensionState.ManualOpen,
+    ] as string[];
+
+    return successStates.includes(this.state);
+  }
+
   /** Opens the add extension later dialog */
   addItLater() {
     this.dialogRef = this.dialogService.open<unknown, AddExtensionLaterDialogData>(
@@ -151,6 +160,7 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
         data: {
           onDismiss: this.dismissExtensionPage.bind(this),
         },
+        positionStrategy: new CenterPositionStrategy(),
       },
     );
   }
@@ -159,16 +169,6 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
   async openExtension() {
     await this.webBrowserExtensionInteractionService.openExtension().catch(() => {
       this.state = SetupExtensionState.ManualOpen;
-
-      // Update the anon layout data to show the proper error design
-      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: {
-          key: "somethingWentWrong",
-        },
-        pageIcon: BrowserExtensionIcon,
-        hideCardWrapper: false,
-        maxWidth: "md",
-      });
     });
   }
 

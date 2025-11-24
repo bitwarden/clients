@@ -1,3 +1,5 @@
+<app-header> </app-header>
+
 <ng-container>
   @let status = dataService.reportStatus$ | async;
   @let hasCiphers = dataService.hasCiphers$ | async;
@@ -8,15 +10,14 @@
   } @else {
     <!-- Check final states after initial calls have been completed -->
     @if (isRiskInsightsActivityTabFeatureEnabled && !(dataService.hasReportData$ | async)) {
-      <h1 bitTypography="h1">{{ "accessIntelligence" | i18n }}</h1>
       <!-- Show empty state only when feature flag is enabled and there's no report data -->
       <div @fadeIn class="tw-flex tw-justify-center tw-items-center tw-min-h-[70vh] tw-w-full">
         @if (!hasCiphers) {
           <!-- Show Empty state when there are no applications (no ciphers to make reports on) -->
           <empty-state-card
             [videoSrc]="emptyStateVideoSrc"
-            [title]="this.i18nService.t('noApplicationsInOrgTitle', organizationName)"
-            [description]="this.i18nService.t('noApplicationsInOrgDescription')"
+            [title]="this.i18nService.t('noDataInOrgTitle')"
+            [description]="this.i18nService.t('noDataInOrgDescription')"
             [benefits]="emptyStateBenefits"
             [buttonText]="this.i18nService.t('importData')"
             [buttonIcon]="IMPORT_ICON"
@@ -26,8 +27,8 @@
           <!-- Show empty state for no reports run -->
           <empty-state-card
             [videoSrc]="emptyStateVideoSrc"
-            [title]="this.i18nService.t('noReportRunTitle')"
-            [description]="this.i18nService.t('noReportRunDescription')"
+            [title]="this.i18nService.t('noReportsRunTitle')"
+            [description]="this.i18nService.t('noReportsRunDescription')"
             [benefits]="emptyStateBenefits"
             [buttonText]="this.i18nService.t('riskInsightsRunReport')"
             [buttonIcon]=""
@@ -39,7 +40,6 @@
       <!-- Show screen when there is report data OR when feature flag is disabled (show tabs even without data) -->
       <div @fadeIn class="tw-min-h-screen tw-flex tw-flex-col">
         <div>
-          <h1 bitTypography="h1">{{ "accessIntelligence" | i18n }}</h1>
           <div class="tw-text-main tw-max-w-4xl tw-mb-2" *ngIf="appsCount > 0">
             {{ "reviewAtRiskPasswords" | i18n }}
           </div>
@@ -108,113 +108,5 @@
         }
       </div>
     }
-  }
-
-  @if (dataService.drawerDetails$ | async; as drawerDetails) {
-    <bit-drawer style="width: 30%" [(open)]="isDrawerOpen" (openChange)="dataService.closeDrawer()">
-      <ng-container *ngIf="dataService.isActiveDrawerType(drawerTypes.OrgAtRiskMembers)">
-        <bit-drawer-header
-          title="{{ 'atRiskMembersWithCount' | i18n: drawerDetails.atRiskMemberDetails.length }}"
-        >
-        </bit-drawer-header>
-        <bit-drawer-body>
-          <span bitTypography="body1" class="tw-text-muted tw-text-sm">{{
-            (drawerDetails.atRiskMemberDetails.length > 0
-              ? "atRiskMembersDescription"
-              : "atRiskMembersDescriptionNone"
-            ) | i18n
-          }}</span>
-          <ng-container *ngIf="drawerDetails.atRiskMemberDetails.length > 0">
-            <button
-              bitLink
-              type="button"
-              class="tw-my-4 tw-font-bold tw-block"
-              (click)="downloadAtRiskMembers()"
-            >
-              <i class="bwi bwi-download tw-mr-1"></i>
-              {{ "downloadCSV" | i18n }}
-            </button>
-            <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
-              <div bitTypography="body2" class="tw-text-sm tw-font-medium">
-                {{ "email" | i18n }}
-              </div>
-              <div bitTypography="body2" class="tw-text-sm tw-font-medium">
-                {{ "atRiskPasswords" | i18n }}
-              </div>
-            </div>
-            <ng-container *ngFor="let member of drawerDetails.atRiskMemberDetails">
-              <div class="tw-flex tw-justify-between tw-mt-2">
-                <div>{{ member.email }}</div>
-                <div>{{ member.atRiskPasswordCount }}</div>
-              </div>
-            </ng-container>
-          </ng-container>
-        </bit-drawer-body>
-      </ng-container>
-
-      @if (dataService.isActiveDrawerType(drawerTypes.AppAtRiskMembers)) {
-        <bit-drawer-header title="{{ drawerDetails.appAtRiskMembers.applicationName }}">
-        </bit-drawer-header>
-        <bit-drawer-body>
-          <div bitTypography="body1" class="tw-mb-2">
-            {{ "atRiskMembersWithCount" | i18n: drawerDetails.appAtRiskMembers.members.length }}
-          </div>
-          <div bitTypography="body1" class="tw-text-muted tw-text-sm tw-mb-2">
-            {{
-              (drawerDetails.appAtRiskMembers.members.length > 0
-                ? "atRiskMembersDescriptionWithApp"
-                : "atRiskMembersDescriptionWithAppNone"
-              ) | i18n: drawerDetails.appAtRiskMembers.applicationName
-            }}
-          </div>
-          <div class="tw-mt-1">
-            <ng-container *ngFor="let member of drawerDetails.appAtRiskMembers.members">
-              <div>{{ member.email }}</div>
-            </ng-container>
-          </div>
-        </bit-drawer-body>
-      }
-
-      @if (dataService.isActiveDrawerType(drawerTypes.OrgAtRiskApps)) {
-        <bit-drawer-header
-          title="{{ 'atRiskApplicationsWithCount' | i18n: drawerDetails.atRiskAppDetails.length }}"
-        >
-        </bit-drawer-header>
-
-        <bit-drawer-body>
-          <span bitTypography="body2" class="tw-text-muted tw-text-sm">{{
-            (drawerDetails.atRiskAppDetails.length > 0
-              ? "atRiskApplicationsDescription"
-              : "atRiskApplicationsDescriptionNone"
-            ) | i18n
-          }}</span>
-          <ng-container *ngIf="drawerDetails.atRiskAppDetails.length > 0">
-            <button
-              bitLink
-              type="button"
-              class="tw-my-4 tw-font-bold tw-block"
-              (click)="downloadAtRiskApplications()"
-            >
-              <i class="bwi bwi-download tw-mr-1"></i>
-              {{ "downloadCSV" | i18n }}
-            </button>
-            <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
-              <div bitTypography="body2" class="tw-text-sm tw-font-medium">
-                {{ "application" | i18n }}
-              </div>
-              <div bitTypography="body2" class="tw-text-sm tw-font-medium">
-                {{ "atRiskPasswords" | i18n }}
-              </div>
-            </div>
-            <ng-container *ngFor="let app of drawerDetails.atRiskAppDetails">
-              <div class="tw-flex tw-justify-between tw-mt-2">
-                <div>{{ app.applicationName }}</div>
-                <div>{{ app.atRiskPasswordCount }}</div>
-              </div>
-            </ng-container>
-          </ng-container>
-        </bit-drawer-body>
-      }
-    </bit-drawer>
   }
 </ng-container>

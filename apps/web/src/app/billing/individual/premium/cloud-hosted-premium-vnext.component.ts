@@ -11,6 +11,7 @@ import {
   of,
   shareReplay,
   switchMap,
+  take,
 } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -182,6 +183,7 @@ export class CloudHostedPremiumVNextComponent {
 
     this.shouldShowUpgradeDialogOnInit$
       .pipe(
+        take(1),
         switchMap((shouldShowUpgradeDialogOnInit) => {
           if (shouldShowUpgradeDialogOnInit) {
             return from(this.openUpgradeDialog("Premium"));

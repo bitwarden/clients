@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "Näytä kaikki"
   },
+  "viewLess": {
+    "message": "View less"
+  },
   "viewLogin": {
     "message": "View login"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Kun järjestelmä lukitaan"
+  },
+  "onIdle": {
+    "message": "On system idle"
+  },
+  "onSleep": {
+    "message": "On system sleep"
   },
   "onRestart": {
     "message": "Kun selain käynnistetään uudelleen"
@@ -2426,6 +2435,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
   },
   "setMasterPassword": {
     "message": "Aseta pääsalasana"
@@ -4975,7 +4987,7 @@
     }
   },
   "defaultLabelWithValue": {
-    "message": "Default ( $VALUE$ )",
+    "message": "Oletus  ( $VALUE$ )",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5647,7 +5659,7 @@
     "message": "Close this tab"
   },
   "phishingPageContinueV2": {
-    "message": "Continue to this site (not recommended)"
+    "message": "Jatka tälle sivustolle (ei suositeltavaa)"
   },
   "phishingPageExplanation1": {
     "message": "This site was found in ",
@@ -5764,7 +5776,7 @@
     "message": "Show less"
   },
   "next": {
-    "message": "Next"
+    "message": "Seuraava"
   },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
@@ -5800,14 +5812,32 @@
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
   },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "Ladataan holvia"
+  },
+  "vaultLoaded": {
+    "message": "Holvi ladattu"
+  },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "Postinumero"
   },
   "cardNumberLabel": {
-    "message": "Card number"
+    "message": "Kortin numero"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
   }
 }

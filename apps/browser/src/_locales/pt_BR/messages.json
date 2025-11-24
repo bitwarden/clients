@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "Ver tudo"
   },
+  "viewLess": {
+    "message": "Ver menos"
+  },
   "viewLogin": {
     "message": "Ver credencial"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Ao bloquear o sistema"
+  },
+  "onIdle": {
+    "message": "Quando o sistema ficar inativo"
+  },
+  "onSleep": {
+    "message": "Quando o sistema hibernar"
   },
   "onRestart": {
     "message": "Ao reiniciar o navegador"
@@ -2426,6 +2435,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
   },
   "setMasterPassword": {
     "message": "Definir senha principal"
@@ -5800,6 +5812,21 @@
   "upgradeToPremium": {
     "message": "Faça upgrade para o Premium"
   },
+  "upgradeCompleteSecurity": {
+    "message": "Faça upgrade para segurança completa"
+  },
+  "premiumGivesMoreTools": {
+    "message": "O Premium te oferece mais ferramentas para se permanecer seguro, trabalhar eficientemente, e manter o controle."
+  },
+  "explorePremium": {
+    "message": "Explorar o Premium"
+  },
+  "loadingVault": {
+    "message": "Carregando cofre"
+  },
+  "vaultLoaded": {
+    "message": "Cofre carregado"
+  },
   "settingDisabledByPolicy": {
     "message": "Essa configuração está desativada pela política da sua organização.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5836,8 @@
   },
   "cardNumberLabel": {
     "message": "Número do cartão"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Ação do tempo limite"
   }
 }

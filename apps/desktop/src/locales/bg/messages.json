@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Нямате право за редактиране на този елемент"
+  },
   "welcomeBack": {
     "message": "Добре дошли отново"
   },
@@ -772,7 +775,7 @@
     "message": "Използване на еднократна идентификация"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Вашата организация изисква еднократно удостоверяване."
   },
   "submit": {
     "message": "Подаване"
@@ -1034,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Трябва да добавите или основния адрес на сървъра, или поне една специална среда."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Адресите трябва да ползват HTTPS."
   },
   "customEnvironment": {
     "message": "Специална среда"
@@ -2143,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "Възникна грешка при включването на интеграцията с браузъра."
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "За жалост в момента интеграцията с браузър не се поддържа във версията за магазина на Mac."
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "За жалост в момента интеграцията с браузър не се поддържа във версията за магазина на Windows."
@@ -4190,5 +4193,35 @@
   },
   "cardNumberLabel": {
     "message": "Номер на картата"
+  },
+  "upgradeNow": {
+    "message": "Надграждане сега"
+  },
+  "builtInAuthenticator": {
+    "message": "Вграден удостоверител"
+  },
+  "secureFileStorage": {
+    "message": "Сигурно съхранение на файлове"
+  },
+  "emergencyAccess": {
+    "message": "Авариен достъп"
+  },
+  "breachMonitoring": {
+    "message": "Наблюдение за пробиви"
+  },
+  "andMoreFeatures": {
+    "message": "И още!"
+  },
+  "planDescPremium": {
+    "message": "Пълна сигурност в Интернет"
+  },
+  "upgradeToPremium": {
+    "message": "Надградете до Платения план"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Действие при изтичането на времето за достъп"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Изтичане на времето за сесията"
   }
 }
