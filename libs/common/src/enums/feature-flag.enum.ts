@@ -17,7 +17,6 @@ export enum FeatureFlag {
   IncreaseBulkReinviteLimitForCloud = "pm-28251-increase-bulk-reinvite-limit-for-cloud",
 
   /* Auth */
-  PM22110_DisableAlternateLoginMethods = "pm-22110-disable-alternate-login-methods",
   PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
 
   /* Autofill */
@@ -120,7 +119,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.VaultLoadingSkeletons]: FALSE,
 
   /* Auth */
-  [FeatureFlag.PM22110_DisableAlternateLoginMethods]: FALSE,
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
 
   /* Billing */
