@@ -29,15 +29,16 @@ export class SessionTimeoutSettingsComponentService {
   ) {
     this.availableTimeoutOptions$ = defer(async () => {
       const allOptions = this.getAllTimeoutOptions();
-      const availableOptions: VaultTimeoutOption[] = [];
+      const availabilityResults = await Promise.all(
+        allOptions.map(async (option) => ({
+          option,
+          available: await this.sessionTimeoutTypeService.isAvailable(option.value),
+        })),
+      );
 
-      for (const option of allOptions) {
-        if (await this.sessionTimeoutTypeService.isAvailable(option.value)) {
-          availableOptions.push(option);
-        }
-      }
-
-      return availableOptions;
+      return availabilityResults
+        .filter((result) => result.available)
+        .map((result) => result.option);
     });
   }
 
