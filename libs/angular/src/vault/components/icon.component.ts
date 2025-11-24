@@ -35,7 +35,9 @@ export class IconComponent {
   /**
    * Optional custom size for the icon in pixels.
    * When provided, forces explicit dimensions on the icon wrapper to prevent layout collapse at different zoom levels.
-   * If not provided, uses default sizing (24px for normal icons, 36px for coloredIcon=true).
+   * If not provided, the wrapper has no explicit dimensions and relies on CSS classes (tw-size-6/24px for images).
+   * This can cause the wrapper to collapse when images are loading/hidden, especially at high browser zoom levels.
+   * Reference: default image size is tw-size-6 (24px), coloredIcon uses 36px.
    */
   readonly size = input<number>();
 
