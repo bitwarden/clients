@@ -205,14 +205,9 @@ export class LoginComponent implements OnInit, OnDestroy {
       await this.loadRememberedEmail();
     }
 
-    const disableAlternateLoginMethodsFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM22110_DisableAlternateLoginMethods,
-    );
-    if (disableAlternateLoginMethodsFlagEnabled) {
-      // This SSO required check should come after email has had a chance to be pre-filled (if it
-      // was found in query params or was the remembered email)
-      await this.determineIfSsoRequired();
-    }
+    // This SSO required check should come after email has had a chance to be pre-filled (if it
+    // was found in query params or was the remembered email)
+    await this.determineIfSsoRequired();
   }
 
   private async desktopOnInit(): Promise<void> {

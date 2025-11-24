@@ -15,6 +15,8 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
+import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
 import {
   ButtonModule,
   CalloutModule,
@@ -95,8 +97,16 @@ export class SendV2Component implements OnDestroy {
   /** Skeleton Loading State */
   protected showSkeletonsLoaders$ = combineLatest([
     this.sendsLoading$,
+    this.searchService.isSendSearching$,
     this.skeletonFeatureFlag$,
-  ]).pipe(map(([loading, skeletonsEnabled]) => loading && skeletonsEnabled));
+  ]).pipe(
+    map(
+      ([loading, cipherSearching, skeletonsEnabled]) =>
+        (loading || cipherSearching) && skeletonsEnabled,
+    ),
+    distinctUntilChanged(),
+    skeletonLoadingDelay(),
+  );
 
   protected title: string = "allSends";
   protected noItemIcon = NoSendsIcon;
@@ -110,6 +120,7 @@ export class SendV2Component implements OnDestroy {
     private policyService: PolicyService,
     private accountService: AccountService,
     private configService: ConfigService,
+    private searchService: SearchService,
   ) {
     combineLatest([
       this.sendItemsService.emptyList$,

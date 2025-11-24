@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "指派成員任務以監控進度"
   },
-  "onceYouReviewApps": {
-    "message": "在您檢視應用程式並將其標記為關鍵後，您可以指派任務給成員，以解決有風險的項目，並在此監控進度"
+  "onceYouReviewApplications": {
+    "message": "當您審查應用程式並將其標記為關鍵後，可指派任務給成員以變更其密碼。"
   },
   "sendReminders": {
     "message": "傳送提醒"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "未找到 $ORG NAME$ 的應用程式",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "找不到資料"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "匯入您組織的登入資料以開始監控憑證安全風險。匯入後您可以："
+  "noDataInOrgDescription": {
+    "message": "匯入您組織的登入資料以開始使用存取智慧功能。完成後，您將能夠："
   },
-  "benefit1Title": {
-    "message": "風險優先排序"
+  "feature1Title": {
+    "message": "將應用程式標記為關鍵"
   },
-  "benefit1Description": {
-    "message": "專注於最重要的應用程式"
+  "feature1Description": {
+    "message": "這將協助您優先消除最重要應用程式的風險。"
   },
-  "benefit2Title": {
-    "message": "指導補救措施"
+  "feature2Title": {
+    "message": "協助成員提升其安全性"
   },
-  "benefit2Description": {
-    "message": "指派有風險的成員執行指導任務以輪換有風險的憑證"
+  "feature2Description": {
+    "message": "指派有風險的成員執行指導式安全任務以更新憑證。"
   },
-  "benefit3Title": {
+  "feature3Title": {
     "message": "監控進展"
   },
-  "benefit3Description": {
-    "message": "追蹤隨時間變化的狀況以顯示安全性改善"
+  "feature3Description": {
+    "message": "追蹤隨時間變化的狀況以顯示安全性改善。"
   },
-  "noReportRunTitle": {
-    "message": "執行您的第一份報告以查看應用程式"
+  "noReportsRunTitle": {
+    "message": "產生報告"
   },
-  "noReportRunDescription": {
-    "message": "產生風險洞察報告以分析組織的應用程式並找出需要注意的高風險密碼。執行第一份報告將會："
+  "noReportsRunDescription": {
+    "message": "您已準備好開始產生報告。產生報告後，您將能夠："
   },
   "noCriticalApplicationsTitle": {
     "message": "您尚未將任何應用程式標記為關鍵"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "具有風險的成員"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "擁有關鍵應用程式中有風險項目存取權的成員"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "這些成員可存取關鍵應用程式中的高風險項目。"
   },
   "membersWithAtRiskPasswords": {
     "message": "使用有風險密碼的成員"
   },
-  "membersWillReceiveNotification": {
-    "message": "成員會透過瀏覽器擴充套件接收到有風險登入的通知。"
+  "membersWillReceiveSecurityTask": {
+    "message": "您組織的成員將被指派變更高風險密碼的任務。他們會在 Bitwarden 瀏覽器擴充套件中收到通知。"
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ 位有風險的成員",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "這些成員正在使用弱密碼、外洩密碼或重複密碼登入應用程式。"
+  "atRiskMemberDescription": {
+    "message": "這些成員正以薄弱、已外洩或重複使用的密碼登入關鍵應用程式。"
   },
   "atRiskMembersDescriptionNone": {
     "message": "目前沒有成員使用弱密碼、外洩密碼或重複密碼登入應用程式。"
@@ -391,14 +385,14 @@
   "prioritizeCriticalApplications": {
     "message": "優先處理關鍵應用程式"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "選擇對組織最關鍵的應用程式，然後將安全任務指派給成員以供解決。"
+  "selectCriticalAppsDescription": {
+    "message": "選擇哪些應用程式對您的組織最為關鍵。之後，您將能指派安全任務給成員以消除風險。"
   },
   "reviewNewApplications": {
     "message": "審查新應用程式"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "我們已在管理主控台中標示出新應用程式中密碼薄弱、已外洩或重複使用的高風險項目。"
+  "reviewNewAppsDescription": {
+    "message": "審查包含高風險項目的新應用程式，並將您希望密切監控的項目標記為關鍵。之後，您將能指派安全任務給成員以消除風險。"
   },
   "clickIconToMarkAppAsCritical": {
     "message": "點擊星形圖示以將應用程式標記為關鍵"
@@ -5815,9 +5809,9 @@
     "message": "要求所有項目由組織擁有，移除在帳號層級儲存項目的選項。",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
-    "message": "所有項目將由組織擁有並儲存，啟用組織範圍的控管、可見性及報告。啟用後，每位成員將有預設集合可用於儲存項目。瞭解更多關於管理",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  "organizationDataOwnershipDescContent": {
+    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "憑證生命週期",
@@ -9856,8 +9850,8 @@
   "assignTasks": {
     "message": "指派任務"
   },
-  "assignTasksToMembers": {
-    "message": "指派任務給成員並引導解決"
+  "assignSecurityTasksToMembers": {
+    "message": "傳送變更密碼的通知"
   },
   "assignToCollections": {
     "message": "指派至集合"
@@ -12124,6 +12118,15 @@
   "startFreeFamiliesTrial": {
     "message": "開始免費家庭試用"
   },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Block account creation for claimed domains"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "A domain must be claimed before activating this policy."
+  },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
   },
@@ -12159,9 +12162,9 @@
     }
   },
   "confirmNoSelectedCriticalApplicationsTitle": {
-    "message": "No critical applications are selected"
+    "message": "未選取任何關鍵應用程式"
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
-    "message": "Are you sure you want to continue?"
+    "message": "您確定要繼續嗎?"
   }
 }
