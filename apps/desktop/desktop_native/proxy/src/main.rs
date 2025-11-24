@@ -8,9 +8,6 @@ use tracing_subscriber::{
     fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter, Layer as _,
 };
 
-#[cfg(target_os = "windows")]
-mod windows;
-
 #[cfg(target_os = "macos")]
 embed_plist::embed_info_plist!("../../../resources/info.desktop_proxy.plist");
 
