@@ -20,7 +20,7 @@ export class DesktopSessionTimeoutTypeService implements SessionTimeoutTypeServi
       case VaultTimeoutStringType.Custom:
         return true;
       case VaultTimeoutStringType.OnLocked:
-        return ipc.platform.powermonitor.isLockMonitorAvailable();
+        return await ipc.platform.powermonitor.isLockMonitorAvailable();
       default:
         if (isVaultTimeoutTypeNumeric(type)) {
           return true;
