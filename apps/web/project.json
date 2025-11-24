@@ -154,45 +154,15 @@
       },
       "configurations": {
         "oss": {
-          "buildTarget": "web:build:oss"
-        },
-        "oss-dev": {
           "buildTarget": "web:build:oss-dev"
         },
         "commercial": {
-          "buildTarget": "web:build:commercial"
-        },
-        "commercial-dev": {
           "buildTarget": "web:build:commercial-dev"
         },
-        "commercial-qa": {
-          "buildTarget": "web:build:commercial-qa"
-        },
-        "commercial-cloud": {
-          "buildTarget": "web:build:commercial-cloud"
-        },
-        "commercial-euprd": {
-          "buildTarget": "web:build:commercial-euprd"
-        },
-        "commercial-euqa": {
-          "buildTarget": "web:build:commercial-euqa"
-        },
-        "commercial-usdev": {
-          "buildTarget": "web:build:commercial-usdev"
-        },
-        "commercial-ee": {
-          "buildTarget": "web:build:commercial-ee"
-        },
         "oss-selfhost": {
-          "buildTarget": "web:build:oss-selfhost"
-        },
-        "oss-selfhost-dev": {
           "buildTarget": "web:build:oss-selfhost-dev"
         },
         "commercial-selfhost": {
-          "buildTarget": "web:build:commercial-selfhost"
-        },
-        "commercial-selfhost-dev": {
           "buildTarget": "web:build:commercial-selfhost-dev"
         }
       }
