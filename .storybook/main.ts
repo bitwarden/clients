@@ -33,7 +33,7 @@ const config: StorybookConfig = {
     getAbsolutePath("@storybook/addon-themes"),
     {
       // @storybook/addon-docs is part of @storybook/addon-essentials
-       
+
       name: getAbsolutePath("@storybook/addon-docs"),
       options: {
         mdxPluginOptions: {
@@ -58,6 +58,10 @@ const config: StorybookConfig = {
   webpackFinal: async (config, { configType }) => {
     if (config.resolve) {
       config.resolve.plugins = [new TsconfigPathsPlugin()] as any;
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        path: require.resolve("path-browserify"),
+      };
     }
     return config;
   },

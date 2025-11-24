@@ -322,6 +322,7 @@
         "bootstrap",
         "chromatic",
         "ngx-toastr",
+        "path-browserify",
         "react",
         "react-dom",
         "remark-gfm",
