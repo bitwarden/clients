@@ -4,6 +4,7 @@ import { EVENTS } from "@bitwarden/common/autofill/constants";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
+import { InlineMenuElementPosition } from "../../../background/abstractions/overlay.background";
 import { sendExtensionMessage, setElementStyles } from "../../../utils";
 import {
   BackgroundPortMessageHandlers,
@@ -282,11 +283,36 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     const styles = this.fadeInTimeout ? Object.assign(position, { opacity: "0" }) : position;
     this.updateElementStyles(this.iframe, styles);
 
+    const elementHeightCompletelyInViewport = this.isElementHeightCompletelyWithinViewport(
+      this.iframe.getBoundingClientRect(),
+    );
+
+    if (!elementHeightCompletelyInViewport) {
+      this.forceCloseInlineMenu();
+      return;
+    }
+
     if (this.fadeInTimeout) {
       this.handleFadeInInlineMenuIframe();
     }
 
     this.announceAriaAlert(this.ariaAlert, 2000);
+  }
+
+  /**
+   * Check if element is completely within the browser viewport.
+   * Top should be >= 0 and bottom should be <= viewport height
+   */
+  private isElementHeightCompletelyWithinViewport(elementPosition: InlineMenuElementPosition) {
+    if (!elementPosition.top || !elementPosition.height) {
+      return true;
+    }
+
+    const viewportHeight = globalThis.window.innerHeight;
+    const elementBottom = elementPosition.top + elementPosition.height;
+
+    // Top should be >= 0 and bottom should be <= viewport height
+    return elementPosition.top >= 0 && elementBottom <= viewportHeight;
   }
 
   /**
