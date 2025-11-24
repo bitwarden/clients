@@ -75,8 +75,6 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
   /**
    * Observable that emits `true` when the increased bulk limit feature is enabled
    * (feature flag enabled AND cloud environment), `false` otherwise.
-   *
-   * This is shared via `shareReplay` to avoid duplicate subscriptions in components.
    */
   readonly isIncreasedLimitEnabled$: Observable<boolean>;
 
@@ -198,21 +196,16 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
    * @returns The checked users after enforcing the limit.
    */
   enforceCheckedUserLimit(limit: number = MaxCheckedCount): T[] {
-    const checked = this.getCheckedUsers();
-
-    // Respect the maximum allowed by the feature flag/environment
     const effectiveLimit = Math.min(limit, this.maxAllowedCheckedCount);
+    const checkedInVisibleOrder = this.filteredData.filter((u) => (u as any).checked);
 
-    if (checked.length <= effectiveLimit) {
-      return checked;
+    if (checkedInVisibleOrder.length <= effectiveLimit) {
+      return checkedInVisibleOrder;
     }
 
     // Uncheck users beyond the limit
-    for (const user of checked.slice(effectiveLimit)) {
-      this.checkUser(user, false);
-    }
+    checkedInVisibleOrder.slice(effectiveLimit).forEach((user) => this.checkUser(user, false));
 
-    // Return the first N users
-    return checked.slice(0, effectiveLimit);
+    return checkedInVisibleOrder.slice(0, effectiveLimit);
   }
 }
