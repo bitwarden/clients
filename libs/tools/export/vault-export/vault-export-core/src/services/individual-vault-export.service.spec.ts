@@ -154,12 +154,13 @@ function expectEqualFolderViews(folderViews: FolderView[] | Folder[], jsonResult
 function expectEqualFolders(folders: Folder[], jsonResult: string) {
   const actual = JSON.parse(jsonResult).folders;
 
-  const expected = folders.map((f) => ({
-    id: f.id,
-    name: f.name.encryptedString,
+  const expected = folders.map((c) => ({
+    id: c.id,
+    name: c.name?.encryptedString,
   }));
 
-  expect(actual).toMatchObject(expected);
+  expect(actual.length).toBeGreaterThan(0);
+  expect(actual).toEqual(expected);
 }
 
 describe("VaultExportService", () => {
