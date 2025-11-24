@@ -4,7 +4,10 @@ mod util;
 
 use std::{error::Error, fmt::Display};
 
-pub use types::{AuthenticatorInfo, CtapTransport, CtapVersion, PublicKeyCredentialParameters};
+pub use types::{
+    AuthenticatorInfo, CredentialId, CtapTransport, CtapVersion, PublicKeyCredentialParameters,
+    UserId,
+};
 
 #[derive(Debug)]
 pub struct WinWebAuthnError {
