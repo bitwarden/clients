@@ -84,6 +84,7 @@ export const Small: Story = {
       <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'primary'" [size]="size" [block]="block">Primary small</button>
       <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'secondary'" [size]="size" [block]="block">Secondary small</button>
       <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'danger'" [size]="size" [block]="block">Danger small</button>
+      <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'dangerPrimary'" [size]="size" [block]="block">Danger Primary small</button>
     </div>
     `,
   }),
