@@ -2436,6 +2436,9 @@
       }
     }
   },
+  "topLayerHijackWarning": {
+    "message": "此页面正在干扰 Bitwarden 的使用体验。出于安全考虑，Bitwarden 内嵌菜单已被暂时禁用。"
+  },
   "setMasterPassword": {
     "message": "设置主密码"
   },
