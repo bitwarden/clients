@@ -363,6 +363,8 @@
         "@types/jsdom",
         "@types/papaparse",
         "@types/zxcvbn",
+        "async-trait",
+        "clap",
         "jsdom",
         "jszip",
         "oidc-client-ts",
@@ -435,5 +437,11 @@
       description: "Higher versions of lowdb do not need separate types",
     },
   ],
-  ignoreDeps: ["@types/koa-bodyparser", "bootstrap", "node-ipc", "@bitwarden/sdk-internal"],
+  ignoreDeps: [
+    "@types/koa-bodyparser",
+    "bootstrap",
+    "node-ipc",
+    "@bitwarden/sdk-internal",
+    "@bitwarden/commercial-sdk-internal",
+  ],
 }
