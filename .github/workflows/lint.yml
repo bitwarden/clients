@@ -114,7 +114,7 @@ jobs:
         run: rustup --version
 
       - name: Cache cargo registry
-        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
 
       - name: Run cargo fmt
         working-directory: ./apps/desktop/desktop_native
