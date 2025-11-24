@@ -392,11 +392,11 @@ impl TryFrom<NonNull<WEBAUTHN_PLUGIN_OPERATION_REQUEST>> for PluginMakeCredentia
                 inner: registration_request as *const WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
                 window_handle: request.hWnd,
                 transaction_id: request.transactionId,
-                request_signature: Vec::from_raw_parts(
+                request_signature: std::slice::from_raw_parts(
                     request.pbRequestSignature,
                     request.cbEncodedRequest as usize,
-                    request.cbEncodedRequest as usize,
-                ),
+                )
+                .to_vec(),
             })
         }
     }
@@ -515,9 +515,9 @@ impl PluginMakeCredentialResponse {
                 "Received null pointer from WebAuthNEncodeMakeCredentialResponse",
             ));
         }
-        let response = unsafe {
-            Vec::from_raw_parts(response_ptr, response_len as usize, response_len as usize)
-        };
+        // SAFETY: Windows returned successful response code, so we assume that the pointer and length are valid.
+        let response =
+            unsafe { std::slice::from_raw_parts(response_ptr, response_len as usize).to_vec() };
 
         Ok(response)
     }
@@ -747,11 +747,11 @@ impl TryFrom<NonNull<WEBAUTHN_PLUGIN_OPERATION_REQUEST>> for PluginGetAssertionR
                 inner: assertion_request as *const WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST,
                 window_handle: request.hWnd,
                 transaction_id: request.transactionId,
-                request_signature: Vec::from_raw_parts(
+                request_signature: std::slice::from_raw_parts(
                     request.pbRequestSignature,
                     request.cbEncodedRequest as usize,
-                    request.cbEncodedRequest as usize,
-                ),
+                )
+                .to_vec(),
             })
         }
     }
