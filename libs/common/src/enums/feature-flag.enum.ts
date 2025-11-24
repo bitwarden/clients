@@ -72,6 +72,9 @@ export enum FeatureFlag {
 
   /* Innovation */
   PM19148_InnovationArchive = "pm-19148-innovation-archive",
+
+  /* Desktop */
+  DesktopUiMigrationMilestone1 = "pm-19556-desktop-ui-migration-milestone-1",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -150,6 +153,9 @@ export const DefaultFeatureFlagValue = {
 
   /* Innovation */
   [FeatureFlag.PM19148_InnovationArchive]: FALSE,
+
+  /* Desktop */
+  [FeatureFlag.DesktopUiMigrationMilestone1]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
@@ -160,6 +166,10 @@ export function getFeatureFlagValue<Flag extends FeatureFlag>(
   serverConfig: ServerConfig | null,
   flag: Flag,
 ) {
+  if (flag === FeatureFlag.DesktopUiMigrationMilestone1) {
+    return true;
+  }
+
   if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
     return DefaultFeatureFlagValue[flag];
   }
