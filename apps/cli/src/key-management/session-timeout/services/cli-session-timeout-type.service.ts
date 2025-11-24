@@ -9,7 +9,7 @@ export class CliSessionTimeoutTypeService implements SessionTimeoutTypeService {
     return timeout === VaultTimeoutStringType.Never;
   }
 
-  async getHighestAvailable(_: VaultTimeout): Promise<VaultTimeout> {
+  async getOrPromoteToAvailable(_: VaultTimeout): Promise<VaultTimeout> {
     return VaultTimeoutStringType.Never;
   }
 }

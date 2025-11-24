@@ -331,17 +331,17 @@ export class SessionTimeoutInputComponent implements ControlValueAccessor, Valid
   ): Promise<VaultTimeout | null> {
     switch (policyData.type) {
       case "immediately":
-        return await this.sessionTimeoutTypeService.getHighestAvailable(
+        return await this.sessionTimeoutTypeService.getOrPromoteToAvailable(
           VaultTimeoutNumberType.Immediately,
         );
       case "onSystemLock":
-        return await this.sessionTimeoutTypeService.getHighestAvailable(
+        return await this.sessionTimeoutTypeService.getOrPromoteToAvailable(
           VaultTimeoutStringType.OnLocked,
         );
       case "onAppRestart":
         return VaultTimeoutStringType.OnRestart;
       case "never": {
-        const timeout = await this.sessionTimeoutTypeService.getHighestAvailable(
+        const timeout = await this.sessionTimeoutTypeService.getOrPromoteToAvailable(
           VaultTimeoutStringType.Never,
         );
         if (timeout == VaultTimeoutStringType.Never) {

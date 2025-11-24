@@ -35,7 +35,7 @@ export class BrowserSessionTimeoutTypeService implements SessionTimeoutTypeServi
     return false;
   }
 
-  async getHighestAvailable(type: VaultTimeout): Promise<VaultTimeout> {
+  async getOrPromoteToAvailable(type: VaultTimeout): Promise<VaultTimeout> {
     const available = await this.isAvailable(type);
     if (!available) {
       return VaultTimeoutStringType.OnRestart;

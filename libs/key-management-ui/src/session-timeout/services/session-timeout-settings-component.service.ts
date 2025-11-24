@@ -63,11 +63,11 @@ export class SessionTimeoutSettingsComponentService {
           }
           switch (policyData.type) {
             case "immediately":
-              return await this.sessionTimeoutTypeService.getHighestAvailable(
+              return await this.sessionTimeoutTypeService.getOrPromoteToAvailable(
                 VaultTimeoutNumberType.Immediately,
               );
             case "onSystemLock":
-              return await this.sessionTimeoutTypeService.getHighestAvailable(
+              return await this.sessionTimeoutTypeService.getOrPromoteToAvailable(
                 VaultTimeoutStringType.OnLocked,
               );
           }

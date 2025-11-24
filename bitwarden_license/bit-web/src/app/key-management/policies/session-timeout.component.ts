@@ -90,10 +90,6 @@ export class SessionTimeoutPolicyComponent
     ];
   }
 
-  get policyData(): MaximumSessionTimeoutPolicyData | null {
-    return this.policyResponse?.data ?? null;
-  }
-
   ngOnInit() {
     super.ngOnInit();
 
@@ -164,6 +160,10 @@ export class SessionTimeoutPolicyComponent
       minutes,
       action: this.data.value.action,
     } satisfies MaximumSessionTimeoutPolicyData;
+  }
+
+  private get policyData(): MaximumSessionTimeoutPolicyData | null {
+    return this.policyResponse?.data ?? null;
   }
 
   private async confirmTypeChange(newType: SessionTimeoutType): Promise<boolean> {

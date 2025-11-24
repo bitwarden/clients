@@ -188,7 +188,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
 
     switch (maxSessionTimeoutPolicyData.type) {
       case "immediately":
-        return await this.sessionTimeoutTypeService.getHighestAvailable(
+        return await this.sessionTimeoutTypeService.getOrPromoteToAvailable(
           VaultTimeoutNumberType.Immediately,
         );
       case "custom":
@@ -209,7 +209,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
           currentVaultTimeout === VaultTimeoutStringType.OnIdle ||
           currentVaultTimeout === VaultTimeoutStringType.OnSleep
         ) {
-          return await this.sessionTimeoutTypeService.getHighestAvailable(
+          return await this.sessionTimeoutTypeService.getOrPromoteToAvailable(
             VaultTimeoutStringType.OnLocked,
           );
         }
@@ -226,7 +226,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
         break;
       case "never":
         if (currentVaultTimeout === VaultTimeoutStringType.Never) {
-          return await this.sessionTimeoutTypeService.getHighestAvailable(
+          return await this.sessionTimeoutTypeService.getOrPromoteToAvailable(
             VaultTimeoutStringType.Never,
           );
         }
