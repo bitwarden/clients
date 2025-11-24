@@ -2,7 +2,7 @@ use anyhow::{bail, Result};
 
 use crate::biometric::{KeyMaterial, OsDerivedKey};
 
-/// The MacOS implementation of the biometric trait.
+/// Unimplemented stub for unsupported platforms
 pub struct Biometric {}
 
 impl super::BiometricTrait for Biometric {
