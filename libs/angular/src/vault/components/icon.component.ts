@@ -32,6 +32,13 @@ export class IconComponent {
    */
   readonly coloredIcon = input<boolean>(false);
 
+  /**
+   * Optional custom size for the icon in pixels.
+   * When provided, forces explicit dimensions on the icon wrapper to prevent layout collapse at different zoom levels.
+   * If not provided, uses default sizing (24px for normal icons, 36px for coloredIcon=true).
+   */
+  readonly size = input<number>();
+
   readonly imageLoaded = signal(false);
 
   protected data$: Observable<CipherIconDetails>;

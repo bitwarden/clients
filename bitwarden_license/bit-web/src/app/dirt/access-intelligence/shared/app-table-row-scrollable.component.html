@@ -46,7 +46,12 @@
         [attr.aria-label]="'viewItem' | i18n"
       >
         <!-- Passing the first cipher of the application for app-vault-icon cipher input requirement -->
-        <app-vault-icon *ngIf="row.iconCipher" [cipher]="row.iconCipher"></app-vault-icon>
+        <!-- Use custom size of e.g., 24px - provides explicit dimensions to prevent disappearing at zoom -->
+        <app-vault-icon
+          *ngIf="row.iconCipher"
+          [cipher]="row.iconCipher"
+          [size]="24"
+        ></app-vault-icon>
       </td>
       <td
         class="tw-cursor-pointer"
