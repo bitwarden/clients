@@ -77,6 +77,7 @@ impl WebAuthnPlugin {
     pub fn add_authenticator(
         options: PluginAddAuthenticatorOptions,
     ) -> Result<PluginAddAuthenticatorResponse, WinWebAuthnError> {
+        #![allow(non_snake_case)]
         let mut response_ptr: *mut WebAuthnPluginAddAuthenticatorResponse = std::ptr::null_mut();
 
         // We need to be careful to use .as_ref() to ensure that we're not

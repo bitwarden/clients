@@ -74,7 +74,7 @@ type WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS = WebAuthnCtapCborAuthenticatorOpti
 /// Header File Usage: WebAuthNPluginAddAuthenticator()
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub(crate) struct WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS {
+pub(super) struct WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS {
     /// Authenticator Name
     pub(super) pwszAuthenticatorName: *const u16,
 
@@ -139,13 +139,13 @@ pub struct PluginAddAuthenticatorOptions {
 }
 
 impl PluginAddAuthenticatorOptions {
-    pub fn light_theme_logo_b64(&self) -> Option<Vec<u16>> {
+    pub(super) fn light_theme_logo_b64(&self) -> Option<Vec<u16>> {
         self.light_theme_logo_svg
             .as_ref()
             .map(|svg| Self::encode_svg(&svg))
     }
 
-    pub fn dark_theme_logo_b64(&self) -> Option<Vec<u16>> {
+    pub(super) fn dark_theme_logo_b64(&self) -> Option<Vec<u16>> {
         self.dark_theme_logo_svg
             .as_ref()
             .map(|svg| Self::encode_svg(&svg))
@@ -170,7 +170,7 @@ pub(super) struct WebAuthnPluginAddAuthenticatorResponse {
 
 type WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE = WebAuthnPluginAddAuthenticatorResponse;
 
-/// Safe wrapper around [WebAuthnPluginAddAuthenticatorResponse]
+/// Response received when registering a plugin
 #[derive(Debug)]
 pub struct PluginAddAuthenticatorResponse {
     inner: NonNull<WebAuthnPluginAddAuthenticatorResponse>,
@@ -188,6 +188,7 @@ impl PluginAddAuthenticatorResponse {
     }
 }
 
+#[doc(hidden)]
 impl From<NonNull<WebAuthnPluginAddAuthenticatorResponse>> for PluginAddAuthenticatorResponse {
     fn from(value: NonNull<WebAuthnPluginAddAuthenticatorResponse>) -> Self {
         Self { inner: value }
@@ -801,6 +802,7 @@ impl AsRef<WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST> for PluginCancelOperationRe
     }
 }
 
+#[doc(hidden)]
 impl From<NonNull<WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST>> for PluginCancelOperationRequest {
     fn from(value: NonNull<WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST>) -> Self {
         Self { inner: value }
