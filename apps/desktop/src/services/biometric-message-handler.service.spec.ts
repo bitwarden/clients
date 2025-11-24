@@ -503,5 +503,4 @@ describe("BiometricMessageHandlerService", () => {
       },
     );
   });
-
 });
