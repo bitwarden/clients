@@ -1220,15 +1220,6 @@
   "selectAllItems": {
     "message": "Select all items"
   },
-  "selectAllItemsWarning": {
-    "message": "You are about to select $COUNT$ items. This may take a moment to process.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "500"
-      }
-    }
-  },
   "selectItems": {
     "message": "Select items"
   },

@@ -334,29 +334,14 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     return collection.canViewCollectionInfo(organization);
   }
 
-  protected async toggleAll() {
-    if (this.isAllSelected) {
+  protected async toggleAll(event: Event) {
+    if (this.isAllSelected || !(event.target as HTMLInputElement).checked) {
       this.selection.clear();
       return;
     }
 
     // If there are more than the warning threshold, show a warning dialog
     if (this.editableItems.length > SelectionWarningThreshold) {
-      const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "selectAllItems" },
-        content: {
-          key: "selectAllItemsWarning",
-          placeholders: [this.editableItems.length.toString()],
-        },
-        type: "warning",
-        acceptButtonText: { key: "continue" },
-        cancelButtonText: { key: "cancel" },
-      });
-
-      if (!confirmed) {
-        return;
-      }
-
       // Ask if they want all items or just the first 500
       // Yes = select all, No = select first 500 only
       const selectAll = await this.dialogService.openSimpleDialog({
