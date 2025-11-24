@@ -71,15 +71,26 @@
         <div class="tw-mt-2 tw-text-wrap">{{ p.description }}</div>
       </div>
       <bit-item-action slot="end">
-        <button
-          type="button"
-          bitButton
-          buttonType="secondary"
-          [disabled]="!(canAccessPremium$ | async) && p.premium"
-          (click)="manage(p.type)"
-        >
-          {{ "manage" | i18n }}
-        </button>
+        @if (p.premium && p.enabled && !(canAccessPremium$ | async)) {
+          <button
+            type="button"
+            bitButton
+            buttonType="danger"
+            (click)="disablePremium2faTypeForNonPremiumUser(p.type)"
+          >
+            {{ "disable" | i18n }}
+          </button>
+        } @else {
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            [disabled]="!(canAccessPremium$ | async) && p.premium"
+            (click)="manage(p.type)"
+          >
+            {{ "manage" | i18n }}
+          </button>
+        }
       </bit-item-action>
     </bit-item>
   </bit-item-group>
