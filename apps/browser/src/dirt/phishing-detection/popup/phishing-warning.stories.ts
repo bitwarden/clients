@@ -1,5 +1,3 @@
-// TODO: This needs to be dealt with by moving this folder or updating the lint rule.
-/* eslint-disable no-restricted-imports */
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { BehaviorSubject, of } from "rxjs";
