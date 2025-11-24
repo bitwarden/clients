@@ -6,9 +6,8 @@ use anyhow::{anyhow, Result};
 #[cfg_attr(target_os = "macos", path = "macos.rs")]
 mod biometric;
 
-pub use biometric::Biometric;
-
 use base64::{engine::general_purpose::STANDARD as base64_engine, Engine};
+pub use biometric::Biometric;
 use sha2::{Digest, Sha256};
 
 use crate::crypto::{self, CipherString};
