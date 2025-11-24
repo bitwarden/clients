@@ -1,4 +1,5 @@
-import { Directive, OnInit } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -9,17 +10,33 @@ import { KeyConnectorService } from "@bitwarden/common/key-management/key-connec
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DialogService,
+  ToastService,
+  ButtonModule,
+  BitActionDirective,
+  PopoverModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-@Directive()
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  selector: "km-ui-remove-password",
+  templateUrl: "remove-password.component.html",
+  standalone: true,
+  imports: [CommonModule, ButtonModule, I18nPipe, BitActionDirective, PopoverModule],
+})
 export class RemovePasswordComponent implements OnInit {
   continuing = false;
   leaving = false;
 
   loading = true;
   organization!: Organization;
+  keyConnectorHostName!: string;
   private activeUserId!: UserId;
 
   constructor(
@@ -55,6 +72,7 @@ export class RemovePasswordComponent implements OnInit {
       await this.router.navigate(["/"]);
       return;
     }
+    this.keyConnectorHostName = Utils.getHostname(this.organization.keyConnectorUrl);
     this.loading = false;
   }
 
