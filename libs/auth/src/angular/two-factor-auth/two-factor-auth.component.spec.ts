@@ -419,6 +419,7 @@ describe("TwoFactorAuthComponent", () => {
             keyConnectorUrl:
               mockUserDecryptionOpts.noMasterPasswordWithKeyConnector.keyConnectorOption!
                 .keyConnectorUrl,
+            organizationSsoIdentifier: "test-sso-id",
           }),
         );
         const authResult = new AuthResult();
