@@ -22,7 +22,7 @@ export class CipherFormCacheService {
     key: CIPHER_FORM_CACHE_KEY,
     initialValue: null,
     deserializer: CipherView.fromJSON,
-    clearOnTabChange: true,
+    // clearOnTabChange removed to preserve form data when user clicks away
   });
 
   constructor() {
@@ -44,5 +44,12 @@ export class CipherFormCacheService {
    */
   getCachedCipherView(): CipherView | null {
     return this.cipherCache();
+  }
+
+  /**
+   * Clear the cached CipherView.
+   */
+  clearCache(): void {
+    this.cipherCache.set(null);
   }
 }
