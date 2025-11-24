@@ -158,7 +158,9 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
   }
   set ariaDescribedBy(value: string | undefined) {
     this._ariaDescribedBy = value;
-    this.select()?.searchInput.nativeElement.setAttribute("aria-describedby", value ?? "");
+    this.select()
+      ?.searchInput()
+      .nativeElement.setAttribute("aria-describedby", value ?? "");
   }
   private _ariaDescribedBy?: string;
 
@@ -218,7 +220,7 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
    * Needs to be arrow function to retain `this` scope.
    */
   protected onKeyDown = (event: KeyboardEvent) => {
-    if (this.select().isOpen && event.key === "Escape" && !hasModifierKey(event)) {
+    if (this.select().isOpen() && event.key === "Escape" && !hasModifierKey(event)) {
       event.stopPropagation();
     }
 

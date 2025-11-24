@@ -1,5 +1,4 @@
-import { DOCUMENT } from "@angular/common";
-import { inject, Inject, Injectable } from "@angular/core";
+import { inject, Inject, Injectable, DOCUMENT } from "@angular/core";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";

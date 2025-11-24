@@ -71,6 +71,7 @@ export default tseslint.config(
       "@angular-eslint/no-output-on-prefix": 0,
       "@angular-eslint/no-output-rename": "error",
       "@angular-eslint/no-outputs-metadata-property": "error",
+      "@angular-eslint/prefer-inject": 0,
       "@angular-eslint/prefer-on-push-component-change-detection": "error",
       "@angular-eslint/prefer-output-emitter-ref": "error",
       "@angular-eslint/prefer-signals": "error",

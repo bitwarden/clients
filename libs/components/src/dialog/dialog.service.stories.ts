@@ -1,5 +1,5 @@
 import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
-import { Component, Inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { NoopAnimationsModule, provideAnimations } from "@angular/platform-browser/animations";
 import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
@@ -36,7 +36,7 @@ interface Animal {
   imports: [ButtonModule, LayoutComponent],
 })
 class StoryDialogComponent {
-  constructor(public dialogService: DialogService) {}
+  dialogService = inject(DialogService);
 
   openDialog() {
     this.dialogService.open(StoryDialogContentComponent, {
@@ -85,10 +85,8 @@ class StoryDialogComponent {
   imports: [DialogModule, ButtonModule],
 })
 class StoryDialogContentComponent {
-  constructor(
-    public dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) private data: Animal,
-  ) {}
+  dialogRef = inject(DialogRef);
+  private data = inject<Animal>(DIALOG_DATA);
 
   get animal() {
     return this.data?.animal;
@@ -118,10 +116,8 @@ class StoryDialogContentComponent {
   imports: [DialogModule, ButtonModule],
 })
 class NonDismissableContentComponent {
-  constructor(
-    public dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) private data: Animal,
-  ) {}
+  dialogRef = inject(DialogRef);
+  private data = inject<Animal>(DIALOG_DATA);
 
   get animal() {
     return this.data?.animal;

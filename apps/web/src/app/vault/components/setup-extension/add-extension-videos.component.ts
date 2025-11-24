@@ -1,5 +1,5 @@
-import { CommonModule, DOCUMENT } from "@angular/common";
-import { Component, ViewChildren, QueryList, ElementRef, inject } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { Component, ViewChildren, QueryList, ElementRef, inject, DOCUMENT } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { debounceTime, fromEvent } from "rxjs";
 
