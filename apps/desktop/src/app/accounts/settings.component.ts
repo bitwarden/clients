@@ -678,14 +678,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.form.controls.autoPromptBiometrics.setValue(false);
       await this.biometricStateService.setPromptAutomatically(false);
 
-      if (this.isWindowsV2BiometricsEnabled) {
-        // If the user doesn't have a MP or PIN then they have to use biometrics on app restart.
-        if (!this.userHasMasterPassword && !this.userHasPinSet) {
-          // Allow biometric unlock on app restart so the user doesn't get into a bad state.
-          await this.enrollPersistentBiometricIfNeeded(activeUserId);
-        } else {
-          this.form.controls.requireMasterPasswordOnAppRestart.setValue(true);
-        }
+      // If the user doesn't have a MP or PIN then they have to use biometrics on app restart.
+      if (!this.userHasMasterPassword && !this.userHasPinSet) {
+        // Allow biometric unlock on app restart so the user doesn't get into a bad state.
+        await this.enrollPersistentBiometricIfNeeded(activeUserId);
+      } else {
+        this.form.controls.requireMasterPasswordOnAppRestart.setValue(true);
       }
     } else if (this.isLinux) {
       // Similar to Windows
