@@ -2195,7 +2195,7 @@
     "description": "Default URI match detection for autofill."
   },
   "toggleOptions": {
-    "message": "Voľby prepínača"
+    "message": "Zobraziť/skryť možnosti"
   },
   "toggleCurrentUris": {
     "message": "Prepnúť zobrazenie aktuálnej URI",
@@ -2435,6 +2435,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Táto stránka narúša zážitok zo Bitwardenu. Inline ponuka Bitwardenu bola dočasne vypnutá ako bezpečnostné opatrenie."
   },
   "setMasterPassword": {
     "message": "Nastaviť hlavné heslo"
@@ -5808,6 +5811,15 @@
   },
   "upgradeToPremium": {
     "message": "Upgradovať na Prémium"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgradovať pre úplné zabezpečenie"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Predplatné Prémium vám poskytuje viac nástrojov na zabezpečenie, efektívnu prácu a kontrolu."
+  },
+  "explorePremium": {
+    "message": "Preskúmať Prémium"
   },
   "loadingVault": {
     "message": "Načítava sa trezor"

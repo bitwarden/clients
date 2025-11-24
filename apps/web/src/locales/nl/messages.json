@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Leden taken toewijzen om de voortgang te controleren"
   },
-  "onceYouReviewApps": {
-    "message": "Zodra je applicaties beoordeelt en ze als kritiek markeert, kun je leden taken toewijzen om risico-items op te lossen en de voortgang hier te controleren"
+  "onceYouReviewApplications": {
+    "message": "Zodra je applicaties beoordeelt en als belangrijk markeert, wijs je taken toe aan je leden om hun wachtwoorden te wijzigen."
   },
   "sendReminders": {
     "message": "Herinneringen versturen"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "No applications found for $ORG NAME$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "Geen gegevens gevonden"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  "noDataInOrgDescription": {
+    "message": "Importeer de inloggegevens van je organisatie om aan de slag te gaan met Access Intelligence. Zodra je dat doet, kun je:"
   },
-  "benefit1Title": {
-    "message": "Prioritize risks"
+  "feature1Title": {
+    "message": "Applicaties als belangrijk markeren"
   },
-  "benefit1Description": {
-    "message": "Focus on applications that matter the most"
+  "feature1Description": {
+    "message": "Hiermee kun je eerst risico's voor je belangrijkste applicaties weghalen."
   },
-  "benefit2Title": {
-    "message": "Guide remediation"
+  "feature2Title": {
+    "message": "Help leden hun beveiliging te verbeteren"
   },
-  "benefit2Description": {
-    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  "feature2Description": {
+    "message": "Risicovolle leden begeleide beveiligingstaken toewijzien om inloggegevens bij te werken."
   },
-  "benefit3Title": {
-    "message": "Monitor progress"
+  "feature3Title": {
+    "message": "Voortgang monitoren"
   },
-  "benefit3Description": {
-    "message": "Track changes over time to show security improvements"
+  "feature3Description": {
+    "message": "Bijhouden van wijzigingen over tijd voor het weergeven van beveiligingsverbeteringen."
   },
-  "noReportRunTitle": {
-    "message": "Run your first report to see applications"
+  "noReportsRunTitle": {
+    "message": "Rapport genereren"
   },
-  "noReportRunDescription": {
-    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
+  "noReportsRunDescription": {
+    "message": "Je bent klaar om rapporten te genereren. Zodra je rapporten maakt, kun je:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Je hebt nog geen applicaties als belangrijk aangewezen"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Leden in gevaar"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Leden met toegang tot risico-items voor belangrijke applicaties"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "Deze leden hebben toegang tot kwetsbare items voor belangrijke applicaties."
   },
   "membersWithAtRiskPasswords": {
     "message": "Leden met risicovolle wachtwoorden"
   },
-  "membersWillReceiveNotification": {
-    "message": "Leden ontvangen een melding via de browserextensie om risico-logins op te lossen."
+  "membersWillReceiveSecurityTask": {
+    "message": "Leden van jew organisatie krijgen een taak om kwetsbare wachtwoorden te wijzigen. Ze ontvangen een melding binnen hun Bitwarden-browserextensie."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ leden lopen risico",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Deze leden loggen in op toepassingen met zwakke, blootgestelde of hergebruikte wachtwoorden."
+  "atRiskMemberDescription": {
+    "message": "Deze leden loggen in op applicaties met zwakke, blootgestelde of hergebruikte wachtwoorden."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Deze niet-leden loggen in op toepassingen met zwakke, blootgestelde of hergebruikte wachtwoorden."
@@ -391,14 +385,14 @@
   "prioritizeCriticalApplications": {
     "message": "Belangrijke applicaties prioriteren"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Selecteer welke toepassingen het meest belangrijk zijn voor je organisatie en wijs de leden dan beveiligingstaken toe om risico's op te lossen."
+  "selectCriticalAppsDescription": {
+    "message": "Selecteer welke toepassingen het meest belangrijk zijn voor je organisatie. Vervolgens kun je leden beveiligingstaken toewijzen om risico's weg te halen."
   },
   "reviewNewApplications": {
     "message": "Nieuwe toepassingen beoordelen"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "We hebben items met risico gemarkeerd voor nieuwe toepassingen die zijn opgeslagen in Admin-console die zwakke, onthulde of hergebruikte wachtwoorden hebben."
+  "reviewNewAppsDescription": {
+    "message": "Bekijk nieuwe applicaties met kwetsbare items en markeer degenen die je wilt monitoren als belangrijk. Vervolgens kun je beveiligingstaken toewijzen aan leden om risico's weg te halen."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Klik op het sterpictogram om een app als belangrijk te markeren"
@@ -5815,9 +5809,9 @@
     "message": "Verplicht dat items eigendom zijn van een organisatie, dit verwijdert de mogelijkheid van het opslaan van items op accountniveau.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
-    "message": "Alle items worden eigendom en opgeslagen bij de organisatie, wat organisatiebrede controle, zichtbaarheid en rapportage mogelijk maakt. Bij inschakelen is er een standaardcollectie beschikbaar voor elk lid voor het opslaan van items. Meer informatie over het beheren van de ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  "organizationDataOwnershipDescContent": {
+    "message": "Alle items worden eigendom van en opgeslagen bij de organisatie, wat organisatiebrede controle, zichtbaarheid en rapportage mogelijk maakt. Bij inschakelen is er een standaardcollectie beschikbaar voor elk lid voor het opslaan van items. Meer informatie over het beheren van de ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "levenscyclus van inloggegevens",
@@ -9856,8 +9850,8 @@
   "assignTasks": {
     "message": "Taken toewijzen"
   },
-  "assignTasksToMembers": {
-    "message": "Taken aan leden toewijzen voor een begeleide oplossing"
+  "assignSecurityTasksToMembers": {
+    "message": "Meldingen verzenden om wachtwoorden te wijzigen"
   },
   "assignToCollections": {
     "message": "Toewijzen aan collecties"
@@ -12123,6 +12117,15 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Start gratis Families-proefperiode"
+  },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Blokkeer het aanmaken van een account voor geclaimde domeinen"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Voorkom dat gebruikers buiten je organisatie accounts aanmaken met behulp van e-mailadressen van geclaimde domeinen."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "Voordat dit beleid geactiveerd kan worden, moet je een domein claimen."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Stel een ontgrendelingsmethode in om je kluis time-out actie te wijzigen."

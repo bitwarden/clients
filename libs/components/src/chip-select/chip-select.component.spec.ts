@@ -27,7 +27,7 @@ const mockI18nService = {
 
 describe("ChipSelectComponent", () => {
   let component: ChipSelectComponent<string>;
-  let fixture: ComponentFixture<TestApp>;
+  let fixture: ComponentFixture<TestAppComponent>;
 
   const testOptions: ChipSelectOption<string>[] = [
     { label: "Option 1", value: "opt1", icon: "bwi-folder" },
@@ -58,11 +58,11 @@ describe("ChipSelectComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TestApp, NoopAnimationsModule],
+      imports: [TestAppComponent, NoopAnimationsModule],
       providers: [{ provide: I18nService, useValue: mockI18nService }],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(TestApp);
+    fixture = TestBed.createComponent(TestAppComponent);
     fixture.detectChanges();
 
     component = fixture.debugElement.query(By.directive(ChipSelectComponent)).componentInstance;
@@ -468,7 +468,7 @@ describe("ChipSelectComponent", () => {
   imports: [ChipSelectComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class TestApp {
+class TestAppComponent {
   readonly options = signal<ChipSelectOption<string>[]>([
     { label: "Option 1", value: "opt1", icon: "bwi-folder" },
     { label: "Option 2", value: "opt2" },
