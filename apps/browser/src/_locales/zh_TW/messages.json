@@ -595,7 +595,7 @@
     "message": "檢視全部"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "顯示較少"
   },
   "viewLogin": {
     "message": "檢視登入"
@@ -2435,6 +2435,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "此頁面正在干擾 Bitwarden 的使用體驗。為了安全起見，已暫時停用 Bitwarden 的內嵌選單。"
   },
   "setMasterPassword": {
     "message": "設定主密碼"
@@ -5808,6 +5811,15 @@
   },
   "upgradeToPremium": {
     "message": "升級到 Premium"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "升級以獲得完整的安全防護"
+  },
+  "premiumGivesMoreTools": {
+    "message": "進階版提供更多工具，協助您維持安全、高效工作並保持掌控。"
+  },
+  "explorePremium": {
+    "message": "探索進階版"
   },
   "loadingVault": {
     "message": "正在載入密碼庫"

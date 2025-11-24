@@ -595,7 +595,7 @@
     "message": "Показване на всички"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "Преглед на по-малко"
   },
   "viewLogin": {
     "message": "Преглед на елемента за вписване"
@@ -2435,6 +2435,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
   },
   "setMasterPassword": {
     "message": "Задаване на главна парола"
@@ -5808,6 +5811,15 @@
   },
   "upgradeToPremium": {
     "message": "Надградете до Платения план"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Надградете, за да се възползвате от пълна защита"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Платеният план предоставя повече инструменти за защита, ефективна работа и контрол."
+  },
+  "explorePremium": {
+    "message": "Разгледайте платения план"
   },
   "loadingVault": {
     "message": "Зареждане на трезора"

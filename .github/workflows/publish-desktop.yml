@@ -336,7 +336,7 @@ jobs:
           ruby-version: '3.4.7'
           bundler-cache: false
           working-directory: apps/desktop
-        
+
       - name: Install Fastlane
         working-directory: apps/desktop
         run: gem install fastlane
@@ -377,15 +377,15 @@ jobs:
             echo "📦 Publishing build $BUILD_NUMBER to Mac App Store"
             IS_DRY_RUN="false"
           fi
-          
+
           echo "📝 Release notes (${#CHANGELOG} chars): ${CHANGELOG:0:100}..."
-          
+
           # Validate changelog length (App Store limit is 4000 chars)
           if [ ${#CHANGELOG} -gt 4000 ]; then
             echo "❌ Release notes too long: ${#CHANGELOG} characters (max 4000)"
             exit 1
           fi
-          
+
           fastlane publish --verbose \
             app_version:"${_PKG_VERSION}" \
             build_number:"$BUILD_NUMBER" \

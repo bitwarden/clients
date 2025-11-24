@@ -2436,6 +2436,9 @@
       }
     }
   },
+  "topLayerHijackWarning": {
+    "message": "Šī lapa traucē Bitwarden darbību. Bitwarden iekļautā izvēlne ir īslaicīgi atspējot kā drošības mērs."
+  },
   "setMasterPassword": {
     "message": "Uzstādīt galveno paroli"
   },
@@ -5808,6 +5811,15 @@
   },
   "upgradeToPremium": {
     "message": "Uzlabot uz Premium"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Uzlabo pilnīgas drošības iegūšanai"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium sniedz vairāk rīku drošībai, darba ražīgumam un pārraudzībai."
+  },
+  "explorePremium": {
+    "message": "Izpētīt Premium"
   },
   "loadingVault": {
     "message": "Ielādē glabātavu"

@@ -595,7 +595,7 @@
     "message": "Tümünü göster"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "Daha az göster"
   },
   "viewLogin": {
     "message": "Hesabı göster"
@@ -2435,6 +2435,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Bu sayfa Bitwarden deneyimiyle çakışıyor. Güvenlik önlemi olarak Bitwarden satır içi menüsü geçici olarak devre dışı bırakıldı."
   },
   "setMasterPassword": {
     "message": "Ana parolayı belirle"
@@ -5808,6 +5811,15 @@
   },
   "upgradeToPremium": {
     "message": "Premium'a yükselt"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade for complete security"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
   },
   "loadingVault": {
     "message": "Kasa yükleniyor"

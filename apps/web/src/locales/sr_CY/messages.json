@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Доделите задатке чланова да прате напредак"
   },
-  "onceYouReviewApps": {
-    "message": "Када прегледате апликације и означите их као критичне, можете доделити задатке члановима за решавање ризичних ставки и пратити напредак овде"
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
   },
   "sendReminders": {
     "message": "Пошаљи подсетнике"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "Није пронађена ниједна апликација за $ORG NAME$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "No data found"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Увезите податке за пријаву своје организације да бисте почели да надгледате безбедносне ризике акредитива. Када увезете, добијате:"
+  "noDataInOrgDescription": {
+    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
   },
-  "benefit1Title": {
-    "message": "Одредите приоритете ризика"
+  "feature1Title": {
+    "message": "Mark applications as critical"
   },
-  "benefit1Description": {
-    "message": "Фокусирајте се на апликације које су најважније"
+  "feature1Description": {
+    "message": "This will help you remove risks to your most important applications first."
   },
-  "benefit2Title": {
-    "message": "Водич за санацију"
+  "feature2Title": {
+    "message": "Help members improve their security"
   },
-  "benefit2Description": {
-    "message": "Доделите вођене задатке члановима изложеним ризику да ротирају акредитиве у ризику"
+  "feature2Description": {
+    "message": "Assign at-risk members guided security tasks to update credentials."
   },
-  "benefit3Title": {
-    "message": "Праћење напретка"
+  "feature3Title": {
+    "message": "Monitor progress"
   },
-  "benefit3Description": {
-    "message": "Пратите промене током времена да бисте показали безбедносна побољшања"
+  "feature3Description": {
+    "message": "Track changes over time to show security improvements."
   },
-  "noReportRunTitle": {
-    "message": "Покрените свој први извештај да бисте видели апликације"
+  "noReportsRunTitle": {
+    "message": "Generate report"
   },
-  "noReportRunDescription": {
-    "message": "Направите извештај о увиду у ризик да бисте анализирали апликације ваше организације и идентификовали ризичне лозинке на које треба обратити пажњу. Покретање вашег првог извештаја ће:"
+  "noReportsRunDescription": {
+    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Нисте означили ниједну апликацију као критичну"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Чланови под ризиком"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Чланови са приступом за угрожене ставке критичних апликација"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "These members have access to vulnerable items for critical applications."
   },
   "membersWithAtRiskPasswords": {
     "message": "Чланови са ризичним лозинкама"
   },
-  "membersWillReceiveNotification": {
-    "message": "Чланови ће добити обавештење за решавање ризичних пријава путем екстензије претраживача."
+  "membersWillReceiveSecurityTask": {
+    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
   },
   "membersAtRiskCount": {
     "message": "Угрожени чланови: $COUNT$",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Ови чланови се пријављују у апликације са слабим, откривеним или поново коришћеним лозинкама."
+  "atRiskMemberDescription": {
+    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Нема чланова пријављена у апликације са слабим, откривеним или поново коришћеним лозинкама."
@@ -391,14 +385,14 @@
   "prioritizeCriticalApplications": {
     "message": "Дајте приоритет критичним апликацијама"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Изаберите које су апликације најкритичније за вашу организацију, а затим доделите безбедносне задатке члановима да бисте решили ризике."
+  "selectCriticalAppsDescription": {
+    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "reviewNewApplications": {
     "message": "Прегледајте нове апликације"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "Истакли смо ризичне ставке за нове апликације ускладиштене у Админ конзоли које имају слабе, откривене или поново коришћене лозинке."
+  "reviewNewAppsDescription": {
+    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Кликните на икону звездице да бисте означили апликацију као критичну"
@@ -5815,9 +5809,9 @@
     "message": "Захтевајте све ставке да буду у власништву организације, уклањајући опцију за чување предмета на нивоу рачуна.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
-    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  "organizationDataOwnershipDescContent": {
+    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "credential lifecycle",
@@ -9856,8 +9850,8 @@
   "assignTasks": {
     "message": "Додели задатке"
   },
-  "assignTasksToMembers": {
-    "message": "Доделите задатке члановима за вођено решавање"
+  "assignSecurityTasksToMembers": {
+    "message": "Send notifications to change passwords"
   },
   "assignToCollections": {
     "message": "Додели колекцијама"
@@ -12123,6 +12117,15 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Start free Families trial"
+  },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Block account creation for claimed domains"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "A domain must be claimed before activating this policy."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Set up an unlock method to change your vault timeout action."

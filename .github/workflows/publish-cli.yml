@@ -206,7 +206,7 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
-      
+
       - name: Get Node version
         id: retrieve-node-version
         working-directory: ./

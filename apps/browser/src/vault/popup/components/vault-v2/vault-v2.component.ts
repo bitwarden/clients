@@ -9,6 +9,7 @@ import {
   distinctUntilChanged,
   filter,
   firstValueFrom,
+  from,
   map,
   Observable,
   shareReplay,
@@ -17,19 +18,24 @@ import {
   tap,
 } from "rxjs";
 
+import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
+import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { DeactivatedOrg, NoResults, VaultOpen } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
+import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
 import {
   ButtonModule,
   DialogService,
@@ -50,6 +56,7 @@ import { VaultPopupListFiltersService } from "../../services/vault-popup-list-fi
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
 import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-password-callout.component";
+import { VaultFadeInOutComponent } from "../vault-fade-in-out/vault-fade-in-out.component";
 import { VaultFadeInOutSkeletonComponent } from "../vault-fade-in-out-skeleton/vault-fade-in-out-skeleton.component";
 import { VaultLoadingSkeletonComponent } from "../vault-loading-skeleton/vault-loading-skeleton.component";
 
@@ -96,6 +103,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
     TypographyModule,
     VaultLoadingSkeletonComponent,
     VaultFadeInOutSkeletonComponent,
+    VaultFadeInOutComponent,
   ],
 })
 export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
@@ -124,22 +132,73 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
       void this.liveAnnouncer.announce(this.i18nService.translate(key), "polite");
     }),
   );
-  private skeletonFeatureFlag$ = this.configService.getFeatureFlag$(
+
+  protected skeletonFeatureFlag$ = this.configService.getFeatureFlag$(
     FeatureFlag.VaultLoadingSkeletons,
+  );
+
+  private showPremiumNudgeSpotlight$ = this.activeUserId$.pipe(
+    switchMap((userId) => this.nudgesService.showNudgeSpotlight$(NudgeType.PremiumUpgrade, userId)),
   );
 
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
   protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
+  protected cipherCount$ = this.vaultPopupItemsService.cipherCount$;
+  protected hasPremium$ = this.activeUserId$.pipe(
+    switchMap((userId) => this.billingAccountService.hasPremiumFromAnySource$(userId)),
+  );
+  protected accountAgeInDays$ = this.activeUserId$.pipe(
+    switchMap((userId) => {
+      const creationDate$ = from(this.vaultProfileService.getProfileCreationDate(userId));
+      return creationDate$.pipe(
+        map((creationDate) => {
+          if (!creationDate) {
+            return 0;
+          }
+          const ageInMilliseconds = Date.now() - creationDate.getTime();
+          return Math.floor(ageInMilliseconds / (1000 * 60 * 60 * 24));
+        }),
+      );
+    }),
+  );
+
+  protected showPremiumSpotlight$ = combineLatest([
+    this.showPremiumNudgeSpotlight$,
+    this.showEmptyVaultSpotlight$,
+    this.showHasItemsVaultSpotlight$,
+    this.hasPremium$,
+    this.cipherCount$,
+    this.accountAgeInDays$,
+  ]).pipe(
+    map(
+      ([showNudge, emptyVault, hasItems, hasPremium, count, age]) =>
+        showNudge && !emptyVault && !hasItems && !hasPremium && count >= 5 && age >= 7,
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  showPremiumDialog() {
+    PremiumUpgradeDialogComponent.open(this.dialogService);
+  }
 
   /** When true, show spinner loading state */
   protected showSpinnerLoaders$ = combineLatest([this.loading$, this.skeletonFeatureFlag$]).pipe(
     map(([loading, skeletonsEnabled]) => loading && !skeletonsEnabled),
   );
 
-  /** When true, show skeleton loading state */
-  protected showSkeletonsLoaders$ = combineLatest([this.loading$, this.skeletonFeatureFlag$]).pipe(
-    map(([loading, skeletonsEnabled]) => loading && skeletonsEnabled),
+  /** When true, show skeleton loading state with debouncing to prevent flicker */
+  protected showSkeletonsLoaders$ = combineLatest([
+    this.loading$,
+    this.searchService.isCipherSearching$,
+    this.skeletonFeatureFlag$,
+  ]).pipe(
+    map(
+      ([loading, cipherSearching, skeletonsEnabled]) =>
+        (loading || cipherSearching) && skeletonsEnabled,
+    ),
+    distinctUntilChanged(),
+    skeletonLoadingDelay(),
   );
 
   protected newItemItemValues$: Observable<NewItemInitialValues> =
@@ -177,9 +236,12 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private introCarouselService: IntroCarouselService,
     private nudgesService: NudgesService,
     private router: Router,
+    private vaultProfileService: VaultProfileService,
+    private billingAccountService: BillingAccountProfileStateService,
     private liveAnnouncer: LiveAnnouncer,
     private i18nService: I18nService,
     private configService: ConfigService,
+    private searchService: SearchService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,

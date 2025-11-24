@@ -2436,6 +2436,9 @@
       }
     }
   },
+  "topLayerHijackWarning": {
+    "message": "Tato stránka narušuje zážitek z Bitwardenu. Vložené menu Bitwarden bylo dočasně vypnuto jako bezpečnostní opatření."
+  },
   "setMasterPassword": {
     "message": "Nastavit hlavní heslo"
   },
@@ -5808,6 +5811,15 @@
   },
   "upgradeToPremium": {
     "message": "Aktualizovat na Premium"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Aktualizujte pro úplné zabezpečení"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Verze Premium Vám poskytne více nástrojů k zabezpečení, efektivní práci a udržení kontroly."
+  },
+  "explorePremium": {
+    "message": "Objevit Premium"
   },
   "loadingVault": {
     "message": "Načítání trezoru"

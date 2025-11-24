@@ -54,6 +54,8 @@ jobs:
         with:
           app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
           private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
+          permission-contents: write      # for creating, committing to, and pushing new branches
+          permission-pull-requests: write # for generating pull requests
 
       - name: Checkout repo
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0

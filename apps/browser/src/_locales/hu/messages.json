@@ -2436,6 +2436,9 @@
       }
     }
   },
+  "topLayerHijackWarning": {
+    "message": "Ez az oldal zavarja a Bitwarden élményt. Biztonsági intézkedésként ideiglenesen letiltásra került a Bitwarden belső menü."
+  },
   "setMasterPassword": {
     "message": "Mesterjelszó beállítása"
   },
@@ -5808,6 +5811,15 @@
   },
   "upgradeToPremium": {
     "message": "Áttérés Prémium csomagra"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Áttérés a teljes biztonságért"
+  },
+  "premiumGivesMoreTools": {
+    "message": "A Premium több eszközt ad a biztonság megőrzéséhez, a hatékony munkavégzéshez és az irányítás megőrzéséhez."
+  },
+  "explorePremium": {
+    "message": "Premium felfedezése"
   },
   "loadingVault": {
     "message": "Széf betöltése"

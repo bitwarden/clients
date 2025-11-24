@@ -595,7 +595,7 @@
     "message": "Visa alla"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "Visa mindre"
   },
   "viewLogin": {
     "message": "Visa inloggning"
@@ -2435,6 +2435,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Denna sida stör Bitwarden-upplevelsen. Bitwardens inbyggda meny har tillfälligt inaktiverats som en säkerhetsåtgärd."
   },
   "setMasterPassword": {
     "message": "Ange huvudlösenord"
@@ -5808,6 +5811,15 @@
   },
   "upgradeToPremium": {
     "message": "Uppgradera till Premium"
+  },
+  "upgradeCompleteSecurity": {
+    "message": "Uppgradera för fullständig säkerhet"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium ger dig fler verktyg för att hålla dig säker, arbeta effektivt och ha kontroll."
+  },
+  "explorePremium": {
+    "message": "Utforska Premium"
   },
   "loadingVault": {
     "message": "Läser in valv"

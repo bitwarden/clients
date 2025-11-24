@@ -102,7 +102,6 @@ import { MasterPasswordApiService as MasterPasswordApiServiceAbstraction } from 
 import { PasswordResetEnrollmentServiceAbstraction } from "@bitwarden/common/auth/abstractions/password-reset-enrollment.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/abstractions/token.service";
-import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification-api.service.abstraction";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
@@ -125,13 +124,17 @@ import { OrganizationInviteService } from "@bitwarden/common/auth/services/organ
 import { PasswordResetEnrollmentServiceImplementation } from "@bitwarden/common/auth/services/password-reset-enrollment.service.implementation";
 import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login.service";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
-import { TwoFactorService } from "@bitwarden/common/auth/services/two-factor.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
 import { WebAuthnLoginApiService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-api.service";
 import { WebAuthnLoginPrfKeyService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-prf-key.service";
 import { WebAuthnLoginService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login.service";
-import { TwoFactorApiService, DefaultTwoFactorApiService } from "@bitwarden/common/auth/two-factor";
+import {
+  TwoFactorApiService,
+  DefaultTwoFactorApiService,
+  TwoFactorService,
+  DefaultTwoFactorService,
+} from "@bitwarden/common/auth/two-factor";
 import {
   AutofillSettingsService,
   AutofillSettingsServiceAbstraction,
@@ -527,7 +530,7 @@ const safeProviders: SafeProvider[] = [
       KeyConnectorServiceAbstraction,
       EnvironmentService,
       StateServiceAbstraction,
-      TwoFactorServiceAbstraction,
+      TwoFactorService,
       I18nServiceAbstraction,
       EncryptService,
       PasswordStrengthServiceAbstraction,
@@ -1165,9 +1168,14 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
-    provide: TwoFactorServiceAbstraction,
-    useClass: TwoFactorService,
-    deps: [I18nServiceAbstraction, PlatformUtilsServiceAbstraction, GlobalStateProvider],
+    provide: TwoFactorService,
+    useClass: DefaultTwoFactorService,
+    deps: [
+      I18nServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
+      GlobalStateProvider,
+      TwoFactorApiService,
+    ],
   }),
   safeProvider({
     provide: FormValidationErrorsServiceAbstraction,
@@ -1451,7 +1459,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: OrganizationMetadataServiceAbstraction,
     useClass: DefaultOrganizationMetadataService,
-    deps: [BillingApiServiceAbstraction, ConfigService],
+    deps: [BillingApiServiceAbstraction, ConfigService, PlatformUtilsServiceAbstraction],
   }),
   safeProvider({
     provide: BillingAccountProfileStateService,

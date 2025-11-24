@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Rendeljünk a tagokhoz feladatokat az előrehaladás monitorozására."
   },
-  "onceYouReviewApps": {
-    "message": "Miután az alkalmazásokat áttekintettük és kritikusként jelöltük meg azokat, feladatokat rendelhetünk a tagokhoz a kockázatos elemek megoldására és itt nyomon követhetjük a feldolgozást."
+  "onceYouReviewApplications": {
+    "message": "Az alkalmazások áttekintése és azok kritikusként megjelölése után rendeljünk feladatokat a tagoknak a jelszavak megváltoztatásához."
   },
   "sendReminders": {
     "message": "Emlékeztető küldés"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "Nem találhatók alkalmazások: $ORG NAME$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "Nem található adat."
   },
-  "noApplicationsInOrgDescription": {
-    "message": "A szervezet bejelentkezési adatainak importálása a hitelesítő adatok biztonsági kockázat figyelésének megkezdéséhez. Az importálás után a következőkhöz jutunk el:"
+  "noDataInOrgDescription": {
+    "message": "Importáljuk a szervezet bejelentkezési adatait az Access Intelligence használatának megkezdéséhez. Ezután a következőket tehetjük:"
   },
-  "benefit1Title": {
-    "message": "Kockázatok rangsorolása"
+  "feature1Title": {
+    "message": "Alkalmazások megjelölése kritikusként"
   },
-  "benefit1Description": {
-    "message": "Összpontosítás a legfontosabb alkalmazásokra"
+  "feature1Description": {
+    "message": "Ez először is segít eltávolítani a legfontosabb alkalmazások kockázatait."
   },
-  "benefit2Title": {
-    "message": "Kármentési útmutató"
+  "feature2Title": {
+    "message": "Segítsünk a tagoknak biztonságuk javításában."
   },
-  "benefit2Description": {
-    "message": "Irányított feladatok hozzárendelése a veszélyeztetett tagokhoz a veszélyeztetett jogosultságok rotálásához."
+  "feature2Description": {
+    "message": "Rendeljünk a veszélyeztetett tagoknak irányított biztonsági feladatokat a hitelesítő adatok frissítéséhez."
   },
-  "benefit3Title": {
-    "message": "Folyamatok nyomonkövetése"
+  "feature3Title": {
+    "message": "Folyamat nyomonkövetése"
   },
-  "benefit3Description": {
-    "message": "Kövessük az idő múlásával bekövetkező változásokat a biztonsági fejlesztések megjelenítéséhez."
+  "feature3Description": {
+    "message": "Kövessük nyomon az időbeli változásokat a biztonsági fejlesztések megjelenítéséhez."
   },
-  "noReportRunTitle": {
-    "message": "Futtassuk le az első jelentést az alkalmazások megtekintéséhez"
+  "noReportsRunTitle": {
+    "message": "Jelentés generálása"
   },
-  "noReportRunDescription": {
-    "message": "Készítsünk kockázati betekintés jelentést a szervezet alkalmazásainak elemzéséhez és azonosítsuk azokat a veszélyeztetett jelszavakat, amelyekre figyelmet kell fordítani. Az első jelentés futtatása:"
+  "noReportsRunDescription": {
+    "message": "Készen állunk a jelentések generálására. A generálás után a következőket teheti meg:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Egyetlen alkalmazás sem lett megjelölve kritikusként."
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Veszélyes tagok"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Members with access to at-risk items for critical applications"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "Ezek a tagok hozzáférhetnek a kritikus alkalmazásoknál a sebezhető elemekhez."
   },
   "membersWithAtRiskPasswords": {
     "message": "Kockázatos jelszavú tagok"
   },
-  "membersWillReceiveNotification": {
-    "message": "A tagok értesítést kapnak a kockázatos bejelentkezések megoldásáról a böngésző bővítményen keresztül."
+  "membersWillReceiveSecurityTask": {
+    "message": "A szervezet tagjaira feladat hárul a sebezhető jelszavak megváltoztatására. Értesítést kapnak a Bitwarden böngésző bővítményen belül."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ kockázatos tag",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Ezek a tagok gyenge, nyílt vagy újrafelhasznált jelszavakkal jelentkeznek be az alkalmazásokba."
+  "atRiskMemberDescription": {
+    "message": "Ezek a tagok gyenge, kitett vagy újrafelhasznált jelszavakkal jelentkeznek be az alkalmazásokba."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Ezek nem olyan tagok, akik gyenge, kitett vagy újrafelhasznált jelszavakkal jelentkeznek be az alkalmazásokba."
@@ -391,14 +385,14 @@
   "prioritizeCriticalApplications": {
     "message": "Kritikus alkalmazások rangsorolása"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Válasszuk ki, hogy mely alkalmazások a legkritikusabbak a szervezet számára, majd rendeljünk biztonsági feladatokat a tagokhoz a kockázatok megoldása érdekében."
+  "selectCriticalAppsDescription": {
+    "message": "Válasszuk ki, hogy mely alkalmazások a legkritikusabbak a szervezet számára. Ezután rendeljünk biztonsági feladatokat a tagokhoz a kockázatok eltávolítása érdekében."
   },
   "reviewNewApplications": {
     "message": "Új alkalmazások felülvizsgálata"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "Kiemelésre került az Admin konzolban tárolt új alkalmazások veszélyeztetett elemei, amelyek gyenge, kitett vagy újrafelhasznált jelszavakkal rendelkeznek."
+  "reviewNewAppsDescription": {
+    "message": "Tekintsük át a sebezhető elemeket tartalmazó új alkalmazásokat és jelöljük meg kritikusnak azokat, amelyeket szorosan figyelemmel szeretnénk kísérni. Ezután biztonsági feladatokat rendelhetünk a tagokhoz a kockázatok eltávolítása érdekében."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Kattintsunk a csillag ikonra egy alkalmazás kritikusként megjelöléséhez."
@@ -5815,9 +5809,9 @@
     "message": "Szükséges, hogy minden elem egy szervezet tulajdonában legyen, megújítva a fiókszintű elemek tárolásának lehetőségét.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
+  "organizationDataOwnershipDescContent": {
     "message": "Minden elem a szervezet tulajdonába és elmentésre kerül, lehetővé téve az egész szervezetre kiterjedő vezérlést, láthatóságot és jelentést. Ha be van kapcsolva, minden tag számára elérhető egy alapértelmezett gyűjtemény az elemek tárolására. Tudjunk meg többet a kezelésről:",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "hitelesítő életciklus",
@@ -9856,8 +9850,8 @@
   "assignTasks": {
     "message": "Feladatok hozzárendelése"
   },
-  "assignTasksToMembers": {
-    "message": "Feladatok hozzárendelése a tagokhoz irányított megoldáshoz."
+  "assignSecurityTasksToMembers": {
+    "message": "Értesítések küldése a jelszavak megváltoztatásához"
   },
   "assignToCollections": {
     "message": "Hozzárendelés gyűjteményekhez"
@@ -12123,6 +12117,15 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Az ingyenes Családok próbaverzió elindítása"
+  },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Fiók létrehozásának letiltása az igényelt tartományokhoz"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Megakadályozza, hogy a felhasználók a szervezetén kívül fiókokat hozzanak létre az igényelt tartományokból származó email címek használatával."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "A házirend aktiválása előtt egy tartományt igényelni kell."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Állítsunk be egy feloldási módot a széf időkifutási műveletének módosításához."

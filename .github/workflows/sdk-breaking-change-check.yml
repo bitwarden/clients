@@ -58,6 +58,8 @@ jobs:
         with:
           app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
           private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
+          permission-actions: read # for reading and downloading the artifacts for a workflow run
+
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
