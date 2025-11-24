@@ -30,8 +30,8 @@ impl Drop for TestWindow {
             if !capture_ptr.is_null() {
                 let _ = Box::from_raw(capture_ptr);
             }
-            CloseWindow(self.hwnd).unwrap();
-            DestroyWindow(self.hwnd).unwrap();
+            CloseWindow(self.hwnd).expect("window handle should be closeable");
+            DestroyWindow(self.hwnd).expect("window handle should be destroyable");
         }
     }
 }
@@ -50,7 +50,10 @@ impl InputCapture {
     }
 
     fn get_chars(&self) -> Vec<char> {
-        self.chars.lock().unwrap().clone()
+        self.chars
+            .lock()
+            .expect("mutex should not be poisoned")
+            .clone()
     }
 }
 
@@ -75,7 +78,11 @@ unsafe extern "system" fn capture_input_proc(
             if !capture_ptr.is_null() {
                 let capture = &*capture_ptr;
                 if let Some(ch) = char::from_u32(wparam.0 as u32) {
-                    capture.chars.lock().unwrap().push(ch);
+                    capture
+                        .chars
+                        .lock()
+                        .expect("mutex should not be poisoned")
+                        .push(ch);
                 }
             }
             LRESULT(0)
@@ -147,7 +154,7 @@ fn process_messages() {
 
 fn create_input_window(title: PCWSTR, proc_type: ProcType) -> Result<TestWindow> {
     unsafe {
-        let instance = GetModuleHandleW(None).unwrap_or_else(|_| HMODULE(std::ptr::null_mut()));
+        let instance = GetModuleHandleW(None).unwrap_or(HMODULE(std::ptr::null_mut()));
         let instance: HINSTANCE = instance.into();
         debug_assert!(!instance.is_invalid());
 
@@ -158,7 +165,9 @@ fn create_input_window(title: PCWSTR, proc_type: ProcType) -> Result<TestWindow>
             lpfnWndProc: Some(proc_type),
             hInstance: instance,
             lpszClassName: window_class,
-            hbrBackground: CreateSolidBrush(COLORREF((COLOR_WINDOW.0 + 1).try_into().unwrap())),
+            hbrBackground: CreateSolidBrush(COLORREF(
+                (COLOR_WINDOW.0 + 1).try_into().expect("i32 to fit in u32"),
+            )),
             ..Default::default()
         };
 
@@ -184,7 +193,7 @@ fn create_input_window(title: PCWSTR, proc_type: ProcType) -> Result<TestWindow>
             Some(instance),
             Some(capture_ptr as *const _),
         )
-        .unwrap();
+        .expect("window should be created");
 
         // Process pending messages
         process_messages();
@@ -232,7 +241,7 @@ fn create_title_window(title: PCSTR, proc_type: ProcType) -> Result<TestWindow> 
             Some(instance),
             None,
         )
-        .unwrap();
+        .expect("window should be created");
 
         Ok(TestWindow {
             hwnd,
