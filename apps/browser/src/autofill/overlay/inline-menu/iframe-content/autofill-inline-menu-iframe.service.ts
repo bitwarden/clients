@@ -282,7 +282,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     const styles = this.fadeInTimeout ? Object.assign(position, { opacity: "0" }) : position;
     this.updateElementStyles(this.iframe, styles);
 
-    if (!this.shouldReduceMotion && this.fadeInTimeout) {
+    if (this.fadeInTimeout) {
       this.handleFadeInInlineMenuIframe();
     }
 
@@ -342,8 +342,19 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    */
   private handleFadeInInlineMenuIframe() {
     this.clearFadeInTimeout();
+
+    const styles: Partial<CSSStyleDeclaration> = {
+      display: "block",
+      opacity: "1",
+    };
+
+    if (this.shouldReduceMotion) {
+      this.updateElementStyles(this.iframe, styles);
+      return;
+    }
+
     this.fadeInTimeout = globalThis.setTimeout(() => {
-      this.updateElementStyles(this.iframe, { display: "block", opacity: "1" });
+      this.updateElementStyles(this.iframe, styles);
       this.clearFadeInTimeout();
     }, 10);
   }
