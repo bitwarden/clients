@@ -39,7 +39,7 @@
   ],
   "devDependencies": {
     "@angular-devkit/build-angular": "20.3.11",
-    "@angular-eslint/schematics": "19.8.1",
+    "@angular-eslint/schematics": "20.7.0",
     "@angular/cli": "20.3.11",
     "@angular/compiler-cli": "20.3.13",
     "@babel/core": "7.24.9",
@@ -149,7 +149,7 @@
   },
   "dependencies": {
     "@angular/animations": "20.3.13",
-    "@angular/cdk": "19.2.18",
+    "@angular/cdk": "20.2.14",
     "@angular/common": "20.3.13",
     "@angular/compiler": "20.3.13",
     "@angular/core": "20.3.13",
