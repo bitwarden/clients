@@ -1,8 +1,8 @@
 import { Observable } from "rxjs";
 
-import { DeviceType } from "@bitwarden/common/enums";
 import { BitwardenClient, Uuid, DeviceType as SdkDeviceType } from "@bitwarden/sdk-internal";
 
+import { DeviceType } from "../../../enums";
 import { UserId } from "../../../types/guid";
 import { Rc } from "../../misc/reference-counting/rc";
 import { Utils } from "../../misc/utils";
