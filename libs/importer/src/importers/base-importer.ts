@@ -320,7 +320,6 @@ export abstract class BaseImporter {
     if (this.isNullOrWhitespace(cipher.notes)) {
       cipher.notes = null;
     }
-    // Note: Removed cipher.notes.trim() to preserve leading/trailing spaces in notes
   }
 
   protected processKvp(
