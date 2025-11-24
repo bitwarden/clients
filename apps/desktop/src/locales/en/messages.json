@@ -4233,6 +4233,9 @@
   "verifyYourOrganization": {
     "message": "Verify your organization to log in"
   },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
+  },
   "sessionTimeoutSettingsAction": {
     "message": "Timeout action"
   },
