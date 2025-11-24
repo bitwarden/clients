@@ -13,9 +13,11 @@ const config = require(path.resolve(__dirname, "config.js"));
 const pjson = require(path.resolve(__dirname, "package.json"));
 
 module.exports.getEnv = function getEnv(params) {
-  const ENV = params.env || (process.env.ENV == null ? "development" : process.env.ENV);
-  const NODE_ENV = process.env.NODE_ENV == null ? "development" : process.env.NODE_ENV;
-  const LOGGING = process.env.LOGGING != "false";
+  const ENV = params.env?.ENV ?? process.env?.ENV ?? "development";
+  const NODE_ENV = params.env?.NODE_ENV ?? process.env?.NODE_ENV ?? "development";
+  const LOGGING =
+    params.env?.LOGGING ??
+    (process.env?.LOGGING === undefined ? true : process.env.LOGGING !== "false");
 
   return { ENV, NODE_ENV, LOGGING };
 };
@@ -35,7 +37,11 @@ const DEFAULT_PARAMS = {
  *  tsConfig: string;
  *  outputPath?: string;
  *  mode?: string;
- *  env?: string;
+ *  env?: {
+ *      ENV?: string;
+ *      NODE_ENV?: string;
+ *      LOGGING?: boolean;
+ *    };
  *  importAliases?: import("webpack").ResolveOptions["alias"];
  * }} params
  */
