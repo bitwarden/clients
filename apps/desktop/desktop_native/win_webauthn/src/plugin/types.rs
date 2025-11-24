@@ -34,7 +34,7 @@ use super::Clsid;
 /// Header File Name: _WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct WebAuthnCtapCborAuthenticatorOptions {
+pub struct WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS {
     dwVersion: u32,
     // LONG lUp: +1=TRUE, 0=Not defined, -1=FALSE
     lUp: i32,
@@ -69,7 +69,8 @@ impl WebAuthnCtapCborAuthenticatorOptions {
         }
     }
 }
-type WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS = WebAuthnCtapCborAuthenticatorOptions;
+
+pub type WebAuthnCtapCborAuthenticatorOptions = WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS;
 
 /// Used when adding a Windows plugin authenticator (stable API).
 /// Header File Name: _WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS
@@ -369,7 +370,7 @@ pub enum WebAuthnPluginRequestType {
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-struct WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST {
+pub(super) struct WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST {
     pub dwVersion: u32,
     pub cbRpId: u32,
     pub pbRpId: *const u8,
@@ -755,7 +756,7 @@ webauthn_call!("WebAuthNEncodeMakeCredentialResponse" as fn webauthn_encode_make
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-struct WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
+pub(super) struct WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
     pub dwVersion: u32,
     pub pwszRpId: *const u16, // PCWSTR
     pub cbRpId: u32,

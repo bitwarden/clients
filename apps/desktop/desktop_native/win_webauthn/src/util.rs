@@ -6,11 +6,7 @@ use windows::{
     },
 };
 
-use crate::{
-    // com::ComBuffer,
-    ErrorKind,
-    WinWebAuthnError,
-};
+use crate::{ErrorKind, WinWebAuthnError};
 
 macro_rules! webauthn_call {
     ($symbol:literal as fn $fn_name:ident($($arg:ident: $arg_type:ty),+) -> $result_type:ty) => (

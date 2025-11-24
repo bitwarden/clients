@@ -8,12 +8,7 @@ use std::{collections::HashSet, fmt::Display, ptr::NonNull};
 use ciborium::Value;
 use windows_core::PCWSTR;
 
-use crate::{
-    // com::ComBuffer,
-    util::ArrayPointerIterator,
-    ErrorKind,
-    WinWebAuthnError,
-};
+use crate::{util::ArrayPointerIterator, ErrorKind, WinWebAuthnError};
 
 /// List of its supported protocol versions and extensions, its AAGUID, and
 /// other aspects of its overall capabilities.
@@ -627,36 +622,6 @@ impl WEBAUTHN_CREDENTIAL_EX {
 
 pub struct CredentialEx {
     inner: NonNull<WEBAUTHN_CREDENTIAL_EX>,
-}
-
-impl CredentialEx {
-    /*
-    fn new_for_com(
-        version: u32,
-        id: &CredentialId,
-        credential_type: &str,
-        transports: &[CtapTransport],
-    ) -> Self {
-        let (pwszCredentialType, _) = credential_type.to_com_utf16();
-        let (pbId, cbId) = ComBuffer::from_buffer(&id);
-        let ptr = unsafe {
-            let mut uninit: MaybeUninit<WEBAUTHN_CREDENTIAL_EX> = MaybeUninit::uninit();
-            let ptr = uninit.as_mut_ptr();
-            std::ptr::write(
-                ptr,
-                WEBAUTHN_CREDENTIAL_EX {
-                    dwVersion: version,
-                    cbId,
-                    pbId,
-                    pwszCredentialType,
-                    dwTransports: transports.iter().map(|t| t.clone() as u32).sum(),
-                },
-            );
-            NonNull::new_unchecked(ptr)
-        };
-        Self { inner: ptr }
-    }
-    */
 }
 
 impl AsRef<WEBAUTHN_CREDENTIAL_EX> for CredentialEx {

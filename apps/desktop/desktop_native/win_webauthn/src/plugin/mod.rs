@@ -1,7 +1,7 @@
 pub(crate) mod com;
 pub(crate) mod types;
 
-use std::{error::Error, mem::MaybeUninit, ptr::NonNull};
+use std::{error::Error, ptr::NonNull};
 use types::*;
 use windows::{
     core::GUID,

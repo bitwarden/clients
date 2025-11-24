@@ -4,13 +4,10 @@
 
 // New modular structure
 mod assert;
-mod com_buffer;
-// mod com_provider;
 mod ipc2;
 mod make_credential;
 mod types;
 mod util;
-mod webauthn;
 
 use std::{collections::HashSet, sync::Arc, time::Duration};
 
@@ -25,10 +22,7 @@ use win_webauthn::{
     AuthenticatorInfo, CtapVersion, PublicKeyCredentialParameters,
 };
 
-use crate::{
-    ipc2::{ConnectionStatus, TimedCallback, WindowsProviderClient},
-    make_credential::make_credential,
-};
+use crate::ipc2::{TimedCallback, WindowsProviderClient};
 
 const AUTHENTICATOR_NAME: &str = "Bitwarden Desktop";
 const RPID: &str = "bitwarden.com";
