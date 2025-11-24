@@ -8,7 +8,6 @@ use std::{
 
 use serial_test::serial;
 use tracing::debug;
-
 use windows::Win32::{
     Foundation::{COLORREF, HINSTANCE, HMODULE, HWND, LPARAM, LRESULT, WPARAM},
     Graphics::Gdi::{CreateSolidBrush, UpdateWindow, ValidateRect, COLOR_WINDOW},
