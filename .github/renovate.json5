@@ -328,6 +328,7 @@
         "remark-gfm",
         "storybook",
         "tailwindcss",
+        "vite-tsconfig-paths",
         "zone.js",
         "@tailwindcss/container-queries",
       ],
