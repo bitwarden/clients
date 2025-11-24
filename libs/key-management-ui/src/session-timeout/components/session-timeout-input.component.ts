@@ -95,7 +95,7 @@ export class SessionTimeoutInputComponent implements ControlValueAccessor, Valid
     {
       vaultTimeout: [null as VaultTimeout | null],
       custom: this.formBuilder.group({
-        hours: [8, [Validators.required, Validators.min(0)]],
+        hours: [0, [Validators.required, Validators.min(0)]],
         minutes: [0, [Validators.required, Validators.min(0), Validators.max(59)]],
       }),
     },
