@@ -8,17 +8,36 @@
     <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   </div>
 } @else {
-  <div class="tw-mb-4">
-    <p class="tw-mb-1 tw-text-sm tw-font-medium">{{ "keyConnectorDomain" | i18n }}:</p>
-    <p class="tw-text-muted tw-break-all">{{ keyConnectorUrl }}</p>
-  </div>
+  <p>{{ "confirmKeyConnectorOrganizationUserDescription" | i18n }}</p>
+
+  @if (organizationName) {
+    <p class="tw-mb-0 tw-font-bold">{{ "organization" | i18n }}</p>
+    <p class="tw-mb-6">{{ organizationName }}</p>
+  }
+
+  <p class="tw-mb-0 tw-font-bold">
+    {{ "domain" | i18n }}
+    <button
+      [bitPopoverTriggerFor]="domainPopover"
+      type="button"
+      class="tw-border-none tw-bg-transparent tw-pr-1"
+      [position]="'above-center'"
+    >
+      <i class="bwi bwi-info-circle tw-text-sm" aria-hidden="true"></i>
+    </button>
+    <bit-popover #domainPopover>
+      <p class="tw-mb-0">{{ "keyConnectorDomainPopoverDescription" | i18n }}</p>
+    </bit-popover>
+  </p>
+  <p class="tw-mb-6 tw-font-mono">{{ keyConnectorHostName }}</p>
 
   <div class="tw-flex tw-flex-col tw-gap-2">
     <button bitButton type="button" buttonType="primary" [bitAction]="confirm" [block]="true">
-      {{ "confirm" | i18n }}
+      {{ "continueWithLogIn" | i18n }}
     </button>
+
     <button bitButton type="button" buttonType="secondary" [bitAction]="cancel" [block]="true">
-      {{ "cancel" | i18n }}
+      {{ "doNotContinue" | i18n }}
     </button>
   </div>
 }

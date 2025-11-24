@@ -2,8 +2,10 @@ import { Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { KeyConnectorApiService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector-api.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { KeyConnectorDomainConfirmation } from "@bitwarden/common/key-management/key-connector/models/key-connector-domain-confirmation";
+import { KeyConnectorConfirmationDetailsResponse } from "@bitwarden/common/key-management/key-connector/models/response/key-connector-confirmation-details.response";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -16,8 +18,10 @@ describe("ConfirmKeyConnectorDomainComponent", () => {
   let component: ConfirmKeyConnectorDomainComponent;
 
   const userId = "test-user-id" as UserId;
+  const expectedHostName = "key-connector-url.com";
   const confirmation: KeyConnectorDomainConfirmation = {
     keyConnectorUrl: "https://key-connector-url.com",
+    organizationSsoIdentifier: "org-sso-identifier",
   };
 
   const mockRouter = mock<Router>();
@@ -25,6 +29,7 @@ describe("ConfirmKeyConnectorDomainComponent", () => {
   const mockKeyConnectorService = mock<KeyConnectorService>();
   const mockLogService = mock<LogService>();
   const mockMessagingService = mock<MessagingService>();
+  const mockKeyConnectorApiService = mock<KeyConnectorApiService>();
   let mockAccountService = mockAccountServiceWith(userId);
   const onBeforeNavigation = jest.fn();
 
@@ -40,6 +45,7 @@ describe("ConfirmKeyConnectorDomainComponent", () => {
       mockMessagingService,
       mockSyncService,
       mockAccountService,
+      mockKeyConnectorApiService,
     );
 
     jest.spyOn(component, "onBeforeNavigation").mockImplementation(onBeforeNavigation);
@@ -67,11 +73,30 @@ describe("ConfirmKeyConnectorDomainComponent", () => {
       expect(component.loading).toEqual(true);
     });
 
+    it("sets organization name to undefined when getOrganizationName throws error", async () => {
+      mockKeyConnectorApiService.getConfirmationDetails.mockRejectedValue(new Error("API error"));
+
+      await component.ngOnInit();
+
+      expect(component.organizationName).toBeUndefined();
+      expect(component.userId).toEqual(userId);
+      expect(component.keyConnectorUrl).toEqual(confirmation.keyConnectorUrl);
+      expect(component.keyConnectorHostName).toEqual(expectedHostName);
+      expect(component.loading).toEqual(false);
+    });
+
     it("should set component properties correctly", async () => {
+      const expectedOrgName = "Test Organization";
+      mockKeyConnectorApiService.getConfirmationDetails.mockResolvedValue({
+        organizationName: expectedOrgName,
+      } as KeyConnectorConfirmationDetailsResponse);
+
       await component.ngOnInit();
 
       expect(component.userId).toEqual(userId);
+      expect(component.organizationName).toEqual(expectedOrgName);
       expect(component.keyConnectorUrl).toEqual(confirmation.keyConnectorUrl);
+      expect(component.keyConnectorHostName).toEqual(expectedHostName);
       expect(component.loading).toEqual(false);
     });
   });
