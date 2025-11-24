@@ -183,7 +183,7 @@ mod tests {
         for (key, meta) in map.iter() {
             assert_eq!(&meta.id, key);
             assert_eq!(meta.instructions, "chromium");
-            assert!(meta.loaders.iter().any(|l| *l == "file"));
+            assert!(meta.loaders.contains(&"file"));
         }
     }
 
