@@ -398,7 +398,7 @@ describe("NotificationsService", () => {
     });
 
     describe("NotificationType.SyncPolicy", () => {
-      it("should call policyService.upsert with the policy from the notification", async () => {
+      it("should call policyService.syncPolicy with the policy from the notification", async () => {
         const mockPolicy = {
           id: "policy-id",
           organizationId: "org-id",
@@ -407,25 +407,25 @@ describe("NotificationsService", () => {
           data: { test: "data" },
         };
 
-        policyService.upsert.mockResolvedValue();
+        policyService.syncPolicy.mockResolvedValue();
 
         const notification = new NotificationResponse({
           type: NotificationType.SyncPolicy,
-          payload: { Policy: mockPolicy },
+          payload: { policy: mockPolicy },
           contextId: "different-app-id",
         });
 
         await sut["processNotification"](notification, mockUser1);
 
-        expect(policyService.upsert).toHaveBeenCalledTimes(1);
-        expect(policyService.upsert).toHaveBeenCalledWith(
+        expect(policyService.syncPolicy).toHaveBeenCalledTimes(1);
+        expect(policyService.syncPolicy).toHaveBeenCalledWith(
           expect.objectContaining({
             id: mockPolicy.id,
             organizationId: mockPolicy.organizationId,
             type: mockPolicy.type,
             enabled: mockPolicy.enabled,
+            data: mockPolicy.data,
           }),
-          mockUser1,
         );
       });
 
@@ -437,25 +437,24 @@ describe("NotificationsService", () => {
           enabled: false,
         };
 
-        policyService.upsert.mockResolvedValue();
+        policyService.syncPolicy.mockResolvedValue();
 
         const notification = new NotificationResponse({
           type: NotificationType.SyncPolicy,
-          payload: { Policy: mockPolicy },
+          payload: { policy: mockPolicy },
           contextId: "different-app-id",
         });
 
         await sut["processNotification"](notification, mockUser1);
 
-        expect(policyService.upsert).toHaveBeenCalledTimes(1);
-        expect(policyService.upsert).toHaveBeenCalledWith(
+        expect(policyService.syncPolicy).toHaveBeenCalledTimes(1);
+        expect(policyService.syncPolicy).toHaveBeenCalledWith(
           expect.objectContaining({
             id: mockPolicy.id,
             organizationId: mockPolicy.organizationId,
             type: mockPolicy.type,
             enabled: mockPolicy.enabled,
           }),
-          mockUser1,
         );
       });
     });

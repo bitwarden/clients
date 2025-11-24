@@ -18,7 +18,6 @@ import { LogoutReason } from "@bitwarden/auth/common";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { trackedMerge } from "@bitwarden/common/platform/misc";
 
@@ -335,14 +334,7 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         });
         break;
       case NotificationType.SyncPolicy:
-        await firstValueFrom(
-          this.accountService.activeAccount$.pipe(
-            getUserId,
-            switchMap((userId) =>
-              this.policyService.upsert(PolicyData.fromPolicy(notification.payload.policy), userId),
-            ),
-          ),
-        );
+        await this.policyService.syncPolicy(PolicyData.fromPolicy(notification.payload.policy));
         break;
       default:
         break;

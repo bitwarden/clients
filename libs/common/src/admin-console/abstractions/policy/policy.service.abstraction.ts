@@ -101,4 +101,9 @@ export abstract class InternalPolicyService extends PolicyService {
    * Replace a policy in the local sync data. This does not update any policies on the server.
    */
   abstract replace: (policies: { [id: string]: PolicyData }, userId: UserId) => Promise<void>;
+  /**
+   * Wrapper around upsert that uses account service to sync policies for the logged in user. This comes from
+   * the server push notification to update local policies.
+   */
+  abstract syncPolicy: (payload: PolicyData) => Promise<void>;
 }

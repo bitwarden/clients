@@ -1060,7 +1060,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: InternalPolicyService,
     useClass: DefaultPolicyService,
-    deps: [StateProvider, OrganizationServiceAbstraction],
+    deps: [StateProvider, OrganizationServiceAbstraction, AccountServiceAbstraction],
   }),
   safeProvider({
     provide: PolicyServiceAbstraction,
