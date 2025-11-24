@@ -37,62 +37,23 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-const DatePreset = Object.freeze({
-  /** One-hour duration. */
-  OneHour: 1,
-  /** One-day duration (24 hours). */
-  OneDay: 24,
-  /** Two-day duration (48 hours). */
-  TwoDays: 48,
-  /** Three-day duration (72 hours). */
-  ThreeDays: 72,
-  /** Seven-day duration (168 hours). */
-  SevenDays: 168,
-  /** Thirty-day duration (720 hours). */
-  ThirtyDays: 720,
-  /** Custom date/time, provided by the user. */
-  Custom: 0,
-  /** No expiration. */
-  Never: "never",
-} as const);
-
-/** A preset duration (in hours) for expiration/deletion. */
-export type DatePreset = (typeof DatePreset)[Exclude<keyof typeof DatePreset, "Never">] | "never";
+// Value = hours
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
+enum DatePreset {
+  OneHour = 1,
+  OneDay = 24,
+  TwoDays = 48,
+  ThreeDays = 72,
+  SevenDays = 168,
+  ThirtyDays = 720,
+  Custom = 0,
+  Never = null,
+}
 
 interface DatePresetSelectOption {
   name: string;
   value: DatePreset;
-}
-
-const namesByDatePreset = new Map<DatePreset, keyof typeof DatePreset>(
-  Object.entries(DatePreset).map(([k, v]) => [v, k as keyof typeof DatePreset]),
-);
-
-/**
- * Checks if a value is a valid DatePreset.
- * @param value - The value to check.
- * @returns True if the value is a valid DatePreset, false otherwise.
- */
-export function isDatePreset(value: unknown): value is DatePreset {
-  return namesByDatePreset.has(value as DatePreset);
-}
-
-/**
- * Converts a value to a DatePreset if it is valid.
- * @param value - The value to convert.
- * @returns  The value as a DatePreset if valid, otherwise undefined.
- */
-export function asDatePreset(value: unknown): DatePreset | undefined {
-  return isDatePreset(value) ? (value as DatePreset) : undefined;
-}
-
-/**
- * Gets the name of a DatePreset value.
- * @param value - The DatePreset value to get the name for.
- * @returns The name of the DatePreset value, or undefined if not found.
- */
-export function nameOfDatePreset(value: DatePreset): keyof typeof DatePreset | undefined {
-  return namesByDatePreset.get(value);
 }
 
 @Directive()
@@ -125,7 +86,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   ];
 
   expirationDatePresets: DatePresetSelectOption[] = [
-    { name: this.i18nService.t("never"), value: "never" },
+    { name: this.i18nService.t("never"), value: DatePreset.Never },
     ...this.deletionDatePresets,
   ];
 
@@ -165,10 +126,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     type: [],
     defaultExpirationDateTime: [],
     defaultDeletionDateTime: ["", Validators.required],
-    selectedDeletionDatePreset: this.formBuilder.nonNullable.control<DatePreset>(
-      DatePreset.SevenDays,
-      { validators: [Validators.required] },
-    ),
+    selectedDeletionDatePreset: [DatePreset.SevenDays, Validators.required],
     selectedExpirationDatePreset: [],
   });
 
@@ -581,42 +539,40 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   get formattedExpirationDate(): string {
-    const rawPreset = this.formGroup.controls.selectedExpirationDatePreset.value;
-    const preset = asDatePreset(rawPreset);
-    if (!isDatePreset(preset)) {
-      return null;
-    }
-    if (preset === DatePreset.Custom) {
-      if (!this.formGroup.controls.defaultExpirationDateTime.value) {
+    switch (this.formGroup.controls.selectedExpirationDatePreset.value as DatePreset) {
+      case DatePreset.Never:
         return null;
+      case DatePreset.Custom:
+        if (!this.formGroup.controls.defaultExpirationDateTime.value) {
+          return null;
+        }
+        return this.formGroup.controls.defaultExpirationDateTime.value;
+      default: {
+        const now = new Date();
+        const milliseconds = now.setTime(
+          now.getTime() +
+            (this.formGroup.controls.selectedExpirationDatePreset.value as number) * 60 * 60 * 1000,
+        );
+        return new Date(milliseconds).toString();
       }
-      return this.formGroup.controls.defaultExpirationDateTime.value;
     }
-    if (typeof preset === "number") {
-      const now = new Date();
-      const milliseconds = now.setTime(now.getTime() + preset * 60 * 60 * 1000);
-      return new Date(milliseconds).toString();
-    }
-    return null;
   }
 
   get formattedDeletionDate(): string {
-    const rawPreset = this.formGroup.controls.selectedDeletionDatePreset.value;
-    const preset = asDatePreset(rawPreset); // what if this fails?
-    if (!isDatePreset(preset)) {
-      // is this reasonable as a safeguard? values come from a select control which should be trusted
-      return null;
+    switch (this.formGroup.controls.selectedDeletionDatePreset.value as DatePreset) {
+      case DatePreset.Never:
+        this.formGroup.controls.selectedDeletionDatePreset.patchValue(DatePreset.SevenDays);
+        return this.formattedDeletionDate;
+      case DatePreset.Custom:
+        return this.formGroup.controls.defaultDeletionDateTime.value;
+      default: {
+        const now = new Date();
+        const milliseconds = now.setTime(
+          now.getTime() +
+            (this.formGroup.controls.selectedDeletionDatePreset.value as number) * 60 * 60 * 1000,
+        );
+        return new Date(milliseconds).toString();
+      }
     }
-    if (preset === "never") {
-      //FIXME Getters should not have side effects
-      this.formGroup.controls.selectedDeletionDatePreset.patchValue(DatePreset.SevenDays);
-      return this.formattedDeletionDate;
-    }
-    if (preset === DatePreset.Custom) {
-      return this.formGroup.controls.defaultDeletionDateTime.value;
-    }
-    const now = new Date();
-    const milliseconds = now.setTime(now.getTime() + preset * 60 * 60 * 1000);
-    return new Date(milliseconds).toString();
   }
 }
