@@ -82,13 +82,16 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
         response: *mut WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
     ) -> HRESULT {
         tracing::debug!("MakeCredential called");
-        if response.is_null() {
-            tracing::warn!(
-                "MakeCredential called with null response pointer from Windows. Aborting request."
-            );
-            return E_INVALIDARG;
-        }
-        let op_request_ptr = match NonNull::new(request as *mut WEBAUTHN_PLUGIN_OPERATION_REQUEST) {
+        let response = match NonNull::new(response) {
+            Some(p) => p,
+            None => {
+                tracing::warn!(
+                    "MakeCredential called with null response pointer from Windows. Aborting request."
+                );
+                return E_INVALIDARG;
+            }
+        };
+        let op_request_ptr = match NonNull::new(request.cast_mut()) {
             Some(p) => p,
             None => {
                 tracing::warn!(
@@ -109,11 +112,19 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
         };
         match self.handler.make_credential(registration_request) {
             Ok(registration_response) => {
-                let (ptr, len) = ComBuffer::from_buffer(registration_response);
-                (*response).cbEncodedResponse = len;
-                (*response).pbEncodedResponse = ptr;
-                tracing::debug!("MakeCredential completed successfully");
-                S_OK
+                // SAFETY: response pointer was given to us by Windows, so we assume it's valid.
+                match write_operation_response(&registration_response, response) {
+                    Ok(()) => {
+                        tracing::debug!("MakeCredential completed successfully");
+                        S_OK
+                    }
+                    Err(err) => {
+                        tracing::error!(
+                            "Failed to write MakeCredential response to Windows: {err}"
+                        );
+                        return E_FAIL;
+                    }
+                }
             }
             Err(err) => {
                 tracing::error!("MakeCredential failed: {err}");
@@ -128,13 +139,16 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
         response: *mut WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
     ) -> HRESULT {
         tracing::debug!("GetAssertion called");
-        if response.is_null() {
-            tracing::warn!(
-                "GetAssertion called with null response pointer from Windows. Aborting request."
-            );
-            return E_INVALIDARG;
-        }
-        let op_request_ptr = match NonNull::new(request as *mut WEBAUTHN_PLUGIN_OPERATION_REQUEST) {
+        let response = match NonNull::new(response) {
+            Some(p) => p,
+            None => {
+                tracing::warn!(
+                    "GetAssertion called with null response pointer from Windows. Aborting request."
+                );
+                return E_INVALIDARG;
+            }
+        };
+        let op_request_ptr = match NonNull::new(request.cast_mut()) {
             Some(p) => p,
             None => {
                 tracing::warn!(
@@ -153,11 +167,17 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
         };
         match self.handler.get_assertion(assertion_request) {
             Ok(assertion_response) => {
-                let (ptr, len) = ComBuffer::from_buffer(assertion_response);
-                (*response).cbEncodedResponse = len;
-                (*response).pbEncodedResponse = ptr;
-                tracing::debug!("GetAssertion completed successfully");
-                S_OK
+                // SAFETY: response pointer was given to us by Windows, so we assume it's valid.
+                match write_operation_response(&assertion_response, response) {
+                    Ok(()) => {
+                        tracing::debug!("GetAssertion completed successfully");
+                        S_OK
+                    }
+                    Err(err) => {
+                        tracing::error!("Failed to write GetCredential response to Windows: {err}");
+                        return E_FAIL;
+                    }
+                }
             }
             Err(err) => {
                 tracing::error!("GetAssertion failed: {err}");
@@ -215,6 +235,32 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
     }
 }
 
+/// Copies data as COM-allocated buffer and writes to response pointer.
+///
+/// Safety constraints: [response] must point to a valid
+/// WEBAUTHN_PLUGIN_OPERATION_RESPONSE struct.
+unsafe fn write_operation_response(
+    data: &[u8],
+    response: NonNull<WEBAUTHN_PLUGIN_OPERATION_RESPONSE>,
+) -> Result<(), WinWebAuthnError> {
+    let len = match data.len().try_into() {
+        Ok(len) => len,
+        Err(err) => {
+            return Err(WinWebAuthnError::with_cause(
+                ErrorKind::Serialization,
+                "Response is too long to return to OS",
+                err,
+            ));
+        }
+    };
+    let buf = data.to_com_buffer();
+
+    response.write(WEBAUTHN_PLUGIN_OPERATION_RESPONSE {
+        cbEncodedResponse: len,
+        pbEncodedResponse: buf.leak(),
+    });
+    Ok(())
+}
 /// Registers the plugin authenticator COM library with Windows.
 pub(super) fn register_server<T>(clsid: &GUID, handler: T) -> Result<(), WinWebAuthnError>
 where
@@ -311,55 +357,61 @@ impl ComBuffer {
         Self(ptr.cast())
     }
 
-    fn into_ptr<T>(self) -> *mut T {
+    pub fn leak<T>(self) -> *mut T {
         self.0.cast().as_ptr()
     }
+}
 
-    /// Creates a new COM-allocated structure.
-    ///
-    /// Note that `T` must be [Copy] to avoid any possible memory leaks.
-    pub fn with_object<T: Copy>(object: T) -> *mut T {
-        // NB: Vendored from Rust's alloc code since we can't yet allocate `Box` with a custom allocator.
-        const MIN_ALIGN: usize = if cfg!(target_pointer_width = "64") {
-            16
-        } else if cfg!(target_pointer_width = "32") {
-            8
-        } else {
-            panic!("unsupported arch")
-        };
+pub(super) trait ComBufferExt {
+    fn to_com_buffer(&self) -> ComBuffer;
+}
 
-        // SAFETY: Validate that our alignment works for a normal size-based allocation for soundness.
-        let layout = const {
-            let layout = alloc::Layout::new::<T>();
-            assert!(layout.align() <= MIN_ALIGN);
-            layout
-        };
-
-        let buffer = Self::alloc(layout.size(), false);
-        // SAFETY: `ptr` is valid for writes of `T` because we correctly allocated the right sized buffer that
-        // accounts for any alignment requirements.
-        //
-        // Additionally, we ensure the value is treated as moved by forgetting the source.
-        unsafe { buffer.0.cast::<T>().write(object) };
-        buffer.into_ptr()
+impl ComBufferExt for Vec<u8> {
+    fn to_com_buffer(&self) -> ComBuffer {
+        ComBuffer::from(&self)
     }
+}
 
-    pub fn from_buffer<T: AsRef<[u8]>>(buffer: T) -> (*mut u8, u32) {
-        let buffer = buffer.as_ref();
+impl ComBufferExt for &[u8] {
+    fn to_com_buffer(&self) -> ComBuffer {
+        ComBuffer::from(self)
+    }
+}
+
+impl ComBufferExt for Vec<u16> {
+    fn to_com_buffer(&self) -> ComBuffer {
+        let buffer: Vec<u8> = self.into_iter().flat_map(|x| x.to_le_bytes()).collect();
+        ComBuffer::from(&buffer)
+    }
+}
+
+impl ComBufferExt for &[u16] {
+    fn to_com_buffer(&self) -> ComBuffer {
+        let buffer: Vec<u8> = self
+            .as_ref()
+            .into_iter()
+            .flat_map(|x| x.to_le_bytes())
+            .collect();
+        ComBuffer::from(&buffer)
+    }
+}
+
+impl<T: AsRef<[u8]>> From<T> for ComBuffer {
+    fn from(value: T) -> Self {
+        let buffer: Vec<u8> = value
+            .as_ref()
+            .into_iter()
+            .flat_map(|x| x.to_le_bytes())
+            .collect();
         let len = buffer.len();
         let com_buffer = Self::alloc(len, true);
-
         // SAFETY: `ptr` points to a valid allocation that `len` matches, and we made sure
         // the bytes were initialized. Additionally, bytes have no alignment requirements.
         unsafe {
             NonNull::slice_from_raw_parts(com_buffer.0.cast::<u8>(), len)
                 .as_mut()
-                .copy_from_slice(buffer)
+                .copy_from_slice(&buffer);
         }
-
-        // Safety: The Windows API structures these buffers are placed into use `u32` (`DWORD`) to
-        // represent length.
-        #[expect(clippy::as_conversions)]
-        (com_buffer.into_ptr(), len as u32)
+        com_buffer
     }
 }
