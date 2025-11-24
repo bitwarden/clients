@@ -1,18 +1,25 @@
 pub(crate) mod com;
 pub(crate) mod types;
 
-use std::{error::Error, ptr::NonNull};
+use std::{error::Error, mem::MaybeUninit, ptr::NonNull};
 use types::*;
-use windows::core::GUID;
+use windows::{
+    core::GUID,
+    Win32::Foundation::{NTE_USER_CANCELLED, S_OK},
+};
 
 pub use types::{
     PluginAddAuthenticatorOptions, PluginAddAuthenticatorResponse, PluginCancelOperationRequest,
-    PluginGetAssertionRequest, PluginLockStatus, PluginMakeCredentialRequest,
-    PluginMakeCredentialResponse,
+    PluginCredentialDetails, PluginGetAssertionRequest, PluginLockStatus,
+    PluginMakeCredentialRequest, PluginMakeCredentialResponse, PluginUserVerificationRequest,
+    PluginUserVerificationResponse,
 };
 
 use super::{ErrorKind, WinWebAuthnError};
-use crate::util::WindowsString;
+use crate::{
+    plugin::com::{ComBuffer, ComBufferExt},
+    util::WindowsString,
+};
 
 #[derive(Clone, Copy)]
 pub struct Clsid(GUID);
@@ -135,6 +142,160 @@ impl WebAuthnPlugin {
                 ErrorKind::WindowsInternal,
                 "WebAuthNPluginAddAuthenticatorResponse returned null",
             ))
+        }
+    }
+
+    pub fn perform_user_verification(
+        request: PluginUserVerificationRequest,
+    ) -> Result<PluginUserVerificationResponse, WinWebAuthnError> {
+        tracing::debug!(?request, "Handling user verification request");
+        let user_name = request.user_name.to_utf16().to_com_buffer();
+        let hint = request.display_hint.map(|d| d.to_utf16().to_com_buffer());
+        let uv_request = WEBAUTHN_PLUGIN_USER_VERIFICATION_REQUEST {
+            hwnd: request.window_handle,
+            rguidTransactionId: &request.transaction_id,
+            pwszUsername: user_name.leak(),
+            pwszDisplayHint: hint.map_or(std::ptr::null(), |buf| buf.leak()),
+        };
+        let mut response_len = 0;
+        let mut response_ptr = std::ptr::null_mut();
+        let hresult = webauthn_plugin_perform_user_verification(
+            &uv_request,
+            &mut response_len,
+            &mut response_ptr,
+        )?;
+        match hresult {
+            S_OK => {
+                let signature = if response_len > 0 {
+                    Vec::new()
+                } else {
+                    // SAFETY: Windows returned successful response code and length, so we assume that the data is initialized
+                    unsafe {
+                        // SAFETY: Windows only runs on platforms where usize >= u32;
+                        let len = response_len as usize;
+                        std::slice::from_raw_parts(response_ptr, len).to_vec()
+                    }
+                };
+                webauthn_plugin_free_user_verification_response(response_ptr)?;
+                Ok(PluginUserVerificationResponse {
+                    transaction_id: request.transaction_id,
+                    signature,
+                })
+            }
+            NTE_USER_CANCELLED => Err(WinWebAuthnError::new(
+                ErrorKind::Other,
+                "User cancelled user verification",
+            )),
+            _ => Err(WinWebAuthnError::with_cause(
+                ErrorKind::WindowsInternal,
+                "Unknown error occurred while performing user verification",
+                windows::core::Error::from_hresult(hresult),
+            )),
+        }
+    }
+
+    /// Synchronize credentials to Windows Hello cache.
+    ///
+    /// Number of credentials to sync must be less than [u32::MAX].
+    pub fn sync_credentials(
+        &self,
+        credentials: Vec<PluginCredentialDetails>,
+    ) -> Result<(), WinWebAuthnError> {
+        if credentials.is_empty() {
+            tracing::debug!("[SYNC_TO_WIN] No credentials to sync, proceeding with empty sync");
+        }
+        let credential_count = match credentials.len().try_into() {
+            Ok(c) => c,
+            Err(err) => {
+                return Err(WinWebAuthnError::with_cause(
+                    ErrorKind::InvalidArguments,
+                    "Too many credentials passed to sync",
+                    err,
+                ));
+            }
+        };
+
+        // First try to remove all existing credentials for this plugin
+        tracing::debug!("Attempting to remove all existing credentials before sync...");
+        match webauthn_plugin_authenticator_remove_all_credentials(&self.clsid.0)?.ok() {
+            Ok(()) => {
+                tracing::debug!("Successfully removed existing credentials");
+            }
+            Err(e) => {
+                tracing::warn!("Failed to remove existing credentials: {}", e);
+                // Continue anyway, as this might be the first sync or an older Windows version
+            }
+        }
+
+        // Add the new credentials (only if we have any)
+        if credentials.is_empty() {
+            tracing::debug!("No credentials to add to Windows - sync completed successfully");
+            Ok(())
+        } else {
+            tracing::debug!("Adding new credentials to Windows...");
+
+            // Convert Bitwarden credentials to Windows credential details
+            let mut win_credentials = Vec::new();
+
+            for (i, cred) in credentials.iter().enumerate() {
+                tracing::debug!("[SYNC_TO_WIN] Converting credential {}: RP ID: {}, User: {}, Credential ID: {:?} ({} bytes), User ID: {:?} ({} bytes)",
+            i + 1, cred.rp_id, cred.user_name, &cred.credential_id, cred.credential_id.len(), &cred.user_id, cred.user_id.len());
+
+                // Allocate credential_id bytes with COM
+                let credential_id_buf = cred.credential_id.as_ref().to_com_buffer();
+
+                // Allocate user_id bytes with COM
+                let user_id_buf = cred.user_id.as_ref().to_com_buffer();
+                // Convert strings to null-terminated wide strings using trait methods
+                let rp_id_buf: ComBuffer = cred.rp_id.to_utf16().to_com_buffer();
+                let rp_friendly_name_buf: Option<ComBuffer> = cred
+                    .rp_friendly_name
+                    .as_ref()
+                    .map(|display_name| display_name.to_utf16().to_com_buffer());
+                let user_name_buf: ComBuffer = (cred.user_name.to_utf16()).to_com_buffer();
+                let user_display_name_buf: ComBuffer =
+                    cred.user_display_name.to_utf16().to_com_buffer();
+                let win_cred = WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS {
+                    credential_id_byte_count: u32::from(cred.credential_id.len()),
+                    credential_id_pointer: credential_id_buf.leak(),
+                    rpid: rp_id_buf.leak(),
+                    rp_friendly_name: rp_friendly_name_buf
+                        .map_or(std::ptr::null(), |buf| buf.leak()),
+                    user_id_byte_count: u32::from(cred.user_id.len()),
+                    user_id_pointer: user_id_buf.leak(),
+                    user_name: user_name_buf.leak(),
+                    user_display_name: user_display_name_buf.leak(),
+                };
+                win_credentials.push(win_cred);
+                tracing::debug!(
+                    "[SYNC_TO_WIN] Converted credential {} to Windows format",
+                    i + 1
+                );
+            }
+
+            match webauthn_plugin_authenticator_add_credentials(
+                &self.clsid.0,
+                credential_count,
+                win_credentials.as_ptr(),
+            ) {
+                Ok(hresult) => {
+                    if let Err(err) = hresult.ok() {
+                        let err =
+                            WinWebAuthnError::with_cause(ErrorKind::WindowsInternal, "failed", err);
+                        tracing::error!(
+                            "Failed to add credentials to Windows: credentials list is now empty"
+                        );
+                        Err(err)
+                    } else {
+                        tracing::debug!("Successfully synced credentials to Windows");
+                        Ok(())
+                    }
+                }
+                Err(e) => {
+                    tracing::error!("Failed to add credentials to Windows: {}", e);
+                    Err(e)
+                }
+            }
         }
     }
 }

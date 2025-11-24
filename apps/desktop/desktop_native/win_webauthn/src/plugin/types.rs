@@ -2,6 +2,7 @@
 //! authenticator requests.
 
 #![allow(non_snake_case)]
+#![allow(non_camel_case_types)]
 
 use std::{mem::MaybeUninit, ptr::NonNull};
 
@@ -13,8 +14,9 @@ use windows::{
 use windows_core::s;
 
 use crate::{
+    types::UserId,
     util::{webauthn_call, WindowsString},
-    ErrorKind, WinWebAuthnError,
+    CredentialId, ErrorKind, WinWebAuthnError,
 };
 
 use crate::types::{
@@ -217,6 +219,115 @@ webauthn_call!("WebAuthNPluginFreeAddAuthenticatorResponse" as
 fn webauthn_plugin_free_add_authenticator_response(
     pPluginAddAuthenticatorOptions: *mut WebAuthnPluginAddAuthenticatorResponse
 ) -> ());
+
+// Credential syncing types
+
+/// Represents a credential.
+/// Header File Name: _WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS
+/// Header File Usage: WebAuthNPluginAuthenticatorAddCredentials, etc.
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub(super) struct WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS {
+    pub credential_id_byte_count: u32,
+    pub credential_id_pointer: *const u8, // Changed to const in stable
+    pub rpid: *const u16,                 // Changed to const (LPCWSTR)
+    pub rp_friendly_name: *const u16,     // Changed to const (LPCWSTR)
+    pub user_id_byte_count: u32,
+    pub user_id_pointer: *const u8,    // Changed to const
+    pub user_name: *const u16,         // Changed to const (LPCWSTR)
+    pub user_display_name: *const u16, // Changed to const (LPCWSTR)
+}
+
+/// Credential metadata to sync to Windows Hello credential autofill list.
+#[derive(Debug)]
+pub struct PluginCredentialDetails {
+    /// Credential ID.
+    pub credential_id: CredentialId,
+
+    /// Relying party ID.
+    pub rp_id: String,
+
+    /// Relying party display name.
+    pub rp_friendly_name: Option<String>,
+
+    /// User handle.
+    pub user_id: UserId,
+
+    /// User name.
+    ///
+    /// Corresponds to [`name`](https://www.w3.org/TR/webauthn-3/#dom-publickeycredentialentity-name) field of WebAuthn `PublicKeyCredentialUserEntity`.
+    pub user_name: String,
+
+    /// User name.
+    ///
+    /// Corresponds to [`displayName`](https://www.w3.org/TR/webauthn-3/#dom-publickeycredentialuserentity-displayname) field of WebAuthn `PublicKeyCredentialUserEntity`.
+    pub user_display_name: String,
+}
+
+// Stable API function signatures - now use REFCLSID and flat arrays
+webauthn_call!("WebAuthNPluginAuthenticatorAddCredentials" as fn webauthn_plugin_authenticator_add_credentials(
+    rclsid: *const GUID,
+    cCredentialDetails: u32,
+    pCredentialDetails: *const WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS
+) -> HRESULT);
+
+webauthn_call!("WebAuthNPluginAuthenticatorRemoveAllCredentials" as fn webauthn_plugin_authenticator_remove_all_credentials(
+    rclsid: *const GUID
+) -> HRESULT);
+
+#[repr(C)]
+#[derive(Debug)]
+pub(super) struct WEBAUTHN_PLUGIN_USER_VERIFICATION_REQUEST {
+    /// Windows handle of the top-level window displayed by the plugin and
+    /// currently is in foreground as part of the ongoing WebAuthn operation.
+    pub(super) hwnd: HWND,
+
+    /// The WebAuthn transaction id from the WEBAUTHN_PLUGIN_OPERATION_REQUEST
+    pub(super) rguidTransactionId: *const GUID,
+
+    /// The username attached to the credential that is in use for this WebAuthn
+    /// operation.
+    pub(super) pwszUsername: *const u16,
+
+    /// A text hint displayed on the Windows Hello prompt.
+    pub(super) pwszDisplayHint: *const u16,
+}
+
+#[derive(Debug)]
+pub struct PluginUserVerificationRequest {
+    /// Windows handle of the top-level window displayed by the plugin and
+    /// currently is in foreground as part of the ongoing WebAuthn operation.
+    pub window_handle: HWND,
+
+    /// The WebAuthn transaction id from the WEBAUTHN_PLUGIN_OPERATION_REQUEST
+    pub transaction_id: GUID,
+
+    /// The username attached to the credential that is in use for this WebAuthn
+    /// operation.
+    pub user_name: String,
+
+    /// A text hint displayed on the Windows Hello prompt.
+    pub display_hint: Option<String>,
+}
+
+/// Response details from user verification.
+pub struct PluginUserVerificationResponse {
+    pub transaction_id: GUID,
+    /// Bytes of the signature over the response.
+    pub signature: Vec<u8>,
+}
+
+webauthn_call!("WebAuthNPluginPerformUserVerification" as fn webauthn_plugin_perform_user_verification(
+    pPluginUserVerification: *const WEBAUTHN_PLUGIN_USER_VERIFICATION_REQUEST,
+    pcbResponse: *mut u32,
+    ppbResponse: *mut *mut u8
+) -> HRESULT);
+
+webauthn_call!("WebAuthNPluginFreeUserVerificationResponse" as fn webauthn_plugin_free_user_verification_response(
+    pbResponse: *mut u8
+) -> ());
+
+// Plugin Authenticator types
 
 /// Used when creating and asserting credentials.
 /// Header File Name: _WEBAUTHN_PLUGIN_OPERATION_REQUEST

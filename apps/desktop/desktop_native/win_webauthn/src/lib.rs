@@ -43,6 +43,8 @@ impl WinWebAuthnError {
 enum ErrorKind {
     DllLoad,
     Serialization,
+    InvalidArguments,
+    Other,
     WindowsInternal,
 }
 
@@ -51,6 +53,8 @@ impl Display for WinWebAuthnError {
         let msg = match self.kind {
             ErrorKind::Serialization => "Failed to serialize data",
             ErrorKind::DllLoad => "Failed to load function from DLL",
+            ErrorKind::InvalidArguments => "Invalid arguments passed to function",
+            ErrorKind::Other => "An error occurred",
             ErrorKind::WindowsInternal => "A Windows error occurred",
         };
         f.write_str(msg)?;
