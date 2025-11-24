@@ -62,6 +62,13 @@ export const Primary: Story = {
   },
 };
 
+export const DangerPrimary: Story = {
+  ...Default,
+  args: {
+    buttonType: "dangerPrimary",
+  },
+};
+
 export const Danger: Story = {
   ...Default,
   args: {

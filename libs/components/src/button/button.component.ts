@@ -54,6 +54,14 @@ const buttonStyles: Record<ButtonType, string[]> = {
     "hover:!tw-text-contrast",
     ...focusRing,
   ],
+  dangerPrimary: [
+    "tw-border-danger-600",
+    "tw-bg-danger-600",
+    "!tw-text-contrast",
+    "hover:tw-bg-danger-700",
+    "hover:tw-border-danger-700",
+    ...focusRing,
+  ],
   unstyled: [],
 };
 
