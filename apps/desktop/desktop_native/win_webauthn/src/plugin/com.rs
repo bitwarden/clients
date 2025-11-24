@@ -1,5 +1,7 @@
 //! Functions for interacting with Windows COM.
-#[allow(non_snake_case)]
+#![allow(non_snake_case)]
+#![allow(non_camel_case_types)]
+
 use std::{
     alloc,
     mem::MaybeUninit,
