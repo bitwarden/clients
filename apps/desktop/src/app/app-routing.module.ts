@@ -105,7 +105,6 @@ const routes: Routes = [
   {
     path: "vault",
     component: VaultV2Component,
-    // canActivate: [authGuard],
     canActivate: [
       authGuard,
       canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone1, false, "new-vault", false),
