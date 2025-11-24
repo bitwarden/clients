@@ -498,7 +498,51 @@ pub(crate) struct WEBAUTHN_EXTENSIONS {
     pub(crate) pExtensions: *const WEBAUTHN_EXTENSION,
 }
 
-struct CredentialId(Vec<u8>);
+pub struct UserId(Vec<u8>);
+
+impl UserId {
+    pub fn len(&self) -> u8 {
+        // SAFETY: User ID guaranteed to be <= 64 bytes
+        self.0.len() as u8
+    }
+}
+impl AsRef<[u8]> for UserId {
+    fn as_ref(&self) -> &[u8] {
+        &self.0
+    }
+}
+
+impl TryFrom<Vec<u8>> for UserId {
+    type Error = WinWebAuthnError;
+
+    fn try_from(value: Vec<u8>) -> Result<Self, Self::Error> {
+        if value.len() > 64 {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::Serialization,
+                &format!(
+                    "User ID exceeds maximum length of 64, received {}",
+                    value.len()
+                ),
+            ));
+        }
+        Ok(UserId(value))
+    }
+}
+
+pub struct CredentialId(Vec<u8>);
+
+impl CredentialId {
+    pub fn len(&self) -> u16 {
+        // SAFETY: CredentialId guaranteed to be < 1024 bytes
+        self.0.len() as u16
+    }
+}
+
+impl AsRef<[u8]> for CredentialId {
+    fn as_ref(&self) -> &[u8] {
+        &self.0
+    }
+}
 
 impl TryFrom<Vec<u8>> for CredentialId {
     type Error = WinWebAuthnError;
@@ -517,11 +561,6 @@ impl TryFrom<Vec<u8>> for CredentialId {
     }
 }
 
-impl AsRef<[u8]> for CredentialId {
-    fn as_ref(&self) -> &[u8] {
-        self.0.as_ref()
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct WEBAUTHN_CREDENTIAL_EX {
