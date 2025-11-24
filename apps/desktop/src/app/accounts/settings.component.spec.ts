@@ -659,6 +659,7 @@ describe("SettingsComponent", () => {
       describe("windows test cases", () => {
         beforeEach(() => {
           platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+          keyService.userKey$ = jest.fn().mockReturnValue(of(mockUserKey));
           component.isWindows = true;
           component.isLinux = false;
 
@@ -683,8 +684,6 @@ describe("SettingsComponent", () => {
 
         describe("when windows v2 biometrics is enabled", () => {
           beforeEach(() => {
-            component.isWindowsV2BiometricsEnabled = true;
-
             keyService.userKey$ = jest.fn().mockReturnValue(of(mockUserKey));
           });
 
