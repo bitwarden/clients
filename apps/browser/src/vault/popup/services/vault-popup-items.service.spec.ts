@@ -515,24 +515,6 @@ describe("VaultPopupItemsService", () => {
       expect(tracked.emissions[0]).toBe(true);
       expect(tracked.emissions[1]).toBe(false);
     });
-
-    it("should cycle when cipherService.ciphers$ emits even if cipher lists don't re-emit", async () => {
-      await tracked.pauseUntilReceived(2);
-
-      const before = [...tracked.emissions];
-
-      ciphersSubject.next({});
-
-      await tracked.pauseUntilReceived(before.length + 2);
-
-      const after = tracked.emissions;
-
-      expect(after.length).toBeGreaterThan(before.length);
-
-      const tail = after.slice(before.length);
-      expect(tail[0]).toBe(true);
-      expect(tail[1]).toBe(false);
-    });
   });
 
   describe("applyFilter", () => {

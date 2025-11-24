@@ -260,7 +260,7 @@ export class VaultPopupItemsService {
     // Turn loading on whenever we start processing ciphers
     this._ciphersLoading$.pipe(map(() => true)),
     // Turn loading off whenever the decrypted cipher list finishes updating
-    this._allDecryptedCiphers$.pipe(map(() => false)),
+    this.remainingCiphers$.pipe(map(() => false)),
   ).pipe(startWith(true), distinctUntilChanged(), shareReplay({ refCount: false, bufferSize: 1 }));
 
   /** Observable that indicates whether there is search text present.
