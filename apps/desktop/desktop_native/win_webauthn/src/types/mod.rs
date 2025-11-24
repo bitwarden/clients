@@ -1,20 +1,16 @@
 //! Types and functions defined in the Windows WebAuthn API.
-use std::{collections::HashSet, fmt::Display, mem::MaybeUninit, ptr::NonNull};
 
-use base64::{engine::general_purpose::STANDARD, Engine as _};
+#![allow(non_snake_case)]
+#![allow(non_camel_case_types)]
+
+use std::{collections::HashSet, fmt::Display, ptr::NonNull};
+
 use ciborium::Value;
-use windows::{
-    core::{GUID, HRESULT},
-    Win32::{
-        Foundation::HWND, System::LibraryLoader::GetProcAddress,
-        UI::WindowsAndMessaging::WindowFromPoint,
-    },
-};
-use windows_core::{s, PCWSTR};
+use windows_core::PCWSTR;
 
 use crate::{
     // com::ComBuffer,
-    util::{ArrayPointerIterator, WindowsString},
+    util::ArrayPointerIterator,
     ErrorKind,
     WinWebAuthnError,
 };
@@ -26,19 +22,20 @@ pub struct AuthenticatorInfo {
     pub versions: HashSet<CtapVersion>,
 
     /// The claimed AAGUID. 16 bytes in length and encoded the same as
-    /// MakeCredential AuthenticatorData, as specified in [WebAuthn].
+    /// MakeCredential AuthenticatorData, as specified in [WebAuthn](https://www.w3.org/TR/webauthn-3/#aaguid).
     ///
-    /// Note: even though the name has "guid" in it, this is actually an RFC4122
-    /// UUID, which is serialized differently than a Windows GUID.
+    /// Note: even though the name has "guid" in it, this is actually an RFC 4122
+    /// UUID, which is deserialized differently than a Windows GUID.
     pub aaguid: Uuid,
 
     /// List of supported options.
     pub options: Option<HashSet<String>>,
 
     /// List of supported transports. Values are taken from the
-    /// AuthenticatorTransport enum in [WebAuthn]. The list MUST NOT include
-    /// duplicate values nor be empty if present. Platforms MUST tolerate
-    /// unknown values.
+    /// [AuthenticatorTransport enum in WebAuthn][authenticator-transport].
+    /// The list MUST NOT include duplicate values nor be empty if present.
+    /// Platforms MUST tolerate unknown values.
+    /// [authenticator-transport]: https://www.w3.org/TR/webauthn-3/#enum-transport
     pub transports: Option<HashSet<String>>,
 
     /// List of supported algorithms for credential generation, as specified in
@@ -498,6 +495,7 @@ pub(crate) struct WEBAUTHN_EXTENSIONS {
     pub(crate) pExtensions: *const WEBAUTHN_EXTENSION,
 }
 
+#[derive(Debug)]
 pub struct UserId(Vec<u8>);
 
 impl UserId {
@@ -529,6 +527,7 @@ impl TryFrom<Vec<u8>> for UserId {
     }
 }
 
+#[derive(Debug)]
 pub struct CredentialId(Vec<u8>);
 
 impl CredentialId {
