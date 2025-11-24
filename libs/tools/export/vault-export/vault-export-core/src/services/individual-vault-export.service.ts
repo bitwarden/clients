@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import * as JSZip from "jszip";
-import * as papa from "papaparse";
+import JSZip from "jszip";
+import papa from "papaparse";
 import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
