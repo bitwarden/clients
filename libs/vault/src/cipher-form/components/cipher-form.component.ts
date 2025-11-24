@@ -320,9 +320,6 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
       return;
     }
 
-    // Use the cached cipher when:
-    // 1. Editing an existing cipher and IDs match
-    // 2. Creating a new cipher (both IDs are null) AND the types match
     const isEditingExistingCipher =
       this.updatedCipherView.id && this.updatedCipherView.id === cachedCipher.id;
     const isCreatingNewCipher =

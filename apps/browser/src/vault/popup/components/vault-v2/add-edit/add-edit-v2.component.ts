@@ -212,7 +212,11 @@ export class AddEditV2Component implements OnInit, OnDestroy {
     // Listen for messages to reload cipher data when the pop up is already open
     this.messageListener = async (message: any) => {
       if (message?.command === "reloadAddEditCipherData") {
-        await this.reloadCipherData();
+        try {
+          await this.reloadCipherData();
+        } catch (error) {
+          this.logService.error("Failed to reload cipher data", error);
+        }
       }
     };
     BrowserApi.addListener(chrome.runtime.onMessage, this.messageListener);

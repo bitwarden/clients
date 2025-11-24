@@ -121,7 +121,7 @@ async function openAddEditVaultItemPopout(
     tab.url?.includes(`singleActionPopout=${singleActionKey}`),
   );
   // Check if the an existing popup is already open
-  if (existingPopup) {
+  try {
     await chrome.runtime.sendMessage({
       command: "reloadAddEditCipherData",
       data: { cipherId, cipherType },
@@ -129,7 +129,7 @@ async function openAddEditVaultItemPopout(
     await BrowserApi.updateWindowProperties(existingPopup.windowId, {
       focused: true,
     });
-  } else {
+  } catch {
     await BrowserPopupUtils.openPopout(addEditCipherUrl, {
       singleActionKey,
       senderWindowId: windowId,

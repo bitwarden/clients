@@ -22,7 +22,6 @@ export class CipherFormCacheService {
     key: CIPHER_FORM_CACHE_KEY,
     initialValue: null,
     deserializer: CipherView.fromJSON,
-    // clearOnTabChange removed to preserve form data when user clicks away
   });
 
   constructor() {
