@@ -64,9 +64,6 @@ fn init_logging(log_path: &Path, console_level: LevelFilter, file_level: LevelFi
 #[allow(clippy::unwrap_used)]
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    #[cfg(target_os = "windows")]
-    let should_foreground = windows::allow_foreground();
-
     let sock_path = desktop_core::ipc::path("bw");
 
     let log_path = {
@@ -158,9 +155,6 @@ async fn main() {
 
             // Listen to stdin and send messages to ipc processor.
             msg = stdin.next() => {
-                #[cfg(target_os = "windows")]
-                should_foreground.store(true, std::sync::atomic::Ordering::Relaxed);
-
                 match msg {
                     Some(Ok(msg)) => {
                         let msg = String::from_utf8(msg.to_vec()).unwrap();
