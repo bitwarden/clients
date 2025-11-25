@@ -36,7 +36,6 @@ export default {
     moduleMetadata({
       imports: [
         HeaderComponent,
-
         AvatarModule,
         BreadcrumbsModule,
         ButtonModule,
