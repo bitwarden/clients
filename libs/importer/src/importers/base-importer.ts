@@ -4,12 +4,12 @@ import * as papa from "papaparse";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { Collection, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/admin-console/common";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
@@ -279,8 +279,7 @@ export abstract class BaseImporter {
       const collection = new CollectionView({
         name: f.name,
         organizationId: this.organizationId,
-        // FIXME: Folder.id may be null, this should be changed when refactoring Folders to be ts-strict
-        id: Collection.isCollectionId(f.id) ? f.id : null,
+        id: f.id as CollectionId,
       });
       return collection;
     });

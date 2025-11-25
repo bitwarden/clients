@@ -16,7 +16,6 @@ export class FolderView implements View, ITreeNodeObject {
     }
 
     this.id = f.id;
-    this.name = f.name.toString();
     this.revisionDate = f.revisionDate;
   }
 
