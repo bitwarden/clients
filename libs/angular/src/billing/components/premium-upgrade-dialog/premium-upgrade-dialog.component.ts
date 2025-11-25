@@ -97,7 +97,7 @@ export class PremiumUpgradeDialogComponent {
       tagline: tier.description,
       price: {
         amount: tier.passwordManager.annualPrice / 12,
-        cadence: this.i18nService.t(SubscriptionCadenceIds.Monthly),
+        cadence: SubscriptionCadenceIds.Monthly,
       },
       button: {
         text: this.i18nService.t("upgradeNow"),
