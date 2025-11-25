@@ -92,7 +92,7 @@ import "../platform/popup/locales";
     TabsV2Component,
     RemovePasswordComponent,
   ],
-  exports: [],
+  exports: [CalloutModule],
   providers: [CurrencyPipe, DatePipe],
   bootstrap: [AppComponent],
 })

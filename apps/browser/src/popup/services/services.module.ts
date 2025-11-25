@@ -40,6 +40,7 @@ import {
   LoginEmailService,
   SsoUrlService,
   LogoutService,
+  UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import {
   AutomaticUserConfirmationService,
@@ -616,7 +617,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: Fido2UserVerificationService,
     useClass: Fido2UserVerificationService,
-    deps: [PasswordRepromptService, UserVerificationService, DialogService],
+    deps: [
+      PasswordRepromptService,
+      UserDecryptionOptionsServiceAbstraction,
+      DialogService,
+      AccountServiceAbstraction,
+    ],
   }),
   safeProvider({
     provide: AnimationControlService,

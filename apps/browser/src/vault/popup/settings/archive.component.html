@@ -27,10 +27,10 @@
                   <app-vault-icon [cipher]="cipher"></app-vault-icon>
                 </div>
                 <span data-testid="item-name">{{ cipher.name }}</span>
-                @if (cipher.hasAttachments) {
+                @if (CipherViewLikeUtils.hasAttachments(cipher)) {
                   <i class="bwi bwi-paperclip bwi-sm" [appA11yTitle]="'attachments' | i18n"></i>
                 }
-                <span slot="secondary">{{ cipher.subTitle }}</span>
+                <span slot="secondary">{{ CipherViewLikeUtils.subtitle(cipher) }}</span>
               </button>
               <bit-item-action slot="end">
                 <button
