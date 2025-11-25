@@ -220,7 +220,7 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
     return null;
   }
 
-  packageType(): Promise<string> {
-    return Promise.resolve("Web");
+  packageType(): Promise<string | null> {
+    return null;
   }
 }

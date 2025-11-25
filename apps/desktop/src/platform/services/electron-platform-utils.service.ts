@@ -153,18 +153,18 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
   }
 
   async packageType(): Promise<string> {
-    let packageType = "Unknown";
     if (ipc.platform.isMacAppStore) {
-      packageType = "MacAppStore";
+      return "MacAppStore";
     } else if (ipc.platform.isWindowsStore) {
-      packageType = "WindowsStore";
+      return "WindowsStore";
     } else if (ipc.platform.isAppImage) {
-      packageType = "AppImage";
+      return "AppImage";
     } else if (ipc.platform.isSnapStore) {
-      packageType = "Snap";
+      return "Snap";
     } else if (ipc.platform.isFlatpak) {
-      packageType = "Flatpak";
+      return "Flatpak";
+    } else {
+      return "Unknown";
     }
-    return `Bitwarden-Desktop/${await this.getApplicationVersion()} (${packageType})`;
   }
 }

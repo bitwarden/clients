@@ -153,7 +153,7 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
     return null;
   }
 
-  packageType(): Promise<string> {
-    return Promise.resolve("Cli");
+  async packageType(): Promise<string | null> {
+    return null;
   }
 }
