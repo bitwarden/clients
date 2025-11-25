@@ -51,6 +51,7 @@ type NotificationBarWindowMessage = {
   };
   error?: string;
   initData?: NotificationBarIframeInitData;
+  parentOrigin?: string;
 };
 
 type NotificationBarWindowMessageHandlers = {
