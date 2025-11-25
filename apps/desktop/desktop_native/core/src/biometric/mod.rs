@@ -86,10 +86,14 @@ impl KeyMaterial {
 
 #[cfg(test)]
 mod tests {
-    use crate::biometric::{decrypt, encrypt, KeyMaterial};
-    use crate::crypto::CipherString;
-    use base64::{engine::general_purpose::STANDARD as base64_engine, Engine};
     use std::str::FromStr;
+
+    use base64::{engine::general_purpose::STANDARD as base64_engine, Engine};
+
+    use crate::{
+        biometric::{decrypt, encrypt, KeyMaterial},
+        crypto::CipherString,
+    };
 
     fn key_material() -> KeyMaterial {
         KeyMaterial {

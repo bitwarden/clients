@@ -164,7 +164,8 @@
         "overlay/menu.html",
         "popup/fonts/*"
       ],
-      "matches": ["<all_urls>"]
+      "matches": ["<all_urls>"],
+      "use_dynamic_url": true
     }
   ],
   "__firefox__browser_specific_settings": {

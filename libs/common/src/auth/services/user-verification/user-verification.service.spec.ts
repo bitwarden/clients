@@ -3,10 +3,7 @@ import { of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import {
-  UserDecryptionOptions,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -146,11 +143,7 @@ describe("UserVerificationService", () => {
 
     describe("server verification type", () => {
       it("correctly returns master password availability", async () => {
-        userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
-          of({
-            hasMasterPassword: true,
-          } as UserDecryptionOptions),
-        );
+        userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(true));
 
         const result = await sut.getAvailableVerificationOptions("server");
 
@@ -168,11 +161,7 @@ describe("UserVerificationService", () => {
       });
 
       it("correctly returns OTP availability", async () => {
-        userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
-          of({
-            hasMasterPassword: false,
-          } as UserDecryptionOptions),
-        );
+        userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(false));
 
         const result = await sut.getAvailableVerificationOptions("server");
 
@@ -526,11 +515,7 @@ describe("UserVerificationService", () => {
 
   // Helpers
   function setMasterPasswordAvailability(hasMasterPassword: boolean) {
-    userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
-      of({
-        hasMasterPassword: hasMasterPassword,
-      } as UserDecryptionOptions),
-    );
+    userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(hasMasterPassword));
     masterPasswordService.masterKeyHash$.mockReturnValue(
       of(hasMasterPassword ? "masterKeyHash" : null),
     );

@@ -15,7 +15,7 @@
     "message": "Não há aplicações críticas em risco"
   },
   "accessIntelligence": {
-    "message": "Aceder à informação"
+    "message": "Inteligência de Acesso"
   },
   "passwordRisk": {
     "message": "Risco da palavra-passe"
@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Atribuir tarefas aos membros para monitorizar o progresso"
   },
-  "onceYouReviewApps": {
-    "message": "Depois de analisar as aplicações e marcá-las como críticas, pode atribuir tarefas aos membros para resolver itens em risco e monitorizar o progresso aqui"
+  "onceYouReviewApplications": {
+    "message": "Depois de rever as aplicações e marcá-las como críticas, atribua tarefas aos seus membros para que alterem as respetivas palavras-passe."
   },
   "sendReminders": {
     "message": "Enviar lembretes"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "Não foram encontradas aplicações para $ORG NAME$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "Não foram encontrados dados"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Importe as credenciais da sua organização para começar a monitorizar os riscos de segurança das credenciais. Após a importação, poderá:"
+  "noDataInOrgDescription": {
+    "message": "Importe os dados de início de sessão da sua organização para começar a utilizar a Inteligência de Acesso. Depois disso, poderá:"
   },
-  "benefit1Title": {
-    "message": "Priorizar os riscos"
+  "feature1Title": {
+    "message": "Marcar aplicações como críticas"
   },
-  "benefit1Description": {
-    "message": "Com foco nas aplicações mais importantes"
+  "feature1Description": {
+    "message": "Isto ajudá-lo-á a eliminar primeiro os riscos nas suas aplicações mais importantes."
   },
-  "benefit2Title": {
-    "message": "Remediação de guias"
+  "feature2Title": {
+    "message": "Ajude os membros a melhorar a sua segurança"
   },
-  "benefit2Description": {
-    "message": "Atribuir tarefas orientadas aos membros em risco para alterar as credenciais em risco"
+  "feature2Description": {
+    "message": "Atribua aos membros em risco tarefas de segurança orientadas para atualizarem as suas credenciais."
   },
-  "benefit3Title": {
+  "feature3Title": {
     "message": "Monitorizar o progresso"
   },
-  "benefit3Description": {
-    "message": "Acompanhe as alterações ao longo do tempo para mostrar as melhorias na segurança"
+  "feature3Description": {
+    "message": "Acompanhe as alterações ao longo do tempo para mostrar as melhorias na segurança."
   },
-  "noReportRunTitle": {
-    "message": "Execute o seu primeiro relatório para ver as aplicações"
+  "noReportsRunTitle": {
+    "message": "Gerar relatório"
   },
-  "noReportRunDescription": {
-    "message": "Gere um relatório de insights de risco para analisar as aplicações da sua organização e identificar palavras-passe em risco que precisam de atenção. A execução do seu primeiro relatório irá:"
+  "noReportsRunDescription": {
+    "message": "Está pronto para começar a gerar relatórios. Depois de os gerar, poderá:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Não marcou nenhuma aplicação como crítica"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Membros em risco"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Membros com acesso a itens em risco para aplicações críticas"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "Estes membros têm acesso a itens vulneráveis de aplicações críticas."
   },
   "membersWithAtRiskPasswords": {
     "message": "Membros com palavras-passe em risco"
   },
-  "membersWillReceiveNotification": {
-    "message": "Os membros receberão uma notificação para resolver as credenciais em risco através da extensão do navegador."
+  "membersWillReceiveSecurityTask": {
+    "message": "Os membros da sua organização serão atribuídos a uma tarefa para alterar palavras-passe vulneráveis. Receberão uma notificação na extensão do Bitwarden do navegador."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ membros em risco",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Estes membros estão a iniciar sessão em aplicações com palavras-passe fracas, expostas ou reutilizadas."
+  "atRiskMemberDescription": {
+    "message": "Estes membros estão a iniciar sessão em aplicações críticas com palavras-passe fracas, expostas ou reutilizadas."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Estes não são membros que iniciam sessão em aplicações com palavras-passe fracas, expostas ou reutilizadas."
@@ -391,14 +385,14 @@
   "prioritizeCriticalApplications": {
     "message": "Dê prioridade a aplicações críticas"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Selecione quais aplicações são mais críticas para a sua organização e, em seguida, atribua tarefas de segurança aos membros para resolver os riscos."
+  "selectCriticalAppsDescription": {
+    "message": "Selecione quais aplicações são mais críticas para a sua organização. Depois, poderá atribuir tarefas de segurança aos membros para eliminar os riscos."
   },
   "reviewNewApplications": {
     "message": "Rever novas aplicações"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "Destacámos os itens em risco para novas aplicações armazenadas na consola de administração que têm palavras-passe fracas, expostas ou reutilizadas."
+  "reviewNewAppsDescription": {
+    "message": "Reveja as novas aplicações com itens vulneráveis e marque como críticas aquelas que pretende monitorizar de perto. Depois, poderá atribuir tarefas de segurança aos membros para eliminar os riscos."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Clique no ícone de estrela para marcar uma app como crítica"
@@ -5815,9 +5809,9 @@
     "message": "Exigir que todos os itens sejam propriedade de uma organização, removendo a opção de armazenar itens ao nível da conta.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
-    "message": "Todos os itens pertencerão e serão guardados na organização, permitindo controlos, visibilidade e relatórios para toda a organização. Quando ativada, estará disponível uma coleção predefinida para cada membro armazenar itens. Saiba mais sobre como gerir o ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  "organizationDataOwnershipDescContent": {
+    "message": "Todos os itens passarão a ser propriedade da organização e serão aí guardados, permitindo controlos, visibilidade e relatórios a nível organizacional. Quando esta opção estiver ativa, ficará disponível uma coleção predefinida para cada membro guardar itens. Saiba mais sobre a gestão do ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "ciclo de vida das credenciais",
@@ -9856,8 +9850,8 @@
   "assignTasks": {
     "message": "Atribuir tarefas"
   },
-  "assignTasksToMembers": {
-    "message": "Atribuir tarefas aos membros para resolução guiada"
+  "assignSecurityTasksToMembers": {
+    "message": "Enviar notificações para alterar palavras-passe"
   },
   "assignToCollections": {
     "message": "Atribuir às coleções"
@@ -12083,7 +12077,7 @@
     "message": "Tem o plano gratuito do Bitwarden"
   },
   "upgradeCompleteSecurity": {
-    "message": "Atualize para segurança total"
+    "message": "Atualize para obter segurança total"
   },
   "viewbusinessplans": {
     "message": "Ver planos empresariais"
@@ -12123,6 +12117,15 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Comece o teste gratuito do plano Familiar"
+  },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Bloquear a criação de contas para domínios reclamados"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Impedir que os utilizadores criem contas fora da sua organização utilizando endereços de e-mail de domínios reclamados."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "Um domínio tem de ser reclamado antes de ativar esta política."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Configure um método de desbloqueio para alterar a ação de tempo limite do seu cofre."

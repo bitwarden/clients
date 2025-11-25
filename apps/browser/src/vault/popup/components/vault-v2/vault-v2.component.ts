@@ -32,8 +32,10 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
+import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
 import {
   ButtonModule,
   DialogService,
@@ -54,6 +56,7 @@ import { VaultPopupListFiltersService } from "../../services/vault-popup-list-fi
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
 import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-password-callout.component";
+import { VaultFadeInOutComponent } from "../vault-fade-in-out/vault-fade-in-out.component";
 import { VaultFadeInOutSkeletonComponent } from "../vault-fade-in-out-skeleton/vault-fade-in-out-skeleton.component";
 import { VaultLoadingSkeletonComponent } from "../vault-loading-skeleton/vault-loading-skeleton.component";
 
@@ -100,6 +103,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
     TypographyModule,
     VaultLoadingSkeletonComponent,
     VaultFadeInOutSkeletonComponent,
+    VaultFadeInOutComponent,
   ],
 })
 export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
@@ -129,7 +133,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     }),
   );
 
-  private skeletonFeatureFlag$ = this.configService.getFeatureFlag$(
+  protected skeletonFeatureFlag$ = this.configService.getFeatureFlag$(
     FeatureFlag.VaultLoadingSkeletons,
   );
 
@@ -183,9 +187,18 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     map(([loading, skeletonsEnabled]) => loading && !skeletonsEnabled),
   );
 
-  /** When true, show skeleton loading state */
-  protected showSkeletonsLoaders$ = combineLatest([this.loading$, this.skeletonFeatureFlag$]).pipe(
-    map(([loading, skeletonsEnabled]) => loading && skeletonsEnabled),
+  /** When true, show skeleton loading state with debouncing to prevent flicker */
+  protected showSkeletonsLoaders$ = combineLatest([
+    this.loading$,
+    this.searchService.isCipherSearching$,
+    this.skeletonFeatureFlag$,
+  ]).pipe(
+    map(
+      ([loading, cipherSearching, skeletonsEnabled]) =>
+        (loading || cipherSearching) && skeletonsEnabled,
+    ),
+    distinctUntilChanged(),
+    skeletonLoadingDelay(),
   );
 
   protected newItemItemValues$: Observable<NewItemInitialValues> =
@@ -228,6 +241,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private liveAnnouncer: LiveAnnouncer,
     private i18nService: I18nService,
     private configService: ConfigService,
+    private searchService: SearchService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,

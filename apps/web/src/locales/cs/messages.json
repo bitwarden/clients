@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Přiřadit úkoly členů ke sledování průběhu"
   },
-  "onceYouReviewApps": {
-    "message": "Jakmile zkontrolujete aplikace a označíte je jako kritické, můžete přidělit členům úkoly k řešení ohrožených položek a sledovat průběh zde"
+  "onceYouReviewApplications": {
+    "message": "Jakmile zkontrolujete aplikace a označíte je jako kritické, přiřaďte svým členům úkoly ke změně jejich hesel."
   },
   "sendReminders": {
     "message": "Odeslat připomenutí"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "Pro $ORG NAME$ nebyly nalezeny žádné aplikace",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "Nebyla nalezena žádná data"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Importujte přihlašovací údaje Vaší organizace a začněte sledovat bezpečnostní rizika spojená s přihlašovacími údaji. Po importu získáte přístup k:"
+  "noDataInOrgDescription": {
+    "message": "Importujte přihlašovací údaje Vaší organizace a začněte s Access Intelligence. Jakmile to uděláte, budete moci:"
   },
-  "benefit1Title": {
-    "message": "Upřednostnit rizika"
+  "feature1Title": {
+    "message": "Označit aplikace jako kritické"
   },
-  "benefit1Description": {
-    "message": "Zaměřit se na aplikace, na které záleží nejvíce"
+  "feature1Description": {
+    "message": "To Vám pomůže nejprve odebrat rizika pro Vaše nejdůležitější aplikace."
   },
-  "benefit2Title": {
-    "message": "Průvodce nápravou"
+  "feature2Title": {
+    "message": "Pomoci členům zlepšit jejich zabezpečení"
   },
-  "benefit2Description": {
-    "message": "Přiřadit ohroženým členům řízené úkoly, aby střídali používání ohrožených přihlašovacích údajů"
+  "feature2Description": {
+    "message": "Přiřaďte ohroženým členům řízené bezpečnostní úkoly k aktualizaci přihlašovacích údajů."
   },
-  "benefit3Title": {
+  "feature3Title": {
     "message": "Sledovat průběh"
   },
-  "benefit3Description": {
+  "feature3Description": {
     "message": "Sleduje změny v průběhu času pro zobrazení zlepšení zabezpečení."
   },
-  "noReportRunTitle": {
-    "message": "Spustit první hlášení pro zobrazení aplikací"
+  "noReportsRunTitle": {
+    "message": "Vygenerovat přehled"
   },
-  "noReportRunDescription": {
-    "message": "Vygenerujte zprávu o rizicích, abyste mohli analyzovat aplikace Vaší organizace a identifikovat riziková hesla, která vyžadují pozornost. Spuštěním první zprávy:"
+  "noReportsRunDescription": {
+    "message": "Jste připraveni začít generovat přehledy. Jakmile je vytvoříte, budete moci:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Neoznačili jste žádné aplikace jako kritické"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Ohrožení členové"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Členové s přístupem k rizikovým položkám pro kritické aplikace"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "Tito členové mají přístup k zranitelným položkám pro kritické aplikace."
   },
   "membersWithAtRiskPasswords": {
     "message": "Členové s ohroženými hesly"
   },
-  "membersWillReceiveNotification": {
-    "message": "Členové obdrží oznámení, aby vyřešili ohrožená přihlášení prostřednictvím rozšíření prohlížeče."
+  "membersWillReceiveSecurityTask": {
+    "message": "Členům Vaší organizace bude přiřazen úkol ke změně zranitelných hesel. Obdrželi oznámení v rámci jejich rozšíření prohlížeče Bitwarden."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ členů v ohrožení",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Tito členové se přihlašují do aplikací se slabými, odhalenými nebo znovu použitými hesly."
+  "atRiskMemberDescription": {
+    "message": "Tito členové se přihlašují do kritických aplikací s odhalenými nebo znovu použitými hesly."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Žádní členové se nepřihlašují do aplikací se slabými, odhalenými nebo znovu použitými hesly."
@@ -391,14 +385,14 @@
   "prioritizeCriticalApplications": {
     "message": "Upřednostnit kritické aplikace"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Vybere, které aplikace jsou pro Vaši organizaci nejkritičtější, a pro řešení rizik přiřaďte členům bezpečnostní úkoly."
+  "selectCriticalAppsDescription": {
+    "message": "Vyberte, které aplikace jsou pro Vaši organizaci nejkritičtější. Potom budete moci přidělit členům bezpečnostní úkoly pro odebrání rizik."
   },
   "reviewNewApplications": {
     "message": "Zkontrolovat nové aplikace"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "Zvýraznili jsme rizikové položky pro nové aplikace uložené v administrátorské konzoli, které mají slabá, exponovaná nebo znovu použitá hesla."
+  "reviewNewAppsDescription": {
+    "message": "Zkontrolujte nové aplikace s citlivými položkami a označte ty, které chcete pečlivě sledovat jako kritické. Potom budete moci přidělit členům bezpečnostní úkoly, abyste odebrali rizika."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Klepnutím na ikonu hvězdičky označte aplikaci jako kritickou"
@@ -5815,9 +5809,9 @@
     "message": "Vyžaduje, aby byly všechny položky vlastněny organizací s odebráním volby ukládat položky na úrovni účtu.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
+  "organizationDataOwnershipDescContent": {
     "message": "Všechny položky budou vlastněny a uloženy v organizaci, což umožní organizaci ovládání, viditelnost a hlášení. Pokud je zapnuto, bude k dispozici výchozí sbírka pro každého člena pro ukládání položek. Další informace o správě ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "životního cyklu pověření",
@@ -9856,8 +9850,8 @@
   "assignTasks": {
     "message": "Přiřadit úkoly"
   },
-  "assignTasksToMembers": {
-    "message": "Přiřadit úkoly členům k řízenému řešení"
+  "assignSecurityTasksToMembers": {
+    "message": "Odeslat oznámení pro změnu hesla"
   },
   "assignToCollections": {
     "message": "Přiřadit ke sbírkám"
@@ -12123,6 +12117,15 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Zahájit bezplatnou zkušební verzi pro rodiny"
+  },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Blokovat vytvoření účtu pro nárokované domény"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Zabrání uživatelům ve vytváření účtů mimo Vaši organizaci pomocí e-mailových adres z nárokovaných domén."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "Před aktivací této zásady musí být nárokována doména."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Nastavte metodu odemknutí, abyste změnili časový limit Vašeho trezoru."
