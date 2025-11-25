@@ -83,12 +83,11 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
   private async parseFolders(
     data: BitwardenUnEncryptedIndividualJsonExport,
     importResult: ImportResult,
-  ): Promise<Map<string, number>> | null {
-    if (data.folders == null) {
-      return null;
-    }
-
+  ): Promise<Map<string, number>> {
     const groupingsMap = new Map<string, number>();
+    if (data.folders == null) {
+      return groupingsMap;
+    }
 
     for (const f of data.folders) {
       const folderView = FolderWithIdExport.toView(f);
@@ -103,12 +102,11 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
   private async parseCollections(
     data: BitwardenUnEncryptedOrgJsonExport,
     importResult: ImportResult,
-  ): Promise<Map<string, number>> | null {
-    if (data.collections == null) {
-      return null;
-    }
-
+  ): Promise<Map<string, number>> {
     const groupingsMap = new Map<string, number>();
+    if (data.collections == null) {
+      return groupingsMap;
+    }
 
     for (const c of data.collections) {
       const collectionView = CollectionWithIdExport.toView(c);

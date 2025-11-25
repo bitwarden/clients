@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { filter, firstValueFrom } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -62,9 +64,16 @@ export class BitwardenEncryptedJsonImporter extends BitwardenJsonImporter implem
 
     if (data.encKeyValidation_DO_NOT_EDIT != null) {
       const orgKeys = await firstValueFrom(this.keyService.orgKeys$(account.id));
-      let keyForDecryption: OrgKey | UserKey | null = orgKeys?.[this.organizationId];
-      if (keyForDecryption == null) {
+      let keyForDecryption: OrgKey | UserKey | null | undefined = orgKeys?.[this.organizationId];
+      if (!keyForDecryption) {
         keyForDecryption = await firstValueFrom(this.keyService.userKey$(account.id));
+      }
+
+      if (!keyForDecryption) {
+        const result = new ImportResult();
+        result.success = false;
+        result.errorMessage = this.i18nService.t("importEncKeyError");
+        return result;
       }
       const encKeyValidation = new EncString(data.encKeyValidation_DO_NOT_EDIT);
       try {
@@ -146,16 +155,15 @@ export class BitwardenEncryptedJsonImporter extends BitwardenJsonImporter implem
     userId: UserId,
     data: BitwardenEncryptedOrgJsonExport,
     importResult: ImportResult,
-  ): Promise<Map<string, number>> | null {
+  ): Promise<Map<string, number>> {
+    const groupingsMap = new Map<string, number>();
     if (data.collections == null) {
-      return null;
+      return groupingsMap;
     }
 
     const orgKeys = await firstValueFrom(
       this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => orgKeys != null)),
     );
-
-    const groupingsMap = new Map<string, number>();
 
     for (const c of data.collections) {
       const collection = CollectionWithIdExport.toDomain(
