@@ -127,6 +127,14 @@ export class PhishingDetectionService {
           logService.debug("[PhishingDetectionService] No active account.");
           return of(false);
         }
+
+        if (BrowserApi.isSafariApi) {
+          logService.debug(
+            "[PhishingDetectionService] Disabling phishing detection service for Safari.",
+          );
+          return of(false);
+        }
+
         return billingAccountProfileStateService
           .hasPremiumFromAnySource$(account.id)
           .pipe(map((hasPremium) => hasPremium && featureEnabled));

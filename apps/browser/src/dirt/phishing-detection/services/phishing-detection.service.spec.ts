@@ -83,4 +83,9 @@ describe("PhishingDetectionService", () => {
   //     messageListener,
   //   );
   // });
+
+  // TODO
+  // it("shout not enable phishing detection for safari", () => {")
+  //
+  // });
 });
