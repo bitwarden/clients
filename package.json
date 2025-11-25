@@ -47,7 +47,7 @@
     "@compodoc/compodoc": "1.1.26",
     "@electron/notarize": "3.0.1",
     "@electron/rebuild": "4.0.1",
-    "@eslint/compat": "1.2.9",
+    "@eslint/compat": "2.0.0",
     "@lit-labs/signals": "0.1.2",
     "@ngtools/webpack": "19.2.14",
     "@storybook/addon-a11y": "8.6.12",
