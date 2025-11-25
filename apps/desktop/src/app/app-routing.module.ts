@@ -50,7 +50,7 @@ import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 import { VaultComponent } from "../vault/app/vault-v3/vault.component";
 
 import { Fido2PlaceholderComponent } from "./components/fido2placeholder.component";
-import { UserLayoutComponent } from "./layout/user-layout.component";
+import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
 import { SendComponent } from "./tools/send/send.component";
 import { SendsComponent } from "./tools/send-v2/sends.component";
 
@@ -335,7 +335,7 @@ const routes: Routes = [
   },
   {
     path: "",
-    component: UserLayoutComponent,
+    component: DesktopLayoutComponent,
     canActivate: [authGuard],
     children: [
       {
