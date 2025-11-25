@@ -148,13 +148,12 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
           const cipherView = await firstValueFrom(this.cipherService.cipherListViews$(activeUserId).pipe(map((ciphers) => {
             return ciphers.find((cipher) => cipher.id == selectedCipherId && !cipher.deletedDate) as CipherView;
           })));
-          this.logService.debug("Cipher view? ", cipherView)
 
           let cred = cipherView.login.fido2Credentials[0];
           const username = cred.userName ?? cred.userDisplayName
-          // TODO: internationalization
           try {
-            const isConfirmed = await this.promptForUserVerification(username, "Verify it's you to log in with Bitwarden.", this.windowObject.handle);
+            // TODO: internationalization
+            const isConfirmed = await this.promptForUserVerification(username, "Verify it's you to log in with Bitwarden.");
             return { cipherId: cipherIds[0], userVerified: isConfirmed };
           }
           catch (e) {
@@ -372,14 +371,21 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   }
 
   /** Called by the UI to prompt the user for verification. May be fulfilled by the OS. */
-  async promptForUserVerification(username: string, displayHint: string, clientWindowHandle?: Uint8Array): Promise<boolean> {
+  async promptForUserVerification(username: string, displayHint: string): Promise<boolean> {
     this.logService.info("DesktopFido2UserInterfaceSession] Prompting for user verification")
-    // Use the client window handle if we're not showing UI; otherwise use our modal window.
+    // If the UI was showing before (to unlock the vault), then use our
+    // window for the handle; otherwise, use the WebAuthn client's
+    // handle.
+    // 
     // For Windows, if the selected window handle is not in the foreground, then the Windows
     // Hello dialog will also be in the background.
-    let windowHandle = clientWindowHandle ?? await ipc.platform.getNativeWindowHandle();
+    // 
+    // TODO: modalState is just a proxy for what we actually want: whether the window is visible.
+    // We should add a way for services to query window visibility.
+    const modalState = await firstValueFrom(this.desktopSettingsService.modalMode$);
+    const windowHandle = modalState.isModalModeActive ? await ipc.platform.getNativeWindowHandle() : this.windowObject.handle;
 
-    const uvResult = await ipc.autofill.runCommand<NativeAutofillUserVerificationCommand>({
+    const uvRequest = ipc.autofill.runCommand<NativeAutofillUserVerificationCommand>({
       namespace: "autofill",
       command: "user-verification",
       params: {
@@ -389,9 +395,15 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         displayHint,
       },
     });
+    // Ensure our window is hidden when showing the OS user verification dialog.
+    // TODO: This is prone to data races and, on Windows, may cause the Windows
+    // Hello dialog not to have keyboard input focus. We need a better solution
+    // than this.
+    this.hideUi();
+    const uvResult = await uvRequest;
     if (uvResult.type === "error") {
-      this.logService.error("Error getting user verification", uvResult.error)
-      return false
+      this.logService.error("Error getting user verification", uvResult.error);
+      return false;
     }
     return uvResult.type === "success";
   }
