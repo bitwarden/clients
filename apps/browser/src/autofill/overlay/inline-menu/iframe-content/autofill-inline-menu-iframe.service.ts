@@ -307,8 +307,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       return true;
     }
 
-    const viewportHeight = globalThis.window.innerHeight;
-    const viewportWidth = globalThis.window.innerWidth;
+    const [viewportHeight, viewportWidth] = this.getViewportSize();
 
     const rightSideIsWithinViewport = (elementPosition.right || 0) <= viewportWidth;
     const leftSideIsWithinViewport = (elementPosition.left || 0) >= 0;
@@ -321,6 +320,18 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       topSideIsWithinViewport &&
       bottomSideIsWithinViewport
     );
+  }
+
+  /** Use Visual Viewport API if available (better for mobile/zoom) */
+  private getViewportSize(): [
+    VisualViewport["height"] | Window["innerHeight"],
+    VisualViewport["width"] | Window["innerWidth"],
+  ] {
+    if ("visualViewport" in globalThis.window && globalThis.window.visualViewport) {
+      return [globalThis.window.visualViewport.height, globalThis.window.visualViewport.width];
+    }
+
+    return [globalThis.window.innerHeight, globalThis.window.innerWidth];
   }
 
   /**
