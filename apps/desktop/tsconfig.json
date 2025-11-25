@@ -3,6 +3,5 @@
   "angularCompilerOptions": {
     "strictTemplates": true
   },
-  "include": ["src"],
-  "exclude": ["src/**/*.spec.ts", "src/platform/main/**/*"]
+  "exclude": ["src/**/*.spec.ts"]
 }

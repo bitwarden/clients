@@ -299,7 +299,7 @@ module.exports.buildConfig = function buildConfig(params) {
     },
     plugins: [
       new AngularWebpackPlugin({
-        tsConfigPath: params.renderer.tsConfig,
+        tsconfig: params.renderer.tsConfig,
         entryModule: params.renderer.entryModule,
         sourceMap: true,
       }),
