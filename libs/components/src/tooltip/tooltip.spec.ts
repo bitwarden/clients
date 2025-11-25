@@ -97,7 +97,7 @@ describe("TooltipDirective (visibility only)", () => {
     const isVisible = (directive as unknown as { isVisible: () => boolean }).isVisible;
 
     button.dispatchEvent(new Event("mouseenter"));
-    tick(800);
+    tick(TOOLTIP_DELAY_MS);
     expect(isVisible()).toBe(true);
   }));
 
