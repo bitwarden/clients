@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "Zobrazit vše"
   },
+  "viewLess": {
+    "message": "Zobrazit méně"
+  },
   "viewLogin": {
     "message": "Zobrazit přihlašovací údaje"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Při uzamknutí systému"
+  },
+  "onIdle": {
+    "message": "Při nečinnosti systému"
+  },
+  "onSleep": {
+    "message": "Při přechodu do režimu spánku"
   },
   "onRestart": {
     "message": "Při restartu prohlížeče"
@@ -2426,6 +2435,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Tato stránka narušuje zážitek z Bitwardenu. Vložené menu Bitwarden bylo dočasně vypnuto jako bezpečnostní opatření."
   },
   "setMasterPassword": {
     "message": "Nastavit hlavní heslo"
@@ -5800,6 +5812,21 @@
   "upgradeToPremium": {
     "message": "Aktualizovat na Premium"
   },
+  "upgradeCompleteSecurity": {
+    "message": "Aktualizujte pro úplné zabezpečení"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Verze Premium Vám poskytne více nástrojů k zabezpečení, efektivní práci a udržení kontroly."
+  },
+  "explorePremium": {
+    "message": "Objevit Premium"
+  },
+  "loadingVault": {
+    "message": "Načítání trezoru"
+  },
+  "vaultLoaded": {
+    "message": "Trezor byl načten"
+  },
   "settingDisabledByPolicy": {
     "message": "Toto nastavení je zakázáno zásadami Vaší organizace.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5836,8 @@
   },
   "cardNumberLabel": {
     "message": "Číslo karty"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Akce vypršení časového limitu"
   }
 }

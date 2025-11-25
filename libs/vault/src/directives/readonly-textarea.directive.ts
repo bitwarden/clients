@@ -8,6 +8,8 @@ import { firstValueFrom } from "rxjs";
   providers: [TextFieldModule],
   hostDirectives: [CdkTextareaAutosize],
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28232): Use Directive suffix
+// eslint-disable-next-line @angular-eslint/directive-class-suffix
 export class VaultAutosizeReadOnlyTextArea implements AfterViewInit {
   constructor(
     @Host() private autosize: CdkTextareaAutosize,

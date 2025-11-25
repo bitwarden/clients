@@ -16,8 +16,8 @@
           <!-- Show Empty state when there are no applications (no ciphers to make reports on) -->
           <empty-state-card
             [videoSrc]="emptyStateVideoSrc"
-            [title]="this.i18nService.t('noApplicationsInOrgTitle', organizationName)"
-            [description]="this.i18nService.t('noApplicationsInOrgDescription')"
+            [title]="this.i18nService.t('noDataInOrgTitle')"
+            [description]="this.i18nService.t('noDataInOrgDescription')"
             [benefits]="emptyStateBenefits"
             [buttonText]="this.i18nService.t('importData')"
             [buttonIcon]="IMPORT_ICON"
@@ -27,8 +27,8 @@
           <!-- Show empty state for no reports run -->
           <empty-state-card
             [videoSrc]="emptyStateVideoSrc"
-            [title]="this.i18nService.t('noReportRunTitle')"
-            [description]="this.i18nService.t('noReportRunDescription')"
+            [title]="this.i18nService.t('noReportsRunTitle')"
+            [description]="this.i18nService.t('noReportsRunDescription')"
             [benefits]="emptyStateBenefits"
             [buttonText]="this.i18nService.t('riskInsightsRunReport')"
             [buttonIcon]=""

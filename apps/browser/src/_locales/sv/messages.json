@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "Visa alla"
   },
+  "viewLess": {
+    "message": "Visa mindre"
+  },
   "viewLogin": {
     "message": "Visa inloggning"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Vid låsning av datorn"
+  },
+  "onIdle": {
+    "message": "När systemet är overksamt"
+  },
+  "onSleep": {
+    "message": "När systemet är i strömsparläge"
   },
   "onRestart": {
     "message": "Vid omstart"
@@ -2426,6 +2435,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Denna sida stör Bitwarden-upplevelsen. Bitwardens inbyggda meny har tillfälligt inaktiverats som en säkerhetsåtgärd."
   },
   "setMasterPassword": {
     "message": "Ange huvudlösenord"
@@ -5800,6 +5812,21 @@
   "upgradeToPremium": {
     "message": "Uppgradera till Premium"
   },
+  "upgradeCompleteSecurity": {
+    "message": "Uppgradera för fullständig säkerhet"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium ger dig fler verktyg för att hålla dig säker, arbeta effektivt och ha kontroll."
+  },
+  "explorePremium": {
+    "message": "Utforska Premium"
+  },
+  "loadingVault": {
+    "message": "Läser in valv"
+  },
+  "vaultLoaded": {
+    "message": "Valvet lästes in"
+  },
   "settingDisabledByPolicy": {
     "message": "Denna inställning är inaktiverad enligt din organisations policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5836,8 @@
   },
   "cardNumberLabel": {
     "message": "Kortnummer"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Tidsgränsåtgärd"
   }
 }

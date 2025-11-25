@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "خطایی هنگام فعال‌سازی یکپارچه سازی مرورگر رخ داده است."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "متأسفانه در حال حاضر ادغام مرورگر فقط در نسخه Mac App Store پشتیبانی می‌شود."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "متأسفانه در حال حاضر ادغام مرورگر در نسخه فروشگاه ویندوز پشتیبانی نمی‌شود."
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

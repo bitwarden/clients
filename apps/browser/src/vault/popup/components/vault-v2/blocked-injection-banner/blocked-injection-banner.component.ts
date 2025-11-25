@@ -30,6 +30,8 @@ const blockedURISettingsRoute = "/blocked-domains";
   selector: "blocked-injection-banner",
   templateUrl: "blocked-injection-banner.component.html",
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class BlockedInjectionBanner implements OnInit {
   /**
    * Flag indicating that the banner should be shown

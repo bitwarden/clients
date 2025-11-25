@@ -45,7 +45,7 @@ import { SecurityTask } from "@bitwarden/common/vault/tasks/models/security-task
 
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
-import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
+import { AuthPopoutType, openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
@@ -89,6 +89,7 @@ export default class NotificationBackground {
     ExtensionCommand.AutofillCard,
     ExtensionCommand.AutofillIdentity,
   ]);
+  private unlockPopoutTabId?: number;
   private readonly extensionMessageHandlers: NotificationBackgroundExtensionMessageHandlers = {
     bgAdjustNotificationBar: ({ message, sender }) =>
       this.handleAdjustNotificationBarMessage(message, sender),
@@ -146,6 +147,7 @@ export default class NotificationBackground {
     }
 
     this.setupExtensionMessageListener();
+    this.setupUnlockPopoutCloseListener();
 
     this.cleanupNotificationQueue();
   }
@@ -1163,6 +1165,7 @@ export default class NotificationBackground {
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ): Promise<void> {
+    this.unlockPopoutTabId = undefined;
     const messageData = message.data as LockedVaultPendingNotificationsData;
     const retryCommand = messageData.commandToRetry.message.command as ExtensionCommandType;
     if (this.allowedRetryCommands.has(retryCommand)) {
@@ -1312,5 +1315,44 @@ export default class NotificationBackground {
   ) {
     const tabDomain = Utils.getDomain(tab.url);
     return tabDomain === queueMessage.domain || tabDomain === Utils.getDomain(queueMessage.tab.url);
+  }
+
+  private setupUnlockPopoutCloseListener() {
+    chrome.tabs.onRemoved.addListener(async (tabId: number) => {
+      await this.handleUnlockPopoutClosed(tabId);
+    });
+  }
+
+  /**
+   * If the unlock popout is closed while the vault
+   * is still locked and there are pending autofill notifications, abandon them.
+   */
+  private async handleUnlockPopoutClosed(removedTabId: number) {
+    const authStatus = await this.getAuthStatus();
+    if (authStatus >= AuthenticationStatus.Unlocked) {
+      this.unlockPopoutTabId = undefined;
+      return;
+    }
+
+    if (this.unlockPopoutTabId === removedTabId) {
+      this.unlockPopoutTabId = undefined;
+      this.messagingService.send("abandonAutofillPendingNotifications");
+      return;
+    }
+
+    if (this.unlockPopoutTabId) {
+      return;
+    }
+
+    const extensionUrl = chrome.runtime.getURL("popup/index.html");
+    const unlockPopoutTabs = (await BrowserApi.tabsQuery({ url: `${extensionUrl}*` })).filter(
+      (tab) => tab.url?.includes(`singleActionPopout=${AuthPopoutType.unlockExtension}`),
+    );
+
+    if (unlockPopoutTabs.length === 0) {
+      this.messagingService.send("abandonAutofillPendingNotifications");
+    } else if (unlockPopoutTabs[0].id) {
+      this.unlockPopoutTabId = unlockPopoutTabs[0].id;
+    }
   }
 }

@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "Apskatīt visu"
   },
+  "viewLess": {
+    "message": "Skatīt mazāk"
+  },
   "viewLogin": {
     "message": "Apskatīt pieteikšanās vienumu"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Pēc sistēmas aizslēgšanas"
+  },
+  "onIdle": {
+    "message": "Sistēmas dīkstāvē"
+  },
+  "onSleep": {
+    "message": "Pēc sistēmas iemigšanas"
   },
   "onRestart": {
     "message": "Pēc pārlūka pārsāknēšanas"
@@ -2426,6 +2435,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Šī lapa traucē Bitwarden darbību. Bitwarden iekļautā izvēlne ir īslaicīgi atspējot kā drošības mērs."
   },
   "setMasterPassword": {
     "message": "Uzstādīt galveno paroli"
@@ -5800,6 +5812,21 @@
   "upgradeToPremium": {
     "message": "Uzlabot uz Premium"
   },
+  "upgradeCompleteSecurity": {
+    "message": "Uzlabo pilnīgas drošības iegūšanai"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium sniedz vairāk rīku drošībai, darba ražīgumam un pārraudzībai."
+  },
+  "explorePremium": {
+    "message": "Izpētīt Premium"
+  },
+  "loadingVault": {
+    "message": "Ielādē glabātavu"
+  },
+  "vaultLoaded": {
+    "message": "Glabātava ielādēta"
+  },
   "settingDisabledByPolicy": {
     "message": "Šis iestatījums ir atspējots apvienības pamatnostādnēs.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5836,8 @@
   },
   "cardNumberLabel": {
     "message": "Kartes numurs"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Noildzes darbība"
   }
 }

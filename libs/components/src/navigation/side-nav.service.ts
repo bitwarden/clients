@@ -2,32 +2,30 @@ import { Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BehaviorSubject, Observable, combineLatest, fromEvent, map, startWith } from "rxjs";
 
-type CollapsePreference = "open" | "closed" | null;
+import { BREAKPOINTS, isAtOrLargerThanBreakpoint } from "../utils/responsive-utils";
 
-const SMALL_SCREEN_BREAKPOINT_PX = 768;
+type CollapsePreference = "open" | "closed" | null;
 
 @Injectable({
   providedIn: "root",
 })
 export class SideNavService {
-  private _open$ = new BehaviorSubject<boolean>(
-    !window.matchMedia(`(max-width: ${SMALL_SCREEN_BREAKPOINT_PX}px)`).matches,
-  );
+  private _open$ = new BehaviorSubject<boolean>(isAtOrLargerThanBreakpoint("md"));
   open$ = this._open$.asObservable();
 
-  private isSmallScreen$ = media(`(max-width: ${SMALL_SCREEN_BREAKPOINT_PX}px)`);
+  private isLargeScreen$ = media(`(min-width: ${BREAKPOINTS.md}px)`);
   private _userCollapsePreference$ = new BehaviorSubject<CollapsePreference>(null);
   userCollapsePreference$ = this._userCollapsePreference$.asObservable();
 
-  isOverlay$ = combineLatest([this.open$, this.isSmallScreen$]).pipe(
-    map(([open, isSmallScreen]) => open && isSmallScreen),
+  isOverlay$ = combineLatest([this.open$, this.isLargeScreen$]).pipe(
+    map(([open, isLargeScreen]) => open && !isLargeScreen),
   );
 
   constructor() {
-    combineLatest([this.isSmallScreen$, this.userCollapsePreference$])
+    combineLatest([this.isLargeScreen$, this.userCollapsePreference$])
       .pipe(takeUntilDestroyed())
-      .subscribe(([isSmallScreen, userCollapsePreference]) => {
-        if (isSmallScreen) {
+      .subscribe(([isLargeScreen, userCollapsePreference]) => {
+        if (!isLargeScreen) {
           this.setClose();
         } else if (userCollapsePreference !== "closed") {
           // Auto-open when user hasn't set preference (null) or prefers open

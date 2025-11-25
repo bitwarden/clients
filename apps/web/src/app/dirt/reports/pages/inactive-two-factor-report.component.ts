@@ -1,6 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from "@angular/core";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -19,9 +17,8 @@ import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/se
 
 import { CipherReportComponent } from "./cipher-report.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-inactive-two-factor-report",
   templateUrl: "inactive-two-factor-report.component.html",
   standalone: false,
@@ -42,6 +39,7 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
     syncService: SyncService,
     cipherFormConfigService: CipherFormConfigService,
     adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
+    protected changeDetectorRef: ChangeDetectorRef,
   ) {
     super(
       cipherService,
@@ -86,6 +84,7 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
 
       this.filterCiphersByOrg(inactive2faCiphers);
       this.cipherDocs = docs;
+      this.changeDetectorRef.markForCheck();
     }
   }
 
@@ -157,6 +156,7 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
       }
       this.services.set(serviceData.domain, serviceData.documentation);
     }
+    this.changeDetectorRef.markForCheck();
   }
 
   /**

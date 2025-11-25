@@ -310,6 +310,14 @@ export class Organization {
     return this.isAdmin || this.permissions.manageResetPassword;
   }
 
+  get canEnableAutoConfirmPolicy() {
+    return (
+      (this.canManageUsers || this.canManagePolicies) &&
+      this.useAutomaticUserConfirmation &&
+      !this.isProviderUser
+    );
+  }
+
   get canManageDeviceApprovals() {
     return (
       (this.isAdmin || this.permissions.manageResetPassword) &&
