@@ -10,7 +10,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testin
 import { By } from "@angular/platform-browser";
 import { Observable, Subject } from "rxjs";
 
-import { TooltipDirective } from "./tooltip.directive";
+import { TooltipDirective, TOOLTIP_DELAY_MS } from "./tooltip.directive";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -97,7 +97,7 @@ describe("TooltipDirective (visibility only)", () => {
     const isVisible = (directive as unknown as { isVisible: () => boolean }).isVisible;
 
     button.dispatchEvent(new Event("mouseenter"));
-    tick(500);
+    tick(800);
     expect(isVisible()).toBe(true);
   }));
 
@@ -108,7 +108,7 @@ describe("TooltipDirective (visibility only)", () => {
     const isVisible = (directive as unknown as { isVisible: () => boolean }).isVisible;
 
     button.dispatchEvent(new Event("focus"));
-    tick(500);
+    tick(TOOLTIP_DELAY_MS);
     expect(isVisible()).toBe(true);
   }));
 });
