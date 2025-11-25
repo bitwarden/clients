@@ -20,7 +20,7 @@
     </bit-select>
 
     @if (!canLock && supportsLock) {
-      <bit-hint>{{ "unlockMethodNeededToChangeTimeoutActionDesc" | i18n }}</bit-hint>
+      <bit-hint>{{ "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction" | i18n }}</bit-hint>
     } @else if ((sessionTimeoutActionFromPolicy$ | async) != null) {
       <bit-hint>{{ "sessionTimeoutSettingsManagedByOrganization" | i18n }}</bit-hint>
     }

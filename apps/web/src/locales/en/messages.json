@@ -12196,10 +12196,10 @@
     }
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
-    "message": "Your organization has set the default session timeout to on browser refresh."
+    "message": "Your organization has set the default session timeout to On browser refresh."
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
-    "message": "Timeout exceeds the restriction set by your organization. $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -12213,5 +12213,8 @@
   },
   "sessionTimeoutOnRestart": {
     "message": "On browser refresh"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Set an unlock method to change your timeout action"
   }
 }

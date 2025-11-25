@@ -4241,13 +4241,13 @@
     }
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
-    "message": "Your organization has set the default session timeout to on system lock."
+    "message": "Your organization has set the default session timeout to On system lock."
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
-    "message": "Your organization has set the default session timeout to on restart."
+    "message": "Your organization has set the default session timeout to On restart."
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
-    "message": "Timeout exceeds the restriction set by your organization. $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -4261,5 +4261,8 @@
   },
   "sessionTimeoutOnRestart": {
     "message": "On restart"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Set an unlock method to change your timeout action"
   }
 }
