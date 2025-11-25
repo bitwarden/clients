@@ -303,6 +303,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   );
 
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
+  protected hasArchivedCiphers$ = this.userId$.pipe(
+    switchMap((userId) => this.cipherArchiveService.hasArchivedCiphers$(userId)),
+  );
 
   constructor(
     private syncService: SyncService,
@@ -643,6 +646,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     this.destroy$.next();
     this.destroy$.complete();
     this.vaultFilterService.clearOrganizationFilter();
+  }
+
+  async navigateToGetPremium() {
+    await this.router.navigate(["/settings/subscription/premium"]);
   }
 
   async onVaultItemsEvent(event: VaultItemEvent<C>) {

@@ -34,6 +34,27 @@
     <bit-callout type="warning" *ngIf="activeFilter.isDeleted">
       {{ trashCleanupWarning }}
     </bit-callout>
+
+    <bit-callout
+      type="info"
+      [title]="'archivePremiumSubscriptionEnded' | i18n"
+      *ngIf="filter.type === 'archive' && !canAccessPremium && (hasArchivedCiphers$ | async)"
+    >
+      <ng-container>
+        <div>
+          {{ "archivePremiumSubscriptionEndedDesc" | i18n }}
+        </div>
+        <button
+          class="tw-mt-4"
+          type="button"
+          bitButton
+          buttonType="primary"
+          (click)="navigateToGetPremium()"
+        >
+          {{ "archiveRestartPremium" | i18n }}
+        </button>
+      </ng-container>
+    </bit-callout>
     <app-vault-items
       #vaultItems
       [ciphers]="ciphers"

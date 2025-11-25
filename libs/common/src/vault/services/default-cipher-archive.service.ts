@@ -47,6 +47,21 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
   }
 
   /**
+   * Observable that returns true if there are any archived (non-deleted) ciphers.
+   */
+  hasArchivedCiphers$(userId: UserId): Observable<boolean> {
+    return this.cipherService.cipherListViews$(userId).pipe(
+      filter((cipher) => cipher != null),
+      map((ciphers) =>
+        ciphers.some(
+          (cipher) =>
+            CipherViewLikeUtils.isArchived(cipher) && !CipherViewLikeUtils.isDeleted(cipher),
+        ),
+      ),
+    );
+  }
+
+  /**
    * User can archive items if:
    * Feature Flag is enabled
    * User has premium from any source (personal or organization)

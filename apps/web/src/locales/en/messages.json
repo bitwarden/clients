@@ -11564,6 +11564,15 @@
   "archiveBulkItemsConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive these items?"
   },
+  "archivePremiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended."
+  },
+  "archivePremiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+  },
+  "archiveRestartPremium": {
+    "message": "Restart Premium"
+  },
   "businessUnit": {
     "message": "Business Unit"
   },
