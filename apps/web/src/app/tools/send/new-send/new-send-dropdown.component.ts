@@ -61,7 +61,7 @@ export class NewSendDropdownComponent {
       return;
     }
 
-    const formConfig = await this.addEditFormConfigService.buildConfig("add", null, type);
+    const formConfig = await this.addEditFormConfigService.buildConfig("add", undefined, type);
 
     const useRefresh = await this.configService.getFeatureFlag(FeatureFlag.SendUIRefresh);
     if (useRefresh) {
