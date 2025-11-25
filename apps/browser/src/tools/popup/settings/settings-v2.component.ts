@@ -105,14 +105,14 @@ export class SettingsV2Component {
 
   showAdminSettingsLink$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     getUserId,
-    switchMap((userId) => this.autoConfimService.canManageAutoConfirm$(userId)),
+    switchMap((userId) => this.autoConfirmService.canManageAutoConfirm$(userId)),
   );
 
   constructor(
     private readonly nudgesService: NudgesService,
     private readonly accountService: AccountService,
     private readonly autofillBrowserSettingsService: AutofillBrowserSettingsService,
-    private readonly autoConfimService: AutomaticUserConfirmationService,
+    private readonly autoConfirmService: AutomaticUserConfirmationService,
     private readonly accountProfileStateService: BillingAccountProfileStateService,
     private readonly dialogService: DialogService,
   ) {}
