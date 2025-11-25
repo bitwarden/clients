@@ -2,7 +2,7 @@
 #import "browser_access.h"
 #import "../utils.h"
 
-#import "Bitwarden-Swift.h" 
+#import "BrowserAccessManager.h"
 
 static BrowserAccessManager* sharedManager = nil;
 
@@ -17,8 +17,7 @@ static BrowserAccessManager* getManager() {
 char* requestBrowserAccess(const char* browserName) {
     @autoreleasepool {
         NSString* name = [NSString stringWithUTF8String:browserName];
-        // Note: Matches the Swift method name with typo "Broswer"
-        NSString* result = [getManager() requestAccessToBroswerDir:name];
+        NSString* result = [getManager() requestAccessToBrowserDir:name];
 
         if (result == nil) {
             return NULL;
