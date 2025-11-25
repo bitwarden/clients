@@ -1,5 +1,6 @@
-use anyhow::{anyhow, Result};
 use std::path::Path;
+
+use anyhow::{anyhow, Result};
 use tracing::{debug, info};
 use verifysign::CodeSignVerifier;
 

@@ -231,6 +231,7 @@
         "webpack-node-externals",
         "widestring",
         "windows",
+        "windows-core",
         "windows-future",
         "windows-registry",
         "zbus",
@@ -254,6 +255,11 @@
       // We need to group all zbus-related packages together to avoid build errors caused by version incompatibilities.
       groupName: "zbus",
       matchPackageNames: ["zbus", "zbus_polkit"],
+    },
+    {
+      // We need to group all windows-related packages together to avoid build errors caused by version incompatibilities.
+      groupName: "windows",
+      matchPackageNames: ["windows", "windows-core", "windows-future", "windows-registry"],
     },
     {
       // We group all webpack build-related minor and patch updates together to reduce PR noise.
@@ -357,6 +363,8 @@
         "@types/jsdom",
         "@types/papaparse",
         "@types/zxcvbn",
+        "async-trait",
+        "clap",
         "jsdom",
         "jszip",
         "oidc-client-ts",
@@ -429,5 +437,11 @@
       description: "Higher versions of lowdb do not need separate types",
     },
   ],
-  ignoreDeps: ["@types/koa-bodyparser", "bootstrap", "node-ipc", "@bitwarden/sdk-internal"],
+  ignoreDeps: [
+    "@types/koa-bodyparser",
+    "bootstrap",
+    "node-ipc",
+    "@bitwarden/sdk-internal",
+    "@bitwarden/commercial-sdk-internal",
+  ],
 }

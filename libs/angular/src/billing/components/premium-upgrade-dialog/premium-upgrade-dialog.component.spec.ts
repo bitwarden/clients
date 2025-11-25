@@ -158,44 +158,11 @@ describe("PremiumUpgradeDialogComponent", () => {
   });
 
   describe("upgrade()", () => {
-    it("should launch URI with query parameter for cloud-hosted environments", async () => {
-      mockEnvironmentService.environment$ = of({
-        getWebVaultUrl: () => "https://vault.bitwarden.com",
-        getRegion: () => Region.US,
-      } as any);
-
+    it("should launch URI with query parameter", async () => {
       await component["upgrade"]();
 
       expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(
         "https://vault.bitwarden.com/#/settings/subscription/premium?callToAction=upgradeToPremium",
-      );
-      expect(mockDialogRef.close).toHaveBeenCalled();
-    });
-
-    it("should launch URI without query parameter for self-hosted environments", async () => {
-      mockEnvironmentService.environment$ = of({
-        getWebVaultUrl: () => "https://self-hosted.example.com",
-        getRegion: () => Region.SelfHosted,
-      } as any);
-
-      await component["upgrade"]();
-
-      expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(
-        "https://self-hosted.example.com/#/settings/subscription/premium",
-      );
-      expect(mockDialogRef.close).toHaveBeenCalled();
-    });
-
-    it("should launch URI with query parameter for EU cloud region", async () => {
-      mockEnvironmentService.environment$ = of({
-        getWebVaultUrl: () => "https://vault.bitwarden.eu",
-        getRegion: () => Region.EU,
-      } as any);
-
-      await component["upgrade"]();
-
-      expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(
-        "https://vault.bitwarden.eu/#/settings/subscription/premium?callToAction=upgradeToPremium",
       );
       expect(mockDialogRef.close).toHaveBeenCalled();
     });

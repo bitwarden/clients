@@ -1,4 +1,4 @@
-<popup-page [loading]="loading$ | async">
+<popup-page [loading]="showSpinnerLoaders$ | async" [hideOverflow]="showSkeletonsLoaders$ | async">
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
       <app-new-item-dropdown [initialValues]="newItemItemValues$ | async"></app-new-item-dropdown>
@@ -8,20 +8,32 @@
     </ng-container>
   </popup-header>
 
-  <div
-    *ngIf="vaultState === VaultStateEnum.Empty"
-    class="tw-flex tw-flex-col tw-h-full tw-justify-center"
-  >
-    <bit-no-items [icon]="vaultIcon">
-      <ng-container slot="title">{{ "yourVaultIsEmpty" | i18n }}</ng-container>
-      <ng-container slot="description">
-        <p bitTypography="body2" class="tw-mx-6 tw-mt-2">{{ "emptyVaultDescription" | i18n }}</p>
-      </ng-container>
-      <a slot="button" bitButton buttonType="secondary" [routerLink]="['/add-cipher']">
-        {{ "newLogin" | i18n }}
-      </a>
-    </bit-no-items>
-  </div>
+  <ng-template #emptyVaultTemplate>
+    <div
+      *ngIf="vaultState === VaultStateEnum.Empty"
+      class="tw-flex tw-flex-col tw-h-full tw-justify-center"
+    >
+      <bit-no-items [icon]="vaultIcon">
+        <ng-container slot="title">{{ "yourVaultIsEmpty" | i18n }}</ng-container>
+        <ng-container slot="description">
+          <p bitTypography="body2" class="tw-mx-6 tw-mt-2">
+            {{ "emptyVaultDescription" | i18n }}
+          </p>
+        </ng-container>
+        <a slot="button" bitButton buttonType="secondary" [routerLink]="['/add-cipher']">
+          {{ "newLogin" | i18n }}
+        </a>
+      </bit-no-items>
+    </div>
+  </ng-template>
+
+  @if (skeletonFeatureFlag$ | async) {
+    <vault-fade-in-out *ngIf="vaultState === VaultStateEnum.Empty">
+      <ng-container *ngTemplateOutlet="emptyVaultTemplate"></ng-container>
+    </vault-fade-in-out>
+  } @else {
+    <ng-container *ngTemplateOutlet="emptyVaultTemplate"></ng-container>
+  }
 
   <blocked-injection-banner
     *ngIf="vaultState !== VaultStateEnum.Empty"
@@ -30,6 +42,15 @@
 
   <!-- Show search & filters outside of the scroll area of the page -->
   <ng-container slot="above-scroll-area">
+    <ng-container *ngIf="showPremiumSpotlight$ | async">
+      <bit-spotlight
+        [title]="'upgradeCompleteSecurity' | i18n"
+        [subtitle]="'premiumGivesMoreTools' | i18n"
+        [buttonText]="'explorePremium' | i18n"
+        (onButtonClick)="showPremiumDialog()"
+        (onDismiss)="dismissVaultNudgeSpotlight(NudgeType.PremiumUpgrade)"
+      ></bit-spotlight>
+    </ng-container>
     <ng-container *ngIf="vaultState === VaultStateEnum.Empty && showEmptyVaultSpotlight$ | async">
       <bit-spotlight
         [title]="'emptyVaultNudgeTitle' | i18n"
@@ -86,21 +107,37 @@
       </div>
     </div>
 
-    <ng-container *ngIf="vaultState === null">
-      <app-autofill-vault-list-items></app-autofill-vault-list-items>
-      <app-vault-list-items-container
-        [title]="'favorites' | i18n"
-        [ciphers]="(favoriteCiphers$ | async) || []"
-        id="favorites"
-        collapsibleKey="favorites"
-      ></app-vault-list-items-container>
-      <app-vault-list-items-container
-        [title]="'allItems' | i18n"
-        [ciphers]="(remainingCiphers$ | async) || []"
-        id="allItems"
-        disableSectionMargin
-        collapsibleKey="allItems"
-      ></app-vault-list-items-container>
-    </ng-container>
+    <ng-template #vaultContentTemplate>
+      <ng-container *ngIf="vaultState === null">
+        <app-autofill-vault-list-items></app-autofill-vault-list-items>
+        <app-vault-list-items-container
+          [title]="'favorites' | i18n"
+          [ciphers]="(favoriteCiphers$ | async) || []"
+          id="favorites"
+          collapsibleKey="favorites"
+        ></app-vault-list-items-container>
+        <app-vault-list-items-container
+          [title]="'allItems' | i18n"
+          [ciphers]="(remainingCiphers$ | async) || []"
+          id="allItems"
+          disableSectionMargin
+          collapsibleKey="allItems"
+        ></app-vault-list-items-container>
+      </ng-container>
+    </ng-template>
+
+    @if (skeletonFeatureFlag$ | async) {
+      <vault-fade-in-out *ngIf="vaultState === null">
+        <ng-container *ngTemplateOutlet="vaultContentTemplate"></ng-container>
+      </vault-fade-in-out>
+    } @else {
+      <ng-container *ngTemplateOutlet="vaultContentTemplate"></ng-container>
+    }
   </ng-container>
+
+  @if (showSkeletonsLoaders$ | async) {
+    <vault-fade-in-out-skeleton>
+      <vault-loading-skeleton></vault-loading-skeleton>
+    </vault-fade-in-out-skeleton>
+  }
 </popup-page>

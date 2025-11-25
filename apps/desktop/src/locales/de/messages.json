@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Du bist nicht berechtigt, diesen Eintrag zu bearbeiten"
+  },
   "welcomeBack": {
     "message": "Willkommen zurück"
   },
@@ -769,10 +772,10 @@
     "message": "Anmelden mit einem anderen Gerät"
   },
   "useSingleSignOn": {
-    "message": "Single Sign-on verwenden"
+    "message": "Single Sign-On verwenden"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Deine Organisation erfordert Single Sign-On."
   },
   "submit": {
     "message": "Absenden"
@@ -1034,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Du musst entweder die Basis-Server-URL oder mindestens eine benutzerdefinierte Umgebung hinzufügen."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs müssen HTTPS verwenden."
   },
   "customEnvironment": {
     "message": "Benutzerdefinierte Umgebung"
@@ -1973,7 +1979,7 @@
     "message": "Timeout-Aktion bestätigen"
   },
   "enterpriseSingleSignOn": {
-    "message": "Enterprise Single-Sign-On"
+    "message": "Enterprise Single Sign-On"
   },
   "setMasterPassword": {
     "message": "Master-Passwort festlegen"
@@ -2143,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "Beim Aktivieren der Browser-Integration ist ein Fehler aufgetreten."
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Leider wird die Browser-Integration derzeit nur in der Mac App Store Version unterstützt."
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Leider wird die Browser-Integration derzeit nicht in der Microsoft Store Version unterstützt."
@@ -4190,5 +4193,35 @@
   },
   "cardNumberLabel": {
     "message": "Kartennummer"
+  },
+  "upgradeNow": {
+    "message": "Jetzt upgraden"
+  },
+  "builtInAuthenticator": {
+    "message": "Integrierter Authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Sicherer Dateispeicher"
+  },
+  "emergencyAccess": {
+    "message": "Notfallzugriff"
+  },
+  "breachMonitoring": {
+    "message": "Datendiebstahl-Überwachung"
+  },
+  "andMoreFeatures": {
+    "message": "Und mehr!"
+  },
+  "planDescPremium": {
+    "message": "Umfassende Online-Sicherheit"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade auf Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout-Aktion"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sitzungs-Timeout"
   }
 }
