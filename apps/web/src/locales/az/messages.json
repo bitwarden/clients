@@ -94,7 +94,7 @@
     "message": "İrəliləyişi izləmək üçün üzvlərə tapşırıqlar təyin edin"
   },
   "onceYouReviewApplications": {
-    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
+    "message": "Tətbiqləri incələyib kritik olaraq işarələdikdən sonra, üzvlərə parollarını dəyişməsi üçün tapşırıqlar təyin edin."
   },
   "sendReminders": {
     "message": "Xatırlatma göndər"
@@ -179,34 +179,34 @@
     }
   },
   "noDataInOrgTitle": {
-    "message": "No data found"
+    "message": "Heç bir veri tapılmadı"
   },
   "noDataInOrgDescription": {
-    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
+    "message": "Access Intelligence-i istifadə etməyə başlamaq üçün təşkilatınızın giriş verilərini daxilə köçürün. Bunu etdikdən sonra, bunları edə biləcəksiniz:"
   },
   "feature1Title": {
-    "message": "Mark applications as critical"
+    "message": "Tətbiqləri kritik olaraq işarələmə"
   },
   "feature1Description": {
-    "message": "This will help you remove risks to your most important applications first."
+    "message": "Bu, əvvəlcə ən vacib tətbiqlərinizdəki riskləri xaric etməyinizə kömək edəcək."
   },
   "feature2Title": {
-    "message": "Help members improve their security"
+    "message": "Üzvlərin təhlükəsizliyini təkmilləşdirməsinə kömək"
   },
   "feature2Description": {
-    "message": "Assign at-risk members guided security tasks to update credentials."
+    "message": "Riskli üzvlərə kimlik məlumatlarını güncəlləməsi üçün təhlükəsizlik tapşırıqları təyin edin."
   },
   "feature3Title": {
-    "message": "Monitor progress"
+    "message": "İrəliləyişin monitorinqi"
   },
   "feature3Description": {
-    "message": "Track changes over time to show security improvements."
+    "message": "Təhlükəsizlik təkmilləşdirmələrini göstərmək üçün zamanla dəyişiklikləri izləyin."
   },
   "noReportsRunTitle": {
-    "message": "Generate report"
+    "message": "Hesabat yaratma"
   },
   "noReportsRunDescription": {
-    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
+    "message": "Hesabatın hazırlanmasına başlaya bilərsiniz. Hazırladıqdan sonra, bunları edə biləcəksiniz:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Heç bir tətbiqi kritik olaraq işarələməmisiniz"
@@ -266,13 +266,13 @@
     "message": "Riskli üzvlər"
   },
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
-    "message": "These members have access to vulnerable items for critical applications."
+    "message": "Bu üzvlər, kritik tətbiqlər üçün müdafiəsiz elementlərə erişə bilər."
   },
   "membersWithAtRiskPasswords": {
     "message": "Riskli parollara sahib üzvlər"
   },
   "membersWillReceiveSecurityTask": {
-    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
+    "message": "Təşkilatınızdakı üzvlərə, təhlükəsizlik boşluğu mövcud olan parolları dəyişdirməsi üçün bir tapşırıq təyin ediləcək. Üzvlər, Bitwarden brauzer uzantılarında bir bildiriş alacaq."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ üzv risk altındadır",
@@ -302,7 +302,7 @@
     }
   },
   "atRiskMemberDescription": {
-    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
+    "message": "Bu üzvlər, kritik tətbiqlərə zəif, ifşa olunmuş və ya təkrar istifadə olunan parollarla giriş edir."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Tətbiqlərə zəif, ifşa olunmuş və ya təkrar istifadə olunan parollarla giriş edən üzv yoxdur."
@@ -344,7 +344,7 @@
     "message": "İncələmə gözləyən müraciətlər"
   },
   "newApplicationsCardTitle": {
-    "message": "Review new applications"
+    "message": "Yeni tətbiqləri incələ"
   },
   "newApplicationsWithCount": {
     "message": "$COUNT$ yeni müraciət",
@@ -386,7 +386,7 @@
     "message": "Kritik tətbiqləri prioritetləşdir"
   },
   "selectCriticalAppsDescription": {
-    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
+    "message": "Təşkilatınız üçün ən kritik sayılan tətbiqləri seçin. Daha sonra, riskləri aradan qaldırmaları üçün üzvlərə təhlükəsizlik tapşırıqları təyin edə biləcəksiniz."
   },
   "reviewNewApplications": {
     "message": "Yeni tətbiqlər incələ"
@@ -5809,9 +5809,9 @@
     "message": "Bütün elementlərin bir təşkilata məxsus olmasını tələb et və elementlərin hesab səviyyəsində saxlanılma seçimini ləğv et.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
-    "message": "Bütün elementlər bir təşkilata məxsus olacaq və orada saxlanılacaq, bu da təşkilat üzrə kontrollar, görünürlük və hesabatları mümkün edəcək. İşə salındığı zaman, hər üzv üçün elementləri saxlaya biləcəyi ilkin bir kolleksiya mövcud olacaq. Daha ətraflı ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  "organizationDataOwnershipDescContent": {
+    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "daha ətraflı öyrənin",
@@ -6668,7 +6668,7 @@
     "message": "This option will save your members' encryption keys on their devices. If you choose this option, ensure that their devices are adequately protected."
   },
   "learnMoreAboutDeviceProtection": {
-    "message": "Learn more about device protection"
+    "message": "Cihaz mühafizəsi barədə daha ətraflı"
   },
   "sessionTimeoutConfirmationOnSystemLockTitle": {
     "message": "\"System lock\" will only apply to the browser and desktop app"
@@ -12117,6 +12117,15 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Ödənişsiz Ailələr sınağını başlat"
+  },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Block account creation for claimed domains"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "A domain must be claimed before activating this policy."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Seyf vaxt bitmə əməliyyatınızı dəyişdirmək üçün bir kilid açma üsulu qurun."

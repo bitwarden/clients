@@ -1,6 +1,6 @@
 import { ModelSignal } from "@angular/core";
 
-export type ButtonType = "primary" | "secondary" | "danger" | "unstyled";
+export type ButtonType = "primary" | "secondary" | "danger" | "dangerPrimary" | "unstyled";
 
 export type ButtonSize = "default" | "small";
 

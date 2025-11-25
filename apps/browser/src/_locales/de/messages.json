@@ -2436,6 +2436,9 @@
       }
     }
   },
+  "topLayerHijackWarning": {
+    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
+  },
   "setMasterPassword": {
     "message": "Master-Passwort festlegen"
   },
@@ -5813,10 +5816,10 @@
     "message": "Upgrade für umfassende Sicherheit"
   },
   "premiumGivesMoreTools": {
-    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+    "message": "Premium gibt dir mehr Werkzeuge, um sicher zu bleiben, effizient zu arbeiten und die Kontrolle zu behalten."
   },
   "explorePremium": {
-    "message": "Explore Premium"
+    "message": "Premium erkunden"
   },
   "loadingVault": {
     "message": "Tresor wird geladen"
