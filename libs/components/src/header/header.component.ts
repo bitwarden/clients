@@ -8,7 +8,7 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 })
 export class HeaderComponent {
   /**
-   * Custom title that overrides the route data `titleId`
+   * The title of the page
    */
   readonly title = input.required<string>();
 
