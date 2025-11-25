@@ -1813,6 +1813,76 @@ export class CipherService implements CipherServiceAbstraction {
     }
   }
 
+  /**
+   * Upgrade all old attachments for a cipher by downloading, decrypting, re-uploading with new key, and deleting old.
+   * @param cipher
+   * @param userId
+   * @param attachmentId Optional specific attachment ID to upgrade. If not provided, all old attachments will be upgraded.
+   */
+  async upgradeOldCipherAttachments(
+    cipher: CipherView,
+    userId: UserId,
+    attachmentId?: string,
+  ): Promise<CipherView> {
+    if (!cipher.hasOldAttachments) {
+      return cipher;
+    }
+
+    let cipherDomain = await this.get(cipher.id, userId);
+
+    for (const attachmentView of cipher.attachments) {
+      if (
+        attachmentView.key != null ||
+        (attachmentId != null && attachmentView.id !== attachmentId)
+      ) {
+        continue;
+      }
+      try {
+        // 1. Download attachment
+        const attachmentResponse = await this.apiService.nativeFetch(
+          new Request(attachmentView.url, { cache: "no-store" }),
+        );
+
+        if (attachmentResponse.status !== 200) {
+          this.logService.error(
+            "Failed to download attachment: " + attachmentView.id,
+            "Status: " + attachmentResponse.status.toString(),
+          );
+          break;
+        }
+
+        const decryptedBuffer = await this.getDecryptedAttachmentBuffer(
+          cipher.id as CipherId,
+          attachmentView,
+          attachmentResponse,
+          userId,
+        );
+
+        // 2. Re-upload the attachment with attachment key
+        cipherDomain = await this.saveAttachmentRawWithServer(
+          cipherDomain,
+          attachmentView.fileName,
+          decryptedBuffer,
+          userId,
+        );
+
+        // 3. Delete the old attachment
+        const cipherData = await this.deleteAttachmentWithServer(
+          cipher.id,
+          attachmentView.id,
+          userId,
+        );
+        // Refresh cipherDomain after deletion to get latest revision date
+        cipherDomain = new Cipher(cipherData);
+      } catch (e) {
+        this.logService.error("Failed to upgrade attachment: " + attachmentView.id, e);
+        break;
+      }
+    }
+
+    return await this.decrypt(cipherDomain, userId);
+  }
+
   private async encryptObjProperty<V extends View, D extends Domain>(
     model: V,
     obj: D,
