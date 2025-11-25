@@ -4,5 +4,5 @@
     "moduleResolution": "nodenext",
     "module": "nodenext"
   },
-  "include": ["src/main.ts", "src/global.d.ts"]
+  "include": ["src/entry.ts", "src/global.d.ts"]
 }
