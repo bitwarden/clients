@@ -3,5 +3,6 @@
   "compilerOptions": {
     "moduleResolution": "nodenext",
     "module": "nodenext"
-  }
+  },
+  "include": ["src/main.ts", "src/global.d.ts"]
 }
