@@ -176,7 +176,9 @@ describe("TwoFactorAuthComponent", () => {
     selectedUserDecryptionOptions = new BehaviorSubject<UserDecryptionOptions>(
       mockUserDecryptionOpts.withMasterPassword,
     );
-    mockUserDecryptionOptionsService.userDecryptionOptions$ = selectedUserDecryptionOptions;
+    mockUserDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+      selectedUserDecryptionOptions,
+    );
 
     TestBed.configureTestingModule({
       declarations: [TestTwoFactorComponent],

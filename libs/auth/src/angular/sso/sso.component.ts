@@ -460,7 +460,7 @@ export class SsoComponent implements OnInit {
 
       // must come after 2fa check since user decryption options aren't available if 2fa is required
       const userDecryptionOpts = await firstValueFrom(
-        this.userDecryptionOptionsService.userDecryptionOptions$,
+        this.userDecryptionOptionsService.userDecryptionOptionsById$(authResult.userId),
       );
 
       const tdeEnabled = userDecryptionOpts.trustedDeviceOption

@@ -36,6 +36,7 @@ import {
   LoginEmailService,
   SsoUrlService,
   LogoutService,
+  UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ExtensionNewDeviceVerificationComponentService } from "@bitwarden/browser/auth/services/new-device-verification/extension-new-device-verification-component.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -607,7 +608,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: Fido2UserVerificationService,
     useClass: Fido2UserVerificationService,
-    deps: [PasswordRepromptService, UserVerificationService, DialogService],
+    deps: [
+      PasswordRepromptService,
+      UserDecryptionOptionsServiceAbstraction,
+      DialogService,
+      AccountServiceAbstraction,
+    ],
   }),
   safeProvider({
     provide: AnimationControlService,

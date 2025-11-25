@@ -123,7 +123,9 @@ describe("WebSetInitialPasswordService", () => {
 
       userDecryptionOptions = new UserDecryptionOptions({ hasMasterPassword: true });
       userDecryptionOptionsSubject = new BehaviorSubject(userDecryptionOptions);
-      userDecryptionOptionsService.userDecryptionOptions$ = userDecryptionOptionsSubject;
+      userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+        userDecryptionOptionsSubject,
+      );
 
       setPasswordRequest = new SetPasswordRequest(
         credentials.newServerMasterKeyHash,
