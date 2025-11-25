@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { SendsComponent } from "./sends.component";
+import { SendV2Component } from "./send-V2.component";
 
-describe("SendsComponent", () => {
-  let component: SendsComponent;
-  let fixture: ComponentFixture<SendsComponent>;
+describe("SendV2Component", () => {
+  let component: SendV2Component;
+  let fixture: ComponentFixture<SendV2Component>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SendsComponent],
+      imports: [SendV2Component],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(SendsComponent);
+    fixture = TestBed.createComponent(SendV2Component);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

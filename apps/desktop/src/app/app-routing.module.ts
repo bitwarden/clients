@@ -52,7 +52,7 @@ import { VaultComponent } from "../vault/app/vault-v3/vault.component";
 import { Fido2PlaceholderComponent } from "./components/fido2placeholder.component";
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
 import { SendComponent } from "./tools/send/send.component";
-import { SendsComponent } from "./tools/send-v2/sends.component";
+import { SendV2Component } from "./tools/send-v2/send-v2.component";
 
 /**
  * Data properties acceptable for use in route objects in the desktop
@@ -344,7 +344,7 @@ const routes: Routes = [
       },
       {
         path: "new-sends",
-        component: SendsComponent,
+        component: SendV2Component,
       },
     ],
   },
