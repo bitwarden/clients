@@ -262,6 +262,11 @@
       matchPackageNames: ["windows", "windows-core", "windows-future", "windows-registry"],
     },
     {
+      // We need to group mjml and mjml-core together to avoid version incompatibilities.
+      groupName: "mjml",
+      matchPackageNames: ["mjml", "mjml-core"],
+    },
+    {
       // We group all webpack build-related minor and patch updates together to reduce PR noise.
       // We include patch updates here because we want PRs for webpack patch updates and it's in this group.
       matchPackageNames: [
@@ -325,6 +330,8 @@
         "autoprefixer",
         "bootstrap",
         "chromatic",
+        "mjml",
+        "mjml-core",
         "ngx-toastr",
         "react",
         "react-dom",
