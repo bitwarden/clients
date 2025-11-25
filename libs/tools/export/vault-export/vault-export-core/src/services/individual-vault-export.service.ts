@@ -268,7 +268,7 @@ export class IndividualVaultExportService
   private buildCsvExport(decFolders: FolderView[], decCiphers: CipherView[]): string {
     const foldersMap = new Map<string, FolderView>();
     decFolders.forEach((f) => {
-      if (!f.id) {
+      if (f.id) {
         foldersMap.set(f.id, f);
       }
     });
