@@ -17,8 +17,19 @@ const ENABLE_PHISHING_DETECTION = new KeyDefinition(
   },
 );
 
+/**
+ * Abstraction for phishing detection settings
+ */
 export abstract class PhishingDetectionSettingsServiceAbstraction {
+  /**
+   * An observable for whether phishing detection is enabled
+   */
   abstract enablePhishingDetection$: Observable<boolean>;
+  /**
+   * Sets whether phishing detection is enabled
+   *
+   * @param enabled True to enable, false to disable
+   */
   abstract setEnablePhishingDetection: (enabled: boolean) => Promise<void>;
 }
 
