@@ -81,11 +81,11 @@ export class AppComponent implements OnDestroy, OnInit {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
     const langSubscription = this.documentLangSetter.start();
-    const routerFocusManagerSubscription = this.routerFocusManager.start();
+
+    this.routerFocusManager.start$.pipe(takeUntilDestroyed()).subscribe();
 
     this.destroy.onDestroy(() => {
       langSubscription.unsubscribe();
-      routerFocusManagerSubscription.unsubscribe();
     });
   }
 

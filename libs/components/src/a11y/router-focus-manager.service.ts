@@ -1,7 +1,7 @@
 import { inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
-import { skip, filter, map, combineLatestWith } from "rxjs";
+import { skip, filter, map, combineLatestWith, tap } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -34,34 +34,31 @@ export class RouterFocusManagerService {
    * focus to the top of the html document as if it were a full page load. So those links
    * do not need to manually opt out of this pipeline.
    */
-  start() {
-    return this.router.events
-      .pipe(
-        takeUntilDestroyed(),
-        combineLatestWith(this.configService.getFeatureFlag$(FeatureFlag.RouterFocusManagement)),
-        filter(([navEvent, flagEnabled]) => flagEnabled && navEvent instanceof NavigationEnd),
-        /**
-         * On first page load, we do not want to skip the user over the navigation content,
-         * so we opt out of the default focus management behavior.
-         */
-        skip(1),
-        map(() => {
-          const currentNavData = this.router.getCurrentNavigation()?.extras;
+  start$ = this.router.events.pipe(
+    takeUntilDestroyed(),
+    combineLatestWith(this.configService.getFeatureFlag$(FeatureFlag.RouterFocusManagement)),
+    filter(([navEvent, flagEnabled]) => flagEnabled && navEvent instanceof NavigationEnd),
+    /**
+     * On first page load, we do not want to skip the user over the navigation content,
+     * so we opt out of the default focus management behavior.
+     */
+    skip(1),
+    map(() => {
+      const currentNavData = this.router.getCurrentNavigation()?.extras;
 
-          const info = currentNavData?.info as { focusMainAfterNav?: boolean } | undefined;
+      const info = currentNavData?.info as { focusMainAfterNav?: boolean } | undefined;
 
-          return info;
-        }),
-        filter((currentNavInfo) => {
-          return currentNavInfo === undefined ? true : currentNavInfo?.focusMainAfterNav !== false;
-        }),
-      )
-      .subscribe(() => {
-        const mainEl = document.querySelector<HTMLElement>("main");
+      return info;
+    }),
+    filter((currentNavInfo) => {
+      return currentNavInfo === undefined ? true : currentNavInfo?.focusMainAfterNav !== false;
+    }),
+    tap(() => {
+      const mainEl = document.querySelector<HTMLElement>("main");
 
-        if (mainEl) {
-          mainEl.focus();
-        }
-      });
-  }
+      if (mainEl) {
+        mainEl.focus();
+      }
+    }),
+  );
 }
