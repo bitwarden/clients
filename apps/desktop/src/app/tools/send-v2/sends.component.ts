@@ -2,8 +2,7 @@ import { DatePipe } from "@angular/common";
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 
 @Component({
-  selector: "app-sends-v2",
-  standalone: true,
+  selector: "app-desktop-sends-v2",
   imports: [DatePipe],
   templateUrl: "sends.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,

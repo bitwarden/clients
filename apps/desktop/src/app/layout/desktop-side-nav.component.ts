@@ -5,7 +5,6 @@ import { NavigationModule, SideNavVariant } from "@bitwarden/components";
 
 @Component({
   selector: "app-desktop-side-nav",
-  standalone: true,
   templateUrl: "desktop-side-nav.component.html",
   imports: [CommonModule, NavigationModule],
   changeDetection: ChangeDetectionStrategy.OnPush,

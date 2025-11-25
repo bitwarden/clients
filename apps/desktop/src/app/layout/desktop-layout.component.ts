@@ -6,7 +6,6 @@ import { LayoutComponent, NavigationModule } from "@bitwarden/components";
 
 @Component({
   selector: "app-desktop-layout",
-  standalone: true,
   imports: [CommonModule, RouterModule, LayoutComponent, NavigationModule],
   templateUrl: "./desktop-layout.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
