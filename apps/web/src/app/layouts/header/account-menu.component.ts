@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { map, Observable } from "rxjs";
 
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LockService, LogoutService } from "@bitwarden/auth/common";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { DynamicAvatarComponent } from "../../components/dynamic-avatar.component";
@@ -21,21 +22,29 @@ import { SharedModule } from "../../shared";
 export class AccountMenuComponent {
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
-  private readonly messagingService = inject(MessagingService);
   private readonly accountService = inject(AccountService);
+  private readonly logoutService = inject(LogoutService);
+  private readonly lockService = inject(LockService);
 
-  protected readonly account$: Observable<Account | null> = this.accountService.activeAccount$;
+  protected readonly account = toSignal(this.accountService.activeAccount$);
+
   protected readonly canLock$: Observable<boolean> = this.vaultTimeoutSettingsService
     .availableVaultTimeoutActions$()
     .pipe(map((actions) => actions.includes(VaultTimeoutAction.Lock)));
   protected readonly selfHosted = this.platformUtilsService.isSelfHost();
   protected readonly hostname = globalThis.location.hostname;
 
-  protected lock() {
-    this.messagingService.send("lockVault");
+  protected async lock() {
+    const userId = this.account()?.id;
+    if (userId) {
+      await this.lockService.lock(userId);
+    }
   }
 
-  protected logout() {
-    this.messagingService.send("logout");
+  protected async logout() {
+    const userId = this.account()?.id;
+    if (userId) {
+      await this.logoutService.logout(userId);
+    }
   }
 }
