@@ -85,7 +85,7 @@ export class TooltipDirective implements OnInit {
     this.isVisible.set(false);
   };
 
-  private showTooltip = () => {
+  protected showTooltip = () => {
     if (!this.overlayRef) {
       this.overlayRef = this.overlay.create({
         ...this.defaultPopoverConfig,
@@ -100,11 +100,11 @@ export class TooltipDirective implements OnInit {
     }, 500);
   };
 
-  private hideTooltip = () => {
+  protected hideTooltip = () => {
     this.destroyTooltip();
   };
 
-  private readonly resolvedDescribedByIds = computed(() => {
+  protected readonly resolvedDescribedByIds = computed(() => {
     if (this.addTooltipToDescribedby()) {
       if (this.currentDescribedByIds) {
         return `${this.currentDescribedByIds || ""} ${this.tooltipId}`;
