@@ -284,7 +284,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     response: Response,
     userId: UserId,
     useLegacyDecryption?: boolean,
-  ): Promise<Uint8Array | null>;
+  ): Promise<Uint8Array>;
 
   /**
    * Decrypts the full `CipherView` for a given `CipherViewLike`.
