@@ -4,7 +4,6 @@ import { EVENTS } from "@bitwarden/common/autofill/constants";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
-import { InlineMenuElementPosition } from "../../../background/abstractions/overlay.background";
 import { sendExtensionMessage, setElementStyles } from "../../../utils";
 import {
   BackgroundPortMessageHandlers,
@@ -283,7 +282,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     const styles = this.fadeInTimeout ? Object.assign(position, { opacity: "0" }) : position;
     this.updateElementStyles(this.iframe, styles);
 
-    const elementHeightCompletelyInViewport = this.isElementHeightCompletelyWithinViewport(
+    const elementHeightCompletelyInViewport = this.isElementCompletelyWithinViewport(
       this.iframe.getBoundingClientRect(),
     );
 
@@ -301,18 +300,27 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
 
   /**
    * Check if element is completely within the browser viewport.
-   * Top should be >= 0 and bottom should be <= viewport height
    */
-  private isElementHeightCompletelyWithinViewport(elementPosition: InlineMenuElementPosition) {
-    if (!elementPosition.top || !elementPosition.height) {
+  private isElementCompletelyWithinViewport(elementPosition: DOMRect) {
+    // An element that lacks size should be considered within the viewport
+    if (!elementPosition.height || !elementPosition.width) {
       return true;
     }
 
     const viewportHeight = globalThis.window.innerHeight;
-    const elementBottom = elementPosition.top + elementPosition.height;
+    const viewportWidth = globalThis.window.innerWidth;
 
-    // Top should be >= 0 and bottom should be <= viewport height
-    return elementPosition.top >= 0 && elementBottom <= viewportHeight;
+    const rightSideIsWithinViewport = (elementPosition.right || 0) <= viewportWidth;
+    const leftSideIsWithinViewport = (elementPosition.left || 0) >= 0;
+    const topSideIsWithinViewport = (elementPosition.top || 0) >= 0;
+    const bottomSideIsWithinViewport = (elementPosition.bottom || 0) <= viewportHeight;
+
+    return (
+      rightSideIsWithinViewport &&
+      leftSideIsWithinViewport &&
+      topSideIsWithinViewport &&
+      bottomSideIsWithinViewport
+    );
   }
 
   /**
