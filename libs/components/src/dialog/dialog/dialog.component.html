@@ -61,6 +61,7 @@
     }
     <div
       cdkScrollable
+      class="tw-border tw-border-solid tw-border-primary-600"
       [ngClass]="{
         'tw-py-2 tw-ps-6 tw-pe-6': !disablePadding(),
         'tw-overflow-y-auto': !loading(),
@@ -69,7 +70,7 @@
       }"
     >
       <ng-content select="[bitDialogContent]"></ng-content>
-      <div #scrollBottom class="tw-h-[1px]"></div>
+      <div #scrollBottom class="tw-h-[1px] tw-border tw-border-danger-600 tw-border-solid"></div>
     </div>
   </div>
   @let isScrollable = isScrollable$ | async;
