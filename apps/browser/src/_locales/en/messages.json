@@ -597,6 +597,9 @@
   "viewAll": {
     "message": "View all"
   },
+  "showAll": {
+    "message": "Show all"
+  },
   "viewLess": {
     "message": "View less"
   },
