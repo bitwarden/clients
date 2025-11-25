@@ -4757,7 +4757,7 @@
   "accountSecurity": {
     "message": "Account security"
   },
-  "PhishingBlocker": {
+  "phishingBlocker": {
     "message": "Phishing Blocker"
   },
   "enablePhishingDetection": {
