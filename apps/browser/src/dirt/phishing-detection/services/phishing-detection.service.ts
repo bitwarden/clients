@@ -56,8 +56,8 @@ export class PhishingDetectionService {
     configService: ConfigService,
     logService: LogService,
     phishingDataService: PhishingDataService,
-    messageListener: MessageListener,
     phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
+    messageListener: MessageListener,
   ) {
     if (this._didInit) {
       logService.debug("[PhishingDetectionService] Initialize already called. Aborting.");

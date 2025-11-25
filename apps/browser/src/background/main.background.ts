@@ -1481,8 +1481,8 @@ export default class MainBackground {
       this.configService,
       this.logService,
       this.phishingDataService,
-      messageListener,
       this.phishingDetectionSettingsService,
+      messageListener,
     );
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);

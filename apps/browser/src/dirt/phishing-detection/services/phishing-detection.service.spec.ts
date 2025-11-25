@@ -44,8 +44,8 @@ describe("PhishingDetectionService", () => {
         configService,
         logService,
         phishingDataService,
-        messageListener,
         phishingDetectionSettingsService,
+        messageListener,
       );
     }).not.toThrow();
   });
