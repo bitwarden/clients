@@ -1,4 +1,4 @@
-#import "BrowserAccessManager.h"
+#import "browser_access_manager.h"
 #import <Cocoa/Cocoa.h>
 
 @implementation BrowserAccessManager {

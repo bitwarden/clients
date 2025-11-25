@@ -2,7 +2,7 @@
 #import "browser_access.h"
 #import "../utils.h"
 
-#import "BrowserAccessManager.h"
+#import "browser_access_manager.h"
 
 static BrowserAccessManager* sharedManager = nil;
 
