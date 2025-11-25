@@ -17,12 +17,12 @@ export const hasScrollableContent$ = (
     // observeOn(animationFrameScheduler),
     map((entry: IntersectionObserverEntry | null) => {
       if (!entry) {
-        document.body.prepend(
-          `[without entry: root ${root.scrollHeight} > client ${root.clientHeight}]`,
-        );
+        // eslint-disable-next-line
+        console.log(`[without entry: root ${root.scrollHeight} > client ${root.clientHeight}]`);
         return root.scrollHeight > root.clientHeight;
       }
-      document.body.prepend(`[with entry: ${!entry.isIntersecting}]`);
+      // eslint-disable-next-line
+      console.log(`[with entry: ${!entry.isIntersecting}]`);
       return !entry.isIntersecting;
     }),
     distinctUntilChanged(),

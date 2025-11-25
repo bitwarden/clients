@@ -85,9 +85,6 @@
       'tw-border-secondary-100': showFooterBorder,
     }"
   >
-    <span>has not scrolled from top {{ !bodyHasScrolledFrom().top }}</span>
-    <span>is scrollable {{ isScrollable }}</span>
-    <span>has scrolled from bottom {{ bodyHasScrolledFrom().bottom }}</span>
     <ng-content select="[bitDialogFooter]"></ng-content>
   </footer>
 </section>

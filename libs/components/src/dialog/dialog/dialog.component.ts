@@ -61,13 +61,15 @@ export class DialogComponent {
 
   protected isScrollable$ = combineLatest([this.scrollableBody$, this.scrollBottom$]).pipe(
     tap(() => {
-      document.body.prepend("[isScrollable running]");
+      // eslint-disable-next-line
+      console.log("[isScrollable running]");
     }),
     switchMap(([body, bottom]) =>
       hasScrollableContent$(body.getElementRef().nativeElement, bottom.nativeElement),
     ),
     tap((result) => {
-      document.body.prepend(`[isScrollable result: ${result}]`);
+      // eslint-disable-next-line
+      console.log(`[isScrollable result: ${result}]`);
     }),
   );
 
