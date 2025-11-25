@@ -48,7 +48,7 @@ export class DefaultTaskService implements TaskService {
 
   tasksEnabled$ = perUserCache$((userId) => {
     return this.organizationService.organizations$(userId).pipe(
-      map((orgs) => orgs.some((o) => o.useRiskInsights)),
+      map((orgs) => orgs.some((o) => o.useAccessIntelligence)),
       distinctUntilChanged(),
     );
   });

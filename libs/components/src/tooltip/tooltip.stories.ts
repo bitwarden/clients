@@ -78,6 +78,9 @@ export const Default: Story = {
   args: {
     tooltipPosition: "above-center",
   },
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
   render: (args) => ({
     props: args,
     template: `
@@ -101,10 +104,10 @@ export const Default: Story = {
 };
 
 export const AllPositions: Story = {
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
   render: () => ({
-    parameters: {
-      chromatic: { disableSnapshot: true },
-    },
     template: `
       <div class="tw-p-16 tw-grid tw-grid-cols-2 tw-gap-8 tw-place-items-center">
         <button
@@ -133,10 +136,10 @@ export const AllPositions: Story = {
 };
 
 export const LongContent: Story = {
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
   render: () => ({
-    parameters: {
-      chromatic: { disableSnapshot: true },
-    },
     template: `
       <div class="tw-p-16 tw-flex tw-items-center tw-justify-center">
         <button
@@ -149,10 +152,10 @@ export const LongContent: Story = {
 };
 
 export const OnDisabledButton: Story = {
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
   render: () => ({
-    parameters: {
-      chromatic: { disableSnapshot: true },
-    },
     template: `
       <div class="tw-p-16 tw-flex tw-items-center tw-justify-center">
         <button
@@ -166,10 +169,10 @@ export const OnDisabledButton: Story = {
 };
 
 export const OnNonIconButton: Story = {
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
   render: () => ({
-    parameters: {
-      chromatic: { disableSnapshot: true },
-    },
     template: `
       <div class="tw-p-16 tw-flex tw-items-center tw-justify-center">
         <button
