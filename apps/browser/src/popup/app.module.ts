@@ -85,7 +85,7 @@ import "../platform/popup/locales";
     LinkModule,
   ],
   declarations: [AppComponent, ColorPasswordPipe, ColorPasswordCountPipe, TabsV2Component],
-  exports: [],
+  exports: [CalloutModule],
   providers: [CurrencyPipe, DatePipe],
   bootstrap: [AppComponent],
 })
