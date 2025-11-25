@@ -151,7 +151,10 @@ module.exports.buildConfig = function buildConfig(params) {
       rules: [
         {
           test: /\.tsx?$/,
-          use: "ts-loader",
+          use: {
+            loader: "ts-loader",
+            options: { configFile: params.preload.tsConfig },
+          },
           exclude: /node_modules\/(?!(@bitwarden)\/).*/,
         },
       ],
