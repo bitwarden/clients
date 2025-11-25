@@ -44,6 +44,7 @@ pub fn get_assertion(
         .map(|id| id.to_vec())
         .collect();
 
+    let client_window_handle = request.window_handle.0.addr().to_le_bytes().to_vec();
     let client_pos = request
         .window_handle
         .center_position()
@@ -62,6 +63,7 @@ pub fn get_assertion(
         client_data_hash,
         allowed_credentials: allowed_credential_ids,
         user_verification,
+        client_window_handle,
         window_xy: Position {
             x: client_pos.0,
             y: client_pos.1,
@@ -109,6 +111,7 @@ fn send_assertion_request(
             credential_id: request.allowed_credentials[0].clone(),
             client_data_hash: request.client_data_hash,
             user_verification: request.user_verification,
+            client_window_handle: request.client_window_handle,
             window_xy: request.window_xy,
             context: request.context,
         };

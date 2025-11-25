@@ -14,6 +14,7 @@ pub struct PasskeyRegistrationRequest {
     pub user_verification: UserVerification,
     pub supported_algorithms: Vec<i32>,
     pub window_xy: Position,
+    pub client_window_handle: Vec<u8>,
     pub excluded_credentials: Vec<Vec<u8>>,
     pub context: String,
 }

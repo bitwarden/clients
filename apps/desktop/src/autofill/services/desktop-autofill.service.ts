@@ -215,10 +215,11 @@ export class DesktopAutofillService implements OnDestroy {
         this.inFlightRequests[request.context] = controller;
       }
 
+      const clientHandle = request.clientWindowHandle ? new Uint8Array(request.clientWindowHandle) : null;
       try {
         const response = await this.fido2AuthenticatorService.makeCredential(
           this.convertRegistrationRequest(request),
-          { windowXy: request.windowXy },
+          { windowXy: request.windowXy, handle: clientHandle },
           controller,
           request.context,
         );
@@ -293,9 +294,10 @@ export class DesktopAutofillService implements OnDestroy {
             );
           }
 
+          const clientHandle = request.clientWindowHandle ? new Uint8Array(request.clientWindowHandle) : null;
           const response = await this.fido2AuthenticatorService.getAssertion(
             this.convertAssertionRequest(request, true),
-            { windowXy: request.windowXy },
+            { windowXy: request.windowXy, handle: clientHandle },
             controller,
             request.context
           );
@@ -329,10 +331,11 @@ export class DesktopAutofillService implements OnDestroy {
         this.inFlightRequests[request.context] = controller;
       }
 
+      const clientHandle = request.clientWindowHandle ? new Uint8Array(request.clientWindowHandle) : null;
       try {
         const response = await this.fido2AuthenticatorService.getAssertion(
           this.convertAssertionRequest(request),
-          { windowXy: request.windowXy },
+          { windowXy: request.windowXy, handle: clientHandle },
           controller,
           request.context,
         );

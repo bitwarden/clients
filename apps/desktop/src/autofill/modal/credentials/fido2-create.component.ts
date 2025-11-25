@@ -213,7 +213,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
 
     let cred = cipher.login.fido2Credentials[0];
     const username = cred.userName ?? cred.userDisplayName
-    return this.session.promptForUserVerification(username, "Verify it's you to update a new credential")
+    return this.session.promptForUserVerification(username, "Verify it's you to create a new credential")
   }
 
   private async showErrorDialog(config: SimpleDialogOptions): Promise<void> {

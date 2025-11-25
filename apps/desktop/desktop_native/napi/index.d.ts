@@ -165,6 +165,7 @@ export declare namespace autofill {
     supportedAlgorithms: Array<number>
     windowXy: Position
     excludedCredentials: Array<Array<number>>
+    clientWindowHandle?: Array<number>
     context?: string
   }
   export interface PasskeyRegistrationResponse {
@@ -179,6 +180,7 @@ export declare namespace autofill {
     userVerification: UserVerification
     allowedCredentials: Array<Array<number>>
     windowXy: Position
+    clientWindowHandle?: Array<number>
     context?: string
   }
   export interface PasskeyAssertionWithoutUserInterfaceRequest {
@@ -190,6 +192,7 @@ export declare namespace autofill {
     clientDataHash: Array<number>
     userVerification: UserVerification
     windowXy: Position
+    clientWindowHandle?: Array<number>
     context?: string
   }
   export interface NativeStatus {

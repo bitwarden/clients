@@ -87,6 +87,7 @@ pub fn make_credential(
         );
     }
 
+    let client_window_handle = request.window_handle.0.addr().to_le_bytes().to_vec();
     let client_pos = request
         .window_handle
         .center_position()
@@ -104,6 +105,7 @@ pub fn make_credential(
         excluded_credentials,
         user_verification: user_verification,
         supported_algorithms,
+        client_window_handle,
         window_xy: Position {
             x: client_pos.0,
             y: client_pos.1,

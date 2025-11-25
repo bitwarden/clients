@@ -695,6 +695,7 @@ pub mod autofill {
         pub supported_algorithms: Vec<i32>,
         pub window_xy: Position,
         pub excluded_credentials: Vec<Vec<u8>>,
+        pub client_window_handle: Option<Vec<u8>>,
         pub context: Option<String>,
     }
 
@@ -717,6 +718,7 @@ pub mod autofill {
         pub user_verification: UserVerification,
         pub allowed_credentials: Vec<Vec<u8>>,
         pub window_xy: Position,
+        pub client_window_handle: Option<Vec<u8>>,
         pub context: Option<String>,
         //extension_input: Vec<u8>, TODO: Implement support for extensions
     }
@@ -733,6 +735,7 @@ pub mod autofill {
         pub client_data_hash: Vec<u8>,
         pub user_verification: UserVerification,
         pub window_xy: Position,
+        pub client_window_handle: Option<Vec<u8>>,
         pub context: Option<String>,
     }
 

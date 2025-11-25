@@ -43,6 +43,7 @@ export type NativeWindowObject = {
    * The position of the window, first entry is the x position, second is the y position
    */
   windowXy?: { x: number; y: number };
+  handle?: Uint8Array;
 };
 
 export class DesktopFido2UserInterfaceService
@@ -153,7 +154,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
           const username = cred.userName ?? cred.userDisplayName
           // TODO: internationalization
           try {
-            const isConfirmed = await this.promptForUserVerification(username, "Verify it's you to log in with Bitwarden.");
+            const isConfirmed = await this.promptForUserVerification(username, "Verify it's you to log in with Bitwarden.", this.windowObject.handle);
             return { cipherId: cipherIds[0], userVerified: isConfirmed };
           }
           catch (e) {
@@ -161,7 +162,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
           }
         }
         else {
-          this.logService.debug(
+          this.logService.warning(
             "shortcut - Assuming user presence and returning cipherId",
             cipherIds[0],
           );
@@ -371,9 +372,12 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   }
 
   /** Called by the UI to prompt the user for verification. May be fulfilled by the OS. */
-  async promptForUserVerification(username: string, displayHint: string): Promise<boolean> {
+  async promptForUserVerification(username: string, displayHint: string, clientWindowHandle?: Uint8Array): Promise<boolean> {
     this.logService.info("DesktopFido2UserInterfaceSession] Prompting for user verification")
-    let windowHandle = await ipc.platform.getNativeWindowHandle();
+    // Use the client window handle if we're not showing UI; otherwise use our modal window.
+    // For Windows, if the selected window handle is not in the foreground, then the Windows
+    // Hello dialog will also be in the background.
+    let windowHandle = clientWindowHandle ?? await ipc.platform.getNativeWindowHandle();
 
     const uvResult = await ipc.autofill.runCommand<NativeAutofillUserVerificationCommand>({
       namespace: "autofill",
