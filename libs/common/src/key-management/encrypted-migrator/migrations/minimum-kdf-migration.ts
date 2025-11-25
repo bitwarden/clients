@@ -23,7 +23,7 @@ export class MinimumKdfMigration implements EncryptedMigration {
     private readonly logService: LogService,
     private readonly configService: ConfigService,
     private readonly masterPasswordService: MasterPasswordServiceAbstraction,
-  ) {}
+  ) { }
 
   async runMigrations(userId: UserId, masterPassword: string | null): Promise<void> {
     assertNonNullish(userId, "userId");
@@ -42,24 +42,36 @@ export class MinimumKdfMigration implements EncryptedMigration {
 
   async needsMigration(userId: UserId): Promise<MigrationRequirement> {
     assertNonNullish(userId, "userId");
+    this.logService.info(`[MinimumKdfMigration] Checking if user ${userId} needs KDF migration.`);
 
     if (!(await this.masterPasswordService.userHasMasterPassword(userId))) {
+      this.logService.info("[MinimumKdfMigration] User has no master password, skipping migration.");
       return "noMigrationNeeded";
     }
 
     // Only PBKDF2 users below the minimum iteration count need migration
     const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
+    this.logService.info("[MinimumKdfMigration] Current KDF config: " + JSON.stringify(kdfConfig));
     if (
       kdfConfig.kdfType !== KdfType.PBKDF2_SHA256 ||
       kdfConfig.iterations >= 600000 // QA override
     ) {
+      this.logService.info(
+        "[MinimumKdfMigration] User KDF config meets or exceeds minimum requirements, no migration needed.",
+      );
       return "noMigrationNeeded";
     }
 
     if (!(await this.configService.getFeatureFlag(FeatureFlag.ForceUpdateKDFSettings))) {
+      this.logService.info(
+        "[MinimumKdfMigration] ForceUpdateKDFSettings feature flag is not enabled, skipping migration.",
+      );
       return "noMigrationNeeded";
     }
 
+    this.logService.info(
+      "[MinimumKdfMigration] User KDF config below minimum requirements, migration needed.",
+    );
     return "needsMigrationWithMasterPassword";
   }
 }
