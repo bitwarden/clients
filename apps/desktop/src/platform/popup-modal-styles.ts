@@ -49,11 +49,11 @@ export function applyMainWindowStyles(window: BrowserWindow, existingWindowState
   // need to guard against null/undefined values
 
   if (existingWindowState?.width && existingWindowState?.height) {
-    window.setSize(existingWindowState.width, existingWindowState.height);
+    window.setSize(Math.floor(existingWindowState.width), Math.floor(existingWindowState.height));
   }
 
   if (existingWindowState?.x && existingWindowState?.y) {
-    window.setPosition(existingWindowState.x, existingWindowState.y);
+    window.setPosition(Math.floor(existingWindowState.x), Math.floor(existingWindowState.y));
   }
 
   window.setWindowButtonVisibility?.(true);

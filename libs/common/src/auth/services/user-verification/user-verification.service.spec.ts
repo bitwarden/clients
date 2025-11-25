@@ -3,10 +3,7 @@ import { of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import {
-  UserDecryptionOptions,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -146,11 +143,7 @@ describe("UserVerificationService", () => {
 
     describe("server verification type", () => {
       it("correctly returns master password availability", async () => {
-        userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
-          of({
-            hasMasterPassword: true,
-          } as UserDecryptionOptions),
-        );
+        userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(true));
 
         const result = await sut.getAvailableVerificationOptions("server");
 
@@ -168,11 +161,7 @@ describe("UserVerificationService", () => {
       });
 
       it("correctly returns OTP availability", async () => {
-        userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
-          of({
-            hasMasterPassword: false,
-          } as UserDecryptionOptions),
-        );
+        userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(false));
 
         const result = await sut.getAvailableVerificationOptions("server");
 
@@ -187,6 +176,140 @@ describe("UserVerificationService", () => {
             otp: true,
           },
         });
+      });
+    });
+  });
+
+  describe("buildRequest", () => {
+    beforeEach(() => {
+      accountService = mockAccountServiceWith(mockUserId);
+      i18nService.t
+        .calledWith("verificationCodeRequired")
+        .mockReturnValue("Verification code is required");
+      i18nService.t
+        .calledWith("masterPasswordRequired")
+        .mockReturnValue("Master Password is required");
+    });
+
+    describe("OTP verification", () => {
+      it("should build request with OTP secret", async () => {
+        const verification = {
+          type: VerificationType.OTP,
+          secret: "123456",
+        } as any;
+
+        const result = await sut.buildRequest(verification);
+
+        expect(result.otp).toBe("123456");
+      });
+
+      it("should throw if OTP secret is empty", async () => {
+        const verification = {
+          type: VerificationType.OTP,
+          secret: "",
+        } as any;
+
+        await expect(sut.buildRequest(verification)).rejects.toThrow(
+          "Verification code is required",
+        );
+      });
+
+      it("should throw if OTP secret is null", async () => {
+        const verification = {
+          type: VerificationType.OTP,
+          secret: null,
+        } as any;
+
+        await expect(sut.buildRequest(verification)).rejects.toThrow(
+          "Verification code is required",
+        );
+      });
+    });
+
+    describe("Master password verification", () => {
+      beforeEach(() => {
+        kdfConfigService.getKdfConfig.mockResolvedValue("kdfConfig" as unknown as KdfConfig);
+        masterPasswordService.saltForUser$.mockReturnValue(of("salt" as any));
+        masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue({
+          masterPasswordAuthenticationHash: "hash",
+        } as any);
+      });
+
+      it("should build request with master password secret", async () => {
+        const verification = {
+          type: VerificationType.MasterPassword,
+          secret: "password123",
+        } as any;
+
+        const result = await sut.buildRequest(verification);
+
+        expect(result.masterPasswordHash).toBe("hash");
+      });
+
+      it("should use default SecretVerificationRequest if no custom class provided", async () => {
+        const verification = {
+          type: VerificationType.MasterPassword,
+          secret: "password123",
+        } as any;
+
+        const result = await sut.buildRequest(verification);
+
+        expect(result).toHaveProperty("masterPasswordHash");
+      });
+
+      it("should get KDF config for the active user", async () => {
+        const verification = {
+          type: VerificationType.MasterPassword,
+          secret: "password123",
+        } as any;
+
+        await sut.buildRequest(verification);
+
+        expect(kdfConfigService.getKdfConfig).toHaveBeenCalledWith(mockUserId);
+      });
+
+      it("should get salt for the active user", async () => {
+        const verification = {
+          type: VerificationType.MasterPassword,
+          secret: "password123",
+        } as any;
+
+        await sut.buildRequest(verification);
+
+        expect(masterPasswordService.saltForUser$).toHaveBeenCalledWith(mockUserId);
+      });
+
+      it("should call makeMasterPasswordAuthenticationData with correct parameters", async () => {
+        const verification = {
+          type: VerificationType.MasterPassword,
+          secret: "password123",
+        } as any;
+
+        await sut.buildRequest(verification);
+
+        expect(masterPasswordService.makeMasterPasswordAuthenticationData).toHaveBeenCalledWith(
+          "password123",
+          "kdfConfig",
+          "salt",
+        );
+      });
+
+      it("should throw if master password secret is empty", async () => {
+        const verification = {
+          type: VerificationType.MasterPassword,
+          secret: "",
+        } as any;
+
+        await expect(sut.buildRequest(verification)).rejects.toThrow("Master Password is required");
+      });
+
+      it("should throw if master password secret is null", async () => {
+        const verification = {
+          type: VerificationType.MasterPassword,
+          secret: null,
+        } as any;
+
+        await expect(sut.buildRequest(verification)).rejects.toThrow("Master Password is required");
       });
     });
   });
@@ -228,7 +351,6 @@ describe("UserVerificationService", () => {
         expect(result).toEqual({
           policyOptions: null,
           masterKey: "masterKey",
-          kdfConfig: "kdfConfig",
           email: "email",
         });
       });
@@ -288,7 +410,6 @@ describe("UserVerificationService", () => {
         expect(result).toEqual({
           policyOptions: "MasterPasswordPolicyOptions",
           masterKey: "masterKey",
-          kdfConfig: "kdfConfig",
           email: "email",
         });
       });
@@ -394,11 +515,7 @@ describe("UserVerificationService", () => {
 
   // Helpers
   function setMasterPasswordAvailability(hasMasterPassword: boolean) {
-    userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
-      of({
-        hasMasterPassword: hasMasterPassword,
-      } as UserDecryptionOptions),
-    );
+    userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(hasMasterPassword));
     masterPasswordService.masterKeyHash$.mockReturnValue(
       of(hasMasterPassword ? "masterKeyHash" : null),
     );

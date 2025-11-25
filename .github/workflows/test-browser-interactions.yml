@@ -49,6 +49,8 @@ jobs:
       uses: bitwarden/gh-actions/azure-logout@main
 
     - name: Generate GH App token
+      # NOTE: versions of actions/create-github-app-token after 2.0.3 break this workflow
+      # Remediation is tracked in https://bitwarden.atlassian.net/browse/PM-28174
       uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3
       id: app-token
       with:

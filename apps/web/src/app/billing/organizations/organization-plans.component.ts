@@ -36,8 +36,10 @@ import { PlanSponsorshipType, PlanType, ProductTierType } from "@bitwarden/commo
 import { BillingResponse } from "@bitwarden/common/billing/models/response/billing.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -126,6 +128,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   private _productTier = ProductTierType.Free;
+  private _familyPlan: PlanType;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -217,6 +220,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private subscriberBillingClient: SubscriberBillingClient,
     private taxClient: TaxClient,
+    private configService: ConfigService,
   ) {
     this.selfHosted = this.platformUtilsService.isSelfHost();
   }
@@ -256,10 +260,16 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       }
     }
 
+    const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM26462_Milestone_3,
+    );
+    this._familyPlan = milestone3FeatureEnabled
+      ? PlanType.FamiliesAnnually
+      : PlanType.FamiliesAnnually2025;
     if (this.currentPlan && this.currentPlan.productTier !== ProductTierType.Enterprise) {
       const upgradedPlan = this.passwordManagerPlans.find((plan) =>
         this.currentPlan.productTier === ProductTierType.Free
-          ? plan.type === PlanType.FamiliesAnnually
+          ? plan.type === this._familyPlan
           : plan.upgradeSortOrder == this.currentPlan.upgradeSortOrder + 1,
       );
 
@@ -378,9 +388,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
   get selectableProducts() {
     if (this.acceptingSponsorship) {
-      const familyPlan = this.passwordManagerPlans.find(
-        (plan) => plan.type === PlanType.FamiliesAnnually,
-      );
+      const familyPlan = this.passwordManagerPlans.find((plan) => plan.type === this._familyPlan);
       this.discount = familyPlan.PasswordManager.basePrice;
       return [familyPlan];
     }
@@ -397,6 +405,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
           plan.productTier === ProductTierType.TeamsStarter) &&
         (!this.currentPlan || this.currentPlan.upgradeSortOrder < plan.upgradeSortOrder) &&
         (!this.hasProvider || plan.productTier !== ProductTierType.TeamsStarter) &&
+        (plan.productTier !== ProductTierType.Families || plan.type === this._familyPlan) &&
         ((!this.isProviderQualifiedFor2020Plan() && this.planIsEnabled(plan)) ||
           (this.isProviderQualifiedFor2020Plan() &&
             Allowed2020PlansForLegacyProviders.includes(plan.type))),
@@ -413,6 +422,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       this.passwordManagerPlans?.filter(
         (plan) =>
           plan.productTier === selectedProductTierType &&
+          (plan.productTier !== ProductTierType.Families || plan.type === this._familyPlan) &&
           ((!this.isProviderQualifiedFor2020Plan() && this.planIsEnabled(plan)) ||
             (this.isProviderQualifiedFor2020Plan() &&
               Allowed2020PlansForLegacyProviders.includes(plan.type))),
@@ -675,7 +685,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         });
       }
 
-      await this.apiService.refreshIdentityToken();
       await this.syncService.fullSync(true);
 
       if (!this.acceptingSponsorship && !this.isInTrialFlow) {
@@ -714,6 +723,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   private getPlanFromLegacyEnum(): OrganizationSubscriptionPlan {
     switch (this.formGroup.value.plan) {
       case PlanType.FamiliesAnnually:
+      case PlanType.FamiliesAnnually2025:
         return { tier: "families", cadence: "annually" };
       case PlanType.TeamsMonthly:
         return { tier: "teams", cadence: "monthly" };
@@ -986,7 +996,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     if (this.currentPlan && this.currentPlan.productTier !== ProductTierType.Enterprise) {
       const upgradedPlan = this.passwordManagerPlans.find((plan) => {
         if (this.currentPlan.productTier === ProductTierType.Free) {
-          return plan.type === PlanType.FamiliesAnnually;
+          return plan.type === this._familyPlan;
         }
 
         if (

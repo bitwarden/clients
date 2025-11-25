@@ -80,9 +80,4 @@ export class AuditService implements AuditServiceAbstraction {
       throw new Error();
     }
   }
-
-  async getKnownPhishingDomains(): Promise<string[]> {
-    const response = await this.apiService.send("GET", "/phishing-domains", null, true, true);
-    return response as string[];
-  }
 }

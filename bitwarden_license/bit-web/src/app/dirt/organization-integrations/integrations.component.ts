@@ -204,6 +204,14 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       type: IntegrationType.EVENT,
     },
     {
+      name: "Sumo Logic",
+      linkURL: "https://bitwarden.com/help/sumo-logic-siem/",
+      image: "../../../../../../../images/integrations/logo-sumo-logic-siem.svg",
+      imageDarkMode: "../../../../../../../images/integrations/logo-sumo-logic-siem-darkmode.svg",
+      type: IntegrationType.EVENT,
+      newBadgeExpiration: "2025-12-31",
+    },
+    {
       name: "Microsoft Intune",
       linkURL: "https://bitwarden.com/help/deploy-browser-extensions-with-intune/",
       image: "../../../../../../../images/integrations/logo-microsoft-intune-color.svg",

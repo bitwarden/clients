@@ -285,6 +285,7 @@ impl WindowsProviderClient {
     }
 }
 
+#[derive(Debug)]
 pub enum CallbackError {
     Timeout,
     Cancelled,

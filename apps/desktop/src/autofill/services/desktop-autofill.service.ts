@@ -16,6 +16,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
+import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -27,6 +28,7 @@ import {
   Fido2AuthenticatorService as Fido2AuthenticatorServiceAbstraction,
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-authenticator.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { parseCredentialId } from "@bitwarden/common/platform/services/fido2/credential-id-utils";
 import { getCredentialsForAutofill } from "@bitwarden/common/platform/services/fido2/fido2-autofill-utils";
@@ -46,7 +48,6 @@ import {
 import { NativeAutofillUserVerificationCommand } from "../../platform/main/autofill/user-verification.command";
 
 import type { NativeWindowObject } from "./desktop-fido2-user-interface.service";
-import { DeviceType } from "@bitwarden/common/enums";
 
 const NativeCredentialSyncFeatureFlag = ipc.platform.deviceType === DeviceType.WindowsDesktop ? FeatureFlag.WindowsNativeCredentialSync : FeatureFlag.MacOsNativeCredentialSync;
 
@@ -63,9 +64,15 @@ export class DesktopAutofillService implements OnDestroy {
     private fido2AuthenticatorService: Fido2AuthenticatorServiceAbstraction<NativeWindowObject>,
     private accountService: AccountService,
     private authService: AuthService,
+    private platformUtilsService: PlatformUtilsService,
   ) {}
 
   async init() {
+    // Currently only supported for MacOS and Windows
+    if (![DeviceType.MacOsDesktop, DeviceType.WindowsDesktop].includes(this.platformUtilsService.getDevice())) {
+      return;
+    }
+
     this.configService
       .getFeatureFlag$(NativeCredentialSyncFeatureFlag)
       .pipe(

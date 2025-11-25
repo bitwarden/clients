@@ -126,7 +126,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
 
   @HostBinding("class") get classList() {
     return [
-      "tw-font-semibold",
+      "tw-font-medium",
       "tw-leading-[0px]",
       "tw-border-none",
       "tw-transition",

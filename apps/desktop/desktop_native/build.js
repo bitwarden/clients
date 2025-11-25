@@ -26,7 +26,7 @@ const target = targetArg ? targetArg.split("=")[1] : null;
 let crossPlatform = process.argv.length > 2 && process.argv[2] === "cross-platform";
 
 function buildNapiModule(target, release = true) {
-    const targetArg = target ? `--target ${target}` : "";
+    const targetArg = target ? `--target=${target}` : "";
     const releaseArg = release ? "--release" : "";
     child_process.execSync(`npm run build -- ${releaseArg} ${targetArg}`, { stdio: 'inherit', cwd: path.join(__dirname, "napi") });
 }

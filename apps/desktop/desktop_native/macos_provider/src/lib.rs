@@ -1,4 +1,5 @@
 #![cfg(target_os = "macos")]
+#![allow(clippy::disallowed_macros)] // uniffi macros trip up clippy's evaluation
 
 use std::{
     collections::HashMap,

@@ -54,6 +54,14 @@ const buttonStyles: Record<ButtonType, string[]> = {
     "hover:!tw-text-contrast",
     ...focusRing,
   ],
+  dangerPrimary: [
+    "tw-border-danger-600",
+    "tw-bg-danger-600",
+    "!tw-text-contrast",
+    "hover:tw-bg-danger-700",
+    "hover:tw-border-danger-700",
+    ...focusRing,
+  ],
   unstyled: [],
 };
 
@@ -69,7 +77,7 @@ const buttonStyles: Record<ButtonType, string[]> = {
 export class ButtonComponent implements ButtonLikeAbstraction {
   @HostBinding("class") get classList() {
     return [
-      "tw-font-semibold",
+      "tw-font-medium",
       "tw-rounded-full",
       "tw-transition",
       "tw-border-2",

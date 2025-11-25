@@ -24,7 +24,6 @@ pub fn make_credential(
     cancellation_token: Receiver<()>,
 ) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
     tracing::debug!("=== PluginMakeCredential() called ===");
-
     // Extract RP information
     let rp_info = request
         .rp_information()

@@ -10,13 +10,14 @@ import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-manageme
 import { WindowMain } from "../../main/window.main";
 
 import { DesktopBiometricsService } from "./desktop.biometrics.service";
-import { WindowsBiometricsSystem } from "./native-v2";
+import { LinuxBiometricsSystem, WindowsBiometricsSystem } from "./native-v2";
 import { OsBiometricService } from "./os-biometrics.service";
 
 export class MainBiometricsService extends DesktopBiometricsService {
   private osBiometricsService: OsBiometricService;
   private shouldAutoPrompt = true;
   private windowsV2BiometricsEnabled = false;
+  private linuxV2BiometricsEnabled = false;
 
   constructor(
     private i18nService: I18nService,
@@ -169,5 +170,17 @@ export class MainBiometricsService extends DesktopBiometricsService {
 
   async isWindowsV2BiometricsEnabled(): Promise<boolean> {
     return this.windowsV2BiometricsEnabled;
+  }
+
+  async enableLinuxV2Biometrics(): Promise<void> {
+    if (this.platform === "linux" && !this.linuxV2BiometricsEnabled) {
+      this.logService.info("[BiometricsMain] Loading native biometrics module v2 for linux");
+      this.osBiometricsService = new LinuxBiometricsSystem();
+      this.linuxV2BiometricsEnabled = true;
+    }
+  }
+
+  async isLinuxV2BiometricsEnabled(): Promise<boolean> {
+    return this.linuxV2BiometricsEnabled;
   }
 }

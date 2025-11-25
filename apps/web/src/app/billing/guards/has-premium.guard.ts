@@ -1,21 +1,21 @@
 import { inject } from "@angular/core";
 import {
   ActivatedRouteSnapshot,
-  RouterStateSnapshot,
-  Router,
   CanActivateFn,
+  Router,
+  RouterStateSnapshot,
   UrlTree,
 } from "@angular/router";
-import { Observable, of } from "rxjs";
+import { from, Observable, of } from "rxjs";
 import { switchMap, tap } from "rxjs/operators";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 
 /**
- * CanActivate guard that checks if the user has premium and otherwise triggers the "premiumRequired"
- * message and blocks navigation.
+ * CanActivate guard that checks if the user has premium and otherwise triggers the premium upgrade
+ * flow and blocks navigation.
  */
 export function hasPremiumGuard(): CanActivateFn {
   return (
@@ -23,7 +23,7 @@ export function hasPremiumGuard(): CanActivateFn {
     _state: RouterStateSnapshot,
   ): Observable<boolean | UrlTree> => {
     const router = inject(Router);
-    const messagingService = inject(MessagingService);
+    const premiumUpgradePromptService = inject(PremiumUpgradePromptService);
     const billingAccountProfileStateService = inject(BillingAccountProfileStateService);
     const accountService = inject(AccountService);
 
@@ -33,10 +33,14 @@ export function hasPremiumGuard(): CanActivateFn {
           ? billingAccountProfileStateService.hasPremiumFromAnySource$(account.id)
           : of(false),
       ),
-      tap((userHasPremium: boolean) => {
+      switchMap((userHasPremium: boolean) => {
+        // Can't call async method inside observables so instead, wait for service then switch back to the boolean
         if (!userHasPremium) {
-          messagingService.send("premiumRequired");
+          return from(premiumUpgradePromptService.promptForPremium()).pipe(
+            switchMap(() => of(userHasPremium)),
+          );
         }
+        return of(userHasPremium);
       }),
       // Prevent trapping the user on the login page, since that's an awful UX flow
       tap((userHasPremium: boolean) => {

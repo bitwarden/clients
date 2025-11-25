@@ -61,14 +61,14 @@ This is easy to verify. Bitwarden prefixes all Tailwind classes with `tw-`. If y
 without this prefix, it probably shouldn't be there.
 
 <div class="tw-bg-danger-600/10 tw-p-4">
-  <span class="tw-font-bold tw-text-danger">Bad (Bootstrap)</span>
+  <span class="tw-font-medium tw-text-danger">Bad (Bootstrap)</span>
   ```html
   <div class="mb-2"></div>
   ```
 </div>
 
 <div class="tw-bg-success-600/10 tw-p-4">
-  <span class="tw-font-bold tw-text-success">Good (Tailwind)</span>
+  <span class="tw-font-medium tw-text-success">Good (Tailwind)</span>
   ```html
   <div class="tw-mb-2"></div>
   ```
@@ -77,7 +77,7 @@ without this prefix, it probably shouldn't be there.
 **Exception:** Icon font classes, prefixed with `bwi`, are allowed.
 
 <div class="tw-bg-success-600/10 tw-p-4">
-  <span class="tw-font-bold tw-text-success">Good (Icons)</span>
+  <span class="tw-font-medium tw-text-success">Good (Icons)</span>
   ```html
   <i class="bwi bwi-spinner bwi-lg bwi-spin" aria-hidden="true"></i>
   ```
@@ -91,7 +91,7 @@ reactive forms to make use of these components. Review the
 [form component docs](?path=/docs/component-library-form--docs).
 
 <div class="tw-bg-danger-600/10 tw-p-4">
-    <span class="tw-text-danger tw-font-bold">Bad</span>
+    <span class="tw-text-danger tw-font-medium">Bad</span>
     ```html
     <form #form (ngSubmit)="submit()">
         ...
@@ -100,7 +100,7 @@ reactive forms to make use of these components. Review the
 </div>
 
 <div class="tw-bg-success-600/10 tw-p-4">
-    <span class="tw-text-success tw-font-bold">Good</span>
+    <span class="tw-text-success tw-font-medium">Good</span>
     ```html
     <form [formGroup]="formGroup" [bitSubmit]="submit">
         ...

@@ -1,7 +1,7 @@
 import { Opaque } from "type-fest";
 
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { OrganizationReportId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant } from "@bitwarden/components";
 
@@ -79,12 +79,12 @@ export type ApplicationHealthReportDetail = {
   applicationName: string;
   passwordCount: number;
   atRiskPasswordCount: number;
-  atRiskCipherIds: string[];
+  atRiskCipherIds: CipherId[];
   memberCount: number;
   atRiskMemberCount: number;
   memberDetails: MemberDetails[];
   atRiskMemberDetails: MemberDetails[];
-  cipherIds: string[];
+  cipherIds: CipherId[];
 };
 
 // -------------------- Password Health Report Models --------------------
@@ -106,6 +106,17 @@ export const ReportStatus = Object.freeze({
 } as const);
 
 export type ReportStatus = (typeof ReportStatus)[keyof typeof ReportStatus];
+
+export const ReportProgress = Object.freeze({
+  FetchingMembers: 1,
+  AnalyzingPasswords: 2,
+  CalculatingRisks: 3,
+  GeneratingReport: 4,
+  Saving: 5,
+  Complete: 6,
+} as const);
+
+export type ReportProgress = (typeof ReportProgress)[keyof typeof ReportProgress];
 
 export interface RiskInsightsData {
   id: OrganizationReportId;

@@ -32,6 +32,17 @@ import { InlineMenuFieldQualificationService } from "./inline-menu-field-qualifi
 
 const defaultWindowReadyState = document.readyState;
 const defaultDocumentVisibilityState = document.visibilityState;
+
+const mockRect = (rect: { left: number; top: number; width: number; height: number }) =>
+  ({
+    ...rect,
+    x: rect.left,
+    y: rect.top,
+    right: rect.left + rect.width,
+    bottom: rect.top + rect.height,
+    toJSON: () => ({}),
+  }) as DOMRectReadOnly;
+
 describe("AutofillOverlayContentService", () => {
   let domQueryService: DomQueryService;
   let domElementVisibilityService: DomElementVisibilityService;
@@ -2154,6 +2165,10 @@ describe("AutofillOverlayContentService", () => {
       });
 
       it("calculates the sub frame's offsets if a single frame with the referenced url exists", async () => {
+        const iframe = document.querySelector("iframe") as HTMLIFrameElement;
+        jest
+          .spyOn(iframe, "getBoundingClientRect")
+          .mockReturnValue(mockRect({ left: 0, top: 0, width: 1, height: 1 }));
         sendMockExtensionMessage(
           {
             command: "getSubFrameOffsets",
@@ -2270,6 +2285,9 @@ describe("AutofillOverlayContentService", () => {
           });
           document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
           const iframe = document.querySelector("iframe") as HTMLIFrameElement;
+          jest
+            .spyOn(iframe, "getBoundingClientRect")
+            .mockReturnValue(mockRect({ width: 1, height: 1, left: 2, top: 2 }));
           const subFrameData = {
             url: "https://example.com/",
             frameId: 10,
@@ -2305,6 +2323,9 @@ describe("AutofillOverlayContentService", () => {
         it("posts the calculated sub frame data to the background", async () => {
           document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
           const iframe = document.querySelector("iframe") as HTMLIFrameElement;
+          jest
+            .spyOn(iframe, "getBoundingClientRect")
+            .mockReturnValue(mockRect({ width: 1, height: 1, left: 2, top: 2 }));
           const subFrameData = {
             url: "https://example.com/",
             frameId: 10,
@@ -2332,6 +2353,39 @@ describe("AutofillOverlayContentService", () => {
             },
           });
         });
+      });
+    });
+
+    describe("calculateSubFrameOffsets", () => {
+      it("returns null when iframe has zero width and height", () => {
+        const iframe = document.querySelector("iframe") as HTMLIFrameElement;
+
+        jest
+          .spyOn(iframe, "getBoundingClientRect")
+          .mockReturnValue(mockRect({ left: 0, top: 0, width: 0, height: 0 }));
+
+        const result = autofillOverlayContentService["calculateSubFrameOffsets"](
+          iframe,
+          "https://example.com/",
+          10,
+        );
+
+        expect(result).toBeNull();
+      });
+
+      it("returns null when iframe is not connected to the document", () => {
+        const iframe = document.createElement("iframe") as HTMLIFrameElement;
+
+        jest
+          .spyOn(iframe, "getBoundingClientRect")
+          .mockReturnValue(mockRect({ width: 100, height: 50, left: 10, top: 20 }));
+
+        const result = autofillOverlayContentService["calculateSubFrameOffsets"](
+          iframe,
+          "https://example.com/",
+          10,
+        );
+        expect(result).toBeNull();
       });
     });
 
