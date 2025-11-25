@@ -32,6 +32,8 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
 
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
+import { NativeAutofillUserVerificationCommand } from "../../platform/main/autofill/user-verification.command";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 /**
  * This type is used to pass the window position from the native UI
@@ -41,6 +43,7 @@ export type NativeWindowObject = {
    * The position of the window, first entry is the x position, second is the y position
    */
   windowXy?: { x: number; y: number };
+  handle?: Uint8Array;
 };
 
 export class DesktopFido2UserInterfaceService
@@ -65,8 +68,9 @@ export class DesktopFido2UserInterfaceService
     fallbackSupported: boolean,
     nativeWindowObject: NativeWindowObject,
     abortController?: AbortController,
+    transactionContext?: string,
   ): Promise<DesktopFido2UserInterfaceSession> {
-    this.logService.warning("newSession", fallbackSupported, abortController, nativeWindowObject);
+    this.logService.debug("newSession", fallbackSupported, abortController, nativeWindowObject, transactionContext);
     const session = new DesktopFido2UserInterfaceSession(
       this.authService,
       this.cipherService,
@@ -75,6 +79,8 @@ export class DesktopFido2UserInterfaceService
       this.router,
       this.desktopSettingsService,
       nativeWindowObject,
+      abortController,
+      transactionContext,
     );
 
     this.currentSession = session;
@@ -91,12 +97,16 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     private router: Router,
     private desktopSettingsService: DesktopSettingsService,
     private windowObject: NativeWindowObject,
+    private abortController: AbortController,
+    private transactionContext: string,
   ) {}
 
   private confirmCredentialSubject = new Subject<boolean>();
-  private createdCipher: Cipher;
 
-  private availableCipherIdsSubject = new BehaviorSubject<string[]>(null);
+  private updatedCipher: CipherView;
+
+  private rpId = new BehaviorSubject<string>(null);
+  private availableCipherIdsSubject = new BehaviorSubject<string[]>([""]);
   /**
    * Observable that emits available cipher IDs once they're confirmed by the UI
    */
@@ -114,7 +124,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     assumeUserPresence,
     masterPasswordRepromptRequired,
   }: PickCredentialParams): Promise<{ cipherId: string; userVerified: boolean }> {
-    this.logService.warning("pickCredential desktop function", {
+    this.logService.debug("pickCredential desktop function", {
       cipherIds,
       userVerification,
       assumeUserPresence,
@@ -123,33 +133,70 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
     try {
       // Check if we can return the credential without user interaction
+      await this.accountService.setShowHeader(false);
       if (assumeUserPresence && cipherIds.length === 1 && !masterPasswordRepromptRequired) {
-        this.logService.debug(
-          "shortcut - Assuming user presence and returning cipherId",
-          cipherIds[0],
-        );
-        return { cipherId: cipherIds[0], userVerified: userVerification };
+        const selectedCipherId = cipherIds[0];
+        if (userVerification) {
+          // retrieve the cipher
+          const activeUserId = await firstValueFrom(
+            this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+          );
+
+          if (!activeUserId) {
+            return;
+          }
+          const cipherView = await firstValueFrom(this.cipherService.cipherListViews$(activeUserId).pipe(map((ciphers) => {
+            return ciphers.find((cipher) => cipher.id == selectedCipherId && !cipher.deletedDate) as CipherView;
+          })));
+
+          let cred = cipherView.login.fido2Credentials[0];
+          const username = cred.userName ?? cred.userDisplayName
+          try {
+            // TODO: internationalization
+            const isConfirmed = await this.promptForUserVerification(username, "Verify it's you to log in with Bitwarden.");
+            return { cipherId: cipherIds[0], userVerified: isConfirmed };
+          }
+          catch (e) {
+            this.logService.debug("Failed to prompt for user verification without showing UI", e)
+          }
+        }
+        else {
+          this.logService.warning(
+            "shortcut - Assuming user presence and returning cipherId",
+            cipherIds[0],
+          );
+          return { cipherId: cipherIds[0], userVerified: userVerification };
+        }
       }
 
       this.logService.debug("Could not shortcut, showing UI");
 
+      // TODO: We need to pass context from the original request whether this
+      // should be a silent request or not. Then, we can fail here if it's
+      // supposed to be silent.
+
       // make the cipherIds available to the UI.
       this.availableCipherIdsSubject.next(cipherIds);
 
-      await this.showUi("/passkeys", this.windowObject.windowXy);
+      await this.showUi("/fido2-assertion", this.windowObject.windowXy, false);
 
       const chosenCipherResponse = await this.waitForUiChosenCipher();
 
       this.logService.debug("Received chosen cipher", chosenCipherResponse);
 
       return {
-        cipherId: chosenCipherResponse.cipherId,
-        userVerified: chosenCipherResponse.userVerified,
+        cipherId: chosenCipherResponse?.cipherId,
+        userVerified: chosenCipherResponse?.userVerified,
       };
     } finally {
       // Make sure to clean up so the app is never stuck in modal mode?
       await this.desktopSettingsService.setModalMode(false);
+      await this.accountService.setShowHeader(true);
     }
+  }
+
+  async getRpId(): Promise<string> {
+    return firstValueFrom(this.rpId.pipe(filter((id) => id != null)));
   }
 
   confirmChosenCipher(cipherId: string, userVerified: boolean = false): void {
@@ -159,22 +206,32 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
   private async waitForUiChosenCipher(
     timeoutMs: number = 60000,
-  ): Promise<{ cipherId: string; userVerified: boolean } | undefined> {
+  ): Promise<{ cipherId?: string; userVerified: boolean } | undefined> {
+    const { promise: cancelPromise, listener: abortFn } = this.subscribeToCancellation();
     try {
-      return await lastValueFrom(this.chosenCipherSubject.pipe(timeout(timeoutMs)));
-    } catch {
+      this.abortController.signal.throwIfAborted();
+      const confirmPromise = lastValueFrom(this.chosenCipherSubject.pipe(timeout(timeoutMs)));
+      return await Promise.race([confirmPromise, cancelPromise]);
+    } catch (e) {
       // If we hit a timeout, return undefined instead of throwing
+      this.logService.debug("Timed out or cancelled?", e);
       this.logService.warning("Timeout: User did not select a cipher within the allowed time", {
         timeoutMs,
       });
       return { cipherId: undefined, userVerified: false };
+    }
+    finally {
+      this.unsusbscribeCancellation(abortFn);
     }
   }
 
   /**
    * Notifies the Fido2UserInterfaceSession that the UI operations has completed and it can return to the OS.
    */
-  notifyConfirmNewCredential(confirmed: boolean): void {
+  notifyConfirmCreateCredential(confirmed: boolean, updatedCipher?: CipherView): void {
+    if (updatedCipher) {
+      this.updatedCipher = updatedCipher;
+    }
     this.confirmCredentialSubject.next(confirmed);
     this.confirmCredentialSubject.complete();
   }
@@ -184,7 +241,19 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
    * @returns
    */
   private async waitForUiNewCredentialConfirmation(): Promise<boolean> {
-    return lastValueFrom(this.confirmCredentialSubject);
+    const { promise: cancelPromise, listener: abortFn } = this.subscribeToCancellation();
+    try {
+      this.abortController.signal.throwIfAborted();
+      const confirmPromise = lastValueFrom(this.confirmCredentialSubject);
+      return await Promise.race([confirmPromise, cancelPromise]);
+    } catch (e) {
+      // If we hit a timeout, return undefined instead of throwing
+      this.logService.debug("Timed out or cancelled?", e);
+      return undefined;
+    }
+    finally {
+      this.unsusbscribeCancellation(abortFn);
+    }
   }
 
   /**
@@ -195,60 +264,79 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   async confirmNewCredential({
     credentialName,
     userName,
+    userHandle,
     userVerification,
     rpId,
   }: NewCredentialParams): Promise<{ cipherId: string; userVerified: boolean }> {
-    this.logService.warning(
+    this.logService.debug(
       "confirmNewCredential",
       credentialName,
       userName,
+      userHandle,
       userVerification,
       rpId,
     );
+    this.rpId.next(rpId);
 
     try {
-      await this.showUi("/passkeys", this.windowObject.windowXy);
+      await this.showUi("/fido2-creation", this.windowObject.windowXy, false);
 
       // Wait for the UI to wrap up
       const confirmation = await this.waitForUiNewCredentialConfirmation();
       if (!confirmation) {
         return { cipherId: undefined, userVerified: false };
       }
-      // Create the credential
-      await this.createCredential({
-        credentialName,
-        userName,
-        rpId,
-        userHandle: "",
-        userVerification,
-      });
 
-      // wait for 10ms to help RXJS catch up(?)
-      // We sometimes get a race condition from this.createCredential not updating cipherService in time
-      //console.log("waiting 10ms..");
-      //await new Promise((resolve) => setTimeout(resolve, 10));
-      //console.log("Just waited 10ms");
-
-      // Return the new cipher (this.createdCipher)
-      return { cipherId: this.createdCipher.id, userVerified: userVerification };
+      if (this.updatedCipher) {
+        await this.updateCredential(this.updatedCipher);
+        return { cipherId: this.updatedCipher.id, userVerified: userVerification };
+      } else {
+        // Create the cipher
+        const createdCipher = await this.createCipher({
+          credentialName,
+          userName,
+          rpId,
+          userHandle,
+          userVerification,
+        });
+        return { cipherId: createdCipher.id, userVerified: userVerification };
+      }
     } finally {
       // Make sure to clean up so the app is never stuck in modal mode?
       await this.desktopSettingsService.setModalMode(false);
+      await this.accountService.setShowHeader(true);
     }
   }
 
-  private async showUi(route: string, position?: { x: number; y: number }): Promise<void> {
+  private async hideUi(): Promise<void> {
+    await this.desktopSettingsService.setModalMode(false);
+    await this.router.navigate(["/"]);
+  }
+
+  private async showUi(
+    route: string,
+    position?: { x: number; y: number },
+    showTrafficButtons: boolean = false,
+    disableRedirect?: boolean,
+  ): Promise<void> {
     // Load the UI:
-    await this.desktopSettingsService.setModalMode(true, position);
-    await this.router.navigate(["/passkeys"]);
+    await this.desktopSettingsService.setModalMode(true, showTrafficButtons, position);
+    await this.accountService.setShowHeader(showTrafficButtons);
+    await this.router.navigate([
+      route,
+      {
+        "disable-redirect": disableRedirect || null,
+      },
+    ]);
   }
 
   /**
-   * Can be called by the UI to create a new credential with user input etc.
+   * Can be called by the UI to create a new cipher with user input etc.
    * @param param0
    */
-  async createCredential({ credentialName, userName, rpId }: NewCredentialParams): Promise<Cipher> {
+  async createCipher({ credentialName, userName, rpId }: NewCredentialParams): Promise<Cipher> {
     // Store the passkey on a new cipher to avoid replacing something important
+
     const cipher = new CipherView();
     cipher.name = credentialName;
 
@@ -267,32 +355,143 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
 
+    if (!activeUserId) {
+      throw new Error("No active user ID found!");
+    }
+
     const encCipher = await this.cipherService.encrypt(cipher, activeUserId);
-    const createdCipher = await this.cipherService.createWithServer(encCipher);
 
-    this.createdCipher = createdCipher;
+    try {
+      const createdCipher = await this.cipherService.createWithServer(encCipher);
 
-    return createdCipher;
+      return createdCipher;
+    } catch {
+      throw new Error("Unable to create cipher");
+    }
+  }
+
+  /** Called by the UI to prompt the user for verification. May be fulfilled by the OS. */
+  async promptForUserVerification(username: string, displayHint: string): Promise<boolean> {
+    this.logService.info("DesktopFido2UserInterfaceSession] Prompting for user verification")
+    // If the UI was showing before (to unlock the vault), then use our
+    // window for the handle; otherwise, use the WebAuthn client's
+    // handle.
+    // 
+    // For Windows, if the selected window handle is not in the foreground, then the Windows
+    // Hello dialog will also be in the background.
+    // 
+    // TODO: modalState is just a proxy for what we actually want: whether the window is visible.
+    // We should add a way for services to query window visibility.
+    const modalState = await firstValueFrom(this.desktopSettingsService.modalMode$);
+    const windowHandle = modalState.isModalModeActive ? await ipc.platform.getNativeWindowHandle() : this.windowObject.handle;
+
+    const uvRequest = ipc.autofill.runCommand<NativeAutofillUserVerificationCommand>({
+      namespace: "autofill",
+      command: "user-verification",
+      params: {
+        windowHandle: Utils.fromBufferToB64(windowHandle),
+        transactionContext: this.transactionContext,
+        username,
+        displayHint,
+      },
+    });
+    // Ensure our window is hidden when showing the OS user verification dialog.
+    // TODO: This is prone to data races and, on Windows, may cause the Windows
+    // Hello dialog not to have keyboard input focus. We need a better solution
+    // than this.
+    this.hideUi();
+    const uvResult = await uvRequest;
+    if (uvResult.type === "error") {
+      this.logService.error("Error getting user verification", uvResult.error);
+      return false;
+    }
+    return uvResult.type === "success";
+  }
+
+  async updateCredential(cipher: CipherView): Promise<void> {
+    this.logService.info("updateCredential");
+    await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        map(async (a) => {
+          if (a) {
+            const encCipher = await this.cipherService.encrypt(cipher, a.id);
+            await this.cipherService.updateWithServer(encCipher);
+          }
+        }),
+      ),
+    );
   }
 
   async informExcludedCredential(existingCipherIds: string[]): Promise<void> {
-    this.logService.warning("informExcludedCredential", existingCipherIds);
+    this.logService.debug("informExcludedCredential", existingCipherIds);
+
+    // make the cipherIds available to the UI.
+    this.availableCipherIdsSubject.next(existingCipherIds);
+
+    await this.accountService.setShowHeader(false);
+    await this.showUi("/fido2-excluded", this.windowObject.windowXy, false);
   }
 
   async ensureUnlockedVault(): Promise<void> {
-    this.logService.warning("ensureUnlockedVault");
+    this.logService.debug("ensureUnlockedVault");
 
     const status = await firstValueFrom(this.authService.activeAccountStatus$);
     if (status !== AuthenticationStatus.Unlocked) {
-      throw new Error("Vault is not unlocked");
+      await this.showUi("/lock", this.windowObject.windowXy, true, true);
+
+      let status2: AuthenticationStatus;
+      const { promise: cancelPromise, listener: abortFn } = this.subscribeToCancellation();
+      try {
+        status2 = await Promise.race([lastValueFrom(
+          this.authService.activeAccountStatus$.pipe(
+            filter((s) => s === AuthenticationStatus.Unlocked),
+            take(1),
+            timeout(1000 * 60 * 5), // 5 minutes
+          ),
+        ), cancelPromise]);
+      } catch (error) {
+        this.logService.warning("Error while waiting for vault to unlock", error);
+      }
+      finally {
+        this.unsusbscribeCancellation(abortFn);
+      }
+
+      if (status2 === AuthenticationStatus.Unlocked) {
+        await this.router.navigate(["/"]);
+      }
+
+      if (status2 !== AuthenticationStatus.Unlocked) {
+        await this.hideUi();
+        throw new Error("Vault is not unlocked");
+      }
     }
   }
 
   async informCredentialNotFound(): Promise<void> {
-    this.logService.warning("informCredentialNotFound");
+    this.logService.debug("informCredentialNotFound");
   }
 
   async close() {
-    this.logService.warning("close");
+    this.logService.debug("close");
+  }
+
+  subscribeToCancellation() {
+      let cancelReject: (reason?: any) => void;
+      const cancelPromise: Promise<never> = new Promise((_, reject) => {
+        cancelReject = reject
+      });
+      const abortFn = (ev: Event) => {
+        if (ev.target instanceof AbortSignal) {
+          cancelReject(ev.target.reason)
+        }
+      };
+      this.abortController.signal.addEventListener("abort", abortFn, { once: true });
+
+      return { promise: cancelPromise, listener: abortFn };
+
+  }
+
+  unsusbscribeCancellation(listener: (ev: Event) => void): void {
+    this.abortController.signal.removeEventListener("abort", listener);
   }
 }

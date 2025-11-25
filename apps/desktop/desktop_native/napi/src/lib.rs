@@ -656,6 +656,18 @@ pub mod autofill {
         Discouraged,
     }
 
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct LockStatusQueryRequest {}
+
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct LockStatusQueryResponse {
+        pub is_unlocked: bool,
+    }
+
     #[derive(Serialize, Deserialize)]
     #[serde(bound = "T: Serialize + DeserializeOwned")]
     pub struct PasskeyMessage<T: Serialize + DeserializeOwned> {
@@ -682,6 +694,9 @@ pub mod autofill {
         pub user_verification: UserVerification,
         pub supported_algorithms: Vec<i32>,
         pub window_xy: Position,
+        pub excluded_credentials: Vec<Vec<u8>>,
+        pub client_window_handle: Option<Vec<u8>>,
+        pub context: Option<String>,
     }
 
     #[napi(object)]
@@ -703,6 +718,8 @@ pub mod autofill {
         pub user_verification: UserVerification,
         pub allowed_credentials: Vec<Vec<u8>>,
         pub window_xy: Position,
+        pub client_window_handle: Option<Vec<u8>>,
+        pub context: Option<String>,
         //extension_input: Vec<u8>, TODO: Implement support for extensions
     }
 
@@ -712,12 +729,22 @@ pub mod autofill {
     pub struct PasskeyAssertionWithoutUserInterfaceRequest {
         pub rp_id: String,
         pub credential_id: Vec<u8>,
-        pub user_name: String,
-        pub user_handle: Vec<u8>,
+        pub user_name: Option<String>,
+        pub user_handle: Option<Vec<u8>>,
         pub record_identifier: Option<String>,
         pub client_data_hash: Vec<u8>,
         pub user_verification: UserVerification,
         pub window_xy: Position,
+        pub client_window_handle: Option<Vec<u8>>,
+        pub context: Option<String>,
+    }
+
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct NativeStatus {
+        pub key: String,
+        pub value: String,
     }
 
     #[napi(object)]
@@ -770,6 +797,20 @@ pub mod autofill {
             )]
             assertion_without_user_interface_callback: ThreadsafeFunction<
                 (u32, u32, PasskeyAssertionWithoutUserInterfaceRequest),
+                ErrorStrategy::CalleeHandled,
+            >,
+            #[napi(
+                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: NativeStatus) => void"
+            )]
+            native_status_callback: ThreadsafeFunction<
+                (u32, u32, NativeStatus),
+                ErrorStrategy::CalleeHandled,
+            >,
+            #[napi(
+                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: LockStatusQueryRequest) => void"
+            )]
+            lock_status_query_callback: ThreadsafeFunction<
+                (u32, u32, LockStatusQueryRequest),
                 ErrorStrategy::CalleeHandled,
             >,
         ) -> napi::Result<Self> {
@@ -844,6 +885,38 @@ pub mod autofill {
                                 }
                             }
 
+                            match serde_json::from_str::<PasskeyMessage<NativeStatus>>(&message) {
+                                Ok(msg) => {
+                                    let value = msg
+                                        .value
+                                        .map(|value| (client_id, msg.sequence_number, value))
+                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
+                                    native_status_callback
+                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
+                                    continue;
+                                }
+                                Err(error) => {
+                                    error!(%error, "Unable to deserialze native status.");
+                                }
+                            }
+
+                            match serde_json::from_str::<PasskeyMessage<LockStatusQueryRequest>>(
+                                &message,
+                            ) {
+                                Ok(msg) => {
+                                    let value = msg
+                                        .value
+                                        .map(|value| (client_id, msg.sequence_number, value))
+                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
+                                    lock_status_query_callback
+                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
+                                    continue;
+                                }
+                                Err(error) => {
+                                    error!(%error, "Unable to deserialze native status.");
+                                }
+                            }
+
                             error!(message, "Received an unknown message2");
                         }
                     }
@@ -903,6 +976,20 @@ pub mod autofill {
         }
 
         #[napi]
+        pub fn complete_lock_status_query(
+            &self,
+            client_id: u32,
+            sequence_number: u32,
+            response: LockStatusQueryResponse,
+        ) -> napi::Result<u32> {
+            let message = PasskeyMessage {
+                sequence_number,
+                value: Ok(response),
+            };
+            self.send(client_id, serde_json::to_string(&message).unwrap())
+        }
+
+        #[napi]
         pub fn complete_error(
             &self,
             client_id: u32,
@@ -931,72 +1018,11 @@ pub mod autofill {
 
 #[napi]
 pub mod passkey_authenticator {
-    use napi::threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction};
-
-    #[napi(object)]
-    #[derive(Debug)]
-    pub struct PasskeyRequestEvent {
-        pub request_type: String,
-        pub request_json: String,
-    }
-
-    #[napi(object)]
-    #[derive(serde::Serialize, serde::Deserialize)]
-    pub struct SyncedCredential {
-        pub credential_id: String, // base64url encoded
-        pub rp_id: String,
-        pub user_name: String,
-        pub user_handle: String, // base64url encoded
-    }
-
-    #[napi(object)]
-    #[derive(serde::Serialize, serde::Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct PasskeySyncRequest {
-        pub rp_id: String,
-    }
-
-    #[napi(object)]
-    #[derive(serde::Serialize, serde::Deserialize)]
-    #[serde(rename_all = "camelCase")]
-
-    pub struct PasskeySyncResponse {
-        pub credentials: Vec<SyncedCredential>,
-    }
-
-    #[napi(object)]
-    #[derive(serde::Serialize, serde::Deserialize)]
-    #[serde(rename_all = "camelCase")]
-
-    pub struct PasskeyErrorResponse {
-        pub message: String,
-    }
-
     #[napi]
     pub fn register() -> napi::Result<()> {
         crate::passkey_authenticator_internal::register().map_err(|e| {
             napi::Error::from_reason(format!("Passkey registration failed - Error: {e} - {e:?}"))
         })
-    }
-
-    #[napi]
-    pub async fn on_request(
-        #[napi(
-            ts_arg_type = "(error: null | Error, event: PasskeyRequestEvent) => Promise<string>"
-        )]
-        callback: ThreadsafeFunction<PasskeyRequestEvent, CalleeHandled>,
-    ) -> napi::Result<String> {
-        crate::passkey_authenticator_internal::on_request(callback).await
-    }
-
-    #[napi]
-    pub fn sync_credentials_to_windows(credentials: Vec<SyncedCredential>) -> napi::Result<()> {
-        crate::passkey_authenticator_internal::sync_credentials_to_windows(credentials)
-    }
-
-    #[napi]
-    pub fn get_credentials_from_windows() -> napi::Result<Vec<SyncedCredential>> {
-        crate::passkey_authenticator_internal::get_credentials_from_windows()
     }
 }
 

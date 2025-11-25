@@ -4,42 +4,199 @@
 
 // New modular structure
 mod assert;
-mod com_buffer;
-mod com_provider;
-mod com_registration;
-mod ipc;
+mod ipc2;
 mod make_credential;
-mod sync;
 mod types;
 mod util;
-mod webauthn;
 
-// Re-export main functionality
-pub use assert::WindowsAssertionRequest;
-pub use com_registration::{add_authenticator, initialize_com_library, register_com_library};
-pub use ipc::{send_passkey_request, set_request_sender};
-pub use make_credential::WindowsRegistrationRequest;
-pub use sync::{get_credentials_from_windows, send_sync_request, sync_credentials_to_windows};
-pub use types::{
-    PasskeyRequest, PasskeyResponse, RequestEvent, RequestType, SyncedCredential,
-    UserVerificationRequirement,
+use std::{
+    collections::{HashMap, HashSet},
+    sync::{
+        mpsc::{self, Sender},
+        Arc, Mutex,
+    },
+    time::Duration,
 };
 
-use crate::util::debug_log;
+use base64::engine::{general_purpose::STANDARD, Engine as _};
+use win_webauthn::{
+    plugin::{
+        PluginAddAuthenticatorOptions, PluginAuthenticator, PluginCancelOperationRequest,
+        PluginGetAssertionRequest, PluginLockStatus, PluginMakeCredentialRequest, WebAuthnPlugin,
+    },
+    AuthenticatorInfo, CtapVersion, PublicKeyCredentialParameters,
+};
+use windows_core::GUID;
+
+use crate::ipc2::{ConnectionStatus, TimedCallback, WindowsProviderClient};
+
+// Re-export main functionality
+pub use types::UserVerificationRequirement;
+
+const AUTHENTICATOR_NAME: &str = "Bitwarden Desktop";
+const RPID: &str = "bitwarden.com";
+const CLSID: &str = "0f7dc5d9-69ce-4652-8572-6877fd695062";
+const AAGUID: &str = "d548826e-79b4-db40-a3d8-11116f7e8349";
+const LOGO_SVG: &str = r##"<svg version="1.1" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"><path fill="#175ddc" d="M300 253.125C300 279.023 279.023 300 253.125 300H46.875C20.9766 300 0 279.023 0 253.125V46.875C0 20.9766 20.9766 0 46.875 0H253.125C279.023 0 300 20.9766 300 46.875V253.125Z"/><path fill="#fff" d="M243.105 37.6758C241.201 35.7715 238.945 34.834 236.367 34.834H63.6328C61.0254 34.834 58.7988 35.7715 56.8945 37.6758C54.9902 39.5801 54.0527 41.8359 54.0527 44.4141V159.58C54.0527 168.164 55.7227 176.689 59.0625 185.156C62.4023 193.594 66.5625 201.094 71.5137 207.656C76.4648 214.189 82.3535 220.576 89.209 226.787C96.0645 232.998 102.393 238.125 108.164 242.227C113.965 246.328 120 250.195 126.299 253.857C132.598 257.52 137.08 259.98 139.717 261.27C142.354 262.559 144.492 263.584 146.074 264.258C147.275 264.844 148.564 265.166 149.971 265.166C151.377 265.166 152.666 264.873 153.867 264.258C155.479 263.555 157.588 262.559 160.254 261.27C162.891 259.98 167.373 257.49 173.672 253.857C179.971 250.195 186.006 246.328 191.807 242.227C197.607 238.125 203.936 232.969 210.791 226.787C217.646 220.576 223.535 214.219 228.486 207.656C233.438 201.094 237.568 193.623 240.938 185.156C244.277 176.719 245.947 168.193 245.947 159.58V44.4434C245.977 41.8359 245.01 39.5801 243.105 37.6758ZM220.84 160.664C220.84 202.354 150 238.271 150 238.271V59.502H220.84C220.84 59.502 220.84 118.975 220.84 160.664Z"/></svg>"##;
 
 /// Handles initialization and registration for the Bitwarden desktop app as a
 /// For now, also adds the authenticator
 pub fn register() -> std::result::Result<(), String> {
-    debug_log("register() called...");
+    // TODO: Can we spawn a new named thread for debugging?
+    tracing::debug!("register() called...");
 
-    let r = com_registration::initialize_com_library();
-    debug_log(&format!("Initialized the com library: {:?}", r));
+    let r = WebAuthnPlugin::initialize();
+    tracing::debug!(
+        "Initialized the com library with WebAuthnPlugin::initialize(): {:?}",
+        r
+    );
 
-    let r = com_registration::register_com_library();
-    debug_log(&format!("Registered the com library: {:?}", r));
+    let clsid = CLSID.try_into().expect("valid GUID string");
+    let plugin = WebAuthnPlugin::new(clsid);
 
-    let r = com_registration::add_authenticator();
-    debug_log(&format!("Added the authenticator: {:?}", r));
+    let r = plugin.register_server(BitwardenPluginAuthenticator {
+        client: Mutex::new(None),
+        callbacks: Arc::new(Mutex::new(HashMap::new())),
+    });
+    tracing::debug!("Registered the com library: {:?}", r);
+
+    tracing::debug!("Parsing authenticator options");
+    let aaguid = AAGUID
+        .try_into()
+        .map_err(|err| format!("Invalid AAGUID `{AAGUID}`: {err}"))?;
+    let options = PluginAddAuthenticatorOptions {
+        authenticator_name: AUTHENTICATOR_NAME.to_string(),
+        clsid,
+        rp_id: Some(RPID.to_string()),
+        light_theme_logo_svg: Some(LOGO_SVG.to_string()),
+        dark_theme_logo_svg: Some(LOGO_SVG.to_string()),
+        authenticator_info: AuthenticatorInfo {
+            versions: HashSet::from([CtapVersion::Fido2_0, CtapVersion::Fido2_1]),
+            aaguid: aaguid,
+            options: Some(HashSet::from([
+                "rk".to_string(),
+                "up".to_string(),
+                "uv".to_string(),
+            ])),
+            transports: Some(HashSet::from([
+                "internal".to_string(),
+                "hybrid".to_string(),
+            ])),
+            algorithms: Some(vec![PublicKeyCredentialParameters {
+                alg: -7,
+                typ: "public-key".to_string(),
+            }]),
+        },
+        supported_rp_ids: None,
+    };
+    let response = WebAuthnPlugin::add_authenticator(options);
+    tracing::debug!("Added the authenticator: {response:?}");
 
     Ok(())
+}
+
+struct BitwardenPluginAuthenticator {
+    /// Client to communicate with desktop app over IPC.
+    client: Mutex<Option<Arc<WindowsProviderClient>>>,
+
+    /// Map of transaction IDs to cancellation tokens
+    callbacks: Arc<Mutex<HashMap<GUID, Sender<()>>>>,
+}
+
+impl BitwardenPluginAuthenticator {
+    fn get_client(&self) -> Arc<WindowsProviderClient> {
+        tracing::debug!("Connecting to client via IPC");
+        let mut client = self.client.lock().unwrap();
+        match client.as_ref().map(|c| (c, c.get_connection_status())) {
+            Some((_, ConnectionStatus::Disconnected)) | None => {
+                tracing::debug!("Connecting to desktop app");
+                let c = WindowsProviderClient::connect();
+                tracing::debug!("Connected to client via IPC successfully");
+                _ = client.insert(Arc::new(c));
+            }
+            _ => {}
+        };
+        client.as_ref().unwrap().clone()
+    }
+}
+
+impl PluginAuthenticator for BitwardenPluginAuthenticator {
+    fn make_credential(
+        &self,
+        request: PluginMakeCredentialRequest,
+    ) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+        tracing::debug!("Received MakeCredential: {request:?}");
+        let client = self.get_client();
+        let (cancel_tx, cancel_rx) = mpsc::channel();
+        let transaction_id = request.transaction_id;
+        self.callbacks
+            .lock()
+            .expect("not poisoned")
+            .insert(transaction_id, cancel_tx);
+        let response = make_credential::make_credential(&client, request, cancel_rx);
+        self.callbacks
+            .lock()
+            .expect("not poisoned")
+            .remove(&transaction_id);
+        response
+    }
+
+    fn get_assertion(
+        &self,
+        request: PluginGetAssertionRequest,
+    ) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+        tracing::debug!("Received GetAssertion: {request:?}");
+        let client = self.get_client();
+        let (cancel_tx, cancel_rx) = mpsc::channel();
+        let transaction_id = request.transaction_id;
+        self.callbacks
+            .lock()
+            .expect("not poisoned")
+            .insert(transaction_id, cancel_tx);
+        let response = assert::get_assertion(&client, request, cancel_rx);
+        self.callbacks
+            .lock()
+            .expect("not poisoned")
+            .remove(&transaction_id);
+        response
+    }
+
+    fn cancel_operation(
+        &self,
+        request: PluginCancelOperationRequest,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let transaction_id = request.transaction_id();
+        tracing::debug!(?transaction_id, "Received CancelOperation");
+
+        if let Some(cancellation_token) = self
+            .callbacks
+            .lock()
+            .expect("not poisoned")
+            .get(&request.transaction_id())
+        {
+            _ = cancellation_token.send(());
+            let client = self.get_client();
+            let context = STANDARD.encode(transaction_id.to_u128().to_le_bytes().to_vec());
+            tracing::debug!("Sending cancel operation for context: {context}");
+            client.send_native_status("cancel-operation".to_string(), context);
+        }
+        Ok(())
+    }
+
+    fn lock_status(&self) -> Result<PluginLockStatus, Box<dyn std::error::Error>> {
+        let callback = Arc::new(TimedCallback::new());
+        let client = self.get_client();
+        client.get_lock_status(callback.clone());
+        match callback.wait_for_response(Duration::from_secs(3), None) {
+            Ok(Ok(response)) => {
+                if response.is_unlocked {
+                    Ok(PluginLockStatus::PluginUnlocked)
+                } else {
+                    Ok(PluginLockStatus::PluginLocked)
+                }
+            }
+            Ok(Err(err)) => Err(format!("GetLockStatus() call failed: {err}").into()),
+            Err(_) => Err(format!("GetLockStatus() call timed out").into()),
+        }
+    }
 }

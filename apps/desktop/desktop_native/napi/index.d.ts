@@ -146,6 +146,12 @@ export declare namespace autofill {
     Required = 'required',
     Discouraged = 'discouraged'
   }
+  export interface LockStatusQueryRequest {
+    
+  }
+  export interface LockStatusQueryResponse {
+    isUnlocked: boolean
+  }
   export interface Position {
     x: number
     y: number
@@ -158,6 +164,9 @@ export declare namespace autofill {
     userVerification: UserVerification
     supportedAlgorithms: Array<number>
     windowXy: Position
+    excludedCredentials: Array<Array<number>>
+    clientWindowHandle?: Array<number>
+    context?: string
   }
   export interface PasskeyRegistrationResponse {
     rpId: string
@@ -171,16 +180,24 @@ export declare namespace autofill {
     userVerification: UserVerification
     allowedCredentials: Array<Array<number>>
     windowXy: Position
+    clientWindowHandle?: Array<number>
+    context?: string
   }
   export interface PasskeyAssertionWithoutUserInterfaceRequest {
     rpId: string
     credentialId: Array<number>
-    userName: string
-    userHandle: Array<number>
+    userName?: string
+    userHandle?: Array<number>
     recordIdentifier?: string
     clientDataHash: Array<number>
     userVerification: UserVerification
     windowXy: Position
+    clientWindowHandle?: Array<number>
+    context?: string
+  }
+  export interface NativeStatus {
+    key: string
+    value: string
   }
   export interface PasskeyAssertionResponse {
     rpId: string
@@ -197,40 +214,19 @@ export declare namespace autofill {
      * @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
      * @param callback This function will be called whenever a message is received from a client.
      */
-    static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void, assertionWithoutUserInterfaceCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void): Promise<IpcServer>
+    static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void, assertionWithoutUserInterfaceCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void, nativeStatusCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: NativeStatus) => void, lockStatusQueryCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: LockStatusQueryRequest) => void): Promise<IpcServer>
     /** Return the path to the IPC server. */
     getPath(): string
     /** Stop the IPC server. */
     stop(): void
     completeRegistration(clientId: number, sequenceNumber: number, response: PasskeyRegistrationResponse): number
     completeAssertion(clientId: number, sequenceNumber: number, response: PasskeyAssertionResponse): number
+    completeLockStatusQuery(clientId: number, sequenceNumber: number, response: LockStatusQueryResponse): number
     completeError(clientId: number, sequenceNumber: number, error: string): number
   }
 }
 export declare namespace passkey_authenticator {
-  export interface PasskeyRequestEvent {
-    requestType: string
-    requestJson: string
-  }
-  export interface SyncedCredential {
-    credentialId: string
-    rpId: string
-    userName: string
-    userHandle: string
-  }
-  export interface PasskeySyncRequest {
-    rpId: string
-  }
-  export interface PasskeySyncResponse {
-    credentials: Array<SyncedCredential>
-  }
-  export interface PasskeyErrorResponse {
-    message: string
-  }
   export function register(): void
-  export function onRequest(callback: (error: null | Error, event: PasskeyRequestEvent) => Promise<string>): Promise<string>
-  export function syncCredentialsToWindows(credentials: Array<SyncedCredential>): void
-  export function getCredentialsFromWindows(): Array<SyncedCredential>
 }
 export declare namespace logging {
   export const enum LogLevel {

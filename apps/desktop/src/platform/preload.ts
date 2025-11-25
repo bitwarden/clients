@@ -137,6 +137,7 @@ export default {
   hideWindow: () => ipcRenderer.send("window-hide"),
   log: (level: LogLevelType, message?: any, ...optionalParams: any[]) =>
     ipcRenderer.invoke("ipc.log", { level, message, optionalParams }),
+  getNativeWindowHandle: async () => Buffer.from(await ipcRenderer.invoke("get-native-window-handle"), "base64"),
 
   openContextMenu: (
     menu: {

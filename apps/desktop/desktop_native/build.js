@@ -34,14 +34,15 @@ function buildNapiModule(target, release = true) {
 function buildProxyBin(target, release = true) {
     const targetArg = target ? `--target ${target}` : "";
     const releaseArg = release ? "--release" : "";
-    child_process.execSync(`cargo build --bin desktop_proxy ${releaseArg} ${targetArg}`, {stdio: 'inherit', cwd: path.join(__dirname, "proxy")});
+    const xwin = target && target.includes('windows') && process.platform !== "win32" ? "xwin" : "";
+    child_process.execSync(`cargo ${xwin} build --bin desktop_proxy ${releaseArg} ${targetArg}`, {stdio: 'inherit', cwd: path.join(__dirname, "proxy")});
 
     if (target) {
         // Copy the resulting binary to the dist folder
         const targetFolder = release ? "release" : "debug";
-        const ext = process.platform === "win32" ? ".exe" : "";
-        const nodeArch = rustTargetsMap[target].nodeArch;
-        fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `desktop_proxy${ext}`), path.join(__dirname, "dist", `desktop_proxy.${process.platform}-${nodeArch}${ext}`));
+        const { nodeArch, platform } = rustTargetsMap[target];
+        const ext = platform === "win32" ? ".exe" : "";
+        fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `desktop_proxy${ext}`), path.join(__dirname, "dist", `desktop_proxy.${platform}-${nodeArch}${ext}`));
     }
 }
 

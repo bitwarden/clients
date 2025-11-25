@@ -9,6 +9,8 @@ export default {
   runCommand: <C extends Command>(params: RunCommandParams<C>): Promise<RunCommandResult<C>> =>
     ipcRenderer.invoke("autofill.runCommand", params),
 
+  listenerReady: () => ipcRenderer.send("autofill.listenerReady"),
+
   listenPasskeyRegistration: (
     fn: (
       clientId: number,
@@ -32,6 +34,7 @@ export default {
       ) => {
         const { clientId, sequenceNumber, request } = data;
         fn(clientId, sequenceNumber, request, (error, response) => {
+          console.log("autofill.passkeyRegistration IPC response", error, response)
           if (error) {
             ipcRenderer.send("autofill.completeError", {
               clientId,
@@ -127,6 +130,25 @@ export default {
       },
     );
   },
+
+  listenNativeStatus: (
+    fn: (clientId: number, sequenceNumber: number, status: { key: string; value: string }) => void,
+  ) => {
+    ipcRenderer.on(
+      "autofill.nativeStatus",
+      (
+        event,
+        data: {
+          clientId: number;
+          sequenceNumber: number;
+          status: { key: string; value: string };
+        },
+      ) => {
+        const { clientId, sequenceNumber, status } = data;
+        fn(clientId, sequenceNumber, status);
+      },
+    );
+  },
   configureAutotype: (enabled: boolean, keyboardShortcut: string[]) => {
     ipcRenderer.send("autofill.configureAutotype", { enabled, keyboardShortcut });
   },
@@ -160,6 +182,44 @@ export default {
 
           ipcRenderer.send("autofill.completeAutotypeRequest", {
             windowTitle,
+            response,
+          });
+        });
+      },
+    );
+  },
+  listenLockStatusQuery: (
+    fn: (
+      clientId: number,
+      sequenceNumber: number,
+      request: autofill.LockStatusQueryRequest,
+      completeCallback: (error: Error | null, response: autofill.LockStatusQueryResponse) => void,
+    ) => void,
+  ) => {
+    ipcRenderer.on(
+      "autofill.lockStatusQuery",
+      (
+        event,
+        data: {
+          clientId: number;
+          sequenceNumber: number;
+          request: autofill.LockStatusQueryRequest;
+        },
+      ) => {
+        const { clientId, sequenceNumber, request } = data;
+        fn(clientId, sequenceNumber, request, (error, response) => {
+          if (error) {
+            ipcRenderer.send("autofill.completeError", {
+              clientId,
+              sequenceNumber,
+              error: error.message,
+            });
+            return;
+          }
+
+          ipcRenderer.send("autofill.completeLockStatusQuery", {
+            clientId,
+            sequenceNumber,
             response,
           });
         });

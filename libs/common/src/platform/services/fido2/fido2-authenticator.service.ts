@@ -61,11 +61,13 @@ export class Fido2AuthenticatorService<ParentWindowReference>
     params: Fido2AuthenticatorMakeCredentialsParams,
     window: ParentWindowReference,
     abortController?: AbortController,
+    transactionContext?: string,
   ): Promise<Fido2AuthenticatorMakeCredentialResult> {
     const userInterfaceSession = await this.userInterface.newSession(
       params.fallbackSupported,
       window,
       abortController,
+      transactionContext,
     );
 
     try {
@@ -128,6 +130,7 @@ export class Fido2AuthenticatorService<ParentWindowReference>
       let userVerified = false;
       let credentialId: string;
       let pubKeyDer: ArrayBuffer;
+
       const response = await userInterfaceSession.confirmNewCredential({
         credentialName: params.rpEntity.name,
         userName: params.userEntity.name,
@@ -189,7 +192,6 @@ export class Fido2AuthenticatorService<ParentWindowReference>
         }
         const reencrypted = await this.cipherService.encrypt(cipher, activeUserId);
         await this.cipherService.updateWithServer(reencrypted);
-        await this.cipherService.clearCache(activeUserId);
         credentialId = fido2Credential.credentialId;
       } catch (error) {
         this.logService?.error(
@@ -230,11 +232,13 @@ export class Fido2AuthenticatorService<ParentWindowReference>
     params: Fido2AuthenticatorGetAssertionParams,
     window: ParentWindowReference,
     abortController?: AbortController,
+    transactionContext?: string,
   ): Promise<Fido2AuthenticatorGetAssertionResult> {
     const userInterfaceSession = await this.userInterface.newSession(
       params.fallbackSupported,
       window,
       abortController,
+      transactionContext,
     );
     try {
       if (
@@ -330,7 +334,6 @@ export class Fido2AuthenticatorService<ParentWindowReference>
           );
           const encrypted = await this.cipherService.encrypt(selectedCipher, activeUserId);
           await this.cipherService.updateWithServer(encrypted);
-          await this.cipherService.clearCache(activeUserId);
         }
 
         const authenticatorData = await generateAuthData({
@@ -452,7 +455,7 @@ export class Fido2AuthenticatorService<ParentWindowReference>
             credential.id,
             parseCredentialId(cipher.login.fido2Credentials[0].credentialId),
           ),
-        ),
+        )
     );
   }
 
