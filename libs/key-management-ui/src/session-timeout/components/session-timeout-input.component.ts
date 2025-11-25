@@ -203,7 +203,7 @@ export class SessionTimeoutInputComponent implements ControlValueAccessor, Valid
     return (this.maxSessionTimeoutPolicyData?.minutes ?? 0) % 60;
   }
 
-  writeValue(value: VaultTimeout): void {
+  writeValue(value: VaultTimeout | null): void {
     if (value == null) {
       return;
     }
