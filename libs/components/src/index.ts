@@ -19,6 +19,7 @@ export * from "./dialog";
 export * from "./disclosure";
 export * from "./drawer";
 export * from "./form-field";
+export * from "./header";
 export * from "./icon-button";
 export * from "./icon";
 export * from "./icon-tile";
