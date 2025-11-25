@@ -165,15 +165,14 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   protected showPremiumSpotlight$ = combineLatest([
     this.showPremiumNudgeSpotlight$,
-    this.showEmptyVaultSpotlight$,
     this.showHasItemsVaultSpotlight$,
     this.hasPremium$,
     this.cipherCount$,
     this.accountAgeInDays$,
   ]).pipe(
     map(
-      ([showNudge, emptyVault, hasItems, hasPremium, count, age]) =>
-        showNudge && !emptyVault && !hasItems && !hasPremium && count >= 5 && age >= 7,
+      ([showPremiumNudge, showHasItemsNudge, hasPremium, count, age]) =>
+        !showPremiumNudge && !showHasItemsNudge && !hasPremium && count >= 5 && age >= 7,
     ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
