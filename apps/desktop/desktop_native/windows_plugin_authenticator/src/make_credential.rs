@@ -1,6 +1,5 @@
 use serde_json;
 use std::collections::HashMap;
-use std::sync::mpsc::TryRecvError;
 use std::sync::{mpsc::Receiver, Arc};
 use std::time::Duration;
 
@@ -10,6 +9,7 @@ use win_webauthn::{
 };
 
 use crate::ipc2::CallbackError;
+use crate::util::create_context_string;
 use crate::{
     ipc2::{
         PasskeyRegistrationRequest, PasskeyRegistrationResponse, Position, TimedCallback,
@@ -87,11 +87,12 @@ pub fn make_credential(
         );
     }
 
-    let transaction_id = request.transaction_id.to_u128().to_le_bytes().to_vec();
     let client_pos = request
         .window_handle
         .center_position()
         .unwrap_or((640, 480));
+
+    let context = create_context_string(request.transaction_id);
 
     // Create Windows registration request
     let registration_request = PasskeyRegistrationRequest {
@@ -107,7 +108,7 @@ pub fn make_credential(
             x: client_pos.0,
             y: client_pos.1,
         },
-        context: transaction_id,
+        context,
     };
 
     tracing::debug!(

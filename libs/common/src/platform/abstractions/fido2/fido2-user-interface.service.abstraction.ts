@@ -71,7 +71,7 @@ export abstract class Fido2UserInterfaceService<ParentWindowReference> {
     fallbackSupported: boolean,
     window: ParentWindowReference,
     abortController?: AbortController,
-    transactionContext?: ArrayBuffer,
+    transactionContext?: string,
   ): Promise<Fido2UserInterfaceSession>;
 }
 
@@ -91,7 +91,6 @@ export abstract class Fido2UserInterfaceSession {
    * Ask the user to confirm the creation of a new credential.
    *
    * @param params The parameters to use when asking the user to confirm the creation of a new credential.
-   * @param abortController An abort controller that can be used to cancel/close the session.
    * @returns The ID of the cipher where the new credential should be saved.
    */
   abstract confirmNewCredential(

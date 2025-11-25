@@ -12,7 +12,7 @@ use crate::{
         PasskeyAssertionWithoutUserInterfaceRequest, Position, TimedCallback, UserVerification,
         WindowsProviderClient,
     },
-    util::HwndExt,
+    util::{create_context_string, HwndExt},
 };
 
 pub fn get_assertion(
@@ -44,7 +44,6 @@ pub fn get_assertion(
         .map(|id| id.to_vec())
         .collect();
 
-    let transaction_id = request.transaction_id.to_u128().to_le_bytes().to_vec();
     let client_pos = request
         .window_handle
         .center_position()
@@ -55,6 +54,7 @@ pub fn get_assertion(
         rp_id,
         allowed_credential_ids
     );
+    let context = create_context_string(request.transaction_id);
 
     // Send assertion request
     let assertion_request = PasskeyAssertionRequest {
@@ -66,7 +66,7 @@ pub fn get_assertion(
             x: client_pos.0,
             y: client_pos.1,
         },
-        context: transaction_id,
+        context,
     };
     let passkey_response =
         send_assertion_request(ipc_client, assertion_request, cancellation_token)
@@ -107,9 +107,6 @@ fn send_assertion_request(
         let request = PasskeyAssertionWithoutUserInterfaceRequest {
             rp_id: request.rp_id,
             credential_id: request.allowed_credentials[0].clone(),
-            // user_name: request.user_name,
-            // user_handle: request.,
-            // record_identifier: todo!(),
             client_data_hash: request.client_data_hash,
             user_verification: request.user_verification,
             window_xy: request.window_xy,

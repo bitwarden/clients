@@ -67,7 +67,7 @@ export class DesktopFido2UserInterfaceService
     fallbackSupported: boolean,
     nativeWindowObject: NativeWindowObject,
     abortController?: AbortController,
-    transactionContext?: ArrayBuffer,
+    transactionContext?: string,
   ): Promise<DesktopFido2UserInterfaceSession> {
     this.logService.debug("newSession", fallbackSupported, abortController, nativeWindowObject, transactionContext);
     const session = new DesktopFido2UserInterfaceSession(
@@ -97,7 +97,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     private desktopSettingsService: DesktopSettingsService,
     private windowObject: NativeWindowObject,
     private abortController: AbortController,
-    private transactionContext: ArrayBuffer,
+    private transactionContext: string,
   ) {}
 
   private confirmCredentialSubject = new Subject<boolean>();
@@ -352,7 +352,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       command: "user-verification",
       params: {
         windowHandle: Utils.fromBufferToB64(windowHandle),
-        transactionContext: Utils.fromBufferToB64(this.transactionContext),
+        transactionContext: this.transactionContext,
         username,
         displayHint,
       },

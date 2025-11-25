@@ -15,7 +15,7 @@ pub struct PasskeyRegistrationRequest {
     pub supported_algorithms: Vec<i32>,
     pub window_xy: Position,
     pub excluded_credentials: Vec<Vec<u8>>,
-    pub context: Vec<u8>,
+    pub context: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

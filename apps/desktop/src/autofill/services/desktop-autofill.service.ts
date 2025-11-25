@@ -211,20 +211,16 @@ export class DesktopAutofillService implements OnDestroy {
       this.logService.debug("listenPasskeyRegistration2", this.convertRegistrationRequest(request));
 
       const controller = new AbortController();
-      let requestId = request.context ? this.contextToRequestId(request.context) : null;
-      this.logService.debug("Request context:", requestId)
-      if (requestId) {
-        this.inFlightRequests[requestId] = controller;
+      if (request.context) {
+        this.inFlightRequests[request.context] = controller;
       }
-
-      const ctx = request.context ? new Uint8Array(request.context).buffer : null;
 
       try {
         const response = await this.fido2AuthenticatorService.makeCredential(
           this.convertRegistrationRequest(request),
           { windowXy: request.windowXy },
           controller,
-          ctx
+          request.context,
         );
 
         this.logService.debug("Sending registration response to plugin via callback");
@@ -234,8 +230,8 @@ export class DesktopAutofillService implements OnDestroy {
         callback(error, null);
       }
       finally {
-        if (requestId) {
-          delete this.inFlightRequests[requestId];
+        if (request.context) {
+          delete this.inFlightRequests[request.context];
         }
       }
       this.logService.info("Passkey registration completed.")
@@ -259,9 +255,8 @@ export class DesktopAutofillService implements OnDestroy {
         );
 
         const controller = new AbortController();
-        let requestId = request.context ? this.contextToRequestId(request.context) : null;
-        if (requestId) {
-          this.inFlightRequests[requestId] = controller;
+        if (request.context) {
+          this.inFlightRequests[request.context] = controller;
         }
 
         try {
@@ -297,13 +292,12 @@ export class DesktopAutofillService implements OnDestroy {
               new Uint8Array(parseCredentialId(decrypted.login.fido2Credentials?.[0].credentialId)),
             );
           }
-          const ctx = request.context ? new Uint8Array(request.context).buffer : null;
 
           const response = await this.fido2AuthenticatorService.getAssertion(
             this.convertAssertionRequest(request, true),
             { windowXy: request.windowXy },
             controller,
-            ctx
+            request.context
           );
 
           callback(null, this.convertAssertionResponse(request, response));
@@ -313,8 +307,8 @@ export class DesktopAutofillService implements OnDestroy {
           return;
         }
         finally {
-          if (requestId) {
-            delete this.inFlightRequests[requestId];
+          if (request.context) {
+            delete this.inFlightRequests[request.context];
           }
         }
       },
@@ -330,11 +324,9 @@ export class DesktopAutofillService implements OnDestroy {
       }
 
       this.logService.debug("listenPasskeyAssertion", clientId, sequenceNumber, request);
-      const ctx = request.context ? new Uint8Array(request.context).buffer : null;
       const controller = new AbortController();
-      let requestId = request.context ? this.contextToRequestId(request.context) : null;
-      if (requestId) {
-        this.inFlightRequests[requestId] = controller;
+      if (request.context) {
+        this.inFlightRequests[request.context] = controller;
       }
 
       try {
@@ -342,7 +334,7 @@ export class DesktopAutofillService implements OnDestroy {
           this.convertAssertionRequest(request),
           { windowXy: request.windowXy },
           controller,
-          ctx
+          request.context,
         );
 
         callback(null, this.convertAssertionResponse(request, response));
@@ -351,8 +343,8 @@ export class DesktopAutofillService implements OnDestroy {
         callback(error, null);
       }
       finally {
-        if (requestId) {
-          delete this.inFlightRequests[requestId];
+        if (request.context) {
+          delete this.inFlightRequests[request.context];
         }
       }
     });
@@ -498,12 +490,6 @@ export class DesktopAutofillService implements OnDestroy {
       authenticatorData: Array.from(new Uint8Array(response.authenticatorData)),
       credentialId: Array.from(new Uint8Array(response.selectedCredential.id)),
     };
-  }
-
-  private contextToRequestId(context: number[]): string {
-      const buf = new Uint8Array(context).buffer;
-      const requestId = Utils.fromBufferToB64(buf);
-      return requestId
   }
 
   ngOnDestroy(): void {

@@ -4,7 +4,7 @@ use std::{
     fmt::Display,
     sync::{
         atomic::AtomicU32,
-        mpsc::{self, Receiver, RecvError, RecvTimeoutError, Sender},
+        mpsc::{self, Receiver, RecvTimeoutError, Sender},
         Arc, Mutex,
     },
     time::{Duration, Instant},

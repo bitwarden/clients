@@ -1,5 +1,11 @@
-use windows::Win32::UI::HiDpi::GetDpiForWindow;
-use windows::Win32::{Foundation::*, UI::WindowsAndMessaging::GetWindowRect};
+use base64::engine::{general_purpose::STANDARD, Engine as _};
+use windows::{
+    core::GUID,
+    Win32::{
+        Foundation::*,
+        UI::{HiDpi::GetDpiForWindow, WindowsAndMessaging::GetWindowRect},
+    },
+};
 
 const BASE_DPI: u32 = 96;
 
@@ -33,4 +39,8 @@ impl HwndExt for HWND {
             Ok((scaled_center.0 as i32, scaled_center.1 as i32))
         }
     }
+}
+
+pub fn create_context_string(transaction_id: GUID) -> String {
+    STANDARD.encode(transaction_id.to_u128().to_le_bytes().to_vec())
 }
