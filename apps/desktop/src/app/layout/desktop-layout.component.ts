@@ -1,15 +1,15 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { LayoutComponent, NavigationModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DesktopSideNavComponent } from "./desktop-side-nav.component";
 
 @Component({
-  selector: "app-desktop-layout",
-  imports: [RouterModule, JslibModule, LayoutComponent, NavigationModule, DesktopSideNavComponent],
+  selector: "app-layout",
+  imports: [RouterModule, I18nPipe, LayoutComponent, NavigationModule, DesktopSideNavComponent],
   templateUrl: "./desktop-layout.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
