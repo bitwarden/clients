@@ -2,14 +2,16 @@ import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
-import { firstValueFrom, switchMap } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { BadgeComponent, ItemModule, ToastOptions, ToastService } from "@bitwarden/components";
 
@@ -18,6 +20,7 @@ import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
+import { BrowserPremiumUpgradePromptService } from "../services/browser-premium-upgrade-prompt.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -32,20 +35,28 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     PopOutComponent,
     ItemModule,
     BadgeComponent,
+    PremiumBadgeComponent,
+  ],
+  providers: [
+    { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
   ],
 })
 export class VaultSettingsV2Component implements OnInit, OnDestroy {
   lastSync = "--";
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
-  // Check if user is premium user, they will be able to archive items
   protected readonly userCanArchive = toSignal(
     this.userId$.pipe(switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId))),
   );
 
-  // Check if user has archived items (does not check if user is premium)
-  protected readonly showArchiveFilter = toSignal(
-    this.userId$.pipe(switchMap((userId) => this.cipherArchiveService.showArchiveVault$(userId))),
+  protected readonly showArchiveItem = toSignal(this.cipherArchiveService.hasArchiveFlagEnabled$());
+
+  protected readonly userHasArchivedItems = toSignal(
+    this.userId$.pipe(
+      switchMap((userId) =>
+        this.cipherArchiveService.archivedCiphers$(userId).pipe(map((c) => c.length > 0)),
+      ),
+    ),
   );
 
   protected emptyVaultImportBadge$ = this.accountService.activeAccount$.pipe(

@@ -1,10 +1,11 @@
 import { CommonModule } from "@angular/common";
 import { booleanAttribute, Component, Input } from "@angular/core";
 import { Router, RouterModule } from "@angular/router";
-import { BehaviorSubject, combineLatest, firstValueFrom, map, switchMap } from "rxjs";
+import { BehaviorSubject, combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
 import { filter } from "rxjs/operators";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -17,6 +18,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -33,6 +35,7 @@ import {
 } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
+import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
@@ -46,7 +49,18 @@ import {
 @Component({
   selector: "app-item-more-options",
   templateUrl: "./item-more-options.component.html",
-  imports: [ItemModule, IconButtonModule, MenuModule, CommonModule, JslibModule, RouterModule],
+  imports: [
+    ItemModule,
+    IconButtonModule,
+    MenuModule,
+    CommonModule,
+    JslibModule,
+    RouterModule,
+    PremiumBadgeComponent,
+  ],
+  providers: [
+    { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
+  ],
 })
 export class ItemMoreOptionsComponent {
   private _cipher$ = new BehaviorSubject<CipherViewLike>({} as CipherViewLike);
@@ -127,18 +141,11 @@ export class ItemMoreOptionsComponent {
     }),
   );
 
-  /** Observable Boolean checking if item can show Archive menu option */
-  protected canArchive$ = combineLatest([
-    this._cipher$,
-    this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId)),
-    ),
-  ]).pipe(
-    filter(([cipher, userId]) => cipher != null && userId != null),
-    map(([cipher, canArchive]) => {
-      return canArchive && !CipherViewLikeUtils.isArchived(cipher) && cipher.organizationId == null;
-    }),
+  protected showArchive$: Observable<boolean> = this.cipherArchiveService.hasArchiveFlagEnabled$();
+
+  protected canArchive$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId)),
   );
 
   protected canDelete$ = this._cipher$.pipe(
@@ -377,6 +384,11 @@ export class ItemMoreOptionsComponent {
   }
 
   async archive() {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(this.cipher);
+    if (!repromptPassed) {
+      return;
+    }
+
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "archiveItem" },
       content: { key: "archiveItemConfirmDesc" },
