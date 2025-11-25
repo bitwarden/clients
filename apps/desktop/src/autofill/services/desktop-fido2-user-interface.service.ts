@@ -133,12 +133,40 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     try {
       // Check if we can return the credential without user interaction
       await this.accountService.setShowHeader(false);
-      if (assumeUserPresence && cipherIds.length === 1 && !masterPasswordRepromptRequired && !userVerification) {
-        this.logService.debug(
-          "shortcut - Assuming user presence and returning cipherId",
-          cipherIds[0],
-        );
-        return { cipherId: cipherIds[0], userVerified: userVerification };
+      if (assumeUserPresence && cipherIds.length === 1 && !masterPasswordRepromptRequired) {
+        const selectedCipherId = cipherIds[0];
+        if (userVerification) {
+          // retrieve the cipher
+          const activeUserId = await firstValueFrom(
+            this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+          );
+
+          if (!activeUserId) {
+            return;
+          }
+          const cipherView = await firstValueFrom(this.cipherService.cipherListViews$(activeUserId).pipe(map((ciphers) => {
+            return ciphers.find((cipher) => cipher.id == selectedCipherId && !cipher.deletedDate) as CipherView;
+          })));
+          this.logService.debug("Cipher view? ", cipherView)
+
+          let cred = cipherView.login.fido2Credentials[0];
+          const username = cred.userName ?? cred.userDisplayName
+          // TODO: internationalization
+          try {
+            const isConfirmed = await this.promptForUserVerification(username, "Verify it's you to log in with Bitwarden.");
+            return { cipherId: cipherIds[0], userVerified: isConfirmed };
+          }
+          catch (e) {
+            this.logService.debug("Failed to prompt for user verification without showing UI", e)
+          }
+        }
+        else {
+          this.logService.debug(
+            "shortcut - Assuming user presence and returning cipherId",
+            cipherIds[0],
+          );
+          return { cipherId: cipherIds[0], userVerified: userVerification };
+        }
       }
 
       this.logService.debug("Could not shortcut, showing UI");
