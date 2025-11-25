@@ -87,8 +87,8 @@ xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/re
         <Resource Language="zh-tw" />
     </Resources>
     <Dependencies>
-        <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.22635.4515"
-            MaxVersionTested="10.0.26120.4250" />
+        <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.26200.7019"
+            MaxVersionTested="10.0.26200.7171" />
     </Dependencies>
     <Capabilities>
         <rescap:Capability Name="runFullTrust" />
