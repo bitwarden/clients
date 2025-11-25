@@ -1,5 +1,5 @@
-import { Observable, animationFrameScheduler } from "rxjs";
-import { auditTime, map, startWith, observeOn, distinctUntilChanged } from "rxjs/operators";
+import { Observable } from "rxjs";
+import { map, startWith, distinctUntilChanged } from "rxjs/operators";
 
 import { intersectionObserver$ } from "./dom-observables";
 /**
@@ -13,8 +13,8 @@ export const hasScrollableContent$ = (
 ): Observable<boolean> => {
   return intersectionObserver$(target, { root, threshold }).pipe(
     startWith(null as IntersectionObserverEntry | null),
-    auditTime(0, animationFrameScheduler),
-    observeOn(animationFrameScheduler),
+    // auditTime(0, animationFrameScheduler),
+    // observeOn(animationFrameScheduler),
     map((entry: IntersectionObserverEntry | null) => {
       if (!entry) {
         document.body.prepend(
