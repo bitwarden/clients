@@ -78,6 +78,7 @@ export class DesktopFido2UserInterfaceService
       this.router,
       this.desktopSettingsService,
       nativeWindowObject,
+      abortController,
       transactionContext,
     );
 
@@ -95,6 +96,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     private router: Router,
     private desktopSettingsService: DesktopSettingsService,
     private windowObject: NativeWindowObject,
+    private abortController: AbortController,
     private transactionContext: ArrayBuffer,
   ) {}
 
@@ -177,14 +179,21 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   private async waitForUiChosenCipher(
     timeoutMs: number = 60000,
   ): Promise<{ cipherId?: string; userVerified: boolean } | undefined> {
+    const { promise: cancelPromise, listener: abortFn } = this.subscribeToCancellation();
     try {
-      return await lastValueFrom(this.chosenCipherSubject.pipe(timeout(timeoutMs)));
-    } catch {
+      this.abortController.signal.throwIfAborted();
+      const confirmPromise = lastValueFrom(this.chosenCipherSubject.pipe(timeout(timeoutMs)));
+      return await Promise.race([confirmPromise, cancelPromise]);
+    } catch (e) {
       // If we hit a timeout, return undefined instead of throwing
+      this.logService.debug("Timed out or cancelled?", e);
       this.logService.warning("Timeout: User did not select a cipher within the allowed time", {
         timeoutMs,
       });
       return { cipherId: undefined, userVerified: false };
+    }
+    finally {
+      this.unsusbscribeCancellation(abortFn);
     }
   }
 
@@ -204,7 +213,19 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
    * @returns
    */
   private async waitForUiNewCredentialConfirmation(): Promise<boolean> {
-    return lastValueFrom(this.confirmCredentialSubject);
+    const { promise: cancelPromise, listener: abortFn } = this.subscribeToCancellation();
+    try {
+      this.abortController.signal.throwIfAborted();
+      const confirmPromise = lastValueFrom(this.confirmCredentialSubject);
+      return await Promise.race([confirmPromise, cancelPromise]);
+    } catch (e) {
+      // If we hit a timeout, return undefined instead of throwing
+      this.logService.debug("Timed out or cancelled?", e);
+      return undefined;
+    }
+    finally {
+      this.unsusbscribeCancellation(abortFn);
+    }
   }
 
   /**
@@ -375,16 +396,20 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       await this.showUi("/lock", this.windowObject.windowXy, true, true);
 
       let status2: AuthenticationStatus;
+      const { promise: cancelPromise, listener: abortFn } = this.subscribeToCancellation();
       try {
-        status2 = await lastValueFrom(
+        status2 = await Promise.race([lastValueFrom(
           this.authService.activeAccountStatus$.pipe(
             filter((s) => s === AuthenticationStatus.Unlocked),
             take(1),
             timeout(1000 * 60 * 5), // 5 minutes
           ),
-        );
+        ), cancelPromise]);
       } catch (error) {
         this.logService.warning("Error while waiting for vault to unlock", error);
+      }
+      finally {
+        this.unsusbscribeCancellation(abortFn);
       }
 
       if (status2 === AuthenticationStatus.Unlocked) {
@@ -404,5 +429,25 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
   async close() {
     this.logService.debug("close");
+  }
+
+  subscribeToCancellation() {
+      let cancelReject: (reason?: any) => void;
+      const cancelPromise: Promise<never> = new Promise((_, reject) => {
+        cancelReject = reject
+      });
+      const abortFn = (ev: Event) => {
+        if (ev.target instanceof AbortSignal) {
+          cancelReject(ev.target.reason)
+        }
+      };
+      this.abortController.signal.addEventListener("abort", abortFn, { once: true });
+
+      return { promise: cancelPromise, listener: abortFn };
+
+  }
+
+  unsusbscribeCancellation(listener: (ev: Event) => void): void {
+    this.abortController.signal.removeEventListener("abort", listener);
   }
 }

@@ -1,11 +1,14 @@
 use serde_json;
-use std::{sync::Arc, time::Duration};
+use std::{
+    sync::{mpsc::Receiver, Arc},
+    time::Duration,
+};
 
 use win_webauthn::plugin::PluginGetAssertionRequest;
 
 use crate::{
     ipc2::{
-        PasskeyAssertionRequest, PasskeyAssertionResponse,
+        CallbackError, PasskeyAssertionRequest, PasskeyAssertionResponse,
         PasskeyAssertionWithoutUserInterfaceRequest, Position, TimedCallback, UserVerification,
         WindowsProviderClient,
     },
@@ -15,6 +18,7 @@ use crate::{
 pub fn get_assertion(
     ipc_client: &WindowsProviderClient,
     request: PluginGetAssertionRequest,
+    cancellation_token: Receiver<()>,
 ) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
     // Extract RP information
     let rp_id = request.rp_id().to_string();
@@ -64,8 +68,9 @@ pub fn get_assertion(
         },
         context: transaction_id,
     };
-    let passkey_response = send_assertion_request(ipc_client, assertion_request)
-        .map_err(|err| format!("Failed to get assertion response from IPC channel: {err}"))?;
+    let passkey_response =
+        send_assertion_request(ipc_client, assertion_request, cancellation_token)
+            .map_err(|err| format!("Failed to get assertion response from IPC channel: {err}"))?;
     tracing::debug!("Assertion response received: {:?}", passkey_response);
 
     // Create proper WebAuthn response from passkey_response
@@ -84,6 +89,7 @@ pub fn get_assertion(
 fn send_assertion_request(
     ipc_client: &WindowsProviderClient,
     request: PasskeyAssertionRequest,
+    cancellation_token: Receiver<()>,
 ) -> Result<PasskeyAssertionResponse, String> {
     tracing::debug!(
         "Assertion request data - RP ID: {}, Client data hash: {} bytes, Allowed credentials: {:?}",
@@ -113,9 +119,13 @@ fn send_assertion_request(
     } else {
         ipc_client.prepare_passkey_assertion(request, callback.clone());
     }
+    let wait_time = Duration::from_secs(600);
     callback
-        .wait_for_response(Duration::from_secs(30))
-        .map_err(|_| "Registration request timed out".to_string())?
+        .wait_for_response(wait_time, Some(cancellation_token))
+        .map_err(|err| match err {
+            CallbackError::Timeout => "Assertion request timed out".to_string(),
+            CallbackError::Cancelled => "Assertion request cancelled".to_string(),
+        })?
         .map_err(|err| err.to_string())
 }
 

@@ -1,6 +1,7 @@
 use serde_json;
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::mpsc::TryRecvError;
+use std::sync::{mpsc::Receiver, Arc};
 use std::time::Duration;
 
 use win_webauthn::{
@@ -8,6 +9,7 @@ use win_webauthn::{
     CtapTransport,
 };
 
+use crate::ipc2::CallbackError;
 use crate::{
     ipc2::{
         PasskeyRegistrationRequest, PasskeyRegistrationResponse, Position, TimedCallback,
@@ -19,6 +21,7 @@ use crate::{
 pub fn make_credential(
     ipc_client: &WindowsProviderClient,
     request: PluginMakeCredentialRequest,
+    cancellation_token: Receiver<()>,
 ) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
     tracing::debug!("=== PluginMakeCredential() called ===");
 
@@ -113,9 +116,14 @@ pub fn make_credential(
         registration_request.user_name
     );
 
+    if let Ok(()) = cancellation_token.try_recv() {
+        return Err(format!("Request {:?} cancelled", request.transaction_id))?;
+    }
+
     // Send registration request
-    let passkey_response = send_registration_request(ipc_client, registration_request)
-        .map_err(|err| format!("Registration request failed: {err}"))?;
+    let passkey_response =
+        send_registration_request(ipc_client, registration_request, cancellation_token)
+            .map_err(|err| format!("Registration request failed: {err}"))?;
     tracing::debug!("Registration response received: {:?}", passkey_response);
 
     // Create proper WebAuthn response from passkey_response
@@ -130,6 +138,7 @@ pub fn make_credential(
 fn send_registration_request(
     ipc_client: &WindowsProviderClient,
     request: PasskeyRegistrationRequest,
+    cancellation_token: Receiver<()>,
 ) -> Result<PasskeyRegistrationResponse, String> {
     tracing::debug!("Registration request data - RP ID: {}, User ID: {} bytes, User name: {}, Client data hash: {} bytes, Algorithms: {:?}, Excluded credentials: {}", 
         request.rp_id, request.user_handle.len(), request.user_name, request.client_data_hash.len(), request.supported_algorithms, request.excluded_credentials.len());
@@ -139,9 +148,15 @@ fn send_registration_request(
     tracing::debug!("Sending registration request: {}", request_json);
     let callback = Arc::new(TimedCallback::new());
     ipc_client.prepare_passkey_registration(request, callback.clone());
+    // Corresponds to maximum recommended timeout for WebAuthn.
+    // https://www.w3.org/TR/webauthn-3/#recommended-range-and-default-for-a-webauthn-ceremony-timeout
+    let wait_time = Duration::from_secs(600);
     let response = callback
-        .wait_for_response(Duration::from_secs(30))
-        .map_err(|_| "Registration request timed out".to_string())?
+        .wait_for_response(wait_time, Some(cancellation_token))
+        .map_err(|err| match err {
+            CallbackError::Timeout => "Registration request timed out".to_string(),
+            CallbackError::Cancelled => "Registration request cancelled".to_string(),
+        })?
         .map_err(|err| err.to_string());
     if response.is_ok() {
         tracing::debug!("Requesting credential sync after registering a new credential.");

@@ -460,10 +460,8 @@ export class Fido2AuthenticatorService<ParentWindowReference>
   }
 
   private async findCredentialsByRp(rpId: string): Promise<CipherView[]> {
-    this.logService.debug("[findCredentialByRp]:", rpId)
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
-    this.logService.debug("[findCredentialsByRp] ciphers:", ciphers)
     return ciphers.filter(
       (cipher) =>
         !cipher.isDeleted &&

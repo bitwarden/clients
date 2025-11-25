@@ -892,12 +892,12 @@ pub struct PluginCancelOperationRequest {
 
 impl PluginCancelOperationRequest {
     /// Request transaction ID
-    fn transaction_id(&self) -> GUID {
+    pub fn transaction_id(&self) -> GUID {
         self.as_ref().transactionId
     }
 
     /// Request signature.
-    fn request_signature(&self) -> &[u8] {
+    pub fn request_signature(&self) -> &[u8] {
         unsafe {
             std::slice::from_raw_parts(
                 self.as_ref().pbRequestSignature,

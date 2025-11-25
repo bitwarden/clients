@@ -9,11 +9,16 @@ mod make_credential;
 mod types;
 mod util;
 
-use std::{collections::HashSet, sync::Arc, time::Duration};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::{
+        mpsc::{self, Sender},
+        Arc, Mutex,
+    },
+    time::Duration,
+};
 
-// Re-export main functionality
-pub use types::UserVerificationRequirement;
-
+use base64::engine::{general_purpose::STANDARD, Engine as _};
 use win_webauthn::{
     plugin::{
         PluginAddAuthenticatorOptions, PluginAuthenticator, PluginCancelOperationRequest,
@@ -21,8 +26,12 @@ use win_webauthn::{
     },
     AuthenticatorInfo, CtapVersion, PublicKeyCredentialParameters,
 };
+use windows_core::GUID;
 
-use crate::ipc2::{TimedCallback, WindowsProviderClient};
+use crate::ipc2::{ConnectionStatus, TimedCallback, WindowsProviderClient};
+
+// Re-export main functionality
+pub use types::UserVerificationRequirement;
 
 const AUTHENTICATOR_NAME: &str = "Bitwarden Desktop";
 const RPID: &str = "bitwarden.com";
@@ -45,7 +54,10 @@ pub fn register() -> std::result::Result<(), String> {
     let clsid = CLSID.try_into().expect("valid GUID string");
     let plugin = WebAuthnPlugin::new(clsid);
 
-    let r = plugin.register_server(BitwardenPluginAuthenticator);
+    let r = plugin.register_server(BitwardenPluginAuthenticator {
+        client: Mutex::new(None),
+        callbacks: Arc::new(Mutex::new(HashMap::new())),
+    });
     tracing::debug!("Registered the com library: {:?}", r);
 
     tracing::debug!("Parsing authenticator options");
@@ -83,14 +95,28 @@ pub fn register() -> std::result::Result<(), String> {
     Ok(())
 }
 
-struct BitwardenPluginAuthenticator;
+struct BitwardenPluginAuthenticator {
+    /// Client to communicate with desktop app over IPC.
+    client: Mutex<Option<Arc<WindowsProviderClient>>>,
+
+    /// Map of transaction IDs to cancellation tokens
+    callbacks: Arc<Mutex<HashMap<GUID, Sender<()>>>>,
+}
 
 impl BitwardenPluginAuthenticator {
-    fn get_client(&self) -> WindowsProviderClient {
+    fn get_client(&self) -> Arc<WindowsProviderClient> {
         tracing::debug!("Connecting to client via IPC");
-        let client = WindowsProviderClient::connect();
-        tracing::debug!("Connected to client via IPC successfully");
-        client
+        let mut client = self.client.lock().unwrap();
+        match client.as_ref().map(|c| (c, c.get_connection_status())) {
+            Some((_, ConnectionStatus::Disconnected)) | None => {
+                tracing::debug!("Connecting to desktop app");
+                let c = WindowsProviderClient::connect();
+                tracing::debug!("Connected to client via IPC successfully");
+                _ = client.insert(Arc::new(c));
+            }
+            _ => {}
+        };
+        client.as_ref().unwrap().clone()
     }
 }
 
@@ -101,7 +127,18 @@ impl PluginAuthenticator for BitwardenPluginAuthenticator {
     ) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
         tracing::debug!("Received MakeCredential: {request:?}");
         let client = self.get_client();
-        make_credential::make_credential(&client, request)
+        let (cancel_tx, cancel_rx) = mpsc::channel();
+        let transaction_id = request.transaction_id;
+        self.callbacks
+            .lock()
+            .expect("not poisoned")
+            .insert(transaction_id, cancel_tx);
+        let response = make_credential::make_credential(&client, request, cancel_rx);
+        self.callbacks
+            .lock()
+            .expect("not poisoned")
+            .remove(&transaction_id);
+        response
     }
 
     fn get_assertion(
@@ -110,13 +147,39 @@ impl PluginAuthenticator for BitwardenPluginAuthenticator {
     ) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
         tracing::debug!("Received GetAssertion: {request:?}");
         let client = self.get_client();
-        assert::get_assertion(&client, request)
+        let (cancel_tx, cancel_rx) = mpsc::channel();
+        let transaction_id = request.transaction_id;
+        self.callbacks
+            .lock()
+            .expect("not poisoned")
+            .insert(transaction_id, cancel_tx);
+        let response = assert::get_assertion(&client, request, cancel_rx);
+        self.callbacks
+            .lock()
+            .expect("not poisoned")
+            .remove(&transaction_id);
+        response
     }
 
     fn cancel_operation(
         &self,
         request: PluginCancelOperationRequest,
     ) -> Result<(), Box<dyn std::error::Error>> {
+        let transaction_id = request.transaction_id();
+        tracing::debug!(?transaction_id, "Received CancelOperation");
+
+        if let Some(cancellation_token) = self
+            .callbacks
+            .lock()
+            .expect("not poisoned")
+            .get(&request.transaction_id())
+        {
+            _ = cancellation_token.send(());
+            let client = self.get_client();
+            let context = STANDARD.encode(transaction_id.to_u128().to_le_bytes().to_vec());
+            tracing::debug!("Sending cancel operation for context: {context}");
+            client.send_native_status("cancel-operation".to_string(), context);
+        }
         Ok(())
     }
 
@@ -124,7 +187,7 @@ impl PluginAuthenticator for BitwardenPluginAuthenticator {
         let callback = Arc::new(TimedCallback::new());
         let client = self.get_client();
         client.get_lock_status(callback.clone());
-        match callback.wait_for_response(Duration::from_secs(3)) {
+        match callback.wait_for_response(Duration::from_secs(3), None) {
             Ok(Ok(response)) => {
                 if response.is_unlocked {
                     Ok(PluginLockStatus::PluginUnlocked)

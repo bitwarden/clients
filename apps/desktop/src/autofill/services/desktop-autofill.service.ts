@@ -54,6 +54,7 @@ const NativeCredentialSyncFeatureFlag = ipc.platform.deviceType === DeviceType.W
 export class DesktopAutofillService implements OnDestroy {
   private destroy$ = new Subject<void>();
   private registrationRequest: autofill.PasskeyRegistrationRequest;
+  private inFlightRequests: Record<string, AbortController> = {};
 
   constructor(
     private logService: LogService,
@@ -210,6 +211,12 @@ export class DesktopAutofillService implements OnDestroy {
       this.logService.debug("listenPasskeyRegistration2", this.convertRegistrationRequest(request));
 
       const controller = new AbortController();
+      let requestId = request.context ? this.contextToRequestId(request.context) : null;
+      this.logService.debug("Request context:", requestId)
+      if (requestId) {
+        this.inFlightRequests[requestId] = controller;
+      }
+
       const ctx = request.context ? new Uint8Array(request.context).buffer : null;
 
       try {
@@ -225,6 +232,11 @@ export class DesktopAutofillService implements OnDestroy {
       } catch (error) {
         this.logService.error("listenPasskeyRegistration error", error);
         callback(error, null);
+      }
+      finally {
+        if (requestId) {
+          delete this.inFlightRequests[requestId];
+        }
       }
       this.logService.info("Passkey registration completed.")
     });
@@ -247,6 +259,10 @@ export class DesktopAutofillService implements OnDestroy {
         );
 
         const controller = new AbortController();
+        let requestId = request.context ? this.contextToRequestId(request.context) : null;
+        if (requestId) {
+          this.inFlightRequests[requestId] = controller;
+        }
 
         try {
           // For some reason the credentialId is passed as an empty array in the request, so we need to
@@ -296,6 +312,11 @@ export class DesktopAutofillService implements OnDestroy {
           callback(error, null);
           return;
         }
+        finally {
+          if (requestId) {
+            delete this.inFlightRequests[requestId];
+          }
+        }
       },
     );
 
@@ -311,6 +332,11 @@ export class DesktopAutofillService implements OnDestroy {
       this.logService.debug("listenPasskeyAssertion", clientId, sequenceNumber, request);
       const ctx = request.context ? new Uint8Array(request.context).buffer : null;
       const controller = new AbortController();
+      let requestId = request.context ? this.contextToRequestId(request.context) : null;
+      if (requestId) {
+        this.inFlightRequests[requestId] = controller;
+      }
+
       try {
         const response = await this.fido2AuthenticatorService.getAssertion(
           this.convertAssertionRequest(request),
@@ -323,6 +349,11 @@ export class DesktopAutofillService implements OnDestroy {
       } catch (error) {
         this.logService.error("listenPasskeyAssertion error", error);
         callback(error, null);
+      }
+      finally {
+        if (requestId) {
+          delete this.inFlightRequests[requestId];
+        }
       }
     });
 
@@ -339,6 +370,18 @@ export class DesktopAutofillService implements OnDestroy {
       if (status.key === "request-sync") {
         // perform ad-hoc sync
         await this.adHocSync();
+      }
+
+      if (status.key === "cancel-operation" && status.value) {
+        const requestId = status.value
+        const controller = this.inFlightRequests[requestId]
+        if (controller) {
+          this.logService.debug(`Cancelling request ${requestId}`);
+          controller.abort("Operation cancelled")
+        }
+        else {
+          this.logService.debug(`Unknown request: ${requestId}`);
+        }
       }
     });
 
@@ -455,6 +498,12 @@ export class DesktopAutofillService implements OnDestroy {
       authenticatorData: Array.from(new Uint8Array(response.authenticatorData)),
       credentialId: Array.from(new Uint8Array(response.selectedCredential.id)),
     };
+  }
+
+  private contextToRequestId(context: number[]): string {
+      const buf = new Uint8Array(context).buffer;
+      const requestId = Utils.fromBufferToB64(buf);
+      return requestId
   }
 
   ngOnDestroy(): void {

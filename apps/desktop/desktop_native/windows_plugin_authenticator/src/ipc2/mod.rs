@@ -4,7 +4,7 @@ use std::{
     fmt::Display,
     sync::{
         atomic::AtomicU32,
-        mpsc::{self, Receiver, Sender},
+        mpsc::{self, Receiver, RecvError, RecvTimeoutError, Sender},
         Arc, Mutex,
     },
     time::{Duration, Instant},
@@ -285,25 +285,60 @@ impl WindowsProviderClient {
     }
 }
 
-pub struct TimedCallback<T> {
-    tx: Mutex<Option<Sender<Result<T, BitwardenError>>>>,
-    rx: Mutex<Receiver<Result<T, BitwardenError>>>,
+pub enum CallbackError {
+    Timeout,
+    Cancelled,
 }
 
-impl<T> TimedCallback<T> {
+pub struct TimedCallback<T> {
+    tx: Arc<Mutex<Option<Sender<Result<T, BitwardenError>>>>>,
+    rx: Arc<Mutex<Receiver<Result<T, BitwardenError>>>>,
+}
+
+impl<T: Send + 'static> TimedCallback<T> {
     pub fn new() -> Self {
         let (tx, rx) = mpsc::channel();
         Self {
-            tx: Mutex::new(Some(tx)),
-            rx: Mutex::new(rx),
+            tx: Arc::new(Mutex::new(Some(tx))),
+            rx: Arc::new(Mutex::new(rx)),
         }
     }
 
     pub fn wait_for_response(
         &self,
         timeout: Duration,
-    ) -> Result<Result<T, BitwardenError>, mpsc::RecvTimeoutError> {
-        self.rx.lock().unwrap().recv_timeout(timeout)
+        cancellation_token: Option<Receiver<()>>,
+    ) -> Result<Result<T, BitwardenError>, CallbackError> {
+        let (tx, rx) = mpsc::channel();
+        if let Some(cancellation_token) = cancellation_token {
+            let tx2 = tx.clone();
+            let cancellation_token = Mutex::new(cancellation_token);
+            std::thread::spawn(move || {
+                if let Ok(()) = cancellation_token.lock().unwrap().recv_timeout(timeout) {
+                    tracing::debug!("Forwarding cancellation");
+                    _ = tx2.send(Err(CallbackError::Cancelled));
+                }
+            });
+        }
+        let response_rx = self.rx.clone();
+        std::thread::spawn(move || {
+            if let Ok(response) = response_rx.lock().unwrap().recv_timeout(timeout) {
+                _ = tx.send(Ok(response));
+            }
+        });
+        match rx.recv_timeout(timeout) {
+            Ok(Ok(response)) => Ok(response),
+            Ok(err @ Err(CallbackError::Cancelled)) => {
+                tracing::debug!("Received cancellation, dropping.");
+                err
+            }
+            Ok(err @ Err(CallbackError::Timeout)) => {
+                tracing::debug!("Request timed out, dropping.");
+                err
+            }
+            Err(RecvTimeoutError::Timeout) => Err(CallbackError::Timeout),
+            Err(_) => Err(CallbackError::Cancelled),
+        }
     }
 
     fn send(&self, response: Result<T, BitwardenError>) {
