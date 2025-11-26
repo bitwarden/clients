@@ -351,14 +351,19 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
   }
 
   private async userHasMasterPassword(userId: string): Promise<boolean> {
+    let resolvedUserId: UserId;
     if (userId) {
-      const decryptionOptions = await firstValueFrom(
-        this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
-      );
-
-      return !!decryptionOptions?.hasMasterPassword;
+      resolvedUserId = userId as UserId;
     } else {
-      return await firstValueFrom(this.userDecryptionOptionsService.hasMasterPassword$);
+      const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+      if (!activeAccount) {
+        return false; // No account, can't have master password
+      }
+      resolvedUserId = activeAccount.id;
     }
+
+    return await firstValueFrom(
+      this.userDecryptionOptionsService.hasMasterPasswordById$(resolvedUserId),
+    );
   }
 }
