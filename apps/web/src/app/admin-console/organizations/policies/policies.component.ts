@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, Observable, of, switchMap, first, map, tap, BehaviorSubject } from "rxjs";
@@ -38,7 +38,6 @@ import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 })
 export class PoliciesComponent {
   private readonly refreshPolicies$: BehaviorSubject<undefined> = new BehaviorSubject(undefined);
-  protected readonly loading = signal(false);
 
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 

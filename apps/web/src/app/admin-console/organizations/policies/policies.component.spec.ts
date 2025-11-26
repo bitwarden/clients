@@ -495,10 +495,4 @@ describe("PoliciesComponent", () => {
       });
     });
   });
-
-  describe("loading signal", () => {
-    it("should initialize loading as false", () => {
-      expect(component["loading"]()).toBe(false);
-    });
-  });
 });

@@ -5,7 +5,7 @@
 @let organizationId = organizationId$ | async;
 
 <bit-container>
-  @if (loading() || !organization || !policiesEnabledMap || !organizationId) {
+  @if (!organization || !policiesEnabledMap || !organizationId) {
     <i
       class="bwi bwi-spinner bwi-spin tw-text-muted"
       title="{{ 'loading' | i18n }}"
