@@ -75,6 +75,8 @@ export enum FeatureFlag {
 
   /* Desktop */
   DesktopUiMigrationMilestone1 = "desktop-ui-migration-milestone-1",
+  /* UIF */
+  RouterFocusManagement = "router-focus-management",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -156,6 +158,8 @@ export const DefaultFeatureFlagValue = {
 
   /* Desktop */
   [FeatureFlag.DesktopUiMigrationMilestone1]: FALSE,
+  /* UIF */
+  [FeatureFlag.RouterFocusManagement]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

@@ -130,7 +130,7 @@
     "process": "0.11.10",
     "remark-gfm": "4.0.1",
     "rimraf": "6.0.1",
-    "sass": "1.94.1",
+    "sass": "1.94.2",
     "sass-loader": "16.0.6",
     "storybook": "8.6.12",
     "style-loader": "4.0.0",
