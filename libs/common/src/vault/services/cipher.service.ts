@@ -1640,12 +1640,14 @@ export class CipherService implements CipherServiceAbstraction {
     const key =
       attachment.key != null
         ? attachment.key
-        : await firstValueFrom(
-            this.keyService.orgKeys$(userId).pipe(
-              filterOutNullish(),
-              map((orgKeys) => orgKeys[cipherDomain.organizationId as OrganizationId] as OrgKey),
-            ),
-          );
+        : cipherDomain.organizationId
+          ? await firstValueFrom(
+              this.keyService.orgKeys$(userId).pipe(
+                filterOutNullish(),
+                map((orgKeys) => orgKeys[cipherDomain.organizationId as OrganizationId] as OrgKey),
+              ),
+            )
+          : await firstValueFrom(this.keyService.userKey$(userId).pipe(filterOutNullish()));
     return await this.encryptService.decryptFileData(encBuf, key);
   }
 
