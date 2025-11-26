@@ -3,6 +3,7 @@ import {
   NEVER,
   Observable,
   combineLatest,
+  concatMap,
   distinctUntilChanged,
   filter,
   firstValueFrom,
@@ -32,6 +33,7 @@ import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-t
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { KeySuffixOptions, HashPurpose, EncryptionType } from "@bitwarden/common/platform/enums";
 import { convertValues } from "@bitwarden/common/platform/misc/convert-values";
@@ -58,12 +60,12 @@ import {
   UserPrivateKey,
   UserPublicKey,
 } from "@bitwarden/common/types/key";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { KdfConfigService } from "./abstractions/kdf-config.service";
 import {
   CipherDecryptionKeys,
   KeyService as KeyServiceAbstraction,
-  UserPrivateKeyDecryptionFailedError,
 } from "./abstractions/key.service";
 import { KdfConfig } from "./models/kdf-config";
 
@@ -117,30 +119,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     if (userKey == null) {
       throw new Error("Failed to set user key");
     }
-  }
-
-  async setUserKeys(
-    userKey: UserKey,
-    encPrivateKey: EncryptedString,
-    userId: UserId,
-  ): Promise<void> {
-    if (userKey == null) {
-      throw new Error("No userKey provided. Lock the user to clear the key");
-    }
-    if (encPrivateKey == null) {
-      throw new Error("No encPrivateKey provided.");
-    }
-    if (userId == null) {
-      throw new Error("No userId provided.");
-    }
-
-    const decryptedPrivateKey = await this.decryptPrivateKey(encPrivateKey, userKey);
-    if (decryptedPrivateKey == null) {
-      throw new UserPrivateKeyDecryptionFailedError();
-    }
-
-    await this.setUserKey(userKey, userId);
-    await this.setPrivateKey(encPrivateKey, userId);
   }
 
   async refreshAdditionalKeys(userId: UserId): Promise<void> {
@@ -610,7 +588,8 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       }
 
       // Can successfully derive public key
-      const publicKey = await this.derivePublicKey(privateKey);
+      await SdkLoadService.Ready;
+      const publicKey = PureCrypto.rsa_extract_public_key(encPrivateKey, key.toEncoded());
 
       if (publicKey == null) {
         // failed to decrypt
@@ -764,34 +743,30 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   userPublicKey$(userId: UserId) {
-    return this.userPrivateKey$(userId).pipe(
-      switchMap(async (pk) => await this.derivePublicKey(pk)),
-    );
-  }
-
-  private async derivePublicKey(privateKey: UserPrivateKey | null) {
-    if (privateKey == null) {
-      return null;
-    }
-
-    return await this.cryptoFunctionService.rsaExtractPublicKey(privateKey);
+    return this.userEncryptionKeyPair$(userId).pipe(map((keyPair) => keyPair?.publicKey ?? null));
   }
 
   userPrivateKey$(userId: UserId): Observable<UserPrivateKey | null> {
-    return this.userPrivateKeyHelper$(userId).pipe(map((keys) => keys?.userPrivateKey ?? null));
+    return this.userEncryptionKeyPair$(userId).pipe(map((keyPair) => keyPair?.privateKey ?? null));
   }
 
   userEncryptionKeyPair$(
     userId: UserId,
   ): Observable<{ privateKey: UserPrivateKey; publicKey: UserPublicKey } | null> {
-    return this.userPrivateKey$(userId).pipe(
-      switchMap(async (privateKey) => {
-        if (privateKey == null) {
+    return combineLatest([this.userPrivateKeyHelper$(userId)]).pipe(
+      concatMap(async ([privateKeyInfo]) => {
+        if (privateKeyInfo == null || privateKeyInfo.userPrivateKey == null) {
           return null;
         }
 
-        const publicKey = (await this.derivePublicKey(privateKey))! as UserPublicKey;
-        return { privateKey, publicKey };
+        await SdkLoadService.Ready;
+        return {
+          privateKey: privateKeyInfo.userPrivateKey,
+          publicKey: PureCrypto.rsa_extract_public_key(
+            privateKeyInfo.encryptedPrivateKey,
+            privateKeyInfo.userKey.toEncoded(),
+          ) as UserPublicKey,
+        };
       }),
     );
   }
@@ -811,16 +786,20 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         return this.stateProvider.getUser(userId, USER_ENCRYPTED_PRIVATE_KEY).state$.pipe(
           switchMap(async (encryptedPrivateKey) => {
             try {
-              return await this.decryptPrivateKey(encryptedPrivateKey, userKey);
+              return {
+                privateKey: await this.decryptPrivateKey(encryptedPrivateKey, userKey),
+                encryptedPrivateKey,
+              };
             } catch (e) {
               this.logService.error("Failed to decrypt private key for user ", userId, e);
               throw e;
             }
           }),
           // Combine outerscope info with user private key
-          map((userPrivateKey) => ({
+          map(({ privateKey, encryptedPrivateKey }) => ({
             userKey,
-            userPrivateKey,
+            userPrivateKey: privateKey,
+            encryptedPrivateKey,
           })),
         );
       }),
@@ -901,20 +880,18 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   encryptedOrgKeys$(userId: UserId): Observable<Record<OrganizationId, EncString>> {
-    return this.userPrivateKey$(userId)?.pipe(
-      switchMap((userPrivateKey) => {
-        if (userPrivateKey == null) {
+    return this.userEncryptionKeyPair$(userId)?.pipe(
+      switchMap((userPublicKeyEncryptionKeyPair) => {
+        if (userPublicKeyEncryptionKeyPair == null) {
           // We can't do any org based decryption
           return of({});
         }
 
         return combineLatest([
           this.stateProvider.getUser(userId, USER_ENCRYPTED_ORGANIZATION_KEYS).state$,
-          this.providerKeysHelper$(userId, userPrivateKey),
+          this.providerKeysHelper$(userId, userPublicKeyEncryptionKeyPair.privateKey),
         ]).pipe(
           switchMap(async ([encryptedOrgKeys, providerKeys]) => {
-            const userPubKey = await this.derivePublicKey(userPrivateKey);
-
             const result: Record<OrganizationId, EncString> = {};
             encryptedOrgKeys = encryptedOrgKeys ?? {};
             for (const orgId of Object.keys(encryptedOrgKeys) as OrganizationId[]) {
@@ -937,7 +914,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
                 }
                 orgKey = await this.encryptService.encapsulateKeyUnsigned(
                   await encrypted.decrypt(this.encryptService, providerKeys!),
-                  userPubKey!,
+                  userPublicKeyEncryptionKeyPair.publicKey,
                 );
               } else {
                 orgKey = encrypted.encryptedOrganizationKey;
