@@ -170,8 +170,10 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return;
     }
 
-    // When feature flag is enabled: limits to 4000 users (self-hosted defaults to 500)
-    // When feature flag is disabled: returns all checked users (no limit enforcement)
+    const allInvitedChecked = this.dataSource
+      .getCheckedUsers()
+      .filter((user) => user.status === ProviderUserStatusType.Invited);
+
     const users = this.getCheckedUsers(MaxBulkReinviteCount);
     const checkedInvitedUsers = users.filter(
       (user) => user.status === ProviderUserStatusType.Invited,
@@ -187,20 +189,50 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
     }
 
     try {
-      const request = this.apiService.postManyProviderUserReinvite(
-        this.providerId,
-        new ProviderUserBulkRequest(checkedInvitedUsers.map((user) => user.id)),
-      );
+      // When feature flag is enabled, show toast instead of dialog
+      if (this.increasedBulkLimitEnabled()) {
+        await this.apiService.postManyProviderUserReinvite(
+          this.providerId,
+          new ProviderUserBulkRequest(checkedInvitedUsers.map((user) => user.id)),
+        );
 
-      const dialogRef = BulkStatusComponent.open(this.dialogService, {
-        data: {
-          users: users,
-          filteredUsers: checkedInvitedUsers,
-          request,
-          successfulMessage: this.i18nService.t("bulkReinviteMessage"),
-        },
-      });
-      await lastValueFrom(dialogRef.closed);
+        const selectedCount = allInvitedChecked.length;
+        const invitedCount = checkedInvitedUsers.length;
+
+        if (selectedCount > MaxBulkReinviteCount) {
+          const excludedCount = selectedCount - MaxBulkReinviteCount;
+          this.toastService.showToast({
+            variant: "success",
+            message: this.i18nService.t(
+              "bulkReinviteLimitedSuccessToast",
+              MaxBulkReinviteCount.toLocaleString(),
+              selectedCount.toLocaleString(),
+              excludedCount.toLocaleString(),
+            ),
+          });
+        } else {
+          this.toastService.showToast({
+            variant: "success",
+            message: this.i18nService.t("bulkReinviteSuccessToast", invitedCount.toString()),
+          });
+        }
+      } else {
+        // Feature flag disabled - show legacy dialog
+        const request = this.apiService.postManyProviderUserReinvite(
+          this.providerId,
+          new ProviderUserBulkRequest(checkedInvitedUsers.map((user) => user.id)),
+        );
+
+        const dialogRef = BulkStatusComponent.open(this.dialogService, {
+          data: {
+            users: users,
+            filteredUsers: checkedInvitedUsers,
+            request,
+            successfulMessage: this.i18nService.t("bulkReinviteMessage"),
+          },
+        });
+        await lastValueFrom(dialogRef.closed);
+      }
     } catch (error) {
       this.validationService.showError(error);
     }

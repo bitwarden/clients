@@ -415,8 +415,10 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       return;
     }
 
-    // When feature flag is enabled: limits to 4000 users (self-hosted defaults to 500)
-    // When feature flag is disabled: returns all checked users (no limit enforcement)
+    const allInvitedChecked = this.dataSource
+      .getCheckedUsers()
+      .filter((u) => u.status === OrganizationUserStatusType.Invited);
+
     const users = this.getCheckedUsers(MaxBulkReinviteCount);
     const filteredUsers = users.filter((u) => u.status === OrganizationUserStatusType.Invited);
 
@@ -439,13 +441,37 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         throw new Error();
       }
 
-      // Bulk Status component open
-      await this.memberDialogManager.openBulkStatusDialog(
-        users,
-        filteredUsers,
-        Promise.resolve(result.successful),
-        this.i18nService.t("bulkReinviteMessage"),
-      );
+      // When feature flag is enabled, show toast instead of dialog
+      if (this.increasedBulkLimitEnabled()) {
+        const selectedCount = allInvitedChecked.length;
+        const invitedCount = filteredUsers.length;
+
+        if (selectedCount > MaxBulkReinviteCount) {
+          const excludedCount = selectedCount - MaxBulkReinviteCount;
+          this.toastService.showToast({
+            variant: "success",
+            message: this.i18nService.t(
+              "bulkReinviteLimitedSuccessToast",
+              MaxBulkReinviteCount.toLocaleString(),
+              selectedCount.toLocaleString(),
+              excludedCount.toLocaleString(),
+            ),
+          });
+        } else {
+          this.toastService.showToast({
+            variant: "success",
+            message: this.i18nService.t("bulkReinviteSuccessToast", invitedCount.toString()),
+          });
+        }
+      } else {
+        // Feature flag disabled - show legacy dialog
+        await this.memberDialogManager.openBulkStatusDialog(
+          users,
+          filteredUsers,
+          Promise.resolve(result.successful),
+          this.i18nService.t("bulkReinviteMessage"),
+        );
+      }
     } catch (e) {
       this.validationService.showError(e);
     }
