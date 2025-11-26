@@ -10,14 +10,33 @@
               attachment.fileName
             }}</span>
             <span slot="secondary" data-testid="file-size">{{ attachment.sizeName }}</span>
+            <i
+              *ngIf="attachment.key == null"
+              slot="default-trailing"
+              class="bwi bwi-exclamation-triangle bwi-sm tw-text-muted"
+              [appA11yTitle]="'attachmentFixDescription' | i18n"
+            ></i>
           </bit-item-content>
+
           <ng-container slot="end">
             <bit-item-action>
-              <app-download-attachment
-                [admin]="admin() && organization()?.canEditAllCiphers"
-                [cipher]="cipher()"
-                [attachment]="attachment"
-              ></app-download-attachment>
+              @if (attachment.key != null) {
+                <app-download-attachment
+                  [admin]="admin() && organization()?.canEditAllCiphers"
+                  [cipher]="cipher()"
+                  [attachment]="attachment"
+                ></app-download-attachment>
+              } @else {
+                <button
+                  [bitAction]="fixOldAttachment(attachment)"
+                  bitButton
+                  buttonType="primary"
+                  size="small"
+                  type="button"
+                >
+                  {{ "fix" | i18n }}
+                </button>
+              }
             </bit-item-action>
             <bit-item-action>
               <app-delete-attachment

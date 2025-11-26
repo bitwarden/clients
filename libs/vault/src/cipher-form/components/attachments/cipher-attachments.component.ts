@@ -316,4 +316,39 @@ export class CipherAttachmentsComponent {
 
     return organizations.find((o) => o.id === orgId) || null;
   }
+
+  protected fixOldAttachment = (attachment: AttachmentView) => {
+    return async () => {
+      const cipher = this.cipher();
+      const userId = this.activeUserId;
+
+      if (!attachment.id || !userId || !cipher) {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("errorOccurred"),
+        });
+        return;
+      }
+
+      try {
+        const updatedCipher = await this.cipherService.upgradeOldCipherAttachments(
+          cipher,
+          userId,
+          attachment.id,
+        );
+
+        this.cipher.set(updatedCipher);
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("attachmentSaved"),
+        });
+        this.onUploadSuccess.emit();
+      } catch {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("errorOccurred"),
+        });
+      }
+    };
+  };
 }
