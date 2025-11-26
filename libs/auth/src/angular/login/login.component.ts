@@ -387,7 +387,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
 
     // redirect to SSO if ssoOrganizationIdentifier is present in token response
-    if (authResult.ssoOrganizationIdentifier != null) {
+    if (authResult.requiresSso) {
       await this.router.navigate(["sso"], {
         queryParams: { identifier: authResult.ssoOrganizationIdentifier },
       });

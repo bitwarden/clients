@@ -23,4 +23,9 @@ export class AuthResult {
   get requiresTwoFactor() {
     return this.twoFactorProviders != null;
   }
+
+  // This is not as extensible as an object-based approach. In the future we may need to adjust to an object based approach.
+  get requiresSso() {
+    return this.ssoOrganizationIdentifier != null && this.ssoOrganizationIdentifier.length > 0;
+  }
 }
