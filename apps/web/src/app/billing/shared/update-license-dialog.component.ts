@@ -80,7 +80,7 @@ export class UpdateLicenseDialogComponent extends UpdateLicenseComponent {
   };
 
   cancel = async () => {
-    super.cancel();
+    this.onCanceled.emit();
     this.dialogRef.close(UpdateLicenseDialogResult.Cancelled);
   };
   static open(dialogService: DialogService, config?: DialogConfig<UpdateLicenseDialogData>) {
