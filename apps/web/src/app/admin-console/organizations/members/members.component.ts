@@ -46,7 +46,10 @@ import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/membe
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import { BaseMembersComponent } from "../../common/base-members.component";
-import { MaxBulkReinviteCount, PeopleTableDataSource } from "../../common/people-table-data-source";
+import {
+  CloudBulkReinviteLimit,
+  PeopleTableDataSource,
+} from "../../common/people-table-data-source";
 import { OrganizationUserView } from "../core/views/organization-user.view";
 
 import { AccountRecoveryDialogResultType } from "./components/account-recovery/account-recovery-dialog.component";
@@ -419,7 +422,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       .getCheckedUsers()
       .filter((u) => u.status === OrganizationUserStatusType.Invited);
 
-    const users = this.getCheckedUsers(MaxBulkReinviteCount);
+    const users = this.getCheckedUsers(CloudBulkReinviteLimit);
     const filteredUsers = users.filter((u) => u.status === OrganizationUserStatusType.Invited);
 
     if (filteredUsers.length <= 0) {
@@ -446,13 +449,13 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         const selectedCount = allInvitedChecked.length;
         const invitedCount = filteredUsers.length;
 
-        if (selectedCount > MaxBulkReinviteCount) {
-          const excludedCount = selectedCount - MaxBulkReinviteCount;
+        if (selectedCount > CloudBulkReinviteLimit) {
+          const excludedCount = selectedCount - CloudBulkReinviteLimit;
           this.toastService.showToast({
             variant: "success",
             message: this.i18nService.t(
               "bulkReinviteLimitedSuccessToast",
-              MaxBulkReinviteCount.toLocaleString(),
+              CloudBulkReinviteLimit.toLocaleString(),
               selectedCount.toLocaleString(),
               excludedCount.toLocaleString(),
             ),

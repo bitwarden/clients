@@ -9,7 +9,7 @@ import {
   EnvironmentService,
 } from "@bitwarden/common/platform/abstractions/environment.service";
 
-import { PeopleTableDataSource, MaxBulkReinviteCount } from "./people-table-data-source";
+import { PeopleTableDataSource, CloudBulkReinviteLimit } from "./people-table-data-source";
 
 // Mock user type for testing
 // We use 'any' cast in the class to bypass strict type checking since this is just for testing
@@ -99,7 +99,7 @@ describe("PeopleTableDataSource", () => {
       expect(users.slice(500).every((u) => !u.checked)).toBe(true);
     });
 
-    it("should limit to MaxBulkReinviteCount (4000) when feature flag enabled and cloud", fakeAsync(() => {
+    it("should limit to CloudBulkReinviteLimit (4000) when feature flag enabled and cloud", fakeAsync(() => {
       // Enable feature flag and cloud environment
       featureFlagSubject.next(true);
       environmentSubject.next({
@@ -112,7 +112,7 @@ describe("PeopleTableDataSource", () => {
       const users = createMockUsers(4500, true);
       dataSource.data = users;
 
-      const result = dataSource.enforceCheckedUserLimit(MaxBulkReinviteCount);
+      const result = dataSource.enforceCheckedUserLimit(CloudBulkReinviteLimit);
 
       expect(result).toHaveLength(4000);
       // First 4000 should be returned
@@ -249,7 +249,7 @@ describe("PeopleTableDataSource", () => {
       const users = createMockUsers(600, true);
       dataSource.data = users;
 
-      const result = dataSource.enforceCheckedUserLimit(MaxBulkReinviteCount);
+      const result = dataSource.enforceCheckedUserLimit(CloudBulkReinviteLimit);
 
       // Should be capped to 500, not 4000
       expect(result).toHaveLength(500);
@@ -268,7 +268,7 @@ describe("PeopleTableDataSource", () => {
       const users = createMockUsers(600, true);
       dataSource.data = users;
 
-      const result = dataSource.enforceCheckedUserLimit(MaxBulkReinviteCount);
+      const result = dataSource.enforceCheckedUserLimit(CloudBulkReinviteLimit);
 
       // Should be capped to 500, not 4000
       expect(result).toHaveLength(500);

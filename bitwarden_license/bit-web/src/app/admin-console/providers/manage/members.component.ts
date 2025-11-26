@@ -29,7 +29,7 @@ import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { BaseMembersComponent } from "@bitwarden/web-vault/app/admin-console/common/base-members.component";
 import {
-  MaxBulkReinviteCount,
+  CloudBulkReinviteLimit,
   peopleFilter,
   PeopleTableDataSource,
 } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
@@ -174,7 +174,7 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       .getCheckedUsers()
       .filter((user) => user.status === ProviderUserStatusType.Invited);
 
-    const users = this.getCheckedUsers(MaxBulkReinviteCount);
+    const users = this.getCheckedUsers(CloudBulkReinviteLimit);
     const checkedInvitedUsers = users.filter(
       (user) => user.status === ProviderUserStatusType.Invited,
     );
@@ -199,13 +199,13 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
         const selectedCount = allInvitedChecked.length;
         const invitedCount = checkedInvitedUsers.length;
 
-        if (selectedCount > MaxBulkReinviteCount) {
-          const excludedCount = selectedCount - MaxBulkReinviteCount;
+        if (selectedCount > CloudBulkReinviteLimit) {
+          const excludedCount = selectedCount - CloudBulkReinviteLimit;
           this.toastService.showToast({
             variant: "success",
             message: this.i18nService.t(
               "bulkReinviteLimitedSuccessToast",
-              MaxBulkReinviteCount.toLocaleString(),
+              CloudBulkReinviteLimit.toLocaleString(),
               selectedCount.toLocaleString(),
               excludedCount.toLocaleString(),
             ),

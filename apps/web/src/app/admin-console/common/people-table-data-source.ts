@@ -21,10 +21,10 @@ import { StatusType, UserViewTypes } from "./base-members.component";
 const MaxCheckedCount = 500;
 
 /**
- * Increased maximum for bulk reinvite operations on cloud environments
- * when the feature flag is enabled.
+ * Maximum for bulk reinvite operations when the IncreaseBulkReinviteLimitForCloud
+ * feature flag is enabled on cloud environments.
  */
-export const MaxBulkReinviteCount = 4000;
+export const CloudBulkReinviteLimit = 4000;
 
 /**
  * Returns true if the user matches the status, or where the status is `null`, if the user is active (not revoked).
@@ -96,7 +96,7 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
     );
 
     this.isIncreasedLimitEnabled$.pipe(takeUntilDestroyed(destroyRef)).subscribe((enabled) => {
-      this.maxAllowedCheckedCount = enabled ? MaxBulkReinviteCount : MaxCheckedCount;
+      this.maxAllowedCheckedCount = enabled ? CloudBulkReinviteLimit : MaxCheckedCount;
     });
   }
 
