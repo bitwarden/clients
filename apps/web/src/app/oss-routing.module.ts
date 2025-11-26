@@ -700,6 +700,7 @@ const routes: Routes = [
           {
             path: "data-recovery",
             component: DataRecoveryComponent,
+            canActivate: [canAccessFeature(FeatureFlag.DataRecoveryTool)],
             data: { titleId: "dataRecovery" } satisfies RouteDataProperties,
           },
           {
