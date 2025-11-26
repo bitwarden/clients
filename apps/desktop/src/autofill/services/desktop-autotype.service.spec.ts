@@ -1,4 +1,5 @@
 import { TestBed } from "@angular/core/testing";
+import { BehaviorSubject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
