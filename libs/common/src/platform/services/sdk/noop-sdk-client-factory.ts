@@ -1,4 +1,4 @@
-import type { BitwardenClient } from "@bitwarden/sdk-internal";
+import type { PasswordManagerClient } from "@bitwarden/sdk-internal";
 
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 
@@ -9,8 +9,8 @@ import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
  */
 export class NoopSdkClientFactory implements SdkClientFactory {
   createSdkClient(
-    ...args: ConstructorParameters<typeof BitwardenClient>
-  ): Promise<BitwardenClient> {
+    ...args: ConstructorParameters<typeof PasswordManagerClient>
+  ): Promise<PasswordManagerClient> {
     return Promise.reject(new Error("SDK not available"));
   }
 }
