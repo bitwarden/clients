@@ -15,7 +15,6 @@ import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-short
 
 import { MainDesktopAutotypeService } from "./main-desktop-autotype.service";
 
-
 // Mock electron modules
 jest.mock("electron", () => ({
   ipcMain: {
