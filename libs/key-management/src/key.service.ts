@@ -2,6 +2,7 @@ import * as bigInt from "big-integer";
 import {
   NEVER,
   Observable,
+  catchError,
   combineLatest,
   concatMap,
   distinctUntilChanged,
@@ -588,8 +589,17 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       }
 
       // Can successfully derive public key
-      await SdkLoadService.Ready;
-      const publicKey = PureCrypto.rsa_extract_public_key(encPrivateKey, key.toEncoded());
+      let publicKey: Uint8Array;
+      try {
+        await SdkLoadService.Ready;
+        publicKey = PureCrypto.rsa_extract_public_key(encPrivateKey, key.toEncoded());
+      } catch (e) {
+        this.logService.error(
+          "[KeyService] Failed to extract public key: " + e,
+          "encrypted private key size: " + encPrivateKey.length,
+        );
+        return false;
+      }
 
       if (publicKey == null) {
         // failed to decrypt
@@ -767,6 +777,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
             privateKeyInfo.userKey.toEncoded(),
           ) as UserPublicKey,
         };
+      }),
+      catchError((e: unknown) => {
+        this.logService.error("[KeyService] Failed to extract public key: " + e);
+        return of(null);
       }),
     );
   }
