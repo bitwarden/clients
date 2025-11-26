@@ -30,6 +30,7 @@ import { KeyService } from "@bitwarden/key-management";
 import { BaseMembersComponent } from "@bitwarden/web-vault/app/admin-console/common/base-members.component";
 import {
   CloudBulkReinviteLimit,
+  MaxCheckedCount,
   peopleFilter,
   PeopleTableDataSource,
 } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
@@ -160,9 +161,10 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return;
     }
 
+    const allUsers = this.dataSource.getCheckedUsers();
     const users = this.increasedBulkLimitEnabled()
-      ? this.dataSource.enforceCheckedUserLimit()
-      : this.dataSource.getCheckedUsers();
+      ? this.dataSource.limitAndUncheckExcess(allUsers, MaxCheckedCount)
+      : allUsers;
 
     const dialogRef = BulkConfirmDialogComponent.open(this.dialogService, {
       data: {
@@ -180,16 +182,16 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return;
     }
 
-    const allInvitedChecked = this.dataSource
-      .getCheckedUsers()
-      .filter((user) => user.status === ProviderUserStatusType.Invited);
+    const users = this.dataSource.getCheckedUsers();
+    const allInvitedUsers = users.filter((user) => user.status === ProviderUserStatusType.Invited);
 
-    const users = this.increasedBulkLimitEnabled()
-      ? this.dataSource.enforceCheckedUserLimit(CloudBulkReinviteLimit)
-      : this.dataSource.getCheckedUsers();
-    const checkedInvitedUsers = users.filter(
-      (user) => user.status === ProviderUserStatusType.Invited,
-    );
+    // Capture the original count BEFORE enforcing the limit
+    const originalInvitedCount = allInvitedUsers.length;
+
+    // When feature flag is enabled, limit invited users and uncheck the excess
+    const checkedInvitedUsers = this.increasedBulkLimitEnabled()
+      ? this.dataSource.limitAndUncheckExcess(allInvitedUsers, CloudBulkReinviteLimit)
+      : allInvitedUsers;
 
     if (checkedInvitedUsers.length <= 0) {
       this.toastService.showToast({
@@ -208,7 +210,7 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
           new ProviderUserBulkRequest(checkedInvitedUsers.map((user) => user.id)),
         );
 
-        const selectedCount = allInvitedChecked.length;
+        const selectedCount = originalInvitedCount;
         const invitedCount = checkedInvitedUsers.length;
 
         if (selectedCount > CloudBulkReinviteLimit) {
@@ -259,9 +261,10 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return;
     }
 
+    const allUsers = this.dataSource.getCheckedUsers();
     const users = this.increasedBulkLimitEnabled()
-      ? this.dataSource.enforceCheckedUserLimit()
-      : this.dataSource.getCheckedUsers();
+      ? this.dataSource.limitAndUncheckExcess(allUsers, MaxCheckedCount)
+      : allUsers;
 
     const dialogRef = BulkRemoveDialogComponent.open(this.dialogService, {
       data: {

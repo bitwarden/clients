@@ -18,13 +18,13 @@ import { StatusType, UserViewTypes } from "./base-members.component";
 /**
  * Default maximum for most bulk operations (confirm, remove, delete, etc.)
  */
-const MaxCheckedCount = 500;
+export const MaxCheckedCount = 500;
 
 /**
  * Maximum for bulk reinvite operations when the IncreaseBulkReinviteLimitForCloud
  * feature flag is enabled on cloud environments.
  */
-export const CloudBulkReinviteLimit = 4000;
+export const CloudBulkReinviteLimit = 600;
 
 /**
  * Returns true if the user matches the status, or where the status is `null`, if the user is active (not revoked).
@@ -78,7 +78,12 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
    */
   readonly isIncreasedLimitEnabled$: Observable<boolean>;
 
-  private maxAllowedCheckedCount: number = MaxCheckedCount;
+  /**
+   * Indicates whether the increased bulk limit feature is enabled.
+   * When true, "Check All" allows checking all users, and bulk operations enforce higher limits.
+   * When false, maintains legacy behavior with 500-user limit enforced at check time.
+   */
+  private isIncreasedBulkLimitEnabled: boolean = false;
 
   constructor(
     configService: ConfigService,
@@ -96,7 +101,7 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
     );
 
     this.isIncreasedLimitEnabled$.pipe(takeUntilDestroyed(destroyRef)).subscribe((enabled) => {
-      this.maxAllowedCheckedCount = enabled ? CloudBulkReinviteLimit : MaxCheckedCount;
+      this.isIncreasedBulkLimitEnabled = enabled;
     });
   }
 
@@ -130,7 +135,7 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
   }
 
   getCheckedUsers() {
-    return this.data.filter((u) => (u as any).checked);
+    return this.filteredData.filter((u) => (u as any).checked);
   }
 
   /**
@@ -145,10 +150,13 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
 
     const filteredUsers = this.filteredData;
 
-    const selectCount =
-      filteredUsers.length > this.maxAllowedCheckedCount
-        ? this.maxAllowedCheckedCount
-        : filteredUsers.length;
+    // When the increased bulk limit feature is enabled, allow checking all users.
+    // Individual bulk operations will enforce their specific limits.
+    // When disabled, enforce the legacy limit at check time.
+    const selectCount = this.isIncreasedBulkLimitEnabled
+      ? filteredUsers.length
+      : Math.min(filteredUsers.length, MaxCheckedCount);
+
     for (let i = 0; i < selectCount; i++) {
       this.checkUser(filteredUsers[i], select);
     }
@@ -180,32 +188,21 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
   }
 
   /**
-   * Enforces a limit on checked users by unchecking those beyond the limit and
-   * returns the users that stay within that limit.
+   * Limits an array of users and unchecks those beyond the limit.
+   * Returns the limited array.
    *
-   * This method has a side effect: users beyond the effective limit are automatically
-   * unchecked so the UI reflects the final selection used for bulk actions.
-   *
-   * The effective limit comes from the max count allowed by the environment and
-   * feature flag (set in the constructor). Different bulk actions request
-   * different limits:
-   * - Most actions use 500
-   * - Reinvite can use 4000 when the feature flag is enabled on cloud
-   *
-   * @param limit The requested limit. Defaults to MaxCheckedCount (500).
-   * @returns The checked users after enforcing the limit.
+   * @param users The array of users to limit
+   * @param limit The maximum number of users to keep
+   * @returns The users array limited to the specified count
    */
-  enforceCheckedUserLimit(limit: number = MaxCheckedCount): T[] {
-    const effectiveLimit = Math.min(limit, this.maxAllowedCheckedCount);
-    const checkedInVisibleOrder = this.filteredData.filter((u) => (u as any).checked);
-
-    if (checkedInVisibleOrder.length <= effectiveLimit) {
-      return checkedInVisibleOrder;
+  limitAndUncheckExcess(users: T[], limit: number): T[] {
+    if (users.length <= limit) {
+      return users;
     }
 
     // Uncheck users beyond the limit
-    checkedInVisibleOrder.slice(effectiveLimit).forEach((user) => this.checkUser(user, false));
+    users.slice(limit).forEach((user) => this.checkUser(user, false));
 
-    return checkedInVisibleOrder.slice(0, effectiveLimit);
+    return users.slice(0, limit);
   }
 }
