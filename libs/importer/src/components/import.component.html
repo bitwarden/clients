@@ -463,6 +463,7 @@
           [onLoadProfilesFromBrowser]="this.onLoadProfilesFromBrowser"
           [format]="this.format"
           (csvDataLoaded)="this.formGroup.controls.fileContents.setValue($event)"
+          (error)="errorMessage = $event"
         ></import-chrome>
       } @else {
         <bit-form-field>
@@ -493,6 +494,9 @@
           ></textarea>
         </bit-form-field>
       }
+      <bit-callout type="danger" *ngIf="errorMessage" class="tw-mt-4">
+        {{ errorMessage }}
+      </bit-callout>
     </bit-card>
   </bit-section>
 </form>

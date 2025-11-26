@@ -105,6 +105,10 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() csvDataLoaded = new EventEmitter<string>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
+  @Output() error = new EventEmitter<string>();
+
   constructor(
     private formBuilder: FormBuilder,
     private controlContainer: ControlContainer,
@@ -120,6 +124,10 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
           );
         } catch (error) {
           this.logService.error("Error loading profiles from browser:", error);
+          const keyOrMessage = this.getValidationErrorI18nKey(error);
+          this.error.emit(
+            keyOrMessage === "errorOccurred" ? this.i18nService.t("errorOccurred") : keyOrMessage,
+          );
         }
       }
     });
@@ -177,9 +185,11 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
         return null;
       } catch (error) {
         this.logService.error(`Chromium importer error: ${error}`);
+        const keyOrMessage = this.getValidationErrorI18nKey(error);
         return {
           errors: {
-            message: this.i18nService.t(this.getValidationErrorI18nKey(error)),
+            message:
+              keyOrMessage === "errorOccurred" ? this.i18nService.t("errorOccurred") : keyOrMessage,
           },
         };
       }
@@ -188,10 +198,7 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
 
   private getValidationErrorI18nKey(error: any): string {
     const message = typeof error === "string" ? error : error?.message;
-    switch (message) {
-      default:
-        return "errorOccurred";
-    }
+    return message || "errorOccurred";
   }
 
   private getBrowserName(format: ImportType): string {
