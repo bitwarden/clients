@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { TemplatePortal } from "@angular/cdk/portal";
 import {
   Component,
   DestroyRef,
@@ -9,6 +10,8 @@ import {
   Type,
   ViewChild,
   ViewContainerRef,
+  TemplateRef,
+  AfterViewInit,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
@@ -84,6 +87,7 @@ import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
 
 import { SettingsComponent } from "./accounts/settings.component";
+import { DesktopHeaderService } from "./layout/desktop-header.service";
 import { ExportDesktopComponent } from "./tools/export/export-desktop.component";
 import { CredentialGeneratorComponent } from "./tools/generator/credential-generator.component";
 import { ImportDesktopComponent } from "./tools/import/import-desktop.component";
@@ -104,7 +108,12 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
     <ng-template #exportVault></ng-template>
     <ng-template #appGenerator></ng-template>
     <ng-template #loginApproval></ng-template>
-    <app-header></app-header>
+    <ng-template #headerPortal>
+      <app-header></app-header>
+    </ng-template>
+    @if (!headerInPortal()) {
+      <app-header></app-header>
+    }
 
     <div id="container">
       <div class="loading" *ngIf="loading">
@@ -117,7 +126,7 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
   `,
   standalone: false,
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("settings", { read: ViewContainerRef, static: true }) settingsRef: ViewContainerRef;
@@ -140,8 +149,14 @@ export class AppComponent implements OnInit, OnDestroy {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("loginApproval", { read: ViewContainerRef, static: true })
   loginApprovalModalRef: ViewContainerRef;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @ViewChild("headerPortal", { read: TemplateRef, static: true })
+  headerPortalRef: TemplateRef<unknown>;
 
   loading = false;
+
+  protected headerInPortal = this.desktopHeaderService.isAttached;
 
   private lastActivity: Date = null;
   private modal: ModalRef = null;
@@ -197,11 +212,18 @@ export class AppComponent implements OnInit, OnDestroy {
     private readonly tokenService: TokenService,
     private desktopAutotypeDefaultSettingPolicy: DesktopAutotypeDefaultSettingPolicy,
     private readonly lockService: LockService,
+    private readonly desktopHeaderService: DesktopHeaderService,
+    private readonly viewContainerRef: ViewContainerRef,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
     const langSubscription = this.documentLangSetter.start();
     this.destroyRef.onDestroy(() => langSubscription.unsubscribe());
+  }
+
+  ngAfterViewInit() {
+    const headerPortal = new TemplatePortal(this.headerPortalRef, this.viewContainerRef);
+    this.desktopHeaderService.setHeader(headerPortal);
   }
 
   ngOnInit() {
@@ -519,6 +541,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.desktopHeaderService.clearHeader();
     this.destroy$.next();
     this.destroy$.complete();
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
