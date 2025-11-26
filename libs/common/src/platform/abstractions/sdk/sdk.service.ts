@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 
-import { BitwardenClient, Uuid, DeviceType as SdkDeviceType } from "@bitwarden/sdk-internal";
+import { PasswordManagerClient, Uuid, DeviceType as SdkDeviceType } from "@bitwarden/sdk-internal";
 
 import { DeviceType } from "../../../enums";
 import { UserId } from "../../../types/guid";
@@ -104,7 +104,7 @@ export abstract class SdkService {
    * Retrieve a client initialized without a user.
    * This client can only be used for operations that don't require a user context.
    */
-  abstract client$: Observable<BitwardenClient>;
+  abstract client$: Observable<PasswordManagerClient>;
 
   /**
    * Retrieve a client initialized for a specific user.
@@ -122,7 +122,7 @@ export abstract class SdkService {
    *
    * @param userId The user id for which to retrieve the client
    */
-  abstract userClient$(userId: UserId): Observable<Rc<BitwardenClient>>;
+  abstract userClient$(userId: UserId): Observable<Rc<PasswordManagerClient>>;
 
   /**
    * This method is used during/after an authentication procedure to set a new client for a specific user.
@@ -133,5 +133,5 @@ export abstract class SdkService {
    * @param userId The user id for which to set the client
    * @param client The client to set for the user. If undefined, the client will be unset.
    */
-  abstract setClient(userId: UserId, client: BitwardenClient | undefined): void;
+  abstract setClient(userId: UserId, client: PasswordManagerClient | undefined): void;
 }

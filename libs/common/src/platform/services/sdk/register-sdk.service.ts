@@ -14,7 +14,7 @@ import {
   firstValueFrom,
 } from "rxjs";
 
-import { BitwardenClient, ClientSettings, TokenProvider } from "@bitwarden/sdk-internal";
+import { PasswordManagerClient, ClientSettings, TokenProvider } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -55,9 +55,9 @@ class JsTokenProvider implements TokenProvider {
 
 export class DefaultRegisterSdkService implements RegisterSdkService {
   private sdkClientOverrides = new BehaviorSubject<{
-    [userId: UserId]: Rc<BitwardenClient> | typeof UnsetClient;
+    [userId: UserId]: Rc<PasswordManagerClient> | typeof UnsetClient;
   }>({});
-  private sdkClientCache = new Map<UserId, Observable<Rc<BitwardenClient>>>();
+  private sdkClientCache = new Map<UserId, Observable<Rc<PasswordManagerClient>>>();
 
   client$ = this.environmentService.environment$.pipe(
     concatMap(async (env) => {
@@ -84,14 +84,14 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
     private userAgent: string | null = null,
   ) {}
 
-  registerClient$(userId: UserId): Observable<Rc<BitwardenClient>> {
+  registerClient$(userId: UserId): Observable<Rc<PasswordManagerClient>> {
     return this.sdkClientOverrides.pipe(
       takeWhile((clients) => clients[userId] !== UnsetClient, false),
       map((clients) => {
         if (clients[userId] === UnsetClient) {
           throw new Error("Encountered UnsetClient even though it should have been filtered out");
         }
-        return clients[userId] as Rc<BitwardenClient>;
+        return clients[userId] as Rc<PasswordManagerClient>;
       }),
       distinctUntilChanged(),
       switchMap((clientOverride) => {
@@ -112,7 +112,7 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
    * @param userId The user id for which to create the client
    * @returns An observable that emits the client for the user
    */
-  private internalClient$(userId: UserId): Observable<Rc<BitwardenClient>> {
+  private internalClient$(userId: UserId): Observable<Rc<PasswordManagerClient>> {
     const cached = this.sdkClientCache.get(userId);
     if (cached !== undefined) {
       return cached;
@@ -131,7 +131,7 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
       // switchMap is required to allow the clean-up logic to be executed when `combineLatest` emits a new value.
       switchMap(([env, account]) => {
         // Create our own observable to be able to implement clean-up logic
-        return new Observable<Rc<BitwardenClient>>((subscriber) => {
+        return new Observable<Rc<PasswordManagerClient>>((subscriber) => {
           const createAndInitializeClient = async () => {
             if (env == null || account == null) {
               return undefined;
@@ -151,7 +151,7 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
             return client;
           };
 
-          let client: Rc<BitwardenClient> | undefined;
+          let client: Rc<PasswordManagerClient> | undefined;
           createAndInitializeClient()
             .then((c) => {
               client = c === undefined ? undefined : new Rc(c);
@@ -173,7 +173,7 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
     return client$;
   }
 
-  private async loadFeatureFlags(client: BitwardenClient) {
+  private async loadFeatureFlags(client: PasswordManagerClient) {
     const serverConfig = await firstValueFrom(this.configService.serverConfig$);
 
     const featureFlagMap = new Map(
