@@ -1,13 +1,20 @@
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
+
 import { TestBed } from "@angular/core/testing";
 import { ipcMain, globalShortcut } from "electron";
-import { MainDesktopAutotypeService } from "./main-desktop-autotype.service";
+
+import { autotype } from "@bitwarden/desktop-napi";
 import { LogService } from "@bitwarden/logging";
+
 import { WindowMain } from "../../main/window.main";
 import { AutotypeConfig } from "../models/autotype-configure";
 import { AutotypeMatchError } from "../models/autotype-errors";
 import { AutotypeVaultData } from "../models/autotype-vault-data";
 import { AUTOTYPE_IPC_CHANNELS } from "../models/ipc-channels";
 import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
+
+import { MainDesktopAutotypeService } from "./main-desktop-autotype.service";
+
 
 // Mock electron modules
 jest.mock("electron", () => ({
@@ -39,8 +46,6 @@ jest.mock("../models/main-autotype-keyboard-shortcut", () => ({
   })),
 }));
 
-import { autotype } from "@bitwarden/desktop-napi";
-
 describe("MainDesktopAutotypeService", () => {
   let service: MainDesktopAutotypeService;
   let mockLogService: jest.Mocked<LogService>;
@@ -48,8 +53,6 @@ describe("MainDesktopAutotypeService", () => {
   let ipcHandlers: Map<string, Function>;
 
   beforeEach(() => {
-    /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-
     // Track IPC handlers
     ipcHandlers = new Map();
     (ipcMain.on as jest.Mock).mockImplementation((channel: string, handler: Function) => {
