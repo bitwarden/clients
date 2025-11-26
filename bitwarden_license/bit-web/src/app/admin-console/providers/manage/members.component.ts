@@ -49,6 +49,14 @@ type ProviderUser = ProviderUserUserDetailsResponse;
 
 class MembersTableDataSource extends PeopleTableDataSource<ProviderUser> {
   protected statusType = ProviderUserStatusType;
+
+  constructor(
+    configService: ConfigService,
+    environmentService: EnvironmentService,
+    destroyRef: DestroyRef,
+  ) {
+    super(configService, environmentService, destroyRef);
+  }
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
