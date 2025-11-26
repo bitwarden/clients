@@ -400,6 +400,21 @@ export class DesktopAutofillService implements OnDestroy {
       callback(null, { isUnlocked })
     })
 
+    ipc.autofill.listenGetWindowHandle(async (clientId, sequenceNumber, request, callback) => {
+      if (!(await this.configService.getFeatureFlag(NativeCredentialSyncFeatureFlag))) {
+        this.logService.debug(
+          `listenGetWindowHandle: ${NativeCredentialSyncFeatureFlag} feature flag is disabled`,
+        );
+        return;
+      }
+
+      this.logService.debug("listenGetWindowHandle", clientId, sequenceNumber, request);
+      let handle = Utils.fromBufferToB64(await ipc.platform.getNativeWindowHandle());
+      const response = { handle };
+      this.logService.debug("listenGetWindowHandle: sending", response);
+      callback(null, { handle })
+    })
+
     ipc.autofill.listenerReady();
   }
 

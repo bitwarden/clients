@@ -17,8 +17,12 @@ use tracing::{error, info};
 mod assertion;
 mod lock_status;
 mod registration;
+mod window_handle_query;
 
-use crate::ipc2::lock_status::{GetLockStatusCallback, LockStatusRequest};
+use crate::ipc2::{
+    lock_status::{GetLockStatusCallback, LockStatusRequest},
+    window_handle_query::{GetWindowHandleQueryCallback, WindowHandleQueryRequest},
+};
 pub use assertion::{
     PasskeyAssertionRequest, PasskeyAssertionResponse, PasskeyAssertionWithoutUserInterfaceRequest,
     PreparePasskeyAssertionCallback,
@@ -26,6 +30,7 @@ pub use assertion::{
 pub use registration::{
     PasskeyRegistrationRequest, PasskeyRegistrationResponse, PreparePasskeyRegistrationCallback,
 };
+pub use window_handle_query::WindowHandleQueryResponse;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -207,6 +212,13 @@ impl WindowsProviderClient {
 
     pub fn get_lock_status(&self, callback: Arc<dyn GetLockStatusCallback>) {
         self.send_message(LockStatusRequest {}, Some(Box::new(callback)));
+    }
+
+    pub fn get_window_handle(&self, callback: Arc<dyn GetWindowHandleQueryCallback>) {
+        self.send_message(
+            WindowHandleQueryRequest::default(),
+            Some(Box::new(callback)),
+        );
     }
 
     pub fn get_connection_status(&self) -> ConnectionStatus {

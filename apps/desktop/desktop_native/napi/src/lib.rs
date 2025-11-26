@@ -672,6 +672,20 @@ pub mod autofill {
         pub is_unlocked: bool,
     }
 
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct WindowHandleQueryRequest {
+        pub window_handle: String,
+    }
+
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct WindowHandleQueryResponse {
+        pub handle: String,
+    }
+
     #[derive(Serialize, Deserialize)]
     #[serde(bound = "T: Serialize + DeserializeOwned")]
     pub struct PasskeyMessage<T: Serialize + DeserializeOwned> {
@@ -818,6 +832,10 @@ pub mod autofill {
                 (u32, u32, LockStatusQueryRequest),
                 ErrorStrategy::CalleeHandled,
             >,
+            window_handle_query_callback: ThreadsafeFunction<
+                (u32, u32, WindowHandleQueryRequest),
+                ErrorStrategy::CalleeHandled,
+            >,
         ) -> napi::Result<Self> {
             let (send, mut recv) = tokio::sync::mpsc::channel::<Message>(32);
             tokio::spawn(async move {
@@ -835,6 +853,24 @@ pub mod autofill {
                                 error!("Message is empty");
                                 continue;
                             };
+
+                            match serde_json::from_str::<PasskeyMessage<WindowHandleQueryRequest>>(
+                                &message,
+                            ) {
+                                Ok(msg) => {
+                                    let value = msg
+                                        .value
+                                        .map(|value| (client_id, msg.sequence_number, value))
+                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
+
+                                    window_handle_query_callback
+                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
+                                    continue;
+                                }
+                                Err(e) => {
+                                    tracing::warn!(error = %e, "Could not deserialize request as WindowHandleQueryRequest. Trying other types...");
+                                }
+                            }
 
                             match serde_json::from_str::<PasskeyMessage<PasskeyAssertionRequest>>(
                                 &message,
@@ -986,6 +1022,20 @@ pub mod autofill {
             client_id: u32,
             sequence_number: u32,
             response: LockStatusQueryResponse,
+        ) -> napi::Result<u32> {
+            let message = PasskeyMessage {
+                sequence_number,
+                value: Ok(response),
+            };
+            self.send(client_id, serde_json::to_string(&message).unwrap())
+        }
+
+        #[napi]
+        pub fn complete_window_handle_query(
+            &self,
+            client_id: u32,
+            sequence_number: u32,
+            response: WindowHandleQueryResponse,
         ) -> napi::Result<u32> {
             let message = PasskeyMessage {
                 sequence_number,
