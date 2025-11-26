@@ -5809,9 +5809,9 @@
     "message": "கணக்கு மட்டத்தில் பொருட்களை சேமிக்கும் விருப்பத்தை நீக்கி, அனைத்து பொருட்களும் ஒரு நிறுவனத்திற்கு சொந்தமானதாக இருக்க வேண்டும்.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
-    "message": "அனைத்து பொருட்களும் நிறுவனத்திற்குச் சொந்தமானதாகவும், சேமிக்கப்படுவதாகவும் இருக்கும், இது நிறுவனம் முழுவதும் கட்டுப்பாடுகள், தெரிவுநிலை மற்றும் அறிக்கையிடலை செயல்படுத்துகிறது. இயக்கப்படும் போது, ஒவ்வொரு உறுப்பினருக்கும் பொருட்களைச் சேமிக்க ஒரு இயல்புநிலை கலெக்‌ஷன் கிடைக்கும். நிர்வகிப்பது பற்றி மேலும் அறிக ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  "organizationDataOwnershipDescContent": {
+    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "சான்றளிப்பு வாழ்க்கைச் சுழற்சி",
@@ -12117,6 +12117,15 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Start free Families trial"
+  },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Block account creation for claimed domains"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "A domain must be claimed before activating this policy."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Set up an unlock method to change your vault timeout action."

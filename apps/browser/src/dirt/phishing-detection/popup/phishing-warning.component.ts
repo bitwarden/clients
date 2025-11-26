@@ -1,8 +1,5 @@
-// eslint-disable-next-line no-restricted-imports
 import { CommonModule } from "@angular/common";
-// eslint-disable-next-line no-restricted-imports
 import { Component, inject } from "@angular/core";
-// eslint-disable-next-line no-restricted-imports
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { firstValueFrom, map } from "rxjs";
 

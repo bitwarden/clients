@@ -13,10 +13,9 @@ export enum FeatureFlag {
   /* Admin Console Team */
   CreateDefaultLocation = "pm-19467-create-default-location",
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
-  BlockClaimedDomainAccountCreation = "block-claimed-domain-account-creation",
+  BlockClaimedDomainAccountCreation = "pm-28297-block-uninvited-claimed-domain-registration",
 
   /* Auth */
-  PM22110_DisableAlternateLoginMethods = "pm-22110-disable-alternate-login-methods",
   PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
 
   /* Autofill */
@@ -121,7 +120,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.VaultLoadingSkeletons]: FALSE,
 
   /* Auth */
-  [FeatureFlag.PM22110_DisableAlternateLoginMethods]: FALSE,
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
 
   /* Billing */
