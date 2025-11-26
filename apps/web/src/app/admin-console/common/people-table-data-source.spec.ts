@@ -1,5 +1,5 @@
 import { DestroyRef } from "@angular/core";
-import { fakeAsync, TestBed, tick } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
 import { BehaviorSubject } from "rxjs";
 
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
@@ -9,7 +9,7 @@ import {
   EnvironmentService,
 } from "@bitwarden/common/platform/abstractions/environment.service";
 
-import { PeopleTableDataSource, CloudBulkReinviteLimit } from "./people-table-data-source";
+import { PeopleTableDataSource } from "./people-table-data-source";
 
 // Mock user type for testing
 // We use 'any' cast in the class to bypass strict type checking since this is just for testing
@@ -71,208 +71,45 @@ describe("PeopleTableDataSource", () => {
     dataSource = new TestPeopleTableDataSource(configService, environmentService, destroyRef);
   });
 
-  describe("enforceCheckedUserLimit", () => {
-    it("should return all users when under the limit", () => {
+  describe("limitAndUncheckExcess", () => {
+    it("should return all users when under limit", () => {
       const users = createMockUsers(10, true);
       dataSource.data = users;
 
-      const result = dataSource.enforceCheckedUserLimit();
+      const result = dataSource.limitAndUncheckExcess(users, 500);
 
       expect(result).toHaveLength(10);
       expect(result).toEqual(users);
-      // All users should remain checked
       expect(users.every((u) => u.checked)).toBe(true);
     });
 
-    it("should limit to 500 by default when over the limit", () => {
+    it("should limit users and uncheck excess", () => {
       const users = createMockUsers(600, true);
       dataSource.data = users;
 
-      const result = dataSource.enforceCheckedUserLimit();
+      const result = dataSource.limitAndUncheckExcess(users, 500);
 
       expect(result).toHaveLength(500);
-      // First 500 should be returned
       expect(result).toEqual(users.slice(0, 500));
-      // First 500 should remain checked
       expect(users.slice(0, 500).every((u) => u.checked)).toBe(true);
-      // Remaining 100 should be unchecked
-      expect(users.slice(500).every((u) => !u.checked)).toBe(true);
+      expect(users.slice(500).every((u) => u.checked)).toBe(false);
     });
 
-    it("should limit to CloudBulkReinviteLimit (4000) when feature flag enabled and cloud", fakeAsync(() => {
-      // Enable feature flag and cloud environment
-      featureFlagSubject.next(true);
-      environmentSubject.next({
-        isCloud: () => true,
-      } as Environment);
+    it("should only affect users in the provided array", () => {
+      const allUsers = createMockUsers(1000, true);
+      dataSource.data = allUsers;
 
-      // Allow subscription to process
-      tick();
+      // Pass only a subset (simulates filtering by status)
+      const subset = allUsers.slice(0, 600);
 
-      const users = createMockUsers(4500, true);
-      dataSource.data = users;
-
-      const result = dataSource.enforceCheckedUserLimit(CloudBulkReinviteLimit);
-
-      expect(result).toHaveLength(4000);
-      // First 4000 should be returned
-      expect(result).toEqual(users.slice(0, 4000));
-      // First 4000 should remain checked
-      expect(users.slice(0, 4000).every((u) => u.checked)).toBe(true);
-      // Remaining 500 should be unchecked
-      expect(users.slice(4000).every((u) => !u.checked)).toBe(true);
-    }));
-
-    it("should uncheck users beyond the limit", () => {
-      const users = createMockUsers(550, true);
-      dataSource.data = users;
-
-      dataSource.enforceCheckedUserLimit();
-
-      // First 500 should remain checked
-      users.slice(0, 500).forEach((user) => {
-        expect(user.checked).toBe(true);
-      });
-      // Last 50 should be unchecked
-      users.slice(500).forEach((user) => {
-        expect(user.checked).toBe(false);
-      });
-    });
-
-    it("should respect requested limit when lower than max allowed", () => {
-      const users = createMockUsers(300, true);
-      dataSource.data = users;
-
-      const result = dataSource.enforceCheckedUserLimit(200);
-
-      expect(result).toHaveLength(200);
-      expect(result).toEqual(users.slice(0, 200));
-      // First 200 should remain checked
-      expect(users.slice(0, 200).every((u) => u.checked)).toBe(true);
-      // Remaining 100 should be unchecked
-      expect(users.slice(200).every((u) => !u.checked)).toBe(true);
-    });
-
-    it("should respect max allowed when requested limit is higher", () => {
-      // Max allowed is 500 by default (feature flag disabled)
-      const users = createMockUsers(600, true);
-      dataSource.data = users;
-
-      // Request 550, but should be capped to 500
-      const result = dataSource.enforceCheckedUserLimit(550);
+      const result = dataSource.limitAndUncheckExcess(subset, 500);
 
       expect(result).toHaveLength(500);
-      expect(result).toEqual(users.slice(0, 500));
+      expect(subset.slice(0, 500).every((u) => u.checked)).toBe(true);
+      expect(subset.slice(500).every((u) => u.checked)).toBe(false);
+      // Users outside subset remain checked
+      expect(allUsers.slice(600).every((u) => u.checked)).toBe(true);
     });
-
-    it("should handle empty selection", () => {
-      const users = createMockUsers(100, false);
-      dataSource.data = users;
-
-      const result = dataSource.enforceCheckedUserLimit();
-
-      expect(result).toHaveLength(0);
-      expect(result).toEqual([]);
-      // All users should remain unchecked
-      expect(users.every((u) => !u.checked)).toBe(true);
-    });
-
-    it("should handle exactly at limit", () => {
-      const users = createMockUsers(500, true);
-      dataSource.data = users;
-
-      const result = dataSource.enforceCheckedUserLimit();
-
-      expect(result).toHaveLength(500);
-      expect(result).toEqual(users);
-      // All users should remain checked
-      expect(users.every((u) => u.checked)).toBe(true);
-    });
-
-    it("should handle mixed checked/unchecked users", () => {
-      const users = createMockUsers(600);
-      // Check the first 550
-      users.slice(0, 550).forEach((u) => (u.checked = true));
-      dataSource.data = users;
-
-      const result = dataSource.enforceCheckedUserLimit();
-
-      expect(result).toHaveLength(500);
-      // Should return first 500 of the checked users
-      expect(result.every((u) => u.checked)).toBe(true);
-      // 50 checked users should be unchecked
-      expect(users.slice(500, 550).every((u) => !u.checked)).toBe(true);
-      // Last 50 should remain unchecked
-      expect(users.slice(550).every((u) => !u.checked)).toBe(true);
-    });
-
-    it("should not affect unchecked users when limiting", () => {
-      const users = createMockUsers(600);
-      // Check only 100 users in the middle
-      users.slice(200, 300).forEach((u) => (u.checked = true));
-      dataSource.data = users;
-
-      const result = dataSource.enforceCheckedUserLimit();
-
-      expect(result).toHaveLength(100);
-      // Only the 100 checked users should be returned
-      expect(result).toEqual(users.slice(200, 300));
-      // Users before and after should remain unchecked
-      expect(users.slice(0, 200).every((u) => !u.checked)).toBe(true);
-      expect(users.slice(300).every((u) => !u.checked)).toBe(true);
-    });
-
-    it("should work correctly on multiple calls", () => {
-      const users = createMockUsers(600, true);
-      dataSource.data = users;
-
-      // First call
-      const result1 = dataSource.enforceCheckedUserLimit();
-      expect(result1).toHaveLength(500);
-
-      // Second call should return the same 500 (since last 100 are now unchecked)
-      const result2 = dataSource.enforceCheckedUserLimit();
-      expect(result2).toHaveLength(500);
-      expect(result2).toEqual(result1);
-    });
-
-    it("should cap to 500 when feature flag enabled but not on cloud", fakeAsync(() => {
-      // Enable feature flag but keep self-hosted
-      featureFlagSubject.next(true);
-      environmentSubject.next({
-        isCloud: () => false,
-      } as Environment);
-
-      // Allow subscription to process
-      tick();
-
-      const users = createMockUsers(600, true);
-      dataSource.data = users;
-
-      const result = dataSource.enforceCheckedUserLimit(CloudBulkReinviteLimit);
-
-      // Should be capped to 500, not 4000
-      expect(result).toHaveLength(500);
-    }));
-
-    it("should cap to 500 when on cloud but feature flag disabled", fakeAsync(() => {
-      // Keep feature flag disabled but set cloud
-      featureFlagSubject.next(false);
-      environmentSubject.next({
-        isCloud: () => true,
-      } as Environment);
-
-      // Allow subscription to process
-      tick();
-
-      const users = createMockUsers(600, true);
-      dataSource.data = users;
-
-      const result = dataSource.enforceCheckedUserLimit(CloudBulkReinviteLimit);
-
-      // Should be capped to 500, not 4000
-      expect(result).toHaveLength(500);
-    }));
   });
 
   describe("status counts", () => {
