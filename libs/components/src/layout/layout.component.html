@@ -1,5 +1,8 @@
 @let mainContentId = "main-content";
-<div class="tw-flex tw-w-full">
+<div class="tw-w-full">
+  <div>
+    <ng-content select="[slot=desktop-header]"></ng-content>
+  </div>
   <div class="tw-flex tw-w-full" cdkTrapFocus>
     <div
       class="tw-fixed tw-z-50 tw-w-full tw-flex tw-justify-center tw-opacity-0 focus-within:tw-opacity-100 tw-pointer-events-none focus-within:tw-pointer-events-auto"
