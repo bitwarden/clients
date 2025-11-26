@@ -1,0 +1,35 @@
+<header
+  class="-tw-mt-6 -tw-mx-8 tw-mb-3 tw-flex tw-flex-col tw-py-6 tw-px-8 has-[[data-tabs]:not(:empty)]:tw-border-0 has-[[data-tabs]:not(:empty)]:tw-border-b has-[[data-tabs]:not(:empty)]:tw-border-solid has-[[data-tabs]:not(:empty)]:tw-border-secondary-100 has-[[data-tabs]:not(:empty)]:tw-bg-background-alt has-[[data-tabs]:not(:empty)]:tw-pb-0"
+>
+  <div class="tw-flex">
+    <div class="tw-flex tw-min-w-0 tw-flex-1 tw-flex-col tw-gap-2">
+      <ng-content select="[slot=breadcrumbs]"></ng-content>
+      <h1
+        bitTypography="h1"
+        noMargin
+        class="tw-m-0 tw-mr-2 tw-leading-10 tw-flex tw-gap-1"
+        [title]="title()"
+      >
+        <div class="tw-truncate">
+          @if (icon()) {
+            <i class="bwi {{ icon() }}" aria-hidden="true"></i>
+          }
+
+          {{ title() }}
+        </div>
+        <div><ng-content select="[slot=title-suffix]"></ng-content></div>
+      </h1>
+    </div>
+    <div class="tw-ml-auto tw-flex tw-flex-col tw-gap-4">
+      <div class="tw-flex tw-min-w-max tw-items-center tw-justify-end tw-gap-2">
+        <ng-content></ng-content>
+      </div>
+      <div class="tw-ml-auto empty:tw-hidden">
+        <ng-content select="[slot=secondary]"></ng-content>
+      </div>
+    </div>
+  </div>
+  <div data-tabs class="-tw-mx-4 -tw-mb-px empty:tw-hidden">
+    <ng-content select="[slot=tabs]"></ng-content>
+  </div>
+</header>
