@@ -37,7 +37,7 @@ export class DefaultUserAsymmetricKeysRegenerationService
       if (privateKeyRegenerationFlag) {
         const shouldRegenerate = await this.shouldRegenerate(userId);
         if (shouldRegenerate) {
-          await this.regenerateUserAsymmetricKeys(userId);
+          await this.regenerateUserPublicKeyEncryptionKeyPair(userId);
         }
       }
     } catch (error) {
@@ -125,7 +125,7 @@ export class DefaultUserAsymmetricKeysRegenerationService
     return false;
   }
 
-  private async regenerateUserAsymmetricKeys(userId: UserId): Promise<void> {
+  async regenerateUserPublicKeyEncryptionKeyPair(userId: UserId): Promise<void> {
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
     if (userKey == null) {
       throw new Error("User key not found");
