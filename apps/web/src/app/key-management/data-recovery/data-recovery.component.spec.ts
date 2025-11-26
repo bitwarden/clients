@@ -89,7 +89,7 @@ describe("DataRecoveryComponent", () => {
       expect(component.hasIssues()).toBe(false);
     });
 
-    it("should initialize steps with correct titles", () => {
+    it("should initialize steps in correct order", () => {
       const steps = component.steps();
       expect(steps.length).toBe(5);
       expect(steps[0].title).toBe("recoveryStepUserInfoTitle");
