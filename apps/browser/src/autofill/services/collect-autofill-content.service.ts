@@ -997,13 +997,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * within an idle callback to help with performance and prevent excessive updates.
    */
   private processMutations = () => {
-    // If the page contains shadow DOM, we require a page details update from the autofill service.
-    // Will wait for an idle moment on main thread to execute, unless timeout has passed.
-    requestIdleCallbackPolyfill(
-      () => this.domQueryService.checkPageContainsShadowDom() && this.requirePageDetailsUpdate(),
-      { timeout: 500 },
-    );
-
     const queueLength = this.mutationsQueue.length;
 
     for (let queueIndex = 0; queueIndex < queueLength; queueIndex++) {
@@ -1026,13 +1019,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * Triggers several flags that indicate that a collection of page details should
    * occur again on a subsequent call after a mutation has been observed in the DOM.
    */
-  private requirePageDetailsUpdate = () => {
+  private flagPageDetailsUpdateIsRequired() {
     this.domRecentlyMutated = true;
     if (this.autofillOverlayContentService) {
       this.autofillOverlayContentService.pageDetailsUpdateRequired = true;
     }
     this.noFieldsFound = false;
-  };
+  }
 
   /**
    * Processes all mutation records encountered by the mutation observer.
@@ -1060,7 +1053,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       (this.isAutofillElementNodeMutated(mutation.removedNodes, true) ||
         this.isAutofillElementNodeMutated(mutation.addedNodes))
     ) {
-      this.requirePageDetailsUpdate();
+      this.flagPageDetailsUpdateIsRequired();
       return;
     }
 
