@@ -160,7 +160,7 @@ export class UserSubscriptionComponent implements OnInit {
       return;
     }
     const dialogRef = UpdateLicenseDialogComponent.open(this.dialogService, {
-      data: { fromUserSubscription: true },
+      data: { fromUserSubscriptionPage: true },
     });
     const result = await lastValueFrom(dialogRef.closed);
     if (result === UpdateLicenseDialogResult.Updated) {

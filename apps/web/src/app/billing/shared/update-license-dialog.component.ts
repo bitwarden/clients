@@ -20,7 +20,7 @@ import { UpdateLicenseDialogResult } from "./update-license-types";
 import { UpdateLicenseComponent } from "./update-license.component";
 
 export interface UpdateLicenseDialogData {
-  fromUserSubscription?: boolean;
+  fromUserSubscriptionPage?: boolean;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -30,7 +30,7 @@ export interface UpdateLicenseDialogData {
   standalone: false,
 })
 export class UpdateLicenseDialogComponent extends UpdateLicenseComponent {
-  fromUserSubscription: boolean;
+  fromUserSubscriptionPage: boolean;
 
   constructor(
     private dialogRef: DialogRef,
@@ -52,7 +52,7 @@ export class UpdateLicenseDialogComponent extends UpdateLicenseComponent {
       formBuilder,
       toastService,
     );
-    this.fromUserSubscription = dialogData?.fromUserSubscription ?? false;
+    this.fromUserSubscriptionPage = dialogData?.fromUserSubscriptionPage ?? false;
   }
   async submitLicense() {
     const result = await this.submit();
@@ -80,7 +80,7 @@ export class UpdateLicenseDialogComponent extends UpdateLicenseComponent {
   };
 
   cancel = async () => {
-    await this.cancel();
+    super.cancel();
     this.dialogRef.close(UpdateLicenseDialogResult.Cancelled);
   };
   static open(dialogService: DialogService, config?: DialogConfig<UpdateLicenseDialogData>) {

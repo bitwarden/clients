@@ -1,13 +1,14 @@
 <form [formGroup]="updateLicenseForm" [bitSubmit]="submitLicenseDialog">
   <bit-dialog
     dialogSize="default"
-    [title]="(fromUserSubscription ? 'uploadLicense' : 'uploadLicenseFile') | i18n"
+    [title]="(fromUserSubscriptionPage ? 'uploadLicense' : 'uploadLicenseFile') | i18n"
   >
     <ng-container bitDialogContent>
       <p class="tw-mb-4">{{ "uploadLicenseFileDesc" | i18n: "bitwarden_license.json" }}</p>
       <div class="tw-mb-4">
         <label class="tw-block tw-text-sm tw-text-muted tw-mb-2">{{
-          (fromUserSubscription ? "uploadYourPremiumLicenseFile" : "uploadYourLicenseFile") | i18n
+          (fromUserSubscriptionPage ? "uploadYourPremiumLicenseFile" : "uploadYourLicenseFile")
+            | i18n
         }}</label>
         <div class="tw-mb-2">
           <button
