@@ -151,4 +151,20 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
   getAutofillKeyboardShortcut(): Promise<string> {
     return null;
   }
+
+  async packageType(): Promise<string> {
+    if (ipc.platform.isMacAppStore) {
+      return "MacAppStore";
+    } else if (ipc.platform.isWindowsStore) {
+      return "WindowsStore";
+    } else if (ipc.platform.isAppImage) {
+      return "AppImage";
+    } else if (ipc.platform.isSnapStore) {
+      return "Snap";
+    } else if (ipc.platform.isFlatpak) {
+      return "Flatpak";
+    } else {
+      return "Unknown";
+    }
+  }
 }
