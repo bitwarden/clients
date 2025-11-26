@@ -191,7 +191,7 @@ describe("AutofillInlineMenuIframeService", () => {
 
         expect(
           autofillInlineMenuIframeService["iframe"].contentWindow.postMessage,
-        ).toHaveBeenCalledWith(message, "*");
+        ).toHaveBeenCalledWith(message, autofillInlineMenuIframeService["extensionOrigin"]);
       });
 
       it("handles port messages that are registered with the message handlers and does not pass the message on to the iframe", () => {
@@ -217,7 +217,7 @@ describe("AutofillInlineMenuIframeService", () => {
           expect(autofillInlineMenuIframeService["portKey"]).toBe(portKey);
           expect(
             autofillInlineMenuIframeService["iframe"].contentWindow.postMessage,
-          ).toHaveBeenCalledWith(message, "*");
+          ).toHaveBeenCalledWith(message, autofillInlineMenuIframeService["extensionOrigin"]);
         });
       });
 
@@ -242,7 +242,7 @@ describe("AutofillInlineMenuIframeService", () => {
           expect(updateElementStylesSpy).not.toHaveBeenCalled();
           expect(
             autofillInlineMenuIframeService["iframe"].contentWindow.postMessage,
-          ).toHaveBeenCalledWith(message, "*");
+          ).toHaveBeenCalledWith(message, autofillInlineMenuIframeService["extensionOrigin"]);
         });
 
         it("sets a light theme based on the user's system preferences", () => {
@@ -262,7 +262,7 @@ describe("AutofillInlineMenuIframeService", () => {
               command: "initAutofillInlineMenuList",
               theme: ThemeType.Light,
             },
-            "*",
+            autofillInlineMenuIframeService["extensionOrigin"],
           );
         });
 
@@ -283,7 +283,7 @@ describe("AutofillInlineMenuIframeService", () => {
               command: "initAutofillInlineMenuList",
               theme: ThemeType.Dark,
             },
-            "*",
+            autofillInlineMenuIframeService["extensionOrigin"],
           );
         });
 
@@ -387,7 +387,7 @@ describe("AutofillInlineMenuIframeService", () => {
             command: "updateAutofillInlineMenuColorScheme",
             colorScheme: "normal",
           },
-          "*",
+          autofillInlineMenuIframeService["extensionOrigin"],
         );
       });
 
