@@ -1839,14 +1839,33 @@ export class CipherService implements CipherServiceAbstraction {
       }
       try {
         // 1. Download attachment
-        const attachmentResponse = await this.apiService.nativeFetch(
-          new Request(attachmentView.url, { cache: "no-store" }),
+        let downloadUrl: string | undefined;
+
+        try {
+          const attachmentResponse = await this.apiService.getAttachmentData(
+            cipher.id,
+            attachmentView.id,
+          );
+          downloadUrl = attachmentResponse.url;
+        } catch (e) {
+          if (e instanceof ErrorResponse && (e as ErrorResponse).statusCode === 404) {
+            downloadUrl = attachmentView.url;
+          }
+        }
+
+        if (!downloadUrl) {
+          this.logService.error("Failed to get download URL for attachment: " + attachmentView.id);
+          break;
+        }
+
+        const dataResponse = await this.apiService.nativeFetch(
+          new Request(downloadUrl, { cache: "no-store" }),
         );
 
-        if (attachmentResponse.status !== 200) {
+        if (dataResponse.status !== 200) {
           this.logService.error(
             "Failed to download attachment: " + attachmentView.id,
-            "Status: " + attachmentResponse.status.toString(),
+            "Status: " + dataResponse.status.toString(),
           );
           break;
         }
@@ -1854,7 +1873,7 @@ export class CipherService implements CipherServiceAbstraction {
         const decryptedBuffer = await this.getDecryptedAttachmentBuffer(
           cipher.id as CipherId,
           attachmentView,
-          attachmentResponse,
+          dataResponse,
           userId,
         );
 
