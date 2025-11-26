@@ -135,6 +135,14 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
   }
 
   getCheckedUsers() {
+    return this.data.filter((u) => (u as any).checked);
+  }
+
+  /**
+   * Gets checked users in the order they appear in the filtered/sorted table view.
+   * Use this when enforcing limits to ensure visual consistency (top N visible rows stay checked).
+   */
+  getCheckedUsersInVisibleOrder() {
     return this.filteredData.filter((u) => (u as any).checked);
   }
 

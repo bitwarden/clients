@@ -161,7 +161,9 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return;
     }
 
-    const allUsers = this.dataSource.getCheckedUsers();
+    const allUsers = this.increasedBulkLimitEnabled()
+      ? this.dataSource.getCheckedUsersInVisibleOrder()
+      : this.dataSource.getCheckedUsers();
     const users = this.increasedBulkLimitEnabled()
       ? this.dataSource.limitAndUncheckExcess(allUsers, MaxCheckedCount)
       : allUsers;
@@ -182,7 +184,9 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return;
     }
 
-    const users = this.dataSource.getCheckedUsers();
+    const users = this.increasedBulkLimitEnabled()
+      ? this.dataSource.getCheckedUsersInVisibleOrder()
+      : this.dataSource.getCheckedUsers();
     const allInvitedUsers = users.filter((user) => user.status === ProviderUserStatusType.Invited);
 
     // Capture the original count BEFORE enforcing the limit
@@ -261,7 +265,9 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return;
     }
 
-    const allUsers = this.dataSource.getCheckedUsers();
+    const allUsers = this.increasedBulkLimitEnabled()
+      ? this.dataSource.getCheckedUsersInVisibleOrder()
+      : this.dataSource.getCheckedUsers();
     const users = this.increasedBulkLimitEnabled()
       ? this.dataSource.limitAndUncheckExcess(allUsers, MaxCheckedCount)
       : allUsers;
