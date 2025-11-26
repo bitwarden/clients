@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, Observable, of, switchMap, first, map, tap, BehaviorSubject } from "rxjs";
+import { combineLatest, Observable, of, switchMap, first, map } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -37,8 +37,6 @@ import { POLICY_EDIT_REGISTER } from "./policy-register-token";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PoliciesComponent {
-  private readonly refreshPolicies$: BehaviorSubject<undefined> = new BehaviorSubject(undefined);
-
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
   protected organizationId$: Observable<OrganizationId> = this.route.params.pipe(
@@ -66,11 +64,11 @@ export class PoliciesComponent {
     this.policyListService.getPolicies(),
   );
 
-  private orgPolicies$: Observable<PolicyResponse[]> = combineLatest([
-    this.organizationId$,
-    this.refreshPolicies$,
-  ]).pipe(
-    switchMap(([organizationId]) => this.policyApiService.getPolicies(organizationId)),
+  private orgPolicies$: Observable<PolicyResponse[]> = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => this.policyService.policies$(userId)),
+    switchMap(() => this.organizationId$),
+    switchMap((organizationId) => this.policyApiService.getPolicies(organizationId)),
     map((response) => (response.data != null && response.data.length > 0 ? response.data : [])),
   );
 
@@ -95,15 +93,6 @@ export class PoliciesComponent {
     protected configService: ConfigService,
     private destroyRef: DestroyRef,
   ) {
-    this.accountService.activeAccount$
-      .pipe(
-        getUserId,
-        switchMap((userId) => this.policyService.policies$(userId)),
-        tap(() => this.refreshPolicies$.next(undefined)),
-        takeUntilDestroyed(),
-      )
-      .subscribe();
-
     this.handleLaunchEvent();
   }
 
