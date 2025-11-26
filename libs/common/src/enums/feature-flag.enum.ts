@@ -142,6 +142,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.UnlockWithMasterPasswordUnlockData]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
+  [FeatureFlag.DataRecoveryTool]: FALSE,
   [FeatureFlag.ConsolidatedSessionTimeoutComponent]: FALSE,
 
   /* Platform */
