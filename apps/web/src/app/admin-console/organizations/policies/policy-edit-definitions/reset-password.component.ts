@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { firstValueFrom, of } from "rxjs";
 
@@ -26,12 +26,11 @@ export class ResetPasswordPolicy extends BasePolicyEditDefinition {
   }
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "reset-password-policy-edit",
   templateUrl: "reset-password.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResetPasswordPolicyComponent extends BasePolicyEditComponent implements OnInit {
   data = this.formBuilder.group({

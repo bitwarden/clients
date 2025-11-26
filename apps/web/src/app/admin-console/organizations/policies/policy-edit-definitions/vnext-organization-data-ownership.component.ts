@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit, TemplateRef, ViewChild } from "@angular/core";
 import { lastValueFrom, Observable } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -34,12 +34,11 @@ export class vNextOrganizationDataOwnershipPolicy extends BasePolicyEditDefiniti
   }
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vnext-organization-data-ownership-policy-edit",
   templateUrl: "vnext-organization-data-ownership.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class vNextOrganizationDataOwnershipPolicyComponent
   extends BasePolicyEditComponent

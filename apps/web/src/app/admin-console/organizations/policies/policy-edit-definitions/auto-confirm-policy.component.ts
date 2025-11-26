@@ -1,4 +1,11 @@
-import { Component, OnInit, Signal, TemplateRef, viewChild } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  Signal,
+  TemplateRef,
+  viewChild,
+} from "@angular/core";
 import { BehaviorSubject, map, Observable } from "rxjs";
 
 import { AutoConfirmSvg } from "@bitwarden/assets/svg";
@@ -26,12 +33,11 @@ export class AutoConfirmPolicy extends BasePolicyEditDefinition {
   }
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "auto-confirm-policy-edit",
   templateUrl: "auto-confirm-policy.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent implements OnInit {
   protected readonly autoConfirmSvg = AutoConfirmSvg;

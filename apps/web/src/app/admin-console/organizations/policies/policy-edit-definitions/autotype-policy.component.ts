@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -18,11 +18,10 @@ export class DesktopAutotypeDefaultSettingPolicy extends BasePolicyEditDefinitio
     return configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype);
   }
 }
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "autotype-policy-edit",
   templateUrl: "autotype-policy.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DesktopAutotypeDefaultSettingPolicyComponent extends BasePolicyEditComponent {}
