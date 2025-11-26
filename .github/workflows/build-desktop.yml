@@ -572,7 +572,7 @@ jobs:
         run: node build.js cross-platform
 
       - name: Build
-        run: npm run build
+        run: npm run build:dev
 
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
@@ -835,7 +835,7 @@ jobs:
         run: node build.js cross-platform
 
       - name: Build
-        run: npm run build
+        run: npm run build:dev
 
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
@@ -1190,7 +1190,7 @@ jobs:
         run: node build.js cross-platform
 
       - name: Build application (dev)
-        run: npm run build
+        run: npm run build:dev
 
   browser-build:
     name: Browser Build
@@ -1412,7 +1412,7 @@ jobs:
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
-        run: npm run build
+        run: npm run build:dev
 
       - name: Download Browser artifact
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
@@ -1692,7 +1692,7 @@ jobs:
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
-        run: npm run build
+        run: npm run build:dev
 
       - name: Download Browser artifact
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
