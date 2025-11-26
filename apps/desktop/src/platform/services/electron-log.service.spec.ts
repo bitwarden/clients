@@ -15,7 +15,6 @@ jest.mock("@bitwarden/desktop-napi", () => {
 
 describe("ElectronLogMainService", () => {
   it("sets dev based on electron method", () => {
-    globalThis.BIT_ENVIRONMENT = "development";
     const logService = new ElectronLogMainService();
     expect(logService).toEqual(expect.objectContaining({ isDev: true }) as any);
   });

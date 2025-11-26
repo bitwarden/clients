@@ -20,7 +20,7 @@ export function invokeMenu(menu: RendererMenuItem[]) {
 }
 
 export function isDev() {
-  return BIT_ENVIRONMENT === "development";
+  return true;
 }
 
 export function isLinux() {
