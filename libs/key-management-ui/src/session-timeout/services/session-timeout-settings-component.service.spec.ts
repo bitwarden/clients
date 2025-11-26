@@ -12,9 +12,9 @@ import {
 import {
   VaultTimeout,
   VaultTimeoutOption,
+  VaultTimeoutNumberType,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
-import { VaultTimeoutNumberType } from "@bitwarden/common/key-management/vault-timeout/types/vault-timeout.type";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 

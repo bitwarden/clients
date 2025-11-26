@@ -8,14 +8,12 @@ import {
   SessionTimeoutTypeService,
 } from "@bitwarden/common/key-management/session-timeout";
 import {
+  isVaultTimeoutTypeNumeric,
   VaultTimeout,
   VaultTimeoutOption,
+  VaultTimeoutNumberType,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
-import {
-  isVaultTimeoutTypeNumeric,
-  VaultTimeoutNumberType,
-} from "@bitwarden/common/key-management/vault-timeout/types/vault-timeout.type";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/user-core";
 

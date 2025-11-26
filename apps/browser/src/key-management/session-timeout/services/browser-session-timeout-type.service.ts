@@ -1,12 +1,10 @@
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
+  isVaultTimeoutTypeNumeric,
   VaultTimeout,
+  VaultTimeoutNumberType,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
-import {
-  isVaultTimeoutTypeNumeric,
-  VaultTimeoutNumberType,
-} from "@bitwarden/common/key-management/vault-timeout/types/vault-timeout.type";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 export class BrowserSessionTimeoutTypeService implements SessionTimeoutTypeService {

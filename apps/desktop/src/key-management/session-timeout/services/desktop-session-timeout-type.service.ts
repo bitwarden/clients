@@ -1,12 +1,10 @@
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
+  isVaultTimeoutTypeNumeric,
   VaultTimeout,
+  VaultTimeoutNumberType,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
-import {
-  isVaultTimeoutTypeNumeric,
-  VaultTimeoutNumberType,
-} from "@bitwarden/common/key-management/vault-timeout/types/vault-timeout.type";
 
 export class DesktopSessionTimeoutTypeService implements SessionTimeoutTypeService {
   async isAvailable(type: VaultTimeout): Promise<boolean> {
