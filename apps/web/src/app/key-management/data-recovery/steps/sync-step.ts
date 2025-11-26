@@ -27,7 +27,7 @@ export class SyncStep extends RecoveryStep {
     logger.record(`Fetched ${workingData.folders.length} folders from server`);
 
     workingData.encryptedPrivateKey =
-      response.profile.accountKeys.publicKeyEncryptionKeyPair.wrappedPrivateKey || null;
+      response.profile?.accountKeys?.publicKeyEncryptionKeyPair?.wrappedPrivateKey ?? null;
     logger.record(
       `Fetched encrypted private key of length ${workingData.encryptedPrivateKey?.length ?? 0} from server`,
     );

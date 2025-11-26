@@ -19,8 +19,18 @@ export class FolderStep extends RecoveryStep {
   }
 
   async runDiagnostics(workingData: RecoveryWorkingData, logger: LogRecorder): Promise<boolean> {
+    if (!workingData.userKey) {
+      logger.record("Missing user key");
+      return false;
+    }
+
     this.undecryptableFolderIds = [];
     for (const folder of workingData.folders) {
+      if (!folder.name?.encryptedString) {
+        logger.record(`Folder ID ${folder.id} has no name`);
+        this.undecryptableFolderIds.push(folder.id);
+        continue;
+      }
       try {
         PureCrypto.symmetric_decrypt_string(
           folder.name.encryptedString,
@@ -48,6 +58,11 @@ export class FolderStep extends RecoveryStep {
       return;
     }
 
+    if (!workingData.userId) {
+      logger.record("Missing user ID");
+      throw new Error("Missing user ID");
+    }
+
     logger.record(`Showing confirmation dialog for ${this.undecryptableFolderIds.length} folders`);
 
     const confirmed = await this.dialogService.openSimpleDialog({
@@ -70,7 +85,8 @@ export class FolderStep extends RecoveryStep {
         await this.folderService.delete(folderId, workingData.userId);
         logger.record(`Deleted folder ${folderId}`);
       } catch (error) {
-        logger.record(`Failed to delete folder ${folderId}: ${error.message}`);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        logger.record(`Failed to delete folder ${folderId}: ${errorMessage}`);
         throw error;
       }
     }

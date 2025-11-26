@@ -18,11 +18,20 @@ export class UserInfoStep extends RecoveryStep {
   }
 
   async runDiagnostics(workingData: RecoveryWorkingData, logger: LogRecorder): Promise<boolean> {
-    const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    if (!activeAccount) {
+      logger.record("No active account found");
+      return false;
+    }
+    const userId = activeAccount.id;
     workingData.userId = userId;
     logger.record(`User ID: ${userId}`);
 
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+    if (!userKey) {
+      logger.record("No user key found");
+      return false;
+    }
     workingData.userKey = userKey;
     logger.record(
       `User encryption type: ${userKey.inner().type === 2 ? "V1" : userKey.inner().type === 7 ? "Cose" : "Unknown"}`,

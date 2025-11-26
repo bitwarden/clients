@@ -21,10 +21,19 @@ export class PrivateKeyStep extends RecoveryStep {
   }
 
   async runDiagnostics(workingData: RecoveryWorkingData, logger: LogRecorder): Promise<boolean> {
+    if (!workingData.userId || !workingData.userKey) {
+      logger.record("Missing user ID or user key");
+      return false;
+    }
+
     // Make sure the private key decrypts properly and is not somehow encrypted by a different user key / broken during key rotation.
     const encryptedPrivateKey = await firstValueFrom(
-      this.keyService.userEncryptedPrivateKey$(workingData.userId!),
+      this.keyService.userEncryptedPrivateKey$(workingData.userId),
     );
+    if (!encryptedPrivateKey) {
+      logger.record("No encrypted private key found");
+      return false;
+    }
     logger.record("Private key length: " + encryptedPrivateKey.length);
     try {
       PureCrypto.unwrap_decapsulation_key(encryptedPrivateKey, workingData.userKey.toEncoded());
@@ -52,6 +61,7 @@ export class PrivateKeyStep extends RecoveryStep {
     // Only support recovery on V1 users.
     return (
       workingData.isPrivateKeyCorrupt &&
+      workingData.userKey !== null &&
       workingData.userKey.inner().type === EncryptionType.AesCbc256_HmacSha256_B64
     );
   }

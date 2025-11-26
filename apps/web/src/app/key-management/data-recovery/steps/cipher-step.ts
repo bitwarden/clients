@@ -20,6 +20,11 @@ export class CipherStep extends RecoveryStep {
   }
 
   async runDiagnostics(workingData: RecoveryWorkingData, logger: LogRecorder): Promise<boolean> {
+    if (!workingData.userId) {
+      logger.record("Missing user ID");
+      return false;
+    }
+
     this.undecryptableCipherIds = [];
     for (const cipher of workingData.ciphers) {
       try {
@@ -68,7 +73,8 @@ export class CipherStep extends RecoveryStep {
         await this.apiService.deleteCipher(cipherId);
         logger.record(`Deleted cipher ${cipherId}`);
       } catch (error) {
-        logger.record(`Failed to delete cipher ${cipherId}: ${error.message}`);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        logger.record(`Failed to delete cipher ${cipherId}: ${errorMessage}`);
         throw error;
       }
     }

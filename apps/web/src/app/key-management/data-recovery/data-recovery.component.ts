@@ -111,6 +111,11 @@ export class DataRecoveryComponent implements OnInit {
   }
 
   private async runDiagnosticsInternal() {
+    if (!this.workingData) {
+      this.logger.record("No working data available");
+      return;
+    }
+
     const currentSteps = this.steps();
     let hasAnyFailures = false;
 
@@ -151,7 +156,7 @@ export class DataRecoveryComponent implements OnInit {
     }
 
     // Check if any recovery can be performed
-    const canRecoverAnyStep = this.recoverySteps.some((step) => step.canRecover(this.workingData));
+    const canRecoverAnyStep = this.recoverySteps.some((step) => step.canRecover(this.workingData!));
     this.hasIssues.set(canRecoverAnyStep);
   }
 
