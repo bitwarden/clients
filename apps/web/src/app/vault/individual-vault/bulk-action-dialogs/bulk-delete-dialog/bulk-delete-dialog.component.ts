@@ -14,6 +14,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherBulkDeleteRequest } from "@bitwarden/common/vault/models/request/cipher-bulk-delete.request";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
+  CenterPositionStrategy,
   DIALOG_DATA,
   DialogConfig,
   DialogRef,
@@ -48,7 +49,10 @@ export const openBulkDeleteDialog = (
 ) => {
   return dialogService.open<BulkDeleteDialogResult, BulkDeleteDialogParams>(
     BulkDeleteDialogComponent,
-    config,
+    {
+      positionStrategy: new CenterPositionStrategy(),
+      ...config,
+    },
   );
 };
 

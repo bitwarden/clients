@@ -2,17 +2,12 @@
   <app-side-nav variant="secondary" *ngIf="organization$ | async as organization">
     <bit-nav-logo [openIcon]="logo" route="." [label]="'adminConsole' | i18n"></bit-nav-logo>
     <org-switcher [filter]="orgFilter" [hideNewButton]="hideNewOrgButton$ | async"></org-switcher>
-    <bit-nav-group
+    <bit-nav-item
       icon="bwi-dashboard"
-      *ngIf="organization.useRiskInsights && organization.canAccessReports"
+      *ngIf="organization.useAccessIntelligence && organization.canAccessReports"
       [text]="'accessIntelligence' | i18n"
       route="access-intelligence"
-    >
-      <bit-nav-item
-        [text]="'riskInsights' | i18n"
-        route="access-intelligence/risk-insights"
-      ></bit-nav-item>
-    </bit-nav-group>
+    ></bit-nav-item>
     <bit-nav-item
       icon="bwi-collection-shared"
       [text]="'collections' | i18n"

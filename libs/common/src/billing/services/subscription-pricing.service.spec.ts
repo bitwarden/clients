@@ -25,7 +25,7 @@ describe("DefaultSubscriptionPricingService", () => {
   let logService: MockProxy<LogService>;
 
   const mockFamiliesPlan = {
-    type: PlanType.FamiliesAnnually,
+    type: PlanType.FamiliesAnnually2025,
     productTier: ProductTierType.Families,
     name: "Families (Annually)",
     isAnnual: true,

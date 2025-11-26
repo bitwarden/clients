@@ -115,7 +115,7 @@ const notificationConfirmationButtonTextStyles = (theme: Theme) => css`
   ${baseTextStyles}
 
   color: ${themes[theme].primary[600]};
-  font-weight: 700;
+  font-weight: 500;
   cursor: pointer;
 `;
 

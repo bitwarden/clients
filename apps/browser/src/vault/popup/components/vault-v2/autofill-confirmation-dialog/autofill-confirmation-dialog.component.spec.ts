@@ -29,7 +29,11 @@ describe("AutofillConfirmationDialogComponent", () => {
     params?: AutofillConfirmationDialogParams;
     viewOnly?: boolean;
   }) {
-    const p = options?.params ?? params;
+    const base = options?.params ?? params;
+    const p: AutofillConfirmationDialogParams = {
+      ...base,
+      viewOnly: options?.viewOnly,
+    };
 
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
@@ -46,12 +50,6 @@ describe("AutofillConfirmationDialogComponent", () => {
 
     const freshFixture = TestBed.createComponent(AutofillConfirmationDialogComponent);
     const freshInstance = freshFixture.componentInstance;
-
-    // If needed, set viewOnly BEFORE first detectChanges so initial render reflects it.
-    if (typeof options?.viewOnly !== "undefined") {
-      freshInstance.viewOnly = options.viewOnly;
-    }
-
     freshFixture.detectChanges();
     return { fixture: freshFixture, component: freshInstance };
   }
@@ -93,12 +91,15 @@ describe("AutofillConfirmationDialogComponent", () => {
     jest.resetAllMocks();
   });
 
+  const findShowAll = (inFx?: ComponentFixture<AutofillConfirmationDialogComponent>) =>
+    (inFx || fixture).nativeElement.querySelector(
+      "button.tw-text-sm.tw-font-medium.tw-cursor-pointer",
+    ) as HTMLButtonElement | null;
+
   it("normalizes currentUrl and savedUrls via Utils.getHostname", () => {
     expect(Utils.getHostname).toHaveBeenCalledTimes(1 + (params.savedUrls?.length ?? 0));
-    // current
-    expect(component.currentUrl).toBe("example.com");
-    // saved
-    expect(component.savedUrls).toEqual([
+    expect(component.currentUrl()).toBe("example.com");
+    expect(component.savedUrls()).toEqual([
       "one.example.com",
       "two.example.com",
       "not-a-url.example",
@@ -115,30 +116,30 @@ describe("AutofillConfirmationDialogComponent", () => {
 
   it("emits Canceled on close()", () => {
     const spy = jest.spyOn(dialogRef, "close");
-    component["close"]();
+    (component as any)["close"]();
     expect(spy).toHaveBeenCalledWith(AutofillConfirmationDialogResult.Canceled);
   });
 
   it("emits AutofillAndUrlAdded on autofillAndAddUrl()", () => {
     const spy = jest.spyOn(dialogRef, "close");
-    component["autofillAndAddUrl"]();
+    (component as any)["autofillAndAddUrl"]();
     expect(spy).toHaveBeenCalledWith(AutofillConfirmationDialogResult.AutofillAndUrlAdded);
   });
 
   it("emits AutofilledOnly on autofillOnly()", () => {
     const spy = jest.spyOn(dialogRef, "close");
-    component["autofillOnly"]();
+    (component as any)["autofillOnly"]();
     expect(spy).toHaveBeenCalledWith(AutofillConfirmationDialogResult.AutofilledOnly);
   });
 
-  it("applies collapsed list gradient class by default, then clears it after viewAllSavedUrls()", () => {
-    const initial = component["savedUrlsListClass"];
+  it("applies collapsed list gradient class by default, then clears it after toggling", () => {
+    const initial = component.savedUrlsListClass();
     expect(initial).toContain("gradient");
 
-    component["viewAllSavedUrls"]();
+    component.toggleSavedUrlExpandedState();
     fixture.detectChanges();
 
-    const expanded = component["savedUrlsListClass"];
+    const expanded = component.savedUrlsListClass();
     expect(expanded).toBe("");
   });
 
@@ -149,37 +150,36 @@ describe("AutofillConfirmationDialogComponent", () => {
     };
 
     const { component: fresh } = await createFreshFixture({ params: newParams });
-    expect(fresh.savedUrls).toEqual([]);
-    expect(fresh.currentUrl).toBe("bitwarden.com");
+    expect(fresh.savedUrls()).toEqual([]);
+    expect(fresh.currentUrl()).toBe("bitwarden.com");
   });
 
-  it("handles undefined savedUrls by defaulting to [] and empty strings from Utils.getHostname", () => {
+  it("handles undefined savedUrls by defaulting to [] and empty strings from Utils.getHostname", async () => {
     const localParams: AutofillConfirmationDialogParams = {
       currentUrl: "https://sub.domain.tld/x",
     };
 
-    const local = new AutofillConfirmationDialogComponent(localParams as any, dialogRef);
-
-    expect(local.savedUrls).toEqual([]);
-    expect(local.currentUrl).toBe("sub.domain.tld");
+    const { component: local } = await createFreshFixture({ params: localParams });
+    expect(local.savedUrls()).toEqual([]);
+    expect(local.currentUrl()).toBe("sub.domain.tld");
   });
 
-  it("filters out falsy/invalid values from Utils.getHostname in savedUrls", () => {
-    (Utils.getHostname as jest.Mock).mockImplementationOnce(() => "example.com");
-    (Utils.getHostname as jest.Mock)
-      .mockImplementationOnce(() => "ok.example")
-      .mockImplementationOnce(() => "")
-      .mockImplementationOnce(() => undefined as unknown as string);
+  it("filters out falsy/invalid values from Utils.getHostname in savedUrls", async () => {
+    const hostSpy = jest.spyOn(Utils, "getHostname");
+    hostSpy.mockImplementationOnce(() => "example.com");
+    hostSpy.mockImplementationOnce(() => "ok.example");
+    hostSpy.mockImplementationOnce(() => "");
+    hostSpy.mockImplementationOnce(() => undefined as unknown as string);
 
     const edgeParams: AutofillConfirmationDialogParams = {
       currentUrl: "https://example.com",
       savedUrls: ["https://ok.example", "://bad", "%%%"],
     };
 
-    const edge = new AutofillConfirmationDialogComponent(edgeParams as any, dialogRef);
+    const { component: edge } = await createFreshFixture({ params: edgeParams });
 
-    expect(edge.currentUrl).toBe("example.com");
-    expect(edge.savedUrls).toEqual(["ok.example"]);
+    expect(edge.currentUrl()).toBe("example.com");
+    expect(edge.savedUrls()).toEqual(["ok.example"]);
   });
 
   it("renders one current-url callout and N saved-url callouts", () => {
@@ -196,48 +196,70 @@ describe("AutofillConfirmationDialogComponent", () => {
     expect(text).toContain("two.example.com");
   });
 
-  it("shows the 'view all' button when savedUrls > 1 and hides it after click", () => {
-    const findViewAll = () =>
-      fixture.nativeElement.querySelector(
-        "button.tw-text-sm.tw-font-bold.tw-cursor-pointer",
-      ) as HTMLButtonElement | null;
-
-    let btn = findViewAll();
+  it("shows the 'show all' button when savedUrls > 1", () => {
+    const btn = findShowAll();
     expect(btn).toBeTruthy();
+    expect(btn!.textContent).toContain("showAll");
+  });
 
+  it('hides the "show all" button when savedUrls is empty', async () => {
+    const newParams: AutofillConfirmationDialogParams = {
+      currentUrl: "https://bitwarden.com/help",
+      savedUrls: [],
+    };
+
+    const { fixture: vf } = await createFreshFixture({ params: newParams });
+    vf.detectChanges();
+    const btn = findShowAll(vf);
+    expect(btn).toBeNull();
+  });
+
+  it("handles toggling of the 'show all' button correctly", async () => {
+    const { fixture: vf, component: vc } = await createFreshFixture();
+
+    let btn = findShowAll(vf);
+    expect(btn).toBeTruthy();
+    expect(vc.savedUrlsExpanded()).toBe(false);
+    expect(btn!.textContent).toContain("showAll");
+
+    // click to expand
     btn!.click();
-    fixture.detectChanges();
+    vf.detectChanges();
 
-    btn = findViewAll();
-    expect(btn).toBeFalsy();
-    expect(component.savedUrlsExpanded).toBe(true);
+    btn = findShowAll(vf);
+    expect(btn!.textContent).toContain("showLess");
+    expect(vc.savedUrlsExpanded()).toBe(true);
+
+    // click to collapse
+    btn!.click();
+    vf.detectChanges();
+
+    btn = findShowAll(vf);
+    expect(btn!.textContent).toContain("showAll");
+    expect(vc.savedUrlsExpanded()).toBe(false);
   });
 
   it("shows autofillWithoutAdding text on autofill button when viewOnly is false", () => {
     fixture.detectChanges();
-
     const text = fixture.nativeElement.textContent as string;
     expect(text.includes("autofillWithoutAdding")).toBe(true);
   });
 
   it("does not show autofillWithoutAdding text on autofill button when viewOnly is true", async () => {
     const { fixture: vf } = await createFreshFixture({ viewOnly: true });
-
     const text = vf.nativeElement.textContent as string;
     expect(text.includes("autofillWithoutAdding")).toBe(false);
   });
 
   it("shows autofill and save button when viewOnly is false", () => {
-    component.viewOnly = false;
+    // default viewOnly is false
     fixture.detectChanges();
-
     const text = fixture.nativeElement.textContent as string;
     expect(text.includes("autofillAndAddWebsite")).toBe(true);
   });
 
   it("does not show autofill and save button when viewOnly is true", async () => {
     const { fixture: vf } = await createFreshFixture({ viewOnly: true });
-
     const text = vf.nativeElement.textContent as string;
     expect(text.includes("autofillAndAddWebsite")).toBe(false);
   });

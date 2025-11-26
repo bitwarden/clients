@@ -3,6 +3,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit, signal } from "@angular/core";
 import { Router } from "@angular/router";
 
+import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { PersonalSubscriptionPricingTierId } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
@@ -94,6 +95,7 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
     private dialogRef: DialogRef<UnifiedUpgradeDialogResult>,
     @Inject(DIALOG_DATA) private params: UnifiedUpgradeDialogParams,
     private router: Router,
+    private premiumInterestStateService: PremiumInterestStateService,
   ) {}
 
   ngOnInit(): void {
@@ -110,7 +112,9 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
     this.selectedPlan.set(planId);
     this.nextStep();
   }
-  protected onCloseClicked(): void {
+  protected async onCloseClicked(): Promise<void> {
+    // Clear premium interest when user closes/abandons modal
+    await this.premiumInterestStateService.clearPremiumInterest(this.params.account.id);
     this.close({ status: UnifiedUpgradeDialogStatus.Closed });
   }
 
@@ -124,18 +128,20 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
     }
   }
 
-  protected previousStep(): void {
+  protected async previousStep(): Promise<void> {
     // If we are on the payment step and there was no initial step, go back to plan selection this is to prevent
     // going back to payment step if the dialog was opened directly to payment step
     if (this.step() === UnifiedUpgradeDialogStep.Payment && this.params?.initialStep == null) {
       this.step.set(UnifiedUpgradeDialogStep.PlanSelection);
       this.selectedPlan.set(null);
     } else {
+      // Clear premium interest when backing out of dialog completely
+      await this.premiumInterestStateService.clearPremiumInterest(this.params.account.id);
       this.close({ status: UnifiedUpgradeDialogStatus.Closed });
     }
   }
 
-  protected onComplete(result: UpgradePaymentResult): void {
+  protected async onComplete(result: UpgradePaymentResult): Promise<void> {
     let status: UnifiedUpgradeDialogStatus;
     switch (result.status) {
       case "upgradedToPremium":
@@ -153,6 +159,19 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
 
     this.close({ status, organizationId: result.organizationId });
 
+    // Check premium interest and route to vault for marketing-initiated premium upgrades
+    if (status === UnifiedUpgradeDialogStatus.UpgradedToPremium) {
+      const hasPremiumInterest = await this.premiumInterestStateService.getPremiumInterest(
+        this.params.account.id,
+      );
+      if (hasPremiumInterest) {
+        await this.premiumInterestStateService.clearPremiumInterest(this.params.account.id);
+        await this.router.navigate(["/vault"]);
+        return; // Exit early, don't use redirectOnCompletion
+      }
+    }
+
+    // Use redirectOnCompletion for standard upgrade flows
     if (
       this.params.redirectOnCompletion &&
       (status === UnifiedUpgradeDialogStatus.UpgradedToPremium ||
@@ -162,7 +181,7 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
         status === UnifiedUpgradeDialogStatus.UpgradedToFamilies
           ? `/organizations/${result.organizationId}/vault`
           : "/settings/subscription/user-subscription";
-      void this.router.navigate([redirectUrl]);
+      await this.router.navigate([redirectUrl]);
     }
   }
 

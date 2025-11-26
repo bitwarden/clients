@@ -1,0 +1,49 @@
+<bit-container>
+  <bit-section>
+    <bit-callout type="success">
+      <p>{{ "premiumUpgradeUnlockFeatures" | i18n }}</p>
+      <ul class="bwi-ul">
+        <li>
+          <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
+          {{ "premiumSignUpStorage" | i18n }}
+        </li>
+        <li>
+          <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
+          {{ "premiumSignUpTwoStepOptions" | i18n }}
+        </li>
+        <li>
+          <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
+          {{ "premiumSignUpEmergency" | i18n }}
+        </li>
+        <li>
+          <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
+          {{ "premiumSignUpReports" | i18n }}
+        </li>
+        <li>
+          <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
+          {{ "premiumSignUpTotp" | i18n }}
+        </li>
+        <li>
+          <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
+          {{ "premiumSignUpSupport" | i18n }}
+        </li>
+        <li>
+          <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
+          {{ "premiumSignUpFuture" | i18n }}
+        </li>
+      </ul>
+      <a
+        bitButton
+        href="{{ cloudPremiumPageUrl$ | async }}"
+        target="_blank"
+        rel="noreferrer"
+        buttonType="secondary"
+      >
+        {{ "purchasePremium" | i18n }}
+      </a>
+    </bit-callout>
+  </bit-section>
+  <bit-section>
+    <individual-self-hosting-license-uploader (onLicenseFileUploaded)="onLicenseFileUploaded()" />
+  </bit-section>
+</bit-container>
