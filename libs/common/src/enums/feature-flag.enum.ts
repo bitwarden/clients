@@ -13,7 +13,7 @@ export enum FeatureFlag {
   /* Admin Console Team */
   CreateDefaultLocation = "pm-19467-create-default-location",
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
-  BlockClaimedDomainAccountCreation = "block-claimed-domain-account-creation",
+  BlockClaimedDomainAccountCreation = "pm-28297-block-uninvited-claimed-domain-registration",
   IncreaseBulkReinviteLimitForCloud = "pm-28251-increase-bulk-reinvite-limit-for-cloud",
 
   /* Auth */
