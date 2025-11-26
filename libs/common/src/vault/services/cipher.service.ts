@@ -1837,39 +1837,21 @@ export class CipherService implements CipherServiceAbstraction {
       ) {
         continue;
       }
+
       try {
-        // 1. Download attachment
-        let downloadUrl: string | undefined;
+        // 1. Get download URL
+        const downloadUrl = await this.getAttachmentDownloadUrl(cipher.id, attachmentView);
 
-        try {
-          const attachmentResponse = await this.apiService.getAttachmentData(
-            cipher.id,
-            attachmentView.id,
-          );
-          downloadUrl = attachmentResponse.url;
-        } catch (e) {
-          if (e instanceof ErrorResponse && (e as ErrorResponse).statusCode === 404) {
-            downloadUrl = attachmentView.url;
-          }
-        }
-
-        if (!downloadUrl) {
-          this.logService.error("Failed to get download URL for attachment: " + attachmentView.id);
-          break;
-        }
-
+        // 2. Download attachment data
         const dataResponse = await this.apiService.nativeFetch(
           new Request(downloadUrl, { cache: "no-store" }),
         );
 
         if (dataResponse.status !== 200) {
-          this.logService.error(
-            "Failed to download attachment: " + attachmentView.id,
-            "Status: " + dataResponse.status.toString(),
-          );
-          break;
+          throw new Error(`Failed to download attachment. Status: ${dataResponse.status}`);
         }
 
+        // 3. Decrypt the attachment
         const decryptedBuffer = await this.getDecryptedAttachmentBuffer(
           cipher.id as CipherId,
           attachmentView,
@@ -1877,7 +1859,7 @@ export class CipherService implements CipherServiceAbstraction {
           userId,
         );
 
-        // 2. Re-upload the attachment with attachment key
+        // 4. Re-upload with attachment key
         cipherDomain = await this.saveAttachmentRawWithServer(
           cipherDomain,
           attachmentView.fileName,
@@ -1885,21 +1867,39 @@ export class CipherService implements CipherServiceAbstraction {
           userId,
         );
 
-        // 3. Delete the old attachment
+        // 5. Delete the old attachment
         const cipherData = await this.deleteAttachmentWithServer(
           cipher.id,
           attachmentView.id,
           userId,
         );
-        // Refresh cipherDomain after deletion to get latest revision date
         cipherDomain = new Cipher(cipherData);
       } catch (e) {
-        this.logService.error("Failed to upgrade attachment: " + attachmentView.id, e);
-        break;
+        this.logService.error(`Failed to upgrade attachment ${attachmentView.id}`, e);
+        throw e;
       }
     }
 
     return await this.decrypt(cipherDomain, userId);
+  }
+
+  private async getAttachmentDownloadUrl(
+    cipherId: string,
+    attachmentView: AttachmentView,
+  ): Promise<string> {
+    try {
+      const attachmentResponse = await this.apiService.getAttachmentData(
+        cipherId,
+        attachmentView.id,
+      );
+      return attachmentResponse.url;
+    } catch (e) {
+      // Fall back to the attachment's stored URL
+      if (e instanceof ErrorResponse && e.statusCode === 404 && attachmentView.url) {
+        return attachmentView.url;
+      }
+      throw new Error(`Failed to get download URL for attachment ${attachmentView.id}`);
+    }
   }
 
   private async encryptObjProperty<V extends View, D extends Domain>(
