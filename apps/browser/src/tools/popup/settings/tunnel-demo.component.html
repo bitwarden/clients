@@ -5,7 +5,8 @@
     </ng-container>
   </popup-header>
 
-  <!-- Connection Form -->
+  <!-- Connection Form - OLD CODE: Manual pairing form -->
+  <!--
   <bit-section *ngIf="!isListening">
     <bit-section-header>
       <h2 bitTypography="h6">Pair with Remote Device</h2>
@@ -35,9 +36,10 @@
       </form>
     </bit-card>
   </bit-section>
+  -->
 
   <!-- Status Display -->
-  <bit-section *ngIf="isListening">
+  <bit-section>
     <bit-section-header>
       <h2 bitTypography="h6">Connection Status</h2>
     </bit-section-header>

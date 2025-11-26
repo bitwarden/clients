@@ -83,11 +83,38 @@ export class TunnelDemoComponent implements OnInit, OnDestroy {
     private tunnelClient: TunnelClientService,
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     // Subscribe to tunnel client events
     this.tunnelClient.events$
       .pipe(takeUntil(this.destroy$))
       .subscribe((event) => this.handleTunnelEvent(event));
+
+    // Auto-start pairing with active account username
+    await this.autoStartPairing();
+  }
+
+  /**
+   * Automatically start pairing using the active account's email as username
+   */
+  private async autoStartPairing(): Promise<void> {
+    try {
+      // Get the active account's email
+      const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+      if (!activeAccount?.email) {
+        this.addActivityLog("No active account found", "error");
+        return;
+      }
+
+      // Set the username to the account email
+      this.formGroup.patchValue({
+        username: activeAccount.email,
+      });
+
+      // Auto-start pairing
+      await this.startPairing();
+    } catch (error) {
+      this.addActivityLog(`Failed to auto-start pairing: ${error.message || error}`, "error");
+    }
   }
 
   ngOnDestroy(): void {
