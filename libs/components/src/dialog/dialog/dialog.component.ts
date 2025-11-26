@@ -13,7 +13,7 @@ import {
   signal,
 } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
-import { combineLatest, switchMap, tap } from "rxjs";
+import { combineLatest, switchMap } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -60,17 +60,9 @@ export class DialogComponent {
   private scrollBottom$ = toObservable(this.scrollBottom);
 
   protected isScrollable$ = combineLatest([this.scrollableBody$, this.scrollBottom$]).pipe(
-    tap(() => {
-      // eslint-disable-next-line
-      console.log("[isScrollable running]");
-    }),
     switchMap(([body, bottom]) =>
       hasScrollableContent$(body.getElementRef().nativeElement, bottom.nativeElement),
     ),
-    tap((result) => {
-      // eslint-disable-next-line
-      console.log(`[isScrollable result: ${result}]`);
-    }),
   );
 
   /** Background color */

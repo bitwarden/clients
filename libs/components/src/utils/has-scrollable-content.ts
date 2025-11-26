@@ -1,5 +1,5 @@
-import { animationFrameScheduler, Observable } from "rxjs";
-import { map, startWith, distinctUntilChanged, auditTime, observeOn } from "rxjs/operators";
+import { Observable, animationFrameScheduler } from "rxjs";
+import { auditTime, map, startWith, observeOn, distinctUntilChanged } from "rxjs/operators";
 
 import { intersectionObserver$ } from "./dom-observables";
 /**
