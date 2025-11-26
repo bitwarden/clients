@@ -73,6 +73,9 @@ export enum FeatureFlag {
 
   /* Innovation */
   PM19148_InnovationArchive = "pm-19148-innovation-archive",
+
+  /* UIF */
+  RouterFocusManagement = "router-focus-management",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -152,6 +155,9 @@ export const DefaultFeatureFlagValue = {
 
   /* Innovation */
   [FeatureFlag.PM19148_InnovationArchive]: FALSE,
+
+  /* UIF */
+  [FeatureFlag.RouterFocusManagement]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
