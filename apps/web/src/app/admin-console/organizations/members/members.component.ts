@@ -376,7 +376,9 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       return;
     }
 
-    const users = this.getCheckedUsers();
+    const users = this.increasedBulkLimitEnabled()
+      ? this.dataSource.enforceCheckedUserLimit()
+      : this.dataSource.getCheckedUsers();
 
     await this.memberDialogManager.openBulkRemoveDialog(organization, users);
     this.organizationMetadataService.refreshMetadataCache();
@@ -388,7 +390,9 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       return;
     }
 
-    const users = this.getCheckedUsers();
+    const users = this.increasedBulkLimitEnabled()
+      ? this.dataSource.enforceCheckedUserLimit()
+      : this.dataSource.getCheckedUsers();
 
     await this.memberDialogManager.openBulkDeleteDialog(organization, users);
     await this.load(organization);
@@ -407,7 +411,9 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       return;
     }
 
-    const users = this.getCheckedUsers();
+    const users = this.increasedBulkLimitEnabled()
+      ? this.dataSource.enforceCheckedUserLimit()
+      : this.dataSource.getCheckedUsers();
 
     await this.memberDialogManager.openBulkRestoreRevokeDialog(organization, users, isRevoking);
     await this.load(organization);
@@ -422,7 +428,9 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       .getCheckedUsers()
       .filter((u) => u.status === OrganizationUserStatusType.Invited);
 
-    const users = this.getCheckedUsers(CloudBulkReinviteLimit);
+    const users = this.increasedBulkLimitEnabled()
+      ? this.dataSource.enforceCheckedUserLimit(CloudBulkReinviteLimit)
+      : this.dataSource.getCheckedUsers();
     const filteredUsers = users.filter((u) => u.status === OrganizationUserStatusType.Invited);
 
     if (filteredUsers.length <= 0) {
@@ -486,14 +494,18 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       return;
     }
 
-    const users = this.getCheckedUsers();
+    const users = this.increasedBulkLimitEnabled()
+      ? this.dataSource.enforceCheckedUserLimit()
+      : this.dataSource.getCheckedUsers();
 
     await this.memberDialogManager.openBulkConfirmDialog(organization, users);
     await this.load(organization);
   }
 
   async bulkEnableSM(organization: Organization) {
-    const users = this.getCheckedUsers();
+    const users = this.increasedBulkLimitEnabled()
+      ? this.dataSource.enforceCheckedUserLimit()
+      : this.dataSource.getCheckedUsers();
 
     await this.memberDialogManager.openBulkEnableSecretsManagerDialog(organization, users);
 
@@ -558,24 +570,6 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       this.validationService.showError(e);
     }
     this.actionPromise = undefined;
-  }
-
-  /**
-   * Gets the checked users, with conditional limit enforcement.
-   *
-   * When the increased bulk limit feature is **enabled**:
-   * - Enforces limits on checked users (500 default, or 4000 for bulk reinvite)
-   *
-   * When the increased bulk limit feature is **disabled**:
-   * - Returns ALL checked users without limit enforcement (preserves legacy behavior)
-   *
-   * @param limit Optional limit to enforce when feature is enabled. If not specified, uses default (500).
-   * @returns The checked users, limited only when feature flag is enabled.
-   */
-  private getCheckedUsers(limit?: number): OrganizationUserView[] {
-    return this.increasedBulkLimitEnabled()
-      ? this.dataSource.enforceCheckedUserLimit(limit)
-      : this.dataSource.getCheckedUsers();
   }
 
   get showBulkRestoreUsers(): boolean {

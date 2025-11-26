@@ -152,7 +152,9 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return;
     }
 
-    const users = this.getCheckedUsers();
+    const users = this.increasedBulkLimitEnabled()
+      ? this.dataSource.enforceCheckedUserLimit()
+      : this.dataSource.getCheckedUsers();
 
     const dialogRef = BulkConfirmDialogComponent.open(this.dialogService, {
       data: {
@@ -174,7 +176,9 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       .getCheckedUsers()
       .filter((user) => user.status === ProviderUserStatusType.Invited);
 
-    const users = this.getCheckedUsers(CloudBulkReinviteLimit);
+    const users = this.increasedBulkLimitEnabled()
+      ? this.dataSource.enforceCheckedUserLimit(CloudBulkReinviteLimit)
+      : this.dataSource.getCheckedUsers();
     const checkedInvitedUsers = users.filter(
       (user) => user.status === ProviderUserStatusType.Invited,
     );
@@ -247,7 +251,9 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return;
     }
 
-    const users = this.getCheckedUsers();
+    const users = this.increasedBulkLimitEnabled()
+      ? this.dataSource.enforceCheckedUserLimit()
+      : this.dataSource.getCheckedUsers();
 
     const dialogRef = BulkRemoveDialogComponent.open(this.dialogService, {
       data: {
@@ -339,22 +345,4 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return { success: false, error: error.message };
     }
   };
-
-  /**
-   * Gets the checked users, with conditional limit enforcement.
-   *
-   * When the increased bulk limit feature is **enabled**:
-   * - Enforces limits on checked users (500 default, or 4000 for bulk reinvite)
-   *
-   * When the increased bulk limit feature is **disabled**:
-   * - Returns ALL checked users without limit enforcement (preserves legacy behavior)
-   *
-   * @param limit Optional limit to enforce when feature is enabled. If not specified, uses default (500).
-   * @returns The checked users, limited only when feature flag is enabled.
-   */
-  private getCheckedUsers(limit?: number): ProviderUser[] {
-    return this.increasedBulkLimitEnabled()
-      ? this.dataSource.enforceCheckedUserLimit(limit)
-      : this.dataSource.getCheckedUsers();
-  }
 }
