@@ -27,7 +27,7 @@ import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogService, RouterFocusManagerService, ToastService } from "@bitwarden/components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 
 const BroadcasterSubscriptionId = "AppComponent";
@@ -76,11 +76,17 @@ export class AppComponent implements OnDestroy, OnInit {
     private readonly destroy: DestroyRef,
     private readonly documentLangSetter: DocumentLangSetter,
     private readonly tokenService: TokenService,
+    private readonly routerFocusManager: RouterFocusManagerService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
     const langSubscription = this.documentLangSetter.start();
-    this.destroy.onDestroy(() => langSubscription.unsubscribe());
+
+    this.routerFocusManager.start$.pipe(takeUntilDestroyed()).subscribe();
+
+    this.destroy.onDestroy(() => {
+      langSubscription.unsubscribe();
+    });
   }
 
   ngOnInit() {
