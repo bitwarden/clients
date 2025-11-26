@@ -36,13 +36,14 @@ export class RouterFocusManagerService {
    */
   start$ = this.router.events.pipe(
     takeUntilDestroyed(),
-    combineLatestWith(this.configService.getFeatureFlag$(FeatureFlag.RouterFocusManagement)),
-    filter(([navEvent, flagEnabled]) => flagEnabled && navEvent instanceof NavigationEnd),
+    filter((navEvent) => navEvent instanceof NavigationEnd),
     /**
      * On first page load, we do not want to skip the user over the navigation content,
      * so we opt out of the default focus management behavior.
      */
     skip(1),
+    combineLatestWith(this.configService.getFeatureFlag$(FeatureFlag.RouterFocusManagement)),
+    filter(([_navEvent, flagEnabled]) => flagEnabled),
     map(() => {
       const currentNavData = this.router.getCurrentNavigation()?.extras;
 
