@@ -1,17 +1,19 @@
 import { TestBed } from "@angular/core/testing";
-import { DesktopAutotypeService, getAutotypeVaultData } from "./desktop-autotype.service";
+
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { GlobalStateProvider } from "@bitwarden/common/platform/state";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
-import { LogService } from "@bitwarden/logging";
-import { DeviceType } from "@bitwarden/common/enums";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { DeviceType } from "@bitwarden/common/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { GlobalStateProvider } from "@bitwarden/common/platform/state";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LogService } from "@bitwarden/logging";
+
+import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
+import { DesktopAutotypeService, getAutotypeVaultData } from "./desktop-autotype.service";
 
 describe("DesktopAutotypeService", () => {
   let service: DesktopAutotypeService;
