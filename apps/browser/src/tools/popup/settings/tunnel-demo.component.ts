@@ -4,7 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
+// import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -305,9 +305,25 @@ export class TunnelDemoComponent implements OnInit, OnDestroy {
 
     const { domain, remoteUsername, respond } = this.pendingCredentialRequest;
 
+    // Simple yes/no dialog for credential approval
+    const approved = await this.dialogService.openSimpleDialog({
+      title: "Credential Request",
+      content: `${remoteUsername} is requesting credentials for the domain ${domain}. Do you want to approve this request?`,
+      type: "warning",
+      acceptButtonText: { key: "yes" },
+      cancelButtonText: { key: "no" },
+    });
+
+    if (!approved) {
+      respond(false);
+      this.pendingCredentialRequest = undefined;
+      return;
+    }
+
+    /* OLD CODE - User verification with UserVerificationDialogComponent
     // Verify user identity before sending credentials
     const verificationResult = await UserVerificationDialogComponent.open(this.dialogService, {
-      verificationType: "client",
+      //verificationType: "client",
       title: "verificationRequired",
       bodyText: "verifyIdentityToSendCredentials",
       calloutOptions: {
@@ -322,6 +338,7 @@ export class TunnelDemoComponent implements OnInit, OnDestroy {
       this.pendingCredentialRequest = undefined;
       return;
     }
+    */
 
     // Look up credential from vault
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));

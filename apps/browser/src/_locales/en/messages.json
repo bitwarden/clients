@@ -3786,6 +3786,9 @@
   "triggerTunnelDemo": {
     "message": "Run tunnel demo test ⚠️"
   },
+  "verifyIdentityToSendCredentials": {
+    "message": "Send credential over tunnel?"
+  },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",
     "placeholders": {
