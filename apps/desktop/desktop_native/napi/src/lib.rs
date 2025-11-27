@@ -344,7 +344,8 @@ pub mod sshagent {
                 tokio::spawn(async move {
                     let auth_response_tx_arc = cloned_response_tx_arc;
                     let callback = cloned_callback;
-                    // In NAPI v3, obtain the JS callback return as a Promise<boolean> and await it in Rust
+                    // In NAPI v3, obtain the JS callback return as a Promise<boolean> and await it
+                    // in Rust
                     let (tx, rx) = std::sync::mpsc::channel::<Promise<bool>>();
                     let status = callback.call_with_return_value(
                         Ok(SshUIRequest {
@@ -959,8 +960,10 @@ pub mod logging {
 
     use std::{fmt::Write, sync::OnceLock};
 
-    use napi::bindgen_prelude::FnArgs;
-    use napi::threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode};
+    use napi::{
+        bindgen_prelude::FnArgs,
+        threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode},
+    };
     use tracing::Level;
     use tracing_subscriber::{
         filter::EnvFilter,
