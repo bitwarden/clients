@@ -3,6 +3,8 @@ import { Component } from "@angular/core";
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
 import { IntegrationType } from "@bitwarden/common/enums";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-integrations",
   templateUrl: "./integrations.component.html",

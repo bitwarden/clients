@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "welcomeBack": {
     "message": "மீண்டும் வருக"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "ஒற்றை உள்நுழையைப் பயன்படுத்து"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "submit": {
     "message": "சமர்ப்பி"
   },
@@ -1031,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "நீங்கள் அடிப்படை சேவையக URL-ஐயாவது அல்லது குறைந்தது ஒரு தனிப்பயன் சூழலையாவது சேர்க்க வேண்டும்."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
   },
   "customEnvironment": {
     "message": "தனிப்பயன் சூழல்"
@@ -2140,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "உலாவி ஒருங்கிணைப்பை இயக்கும்போது ஒரு பிழை ஏற்பட்டது."
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "துரதிர்ஷ்டவசமாக உலாவி ஒருங்கிணைப்பு தற்போது Mac App Store பதிப்பில் மட்டுமே ஆதரிக்கப்படுகிறது."
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "துரதிர்ஷ்டவசமாக உலாவி ஒருங்கிணைப்பு தற்போது Microsoft Store பதிப்பில் ஆதரிக்கப்படவில்லை."
@@ -4181,5 +4187,41 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

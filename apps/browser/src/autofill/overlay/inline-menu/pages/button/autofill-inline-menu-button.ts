@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import "@webcomponents/custom-elements";
 import "lit/polyfill-support.js";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -103,7 +101,10 @@ export class AutofillInlineMenuButton extends AutofillInlineMenuPageElement {
    */
   private updatePageColorScheme({ colorScheme }: AutofillInlineMenuButtonMessage) {
     const colorSchemeMetaTag = globalThis.document.querySelector("meta[name='color-scheme']");
-    colorSchemeMetaTag?.setAttribute("content", colorScheme);
+
+    if (colorSchemeMetaTag && colorScheme) {
+      colorSchemeMetaTag.setAttribute("content", colorScheme);
+    }
   }
 
   /**

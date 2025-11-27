@@ -194,6 +194,20 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     );
   }
 
+  postOrganizationUserAutoConfirm(
+    organizationId: string,
+    id: string,
+    request: OrganizationUserConfirmRequest,
+  ): Promise<void> {
+    return this.apiService.send(
+      "POST",
+      "/organizations/" + organizationId + "/users/" + id + "/auto-confirm",
+      request,
+      true,
+      false,
+    );
+  }
+
   async postOrganizationUsersPublicKey(
     organizationId: string,
     ids: string[],

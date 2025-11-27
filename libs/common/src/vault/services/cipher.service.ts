@@ -141,6 +141,8 @@ export class CipherService implements CipherServiceAbstraction {
    * Usage of the {@link CipherViewLike} type is recommended to ensure both `CipherView` and `CipherListView` are supported.
    */
   cipherListViews$ = perUserCache$((userId: UserId) => {
+    let decryptStartTime: number;
+
     return this.configService.getFeatureFlag$(FeatureFlag.PM22134SdkCipherListView).pipe(
       switchMap((useSdk) => {
         if (!useSdk) {
@@ -158,10 +160,22 @@ export class CipherService implements CipherServiceAbstraction {
               (cipherData) => new Cipher(cipherData, localData?.[cipherData.id as CipherId]),
             ),
           ),
+          tap(() => {
+            decryptStartTime = performance.now();
+          }),
           switchMap(async (ciphers) => {
             const [decrypted, failures] = await this.decryptCiphersWithSdk(ciphers, userId, false);
             await this.setFailedDecryptedCiphers(failures, userId);
             return decrypted;
+          }),
+          tap((decrypted) => {
+            this.logService.measure(
+              decryptStartTime,
+              "Vault",
+              "CipherService",
+              "listView decrypt complete",
+              [["Items", decrypted.length]],
+            );
           }),
         );
       }),
@@ -1117,7 +1131,13 @@ export class CipherService implements CipherServiceAbstraction {
   async saveCollectionsWithServerAdmin(cipher: Cipher): Promise<Cipher> {
     const request = new CipherCollectionsRequest(cipher.collectionIds);
     const response = await this.apiService.putCipherCollectionsAdmin(cipher.id, request);
-    const data = new CipherData(response);
+    // The response will be incomplete with several properties missing values
+    // We will assign those properties values so the SDK decryption can complete
+    const completedResponse = new CipherResponse(response);
+    completedResponse.edit = true;
+    completedResponse.viewPassword = true;
+    completedResponse.favorite = false;
+    const data = new CipherData(completedResponse);
     return new Cipher(data);
   }
 

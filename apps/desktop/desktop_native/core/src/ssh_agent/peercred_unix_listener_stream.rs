@@ -1,11 +1,13 @@
+use std::{
+    io,
+    pin::Pin,
+    task::{Context, Poll},
+};
+
 use futures::Stream;
-use std::io;
-use std::pin::Pin;
-use std::task::{Context, Poll};
 use tokio::net::{UnixListener, UnixStream};
 
-use super::peerinfo;
-use super::peerinfo::models::PeerInfo;
+use super::{peerinfo, peerinfo::models::PeerInfo};
 
 #[derive(Debug)]
 pub struct PeercredUnixListenerStream {

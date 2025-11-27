@@ -150,6 +150,7 @@ import {
   LockComponentService,
   WebAuthnPrfUnlockService,
   DefaultWebAuthnPrfUnlockService,
+  SessionTimeoutSettingsComponentService,
 } from "@bitwarden/key-management-ui";
 import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { InlineDerivedStateProvider } from "@bitwarden/state-internal";
@@ -174,6 +175,7 @@ import AutofillService from "../../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
 import { ForegroundBrowserBiometricsService } from "../../key-management/biometrics/foreground-browser-biometrics";
 import { ExtensionLockComponentService } from "../../key-management/lock/services/extension-lock-component.service";
+import { BrowserSessionTimeoutSettingsComponentService } from "../../key-management/session-timeout/services/browser-session-timeout-settings-component.service";
 import { ForegroundVaultTimeoutService } from "../../key-management/vault-timeout/foreground-vault-timeout.service";
 import { BrowserActionsService } from "../../platform/actions/browser-actions.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -610,7 +612,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: Fido2UserVerificationService,
     useClass: Fido2UserVerificationService,
-    deps: [PasswordRepromptService, UserVerificationService, DialogService],
+    deps: [
+      PasswordRepromptService,
+      UserDecryptionOptionsServiceAbstraction,
+      DialogService,
+      AccountServiceAbstraction,
+    ],
   }),
   safeProvider({
     provide: WebAuthnPrfUnlockService,
@@ -734,6 +741,11 @@ const safeProviders: SafeProvider[] = [
     provide: NewDeviceVerificationComponentService,
     useClass: ExtensionNewDeviceVerificationComponentService,
     deps: [],
+  }),
+  safeProvider({
+    provide: SessionTimeoutSettingsComponentService,
+    useClass: BrowserSessionTimeoutSettingsComponentService,
+    deps: [I18nServiceAbstraction, PlatformUtilsService, MessagingServiceAbstraction],
   }),
 ];
 

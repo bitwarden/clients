@@ -32,6 +32,7 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
 import {
   DESKTOP_SSO_CALLBACK,
+  LockService,
   LogoutReason,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
@@ -91,6 +92,8 @@ const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
 const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-root",
   styles: [],
@@ -115,14 +118,26 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
   standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("settings", { read: ViewContainerRef, static: true }) settingsRef: ViewContainerRef;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("premium", { read: ViewContainerRef, static: true }) premiumRef: ViewContainerRef;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("passwordHistory", { read: ViewContainerRef, static: true })
   passwordHistoryRef: ViewContainerRef;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("exportVault", { read: ViewContainerRef, static: true })
   exportVaultModalRef: ViewContainerRef;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("appGenerator", { read: ViewContainerRef, static: true })
   generatorModalRef: ViewContainerRef;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("loginApproval", { read: ViewContainerRef, static: true })
   loginApprovalModalRef: ViewContainerRef;
 
@@ -181,6 +196,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private pinService: PinServiceAbstraction,
     private readonly tokenService: TokenService,
     private desktopAutotypeDefaultSettingPolicy: DesktopAutotypeDefaultSettingPolicy,
+    private readonly lockService: LockService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -231,7 +247,7 @@ export class AppComponent implements OnInit, OnDestroy {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.updateAppMenu();
             await this.systemService.clearPendingClipboard();
-            await this.processReloadService.startProcessReload(this.authService);
+            await this.processReloadService.startProcessReload();
             break;
           case "authBlocked":
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -244,21 +260,10 @@ export class AppComponent implements OnInit, OnDestroy {
             this.loading = false;
             break;
           case "lockVault":
-            await this.vaultTimeoutService.lock(message.userId);
+            await this.lockService.lock(message.userId);
             break;
           case "lockAllVaults": {
-            const currentUser = await firstValueFrom(
-              this.accountService.activeAccount$.pipe(map((a) => a.id)),
-            );
-            const accounts = await firstValueFrom(this.accountService.accounts$);
-            await this.vaultTimeoutService.lock(currentUser);
-            for (const account of Object.keys(accounts)) {
-              if (account === currentUser) {
-                continue;
-              }
-
-              await this.vaultTimeoutService.lock(account);
-            }
+            await this.lockService.lockAll();
             break;
           }
           case "locked":
@@ -272,12 +277,12 @@ export class AppComponent implements OnInit, OnDestroy {
             }
             await this.updateAppMenu();
             await this.systemService.clearPendingClipboard();
-            await this.processReloadService.startProcessReload(this.authService);
+            await this.processReloadService.startProcessReload();
             break;
           case "startProcessReload":
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.processReloadService.startProcessReload(this.authService);
+            this.processReloadService.startProcessReload();
             break;
           case "cancelProcessReload":
             this.processReloadService.cancelProcessReload();
@@ -722,8 +727,6 @@ export class AppComponent implements OnInit, OnDestroy {
       }
     }
 
-    await this.updateAppMenu();
-
     // This must come last otherwise the logout will prematurely trigger
     // a process reload before all the state service user data can be cleaned up
     this.authService.logOut(async () => {}, userBeingLoggedOut);
@@ -800,11 +803,9 @@ export class AppComponent implements OnInit, OnDestroy {
       }
       const options = await this.getVaultTimeoutOptions(userId);
       if (options[0] === timeout) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         options[1] === "logOut"
-          ? this.logOut("vaultTimeout", userId as UserId)
-          : await this.vaultTimeoutService.lock(userId);
+          ? await this.logOut("vaultTimeout", userId as UserId)
+          : await this.lockService.lock(userId as UserId);
       }
     }
   }

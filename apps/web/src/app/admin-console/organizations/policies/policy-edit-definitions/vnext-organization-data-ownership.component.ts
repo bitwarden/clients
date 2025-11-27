@@ -9,7 +9,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrgKey } from "@bitwarden/common/types/key";
-import { DialogService } from "@bitwarden/components";
+import { CenterPositionStrategy, DialogService } from "@bitwarden/components";
 import { EncString } from "@bitwarden/sdk-internal";
 
 import { SharedModule } from "../../../../shared";
@@ -58,7 +58,9 @@ export class vNextOrganizationDataOwnershipPolicyComponent
 
   override async confirm(): Promise<boolean> {
     if (this.policyResponse?.enabled && !this.enabled.value) {
-      const dialogRef = this.dialogService.open(this.warningContent);
+      const dialogRef = this.dialogService.open(this.warningContent, {
+        positionStrategy: new CenterPositionStrategy(),
+      });
       const result = await lastValueFrom(dialogRef.closed);
       return Boolean(result);
     }
@@ -74,7 +76,6 @@ export class vNextOrganizationDataOwnershipPolicyComponent
 
     const request: VNextPolicyRequest = {
       policy: {
-        type: this.policy.type,
         enabled: this.enabled.value ?? false,
         data: this.buildRequestData(),
       },

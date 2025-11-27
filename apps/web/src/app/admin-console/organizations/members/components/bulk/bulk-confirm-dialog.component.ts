@@ -9,6 +9,7 @@ import {
   OrganizationUserBulkConfirmRequest,
   OrganizationUserBulkPublicKeyResponse,
   OrganizationUserBulkResponse,
+  OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -25,8 +26,6 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-
-import { OrganizationUserService } from "../../services/organization-user/organization-user.service";
 
 import { BaseBulkConfirmComponent } from "./base-bulk-confirm.component";
 import { BulkUserDetails } from "./bulk-status.component";

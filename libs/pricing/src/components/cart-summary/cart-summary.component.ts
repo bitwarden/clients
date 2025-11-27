@@ -1,5 +1,6 @@
 import { CurrencyPipe } from "@angular/common";
 import { Component, computed, input, signal } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
 
 import { TypographyModule, IconButtonModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -70,6 +71,11 @@ export class CartSummaryComponent {
    * Calculates the total of all line items
    */
   readonly total = computed<number>(() => this.getTotalCost());
+
+  /**
+   * Observable of computed total value
+   */
+  readonly total$ = toObservable(this.total);
 
   /**
    * Toggles the expanded/collapsed state of the cart items

@@ -11,8 +11,8 @@ import {
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 export class AutomaticAppLoginPolicy extends BasePolicyEditDefinition {
-  name = "automaticAppLogin";
-  description = "automaticAppLoginDesc";
+  name = "automaticAppLoginWithSSO";
+  description = "automaticAppLoginWithSSODesc";
   type = PolicyType.AutomaticAppLogIn;
   component = AutomaticAppLoginPolicyComponent;
 }

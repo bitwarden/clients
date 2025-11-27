@@ -9,7 +9,6 @@ import { concatMap, map, pairwise, startWith, switchMap, takeUntil, timeout } fr
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
@@ -55,6 +54,10 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
+import {
+  SessionTimeoutInputComponent,
+  SessionTimeoutSettingsComponent,
+} from "@bitwarden/key-management-ui";
 import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
@@ -67,6 +70,8 @@ import { DesktopSettingsService } from "../../platform/services/desktop-settings
 import { DesktopPremiumUpgradePromptService } from "../../services/desktop-premium-upgrade-prompt.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-settings",
   templateUrl: "settings.component.html",
@@ -92,7 +97,8 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     SectionHeaderComponent,
     SelectModule,
     TypographyModule,
-    VaultTimeoutInputComponent,
+    SessionTimeoutInputComponent,
+    SessionTimeoutSettingsComponent,
     PermitCipherDetailsPopoverComponent,
     PremiumBadgeComponent,
   ],
@@ -144,6 +150,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   pinEnabled$: Observable<boolean> = of(true);
   isWindowsV2BiometricsEnabled: boolean = false;
 
+  consolidatedSessionTimeoutComponent$: Observable<boolean>;
+
   form = this.formBuilder.group({
     // Security
     vaultTimeout: [null as VaultTimeout | null],
@@ -182,7 +190,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     locale: [null as string | null],
   });
 
-  private refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
+  protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -280,12 +288,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
         value: SshAgentPromptType.RememberUntilLock,
       },
     ];
+
+    this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
+      FeatureFlag.ConsolidatedSessionTimeoutComponent,
+    );
   }
 
   async ngOnInit() {
+    this.vaultTimeoutOptions = await this.generateVaultTimeoutOptions();
+
     this.isWindowsV2BiometricsEnabled = await this.biometricsService.isWindowsV2BiometricsEnabled();
 
-    this.vaultTimeoutOptions = await this.generateVaultTimeoutOptions();
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
 
     // Autotype is for Windows initially
@@ -826,22 +839,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       ipc.platform.allowBrowserintegrationOverride || ipc.platform.isDev;
 
     if (!skipSupportedPlatformCheck) {
-      if (
-        ipc.platform.deviceType === DeviceType.MacOsDesktop &&
-        !this.platformUtilsService.isMacAppStore()
-      ) {
-        await this.dialogService.openSimpleDialog({
-          title: { key: "browserIntegrationUnsupportedTitle" },
-          content: { key: "browserIntegrationMasOnlyDesc" },
-          acceptButtonText: { key: "ok" },
-          cancelButtonText: null,
-          type: "warning",
-        });
-
-        this.form.controls.enableBrowserIntegration.setValue(false);
-        return;
-      }
-
       if (ipc.platform.isWindowsStore) {
         await this.dialogService.openSimpleDialog({
           title: { key: "browserIntegrationUnsupportedTitle" },

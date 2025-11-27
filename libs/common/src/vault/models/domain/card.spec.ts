@@ -29,6 +29,13 @@ describe("Card", () => {
       expYear: undefined,
       code: undefined,
     });
+
+    expect(data.cardholderName).toBeUndefined();
+    expect(data.brand).toBeUndefined();
+    expect(data.number).toBeUndefined();
+    expect(data.expMonth).toBeUndefined();
+    expect(data.expYear).toBeUndefined();
+    expect(data.code).toBeUndefined();
   });
 
   it("Convert", () => {

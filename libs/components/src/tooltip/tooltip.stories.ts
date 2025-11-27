@@ -48,6 +48,10 @@ export default {
       type: "figma",
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?m=auto&node-id=30558-13730&t=4k23PtzCwqDekAZW-1",
     },
+    chromatic: {
+      // Allows 30% difference for the tooltip stories since they are rendered in a portal and may be affected by the environment.
+      diffThreshold: 0.3,
+    },
   },
   argTypes: {
     bitTooltip: {
@@ -72,8 +76,10 @@ type Story = StoryObj<TooltipDirective>;
 
 export const Default: Story = {
   args: {
-    bitTooltip: "This is a tooltip",
     tooltipPosition: "above-center",
+  },
+  parameters: {
+    chromatic: { disableSnapshot: true },
   },
   render: (args) => ({
     props: args,
@@ -81,6 +87,7 @@ export const Default: Story = {
       <div class="tw-p-4">
         <button
           bitIconButton="bwi-ellipsis-v"
+          label="Your tooltip content here"
           ${formatArgsForCodeSnippet<TooltipDirective>(args)}
         >
           Button label here
@@ -97,27 +104,30 @@ export const Default: Story = {
 };
 
 export const AllPositions: Story = {
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
   render: () => ({
     template: `
       <div class="tw-p-16 tw-grid tw-grid-cols-2 tw-gap-8 tw-place-items-center">
         <button
           bitIconButton="bwi-angle-up"
-          bitTooltip="Top tooltip"
+          label="Top tooltip"
           tooltipPosition="above-center"
         ></button>
         <button
           bitIconButton="bwi-angle-right"
-          bitTooltip="Right tooltip"
+          label="Right tooltip"
           tooltipPosition="right-center"
         ></button>
         <button
           bitIconButton="bwi-angle-left"
-          bitTooltip="Left tooltip"
+          label="Left tooltip"
           tooltipPosition="left-center"
         ></button>
         <button
           bitIconButton="bwi-angle-down"
-          bitTooltip="Bottom tooltip"
+          label="Bottom tooltip"
           tooltipPosition="below-center"
         ></button>
       </div>
@@ -126,12 +136,15 @@ export const AllPositions: Story = {
 };
 
 export const LongContent: Story = {
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
   render: () => ({
     template: `
       <div class="tw-p-16 tw-flex tw-items-center tw-justify-center">
         <button
           bitIconButton="bwi-ellipsis-v"
-          bitTooltip="This is a very long tooltip that will wrap to multiple lines to demonstrate how the tooltip handles long content. This is not recommended for usability."
+          label="This is a very long tooltip that will wrap to multiple lines to demonstrate how the tooltip handles long content. This is not recommended for usability."
         ></button>
       </div>
     `,
@@ -139,14 +152,34 @@ export const LongContent: Story = {
 };
 
 export const OnDisabledButton: Story = {
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
   render: () => ({
     template: `
       <div class="tw-p-16 tw-flex tw-items-center tw-justify-center">
         <button
           bitIconButton="bwi-ellipsis-v"
-          bitTooltip="Tooltip on disabled button"
+          label="Tooltip on disabled button"
           [disabled]="true"
         ></button>
+      </div>
+    `,
+  }),
+};
+
+export const OnNonIconButton: Story = {
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
+  render: () => ({
+    template: `
+      <div class="tw-p-16 tw-flex tw-items-center tw-justify-center">
+        <button
+          bitButton
+          addTooltipToDescribedby="true"
+          bitTooltip="Some additional tooltip text to describe the button"
+        >Button label</button>
       </div>
     `,
   }),

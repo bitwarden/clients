@@ -45,7 +45,7 @@
         tabindex="0"
         [attr.aria-label]="'viewItem' | i18n"
       >
-        <app-vault-icon *ngIf="row.ciphers.length > 0" [cipher]="row.ciphers[0]"></app-vault-icon>
+        <app-vault-icon *ngIf="row.iconCipher" [cipher]="row.iconCipher"></app-vault-icon>
       </td>
       <td
         class="tw-cursor-pointer"

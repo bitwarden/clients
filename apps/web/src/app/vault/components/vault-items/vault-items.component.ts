@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { toSignal, takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Observable, combineLatest, map, of, startWith, switchMap } from "rxjs";
 
 import { CollectionView, Unassigned, CollectionAdminView } from "@bitwarden/admin-console/common";
@@ -110,8 +110,6 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() enforceOrgDataOwnershipPolicy: boolean;
-
-  private readonly restrictedPolicies = toSignal(this.restrictedItemTypesService.restricted$);
 
   private _ciphers?: C[] = [];
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -390,37 +388,22 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     });
   }
 
-  // TODO: PM-13944 Refactor to use cipherAuthorizationService.canClone$ instead
-  protected canClone(vaultItem: VaultItem<C>) {
-    // This will check for restrictions from org policies before allowing cloning.
-    const isItemRestricted = this.restrictedPolicies().some(
-      (rt) => rt.cipherType === CipherViewLikeUtils.getType(vaultItem.cipher),
+  protected canClone$(vaultItem: VaultItem<C>): Observable<boolean> {
+    return this.restrictedItemTypesService.restricted$.pipe(
+      switchMap((restrictedTypes) => {
+        // This will check for restrictions from org policies before allowing cloning.
+        const isItemRestricted = restrictedTypes.some(
+          (rt) => rt.cipherType === CipherViewLikeUtils.getType(vaultItem.cipher),
+        );
+        if (isItemRestricted) {
+          return of(false);
+        }
+        return this.cipherAuthorizationService.canCloneCipher$(
+          vaultItem.cipher,
+          this.showAdminActions,
+        );
+      }),
     );
-    if (isItemRestricted) {
-      return false;
-    }
-
-    if (vaultItem.cipher.organizationId == null) {
-      return true;
-    }
-
-    const org = this.allOrganizations.find((o) => o.id === vaultItem.cipher.organizationId);
-
-    // Admins and custom users can always clone in the Org Vault
-    if (this.viewingOrgVault && (org.isAdmin || org.permissions.editAnyCollection)) {
-      return true;
-    }
-
-    // Check if the cipher belongs to a collection with canManage permission
-    const orgCollections = this.allCollections.filter((c) => c.organizationId === org.id);
-
-    for (const collection of orgCollections) {
-      if (vaultItem.cipher.collectionIds.includes(collection.id as any) && collection.manage) {
-        return true;
-      }
-    }
-
-    return false;
   }
 
   protected canEditCipher(cipher: C) {
