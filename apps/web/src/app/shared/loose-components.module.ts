@@ -3,6 +3,7 @@ import { NgModule } from "@angular/core";
 import { FreeBitwardenFamiliesComponent } from "../billing/members/free-bitwarden-families.component";
 import { SponsoredFamiliesComponent } from "../billing/settings/sponsored-families.component";
 import { SponsoringOrgRowComponent } from "../billing/settings/sponsoring-org-row.component";
+import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { HeaderModule } from "../layouts/header/header.module";
 import { OrganizationBadgeModule } from "../vault/individual-vault/organization-badge/organization-badge.module";
 import { PipesModule } from "../vault/individual-vault/pipes/pipes.module";
@@ -14,6 +15,7 @@ import { SharedModule } from "./shared.module";
 @NgModule({
   imports: [SharedModule, HeaderModule, OrganizationBadgeModule, PipesModule],
   declarations: [
+    RemovePasswordComponent,
     SponsoredFamiliesComponent,
     FreeBitwardenFamiliesComponent,
     SponsoringOrgRowComponent,
