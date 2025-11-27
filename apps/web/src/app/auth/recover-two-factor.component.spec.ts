@@ -27,7 +27,7 @@ describe("RecoverTwoFactorComponent", () => {
   let mockLogService: MockProxy<LogService>;
   let mockValidationService: MockProxy<ValidationService>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     mockI18nService = mock<I18nService>();
     mockLoginStrategyService = mock<LoginStrategyServiceAbstraction>();
     mockToastService = mock<ToastService>();
@@ -35,7 +35,7 @@ describe("RecoverTwoFactorComponent", () => {
     mockLogService = mock<LogService>();
     mockValidationService = mock<ValidationService>();
 
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       imports: [RecoverTwoFactorComponent],
       providers: [
         provideRouter([]),
@@ -46,7 +46,7 @@ describe("RecoverTwoFactorComponent", () => {
         { provide: LogService, useValue: mockLogService },
         { provide: ValidationService, useValue: mockValidationService },
       ],
-    });
+    }).compileComponents();
 
     mockRouter = TestBed.inject(Router) as MockProxy<Router>;
     jest.spyOn(mockRouter, "navigate");
