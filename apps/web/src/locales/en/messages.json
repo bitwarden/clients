@@ -7122,9 +7122,6 @@
   "enabledSso": {
     "message": "SSO turned on"
   },
-  "disabledSso": {
-    "message": "SSO turned on"
-  },
   "ssoTurnedOff": {
     "message": "SSO turned off"
   },
