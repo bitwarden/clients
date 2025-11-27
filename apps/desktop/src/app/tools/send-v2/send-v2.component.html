@@ -1,17 +1,17 @@
 <div id="sends" class="vault">
   <div id="items" class="items">
     <div class="content">
-      @if (filteredSends.length) {
+      @if (filteredSends().length) {
         <div class="list full-height">
-          @for (s of filteredSends; track s.id) {
+          @for (s of filteredSends(); track s.id) {
             <button
               type="button"
               appStopClick
               (click)="selectSend(s.id)"
               title="{{ 'viewItem' | i18n }}"
               (contextmenu)="viewSendMenu(s)"
-              [class.active]="s.id === sendId"
-              [attr.aria-pressed]="s.id === sendId"
+              [class.active]="s.id === sendId()"
+              [attr.aria-pressed]="s.id === sendId()"
               class="flex-list-item"
             >
               <span class="item-icon" aria-hidden="true">
@@ -77,12 +77,12 @@
           }
         </div>
       }
-      @if (!filteredSends.length) {
+      @if (!filteredSends().length) {
         <div class="no-items">
-          @if (!loaded) {
+          @if (!loaded()) {
             <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
           }
-          @if (loaded) {
+          @if (loaded()) {
             <img class="no-items-image" aria-hidden="true" />
             <p>{{ "noItemsInList" | i18n }}</p>
           }
@@ -100,18 +100,18 @@
       </div>
     </div>
   </div>
-  @if (action == "add" || action == "edit") {
+  @if (action() == "add" || action() == "edit") {
     <app-send-add-edit
       id="addEdit"
       class="details"
-      [sendId]="sendId"
-      [type]="selectedSendType"
+      [sendId]="sendId()"
+      [type]="selectedSendType()"
       (onSavedSend)="savedSend($event)"
       (onCancelled)="cancel($event)"
       (onDeletedSend)="deletedSend($event)"
     ></app-send-add-edit>
   }
-  @if (!action) {
+  @if (!action()) {
     <div class="logo">
       <div class="content">
         <div class="inner-content">
