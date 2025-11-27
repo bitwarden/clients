@@ -143,7 +143,7 @@ export class SendV2Component {
     this.platformUtilsService.copyToClipboard(link);
     this.toastService.showToast({
       variant: "success",
-      title: null,
+      title: undefined,
       message: this.i18nService.t("valueCopied", this.i18nService.t("sendLink")),
     });
   }
@@ -168,7 +168,7 @@ export class SendV2Component {
       await this.sendApiService.removePassword(send.id);
       this.toastService.showToast({
         variant: "success",
-        title: null,
+        title: undefined,
         message: this.i18nService.t("removedPassword"),
       });
       return true;
@@ -194,7 +194,7 @@ export class SendV2Component {
       await this.sendApiService.delete(send.id);
       this.toastService.showToast({
         variant: "success",
-        title: null,
+        title: undefined,
         message: this.i18nService.t("deletedSend"),
       });
       return true;
