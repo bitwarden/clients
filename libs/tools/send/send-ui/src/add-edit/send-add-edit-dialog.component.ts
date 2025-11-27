@@ -35,19 +35,16 @@ export interface SendItemDialogParams {
   disableForm?: boolean;
 }
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum SendItemDialogResult {
-  /**
-   * A Send was saved (created or updated).
-   */
-  Saved = "saved",
+/** A result of the Send add/edit dialog. */
+export const SendItemDialogResult = Object.freeze({
+  /** The send item was created or updated. */
+  Saved: "saved",
+  /** The send item was deleted. */
+  Deleted: "deleted",
+} as const);
 
-  /**
-   * A Send was deleted.
-   */
-  Deleted = "deleted",
-}
+/** A result of the Send add/edit dialog. */
+export type SendItemDialogResult = (typeof SendItemDialogResult)[keyof typeof SendItemDialogResult];
 
 /**
  * Component for adding or editing a send item.
