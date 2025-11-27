@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
-
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { LayoutComponent, NavigationModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
