@@ -12,6 +12,7 @@ import {
   shareReplay,
   switchMap,
   tap,
+  concatMap,
 } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -135,11 +136,12 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     ]).pipe(
       switchMap(([currentVaultTimeout, maxVaultTimeoutPolicy]) => {
         return from(this.determineVaultTimeout(currentVaultTimeout, maxVaultTimeoutPolicy)).pipe(
-          tap((vaultTimeout: VaultTimeout) => {
+          concatMap(async (vaultTimeout: VaultTimeout) => {
             // As a side effect, set the new value determined by determineVaultTimeout into state if it's different from the current
             if (vaultTimeout !== currentVaultTimeout) {
-              return this.stateProvider.setUserState(VAULT_TIMEOUT, vaultTimeout, userId);
+              await this.stateProvider.setUserState(VAULT_TIMEOUT, vaultTimeout, userId);
             }
+            return vaultTimeout;
           }),
           catchError((error: unknown) => {
             // Protect outer observable from canceling on error by catching and returning EMPTY
