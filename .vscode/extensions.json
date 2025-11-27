@@ -1,9 +1,0 @@
-{
-  "recommendations": [
-    "dbaeumer.vscode-eslint",
-    "esbenp.prettier-vscode",
-    "angular.ng-template",
-    "ms-vscode.vscode-typescript-next"
-  ],
-  "unwantedRecommendations": []
-}
