@@ -1,4 +1,4 @@
-import { Component, DebugElement } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DebugElement, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
@@ -45,8 +45,6 @@ describe("Toggle", () => {
   });
 });
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "test-component",
   template: `
@@ -56,7 +54,8 @@ describe("Toggle", () => {
     </bit-toggle-group>
   `,
   imports: [ToggleGroupModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class TestComponent {
-  selected = 0;
+  readonly selected = signal(0);
 }
