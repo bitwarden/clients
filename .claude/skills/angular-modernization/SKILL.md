@@ -1,6 +1,6 @@
 ---
 name: angular-modernization
-description: Modernizes Angular code such as components and directives to follow best practices using both automatic CLI migrations and Bitwarden-specific patterns. YOU must use this skill when someone requests modernization of Angular code.
+description: Modernizes Angular code such as components and directives to follow best practices using both automatic CLI migrations and Bitwarden-specific patterns. YOU must use this skill when someone requests modernization or refactoring of legacy Angular code. DO NOT invoke for general Angular discussions unrelated to modernization.
 allowed-tools: Read, Write, Glob
 ---
 
@@ -11,19 +11,11 @@ Transforms legacy Angular components to modern architecture using a two-step app
 1. **Automated migrations** - Angular CLI schematics for standalone, control flow, and signals
 2. **Bitwarden patterns** - ADR compliance, OnPush change detection, proper visibility, thin components
 
-## When to Use
-
-- Refactoring legacy Angular components
-- Converting to standalone architecture
-- Updating to modern template syntax
-- Adding OnPush change detection
-- Migrating to signal-based APIs
-
 ## Workflow
 
 ### Step 1: Run Angular CLI Migrations
 
-**⚠️ CRITICAL: ALWAYS use Angular CLI migrations when available. NEVER manually migrate features that have CLI schematics.**
+**⚠️ CRITICAL: ALWAYS use Angular CLI migrations when available. DO NOT manually migrate features that have CLI schematics.**
 
 Angular provides automated schematics that handle edge cases, update tests, and ensure correctness. Manual migration should ONLY be used for patterns not covered by CLI tools.
 
@@ -135,8 +127,6 @@ If any errors occur, fix them accordingly.
 - No TypeScript enums (use const objects with type aliases per ADR-0025)
 - No code regions (refactor instead)
 - Thin components (business logic in services)
-
-See [migration-patterns.md](migration-patterns.md) for code examples.
 
 ## Validation Checklist
 
