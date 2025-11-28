@@ -50,9 +50,9 @@ export const IdentityLinkedId = {
 export type IdentityLinkedId = UnionOfValues<typeof IdentityLinkedId>;
 
 /**
- *
- * @param value
- * @returns
+ * Normalizes a LinkedIdType value to ensure compatibility with the SDK.
+ * @param value - The linked ID type from user data
+ * @returns Valid LinkedIdType or undefined if unrecognized
  */
 export function normalizeLinkedIdTypeForSdk(
   value: LinkedIdType | undefined,
