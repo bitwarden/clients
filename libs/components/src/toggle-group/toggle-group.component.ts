@@ -14,7 +14,7 @@ let nextId = 0;
   templateUrl: "./toggle-group.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    "[attr.role]": '"radiogroup"',
+    role: "radiogroup",
     "[class]": "classlist()",
   },
 })

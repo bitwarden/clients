@@ -22,7 +22,7 @@ let nextId = 0;
   templateUrl: "./toggle.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    "[attr.tabindex]": '"-1"',
+    tabindex: "-1",
     "[class]": "hostClasses",
   },
 })
