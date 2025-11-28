@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "封存的項目將不會出現在一般搜尋結果或自動填入建議中。確定要封存此項目嗎？"
   },
+  "upgradeToUseArchive": {
+    "message": "A premium membership is required to use Archive."
+  },
   "edit": {
     "message": "編輯"
   },
@@ -593,6 +596,9 @@
   },
   "viewAll": {
     "message": "檢視全部"
+  },
+  "showAll": {
+    "message": "Show all"
   },
   "viewLess": {
     "message": "顯示較少"
@@ -1866,6 +1872,9 @@
   },
   "expirationYear": {
     "message": "逾期年份"
+  },
+  "monthly": {
+    "message": "month"
   },
   "expiration": {
     "message": "逾期"
@@ -4902,6 +4911,9 @@
   "premium": {
     "message": "進階版"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Unlock reporting, emergency access, and more security features with Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "免費組織無法使用附檔"
   },
@@ -5812,11 +5824,11 @@
   "upgradeToPremium": {
     "message": "升級到 Premium"
   },
-  "upgradeCompleteSecurity": {
-    "message": "升級以獲得完整的安全防護"
+  "unlockAdvancedSecurity": {
+    "message": "Unlock advanced security features"
   },
-  "premiumGivesMoreTools": {
-    "message": "進階版提供更多工具，協助您維持安全、高效工作並保持掌控。"
+  "unlockAdvancedSecurityDesc": {
+    "message": "A Premium subscription gives you more tools to stay secure and in control"
   },
   "explorePremium": {
     "message": "探索進階版"

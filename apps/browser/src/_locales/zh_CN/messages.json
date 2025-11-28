@@ -309,7 +309,7 @@
     "message": "前往浏览器扩展商店吗？"
   },
   "continueToBrowserExtensionStoreDesc": {
-    "message": "帮助别人了解 Bitwarden 是否适合他们。立即访问浏览器的扩展程序商店并留下评分。"
+    "message": "帮助别人了解 Bitwarden 是否适合他们。立即访问浏览器扩展商店并留下评分。"
   },
   "changeMasterPasswordOnWebConfirmation": {
     "message": "您可以在 Bitwarden 网页 App 上更改您的主密码。"
@@ -362,10 +362,10 @@
     "message": "使用 Passwordless.dev 摆脱传统密码束缚，打造流畅且安全的登录体验。访问 bitwarden.com 网站了解更多信息。"
   },
   "freeBitwardenFamilies": {
-    "message": "免费 Bitwarden 家庭"
+    "message": "免费的 Bitwarden 家庭版"
   },
   "freeBitwardenFamiliesPageDesc": {
-    "message": "您有资格获得免费的 Bitwarden 家庭。立即在网页 App 中兑换此优惠。"
+    "message": "您有资格获得免费的 Bitwarden 家庭版。立即在网页 App 中兑换此优惠。"
   },
   "version": {
     "message": "版本"
@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "已归档的项目将被排除在一般搜索结果和自动填充建议之外。确定要归档此项目吗？"
   },
+  "upgradeToUseArchive": {
+    "message": "需要高级会员才能使用归档。"
+  },
   "edit": {
     "message": "编辑"
   },
@@ -593,6 +596,9 @@
   },
   "viewAll": {
     "message": "查看全部"
+  },
+  "showAll": {
+    "message": "显示全部"
   },
   "viewLess": {
     "message": "查看更少"
@@ -1867,6 +1873,9 @@
   "expirationYear": {
     "message": "过期年份"
   },
+  "monthly": {
+    "message": "month"
+  },
   "expiration": {
     "message": "有效期"
   },
@@ -3002,7 +3011,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendFilePopoutDialogText": {
-    "message": "弹出扩展？",
+    "message": "弹出扩展吗？",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendFilePopoutDialogDesc": {
@@ -4902,6 +4911,9 @@
   "premium": {
     "message": "高级版"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "使用高级版解锁报告、紧急访问以及更多安全功能。"
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "免费组织无法使用附件"
   },
@@ -5812,11 +5824,11 @@
   "upgradeToPremium": {
     "message": "升级为高级版"
   },
-  "upgradeCompleteSecurity": {
-    "message": "升级以获得全面的安全防护"
+  "unlockAdvancedSecurity": {
+    "message": "解锁高级安全功能"
   },
-  "premiumGivesMoreTools": {
-    "message": "高级版为您提供更多工具，助您保障安全、高效工作并掌控一切。"
+  "unlockAdvancedSecurityDesc": {
+    "message": "高级版订阅为您提供更多工具，助您保持安全并掌控一切"
   },
   "explorePremium": {
     "message": "探索高级版"

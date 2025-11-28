@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tuto položku archivovat?"
   },
+  "upgradeToUseArchive": {
+    "message": "Pro použití funkce Archiv je potřebné prémiové členství."
+  },
   "edit": {
     "message": "Upravit"
   },
@@ -592,6 +595,9 @@
     "message": "Zobrazit"
   },
   "viewAll": {
+    "message": "Zobrazit vše"
+  },
+  "showAll": {
     "message": "Zobrazit vše"
   },
   "viewLess": {
@@ -1866,6 +1872,9 @@
   },
   "expirationYear": {
     "message": "Rok expirace"
+  },
+  "monthly": {
+    "message": "měsíčně"
   },
   "expiration": {
     "message": "Expirace"
@@ -4902,6 +4911,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Odemkněte hlášení, nouzový přístup a další bezpečnostní funkce s předplatným Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Volné organizace nemohou používat přílohy"
   },
@@ -5812,11 +5824,11 @@
   "upgradeToPremium": {
     "message": "Aktualizovat na Premium"
   },
-  "upgradeCompleteSecurity": {
-    "message": "Aktualizujte pro úplné zabezpečení"
+  "unlockAdvancedSecurity": {
+    "message": "Odemknout pokročilé bezpečnostní funkce"
   },
-  "premiumGivesMoreTools": {
-    "message": "Verze Premium Vám poskytne více nástrojů k zabezpečení, efektivní práci a udržení kontroly."
+  "unlockAdvancedSecurityDesc": {
+    "message": "Prémiové předplatné Vám dává více nástrojů k bezpečí a kontrole"
   },
   "explorePremium": {
     "message": "Objevit Premium"

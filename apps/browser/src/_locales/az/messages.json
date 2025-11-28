@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Arxivlənmiş elementlər ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək. Bu elementi arxivləmək istədiyinizə əminsiniz?"
   },
+  "upgradeToUseArchive": {
+    "message": "A premium membership is required to use Archive."
+  },
   "edit": {
     "message": "Düzəliş et"
   },
@@ -593,6 +596,9 @@
   },
   "viewAll": {
     "message": "Hamısına bax"
+  },
+  "showAll": {
+    "message": "Show all"
   },
   "viewLess": {
     "message": "Daha azına bax"
@@ -1866,6 +1872,9 @@
   },
   "expirationYear": {
     "message": "Son istifadə ili"
+  },
+  "monthly": {
+    "message": "month"
   },
   "expiration": {
     "message": "Bitmə vaxtı"
@@ -4902,6 +4911,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Unlock reporting, emergency access, and more security features with Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Ödənişsiz təşkilatlar qoşmaları istifadə edə bilməz"
   },
@@ -5812,11 +5824,11 @@
   "upgradeToPremium": {
     "message": "\"Premium\"a yüksəlt"
   },
-  "upgradeCompleteSecurity": {
-    "message": "Tam təhlükəsizlik üçün yüksəldin"
+  "unlockAdvancedSecurity": {
+    "message": "Unlock advanced security features"
   },
-  "premiumGivesMoreTools": {
-    "message": "Premium, güvəndə qalmağınız, səmərəli çalışmağınız və nəzarətə sahib olmağınız üçün daha çox alət verir."
+  "unlockAdvancedSecurityDesc": {
+    "message": "A Premium subscription gives you more tools to stay secure and in control"
   },
   "explorePremium": {
     "message": "Premium-u kəşf et"
