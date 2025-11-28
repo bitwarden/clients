@@ -654,6 +654,14 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     if (this.singleOrgPolicyBlock) {
       return;
     }
+
+    // Validate billing form for paid plans during creation
+    if (this.createOrganization && this.selectedPlan.type !== PlanType.Free) {
+      this.billingFormGroup.markAllAsTouched();
+      if (this.billingFormGroup.invalid) {
+        return;
+      }
+    }
     const doSubmit = async (): Promise<string> => {
       let orgId: string;
       if (this.createOrganization) {
