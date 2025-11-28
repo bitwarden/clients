@@ -49,7 +49,7 @@ export class ToggleComponent<TValue> {
   }
 
   protected readonly name = this.groupComponent.name;
-  protected readonly selected = computed(() => this.groupComponent.selected() === this.value());
+  readonly selected = computed(() => this.groupComponent.selected() === this.value());
 
   protected handleInputChange() {
     this.groupComponent.onInputInteraction(this.value());

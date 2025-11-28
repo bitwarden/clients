@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal, WritableSignal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
@@ -66,5 +66,5 @@ describe("Button", () => {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class TestAppComponent {
-  readonly selected = signal("first");
+  readonly selected: WritableSignal<string | undefined> = signal(undefined);
 }
