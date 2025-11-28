@@ -169,6 +169,20 @@ describe("ItemCopyActionsComponent", () => {
       expect(i18nService.t).toHaveBeenCalledWith("copyUsername");
     });
 
+    it("returns null when password is hidden but multiple fields exist, ensuring username and totp are shown in the menu UI ", () => {
+      (component.cipher as CipherView).viewPassword = false;
+
+      (component.cipher as any).__copyable = {
+        username: true,
+        password: true,
+        totp: true,
+      };
+
+      const result = component.singleCopyableLogin;
+
+      expect(result).toBeNull();
+    });
+
     it("falls back to findSingleCopyableItem when password is visible", () => {
       const findSingleCopyableItemSpy = jest.spyOn(component, "findSingleCopyableItem");
       (component.cipher as CipherView).viewPassword = true;
