@@ -14,5 +14,5 @@ export type SecureNoteType = UnionOfValues<typeof SecureNoteType>;
  * @returns Valid SecureNoteType, defaults to SecureNoteType.Generic if unrecognized
  */
 export function normalizeSecureNoteTypeForSdk(value: SecureNoteType): SdkSecureNoteType {
-  return value === SecureNoteType.Generic ? SecureNoteType.Generic : SecureNoteType.Generic;
+  return SecureNoteType.Generic;
 }
