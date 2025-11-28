@@ -1,15 +1,17 @@
 import {
   afterNextRender,
-  afterRender,
   ChangeDetectionStrategy,
   Component,
   computed,
+  contentChild,
   ElementRef,
   inject,
   input,
   signal,
   viewChild,
 } from "@angular/core";
+
+import { BadgeComponent } from "../badge";
 
 import { ToggleGroupComponent } from "./toggle-group.component";
 
@@ -25,23 +27,18 @@ let nextId = 0;
   },
 })
 export class ToggleComponent<TValue> {
-  protected readonly id = nextId++;
+  protected readonly id = "bit-toggle-" + nextId++;
 
   private readonly groupComponent = inject(ToggleGroupComponent<TValue>);
 
   readonly value = input.required<TValue>();
   protected readonly labelContent = viewChild<ElementRef<HTMLSpanElement>>("labelContent");
-  protected readonly bitBadgeContainer =
-    viewChild<ElementRef<HTMLSpanElement>>("bitBadgeContainer");
+  protected readonly badgeElement = contentChild(BadgeComponent);
+  protected readonly hasBadge = computed(() => !!this.badgeElement());
+
+  protected readonly labelTitle = signal<string | null>(null);
 
   constructor() {
-    // Check for badge container children after content is rendered
-    afterRender(() => {
-      this.bitBadgeContainerHasChildren.set(
-        (this.bitBadgeContainer()?.nativeElement.childElementCount ?? 0) > 0,
-      );
-    });
-
     // Set label title after view is initialized
     afterNextRender(() => {
       const labelText = this.labelContent()?.nativeElement.innerText;
@@ -50,9 +47,6 @@ export class ToggleComponent<TValue> {
       }
     });
   }
-
-  protected readonly bitBadgeContainerHasChildren = signal(false);
-  protected readonly labelTitle = signal<string | null>(null);
 
   protected readonly name = this.groupComponent.name;
   protected readonly selected = computed(() => this.groupComponent.selected() === this.value());

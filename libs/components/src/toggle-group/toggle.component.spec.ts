@@ -59,9 +59,6 @@ describe("Toggle with badge content", () => {
     await TestBed.compileComponents();
     fixtureWithBadge = TestBed.createComponent(TestComponentWithBadgeComponent);
     fixtureWithBadge.detectChanges();
-    // Wait for afterRender to execute
-    await fixtureWithBadge.whenStable();
-    fixtureWithBadge.detectChanges();
     badgeContainers = fixtureWithBadge.debugElement.queryAll(By.css(".tw-shrink-0"));
   });
 
