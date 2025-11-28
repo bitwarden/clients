@@ -1,40 +1,52 @@
+import { animate, style, transition, trigger } from "@angular/animations";
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, OnInit, inject } from "@angular/core";
+import {
+  Component,
+  DestroyRef,
+  OnDestroy,
+  OnInit,
+  inject,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { EMPTY } from "rxjs";
-import { map, switchMap } from "rxjs/operators";
+import { EMPTY, firstValueFrom } from "rxjs";
+import { distinctUntilChanged, map, tap } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { RiskInsightsDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
-import { DrawerType } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
+import {
+  DrawerType,
+  ReportStatus,
+  RiskInsightsDataService,
+} from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   ButtonModule,
-  DrawerBodyComponent,
-  DrawerComponent,
-  DrawerHeaderComponent,
+  DialogRef,
+  DialogService,
   TabsModule,
 } from "@bitwarden/components";
+import { ExportHelper } from "@bitwarden/vault-export-core";
+import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
-import { AllActivityComponent } from "./all-activity.component";
-import { AllApplicationsComponent } from "./all-applications.component";
-import { CriticalApplicationsComponent } from "./critical-applications.component";
-
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum RiskInsightsTabType {
-  AllActivity = 0,
-  AllApps = 1,
-  CriticalApps = 2,
-  NotifiedMembers = 3,
-}
+import { AllActivityComponent } from "./activity/all-activity.component";
+import { AllApplicationsComponent } from "./all-applications/all-applications.component";
+import { CriticalApplicationsComponent } from "./critical-applications/critical-applications.component";
+import { EmptyStateCardComponent } from "./empty-state-card.component";
+import { RiskInsightsTabType } from "./models/risk-insights.models";
+import { PageLoadingComponent } from "./shared/page-loading.component";
+import { RiskInsightsDrawerDialogComponent } from "./shared/risk-insights-drawer-dialog.component";
+import { ApplicationsLoadingComponent } from "./shared/risk-insights-loading.component";
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./risk-insights.component.html",
   imports: [
     AllApplicationsComponent,
@@ -42,38 +54,60 @@ export enum RiskInsightsTabType {
     ButtonModule,
     CommonModule,
     CriticalApplicationsComponent,
+    EmptyStateCardComponent,
     JslibModule,
     HeaderModule,
     TabsModule,
-    DrawerComponent,
-    DrawerBodyComponent,
-    DrawerHeaderComponent,
     AllActivityComponent,
+    ApplicationsLoadingComponent,
+    PageLoadingComponent,
+  ],
+  animations: [
+    trigger("fadeIn", [
+      transition(":enter", [
+        style({ opacity: 0 }),
+        animate("300ms 100ms ease-in", style({ opacity: 1 })),
+      ]),
+    ]),
   ],
 })
-export class RiskInsightsComponent implements OnInit {
+export class RiskInsightsComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
-  private _isDrawerOpen: boolean = false;
+  protected ReportStatusEnum = ReportStatus;
 
   tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllApps;
   isRiskInsightsActivityTabFeatureEnabled: boolean = false;
 
   appsCount: number = 0;
-  // Leaving this commented because it's not used but seems important
-  // notifiedMembersCount: number = 0;
 
-  private organizationId: OrganizationId = "" as OrganizationId;
+  protected organizationId: OrganizationId = "" as OrganizationId;
 
   dataLastUpdated: Date | null = null;
-  refetching: boolean = false;
+
+  // Empty state computed properties
+  protected emptyStateBenefits: [string, string][] = [
+    [this.i18nService.t("feature1Title"), this.i18nService.t("feature1Description")],
+    [this.i18nService.t("feature2Title"), this.i18nService.t("feature2Description")],
+    [this.i18nService.t("feature3Title"), this.i18nService.t("feature3Description")],
+  ];
+  protected emptyStateVideoSrc: string | null = "/videos/risk-insights-mark-as-critical.mp4";
+
+  protected IMPORT_ICON = "bwi bwi-download";
+  protected currentDialogRef: DialogRef<unknown, RiskInsightsDrawerDialogComponent> | null = null;
+
+  // TODO: See https://github.com/bitwarden/clients/pull/16832#discussion_r2474523235
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private configService: ConfigService,
     protected dataService: RiskInsightsDataService,
+    protected i18nService: I18nService,
+    protected dialogService: DialogService,
+    private fileDownloadService: FileDownloadService,
+    private logService: LogService,
   ) {
-    this.route.queryParams.pipe(takeUntilDestroyed()).subscribe(({ tabIndex }) => {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllApps;
     });
 
@@ -91,11 +125,10 @@ export class RiskInsightsComponent implements OnInit {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         map((params) => params.get("organizationId")),
-        switchMap(async (orgId) => {
+        tap((orgId) => {
           if (orgId) {
             // Initialize Data Service
-            await this.dataService.initializeForOrganization(orgId as OrganizationId);
-
+            void this.dataService.initializeForOrganization(orgId as OrganizationId);
             this.organizationId = orgId as OrganizationId;
           } else {
             return EMPTY;
@@ -104,30 +137,51 @@ export class RiskInsightsComponent implements OnInit {
       )
       .subscribe();
 
-    // Subscribe to report result details
-    this.dataService.reportResults$
+    // Subscribe to report data updates
+    // This declarative pattern ensures proper cleanup and prevents memory leaks
+    this.dataService.enrichedReportData$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((report) => {
+        // Update report state
         this.appsCount = report?.reportData.length ?? 0;
         this.dataLastUpdated = report?.creationDate ?? null;
       });
 
     // Subscribe to drawer state changes
     this.dataService.drawerDetails$
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        distinctUntilChanged(
+          (prev, curr) =>
+            prev.activeDrawerType === curr.activeDrawerType && prev.invokerId === curr.invokerId,
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe((details) => {
-        this._isDrawerOpen = details.open;
+        if (details.activeDrawerType !== DrawerType.None) {
+          this.currentDialogRef = this.dialogService.openDrawer(RiskInsightsDrawerDialogComponent, {
+            data: details,
+          });
+        } else {
+          this.currentDialogRef?.close();
+        }
       });
+
+    // if any dialogs are open close it
+    // this happens when navigating between orgs
+    // or just navigating away from the page and back
+    this.currentDialogRef?.close();
   }
-  runReport = () => {
-    this.dataService.triggerReport();
-  };
+
+  ngOnDestroy(): void {
+    this.dataService.destroy();
+    this.currentDialogRef?.close();
+  }
 
   /**
    * Refreshes the data by re-fetching the applications report.
    * This will automatically notify child components subscribed to the RiskInsightsDataService observables.
    */
-  refreshData(): void {
+  generateReport(): void {
     if (this.organizationId) {
       this.dataService.triggerReport();
     }
@@ -141,34 +195,83 @@ export class RiskInsightsComponent implements OnInit {
     });
 
     // close drawer when tabs are changed
-    this.dataService.closeDrawer();
+    this.currentDialogRef?.close();
   }
 
-  // Get a list of drawer types
-  get drawerTypes(): typeof DrawerType {
-    return DrawerType;
-  }
+  // Empty state methods
+
+  // TODO: import data button (we have this) OR button for adding new login items
+  // we want to add this new button as a second option on the empty state card
+
+  goToImportPage = () => {
+    void this.router.navigate([
+      "/organizations",
+      this.organizationId,
+      "settings",
+      "tools",
+      "import",
+    ]);
+  };
 
   /**
-   * Special case getter for syncing drawer state from service to component.
-   * This allows the template to use two-way binding while staying reactive.
+   * downloads at risk members as CSV
    */
-  get isDrawerOpen() {
-    return this._isDrawerOpen;
-  }
+  downloadAtRiskMembers = async () => {
+    try {
+      const drawerDetails = await firstValueFrom(this.dataService.drawerDetails$);
 
-  /**
-   * Special case setter for syncing drawer state from component to service.
-   * When the drawer component closes the drawer, this syncs the state back to the service.
-   */
-  set isDrawerOpen(value: boolean) {
-    if (this._isDrawerOpen !== value) {
-      this._isDrawerOpen = value;
-
-      // Close the drawer in the service if the drawer component closed the drawer
-      if (!value) {
-        this.dataService.closeDrawer();
+      // Validate drawer is open and showing the correct drawer type
+      if (
+        !drawerDetails.open ||
+        drawerDetails.activeDrawerType !== DrawerType.OrgAtRiskMembers ||
+        !drawerDetails.atRiskMemberDetails ||
+        drawerDetails.atRiskMemberDetails.length === 0
+      ) {
+        return;
       }
+
+      this.fileDownloadService.download({
+        fileName: ExportHelper.getFileName("at-risk-members"),
+        blobData: exportToCSV(drawerDetails.atRiskMemberDetails, {
+          email: this.i18nService.t("email"),
+          atRiskPasswordCount: this.i18nService.t("atRiskPasswords"),
+        }),
+        blobOptions: { type: "text/plain" },
+      });
+    } catch (error) {
+      // Log error for debugging
+      this.logService.error("Failed to download at-risk members", error);
     }
-  }
+  };
+
+  /**
+   * downloads at risk applications as CSV
+   */
+  downloadAtRiskApplications = async () => {
+    try {
+      const drawerDetails = await firstValueFrom(this.dataService.drawerDetails$);
+
+      // Validate drawer is open and showing the correct drawer type
+      if (
+        !drawerDetails.open ||
+        drawerDetails.activeDrawerType !== DrawerType.OrgAtRiskApps ||
+        !drawerDetails.atRiskAppDetails ||
+        drawerDetails.atRiskAppDetails.length === 0
+      ) {
+        return;
+      }
+
+      this.fileDownloadService.download({
+        fileName: ExportHelper.getFileName("at-risk-applications"),
+        blobData: exportToCSV(drawerDetails.atRiskAppDetails, {
+          applicationName: this.i18nService.t("application"),
+          atRiskPasswordCount: this.i18nService.t("atRiskPasswords"),
+        }),
+        blobOptions: { type: "text/plain" },
+      });
+    } catch (error) {
+      // Log error for debugging
+      this.logService.error("Failed to download at-risk applications", error);
+    }
+  };
 }

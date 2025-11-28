@@ -17,6 +17,8 @@ import {
 import { SendFormConfig } from "../../abstractions/send-form-config.service";
 import { SendFormContainer } from "../../send-form-container";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-send-file-details",
   templateUrl: "./send-file-details.component.html",
@@ -32,8 +34,8 @@ import { SendFormContainer } from "../../send-form-container";
   ],
 })
 export class SendFileDetailsComponent implements OnInit {
-  config = input.required<SendFormConfig>();
-  originalSendView = input<SendView>();
+  readonly config = input.required<SendFormConfig>();
+  readonly originalSendView = input<SendView>();
 
   sendFileDetailsForm = this.formBuilder.group({
     file: this.formBuilder.control<SendFileView | null>(null, Validators.required),

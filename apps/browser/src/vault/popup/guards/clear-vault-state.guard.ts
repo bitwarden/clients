@@ -7,7 +7,8 @@ import { VaultPopupListFiltersService } from "../services/vault-popup-list-filte
 
 /**
  * Guard to clear the vault state (search and filter) when navigating away from the vault view.
- * This ensures the search and filter state is reset when navigating between different tabs, except viewing a cipher.
+ * This ensures the search and filter state is reset when navigating between different tabs,
+ * except viewing or editing a cipher.
  */
 export const clearVaultStateGuard: CanDeactivateFn<VaultV2Component> = (
   component: VaultV2Component,
@@ -17,7 +18,7 @@ export const clearVaultStateGuard: CanDeactivateFn<VaultV2Component> = (
 ) => {
   const vaultPopupItemsService = inject(VaultPopupItemsService);
   const vaultPopupListFiltersService = inject(VaultPopupListFiltersService);
-  if (nextState && !isViewingCipher(nextState.url)) {
+  if (nextState && !isCipherOpen(nextState.url)) {
     vaultPopupItemsService.applyFilter("");
     vaultPopupListFiltersService.resetFilterForm();
   }
@@ -25,4 +26,8 @@ export const clearVaultStateGuard: CanDeactivateFn<VaultV2Component> = (
   return true;
 };
 
-const isViewingCipher = (url: string): boolean => url.includes("view-cipher");
+const isCipherOpen = (url: string): boolean =>
+  url.includes("view-cipher") ||
+  url.includes("assign-collections") ||
+  url.includes("edit-cipher") ||
+  url.includes("clone-cipher");

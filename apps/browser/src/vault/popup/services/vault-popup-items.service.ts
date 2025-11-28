@@ -261,6 +261,13 @@ export class VaultPopupItemsService {
     this.remainingCiphers$.pipe(map(() => false)),
   ).pipe(startWith(true), distinctUntilChanged(), shareReplay({ refCount: false, bufferSize: 1 }));
 
+  /** Observable that indicates whether there is search text present.
+   */
+  hasSearchText$: Observable<boolean> = this._hasSearchText.pipe(
+    distinctUntilChanged(),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
   /**
    * Observable that indicates whether a filter or search text is currently applied to the ciphers.
    */
@@ -280,6 +287,11 @@ export class VaultPopupItemsService {
   emptyVault$: Observable<boolean> = this._activeCipherList$.pipe(
     map((ciphers) => !ciphers.length),
   );
+
+  /**
+   * Observable that contains the count of ciphers in the active filtered list.
+   */
+  cipherCount$: Observable<number> = this._activeCipherList$.pipe(map((ciphers) => ciphers.length));
 
   /**
    * Observable that indicates whether there are no ciphers to show with the current filter.

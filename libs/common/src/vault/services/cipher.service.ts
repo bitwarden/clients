@@ -17,6 +17,7 @@ import { MessageSender } from "@bitwarden/common/platform/messaging";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../abstractions/api.service";
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -140,6 +141,8 @@ export class CipherService implements CipherServiceAbstraction {
    * Usage of the {@link CipherViewLike} type is recommended to ensure both `CipherView` and `CipherListView` are supported.
    */
   cipherListViews$ = perUserCache$((userId: UserId) => {
+    let decryptStartTime: number;
+
     return this.configService.getFeatureFlag$(FeatureFlag.PM22134SdkCipherListView).pipe(
       switchMap((useSdk) => {
         if (!useSdk) {
@@ -157,10 +160,22 @@ export class CipherService implements CipherServiceAbstraction {
               (cipherData) => new Cipher(cipherData, localData?.[cipherData.id as CipherId]),
             ),
           ),
+          tap(() => {
+            decryptStartTime = performance.now();
+          }),
           switchMap(async (ciphers) => {
-            const [decrypted, failures] = await this.decryptCiphersWithSdk(ciphers, userId);
+            const [decrypted, failures] = await this.decryptCiphersWithSdk(ciphers, userId, false);
             await this.setFailedDecryptedCiphers(failures, userId);
-            return decrypted.sort(this.getLocaleSortingFunction());
+            return decrypted;
+          }),
+          tap((decrypted) => {
+            this.logService.measure(
+              decryptStartTime,
+              "Vault",
+              "CipherService",
+              "listView decrypt complete",
+              [["Items", decrypted.length]],
+            );
           }),
         );
       }),
@@ -489,7 +504,7 @@ export class CipherService implements CipherServiceAbstraction {
     if (await this.configService.getFeatureFlag(FeatureFlag.PM19941MigrateCipherDomainToSdk)) {
       const decryptStartTime = performance.now();
 
-      const result = await this.decryptCiphersWithSdk(ciphers, userId);
+      const result = await this.decryptCiphersWithSdk(ciphers, userId, true);
 
       this.logService.measure(decryptStartTime, "Vault", "CipherService", "decrypt complete", [
         ["Items", ciphers.length],
@@ -633,7 +648,9 @@ export class CipherService implements CipherServiceAbstraction {
     const equivalentDomains = await firstValueFrom(
       this.domainSettingsService.getUrlEquivalentDomains(url),
     );
-    defaultMatch ??= await firstValueFrom(this.domainSettingsService.defaultUriMatchStrategy$);
+    defaultMatch ??= await firstValueFrom(
+      this.domainSettingsService.resolvedDefaultUriMatchStrategy$,
+    );
 
     const archiveFeatureEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.PM19148_InnovationArchive,
@@ -688,8 +705,14 @@ export class CipherService implements CipherServiceAbstraction {
       .sort((a, b) => this.sortCiphersByLastUsedThenName(a, b));
   }
 
-  async getAllFromApiForOrganization(organizationId: string): Promise<CipherView[]> {
-    const response = await this.apiService.getCiphersOrganization(organizationId);
+  async getAllFromApiForOrganization(
+    organizationId: string,
+    includeMemberItems?: boolean,
+  ): Promise<CipherView[]> {
+    const response = await this.apiService.getCiphersOrganization(
+      organizationId,
+      includeMemberItems,
+    );
     return await this.decryptOrganizationCiphersResponse(response, organizationId);
   }
 
@@ -860,13 +883,14 @@ export class CipherService implements CipherServiceAbstraction {
       response = await this.apiService.postCipherAdmin(request);
       const data = new CipherData(response, cipher.collectionIds);
       return new Cipher(data);
-    } else if (cipher.collectionIds != null) {
+    } else if (cipher.collectionIds != null && cipher.collectionIds.length > 0) {
       const request = new CipherCreateRequest({ cipher, encryptedFor });
       response = await this.apiService.postCipherCreate(request);
     } else {
       const request = new CipherRequest({ cipher, encryptedFor });
       response = await this.apiService.postCipher(request);
     }
+
     cipher.id = response.id;
 
     const data = new CipherData(response, cipher.collectionIds);
@@ -934,7 +958,12 @@ export class CipherService implements CipherServiceAbstraction {
         cipher.attachments.forEach((attachment) => {
           if (attachment.key == null) {
             attachmentPromises.push(
-              this.shareAttachmentWithServer(attachment, cipher.id, organizationId),
+              this.shareAttachmentWithServer(
+                attachment,
+                cipher.id,
+                organizationId,
+                cipher.revisionDate,
+              ),
             );
           }
         });
@@ -1102,7 +1131,13 @@ export class CipherService implements CipherServiceAbstraction {
   async saveCollectionsWithServerAdmin(cipher: Cipher): Promise<Cipher> {
     const request = new CipherCollectionsRequest(cipher.collectionIds);
     const response = await this.apiService.putCipherCollectionsAdmin(cipher.id, request);
-    const data = new CipherData(response);
+    // The response will be incomplete with several properties missing values
+    // We will assign those properties values so the SDK decryption can complete
+    const completedResponse = new CipherResponse(response);
+    completedResponse.edit = true;
+    completedResponse.viewPassword = true;
+    completedResponse.favorite = false;
+    const data = new CipherData(completedResponse);
     return new Cipher(data);
   }
 
@@ -1412,6 +1447,7 @@ export class CipherService implements CipherServiceAbstraction {
         return;
       }
       ciphers[cipherId].deletedDate = new Date().toISOString();
+      ciphers[cipherId].archivedDate = null;
     };
 
     if (typeof id === "string") {
@@ -1718,7 +1754,10 @@ export class CipherService implements CipherServiceAbstraction {
     attachmentView: AttachmentView,
     cipherId: string,
     organizationId: string,
+    lastKnownRevisionDate: Date,
   ): Promise<any> {
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$);
+
     const attachmentResponse = await this.apiService.nativeFetch(
       new Request(attachmentView.url, { cache: "no-store" }),
     );
@@ -1727,7 +1766,6 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     const encBuf = await EncArrayBuffer.fromResponse(attachmentResponse);
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$);
     const userKey = await this.keyService.getUserKey(activeUserId.id);
     const decBuf = await this.encryptService.decryptFileData(encBuf, userKey);
 
@@ -1748,9 +1786,11 @@ export class CipherService implements CipherServiceAbstraction {
       const blob = new Blob([encData.buffer], { type: "application/octet-stream" });
       fd.append("key", dataEncKey[1].encryptedString);
       fd.append("data", blob, encFileName.encryptedString);
+      fd.append("lastKnownRevisionDate", lastKnownRevisionDate.toISOString());
     } catch (e) {
       if (Utils.isNode && !Utils.isBrowser) {
         fd.append("key", dataEncKey[1].encryptedString);
+        fd.append("lastKnownRevisionDate", lastKnownRevisionDate.toISOString());
         fd.append(
           "data",
           Buffer.from(encData.buffer) as any,
@@ -1943,11 +1983,21 @@ export class CipherService implements CipherServiceAbstraction {
     autofillOnPageLoad: boolean,
   ): Promise<CipherView> {
     const cacheKey = autofillOnPageLoad ? "autofillOnPageLoad-" + url : url;
-
     if (!this.sortedCiphersCache.isCached(cacheKey)) {
       let ciphers = await this.getAllDecryptedForUrl(url, userId);
-      if (!ciphers) {
+
+      if (!ciphers?.length) {
         return null;
+      }
+
+      const localData = await firstValueFrom(this.localData$(userId));
+      if (localData) {
+        for (const view of ciphers) {
+          const data = localData[view.id as CipherId];
+          if (data) {
+            view.localData = data;
+          }
+        }
       }
 
       if (autofillOnPageLoad) {
@@ -2058,21 +2108,50 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   /**
-   * Decrypts the provided ciphers using the SDK.
-   * @param ciphers The ciphers to decrypt.
-   * @param userId The user ID to use for decryption.
-   * @returns The decrypted ciphers.
+   * Decrypts the provided ciphers using the SDK with full CipherView decryption.
+   * @param ciphers The encrypted ciphers to decrypt.
+   * @param userId The user ID to use for decryption keys.
+   * @param fullDecryption When true, returns full CipherView objects with all fields decrypted.
+   * @returns A tuple containing:
+   *          - Array of fully decrypted CipherView objects, sorted by locale
+   *          - Array of CipherView objects that failed to decrypt (marked with decryptionFailure flag)
    * @private
    */
   private async decryptCiphersWithSdk(
     ciphers: Cipher[],
     userId: UserId,
-  ): Promise<[CipherView[], CipherView[]]> {
+    fullDecryption: true,
+  ): Promise<[CipherView[], CipherView[]]>;
+  /**
+   * Decrypts the provided ciphers using the SDK with lightweight CipherListView decryption.
+   * @param ciphers The encrypted ciphers to decrypt.
+   * @param userId The user ID to use for decryption keys.
+   * @param fullDecryption When false, returns lightweight CipherListView objects for better performance.
+   * @returns A tuple containing:
+   *          - Array of lightweight CipherListView objects, sorted by locale
+   *          - Array of CipherView objects that failed to decrypt (marked with decryptionFailure flag)
+   * @private
+   */
+  private async decryptCiphersWithSdk(
+    ciphers: Cipher[],
+    userId: UserId,
+    fullDecryption: false,
+  ): Promise<[CipherListView[], CipherView[]]>;
+
+  private async decryptCiphersWithSdk(
+    ciphers: Cipher[],
+    userId: UserId,
+    fullDecryption: boolean = true,
+  ): Promise<[CipherViewLike[], CipherView[]]> {
     const [decrypted, failures] = await this.cipherEncryptionService.decryptManyWithFailures(
       ciphers,
       userId,
     );
-    const decryptedViews = await Promise.all(decrypted.map((c) => this.getFullCipherView(c)));
+
+    const decryptedViews = fullDecryption
+      ? await Promise.all(decrypted.map((c) => this.getFullCipherView(c)))
+      : decrypted;
+
     const failedViews = failures.map((c) => {
       const cipher_view = new CipherView(c);
       cipher_view.name = "[error: cannot decrypt]";

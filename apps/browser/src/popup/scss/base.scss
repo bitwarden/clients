@@ -382,7 +382,7 @@ app-root {
   }
 }
 
-main:not(popup-page main) {
+main:not(popup-page main):not(auth-anon-layout main) {
   position: absolute;
   top: 44px;
   bottom: 0;

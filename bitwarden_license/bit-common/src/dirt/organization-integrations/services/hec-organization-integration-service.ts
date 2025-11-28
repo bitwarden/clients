@@ -171,7 +171,10 @@ export class HecOrganizationIntegrationService {
       );
 
       if (updatedIntegration !== null) {
-        this._integrations$.next([...this._integrations$.getValue(), updatedIntegration]);
+        const unchangedIntegrations = this._integrations$
+          .getValue()
+          .filter((i) => i.id !== OrganizationIntegrationId);
+        this._integrations$.next([...unchangedIntegrations, updatedIntegration]);
       }
       return { mustBeOwner: false, success: true };
     } catch (error) {

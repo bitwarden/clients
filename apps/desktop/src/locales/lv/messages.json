@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Nav nepieciešamo atļauju, lai labotu šo vienumu"
+  },
   "welcomeBack": {
     "message": "Laipni lūdzam atpakaļ"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "Izmantot vienoto pieteikšanos"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Tava apvienība pieprasa vienoto pieteikšanos."
+  },
   "submit": {
     "message": "Iesniegt"
   },
@@ -1031,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Jāpievieno vai no servera pamata URL vai vismaz viena pielāgota vide."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
   },
   "customEnvironment": {
     "message": "Pielāgota vide"
@@ -1378,7 +1387,7 @@
     "message": "Valoda"
   },
   "languageDesc": {
-    "message": "Mainīt lietotnes valodu. Ir nepieciešama pārsāknēšana."
+    "message": "Mainīt lietotnes valodu. Ir nepieciešama atkārtota palaišana."
   },
   "theme": {
     "message": "Izskats"
@@ -1414,7 +1423,7 @@
     "message": "Pārsāknēt, lai atjauninātu"
   },
   "restartToUpdateDesc": {
-    "message": "Versija $VERSION_NUM$ ir gatava uzstādīšanai. Ir jāpārsāknē lietotne, lai pabeigtu uzstādīšanu. Vai pārsāknēt un atjaunināt tagad?",
+    "message": "Versija $VERSION_NUM$ ir gatava uzstādīšanai. Lietotne ir jāpalaiž no jauna, lai pabeigtu uzstādīšanu. Vai palaist no jauna un atjaunināt tagad?",
     "placeholders": {
       "version_num": {
         "content": "$1",
@@ -1852,6 +1861,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Aizslēgt ar galveno paroli pēc pārsāknēšanas"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Pieprasīt galveno paroli vai PIN pēc lietotnes atkārtotas palaišanas"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Pieprasīt galveno paroli pēc lietotnes atkārtotas palaišanas"
+  },
   "deleteAccount": {
     "message": "Izdzēst kontu"
   },
@@ -2134,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "Atgadījās kļūda pārlūka saistīšanas iespējošanas laikā."
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Diemžēl sasaistīšāna ar pārlūku pagaidām ir nodrošināta tikai Mac App Store laidienā."
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Diemžēl sasaistīšana ar pārlūku pagaidām nav nodrošināta Windows veikala laidienā."
@@ -2548,6 +2560,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Mazākā pieļaujamā pielāgotā noildze ir 1 minūte."
   },
   "inviteAccepted": {
     "message": "Uzaicinājums apstiprināts"
@@ -4142,14 +4157,14 @@
     "message": "Labot saīsni"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Arhīvs",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Arhivēt",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Atcelt arhivēšanu"
   },
   "itemsInArchive": {
@@ -4161,16 +4176,52 @@
   "noItemsInArchiveDesc": {
     "message": "Šeit parādīsies arhivētie vienumi, un tie netiks iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos."
   },
-  "itemSentToArchive": {
-    "message": "Vienums ievietots arhīvā"
+  "itemWasSentToArchive": {
+    "message": "Vienums tika ievietots arhīvā"
   },
-  "itemRemovedFromArchive": {
-    "message": "Vienums izņemts no arhīva"
+  "itemWasUnarchived": {
+    "message": "Vienums tika izņemts no arhīva"
   },
   "archiveItem": {
     "message": "Arhivēt vienumu"
   },
   "archiveItemConfirmDesc": {
     "message": "Arhivētie vienumi netiek iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos. Vai tiešām ahrivēt šo vienumu?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Pasta indekss"
+  },
+  "cardNumberLabel": {
+    "message": "Kartes numurs"
+  },
+  "upgradeNow": {
+    "message": "Uzlabot tagad"
+  },
+  "builtInAuthenticator": {
+    "message": "Iebūvēts autentificētājs"
+  },
+  "secureFileStorage": {
+    "message": "Droša datņu krātuve"
+  },
+  "emergencyAccess": {
+    "message": "Ārkārtas piekļuve"
+  },
+  "breachMonitoring": {
+    "message": "Noplūžu pārraudzīšana"
+  },
+  "andMoreFeatures": {
+    "message": "Un vēl!"
+  },
+  "planDescPremium": {
+    "message": "Pilnīga drošība tiešsaistē"
+  },
+  "upgradeToPremium": {
+    "message": "Uzlabot uz Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Noildzes darbība"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sesijas noildze"
   }
 }

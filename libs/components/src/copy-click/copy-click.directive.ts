@@ -26,11 +26,11 @@ export const COPY_CLICK_LISTENER = new InjectionToken<CopyClickListener>("CopyCl
   selector: "[appCopyClick]",
 })
 export class CopyClickDirective {
-  private _showToast = computed(() => {
+  private readonly _showToast = computed(() => {
     return this.showToast() !== undefined;
   });
 
-  private toastVariant = computed(() => {
+  private readonly toastVariant = computed(() => {
     const showToast = this.showToast();
     // When the `showToast` is set without a value, an empty string will be passed
     if (showToast === "" || showToast === undefined) {
@@ -68,7 +68,7 @@ export class CopyClickDirective {
    *  <app-component [appCopyClick]="value to copy" showToast="info"/></app-component>
    * ```
    */
-  showToast = input<ToastVariant | "">();
+  readonly showToast = input<ToastVariant | "">();
 
   @HostListener("click") onClick() {
     const valueToCopy = this.valueToCopy();

@@ -12,6 +12,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
+import { isGuid } from "@bitwarden/guid";
 
 import { DownloadCommand } from "../../../commands/download.command";
 import { Response } from "../../../models/response";
@@ -74,13 +75,13 @@ export class SendGetCommand extends DownloadCommand {
   }
 
   private async getSendView(id: string): Promise<SendView | SendView[]> {
-    if (Utils.isGuid(id)) {
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    if (isGuid(id)) {
       const send = await this.sendService.getFromState(id);
       if (send != null) {
-        return await send.decrypt();
+        return await send.decrypt(activeUserId);
       }
     } else if (id.trim() !== "") {
-      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       let sends = await this.sendService.getAllDecryptedFromState(activeUserId);
       sends = this.searchService.searchSends(sends, id);
       if (sends.length > 1) {

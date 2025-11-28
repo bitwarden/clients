@@ -135,7 +135,7 @@ describe("ItemDetailsSectionComponent", () => {
       tick();
 
       expect(cipherFormProvider.patchCipher).toHaveBeenCalled();
-      const patchFn = cipherFormProvider.patchCipher.mock.lastCall[0];
+      const patchFn = cipherFormProvider.patchCipher.mock.lastCall![0];
 
       const updatedCipher = patchFn(new CipherView());
 
@@ -165,7 +165,7 @@ describe("ItemDetailsSectionComponent", () => {
       tick();
 
       expect(cipherFormProvider.patchCipher).toHaveBeenCalled();
-      const patchFn = cipherFormProvider.patchCipher.mock.lastCall[0];
+      const patchFn = cipherFormProvider.patchCipher.mock.lastCall![0];
 
       const updatedCipher = patchFn(new CipherView());
 
@@ -440,7 +440,7 @@ describe("ItemDetailsSectionComponent", () => {
       await fixture.whenStable();
 
       expect(cipherFormProvider.patchCipher).toHaveBeenCalled();
-      const patchFn = cipherFormProvider.patchCipher.mock.lastCall[0];
+      const patchFn = cipherFormProvider.patchCipher.mock.lastCall![0];
 
       const updatedCipher = patchFn(new CipherView());
 
@@ -640,6 +640,46 @@ describe("ItemDetailsSectionComponent", () => {
     });
   });
 
+  describe("initFromExistingCipher", () => {
+    it("should set organizationId to null when prefillCipher.organizationId is undefined", async () => {
+      component.config.organizationDataOwnershipDisabled = true;
+      component.config.organizations = [{ id: "org1" } as Organization];
+
+      const prefillCipher = {
+        name: "Test Cipher",
+        organizationId: undefined,
+        folderId: null,
+        collectionIds: [],
+        favorite: false,
+      } as unknown as CipherView;
+
+      getInitialCipherView.mockReturnValueOnce(prefillCipher);
+
+      await component.ngOnInit();
+
+      expect(component.itemDetailsForm.controls.organizationId.value).toBeNull();
+    });
+
+    it("should preserve organizationId when prefillCipher.organizationId has a value", async () => {
+      component.config.organizationDataOwnershipDisabled = true;
+      component.config.organizations = [{ id: "org1", name: "Organization 1" } as Organization];
+
+      const prefillCipher = {
+        name: "Test Cipher",
+        organizationId: "org1",
+        folderId: null,
+        collectionIds: [],
+        favorite: false,
+      } as unknown as CipherView;
+
+      getInitialCipherView.mockReturnValueOnce(prefillCipher);
+
+      await component.ngOnInit();
+
+      expect(component.itemDetailsForm.controls.organizationId.value).toBe("org1");
+    });
+  });
+
   describe("form status when editing a cipher", () => {
     beforeEach(() => {
       component.config.mode = "edit";
@@ -688,6 +728,35 @@ describe("ItemDetailsSectionComponent", () => {
           await component.ngOnInit();
 
           expect(disableFormFields).not.toHaveBeenCalled();
+          expect(enableFormFields).toHaveBeenCalled();
+        });
+      });
+
+      describe("setFormState behavior with null/undefined", () => {
+        it("calls disableFormFields when organizationId value is null", async () => {
+          component.originalCipherView.organizationId = null as any;
+          getInitialCipherView.mockReturnValue(component.originalCipherView);
+
+          await component.ngOnInit();
+
+          expect(disableFormFields).toHaveBeenCalled();
+        });
+
+        it("calls disableFormFields when organizationId value is undefined", async () => {
+          component.originalCipherView.organizationId = undefined;
+          getInitialCipherView.mockReturnValue(component.originalCipherView);
+
+          await component.ngOnInit();
+
+          expect(disableFormFields).toHaveBeenCalled();
+        });
+
+        it("calls enableFormFields when organizationId has a string value", async () => {
+          component.originalCipherView.organizationId = "org-id" as any;
+          getInitialCipherView.mockReturnValue(component.originalCipherView);
+
+          await component.ngOnInit();
+
           expect(enableFormFields).toHaveBeenCalled();
         });
       });

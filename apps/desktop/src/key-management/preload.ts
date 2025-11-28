@@ -50,6 +50,33 @@ const biometric = {
       action: BiometricAction.SetShouldAutoprompt,
       data: should,
     } satisfies BiometricMessage),
+  enrollPersistent: (userId: string, keyB64: string): Promise<void> =>
+    ipcRenderer.invoke("biometric", {
+      action: BiometricAction.EnrollPersistent,
+      userId: userId,
+      key: keyB64,
+    } satisfies BiometricMessage),
+  hasPersistentKey: (userId: string): Promise<boolean> =>
+    ipcRenderer.invoke("biometric", {
+      action: BiometricAction.HasPersistentKey,
+      userId: userId,
+    } satisfies BiometricMessage),
+  enableWindowsV2Biometrics: (): Promise<void> =>
+    ipcRenderer.invoke("biometric", {
+      action: BiometricAction.EnableWindowsV2,
+    } satisfies BiometricMessage),
+  isWindowsV2BiometricsEnabled: (): Promise<boolean> =>
+    ipcRenderer.invoke("biometric", {
+      action: BiometricAction.IsWindowsV2Enabled,
+    } satisfies BiometricMessage),
+  enableLinuxV2Biometrics: (): Promise<void> =>
+    ipcRenderer.invoke("biometric", {
+      action: BiometricAction.EnableLinuxV2,
+    } satisfies BiometricMessage),
+  isLinuxV2BiometricsEnabled: (): Promise<boolean> =>
+    ipcRenderer.invoke("biometric", {
+      action: BiometricAction.IsLinuxV2Enabled,
+    } satisfies BiometricMessage),
 };
 
 export default {

@@ -96,6 +96,8 @@ export type CollectionAssignmentResult = UnionOfValues<typeof CollectionAssignme
 
 const MY_VAULT_ID = "MyVault";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "assign-collections",
   templateUrl: "assign-collections.component.html",
@@ -112,19 +114,29 @@ const MY_VAULT_ID = "MyVault";
   ],
 })
 export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(BitSubmitDirective)
   private bitSubmit: BitSubmitDirective;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() params: CollectionAssignmentParams;
 
   /**
    * Submit button instance that will be disabled or marked as loading when the form is submitting.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() submitBtn?: ButtonComponent;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   editableItemCountChange = new EventEmitter<number>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onCollectionAssign = new EventEmitter<CollectionAssignmentResult>();
 
   formGroup = this.formBuilder.group({

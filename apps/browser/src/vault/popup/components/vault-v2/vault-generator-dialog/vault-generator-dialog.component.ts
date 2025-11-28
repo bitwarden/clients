@@ -38,6 +38,8 @@ export const GeneratorDialogAction = {
 
 type GeneratorDialogAction = UnionOfValues<typeof GeneratorDialogAction>;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-generator-dialog",
   templateUrl: "./vault-generator-dialog.component.html",

@@ -6,18 +6,18 @@ import { ToggleGroupModule } from "./toggle-group.module";
 import { ToggleComponent } from "./toggle.component";
 
 describe("Button", () => {
-  let fixture: ComponentFixture<TestApp>;
-  let testAppComponent: TestApp;
+  let fixture: ComponentFixture<TestAppComponent>;
+  let testAppComponent: TestAppComponent;
   let buttonElements: ToggleComponent<unknown>[];
   let radioButtons: HTMLInputElement[];
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [TestApp],
+      imports: [TestAppComponent],
     });
 
     await TestBed.compileComponents();
-    fixture = TestBed.createComponent(TestApp);
+    fixture = TestBed.createComponent(TestAppComponent);
     testAppComponent = fixture.debugElement.componentInstance;
     buttonElements = fixture.debugElement
       .queryAll(By.css("bit-toggle"))
@@ -53,6 +53,8 @@ describe("Button", () => {
   });
 });
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "test-app",
   template: `
@@ -64,6 +66,6 @@ describe("Button", () => {
   `,
   imports: [ToggleGroupModule],
 })
-class TestApp {
+class TestAppComponent {
   selected?: string;
 }

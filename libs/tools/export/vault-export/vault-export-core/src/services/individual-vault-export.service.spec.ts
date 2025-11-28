@@ -12,7 +12,7 @@ import {
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-ids.export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CipherId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, emptyGuid, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -179,7 +179,7 @@ describe("VaultExportService", () => {
   let restrictedItemTypesService: Partial<RestrictedItemTypesService>;
   let fetchMock: jest.Mock;
 
-  const userId = "" as UserId;
+  const userId = emptyGuid as UserId;
 
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
@@ -343,7 +343,7 @@ describe("VaultExportService", () => {
       const exportData: BitwardenJsonExport = JSON.parse(data);
       expect(exportData.items.length).toBe(1);
       expect(exportData.items[0].id).toBe("mock-id");
-      expect(exportData.items[0].organizationId).toBe(null);
+      expect(exportData.items[0].organizationId).toBeUndefined();
     });
 
     it.each([[400], [401], [404], [500]])(

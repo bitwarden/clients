@@ -12,6 +12,8 @@ import { Observable, Subject } from "rxjs";
 
 import { TooltipDirective } from "./tooltip.directive";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   standalone: true,
   imports: [TooltipDirective],
@@ -57,7 +59,14 @@ describe("TooltipDirective (visibility only)", () => {
     };
 
     const overlayRefStub: OverlayRefStub = {
-      attach: jest.fn(() => ({})),
+      attach: jest.fn(() => ({
+        changeDetectorRef: { detectChanges: jest.fn() },
+        location: {
+          nativeElement: {
+            querySelector: jest.fn().mockReturnValue({ id: "tip-123" }),
+          },
+        },
+      })),
       updatePosition: jest.fn(),
     };
 

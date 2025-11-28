@@ -1,18 +1,35 @@
 import { Injectable } from "@angular/core";
-import { combineLatest, firstValueFrom } from "rxjs";
-import { switchMap, take } from "rxjs/operators";
+import { combineLatest, firstValueFrom, timeout, from, Observable, of } from "rxjs";
+import { filter, switchMap, take, map } from "rxjs/operators";
 
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
+import { BILLING_DISK, StateProvider, UserKeyDefinition } from "@bitwarden/state";
 
 import {
   UnifiedUpgradeDialogComponent,
   UnifiedUpgradeDialogResult,
+  UnifiedUpgradeDialogStatus,
 } from "../unified-upgrade-dialog/unified-upgrade-dialog.component";
+
+// State key for tracking premium modal dismissal
+export const PREMIUM_MODAL_DISMISSED_KEY = new UserKeyDefinition<boolean>(
+  BILLING_DISK,
+  "premiumModalDismissed",
+  {
+    deserializer: (value: boolean) => value,
+    clearOn: [],
+  },
+);
 
 @Injectable({
   providedIn: "root",
@@ -24,38 +41,56 @@ export class UnifiedUpgradePromptService {
     private configService: ConfigService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private vaultProfileService: VaultProfileService,
+    private syncService: SyncService,
     private dialogService: DialogService,
+    private organizationService: OrganizationService,
+    private platformUtilsService: PlatformUtilsService,
+    private stateProvider: StateProvider,
+    private logService: LogService,
   ) {}
 
-  private shouldShowPrompt$ = combineLatest([
-    this.accountService.activeAccount$,
-    this.configService.getFeatureFlag$(FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog),
-  ]).pipe(
-    switchMap(async ([account, isFlagEnabled]) => {
-      if (!account || !account?.id) {
-        return false;
-      }
-      // Early return if feature flag is disabled
-      if (!isFlagEnabled) {
-        return false;
+  private shouldShowPrompt$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+    switchMap((account) => {
+      // Check self-hosted first before any other operations
+      if (this.platformUtilsService.isSelfHost()) {
+        return of(false);
       }
 
-      // Check if user has premium
-      const hasPremium = await firstValueFrom(
+      if (!account) {
+        return of(false);
+      }
+
+      const isProfileLessThanFiveMinutesOld$ = from(
+        this.isProfileLessThanFiveMinutesOld(account.id),
+      );
+      const hasOrganizations$ = from(this.hasOrganizations(account.id));
+      const hasDismissedModal$ = this.hasDismissedModal$(account.id);
+
+      return combineLatest([
+        isProfileLessThanFiveMinutesOld$,
+        hasOrganizations$,
         this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        this.configService.getFeatureFlag$(FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog),
+        hasDismissedModal$,
+      ]).pipe(
+        map(
+          ([
+            isProfileLessThanFiveMinutesOld,
+            hasOrganizations,
+            hasPremium,
+            isFlagEnabled,
+            hasDismissed,
+          ]) => {
+            return (
+              isProfileLessThanFiveMinutesOld &&
+              !hasOrganizations &&
+              !hasPremium &&
+              isFlagEnabled &&
+              !hasDismissed
+            );
+          },
+        ),
       );
-
-      // Early return if user already has premium
-      if (hasPremium) {
-        return false;
-      }
-
-      // Check profile age only if needed
-      const isProfileLessThanFiveMinutesOld = await this.isProfileLessThanFiveMinutesOld(
-        account.id,
-      );
-
-      return isFlagEnabled && !hasPremium && isProfileLessThanFiveMinutesOld;
     }),
     take(1),
   );
@@ -89,7 +124,7 @@ export class UnifiedUpgradePromptService {
     const nowInMs = new Date().getTime();
 
     const differenceInMs = nowInMs - createdAtInMs;
-    const msInAMinute = 1000 * 60; // Milliseconds in a minute for conversion 1 minute = 60 seconds * 1000 ms
+    const msInAMinute = 1000 * 60; // 60 seconds * 1000ms
     const differenceInMinutes = Math.round(differenceInMs / msInAMinute);
 
     return differenceInMinutes <= 5;
@@ -108,7 +143,57 @@ export class UnifiedUpgradePromptService {
     const result = await firstValueFrom(this.unifiedUpgradeDialogRef.closed);
     this.unifiedUpgradeDialogRef = null;
 
+    // Save dismissal state when the modal is closed without upgrading
+    if (result?.status === UnifiedUpgradeDialogStatus.Closed) {
+      try {
+        await this.stateProvider.setUserState(PREMIUM_MODAL_DISMISSED_KEY, true, account.id);
+      } catch (error) {
+        // Log the error but don't block the dialog from closing
+        // The modal will still close properly even if persistence fails
+        this.logService.error("Failed to save premium modal dismissal state:", error);
+      }
+    }
+
     // Return the result or null if the dialog was dismissed without a result
     return result || null;
+  }
+
+  /**
+   * Checks if the user has any organization associated with their account
+   * @param userId User ID to check
+   * @returns Promise that resolves to true if user has any organizations, false otherwise
+   */
+  private async hasOrganizations(userId: UserId): Promise<boolean> {
+    // Wait for sync to complete to ensure organizations are fully loaded
+    // Also force a sync to ensure we have the latest data
+    await this.syncService.fullSync(false);
+
+    // Wait for the sync to complete with timeout to prevent hanging
+    await firstValueFrom(
+      this.syncService.lastSync$(userId).pipe(
+        filter((lastSync) => lastSync !== null),
+        take(1),
+        timeout(30000), // 30 second timeout
+      ),
+    );
+
+    // Check if user has any organization membership (any status including pending)
+    // Try using memberOrganizations$ which might have different filtering logic
+    const memberOrganizations = await firstValueFrom(
+      this.organizationService.memberOrganizations$(userId),
+    );
+
+    return memberOrganizations.length > 0;
+  }
+
+  /**
+   * Checks if the user has previously dismissed the premium modal
+   * @param userId User ID to check
+   * @returns Observable that emits true if modal was dismissed, false otherwise
+   */
+  private hasDismissedModal$(userId: UserId): Observable<boolean> {
+    return this.stateProvider
+      .getUserState$(PREMIUM_MODAL_DISMISSED_KEY, userId)
+      .pipe(map((dismissed) => dismissed ?? false));
   }
 }

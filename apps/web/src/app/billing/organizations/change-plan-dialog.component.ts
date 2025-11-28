@@ -31,7 +31,9 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanInterval, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -105,6 +107,8 @@ interface OnSuccessArgs {
   organizationId: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./change-plan-dialog.component.html",
   imports: [
@@ -116,13 +120,25 @@ interface OnSuccessArgs {
   providers: [SubscriberBillingClient, TaxClient],
 })
 export class ChangePlanDialogComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(EnterPaymentMethodComponent) enterPaymentMethodComponent: EnterPaymentMethodComponent;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() acceptingSponsorship = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() organizationId: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showFree = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showCancel = false;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get productTier(): ProductTierType {
     return this._productTier;
@@ -135,7 +151,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   protected estimatedTax: number = 0;
   private _productTier = ProductTierType.Free;
+  private _familyPlan: PlanType;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get plan(): PlanType {
     return this._plan;
@@ -147,9 +166,17 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   private _plan = PlanType.Free;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() providerId?: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onSuccess = new EventEmitter<OnSuccessArgs>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onCanceled = new EventEmitter<void>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onTrialBillingSuccess = new EventEmitter();
 
   protected discountPercentageFromSub: number;
@@ -223,6 +250,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private subscriberBillingClient: SubscriberBillingClient,
     private taxClient: TaxClient,
     private organizationWarningsService: OrganizationWarningsService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -272,10 +300,16 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       }
     }
 
+    const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM26462_Milestone_3,
+    );
+    this._familyPlan = milestone3FeatureEnabled
+      ? PlanType.FamiliesAnnually
+      : PlanType.FamiliesAnnually2025;
     if (this.currentPlan && this.currentPlan.productTier !== ProductTierType.Enterprise) {
       const upgradedPlan = this.passwordManagerPlans.find((plan) =>
         this.currentPlan.productTier === ProductTierType.Free
-          ? plan.type === PlanType.FamiliesAnnually
+          ? plan.type === this._familyPlan
           : plan.upgradeSortOrder == this.currentPlan.upgradeSortOrder + 1,
       );
 
@@ -427,9 +461,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
           "tw-border-solid",
           "tw-border-primary-600",
           "hover:tw-border-primary-700",
-          "focus:tw-border-2",
-          "focus:tw-border-primary-700",
-          "focus:tw-rounded-lg",
+          "tw-border-2",
+          "!tw-border-primary-700",
+          "tw-rounded-lg",
         ];
       }
       case PlanCardState.NotSelected: {
@@ -520,9 +554,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     }
 
     if (this.acceptingSponsorship) {
-      const familyPlan = this.passwordManagerPlans.find(
-        (plan) => plan.type === PlanType.FamiliesAnnually,
-      );
+      const familyPlan = this.passwordManagerPlans.find((plan) => plan.type === this._familyPlan);
       this.discount = familyPlan.PasswordManager.basePrice;
       return [familyPlan];
     }
@@ -538,6 +570,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
           plan.productTier === ProductTierType.TeamsStarter ||
           (this.selectedInterval === PlanInterval.Annually && plan.isAnnual) ||
           (this.selectedInterval === PlanInterval.Monthly && !plan.isAnnual)) &&
+        (plan.productTier !== ProductTierType.Families || plan.type === this._familyPlan) &&
         (!this.currentPlan || this.currentPlan.upgradeSortOrder < plan.upgradeSortOrder) &&
         this.planIsEnabled(plan),
     );
@@ -646,6 +679,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     if (this.selectedPlan.PasswordManager.hasPremiumAccessOption) {
       subTotal += this.selectedPlan.PasswordManager.premiumAccessOptionPrice;
     }
+    if (this.selectedPlan.PasswordManager.hasAdditionalStorageOption) {
+      subTotal += this.additionalStorageTotal(this.selectedPlan);
+    }
     return subTotal - this.discount;
   }
 
@@ -683,18 +719,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     }
 
     if (this.organization.useSecretsManager) {
-      return (
-        this.passwordManagerSubtotal +
-        this.additionalStorageTotal(this.selectedPlan) +
-        this.secretsManagerSubtotal() +
-        this.estimatedTax
-      );
+      return this.passwordManagerSubtotal + this.secretsManagerSubtotal() + this.estimatedTax;
     }
-    return (
-      this.passwordManagerSubtotal +
-      this.additionalStorageTotal(this.selectedPlan) +
-      this.estimatedTax
-    );
+    return this.passwordManagerSubtotal + this.estimatedTax;
   }
 
   get teamsStarterPlanIsAvailable() {
@@ -777,7 +804,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
           : this.i18nService.t("organizationUpgraded"),
       });
 
-      await this.apiService.refreshIdentityToken();
       await this.syncService.fullSync(true);
 
       if (!this.acceptingSponsorship && !this.isInTrialFlow) {
@@ -842,10 +868,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       );
 
       const subscriber: BitwardenSubscriber = { type: "organization", data: this.organization };
-      await Promise.all([
-        this.subscriberBillingClient.updatePaymentMethod(subscriber, paymentMethod, null),
-        this.subscriberBillingClient.updateBillingAddress(subscriber, billingAddress),
-      ]);
+      // These need to be synchronous so one of them can create the Customer in the case we're upgrading from Free.
+      await this.subscriberBillingClient.updateBillingAddress(subscriber, billingAddress);
+      await this.subscriberBillingClient.updatePaymentMethod(subscriber, paymentMethod, null);
     }
 
     // Backfill pub/priv key if necessary
@@ -910,7 +935,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     if (this.currentPlan && this.currentPlan.productTier !== ProductTierType.Enterprise) {
       const upgradedPlan = this.passwordManagerPlans.find((plan) => {
         if (this.currentPlan.productTier === ProductTierType.Free) {
-          return plan.type === PlanType.FamiliesAnnually;
+          return plan.type === this._familyPlan;
         }
 
         if (
@@ -1008,6 +1033,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     const getPlanFromLegacyEnum = (planType: PlanType): OrganizationSubscriptionPlan => {
       switch (planType) {
         case PlanType.FamiliesAnnually:
+        case PlanType.FamiliesAnnually2025:
           return { tier: "families", cadence: "annually" };
         case PlanType.TeamsMonthly:
           return { tier: "teams", cadence: "monthly" };

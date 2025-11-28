@@ -35,6 +35,12 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
     private cryptoFunctionService: CryptoFunctionService,
   ) {}
 
+  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {}
+
+  async hasPersistentKey(userId: UserId): Promise<boolean> {
+    return false;
+  }
+
   async supportsBiometrics(): Promise<boolean> {
     return await biometrics.available();
   }

@@ -8,6 +8,7 @@ import {
   map,
   merge,
   Observable,
+  of,
   Subject,
   switchMap,
   tap,
@@ -17,6 +18,7 @@ import { take } from "rxjs/operators";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { OrganizationBillingClient } from "@bitwarden/web-vault/app/billing/clients";
@@ -56,6 +58,7 @@ export class OrganizationWarningsService {
     private i18nService: I18nService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private organizationBillingClient: OrganizationBillingClient,
+    private platformUtilsService: PlatformUtilsService,
     private router: Router,
   ) {}
 
@@ -281,12 +284,17 @@ export class OrganizationWarningsService {
     organization: Organization,
     extract: (response: OrganizationWarningsResponse) => T | null | undefined,
     bypassCache: boolean = false,
-  ): Observable<T | null> =>
-    this.readThroughWarnings$(organization, bypassCache).pipe(
+  ): Observable<T | null> => {
+    if (this.platformUtilsService.isSelfHost()) {
+      return of(null);
+    }
+
+    return this.readThroughWarnings$(organization, bypassCache).pipe(
       map((response) => {
         const value = extract(response);
         return value ? value : null;
       }),
       take(1),
     );
+  };
 }

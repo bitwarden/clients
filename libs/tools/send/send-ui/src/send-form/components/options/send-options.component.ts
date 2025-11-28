@@ -33,6 +33,8 @@ import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/ge
 import { SendFormConfig } from "../../abstractions/send-form-config.service";
 import { SendFormContainer } from "../../send-form-container";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-send-options",
   templateUrl: "./send-options.component.html",
@@ -52,8 +54,12 @@ import { SendFormContainer } from "../../send-form-container";
   ],
 })
 export class SendOptionsComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true })
   config: SendFormConfig;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   originalSendView: SendView;
   disableHideEmail = false;

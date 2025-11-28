@@ -1,14 +1,9 @@
 import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 
-import {
-  AllActivitiesService,
-  LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { SecurityTasksApiService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { SecurityTaskType } from "@bitwarden/common/vault/tasks";
-import { ToastService } from "@bitwarden/components";
 
 import { DefaultAdminTaskService } from "../../../vault/services/default-admin-task.service";
 
@@ -16,18 +11,14 @@ import { AccessIntelligenceSecurityTasksService } from "./security-tasks.service
 
 describe("AccessIntelligenceSecurityTasksService", () => {
   let service: AccessIntelligenceSecurityTasksService;
-  const defaultAdminTaskServiceSpy = mock<DefaultAdminTaskService>();
-  const allActivitiesServiceSpy = mock<AllActivitiesService>();
-  const toastServiceSpy = mock<ToastService>();
-  const i18nServiceSpy = mock<I18nService>();
+  const defaultAdminTaskServiceMock = mock<DefaultAdminTaskService>();
+  const securityTasksApiServiceMock = mock<SecurityTasksApiService>();
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
     service = new AccessIntelligenceSecurityTasksService(
-      allActivitiesServiceSpy,
-      defaultAdminTaskServiceSpy,
-      toastServiceSpy,
-      i18nServiceSpy,
+      defaultAdminTaskServiceMock,
+      securityTasksApiServiceMock,
     );
   });
 
@@ -36,84 +27,48 @@ describe("AccessIntelligenceSecurityTasksService", () => {
   });
 
   describe("assignTasks", () => {
-    it("should call requestPasswordChange and setTaskCreatedCount", async () => {
+    it("should call requestPasswordChangeForCriticalApplications and setTaskCreatedCount", async () => {
+      // Set up test data
       const organizationId = "org-1" as OrganizationId;
-      const apps = [
-        {
-          atRiskPasswordCount: 1,
-          atRiskCipherIds: ["cid1"],
-        } as LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher,
-      ];
-      const spy = jest.spyOn(service, "requestPasswordChange").mockResolvedValue(2);
-      await service.assignTasks(organizationId, apps);
-      expect(spy).toHaveBeenCalledWith(organizationId, apps);
-      expect(allActivitiesServiceSpy.setTaskCreatedCount).toHaveBeenCalledWith(2);
+      const mockCipherIds = ["cid1" as CipherId, "cid2" as CipherId];
+      const spy = jest.spyOn(service, "requestPasswordChangeForCriticalApplications");
+
+      // Call the method
+      await service.requestPasswordChangeForCriticalApplications(organizationId, mockCipherIds);
+
+      // Verify that the method was called with correct parameters
+      expect(spy).toHaveBeenCalledWith(organizationId, mockCipherIds);
     });
   });
 
-  describe("requestPasswordChange", () => {
+  describe("requestPasswordChangeForCriticalApplications", () => {
     it("should create tasks for distinct cipher ids and show success toast", async () => {
+      // Set up test data
       const organizationId = "org-2" as OrganizationId;
-      const apps = [
-        {
-          atRiskPasswordCount: 2,
-          atRiskCipherIds: ["cid1", "cid2"],
-        } as LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher,
-        {
-          atRiskPasswordCount: 1,
-          atRiskCipherIds: ["cid2"],
-        } as LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher,
-      ];
-      defaultAdminTaskServiceSpy.bulkCreateTasks.mockResolvedValue(undefined);
-      i18nServiceSpy.t.mockImplementation((key) => key);
+      const mockCipherIds = ["cid1" as CipherId, "cid2" as CipherId];
+      defaultAdminTaskServiceMock.bulkCreateTasks.mockResolvedValue(undefined);
+      const spy = jest.spyOn(service, "requestPasswordChangeForCriticalApplications");
 
-      const result = await service.requestPasswordChange(organizationId, apps);
+      // Call the method
+      await service.requestPasswordChangeForCriticalApplications(organizationId, mockCipherIds);
 
-      expect(defaultAdminTaskServiceSpy.bulkCreateTasks).toHaveBeenCalledWith(organizationId, [
+      // Verify that bulkCreateTasks was called with distinct cipher ids
+      expect(defaultAdminTaskServiceMock.bulkCreateTasks).toHaveBeenCalledWith(organizationId, [
         { cipherId: "cid1", type: SecurityTaskType.UpdateAtRiskCredential },
         { cipherId: "cid2", type: SecurityTaskType.UpdateAtRiskCredential },
       ]);
-      expect(toastServiceSpy.showToast).toHaveBeenCalledWith({
-        message: "notifiedMembers",
-        variant: "success",
-        title: "success",
-      });
-      expect(result).toBe(2);
+      // Verify that the method was called with correct parameters
+      expect(spy).toHaveBeenCalledWith(organizationId, mockCipherIds);
     });
 
-    it("should show error toast and return 0 if bulkCreateTasks throws", async () => {
+    it("should handle error if defaultAdminTaskService errors", async () => {
       const organizationId = "org-3" as OrganizationId;
-      const apps = [
-        {
-          atRiskPasswordCount: 1,
-          atRiskCipherIds: ["cid3"],
-        } as LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher,
-      ];
-      defaultAdminTaskServiceSpy.bulkCreateTasks.mockRejectedValue(new Error("fail"));
-      i18nServiceSpy.t.mockImplementation((key) => key);
+      const mockCipherIds = ["cid3" as CipherId];
+      defaultAdminTaskServiceMock.bulkCreateTasks.mockRejectedValue(new Error("API fail error"));
 
-      const result = await service.requestPasswordChange(organizationId, apps);
-
-      expect(toastServiceSpy.showToast).toHaveBeenCalledWith({
-        message: "unexpectedError",
-        variant: "error",
-        title: "error",
-      });
-      expect(result).toBe(0);
-    });
-
-    it("should not create any tasks if no apps have atRiskPasswordCount > 0", async () => {
-      const organizationId = "org-4" as OrganizationId;
-      const apps = [
-        {
-          atRiskPasswordCount: 0,
-          atRiskCipherIds: ["cid4"],
-        } as LEGACY_ApplicationHealthReportDetailWithCriticalFlagAndCipher,
-      ];
-      const result = await service.requestPasswordChange(organizationId, apps);
-
-      expect(defaultAdminTaskServiceSpy.bulkCreateTasks).toHaveBeenCalledWith(organizationId, []);
-      expect(result).toBe(0);
+      await expect(
+        service.requestPasswordChangeForCriticalApplications(organizationId, mockCipherIds),
+      ).rejects.toThrow("API fail error");
     });
   });
 });

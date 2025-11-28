@@ -1,6 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { firstValueFrom } from "rxjs";
 import { Jsonify } from "type-fest";
+
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import { Utils } from "../../../../platform/misc/utils";
@@ -73,22 +76,18 @@ export class Send extends Domain {
     }
   }
 
-  async decrypt(): Promise<SendView> {
-    const model = new SendView(this);
+  async decrypt(userId: UserId): Promise<SendView> {
+    if (!userId) {
+      throw new Error("User ID must not be null or undefined");
+    }
 
+    const model = new SendView(this);
     const keyService = Utils.getContainerService().getKeyService();
     const encryptService = Utils.getContainerService().getEncryptService();
-
-    try {
-      const sendKeyEncryptionKey = await keyService.getUserKey();
-      // model.key is a seed used to derive a key, not a SymmetricCryptoKey
-      model.key = await encryptService.decryptBytes(this.key, sendKeyEncryptionKey);
-      model.cryptoKey = await keyService.makeSendKey(model.key);
-      // FIXME: Remove when updating file. Eslint update
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {
-      // TODO: error?
-    }
+    const sendKeyEncryptionKey = await firstValueFrom(keyService.userKey$(userId));
+    // model.key is a seed used to derive a key, not a SymmetricCryptoKey
+    model.key = await encryptService.decryptBytes(this.key, sendKeyEncryptionKey);
+    model.cryptoKey = await keyService.makeSendKey(model.key);
 
     await this.decryptObj<Send, SendView>(this, model, ["name", "notes"], null, model.cryptoKey);
 

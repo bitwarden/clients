@@ -19,7 +19,8 @@ pub mod passwords {
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
-    /// Save the password to the keychain. Adds an entry if none exists otherwise updates the existing entry.
+    /// Save the password to the keychain. Adds an entry if none exists otherwise updates the
+    /// existing entry.
     #[napi]
     pub async fn set_password(
         service: String,
@@ -107,7 +108,8 @@ pub mod biometrics {
     /// base64 encoded key and the base64 encoded challenge used to create it
     /// separated by a `|` character.
     ///
-    /// If the iv is provided, it will be used as the challenge. Otherwise a random challenge will be generated.
+    /// If the iv is provided, it will be used as the challenge. Otherwise a random challenge will
+    /// be generated.
     ///
     /// `format!("<key_base64>|<iv_base64>")`
     #[allow(clippy::unused_async)] // FIXME: Remove unused async!
@@ -150,6 +152,123 @@ pub mod biometrics {
 }
 
 #[napi]
+pub mod biometrics_v2 {
+    use desktop_core::biometric_v2::BiometricTrait;
+
+    #[napi]
+    pub struct BiometricLockSystem {
+        inner: desktop_core::biometric_v2::BiometricLockSystem,
+    }
+
+    #[napi]
+    pub fn init_biometric_system() -> napi::Result<BiometricLockSystem> {
+        Ok(BiometricLockSystem {
+            inner: desktop_core::biometric_v2::BiometricLockSystem::new(),
+        })
+    }
+
+    #[napi]
+    pub async fn authenticate(
+        biometric_lock_system: &BiometricLockSystem,
+        hwnd: napi::bindgen_prelude::Buffer,
+        message: String,
+    ) -> napi::Result<bool> {
+        biometric_lock_system
+            .inner
+            .authenticate(hwnd.into(), message)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn authenticate_available(
+        biometric_lock_system: &BiometricLockSystem,
+    ) -> napi::Result<bool> {
+        biometric_lock_system
+            .inner
+            .authenticate_available()
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn enroll_persistent(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+        key: napi::bindgen_prelude::Buffer,
+    ) -> napi::Result<()> {
+        biometric_lock_system
+            .inner
+            .enroll_persistent(&user_id, &key)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn provide_key(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+        key: napi::bindgen_prelude::Buffer,
+    ) -> napi::Result<()> {
+        biometric_lock_system
+            .inner
+            .provide_key(&user_id, &key)
+            .await;
+        Ok(())
+    }
+
+    #[napi]
+    pub async fn unlock(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+        hwnd: napi::bindgen_prelude::Buffer,
+    ) -> napi::Result<napi::bindgen_prelude::Buffer> {
+        biometric_lock_system
+            .inner
+            .unlock(&user_id, hwnd.into())
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+            .map(|v| v.into())
+    }
+
+    #[napi]
+    pub async fn unlock_available(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+    ) -> napi::Result<bool> {
+        biometric_lock_system
+            .inner
+            .unlock_available(&user_id)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn has_persistent(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+    ) -> napi::Result<bool> {
+        biometric_lock_system
+            .inner
+            .has_persistent(&user_id)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn unenroll(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+    ) -> napi::Result<()> {
+        biometric_lock_system
+            .inner
+            .unenroll(&user_id)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+}
+
+#[napi]
 pub mod clipboards {
     #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
@@ -169,7 +288,6 @@ pub mod clipboards {
 pub mod sshagent {
     use std::sync::Arc;
 
-    use desktop_core::ssh_agent::BitwardenSshKey;
     use napi::{
         bindgen_prelude::Promise,
         threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction},
@@ -179,7 +297,7 @@ pub mod sshagent {
 
     #[napi]
     pub struct SshAgentState {
-        state: desktop_core::ssh_agent::BitwardenDesktopAgent<BitwardenSshKey>,
+        state: desktop_core::ssh_agent::BitwardenDesktopAgent,
     }
 
     #[napi(object)]
@@ -440,8 +558,9 @@ pub mod ipc {
     impl IpcServer {
         /// Create and start the IPC server without blocking.
         ///
-        /// @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
-        /// @param callback This function will be called whenever a message is received from a client.
+        /// @param name The endpoint name to listen on. This name uniquely identifies the IPC
+        /// connection and must be the same for both the server and client. @param callback
+        /// This function will be called whenever a message is received from a client.
         #[allow(clippy::unused_async)] // FIXME: Remove unused async!
         #[napi(factory)]
         pub async fn listen(
@@ -482,8 +601,9 @@ pub mod ipc {
 
         /// Send a message over the IPC server to all the connected clients
         ///
-        /// @return The number of clients that the message was sent to. Note that the number of messages
-        /// actually received may be less, as some clients could disconnect before receiving the message.
+        /// @return The number of clients that the message was sent to. Note that the number of
+        /// messages actually received may be less, as some clients could disconnect before
+        /// receiving the message.
         #[napi]
         pub fn send(&self, message: String) -> napi::Result<u32> {
             self.server
@@ -627,8 +747,9 @@ pub mod autofill {
     impl IpcServer {
         /// Create and start the IPC server without blocking.
         ///
-        /// @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
-        /// @param callback This function will be called whenever a message is received from a client.
+        /// @param name The endpoint name to listen on. This name uniquely identifies the IPC
+        /// connection and must be the same for both the server and client. @param callback
+        /// This function will be called whenever a message is received from a client.
         #[allow(clippy::unused_async)] // FIXME: Remove unused async!
         #[napi(factory)]
         pub async fn listen(
@@ -830,18 +951,18 @@ pub mod logging {
     //!
     //! # Example
     //!
-    //! [Elec] 14:34:03.517 › [NAPI] [INFO] desktop_core::ssh_agent::platform_ssh_agent: Starting SSH Agent server {socket=/Users/foo/.bitwarden-ssh-agent.sock}
+    //! [Elec] 14:34:03.517 › [NAPI] [INFO] desktop_core::ssh_agent::platform_ssh_agent: Starting
+    //! SSH Agent server {socket=/Users/foo/.bitwarden-ssh-agent.sock}
 
-    use std::fmt::Write;
-    use std::sync::OnceLock;
+    use std::{fmt::Write, sync::OnceLock};
 
     use napi::threadsafe_function::{
         ErrorStrategy::CalleeHandled, ThreadsafeFunction, ThreadsafeFunctionCallMode,
     };
     use tracing::Level;
-    use tracing_subscriber::fmt::format::{DefaultVisitor, Writer};
     use tracing_subscriber::{
-        filter::{EnvFilter, LevelFilter},
+        filter::EnvFilter,
+        fmt::format::{DefaultVisitor, Writer},
         layer::SubscriberExt,
         util::SubscriberInitExt,
         Layer,
@@ -928,13 +1049,25 @@ pub mod logging {
     pub fn init_napi_log(js_log_fn: ThreadsafeFunction<(LogLevel, String), CalleeHandled>) {
         let _ = JS_LOGGER.0.set(js_log_fn);
 
+        // the log level hierarchy is determined by:
+        //    - if RUST_LOG is detected at runtime
+        //    - if RUST_LOG is provided at compile time
+        //    - default to INFO
         let filter = EnvFilter::builder()
-            // set the default log level to INFO.
-            .with_default_directive(LevelFilter::INFO.into())
+            .with_default_directive(
+                option_env!("RUST_LOG")
+                    .unwrap_or("info")
+                    .parse()
+                    .expect("should provide valid log level at compile time."),
+            )
             // parse directives from the RUST_LOG environment variable,
             // overriding the default directive for matching targets.
             .from_env_lossy();
 
+        // With the `tracing-log` feature enabled for the `tracing_subscriber`,
+        // the registry below will initialize a log compatibility layer, which allows
+        // the subscriber to consume log::Records as though they were tracing Events.
+        // https://docs.rs/tracing-subscriber/latest/tracing_subscriber/util/trait.SubscriberInitExt.html#method.init
         tracing_subscriber::registry()
             .with(filter)
             .with(JsLayer)
@@ -944,8 +1077,15 @@ pub mod logging {
 
 #[napi]
 pub mod chromium_importer {
-    use bitwarden_chromium_importer::chromium::LoginImportResult as _LoginImportResult;
-    use bitwarden_chromium_importer::chromium::ProfileInfo as _ProfileInfo;
+    use std::collections::HashMap;
+
+    use chromium_importer::{
+        chromium::{
+            DefaultInstalledBrowserRetriever, LoginImportResult as _LoginImportResult,
+            ProfileInfo as _ProfileInfo,
+        },
+        metadata::NativeImporterMetadata as _NativeImporterMetadata,
+    };
 
     #[napi(object)]
     pub struct ProfileInfo {
@@ -972,6 +1112,13 @@ pub mod chromium_importer {
     pub struct LoginImportResult {
         pub login: Option<Login>,
         pub failure: Option<LoginImportFailure>,
+    }
+
+    #[napi(object)]
+    pub struct NativeImporterMetadata {
+        pub id: String,
+        pub loaders: Vec<&'static str>,
+        pub instructions: &'static str,
     }
 
     impl From<_LoginImportResult> for LoginImportResult {
@@ -1007,15 +1154,28 @@ pub mod chromium_importer {
         }
     }
 
+    impl From<_NativeImporterMetadata> for NativeImporterMetadata {
+        fn from(m: _NativeImporterMetadata) -> Self {
+            NativeImporterMetadata {
+                id: m.id,
+                loaders: m.loaders,
+                instructions: m.instructions,
+            }
+        }
+    }
+
     #[napi]
-    pub fn get_installed_browsers() -> napi::Result<Vec<String>> {
-        bitwarden_chromium_importer::chromium::get_installed_browsers()
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    /// Returns OS aware metadata describing supported Chromium based importers as a JSON string.
+    pub fn get_metadata() -> HashMap<String, NativeImporterMetadata> {
+        chromium_importer::metadata::get_supported_importers::<DefaultInstalledBrowserRetriever>()
+            .into_iter()
+            .map(|(browser, metadata)| (browser, NativeImporterMetadata::from(metadata)))
+            .collect()
     }
 
     #[napi]
     pub fn get_available_profiles(browser: String) -> napi::Result<Vec<ProfileInfo>> {
-        bitwarden_chromium_importer::chromium::get_available_profiles(&browser)
+        chromium_importer::chromium::get_available_profiles(&browser)
             .map(|profiles| profiles.into_iter().map(ProfileInfo::from).collect())
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
@@ -1025,7 +1185,7 @@ pub mod chromium_importer {
         browser: String,
         profile_id: String,
     ) -> napi::Result<Vec<LoginImportResult>> {
-        bitwarden_chromium_importer::chromium::import_logins(&browser, &profile_id)
+        chromium_importer::chromium::import_logins(&browser, &profile_id)
             .await
             .map(|logins| logins.into_iter().map(LoginImportResult::from).collect())
             .map_err(|e| napi::Error::from_reason(e.to_string()))

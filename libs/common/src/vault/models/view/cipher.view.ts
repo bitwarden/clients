@@ -113,6 +113,12 @@ export class CipherView implements View, InitializerMetadata {
     return this.passwordHistory && this.passwordHistory.length > 0;
   }
 
+  get hasLoginPassword(): boolean {
+    return (
+      this.type === CipherType.Login && this.login?.password != null && this.login.password !== ""
+    );
+  }
+
   get hasAttachments(): boolean {
     return !!this.attachments && this.attachments.length > 0;
   }
@@ -160,6 +166,10 @@ export class CipherView implements View, InitializerMetadata {
   }
 
   get canAssignToCollections(): boolean {
+    if (this.isArchived) {
+      return false;
+    }
+
     if (this.organizationId == null) {
       return true;
     }

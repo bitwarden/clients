@@ -6,7 +6,7 @@ import { setA11yTitleAndAriaLabel } from "./set-a11y-title-and-aria-label";
   selector: "[appA11yTitle]",
 })
 export class A11yTitleDirective {
-  title = input.required<string>({ alias: "appA11yTitle" });
+  readonly title = input.required<string>({ alias: "appA11yTitle" });
 
   constructor(private el: ElementRef) {
     const originalTitle = this.el.nativeElement.getAttribute("title");

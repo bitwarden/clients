@@ -2,6 +2,7 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
+import { AuthRoute } from "@bitwarden/angular/auth/constants";
 import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/environment-selector/environment-selector.component";
 import {
   authGuard,
@@ -21,6 +22,7 @@ import {
   UserLockIcon,
   VaultIcon,
   LockIcon,
+  DomainIcon,
 } from "@bitwarden/assets/svg";
 import {
   LoginComponent,
@@ -64,7 +66,7 @@ const routes: Routes = [
     canActivate: [redirectGuard({ loggedIn: "/vault", loggedOut: "/login", locked: "/lock" })],
   },
   {
-    path: "authentication-timeout",
+    path: AuthRoute.AuthenticationTimeout,
     component: AnonLayoutWrapperComponent,
     children: [
       {
@@ -80,7 +82,7 @@ const routes: Routes = [
     } satisfies RouteDataProperties & AnonLayoutWrapperData,
   },
   {
-    path: "device-verification",
+    path: AuthRoute.NewDeviceVerification,
     component: AnonLayoutWrapperComponent,
     canActivate: [unauthGuardFn(), activeAuthGuard()],
     children: [{ path: "", component: NewDeviceVerificationComponent }],
@@ -122,7 +124,7 @@ const routes: Routes = [
     component: AnonLayoutWrapperComponent,
     children: [
       {
-        path: "signup",
+        path: AuthRoute.SignUp,
         canActivate: [unauthGuardFn()],
         data: {
           pageIcon: RegistrationUserAddIcon,
@@ -140,13 +142,13 @@ const routes: Routes = [
             component: RegistrationStartSecondaryComponent,
             outlet: "secondary",
             data: {
-              loginRoute: "/login",
+              loginRoute: `/${AuthRoute.Login}`,
             } satisfies RegistrationStartSecondaryComponentData,
           },
         ],
       },
       {
-        path: "finish-signup",
+        path: AuthRoute.FinishSignUp,
         canActivate: [unauthGuardFn()],
         data: {
           pageIcon: LockIcon,
@@ -159,7 +161,7 @@ const routes: Routes = [
         ],
       },
       {
-        path: "login",
+        path: AuthRoute.Login,
         canActivate: [maxAccountsGuardFn()],
         data: {
           pageTitle: {
@@ -178,7 +180,7 @@ const routes: Routes = [
         ],
       },
       {
-        path: "login-initiated",
+        path: AuthRoute.LoginInitiated,
         canActivate: [tdeDecryptionRequiredGuard()],
         data: {
           pageIcon: DevicesIcon,
@@ -186,7 +188,7 @@ const routes: Routes = [
         children: [{ path: "", component: LoginDecryptionOptionsComponent }],
       },
       {
-        path: "sso",
+        path: AuthRoute.Sso,
         data: {
           pageIcon: VaultIcon,
           pageTitle: {
@@ -206,7 +208,7 @@ const routes: Routes = [
         ],
       },
       {
-        path: "login-with-device",
+        path: AuthRoute.LoginWithDevice,
         data: {
           pageIcon: DevicesIcon,
           pageTitle: {
@@ -226,7 +228,7 @@ const routes: Routes = [
         ],
       },
       {
-        path: "admin-approval-requested",
+        path: AuthRoute.AdminApprovalRequested,
         data: {
           pageIcon: DevicesIcon,
           pageTitle: {
@@ -239,7 +241,7 @@ const routes: Routes = [
         children: [{ path: "", component: LoginViaAuthRequestComponent }],
       },
       {
-        path: "hint",
+        path: AuthRoute.PasswordHint,
         canActivate: [unauthGuardFn()],
         data: {
           pageTitle: {
@@ -277,7 +279,7 @@ const routes: Routes = [
         ],
       },
       {
-        path: "2fa",
+        path: AuthRoute.TwoFactor,
         canActivate: [unauthGuardFn(), TwoFactorAuthGuard],
         children: [
           {
@@ -289,20 +291,26 @@ const routes: Routes = [
           pageTitle: {
             key: "verifyYourIdentity",
           },
+          // `TwoFactorAuthComponent` manually sets its icon based on the 2fa type
+          pageIcon: null,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {
-        path: "set-initial-password",
+        path: AuthRoute.SetInitialPassword,
         canActivate: [authGuard],
         component: SetInitialPasswordComponent,
         data: {
           maxWidth: "lg",
+          pageIcon: LockIcon,
         } satisfies AnonLayoutWrapperData,
       },
       {
-        path: "change-password",
+        path: AuthRoute.ChangePassword,
         component: ChangePasswordComponent,
         canActivate: [authGuard],
+        data: {
+          pageIcon: LockIcon,
+        } satisfies AnonLayoutWrapperData,
       },
       {
         path: "confirm-key-connector-domain",
@@ -312,6 +320,7 @@ const routes: Routes = [
           pageTitle: {
             key: "confirmKeyConnectorDomain",
           },
+          pageIcon: DomainIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
     ],

@@ -50,6 +50,9 @@ export class PricingSummaryService {
     if (plan.PasswordManager?.hasPremiumAccessOption) {
       passwordManagerSubtotal += plan.PasswordManager.premiumAccessOptionPrice;
     }
+    if (plan.PasswordManager?.hasAdditionalStorageOption) {
+      passwordManagerSubtotal += additionalStorageTotal;
+    }
 
     const secretsManagerSubtotal = plan.SecretsManager
       ? (plan.SecretsManager.basePrice || 0) +
@@ -66,8 +69,8 @@ export class PricingSummaryService {
     const storageGb = sub?.maxStorageGb ? sub?.maxStorageGb - 1 : 0;
 
     const total = organization?.useSecretsManager
-      ? passwordManagerSubtotal + additionalStorageTotal + secretsManagerSubtotal + estimatedTax
-      : passwordManagerSubtotal + additionalStorageTotal + estimatedTax;
+      ? passwordManagerSubtotal + secretsManagerSubtotal + estimatedTax
+      : passwordManagerSubtotal + estimatedTax;
 
     return {
       selectedPlanInterval: selectedInterval === PlanInterval.Annually ? "year" : "month",

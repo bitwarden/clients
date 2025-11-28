@@ -27,9 +27,10 @@ export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
   showBackButton?: boolean;
   showLogo?: boolean;
   hideFooter?: boolean;
-  hideIcon?: boolean;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "extension-anon-layout-wrapper.component.html",
   imports: [
@@ -50,7 +51,6 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected showAcctSwitcher: boolean;
   protected showBackButton: boolean;
   protected showLogo: boolean = true;
-  protected hideIcon: boolean = false;
 
   protected pageTitle: string;
   protected pageSubtitle: string;
@@ -134,10 +134,6 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       this.showLogo = Boolean(firstChildRouteData["showLogo"]);
     }
 
-    if (firstChildRouteData["hideIcon"] !== undefined) {
-      this.hideIcon = Boolean(firstChildRouteData["hideIcon"]);
-    }
-
     if (firstChildRouteData["hideCardWrapper"] !== undefined) {
       this.hideCardWrapper = Boolean(firstChildRouteData["hideCardWrapper"]);
     }
@@ -196,10 +192,6 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     if (data.showLogo !== undefined) {
       this.showLogo = data.showLogo;
     }
-
-    if (data.hideIcon !== undefined) {
-      this.hideIcon = data.hideIcon;
-    }
   }
 
   private handleStringOrTranslation(value: string | Translation): string {
@@ -222,7 +214,6 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.showLogo = null;
     this.maxWidth = null;
     this.hideFooter = null;
-    this.hideIcon = null;
     this.hideCardWrapper = null;
   }
 

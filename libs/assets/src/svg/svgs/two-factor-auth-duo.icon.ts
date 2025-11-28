@@ -1,3 +1,5 @@
+// this svg includes the Duo logo, which contains colors not part of our bitwarden theme colors
+/* eslint-disable @bitwarden/components/require-theme-colors-in-svg */
 import { svgIcon } from "../icon-service";
 
 export const TwoFactorAuthDuoIcon = svgIcon`
@@ -13,7 +15,7 @@ export const TwoFactorAuthDuoIcon = svgIcon`
     </g>
     <defs>
         <clipPath id="two-factor-auth-duo-clip">
-            <path fill="#fff" d="M0 .588h120v38.824H0z" />
+            <path class="tw-fill-text-alt2" d="M0 .588h120v38.824H0z" />
         </clipPath>
     </defs>
 </svg>

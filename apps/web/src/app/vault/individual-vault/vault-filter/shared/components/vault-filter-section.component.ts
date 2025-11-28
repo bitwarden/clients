@@ -13,6 +13,8 @@ import { VaultFilterService } from "../../services/abstractions/vault-filter.ser
 import { VaultFilterSection, VaultFilterType } from "../models/vault-filter-section.type";
 import { VaultFilter } from "../models/vault-filter.model";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-filter-section",
   templateUrl: "vault-filter-section.component.html",
@@ -22,7 +24,11 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private activeUserId$ = getUserId(this.accountService.activeAccount$);
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() activeFilter: VaultFilter;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() section: VaultFilterSection;
 
   data: TreeNode<VaultFilterType>;

@@ -15,6 +15,8 @@ import { BreadcrumbComponent } from "./breadcrumb.component";
  * Bitwarden uses this component to indicate the user's current location in a set of data organized in
  * containers (Collections, Folders, or Projects).
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-breadcrumbs",
   templateUrl: "./breadcrumbs.component.html",
@@ -25,6 +27,8 @@ export class BreadcrumbsComponent {
 
   private breadcrumbs: BreadcrumbComponent[] = [];
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ContentChildren(BreadcrumbComponent)
   protected set breadcrumbList(value: QueryList<BreadcrumbComponent>) {
     this.breadcrumbs = value.toArray();
