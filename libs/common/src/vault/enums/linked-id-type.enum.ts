@@ -1,3 +1,5 @@
+import { LinkedIdType as SdkLinkedIdType } from "@bitwarden/sdk-internal";
+
 import { UnionOfValues } from "../types/union-of-values";
 
 export type LinkedIdType = LoginLinkedId | CardLinkedId | IdentityLinkedId;
@@ -46,3 +48,25 @@ export const IdentityLinkedId = {
 } as const;
 
 export type IdentityLinkedId = UnionOfValues<typeof IdentityLinkedId>;
+
+/**
+ *
+ * @param value
+ * @returns
+ */
+export function normalizeLinkedIdTypeForSdk(
+  value: LinkedIdType | undefined,
+): SdkLinkedIdType | undefined {
+  if (value == null) {
+    return undefined;
+  }
+
+  // Check all valid LinkedId numeric values (100-418)
+  const allValidValues = [
+    ...Object.values(LoginLinkedId),
+    ...Object.values(CardLinkedId),
+    ...Object.values(IdentityLinkedId),
+  ];
+
+  return allValidValues.includes(value) ? value : undefined;
+}

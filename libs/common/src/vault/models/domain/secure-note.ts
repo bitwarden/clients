@@ -3,7 +3,7 @@ import { Jsonify } from "type-fest";
 import { SecureNote as SdkSecureNote } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
-import { SecureNoteType } from "../../enums";
+import { normalizeSecureNoteTypeForSdk, SecureNoteType } from "../../enums";
 import { SecureNoteData } from "../data/secure-note.data";
 import { SecureNoteView } from "../view/secure-note.view";
 
@@ -46,7 +46,7 @@ export class SecureNote extends Domain {
    */
   toSdkSecureNote(): SdkSecureNote {
     return {
-      type: this.type,
+      type: normalizeSecureNoteTypeForSdk(this.type),
     };
   }
 
