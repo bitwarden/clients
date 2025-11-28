@@ -94,7 +94,7 @@
     "message": "Piešķirt dalībniekiem uzdevumus, lai pārraudzītu virzību"
   },
   "onceYouReviewApplications": {
-    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
+    "message": "Tiklīdz lietotnes ir izskatītas un atzīmētas kā būtiskas, piešķir uzdevumus dalībniekiem nomainīt savas paroles!"
   },
   "sendReminders": {
     "message": "Nosūtīt atgādinājumus"
@@ -179,13 +179,13 @@
     }
   },
   "noDataInOrgTitle": {
-    "message": "No data found"
+    "message": "Dati netika atrasti"
   },
   "noDataInOrgDescription": {
-    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
+    "message": "Ievieto savas apvienības pieteikšanās datus, lai uzsāktu Access Intelligence izmantošanu. Tiklīdz to izdarīsi, varēsi:"
   },
   "feature1Title": {
-    "message": "Mark applications as critical"
+    "message": "Atzīmēt lietotnes kā būtiskas"
   },
   "feature1Description": {
     "message": "This will help you remove risks to your most important applications first."
@@ -5810,7 +5810,7 @@
     "description": "This is the policy description shown in the policy list."
   },
   "organizationDataOwnershipDescContent": {
-    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the ",
+    "message": "Visi vienumi piederēs apvienībai un tiks tajā saglabāti, iespējojot visaptverošu pārvaldību, redzamību un ziņošanu apvienībā. Kad ieslēgta, noklusējuma krājums, kurā glabātat vienumus, būs pieejams katram dalībniekam. Uzzināt vairāk par ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
@@ -9820,6 +9820,14 @@
     "message": "Pārāk dārgi",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "switchToFreePlan": {
+    "message": "Pārslēdzas uz bezmaksas plānu",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "switchToFreeOrg": {
+    "message": "Pārslēdzas uz bezmaksas apvienību",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "1 gadu bez maksas"
   },
@@ -11339,14 +11347,6 @@
   "openedExtensionViewAtRiskPasswords": {
     "message": "Bitwarden pārlūka paplašinājums tika veiksmīgi atvērts. Tagad var pārskatīt savas riskam pakļautās paroles."
   },
-  "openExtensionManuallyPart1": {
-    "message": "Mums bija sarežģījumi Bitwarden pārlūka paplašinājuma atvēršanā. Rīkjoslā jāatver Bitwarden ikona",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
-  "openExtensionManuallyPart2": {
-    "message": "rīkjoslā.",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
   "resellerRenewalWarningMsg": {
     "message": "Abonements drīz tiks atjaunots. Lai nodrošinātu nepārtrauktu pakalpojumu, pirms $RENEWAL_DATE$ jāsazinās ar $RESELLER$, lai apstiprinātu atjaunošanu.",
     "placeholders": {
@@ -11667,11 +11667,8 @@
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden paplašinājums uzstādīts."
   },
-  "openTheBitwardenExtension": {
-    "message": "Atvērt Bitwarden paplašinājumu"
-  },
-  "bitwardenExtensionInstalledOpenExtension": {
-    "message": "Bitwarden paplašinājums ir uzstādīts. Atver paplašinājumu, lai pieteiktos un sāktu automātsko aizpildīšanu!"
+  "bitwardenExtensionIsInstalled": {
+    "message": "Bitwarden paplašinājums ir uzstādīts."
   },
   "openExtensionToAutofill": {
     "message": "Jāatver paplašinājums, lai pieteiktos un uzsāktu automātisko aizpildi."
@@ -11686,6 +11683,14 @@
   "gettingStartedWithBitwardenPart2": {
     "message": "Mācīšanāš centrs",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "openExtensionFromToolbarPart1": {
+    "message": "Ja paplašinājums neatvērās, var būt nepieciešams atvērt Bitwarden ar ikonu ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
+  },
+  "openExtensionFromToolbarPart2": {
+    "message": " rīkjoslā.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "gettingStartedWithBitwardenPart3": {
     "message": "Palīdzības centrs",
@@ -12119,13 +12124,13 @@
     "message": "Uzsākt ģimenes plāna bezmaksas izmēģinājumu"
   },
   "blockClaimedDomainAccountCreation": {
-    "message": "Block account creation for claimed domains"
+    "message": "Liegt konta izveidošanu pieteiktajiem domēniem"
   },
   "blockClaimedDomainAccountCreationDesc": {
-    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
+    "message": "Neļaut lietotājiem kontu izveidošanu ārpus apvienības ar e-pasta adresēm no pieteikajiem domēniem."
   },
   "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "A domain must be claimed before activating this policy."
+    "message": "Domēnam jābūt pieteiktam pirms šīs pamatnostādnes aktivēšanas."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Jāuzstāda atslēgšanas veids, lai mainītu glabātavas noildzes darbību."
@@ -12166,5 +12171,8 @@
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Vai tiešām turpināt?"
+  },
+  "userVerificationFailed": {
+    "message": "Lietotāja apliecināšana neizdevās."
   }
 }
