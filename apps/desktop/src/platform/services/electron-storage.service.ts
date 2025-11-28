@@ -10,6 +10,7 @@ import {
   AbstractStorageService,
   StorageUpdate,
 } from "@bitwarden/common/platform/abstractions/storage.service";
+import { LogService } from "@bitwarden/logging";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
 import { isWindowsPortable } from "../../utils";
@@ -30,7 +31,11 @@ export class ElectronStorageService implements AbstractStorageService {
   private updatesSubject = new Subject<StorageUpdate>();
   updates$;
 
-  constructor(dir: string, defaults = {}) {
+  constructor(
+    private logService: LogService,
+    dir: string,
+    defaults = {},
+  ) {
     if (!fs.existsSync(dir)) {
       NodeUtils.mkdirpSync(dir, "700");
     }
@@ -39,7 +44,9 @@ export class ElectronStorageService implements AbstractStorageService {
       defaults: defaults,
       name: "data",
       configFileMode: fileMode,
+      clearInvalidConfig: true,
     };
+
     this.store = new ElectronStore(storeConfig);
     this.updates$ = this.updatesSubject.asObservable();
 
@@ -62,13 +69,31 @@ export class ElectronStorageService implements AbstractStorageService {
   }
 
   get<T>(key: string): Promise<T> {
-    const val = this.store.get(key) as T;
-    return Promise.resolve(val != null ? val : null);
+    try {
+      const val = this.store.get(key) as T;
+      return Promise.resolve(val != null ? val : null);
+    } catch (error) {
+      // If we fail to get a value due to deserialization error, log and return null
+      this.logService.error("Error retrieving value from ElectronStore", key, error);
+      // Attempt to remove the corrupted key
+      try {
+        this.store.delete(key);
+      } catch {
+        // Ignore errors during cleanup
+      }
+      return Promise.resolve(null);
+    }
   }
 
   has(key: string): Promise<boolean> {
-    const val = this.store.get(key);
-    return Promise.resolve(val != null);
+    try {
+      const val = this.store.get(key);
+      return Promise.resolve(val != null);
+    } catch (error) {
+      // If we fail to check due to deserialization error, treat as not existing
+      this.logService.error("Error checking for key existence in ElectronStore", key, error);
+      return Promise.resolve(false);
+    }
   }
 
   save(key: string, obj: unknown): Promise<void> {
@@ -80,14 +105,24 @@ export class ElectronStorageService implements AbstractStorageService {
       obj = Array.from(obj);
     }
 
-    this.store.set(key, obj);
-    this.updatesSubject.next({ key, updateType: "save" });
-    return Promise.resolve();
+    try {
+      this.store.set(key, obj);
+      this.updatesSubject.next({ key, updateType: "save" });
+      return Promise.resolve();
+    } catch (error) {
+      this.logService.error("Error saving value to ElectronStore", key, error);
+      return Promise.reject(error);
+    }
   }
 
   remove(key: string): Promise<void> {
-    this.store.delete(key);
-    this.updatesSubject.next({ key, updateType: "remove" });
-    return Promise.resolve();
+    try {
+      this.store.delete(key);
+      this.updatesSubject.next({ key, updateType: "remove" });
+      return Promise.resolve();
+    } catch (error) {
+      this.logService.error("Error removing from ElectronStore", key, error);
+      return Promise.reject(error);
+    }
   }
 }
