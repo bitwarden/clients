@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   },
+  "upgradeToUseArchive": {
+    "message": "A premium membership is required to use Archive."
+  },
   "edit": {
     "message": "Muokkaa"
   },
@@ -593,6 +596,9 @@
   },
   "viewAll": {
     "message": "Näytä kaikki"
+  },
+  "showAll": {
+    "message": "Show all"
   },
   "viewLess": {
     "message": "View less"
@@ -1867,6 +1873,9 @@
   "expirationYear": {
     "message": "Erääntymisvuosi"
   },
+  "monthly": {
+    "message": "month"
+  },
   "expiration": {
     "message": "Voimassaolo päättyy"
   },
@@ -2435,6 +2444,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
   },
   "setMasterPassword": {
     "message": "Aseta pääsalasana"
@@ -4899,6 +4911,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Unlock reporting, emergency access, and more security features with Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Ilmaiset organisaatiot eivät voi käyttää liitteitä"
   },
@@ -4984,7 +4999,7 @@
     }
   },
   "defaultLabelWithValue": {
-    "message": "Default ( $VALUE$ )",
+    "message": "Oletus  ( $VALUE$ )",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5656,7 +5671,7 @@
     "message": "Close this tab"
   },
   "phishingPageContinueV2": {
-    "message": "Continue to this site (not recommended)"
+    "message": "Jatka tälle sivustolle (ei suositeltavaa)"
   },
   "phishingPageExplanation1": {
     "message": "This site was found in ",
@@ -5773,7 +5788,7 @@
     "message": "Show less"
   },
   "next": {
-    "message": "Next"
+    "message": "Seuraava"
   },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
@@ -5809,21 +5824,30 @@
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
   },
+  "unlockAdvancedSecurity": {
+    "message": "Unlock advanced security features"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "A Premium subscription gives you more tools to stay secure and in control"
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
   "loadingVault": {
-    "message": "Loading vault"
+    "message": "Ladataan holvia"
   },
   "vaultLoaded": {
-    "message": "Vault loaded"
+    "message": "Holvi ladattu"
   },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "Postinumero"
   },
   "cardNumberLabel": {
-    "message": "Card number"
+    "message": "Kortin numero"
   },
   "sessionTimeoutSettingsAction": {
     "message": "Timeout action"

@@ -47,7 +47,7 @@ class StoryDialogComponent {
   }
 
   openDialogNonDismissable() {
-    this.dialogService.open(NonDismissableContent, {
+    this.dialogService.open(NonDismissableContentComponent, {
       data: {
         animal: "panda",
       },
@@ -117,7 +117,7 @@ class StoryDialogContentComponent {
   `,
   imports: [DialogModule, ButtonModule],
 })
-class NonDismissableContent {
+class NonDismissableContentComponent {
   constructor(
     public dialogRef: DialogRef,
     @Inject(DIALOG_DATA) private data: Animal,

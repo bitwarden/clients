@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Os itens arquivados são excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático. Tem a certeza de que pretende arquivar este item?"
   },
+  "upgradeToUseArchive": {
+    "message": "É necessária uma subscrição Premium para utilizar o Arquivo."
+  },
   "edit": {
     "message": "Editar"
   },
@@ -593,6 +596,9 @@
   },
   "viewAll": {
     "message": "Ver tudo"
+  },
+  "showAll": {
+    "message": "Mostrar tudo"
   },
   "viewLess": {
     "message": "Ver menos"
@@ -1867,6 +1873,9 @@
   "expirationYear": {
     "message": "Ano de validade"
   },
+  "monthly": {
+    "message": "mês"
+  },
   "expiration": {
     "message": "Prazo de validade"
   },
@@ -2435,6 +2444,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Esta página está a interferir com a experiência do Bitwarden. O menu em linha do Bitwarden foi temporariamente desativado como medida de segurança."
   },
   "setMasterPassword": {
     "message": "Definir a palavra-passe mestra"
@@ -4899,6 +4911,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Desbloqueie relatórios, acesso de emergência e outras funcionalidades de segurança com o Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "As organizações gratuitas não podem utilizar anexos"
   },
@@ -5808,6 +5823,15 @@
   },
   "upgradeToPremium": {
     "message": "Atualizar para o Premium"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Desbloqueie funcionalidades de segurança avançadas"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "Uma subscrição Premium dá-lhe ferramentas adicionais para reforçar a sua segurança e manter o controlo"
+  },
+  "explorePremium": {
+    "message": "Explorar o Premium"
   },
   "loadingVault": {
     "message": "A carregar o cofre"

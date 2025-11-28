@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Архівовані записи виключаються з результатів звичайного пошуку та пропозицій автозаповнення. Ви дійсно хочете архівувати цей запис?"
   },
+  "upgradeToUseArchive": {
+    "message": "A premium membership is required to use Archive."
+  },
   "edit": {
     "message": "Змінити"
   },
@@ -593,6 +596,9 @@
   },
   "viewAll": {
     "message": "Переглянути все"
+  },
+  "showAll": {
+    "message": "Show all"
   },
   "viewLess": {
     "message": "View less"
@@ -1867,6 +1873,9 @@
   "expirationYear": {
     "message": "Рік завершення"
   },
+  "monthly": {
+    "message": "month"
+  },
   "expiration": {
     "message": "Термін дії"
   },
@@ -2435,6 +2444,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
   },
   "setMasterPassword": {
     "message": "Встановити головний пароль"
@@ -4899,6 +4911,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Unlock reporting, emergency access, and more security features with Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Організації без передплати не можуть використовувати вкладення"
   },
@@ -5808,6 +5823,15 @@
   },
   "upgradeToPremium": {
     "message": "Покращити до Premium"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Unlock advanced security features"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "A Premium subscription gives you more tools to stay secure and in control"
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
   },
   "loadingVault": {
     "message": "Loading vault"

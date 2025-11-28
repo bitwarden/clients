@@ -102,7 +102,6 @@ import { MasterPasswordApiService as MasterPasswordApiServiceAbstraction } from 
 import { PasswordResetEnrollmentServiceAbstraction } from "@bitwarden/common/auth/abstractions/password-reset-enrollment.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/abstractions/token.service";
-import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification-api.service.abstraction";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
@@ -125,13 +124,17 @@ import { OrganizationInviteService } from "@bitwarden/common/auth/services/organ
 import { PasswordResetEnrollmentServiceImplementation } from "@bitwarden/common/auth/services/password-reset-enrollment.service.implementation";
 import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login.service";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
-import { TwoFactorService } from "@bitwarden/common/auth/services/two-factor.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
 import { WebAuthnLoginApiService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-api.service";
 import { WebAuthnLoginPrfKeyService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-prf-key.service";
 import { WebAuthnLoginService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login.service";
-import { TwoFactorApiService, DefaultTwoFactorApiService } from "@bitwarden/common/auth/two-factor";
+import {
+  TwoFactorApiService,
+  DefaultTwoFactorApiService,
+  TwoFactorService,
+  DefaultTwoFactorService,
+} from "@bitwarden/common/auth/two-factor";
 import {
   AutofillSettingsService,
   AutofillSettingsServiceAbstraction,
@@ -220,6 +223,7 @@ import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platfor
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
@@ -258,6 +262,7 @@ import { FileUploadService } from "@bitwarden/common/platform/services/file-uplo
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
+import { DefaultRegisterSdkService } from "@bitwarden/common/platform/services/sdk/register-sdk.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { ValidationService } from "@bitwarden/common/platform/services/validation.service";
@@ -527,7 +532,7 @@ const safeProviders: SafeProvider[] = [
       KeyConnectorServiceAbstraction,
       EnvironmentService,
       StateServiceAbstraction,
-      TwoFactorServiceAbstraction,
+      TwoFactorService,
       I18nServiceAbstraction,
       EncryptService,
       PasswordStrengthServiceAbstraction,
@@ -681,7 +686,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: InternalUserDecryptionOptionsServiceAbstraction,
     useClass: UserDecryptionOptionsService,
-    deps: [StateProvider],
+    deps: [SingleUserStateProvider],
   }),
   safeProvider({
     provide: UserDecryptionOptionsServiceAbstraction,
@@ -1165,9 +1170,14 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
-    provide: TwoFactorServiceAbstraction,
-    useClass: TwoFactorService,
-    deps: [I18nServiceAbstraction, PlatformUtilsServiceAbstraction, GlobalStateProvider],
+    provide: TwoFactorService,
+    useClass: DefaultTwoFactorService,
+    deps: [
+      I18nServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
+      GlobalStateProvider,
+      TwoFactorApiService,
+    ],
   }),
   safeProvider({
     provide: FormValidationErrorsServiceAbstraction,
@@ -1284,6 +1294,7 @@ const safeProviders: SafeProvider[] = [
       UserDecryptionOptionsServiceAbstraction,
       LogService,
       ConfigService,
+      AccountServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -1451,7 +1462,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: OrganizationMetadataServiceAbstraction,
     useClass: DefaultOrganizationMetadataService,
-    deps: [BillingApiServiceAbstraction, ConfigService],
+    deps: [BillingApiServiceAbstraction, ConfigService, PlatformUtilsServiceAbstraction],
   }),
   safeProvider({
     provide: BillingAccountProfileStateService,
@@ -1575,6 +1586,19 @@ const safeProviders: SafeProvider[] = [
       PasswordGenerationServiceAbstraction,
       PlatformUtilsServiceAbstraction,
       SsoLoginServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: RegisterSdkService,
+    useClass: DefaultRegisterSdkService,
+    deps: [
+      SdkClientFactory,
+      EnvironmentService,
+      PlatformUtilsServiceAbstraction,
+      AccountServiceAbstraction,
+      ApiServiceAbstraction,
+      StateProvider,
+      ConfigService,
     ],
   }),
   safeProvider({

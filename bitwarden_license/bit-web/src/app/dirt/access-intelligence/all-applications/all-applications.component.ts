@@ -1,20 +1,23 @@
-import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import {
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  ChangeDetectionStrategy,
+  signal,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { debounceTime } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
-import {
-  ApplicationHealthReportDetailEnriched,
-  RiskInsightsDataService,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { RiskInsightsDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { createNewSummaryData } from "@bitwarden/bit-common/dirt/reports/risk-insights/helpers";
 import {
   OrganizationReportSummary,
   ReportStatus,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   IconButtonModule,
@@ -29,12 +32,14 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
-import { AppTableRowScrollableComponent } from "../shared/app-table-row-scrollable.component";
+import {
+  ApplicationTableDataSource,
+  AppTableRowScrollableComponent,
+} from "../shared/app-table-row-scrollable.component";
 import { ApplicationsLoadingComponent } from "../shared/risk-insights-loading.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "dirt-all-applications",
   templateUrl: "./all-applications.component.html",
   imports: [
@@ -51,24 +56,25 @@ import { ApplicationsLoadingComponent } from "../shared/risk-insights-loading.co
   ],
 })
 export class AllApplicationsComponent implements OnInit {
-  protected dataSource = new TableDataSource<ApplicationHealthReportDetailEnriched>();
-  protected selectedUrls: Set<string> = new Set<string>();
-  protected searchControl = new FormControl("", { nonNullable: true });
-  protected organization = new Organization();
-  noItemsIcon = Security;
-  protected markingAsCritical = false;
-  protected applicationSummary: OrganizationReportSummary = createNewSummaryData();
-  protected ReportStatusEnum = ReportStatus;
-
   destroyRef = inject(DestroyRef);
+
+  protected ReportStatusEnum = ReportStatus;
+  protected noItemsIcon = Security;
+
+  // Standard properties
+  protected readonly dataSource = new TableDataSource<ApplicationTableDataSource>();
+  protected readonly searchControl = new FormControl("", { nonNullable: true });
+
+  // Template driven properties
+  protected readonly selectedUrls = signal(new Set<string>());
+  protected readonly markingAsCritical = signal(false);
+  protected readonly applicationSummary = signal<OrganizationReportSummary>(createNewSummaryData());
 
   constructor(
     protected i18nService: I18nService,
     protected activatedRoute: ActivatedRoute,
     protected toastService: ToastService,
     protected dataService: RiskInsightsDataService,
-    private router: Router,
-    // protected allActivitiesService: AllActivitiesService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
@@ -78,8 +84,21 @@ export class AllApplicationsComponent implements OnInit {
   async ngOnInit() {
     this.dataService.enrichedReportData$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (report) => {
-        this.applicationSummary = report?.summaryData ?? createNewSummaryData();
-        this.dataSource.data = report?.reportData ?? [];
+        if (report != null) {
+          this.applicationSummary.set(report.summaryData);
+
+          // Map the report data to include the iconCipher for each application
+          const tableDataWithIcon = report.reportData.map((app) => ({
+            ...app,
+            iconCipher:
+              app.cipherIds.length > 0
+                ? this.dataService.getCipherIcon(app.cipherIds[0])
+                : undefined,
+          }));
+          this.dataSource.data = tableDataWithIcon;
+        } else {
+          this.dataSource.data = [];
+        }
       },
       error: () => {
         this.dataSource.data = [];
@@ -88,15 +107,15 @@ export class AllApplicationsComponent implements OnInit {
   }
 
   isMarkedAsCriticalItem(applicationName: string) {
-    return this.selectedUrls.has(applicationName);
+    return this.selectedUrls().has(applicationName);
   }
 
   markAppsAsCritical = async () => {
-    this.markingAsCritical = true;
-    const count = this.selectedUrls.size;
+    this.markingAsCritical.set(true);
+    const count = this.selectedUrls().size;
 
     this.dataService
-      .saveCriticalApplications(Array.from(this.selectedUrls))
+      .saveCriticalApplications(Array.from(this.selectedUrls()))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -105,8 +124,8 @@ export class AllApplicationsComponent implements OnInit {
             title: "",
             message: this.i18nService.t("criticalApplicationsMarkedSuccess", count.toString()),
           });
-          this.selectedUrls.clear();
-          this.markingAsCritical = false;
+          this.selectedUrls.set(new Set<string>());
+          this.markingAsCritical.set(false);
         },
         error: () => {
           this.toastService.showToast({
@@ -125,9 +144,15 @@ export class AllApplicationsComponent implements OnInit {
   onCheckboxChange = (applicationName: string, event: Event) => {
     const isChecked = (event.target as HTMLInputElement).checked;
     if (isChecked) {
-      this.selectedUrls.add(applicationName);
+      this.selectedUrls.update((selectedUrls) => {
+        selectedUrls.add(applicationName);
+        return selectedUrls;
+      });
     } else {
-      this.selectedUrls.delete(applicationName);
+      this.selectedUrls.update((selectedUrls) => {
+        selectedUrls.delete(applicationName);
+        return selectedUrls;
+      });
     }
   };
 }
