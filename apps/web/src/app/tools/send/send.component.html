@@ -80,13 +80,13 @@
       </div>
     </div>
   </div>
-  <div class="tw-col-span-9 tw-@container">
+  <div class="tw-col-span-9 tw-@container/sendTable">
     <!--Listing Table-->
     <bit-table [dataSource]="dataSource" *ngIf="filteredSends && filteredSends.length">
       <ng-container header>
         <tr>
           <th bitCell bitSortable="name" default>{{ "name" | i18n }}</th>
-          <th bitCell bitSortable="deletionDate" class="@lg:tw-table-cell tw-hidden">
+          <th bitCell bitSortable="deletionDate" class="@sendTable/lg:tw-table-cell tw-hidden">
             {{ "deletionDate" | i18n }}
           </th>
           <th bitCell>{{ "options" | i18n }}</th>
