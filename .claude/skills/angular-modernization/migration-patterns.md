@@ -12,10 +12,11 @@
 
 ### Standalone Components
 
+Angular defaults to standalone components. Components should omit `standalone: true`, and any component specifying `standalone: false` SHALL be migrated to standalone.
+
 ```typescript
 @Component({
   selector: "app-user-profile",
-  standalone: true,
   imports: [CommonModule, ReactiveFormsModule, AsyncPipe],
   templateUrl: "./user-profile.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
