@@ -55,6 +55,7 @@ export abstract class BiometricStateService {
 
   /**
    * Gets the biometric unlock enabled state for the given user.
+   * @deprecated Use {@link biometricUnlockEnabled$} instead
    * @param userId user Id to check
    */
   abstract getBiometricUnlockEnabled(userId: UserId): Promise<boolean>;
