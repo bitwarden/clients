@@ -111,8 +111,9 @@ export class ElectronStorageService implements AbstractStorageService {
       // Attempt to remove the corrupted key
       try {
         this.store.delete(key);
-      } catch {
+      } catch (cleanupError) {
         // Ignore errors during cleanup
+        this.logService.debug("Failed to clean up corrupted key", key, cleanupError);
       }
       return Promise.resolve(null);
     }
