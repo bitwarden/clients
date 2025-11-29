@@ -32,11 +32,6 @@ export class PinStateService implements PinStateServiceAbstraction {
     return this.pinLockType$(userId).pipe(map((pinLockType) => pinLockType !== "DISABLED"));
   }
 
-  async isPinSet(userId: UserId): Promise<boolean> {
-    assertNonNullish(userId, "userId");
-    return (await this.getPinLockType(userId)) !== "DISABLED";
-  }
-
   pinLockType$(userId: UserId): Observable<PinLockType> {
     assertNonNullish(userId, "userId");
 
