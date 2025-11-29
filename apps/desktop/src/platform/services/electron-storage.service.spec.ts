@@ -1,6 +1,7 @@
 import * as fs from "fs";
 
 import { ipcMain } from "electron";
+import ElectronStore from "electron-store";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/logging";
@@ -37,6 +38,9 @@ jest.mock("electron-store", () => {
   };
 });
 
+// Get reference to the mocked constructor after the mock is set up
+const mockStoreConstructor = ElectronStore as unknown as jest.Mock;
+
 describe("ElectronStorageService", () => {
   let service: ElectronStorageService;
   let logService: MockProxy<LogService>;
@@ -50,6 +54,10 @@ describe("ElectronStorageService", () => {
     mockStoreInstance.set.mockReset();
     mockStoreInstance.delete.mockReset();
     mockStoreInstance.has.mockReset();
+
+    // Reset the constructor mock to return the store instance successfully
+    mockStoreConstructor.mockClear();
+    mockStoreConstructor.mockImplementation(() => mockStoreInstance);
 
     logService = mock<LogService>();
     (fs.existsSync as jest.Mock).mockReturnValue(true);
@@ -74,6 +82,180 @@ describe("ElectronStorageService", () => {
 
     it("should register IPC handler", () => {
       expect(ipcMain.handle).toHaveBeenCalledWith("storageService", expect.any(Function));
+    });
+  });
+
+  describe("Constructor Error Recovery", () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      mockStoreConstructor.mockClear();
+
+      // Reset fs methods to their default mocks
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.renameSync as jest.Mock) = jest.fn();
+      (fs.unlinkSync as jest.Mock) = jest.fn();
+
+      logService = mock<LogService>();
+    });
+
+    it("should initialize successfully when ElectronStore does not throw", () => {
+      mockStoreConstructor.mockImplementation(() => mockStoreInstance);
+      expect(() => new ElectronStorageService(logService, testDir)).not.toThrow();
+      expect(logService.error).not.toHaveBeenCalled();
+    });
+
+    it("should backup corrupted file and retry when initialization fails", () => {
+      // Mock the constructor to throw once, then succeed
+      mockStoreConstructor
+        .mockImplementationOnce(() => {
+          throw new SyntaxError("Unexpected token in JSON at position 22");
+        })
+        .mockImplementationOnce(() => mockStoreInstance);
+
+      const dataFilePath = `${testDir}/data.json`;
+      (fs.existsSync as jest.Mock).mockImplementation((path: string) => {
+        return path === testDir || path === dataFilePath;
+      });
+
+      const testService = new ElectronStorageService(logService, testDir);
+
+      expect(testService).toBeDefined();
+      expect(logService.error).toHaveBeenCalledWith(
+        "ElectronStore initialization failed, attempting recovery",
+        expect.any(SyntaxError),
+      );
+      expect(fs.renameSync).toHaveBeenCalledWith(
+        dataFilePath,
+        expect.stringMatching(/data\.json\.corrupt\.\d+/),
+      );
+      expect(logService.warning).toHaveBeenCalledWith(
+        expect.stringMatching(/Backed up corrupted data file to/),
+      );
+      expect(logService.info).toHaveBeenCalledWith("ElectronStore recovered successfully");
+      expect(mockStoreConstructor).toHaveBeenCalledTimes(2);
+    });
+
+    it("should delete file if backup fails", () => {
+      mockStoreConstructor
+        .mockImplementationOnce(() => {
+          throw new SyntaxError("Unexpected token in JSON");
+        })
+        .mockImplementationOnce(() => mockStoreInstance);
+
+      const dataFilePath = `${testDir}/data.json`;
+      (fs.existsSync as jest.Mock).mockImplementation((path: string) => {
+        return path === testDir || path === dataFilePath;
+      });
+      (fs.renameSync as jest.Mock).mockImplementation(() => {
+        throw new Error("Permission denied");
+      });
+
+      const testService = new ElectronStorageService(logService, testDir);
+
+      expect(testService).toBeDefined();
+      expect(logService.error).toHaveBeenCalledWith(
+        "Failed to backup corrupted file",
+        expect.any(Error),
+      );
+      expect(fs.unlinkSync).toHaveBeenCalledWith(dataFilePath);
+      expect(logService.warning).toHaveBeenCalledWith("Deleted corrupted data file");
+      expect(logService.info).toHaveBeenCalledWith("ElectronStore recovered successfully");
+    });
+
+    it("should log error if both backup and delete fail", () => {
+      mockStoreConstructor
+        .mockImplementationOnce(() => {
+          throw new SyntaxError("Unexpected token in JSON");
+        })
+        .mockImplementationOnce(() => mockStoreInstance);
+
+      const dataFilePath = `${testDir}/data.json`;
+      (fs.existsSync as jest.Mock).mockImplementation((path: string) => {
+        return path === testDir || path === dataFilePath;
+      });
+      (fs.renameSync as jest.Mock).mockImplementation(() => {
+        throw new Error("Permission denied");
+      });
+      (fs.unlinkSync as jest.Mock).mockImplementation(() => {
+        throw new Error("Permission denied");
+      });
+
+      const testService = new ElectronStorageService(logService, testDir);
+
+      expect(testService).toBeDefined();
+      expect(logService.error).toHaveBeenCalledWith(
+        "Failed to backup corrupted file",
+        expect.any(Error),
+      );
+      expect(logService.error).toHaveBeenCalledWith(
+        "Failed to delete corrupted file",
+        expect.any(Error),
+      );
+      // Should still recover if retry succeeds
+      expect(logService.info).toHaveBeenCalledWith("ElectronStore recovered successfully");
+    });
+
+    it("should not attempt file operations if data file does not exist", () => {
+      mockStoreConstructor
+        .mockImplementationOnce(() => {
+          throw new SyntaxError("Unexpected token in JSON");
+        })
+        .mockImplementationOnce(() => mockStoreInstance);
+
+      (fs.existsSync as jest.Mock).mockImplementation((path: string) => {
+        return path === testDir; // Only dir exists, not the data file
+      });
+
+      const testService = new ElectronStorageService(logService, testDir);
+
+      expect(testService).toBeDefined();
+      expect(fs.renameSync).not.toHaveBeenCalled();
+      expect(fs.unlinkSync).not.toHaveBeenCalled();
+      expect(logService.info).toHaveBeenCalledWith("ElectronStore recovered successfully");
+    });
+
+    it("should throw error if recovery fails", () => {
+      const recoveryError = new Error("Failed to create store after cleanup");
+      mockStoreConstructor.mockImplementation(() => {
+        throw recoveryError;
+      });
+
+      const dataFilePath = `${testDir}/data.json`;
+      (fs.existsSync as jest.Mock).mockImplementation((path: string) => {
+        return path === testDir || path === dataFilePath;
+      });
+
+      expect(() => new ElectronStorageService(logService, testDir)).toThrow(recoveryError);
+      expect(logService.error).toHaveBeenCalledWith(
+        "Failed to recover ElectronStore",
+        recoveryError,
+      );
+    });
+
+    it("should use timestamp in backup filename", () => {
+      const mockTimestamp = 1234567890123;
+      const originalDateNow = Date.now;
+      Date.now = jest.fn(() => mockTimestamp);
+
+      mockStoreConstructor
+        .mockImplementationOnce(() => {
+          throw new SyntaxError("Unexpected token in JSON");
+        })
+        .mockImplementationOnce(() => mockStoreInstance);
+
+      const dataFilePath = `${testDir}/data.json`;
+      (fs.existsSync as jest.Mock).mockImplementation((path: string) => {
+        return path === testDir || path === dataFilePath;
+      });
+
+      new ElectronStorageService(logService, testDir);
+
+      expect(fs.renameSync).toHaveBeenCalledWith(
+        dataFilePath,
+        `${testDir}/data.json.corrupt.${mockTimestamp}`,
+      );
+
+      Date.now = originalDateNow;
     });
   });
 

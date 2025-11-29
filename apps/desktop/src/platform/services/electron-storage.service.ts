@@ -46,7 +46,41 @@ export class ElectronStorageService implements AbstractStorageService {
       configFileMode: fileMode,
     };
 
-    this.store = new ElectronStore(storeConfig);
+    try {
+      this.store = new ElectronStore(storeConfig);
+    } catch (error) {
+      // If initialization fails due to corrupted JSON, backup and recreate
+      this.logService.error("ElectronStore initialization failed, attempting recovery", error);
+
+      const dataFilePath = `${dir}/data.json`;
+      if (fs.existsSync(dataFilePath)) {
+        try {
+          // Backup the corrupted file
+          const backupPath = `${dir}/data.json.corrupt.${Date.now()}`;
+          fs.renameSync(dataFilePath, backupPath);
+          this.logService.warning(`Backed up corrupted data file to ${backupPath}`);
+        } catch (backupError) {
+          this.logService.error("Failed to backup corrupted file", backupError);
+          // If backup fails, try to delete the corrupted file
+          try {
+            fs.unlinkSync(dataFilePath);
+            this.logService.warning("Deleted corrupted data file");
+          } catch (deleteError) {
+            this.logService.error("Failed to delete corrupted file", deleteError);
+          }
+        }
+      }
+
+      // Try to create the store again with a clean slate
+      try {
+        this.store = new ElectronStore(storeConfig);
+        this.logService.info("ElectronStore recovered successfully");
+      } catch (retryError) {
+        this.logService.error("Failed to recover ElectronStore", retryError);
+        throw retryError;
+      }
+    }
+
     this.updates$ = this.updatesSubject.asObservable();
 
     ipcMain.handle("storageService", (event, options: Options) => {
