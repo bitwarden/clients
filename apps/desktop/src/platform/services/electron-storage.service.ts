@@ -44,7 +44,6 @@ export class ElectronStorageService implements AbstractStorageService {
       defaults: defaults,
       name: "data",
       configFileMode: fileMode,
-      clearInvalidConfig: true,
     };
 
     this.store = new ElectronStore(storeConfig);
