@@ -4,8 +4,8 @@ import { chromium_importer } from "@bitwarden/desktop-napi";
 
 export class ChromiumImporterService {
   constructor() {
-    ipcMain.handle("chromium_importer.getMetadata", async (event) => {
-      return await chromium_importer.getMetadata();
+    ipcMain.handle("chromium_importer.getMetadata", async (event, isMas: boolean) => {
+      return await chromium_importer.getMetadata(isMas);
     });
 
     // Used on Mac OS App Store builds to request permissions to browser entries outside the sandbox

@@ -14,10 +14,11 @@ static BrowserAccessManager* getManager() {
     return sharedManager;
 }
 
-char* requestBrowserAccess(const char* browserName) {
+char* requestBrowserAccess(const char* browserName, const char* relativePath) {
     @autoreleasepool {
         NSString* name = [NSString stringWithUTF8String:browserName];
-        NSString* result = [getManager() requestAccessToBrowserDir:name];
+        NSString* path = [NSString stringWithUTF8String:relativePath];
+        NSString* result = [getManager() requestAccessToBrowserDir:name relativePath:path];
 
         if (result == nil) {
             return NULL;

@@ -51,25 +51,21 @@ pub enum LoginImportResult {
 }
 
 pub trait InstalledBrowserRetriever {
-    fn get_installed_browsers() -> Result<Vec<String>>;
+    fn get_installed_browsers(mas_build: bool) -> Result<Vec<String>>;
 }
 
 pub struct DefaultInstalledBrowserRetriever {}
 
 impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
-    fn get_installed_browsers() -> Result<Vec<String>> {
+    fn get_installed_browsers(mas_build: bool) -> Result<Vec<String>> {
         let mut browsers = Vec::with_capacity(SUPPORTED_BROWSER_MAP.len());
 
         #[allow(unused_variables)] // config only used outside of sandbox
         for (browser, config) in SUPPORTED_BROWSER_MAP.iter() {
-            #[cfg(all(target_os = "macos", feature = "sandbox"))]
-            {
-                // macOS sandbox mode: show all browsers, user will grant access when selected
+            if mas_build {
+                // show all browsers for MAS builds, user will grant access when selected
                 browsers.push((*browser).to_string());
-            }
-
-            #[cfg(not(all(target_os = "macos", feature = "sandbox")))]
-            {
+            } else {
                 // When not in sandbox check file system directly
                 let data_dir = get_browser_data_dir(config)?;
                 if data_dir.exists() {
@@ -91,7 +87,7 @@ pub fn get_available_profiles(browser_name: &str) -> Result<Vec<ProfileInfo>> {
 /// This shows the permission dialog and creates a security-scoped bookmark,
 #[cfg(all(target_os = "macos", feature = "sandbox"))]
 pub fn request_browser_access(browser_name: &str) -> Result<()> {
-    platform::ScopedBrowserAccess::request_only(browser_name)?;
+    platform::sandbox::ScopedBrowserAccess::request_only(browser_name)?;
 
     Ok(())
 }
@@ -99,7 +95,7 @@ pub fn request_browser_access(browser_name: &str) -> Result<()> {
 pub async fn import_logins(browser_name: &str, profile_id: &str) -> Result<Vec<LoginImportResult>> {
     // In sandbox mode, resume access to browser directory (use the formerly created bookmark)
     #[cfg(all(target_os = "macos", feature = "sandbox"))]
-    let _access = platform::ScopedBrowserAccess::resume(browser_name)?;
+    let _access = platform::sandbox::ScopedBrowserAccess::resume(browser_name)?;
 
     let (data_dir, local_state) = load_local_state_for_browser(browser_name)?;
 

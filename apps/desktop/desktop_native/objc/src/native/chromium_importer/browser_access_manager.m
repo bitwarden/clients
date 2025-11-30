@@ -3,31 +3,19 @@
 
 @implementation BrowserAccessManager {
     NSString *_bookmarkKey;
-    NSDictionary<NSString *, NSString *> *_browserPaths;
 }
 
 - (instancetype)init {
     self = [super init];
     if (self) {
         _bookmarkKey = @"com.bitwarden.chromiumImporter.bookmarks";
-
-        _browserPaths = @{
-            @"Chrome": @"Library/Application Support/Google/Chrome",
-            @"Chromium": @"Library/Application Support/Chromium",
-            @"Microsoft Edge": @"Library/Application Support/Microsoft Edge",
-            @"Brave": @"Library/Application Support/BraveSoftware/Brave-Browser",
-            @"Arc": @"Library/Application Support/Arc/User Data",
-            @"Opera": @"Library/Application Support/com.operasoftware.Opera",
-            @"Vivaldi": @"Library/Application Support/Vivaldi"
-        };
     }
     return self;
 }
 
-- (NSString *)requestAccessToBrowserDir:(NSString *)browserName {
+- (NSString *)requestAccessToBrowserDir:(NSString *)browserName relativePath:(NSString *)relativePath {
     // NSLog(@"[OBJC] requestAccessToBrowserDir called for: %@", browserName);
 
-    NSString *relativePath = _browserPaths[browserName];
     if (!relativePath) {
         // NSLog(@"[OBJC] Unknown browser: %@", browserName);
         return nil;

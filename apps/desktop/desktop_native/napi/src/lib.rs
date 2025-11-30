@@ -1166,11 +1166,13 @@ pub mod chromium_importer {
 
     #[napi]
     /// Returns OS aware metadata describing supported Chromium based importers as a JSON string.
-    pub fn get_metadata() -> HashMap<String, NativeImporterMetadata> {
-        chromium_importer::metadata::get_supported_importers::<DefaultInstalledBrowserRetriever>()
-            .into_iter()
-            .map(|(browser, metadata)| (browser, NativeImporterMetadata::from(metadata)))
-            .collect()
+    pub fn get_metadata(mas_build: bool) -> HashMap<String, NativeImporterMetadata> {
+        chromium_importer::metadata::get_supported_importers::<DefaultInstalledBrowserRetriever>(
+            mas_build,
+        )
+        .into_iter()
+        .map(|(browser, metadata)| (browser, NativeImporterMetadata::from(metadata)))
+        .collect()
     }
 
     #[napi]

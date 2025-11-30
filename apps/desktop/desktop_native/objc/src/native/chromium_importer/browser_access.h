@@ -6,7 +6,7 @@
 // Request user permission to access browser directory
 // Returns base64-encoded bookmark data, or NULL if declined
 // Caller must free returned string
-char* requestBrowserAccess(const char* browserName);
+char* requestBrowserAccess(const char* browserName, const char* relativePath);
 
 // Check if we have stored bookmark (doesn't verify validity)
 bool hasStoredBrowserAccess(const char* browserName);

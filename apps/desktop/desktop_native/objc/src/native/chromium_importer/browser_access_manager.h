@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Request access to a specific browser's directory
 /// Returns security bookmark data (used to persist permissions) as base64 string, or nil if user declined
-- (nullable NSString *)requestAccessToBrowserDir:(NSString *)browserName;
+- (nullable NSString *)requestAccessToBrowserDir:(NSString *)browserName relativePath:(NSString *)relativePath;
 
 /// Check if we have stored bookmark for browser (doesn't verify it's still valid)
 - (BOOL)hasStoredAccess:(NSString *)browserName;
