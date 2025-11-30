@@ -46,11 +46,11 @@ impl NamedPipeServerStream {
             loop {
                 info!("Waiting for connection");
                 select! {
-                    _ = cancellation_token.cancelled() => {
+                    () = cancellation_token.cancelled() => {
                         info!("[SSH Agent Native Module] Cancellation token triggered, stopping named pipe server");
                         break;
-                    }
-                    _ = listener.connect() => {
+                    },
+                    Ok(()) = listener.connect() => {
                         info!("[SSH Agent Native Module] Incoming connection");
                         let handle = HANDLE(listener.as_raw_handle());
                         let mut pid = 0;

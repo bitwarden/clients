@@ -15,6 +15,7 @@ pub struct PeerInfo {
 }
 
 impl PeerInfo {
+    #[must_use]
     pub fn new(uid: u32, pid: u32, process_name: String) -> Self {
         Self {
             uid,
@@ -25,6 +26,7 @@ impl PeerInfo {
         }
     }
 
+    #[must_use]
     pub fn unknown() -> Self {
         Self {
             uid: 0,
@@ -35,18 +37,22 @@ impl PeerInfo {
         }
     }
 
+    #[must_use]
     pub fn uid(&self) -> u32 {
         self.uid
     }
 
+    #[must_use]
     pub fn pid(&self) -> u32 {
         self.pid
     }
 
+    #[must_use]
     pub fn process_name(&self) -> &str {
         &self.process_name
     }
 
+    #[must_use]
     pub fn is_forwarding(&self) -> bool {
         self.is_forwarding
             .load(std::sync::atomic::Ordering::Relaxed)
@@ -57,11 +63,18 @@ impl PeerInfo {
             .store(value, std::sync::atomic::Ordering::Relaxed);
     }
 
+    /// # Panics
+    ///
+    /// This function panics if the underlying `host_key` mutex is poisoned.
     pub fn set_host_key(&self, host_key: Vec<u8>) {
         let mut host_key_lock = self.host_key.lock().expect("Mutex is not poisoned");
         *host_key_lock = host_key;
     }
 
+    /// # Panics
+    ///
+    /// This function panics if the underlying `host_key` mutex is poisoned.
+    #[must_use]
     pub fn host_key(&self) -> Vec<u8> {
         self.host_key.lock().expect("Mutex is not poisoned").clone()
     }

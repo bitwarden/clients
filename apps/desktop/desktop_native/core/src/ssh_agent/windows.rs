@@ -8,6 +8,7 @@ use tokio::sync::Mutex;
 use super::{BitwardenDesktopAgent, SshAgentUIRequest};
 
 impl BitwardenDesktopAgent {
+    #[allow(clippy::missing_errors_doc)]
     pub fn start_server(
         auth_request_tx: tokio::sync::mpsc::Sender<SshAgentUIRequest>,
         auth_response_rx: Arc<Mutex<tokio::sync::broadcast::Receiver<(u32, bool)>>>,
