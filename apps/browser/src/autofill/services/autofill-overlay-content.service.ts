@@ -963,13 +963,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     this.mostRecentlyFocusedField = formFieldElement;
-    const { paddingRight, paddingLeft } = globalThis.getComputedStyle(formFieldElement);
+    const { paddingRight, paddingLeft, direction } = globalThis.getComputedStyle(formFieldElement);
     const { width, height, top, left } =
       await this.getMostRecentlyFocusedFieldRects(formFieldElement);
     const autofillFieldData = this.formFieldElements.get(formFieldElement);
 
     this.focusedFieldData = {
-      focusedFieldStyles: { paddingRight, paddingLeft },
+      focusedFieldStyles: { paddingRight, paddingLeft, direction },
       focusedFieldRects: { width, height, top, left },
       inlineMenuFillType: autofillFieldData?.inlineMenuFillType,
       showPasskeys: !!autofillFieldData?.showPasskeys,
