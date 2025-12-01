@@ -3,6 +3,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -36,6 +37,7 @@ describe("DataRecoveryComponent", () => {
   let mockDialogService: MockProxy<DialogService>;
   let mockPrivateKeyRegenerationService: MockProxy<UserAsymmetricKeysRegenerationService>;
   let mockLogService: MockProxy<LogService>;
+  let mockCryptoFunctionService: MockProxy<CryptoFunctionService>;
 
   const mockUserId = "user-id" as UserId;
 
@@ -49,6 +51,7 @@ describe("DataRecoveryComponent", () => {
     mockDialogService = mock<DialogService>();
     mockPrivateKeyRegenerationService = mock<UserAsymmetricKeysRegenerationService>();
     mockLogService = mock<LogService>();
+    mockCryptoFunctionService = mock<CryptoFunctionService>();
 
     mockI18nService.t.mockImplementation((key: string) => key);
 
@@ -67,6 +70,7 @@ describe("DataRecoveryComponent", () => {
           useValue: mockPrivateKeyRegenerationService,
         },
         { provide: LogService, useValue: mockLogService },
+        { provide: CryptoFunctionService, useValue: mockCryptoFunctionService },
       ],
     }).compileComponents();
 
