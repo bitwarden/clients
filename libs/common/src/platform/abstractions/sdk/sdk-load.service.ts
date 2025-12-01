@@ -3,6 +3,8 @@ import { init_sdk, LogLevel } from "@bitwarden/sdk-internal";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used in docs
 import type { SdkService } from "./sdk.service";
 
+type PromiseWithGetters<T> = Promise<T> & { value?: T; requiredValue: T };
+
 export class SdkLoadFailedError extends Error {
   constructor(error: unknown) {
     super(`SDK loading failed: ${error}`);
@@ -38,8 +40,29 @@ export abstract class SdkLoadService {
    * @param fn The function to run after the SDK is ready.
    * @returns The result of the function.
    */
-  static readonly WithSdk = <T>(fn: () => T | Promise<T>): Promise<T> => {
-    return SdkLoadService.Ready.then(() => fn());
+  static readonly WithSdk = <T>(fn: () => T | Promise<T>): PromiseWithGetters<T> => {
+    let value: T | undefined = undefined;
+    const promise = SdkLoadService.Ready.then(() => fn()).then((result) => {
+      value = result;
+      return result;
+    });
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    Object.defineProperty(promise, "value", {
+      get() {
+        return value;
+      },
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    Object.defineProperty(promise, "requiredValue", {
+      get() {
+        if (value === undefined) {
+          throw new Error("SDK is not loaded yet");
+        }
+        return value;
+      },
+    });
+    return promise as PromiseWithGetters<T>;
   };
 
   /**

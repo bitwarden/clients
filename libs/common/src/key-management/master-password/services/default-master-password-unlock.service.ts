@@ -72,7 +72,7 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
     console.log("DefaultMasterPasswordUnlockService: unlockWithMasterPassword called");
 
     this.validateInput(masterPassword, userId);
-    span.record(await InputValidatedEvent, "Input validated");
+    span.event(await InputValidatedEvent, "Input validated");
 
     const masterPasswordUnlockData = await firstValueFrom(
       this.masterPasswordService.masterPasswordUnlockData$(userId),
@@ -86,10 +86,10 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
       masterPassword,
       masterPasswordUnlockData,
     );
-    span.record(await UserKeyUnwrappedEvent, "User key unwrapped");
+    span.event(await UserKeyUnwrappedEvent, "User key unwrapped");
 
     await this.setLegacyState(masterPassword, masterPasswordUnlockData, userId);
-    span.record(await LegacyStateSetEvent, "Legacy state set");
+    span.event(await LegacyStateSetEvent, "Legacy state set");
 
     return userKey;
   }

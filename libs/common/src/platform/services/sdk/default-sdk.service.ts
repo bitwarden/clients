@@ -26,6 +26,7 @@ import {
   EventDefinition,
   FieldValue,
   DeviceType as SdkDeviceType,
+  Span,
   SpanDefinition,
   TokenProvider,
   TracingLevel,
@@ -54,24 +55,33 @@ import { StateProvider } from "../../state";
 
 import { initializeState } from "./client-managed-state";
 
+const UserClientSpan = SdkLoadService.WithSdk(
+  () =>
+    new SpanDefinition("userClient$", "DefaultSdkService", TracingLevel.Info, [
+      "userId",
+      "hasOverride",
+    ]),
+);
+
 const InitializeClientSpan = SdkLoadService.WithSdk(
+  // TODO: We can remove userId because it's already in the parent span
   () => new SpanDefinition("initializeClient", "DefaultSdkService", TracingLevel.Info, ["userId"]),
 );
 
 const UserCryptoInitializedEvent = SdkLoadService.WithSdk(
-  () => new EventDefinition("userCryptoInitialized", "DefaultSdkService", TracingLevel.Info, []),
+  () => new EventDefinition("User crypto initialized", "DefaultSdkService", TracingLevel.Info, []),
 );
 
 const OrgCryptoInitializedEvent = SdkLoadService.WithSdk(
-  () => new EventDefinition("orgCryptoInitialized", "DefaultSdkService", TracingLevel.Info, []),
+  () => new EventDefinition("Org crypto initialized", "DefaultSdkService", TracingLevel.Info, []),
 );
 
 const ClientStateInitializedEvent = SdkLoadService.WithSdk(
-  () => new EventDefinition("clientStateInitialized", "DefaultSdkService", TracingLevel.Info, []),
+  () => new EventDefinition("Client state initialized", "DefaultSdkService", TracingLevel.Info, []),
 );
 
 const FeatureFlagsLoadedEvent = SdkLoadService.WithSdk(
-  () => new EventDefinition("featureFlagsLoaded", "DefaultSdkService", TracingLevel.Info, []),
+  () => new EventDefinition("Feature flags loaded", "DefaultSdkService", TracingLevel.Info, []),
 );
 
 // A symbol that represents an overridden client that is explicitly set to undefined,
@@ -136,6 +146,7 @@ export class DefaultSdkService implements SdkService {
   ) {}
 
   userClient$(userId: UserId): Observable<Rc<PasswordManagerClient>> {
+    const span = UserClientSpan.requiredValue.enter([new FieldValue("userId", userId)]);
     return this.sdkClientOverrides.pipe(
       takeWhile((clients) => clients[userId] !== UnsetClient, false),
       map((clients) => {
@@ -147,13 +158,16 @@ export class DefaultSdkService implements SdkService {
       distinctUntilChanged(),
       switchMap((clientOverride) => {
         if (clientOverride) {
+          span.record(new FieldValue("hasOverride", "true"));
           return of(clientOverride);
         }
 
-        return this.internalClient$(userId);
+        span.record(new FieldValue("hasOverride", "false"));
+        return this.internalClient$(userId, span);
       }),
       takeWhile((client) => client !== undefined, false),
       throwIfEmpty(() => new UserNotLoggedInError(userId)),
+      tap({ finalize: () => span.free() }),
     );
   }
 
@@ -177,7 +191,7 @@ export class DefaultSdkService implements SdkService {
    * @param userId The user id for which to create the client
    * @returns An observable that emits the client for the user
    */
-  private internalClient$(userId: UserId): Observable<Rc<PasswordManagerClient>> {
+  private internalClient$(userId: UserId, parent: Span): Observable<Rc<PasswordManagerClient>> {
     const cached = this.sdkClientCache.get(userId);
     if (cached !== undefined) {
       return cached;
@@ -267,6 +281,7 @@ export class DefaultSdkService implements SdkService {
                 userKey,
                 accountCryptographicState,
                 orgKeys,
+                parent,
               );
 
               return client;
@@ -303,8 +318,11 @@ export class DefaultSdkService implements SdkService {
     userKey: UserKey,
     accountCryptographicState: WrappedAccountCryptographicState,
     orgKeys: Record<OrganizationId, EncString>,
+    parent: Span,
   ) {
-    using span = (await InitializeClientSpan).enter([new FieldValue("userId", userId)]);
+    using span = (await InitializeClientSpan).enter_with_parent(parent, [
+      new FieldValue("userId", userId),
+    ]);
 
     await client.crypto().initialize_user_crypto({
       userId: asUuid(userId),
@@ -322,7 +340,7 @@ export class DefaultSdkService implements SdkService {
             },
       accountCryptographicState: accountCryptographicState,
     });
-    span.record(await UserCryptoInitializedEvent, `User crypto initialized for user ${userId}`);
+    span.event(await UserCryptoInitializedEvent, `User crypto initialized for user`);
 
     // We initialize the org crypto even if the org_keys are
     // null to make sure any existing org keys are cleared.
@@ -331,14 +349,14 @@ export class DefaultSdkService implements SdkService {
         Object.entries(orgKeys).map(([k, v]) => [asUuid(k), v.toJSON() as UnsignedSharedKey]),
       ),
     });
-    span.record(await OrgCryptoInitializedEvent, `Org crypto initialized for user ${userId}`);
+    span.event(await OrgCryptoInitializedEvent, `Org crypto initialized for user`);
 
     // Initialize the SDK managed database and the client managed repositories.
     await initializeState(userId, client.platform().state(), this.stateProvider);
-    span.record(await ClientStateInitializedEvent, "Client state initialized");
+    span.event(await ClientStateInitializedEvent, "Client state initialized");
 
     await this.loadFeatureFlags(client);
-    span.record(await FeatureFlagsLoadedEvent, "Feature flags loaded");
+    span.event(await FeatureFlagsLoadedEvent, "Feature flags loaded");
   }
 
   private async loadFeatureFlags(client: PasswordManagerClient) {
