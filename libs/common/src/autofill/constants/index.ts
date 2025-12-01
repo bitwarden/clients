@@ -29,13 +29,13 @@ export const EVENTS = {
 } as const;
 
 export const ClearClipboardDelay = {
-  Never: null as null,
-  TenSeconds: 10,
-  TwentySeconds: 20,
-  ThirtySeconds: 30,
-  OneMinute: 60,
-  TwoMinutes: 120,
-  FiveMinutes: 300,
+  Never: "never",
+  TenSeconds: "tenSeconds",
+  TwentySeconds: "twentySeconds",
+  ThirtySeconds: "thirtySeconds",
+  OneMinute: "oneMinute",
+  TwoMinutes: "twoMinutes",
+  FiveMinutes: "fiveMinutes",
 } as const;
 
 /* Ids for context menu items and messaging events */
