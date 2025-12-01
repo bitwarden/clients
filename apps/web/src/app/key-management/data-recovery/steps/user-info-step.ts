@@ -1,6 +1,7 @@
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { KeyService } from "@bitwarden/key-management";
 
 import { LogRecorder } from "../log-recorder";
@@ -34,7 +35,7 @@ export class UserInfoStep extends RecoveryStep {
     }
     workingData.userKey = userKey;
     logger.record(
-      `User encryption type: ${userKey.inner().type === 2 ? "V1" : userKey.inner().type === 7 ? "Cose" : "Unknown"}`,
+      `User encryption type: ${userKey.inner().type === EncryptionType.AesCbc256_HmacSha256_B64 ? "V1" : userKey.inner().type === EncryptionType.CoseEncrypt0 ? "Cose" : "Unknown"}`,
     );
 
     return true;
