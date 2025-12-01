@@ -302,7 +302,11 @@ jobs:
       - name: Build flatpak
         working-directory: apps/desktop
         run: |
+          echo "df 1"
+          df -h
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          echo "df 2"
+          df -h
           sudo npm run pack:lin:flatpak
 
       - name: Upload flatpak artifact
