@@ -94,7 +94,7 @@
     "message": "Dodijeli članovima zadatke za praćenje napretka"
   },
   "onceYouReviewApplications": {
-    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
+    "message": "Nakon što pregledaš aplikacije i označiš ih kao kritične, dodijeli svojim članovima zadatke za promjenu lozinki."
   },
   "sendReminders": {
     "message": "Pošalji podsjetnike"
@@ -179,34 +179,34 @@
     }
   },
   "noDataInOrgTitle": {
-    "message": "No data found"
+    "message": "Nisu pronađeni podaci"
   },
   "noDataInOrgDescription": {
-    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
+    "message": "Uvezi podatke za prijavu svoje organizacije za korištenje usluge Access Intelligence. Nakon toga, moći ćeš:"
   },
   "feature1Title": {
-    "message": "Mark applications as critical"
+    "message": "Označi aplikacije kao kritične"
   },
   "feature1Description": {
-    "message": "This will help you remove risks to your most important applications first."
+    "message": "To će ti pomoći prvo ukloniti rizike za tvoje najvažnije aplikacije."
   },
   "feature2Title": {
-    "message": "Help members improve their security"
+    "message": "Pomoći povećati sigurnost članova"
   },
   "feature2Description": {
-    "message": "Assign at-risk members guided security tasks to update credentials."
+    "message": "Dodijeli vođene sigurnosne zadatke članovima u riziku za ažuriranje vjerodajnica."
   },
   "feature3Title": {
-    "message": "Monitor progress"
+    "message": "Pratiti napredak"
   },
   "feature3Description": {
-    "message": "Track changes over time to show security improvements."
+    "message": "Praćenje promjena tijekom vremena za prikaz sigurnosnih poboljšanja."
   },
   "noReportsRunTitle": {
-    "message": "Generate report"
+    "message": "Stvarati izvješća"
   },
   "noReportsRunDescription": {
-    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
+    "message": "Počni generirati izvješća. Nakon što ih generiraš, moći ćeš:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Niti jedna aplikacija nije označena kao kritična"
@@ -266,13 +266,13 @@
     "message": "Rizični korisnici"
   },
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
-    "message": "These members have access to vulnerable items for critical applications."
+    "message": "Ovi članovi imaju pristup ranjivim stavkama za kritične aplikacije."
   },
   "membersWithAtRiskPasswords": {
     "message": "Članovi s rizičnim lozinkama"
   },
   "membersWillReceiveSecurityTask": {
-    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
+    "message": "Članovima tvoje organizacije biti će dodijeljen zadatak promjene ranjivih lozinki. Primiti će obavijest unutar Bitwarden proširenja preglednika."
   },
   "membersAtRiskCount": {
     "message": "Rizičnih članova: $COUNT$",
@@ -302,7 +302,7 @@
     }
   },
   "atRiskMemberDescription": {
-    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
+    "message": "Ovi članovi se prijavljuju u kritične aplikacije slabim, otkrivenim ili ponovno korištenim lozinkama."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Nema članova koji se prijavljuju slabim, izloženim ili ponovno korištenim lozinkama."
@@ -386,13 +386,13 @@
     "message": "Daj prioritet kritičnim aplikacijama"
   },
   "selectCriticalAppsDescription": {
-    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
+    "message": "Odaberi koje su aplikacije najvažnije za tvoju organizaciju. Zatim ćeš moći dodijeliti sigurnosne zadatke članovima kako bi se uklonili rizici."
   },
   "reviewNewApplications": {
     "message": "Pregledaj nove prijave"
   },
   "reviewNewAppsDescription": {
-    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
+    "message": "Pregledaj nove aplikacije s ranjivim stavkama i označi one koje želiš pomno pratiti kao kritične. Zatim ćeš moći dodijeliti sigurnosne zadatke članovima kako bi se uklonili rizici."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Klikni ikonu zvjezdice za označavanje aplikacije kao kritične"
@@ -3188,7 +3188,7 @@
     "message": "Sve neplaćene pretplate naplatiti će se na tvoj način plaćanja."
   },
   "paymentChargedWithTrial": {
-    "message": "Plan dolazi s besplatnom probnom verzijom od 7 dana. Tvoj način plaćanja neće biti terećen dok ne završi probno razdoblje. Možeš otkazati u bilo kojem trenutku."
+    "message": "Paket dolazi s besplatnom probnom verzijom od 7 dana. Tvoj način plaćanja neće biti terećen dok ne završi probno razdoblje. Možeš otkazati u bilo kojem trenutku."
   },
   "paymentInformation": {
     "message": "Podaci o plaćanju"
@@ -3419,7 +3419,7 @@
     "message": "Naziv tvrtke"
   },
   "chooseYourPlan": {
-    "message": "Odaberi svoj plan"
+    "message": "Odaberi svoj paket"
   },
   "users": {
     "message": "Korisnici"
@@ -3469,7 +3469,7 @@
     "message": "Za privatnu upotrebu, za dijeljenje s obitelji i prijateljima."
   },
   "planNameTeams": {
-    "message": "Timovi"
+    "message": "Teams"
   },
   "planDescTeams": {
     "message": "Za male tvtke ili druge manje organizacije."
@@ -3598,7 +3598,7 @@
     }
   },
   "trialPaidInfoMessage": {
-    "message": "Tvoj plan $PLAN$ će biti pretvoren u plaćenu pretplatu nakon isteka besplatnog probnog razdoblja od 7 dana.",
+    "message": "Tvoj paket $PLAN$ će biti pretvoren u plaćenu pretplatu nakon isteka besplatnog probnog razdoblja od 7 dana.",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -4813,7 +4813,7 @@
     }
   },
   "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
-    "message": "Možeš pozvati do $COUNT$ članova bez dodatnih troškova. Kontaktiraj korisničku podršku za nadogradnju plana i pozivanje više članova.",
+    "message": "Možeš pozvati do $COUNT$ članova bez dodatnih troškova. Kontaktiraj korisničku podršku za nadogradnju paketa i pozivanje više članova.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4822,7 +4822,7 @@
     }
   },
   "subscriptionFreePlan": {
-    "message": "Nije moguće pozvati više od $COUNT$ korisnika bez nadogradnje plana.",
+    "message": "Nije moguće pozvati više od $COUNT$ korisnika bez nadogradnje paketa.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4831,7 +4831,7 @@
     }
   },
   "subscriptionUpgrade": {
-    "message": "Nije moguće pozvati više od $COUNT$ korisnika bez nadogradnje plana.",
+    "message": "Nije moguće pozvati više od $COUNT$ korisnika bez nadogradnje paketa.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5810,7 +5810,7 @@
     "description": "This is the policy description shown in the policy list."
   },
   "organizationDataOwnershipDescContent": {
-    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the ",
+    "message": "Sve će stavke biti u vlasništvu i spremljene u organizaciji, što će omogućiti kontrolu, vidljivost i izvještavanje na razini cijele organizacije. Kada je uključeno, svakom će članu biti dostupna zadana kolekcija za pohranu stavki. Saznaj više o upravljanju ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
@@ -5994,7 +5994,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Custom roles is an enterprise feature. Contact our support team to upgrade your subscription'"
   },
   "customNonEnterpriseError": {
-    "message": "Za uključivanje prilagođenih uloga, organizacija mora biti na planu Enterprise 2020."
+    "message": "Za uključivanje prilagođenih uloga organizacija mora biti na paketu Enterprise 2020."
   },
   "permissions": {
     "message": "Dozvole"
@@ -6891,7 +6891,7 @@
     "message": "Nema sponzoriranog Families paketa"
   },
   "nosponsoredFamiliesDetails": {
-    "message": "Sponzorirani ne-obiteljski paketi biti će prikazani ovdje"
+    "message": "Sponzorirani ne-obiteljski paketi će biti prikazani ovdje"
   },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Članovi tvoje organizacije ispunjavaju uvjete za besplatni Bitwarden Families paket. Možeš sponzorirati besplatni Bitwarden Families paket za zaposlenike koji nisu članovi tvoje Bitwarden organizacije. Sponzoriranje ne-člana zahtijeva dostupno mjesto unutar vaše organizacije."
@@ -6939,7 +6939,7 @@
     "message": "Veza više nije valjana. Zamoli sponzora da pošalje novu ponudu."
   },
   "reclaimedFreePlan": {
-    "message": "Obnovljeni besplatni plan"
+    "message": "Obnovljeni besplatni paket"
   },
   "redeem": {
     "message": "Iskoristi"
@@ -7242,7 +7242,7 @@
     "message": "Vlastiti poslužitelj"
   },
   "selfHostingEnterpriseOrganizationSectionCopy": {
-    "message": "Za postavljanje svoje organizacije na vlastitom poslužitelju, morat ćeš prenijeti datoteku licence. Kako bi podržali besplatne Families pakete i napredne mogućnosti naplate za svoju samostalnu organizaciju, morat ćeš postaviti sinkronizaciju naplate."
+    "message": "Za postavljanje svoje organizacije na vlastitom poslužitelju, morat ćeš prenijeti datoteku licence. Kako bi besplatni Families paketi i napredne mogućnosti naplate bili podržani u tvojoj samostalnoj organizaciji, morat ćeš postaviti sinkronizaciju naplate."
   },
   "billingSyncApiKeyRotated": {
     "message": "Token rotiran"
@@ -8626,7 +8626,7 @@
     "message": "Zamijeni proizvode"
   },
   "freeOrgInvLimitReachedManageBilling": {
-    "message": "Besplatne organizacije mogu imati do $SEATCOUNT$ članova. Nadogradi na plaćeni plan za pozivanje više članova.",
+    "message": "Besplatne organizacije mogu imati do $SEATCOUNT$ članova. Nadogradi na plaćeni paket za pozivanje više članova.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -8644,7 +8644,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Teams Starter plan može imati do $SEATCOUNT$ članova. Nadogradi svoj plan za pozivanje više članova.",
+    "message": "Teams Starter paket može imati do $SEATCOUNT$ članova. Nadogradi svoj paket za pozivanje više članova.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -8653,7 +8653,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedNoManageBilling": {
-    "message": "Teams Starter plan može imati do $SEATCOUNT$ članova. Kontaktiraj vlasnika svoje organizacije za nadogradnju plana i pozivanje više članova.",
+    "message": "Teams Starter paket može imati do $SEATCOUNT$ članova. Kontaktiraj vlasnika svoje organizacije za nadogradnju paketa i pozivanje više članova.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -8662,7 +8662,7 @@
     }
   },
   "freeOrgMaxCollectionReachedManageBilling": {
-    "message": "Besplatne organizacije mogu imati do $COLLECTIONCOUNT$ zbirki. Nadogradi na plaćeni plan za dodavanje više zbirki.",
+    "message": "Besplatne organizacije mogu imati do $COLLECTIONCOUNT$ zbirki. Nadogradi na plaćeni paket za dodavanje više zbirki.",
     "placeholders": {
       "COLLECTIONCOUNT": {
         "content": "$1",
@@ -9494,13 +9494,13 @@
     "message": "Predbilježi se za Secrets Manager"
   },
   "addSecretsManagerUpgradeDesc": {
-    "message": "Dodajte Secrets Manager svojem nadograđenom planu za zadržavanje pristupa svim tajnama stvorenim sa svojim prethodnim planom."
+    "message": "Dodajte Secrets Manager svojem nadograđenom paketu za zadržavanje pristupa svim tajnama stvorenim sa svojim prethodnim planom."
   },
   "additionalServiceAccounts": {
     "message": "Dodani servisni računi"
   },
   "includedServiceAccounts": {
-    "message": "Plan uključuje $COUNT$ servisnih računa.",
+    "message": "Paket uključuje $COUNT$ servisnih računa.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -9544,7 +9544,7 @@
     "message": "Ažurirane postavke upravljanja zbirkama"
   },
   "passwordManagerPlanPrice": {
-    "message": "Cijena plana za Upravitelj lozinkama"
+    "message": "Cijena paketa za Upravitelj lozinkama"
   },
   "secretsManagerPlanPrice": {
     "message": "Cjenik Secrets Managera"
@@ -9820,6 +9820,14 @@
     "message": "Preskupo",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "switchToFreePlan": {
+    "message": "Prebacivanje na besplatni paket",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "switchToFreeOrg": {
+    "message": "Prebacivanje na besplatnu organizaciju",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "Besplatno godinu dana"
   },
@@ -9851,7 +9859,7 @@
     "message": "Dodijeli zadatke"
   },
   "assignSecurityTasksToMembers": {
-    "message": "Send notifications to change passwords"
+    "message": "Pošalji podsjetnike za promjenu lozinki"
   },
   "assignToCollections": {
     "message": "Dodijeli zbirkama"
@@ -11339,14 +11347,6 @@
   "openedExtensionViewAtRiskPasswords": {
     "message": "Uspjšeno otvoreno Bitwarden proširenje preglednika. Sada možeš pregledati svoje rizične lozinke."
   },
-  "openExtensionManuallyPart1": {
-    "message": "Nismo mogli otvoriti Bitwarden proširenje preglednika. Otvori Bitwarden ikonu",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
-  "openExtensionManuallyPart2": {
-    "message": "na alatnoj traci.",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
   "resellerRenewalWarningMsg": {
     "message": "Tvoja će se pretplata uskoro obnoviti. Za neprekinutu uslugu, kontaktiraj $RESELLER$ za potvrdu obnove prije $RENEWAL_DATE$.",
     "placeholders": {
@@ -11506,7 +11506,7 @@
     "message": "Pregled događaja"
   },
   "cannotCreateCollection": {
-    "message": "Besplatne organizacije mogu imati do 2 zbirke. Nadogradi na plaćeni plan za dodavanje više zbirki."
+    "message": "Besplatne organizacije mogu imati do 2 zbirke. Nadogradi na plaćeni paket za dodavanje više zbirki."
   },
   "searchArchive": {
     "message": "Pretraži arhivu"
@@ -11667,11 +11667,8 @@
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden proširenje je instalirano!"
   },
-  "openTheBitwardenExtension": {
-    "message": "Otvori Bitwarden proširenje"
-  },
-  "bitwardenExtensionInstalledOpenExtension": {
-    "message": "Instalirano je Bitwarden proširenje! Otvori ga za prijavu i početak auto-ispune."
+  "bitwardenExtensionIsInstalled": {
+    "message": "Bitwarden extension is installed!"
   },
   "openExtensionToAutofill": {
     "message": "Otvori proširenje i prijavi se za početak korištenja auto-ispune."
@@ -11686,6 +11683,14 @@
   "gettingStartedWithBitwardenPart2": {
     "message": "centar za učenje",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "openExtensionFromToolbarPart1": {
+    "message": "If the extension didn't open, you may need to open Bitwarden from the icon ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
+  },
+  "openExtensionFromToolbarPart2": {
+    "message": " on the toolbar.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "gettingStartedWithBitwardenPart3": {
     "message": "centar za pomoć",
@@ -11814,7 +11819,7 @@
     }
   },
   "subscribeEnterpriseSubtitle": {
-    "message": "Tvoj 7-dnevni probni rok za plan $PLAN$ počinje danas. Dodaj način plaćanja za nastavak korištenja značajki nakon završetka probnog roka: ",
+    "message": "Tvoj 7-dnevni probni rok za paket $PLAN$ počinje danas. Dodaj način plaćanja za nastavak korištenja značajki nakon završetka probnog roka: ",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -11939,7 +11944,7 @@
     "message": "Napredne mogućnosti za bilo koju organizaciju"
   },
   "planNameCustom": {
-    "message": "Vlastiti plan"
+    "message": "Vlastiti paket"
   },
   "planDescCustom": {
     "message": "Bitwarden se prilagođava tvrtkama svih veličina kako bi osigurao lozinke i osjetljive podatke. Ako si dio velike tvrtke, zatraži ponudu od odjela prodaje."
@@ -12119,13 +12124,13 @@
     "message": "Započni besplatno probno razdoblje za Families"
   },
   "blockClaimedDomainAccountCreation": {
-    "message": "Block account creation for claimed domains"
+    "message": "Blokiraj stvaranje računa za potvrđene domene"
   },
   "blockClaimedDomainAccountCreationDesc": {
-    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
+    "message": "Spriječi korisnike da stvaraju račune izvan organizacije koristeći adrese e-pošte s potvrđenim domenama."
   },
   "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "A domain must be claimed before activating this policy."
+    "message": "Domena mora biti potvrđena prije aktiviranja ovog pravila."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Postavi metodu otključavanja za promjenu radnje nakon isteka vremenskog ograničenja trezora."
@@ -12162,9 +12167,12 @@
     }
   },
   "confirmNoSelectedCriticalApplicationsTitle": {
-    "message": "No critical applications are selected"
+    "message": "Nisu odabrane kritične aplikacije"
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
-    "message": "Are you sure you want to continue?"
+    "message": "Sigurno želiš nastaviti?"
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }
