@@ -1,5 +1,12 @@
-import { CommonModule, DOCUMENT } from "@angular/common";
-import { Component, Inject, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import {
+  Component,
+  Inject,
+  OnDestroy,
+  OnInit,
+  DOCUMENT,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { map, Observable, of, tap } from "rxjs";

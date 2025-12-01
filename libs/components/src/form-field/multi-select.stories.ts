@@ -6,8 +6,8 @@ import {
   FormGroup,
 } from "@angular/forms";
 import { NgSelectModule } from "@ng-select/ng-select";
-import { action } from "@storybook/addon-actions";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { action } from "storybook/actions";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 

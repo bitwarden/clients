@@ -1,6 +1,6 @@
 import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
-import { userEvent } from "@storybook/test";
+import { userEvent } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
