@@ -329,6 +329,25 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return autofillCommand;
   }
 
+  async packageType(): Promise<string | null> {
+    switch (this.getDevice()) {
+      case DeviceType.ChromeExtension:
+        return "Chrome Extension";
+      case DeviceType.FirefoxExtension:
+        return "Firefox Extension";
+      case DeviceType.OperaExtension:
+        return "Opera Extension";
+      case DeviceType.EdgeExtension:
+        return "Edge Extension";
+      case DeviceType.VivaldiExtension:
+        return "Vivaldi Extension";
+      case DeviceType.SafariExtension:
+        return "Safari Extension";
+      default:
+        return "Unknown Browser Extension";
+    }
+  }
+
   /**
    * Triggers the offscreen document API to copy the text to the clipboard.
    */
