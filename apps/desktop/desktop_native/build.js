@@ -25,27 +25,26 @@ const target = targetArg ? targetArg.split("=")[1] : null;
 
 let crossPlatform = process.argv.length > 2 && process.argv[2] === "cross-platform";
 
-function buildNapiModule(target, release = true) {
+function buildNapiModule(target) {
     const targetArg = target ? `--target ${target}` : "";
-    const releaseArg = release ? "--release" : "";
+    const releaseArg = mode == "release" ? "--release" : "";
     child_process.execSync(`npm run build -- ${releaseArg} ${targetArg}`, { stdio: 'inherit', cwd: path.join(__dirname, "napi") });
 }
 
-function buildProxyBin(target, release = true) {
+function buildProxyBin(target) {
     const targetArg = target ? `--target ${target}` : "";
-    const releaseArg = release ? "--release" : "";
+    const releaseArg = mode == "release" ? "--release" : "";
     child_process.execSync(`cargo build --bin desktop_proxy ${releaseArg} ${targetArg}`, {stdio: 'inherit', cwd: path.join(__dirname, "proxy")});
 
     if (target) {
         // Copy the resulting binary to the dist folder
-        const targetFolder = release ? "release" : "debug";
         const ext = process.platform === "win32" ? ".exe" : "";
         const nodeArch = rustTargetsMap[target].nodeArch;
-        fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `desktop_proxy${ext}`), path.join(__dirname, "dist", `desktop_proxy.${process.platform}-${nodeArch}${ext}`));
+        fs.copyFileSync(path.join(__dirname, "target", target, mode, `desktop_proxy${ext}`), path.join(__dirname, "dist", `desktop_proxy.${process.platform}-${nodeArch}${ext}`));
     }
 }
 
-function buildImporterBinaries(target, release = true) {
+function buildImporterBinaries(target) {
     // These binaries are only built for Windows, so we can skip them on other platforms
     if (process.platform !== "win32") {
         return;
@@ -53,14 +52,13 @@ function buildImporterBinaries(target, release = true) {
 
     const bin = "bitwarden_chromium_import_helper";
     const targetArg = target ? `--target ${target}` : "";
-    const releaseArg = release ? "--release" : "";
+    const releaseArg = mode == "release" ? "--release" : "";
     child_process.execSync(`cargo build --bin ${bin} ${releaseArg} ${targetArg}`);
 
     if (target) {
         // Copy the resulting binary to the dist folder
-        const targetFolder = release ? "release" : "debug";
         const nodeArch = rustTargetsMap[target].nodeArch;
-        fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `${bin}.exe`), path.join(__dirname, "dist", `${bin}.${process.platform}-${nodeArch}.exe`));
+        fs.copyFileSync(path.join(__dirname, "target", target, mode, `${bin}.exe`), path.join(__dirname, "dist", `${bin}.${process.platform}-${nodeArch}.exe`));
     }
 }
 
@@ -69,13 +67,14 @@ function buildProcessIsolation() {
         return;
     }
 
-    child_process.execSync(`cargo build --release`, {
+    const releaseArg = mode == "release" ? "--release" : "";
+    child_process.execSync(`cargo build ${releaseArg}`, {
         stdio: 'inherit',
         cwd: path.join(__dirname, "process_isolation")
     });
 
     console.log("Copying process isolation library to dist folder");
-    fs.copyFileSync(path.join(__dirname, "target", "release", "libprocess_isolation.so"), path.join(__dirname, "dist", `libprocess_isolation.so`));
+    fs.copyFileSync(path.join(__dirname, "target", mode, "libprocess_isolation.so"), path.join(__dirname, "dist", `libprocess_isolation.so`));
 }
 
 function installTarget(target) {
