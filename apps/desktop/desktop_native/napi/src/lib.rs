@@ -1072,9 +1072,6 @@ pub mod logging {
             .with(filter)
             .with(JsLayer)
             .init();
-
-        tracing::info!("white_rabbit info");
-        tracing::debug!("white_rabbit debug");
     }
 }
 
