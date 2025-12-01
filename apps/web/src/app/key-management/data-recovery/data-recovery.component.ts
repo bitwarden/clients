@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -37,7 +37,7 @@ interface StepState {
   imports: [JslibModule, ButtonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DataRecoveryComponent implements OnInit {
+export class DataRecoveryComponent {
   private logger: LogRecorder;
   private recoverySteps: RecoveryStep[] = [];
   private workingData: RecoveryWorkingData | null = null;
@@ -86,8 +86,6 @@ export class DataRecoveryComponent implements OnInit {
       })),
     );
   }
-
-  ngOnInit(): void {}
 
   async runDiagnostics() {
     if (this.isRunning()) {
