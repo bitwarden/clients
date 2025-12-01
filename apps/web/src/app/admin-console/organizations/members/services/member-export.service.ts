@@ -40,7 +40,7 @@ export class MemberExportService {
     return papa.unparse(mappedData);
   }
 
-  getFileName(prefix: string = null, extension = "csv"): string {
+  getFileName(prefix: string | null = null, extension = "csv"): string {
     const now = new Date();
     const dateString =
       now.getFullYear() +

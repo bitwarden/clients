@@ -572,7 +572,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
       this.toastService.showToast({
         variant: "success",
-        title: null,
+        title: undefined,
         message: this.i18nService.t("exportSuccess"),
       });
     } catch (e) {
