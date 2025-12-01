@@ -6,9 +6,9 @@ use rand::{rng, Rng};
 pub(super) const KEY_SIZE: usize = 32;
 pub(super) const NONCE_SIZE: usize = 24;
 
-/// The encryption performed here is xchacha-poly1305. Any tampering with the key or the ciphertexts will result
-/// in a decryption failure and panic. The key's memory contents are protected from being swapped to disk
-/// via mlock.
+/// The encryption performed here is xchacha-poly1305. Any tampering with the key or the ciphertexts
+/// will result in a decryption failure and panic. The key's memory contents are protected from
+/// being swapped to disk via mlock.
 pub(super) struct MemoryEncryptionKey(NonNull<[u8]>);
 
 /// An encrypted memory blob that must be decrypted using the same key that it was encrypted with.

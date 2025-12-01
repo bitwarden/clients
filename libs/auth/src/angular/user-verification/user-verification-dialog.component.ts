@@ -277,13 +277,13 @@ export class UserVerificationDialogComponent {
           });
         }
       }
-    } catch (e) {
+    } catch {
       // Catch handles OTP and MP verification scenarios as those throw errors on verification failure instead of returning false like PIN and biometrics.
       this.invalidSecret = true;
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("error"),
-        message: e.message,
+        message: this.i18nService.t("userVerificationFailed"),
       });
       return;
     }

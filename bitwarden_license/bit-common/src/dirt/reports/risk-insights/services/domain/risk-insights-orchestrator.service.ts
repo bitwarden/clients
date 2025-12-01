@@ -35,6 +35,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { LogService } from "@bitwarden/logging";
 
 import {
@@ -42,6 +43,7 @@ import {
   createNewSummaryData,
   flattenMemberDetails,
   getTrimmedCipherUris,
+  getUniqueMembers,
 } from "../../helpers";
 import {
   ApplicationHealthReportDetailEnriched,
@@ -191,6 +193,23 @@ export class RiskInsightsOrchestratorService {
   }
 
   /**
+   * Gets the cipher icon for a given cipher ID
+   *
+   * @param cipherId The ID of the cipher to get the icon for
+   * @returns A CipherViewLike if found, otherwise undefined
+   */
+  getCipherIcon(cipherId: string): CipherViewLike | undefined {
+    const currentCiphers = this._ciphersSubject.value;
+    if (!currentCiphers) {
+      return undefined;
+    }
+
+    const foundCipher = currentCiphers.find((c) => c.id === cipherId);
+
+    return foundCipher;
+  }
+
+  /**
    * Initializes the service context for a specific organization
    *
    * @param organizationId The ID of the organization to initialize context for
@@ -234,6 +253,7 @@ export class RiskInsightsOrchestratorService {
         const updatedSummaryData = this.reportService.getApplicationsSummary(
           report!.reportData,
           updatedApplicationData,
+          report!.summaryData.totalMemberCount,
         );
 
         // Used for creating metrics with updated application data
@@ -366,6 +386,7 @@ export class RiskInsightsOrchestratorService {
         const updatedSummaryData = this.reportService.getApplicationsSummary(
           report!.reportData,
           updatedApplicationData,
+          report!.summaryData.totalMemberCount,
         );
 
         // Used for creating metrics with updated application data
@@ -502,6 +523,7 @@ export class RiskInsightsOrchestratorService {
         const updatedSummaryData = this.reportService.getApplicationsSummary(
           report!.reportData,
           updatedApplicationData,
+          report!.summaryData.totalMemberCount,
         );
         // Used for creating metrics with updated application data
         const manualEnrichedApplications = report!.reportData.map(
@@ -656,19 +678,30 @@ export class RiskInsightsOrchestratorService {
       switchMap(([ciphers, memberCiphers]) => {
         this.logService.debug("[RiskInsightsOrchestratorService] Analyzing password health");
         this._reportProgressSubject.next(ReportProgress.AnalyzingPasswords);
-        return this._getCipherHealth(ciphers ?? [], memberCiphers);
+        return forkJoin({
+          memberDetails: of(memberCiphers),
+          cipherHealthReports: this._getCipherHealth(ciphers ?? [], memberCiphers),
+        }).pipe(
+          map(({ memberDetails, cipherHealthReports }) => {
+            const uniqueMembers = getUniqueMembers(memberDetails);
+            const totalMemberCount = uniqueMembers.length;
+
+            return { cipherHealthReports, totalMemberCount };
+          }),
+        );
       }),
-      map((cipherHealthReports) => {
+      map(({ cipherHealthReports, totalMemberCount }) => {
         this.logService.debug("[RiskInsightsOrchestratorService] Calculating risk scores");
         this._reportProgressSubject.next(ReportProgress.CalculatingRisks);
-        return this.reportService.generateApplicationsReport(cipherHealthReports);
+        const report = this.reportService.generateApplicationsReport(cipherHealthReports);
+        return { report, totalMemberCount };
       }),
       tap(() => {
         this.logService.debug("[RiskInsightsOrchestratorService] Generating report data");
         this._reportProgressSubject.next(ReportProgress.GeneratingReport);
       }),
       withLatestFrom(this.rawReportData$),
-      map(([report, previousReport]) => {
+      map(([{ report, totalMemberCount }, previousReport]) => {
         // Update the application data
         const updatedApplicationData = this.reportService.getOrganizationApplications(
           report,
@@ -688,6 +721,7 @@ export class RiskInsightsOrchestratorService {
         const updatedSummary = this.reportService.getApplicationsSummary(
           report,
           updatedApplicationData,
+          totalMemberCount,
         );
         // For now, merge the report with the critical marking flag to make the enriched type
         // We don't care about the individual ciphers in this instance
@@ -964,6 +998,7 @@ export class RiskInsightsOrchestratorService {
         const summary = this.reportService.getApplicationsSummary(
           criticalApplications,
           enrichedReports.applicationData,
+          enrichedReports.summaryData.totalMemberCount,
         );
         return {
           ...enrichedReports,

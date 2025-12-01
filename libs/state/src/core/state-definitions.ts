@@ -120,6 +120,7 @@ export const CONFIG_DISK = new StateDefinition("config", "disk", {
 export const DESKTOP_SETTINGS_DISK = new StateDefinition("desktopSettings", "disk");
 export const ENVIRONMENT_DISK = new StateDefinition("environment", "disk");
 export const ENVIRONMENT_MEMORY = new StateDefinition("environment", "memory");
+export const IPC_MEMORY = new StateDefinition("interProcessCommunication", "memory");
 export const POPUP_VIEW_MEMORY = new StateDefinition("popupView", "memory", {
   browser: "memory-large-object",
 });

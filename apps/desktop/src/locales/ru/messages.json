@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Произошла ошибка при включении интеграции с браузером."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "К сожалению, интеграция браузера пока поддерживается только в версии Mac App Store."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "К сожалению, интеграция браузера в версии для Microsoft Store в настоящее время не поддерживается."
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Обновить до Премиум"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Тайм-аут действия"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Тайм-аут сеанса"
   }
 }

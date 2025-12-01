@@ -70,7 +70,7 @@
     }
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "你沒有權限編輯這個項目"
   },
   "welcomeBack": {
     "message": "歡迎回來"
@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "啟用瀏覽器整合時發生錯誤。"
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "很遺憾，目前僅 Mac App Store 版本支援瀏覽器整合功能。"
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "很遺憾，Microsoft Store 版本目前尚不支援瀏覽器整合功能。"
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "升級到 Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "逾時後動作"
+  },
+  "sessionTimeoutHeader": {
+    "message": "工作階段逾時"
   }
 }

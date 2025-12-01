@@ -29,7 +29,7 @@
     "message": "Mit Passkey anmelden"
   },
   "useSingleSignOn": {
-    "message": "Single Sign-on verwenden"
+    "message": "Single Sign-On verwenden"
   },
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Deine Organisation erfordert Single Sign-On."
@@ -44,7 +44,7 @@
     "message": "Schließe die Erstellung deines Kontos ab, indem du ein Passwort festlegst"
   },
   "enterpriseSingleSignOn": {
-    "message": "Enterprise Single-Sign-On"
+    "message": "Enterprise Single Sign-On"
   },
   "cancel": {
     "message": "Abbrechen"
@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "Alles anzeigen"
   },
+  "viewLess": {
+    "message": "Weniger anzeigen"
+  },
   "viewLogin": {
     "message": "Zugangsdaten anzeigen"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "Wenn System gesperrt"
+  },
+  "onIdle": {
+    "message": "Bei Systeminaktivität"
+  },
+  "onSleep": {
+    "message": "Im Standby"
   },
   "onRestart": {
     "message": "Bei Browser-Neustart"
@@ -2426,6 +2435,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
   },
   "setMasterPassword": {
     "message": "Master-Passwort festlegen"
@@ -5789,7 +5801,7 @@
     "message": "Notfallzugriff"
   },
   "breachMonitoring": {
-    "message": "Datenpannen-Überwachung"
+    "message": "Datendiebstahl-Überwachung"
   },
   "andMoreFeatures": {
     "message": "Und mehr!"
@@ -5800,6 +5812,21 @@
   "upgradeToPremium": {
     "message": "Upgrade auf Premium"
   },
+  "upgradeCompleteSecurity": {
+    "message": "Upgrade für umfassende Sicherheit"
+  },
+  "premiumGivesMoreTools": {
+    "message": "Premium gibt dir mehr Werkzeuge, um sicher zu bleiben, effizient zu arbeiten und die Kontrolle zu behalten."
+  },
+  "explorePremium": {
+    "message": "Premium erkunden"
+  },
+  "loadingVault": {
+    "message": "Tresor wird geladen"
+  },
+  "vaultLoaded": {
+    "message": "Tresor geladen"
+  },
   "settingDisabledByPolicy": {
     "message": "Diese Einstellung ist durch die Richtlinien deiner Organisation deaktiviert.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5836,8 @@
   },
   "cardNumberLabel": {
     "message": "Kartennummer"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout-Aktion"
   }
 }

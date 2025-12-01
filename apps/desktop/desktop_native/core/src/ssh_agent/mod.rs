@@ -7,13 +7,12 @@ use std::{
 };
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
-use tokio::sync::Mutex;
-use tokio_util::sync::CancellationToken;
-
 use bitwarden_russh::{
     session_bind::SessionBindResult,
     ssh_agent::{self, SshKey},
 };
+use tokio::sync::Mutex;
+use tokio_util::sync::CancellationToken;
 use tracing::{error, info};
 
 #[cfg_attr(target_os = "windows", path = "windows.rs")]
@@ -34,7 +33,8 @@ pub struct BitwardenDesktopAgent {
     show_ui_request_tx: tokio::sync::mpsc::Sender<SshAgentUIRequest>,
     get_ui_response_rx: Arc<Mutex<tokio::sync::broadcast::Receiver<(u32, bool)>>>,
     request_id: Arc<AtomicU32>,
-    /// before first unlock, or after account switching, listing keys should require an unlock to get a list of public keys
+    /// before first unlock, or after account switching, listing keys should require an unlock to
+    /// get a list of public keys
     needs_unlock: Arc<AtomicBool>,
     is_running: Arc<AtomicBool>,
 }

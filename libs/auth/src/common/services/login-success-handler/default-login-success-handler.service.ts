@@ -1,5 +1,4 @@
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -31,20 +30,14 @@ export class DefaultLoginSuccessHandlerService implements LoginSuccessHandlerSer
       // Don't block login success on migration failure
     }
 
-    const disableAlternateLoginMethodsFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM22110_DisableAlternateLoginMethods,
-    );
+    const ssoLoginEmail = await this.ssoLoginService.getSsoEmail();
 
-    if (disableAlternateLoginMethodsFlagEnabled) {
-      const ssoLoginEmail = await this.ssoLoginService.getSsoEmail();
-
-      if (!ssoLoginEmail) {
-        this.logService.error("SSO login email not found.");
-        return;
-      }
-
-      await this.ssoLoginService.updateSsoRequiredCache(ssoLoginEmail, userId);
-      await this.ssoLoginService.clearSsoEmail();
+    if (!ssoLoginEmail) {
+      this.logService.error("SSO login email not found.");
+      return;
     }
+
+    await this.ssoLoginService.updateSsoRequiredCache(ssoLoginEmail, userId);
+    await this.ssoLoginService.clearSsoEmail();
   }
 }

@@ -594,6 +594,9 @@
   "viewAll": {
     "message": "查看全部"
   },
+  "viewLess": {
+    "message": "查看更少"
+  },
   "viewLogin": {
     "message": "查看登录"
   },
@@ -795,6 +798,12 @@
   },
   "onLocked": {
     "message": "系统锁定时"
+  },
+  "onIdle": {
+    "message": "系统空闲时"
+  },
+  "onSleep": {
+    "message": "系统睡眠时"
   },
   "onRestart": {
     "message": "浏览器重启时"
@@ -1476,7 +1485,7 @@
     "message": "优先客户支持。"
   },
   "ppremiumSignUpFuture": {
-    "message": "未来的更多高级功能。敬请期待！"
+    "message": "未来的更多高级版功能。敬请期待！"
   },
   "premiumPurchase": {
     "message": "购买高级版"
@@ -2426,6 +2435,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "此页面正在干扰 Bitwarden 的使用体验。出于安全考虑，Bitwarden 内嵌菜单已被暂时禁用。"
   },
   "setMasterPassword": {
     "message": "设置主密码"
@@ -3726,7 +3738,7 @@
     "message": "当前会话"
   },
   "mobile": {
-    "message": "移动",
+    "message": "移动端",
     "description": "Mobile app"
   },
   "extension": {
@@ -4888,7 +4900,7 @@
     "message": "确定要永久删除此附件吗？"
   },
   "premium": {
-    "message": "高级会员"
+    "message": "高级版"
   },
   "freeOrgsCannotUseAttachments": {
     "message": "免费组织无法使用附件"
@@ -5800,6 +5812,21 @@
   "upgradeToPremium": {
     "message": "升级为高级版"
   },
+  "upgradeCompleteSecurity": {
+    "message": "升级以获得全面的安全防护"
+  },
+  "premiumGivesMoreTools": {
+    "message": "高级版为您提供更多工具，助您保障安全、高效工作并掌控一切。"
+  },
+  "explorePremium": {
+    "message": "探索高级版"
+  },
+  "loadingVault": {
+    "message": "正在加载密码库"
+  },
+  "vaultLoaded": {
+    "message": "密码库已加载"
+  },
   "settingDisabledByPolicy": {
     "message": "此设置被您组织的策略禁用了。",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5836,8 @@
   },
   "cardNumberLabel": {
     "message": "卡号"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "超时动作"
   }
 }

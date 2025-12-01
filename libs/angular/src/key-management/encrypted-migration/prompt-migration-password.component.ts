@@ -8,6 +8,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import {
+  LinkModule,
   AsyncActionsModule,
   ButtonModule,
   DialogModule,
@@ -25,6 +26,7 @@ import {
   templateUrl: "prompt-migration-password.component.html",
   imports: [
     DialogModule,
+    LinkModule,
     CommonModule,
     JslibModule,
     ButtonModule,

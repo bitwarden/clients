@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "אירעה שגיאה בעת אפשור שילוב דפדפן."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "למרבה הצער שילוב דפדפן נתמך רק בגרסת Mac App Store לעת עתה."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "למרבה הצער שילוב דפדפן אינו נתמך כרגע בגרסת ה־Microsoft Store."
   },
@@ -4198,27 +4195,33 @@
     "message": "מספר כרטיס"
   },
   "upgradeNow": {
-    "message": "Upgrade now"
+    "message": "שדרג עכשיו"
   },
   "builtInAuthenticator": {
-    "message": "Built-in authenticator"
+    "message": "מאמת מובנה"
   },
   "secureFileStorage": {
-    "message": "Secure file storage"
+    "message": "אחסון קבצים מאובטח"
   },
   "emergencyAccess": {
-    "message": "Emergency access"
+    "message": "גישת חירום"
   },
   "breachMonitoring": {
-    "message": "Breach monitoring"
+    "message": "ניטור פרצות"
   },
   "andMoreFeatures": {
-    "message": "And more!"
+    "message": "ועוד!"
   },
   "planDescPremium": {
-    "message": "Complete online security"
+    "message": "השלם אבטחה מקוונת"
   },
   "upgradeToPremium": {
-    "message": "Upgrade to Premium"
+    "message": "שדרג לפרימיום"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "פעולת פסק זמן"
+  },
+  "sessionTimeoutHeader": {
+    "message": "פסק זמן להפעלה"
   }
 }
