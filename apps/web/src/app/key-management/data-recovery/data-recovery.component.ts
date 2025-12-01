@@ -1,3 +1,4 @@
+import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -11,6 +12,8 @@ import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstraction
 import { ButtonModule, DialogService } from "@bitwarden/components";
 import { KeyService, UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
+
+import { SharedModule } from "../../shared";
 
 import { LogRecorder } from "./log-recorder";
 import {
@@ -34,7 +37,8 @@ interface StepState {
 @Component({
   selector: "app-data-recovery",
   templateUrl: "data-recovery.component.html",
-  imports: [JslibModule, ButtonModule],
+  standalone: true,
+  imports: [JslibModule, ButtonModule, CommonModule, SharedModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DataRecoveryComponent {
