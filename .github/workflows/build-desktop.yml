@@ -252,6 +252,7 @@ jobs:
         run: |
           rustup target add x86_64-unknown-linux-musl
           node build.js --target=x86_64-unknown-linux-musl
+          df -h
 
       - name: Build application
         run: npm run dist:lin

@@ -75,6 +75,8 @@ fn get_foreground_window_handle() -> Result<WindowHandle> {
 
     debug!("GetForegroundWindow() called.");
 
+    debug!("hiiiiii");
+
     let window_handle = WindowHandle::new(handle);
     window_handle.validate()?;
 
