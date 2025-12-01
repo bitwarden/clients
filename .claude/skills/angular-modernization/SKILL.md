@@ -142,11 +142,6 @@ Before completing migration:
 
 ## References
 
-### Detailed Guides
-
-- [cli-migrations.md](cli-migrations.md) - Angular CLI migration commands
-- [migration-patterns.md](migration-patterns.md) - Code patterns and examples
-
 ### Bitwarden ADRs
 
 - [ADR-0003: Observable Data Services](https://contributing.bitwarden.com/architecture/adr/observable-data-services)
