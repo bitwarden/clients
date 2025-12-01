@@ -9820,6 +9820,14 @@
     "message": "Túl drága",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "switchToFreePlan": {
+    "message": "Váltás ingyenes díkcsomagra",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "switchToFreeOrg": {
+    "message": "Váltás ingyenes szervezetre",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "Díjmentes 1 évre"
   },
@@ -11339,14 +11347,6 @@
   "openedExtensionViewAtRiskPasswords": {
     "message": "Sikeresen megnyitottuk a Bitwarden böngésző bővítményt. Mostantól áttekinthetjük a veszélyeztetett jelszavakat."
   },
-  "openExtensionManuallyPart1": {
-    "message": "Probléma merült fel a Bitward böngésző bővítmény megnyitásakor. Nyissuk meg a Bitwarden ikont",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
-  "openExtensionManuallyPart2": {
-    "message": "az eszköztárból.",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
   "resellerRenewalWarningMsg": {
     "message": "Az előfizetés hamarosan megújul. A folyamatos szolgáltatás biztosítása érdekében lépjünk kapcsolatba $RESELLER$ viszonteladóval és erősítsük meg a megújítást $RENEWAL_DATE$ előtt.",
     "placeholders": {
@@ -11667,11 +11667,8 @@
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden extension installed!"
   },
-  "openTheBitwardenExtension": {
-    "message": "A Bitwarden bővítmény megnyitása"
-  },
-  "bitwardenExtensionInstalledOpenExtension": {
-    "message": "A Bitwarden bővítmény telepítve van! Nyissuk meg a bővítményt a bejelentkezéshez és az automatikus kitöltés megkezdéséhez."
+  "bitwardenExtensionIsInstalled": {
+    "message": "A Bitwarden kiterjesztés telepítésre került!"
   },
   "openExtensionToAutofill": {
     "message": "Open the extension to log in and start autofilling."
@@ -11686,6 +11683,14 @@
   "gettingStartedWithBitwardenPart2": {
     "message": "Learning Center",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "openExtensionFromToolbarPart1": {
+    "message": "Ha a bővítmény nem nyílt meg, előfordulhat, hogy meg kell nyitni a Bitwardent az ikonról ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
+  },
+  "openExtensionFromToolbarPart2": {
+    "message": "az eszköztárból.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "gettingStartedWithBitwardenPart3": {
     "message": "Help Center",
@@ -12166,5 +12171,8 @@
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Biztos folytatni szeretnénk?"
+  },
+  "userVerificationFailed": {
+    "message": "A felhasználó ellenőrzése sikertelen volt."
   }
 }
