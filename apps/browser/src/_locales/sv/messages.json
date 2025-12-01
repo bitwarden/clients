@@ -586,7 +586,7 @@
     "message": "Arkiverade objekt är exkluderade från allmänna sökresultat och förslag för autofyll. Är du säker på att du vill arkivera detta objekt?"
   },
   "upgradeToUseArchive": {
-    "message": "A premium membership is required to use Archive."
+    "message": "Ett premium-medlemskap krävs för att använda Arkiv."
   },
   "edit": {
     "message": "Redigera"
@@ -598,7 +598,7 @@
     "message": "Visa alla"
   },
   "showAll": {
-    "message": "Show all"
+    "message": "Visa alla"
   },
   "viewLess": {
     "message": "Visa mindre"
@@ -1874,7 +1874,7 @@
     "message": "Utgångsår"
   },
   "monthly": {
-    "message": "month"
+    "message": "månad"
   },
   "expiration": {
     "message": "Utgång"
@@ -5825,10 +5825,10 @@
     "message": "Uppgradera till Premium"
   },
   "unlockAdvancedSecurity": {
-    "message": "Unlock advanced security features"
+    "message": "Lås upp avancerade säkerhetsfunktioner"
   },
   "unlockAdvancedSecurityDesc": {
-    "message": "A Premium subscription gives you more tools to stay secure and in control"
+    "message": "En Premium-prenumeration ger dig fler verktyg för att hålla dig säker och ha kontroll"
   },
   "explorePremium": {
     "message": "Utforska Premium"
