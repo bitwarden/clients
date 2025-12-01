@@ -331,7 +331,6 @@ export class NativeMessagingMain {
       "Microsoft Edge Canary": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Canary/`,
       Vivaldi: `${this.homedir()}/Library/Application\ Support/Vivaldi/`,
       Zen: `${this.homedir()}/Library/Application\ Support/Zen/`,
-      Brave: `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser/`,
     };
     /* eslint-enable no-useless-escape */
   }
