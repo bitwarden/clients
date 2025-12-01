@@ -5809,9 +5809,9 @@
     "message": "கணக்கு மட்டத்தில் பொருட்களை சேமிக்கும் விருப்பத்தை நீக்கி, அனைத்து பொருட்களும் ஒரு நிறுவனத்திற்கு சொந்தமானதாக இருக்க வேண்டும்.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
-    "message": "அனைத்து பொருட்களும் நிறுவனத்திற்குச் சொந்தமானதாகவும், சேமிக்கப்படுவதாகவும் இருக்கும், இது நிறுவனம் முழுவதும் கட்டுப்பாடுகள், தெரிவுநிலை மற்றும் அறிக்கையிடலை செயல்படுத்துகிறது. இயக்கப்படும் போது, ஒவ்வொரு உறுப்பினருக்கும் பொருட்களைச் சேமிக்க ஒரு இயல்புநிலை கலெக்‌ஷன் கிடைக்கும். நிர்வகிப்பது பற்றி மேலும் அறிக ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  "organizationDataOwnershipDescContent": {
+    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "சான்றளிப்பு வாழ்க்கைச் சுழற்சி",
@@ -9820,6 +9820,14 @@
     "message": "மிகவும் விலை உயர்ந்தது",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "switchToFreePlan": {
+    "message": "Switching to free plan",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "switchToFreeOrg": {
+    "message": "Switching to free organization",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "1 வருடத்திற்கு இலவசம்"
   },
@@ -11339,14 +11347,6 @@
   "openedExtensionViewAtRiskPasswords": {
     "message": "Bitwarden உலாவி நீட்டிப்பு வெற்றிகரமாக திறக்கப்பட்டது. உங்கள் ஆபத்தில் உள்ள கடவுச்சொற்களை இப்போது நீங்கள் மதிப்பாய்வு செய்யலாம்."
   },
-  "openExtensionManuallyPart1": {
-    "message": "Bitwarden உலாவி நீட்டிப்பைத் திறப்பதில் எங்களுக்குச் சிக்கல் ஏற்பட்டது. Bitwarden ஐகானைத் திறக்கவும்",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
-  "openExtensionManuallyPart2": {
-    "message": "பணிப்பட்டி யிலிருந்து.",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
   "resellerRenewalWarningMsg": {
     "message": "உங்கள் சந்தா விரைவில் புதுப்பிக்கப்படும். தடையற்ற சேவையை உறுதிப்படுத்த, $RENEWAL_DATE$-க்கு முன் உங்கள் புதுப்பித்தலை உறுதிப்படுத்த $RESELLER$-ஐத் தொடர்பு கொள்ளவும்.",
     "placeholders": {
@@ -11667,11 +11667,8 @@
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden நீட்டிப்பு நிறுவப்பட்டது!"
   },
-  "openTheBitwardenExtension": {
-    "message": "Open the Bitwarden extension"
-  },
-  "bitwardenExtensionInstalledOpenExtension": {
-    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
+  "bitwardenExtensionIsInstalled": {
+    "message": "Bitwarden extension is installed!"
   },
   "openExtensionToAutofill": {
     "message": "உள்நுழைந்து தானாக நிரப்பத் தொடங்க நீட்டிப்பைத் திறக்கவும்."
@@ -11686,6 +11683,14 @@
   "gettingStartedWithBitwardenPart2": {
     "message": "கற்றல் மையம்",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "openExtensionFromToolbarPart1": {
+    "message": "If the extension didn't open, you may need to open Bitwarden from the icon ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
+  },
+  "openExtensionFromToolbarPart2": {
+    "message": " on the toolbar.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "gettingStartedWithBitwardenPart3": {
     "message": "உதவி மையம்",
@@ -12118,6 +12123,15 @@
   "startFreeFamiliesTrial": {
     "message": "Start free Families trial"
   },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Block account creation for claimed domains"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "A domain must be claimed before activating this policy."
+  },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Set up an unlock method to change your vault timeout action."
   },
@@ -12157,5 +12171,8 @@
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Are you sure you want to continue?"
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }

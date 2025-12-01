@@ -185,6 +185,7 @@ export class WindowMain {
 
           await this.createWindow();
           resolve();
+
           if (this.argvCallback != null) {
             this.argvCallback(process.argv);
           }

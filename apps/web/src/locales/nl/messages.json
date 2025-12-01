@@ -5809,9 +5809,9 @@
     "message": "Verplicht dat items eigendom zijn van een organisatie, dit verwijdert de mogelijkheid van het opslaan van items op accountniveau.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
-    "message": "Alle items worden eigendom en opgeslagen bij de organisatie, wat organisatiebrede controle, zichtbaarheid en rapportage mogelijk maakt. Bij inschakelen is er een standaardcollectie beschikbaar voor elk lid voor het opslaan van items. Meer informatie over het beheren van de ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  "organizationDataOwnershipDescContent": {
+    "message": "Alle items worden eigendom van en opgeslagen bij de organisatie, wat organisatiebrede controle, zichtbaarheid en rapportage mogelijk maakt. Bij inschakelen is er een standaardcollectie beschikbaar voor elk lid voor het opslaan van items. Meer informatie over het beheren van de ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "levenscyclus van inloggegevens",
@@ -9820,6 +9820,14 @@
     "message": "Te duur",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "switchToFreePlan": {
+    "message": "Overstappen naar gratis abonnement",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "switchToFreeOrg": {
+    "message": "Overstappen naar gratis organisatie",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "1 jaar gratis"
   },
@@ -11339,14 +11347,6 @@
   "openedExtensionViewAtRiskPasswords": {
     "message": "De Bitwarden-browserextensie is geopend. Je kunt nu je risicovolle wachtwoorden bekijken."
   },
-  "openExtensionManuallyPart1": {
-    "message": "We konden de Bitwarden-browserextensie niet openen. Open het Bitwarden-pictogram",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
-  "openExtensionManuallyPart2": {
-    "message": "vanaf de werkbalk.",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
   "resellerRenewalWarningMsg": {
     "message": "Je abonnement wordt binnenkort verlengd. Neem voor $RENEWAL_DATE$ contact op met $RESELLER$ om je verlenging te bevestigen en een ononderbroken service te verzekeren.",
     "placeholders": {
@@ -11667,11 +11667,8 @@
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden extensie geïnstalleerd!"
   },
-  "openTheBitwardenExtension": {
-    "message": "De Bitwarden-extensie openen"
-  },
-  "bitwardenExtensionInstalledOpenExtension": {
-    "message": "De Bitwarden-extensie is geïnstalleerd! Open de extensie om in te loggen en te beginnen met automatisch invullen."
+  "bitwardenExtensionIsInstalled": {
+    "message": "Bitwarden-extensie geïnstalleerd!"
   },
   "openExtensionToAutofill": {
     "message": "Open de extensie om in te loggen en te beginnen met automatisch invullen."
@@ -11686,6 +11683,14 @@
   "gettingStartedWithBitwardenPart2": {
     "message": "Leercentrum",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "openExtensionFromToolbarPart1": {
+    "message": "Als de extensie niet is geopend, moet je misschien Bitwarden via het pictogram ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
+  },
+  "openExtensionFromToolbarPart2": {
+    "message": " op de werkbalk openen.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "gettingStartedWithBitwardenPart3": {
     "message": "Helpcentrum",
@@ -12118,6 +12123,15 @@
   "startFreeFamiliesTrial": {
     "message": "Start gratis Families-proefperiode"
   },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Blokkeer het aanmaken van een account voor geclaimde domeinen"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Voorkom dat gebruikers buiten je organisatie accounts aanmaken met behulp van e-mailadressen van geclaimde domeinen."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "Voordat dit beleid geactiveerd kan worden, moet je een domein claimen."
+  },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Stel een ontgrendelingsmethode in om je kluis time-out actie te wijzigen."
   },
@@ -12157,5 +12171,8 @@
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Weet je zeker dat je wilt doorgaan?"
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }
