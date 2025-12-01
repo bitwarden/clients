@@ -1873,6 +1873,9 @@
   "expirationYear": {
     "message": "Expiration year"
   },
+  "monthly": {
+    "message": "month"
+  },
   "expiration": {
     "message": "Expiration"
   },

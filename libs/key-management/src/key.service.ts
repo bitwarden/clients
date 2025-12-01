@@ -2,6 +2,7 @@ import * as bigInt from "big-integer";
 import {
   NEVER,
   Observable,
+  catchError,
   combineLatest,
   distinctUntilChanged,
   filter,
@@ -947,6 +948,13 @@ export class DefaultKeyService implements KeyServiceAbstraction {
             }
 
             return result;
+          }),
+          catchError((err: unknown) => {
+            this.logService.error(
+              `Failed to get encrypted organization keys for user ${userId}`,
+              err,
+            );
+            return of({});
           }),
         );
       }),

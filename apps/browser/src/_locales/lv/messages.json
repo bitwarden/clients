@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Arhivētie vienumi netiek iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos. Vai tiešām ahrivēt šo vienumu?"
   },
+  "upgradeToUseArchive": {
+    "message": "Ir nepieciešama Premium dalība, lai izmantotu arhīvu."
+  },
   "edit": {
     "message": "Labot"
   },
@@ -593,6 +596,9 @@
   },
   "viewAll": {
     "message": "Apskatīt visu"
+  },
+  "showAll": {
+    "message": "Rādīt visu"
   },
   "viewLess": {
     "message": "Skatīt mazāk"
@@ -1866,6 +1872,9 @@
   },
   "expirationYear": {
     "message": "Derīguma gads"
+  },
+  "monthly": {
+    "message": "mēnesī"
   },
   "expiration": {
     "message": "Derīgums"
@@ -4902,6 +4911,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Iegūsti piekļuvi atskaitēm, ārkārtas piekļuvei un citām drošības iespējām ar Premium!"
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Bezmaksas apvienības nevar izmantot pielikumus"
   },
@@ -5812,11 +5824,11 @@
   "upgradeToPremium": {
     "message": "Uzlabot uz Premium"
   },
-  "upgradeCompleteSecurity": {
-    "message": "Uzlabo pilnīgas drošības iegūšanai"
+  "unlockAdvancedSecurity": {
+    "message": "Atslēdz papildu drošības iespējas"
   },
-  "premiumGivesMoreTools": {
-    "message": "Premium sniedz vairāk rīku drošībai, darba ražīgumam un pārraudzībai."
+  "unlockAdvancedSecurityDesc": {
+    "message": "Premium abonements sniedz vairāk rīku drošības uzturēšanai un pārraudzībai"
   },
   "explorePremium": {
     "message": "Izpētīt Premium"
