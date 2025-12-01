@@ -39,6 +39,7 @@ junit.xml
 ## The "base" root level folder is expected for some local tests that do
 ## comparisons between the current branch and a base branch (usually main)
 base/
+**/test-results/
 
 # Misc
 *.crx
@@ -56,3 +57,12 @@ apps/**/config/local.json
 
 # Nx
 .nx
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+# Stores local state data for playwright while it runs
+/playwright-data/

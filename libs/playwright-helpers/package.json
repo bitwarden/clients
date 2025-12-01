@@ -1,0 +1,11 @@
+{
+  "name": "@bitwarden/playwright-helpers",
+  "version": "0.0.1",
+  "description": "Framework for writing end-to-end playwright tests",
+  "private": true,
+  "type": "commonjs",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "GPL-3.0",
+  "author": "platform"
+}
