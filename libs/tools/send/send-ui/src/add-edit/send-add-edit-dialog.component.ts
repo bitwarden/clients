@@ -44,8 +44,10 @@ export const SendItemDialogResult = Object.freeze({
 } as const);
 
 /** A result of the Send add/edit dialog. */
-export type SendItemDialogResult = (typeof SendItemDialogResult)[keyof typeof SendItemDialogResult];
-
+// export type SendItemDialogResult = (typeof SendItemDialogResult)[keyof typeof SendItemDialogResult];
+export type SendItemDialogResult =
+  | (typeof SendItemDialogResult)[keyof typeof SendItemDialogResult]
+  | { result: typeof SendItemDialogResult.Saved; send: SendView };
 /**
  * Component for adding or editing a send item.
  */
@@ -93,7 +95,7 @@ export class SendAddEditDialogComponent {
    */
   async onSendCreated(send: SendView) {
     // FIXME Add dialogService.open send-created dialog
-    this.dialogRef.close(SendItemDialogResult.Saved);
+    this.dialogRef.close({ result: SendItemDialogResult.Saved, send });
     return;
   }
 
