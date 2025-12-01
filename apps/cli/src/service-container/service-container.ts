@@ -518,7 +518,11 @@ export class ServiceContainer {
     this.ssoUrlService = new SsoUrlService();
 
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
-    this.policyService = new DefaultPolicyService(this.stateProvider, this.organizationService);
+    this.policyService = new DefaultPolicyService(
+      this.stateProvider,
+      this.organizationService,
+      this.accountService,
+    );
 
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
