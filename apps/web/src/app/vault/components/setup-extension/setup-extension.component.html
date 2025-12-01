@@ -2,7 +2,7 @@
   *ngIf="state === SetupExtensionState.Loading"
   class="bwi bwi-spinner bwi-spin bwi-3x tw-text-muted"
   aria-hidden="true"
-  [appA11yTitle]="'loading' | i18n"
+  [title]="'loading' | i18n"
 ></i>
 
 <section *ngIf="state === SetupExtensionState.NeedsExtension" class="tw-text-center tw-mt-4">
