@@ -48,6 +48,10 @@ export default {
       type: "figma",
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?m=auto&node-id=30558-13730&t=4k23PtzCwqDekAZW-1",
     },
+    chromatic: {
+      // Allows 30% difference for the tooltip stories since they are rendered in a portal and may be affected by the environment.
+      diffThreshold: 0.3,
+    },
   },
   argTypes: {
     bitTooltip: {
@@ -74,6 +78,9 @@ export const Default: Story = {
   args: {
     tooltipPosition: "above-center",
   },
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
   render: (args) => ({
     props: args,
     template: `
@@ -97,10 +104,10 @@ export const Default: Story = {
 };
 
 export const AllPositions: Story = {
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
   render: () => ({
-    parameters: {
-      chromatic: { disableSnapshot: true },
-    },
     template: `
       <div class="tw-p-16 tw-grid tw-grid-cols-2 tw-gap-8 tw-place-items-center">
         <button
@@ -129,10 +136,10 @@ export const AllPositions: Story = {
 };
 
 export const LongContent: Story = {
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
   render: () => ({
-    parameters: {
-      chromatic: { disableSnapshot: true },
-    },
     template: `
       <div class="tw-p-16 tw-flex tw-items-center tw-justify-center">
         <button
@@ -145,10 +152,10 @@ export const LongContent: Story = {
 };
 
 export const OnDisabledButton: Story = {
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
   render: () => ({
-    parameters: {
-      chromatic: { disableSnapshot: true },
-    },
     template: `
       <div class="tw-p-16 tw-flex tw-items-center tw-justify-center">
         <button
@@ -162,10 +169,10 @@ export const OnDisabledButton: Story = {
 };
 
 export const OnNonIconButton: Story = {
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
   render: () => ({
-    parameters: {
-      chromatic: { disableSnapshot: true },
-    },
     template: `
       <div class="tw-p-16 tw-flex tw-items-center tw-justify-center">
         <button

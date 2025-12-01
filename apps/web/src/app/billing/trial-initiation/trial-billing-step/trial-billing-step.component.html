@@ -6,7 +6,7 @@
     <div class="tw-container tw-mb-3">
       <!-- Cadence -->
       <div class="tw-mb-6">
-        <h2 class="tw-mb-3 tw-text-base tw-font-semibold">{{ "billingPlanLabel" | i18n }}</h2>
+        <h2 class="tw-mb-3 tw-text-base tw-font-medium">{{ "billingPlanLabel" | i18n }}</h2>
         <bit-radio-group [formControl]="formGroup.controls.cadence">
           <div class="tw-mb-1 tw-items-center">
             <bit-radio-button id="annual-cadence-button" [value]="'annually'">
@@ -32,7 +32,7 @@
       </div>
       <!-- Payment -->
       <div class="tw-mb-4">
-        <h2 class="tw-mb-3 tw-text-base tw-font-semibold">{{ "paymentType" | i18n }}</h2>
+        <h2 class="tw-mb-3 tw-text-base tw-font-medium">{{ "paymentType" | i18n }}</h2>
         <app-enter-payment-method
           [group]="formGroup.controls.paymentMethod"
         ></app-enter-payment-method>

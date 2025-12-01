@@ -9,7 +9,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { ButtonModule } from "../../button";
 import { I18nMockService } from "../../utils/i18n-mock.service";
 import { DialogModule } from "../dialog.module";
-import { DialogService } from "../dialog.service";
+import { CenterPositionStrategy, DialogService } from "../dialog.service";
 
 interface Animal {
   animal: string;
@@ -33,28 +33,31 @@ class StoryDialogComponent {
   constructor(public dialogService: DialogService) {}
 
   openSimpleDialog() {
-    this.dialogService.open(SimpleDialogContent, {
+    this.dialogService.open(SimpleDialogContentComponent, {
       data: {
         animal: "panda",
       },
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 
   openNonDismissableWithPrimaryButtonDialog() {
-    this.dialogService.open(NonDismissableWithPrimaryButtonContent, {
+    this.dialogService.open(NonDismissableWithPrimaryButtonContentComponent, {
       data: {
         animal: "panda",
       },
       disableClose: true,
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 
   openNonDismissableWithNoButtonsDialog() {
-    this.dialogService.open(NonDismissableWithNoButtonsContent, {
+    this.dialogService.open(NonDismissableWithNoButtonsContentComponent, {
       data: {
         animal: "panda",
       },
       disableClose: true,
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 }
@@ -80,7 +83,7 @@ class StoryDialogComponent {
   `,
   imports: [ButtonModule, DialogModule],
 })
-class SimpleDialogContent {
+class SimpleDialogContentComponent {
   constructor(
     public dialogRef: DialogRef,
     @Inject(DIALOG_DATA) private data: Animal,
@@ -111,7 +114,7 @@ class SimpleDialogContent {
   `,
   imports: [ButtonModule, DialogModule],
 })
-class NonDismissableWithPrimaryButtonContent {
+class NonDismissableWithPrimaryButtonContentComponent {
   constructor(
     public dialogRef: DialogRef,
     @Inject(DIALOG_DATA) private data: Animal,
@@ -137,7 +140,7 @@ class NonDismissableWithPrimaryButtonContent {
   `,
   imports: [ButtonModule, DialogModule],
 })
-class NonDismissableWithNoButtonsContent {
+class NonDismissableWithNoButtonsContentComponent {
   constructor(
     public dialogRef: DialogRef,
     @Inject(DIALOG_DATA) private data: Animal,

@@ -191,7 +191,7 @@ describe("SettingsComponent", () => {
     desktopAutotypeService.autotypeEnabledUserSetting$ = of(false);
     desktopAutotypeService.autotypeKeyboardShortcut$ = of(["Control", "Shift", "B"]);
     billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
-    configService.getFeatureFlag$.mockReturnValue(of(true));
+    configService.getFeatureFlag$.mockReturnValue(of(false));
   });
 
   afterEach(() => {

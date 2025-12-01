@@ -7,7 +7,7 @@
 
   <ul class="tw-mb-6 tw-pl-6">
     <li>
-      <span class="tw-font-bold">
+      <span class="tw-font-medium">
         {{ "autoConfirmAcceptSecurityRiskTitle" | i18n }}
       </span>
       {{ "autoConfirmAcceptSecurityRiskDescription" | i18n }}
@@ -19,11 +19,11 @@
 
     <li>
       @if (singleOrgEnabled$ | async) {
-        <span class="tw-font-bold">
+        <span class="tw-font-medium">
           {{ "autoConfirmSingleOrgExemption" | i18n }}
         </span>
       } @else {
-        <span class="tw-font-bold">
+        <span class="tw-font-medium">
           {{ "autoConfirmSingleOrgRequired" | i18n }}
         </span>
       }
@@ -31,7 +31,7 @@
     </li>
 
     <li>
-      <span class="tw-font-bold">
+      <span class="tw-font-medium">
         {{ "autoConfirmNoEmergencyAccess" | i18n }}
       </span>
       {{ "autoConfirmNoEmergencyAccessDescription" | i18n }}
@@ -47,12 +47,12 @@
     <bit-icon class="tw-w-[233px]" [icon]="autoConfirmSvg"></bit-icon>
   </div>
   <ol>
-    <li>1. {{ "autoConfirmStep1" | i18n }}</li>
+    <li>1. {{ "autoConfirmExtension1" | i18n }}</li>
 
     <li>
-      2. {{ "autoConfirmStep2a" | i18n }}
+      2. {{ "autoConfirmExtension2" | i18n }}
       <strong>
-        {{ "autoConfirmStep2b" | i18n }}
+        {{ "autoConfirmExtension3" | i18n }}
       </strong>
     </li>
   </ol>

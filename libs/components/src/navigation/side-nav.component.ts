@@ -1,6 +1,6 @@
 import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, input, viewChild } from "@angular/core";
+import { Component, ElementRef, inject, input, viewChild } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -22,8 +22,7 @@ export class SideNavComponent {
   readonly variant = input<SideNavVariant>("primary");
 
   private readonly toggleButton = viewChild("toggleButton", { read: ElementRef });
-
-  constructor(protected sideNavService: SideNavService) {}
+  protected sideNavService = inject(SideNavService);
 
   protected handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Escape") {

@@ -21,5 +21,5 @@ const notificationHeaderMessageStyles = (theme: Theme) => css`
   color: ${themes[theme].text.main};
   font-family: Inter, sans-serif;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 500;
 `;

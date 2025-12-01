@@ -428,7 +428,7 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
 
     await this.vaultPopupSectionService.updateSectionOpenStoredState(
       this.collapsibleKey()!,
-      this.disclosure.open,
+      this.disclosure.open(),
     );
   }
 

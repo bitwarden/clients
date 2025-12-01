@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import { RedirectFocusDirection } from "../../../../enums/autofill-overlay.enum";
@@ -10,10 +8,15 @@ import {
 
 export class AutofillInlineMenuPageElement extends HTMLElement {
   protected shadowDom: ShadowRoot;
-  protected messageOrigin: string;
-  protected translations: Record<string, string>;
-  private portKey: string;
-  protected windowMessageHandlers: AutofillInlineMenuPageElementWindowMessageHandlers;
+  /** Non-null asserted. */
+  protected messageOrigin!: string;
+  /** Non-null asserted. */
+  protected translations!: Record<string, string>;
+  /** Non-null asserted. */
+  private portKey!: string;
+  /** Non-null asserted. */
+  protected windowMessageHandlers!: AutofillInlineMenuPageElementWindowMessageHandlers;
+  private token?: string;
 
   constructor() {
     super();
@@ -56,7 +59,16 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
    * @param message - The message to post
    */
   protected postMessageToParent(message: AutofillInlineMenuPageElementWindowMessage) {
-    globalThis.parent.postMessage({ portKey: this.portKey, ...message }, "*");
+    // never send messages containing authentication tokens without a valid token and an established messageOrigin
+    if (!this.token || !this.messageOrigin) {
+      return;
+    }
+    const messageWithAuth: Record<string, unknown> = {
+      portKey: this.portKey,
+      ...message,
+      token: this.token,
+    };
+    globalThis.parent.postMessage(messageWithAuth, this.messageOrigin);
   }
 
   /**
@@ -94,6 +106,10 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
       return;
     }
 
+    if (event.source !== globalThis.parent) {
+      return;
+    }
+
     if (!this.messageOrigin) {
       this.messageOrigin = event.origin;
     }
@@ -103,6 +119,26 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
     }
 
     const message = event?.data;
+
+    if (!message?.command) {
+      return;
+    }
+
+    const isInitCommand =
+      message.command === "initAutofillInlineMenuButton" ||
+      message.command === "initAutofillInlineMenuList";
+
+    if (isInitCommand) {
+      if (!message?.token) {
+        return;
+      }
+      this.token = message.token;
+    } else {
+      if (!this.token || !message?.token || message.token !== this.token) {
+        return;
+      }
+    }
+
     const handler = this.windowMessageHandlers[message?.command];
     if (!handler) {
       return;

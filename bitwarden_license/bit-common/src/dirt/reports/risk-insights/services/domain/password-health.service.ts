@@ -14,8 +14,8 @@ import {
 
 export class PasswordHealthService {
   constructor(
-    private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private auditService: AuditService,
+    private passwordStrengthService: PasswordStrengthServiceAbstraction,
   ) {}
 
   /**

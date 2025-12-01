@@ -86,17 +86,30 @@ function handleOpenBrowserExtensionToUrlMessage({ url }: { url?: ExtensionPageUr
 }
 
 /**
- * Handles the window message event.
+ * Handles window message events, validating source and extracting referrer for security.
  *
  * @param event - The window message event
  */
 function handleWindowMessageEvent(event: MessageEvent) {
-  const { source, data } = event;
+  const { source, data, origin } = event;
   if (source !== window || !data?.command) {
     return;
   }
 
-  const referrer = source.location.hostname;
+  // Extract hostname from event.origin for secure referrer validation in background script
+  let referrer: string;
+  // Sandboxed iframe or opaque origin support
+  if (origin === "null") {
+    referrer = "null";
+  } else {
+    try {
+      const originUrl = new URL(origin);
+      referrer = originUrl.hostname;
+    } catch {
+      return;
+    }
+  }
+
   const handler = windowMessageHandlers[data.command];
   if (handler) {
     handler({ data, referrer });

@@ -58,7 +58,7 @@ describe("ORGANIZATIONS state", () => {
         allowAdminAccessToAllCollectionItems: false,
         familySponsorshipLastSyncDate: new Date(),
         userIsManagedByOrganization: false,
-        useRiskInsights: false,
+        useAccessIntelligence: false,
         useOrganizationDomains: false,
         useAdminSponsoredFamilies: false,
         isAdminInitiated: false,
