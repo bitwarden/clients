@@ -1387,7 +1387,7 @@
     "message": "语言"
   },
   "languageDesc": {
-    "message": "更改应用程序所使用的语言。重启后生效。"
+    "message": "更改应用程序所使用的语言。需要重启。"
   },
   "theme": {
     "message": "主题"
@@ -3980,7 +3980,7 @@
     "message": "关于此设置"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden 将使用已保存的登录 URI 来识别应使用哪个图标或更改密码的 URL 来改善您的体验。当您使用此服务时，不会收集或保存任何信息。"
+    "message": "Bitwarden 将使用已保存的登录 URI 来确定应使用的图标或更改密码的 URL，以提升您的使用体验。使用此服务时不会收集或保存任何信息。"
   },
   "assignToCollections": {
     "message": "分配到集合"
