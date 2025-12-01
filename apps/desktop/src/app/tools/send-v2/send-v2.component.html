@@ -17,7 +17,7 @@
               <span class="item-icon" aria-hidden="true">
                 <i
                   class="bwi bwi-fw bwi-lg"
-                  [class]="s.type == 0 ? 'bwi-file-text' : 'bwi-file'"
+                  [class]="s.type === sendType.Text ? 'bwi-file-text' : 'bwi-file'"
                 ></i>
               </span>
               <span class="item-content">
@@ -107,8 +107,8 @@
       [sendId]="sendId()"
       [type]="selectedSendType()"
       (onSavedSend)="savedSend($event)"
-      (onCancelled)="cancel($event)"
-      (onDeletedSend)="deletedSend($event)"
+      (onCancelled)="cancel()"
+      (onDeletedSend)="deletedSend()"
     ></app-send-add-edit>
   }
   @if (!action()) {

@@ -1,5 +1,12 @@
 import { DatePipe } from "@angular/common";
-import { Component, ChangeDetectionStrategy, computed, signal, viewChild } from "@angular/core";
+import {
+  Component,
+  ChangeDetectionStrategy,
+  computed,
+  signal,
+  viewChild,
+  AfterViewInit,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { firstValueFrom, map } from "rxjs";
 
@@ -7,10 +14,11 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { A11yTitleDirective, DialogService, ToastService } from "@bitwarden/components";
-import { SendItemsService, SendListFiltersService } from "@bitwarden/send-ui";
+import { SendItemsService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { invokeMenu, RendererMenuItem } from "../../../utils";
@@ -22,7 +30,8 @@ import { AddEditComponent } from "../send/add-edit.component";
   templateUrl: "send-v2.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SendV2Component {
+export class SendV2Component implements AfterViewInit {
+  protected readonly sendType = SendType;
   protected readonly addEditComponent = viewChild(AddEditComponent);
   protected readonly filteredSends = toSignal(this.sendItemsService.filteredAndSortedSends$, {
     initialValue: [],
@@ -34,8 +43,17 @@ export class SendV2Component {
   protected readonly sendId = signal<string | null>(null);
   protected readonly action = signal<"add" | "edit" | null>(null);
 
-  // Get the selectedSendType based on current sendId
+  // Track pending add operation with type
+  private readonly pendingAddType = signal<SendType | null>(null);
+
+  // Get the selectedSendType based on current action and sendId
   protected readonly selectedSendType = computed(() => {
+    // If adding, use pending type
+    if (this.action() === "add") {
+      return this.pendingAddType();
+    }
+
+    // If editing, find type from send
     const id = this.sendId();
     if (!id) {
       return null;
@@ -45,7 +63,6 @@ export class SendV2Component {
 
   constructor(
     protected sendItemsService: SendItemsService,
-    protected sendListFiltersService: SendListFiltersService,
     private dialogService: DialogService,
     private environmentService: EnvironmentService,
     private i18nService: I18nService,
@@ -54,6 +71,14 @@ export class SendV2Component {
     private sendApiService: SendApiService,
     private toastService: ToastService,
   ) {}
+
+  ngAfterViewInit(): void {
+    // Handle pending add operation after view initializes
+    if (this.action() === "add" && this.pendingAddType() !== null) {
+      void this.initializeAddEdit(this.pendingAddType());
+      this.pendingAddType.set(null);
+    }
+  }
 
   // Select a Send to view/edit
   protected async selectSend(sendId: string): Promise<void> {
@@ -70,32 +95,54 @@ export class SendV2Component {
     }
   }
 
-  // Create a new Send
-  protected async addSend(): Promise<void> {
+  // Create a new Send with optional type
+  protected addSend(type?: SendType): void {
     this.action.set("add");
     this.sendId.set(null);
 
+    // Store the type for initialization after view renders
+    this.pendingAddType.set(type ?? null);
+
+    // If component already exists (shouldn't happen on first add, but handle it)
     const component = this.addEditComponent();
     if (component) {
-      await component.resetAndLoad();
+      void this.initializeAddEdit(type);
     }
+  }
+
+  // Initialize the add-edit component with optional type
+  private async initializeAddEdit(type?: SendType | null): Promise<void> {
+    const component = this.addEditComponent();
+    if (!component) {
+      return;
+    }
+
+    // Set type if provided
+    if (type !== null && type !== undefined) {
+      component.type = type;
+    }
+
+    await component.resetAndLoad();
   }
 
   // Save completion (after create or modify)
   protected async savedSend(send: SendView): Promise<void> {
+    this.pendingAddType.set(null);
     await this.selectSend(send.id);
   }
 
   // Cancel (close add/edit panel)
-  protected cancel(_send: SendView): void {
+  protected cancel(): void {
     this.action.set(null);
     this.sendId.set(null);
+    this.pendingAddType.set(null);
   }
 
   // Delete completion (after delete)
-  protected async deletedSend(_send: SendView): Promise<void> {
+  protected async deletedSend(): Promise<void> {
     this.action.set(null);
     this.sendId.set(null);
+    this.pendingAddType.set(null);
   }
 
   // Context menu for send items
@@ -128,7 +175,7 @@ export class SendV2Component {
       click: async () => {
         const deleted = await this.deleteSend(send);
         if (deleted) {
-          await this.deletedSend(send);
+          await this.deletedSend();
         }
       },
     });

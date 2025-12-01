@@ -126,29 +126,56 @@ describe("SendV2Component", () => {
   });
 
   describe("addSend", () => {
-    it("sets action to add and clears sendId", async () => {
+    it("sets action to add and clears sendId", () => {
       component["sendId"].set("send-1");
 
-      await component["addSend"]();
+      component["addSend"]();
 
       expect(component["action"]()).toBe("add");
       expect(component["sendId"]()).toBeNull();
     });
 
-    it("calls resetAndLoad on AddEditComponent if available", async () => {
+    it("sets pendingAddType to null when no type is provided", () => {
+      component["addSend"]();
+
+      expect(component["pendingAddType"]()).toBeNull();
+    });
+
+    it("sets pendingAddType when type is provided", () => {
+      component["addSend"](SendType.Text);
+
+      expect(component["pendingAddType"]()).toBe(SendType.Text);
+    });
+
+    it("calls initializeAddEdit with type when AddEditComponent is available", () => {
       const mockAddEditComponent = {
+        type: SendType.File,
         resetAndLoad: jest.fn().mockResolvedValue(undefined),
       } as unknown as AddEditComponent;
 
-      // Mock the viewChild signal to return the mock component
       Object.defineProperty(component, "addEditComponent", {
         value: () => mockAddEditComponent,
         writable: false,
       });
 
-      await component["addSend"]();
+      const initializeSpy = jest.spyOn(component as any, "initializeAddEdit");
 
-      expect(mockAddEditComponent.resetAndLoad).toHaveBeenCalled();
+      component["addSend"](SendType.Text);
+
+      expect(initializeSpy).toHaveBeenCalledWith(SendType.Text);
+    });
+
+    it("does not call initializeAddEdit when AddEditComponent is not available", () => {
+      Object.defineProperty(component, "addEditComponent", {
+        value: () => null,
+        writable: false,
+      });
+
+      const initializeSpy = jest.spyOn(component as any, "initializeAddEdit");
+
+      component["addSend"](SendType.Text);
+
+      expect(initializeSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -160,6 +187,15 @@ describe("SendV2Component", () => {
       await component["savedSend"](savedSend);
 
       expect(selectSendSpy).toHaveBeenCalledWith(savedSend.id);
+    });
+
+    it("clears pendingAddType", async () => {
+      component["pendingAddType"].set(SendType.Text);
+      const savedSend = mockSends[0];
+
+      await component["savedSend"](savedSend);
+
+      expect(component["pendingAddType"]()).toBeNull();
     });
   });
 
@@ -173,6 +209,15 @@ describe("SendV2Component", () => {
       expect(component["action"]()).toBeNull();
       expect(component["sendId"]()).toBeNull();
     });
+
+    it("clears pendingAddType", () => {
+      component["pendingAddType"].set(SendType.File);
+      component["action"].set("add");
+
+      component["cancel"](mockSends[0]);
+
+      expect(component["pendingAddType"]()).toBeNull();
+    });
   });
 
   describe("deletedSend", () => {
@@ -185,22 +230,48 @@ describe("SendV2Component", () => {
       expect(component["action"]()).toBeNull();
       expect(component["sendId"]()).toBeNull();
     });
+
+    it("clears pendingAddType", async () => {
+      component["pendingAddType"].set(SendType.Text);
+      component["action"].set("add");
+
+      await component["deletedSend"](mockSends[0]);
+
+      expect(component["pendingAddType"]()).toBeNull();
+    });
   });
 
   describe("selectedSendType", () => {
-    it("returns null when no sendId is set", () => {
+    it("returns null when no sendId is set and not in add mode", () => {
       component["sendId"].set(null);
+      component["action"].set(null);
 
       expect(component["selectedSendType"]()).toBeNull();
     });
 
-    it("returns the type of the selected send", () => {
+    it("returns pendingAddType when in add mode", () => {
+      component["action"].set("add");
+      component["pendingAddType"].set(SendType.File);
+
+      expect(component["selectedSendType"]()).toBe(SendType.File);
+    });
+
+    it("returns null when in add mode with no pending type", () => {
+      component["action"].set("add");
+      component["pendingAddType"].set(null);
+
+      expect(component["selectedSendType"]()).toBeNull();
+    });
+
+    it("returns the type of the selected send in edit mode", () => {
+      component["action"].set("edit");
       component["sendId"].set("send-1");
 
       expect(component["selectedSendType"]()).toBe(SendType.Text);
     });
 
-    it("returns null when send is not found", () => {
+    it("returns null when send is not found in edit mode", () => {
+      component["action"].set("edit");
       component["sendId"].set("non-existent-id");
 
       expect(component["selectedSendType"]()).toBeNull();
@@ -218,6 +289,87 @@ describe("SendV2Component", () => {
       (sendItemsService.loading$ as BehaviorSubject<boolean>).next(true);
 
       expect(component["loaded"]()).toBe(false);
+    });
+  });
+
+  describe("ngAfterViewInit", () => {
+    it("calls initializeAddEdit when action is add and pendingAddType is set", () => {
+      component["action"].set("add");
+      component["pendingAddType"].set(SendType.Text);
+
+      const initializeSpy = jest.spyOn(component as any, "initializeAddEdit");
+
+      component.ngAfterViewInit();
+
+      expect(initializeSpy).toHaveBeenCalledWith(SendType.Text);
+      expect(component["pendingAddType"]()).toBeNull();
+    });
+
+    it("does not call initializeAddEdit when action is not add", () => {
+      component["action"].set("edit");
+      component["pendingAddType"].set(SendType.Text);
+
+      const initializeSpy = jest.spyOn(component as any, "initializeAddEdit");
+
+      component.ngAfterViewInit();
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+    });
+
+    it("does not call initializeAddEdit when pendingAddType is null", () => {
+      component["action"].set("add");
+      component["pendingAddType"].set(null);
+
+      const initializeSpy = jest.spyOn(component as any, "initializeAddEdit");
+
+      component.ngAfterViewInit();
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("initializeAddEdit", () => {
+    it("sets type on component and calls resetAndLoad", async () => {
+      const mockAddEditComponent = {
+        type: null,
+        resetAndLoad: jest.fn().mockResolvedValue(undefined),
+      } as unknown as AddEditComponent;
+
+      Object.defineProperty(component, "addEditComponent", {
+        value: () => mockAddEditComponent,
+        writable: false,
+      });
+
+      await component["initializeAddEdit"](SendType.File);
+
+      expect(mockAddEditComponent.type).toBe(SendType.File);
+      expect(mockAddEditComponent.resetAndLoad).toHaveBeenCalled();
+    });
+
+    it("does not set type when type is null", async () => {
+      const mockAddEditComponent = {
+        type: SendType.Text,
+        resetAndLoad: jest.fn().mockResolvedValue(undefined),
+      } as unknown as AddEditComponent;
+
+      Object.defineProperty(component, "addEditComponent", {
+        value: () => mockAddEditComponent,
+        writable: false,
+      });
+
+      await component["initializeAddEdit"](null);
+
+      expect(mockAddEditComponent.type).toBe(SendType.Text); // Unchanged
+      expect(mockAddEditComponent.resetAndLoad).toHaveBeenCalled();
+    });
+
+    it("does nothing when component is not available", async () => {
+      Object.defineProperty(component, "addEditComponent", {
+        value: () => null,
+        writable: false,
+      });
+
+      await expect(component["initializeAddEdit"](SendType.Text)).resolves.not.toThrow();
     });
   });
 });

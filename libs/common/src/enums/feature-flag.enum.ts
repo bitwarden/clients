@@ -170,6 +170,9 @@ export function getFeatureFlagValue<Flag extends FeatureFlag>(
   serverConfig: ServerConfig | null,
   flag: Flag,
 ) {
+  if (flag === FeatureFlag.DesktopUiMigrationMilestone1) {
+    return true;
+  }
   if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
     return DefaultFeatureFlagValue[flag];
   }
