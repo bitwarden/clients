@@ -21,13 +21,13 @@
     "message": "Passwort-Risiko"
   },
   "noEditPermissions": {
-    "message": "Du bist nicht berechtigt, diesen Eintrag zu bearbeiten"
+    "message": "Du hast keine Berechtigung, diesen Eintrag zu bearbeiten"
   },
   "reviewAtRiskPasswords": {
     "message": "Überprüfe gefährdete Passwörter (schwach, kompromittiert oder wiederverwendet) in allen Anwendungen. Wähle deine kritischsten Anwendungen aus, um die Sicherheitsmaßnahmen für deine Benutzer zu priorisieren, um gefährdete Passwörter zu beseitigen."
   },
   "reviewAtRiskLoginsPrompt": {
-    "message": "Überprüfung gefährdeter Zugangsdaten"
+    "message": "Gefährdete Zugangsdaten überprüfen"
   },
   "dataLastUpdated": {
     "message": "Daten zuletzt aktualisiert: $DATE$",
@@ -94,7 +94,7 @@
     "message": "Mitglieder Aufgaben zuweisen, um den Fortschritt zu überwachen"
   },
   "onceYouReviewApplications": {
-    "message": "Sobald du Anwendungen überprüft und als kritisch markiert hast, weist du deinen Mitgliedern Aufgaben zu, damit diese ihre Passwörter ändern."
+    "message": "Sobald du Anwendungen überprüft und als kritisch markiert hast, weise deinen Mitgliedern Aufgaben zu, um sie für das automatische Ausfüllen von Passwörtern zu aktivieren."
   },
   "sendReminders": {
     "message": "Erinnerungen senden"
@@ -12154,7 +12154,7 @@
     "message": "Aussehen"
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "Das Timeout überschreitet die von deiner Organisation festgelegte Beschränkung: Maximal $HOURS$ Stunde(n) und $MINUTES$ Minute(n)",
+    "message": "Das maximale Sitzungs-Timeout, das durch die Richtlinie deiner Organisation erlaubt ist, beträgt $HOURS$ Stunde(n) und $MINUTES$ Minute(n)",
     "placeholders": {
       "hours": {
         "content": "$1",
