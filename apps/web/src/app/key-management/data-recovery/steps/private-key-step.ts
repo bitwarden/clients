@@ -45,6 +45,7 @@ export class PrivateKeyStep extends RecoveryStep {
       );
     } catch {
       logger.record("Private key was un-decryptable");
+      workingData.isPrivateKeyCorrupt = true;
       return false;
     }
 
@@ -54,6 +55,7 @@ export class PrivateKeyStep extends RecoveryStep {
       logger.record("Public key length: " + publicKey.length);
     } catch {
       logger.record("Public key could not be derived; private key is corrupt");
+      workingData.isPrivateKeyCorrupt = true;
       return false;
     }
 
