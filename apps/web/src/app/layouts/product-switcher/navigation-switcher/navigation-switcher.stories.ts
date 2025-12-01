@@ -9,6 +9,9 @@ import { ProviderService } from "@bitwarden/common/admin-console/abstractions/pr
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag, FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -27,6 +30,8 @@ import { NavigationProductSwitcherComponent } from "./navigation-switcher.compon
   selector: "[mockOrgs]",
   standalone: false,
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28232): Use Directive suffix
+// eslint-disable-next-line @angular-eslint/directive-class-suffix
 class MockOrganizationService implements Partial<OrganizationService> {
   private static _orgs = new BehaviorSubject<Organization[]>([]);
 
@@ -34,6 +39,8 @@ class MockOrganizationService implements Partial<OrganizationService> {
     return MockOrganizationService._orgs.asObservable();
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   set mockOrgs(orgs: Organization[]) {
     MockOrganizationService._orgs.next(orgs);
@@ -44,6 +51,8 @@ class MockOrganizationService implements Partial<OrganizationService> {
   selector: "[mockProviders]",
   standalone: false,
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28232): Use Directive suffix
+// eslint-disable-next-line @angular-eslint/directive-class-suffix
 class MockProviderService implements Partial<ProviderService> {
   private static _providers = new BehaviorSubject<Provider[]>([]);
 
@@ -51,6 +60,8 @@ class MockProviderService implements Partial<ProviderService> {
     return MockProviderService._providers.asObservable();
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   set mockProviders(providers: Provider[]) {
     MockProviderService._providers.next(providers);
@@ -78,6 +89,20 @@ class MockPlatformUtilsService implements Partial<PlatformUtilsService> {
   }
 }
 
+class MockBillingAccountProfileStateService implements Partial<BillingAccountProfileStateService> {
+  hasPremiumFromAnySource$(userId: UserId): Observable<boolean> {
+    return of(false);
+  }
+}
+
+class MockConfigService implements Partial<ConfigService> {
+  getFeatureFlag$<Flag extends FeatureFlag>(key: Flag): Observable<FeatureFlagValueType<Flag>> {
+    return of(false);
+  }
+}
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "story-layout",
   template: `<ng-content></ng-content>`,
@@ -85,6 +110,8 @@ class MockPlatformUtilsService implements Partial<PlatformUtilsService> {
 })
 class StoryLayoutComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "story-content",
   template: ``,
@@ -117,6 +144,11 @@ export default {
         { provide: ProviderService, useClass: MockProviderService },
         { provide: SyncService, useClass: MockSyncService },
         { provide: PlatformUtilsService, useClass: MockPlatformUtilsService },
+        {
+          provide: BillingAccountProfileStateService,
+          useClass: MockBillingAccountProfileStateService,
+        },
+        { provide: ConfigService, useClass: MockConfigService },
         ProductSwitcherService,
         {
           provide: I18nService,

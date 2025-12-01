@@ -1,6 +1,6 @@
 import { combineLatest, filter, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -17,6 +17,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { UserId } from "@bitwarden/user-core";
 
+import { AutotypeVaultData } from "../models/autotype-vault-data";
+
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
 
 export const defaultWindowsAutotypeKeyboardShortcut: string[] = ["Control", "Shift", "B"];
@@ -26,6 +28,8 @@ export const AUTOTYPE_ENABLED = new KeyDefinition<boolean | null>(
   "autotypeEnabled",
   { deserializer: (b) => b },
 );
+
+export type Result<T, E = Error> = [E, null] | [null, T];
 
 /*
   Valid windows shortcut keys: Control, Alt, Super, Shift, letters A - Z
@@ -63,17 +67,16 @@ export class DesktopAutotypeService {
     ipc.autofill.listenAutotypeRequest(async (windowTitle, callback) => {
       const possibleCiphers = await this.matchCiphersToWindowTitle(windowTitle);
       const firstCipher = possibleCiphers?.at(0);
-
-      return callback(null, {
-        username: firstCipher?.login?.username,
-        password: firstCipher?.login?.password,
-      });
+      const [error, vaultData] = getAutotypeVaultData(firstCipher);
+      callback(error, vaultData);
     });
   }
 
   async init() {
     this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$;
-    this.autotypeKeyboardShortcut$ = this.autotypeKeyboardShortcut.state$;
+    this.autotypeKeyboardShortcut$ = this.autotypeKeyboardShortcut.state$.pipe(
+      map((shortcut) => shortcut ?? defaultWindowsAutotypeKeyboardShortcut),
+    );
 
     // Currently Autotype is only supported for Windows
     if (this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop) {
@@ -109,9 +112,9 @@ export class DesktopAutotypeService {
           switchMap((userId) => this.authService.authStatusFor$(userId)),
         ),
         this.accountService.activeAccount$.pipe(
-          map((activeAccount) => activeAccount?.id),
-          switchMap((userId) =>
-            this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId),
+          filter((account): account is Account => !!account),
+          switchMap((account) =>
+            this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
           ),
         ),
       ]).pipe(
@@ -172,5 +175,25 @@ export class DesktopAutotypeService {
     });
 
     return possibleCiphers;
+  }
+}
+
+/**
+ * @return an `AutotypeVaultData` object or an `Error` if the
+ * cipher or vault data within are undefined.
+ */
+export function getAutotypeVaultData(
+  cipherView: CipherView | undefined,
+): Result<AutotypeVaultData> {
+  if (!cipherView) {
+    return [Error("No matching vault item."), null];
+  } else if (cipherView.login.username === undefined || cipherView.login.password === undefined) {
+    return [Error("Vault item is undefined."), null];
+  } else {
+    const vaultData: AutotypeVaultData = {
+      username: cipherView.login.username,
+      password: cipherView.login.password,
+    };
+    return [null, vaultData];
   }
 }

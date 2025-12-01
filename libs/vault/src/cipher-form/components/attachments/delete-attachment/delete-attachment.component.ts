@@ -17,6 +17,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-delete-attachment",
   templateUrl: "./delete-attachment.component.html",
@@ -24,15 +26,23 @@ import {
 })
 export class DeleteAttachmentComponent {
   /** Id of the cipher associated with the attachment */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) cipherId!: string;
 
   /** The attachment that is can be deleted */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) attachment!: AttachmentView;
 
   /** Whether the attachment is being accessed from the admin console */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() admin: boolean = false;
 
   /** Emits when the attachment is successfully deleted */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onDeletionSuccess = new EventEmitter<void>();
 
   constructor(
@@ -66,7 +76,7 @@ export class DeleteAttachmentComponent {
 
       await this.cipherService.deleteAttachmentWithServer(
         this.cipherId,
-        this.attachment.id,
+        this.attachment.id!,
         activeUserId,
         this.admin,
       );

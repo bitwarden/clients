@@ -1,10 +1,19 @@
 import { importProvidersFrom } from "@angular/core";
 import { RouterTestingModule } from "@angular/router/testing";
-import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
+import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { of } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { BadgeModule, IconModule } from "@bitwarden/components";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import {
+  BadgeModule,
+  BaseCardComponent,
+  CardContentComponent,
+  IconModule,
+} from "@bitwarden/components";
 
 import { PreloadedEnglishI18nModule } from "../../../../core/tests";
 import { reports } from "../../reports";
@@ -18,8 +27,38 @@ export default {
   component: ReportListComponent,
   decorators: [
     moduleMetadata({
-      imports: [JslibModule, BadgeModule, RouterTestingModule, IconModule, PremiumBadgeComponent],
+      imports: [
+        JslibModule,
+        BadgeModule,
+        RouterTestingModule,
+        IconModule,
+        PremiumBadgeComponent,
+        CardContentComponent,
+        BaseCardComponent,
+      ],
       declarations: [ReportCardComponent],
+      providers: [
+        {
+          provide: AccountService,
+          useValue: {
+            activeAccount$: of({
+              id: "123",
+            }),
+          },
+        },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: {
+            hasPremiumFromAnySource$: () => of(false),
+          },
+        },
+        {
+          provide: PremiumUpgradePromptService,
+          useValue: {
+            promptForPremium: (orgId?: string) => {},
+          },
+        },
+      ],
     }),
     applicationConfig({
       providers: [importProvidersFrom(PreloadedEnglishI18nModule)],

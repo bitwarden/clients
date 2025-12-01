@@ -6,6 +6,7 @@ export * from "./display-payment-method.component";
 export * from "./edit-billing-address-dialog.component";
 export * from "./enter-billing-address.component";
 export * from "./enter-payment-method.component";
+export * from "./payment-label.component";
 export * from "./require-payment-method-dialog.component";
 export * from "./submit-payment-method-dialog.component";
 export * from "./verify-bank-account.component";

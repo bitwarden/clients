@@ -26,6 +26,12 @@ export abstract class TaskService {
   abstract pendingTasks$(userId: UserId): Observable<SecurityTask[]>;
 
   /**
+   * Observable of completed tasks for a given user.
+   * @param userId
+   */
+  abstract completedTasks$(userId: UserId): Observable<SecurityTask[]>;
+
+  /**
    * Retrieves tasks from the API for a given user and updates the local state.
    * @param userId
    */

@@ -26,18 +26,6 @@
 </bit-banner>
 
 <bit-banner
-  id="kdf-settings-banner"
-  bannerType="warning"
-  *ngIf="visibleBanners.includes(VisibleVaultBanner.KDFSettings)"
-  (onClose)="dismissBanner(VisibleVaultBanner.KDFSettings)"
->
-  {{ "lowKDFIterationsBanner" | i18n }}
-  <a bitLink linkType="secondary" routerLink="/settings/security/security-keys">
-    {{ "changeKDFSettings" | i18n }}
-  </a>
-</bit-banner>
-
-<bit-banner
   id="pending-auth-request-banner"
   bannerType="info"
   icon="bwi-info-circle"

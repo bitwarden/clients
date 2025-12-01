@@ -4,6 +4,7 @@ export const OrganizationIntegrationType = Object.freeze({
   Slack: 3,
   Webhook: 4,
   Hec: 5,
+  Datadog: 6,
 } as const);
 
 export type OrganizationIntegrationType =

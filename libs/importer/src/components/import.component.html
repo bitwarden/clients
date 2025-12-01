@@ -1,6 +1,3 @@
-<bit-callout type="info" *ngIf="importBlockedByPolicy">
-  {{ "personalOwnershipPolicyInEffectImports" | i18n }}
-</bit-callout>
 <bit-callout
   [title]="'restrictCardTypeImport' | i18n"
   type="info"
@@ -11,7 +8,7 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit" id="import_form_importForm">
   <bit-section>
     <bit-section-header>
-      <h2 class="tw-font-bold" bitTypography="h6">{{ "destination" | i18n }}</h2>
+      <h2 class="tw-font-medium" bitTypography="h6">{{ "destination" | i18n }}</h2>
     </bit-section-header>
     <bit-card>
       <bit-form-field [hidden]="isFromAC">
@@ -49,7 +46,7 @@
               *ngFor="let c of collections$ | async"
               [value]="c"
               [label]="c.name"
-              icon="bwi-collection-shared"
+              [icon]="c.type === DefaultCollectionType ? 'bwi-user' : 'bwi-collection-shared'"
             />
           </ng-container>
         </bit-select>
@@ -62,15 +59,15 @@
 
   <bit-section>
     <bit-section-header>
-      <h2 class="tw-font-bold" bitTypography="h6">{{ "data" | i18n }}</h2>
+      <h2 class="tw-font-medium" bitTypography="h6">{{ "data" | i18n }}</h2>
     </bit-section-header>
     <bit-card>
-      <bit-form-field class="tw-w-1/2">
+      <bit-form-field class="@2xl:tw-w-1/2">
         <bit-label>{{ "fileFormat" | i18n }}</bit-label>
         <bit-select formControlName="format">
           <bit-option value="" label="-- {{ 'select' | i18n }} --" />
           <bit-option
-            class="tw-font-bold tw-text-muted tw-text-xs"
+            class="tw-font-medium tw-text-muted tw-text-xs"
             value="-"
             label="{{ 'commonImportFormats' | i18n }}"
             disabled

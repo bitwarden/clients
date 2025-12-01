@@ -7,21 +7,17 @@ import { OrganizationSsoRequest } from "../../../auth/models/request/organizatio
 import { SecretVerificationRequest } from "../../../auth/models/request/secret-verification.request";
 import { ApiKeyResponse } from "../../../auth/models/response/api-key.response";
 import { OrganizationSsoResponse } from "../../../auth/models/response/organization-sso.response";
-import { ExpandedTaxInfoUpdateRequest } from "../../../billing/models/request/expanded-tax-info-update.request";
 import { OrganizationNoPaymentMethodCreateRequest } from "../../../billing/models/request/organization-no-payment-method-create-request";
 import { OrganizationSmSubscriptionUpdateRequest } from "../../../billing/models/request/organization-sm-subscription-update.request";
 import { OrganizationSubscriptionUpdateRequest } from "../../../billing/models/request/organization-subscription-update.request";
-import { PaymentRequest } from "../../../billing/models/request/payment.request";
 import { SecretsManagerSubscribeRequest } from "../../../billing/models/request/sm-subscribe.request";
 import { BillingHistoryResponse } from "../../../billing/models/response/billing-history.response";
 import { BillingResponse } from "../../../billing/models/response/billing.response";
 import { OrganizationSubscriptionResponse } from "../../../billing/models/response/organization-subscription.response";
 import { PaymentResponse } from "../../../billing/models/response/payment.response";
-import { TaxInfoResponse } from "../../../billing/models/response/tax-info.response";
 import { ImportDirectoryRequest } from "../../../models/request/import-directory.request";
 import { SeatRequest } from "../../../models/request/seat.request";
 import { StorageRequest } from "../../../models/request/storage.request";
-import { VerifyBankRequest } from "../../../models/request/verify-bank.request";
 import { ListResponse } from "../../../models/response/list.response";
 import { SyncService } from "../../../vault/abstractions/sync/sync.service.abstraction";
 import { OrganizationApiServiceAbstraction } from "../../abstractions/organization/organization-api.service.abstraction";
@@ -143,10 +139,6 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
     return data;
   }
 
-  async updatePayment(id: string, request: PaymentRequest): Promise<void> {
-    return this.apiService.send("POST", "/organizations/" + id + "/payment", request, true, false);
-  }
-
   async upgrade(id: string, request: OrganizationUpgradeRequest): Promise<PaymentResponse> {
     const r = await this.apiService.send(
       "POST",
@@ -206,16 +198,6 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
       true,
     );
     return new PaymentResponse(r);
-  }
-
-  async verifyBank(id: string, request: VerifyBankRequest): Promise<void> {
-    await this.apiService.send(
-      "POST",
-      "/organizations/" + id + "/verify-bank",
-      request,
-      true,
-      false,
-    );
   }
 
   async reinstate(id: string): Promise<void> {
@@ -297,16 +279,6 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
       true,
     );
     return new ApiKeyResponse(r);
-  }
-
-  async getTaxInfo(id: string): Promise<TaxInfoResponse> {
-    const r = await this.apiService.send("GET", "/organizations/" + id + "/tax", null, true, true);
-    return new TaxInfoResponse(r);
-  }
-
-  async updateTaxInfo(id: string, request: ExpandedTaxInfoUpdateRequest): Promise<void> {
-    // Can't broadcast anything because the response doesn't have content
-    return this.apiService.send("PUT", "/organizations/" + id + "/tax", request, true, false);
   }
 
   async getKeys(id: string): Promise<OrganizationKeysResponse> {

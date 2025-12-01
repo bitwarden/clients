@@ -62,6 +62,8 @@ interface QueryParams {
 /**
  * This component handles the SSO flow.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "sso.component.html",
   imports: [
@@ -458,7 +460,7 @@ export class SsoComponent implements OnInit {
 
       // must come after 2fa check since user decryption options aren't available if 2fa is required
       const userDecryptionOpts = await firstValueFrom(
-        this.userDecryptionOptionsService.userDecryptionOptions$,
+        this.userDecryptionOptionsService.userDecryptionOptionsById$(authResult.userId),
       );
 
       const tdeEnabled = userDecryptionOpts.trustedDeviceOption

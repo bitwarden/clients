@@ -1,13 +1,5 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "files": [],
-  "include": [],
-  "references": [
-    {
-      "path": "./tsconfig.lib.json"
-    },
-    {
-      "path": "./tsconfig.spec.json"
-    }
-  ]
+  "extends": "../../tsconfig.base",
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }

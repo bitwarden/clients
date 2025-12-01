@@ -70,8 +70,8 @@ export class BrowserSystemNotificationService implements SystemNotificationsServ
   }
 
   async clear(clearInfo: SystemNotificationClearInfo): Promise<undefined> {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    chrome.notifications.clear(clearInfo.id);
+    await chrome.notifications.clear(clearInfo.id);
+    return undefined;
   }
 
   isSupported(): boolean {

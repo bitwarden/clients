@@ -1,69 +1,100 @@
-import { concatMap, filter, Subscription, withLatestFrom } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  combineLatestWith,
+  concatMap,
+  debounceTime,
+  filter,
+  groupBy,
+  map,
+  mergeMap,
+  Observable,
+  of,
+  startWith,
+  Subscription,
+  switchMap,
+  takeUntil,
+} from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import {
-  BADGE_MEMORY,
-  GlobalState,
-  KeyDefinition,
-  StateProvider,
-} from "@bitwarden/common/platform/state";
 
 import { BadgeBrowserApi, RawBadgeState, Tab } from "./badge-browser-api";
 import { DefaultBadgeState } from "./consts";
 import { BadgeStatePriority } from "./priority";
 import { BadgeState, Unset } from "./state";
 
-interface StateSetting {
+const BADGE_UPDATE_DEBOUNCE_MS = 100;
+
+export interface BadgeStateSetting {
   priority: BadgeStatePriority;
   state: BadgeState;
-  tabId?: number;
 }
 
-const BADGE_STATES = new KeyDefinition(BADGE_MEMORY, "badgeStates", {
-  deserializer: (value: Record<string, StateSetting>) => value ?? {},
-  cleanupDelayMs: 0,
-});
+/**
+ * A function that returns the badge state for a specific tab.
+ * Return `undefined` to clear any previously set state for the tab.
+ */
+export type BadgeStateFunction = (tab: Tab) => Observable<BadgeStateSetting | undefined>;
 
 export class BadgeService {
-  private serviceState: GlobalState<Record<string, StateSetting>>;
-
-  /**
-   * An observable that emits whenever one or multiple tabs are updated and might need its state updated.
-   * Use this to know exactly which tabs to calculate the badge state for.
-   * This is not the same as `onActivated` which only emits when the active tab changes.
-   */
-  activeTabsUpdated$ = this.badgeApi.activeTabsUpdated$;
-
-  getActiveTabs(): Promise<Tab[]> {
-    return this.badgeApi.getActiveTabs();
-  }
+  private stateFunctions = new BehaviorSubject<Record<string, BadgeStateFunction>>({});
 
   constructor(
-    private stateProvider: StateProvider,
     private badgeApi: BadgeBrowserApi,
     private logService: LogService,
-  ) {
-    this.serviceState = this.stateProvider.getGlobal(BADGE_STATES);
-  }
+    private debounceTimeMs: number = BADGE_UPDATE_DEBOUNCE_MS,
+  ) {}
 
   /**
    * Start listening for badge state changes.
    * Without this the service will not be able to update the badge state.
    */
   startListening(): Subscription {
-    // React to tab changes
-    return this.badgeApi.activeTabsUpdated$
+    // Default state function that always returns an empty state with lowest priority.
+    // This will ensure that there is always at least one state to consider when calculating the final badge state,
+    // so that the badge is cleared/set to default when no other states are set.
+    const defaultTabStateFunction: BadgeStateFunction = (_tab) =>
+      of({
+        priority: BadgeStatePriority.Low,
+        state: {},
+      });
+
+    return this.badgeApi.tabEvents$
       .pipe(
-        withLatestFrom(this.serviceState.state$),
-        filter(([activeTabs]) => activeTabs.length > 0),
-        concatMap(async ([activeTabs, serviceState]) => {
-          await Promise.all(activeTabs.map((tab) => this.updateBadge(serviceState, tab.tabId)));
+        groupBy((event) => (event.type === "deactivated" ? event.tabId : event.tab.tabId), {
+          duration: (group$) =>
+            // Allow clean up of group when deactivated event arrives for this tabId
+            group$.pipe(filter((evt) => evt.type === "deactivated")),
+        }),
+        mergeMap((group$) =>
+          group$.pipe(
+            // ignore deactivation events, only handle updates/activations
+            filter((evt) => evt.type !== "deactivated"),
+            map((evt) => evt.tab),
+            combineLatestWith(this.stateFunctions),
+            switchMap(([tab, dynamicStateFunctions]) => {
+              const functions = [...Object.values(dynamicStateFunctions), defaultTabStateFunction];
+
+              return combineLatest(functions.map((f) => f(tab).pipe(startWith(undefined)))).pipe(
+                map((states) => ({
+                  tab,
+                  states: states.filter((s): s is BadgeStateSetting => s !== undefined),
+                })),
+                debounceTime(this.debounceTimeMs),
+              );
+            }),
+            takeUntil(group$.pipe(filter((evt) => evt.type === "deactivated"))),
+          ),
+        ),
+
+        concatMap(async (tabUpdate) => {
+          await this.updateBadge(tabUpdate.states, tabUpdate.tab.tabId);
         }),
       )
       .subscribe({
         error: (error: unknown) => {
           this.logService.error(
-            "Fatal error in badge service observable, badge will fail to update",
+            "BadgeService: Fatal error updating badge state. Badge will no longer be updated.",
             error,
           );
         },
@@ -71,68 +102,45 @@ export class BadgeService {
   }
 
   /**
-   * Inform badge service of a new state that the badge should reflect.
+   * Register a function that takes an observable of active tab updates and returns an observable of state settings.
+   * This can be used to create dynamic badge states that react to tab changes.
+   * The returned observable should emit a new state setting whenever the badge state should be updated.
    *
-   * This will merge the new state with any existing states:
+   * This will merge all states:
    * - If the new state has a higher priority, it will override any lower priority states.
    * - If the new state has a lower priority, it will be ignored.
    * - If the name of the state is already in use, it will be updated.
    * - If the state has a `tabId` set, it will only apply to that tab.
    *   - States with `tabId` can still be overridden by states without `tabId` if they have a higher priority.
-   *
-   * @param name The name of the state. This is used to identify the state and will be used to clear it later.
-   * @param priority The priority of the state (higher numbers are higher priority, but setting arbitrary numbers is not supported).
-   * @param state The state to set.
-   * @param tabId Limit this badge state to a specific tab. If this is not set, the state will be applied to all tabs.
    */
-  async setState(name: string, priority: BadgeStatePriority, state: BadgeState, tabId?: number) {
-    const newServiceState = await this.serviceState.update((s) => ({
-      ...s,
-      [name]: { priority, state, tabId },
-    }));
-    await this.updateBadge(newServiceState, tabId);
+  setState(name: string, stateFunction: BadgeStateFunction) {
+    this.stateFunctions.next({
+      ...this.stateFunctions.value,
+      [name]: stateFunction,
+    });
   }
 
   /**
-   * Clear the state with the given name.
+   * Clear a state function previously registered with `setState`.
    *
-   * This will remove the state from the badge service and clear it from the badge.
-   * If the state is not found, nothing will happen.
+   * This will:
+   * - Stop the function from being called on future tab changes
+   * - Unsubscribe from any existing observables created by the function.
+   * - Clear any badge state previously set by the function.
    *
-   * @param name The name of the state to clear.
+   * @param name The name of the state function to clear.
    */
-  async clearState(name: string) {
-    let clearedState: StateSetting | undefined;
-
-    const newServiceState = await this.serviceState.update((s) => {
-      clearedState = s?.[name];
-
-      const newStates = { ...s };
-      delete newStates[name];
-      return newStates;
-    });
-
-    if (clearedState === undefined) {
-      return;
-    }
-    await this.updateBadge(newServiceState, clearedState.tabId);
+  clearState(name: string) {
+    const currentDynamicStateFunctions = this.stateFunctions.value;
+    const newDynamicStateFunctions = { ...currentDynamicStateFunctions };
+    delete newDynamicStateFunctions[name];
+    this.stateFunctions.next(newDynamicStateFunctions);
   }
 
-  private calculateState(states: Set<StateSetting>, tabId?: number): RawBadgeState {
-    const sortedStates = [...states].sort((a, b) => a.priority - b.priority);
+  private calculateState(states: BadgeStateSetting[]): RawBadgeState {
+    const sortedStates = states.sort((a, b) => a.priority - b.priority);
 
-    let filteredStates = sortedStates;
-    if (tabId !== undefined) {
-      // Filter out states that are not applicable to the current tab.
-      // If a state has no tabId, it is considered applicable to all tabs.
-      // If a state has a tabId, it is only applicable to that tab.
-      filteredStates = sortedStates.filter((s) => s.tabId === tabId || s.tabId === undefined);
-    } else {
-      // If no tabId is provided, we only want states that are not tab-specific.
-      filteredStates = sortedStates.filter((s) => s.tabId === undefined);
-    }
-
-    const mergedState = filteredStates
+    const mergedState = sortedStates
       .map((s) => s.state)
       .reduce<Partial<RawBadgeState>>((acc: Partial<RawBadgeState>, state: BadgeState) => {
         const newState = { ...acc };
@@ -156,43 +164,16 @@ export class BadgeService {
    * This will only update the badge if the active tab is the same as the tabId of the latest change.
    * If the active tab is not set, it will not update the badge.
    *
-   * @param activeTab The currently active tab.
    * @param serviceState The current state of the badge service. If this is null or undefined, an empty set will be assumed.
    * @param tabId Tab id for which the the latest state change applied to. Set this to activeTab.tabId to force an update.
+   * @param activeTabs The currently active tabs. If not provided, it will be fetched from the badge API.
    */
-  private async updateBadge(
-    serviceState: Record<string, StateSetting> | null | undefined,
-    tabId: number | undefined,
-  ) {
-    const activeTabs = await this.badgeApi.getActiveTabs();
-    if (tabId !== undefined && !activeTabs.some((tab) => tab.tabId === tabId)) {
-      return; // No need to update the badge if the state is not for the active tab.
-    }
-
-    const tabIdsToUpdate = tabId ? [tabId] : activeTabs.map((tab) => tab.tabId);
-
-    for (const tabId of tabIdsToUpdate) {
-      if (tabId === undefined) {
-        continue; // Skip if tab id is undefined.
-      }
-
-      const newBadgeState = this.calculateState(new Set(Object.values(serviceState ?? {})), tabId);
-      try {
-        await this.badgeApi.setState(newBadgeState, tabId);
-      } catch (error) {
-        this.logService.error("Failed to set badge state", error);
-      }
-    }
-
-    if (tabId === undefined) {
-      // If no tabId was provided we should also update the general badge state
-      const newBadgeState = this.calculateState(new Set(Object.values(serviceState ?? {})));
-
-      try {
-        await this.badgeApi.setState(newBadgeState, tabId);
-      } catch (error) {
-        this.logService.error("Failed to set general badge state", error);
-      }
+  private async updateBadge(serviceState: BadgeStateSetting[], tabId: number) {
+    const newBadgeState = this.calculateState(serviceState);
+    try {
+      await this.badgeApi.setState(newBadgeState, tabId);
+    } catch (error) {
+      this.logService.error("Failed to set badge state", error);
     }
   }
 }

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { Identity as SdkIdentity } from "@bitwarden/sdk-internal";
@@ -7,28 +5,29 @@ import { Identity as SdkIdentity } from "@bitwarden/sdk-internal";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { IdentityData } from "../data/identity.data";
 import { IdentityView } from "../view/identity.view";
 
 export class Identity extends Domain {
-  title: EncString;
-  firstName: EncString;
-  middleName: EncString;
-  lastName: EncString;
-  address1: EncString;
-  address2: EncString;
-  address3: EncString;
-  city: EncString;
-  state: EncString;
-  postalCode: EncString;
-  country: EncString;
-  company: EncString;
-  email: EncString;
-  phone: EncString;
-  ssn: EncString;
-  username: EncString;
-  passportNumber: EncString;
-  licenseNumber: EncString;
+  title?: EncString;
+  firstName?: EncString;
+  middleName?: EncString;
+  lastName?: EncString;
+  address1?: EncString;
+  address2?: EncString;
+  address3?: EncString;
+  city?: EncString;
+  state?: EncString;
+  postalCode?: EncString;
+  country?: EncString;
+  company?: EncString;
+  email?: EncString;
+  phone?: EncString;
+  ssn?: EncString;
+  username?: EncString;
+  passportNumber?: EncString;
+  licenseNumber?: EncString;
 
   constructor(obj?: IdentityData) {
     super();
@@ -36,35 +35,28 @@ export class Identity extends Domain {
       return;
     }
 
-    this.buildDomainModel(
-      this,
-      obj,
-      {
-        title: null,
-        firstName: null,
-        middleName: null,
-        lastName: null,
-        address1: null,
-        address2: null,
-        address3: null,
-        city: null,
-        state: null,
-        postalCode: null,
-        country: null,
-        company: null,
-        email: null,
-        phone: null,
-        ssn: null,
-        username: null,
-        passportNumber: null,
-        licenseNumber: null,
-      },
-      [],
-    );
+    this.title = conditionalEncString(obj.title);
+    this.firstName = conditionalEncString(obj.firstName);
+    this.middleName = conditionalEncString(obj.middleName);
+    this.lastName = conditionalEncString(obj.lastName);
+    this.address1 = conditionalEncString(obj.address1);
+    this.address2 = conditionalEncString(obj.address2);
+    this.address3 = conditionalEncString(obj.address3);
+    this.city = conditionalEncString(obj.city);
+    this.state = conditionalEncString(obj.state);
+    this.postalCode = conditionalEncString(obj.postalCode);
+    this.country = conditionalEncString(obj.country);
+    this.company = conditionalEncString(obj.company);
+    this.email = conditionalEncString(obj.email);
+    this.phone = conditionalEncString(obj.phone);
+    this.ssn = conditionalEncString(obj.ssn);
+    this.username = conditionalEncString(obj.username);
+    this.passportNumber = conditionalEncString(obj.passportNumber);
+    this.licenseNumber = conditionalEncString(obj.licenseNumber);
   }
 
   decrypt(
-    orgId: string,
+    orgId: string | undefined,
     context: string = "No Cipher Context",
     encKey?: SymmetricCryptoKey,
   ): Promise<IdentityView> {
@@ -91,7 +83,7 @@ export class Identity extends Domain {
         "passportNumber",
         "licenseNumber",
       ],
-      orgId,
+      orgId ?? null,
       encKey,
       "DomainType: Identity; " + context,
     );
@@ -122,50 +114,32 @@ export class Identity extends Domain {
     return i;
   }
 
-  static fromJSON(obj: Jsonify<Identity>): Identity {
+  static fromJSON(obj: Jsonify<Identity> | undefined): Identity | undefined {
     if (obj == null) {
-      return null;
+      return undefined;
     }
 
-    const title = EncString.fromJSON(obj.title);
-    const firstName = EncString.fromJSON(obj.firstName);
-    const middleName = EncString.fromJSON(obj.middleName);
-    const lastName = EncString.fromJSON(obj.lastName);
-    const address1 = EncString.fromJSON(obj.address1);
-    const address2 = EncString.fromJSON(obj.address2);
-    const address3 = EncString.fromJSON(obj.address3);
-    const city = EncString.fromJSON(obj.city);
-    const state = EncString.fromJSON(obj.state);
-    const postalCode = EncString.fromJSON(obj.postalCode);
-    const country = EncString.fromJSON(obj.country);
-    const company = EncString.fromJSON(obj.company);
-    const email = EncString.fromJSON(obj.email);
-    const phone = EncString.fromJSON(obj.phone);
-    const ssn = EncString.fromJSON(obj.ssn);
-    const username = EncString.fromJSON(obj.username);
-    const passportNumber = EncString.fromJSON(obj.passportNumber);
-    const licenseNumber = EncString.fromJSON(obj.licenseNumber);
+    const identity = new Identity();
+    identity.title = encStringFrom(obj.title);
+    identity.firstName = encStringFrom(obj.firstName);
+    identity.middleName = encStringFrom(obj.middleName);
+    identity.lastName = encStringFrom(obj.lastName);
+    identity.address1 = encStringFrom(obj.address1);
+    identity.address2 = encStringFrom(obj.address2);
+    identity.address3 = encStringFrom(obj.address3);
+    identity.city = encStringFrom(obj.city);
+    identity.state = encStringFrom(obj.state);
+    identity.postalCode = encStringFrom(obj.postalCode);
+    identity.country = encStringFrom(obj.country);
+    identity.company = encStringFrom(obj.company);
+    identity.email = encStringFrom(obj.email);
+    identity.phone = encStringFrom(obj.phone);
+    identity.ssn = encStringFrom(obj.ssn);
+    identity.username = encStringFrom(obj.username);
+    identity.passportNumber = encStringFrom(obj.passportNumber);
+    identity.licenseNumber = encStringFrom(obj.licenseNumber);
 
-    return Object.assign(new Identity(), obj, {
-      title,
-      firstName,
-      middleName,
-      lastName,
-      address1,
-      address2,
-      address3,
-      city,
-      state,
-      postalCode,
-      country,
-      company,
-      email,
-      phone,
-      ssn,
-      username,
-      passportNumber,
-      licenseNumber,
-    });
+    return identity;
   }
 
   /**
@@ -200,30 +174,30 @@ export class Identity extends Domain {
    * Maps an SDK Identity object to an Identity
    * @param obj - The SDK Identity object
    */
-  static fromSdkIdentity(obj: SdkIdentity): Identity | undefined {
+  static fromSdkIdentity(obj?: SdkIdentity): Identity | undefined {
     if (obj == null) {
       return undefined;
     }
 
     const identity = new Identity();
-    identity.title = EncString.fromJSON(obj.title);
-    identity.firstName = EncString.fromJSON(obj.firstName);
-    identity.middleName = EncString.fromJSON(obj.middleName);
-    identity.lastName = EncString.fromJSON(obj.lastName);
-    identity.address1 = EncString.fromJSON(obj.address1);
-    identity.address2 = EncString.fromJSON(obj.address2);
-    identity.address3 = EncString.fromJSON(obj.address3);
-    identity.city = EncString.fromJSON(obj.city);
-    identity.state = EncString.fromJSON(obj.state);
-    identity.postalCode = EncString.fromJSON(obj.postalCode);
-    identity.country = EncString.fromJSON(obj.country);
-    identity.company = EncString.fromJSON(obj.company);
-    identity.email = EncString.fromJSON(obj.email);
-    identity.phone = EncString.fromJSON(obj.phone);
-    identity.ssn = EncString.fromJSON(obj.ssn);
-    identity.username = EncString.fromJSON(obj.username);
-    identity.passportNumber = EncString.fromJSON(obj.passportNumber);
-    identity.licenseNumber = EncString.fromJSON(obj.licenseNumber);
+    identity.title = encStringFrom(obj.title);
+    identity.firstName = encStringFrom(obj.firstName);
+    identity.middleName = encStringFrom(obj.middleName);
+    identity.lastName = encStringFrom(obj.lastName);
+    identity.address1 = encStringFrom(obj.address1);
+    identity.address2 = encStringFrom(obj.address2);
+    identity.address3 = encStringFrom(obj.address3);
+    identity.city = encStringFrom(obj.city);
+    identity.state = encStringFrom(obj.state);
+    identity.postalCode = encStringFrom(obj.postalCode);
+    identity.country = encStringFrom(obj.country);
+    identity.company = encStringFrom(obj.company);
+    identity.email = encStringFrom(obj.email);
+    identity.phone = encStringFrom(obj.phone);
+    identity.ssn = encStringFrom(obj.ssn);
+    identity.username = encStringFrom(obj.username);
+    identity.passportNumber = encStringFrom(obj.passportNumber);
+    identity.licenseNumber = encStringFrom(obj.licenseNumber);
 
     return identity;
   }

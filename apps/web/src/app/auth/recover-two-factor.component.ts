@@ -16,6 +16,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-recover-two-factor",
   templateUrl: "recover-two-factor.component.html",
@@ -111,14 +113,37 @@ export class RecoverTwoFactorComponent implements OnInit {
       await this.router.navigate(["/settings/security/two-factor"]);
     } catch (error: unknown) {
       if (error instanceof ErrorResponse) {
-        this.logService.error("Error logging in automatically: ", error.message);
-
-        if (error.message.includes("Two-step token is invalid")) {
-          this.formGroup.get("recoveryCode")?.setErrors({
-            invalidRecoveryCode: { message: this.i18nService.t("invalidRecoveryCode") },
+        if (
+          error.message.includes(
+            "Two-factor recovery has been performed. SSO authentication is required.",
+          )
+        ) {
+          // [PM-21153]: Organization users with as SSO requirement need to be able to recover 2FA,
+          //  but still be bound by the SSO requirement to log in. Therefore, we show a success toast for recovering 2FA,
+          //  but then inform them that they need to log in via SSO and redirect them to the login page.
+          // The response tested here is a specific message for this scenario from request validation.
+          this.toastService.showToast({
+            variant: "success",
+            title: "",
+            message: this.i18nService.t("twoStepRecoverDisabled"),
           });
+          this.toastService.showToast({
+            variant: "error",
+            title: "",
+            message: this.i18nService.t("ssoLoginIsRequired"),
+          });
+
+          await this.router.navigate(["/login"]);
         } else {
-          this.validationService.showError(error.message);
+          this.logService.error("Error logging in automatically: ", error.message);
+
+          if (error.message.includes("Two-step token is invalid")) {
+            this.formGroup.get("recoveryCode")?.setErrors({
+              invalidRecoveryCode: { message: this.i18nService.t("invalidRecoveryCode") },
+            });
+          } else {
+            this.validationService.showError(error.message);
+          }
         }
       } else {
         this.logService.error("Error logging in automatically: ", error);

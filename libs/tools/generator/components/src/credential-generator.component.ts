@@ -64,6 +64,8 @@ const IDENTIFIER = "identifier";
 const FORWARDER = "forwarder";
 const NONE_SELECTED = "none";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-credential-generator",
   templateUrl: "credential-generator.component.html",
@@ -90,6 +92,8 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
   /** Binds the component to a specific user's settings. When this input is not provided,
    * the form binds to the active user
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   account: Account | null = null;
 
@@ -98,6 +102,8 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
    *
    *  @warning this may reveal sensitive information in plaintext.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   debug: boolean = false;
 
@@ -123,10 +129,14 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
   /**
    * The website associated with the credential generation request.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   website: string | null = null;
 
   /** Emits credentials created from a generation request. */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   readonly onGenerated = new EventEmitter<GeneratedCredential>();
 

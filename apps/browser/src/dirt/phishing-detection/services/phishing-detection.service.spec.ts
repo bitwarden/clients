@@ -1,51 +1,86 @@
-import { of } from "rxjs";
+import { mock, MockProxy } from "jest-mock-extended";
+import { Observable, of } from "rxjs";
 
-import { AuditService } from "@bitwarden/common/abstractions/audit.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
-import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling/task-scheduler.service";
+import { MessageListener } from "@bitwarden/messaging";
 
+import { PhishingDataService } from "./phishing-data.service";
 import { PhishingDetectionService } from "./phishing-detection.service";
 
 describe("PhishingDetectionService", () => {
-  let auditService: AuditService;
-  let logService: LogService;
-  let storageService: AbstractStorageService;
-  let taskSchedulerService: TaskSchedulerService;
+  let accountService: AccountService;
+  let billingAccountProfileStateService: BillingAccountProfileStateService;
   let configService: ConfigService;
-  let eventCollectionService: EventCollectionService;
+  let logService: LogService;
+  let phishingDataService: MockProxy<PhishingDataService>;
+  let messageListener: MockProxy<MessageListener>;
 
   beforeEach(() => {
-    auditService = { getKnownPhishingDomains: jest.fn() } as any;
-    logService = { info: jest.fn(), debug: jest.fn(), warning: jest.fn(), error: jest.fn() } as any;
-    storageService = { get: jest.fn(), save: jest.fn() } as any;
-    taskSchedulerService = { registerTaskHandler: jest.fn(), setInterval: jest.fn() } as any;
+    accountService = { getAccount$: jest.fn(() => of(null)) } as any;
+    billingAccountProfileStateService = {} as any;
     configService = { getFeatureFlag$: jest.fn(() => of(false)) } as any;
-    eventCollectionService = {} as any;
+    logService = { info: jest.fn(), debug: jest.fn(), warning: jest.fn(), error: jest.fn() } as any;
+    phishingDataService = mock();
+    messageListener = mock<MessageListener>({
+      messages$(_commandDefinition) {
+        return new Observable();
+      },
+    });
   });
 
   it("should initialize without errors", () => {
     expect(() => {
       PhishingDetectionService.initialize(
+        accountService,
+        billingAccountProfileStateService,
         configService,
-        auditService,
         logService,
-        storageService,
-        taskSchedulerService,
-        eventCollectionService,
+        phishingDataService,
+        messageListener,
       );
     }).not.toThrow();
   });
 
-  it("should detect phishing domains", () => {
-    PhishingDetectionService["_knownPhishingDomains"].add("phishing.com");
-    const url = new URL("https://phishing.com");
-    expect(PhishingDetectionService.isPhishingDomain(url)).toBe(true);
-    const safeUrl = new URL("https://safe.com");
-    expect(PhishingDetectionService.isPhishingDomain(safeUrl)).toBe(false);
-  });
+  // TODO
+  // it("should enable phishing detection for premium account", (done) => {
+  //   const premiumAccount = { id: "user1" };
+  //   accountService = { activeAccount$: of(premiumAccount) } as any;
+  //   configService = { getFeatureFlag$: jest.fn(() => of(true)) } as any;
+  //   billingAccountProfileStateService = {
+  //     hasPremiumFromAnySource$: jest.fn(() => of(true)),
+  //   } as any;
 
-  // Add more tests for other methods as needed
+  //   // Run the initialization
+  //   PhishingDetectionService.initialize(
+  //     accountService,
+  //     billingAccountProfileStateService,
+  //     configService,
+  //     logService,
+  //     phishingDataService,
+  //     messageListener,
+  //   );
+  // });
+
+  // TODO
+  // it("should not enable phishing detection for non-premium account", (done) => {
+  //   const nonPremiumAccount = { id: "user2" };
+  //   accountService = { activeAccount$: of(nonPremiumAccount) } as any;
+  //   configService = { getFeatureFlag$: jest.fn(() => of(true)) } as any;
+  //   billingAccountProfileStateService = {
+  //     hasPremiumFromAnySource$: jest.fn(() => of(false)),
+  //   } as any;
+
+  //   // Run the initialization
+  //   PhishingDetectionService.initialize(
+  //     accountService,
+  //     billingAccountProfileStateService,
+  //     configService,
+  //     logService,
+  //     phishingDataService,
+  //     messageListener,
+  //   );
+  // });
 });

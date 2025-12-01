@@ -34,7 +34,7 @@ export class DesktopAutotypeDefaultSettingPolicy {
         }
 
         return this.accountService.activeAccount$.pipe(
-          filter((account) => account != null),
+          filter((account) => account != null && account.id != null),
           getUserId,
           distinctUntilChanged(),
           switchMap((userId) => {
@@ -43,13 +43,16 @@ export class DesktopAutotypeDefaultSettingPolicy {
               distinctUntilChanged(),
             );
 
-            const policy$ = this.policyService
-              .policyAppliesToUser$(PolicyType.AutotypeDefaultSetting, userId)
-              .pipe(
-                map((appliesToUser) => (appliesToUser ? true : null)),
-                distinctUntilChanged(),
-                shareReplay({ bufferSize: 1, refCount: true }),
-              );
+            const policy$ = this.policyService.policies$(userId).pipe(
+              map((policies) => {
+                const autotypePolicy = policies.find(
+                  (policy) => policy.type === PolicyType.AutotypeDefaultSetting && policy.enabled,
+                );
+                return autotypePolicy ? true : null;
+              }),
+              distinctUntilChanged(),
+              shareReplay({ bufferSize: 1, refCount: true }),
+            );
 
             return isUnlocked$.pipe(switchMap((unlocked) => (unlocked ? policy$ : of(null))));
           }),

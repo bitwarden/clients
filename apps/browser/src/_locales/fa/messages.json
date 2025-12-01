@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "استفاده از ورود تک مرحله‌ای"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "خوش آمدید"
   },
@@ -550,10 +553,15 @@
   "resetSearch": {
     "message": "Reset search"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
   },
-  "unarchive": {
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
     "message": "Unarchive"
   },
   "itemsInArchive": {
@@ -565,11 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemSentToArchive": {
-    "message": "Item sent to archive"
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
   },
-  "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
+  "itemUnarchived": {
+    "message": "Item was unarchived"
   },
   "archiveItem": {
     "message": "Archive item"
@@ -577,11 +585,23 @@
   "archiveItemConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   },
+  "upgradeToUseArchive": {
+    "message": "A premium membership is required to use Archive."
+  },
   "edit": {
     "message": "ویرایش"
   },
   "view": {
     "message": "مشاهده"
+  },
+  "viewAll": {
+    "message": "View all"
+  },
+  "showAll": {
+    "message": "Show all"
+  },
+  "viewLess": {
+    "message": "View less"
   },
   "viewLogin": {
     "message": "View login"
@@ -728,6 +748,15 @@
   "invalidMasterPassword": {
     "message": "کلمه عبور اصلی نامعتبر است"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "vaultTimeout": {
     "message": "متوقف شدن گاو‌صندوق"
   },
@@ -775,6 +804,12 @@
   },
   "onLocked": {
     "message": "هنگام قفل سیستم"
+  },
+  "onIdle": {
+    "message": "On system idle"
+  },
+  "onSleep": {
+    "message": "On system sleep"
   },
   "onRestart": {
     "message": "هنگام راه‌اندازی مجدد"
@@ -1013,6 +1048,18 @@
   },
   "editedItem": {
     "message": "مورد ذخیره شد"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "واقعاً می‌خواهید این مورد را به سطل زباله ارسال کنید؟"
@@ -1491,12 +1538,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "درخواست بیومتریک هنگام راه‌اندازی"
   },
-  "premiumRequired": {
-    "message": "در نسخه پرمیوم کار می‌کند"
-  },
-  "premiumRequiredDesc": {
-    "message": "برای استفاده از این ویژگی عضویت پرمیوم لازم است."
-  },
   "authenticationTimeout": {
     "message": "پایان زمان احراز هویت"
   },
@@ -1533,6 +1574,15 @@
   },
   "readSecurityKey": {
     "message": "خواندن کلید امنیتی"
+  },
+  "readingPasskeyLoading": {
+    "message": "Reading passkey..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey authentication failed"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Use a different log in method"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "در انتظار تعامل با کلید امنیتی..."
@@ -1600,6 +1650,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "شما باید یا نشانی اینترنتی پایه سرور را اضافه کنید، یا حداقل یک محیط سفارشی تعریف کنید."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
+  },
   "customEnvironment": {
     "message": "محیط سفارشی"
   },
@@ -1653,8 +1706,29 @@
   "turnOffAutofill": {
     "message": "پر کردن خودکار را خاموش کنید"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "نمایش پیشنهادهای پر کردن خودکار روی فیلدهای فرم"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "نمایش هویت‌ها به‌عنوان پیشنهاد"
@@ -1798,6 +1872,9 @@
   },
   "expirationYear": {
     "message": "سال انقضاء"
+  },
+  "monthly": {
+    "message": "month"
   },
   "expiration": {
     "message": "انقضاء"
@@ -2367,6 +2444,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
   },
   "setMasterPassword": {
     "message": "تنظیم کلمه عبور اصلی"
@@ -3193,11 +3273,32 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "خطا"
   },
   "decryptionError": {
     "message": "خطای رمزگشایی"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden نتوانست مورد(های) گاوصندوق فهرست شده زیر را رمزگشایی کند."
@@ -3969,6 +4070,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "پر کردن خودکار در بارگیری صفحه برای استفاده از تنظیمات پیش‌فرض تنظیم شده است.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "تغییر وضعیت ناوبری کناری"
@@ -4801,6 +4911,9 @@
   "premium": {
     "message": "پرمیوم"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Unlock reporting, emergency access, and more security features with Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "سازمان‌های رایگان نمی‌توانند از پرونده‌های پیوست استفاده کنند"
   },
@@ -4877,6 +4990,16 @@
   },
   "defaultLabel": {
     "message": "پیش‌فرض ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "defaultLabelWithValue": {
+    "message": "Default ( $VALUE$ )",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5538,17 +5661,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "به گاوصندوق خود خوش آمدید!"
   },
-  "phishingPageTitle": {
-    "message": "Phishing website"
+  "phishingPageTitleV2": {
+    "message": "Phishing attempt detected"
   },
-  "phishingPageCloseTab": {
-    "message": "Close tab"
+  "phishingPageSummary": {
+    "message": "The site you are attempting to visit is a known malicious site and a security risk."
   },
-  "phishingPageContinue": {
-    "message": "Continue"
+  "phishingPageCloseTabV2": {
+    "message": "Close this tab"
   },
-  "phishingPageLearnWhy": {
-    "message": "Why are you seeing this?"
+  "phishingPageContinueV2": {
+    "message": "Continue to this site (not recommended)"
+  },
+  "phishingPageExplanation1": {
+    "message": "This site was found in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Learn more about phishing detection"
+  },
+  "protectedBy": {
+    "message": "Protected by $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "پر کردن خودکار موارد برای صفحه فعلی"
@@ -5653,5 +5796,60 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Confirm Key Connector domain"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Unlock advanced security features"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "A Premium subscription gives you more tools to stay secure and in control"
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "Loading vault"
+  },
+  "vaultLoaded": {
+    "message": "Vault loaded"
+  },
+  "settingDisabledByPolicy": {
+    "message": "This setting is disabled by your organization's policy.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
   }
 }

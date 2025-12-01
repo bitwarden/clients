@@ -11,8 +11,6 @@ import {
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
 
-import { WebBrowserInteractionService } from "../services/web-browser-interaction.service";
-
 export const SETUP_EXTENSION_DISMISSED = new UserKeyDefinition<boolean>(
   SETUP_EXTENSION_DISMISSED_DISK,
   "setupExtensionDismissed",
@@ -27,7 +25,6 @@ export const setupExtensionRedirectGuard: CanActivateFn = async () => {
   const accountService = inject(AccountService);
   const vaultProfileService = inject(VaultProfileService);
   const stateProvider = inject(StateProvider);
-  const webBrowserInteractionService = inject(WebBrowserInteractionService);
 
   const isMobile = Utils.isMobileBrowser;
 
@@ -42,10 +39,6 @@ export const setupExtensionRedirectGuard: CanActivateFn = async () => {
   if (!currentAcct) {
     return router.createUrlTree(["/login"]);
   }
-
-  const hasExtensionInstalledPromise = firstValueFrom(
-    webBrowserInteractionService.extensionInstalled$,
-  );
 
   const dismissedExtensionPage = await firstValueFrom(
     stateProvider
@@ -63,13 +56,6 @@ export const setupExtensionRedirectGuard: CanActivateFn = async () => {
   );
 
   if (dismissedExtensionPage || isProfileOlderThan30Days) {
-    return true;
-  }
-
-  // Checking for the extension is a more expensive operation, do it last to avoid unnecessary delays.
-  const hasExtensionInstalled = await hasExtensionInstalledPromise;
-
-  if (hasExtensionInstalled) {
     return true;
   }
 

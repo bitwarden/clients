@@ -201,6 +201,10 @@ export class IndividualVaultExportService
   }
 
   private async getEncryptedExport(activeUserId: UserId): Promise<ExportedVaultAsString> {
+    if (!activeUserId) {
+      throw new Error("User ID must not be null or undefined");
+    }
+
     let folders: Folder[] = [];
     let ciphers: Cipher[] = [];
     const promises = [];
@@ -225,7 +229,7 @@ export class IndividualVaultExportService
 
     await Promise.all(promises);
 
-    const userKey = await this.keyService.getUserKey(activeUserId);
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
     const encKeyValidation = await this.encryptService.encryptString(Utils.newGuid(), userKey);
 
     const jsonDoc: BitwardenEncryptedIndividualJsonExport = {

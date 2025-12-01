@@ -17,8 +17,8 @@ const namesTestData = [
     fullName: "MyFirstName",
     expected: Object.assign(new IdentityView(), {
       firstName: "MyFirstName",
-      middleName: null,
-      lastName: null,
+      middleName: undefined,
+      lastName: undefined,
     }),
   },
   {
@@ -26,7 +26,7 @@ const namesTestData = [
     fullName: "MyFirstName MyLastName",
     expected: Object.assign(new IdentityView(), {
       firstName: "MyFirstName",
-      middleName: null,
+      middleName: undefined,
       lastName: "MyLastName",
     }),
   },

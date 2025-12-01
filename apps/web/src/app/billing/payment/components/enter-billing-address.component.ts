@@ -24,6 +24,17 @@ export interface BillingAddressControls {
 
 export type BillingAddressFormGroup = FormGroup<ControlsOf<BillingAddressControls>>;
 
+export const getBillingAddressFromForm = (formGroup: BillingAddressFormGroup): BillingAddress =>
+  getBillingAddressFromControls(formGroup.getRawValue());
+
+export const getBillingAddressFromControls = (controls: BillingAddressControls) => {
+  const { taxId, ...addressFields } = controls;
+  const taxIdType = taxId ? getTaxIdTypeForCountry(addressFields.country) : null;
+  return taxIdType
+    ? { ...addressFields, taxId: { code: taxIdType.code, value: taxId! } }
+    : { ...addressFields, taxId: null };
+};
+
 type Scenario =
   | {
       type: "checkout";
@@ -36,6 +47,8 @@ type Scenario =
       taxIdWarning?: TaxIdWarningType;
     };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-enter-billing-address",
   template: `
@@ -57,7 +70,7 @@ type Scenario =
         </div>
         <div class="tw-col-span-6">
           <bit-form-field [disableMargin]="true">
-            <bit-label>{{ "zipPostalCode" | i18n }}</bit-label>
+            <bit-label>{{ "zipPostalCodeLabel" | i18n }}</bit-label>
             <input
               bitInput
               type="text"
@@ -67,54 +80,56 @@ type Scenario =
             />
           </bit-form-field>
         </div>
-        <div class="tw-col-span-6">
-          <bit-form-field [disableMargin]="true">
-            <bit-label>{{ "address1" | i18n }}</bit-label>
-            <input
-              bitInput
-              type="text"
-              [formControl]="group.controls.line1"
-              autocomplete="address-line1"
-              data-testid="address-line1"
-            />
-          </bit-form-field>
-        </div>
-        <div class="tw-col-span-6">
-          <bit-form-field [disableMargin]="true">
-            <bit-label>{{ "address2" | i18n }}</bit-label>
-            <input
-              bitInput
-              type="text"
-              [formControl]="group.controls.line2"
-              autocomplete="address-line2"
-              data-testid="address-line2"
-            />
-          </bit-form-field>
-        </div>
-        <div class="tw-col-span-6">
-          <bit-form-field [disableMargin]="true">
-            <bit-label>{{ "cityTown" | i18n }}</bit-label>
-            <input
-              bitInput
-              type="text"
-              [formControl]="group.controls.city"
-              autocomplete="address-level2"
-              data-testid="city"
-            />
-          </bit-form-field>
-        </div>
-        <div class="tw-col-span-6">
-          <bit-form-field [disableMargin]="true">
-            <bit-label>{{ "stateProvince" | i18n }}</bit-label>
-            <input
-              bitInput
-              type="text"
-              [formControl]="group.controls.state"
-              autocomplete="address-level1"
-              data-testid="state"
-            />
-          </bit-form-field>
-        </div>
+        @if (scenario.type === "update") {
+          <div class="tw-col-span-6">
+            <bit-form-field [disableMargin]="true">
+              <bit-label>{{ "address1" | i18n }}</bit-label>
+              <input
+                bitInput
+                type="text"
+                [formControl]="group.controls.line1"
+                autocomplete="address-line1"
+                data-testid="address-line1"
+              />
+            </bit-form-field>
+          </div>
+          <div class="tw-col-span-6">
+            <bit-form-field [disableMargin]="true">
+              <bit-label>{{ "address2" | i18n }}</bit-label>
+              <input
+                bitInput
+                type="text"
+                [formControl]="group.controls.line2"
+                autocomplete="address-line2"
+                data-testid="address-line2"
+              />
+            </bit-form-field>
+          </div>
+          <div class="tw-col-span-6">
+            <bit-form-field [disableMargin]="true">
+              <bit-label>{{ "cityTown" | i18n }}</bit-label>
+              <input
+                bitInput
+                type="text"
+                [formControl]="group.controls.city"
+                autocomplete="address-level2"
+                data-testid="city"
+              />
+            </bit-form-field>
+          </div>
+          <div class="tw-col-span-6">
+            <bit-form-field [disableMargin]="true">
+              <bit-label>{{ "stateProvince" | i18n }}</bit-label>
+              <input
+                bitInput
+                type="text"
+                [formControl]="group.controls.state"
+                autocomplete="address-level1"
+                data-testid="state"
+              />
+            </bit-form-field>
+          </div>
+        }
         @if (supportsTaxId$ | async) {
           <div class="tw-col-span-12">
             <bit-form-field [disableMargin]="true">
@@ -146,7 +161,11 @@ type Scenario =
   imports: [SharedModule],
 })
 export class EnterBillingAddressComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) scenario!: Scenario;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) group!: BillingAddressFormGroup;
 
   protected selectableCountries = selectableCountries;
@@ -175,7 +194,7 @@ export class EnterBillingAddressComponent implements OnInit, OnDestroy {
     this.supportsTaxId$ = this.group.controls.country.valueChanges.pipe(
       startWith(this.group.value.country ?? this.selectableCountries[0].value),
       map((country) => {
-        if (!this.scenario.supportsTaxId) {
+        if (!this.scenario.supportsTaxId || country === "US") {
           return false;
         }
 

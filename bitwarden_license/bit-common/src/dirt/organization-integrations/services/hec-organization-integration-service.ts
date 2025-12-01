@@ -171,7 +171,10 @@ export class HecOrganizationIntegrationService {
       );
 
       if (updatedIntegration !== null) {
-        this._integrations$.next([...this._integrations$.getValue(), updatedIntegration]);
+        const unchangedIntegrations = this._integrations$
+          .getValue()
+          .filter((i) => i.id !== OrganizationIntegrationId);
+        this._integrations$.next([...unchangedIntegrations, updatedIntegration]);
       }
       return { mustBeOwner: false, success: true };
     } catch (error) {
@@ -311,22 +314,24 @@ export class HecOrganizationIntegrationService {
         const promises: Promise<void>[] = [];
 
         responses.forEach((integration) => {
-          const promise = this.integrationConfigurationApiService
-            .getOrganizationIntegrationConfigurations(orgId, integration.id)
-            .then((response) => {
-              // Hec events will only have one OrganizationIntegrationConfiguration
-              const config = response[0];
+          if (integration.type === OrganizationIntegrationType.Hec) {
+            const promise = this.integrationConfigurationApiService
+              .getOrganizationIntegrationConfigurations(orgId, integration.id)
+              .then((response) => {
+                // Hec events will only have one OrganizationIntegrationConfiguration
+                const config = response[0];
 
-              const orgIntegration = this.mapResponsesToOrganizationIntegration(
-                integration,
-                config,
-              );
+                const orgIntegration = this.mapResponsesToOrganizationIntegration(
+                  integration,
+                  config,
+                );
 
-              if (orgIntegration !== null) {
-                integrations.push(orgIntegration);
-              }
-            });
-          promises.push(promise);
+                if (orgIntegration !== null) {
+                  integrations.push(orgIntegration);
+                }
+              });
+            promises.push(promise);
+          }
         });
         return Promise.all(promises).then(() => {
           return integrations;

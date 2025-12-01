@@ -1,15 +1,11 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import {
   BehaviorSubject,
-  catchError,
   combineLatest,
-  EMPTY,
   filter,
   firstValueFrom,
-  from,
   lastValueFrom,
-  map,
   merge,
   Observable,
   of,
@@ -22,15 +18,13 @@ import {
   withLatestFrom,
 } from "rxjs";
 
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { DialogService } from "@bitwarden/components";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
@@ -54,13 +48,6 @@ import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/type
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-class RedirectError {
-  constructor(
-    public path: string[],
-    public relativeTo: ActivatedRoute,
-  ) {}
-}
-
 type View = {
   organization: BitwardenSubscriber;
   paymentMethod: MaskedPaymentMethod | null;
@@ -73,6 +60,8 @@ const BANK_ACCOUNT_VERIFIED_COMMAND = new CommandDefinition<{ organizationId: st
   "organizationBankAccountVerified",
 );
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./organization-payment-details.component.html",
   standalone: true,
@@ -93,24 +82,12 @@ export class OrganizationPaymentDetailsComponent implements OnInit, OnDestroy {
     switchMap((userId) =>
       this.organizationService
         .organizations$(userId)
-        .pipe(getOrganizationById(this.activatedRoute.snapshot.params.organizationId)),
+        .pipe(getById(this.activatedRoute.snapshot.params.organizationId)),
     ),
     filter((organization): organization is Organization => !!organization),
   );
 
   private load$: Observable<View> = this.organization$.pipe(
-    switchMap((organization) =>
-      this.configService
-        .getFeatureFlag$(FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout)
-        .pipe(
-          map((managePaymentDetailsOutsideCheckout) => {
-            if (!managePaymentDetailsOutsideCheckout) {
-              throw new RedirectError(["../payment-method"], this.activatedRoute);
-            }
-            return organization;
-          }),
-        ),
-    ),
     mapOrganizationToSubscriber,
     switchMap(async (organization) => {
       const getTaxIdWarning = firstValueFrom(
@@ -132,14 +109,6 @@ export class OrganizationPaymentDetailsComponent implements OnInit, OnDestroy {
         taxIdWarning,
       };
     }),
-    catchError((error: unknown) => {
-      if (error instanceof RedirectError) {
-        return from(this.router.navigate(error.path, { relativeTo: error.relativeTo })).pipe(
-          switchMap(() => EMPTY),
-        );
-      }
-      throw error;
-    }),
   );
 
   view$: Observable<View> = merge(
@@ -159,7 +128,6 @@ export class OrganizationPaymentDetailsComponent implements OnInit, OnDestroy {
     private messageListener: MessageListener,
     private organizationService: OrganizationService,
     private organizationWarningsService: OrganizationWarningsService,
-    private router: Router,
     private subscriberBillingClient: SubscriberBillingClient,
   ) {}
 

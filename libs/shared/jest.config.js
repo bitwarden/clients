@@ -15,6 +15,8 @@ module.exports = {
   // Also anecdotally improves performance when run locally
   maxWorkers: 3,
 
+  setupFiles: ["<rootDir>/../../libs/shared/polyfill-node-globals.ts"],
+
   transform: {
     "^.+\\.tsx?$": [
       "ts-jest",

@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Bu elementə düzəliş etmə icazəniz yoxdur"
+  },
   "welcomeBack": {
     "message": "Yenidən xoş gəlmisiniz"
   },
@@ -508,7 +511,7 @@
     "description": "This describes a value that is 'linked' (related) to another value."
   },
   "remove": {
-    "message": "Çıxart"
+    "message": "Xaric et"
   },
   "nameRequired": {
     "message": "Ad lazımdır."
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "Vahid daxil olma üsulunu istifadə et"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Təşkilatınız, vahid daxil olma tələb edir."
+  },
   "submit": {
     "message": "Göndər"
   },
@@ -1032,6 +1038,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Təməl server URL-sini və ya ən azı bir özəl mühiti əlavə etməlisiniz."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL-lər, HTTPS istifadə etməlidir."
+  },
   "customEnvironment": {
     "message": "Özəl mühit"
   },
@@ -1221,6 +1230,15 @@
   },
   "invalidMasterPassword": {
     "message": "Yararsız ana parol"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Yararsız ana parol. E-poçtunuzun doğru olduğunu və hesabınızın $HOST$ üzərində yaradıldığını təsdiqləyin.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "twoStepLoginConfirmation": {
     "message": "İki addımlı giriş, güvənlik açarı, kimlik doğrulayıcı tətbiq, SMS, telefon zəngi və ya e-poçt kimi digər cihazlarla girişinizi doğrulamanızı tələb edərək hesabınızı daha da güvənli edir. İki addımlı giriş, bitwarden.com veb seyfində qurula bilər. Veb saytı indi ziyarət etmək istəyirsiniz?"
@@ -1641,7 +1659,7 @@
     }
   },
   "passwordSafe": {
-    "message": "Bu parol, veri pozuntularında qeydə alınmayıb. Rahatlıqla istifadə edə bilərsiniz."
+    "message": "Bu parol, veri pozuntularında qeydə alınmayıb. Əmniyyətlə istifadə edə bilərsiniz."
   },
   "baseDomain": {
     "message": "Baza domeni",
@@ -1842,6 +1860,12 @@
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Yenidən başladılanda ana parol ilə kilidlə"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Tətbiq yenidən başladıqda ana parol və ya PIN tələb edilsin"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Tətbiq yenidən başladıqda ana parol tələb edilsin"
   },
   "deleteAccount": {
     "message": "Hesabı sil"
@@ -2125,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "Brauzer inteqrasiyasını fəallaşdırarkən bir xəta baş verdi."
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Təəssüf ki, brauzer inteqrasiyası indilik yalnız Mac App Store versiyasında dəstəklənir."
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Təəssüf ki, brauzer inteqrasiyası hal-hazırda Windows Store versiyasında dəstəklənmir."
@@ -2540,6 +2561,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum özəl bitmə vaxtı 1 dəqiqədir."
+  },
   "inviteAccepted": {
     "message": "Dəvət qəbul edildi"
   },
@@ -2651,6 +2675,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Yalnız $ORGANIZATION$ ilə əlaqələndirilmiş təşkilat seyfi xaricə köçürüləcək.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Yalnız $ORGANIZATION$ ilə əlaqələndirilmiş təşkilat seyfi xaricə köçürüləcək. Element kolleksiyalarım daxil edilməyəcək.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -3861,7 +3903,7 @@
     "message": "Ana qovluğun adından sonra \"/\" əlavə edərək qovluğu ardıcıl yerləşdirin. Nümunə: Social/Forums"
   },
   "sendsTitleNoItems": {
-    "message": "Send, həssas məlumatlar təhlükəsizdir",
+    "message": "Send ilə həssas məlumatlar əmniyyətdədir",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
@@ -3916,7 +3958,7 @@
     "message": "Kimliklərinizlə, uzun qeydiyyat və ya əlaqə xanalarını daha tez avtomatik doldurun."
   },
   "newNoteNudgeTitle": {
-    "message": "Həssas verilərinizi güvənli şəkildə saxlayın"
+    "message": "Həssas verilərinizi əmniyyətdə saxlayın"
   },
   "newNoteNudgeBody": {
     "message": "Notlarla, bankçılıq və ya sığorta təfsilatları kimi həssas veriləri təhlükəsiz saxlayın."
@@ -4080,11 +4122,17 @@
   "showLess": {
     "message": "Daha az göstər"
   },
-  "enableAutotype": {
-    "message": "Avto-yazmanı fəallaşdır"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden, giriş yerlərini doğrulamır, qısayolu istifadə etməzdən əvvəl doğru pəncərədə və xanada olduğunuza əmin olun."
+  },
+  "typeShortcut": {
+    "message": "Yazma qısayolu"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Aşağıdakı dəyişdiricilərdən birini və ya ikisini daxil edin: Ctrl, Alt, Win və ya Shift və bir hərf."
+  },
+  "invalidShortcut": {
+    "message": "Yararsız qısayol"
   },
   "moreBreadcrumbs": {
     "message": "Daha çox naviqasiya yolu",
@@ -4099,19 +4147,24 @@
   "confirm": {
     "message": "Təsdiqlə"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Avto-yazma qısayolunu fəallaşdır"
+  "enableAutotypeShortcutPreview": {
+    "message": "Avto-yazma qısayolunu fəallaşdır (Özəllik önizləməsi)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "Veriləri yanlış yerə doldurmamaq üçün qısayolu istifadə etməzdən əvvəl doğru xanada olduğunuza əmin olun."
   },
   "editShortcut": {
     "message": "Qısayola düzəliş et"
   },
-  "archive": {
-    "message": "Arxivlə"
+  "archiveNoun": {
+    "message": "Arxiv",
+    "description": "Noun"
   },
-  "unarchive": {
+  "archiveVerb": {
+    "message": "Arxivlə",
+    "description": "Verb"
+  },
+  "unArchive": {
     "message": "Arxivdən çıxart"
   },
   "itemsInArchive": {
@@ -4123,10 +4176,10 @@
   "noItemsInArchiveDesc": {
     "message": "Arxivlənmiş elementlər burada görünəcək, ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Element arxivə göndərildi"
   },
-  "itemRemovedFromArchive": {
+  "itemWasUnarchived": {
     "message": "Element arxivdən çıxarıldı"
   },
   "archiveItem": {
@@ -4134,5 +4187,41 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Arxivlənmiş elementlər ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək. Bu elementi arxivləmək istədiyinizə əminsiniz?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Poçt kodu"
+  },
+  "cardNumberLabel": {
+    "message": "Kart nömrəsi"
+  },
+  "upgradeNow": {
+    "message": "İndi yüksəlt"
+  },
+  "builtInAuthenticator": {
+    "message": "Daxili kimlik doğrulayıcı"
+  },
+  "secureFileStorage": {
+    "message": "Güvənli fayl anbarı"
+  },
+  "emergencyAccess": {
+    "message": "Fövqəladə hal erişimi"
+  },
+  "breachMonitoring": {
+    "message": "Pozuntu monitorinqi"
+  },
+  "andMoreFeatures": {
+    "message": "Və daha çoxu!"
+  },
+  "planDescPremium": {
+    "message": "Tam onlayn təhlükəsizlik"
+  },
+  "upgradeToPremium": {
+    "message": "\"Premium\"a yüksəlt"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Vaxt bitmə əməliyyatı"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sessiya vaxt bitməsi"
   }
 }

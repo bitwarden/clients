@@ -20,6 +20,8 @@ const template = /*html*/ `
   </button>
   <button type="button" label="Delete" bitIconButton="bwi-trash" buttonType="danger" [bitAction]="action"></button>`;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template,
   selector: "app-promise-example",
@@ -37,6 +39,8 @@ class PromiseExampleComponent {
   };
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template,
   selector: "app-action-resolves-quickly",
@@ -55,6 +59,8 @@ class ActionResolvesQuicklyComponent {
   };
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template,
   selector: "app-observable-example",
@@ -66,6 +72,8 @@ class ObservableExampleComponent {
   };
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template,
   selector: "app-rejected-promise-example",

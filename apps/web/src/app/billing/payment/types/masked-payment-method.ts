@@ -21,6 +21,24 @@ export const StripeCardBrands = {
 
 export type StripeCardBrand = (typeof StripeCardBrands)[keyof typeof StripeCardBrands];
 
+export const cardBrandIcons: Record<string, string> = {
+  amex: "card-amex",
+  diners: "card-diners-club",
+  discover: "card-discover",
+  jcb: "card-jcb",
+  mastercard: "card-mastercard",
+  unionpay: "card-unionpay",
+  visa: "card-visa",
+};
+
+export const getCardBrandIcon = (paymentMethod: MaskedPaymentMethod | null): string | null => {
+  if (paymentMethod?.type !== "card") {
+    return null;
+  }
+
+  return paymentMethod.brand in cardBrandIcons ? cardBrandIcons[paymentMethod.brand] : null;
+};
+
 type MaskedBankAccount = {
   type: BankAccountPaymentMethod;
   bankName: string;

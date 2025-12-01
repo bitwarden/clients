@@ -131,6 +131,8 @@ class QueryParams {
 
 export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-add-edit-v2",
   templateUrl: "add-edit-v2.component.html",

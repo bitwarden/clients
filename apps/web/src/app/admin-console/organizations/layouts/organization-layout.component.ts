@@ -23,9 +23,6 @@ import { PolicyType, ProviderStatusType } from "@bitwarden/common/admin-console/
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { BannerModule, IconModule } from "@bitwarden/components";
@@ -39,6 +36,8 @@ import { FreeFamiliesPolicyService } from "../../../billing/services/free-famili
 import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher.component";
 import { WebLayoutModule } from "../../../layouts/web-layout.module";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-organization-layout",
   templateUrl: "organization-layout.component.html",
@@ -70,11 +69,6 @@ export class OrganizationLayoutComponent implements OnInit {
 
   protected showSponsoredFamiliesDropdown$: Observable<boolean>;
 
-  protected paymentDetailsPageData$: Observable<{
-    route: string;
-    textKey: string;
-  }>;
-
   protected subscriber$: Observable<NonIndividualSubscriber>;
   protected getTaxIdWarning$: () => Observable<TaxIdWarningType | null>;
 
@@ -82,12 +76,10 @@ export class OrganizationLayoutComponent implements OnInit {
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
     private platformUtilsService: PlatformUtilsService,
-    private configService: ConfigService,
     private policyService: PolicyService,
     private providerService: ProviderService,
     private accountService: AccountService,
     private freeFamiliesPolicyService: FreeFamiliesPolicyService,
-    private organizationBillingService: OrganizationBillingServiceAbstraction,
     private organizationWarningsService: OrganizationWarningsService,
   ) {}
 
@@ -140,16 +132,6 @@ export class OrganizationLayoutComponent implements OnInit {
     );
 
     this.integrationPageEnabled$ = this.organization$.pipe(map((org) => org.canAccessIntegrations));
-
-    this.paymentDetailsPageData$ = this.configService
-      .getFeatureFlag$(FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout)
-      .pipe(
-        map((managePaymentDetailsOutsideCheckout) =>
-          managePaymentDetailsOutsideCheckout
-            ? { route: "billing/payment-details", textKey: "paymentDetails" }
-            : { route: "billing/payment-method", textKey: "paymentMethod" },
-        ),
-      );
 
     this.subscriber$ = this.organization$.pipe(
       map((organization) => ({

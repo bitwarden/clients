@@ -1,0 +1,93 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog [loading]="loading">
+    <ng-container bitDialogTitle>
+      @let title = (multiStepSubmit | async)[currentStep()]?.titleContent();
+      @if (title) {
+        <ng-container [ngTemplateOutlet]="title"></ng-container>
+      }
+    </ng-container>
+
+    <ng-container bitDialogContent>
+      @if (loading) {
+        <div>
+          <i
+            class="bwi bwi-spinner bwi-spin tw-text-muted"
+            title="{{ 'loading' | i18n }}"
+            aria-hidden="true"
+          ></i>
+          <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+        </div>
+      }
+      <div [hidden]="loading">
+        @if (policy.showDescription) {
+          <p bitTypography="body1">{{ policy.description | i18n }}</p>
+        }
+      </div>
+      <ng-template #policyForm></ng-template>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      @let footer = (multiStepSubmit | async)[currentStep()]?.footerContent();
+      @if (footer) {
+        <ng-container [ngTemplateOutlet]="footer"></ng-container>
+      }
+    </ng-container>
+  </bit-dialog>
+</form>
+
+<ng-template #step0Title>
+  <div class="tw-flex tw-flex-col">
+    @let showBadge = firstTimeDialog();
+    @if (showBadge) {
+      <span bitBadge variant="info" class="tw-w-[99px] tw-my-2"> {{ "availableNow" | i18n }}</span>
+    }
+    <span>
+      {{ (showBadge ? "autoConfirm" : "editPolicy") | i18n }}
+      @if (!showBadge) {
+        <span class="tw-text-muted tw-font-normal tw-text-sm">
+          {{ policy.name | i18n }}
+        </span>
+      }
+    </span>
+  </div>
+</ng-template>
+
+<ng-template #step1Title>
+  {{ "howToTurnOnAutoConfirm" | i18n }}
+</ng-template>
+
+<ng-template #step0>
+  <button
+    bitButton
+    buttonType="primary"
+    [disabled]="saveDisabled$ | async"
+    bitFormButton
+    type="submit"
+  >
+    @let autoConfirmEnabled = autoConfirmEnabled$ | async;
+    @let managePoliciesOnly = managePoliciesOnly$ | async;
+    @if (autoConfirmEnabled || managePoliciesOnly) {
+      {{ "save" | i18n }}
+    } @else {
+      {{ "continue" | i18n }}
+    }
+  </button>
+  <button bitButton buttonType="secondary" bitDialogClose type="button">
+    {{ "cancel" | i18n }}
+  </button>
+</ng-template>
+
+<ng-template #step1>
+  <button
+    bitButton
+    buttonType="primary"
+    [disabled]="saveDisabled$ | async"
+    bitFormButton
+    type="submit"
+  >
+    {{ "openExtension" | i18n }}
+    <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
+  </button>
+  <button bitButton buttonType="secondary" bitDialogClose type="button">
+    {{ "close" | i18n }}
+  </button>
+</ng-template>

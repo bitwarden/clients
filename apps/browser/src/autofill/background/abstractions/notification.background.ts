@@ -35,7 +35,7 @@ interface NotificationQueueMessage {
 }
 
 type ChangePasswordNotificationData = {
-  cipherId: CipherView["id"];
+  cipherIds: CipherView["id"][];
   newPassword: string;
 };
 
@@ -147,7 +147,7 @@ type NotificationBackgroundExtensionMessageHandlers = {
   bgGetEnableChangedPasswordPrompt: () => Promise<boolean>;
   bgGetEnableAddedLoginPrompt: () => Promise<boolean>;
   bgGetExcludedDomains: () => Promise<NeverDomains>;
-  bgGetActiveUserServerConfig: () => Promise<ServerConfig>;
+  bgGetActiveUserServerConfig: () => Promise<ServerConfig | null>;
   getWebVaultUrlForNotification: () => Promise<string>;
 };
 

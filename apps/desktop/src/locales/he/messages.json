@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "אין לך הרשאות לערוך את הפריט הזה"
+  },
   "welcomeBack": {
     "message": "ברוך שובך"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "השתמש בכניסה יחידה"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "הארגון שלך דורש כניסה יחידה."
+  },
   "submit": {
     "message": "שלח"
   },
@@ -1032,6 +1038,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "אתה מוכרח להוסיף או את בסיס ה־URL של השרת או לפחות סביבה מותאמת אישית אחת."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "כתובות URL מוכרחות להשתמש ב־HTTPS."
+  },
   "customEnvironment": {
     "message": "סביבה מותאמת אישית"
   },
@@ -1221,6 +1230,15 @@
   },
   "invalidMasterPassword": {
     "message": "סיסמה ראשית שגויה"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "סיסמה ראשית אינה תקינה. יש לאשר שהדוא\"ל שלך נכון ושהחשבון שלך נוצר ב־$HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "twoStepLoginConfirmation": {
     "message": "אימות דו שלבי הופך את החשבון שלך למאובטח יותר בכך שתצטרך לאשר התחברות בעזרת מפתח אבטחה, תוכנת אימות, SMS, שיחת טלפון, או אימייל. ניתן להפעיל את \"אימות דו שלבי\" בכספת שבאתר bitwarden.com. האם ברצונך לפתוח את האתר כעת?"
@@ -1843,6 +1861,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "נעל בעזרת הסיסמה הראשית בהפעלה מחדש"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "דרוש סיסמה ראשית או PIN בעת הפעלה מחדש של היישום"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "דרוש סיסמה ראשית בעת הפעלה מחדש של היישום"
+  },
   "deleteAccount": {
     "message": "מחק חשבון"
   },
@@ -2125,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "אירעה שגיאה בעת אפשור שילוב דפדפן."
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "למרבה הצער שילוב דפדפן נתמך רק בגרסת Mac App Store לעת עתה."
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "למרבה הצער שילוב דפדפן אינו נתמך כרגע בגרסת ה־Microsoft Store."
@@ -2540,6 +2561,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "פסק זמן מותאם אישית מינימלי הוא דקה 1."
+  },
   "inviteAccepted": {
     "message": "ההזמנה התקבלה"
   },
@@ -2651,6 +2675,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "רק הכספת הארגונית המשויכת עם $ORGANIZATION$ תיוצא.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "רק הכספת הארגונית המשויכת עם $ORGANIZATION$ תיוצא. פריטי האוספים שלי לא יכללו.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -4080,11 +4122,17 @@
   "showLess": {
     "message": "הצג פחות"
   },
-  "enableAutotype": {
-    "message": "הפעל הקלדה אוטומטית"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden לא מאמת את מקומות הקלט, נא לוודא שזה החלון והשדה הנכונים בטרם שימוש בקיצור הדרך."
+  },
+  "typeShortcut": {
+    "message": "הקלד קיצור דרך"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "כלול אחד או שניים ממקשי הצירוף הבאים: Ctrl, Alt, Win, או Shift, ואות."
+  },
+  "invalidShortcut": {
+    "message": "קיצור דרך לא חוקי"
   },
   "moreBreadcrumbs": {
     "message": "עוד סימני דרך",
@@ -4099,40 +4147,81 @@
   "confirm": {
     "message": "אשר"
   },
-  "enableAutotypeTransitionKey": {
-    "message": "הפעל קיצור דרך להקלדה אוטומטית"
+  "enableAutotypeShortcutPreview": {
+    "message": "הפעל קיצור דרך להקלדה אוטומטית (תצוגה תכונה מקדימה)"
   },
-  "enableAutotypeDescriptionTransitionKey": {
+  "enableAutotypeShortcutDescription": {
     "message": "וודא שאתה נמצא בשדה הנכון לפני השימוש בקיצור הדרך כדי להימנע ממילוי נתונים במקום הלא נכון."
   },
   "editShortcut": {
     "message": "ערוך קיצור דרך"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "ארכיון",
+    "description": "Noun"
   },
-  "unarchive": {
-    "message": "Unarchive"
+  "archiveVerb": {
+    "message": "העבר לארכיון",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "הסר מהארכיון"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "פריטים בארכיון"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "אין פריטים בארכיון"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "פריטים בארכיון יופיעו כאן ויוחרגו מתוצאות חיפוש כללי והצעות למילוי אוטומטי."
   },
-  "itemSentToArchive": {
-    "message": "Item sent to archive"
+  "itemWasSentToArchive": {
+    "message": "הפריט נשלח לארכיון"
   },
-  "itemRemovedFromArchive": {
-    "message": "Item removed from archive"
+  "itemWasUnarchived": {
+    "message": "הפריט הוסר מהארכיון"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "העבר פריט לארכיון"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+    "message": "פריטים בארכיון מוחרגים מתוצאות חיפוש כללי והצעות למילוי אוטומטי. האם אתה בטוח שברצונך להעביר פריט זה לארכיון?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "מיקוד"
+  },
+  "cardNumberLabel": {
+    "message": "מספר כרטיס"
+  },
+  "upgradeNow": {
+    "message": "שדרג עכשיו"
+  },
+  "builtInAuthenticator": {
+    "message": "מאמת מובנה"
+  },
+  "secureFileStorage": {
+    "message": "אחסון קבצים מאובטח"
+  },
+  "emergencyAccess": {
+    "message": "גישת חירום"
+  },
+  "breachMonitoring": {
+    "message": "ניטור פרצות"
+  },
+  "andMoreFeatures": {
+    "message": "ועוד!"
+  },
+  "planDescPremium": {
+    "message": "השלם אבטחה מקוונת"
+  },
+  "upgradeToPremium": {
+    "message": "שדרג לפרימיום"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "פעולת פסק זמן"
+  },
+  "sessionTimeoutHeader": {
+    "message": "פסק זמן להפעלה"
   }
 }

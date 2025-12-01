@@ -57,6 +57,7 @@ export default {
   args: {
     loading: false,
     dialogSize: "small",
+    disableAnimations: true,
   },
   argTypes: {
     _disablePadding: {
@@ -70,6 +71,9 @@ export default {
       table: {
         defaultValue: "default",
       },
+    },
+    disableAnimations: {
+      control: { type: "boolean" },
     },
   },
   parameters: {
@@ -86,7 +90,7 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-dialog [dialogSize]="dialogSize" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding">
+      <bit-dialog [dialogSize]="dialogSize" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations">
         <ng-container bitDialogTitle>
           <span bitBadge variant="success">Foobar</span>
         </ng-container>
@@ -125,7 +129,15 @@ export const LongTitle: Story = {
   ...Default,
   args: {
     dialogSize: "small",
-    title: "Long_Title_That_Should_Be_Truncated",
+    title: "Incredibly_Super_Long_Title_That_Should_Be_Truncated",
+  },
+};
+
+export const LongTitleSentence: Story = {
+  ...Default,
+  args: {
+    dialogSize: "small",
+    title: "Very Long Sentence That Should Be Truncated After Two Lines",
   },
 };
 
@@ -150,7 +162,7 @@ export const ScrollingContent: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-dialog title="Scrolling Example" [background]="background" [dialogSize]="dialogSize" [loading]="loading" [disablePadding]="disablePadding">
+      <bit-dialog title="Scrolling Example" [background]="background" [dialogSize]="dialogSize" [loading]="loading" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations">
         <span bitDialogContent>
           Dialog body text goes here.<br />
           <ng-container *ngFor="let _ of [].constructor(100)">
@@ -167,6 +179,7 @@ export const ScrollingContent: Story = {
   }),
   args: {
     dialogSize: "small",
+    disableAnimations: true,
   },
 };
 
@@ -174,7 +187,7 @@ export const TabContent: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-dialog title="Tab Content Example" [background]="background" [dialogSize]="dialogSize" [disablePadding]="disablePadding">
+      <bit-dialog title="Tab Content Example" [background]="background" [dialogSize]="dialogSize" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations">
         <span bitDialogContent>
           <bit-tab-group>
               <bit-tab label="First Tab">First Tab Content</bit-tab>
@@ -192,6 +205,7 @@ export const TabContent: Story = {
   args: {
     dialogSize: "large",
     disablePadding: true,
+    disableAnimations: true,
   },
   parameters: {
     docs: {
@@ -211,7 +225,7 @@ export const WithCards: Story = {
     },
     template: /*html*/ `
       <form [formGroup]="formObj">
-      <bit-dialog [dialogSize]="dialogSize" [background]="background" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding">
+      <bit-dialog [dialogSize]="dialogSize" [background]="background" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations">
         <ng-container bitDialogContent>
           <bit-section>
             <bit-section-header>
@@ -275,5 +289,6 @@ export const WithCards: Story = {
     title: "Default",
     subtitle: "Subtitle",
     background: "alt",
+    disableAnimations: true,
   },
 };

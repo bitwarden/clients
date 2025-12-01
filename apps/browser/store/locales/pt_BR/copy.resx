@@ -118,66 +118,66 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Gerenciador de Senhas Bitwarden</value>
+    <value>Bitwarden Gerenciador de Senhas</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>Em casa, no trabalho, ou em qualquer lugar, o Bitwarden protege facilmente todas as suas senhas, chaves de acesso e informações sensíveis.</value>
+    <value>Onde quer que você esteja, a Bitwarden protege facilmente todas as suas senhas, chaves de acesso e informações sensíveis.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Reconhecido como o melhor gerenciador de senhas por "PCMag", 'WIRED', 'The Verge', 'CNET', 'G2', entre outros!
+    <value>Reconhecido como o melhor gerenciador de senhas por PCMag, WIRED, The Verge, CNET, G2, e outros!
 
 PROTEJA A SUA VIDA DIGITAL
-Deixe a sua vida digital segura e se proteja contra violações de dados gerando e salvando senhas únicas e fortes para cada conta pessoal. Mantendo tudo isso em um cofre criptografado de ponta a ponta em que apenas você pode acessar.
+Proteja a sua vida digital e proteja-se de vazamentos de dados gerando e salvando senhas únicas e seguras, para cada conta. Mantenha tudo em um cofre criptografado de ponta a ponta, que só você pode acessar.
 
-ACESSE OS SEUS DADOS, EM QUALQUER LUGAR, HORA E DISPOSITIVO
-Gerencie, armazene, proteja e compartilhe senhas facilmente entre dispositivos ilimitados e sem restrições.
+ACESSE SEUS DADOS, DE QUALQUER LUGAR, QUALQUER HORA, EM QUALQUER DISPOSITIVO
+Gerencie, armazene, proteja, e compartilhe senhas ilimitadas entre dispositivos ilimitados, sem restrições. Tudo de forma fácil.
 
-TODOS DEVERIAM TEM FERRAMENTAS PARA SE PROTEGER ONLINE
-Utilize Bitwarden de graça sem anúncios ou venda dos seus dados. A Bitwarden acredita que todos deveriam ter a opção de estar seguro online. Nossos planos Premium oferecem recursos mais avançados.
+TODOS DEVERIAM TER AS FERRAMENTAS PARA SE PROTEGER ON-LINE
+Utilize o Bitwarden de graça, sem anúncios, e sem venda de dados. O Bitwarden acredita que todos deveriam ter a possibilidade de se proteger on-line. O plano Premium oferece acesso a recursos avançados.
 
-EMPODERE O SEUS TIMES COM BITWARDEN
-Os planos para times e empresas vêm com recursos profissionais para negócios. Alguns exemplos incluem integração SSO, auto-hospedagem, integração de diretório e provisionamento SCIM, políticas globais, acesso API, registro de eventos e mais.
+EMPODERE SUAS EQUIPES COM O BITWARDEN
+Os planos para Equipes e o Empresarial vêm com recursos empresariais profisionais. Alguns exemplos incluem integração com SSO, auto-hospedagem, integração de diretório e provisionamento de SCIM, políticas globais, acesso à API, registros de eventos, e mais.
 
-Utilize o Bitwarden para proteger os seus colaboradores e compartilhar informações sensíveis com seus colegas.
+Use o Bitwarden para protejer a sua força de trabalho e compartilhe informações sensíveis com colegas.
 
-Mais razões para escolher Bitwarden:
+Mais motivos para escolher o Bitwarden:
 
-Criptografia mundialmente reconhecida
-Suas senhas são protegidas com avançada criptografia ponta a ponta (AES-256, salted hashing, e PBKDF2 SHA-256) para que os seus dados estejam seguros e privados.
+Criptografia reconhecida mundialmente
+As senhas são protegidas com criptografia avançada de ponta a ponta (AES de 256 bits, hashing com salting, e PBKDF2 SHA-256) para que seus dados continuem seguros e privados.
 
-Auditoria de Terceiros
-A Bitwarden regularmente conduz auditorias de terceiros com notáveis empresas de segurança. Essas auditorias anuais incluem qualificação do código fonte e testes de invasão contra os IPs da Bitwarden, servidores e aplicações web.
+Auditoria por terceiros
+O Bitwarden conduz auditorias abrangentes de terceiros periodicamente com firmas de segurança nótaveis. Essas auditorias anuais incluem análise do código-fonte e teste de penetração entre IPs, servidores, e aplicativos web do Bitwarden.
 
-2FA Avançado
-Proteja o seu login com um autenticador de dois fatores, códigos de email ou credenciais FIDO2 WebAuthn como chave de segurança por hardware ou chave de acesso.
+Autenticação de duas etapas avançada
+Proteja sua autenticação com um autenticador de terceiros, códigos enviados por e-mail, ou credenciais de WebAuthn FIDO2, como uma chave de segurança física ou uma chave de acesso.
 
-Envio Bitwarden
-Transmita dados diretamente para outras pessoas enquanto mantém a segurança da criptografia ponta a ponta para limitar sua exposição.
+Bitwarden Send
+Transmita dados diretamente para outros enquanto mantém a segurança da criptografia de ponta a ponta, limitando exposição.
 
-Gerador integrado
-Crie diferentes senhas fortes e complexas e nomes de usuário únicos para cada site que visitar. Integre com provedores de email para privacidade adicional.
+Gerador embutido
+Crie senhas longas, complexas, e distintas, e nomes de usuário únicos para cada site que visita. Integre com provedores de alias de email para privacidade adicional.
 
-Tradutores globais
-As traduções da Bitwarden estão disponíveis para mais de 60 línguas, traduzidas pela comunidade global através do Crowdin.
+Traduções globais
+O Bitwarden tem traduções para mais de 60 idiomas, traduzidos pela comunidade global, pelo Crowdin.
 
-Aplicações Multi-Plataforma
-Proteja e compartilhe conteúdo confidencial dentro do Vault da Bitwarden de qualquer navegador, dispositivo móvel, desktop, entre outros.
+Aplicativos multiplataforma
+Proteja e compartilhe dados sensíveis dentro do seu cofre do Bitwarden de qualquer navegador, dispositivo móvel, sistema operacional de computador, e mais.
 
-Bitwarden protege mais do que apenas senhas
-Com nossas soluções em gerenciamento de credenciais criptografadas ponta a ponta, a Bitwarden empodera organizações para proteger qualquer informação, incluindo senhas de desenvolvedor e chaves de acesso. Visite Bitwarden.com para aprender mais sobre Bitwarden Secrets Manager e Bitwarden Passwordless.dev!
+O Bitwarden protege mais do que só senhas
+As soluções criptografadas de ponta a ponta de gerenciamento de credenciaisdo Bitwarden empoderam organizações a proteger tudo, incluindo segredos de desenvolvedor, e experiências com chaves de acesso. Visite bitwarden.com para aprender mais sobre o Bitwarden Gerenciador de Segredos e o Bitwarden Passworldless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>Onde quer que você esteja, a Bitwarden protege facilmente todas as suas senha, chaves de acesso e informações sensíveis.</value>
+    <value>Onde quer que você esteja, a Bitwarden protege facilmente todas as suas senhas, chaves de acesso e informações sensíveis.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
-    <value>Sincronize e acesse o seu cofre através de múltiplos dispositivos</value>
+    <value>Sincronize e acesse o seu cofre entre vários dispositivos</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
     <value>Gerencie todas as suas credenciais a partir de um cofre seguro</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
-    <value>Autopreencha rapidamente as suas credenciais dentro de qualquer site que visitar</value>
+    <value>Preencha automaticamente as suas credenciais dentro de qualquer site que visitar</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
     <value>O seu cofre é também acessível a partir do menu de contexto pelo clique no botão direito do mouse</value>
@@ -186,6 +186,6 @@ Com nossas soluções em gerenciamento de credenciais criptografadas ponta a pon
     <value>Gera automaticamente senhas fortes, aleatórias e seguras</value>
   </data>
   <data name="ScreenshotEdit" xml:space="preserve">
-    <value>A sua informação é gerenciada com segurança utilizando encriptação AES-256 bits</value>
+    <value>A sua informação é gerenciada com segurança utilizando criptografia de AES de 256 bits</value>
   </data>
 </root>

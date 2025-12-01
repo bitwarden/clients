@@ -1,18 +1,15 @@
 {
-  "name": "pricing",
+  "name": "@bitwarden/pricing",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/pricing/src",
   "projectType": "library",
-  "tags": [],
+  "tags": ["scope:pricing", "type:lib"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "executor": "nx:run-script",
+      "dependsOn": [],
       "options": {
-        "outputPath": "dist/libs/pricing",
-        "main": "libs/pricing/src/index.ts",
-        "tsConfig": "libs/pricing/tsconfig.lib.json",
-        "assets": ["libs/pricing/*.md"]
+        "script": "build"
       }
     },
     "lint": {

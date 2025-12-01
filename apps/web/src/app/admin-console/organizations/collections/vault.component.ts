@@ -44,9 +44,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -142,6 +140,8 @@ enum AddAccessStatusType {
   AddAccess = 1,
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-org-vault",
   templateUrl: "vault.component.html",
@@ -162,7 +162,7 @@ enum AddAccessStatusType {
     { provide: CipherFormConfigService, useClass: AdminConsoleCipherFormConfigService },
   ],
 })
-export class vNextVaultComponent implements OnInit, OnDestroy {
+export class VaultComponent implements OnInit, OnDestroy {
   protected Unassigned = Unassigned;
 
   trashCleanupWarning: string = this.i18nService.t(
@@ -209,6 +209,8 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
   protected selectedCollection$: Observable<TreeNode<CollectionAdminView> | undefined>;
   private nestedCollections$: Observable<TreeNode<CollectionAdminView>[]>;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("vaultItems", { static: false }) vaultItemsComponent:
     | VaultItemsComponent<CipherView>
     | undefined;
@@ -239,7 +241,6 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
     private totpService: TotpService,
     private apiService: ApiService,
     private toastService: ToastService,
-    private configService: ConfigService,
     private cipherFormConfigService: CipherFormConfigService,
     protected billingApiService: BillingApiServiceAbstraction,
     private accountService: AccountService,
@@ -710,14 +711,13 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
   }
 
   async navigateToPaymentMethod() {
-    const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
-      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
-    );
-    const route = managePaymentDetailsOutsideCheckout ? "payment-details" : "payment-method";
     const organizationId = await firstValueFrom(this.organizationId$);
-    await this.router.navigate(["organizations", `${organizationId}`, "billing", route], {
-      state: { launchPaymentModalAutomatically: true },
-    });
+    await this.router.navigate(
+      ["organizations", `${organizationId}`, "billing", "payment-details"],
+      {
+        state: { launchPaymentModalAutomatically: true },
+      },
+    );
   }
 
   addAccessToggle(e: AddAccessStatusType) {
@@ -794,6 +794,9 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
         case "viewEvents":
           await this.viewEvents(event.item);
           break;
+        case "editCipher":
+          await this.editCipher(event.item);
+          break;
       }
     } finally {
       this.processingEvent$.next(false);
@@ -856,7 +859,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
    * @param cipherView - When set, the cipher to be edited
    * @param cloneCipher - `true` when the cipher should be cloned.
    */
-  async editCipher(cipher: CipherView | undefined, cloneCipher: boolean) {
+  async editCipher(cipher: CipherView | undefined, cloneCipher?: boolean) {
     if (
       cipher &&
       cipher.reprompt !== 0 &&
@@ -982,7 +985,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
 
     // Allow restore of an Unassigned Item
     try {
-      if (c.id == null) {
+      if (c.id == null || c.id === "") {
         throw new Error("Cipher must have an Id to be restored");
       }
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -1215,7 +1218,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       aType = "Password";
       value = cipher.login.password;
       typeI18nKey = "password";
-    } else if (field === "totp") {
+    } else if (field === "totp" && cipher.login.totp != null) {
       aType = "TOTP";
       const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
       value = totpResponse.code;
@@ -1236,7 +1239,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!cipher.viewPassword) {
+    if (!cipher.viewPassword || value == null) {
       return;
     }
 

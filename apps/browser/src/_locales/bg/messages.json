@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Използване на еднократна идентификация"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Вашата организация изисква еднократно удостоверяване."
+  },
   "welcomeBack": {
     "message": "Добре дошли отново"
   },
@@ -550,10 +553,15 @@
   "resetSearch": {
     "message": "Нулиране на търсенето"
   },
-  "archive": {
-    "message": "Архивиране"
+  "archiveNoun": {
+    "message": "Архив",
+    "description": "Noun"
   },
-  "unarchive": {
+  "archiveVerb": {
+    "message": "Архивиране",
+    "description": "Verb"
+  },
+  "unArchive": {
     "message": "Изваждане от архива"
   },
   "itemsInArchive": {
@@ -565,11 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Архивираните елементи ще се показват тук и ще бъдат изключени от общите резултати при търсене и от предложенията за автоматично попълване."
   },
-  "itemSentToArchive": {
-    "message": "Елементът е преместен в архива"
+  "itemWasSentToArchive": {
+    "message": "Елементът беше преместен в архива"
   },
-  "itemRemovedFromArchive": {
-    "message": "Елементът е изваден от архива"
+  "itemUnarchived": {
+    "message": "Елементът беше изваден от архива"
   },
   "archiveItem": {
     "message": "Архивиране на елемента"
@@ -577,11 +585,23 @@
   "archiveItemConfirmDesc": {
     "message": "Архивираните елементи са изключени от общите резултати при търсене и от предложенията за автоматично попълване. Наистина ли искате да архивирате този елемент?"
   },
+  "upgradeToUseArchive": {
+    "message": "За да се възползвате от архивирането, трябва да ползвате платен абонамент."
+  },
   "edit": {
     "message": "Редактиране"
   },
   "view": {
     "message": "Преглед"
+  },
+  "viewAll": {
+    "message": "Показване на всички"
+  },
+  "showAll": {
+    "message": "Показване на всички"
+  },
+  "viewLess": {
+    "message": "Преглед на по-малко"
   },
   "viewLogin": {
     "message": "Преглед на елемента за вписване"
@@ -728,6 +748,15 @@
   "invalidMasterPassword": {
     "message": "Грешна главна парола"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Грешна главна парола. Проверете дали е-пощата е правилна и дали акаунтът Ви е създаден в $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "vaultTimeout": {
     "message": "Време за достъп"
   },
@@ -775,6 +804,12 @@
   },
   "onLocked": {
     "message": "При заключване на системата"
+  },
+  "onIdle": {
+    "message": "При бездействие на системата"
+  },
+  "onSleep": {
+    "message": "При заспиване на системата"
   },
   "onRestart": {
     "message": "При повторно пускане на браузъра"
@@ -1013,6 +1048,18 @@
   },
   "editedItem": {
     "message": "Елементът е редактиран"
+  },
+  "savedWebsite": {
+    "message": "Запазен уеб сайт"
+  },
+  "savedWebsites": {
+    "message": "Запазени уеб сайтове ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Наистина ли искате да изтриете елемента?"
@@ -1491,12 +1538,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Питане за биометрични данни при пускане"
   },
-  "premiumRequired": {
-    "message": "Изисква се платен абонамент"
-  },
-  "premiumRequiredDesc": {
-    "message": "За да се възползвате от тази възможност, трябва да ползвате платен абонамент."
-  },
   "authenticationTimeout": {
     "message": "Време на давност за удостоверяването"
   },
@@ -1533,6 +1574,15 @@
   },
   "readSecurityKey": {
     "message": "Прочитане на ключа за сигурност"
+  },
+  "readingPasskeyLoading": {
+    "message": "Прочитане на секретния ключ…"
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Удостоверяването чрез секретен ключ беше неуспешно"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Използване на друг метод на вписване"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Изчакване на действие с ключ за сигурност…"
@@ -1600,6 +1650,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Трябва да добавите или основния адрес на сървъра, или поне една специална среда."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Адресите трябва да ползват HTTPS."
+  },
   "customEnvironment": {
     "message": "Специална среда"
   },
@@ -1653,8 +1706,29 @@
   "turnOffAutofill": {
     "message": "Изключване на автоматичното попълване"
   },
+  "confirmAutofill": {
+    "message": "Потвърждаване на автоматичното попълване"
+  },
+  "confirmAutofillDesc": {
+    "message": "Този уеб сайт не съвпада със запазените данни за вписване. Преди да попълните данните си, уверете се, че имате вяра на сайта."
+  },
   "showInlineMenuLabel": {
     "message": "Показване на предложения за авт. попълване на полетата във формуляри"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Как Битуорден защитава данните Ви от измами?"
+  },
+  "currentWebsite": {
+    "message": "Текущ уеб сайт"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Автоматично попълване и добавяне на този уеб сайт"
+  },
+  "autofillWithoutAdding": {
+    "message": "Автоматично попълване без добавяне"
+  },
+  "doNotAutofill": {
+    "message": "Да не се попълва автоматично"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Показване на идентичности като предложения"
@@ -1798,6 +1872,9 @@
   },
   "expirationYear": {
     "message": "Година на изтичане"
+  },
+  "monthly": {
+    "message": "месец"
   },
   "expiration": {
     "message": "Изтичане"
@@ -2367,6 +2444,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Тази страница пречи на работата на Битуорден. Вмъкнатото меню на Битуорден е временно изключено, като мярка за сигурност."
   },
   "setMasterPassword": {
     "message": "Задаване на главна парола"
@@ -3193,11 +3273,32 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Само трезорът свързан с $ORGANIZATION$ ще бъде експортиран. Моите записи няма да бъдат включени.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Грешка"
   },
   "decryptionError": {
     "message": "Грешка при дешифриране"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Грешка при получаването на данните за автоматично попълване"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Битоурден не може да дешифрира елементите от трезора посочени по-долу."
@@ -3969,6 +4070,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Автоматичното попълване при зареждане на страницата използва настройката си по подразбиране.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Автоматичното попълване не може да бъде извършено"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "По подразбиране е зададена настройката „Точно съвпадение“. Текущият уеб сайт не съвпада точно със запазените данни за вход в този запис."
+  },
+  "okay": {
+    "message": "Добре"
   },
   "toggleSideNavigation": {
     "message": "Превключване на страничната навигация"
@@ -4801,6 +4911,9 @@
   "premium": {
     "message": "Премиум"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Отключете докладите, аварийния достъп и още функционалности свързани със сигурността, с платения план."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Безплатните организации не могат да използват прикачени файлове"
   },
@@ -4877,6 +4990,16 @@
   },
   "defaultLabel": {
     "message": "По подразбиране ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "defaultLabelWithValue": {
+    "message": "По подразбиране ( $VALUE$ )",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5538,17 +5661,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Добре дошли в трезора си!"
   },
-  "phishingPageTitle": {
-    "message": "Измамен уеб сайт"
+  "phishingPageTitleV2": {
+    "message": "Засечен е опит за измама"
   },
-  "phishingPageCloseTab": {
-    "message": "Затваряне на раздела"
+  "phishingPageSummary": {
+    "message": "Уеб сайтът, който се опитвате да посетите, е известен като злонамерен и може да представлява риск за сигурността."
   },
-  "phishingPageContinue": {
-    "message": "Продължаване"
+  "phishingPageCloseTabV2": {
+    "message": "Затваряне на този раздел"
   },
-  "phishingPageLearnWhy": {
-    "message": "Защо виждате това?"
+  "phishingPageContinueV2": {
+    "message": "Продължаване към уеб сайта (не се препоръчва)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Този уеб сайт е открит в ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", отворен списък с известни измамни уеб сайтове, които могат да отмъкнат Вашите лични или поверителни данни.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Научете повече относно разпознаването на измамни уеб сайтове"
+  },
+  "protectedBy": {
+    "message": "Защитено от $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Попълвайте автоматично елементи в текущата страница"
@@ -5653,5 +5796,60 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Потвърждаване на домейна на конектора за ключове"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Добра работа с подсигуряването на данните за вписване в риск!"
+  },
+  "upgradeNow": {
+    "message": "Надграждане сега"
+  },
+  "builtInAuthenticator": {
+    "message": "Вграден удостоверител"
+  },
+  "secureFileStorage": {
+    "message": "Сигурно съхранение на файлове"
+  },
+  "emergencyAccess": {
+    "message": "Авариен достъп"
+  },
+  "breachMonitoring": {
+    "message": "Наблюдение за пробиви"
+  },
+  "andMoreFeatures": {
+    "message": "И още!"
+  },
+  "planDescPremium": {
+    "message": "Пълна сигурност в Интернет"
+  },
+  "upgradeToPremium": {
+    "message": "Надградете до Платения план"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Отключване на разширените функционалности по сигурността"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "Платеният абонамент предоставя повече инструменти за защита и управление"
+  },
+  "explorePremium": {
+    "message": "Разгледайте платения план"
+  },
+  "loadingVault": {
+    "message": "Зареждане на трезора"
+  },
+  "vaultLoaded": {
+    "message": "Трезорът е зареден"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Тази настройка е изключена съгласно политиката на организацията Ви.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Пощенски код"
+  },
+  "cardNumberLabel": {
+    "message": "Номер на картата"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Действие при изтичането на времето за достъп"
   }
 }

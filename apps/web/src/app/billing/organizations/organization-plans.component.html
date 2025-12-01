@@ -404,17 +404,16 @@
     <p class="tw-text-muted tw-italic tw-mb-3 tw-block" bitTypography="body2">
       {{ paymentDesc }}
     </p>
-    <app-payment
-      *ngIf="createOrganization || upgradeRequiresPaymentMethod"
-      [showAccountCredit]="false"
-    >
-    </app-payment>
-    <app-manage-tax-information
+    @if (createOrganization || upgradeRequiresPaymentMethod) {
+      <app-enter-payment-method [group]="billingFormGroup.controls.paymentMethod">
+      </app-enter-payment-method>
+    }
+    <app-enter-billing-address
+      [group]="billingFormGroup.controls.billingAddress"
+      [scenario]="{ type: 'checkout', supportsTaxId: showTaxIdField }"
       class="tw-my-4"
-      [showTaxIdField]="showTaxIdField"
-      [startWith]="taxInformation"
-      (taxInformationChanged)="onTaxInformationChanged($event)"
-    />
+    >
+    </app-enter-billing-address>
     <div id="price" class="tw-my-4">
       <div class="tw-text-muted tw-text-base">
         {{ "passwordManagerPlanPrice" | i18n }}: {{ passwordManagerSubtotal | currency: "USD $" }}

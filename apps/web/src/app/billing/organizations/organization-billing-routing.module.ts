@@ -11,7 +11,6 @@ import { WebPlatformUtilsService } from "../../core/web-platform-utils.service";
 import { OrgBillingHistoryViewComponent } from "./organization-billing-history-view.component";
 import { OrganizationSubscriptionCloudComponent } from "./organization-subscription-cloud.component";
 import { OrganizationSubscriptionSelfhostComponent } from "./organization-subscription-selfhost.component";
-import { OrganizationPaymentMethodComponent } from "./payment-method/organization-payment-method.component";
 
 const routes: Routes = [
   {
@@ -25,17 +24,6 @@ const routes: Routes = [
           ? OrganizationSubscriptionSelfhostComponent
           : OrganizationSubscriptionCloudComponent,
         data: { titleId: "subscription" },
-      },
-      {
-        path: "payment-method",
-        component: OrganizationPaymentMethodComponent,
-        canActivate: [
-          organizationPermissionsGuard((org) => org.canEditPaymentMethods),
-          organizationIsUnmanaged,
-        ],
-        data: {
-          titleId: "paymentMethod",
-        },
       },
       {
         path: "payment-details",

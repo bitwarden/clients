@@ -34,6 +34,8 @@ import { OptionComponent } from "./option.component";
 
 let nextId = 0;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-select",
   templateUrl: "select.component.html",
@@ -50,10 +52,12 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
   readonly items = model<Option<T>[] | undefined>();
 
   readonly placeholder = input(this.i18nService.t("selectPlaceholder"));
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() closed = new EventEmitter();
 
-  protected selectedValue = signal<T | undefined | null>(undefined);
-  selectedOption: Signal<Option<T> | null | undefined> = computed(() =>
+  protected readonly selectedValue = signal<T | undefined | null>(undefined);
+  readonly selectedOption: Signal<Option<T> | null | undefined> = computed(() =>
     this.findSelectedOption(this.items(), this.selectedValue()),
   );
   protected searchInputId = `bit-select-search-input-${nextId++}`;
@@ -70,6 +74,8 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
     }
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ContentChildren(OptionComponent)
   protected set options(value: QueryList<OptionComponent<T>>) {
     if (value == null || value.length == 0) {
@@ -94,6 +100,8 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
   }
   // TODO: Skipped for signal migration because:
   //  Accessor inputs cannot be migrated as they are too complex.
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get disabled() {
     return this._disabled ?? this.ngControl?.disabled ?? false;
@@ -166,6 +174,8 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
   // TODO: Skipped for signal migration because:
   //  Accessor inputs cannot be migrated as they are too complex.
   @HostBinding("attr.required")
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get required() {
     return this._required ?? this.ngControl?.control?.hasValidator(Validators.required) ?? false;

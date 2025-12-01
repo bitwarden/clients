@@ -1,8 +1,13 @@
-import { map, Observable } from "rxjs";
+import { combineLatest, map, Observable } from "rxjs";
+
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { UserId } from "../../../types/guid";
+import { PolicyType } from "../../enums";
 import { OrganizationData } from "../../models/data/organization.data";
 import { Organization } from "../../models/domain/organization";
+import { PolicyService } from "../policy/policy.service.abstraction";
 
 export function canAccessVaultTab(org: Organization): boolean {
   return org.canViewAllCollections;
@@ -49,6 +54,17 @@ export function canAccessOrgAdmin(org: Organization): boolean {
     canAccessSettingsTab(org) ||
     canAccessVaultTab(org)
   );
+}
+
+export function canAccessEmergencyAccess(
+  userId: UserId,
+  configService: ConfigService,
+  policyService: PolicyService,
+) {
+  return combineLatest([
+    configService.getFeatureFlag$(FeatureFlag.AutoConfirm),
+    policyService.policiesByType$(PolicyType.AutoConfirm, userId),
+  ]).pipe(map(([enabled, policies]) => !enabled || !policies.some((p) => p.enabled)));
 }
 
 /**

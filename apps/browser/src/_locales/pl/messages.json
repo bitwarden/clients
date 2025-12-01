@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Użyj logowania jednokrotnego"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Twoja organizacja wymaga logowania jednokrotnego."
+  },
   "welcomeBack": {
     "message": "Witaj ponownie"
   },
@@ -550,10 +553,15 @@
   "resetSearch": {
     "message": "Zresetuj wyszukiwanie"
   },
-  "archive": {
-    "message": "Archive"
+  "archiveNoun": {
+    "message": "Archiwum",
+    "description": "Noun"
   },
-  "unarchive": {
+  "archiveVerb": {
+    "message": "Archiwizuj",
+    "description": "Verb"
+  },
+  "unArchive": {
     "message": "Usuń z archiwum"
   },
   "itemsInArchive": {
@@ -565,10 +573,10 @@
   "noItemsInArchiveDesc": {
     "message": "Zarchiwizowane elementy pojawią się tutaj i zostaną wykluczone z wyników wyszukiwania i sugestii autouzupełniania."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Element został przeniesiony do archiwum"
   },
-  "itemRemovedFromArchive": {
+  "itemUnarchived": {
     "message": "Element został usunięty z archiwum"
   },
   "archiveItem": {
@@ -577,11 +585,23 @@
   "archiveItemConfirmDesc": {
     "message": "Zarchiwizowane elementy są wykluczone z wyników wyszukiwania i sugestii autouzupełniania. Czy na pewno chcesz archiwizować element?"
   },
+  "upgradeToUseArchive": {
+    "message": "A premium membership is required to use Archive."
+  },
   "edit": {
     "message": "Edytuj"
   },
   "view": {
     "message": "Pokaż"
+  },
+  "viewAll": {
+    "message": "Pokaż wszystko"
+  },
+  "showAll": {
+    "message": "Show all"
+  },
+  "viewLess": {
+    "message": "Pokaż mniej"
   },
   "viewLogin": {
     "message": "Pokaż dane logowania"
@@ -728,6 +748,15 @@
   "invalidMasterPassword": {
     "message": "Hasło główne jest nieprawidłowe"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Nieprawidłowe hasło główne. Sprawdź, czy Twój adres e-mail jest poprawny i czy Twoje konto zostało utworzone na $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "vaultTimeout": {
     "message": "Blokowanie sejfu"
   },
@@ -775,6 +804,12 @@
   },
   "onLocked": {
     "message": "Po zablokowaniu urządzenia"
+  },
+  "onIdle": {
+    "message": "Podczas bezczynności systemu"
+  },
+  "onSleep": {
+    "message": "Podczas uśpienia systemu"
   },
   "onRestart": {
     "message": "Po uruchomieniu przeglądarki"
@@ -1013,6 +1048,18 @@
   },
   "editedItem": {
     "message": "Element został zapisany"
+  },
+  "savedWebsite": {
+    "message": "Zapisana witryna"
+  },
+  "savedWebsites": {
+    "message": "Zapisane witryny ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Czy na pewno chcesz usunąć?"
@@ -1491,12 +1538,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Wymagaj odblokowania biometrią po uruchomieniu przeglądarki"
   },
-  "premiumRequired": {
-    "message": "Konto premium jest wymagane"
-  },
-  "premiumRequiredDesc": {
-    "message": "Konto premium jest wymagane, aby skorzystać z tej funkcji."
-  },
   "authenticationTimeout": {
     "message": "Przekroczono limit czasu uwierzytelniania"
   },
@@ -1533,6 +1574,15 @@
   },
   "readSecurityKey": {
     "message": "Odczytaj klucz bezpieczeństwa"
+  },
+  "readingPasskeyLoading": {
+    "message": "Odczytywanie klucza dostępu..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Uwierzytelnienie za pomocą klucza nie powiodło się"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Użyj innej metody logowania"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Oczekiwanie na klucz bezpieczeństwa..."
@@ -1600,6 +1650,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Musisz dodać podstawowy adres URL serwera lub co najmniej jedno niestandardowe środowisko."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Adresy URL muszą używać protokołu HTTPS."
+  },
   "customEnvironment": {
     "message": "Niestandardowe środowisko"
   },
@@ -1653,8 +1706,29 @@
   "turnOffAutofill": {
     "message": "Wyłącz autouzupełnianie"
   },
+  "confirmAutofill": {
+    "message": "Potwierdź autouzupełnianie"
+  },
+  "confirmAutofillDesc": {
+    "message": "Ta witryna nie pasuje do Twoich zapisanych danych logowania. Zanim wpiszesz dane logowania, upewnij się, że jest to zaufana witryna."
+  },
   "showInlineMenuLabel": {
     "message": "Pokaż sugestie autouzupełniania na polach formularza"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "W jaki sposób Bitwarden chroni Twoje dane przed phishingiem?"
+  },
+  "currentWebsite": {
+    "message": "Aktualna witryna"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Wypełnij automatycznie i dodaj tę witrynę"
+  },
+  "autofillWithoutAdding": {
+    "message": "Automatyczne uzupełnianie bez dodawania"
+  },
+  "doNotAutofill": {
+    "message": "Nie wypełniaj automatycznie"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Pokaż tożsamości w sugestiach"
@@ -1798,6 +1872,9 @@
   },
   "expirationYear": {
     "message": "Rok wygaśnięcia"
+  },
+  "monthly": {
+    "message": "month"
   },
   "expiration": {
     "message": "Data wygaśnięcia"
@@ -2174,7 +2251,7 @@
     "description": "ex. Date this item was created"
   },
   "datePasswordUpdated": {
-    "message": "Hasło zostało zaktualizowane",
+    "message": "Ostatnia aktualizacja hasła",
     "description": "ex. Date this password was updated"
   },
   "neverLockWarning": {
@@ -2367,6 +2444,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Ta strona zakłóca działanie Bitwarden. Menu Bitwarden zostało tymczasowo wyłączone ze względów bezpieczeństwa."
   },
   "setMasterPassword": {
     "message": "Ustaw hasło główne"
@@ -3193,11 +3273,32 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Tylko sejf organizacji $ORGANIZATION$ zostanie wyeksportowany.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Tylko sejf organizacji $ORGANIZATION$ zostanie wyeksportowany. Twoje kolekcje nie zostaną uwzględnione.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Błąd"
   },
   "decryptionError": {
     "message": "Błąd odszyfrowywania"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Błąd podczas pobierania danych autouzupełniania"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden nie mógł odszyfrować poniższych elementów sejfu."
@@ -3969,6 +4070,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Autouzupełnianie po załadowaniu strony zostało ustawione do domyślnych ustawień.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Nie można automatycznie wypełnić"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Domyślnie dopasowanie jest ustawione na „Dokładne dopasowanie”. Aktualna strona internetowa nie jest dokładnie taka sama jak zapisane dane logowania dla tego elementu."
+  },
+  "okay": {
+    "message": "Ok"
   },
   "toggleSideNavigation": {
     "message": "Przełącz nawigację boczną"
@@ -4801,6 +4911,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Unlock reporting, emergency access, and more security features with Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Darmowe organizacje nie mogą używać załączników"
   },
@@ -4876,6 +4989,16 @@
     "message": "Usuń stronę internetową"
   },
   "defaultLabel": {
+    "message": "Domyślne ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "defaultLabelWithValue": {
     "message": "Domyślne ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
@@ -5538,17 +5661,37 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Witaj w sejfie!"
   },
-  "phishingPageTitle": {
-    "message": "Witryna phishingowa"
+  "phishingPageTitleV2": {
+    "message": "Wykryto próbę phishingu"
   },
-  "phishingPageCloseTab": {
+  "phishingPageSummary": {
+    "message": "Witryna, którą próbujesz odwiedzić, jest znaną złośliwą witryną i zagrożeniem bezpieczeństwa."
+  },
+  "phishingPageCloseTabV2": {
     "message": "Zamknij kartę"
   },
-  "phishingPageContinue": {
-    "message": "Kontynuuj"
+  "phishingPageContinueV2": {
+    "message": "Przejdź do tej witryny (niezalecane)"
   },
-  "phishingPageLearnWhy": {
-    "message": "Dlaczego to widzę?"
+  "phishingPageExplanation1": {
+    "message": "Ta witryna została znaleziona w ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", lista znanych witryn phishingowych, które służą do kradzieży danych osobowych i poufnych.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Dowiedz się więcej o wykrywaniu phishingu"
+  },
+  "protectedBy": {
+    "message": "Chronione przez $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Uzupełniaj elementy na stronie internetowej"
@@ -5653,5 +5796,60 @@
   },
   "confirmKeyConnectorDomain": {
     "message": "Potwierdź domenę Key Connector"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Świetna robota z zabezpieczeniem Twoich zagrożonych danych logowania!"
+  },
+  "upgradeNow": {
+    "message": "Zaktualizuj teraz"
+  },
+  "builtInAuthenticator": {
+    "message": "Wbudowany uwierzytelniacz"
+  },
+  "secureFileStorage": {
+    "message": "Bezpieczne przechowywanie plików"
+  },
+  "emergencyAccess": {
+    "message": "Dostęp awaryjny"
+  },
+  "breachMonitoring": {
+    "message": "Monitorowanie naruszeń"
+  },
+  "andMoreFeatures": {
+    "message": "I jeszcze więcej!"
+  },
+  "planDescPremium": {
+    "message": "Pełne bezpieczeństwo w Internecie"
+  },
+  "upgradeToPremium": {
+    "message": "Ulepsz do Premium"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Unlock advanced security features"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "A Premium subscription gives you more tools to stay secure and in control"
+  },
+  "explorePremium": {
+    "message": "Poznaj Premium"
+  },
+  "loadingVault": {
+    "message": "Ładowanie sejfu"
+  },
+  "vaultLoaded": {
+    "message": "Sejf załadowany"
+  },
+  "settingDisabledByPolicy": {
+    "message": "To ustawienie jest wyłączone zgodnie z zasadami polityki Twojej organizacji.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Kod pocztowy"
+  },
+  "cardNumberLabel": {
+    "message": "Numer karty"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Akcja przekroczenia limitu czasu"
   }
 }

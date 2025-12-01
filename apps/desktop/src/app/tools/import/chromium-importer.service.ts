@@ -4,8 +4,8 @@ import { chromium_importer } from "@bitwarden/desktop-napi";
 
 export class ChromiumImporterService {
   constructor() {
-    ipcMain.handle("chromium_importer.getInstalledBrowsers", async (event) => {
-      return await chromium_importer.getInstalledBrowsers();
+    ipcMain.handle("chromium_importer.getMetadata", async (event) => {
+      return await chromium_importer.getMetadata();
     });
 
     ipcMain.handle("chromium_importer.getAvailableProfiles", async (event, browser: string) => {

@@ -28,6 +28,8 @@ import { PopupFooterComponent } from "../../../../../platform/popup/layout/popup
 import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-assign-collections",
   templateUrl: "./assign-collections.component.html",
@@ -47,6 +49,8 @@ import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-p
     PopOutComponent,
   ],
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class AssignCollections {
   /** Params needed to populate the assign collections component */
   params: CollectionAssignmentParams;

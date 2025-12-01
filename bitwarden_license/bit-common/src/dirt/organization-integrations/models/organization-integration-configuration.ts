@@ -4,6 +4,7 @@ import {
   OrganizationIntegrationId,
 } from "@bitwarden/common/types/guid";
 
+import { DatadogTemplate } from "./integration-configuration-config/configuration-template/datadog-template";
 import { HecTemplate } from "./integration-configuration-config/configuration-template/hec-template";
 import { WebhookTemplate } from "./integration-configuration-config/configuration-template/webhook-template";
 import { WebhookIntegrationConfigurationConfig } from "./integration-configuration-config/webhook-integration-configuration-config";
@@ -14,7 +15,7 @@ export class OrganizationIntegrationConfiguration {
   eventType?: EventType | null;
   configuration?: WebhookIntegrationConfigurationConfig | null;
   filters?: string;
-  template?: HecTemplate | WebhookTemplate | null;
+  template?: HecTemplate | WebhookTemplate | DatadogTemplate | null;
 
   constructor(
     id: OrganizationIntegrationConfigurationId,
@@ -22,7 +23,7 @@ export class OrganizationIntegrationConfiguration {
     eventType?: EventType | null,
     configuration?: WebhookIntegrationConfigurationConfig | null,
     filters?: string,
-    template?: HecTemplate | WebhookTemplate | null,
+    template?: HecTemplate | WebhookTemplate | DatadogTemplate | null,
   ) {
     this.id = id;
     this.integrationId = integrationId;
