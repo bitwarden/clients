@@ -3247,7 +3247,7 @@
   "nextChargeHeader": {
     "message": "Next Charge"
   },
-   "plan": {
+  "plan": {
     "message": "Plan"
   },
   "details": {
@@ -4463,7 +4463,6 @@
   "updateBrowser": {
     "message": "Update browser"
   },
-
   "generatingYourAccessIntelligence": {
     "message": "Generating your Access Intelligence..."
   },
@@ -5547,6 +5546,22 @@
     "message": "Send saved",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendCreatedSuccessfully": {
+    "message": "Send created successfully!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescription": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next N days.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newTextSend": {
+    "message": "New Text Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "New File Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "Send saved",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5821,22 +5836,22 @@
     "message": "credential lifecycle",
     "description": "This will be used as a hyperlink"
   },
-  "organizationDataOwnershipWarningTitle":{
+  "organizationDataOwnershipWarningTitle": {
     "message": "Are you sure you want to proceed?"
   },
-  "organizationDataOwnershipWarning1":{
+  "organizationDataOwnershipWarning1": {
     "message": "will remain accessible to members"
   },
-  "organizationDataOwnershipWarning2":{
+  "organizationDataOwnershipWarning2": {
     "message": "will not be automatically selected when creating new items"
   },
-  "organizationDataOwnershipWarning3":{
+  "organizationDataOwnershipWarning3": {
     "message": "cannot be managed from the Admin Console until the user is offboarded"
   },
-  "organizationDataOwnershipWarningContentTop":{
+  "organizationDataOwnershipWarningContentTop": {
     "message": "By turning this policy off, the default collection: "
   },
-  "organizationDataOwnershipWarningContentBottom":{
+  "organizationDataOwnershipWarningContentBottom": {
     "message": "Learn more about the ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
@@ -5960,7 +5975,7 @@
   "uriMatchDetectionOptionsLabel": {
     "message": "Default URI match detection"
   },
-    "invalidUriMatchDefaultPolicySetting": {
+  "invalidUriMatchDefaultPolicySetting": {
     "message": "Please select a valid URI match detection option.",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
@@ -8850,7 +8865,7 @@
     }
   },
   "accessedSecret": {
-  "message": "Accessed secret $SECRET_ID$.",
+    "message": "Accessed secret $SECRET_ID$.",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8858,7 +8873,7 @@
       }
     }
   },
-   "editedSecretWithId": {
+  "editedSecretWithId": {
     "message": "Edited a secret with identifier: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
@@ -8867,7 +8882,7 @@
       }
     }
   },
-   "deletedSecretWithId": {
+  "deletedSecretWithId": {
     "message": "Deleted a secret with identifier: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
@@ -8885,7 +8900,7 @@
       }
     }
   },
-   "restoredSecretWithId": {
+  "restoredSecretWithId": {
     "message": "Restored a secret with identifier: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
@@ -8894,7 +8909,7 @@
       }
     }
   },
-   "createdSecretWithId": {
+  "createdSecretWithId": {
     "message": "Created a new secret with identifier: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
@@ -8904,7 +8919,7 @@
     }
   },
   "accessedProjectWithIdentifier": {
-  "message": "Accessed a project with identifier: $PROJECT_ID$.",
+    "message": "Accessed a project with identifier: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8913,7 +8928,7 @@
     }
   },
   "nameUnavailableProjectDeleted": {
-  "message": "Deleted project Id: $PROJECT_ID$",
+    "message": "Deleted project Id: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8922,7 +8937,7 @@
     }
   },
   "nameUnavailableSecretDeleted": {
-  "message": "Deleted secret Id: $SECRET_ID$",
+    "message": "Deleted secret Id: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8931,7 +8946,7 @@
     }
   },
   "nameUnavailableServiceAccountDeleted": {
-  "message": "Deleted machine account Id: $SERVICE_ACCOUNT_ID$",
+    "message": "Deleted machine account Id: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "service_account_id": {
         "content": "$1",
@@ -8939,7 +8954,7 @@
       }
     }
   },
-   "editedProjectWithId": {
+  "editedProjectWithId": {
     "message": "Edited a project with identifier: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
@@ -9018,7 +9033,7 @@
       }
     }
   },
-   "deletedProjectWithId": {
+  "deletedProjectWithId": {
     "message": "Deleted a project with identifier: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
@@ -9027,7 +9042,7 @@
       }
     }
   },
-   "createdProjectWithId": {
+  "createdProjectWithId": {
     "message": "Created a new project with identifier: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
@@ -9742,15 +9757,15 @@
     "message": "Common formats",
     "description": "Label indicating the most common import formats"
   },
-    "uriMatchDefaultStrategyHint": {
+  "uriMatchDefaultStrategyHint": {
     "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
-   "regExAdvancedOptionWarning": {
+  "regExAdvancedOptionWarning": {
     "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
-   "startsWithAdvancedOptionWarning": {
+  "startsWithAdvancedOptionWarning": {
     "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
@@ -9758,11 +9773,11 @@
     "message": "More about match detection",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
-   "uriAdvancedOption":{
+  "uriAdvancedOption": {
     "message": "Advanced options",
     "description": "Advanced option placeholder for uri option component"
   },
-   "warningCapitalized": {
+  "warningCapitalized": {
     "message": "Warning",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
