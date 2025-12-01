@@ -81,10 +81,5 @@ with less padding around the icon, such as in the navigation component.
 
 Follow guidelines outlined in the [Button docs](?path=/docs/component-library-button--doc)
 
-Always use the `appA11yTitle` directive set to a string that describes the action of the
-icon-button. This will auto assign the same string to the `title` and `aria-label` attributes.
-
-`aria-label` allows assistive technology to announce the action the button takes to the users.
-
-`title` attribute provides a user with the browser tool tip if they do not understand what the icon
-is indicating.
+label input will be used to set the `aria-label` attributes on the button. This is for accessibility
+purposes, as it provides a text alternative for the icon button.
