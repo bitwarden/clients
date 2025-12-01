@@ -1409,6 +1409,9 @@
   "updateSettings": {
     "message": "Update settings"
   },
+  "later": {
+    "message": "Later"
+  },
   "authenticatorKeyTotp": {
     "message": "Authenticator key (TOTP)"
   },
