@@ -1,5 +1,5 @@
 import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
-import type { NativeImporterMetadata } from "@bitwarden/desktop-napi";
+import type { chromium_importer } from "@bitwarden/desktop-napi";
 import {
   ImportType,
   DefaultImportMetadataService,
@@ -25,7 +25,9 @@ export class DesktopImportMetadataService
     await super.init();
   }
 
-  private async parseNativeMetaData(raw: Record<string, NativeImporterMetadata>): Promise<void> {
+  private async parseNativeMetaData(
+    raw: Record<string, chromium_importer.NativeImporterMetadata>,
+  ): Promise<void> {
     const entries = Object.entries(raw).map(([id, meta]) => {
       const loaders = meta.loaders.map(this.mapLoader);
       const instructions = this.mapInstructions(meta.instructions);

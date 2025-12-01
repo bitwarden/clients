@@ -127,8 +127,8 @@ where
 ///
 /// # Errors
 ///
-/// - If the actual window title length (what the win32 API declares was written into the
-///   buffer), is length zero and GetLastError() != 0 , return the GetLastError() message.
+/// - If the actual window title length (what the win32 API declares was written into the buffer),
+///   is length zero and GetLastError() != 0 , return the GetLastError() message.
 fn get_window_title<H, E>(window_handle: &H, expected_title_length: usize) -> Result<String>
 where
     H: WindowHandleOperations,
@@ -169,16 +169,16 @@ where
 
 #[cfg(test)]
 mod tests {
-    //! For the mocking of the traits that are static methods, we need to use the `serial_test` crate
-    //! in order to mock those, since the mock expectations set have to be global in absence of a `self`.
-    //! More info: https://docs.rs/mockall/latest/mockall/#static-methods
+    //! For the mocking of the traits that are static methods, we need to use the `serial_test`
+    //! crate in order to mock those, since the mock expectations set have to be global in
+    //! absence of a `self`. More info: https://docs.rs/mockall/latest/mockall/#static-methods
 
-    use super::*;
-
-    use crate::windowing::MockErrorOperations;
     use mockall::predicate;
     use serial_test::serial;
     use windows::Win32::Foundation::WIN32_ERROR;
+
+    use super::*;
+    use crate::windowing::MockErrorOperations;
 
     #[test]
     #[serial]

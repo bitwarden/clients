@@ -1,4 +1,5 @@
 #![cfg(target_os = "macos")]
+#![allow(clippy::disallowed_macros)] // uniffi macros trip up clippy's evaluation
 
 use std::{
     collections::HashMap,
@@ -96,7 +97,7 @@ impl MacOSProviderClient {
             response_callbacks_queue: Arc::new(Mutex::new(HashMap::new())),
         };
 
-        let path = desktop_core::ipc::path("autofill");
+        let path = desktop_core::ipc::path("af");
 
         let queue = client.response_callbacks_queue.clone();
 

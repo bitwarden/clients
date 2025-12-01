@@ -1,8 +1,11 @@
 import { Component, Inject, OnInit } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AddableOrganizationResponse } from "@bitwarden/common/admin-console/models/response/addable-organization.response";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   DIALOG_DATA,
@@ -46,6 +49,7 @@ export class AddExistingOrganizationDialogComponent implements OnInit {
     private providerApiService: ProviderApiServiceAbstraction,
     private toastService: ToastService,
     private webProviderService: WebProviderService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
@@ -57,9 +61,11 @@ export class AddExistingOrganizationDialogComponent implements OnInit {
 
   addExistingOrganization = async (): Promise<void> => {
     if (this.selectedOrganization) {
+      const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
       await this.webProviderService.addOrganizationToProvider(
         this.dialogParams.provider.id,
         this.selectedOrganization.id,
+        userId,
       );
 
       this.toastService.showToast({

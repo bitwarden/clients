@@ -26,13 +26,21 @@ import { FakeAccountService, mockAccountServiceWith } from "../../../../../commo
 import { CipherAttachmentsComponent } from "./cipher-attachments.component";
 import { DeleteAttachmentComponent } from "./delete-attachment/delete-attachment.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-download-attachment",
   template: "",
 })
 class MockDownloadAttachmentComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() attachment: AttachmentView;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() cipher: CipherView;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() admin: boolean = false;
 }
 

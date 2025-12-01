@@ -10,13 +10,13 @@ import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-manageme
 import { WindowMain } from "../../main/window.main";
 
 import { DesktopBiometricsService } from "./desktop.biometrics.service";
-import { WindowsBiometricsSystem } from "./native-v2";
+import { LinuxBiometricsSystem, WindowsBiometricsSystem } from "./native-v2";
 import { OsBiometricService } from "./os-biometrics.service";
 
 export class MainBiometricsService extends DesktopBiometricsService {
   private osBiometricsService: OsBiometricService;
   private shouldAutoPrompt = true;
-  private windowsV2BiometricsEnabled = false;
+  private linuxV2BiometricsEnabled = false;
 
   constructor(
     private i18nService: I18nService,
@@ -29,15 +29,10 @@ export class MainBiometricsService extends DesktopBiometricsService {
   ) {
     super();
     if (platform === "win32") {
-      // eslint-disable-next-line
-      const OsBiometricsServiceWindows = require("./os-biometrics-windows.service").default;
-      this.osBiometricsService = new OsBiometricsServiceWindows(
+      this.osBiometricsService = new WindowsBiometricsSystem(
         this.i18nService,
         this.windowMain,
         this.logService,
-        this.biometricStateService,
-        this.encryptService,
-        this.cryptoFunctionService,
       );
     } else if (platform === "darwin") {
       // eslint-disable-next-line
@@ -155,19 +150,15 @@ export class MainBiometricsService extends DesktopBiometricsService {
     return await this.osBiometricsService.hasPersistentKey(userId);
   }
 
-  async enableWindowsV2Biometrics(): Promise<void> {
-    if (this.platform === "win32" && !this.windowsV2BiometricsEnabled) {
-      this.logService.info("[BiometricsMain] Loading native biometrics module v2 for windows");
-      this.osBiometricsService = new WindowsBiometricsSystem(
-        this.i18nService,
-        this.windowMain,
-        this.logService,
-      );
-      this.windowsV2BiometricsEnabled = true;
+  async enableLinuxV2Biometrics(): Promise<void> {
+    if (this.platform === "linux" && !this.linuxV2BiometricsEnabled) {
+      this.logService.info("[BiometricsMain] Loading native biometrics module v2 for linux");
+      this.osBiometricsService = new LinuxBiometricsSystem();
+      this.linuxV2BiometricsEnabled = true;
     }
   }
 
-  async isWindowsV2BiometricsEnabled(): Promise<boolean> {
-    return this.windowsV2BiometricsEnabled;
+  async isLinuxV2BiometricsEnabled(): Promise<boolean> {
+    return this.linuxV2BiometricsEnabled;
   }
 }

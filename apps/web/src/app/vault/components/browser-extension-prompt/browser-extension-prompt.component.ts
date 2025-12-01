@@ -1,5 +1,5 @@
 import { CommonModule, DOCUMENT } from "@angular/common";
-import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
+import { Component, Inject, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { map, Observable, of, tap } from "rxjs";
@@ -18,6 +18,7 @@ import { ManuallyOpenExtensionComponent } from "../manually-open-extension/manua
   selector: "vault-browser-extension-prompt",
   templateUrl: "./browser-extension-prompt.component.html",
   imports: [CommonModule, I18nPipe, ButtonComponent, IconModule, ManuallyOpenExtensionComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BrowserExtensionPromptComponent implements OnInit, OnDestroy {
   protected VaultMessages = VaultMessages;

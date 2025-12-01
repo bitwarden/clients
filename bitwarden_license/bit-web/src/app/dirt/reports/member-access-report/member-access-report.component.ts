@@ -8,12 +8,15 @@ import { BehaviorSubject, debounceTime, firstValueFrom, lastValueFrom } from "rx
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService, SearchModule, TableDataSource } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 import { ExportHelper } from "@bitwarden/vault-export-core";
 import { CoreOrganizationModule } from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import {
@@ -41,7 +44,7 @@ import { MemberAccessReportView } from "./view/member-access-report.view";
     safeProvider({
       provide: MemberAccessReportServiceAbstraction,
       useClass: MemberAccessReportService,
-      deps: [MemberAccessReportApiService, I18nService],
+      deps: [MemberAccessReportApiService, I18nService, EncryptService, KeyService, AccountService],
     }),
   ],
 })

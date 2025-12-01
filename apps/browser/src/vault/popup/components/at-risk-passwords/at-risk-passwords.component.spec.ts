@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
@@ -40,26 +40,31 @@ import { AtRiskPasswordsComponent } from "./at-risk-passwords.component";
 @Component({
   selector: "popup-header",
   template: `<ng-content></ng-content>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockPopupHeaderComponent {
-  @Input() pageTitle: string | undefined;
-  @Input() backAction: (() => void) | undefined;
+  readonly pageTitle = input<string | undefined>(undefined);
+  readonly backAction = input<(() => void) | undefined>(undefined);
 }
 
 @Component({
   selector: "popup-page",
   template: `<ng-content></ng-content>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockPopupPageComponent {
-  @Input() loading: boolean | undefined;
+  readonly loading = input<boolean | undefined>(undefined);
 }
 
 @Component({
   selector: "app-vault-icon",
   template: `<ng-content></ng-content>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 class MockAppIcon {
-  @Input() cipher: CipherView | undefined;
+  readonly cipher = input<CipherView | undefined>(undefined);
 }
 
 describe("AtRiskPasswordsComponent", () => {
@@ -95,11 +100,15 @@ describe("AtRiskPasswordsComponent", () => {
         id: "cipher",
         organizationId: "org",
         name: "Item 1",
+        edit: true,
+        viewPassword: true,
       } as CipherView,
       {
         id: "cipher2",
         organizationId: "org",
         name: "Item 2",
+        edit: true,
+        viewPassword: true,
       } as CipherView,
     ]);
     mockOrgs$ = new BehaviorSubject<Organization[]>([
@@ -221,6 +230,38 @@ describe("AtRiskPasswordsComponent", () => {
           organizationId: "org",
           name: "Item 1",
           isDeleted: true,
+          edit: true,
+          viewPassword: true,
+        } as CipherView,
+      ]);
+
+      const items = await firstValueFrom(component["atRiskItems$"]);
+      expect(items).toHaveLength(0);
+    });
+
+    it("should not show tasks when cipher does not have edit permission", async () => {
+      mockCiphers$.next([
+        {
+          id: "cipher",
+          organizationId: "org",
+          name: "Item 1",
+          edit: false,
+          viewPassword: true,
+        } as CipherView,
+      ]);
+
+      const items = await firstValueFrom(component["atRiskItems$"]);
+      expect(items).toHaveLength(0);
+    });
+
+    it("should not show tasks when cipher does not have viewPassword permission", async () => {
+      mockCiphers$.next([
+        {
+          id: "cipher",
+          organizationId: "org",
+          name: "Item 1",
+          edit: true,
+          viewPassword: false,
         } as CipherView,
       ]);
 
@@ -274,11 +315,15 @@ describe("AtRiskPasswordsComponent", () => {
           id: "cipher",
           organizationId: "org",
           name: "Item 1",
+          edit: true,
+          viewPassword: true,
         } as CipherView,
         {
           id: "cipher2",
           organizationId: "org2",
           name: "Item 2",
+          edit: true,
+          viewPassword: true,
         } as CipherView,
       ]);
 

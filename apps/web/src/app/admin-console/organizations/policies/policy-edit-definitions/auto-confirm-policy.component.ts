@@ -1,4 +1,11 @@
-import { Component, OnInit, Signal, TemplateRef, viewChild } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  Signal,
+  TemplateRef,
+  viewChild,
+} from "@angular/core";
 import { BehaviorSubject, map, Observable } from "rxjs";
 
 import { AutoConfirmSvg } from "@bitwarden/assets/svg";
@@ -27,13 +34,15 @@ export class AutoConfirmPolicy extends BasePolicyEditDefinition {
 }
 
 @Component({
+  selector: "auto-confirm-policy-edit",
   templateUrl: "auto-confirm-policy.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent implements OnInit {
   protected readonly autoConfirmSvg = AutoConfirmSvg;
-  private policyForm: Signal<TemplateRef<any> | undefined> = viewChild("step0");
-  private extensionButton: Signal<TemplateRef<any> | undefined> = viewChild("step1");
+  private readonly policyForm: Signal<TemplateRef<any> | undefined> = viewChild("step0");
+  private readonly extensionButton: Signal<TemplateRef<any> | undefined> = viewChild("step1");
 
   protected step: number = 0;
   protected steps = [this.policyForm, this.extensionButton];

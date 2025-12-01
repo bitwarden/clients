@@ -2,6 +2,7 @@ import * as bigInt from "big-integer";
 import {
   NEVER,
   Observable,
+  catchError,
   combineLatest,
   distinctUntilChanged,
   filter,
@@ -68,7 +69,14 @@ import {
 import { KdfConfig } from "./models/kdf-config";
 
 export class DefaultKeyService implements KeyServiceAbstraction {
-  readonly activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
+  /**
+   * Retrieves a stream of the active users organization keys,
+   * will NOT emit any value if there is no active user.
+   *
+   * @deprecated Use {@link orgKeys$} with a required {@link UserId} instead.
+   * TODO to be removed with https://bitwarden.atlassian.net/browse/PM-23623
+   */
+  private readonly activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
 
   constructor(
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -159,6 +167,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return this.stateProvider.getUserState$(USER_KEY, userId);
   }
 
+  /**
+   * @deprecated Use {@link userKey$} with a required {@link UserId} instead.
+   */
   async getUserKey(userId?: UserId): Promise<UserKey> {
     const userKey = await firstValueFrom(this.stateProvider.getUserState$(USER_KEY, userId));
     return userKey;
@@ -291,9 +302,15 @@ export class DefaultKeyService implements KeyServiceAbstraction {
    */
   async encryptUserKeyWithMasterKey(
     masterKey: MasterKey,
-    userKey?: UserKey,
+    userKey: UserKey,
   ): Promise<[UserKey, EncString]> {
-    userKey ||= await this.getUserKey();
+    if (masterKey == null) {
+      throw new Error("masterKey is required.");
+    }
+    if (userKey == null) {
+      throw new Error("userKey is required.");
+    }
+
     return await this.buildProtectedSymmetricKey(masterKey, userKey);
   }
 
@@ -426,20 +443,16 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     });
   }
 
-  // TODO: Deprecate in favor of observable
-  async getProviderKey(providerId: ProviderId): Promise<ProviderKey | null> {
-    if (providerId == null) {
-      return null;
-    }
+  providerKeys$(userId: UserId): Observable<Record<ProviderId, ProviderKey> | null> {
+    return this.userPrivateKey$(userId).pipe(
+      switchMap((userPrivateKey) => {
+        if (userPrivateKey == null) {
+          return of(null);
+        }
 
-    const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
-    if (activeUserId == null) {
-      throw new Error("No active user found.");
-    }
-
-    const providerKeys = await firstValueFrom(this.providerKeys$(activeUserId));
-
-    return providerKeys?.[providerId] ?? null;
+        return this.providerKeysHelper$(userId, userPrivateKey);
+      }),
+    );
   }
 
   private async clearProviderKeys(userId: UserId): Promise<void> {
@@ -627,7 +640,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     // Verify user key doesn't exist
-    const existingUserKey = await this.getUserKey(userId);
+    const existingUserKey = await firstValueFrom(this.userKey$(userId));
 
     if (existingUserKey != null) {
       this.logService.error("Tried to initialize account with existing user key.");
@@ -829,18 +842,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     )) as UserPrivateKey;
   }
 
-  providerKeys$(userId: UserId) {
-    return this.userPrivateKey$(userId).pipe(
-      switchMap((userPrivateKey) => {
-        if (userPrivateKey == null) {
-          return of(null);
-        }
-
-        return this.providerKeysHelper$(userId, userPrivateKey);
-      }),
-    );
-  }
-
   /**
    * A helper for decrypting provider keys that requires a user id and that users decrypted private key
    * this is helpful for when you may have already grabbed the user private key and don't want to redo
@@ -947,6 +948,13 @@ export class DefaultKeyService implements KeyServiceAbstraction {
             }
 
             return result;
+          }),
+          catchError((err: unknown) => {
+            this.logService.error(
+              `Failed to get encrypted organization keys for user ${userId}`,
+              err,
+            );
+            return of({});
           }),
         );
       }),

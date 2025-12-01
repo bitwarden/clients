@@ -49,6 +49,8 @@ import { LoginDetailsSectionComponent } from "./login-details-section/login-deta
 import { NewItemNudgeComponent } from "./new-item-nudge/new-item-nudge.component";
 import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-cipher-form",
   templateUrl: "./cipher-form.component.html",
@@ -79,6 +81,8 @@ import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.componen
   ],
 })
 export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, CipherFormContainer {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(BitSubmitDirective)
   private bitSubmit: BitSubmitDirective;
   private destroyRef = inject(DestroyRef);
@@ -87,38 +91,52 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
   /**
    * The form ID to use for the form. Used to connect it to a submit button.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) formId: string;
 
   /**
    * The configuration for the add/edit form. Used to determine which controls are shown and what values are available.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) config: CipherFormConfig;
 
   /**
    * Optional submit button that will be disabled or marked as loading when the form is submitting.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   submitBtn?: ButtonComponent;
 
   /**
    * Optional function to call before submitting the form. If the function returns false, the form will not be submitted.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   beforeSubmit: () => Promise<boolean>;
 
   /**
    * Event emitted when the cipher is saved successfully.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() cipherSaved = new EventEmitter<CipherView>();
 
   private formReadySubject = new Subject<void>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() formReady = this.formReadySubject.asObservable();
 
   /**
    * Emitted when the form is enabled
    */
   private formStatusChangeSubject = new BehaviorSubject<"enabled" | "disabled" | null>(null);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() formStatusChange$ = this.formStatusChangeSubject.asObservable();
 
   /**
@@ -263,7 +281,6 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
 
       if (this.config.mode === "clone") {
         this.updatedCipherView.id = null;
-        this.updatedCipherView.archivedDate = null;
 
         if (this.updatedCipherView.login) {
           this.updatedCipherView.login.fido2Credentials = null;

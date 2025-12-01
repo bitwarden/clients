@@ -32,7 +32,7 @@ type Account = {
 export class AddMasterPasswordUnlockData extends Migrator<72, 73> {
   async migrate(helper: MigrationHelper): Promise<void> {
     async function migrateAccount(userId: string, account: Account) {
-      const email = account.email;
+      const email = account?.email;
       const kdfConfig = await helper.getFromUser(userId, KDF_CONFIG_DISK);
       const masterKeyEncryptedUserKey = await helper.getFromUser(
         userId,

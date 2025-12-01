@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Çoklu oturum açma kullan"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Kuruluşunuz çoklu oturum açma gerektiriyor."
+  },
   "welcomeBack": {
     "message": "Tekrar hoş geldiniz"
   },
@@ -582,11 +585,23 @@
   "archiveItemConfirmDesc": {
     "message": "Arşivlenmiş kayıtlar genel arama sonuçları ve otomatik doldurma önerilerinden hariç tutulur. Bu kaydı arşivlemek istediğine emin misin?"
   },
+  "upgradeToUseArchive": {
+    "message": "Arşivi kullanmak için premium üyelik gereklidir."
+  },
   "edit": {
     "message": "Düzenle"
   },
   "view": {
     "message": "Görüntüle"
+  },
+  "viewAll": {
+    "message": "Tümünü göster"
+  },
+  "showAll": {
+    "message": "Tümünü göster"
+  },
+  "viewLess": {
+    "message": "Daha az göster"
   },
   "viewLogin": {
     "message": "Hesabı göster"
@@ -789,6 +804,12 @@
   },
   "onLocked": {
     "message": "Sistem kilitlenince"
+  },
+  "onIdle": {
+    "message": "Sistem boştayken"
+  },
+  "onSleep": {
+    "message": "Sistem uyuyunca"
   },
   "onRestart": {
     "message": "Tarayıcı yeniden başlatılınca"
@@ -1027,6 +1048,18 @@
   },
   "editedItem": {
     "message": "Hesap kaydedildi"
+  },
+  "savedWebsite": {
+    "message": "Kayıtlı web sitesi"
+  },
+  "savedWebsites": {
+    "message": "Kayıtlı web siteleri ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Çöp kutusuna göndermek istediğinizden emin misiniz?"
@@ -1505,12 +1538,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Açılışta biyometri doğrulaması iste"
   },
-  "premiumRequired": {
-    "message": "Premium gerekli"
-  },
-  "premiumRequiredDesc": {
-    "message": "Bu özelliği kullanmak için premium üyelik gereklidir."
-  },
   "authenticationTimeout": {
     "message": "Kimlik doğrulama zaman aşımı"
   },
@@ -1623,6 +1650,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Temel Sunucu URL’sini veya en az bir özel ortam eklemelisiniz."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL'ler HTTPS kullanmalıdır."
+  },
   "customEnvironment": {
     "message": "Özel ortam"
   },
@@ -1676,8 +1706,29 @@
   "turnOffAutofill": {
     "message": "Otomatik doldurmayı kapat"
   },
+  "confirmAutofill": {
+    "message": "Otomatik doldurmayı onayla"
+  },
+  "confirmAutofillDesc": {
+    "message": "Bu site kayıtlı hesap bilgilerinizle eşleşmiyor. Hesap bilgilerinizi doldurmadan önce sitenin güvenilir olduğundan emin olun."
+  },
   "showInlineMenuLabel": {
     "message": "Form alanlarında otomatik doldurma önerilerini göster"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Bitwarden verilerinizi kimlik avı saldırılarından nasıl koruyor?"
+  },
+  "currentWebsite": {
+    "message": "Geçerli web sitesi"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Otomatik doldur ve bu siteyi ekle"
+  },
+  "autofillWithoutAdding": {
+    "message": "Eklemeden otomatik doldur"
+  },
+  "doNotAutofill": {
+    "message": "Otomatik doldurma"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Kimlikleri öneri olarak göster"
@@ -1821,6 +1872,9 @@
   },
   "expirationYear": {
     "message": "Son kullanma yılı"
+  },
+  "monthly": {
+    "message": "ay"
   },
   "expiration": {
     "message": "Son kullanma tarihi"
@@ -2390,6 +2444,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Bu sayfa Bitwarden deneyimiyle çakışıyor. Güvenlik önlemi olarak Bitwarden satır içi menüsü geçici olarak devre dışı bırakıldı."
   },
   "setMasterPassword": {
     "message": "Ana parolayı belirle"
@@ -3240,6 +3297,9 @@
   "decryptionError": {
     "message": "Şifre çözme sorunu"
   },
+  "errorGettingAutoFillData": {
+    "message": "Otomatik doldurma verileri alınırken hata oluştu"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden aşağıdaki kasa öğelerini deşifre edemedi."
   },
@@ -4010,6 +4070,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Sayfa yüklenince otomatik doldurma, varsayılan ayarı kullanacak şekilde ayarlandı.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Otomatik doldurulamıyor"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Tamam"
   },
   "toggleSideNavigation": {
     "message": "Kenar menüsünü aç/kapat"
@@ -4842,6 +4911,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Unlock reporting, emergency access, and more security features with Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Ücretsiz kuruluşlar dosya eklerini kullanamaz"
   },
@@ -4918,6 +4990,16 @@
   },
   "defaultLabel": {
     "message": "Varsayılan ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "defaultLabelWithValue": {
+    "message": "Varsayılan ( $VALUE$ )",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5580,16 +5662,16 @@
     "message": "Kasanıza hoş geldiniz!"
   },
   "phishingPageTitleV2": {
-    "message": "Phishing attempt detected"
+    "message": "Dolandırıcılık girişimi tespit edildi"
   },
   "phishingPageSummary": {
-    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+    "message": "Girmeye çalıştığınız site kötü amaçlı ve güvenlik riski taşıyan bir sitedir."
   },
   "phishingPageCloseTabV2": {
     "message": "Bu sekmeyi kapat"
   },
   "phishingPageContinueV2": {
-    "message": "Continue to this site (not recommended)"
+    "message": "Siteye devam et (önerilmez)"
   },
   "phishingPageExplanation1": {
     "message": "This site was found in ",
@@ -5718,8 +5800,56 @@
   "atRiskLoginsSecured": {
     "message": "Great job securing your at-risk logins!"
   },
+  "upgradeNow": {
+    "message": "Şimdi yükselt"
+  },
+  "builtInAuthenticator": {
+    "message": "Dahili kimlik doğrulayıcı"
+  },
+  "secureFileStorage": {
+    "message": "Güvenli dosya depolama"
+  },
+  "emergencyAccess": {
+    "message": "Acil durum erişimi"
+  },
+  "breachMonitoring": {
+    "message": "İhlal izleme"
+  },
+  "andMoreFeatures": {
+    "message": "Ve daha fazlası!"
+  },
+  "planDescPremium": {
+    "message": "Eksiksiz çevrimiçi güvenlik"
+  },
+  "upgradeToPremium": {
+    "message": "Premium'a yükselt"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Gelişmiş güvenlik özelliklerinin kilidini açın"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "Premium abonelik size daha fazla güvenlik ve kontrol olanağı sunan ek araçlara erişmenizi sağlar"
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "Kasa yükleniyor"
+  },
+  "vaultLoaded": {
+    "message": "Kasa yüklendi"
+  },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / posta kodu"
+  },
+  "cardNumberLabel": {
+    "message": "Kart numarası"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Zaman aşımı eylemi"
   }
 }

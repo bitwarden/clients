@@ -1,5 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import {
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import {
@@ -80,6 +87,7 @@ import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
   ],
   selector: "vault-at-risk-passwords",
   templateUrl: "./at-risk-passwords.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AtRiskPasswordsComponent implements OnInit {
   private taskService = inject(TaskService);
@@ -156,6 +164,8 @@ export class AtRiskPasswordsComponent implements OnInit {
             t.type === SecurityTaskType.UpdateAtRiskCredential &&
             t.cipherId != null &&
             ciphers[t.cipherId] != null &&
+            ciphers[t.cipherId].edit &&
+            ciphers[t.cipherId].viewPassword &&
             !ciphers[t.cipherId].isDeleted,
         )
         .map((t) => ciphers[t.cipherId!]),

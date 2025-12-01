@@ -40,7 +40,7 @@ export class DarkImageSourceDirective implements OnInit {
   /**
    * The image source to use when the dark theme is applied.
    */
-  darkImgSrc = input.required<string>({ alias: "appDarkImgSrc" });
+  readonly darkImgSrc = input.required<string>({ alias: "appDarkImgSrc" });
 
   @HostBinding("attr.src") src: string | undefined;
 

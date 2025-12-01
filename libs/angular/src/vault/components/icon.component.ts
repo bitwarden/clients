@@ -25,14 +25,14 @@ export class IconComponent {
   /**
    * The cipher to display the icon for.
    */
-  cipher = input.required<CipherViewLike>();
+  readonly cipher = input.required<CipherViewLike>();
 
   /**
    * coloredIcon will adjust the size of favicons and the colors of the text icon when user is in the item details view.
    */
-  coloredIcon = input<boolean>(false);
+  readonly coloredIcon = input<boolean>(false);
 
-  imageLoaded = signal(false);
+  readonly imageLoaded = signal(false);
 
   protected data$: Observable<CipherIconDetails>;
 

@@ -86,11 +86,11 @@
  */
 @layer components {
   .tw-h1 {
-    @apply tw-text-3xl tw-font-semibold;
+    @apply tw-text-3xl tw-font-medium;
   }
 
   .tw-btn {
-    @apply tw-font-semibold tw-py-1.5 tw-px-3 tw-rounded-full tw-transition tw-border-2 tw-border-solid tw-text-center tw-no-underline focus:tw-outline-none;
+    @apply tw-font-medium tw-py-1.5 tw-px-3 tw-rounded-full tw-transition tw-border-2 tw-border-solid tw-text-center tw-no-underline focus:tw-outline-none;
   }
 
   .tw-btn-secondary {
@@ -100,7 +100,7 @@
   }
 
   .tw-link {
-    @apply tw-font-semibold hover:tw-underline hover:tw-decoration-1;
+    @apply tw-font-medium hover:tw-underline hover:tw-decoration-1;
 
     @apply tw-text-primary-600 hover:tw-text-primary-700 focus-visible:before:tw-ring-primary-600;
   }

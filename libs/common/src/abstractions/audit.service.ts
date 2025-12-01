@@ -14,10 +14,4 @@ export abstract class AuditService {
    * @returns A promise that resolves to an array of BreachAccountResponse objects.
    */
   abstract breachedAccounts: (username: string) => Promise<BreachAccountResponse[]>;
-  /**
-   * Checks if a domain is known for phishing.
-   * @param domain The domain to check.
-   * @returns A promise that resolves to a boolean indicating if the domain is known for phishing.
-   */
-  abstract getKnownPhishingDomains: () => Promise<string[]>;
 }

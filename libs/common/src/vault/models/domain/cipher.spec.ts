@@ -44,22 +44,22 @@ describe("Cipher DTO", () => {
     const data = new CipherData();
     const cipher = new Cipher(data);
 
-    expect(cipher.id).toBeUndefined();
+    expect(cipher.id).toEqual("");
     expect(cipher.organizationId).toBeUndefined();
     expect(cipher.folderId).toBeUndefined();
     expect(cipher.name).toBeInstanceOf(EncString);
     expect(cipher.notes).toBeUndefined();
-    expect(cipher.type).toBeUndefined();
-    expect(cipher.favorite).toBeUndefined();
-    expect(cipher.organizationUseTotp).toBeUndefined();
-    expect(cipher.edit).toBeUndefined();
-    expect(cipher.viewPassword).toBeUndefined();
+    expect(cipher.type).toEqual(CipherType.Login);
+    expect(cipher.favorite).toEqual(false);
+    expect(cipher.organizationUseTotp).toEqual(false);
+    expect(cipher.edit).toEqual(false);
+    expect(cipher.viewPassword).toEqual(true);
     expect(cipher.revisionDate).toBeInstanceOf(Date);
     expect(cipher.collectionIds).toEqual([]);
     expect(cipher.localData).toBeUndefined();
     expect(cipher.creationDate).toBeInstanceOf(Date);
     expect(cipher.deletedDate).toBeUndefined();
-    expect(cipher.reprompt).toBeUndefined();
+    expect(cipher.reprompt).toEqual(CipherRepromptType.None);
     expect(cipher.attachments).toBeUndefined();
     expect(cipher.fields).toBeUndefined();
     expect(cipher.passwordHistory).toBeUndefined();
@@ -836,6 +836,38 @@ describe("Cipher DTO", () => {
       expect(actual).toBeInstanceOf(Cipher);
     });
 
+    it("handles null permissions correctly without calling CipherPermissionsApi constructor", () => {
+      const spy = jest.spyOn(CipherPermissionsApi.prototype, "constructor" as any);
+      const revisionDate = new Date("2022-08-04T01:06:40.441Z");
+      const actual = Cipher.fromJSON({
+        name: "myName",
+        revisionDate: revisionDate.toISOString(),
+        permissions: null,
+      } as Jsonify<Cipher>);
+
+      expect(actual.permissions).toBeUndefined();
+      expect(actual).toBeInstanceOf(Cipher);
+      // Verify that CipherPermissionsApi constructor was not called for null permissions
+      expect(spy).not.toHaveBeenCalledWith(null);
+      spy.mockRestore();
+    });
+
+    it("calls CipherPermissionsApi constructor when permissions are provided", () => {
+      const spy = jest.spyOn(CipherPermissionsApi.prototype, "constructor" as any);
+      const revisionDate = new Date("2022-08-04T01:06:40.441Z");
+      const permissionsObj = { delete: true, restore: false };
+      const actual = Cipher.fromJSON({
+        name: "myName",
+        revisionDate: revisionDate.toISOString(),
+        permissions: permissionsObj,
+      } as Jsonify<Cipher>);
+
+      expect(actual.permissions).toBeInstanceOf(CipherPermissionsApi);
+      expect(actual.permissions.delete).toBe(true);
+      expect(actual.permissions.restore).toBe(false);
+      spy.mockRestore();
+    });
+
     test.each([
       // Test description, CipherType, expected output
       ["LoginView", CipherType.Login, { login: "myLogin_fromJSON" }],
@@ -1056,6 +1088,7 @@ describe("Cipher DTO", () => {
         card: undefined,
         secureNote: undefined,
         sshKey: undefined,
+        data: undefined,
         favorite: false,
         reprompt: SdkCipherRepromptType.None,
         organizationUseTotp: true,

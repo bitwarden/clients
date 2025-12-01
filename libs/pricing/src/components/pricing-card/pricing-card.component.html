@@ -1,6 +1,4 @@
-<div
-  class="tw-box-border tw-bg-background tw-text-main tw-border tw-border-secondary-100 tw-rounded-3xl tw-p-8 tw-shadow-sm tw-size-full tw-flex tw-flex-col"
->
+<bit-card class="tw-size-full tw-flex tw-flex-col">
   <!-- Title Section with Active Badge -->
   <div class="tw-flex tw-items-center tw-justify-between tw-mb-2">
     <ng-content select="[slot=title]"></ng-content>
@@ -24,7 +22,7 @@
   @if (price(); as priceValue) {
     <div class="tw-mb-6">
       <div class="tw-flex tw-items-baseline tw-gap-1 tw-flex-wrap">
-        <span class="tw-text-3xl tw-font-bold tw-leading-none tw-m-0">{{
+        <span class="tw-text-3xl tw-font-medium tw-leading-none tw-m-0">{{
           priceValue.amount | currency: "$"
         }}</span>
         <span bitTypography="helper" class="tw-text-muted">
@@ -82,4 +80,4 @@
       }
     }
   </div>
-</div>
+</bit-card>

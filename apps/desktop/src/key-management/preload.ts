@@ -61,13 +61,13 @@ const biometric = {
       action: BiometricAction.HasPersistentKey,
       userId: userId,
     } satisfies BiometricMessage),
-  enableWindowsV2Biometrics: (): Promise<void> =>
+  enableLinuxV2Biometrics: (): Promise<void> =>
     ipcRenderer.invoke("biometric", {
-      action: BiometricAction.EnableWindowsV2,
+      action: BiometricAction.EnableLinuxV2,
     } satisfies BiometricMessage),
-  isWindowsV2BiometricsEnabled: (): Promise<boolean> =>
+  isLinuxV2BiometricsEnabled: (): Promise<boolean> =>
     ipcRenderer.invoke("biometric", {
-      action: BiometricAction.IsWindowsV2Enabled,
+      action: BiometricAction.IsLinuxV2Enabled,
     } satisfies BiometricMessage),
 };
 

@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "welcomeBack": {
     "message": "Chào mừng bạn trở lại"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "Dùng đăng nhập một lần"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Tổ chức của bạn yêu cầu đăng nhập một lần."
+  },
   "submit": {
     "message": "Gửi"
   },
@@ -1032,6 +1038,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Bạn phải thêm URL máy chủ cơ sở hoặc ít nhất một môi trường tùy chỉnh."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL phải sử dụng HTTPS."
+  },
   "customEnvironment": {
     "message": "Môi trường tùy chỉnh"
   },
@@ -1244,7 +1253,7 @@
     "message": "Đóng kho sau"
   },
   "vaultTimeout1": {
-    "message": "Quá hạn"
+    "message": "Thời gian chờ"
   },
   "vaultTimeoutAction1": {
     "message": "Hành động sau khi đóng kho"
@@ -1853,10 +1862,10 @@
     "message": "Khóa bằng mật khẩu chính khi khởi động lại"
   },
   "requireMasterPasswordOrPinOnAppRestart": {
-    "message": "Require master password or PIN on app restart"
+    "message": "Yêu cầu mật khẩu chính hoặc mã PIN khi khởi động lại ứng dụng"
   },
   "requireMasterPasswordOnAppRestart": {
-    "message": "Require master password on app restart"
+    "message": "Yêu cầu mật khẩu chính khi khởi động lại ứng dụng"
   },
   "deleteAccount": {
     "message": "Xóa tài khoản"
@@ -2140,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "Đã xảy ra lỗi khi bật tích hợp với trình duyệt."
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Rất tiếc, tính năng tích hợp trình duyệt hiện chỉ được hỗ trợ trong phiên bản Mac App Store."
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Rất tiếc, tính năng tích hợp trình duyệt hiện không được hỗ trợ trong phiên bản Microsoft Store."
@@ -4174,12 +4180,48 @@
     "message": "Mục đã được chuyển vào kho lưu trữ"
   },
   "itemWasUnarchived": {
-    "message": "Item was unarchived"
+    "message": "Mục đã được bỏ lưu trữ"
   },
   "archiveItem": {
     "message": "Lưu trữ mục"
   },
   "archiveItemConfirmDesc": {
     "message": "Các mục đã lưu trữ sẽ bị loại khỏi kết quả tìm kiếm chung và gợi ý tự động điền. Bạn có chắc chắn muốn lưu trữ mục này không?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "Mã ZIP / Bưu điện"
+  },
+  "cardNumberLabel": {
+    "message": "Số thẻ"
+  },
+  "upgradeNow": {
+    "message": "Nâng cấp ngay"
+  },
+  "builtInAuthenticator": {
+    "message": "Trình xác thực tích hợp"
+  },
+  "secureFileStorage": {
+    "message": "Lưu trữ tệp an toàn"
+  },
+  "emergencyAccess": {
+    "message": "Truy cập khẩn cấp"
+  },
+  "breachMonitoring": {
+    "message": "Giám sát vi phạm"
+  },
+  "andMoreFeatures": {
+    "message": "Và nhiều hơn nữa!"
+  },
+  "planDescPremium": {
+    "message": "Bảo mật trực tuyến toàn diện"
+  },
+  "upgradeToPremium": {
+    "message": "Nâng cấp lên gói Cao cấp"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

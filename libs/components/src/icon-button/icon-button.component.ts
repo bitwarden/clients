@@ -17,6 +17,7 @@ import { setA11yTitleAndAriaLabel } from "../a11y/set-a11y-title-and-aria-label"
 import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
 import { FocusableElement } from "../shared/focusable-element";
 import { SpinnerComponent } from "../spinner";
+import { TooltipDirective } from "../tooltip";
 import { ariaDisableElement } from "../utils";
 
 export type IconButtonType = "primary" | "danger" | "contrast" | "main" | "muted" | "nav-contrast";
@@ -100,7 +101,10 @@ const sizes: Record<IconButtonSize, string[]> = {
      */
     "[attr.bitIconButton]": "icon()",
   },
-  hostDirectives: [AriaDisableDirective],
+  hostDirectives: [
+    AriaDisableDirective,
+    { directive: TooltipDirective, inputs: ["tooltipPosition"] },
+  ],
 })
 export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableElement {
   readonly icon = model.required<string>({ alias: "bitIconButton" });
@@ -108,6 +112,9 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
   readonly buttonType = input<IconButtonType>("main");
 
   readonly size = model<IconButtonSize>("default");
+
+  private elementRef = inject(ElementRef);
+  private tooltip = inject(TooltipDirective, { host: true, optional: true });
 
   /**
    * label input will be used to set the `aria-label` attributes on the button.
@@ -119,7 +126,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
 
   @HostBinding("class") get classList() {
     return [
-      "tw-font-semibold",
+      "tw-font-medium",
       "tw-leading-[0px]",
       "tw-border-none",
       "tw-transition",
@@ -186,8 +193,6 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     return this.elementRef.nativeElement;
   }
 
-  private elementRef = inject(ElementRef);
-
   constructor() {
     const element = this.elementRef.nativeElement;
 
@@ -198,9 +203,15 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     effect(() => {
       setA11yTitleAndAriaLabel({
         element: this.elementRef.nativeElement,
-        title: originalTitle ?? this.label(),
+        title: undefined,
         label: this.label(),
       });
+
+      const tooltipContent: string = originalTitle || this.label();
+
+      if (tooltipContent) {
+        this.tooltip?.tooltipContent.set(tooltipContent);
+      }
     });
   }
 }

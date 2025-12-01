@@ -21,20 +21,30 @@ import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-heade
 
 import { FoldersV2Component } from "./folders-v2.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "popup-header",
   template: `<ng-content></ng-content>`,
 })
 class MockPopupHeaderComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() pageTitle: string = "";
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() backAction: () => void = () => {};
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "popup-footer",
   template: `<ng-content></ng-content>`,
 })
 class MockPopupFooterComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() pageTitle: string = "";
 }
 

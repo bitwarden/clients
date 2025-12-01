@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Bu kaydı düzenleme yetkisine sahip değilsiniz"
+  },
   "welcomeBack": {
     "message": "Tekrar hoş geldiniz"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "Çoklu oturum açma kullan"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Kuruluşunuz çoklu oturum açma gerektiriyor."
+  },
   "submit": {
     "message": "Gönder"
   },
@@ -1031,6 +1037,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Temel Sunucu URL’sini veya en az bir özel ortam eklemelisiniz."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL'ler HTTPS kullanmalıdır."
   },
   "customEnvironment": {
     "message": "Özel ortam"
@@ -2140,9 +2149,6 @@
   },
   "browserIntegrationErrorDesc": {
     "message": "Tarayıcı entegrasyonu etkinleştirilirken bir hata oluştu."
-  },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Ne yazık ki tarayıcı entegrasyonu şu anda sadece Mac App Store sürümünde destekleniyor."
   },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Maalesef tarayıcı entegrasyonu şimdilik Windows Store sürümünde desteklenmiyor."
@@ -4181,5 +4187,41 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / posta kodu"
+  },
+  "cardNumberLabel": {
+    "message": "Kart numarası"
+  },
+  "upgradeNow": {
+    "message": "Şimdi yükselt"
+  },
+  "builtInAuthenticator": {
+    "message": "Dahili kimlik doğrulayıcı"
+  },
+  "secureFileStorage": {
+    "message": "Güvenli dosya depolama"
+  },
+  "emergencyAccess": {
+    "message": "Acil durum erişimi"
+  },
+  "breachMonitoring": {
+    "message": "İhlal izleme"
+  },
+  "andMoreFeatures": {
+    "message": "Ve daha fazlası!"
+  },
+  "planDescPremium": {
+    "message": "Eksiksiz çevrimiçi güvenlik"
+  },
+  "upgradeToPremium": {
+    "message": "Premium'a yükselt"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Zaman aşımı eylemi"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Oturum zaman aşımı"
   }
 }

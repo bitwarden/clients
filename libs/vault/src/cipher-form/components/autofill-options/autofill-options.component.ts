@@ -36,6 +36,8 @@ interface UriField {
   matchDetection: UriMatchStrategySetting;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-autofill-options",
   templateUrl: "./autofill-options.component.html",
@@ -60,6 +62,8 @@ export class AutofillOptionsComponent implements OnInit {
   /**
    * List of rendered UriOptionComponents. Used for focusing newly added Uri inputs.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChildren(UriOptionComponent)
   protected uriOptions: QueryList<UriOptionComponent>;
 
@@ -136,9 +140,9 @@ export class AutofillOptionsComponent implements OnInit {
     this.cipherFormContainer.formStatusChange$.pipe(takeUntilDestroyed()).subscribe((status) => {
       // Disable adding new URIs when the cipher form is disabled
       if (status === "disabled") {
-        this.autofillOptionsForm.disable();
+        this.autofillOptionsForm.disable({ emitEvent: false });
       } else if (!this.isPartialEdit) {
-        this.autofillOptionsForm.enable();
+        this.autofillOptionsForm.enable({ emitEvent: false });
       }
     });
   }
@@ -214,7 +218,10 @@ export class AutofillOptionsComponent implements OnInit {
           return;
         }
 
-        this.autofillOptions[0].label = this.i18nService.t("defaultLabel", defaultOption.label);
+        this.autofillOptions[0].label = this.i18nService.t(
+          "defaultLabelWithValue",
+          defaultOption.label,
+        );
         // Trigger change detection to update the label in the template
         this.autofillOptions = [...this.autofillOptions];
       });
