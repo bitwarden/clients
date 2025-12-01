@@ -38,12 +38,16 @@ import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-heade
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { VaultFadeInOutSkeletonComponent } from "../../../vault/popup/components/vault-fade-in-out-skeleton/vault-fade-in-out-skeleton.component";
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum SendState {
-  Empty,
-  NoResults,
-}
+/** A state of the Send list UI. */
+export const SendState = Object.freeze({
+  /** No sends exist for the current filter (file or text). */
+  Empty: "Empty",
+  /** Sends exist, but none match the current filter/search. */
+  NoResults: "NoResults",
+} as const);
+
+/** A state of the Send list UI. */
+export type SendState = (typeof SendState)[keyof typeof SendState];
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -114,6 +118,11 @@ export class SendV2Component implements OnDestroy {
 
   protected sendsDisabled = false;
 
+  private readonly sendTypeTitles: Record<SendType, string> = {
+    [SendType.File]: "fileSends",
+    [SendType.Text]: "textSends",
+  };
+
   constructor(
     protected sendItemsService: SendItemsService,
     protected sendListFiltersService: SendListFiltersService,
@@ -130,7 +139,7 @@ export class SendV2Component implements OnDestroy {
       .pipe(takeUntilDestroyed())
       .subscribe(([emptyList, noFilteredResults, currentFilter]) => {
         if (currentFilter?.sendType !== null) {
-          this.title = `${this.sendType[currentFilter.sendType].toLowerCase()}Sends`;
+          this.title = this.sendTypeTitles[currentFilter.sendType] ?? "allSends";
         } else {
           this.title = "allSends";
         }

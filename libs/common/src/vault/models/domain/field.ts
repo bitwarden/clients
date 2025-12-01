@@ -1,11 +1,16 @@
 import { Jsonify } from "type-fest";
 
-import { Field as SdkField, LinkedIdType as SdkLinkedIdType } from "@bitwarden/sdk-internal";
+import { Field as SdkField } from "@bitwarden/sdk-internal";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { FieldType, LinkedIdType } from "../../enums";
+import {
+  FieldType,
+  LinkedIdType,
+  normalizeFieldTypeForSdk,
+  normalizeLinkedIdTypeForSdk,
+} from "../../enums";
 import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { FieldData } from "../data/field.data";
 import { FieldView } from "../view/field.view";
@@ -77,9 +82,8 @@ export class Field extends Domain {
     return {
       name: this.name?.toSdk(),
       value: this.value?.toSdk(),
-      type: this.type,
-      // Safe type cast: client and SDK LinkedIdType enums have identical values
-      linkedId: this.linkedId as unknown as SdkLinkedIdType,
+      type: normalizeFieldTypeForSdk(this.type),
+      linkedId: normalizeLinkedIdTypeForSdk(this.linkedId),
     };
   }
 

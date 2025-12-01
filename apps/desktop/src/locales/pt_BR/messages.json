@@ -36,13 +36,13 @@
     "message": "Pastas"
   },
   "collections": {
-    "message": "Coleções"
+    "message": "Conjuntos"
   },
   "searchVault": {
-    "message": "Pesquisar no cofre"
+    "message": "Buscar no cofre"
   },
   "resetSearch": {
-    "message": "Apagar pesquisa"
+    "message": "Apagar busca"
   },
   "addItem": {
     "message": "Adicionar item"
@@ -268,7 +268,7 @@
     "message": "Requer Premium"
   },
   "premiumRequiredDesc": {
-    "message": "Uma assinatura Premium é necessária para usar esse recurso."
+    "message": "Um plano Premium é necessário para usar esse recurso."
   },
   "errorOccurred": {
     "message": "Ocorreu um erro."
@@ -287,7 +287,7 @@
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "para evitar a perca adicional dos dados.",
+    "message": "para evitar a perca de dados adicionais.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
@@ -681,16 +681,16 @@
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchCollection": {
-    "message": "Pesquisar coleção"
+    "message": "Buscar no conjunto"
   },
   "searchFolder": {
-    "message": "Pesquisar pasta"
+    "message": "Buscar na pasta"
   },
   "searchFavorites": {
-    "message": "Pesquisar favoritos"
+    "message": "Buscar nos favoritos"
   },
   "searchType": {
-    "message": "Pesquisar tipo",
+    "message": "Buscar tipo",
     "description": "Search item type"
   },
   "newAttachment": {
@@ -854,7 +854,7 @@
     "message": "Solicitar dica"
   },
   "requestPasswordHint": {
-    "message": "Dica da senha principal"
+    "message": "Solicitar dica da senha"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Digite o endereço de e-mail da sua conta e sua dica da senha será enviada para você"
@@ -1097,7 +1097,7 @@
     "message": "Recurso indisponível"
   },
   "loggedOut": {
-    "message": "Sessão encerrada"
+    "message": "Desconectado"
   },
   "loggedOutDesc": {
     "message": "Você foi desconectado de sua conta."
@@ -1121,7 +1121,7 @@
     "message": "Você tem certeza que deseja sair?"
   },
   "logOut": {
-    "message": "Sair"
+    "message": "Desconectar"
   },
   "addNewLogin": {
     "message": "Nova credencial"
@@ -1295,16 +1295,16 @@
     "message": "4 horas"
   },
   "onIdle": {
-    "message": "Quando o sistema ficar inativo"
+    "message": "Na inatividade do sistema"
   },
   "onSleep": {
-    "message": "Quando o sistema hibernar"
+    "message": "Na hibernação do sistema"
   },
   "onLocked": {
-    "message": "Quando o sistema for bloqueado"
+    "message": "No bloqueio do sistema"
   },
   "onRestart": {
-    "message": "Ao reiniciar"
+    "message": "No reinício"
   },
   "never": {
     "message": "Nunca"
@@ -1470,22 +1470,22 @@
     "message": "número do cartão"
   },
   "premiumMembership": {
-    "message": "Assinatura Premium"
+    "message": "Plano Premium"
   },
   "premiumManage": {
-    "message": "Gerenciar assinatura"
+    "message": "Gerenciar plano"
   },
   "premiumManageAlert": {
-    "message": "Você pode gerenciar a sua assinatura no cofre web do bitwarden.com. Você deseja visitar o site agora?"
+    "message": "Você pode gerenciar o seu plano no cofre web do bitwarden.com. Você deseja visitar o site agora?"
   },
   "premiumRefresh": {
-    "message": "Recarregar assinatura"
+    "message": "Recarregar plano"
   },
   "premiumNotCurrentMember": {
     "message": "Você não é um membro Premium atualmente."
   },
   "premiumSignUpAndGet": {
-    "message": "Inscreva-se para uma assinatura Premium e receba:"
+    "message": "Inscreva-se para um plano Premium e receba:"
   },
   "premiumSignUpStorage": {
     "message": "1 GB de armazenamento criptografado para anexos de arquivos."
@@ -1792,7 +1792,7 @@
     "message": "Você não faz parte de uma organização. Organizações permitem-lhe compartilhar itens com segurança com outros usuários."
   },
   "noCollectionsInList": {
-    "message": "Não há coleções para listar."
+    "message": "Não há conjuntos para listar."
   },
   "ownership": {
     "message": "Propriedade"
@@ -1898,10 +1898,10 @@
     "message": "Sempre mostrar um ícone na barra de menu."
   },
   "hideToMenuBar": {
-    "message": "Esconder na barra de menu"
+    "message": "Ocultar na barra de menu"
   },
   "selectOneCollection": {
-    "message": "Você deve selecionar pelo menos uma coleção."
+    "message": "Você deve selecionar pelo menos um conjunto."
   },
   "premiumUpdated": {
     "message": "Você fez upgrade para o Premium."
@@ -1955,7 +1955,7 @@
     "description": "Noun: a special folder to hold deleted items"
   },
   "searchTrash": {
-    "message": "Pesquisar na lixeira"
+    "message": "Buscar na lixeira"
   },
   "permanentlyDeleteItem": {
     "message": "Apagar item para sempre"
@@ -1973,7 +1973,7 @@
     "message": "Apagar para sempre"
   },
   "vaultTimeoutLogOutConfirmation": {
-    "message": "Sair irá remover todo o acesso ao seu cofre e requer autenticação online após o período de tempo limite. Tem certeza de que deseja usar esta configuração?"
+    "message": "Ao desconectar-se, todo o seu acesso ao cofre será removido e será necessário autenticação on-line após o período do tempo limite. Tem certeza que quer usar esta configuração?"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
     "message": "Confirmação de ação do tempo limite"
@@ -2088,16 +2088,16 @@
     }
   },
   "policyInEffectUppercase": {
-    "message": "Contém um ou mais caracteres em maiúsculo"
+    "message": "Conter um ou mais caracteres em maiúsculo"
   },
   "policyInEffectLowercase": {
-    "message": "Contém um ou mais caracteres em minúsculo"
+    "message": "Conter um ou mais caracteres em minúsculo"
   },
   "policyInEffectNumbers": {
-    "message": "Contém um ou mais números"
+    "message": "Conter um ou mais números"
   },
   "policyInEffectSpecial": {
-    "message": "Contém um ou mais dos seguintes caracteres especiais $CHARS$",
+    "message": "Conter um ou mais dos seguintes caracteres especiais $CHARS$",
     "placeholders": {
       "chars": {
         "content": "$1",
@@ -2205,7 +2205,7 @@
     "message": "Devido ao método de instalação, o suporte à biometria não pôde ser ativado automaticamente. Você gostaria de abrir a documentação sobre como fazer isso manualmente?"
   },
   "personalOwnershipSubmitError": {
-    "message": "Devido a uma política empresarial, você não pode salvar itens no seu cofre pessoal. Altere a opção de propriedade para uma organização e escolha entre as coleções disponíveis."
+    "message": "Devido a uma política empresarial, você não pode salvar itens no seu cofre pessoal. Altere a opção de propriedade para uma organização e escolha entre os conjuntos disponíveis."
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Sua senha nova não pode ser a mesma que a sua atual."
@@ -2239,7 +2239,7 @@
     "message": "Texto"
   },
   "searchSends": {
-    "message": "Pesquisar Sends",
+    "message": "Buscar nos Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editSend": {
@@ -2688,7 +2688,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Apenas o cofre da organização associado com $ORGANIZATION$ será exportado. As coleções de itens não serão incluídos.",
+    "message": "Apenas o cofre da organização associado com $ORGANIZATION$ será exportado. Os itens dos meus conjuntos não serão incluídos.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3261,13 +3261,13 @@
     "message": "Incapaz de concluir a autenticação"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "Você precisa entrar com um dispositivo confiável ou solicitar ao administrador que lhe atribua uma senha."
+    "message": "Você precisa se conectar com um dispositivo confiado ou solicitar ao administrador que lhe atribua uma senha."
   },
   "region": {
     "message": "Região"
   },
   "ssoIdentifierRequired": {
-    "message": "Identificador de SSO da organização é necessário."
+    "message": "O identificador de SSO da organização é necessário."
   },
   "eu": {
     "message": "União Europeia",
@@ -3286,19 +3286,19 @@
     "message": "Aprovação do administrador necessária"
   },
   "adminApprovalRequestSentToAdmins": {
-    "message": "Seu pedido foi enviado para seu administrador."
+    "message": "Sua solicitação foi enviada para seu administrador."
   },
   "troubleLoggingIn": {
     "message": "Problemas para acessar?"
   },
   "loginApproved": {
-    "message": "Sessão aprovada"
+    "message": "Autenticação aprovada"
   },
   "userEmailMissing": {
     "message": "E-mail do usuário ausente"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "E-mail de usuário ativo não encontrado. Desconectando."
+    "message": "E-mail do usuário ativo não encontrado. Desconectando você."
   },
   "deviceTrusted": {
     "message": "Dispositivo confiado"
@@ -3316,13 +3316,13 @@
     "message": "Organização não foi confiada"
   },
   "emergencyAccessTrustWarning": {
-    "message": "Para a segurança da sua conta, apenas confirme se você permitiu o acesso de emergência a esse usuário e se a frase biométrica dele coincide com a que é exibida em sua conta"
+    "message": "Para a segurança da sua conta, apenas confirme se você permitiu o acesso de emergência a esse usuário e se a frase biométrica dele coincide com a que é exibida na conta deles"
   },
   "orgTrustWarning": {
     "message": "Para a segurança da sua conta, prossiga apenas se você for um membro dessa organização, tem uma recuperação de conta ativa e a frase biométrica exibida abaixo corresponde com a da organização."
   },
   "orgTrustWarning1": {
-    "message": "Esta organização tem uma política empresarial que lhe inscreverá na recuperação de conta. A matrícula permitirá que os administradores da organização alterem sua senha. Prossiga somente se você reconhecer esta organização e se a frase biométrica exibida abaixo corresponde com a impressão digital da organização."
+    "message": "Esta organização tem uma política empresarial que lhe inscreverá na recuperação de conta. A inscrição permitirá que os administradores da organização alterem sua senha. Prossiga somente se você reconhecer esta organização e se a frase biométrica exibida abaixo corresponde com a da organização."
   },
   "trustUser": {
     "message": "Confiar no usuário"
@@ -3334,7 +3334,7 @@
     "message": "obrigatório"
   },
   "search": {
-    "message": "Pesquisar"
+    "message": "Buscar"
   },
   "inputMinLength": {
     "message": "A entrada deve ter pelo menos $COUNT$ caracteres.",
@@ -3373,7 +3373,7 @@
     }
   },
   "inputMaxValue": {
-    "message": "O valor de entrada não deve exceder $MAX$.",
+    "message": "O valor de entrada deve não exceder $MAX$.",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -3428,7 +3428,7 @@
     "message": "Submenu"
   },
   "toggleSideNavigation": {
-    "message": "Ativar/desativar navegação lateral"
+    "message": "Habilitar navegação lateral"
   },
   "skipToContent": {
     "message": "Ir para o conteúdo"
@@ -3440,10 +3440,10 @@
     "message": "A chave de acesso não será copiada"
   },
   "passkeyNotCopiedAlert": {
-    "message": "A senha não será copiada para o item clonado. Deseja continuar clonando este item?"
+    "message": "A chave de acesso não será copiada para o item clonado. Deseja continuar clonando este item?"
   },
   "aliasDomain": {
-    "message": "Alias do domínio"
+    "message": "Domínio de alias"
   },
   "importData": {
     "message": "Importar dados",
@@ -3492,10 +3492,10 @@
     "message": "A autenticação em duas etapas do Duo é necessária para sua conta."
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "A autenticação de dois fatores é necessária para sua conta. Siga os passos abaixo para conseguir entrar."
+    "message": "A autenticação de duas etapas do Duo é necessária para sua conta. Siga os passos abaixo para conseguir se conectar."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Siga os passos abaixo para finalizar a autenticação."
+    "message": "Siga os passos abaixo para terminar de se conectar."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
     "message": "Siga os passos abaixo para finalizar a autenticação com a sua chave de segurança."
@@ -3525,13 +3525,13 @@
     "message": "Selecione uma pasta"
   },
   "selectImportCollection": {
-    "message": "Selecione uma coleção"
+    "message": "Selecione um conjunto"
   },
   "importTargetHintCollection": {
-    "message": "Selecione esta opção caso queira importar os conteúdos de arquivos para uma coleção"
+    "message": "Selecione esta opção caso queira importar os conteúdos do arquivo para um conjunto"
   },
   "importTargetHintFolder": {
-    "message": "Selecione esta opção caso queira importar os conteúdos de arquivos para uma pasta"
+    "message": "Selecione esta opção caso queira importar os conteúdos do arquivo para uma pasta"
   },
   "importUnassignedItemsError": {
     "message": "Arquivo contém itens não atribuídos."
@@ -3543,7 +3543,7 @@
     "message": "Selecione o arquivo de importação"
   },
   "chooseFile": {
-    "message": "Escolher arquivo"
+    "message": "Selecionar arquivo"
   },
   "noFileChosen": {
     "message": "Nenhum arquivo escolhido"
@@ -3604,7 +3604,7 @@
     "message": "Importando sua conta..."
   },
   "lastPassMFARequired": {
-    "message": "Requer autenticação multifatores do LastPass"
+    "message": "Requer autenticação de múltiplos fatores do LastPass"
   },
   "lastPassMFADesc": {
     "message": "Digite sua senha única do app autenticador"
@@ -3625,7 +3625,7 @@
     "message": "Aguardando autenticação do SSO"
   },
   "awaitingSSODesc": {
-    "message": "Continue autenticando-se usando as credenciais da sua empresa."
+    "message": "Continue conectando-se usando as credenciais da sua empresa."
   },
   "importDirectlyFromBrowser": {
     "message": "Importar diretamente do navegador"
@@ -3647,7 +3647,7 @@
     "message": "Tente novamente ou procure um e-mail do LastPass para verificar que é você."
   },
   "collection": {
-    "message": "Coleção"
+    "message": "Conjunto"
   },
   "lastPassYubikeyDesc": {
     "message": "Insira a YubiKey associada com a sua conta do LastPass na porta USB do seu computador, e depois toque no botão dela."
@@ -3669,7 +3669,7 @@
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "Mais sobre detecção de correspondências",
+    "message": "Mais sobre a detecção de correspondência",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
@@ -3699,13 +3699,13 @@
     "message": "Chave de acesso removida"
   },
   "errorAssigningTargetCollection": {
-    "message": "Erro ao atribuir coleção de destino."
+    "message": "Erro ao atribuir conjunto de destino."
   },
   "errorAssigningTargetFolder": {
     "message": "Erro ao atribuir pasta de destino."
   },
   "viewItemsIn": {
-    "message": "Visualizar itens em $NAME$",
+    "message": "Ver itens em $NAME$",
     "description": "Button to view the contents of a folder or collection",
     "placeholders": {
       "name": {
@@ -3768,10 +3768,10 @@
     "message": "O desbloqueio por biometria está indisponível no momento."
   },
   "biometricsStatusHelptextAutoSetupNeeded": {
-    "message": "O desbloqueio por biometria está indisponível devido a algum erro na configuração dos arquivos de sistema."
+    "message": "O desbloqueio por biometria está indisponível devido a algum erro na configuração dos arquivos do sistema."
   },
   "biometricsStatusHelptextManualSetupNeeded": {
-    "message": "O desbloqueio por biometria está indisponível devido a algum erro na configuração dos arquivos de sistema."
+    "message": "O desbloqueio por biometria está indisponível devido a algum erro na configuração dos arquivos do sistema."
   },
   "biometricsStatusHelptextNotEnabledLocally": {
     "message": "O desbloqueio por biometria está indisponível, pois a opção não foi ativada no aplicativo de computador de $EMAIL$.",
@@ -3834,7 +3834,7 @@
     "message": "assinar uma mensagem"
   },
   "sshActionGitSign": {
-    "message": "assinar um commit no git"
+    "message": "assinar uma commit no git"
   },
   "unknownApplication": {
     "message": "Um aplicativo"
@@ -3852,7 +3852,7 @@
     "message": "Chave SSH importada com sucesso"
   },
   "fileSavedToDevice": {
-    "message": "Arquivo salvo no dispositivo. Gerencie a partir dos downloads do seu dispositivo."
+    "message": "Arquivo salvo no dispositivo. Gerencie a partir das transferências do seu dispositivo."
   },
   "allowScreenshots": {
     "message": "Permitir captura de tela"
@@ -3870,7 +3870,7 @@
     "message": "Atualização de extensão necessária"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
-    "message": "A extensão de navegador que você está usando está desatualizada. Atualize-a ou desative a validação de integração de frase biométrica do navegador nas configurações do aplicativo da área de trabalho."
+    "message": "A extensão de navegador que você está usando está desatualizada. Atualize-a ou desative a validação da frase biométrica da integração do navegador nas configurações do aplicativo de computador."
   },
   "changeAtRiskPassword": {
     "message": "Alterar senhas em risco"
@@ -3882,7 +3882,7 @@
     "message": "Site ausente"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "Você não pode remover coleções com permissões de Apenas visualização: $COLLECTIONS$",
+    "message": "Você não pode remover conjuntos com permissões de Apenas ver: $COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -3983,25 +3983,25 @@
     "message": "O Bitwarden usará URIs de credenciais salvas para identificar qual ícone ou URL de mudança de senha deverá ser usado para melhorar sua experiência. Nenhuma informação é coletada ou salva quando você utiliza este serviço."
   },
   "assignToCollections": {
-    "message": "Atribuir a coleções"
+    "message": "Atribuir a conjuntos"
   },
   "assignToTheseCollections": {
-    "message": "Atribuir a estas coleções"
+    "message": "Atribuir a estes conjuntos"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "Apenas membros da organização com acesso a essas coleções poderão ver o item."
+    "message": "Apenas membros da organização com acesso a estes conjuntos poderão ver o item."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "Apenas membros da organização com acesso a essas coleções poderão ver os itens."
+    "message": "Apenas membros da organização com acesso a estes conjuntos poderão ver os itens."
   },
   "noCollectionsAssigned": {
-    "message": "Nenhuma coleção foi atribuída"
+    "message": "Nenhum conjunto foi atribuído"
   },
   "assign": {
     "message": "Atribuir"
   },
   "bulkCollectionAssignmentDialogDescription": {
-    "message": "Apenas membros da organização com acesso a essas coleções poderão ver os itens."
+    "message": "Apenas membros da organização com acesso a estes conjuntos poderão ver os itens."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Você selecionou $TOTAL_COUNT$ itens. Você não pode atualizar $READONLY_COUNT$ dos itens, pois você não tem as permissões de edição.",
@@ -4016,10 +4016,10 @@
     }
   },
   "selectCollectionsToAssign": {
-    "message": "Selecione coleções para atribuir"
+    "message": "Selecione conjuntos a atribuir"
   },
   "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ serão permanentemente transferidas para a organização selecionada. Você deixará de ser o proprietário desses itens.",
+    "message": "$PERSONAL_ITEMS_COUNT$ serão permanentemente transferidos para a organização selecionada. Você deixará de ser o proprietário desses itens.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -4028,7 +4028,7 @@
     }
   },
   "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ serão permanentemente transferidas para $ORG$. Você deixará de ser o proprietário desses itens.",
+    "message": "$PERSONAL_ITEMS_COUNT$ serão permanentemente transferidos para $ORG$. Você deixará de ser o proprietário desses itens.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -4053,7 +4053,7 @@
     }
   },
   "successfullyAssignedCollections": {
-    "message": "Coleções atribuídas com sucesso"
+    "message": "Conjuntos atribuídos com sucesso"
   },
   "nothingSelected": {
     "message": "Você não selecionou nada."
@@ -4126,10 +4126,10 @@
     "message": "O Bitwarden não valida localizações de entrada, tenha certeza de estar na janela e campo corretos antes de utilizar o atalho."
   },
   "typeShortcut": {
-    "message": "Digitar atalho"
+    "message": "Atalho de digitação"
   },
   "editAutotypeShortcutDescription": {
-    "message": "Inclua um ou dois dos seguintes modificadores: Ctrl, Alt, Win, Shift e uma letra."
+    "message": "Inclua um ou dois dos seguintes modificadores: Ctrl, Alt, Win, ou Shift, e uma letra."
   },
   "invalidShortcut": {
     "message": "Atalho inválido"
@@ -4142,13 +4142,13 @@
     "message": "Avançar"
   },
   "confirmKeyConnectorDomain": {
-    "message": "Confirmar domínio do Conector de Chave"
+    "message": "Confirmar domínio do Key Connector"
   },
   "confirm": {
     "message": "Confirmar"
   },
   "enableAutotypeShortcutPreview": {
-    "message": "Ativar atalho da digitação automática (Feature Preview)"
+    "message": "Ativar atalho de digitação automática (Feature Preview)"
   },
   "enableAutotypeShortcutDescription": {
     "message": "Certifique-se que está no campo correto antes de usar o atalho para evitar preencher dados no lugar errado."
@@ -4174,7 +4174,7 @@
     "message": "Nenhum item no arquivo"
   },
   "noItemsInArchiveDesc": {
-    "message": "Os itens arquivados aparecerão aqui e serão excluídos dos resultados de pesquisa gerais e das sugestões de preenchimento automático."
+    "message": "Os itens arquivados aparecerão aqui e serão excluídos dos resultados gerais de busca e das sugestões de preenchimento automático."
   },
   "itemWasSentToArchive": {
     "message": "O item foi enviado para o arquivo"
@@ -4186,7 +4186,7 @@
     "message": "Arquivar item"
   },
   "archiveItemConfirmDesc": {
-    "message": "Itens arquivados são excluídos dos resultados da pesquisa geral e das sugestões de preenchimento automático. Tem certeza de que deseja arquivar este item?"
+    "message": "Itens arquivados são excluídos dos resultados gerais de busca e das sugestões de preenchimento automático. Tem certeza de que deseja arquivar este item?"
   },
   "zipPostalCodeLabel": {
     "message": "CEP / Código postal"
@@ -4207,7 +4207,7 @@
     "message": "Acesso de emergência"
   },
   "breachMonitoring": {
-    "message": "Monitoramento de brechas"
+    "message": "Monitoramento de vazamentos"
   },
   "andMoreFeatures": {
     "message": "E mais!"
