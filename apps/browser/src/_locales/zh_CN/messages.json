@@ -1874,7 +1874,7 @@
     "message": "过期年份"
   },
   "monthly": {
-    "message": "month"
+    "message": "月"
   },
   "expiration": {
     "message": "有效期"
@@ -4894,7 +4894,7 @@
     "message": "获取桌面 App"
   },
   "getTheDesktopAppDesc": {
-    "message": "无需使用浏览器访问您的密码库，然后在桌面 App 和浏览器扩展中同时设置生物识别解锁，即可实现快速解锁。"
+    "message": "无需使用浏览器访问您的密码库。在桌面 App 和浏览器扩展中同时设置生物识别解锁，即可实现快速解锁。"
   },
   "downloadFromBitwardenNow": {
     "message": "立即从 bitwarden.com 下载"
@@ -5772,7 +5772,7 @@
     "message": "关于此设置"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden 将使用已保存的登录 URI 来识别应使用哪个图标或更改密码的 URL 来改善您的体验。当您使用此服务时，不会收集或保存任何信息。"
+    "message": "Bitwarden 将使用已保存的登录 URI 来确定应使用的图标或更改密码的 URL，以提升您的使用体验。使用此服务时不会收集或保存任何信息。"
   },
   "noPermissionsViewPage": {
     "message": "您没有查看此页面的权限。请尝试使用其他账户登录。"
