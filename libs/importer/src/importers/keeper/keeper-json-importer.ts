@@ -13,16 +13,11 @@ import { Importer } from "../importer";
 
 import { KeeperJsonExport, Record, CustomFields } from "./types/keeper-json-types";
 
-/**
- * Importer for Keeper (json) format
- * Initially written by @djsmith and temporarily disabled for Feb 2022 release
- * Considered obsolete and should be replaced with new parser logic here.
- */
 export class KeeperJsonImporter extends BaseImporter implements Importer {
   parse(data: string): Promise<ImportResult> {
     const result = new ImportResult();
     const keeperExport: KeeperJsonExport = JSON.parse(data);
-    if (keeperExport == null || keeperExport.records == null || keeperExport.records.length === 0) {
+    if (!keeperExport || !keeperExport.records || keeperExport.records.length === 0) {
       result.success = false;
       return Promise.resolve(result);
     }
@@ -302,7 +297,7 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
             last?: string;
           };
           importedValue = [first, middle, last]
-            .filter((x) => !!x)
+            .filter((x) => x)
             .join(" ")
             .trim();
         }
@@ -318,7 +313,7 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
             country?: string;
           };
           importedValue = [street1, street2, city, state, zip, country]
-            .filter((x) => !!x)
+            .filter((x) => x)
             .join(", ")
             .trim();
         }
@@ -391,6 +386,10 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     return isNaN(date.getTime()) ? "" : date.toLocaleString();
   }
 
+  // This function parses custom field keys of the form:
+  // $<type>:<name>:<suffix> and returns [type, name]
+  // It handles a bunch of edge cases as well. See tests for examples.
+  // This function is modeled after the original implementation.
   private parseFieldKey(key: string): [string, string] {
     if (this.isNullOrWhitespace(key)) {
       return ["", ""];
@@ -425,8 +424,7 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
   }
 
   private addField(cipher: CipherView, name: string, value: any, type: FieldType = FieldType.Text) {
-    // TODO: Should "" be also discarded?
-    if (value == null || typeof value === "undefined") {
+    if (!value) {
       return;
     }
 
@@ -450,10 +448,6 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     }
 
     return "";
-  }
-
-  private getStringOrFirstFromArray(value: string | string[]): string {
-    return Array.isArray(value) ? (value[0] ?? "") : value;
   }
 
   private makeArray(value: any): any[] {
@@ -483,8 +477,7 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
   }
 
   private sanitizeFolderName(name: string): string {
-    // Both \ and / could be a part of the folder name in Keeper,
-    // but we cannot have them in Bitwarden folder names.
+    // `\` and `/` are reserved characters in Bitwarden, but valid in Keeper, replace them with `-`.
     return name.replaceAll("\\\\", "-").replaceAll("/", "-");
   }
 }

@@ -1,6 +1,9 @@
+// See https://docs.keeper.io/en/user-guides/import-records-1/import-json#creating-a-custom-.json-file-for-import-into-keeper
+// for reference on the Keeper JSON format. It's not comprehensive but covers the main fields.
+
 export type KeeperJsonExport = {
-  records?: Record[] | null;
-  shared_folders?: SharedFolder[] | null;
+  records?: Record[] | null | undefined;
+  shared_folders?: SharedFolder[] | null | undefined;
 };
 
 export type Record = {

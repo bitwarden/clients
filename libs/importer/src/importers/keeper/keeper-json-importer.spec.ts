@@ -645,6 +645,30 @@ describe("Keeper Json Importer", () => {
     expect(folderNames).toEqual(legacyFolderNames);
   });
 
+  it("should parse custom field keys", () => {
+    const importer = new KeeperJsonImporter() as any; // Accessing private method for testing
+
+    [
+      [undefined, "", ""],
+      [null, "", ""],
+      ["", "", ""],
+      ["$", "", ""],
+      ["$text", "text", ""],
+      ["$text:cardholderName", "text", "cardholderName"],
+      ["$text:cardholderName:1", "text", "cardholderName"], // Suffix is stripped
+      ["nameOnly", "", "nameOnly"],
+      ["nameOnly:1", "", "nameOnly"], // Suffix is stripped
+      ["nameOnly:123", "", "nameOnly:123"], // Suffix is only one digit as it is in the original code
+    ].forEach((item) => {
+      const [key, expectedType, expectedName] = item;
+      const [type, name] = importer.parseFieldKey(key);
+      expect(type).toEqual(expectedType);
+      expect(name).toEqual(expectedName);
+    });
+
+    importer.parseFieldKey("$text:cardholderName:1");
+  });
+
   // TODO: Add more legacy format tests!!!
 
   //
