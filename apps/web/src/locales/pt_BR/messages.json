@@ -3013,10 +3013,10 @@
     "message": "Ocorreu um erro ao tentar carregar o relatório. Tente novamente"
   },
   "billing": {
-    "message": "Cobrança"
+    "message": "Faturamento"
   },
   "billingPlanLabel": {
-    "message": "Plano de cobrança"
+    "message": "Plano de faturamento"
   },
   "paymentType": {
     "message": "Tipo de pagamento"
@@ -3041,10 +3041,10 @@
     "message": "O crédito adicionado aparecerá em sua conta após o pagamento ser totalmente processado. Alguns métodos de pagamento são mais lentos e podem levar mais tempo para processar do que outros."
   },
   "makeSureEnoughCredit": {
-    "message": "Certifique-se de que sua conta tenha crédito suficiente para esta compra. Se sua conta não tiver crédito suficiente disponível, seu método de pagamento padrão será usado para completar a diferença. Você pode adicionar crédito à sua conta na página de Cobrança."
+    "message": "Certifique-se de que sua conta tenha crédito suficiente para esta compra. Se sua conta não tiver crédito suficiente disponível, seu método de pagamento padrão será usado para completar a diferença. Você pode adicionar crédito à sua conta na página de Faturamento."
   },
   "notEnoughAccountCredit": {
-    "message": "Você não tem crédito suficiente na conta para esta compra. Você pode adicionar crédito à sua conta na página de Cobrança."
+    "message": "Você não tem crédito suficiente na conta para esta compra. Você pode adicionar crédito à sua conta na página de Faturamento."
   },
   "creditAppliedDesc": {
     "message": "O crédito da sua conta pode ser usado para efetuar compras. Qualquer crédito disponível será automaticamente usado em faturas geradas nesta conta."
@@ -3194,7 +3194,7 @@
     "message": "Informações de pagamento"
   },
   "billingInformation": {
-    "message": "Informações de cobrança"
+    "message": "Informações de faturamento"
   },
   "billingTrialSubLabel": {
     "message": "Seu método de pagamento não será cobrado durante o teste grátis de 7 dias."
@@ -3413,7 +3413,7 @@
     "message": "Esta conta pertence à uma empresa."
   },
   "billingEmail": {
-    "message": "E-mail de cobrança"
+    "message": "E-mail de faturamento"
   },
   "businessName": {
     "message": "Nome da empresa"
@@ -3607,7 +3607,7 @@
     }
   },
   "trialConfirmationEmail": {
-    "message": "Enviamos um e-mail de confirmação para o e-mail de cobrança da sua equipe em "
+    "message": "Enviamos um e-mail de confirmação para o e-mail de faturamento da sua equipe em "
   },
   "monthly": {
     "message": "Mensalmente"
@@ -3787,7 +3787,7 @@
     "message": "Proprietário"
   },
   "ownerDesc": {
-    "message": "Gerencie todos os aspectos da sua organização, incluindo cobrança e assinaturas"
+    "message": "Gerencie todos os aspectos da sua organização, incluindo o faturamento e as assinaturas"
   },
   "clientOwnerDesc": {
     "message": "Este usuário deve ser independente do Provedor. Se o Provedor estiver desassociado da organização, este usuário manterá a propriedade da organização."
@@ -5421,7 +5421,7 @@
     "message": "Todos os recursos do Equipes Iniciantes, mais:"
   },
   "chooseMonthlyOrAnnualBilling": {
-    "message": "Escolha cobrança mensal ou anual"
+    "message": "Escolha faturamento mensal ou anual"
   },
   "abilityToAddMoreThanNMembers": {
     "message": "Capacidade de adicionar mais que $COUNT$ membros",
@@ -6455,7 +6455,7 @@
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "para evitar a perda adicional dos dados.",
+    "message": "para evitar a perca de dados adicionais.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
@@ -7146,7 +7146,7 @@
     "message": "Forneça uma forma de pagamento para associar à organização. Não se preocupe, não cobraremos nada, a menos que você selecione recursos adicionais ou seu financiamento expire. "
   },
   "orgCreatedSponsorshipInvalid": {
-    "message": "A oferta de financiamento expirou, você pode apagar a organização que criou para evitar uma cobrança no final do seu teste de 7 dias. Caso contrário, você pode fechar este alerta para manter a organização e assumir a responsabilidade pela cobrança."
+    "message": "A oferta de financiamento expirou, você pode apagar a organização que criou para evitar uma cobrança no final do seu teste de 7 dias. Caso contrário, você pode fechar este alerta para manter a organização e assumir a responsabilidade pelo faturamento."
   },
   "newFamiliesOrganization": {
     "message": "Nova organização de Famílias"
@@ -7405,7 +7405,7 @@
     "message": "Chaves"
   },
   "billingHistory": {
-    "message": "Histórico de cobrança"
+    "message": "Histórico de faturamento"
   },
   "backToReports": {
     "message": "Voltar aos relatórios"
@@ -9037,16 +9037,16 @@
     "description": "Software Development Kit"
   },
   "createAnAccount": {
-    "message": "Crie uma conta"
+    "message": "Criar uma conta"
   },
   "createSecret": {
-    "message": "Crie um segredo"
+    "message": "Criar um segredo"
   },
   "createProject": {
-    "message": "Crie um projeto"
+    "message": "Criar um projeto"
   },
   "createServiceAccount": {
-    "message": "Crie uma conta de serviço"
+    "message": "Criar uma conta de serviço"
   },
   "downloadThe": {
     "message": "Baixe o",
@@ -9524,16 +9524,16 @@
     "message": "Configure o comportamento dos conjuntos da organização"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
-    "message": "Permita que proprietários e administradores gerenciem todos os conjuntos e itens pelo painel de administração"
+    "message": "Permitir que proprietários e administradores gerenciem todos os conjuntos e itens pelo painel de administração"
   },
   "restrictCollectionCreationDescription": {
-    "message": "Restrinja a criação de conjuntos a proprietários e administradores"
+    "message": "Restringir a criação de conjuntos a proprietários e administradores"
   },
   "restrictCollectionDeletionDescription": {
-    "message": "Restrinja o apagamento de conjuntos a proprietários e administradores"
+    "message": "Restringir o apagamento de conjuntos a proprietários e administradores"
   },
   "restrictItemDeletionDescriptionStart": {
-    "message": "Restrinja o apagamento de itens a membros com a permissão de ",
+    "message": "Restringir o apagamento de itens a membros com a permissão de ",
     "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "restrictItemDeletionDescriptionEnd": {
@@ -10087,7 +10087,7 @@
     "message": "Atribua projetos a esta conta de máquina. "
   },
   "createMachineAccount": {
-    "message": "Crie uma conta de serviço"
+    "message": "Criar uma conta de máquina"
   },
   "maPeopleWarningMessage": {
     "message": "Remover pessoas de uma conta de máquina não remove os tokens de acesso que elas criaram. Por melhores práticas de segurança, é recomendado revogar os tokens de acesso criados por pessoas que foram removidas de uma conta de máquina."
@@ -11644,7 +11644,7 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "setupExtensionPageTitle": {
-    "message": "Autopreencha com segurança as suas senhas com um clique"
+    "message": "Preencha suas senhas com segurança em um clique"
   },
   "setupExtensionPageDescription": {
     "message": "Baixe a extensão de navegador do Bitwarden e use o preenchimento automático hoje"
@@ -11722,7 +11722,7 @@
     }
   },
   "billingAddressRequiredToAddCredit": {
-    "message": "O endereço de cobrança é necessário para adicionar créditos.",
+    "message": "O endereço de faturamento é necessário para adicionar créditos.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "aboutThisSetting": {
@@ -11732,19 +11732,19 @@
     "message": "O Bitwarden usará URIs de credenciais salvas para identificar qual ícone ou URL de alteração de senha deverá ser usado para melhorar sua experiência. Nenhuma informação é coletada ou salva quando você utiliza este serviço."
   },
   "billingAddress": {
-    "message": "Endereço de cobrança"
+    "message": "Endereço de faturamento"
   },
   "addBillingAddress": {
-    "message": "Adicionar endereço de cobrança"
+    "message": "Adicionar endereço de faturamento"
   },
   "editBillingAddress": {
-    "message": "Editar endereço de cobrança"
+    "message": "Editar endereço de faturamento"
   },
   "noBillingAddress": {
     "message": "Nenhum endereço cadastrado."
   },
   "billingAddressUpdated": {
-    "message": "Seu endereço de cobrança foi atualizado."
+    "message": "Seu endereço de faturamento foi atualizado."
   },
   "paymentDetails": {
     "message": "Detalhes de pagamento"
@@ -12067,7 +12067,7 @@
     "message": "Continuar sem fazer upgrade"
   },
   "upgradeYourPlan": {
-    "message": "Faça upgrade do seu plano"
+    "message": "Fazer upgrade"
   },
   "upgradeNow": {
     "message": "Fazer upgrade agora"
