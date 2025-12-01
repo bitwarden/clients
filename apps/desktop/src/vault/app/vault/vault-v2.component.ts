@@ -994,6 +994,7 @@ export class VaultV2Component<C extends CipherViewLike>
     this.config.initialValues = {
       ...this.config.initialValues,
       organizationId: this.addOrganizationId as OrganizationId,
+      folderId: this.folderId,
     };
   }
 
