@@ -15,6 +15,8 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { trackedMerge } from "@bitwarden/common/platform/misc";
@@ -67,6 +69,7 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     private readonly webPushConnectionService: WebPushConnectionService,
     private readonly authRequestAnsweringService: AuthRequestAnsweringServiceAbstraction,
     private readonly configService: ConfigService,
+    private readonly policyService: InternalPolicyService,
   ) {
     this.notifications$ = this.configService
       .getFeatureFlag$(FeatureFlag.InactiveUserServerNotification)
@@ -329,6 +332,9 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
           providerId: notification.payload.providerId,
           adminId: notification.payload.adminId,
         });
+        break;
+      case NotificationType.SyncPolicy:
+        await this.policyService.syncPolicy(PolicyData.fromPolicy(notification.payload.policy));
         break;
       default:
         break;

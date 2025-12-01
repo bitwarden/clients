@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { SendV2Component } from "./send-V2.component";
+import { SendV2Component } from "./send-v2.component";
 
 describe("SendV2Component", () => {
   let component: SendV2Component;
