@@ -20,7 +20,6 @@ import { MainBiometricsService } from "./main-biometrics.service";
 import { WindowsBiometricsSystem } from "./native-v2";
 import OsBiometricsServiceLinux from "./os-biometrics-linux.service";
 import OsBiometricsServiceMac from "./os-biometrics-mac.service";
-import OsBiometricsServiceWindows from "./os-biometrics-windows.service";
 import { OsBiometricService } from "./os-biometrics.service";
 
 jest.mock("@bitwarden/desktop-napi", () => {
@@ -61,7 +60,7 @@ describe("MainBiometricsService", function () {
 
       const internalService = (sut as any).osBiometricsService;
       expect(internalService).not.toBeNull();
-      expect(internalService).toBeInstanceOf(OsBiometricsServiceWindows);
+      expect(internalService).toBeInstanceOf(WindowsBiometricsSystem);
     });
 
     it("Should create a biometrics service specific for MacOs", () => {
@@ -286,78 +285,6 @@ describe("MainBiometricsService", function () {
       const shouldAutoPrompt = await sut.getShouldAutopromptNow();
 
       expect(shouldAutoPrompt).toBe(true);
-    });
-  });
-
-  describe("enableWindowsV2Biometrics", () => {
-    beforeEach(() => {
-      jest.clearAllMocks();
-    });
-
-    it("enables Windows V2 biometrics when platform is win32 and not already enabled", async () => {
-      const sut = new MainBiometricsService(
-        i18nService,
-        windowMain,
-        logService,
-        "win32",
-        biometricStateService,
-        encryptService,
-        cryptoFunctionService,
-      );
-
-      await sut.enableWindowsV2Biometrics();
-
-      expect(logService.info).toHaveBeenCalledWith(
-        "[BiometricsMain] Loading native biometrics module v2 for windows",
-      );
-      expect(await sut.isWindowsV2BiometricsEnabled()).toBe(true);
-      const internalService = (sut as any).osBiometricsService;
-      expect(internalService).not.toBeNull();
-      expect(internalService).toBeInstanceOf(WindowsBiometricsSystem);
-    });
-
-    it("should not enable Windows V2 biometrics when platform is not win32", async () => {
-      const sut = new MainBiometricsService(
-        i18nService,
-        windowMain,
-        logService,
-        "darwin",
-        biometricStateService,
-        encryptService,
-        cryptoFunctionService,
-      );
-
-      await sut.enableWindowsV2Biometrics();
-
-      expect(logService.info).not.toHaveBeenCalled();
-      expect(await sut.isWindowsV2BiometricsEnabled()).toBe(false);
-    });
-
-    it("should not enable Windows V2 biometrics when already enabled", async () => {
-      const sut = new MainBiometricsService(
-        i18nService,
-        windowMain,
-        logService,
-        "win32",
-        biometricStateService,
-        encryptService,
-        cryptoFunctionService,
-      );
-
-      // Enable it first
-      await sut.enableWindowsV2Biometrics();
-
-      // Enable it again
-      await sut.enableWindowsV2Biometrics();
-
-      expect(logService.info).toHaveBeenCalledWith(
-        "[BiometricsMain] Loading native biometrics module v2 for windows",
-      );
-      expect(logService.info).toHaveBeenCalledTimes(1);
-      expect(await sut.isWindowsV2BiometricsEnabled()).toBe(true);
-      const internalService = (sut as any).osBiometricsService;
-      expect(internalService).not.toBeNull();
-      expect(internalService).toBeInstanceOf(WindowsBiometricsSystem);
     });
   });
 
