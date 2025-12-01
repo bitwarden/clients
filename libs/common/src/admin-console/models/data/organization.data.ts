@@ -67,6 +67,7 @@ export class OrganizationData {
   isAdminInitiated: boolean;
   ssoEnabled: boolean;
   ssoMemberDecryptionType?: MemberDecryptionType;
+  usePhishingBlocker: boolean;
 
   constructor(
     response?: ProfileOrganizationResponse,
@@ -135,6 +136,7 @@ export class OrganizationData {
     this.isAdminInitiated = response.isAdminInitiated;
     this.ssoEnabled = response.ssoEnabled;
     this.ssoMemberDecryptionType = response.ssoMemberDecryptionType;
+    this.usePhishingBlocker = response.usePhishingBlocker;
 
     this.isMember = options.isMember;
     this.isProviderUser = options.isProviderUser;

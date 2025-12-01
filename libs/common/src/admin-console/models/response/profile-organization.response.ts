@@ -62,6 +62,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
   isAdminInitiated: boolean;
   ssoEnabled: boolean;
   ssoMemberDecryptionType?: MemberDecryptionType;
+  usePhishingBlocker: boolean;
 
   constructor(response: any) {
     super(response);
@@ -135,5 +136,6 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.isAdminInitiated = this.getResponseProperty("IsAdminInitiated");
     this.ssoEnabled = this.getResponseProperty("SsoEnabled") ?? false;
     this.ssoMemberDecryptionType = this.getResponseProperty("SsoMemberDecryptionType");
+    this.usePhishingBlocker = this.getResponseProperty("UsePhishingBlocker") ?? false;
   }
 }

@@ -98,6 +98,7 @@ export class Organization {
   isAdminInitiated: boolean;
   ssoEnabled: boolean;
   ssoMemberDecryptionType?: MemberDecryptionType;
+  usePhishingBlocker: boolean;
 
   constructor(obj?: OrganizationData) {
     if (obj == null) {
@@ -162,6 +163,7 @@ export class Organization {
     this.isAdminInitiated = obj.isAdminInitiated;
     this.ssoEnabled = obj.ssoEnabled;
     this.ssoMemberDecryptionType = obj.ssoMemberDecryptionType;
+    this.usePhishingBlocker = obj.usePhishingBlocker;
   }
 
   get canAccess() {
