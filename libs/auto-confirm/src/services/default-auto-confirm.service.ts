@@ -52,6 +52,8 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
       this.configService.getFeatureFlag$(FeatureFlag.AutoConfirm),
       this.organizationService
         .organizations$(userId)
+        // auto-confirm does not allow the user to be part of any other organization (even if admin or owner)
+        // so we can assume that the first organization is the relevant one to test.
         .pipe(map((organizations) => organizations[0])),
       this.policyService.policyAppliesToUser$(PolicyType.AutoConfirm, userId),
     ]).pipe(

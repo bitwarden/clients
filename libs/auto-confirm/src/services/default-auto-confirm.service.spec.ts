@@ -288,6 +288,30 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       expect(canManage).toBe(false);
     });
 
+    it("should return false when the user is not a member of any organizations", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+
+      // Create organization where user is not a member
+      const mockOrgData = new OrganizationData({} as ProfileOrganizationResponse, {
+        isMember: false,
+        isProviderUser: false,
+      });
+      mockOrgData.id = mockOrganizationId;
+      mockOrgData.useAutomaticUserConfirmation = true;
+      const permissions = new PermissionsApi();
+      permissions.manageUsers = true;
+      mockOrgData.permissions = permissions;
+      const orgWhereNotMember = new Organization(mockOrgData);
+
+      const organizations$ = new BehaviorSubject<Organization[]>([orgWhereNotMember]);
+      organizationService.organizations$.mockReturnValue(organizations$);
+
+      const canManage$ = service.canManageAutoConfirm$(mockUserId);
+      const canManage = await firstValueFrom(canManage$);
+
+      expect(canManage).toBe(false);
+    });
+
     it("should use the correct feature flag", async () => {
       configService.getFeatureFlag$.mockReturnValue(of(true));
 

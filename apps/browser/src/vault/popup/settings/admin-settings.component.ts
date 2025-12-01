@@ -1,13 +1,15 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom, lastValueFrom, Observable, switchMap, withLatestFrom } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
-import { AutoConfirmState, AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
+import {
+  AutoConfirmWarningDialogComponent,
+  AutomaticUserConfirmationService,
+} from "@bitwarden/auto-confirm";
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
@@ -15,14 +17,12 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   BitIconButtonComponent,
-  ButtonModule,
   CardComponent,
-  DialogModule,
-  DialogRef,
   DialogService,
   FormFieldModule,
   SwitchComponent,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { UserId } from "@bitwarden/user-core";
 
 @Component({
@@ -30,7 +30,6 @@ import { UserId } from "@bitwarden/user-core";
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
-    JslibModule,
     PopupPageComponent,
     PopupHeaderComponent,
     PopOutComponent,
@@ -40,16 +39,14 @@ import { UserId } from "@bitwarden/user-core";
     CardComponent,
     SpotlightComponent,
     BitIconButtonComponent,
+    I18nPipe,
   ],
 })
 export class AdminSettingsComponent implements OnInit {
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
-  private autoConfirmState$: Observable<AutoConfirmState> = this.userId$.pipe(
-    switchMap((userId) => this.autoConfirmService.configuration$(userId)),
-  );
 
   protected formLoading = true;
-  protected adminForm: FormGroup = this.formBuilder.group({
+  protected adminForm = this.formBuilder.group({
     autoConfirm: false,
   });
   protected showAutoConfirmSpotlight$: Observable<boolean> = this.userId$.pipe(
@@ -70,7 +67,10 @@ export class AdminSettingsComponent implements OnInit {
   async ngOnInit() {
     this.formLoading = false;
 
-    const autoConfirmEnabled = (await firstValueFrom(this.autoConfirmState$)).enabled;
+    const userId = await firstValueFrom(this.userId$);
+    const autoConfirmEnabled = (
+      await firstValueFrom(this.autoConfirmService.configuration$(userId))
+    ).enabled;
     this.adminForm.setValue({ autoConfirm: autoConfirmEnabled });
 
     this.adminForm.controls.autoConfirm.valueChanges
@@ -87,10 +87,10 @@ export class AdminSettingsComponent implements OnInit {
           this.adminForm.setValue({ autoConfirm: false }, { emitEvent: false });
           return false;
         }),
-        withLatestFrom(this.userId$, this.autoConfirmState$),
-        switchMap(([newValue, userId, existingSate]) =>
+        withLatestFrom(this.userId$, this.autoConfirmService.configuration$(userId)),
+        switchMap(([newValue, userId, existingState]) =>
           this.autoConfirmService.upsert(userId, {
-            ...existingSate,
+            ...existingState,
             enabled: newValue,
             showBrowserNotification: false,
           }),
@@ -102,42 +102,8 @@ export class AdminSettingsComponent implements OnInit {
 
   async dismissSpotlight() {
     const userId = await firstValueFrom(this.userId$);
-    const state = await firstValueFrom(this.autoConfirmState$);
+    const state = await firstValueFrom(this.autoConfirmService.configuration$(userId));
 
     await this.autoConfirmService.upsert(userId, { ...state, showBrowserNotification: false });
-  }
-}
-
-@Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <bit-simple-dialog dialogSize="small">
-      <span bitDialogTitle>
-        <strong>{{ "warningCapitalized" | i18n }}</strong>
-      </span>
-      <span bitDialogContent>
-        {{ "autoConfirmWarning" | i18n }}
-        <a bitLink href="https://bitwarden.com/help/automatic-confirmation/" target="_blank">
-          {{ "autoConfirmWarningLink" | i18n }}
-          <i class="bwi bwi-external-link bwi-fw"></i>
-        </a>
-      </span>
-      <ng-container bitDialogFooter>
-        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close(true)">
-          {{ "turnOn" | i18n }}
-        </button>
-        <button type="button" bitButton buttonType="secondary" (click)="dialogRef.close(false)">
-          {{ "close" | i18n }}
-        </button>
-      </ng-container>
-    </bit-simple-dialog>
-  `,
-  imports: [ButtonModule, DialogModule, CommonModule, JslibModule],
-})
-class AutoConfirmWarningDialogComponent {
-  constructor(public dialogRef: DialogRef<boolean>) {}
-
-  static open(dialogService: DialogService) {
-    return dialogService.open<boolean>(AutoConfirmWarningDialogComponent);
   }
 }

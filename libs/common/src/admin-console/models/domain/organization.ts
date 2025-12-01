@@ -380,7 +380,7 @@ export class Organization {
   }
 
   get canManageAutoConfirm() {
-    return this.canManageUsers && this.useAutomaticUserConfirmation;
+    return this.isMember && this.canManageUsers && this.useAutomaticUserConfirmation;
   }
 
   static fromJSON(json: Jsonify<Organization>) {
