@@ -29,7 +29,6 @@ export class CipherStep extends RecoveryStep {
     for (const cipher of workingData.ciphers) {
       try {
         await this.cipherService.decrypt(cipher, workingData.userId);
-        throw new Error("Cipher decryptable");
       } catch {
         logger.record(`Cipher ID ${cipher.id} was undecryptable`);
         this.undecryptableCipherIds.push(cipher.id);

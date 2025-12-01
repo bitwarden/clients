@@ -36,7 +36,6 @@ export class FolderStep extends RecoveryStep {
           folder.name.encryptedString,
           workingData.userKey.toEncoded(),
         );
-        throw new Error("Folder name decryptable");
       } catch {
         logger.record(`Folder name for folder ID ${folder.id} was undecryptable`);
         this.undecryptableFolderIds.push(folder.id);

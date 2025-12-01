@@ -1,5 +1,6 @@
 import { firstValueFrom } from "rxjs";
 
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { DialogService } from "@bitwarden/components";
 import { KeyService, UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
@@ -16,6 +17,7 @@ export class PrivateKeyStep extends RecoveryStep {
     private keyService: KeyService,
     private privateKeyRegenerationService: UserAsymmetricKeysRegenerationService,
     private dialogService: DialogService,
+    private cryptoFunctionService: CryptoFunctionService,
   ) {
     super();
   }
@@ -35,8 +37,12 @@ export class PrivateKeyStep extends RecoveryStep {
       return false;
     }
     logger.record("Private key length: " + encryptedPrivateKey.length);
+    let privateKey: Uint8Array;
     try {
-      PureCrypto.unwrap_decapsulation_key(encryptedPrivateKey, workingData.userKey.toEncoded());
+      privateKey = PureCrypto.unwrap_decapsulation_key(
+        encryptedPrivateKey,
+        workingData.userKey.toEncoded(),
+      );
     } catch {
       logger.record("Private key was un-decryptable");
       return false;
@@ -44,10 +50,7 @@ export class PrivateKeyStep extends RecoveryStep {
 
     // Make sure the contained private key can be parsed and the public key can be derived. If not, then the private key may be corrupt / generated with an incompatible ASN.1 representation / with incompatible padding.
     try {
-      const publicKey = PureCrypto.rsa_extract_public_key(
-        encryptedPrivateKey,
-        workingData.userKey.toEncoded(),
-      );
+      const publicKey = await this.cryptoFunctionService.rsaExtractPublicKey(privateKey);
       logger.record("Public key length: " + publicKey.length);
     } catch {
       logger.record("Public key could not be derived; private key is corrupt");
