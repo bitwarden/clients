@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Arhivirane stavke biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune. Sigurno želiš arhivirati?"
   },
+  "upgradeToUseArchive": {
+    "message": "A premium membership is required to use Archive."
+  },
   "edit": {
     "message": "Uredi"
   },
@@ -593,6 +596,12 @@
   },
   "viewAll": {
     "message": "Vidi sve"
+  },
+  "showAll": {
+    "message": "Show all"
+  },
+  "viewLess": {
+    "message": "Vidi manje"
   },
   "viewLogin": {
     "message": "Prikaži prijavu"
@@ -795,6 +804,12 @@
   },
   "onLocked": {
     "message": "Pri zaključavanju sustava"
+  },
+  "onIdle": {
+    "message": "U stanju besposlenosti"
+  },
+  "onSleep": {
+    "message": "U stanju mirovanja sustava"
   },
   "onRestart": {
     "message": "Pri pokretanju preglednika"
@@ -1858,6 +1873,9 @@
   "expirationYear": {
     "message": "Godina isteka"
   },
+  "monthly": {
+    "message": "month"
+  },
   "expiration": {
     "message": "Istek"
   },
@@ -2426,6 +2444,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Ova stranica ometa Bitwarden iskustvo. Kao sigurnosna mjera, Bitwarden inline izbornik je privremeno onemogućen."
   },
   "setMasterPassword": {
     "message": "Postavi glavnu lozinku"
@@ -4890,6 +4911,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Unlock reporting, emergency access, and more security features with Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Besplatne organizacije ne mogu koristiti privitke"
   },
@@ -5800,6 +5824,21 @@
   "upgradeToPremium": {
     "message": " Nadogradi na Premium"
   },
+  "unlockAdvancedSecurity": {
+    "message": "Unlock advanced security features"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "A Premium subscription gives you more tools to stay secure and in control"
+  },
+  "explorePremium": {
+    "message": "Provjeri Premium"
+  },
+  "loadingVault": {
+    "message": "Učitavanje trezora"
+  },
+  "vaultLoaded": {
+    "message": "Trezor učitan"
+  },
   "settingDisabledByPolicy": {
     "message": "Ova je postavka onemogućena pravilima tvoje organizacije.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5848,8 @@
   },
   "cardNumberLabel": {
     "message": "Broj kartice"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Radnja kod isteka"
   }
 }

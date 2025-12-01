@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Hiba történt a böngésző integrációjának engedélyezése közben."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Sajnos a böngésző integrációt egyelőre csak a Mac App Store verzió támogatja."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "A böngésző integrációt egyelőre csak a Windows Store verzió támogatja."
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Áttérés Prémium csomagra"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Időkifutási művelet"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Munkamenet időkifutás"
   }
 }

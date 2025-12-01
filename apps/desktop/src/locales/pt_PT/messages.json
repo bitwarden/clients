@@ -70,7 +70,7 @@
     }
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "Não tem permissão para editar este item"
   },
   "welcomeBack": {
     "message": "Bem-vindo de volta"
@@ -2150,9 +2150,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Ocorreu um erro ao ativar a integração do navegador."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Infelizmente, a integração do navegador só é suportada na versão da Mac App Store por enquanto."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Infelizmente, a integração do navegador não é atualmente suportada na versão da Microsoft Store."
   },
@@ -4220,5 +4217,11 @@
   },
   "upgradeToPremium": {
     "message": "Atualizar para o Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Ação de tempo limite"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Tempo limite da sessão"
   }
 }

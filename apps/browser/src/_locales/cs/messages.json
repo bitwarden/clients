@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tuto položku archivovat?"
   },
+  "upgradeToUseArchive": {
+    "message": "Pro použití funkce Archiv je potřebné prémiové členství."
+  },
   "edit": {
     "message": "Upravit"
   },
@@ -593,6 +596,12 @@
   },
   "viewAll": {
     "message": "Zobrazit vše"
+  },
+  "showAll": {
+    "message": "Zobrazit vše"
+  },
+  "viewLess": {
+    "message": "Zobrazit méně"
   },
   "viewLogin": {
     "message": "Zobrazit přihlašovací údaje"
@@ -795,6 +804,12 @@
   },
   "onLocked": {
     "message": "Při uzamknutí systému"
+  },
+  "onIdle": {
+    "message": "Při nečinnosti systému"
+  },
+  "onSleep": {
+    "message": "Při přechodu do režimu spánku"
   },
   "onRestart": {
     "message": "Při restartu prohlížeče"
@@ -1858,6 +1873,9 @@
   "expirationYear": {
     "message": "Rok expirace"
   },
+  "monthly": {
+    "message": "měsíčně"
+  },
   "expiration": {
     "message": "Expirace"
   },
@@ -2426,6 +2444,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Tato stránka narušuje zážitek z Bitwardenu. Vložené menu Bitwarden bylo dočasně vypnuto jako bezpečnostní opatření."
   },
   "setMasterPassword": {
     "message": "Nastavit hlavní heslo"
@@ -4890,6 +4911,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Odemkněte hlášení, nouzový přístup a další bezpečnostní funkce s předplatným Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Volné organizace nemohou používat přílohy"
   },
@@ -5800,6 +5824,21 @@
   "upgradeToPremium": {
     "message": "Aktualizovat na Premium"
   },
+  "unlockAdvancedSecurity": {
+    "message": "Odemknout pokročilé bezpečnostní funkce"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "Prémiové předplatné Vám dává více nástrojů k bezpečí a kontrole"
+  },
+  "explorePremium": {
+    "message": "Objevit Premium"
+  },
+  "loadingVault": {
+    "message": "Načítání trezoru"
+  },
+  "vaultLoaded": {
+    "message": "Trezor byl načten"
+  },
   "settingDisabledByPolicy": {
     "message": "Toto nastavení je zakázáno zásadami Vaší organizace.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5848,8 @@
   },
   "cardNumberLabel": {
     "message": "Číslo karty"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Akce vypršení časového limitu"
   }
 }

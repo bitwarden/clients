@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Arhivētie vienumi netiek iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos. Vai tiešām ahrivēt šo vienumu?"
   },
+  "upgradeToUseArchive": {
+    "message": "Ir nepieciešama Premium dalība, lai izmantotu arhīvu."
+  },
   "edit": {
     "message": "Labot"
   },
@@ -593,6 +596,12 @@
   },
   "viewAll": {
     "message": "Apskatīt visu"
+  },
+  "showAll": {
+    "message": "Rādīt visu"
+  },
+  "viewLess": {
+    "message": "Skatīt mazāk"
   },
   "viewLogin": {
     "message": "Apskatīt pieteikšanās vienumu"
@@ -795,6 +804,12 @@
   },
   "onLocked": {
     "message": "Pēc sistēmas aizslēgšanas"
+  },
+  "onIdle": {
+    "message": "Sistēmas dīkstāvē"
+  },
+  "onSleep": {
+    "message": "Pēc sistēmas iemigšanas"
   },
   "onRestart": {
     "message": "Pēc pārlūka pārsāknēšanas"
@@ -1858,6 +1873,9 @@
   "expirationYear": {
     "message": "Derīguma gads"
   },
+  "monthly": {
+    "message": "mēnesī"
+  },
   "expiration": {
     "message": "Derīgums"
   },
@@ -2426,6 +2444,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Šī lapa traucē Bitwarden darbību. Bitwarden iekļautā izvēlne ir īslaicīgi atspējot kā drošības mērs."
   },
   "setMasterPassword": {
     "message": "Uzstādīt galveno paroli"
@@ -4890,6 +4911,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Iegūsti piekļuvi atskaitēm, ārkārtas piekļuvei un citām drošības iespējām ar Premium!"
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Bezmaksas apvienības nevar izmantot pielikumus"
   },
@@ -5800,6 +5824,21 @@
   "upgradeToPremium": {
     "message": "Uzlabot uz Premium"
   },
+  "unlockAdvancedSecurity": {
+    "message": "Atslēdz papildu drošības iespējas"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "Premium abonements sniedz vairāk rīku drošības uzturēšanai un pārraudzībai"
+  },
+  "explorePremium": {
+    "message": "Izpētīt Premium"
+  },
+  "loadingVault": {
+    "message": "Ielādē glabātavu"
+  },
+  "vaultLoaded": {
+    "message": "Glabātava ielādēta"
+  },
   "settingDisabledByPolicy": {
     "message": "Šis iestatījums ir atspējots apvienības pamatnostādnēs.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5848,8 @@
   },
   "cardNumberLabel": {
     "message": "Kartes numurs"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Noildzes darbība"
   }
 }
