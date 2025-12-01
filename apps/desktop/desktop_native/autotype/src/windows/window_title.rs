@@ -186,6 +186,7 @@ mod tests {
         let mut mock_handle = MockWindowHandleOperations::new();
 
         let ctxse = MockErrorOperations::set_last_error_context();
+        ctxse.checkpoint();
         ctxse
             .expect()
             .once()
@@ -198,6 +199,7 @@ mod tests {
             .returning(|| Ok(0));
 
         let ctxge = MockErrorOperations::get_last_error_context();
+        ctxge.checkpoint();
         ctxge.expect().returning(|| WIN32_ERROR(0));
 
         let len = get_window_title_length::<MockWindowHandleOperations, MockErrorOperations>(
@@ -206,6 +208,9 @@ mod tests {
         .unwrap();
 
         assert_eq!(len, 0);
+
+        drop(ctxge);
+        drop(ctxse);
     }
 
     #[test]
@@ -215,6 +220,7 @@ mod tests {
         let mut mock_handle = MockWindowHandleOperations::new();
 
         let ctxse = MockErrorOperations::set_last_error_context();
+        ctxse.checkpoint();
         ctxse.expect().with(predicate::eq(0)).returning(|_| {});
 
         mock_handle
@@ -223,13 +229,18 @@ mod tests {
             .returning(|| Ok(0));
 
         let ctxge = MockErrorOperations::get_last_error_context();
+        ctxge.checkpoint();
         ctxge.expect().returning(|| WIN32_ERROR(1));
 
         get_window_title_length::<MockWindowHandleOperations, MockErrorOperations>(&mock_handle)
             .unwrap();
+
+        drop(ctxge);
+        drop(ctxse);
     }
 
     #[test]
+    #[serial]
     fn get_window_title_succeeds() {
         let mut mock_handle = MockWindowHandleOperations::new();
 
@@ -246,11 +257,11 @@ mod tests {
                 .unwrap();
 
         assert_eq!(title.len(), 43); // That extra slot in the buffer for null char
-
         assert_eq!(title, "*******************************************");
     }
 
     #[test]
+    #[serial]
     fn get_window_title_returns_empty_string() {
         let mock_handle = MockWindowHandleOperations::new();
 
@@ -273,10 +284,13 @@ mod tests {
             .returning(|_| Ok(0));
 
         let ctxge = MockErrorOperations::get_last_error_context();
+        ctxge.checkpoint();
         ctxge.expect().returning(|| WIN32_ERROR(1));
 
         get_window_title::<MockWindowHandleOperations, MockErrorOperations>(&mock_handle, 42)
             .unwrap();
+
+        drop(ctxge);
     }
 
     #[test]
@@ -290,9 +304,12 @@ mod tests {
             .returning(|_| Ok(0));
 
         let ctxge = MockErrorOperations::get_last_error_context();
+        ctxge.checkpoint();
         ctxge.expect().returning(|| WIN32_ERROR(0));
 
         get_window_title::<MockWindowHandleOperations, MockErrorOperations>(&mock_handle, 42)
             .unwrap();
+
+        drop(ctxge);
     }
 }

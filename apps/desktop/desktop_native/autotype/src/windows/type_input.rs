@@ -272,6 +272,7 @@ mod tests {
     #[serial]
     fn send_input_succeeds() {
         let ctxi = MockInputOperations::send_input_context();
+        ctxi.checkpoint();
         ctxi.expect().returning(|_| 1);
 
         send_input::<MockInputOperations, MockErrorOperations>(vec![build_unicode_input(
@@ -279,6 +280,8 @@ mod tests {
             0,
         )])
         .unwrap();
+
+        drop(ctxi);
     }
 
     #[test]
@@ -288,9 +291,11 @@ mod tests {
     )]
     fn send_input_fails_sent_zero() {
         let ctxi = MockInputOperations::send_input_context();
+        ctxi.checkpoint();
         ctxi.expect().returning(|_| 0);
 
         let ctxge = MockErrorOperations::get_last_error_context();
+        ctxge.checkpoint();
         ctxge.expect().returning(|| WIN32_ERROR(1));
 
         send_input::<MockInputOperations, MockErrorOperations>(vec![build_unicode_input(
@@ -298,6 +303,9 @@ mod tests {
             0,
         )])
         .unwrap();
+
+        drop(ctxge);
+        drop(ctxi);
     }
 
     #[test]
@@ -305,9 +313,11 @@ mod tests {
     #[should_panic(expected = "SendInput does not match expected. sent: 2, expected: 1")]
     fn send_input_fails_sent_mismatch() {
         let ctxi = MockInputOperations::send_input_context();
+        ctxi.checkpoint();
         ctxi.expect().returning(|_| 2);
 
         let ctxge = MockErrorOperations::get_last_error_context();
+        ctxge.checkpoint();
         ctxge.expect().returning(|| WIN32_ERROR(1));
 
         send_input::<MockInputOperations, MockErrorOperations>(vec![build_unicode_input(
@@ -315,5 +325,8 @@ mod tests {
             0,
         )])
         .unwrap();
+
+        drop(ctxge);
+        drop(ctxi);
     }
 }
