@@ -383,7 +383,7 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     // Check for TDE-related conditions
     const userDecryptionOptions = await firstValueFrom(
-      this.userDecryptionOptionsService.userDecryptionOptions$,
+      this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
     );
 
     if (!userDecryptionOptions) {
