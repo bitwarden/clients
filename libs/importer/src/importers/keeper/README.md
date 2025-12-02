@@ -58,4 +58,4 @@ handle some of the type conversion manually. Should the conversion types be forc
 - [ ] PAM record types
 - [ ] Some more enterprise record types
 - [ ] Custom record types
-- [ ] Referenced fields
+- [x] Referenced fields
