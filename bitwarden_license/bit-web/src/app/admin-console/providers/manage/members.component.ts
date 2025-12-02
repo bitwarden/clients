@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, Signal } from "@angular/core";
+import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, firstValueFrom, lastValueFrom, switchMap } from "rxjs";
@@ -70,8 +70,6 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
   userStatusType = ProviderUserStatusType;
   userType = ProviderUserType;
 
-  private readonly increasedBulkLimitEnabled: Signal<boolean>;
-
   constructor(
     apiService: ApiService,
     keyService: KeyService,
@@ -103,8 +101,6 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
     );
 
     this.dataSource = new MembersTableDataSource(this.configService, this.environmentService);
-
-    this.increasedBulkLimitEnabled = this.dataSource.isIncreasedBulkLimitEnabled;
 
     combineLatest([
       this.activatedRoute.parent.params,
@@ -146,10 +142,10 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return;
     }
 
-    const allUsers = this.increasedBulkLimitEnabled()
+    const allUsers = this.dataSource.isIncreasedBulkLimitEnabled()
       ? this.dataSource.getCheckedUsersInVisibleOrder()
       : this.dataSource.getCheckedUsers();
-    const users = this.increasedBulkLimitEnabled()
+    const users = this.dataSource.isIncreasedBulkLimitEnabled()
       ? this.dataSource.limitAndUncheckExcess(allUsers, MaxCheckedCount)
       : allUsers;
 
@@ -169,7 +165,7 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return;
     }
 
-    const users = this.increasedBulkLimitEnabled()
+    const users = this.dataSource.isIncreasedBulkLimitEnabled()
       ? this.dataSource.getCheckedUsersInVisibleOrder()
       : this.dataSource.getCheckedUsers();
     const allInvitedUsers = users.filter((user) => user.status === ProviderUserStatusType.Invited);
@@ -178,7 +174,7 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
     const originalInvitedCount = allInvitedUsers.length;
 
     // When feature flag is enabled, limit invited users and uncheck the excess
-    const checkedInvitedUsers = this.increasedBulkLimitEnabled()
+    const checkedInvitedUsers = this.dataSource.isIncreasedBulkLimitEnabled()
       ? this.dataSource.limitAndUncheckExcess(allInvitedUsers, CloudBulkReinviteLimit)
       : allInvitedUsers;
 
@@ -193,7 +189,7 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
 
     try {
       // When feature flag is enabled, show toast instead of dialog
-      if (this.increasedBulkLimitEnabled()) {
+      if (this.dataSource.isIncreasedBulkLimitEnabled()) {
         await this.apiService.postManyProviderUserReinvite(
           this.providerId,
           new ProviderUserBulkRequest(checkedInvitedUsers.map((user) => user.id)),
@@ -250,10 +246,10 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return;
     }
 
-    const allUsers = this.increasedBulkLimitEnabled()
+    const allUsers = this.dataSource.isIncreasedBulkLimitEnabled()
       ? this.dataSource.getCheckedUsersInVisibleOrder()
       : this.dataSource.getCheckedUsers();
-    const users = this.increasedBulkLimitEnabled()
+    const users = this.dataSource.isIncreasedBulkLimitEnabled()
       ? this.dataSource.limitAndUncheckExcess(allUsers, MaxCheckedCount)
       : allUsers;
 

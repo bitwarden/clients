@@ -97,8 +97,6 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   protected rowHeight = 66;
   protected rowHeightClass = `tw-h-[66px]`;
 
-  private readonly increasedBulkLimitEnabled: Signal<boolean>;
-
   constructor(
     apiService: ApiService,
     i18nService: I18nService,
@@ -137,8 +135,6 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     );
 
     this.dataSource = new MembersTableDataSource(this.configService, this.environmentService);
-
-    this.increasedBulkLimitEnabled = this.dataSource.isIncreasedBulkLimitEnabled;
 
     const organization$ = this.route.params.pipe(
       concatMap((params) =>
@@ -370,10 +366,10 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       return;
     }
 
-    const allUsers = this.increasedBulkLimitEnabled()
+    const allUsers = this.dataSource.isIncreasedBulkLimitEnabled()
       ? this.dataSource.getCheckedUsersInVisibleOrder()
       : this.dataSource.getCheckedUsers();
-    const users = this.increasedBulkLimitEnabled()
+    const users = this.dataSource.isIncreasedBulkLimitEnabled()
       ? this.dataSource.limitAndUncheckExcess(allUsers, MaxCheckedCount)
       : allUsers;
 
@@ -387,10 +383,10 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       return;
     }
 
-    const allUsers = this.increasedBulkLimitEnabled()
+    const allUsers = this.dataSource.isIncreasedBulkLimitEnabled()
       ? this.dataSource.getCheckedUsersInVisibleOrder()
       : this.dataSource.getCheckedUsers();
-    const users = this.increasedBulkLimitEnabled()
+    const users = this.dataSource.isIncreasedBulkLimitEnabled()
       ? this.dataSource.limitAndUncheckExcess(allUsers, MaxCheckedCount)
       : allUsers;
 
@@ -411,10 +407,10 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       return;
     }
 
-    const allUsers = this.increasedBulkLimitEnabled()
+    const allUsers = this.dataSource.isIncreasedBulkLimitEnabled()
       ? this.dataSource.getCheckedUsersInVisibleOrder()
       : this.dataSource.getCheckedUsers();
-    const users = this.increasedBulkLimitEnabled()
+    const users = this.dataSource.isIncreasedBulkLimitEnabled()
       ? this.dataSource.limitAndUncheckExcess(allUsers, MaxCheckedCount)
       : allUsers;
 
@@ -427,7 +423,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       return;
     }
 
-    const users = this.increasedBulkLimitEnabled()
+    const users = this.dataSource.isIncreasedBulkLimitEnabled()
       ? this.dataSource.getCheckedUsersInVisibleOrder()
       : this.dataSource.getCheckedUsers();
     const allInvitedUsers = users.filter((u) => u.status === OrganizationUserStatusType.Invited);
@@ -436,7 +432,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     const originalInvitedCount = allInvitedUsers.length;
 
     // When feature flag is enabled, limit invited users and uncheck the excess
-    const filteredUsers = this.increasedBulkLimitEnabled()
+    const filteredUsers = this.dataSource.isIncreasedBulkLimitEnabled()
       ? this.dataSource.limitAndUncheckExcess(allInvitedUsers, CloudBulkReinviteLimit)
       : allInvitedUsers;
 
@@ -460,7 +456,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       }
 
       // When feature flag is enabled, show toast instead of dialog
-      if (this.increasedBulkLimitEnabled()) {
+      if (this.dataSource.isIncreasedBulkLimitEnabled()) {
         const selectedCount = originalInvitedCount;
         const invitedCount = filteredUsers.length;
 
@@ -501,10 +497,10 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       return;
     }
 
-    const allUsers = this.increasedBulkLimitEnabled()
+    const allUsers = this.dataSource.isIncreasedBulkLimitEnabled()
       ? this.dataSource.getCheckedUsersInVisibleOrder()
       : this.dataSource.getCheckedUsers();
-    const users = this.increasedBulkLimitEnabled()
+    const users = this.dataSource.isIncreasedBulkLimitEnabled()
       ? this.dataSource.limitAndUncheckExcess(allUsers, MaxCheckedCount)
       : allUsers;
 
@@ -513,10 +509,10 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   async bulkEnableSM(organization: Organization) {
-    const allUsers = this.increasedBulkLimitEnabled()
+    const allUsers = this.dataSource.isIncreasedBulkLimitEnabled()
       ? this.dataSource.getCheckedUsersInVisibleOrder()
       : this.dataSource.getCheckedUsers();
-    const users = this.increasedBulkLimitEnabled()
+    const users = this.dataSource.isIncreasedBulkLimitEnabled()
       ? this.dataSource.limitAndUncheckExcess(allUsers, MaxCheckedCount)
       : allUsers;
 
