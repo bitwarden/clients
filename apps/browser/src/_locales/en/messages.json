@@ -5860,5 +5860,8 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Timeout action"
+  },
+  "upgrade": {
+    "message": "Upgrade"
   }
 }
