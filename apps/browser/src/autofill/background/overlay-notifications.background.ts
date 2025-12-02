@@ -262,6 +262,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    */
   private notificationDataIncompleteOnBeforeRequest = (tabId: number) => {
     const modifyLoginData = this.modifyLoginCipherFormData.get(tabId);
+
     if (!modifyLoginData) {
       return true;
     }
@@ -472,15 +473,19 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     modifyLoginData: ModifyLoginCipherFormData,
     notificationType: NotificationType,
   ): boolean => {
+    // Intentionally not stripping whitespace characters here as they
+    // represent user entry.
     const usernameFieldHasValue = !!(modifyLoginData?.username || "").length;
     const passwordFieldHasValue = !!(modifyLoginData?.password || "").length;
     const newPasswordFieldHasValue = !!(modifyLoginData?.newPassword || "").length;
 
     switch (notificationType) {
+      // `Add` case included because all forms with cached usernames (from previous
+      // visits) will appear to be "password only" and otherwise trigger the new login
+      // save notification.
       case NotificationTypes.Add:
-        return usernameFieldHasValue && (passwordFieldHasValue || newPasswordFieldHasValue);
       case NotificationTypes.Change:
-        return passwordFieldHasValue || newPasswordFieldHasValue;
+        return usernameFieldHasValue && (passwordFieldHasValue || newPasswordFieldHasValue);
       case NotificationTypes.AtRiskPassword:
         return !newPasswordFieldHasValue;
       case NotificationTypes.Unlock:
