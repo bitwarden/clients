@@ -23,7 +23,9 @@
     (keydown)="handleKeyDown($event)"
   >
     <ng-content></ng-content>
-    <div class="tw-sticky tw-bottom-0 tw-left-0 tw-z-20 tw-mt-auto tw-w-full tw-bg-background-alt3">
+    <div
+      class="[@media(min-height:850px)]:tw-sticky tw-bottom-0 tw-left-0 tw-z-20 tw-mt-auto tw-w-full tw-bg-background-alt3"
+    >
       <bit-nav-divider></bit-nav-divider>
       @if (data.open) {
         <ng-content select="[slot=footer]"></ng-content>
