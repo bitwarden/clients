@@ -620,7 +620,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get storageGb() {
-    return this.sub?.maxStorageGb ? this.sub?.maxStorageGb - 1 : 0;
+    return Math.max(
+      0,
+      (this.sub?.maxStorageGb ?? 0) - this.selectedPlan.PasswordManager.baseStorageGb,
+    );
   }
 
   passwordManagerSeatTotal(plan: PlanResponse): number {
@@ -644,12 +647,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return 0;
     }
 
-    return (
-      plan.PasswordManager.additionalStoragePricePerGb *
-      // TODO: Eslint upgrade. Please resolve this  since the null check does nothing
-      // eslint-disable-next-line no-constant-binary-expression
-      Math.abs(this.sub?.maxStorageGb ? this.sub?.maxStorageGb - 1 : 0 || 0)
-    );
+    return plan.PasswordManager.additionalStoragePricePerGb * this.storageGb;
   }
 
   additionalStoragePriceMonthly(selectedPlan: PlanResponse) {
