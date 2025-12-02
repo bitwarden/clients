@@ -1,0 +1,34 @@
+/**
+ * Desktop UI Migration
+ *
+ * These are temporary styles during the desktop ui migration.
+ **/
+
+/**
+ * Compensate for app-header
+ *
+ * Currently the layout assumes it occupies the full viewport height.
+ * Since app-header is fixed at the top, we need to add padding/margin
+ * to compensate for its height (54px).
+ **/
+app-header {
+  // Ensures the header is above the layout
+  position: relative;
+  z-index: 1000;
+}
+bit-layout {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  #bit-side-nav {
+    padding-top: 54px;
+  }
+  #main-content {
+    // This also removes any padding applied by the bit-layout to content.
+    // This should be revisited once the table is migrated, and again once drawers are migrated.
+    padding: 54px 0 0 0;
+  }
+}
