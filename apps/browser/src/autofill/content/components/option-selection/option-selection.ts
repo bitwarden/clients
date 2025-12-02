@@ -54,7 +54,7 @@ export class OptionSelection extends LitElement {
   private static currentOpenInstance: OptionSelection | null = null;
 
   private handleButtonClick = async (event: Event) => {
-    if (!this.disabled) {
+    if (event.isTrusted && !this.disabled) {
       const isOpening = !this.showMenu;
 
       if (isOpening) {

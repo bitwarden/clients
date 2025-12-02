@@ -29,6 +29,10 @@ export function OptionItem({
   handleSelection,
 }: OptionItemProps) {
   const handleSelectionKeyUpProxy = (event: KeyboardEvent) => {
+    if (!event.isTrusted) {
+      return;
+    }
+
     const listenedForKeys = new Set(["Enter", "Space"]);
     if (listenedForKeys.has(event.code) && event.target instanceof Element) {
       handleSelection();

@@ -618,6 +618,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private handleSubmitButtonInteraction = (event: PointerEvent) => {
     if (
+      !event.isTrusted ||
       !this.submitElements.has(event.target as HTMLElement) ||
       (event.type === "keyup" &&
         !["Enter", "Space"].includes((event as unknown as KeyboardEvent).code))

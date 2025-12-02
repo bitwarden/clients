@@ -163,7 +163,7 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
    */
   private handleDocumentKeyDownEvent = (event: KeyboardEvent) => {
     const listenedForKeys = new Set(["Tab", "Escape", "ArrowUp", "ArrowDown"]);
-    if (!listenedForKeys.has(event.code)) {
+    if (!event.isTrusted || !listenedForKeys.has(event.code)) {
       return;
     }
 

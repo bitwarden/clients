@@ -26,7 +26,7 @@ export function ActionButton({
   fullWidth = true,
 }: ActionButtonProps) {
   const handleButtonClick = (event: Event) => {
-    if (!disabled && !isLoading) {
+    if (event.isTrusted && !disabled && !isLoading) {
       handleClick(event);
     }
   };
