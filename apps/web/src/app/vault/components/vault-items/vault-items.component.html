@@ -9,7 +9,7 @@
             bitCheckbox
             id="checkAll"
             [disabled]="disabled || isEmpty"
-            (change)="$event ? toggleAll() : null"
+            (change)="toggleAll($event)"
             [checked]="selection.hasValue() && isAllSelected"
           />
           <label class="tw-mb-0 !tw-font-medium !tw-text-muted" for="checkAll">{{

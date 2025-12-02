@@ -1217,6 +1217,24 @@
   "selectAll": {
     "message": "Select all"
   },
+  "selectAllItems": {
+    "message": "Select all items"
+  },
+  "selectItems": {
+    "message": "Select items"
+  },
+  "selectAllOrFirst500": {
+    "message": "Would you like to select all items, or just the first $COUNT$ items? (Performance may be impacted)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
+  "selectFirst500": {
+    "message": "Select first 500"
+  },
   "unselectAll": {
     "message": "Unselect all"
   },
