@@ -562,7 +562,7 @@
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Nicht mehr archivieren"
+    "message": "Wiederherstellen"
   },
   "itemsInArchive": {
     "message": "Einträge im Archiv"
@@ -574,10 +574,10 @@
     "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Vorschlägen zum automatischen Ausfüllen ausgeschlossen."
   },
   "itemWasSentToArchive": {
-    "message": "Eintrag wurde ins Archiv verschoben"
+    "message": "Eintrag wurde archiviert"
   },
   "itemUnarchived": {
-    "message": "Eintrag wird nicht mehr archiviert"
+    "message": "Eintrag wurde wiederhergestellt"
   },
   "archiveItem": {
     "message": "Eintrag archivieren"
@@ -1050,7 +1050,7 @@
     "message": "Eintrag gespeichert"
   },
   "savedWebsite": {
-    "message": "Website gespeichert"
+    "message": "Gespeicherte Website"
   },
   "savedWebsites": {
     "message": "Gespeicherte Websites ($COUNT$)",
@@ -1710,7 +1710,7 @@
     "message": "Auto-Ausfüllen bestätigen"
   },
   "confirmAutofillDesc": {
-    "message": "Diese Website stimmt nicht mit deinen gespeicherten Zugangsdaten überein. Bevor du deine Zugangsdaten eingibst, stelle sicher, dass es sich um eine vertrauenswürdige Website handelt."
+    "message": "Diese Website stimmt nicht mit deinen gespeicherten Zugangsdaten überein. Stelle sicher, dass dies eine vertrauenswürdige Website ist, bevor du deine Zugangsdaten eingibst."
   },
   "showInlineMenuLabel": {
     "message": "Vorschläge zum Auto-Ausfüllen in Formularfeldern anzeigen"
@@ -1874,7 +1874,7 @@
     "message": "Ablaufjahr"
   },
   "monthly": {
-    "message": "month"
+    "message": "Monatlich"
   },
   "expiration": {
     "message": "Gültig bis"
@@ -2446,7 +2446,7 @@
     }
   },
   "topLayerHijackWarning": {
-    "message": "Diese Seite beeinträchtigt die Nutzung von Bitwarden. Das Bitwarden Inline-Menü wurde aus Sicherheitsgründen vorübergehend deaktiviert."
+    "message": "Diese Seite stört die Bitwarden-Nutzung. Das Bitwarden Inline-Menü wurde aus Sicherheitsgründen vorübergehend deaktiviert."
   },
   "setMasterPassword": {
     "message": "Master-Passwort festlegen"
@@ -4075,7 +4075,7 @@
     "message": "Kein Auto-Ausfüllen möglich"
   },
   "cannotAutofillExactMatch": {
-    "message": "Die Standard-Übereinstimmungserkennung steht auf \"Exakte Übereinstimmung\". Die aktuelle Website stimmt nicht genau mit den gespeicherten Zugangsdaten für diesen Eintrag überein."
+    "message": "Die Standard-Übereinstimmungserkennung ist auf „Exakte Übereinstimmung“ eingestellt. Die aktuelle Website stimmt nicht genau mit den gespeicherten Zugangsdaten für diesen Eintrag überein."
   },
   "okay": {
     "message": "Okay"
@@ -5665,7 +5665,7 @@
     "message": "Phishing-Versuch erkannt"
   },
   "phishingPageSummary": {
-    "message": "Die Website, die du versuchst zu öffnen, ist eine bekannte böswillige Website und ein Sicherheitsrisiko."
+    "message": "Die Website, die du öffnen möchtest, ist als böswillige Website bekannt und stellt ein Sicherheitsrisiko dar."
   },
   "phishingPageCloseTabV2": {
     "message": "Diesen Tab schließen"
@@ -5813,7 +5813,7 @@
     "message": "Notfallzugriff"
   },
   "breachMonitoring": {
-    "message": "Datendiebstahl-Überwachung"
+    "message": "Datenleck-Überwachung"
   },
   "andMoreFeatures": {
     "message": "Und mehr!"
