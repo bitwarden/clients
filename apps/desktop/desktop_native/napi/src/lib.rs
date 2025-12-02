@@ -1195,10 +1195,10 @@ pub mod chromium_importer {
     }
 
     #[napi]
-    pub fn request_browser_access(browser: String, mas_build: bool) -> napi::Result<()> {
+    pub fn request_browser_access(_browser: String, _mas_build: bool) -> napi::Result<()> {
         #[cfg(target_os = "macos")]
         {
-            chromium_importer::chromium::request_browser_access(&browser, mas_build)
+            chromium_importer::chromium::request_browser_access(&_browser, _mas_build)
                 .map_err(|e| napi::Error::from_reason(e.to_string()))
         }
         #[cfg(not(target_os = "macos"))]
