@@ -6,6 +6,7 @@ export class AttachmentResponse {
   size: string;
   sizeName: string;
   url: string;
+  key: any;
 
   constructor(o: AttachmentView) {
     this.id = o.id;
@@ -13,5 +14,6 @@ export class AttachmentResponse {
     this.size = o.size;
     this.sizeName = o.sizeName;
     this.url = o.url;
+    this.key = o.key;
   }
 }

@@ -29,7 +29,8 @@ export class CipherFileUploadService implements CipherFileUploadServiceAbstracti
     dataEncKey: [SymmetricCryptoKey, EncString],
   ): Promise<CipherResponse> {
     const request: AttachmentRequest = {
-      key: dataEncKey[1].encryptedString,
+      // key: dataEncKey[1].encryptedString,
+      key: undefined as any,
       fileName: encFileName.encryptedString,
       fileSize: encData.buffer.byteLength,
       adminRequest: admin,

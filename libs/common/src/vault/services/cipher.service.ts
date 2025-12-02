@@ -1096,15 +1096,15 @@ export class CipherService implements CipherServiceAbstraction {
 
     const encFileName = await this.encryptService.encryptString(filename, cipherEncKey);
 
-    const dataEncKey = await this.keyService.makeDataEncKey(cipherEncKey);
-    const encData = await this.encryptService.encryptFileData(new Uint8Array(data), dataEncKey[0]);
+    // const dataEncKey = await this.keyService.makeDataEncKey(cipherEncKey);
+    const encData = await this.encryptService.encryptFileData(new Uint8Array(data), cipherEncKey);
 
     const response = await this.cipherFileUploadService.upload(
       cipher,
       encFileName,
       encData,
       admin,
-      dataEncKey,
+      null, //dataEncKey,
     );
 
     const cData = new CipherData(response, cipher.collectionIds);
