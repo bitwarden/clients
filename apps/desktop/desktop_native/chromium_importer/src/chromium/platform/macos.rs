@@ -11,7 +11,6 @@ use crate::{
 // Sandbox specific (for Mac App Store Builds)
 //
 
-#[cfg(feature = "sandbox")]
 pub mod sandbox {
     use std::{ffi::CString, os::raw::c_char};
 

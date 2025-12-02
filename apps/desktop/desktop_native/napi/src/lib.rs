@@ -1186,24 +1186,24 @@ pub mod chromium_importer {
     pub async fn import_logins(
         browser: String,
         profile_id: String,
+        mas_build: bool,
     ) -> napi::Result<Vec<LoginImportResult>> {
-        chromium_importer::chromium::import_logins(&browser, &profile_id)
+        chromium_importer::chromium::import_logins(&browser, &profile_id, mas_build)
             .await
             .map(|logins| logins.into_iter().map(LoginImportResult::from).collect())
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
     #[napi]
-    #[allow(unused_variables)]
-    pub fn request_browser_access(browser: String) -> napi::Result<()> {
-        #[cfg(all(target_os = "macos", feature = "sandbox"))]
+    pub fn request_browser_access(browser: String, mas_build: bool) -> napi::Result<()> {
+        #[cfg(target_os = "macos")]
         {
-            chromium_importer::chromium::request_browser_access(&browser)
+            chromium_importer::chromium::request_browser_access(&browser, mas_build)
                 .map_err(|e| napi::Error::from_reason(e.to_string()))
         }
-        #[cfg(not(all(target_os = "macos", feature = "sandbox")))]
+        #[cfg(not(target_os = "macos"))]
         {
-            // No-op when built without sandbox feature
+            // No-op outside of Mac OS 
             Ok(())
         }
     }

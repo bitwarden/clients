@@ -59,8 +59,6 @@ pub struct DefaultInstalledBrowserRetriever {}
 impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
     fn get_installed_browsers(mas_build: bool) -> Result<Vec<String>> {
         let mut browsers = Vec::with_capacity(SUPPORTED_BROWSER_MAP.len());
-
-        #[allow(unused_variables)] // config only used outside of sandbox
         for (browser, config) in SUPPORTED_BROWSER_MAP.iter() {
             if mas_build {
                 // show all browsers for MAS builds, user will grant access when selected
@@ -83,19 +81,30 @@ pub fn get_available_profiles(browser_name: &str) -> Result<Vec<ProfileInfo>> {
     Ok(get_profile_info(&local_state))
 }
 
-/// Request access to browser directory (sandbox mode only)
-/// This shows the permission dialog and creates a security-scoped bookmark,
-#[cfg(all(target_os = "macos", feature = "sandbox"))]
-pub fn request_browser_access(browser_name: &str) -> Result<()> {
-    platform::sandbox::ScopedBrowserAccess::request_only(browser_name)?;
-
+/// Request access to browser directory (MAS builds only)
+/// This shows the permission dialog and creates a security-scoped bookmark
+#[cfg(target_os = "macos")]
+pub fn request_browser_access(browser_name: &str, mas_build: bool) -> Result<()> {
+    if mas_build {
+        platform::sandbox::ScopedBrowserAccess::request_only(browser_name)?;
+    }
     Ok(())
 }
 
-pub async fn import_logins(browser_name: &str, profile_id: &str) -> Result<Vec<LoginImportResult>> {
-    // In sandbox mode, resume access to browser directory (use the formerly created bookmark)
-    #[cfg(all(target_os = "macos", feature = "sandbox"))]
-    let _access = platform::sandbox::ScopedBrowserAccess::resume(browser_name)?;
+pub async fn import_logins(
+    browser_name: &str,
+    profile_id: &str,
+    mas_build: bool,
+) -> Result<Vec<LoginImportResult>> {
+    // MAS builds will use the formerly created security bookmark
+    #[cfg(target_os = "macos")]
+    let _access = if mas_build {
+        Some(platform::sandbox::ScopedBrowserAccess::resume(
+            browser_name,
+        )?)
+    } else {
+        None
+    };
 
     let (data_dir, local_state) = load_local_state_for_browser(browser_name)?;
 

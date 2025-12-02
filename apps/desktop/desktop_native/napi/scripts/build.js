@@ -11,9 +11,4 @@ if (isRelease) {
   process.env.RUST_LOG = 'debug';
 }
 
-const featuresArg = process.env.SANDBOX_BUILD === '1' ? '--features sandbox' : '';
-if (featuresArg) {
-  console.log('Building with sandbox feature enabled.');
-}
-
-execSync(`napi build --platform --js false ${featuresArg}`, { stdio: 'inherit', env: process.env });
+execSync(`napi build --platform --js false`, { stdio: 'inherit', env: process.env });
