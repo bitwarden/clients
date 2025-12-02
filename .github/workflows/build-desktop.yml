@@ -49,6 +49,10 @@ defaults:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   electron-verify:
     name: Verify Electron Version
@@ -208,7 +212,7 @@ jobs:
           snapcraft --version || echo 'snapcraft unavailable'
 
       - name: Install Node dependencies
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit
         working-directory: ./
 
       - name: Download SDK Artifacts
@@ -238,8 +242,6 @@ jobs:
           path: |
             apps/desktop/desktop_native/napi/*.node
             apps/desktop/desktop_native/dist/*
-            ${{ env.RUNNER_TEMP }}/.cargo/registry
-            ${{ env.RUNNER_TEMP }}/.cargo/git
           key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
 
       - name: Build Native Module
@@ -371,7 +373,7 @@ jobs:
           snapcraft --version
 
       - name: Install Node dependencies
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit
         working-directory: ./
 
       - name: Download SDK Artifacts
@@ -401,8 +403,6 @@ jobs:
           path: |
             apps/desktop/desktop_native/napi/*.node
             apps/desktop/desktop_native/dist/*
-            ${{ env.RUNNER_TEMP }}/.cargo/registry
-            ${{ env.RUNNER_TEMP }}/.cargo/git
           key: rust-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
 
       - name: Build Native Module
@@ -534,7 +534,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Install Node dependencies
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit
         working-directory: ./
 
       - name: Download SDK Artifacts
@@ -797,7 +797,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Install Node dependencies
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit
         working-directory: ./
 
       - name: Download SDK Artifacts
@@ -1152,7 +1152,7 @@ jobs:
           "### MacOS build number: $env:BUILD_NUMBER" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
 
       - name: Install Node dependencies
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit
         working-directory: ./
 
       - name: Download SDK Artifacts
@@ -1373,7 +1373,7 @@ jobs:
           Write-Output "### MacOS GitHub build number: $env:BUILD_NUMBER"
 
       - name: Install Node dependencies
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit
         working-directory: ./
 
       - name: Download SDK Artifacts
@@ -1653,7 +1653,7 @@ jobs:
           Write-Output "### MacOS App Store build number: $env:BUILD_NUMBER"
 
       - name: Install Node dependencies
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit
         working-directory: ./
 
       - name: Download SDK Artifacts
@@ -1822,10 +1822,7 @@ jobs:
     name: Crowdin Push
     if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
     needs:
-      - linux
-      - windows
-      - macos-package-github
-      - macos-package-mas
+      - setup
     permissions:
       contents: write
       pull-requests: write
