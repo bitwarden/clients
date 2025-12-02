@@ -31,7 +31,7 @@ export class A11yTitleDirective {
     effect(() => {
       setA11yTitleAndAriaLabel({
         element: this.elementRef.nativeElement,
-        title: null,
+        title: undefined,
         label: originalAriaLabel ?? this.tooltipDirective.tooltipContent(),
       });
     });
