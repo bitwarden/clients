@@ -6,34 +6,35 @@ import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { newGuid } from "@bitwarden/guid";
 
 import { ImportResult } from "../../models";
-import { LegacyTestData, TestData } from "../spec-data/keeper-json/testdata.json";
+import { CliTestData, WebTestData, LegacyTestData } from "../spec-data/keeper-json/testdata.json";
 
 import { KeeperJsonImporter } from "./keeper-json-importer";
 
 describe("Keeper Json Importer", () => {
-  const testDataJson = JSON.stringify(TestData);
+  // The CLI and Web exports should have the same content and their formats are very similar but do not appear
+  // to be the same. That's why they are tests here both.
+  const cliTestDataJson = JSON.stringify(CliTestData);
+  const webTestDataJson = JSON.stringify(WebTestData);
   const legacyTestDataJson = JSON.stringify(LegacyTestData);
 
-  let result: ImportResult;
+  let cliResult: ImportResult;
+  let webResult: ImportResult;
   let orgResult: ImportResult;
-
   let legacyResult: ImportResult;
-  //let legacyOrgResult: ImportResult;
 
   beforeAll(async () => {
     const importer = new KeeperJsonImporter();
-    result = await expectParse(importer, testDataJson, 23);
+    cliResult = await expectParse(importer, cliTestDataJson, 24);
+
+    const webImporter = new KeeperJsonImporter();
+    webResult = await expectParse(webImporter, webTestDataJson, 24);
 
     const orgImporter = new KeeperJsonImporter();
     orgImporter.organizationId = newGuid() as OrganizationId;
-    orgResult = await expectParse(orgImporter, testDataJson, 23);
+    orgResult = await expectParse(orgImporter, cliTestDataJson, 24);
 
     const legacyImporter = new KeeperJsonImporter();
     legacyResult = await expectParse(legacyImporter, legacyTestDataJson, 78);
-
-    // const legacyOrgImporter = new KeeperJsonImporter();
-    // legacyOrgImporter.organizationId = newGuid() as OrganizationId;
-    // legacyOrgResult = await expectParse(legacyOrgImporter, legacyTestDataJson, 78);
   });
 
   // All possible record types
@@ -61,493 +62,548 @@ describe("Keeper Json Importer", () => {
   // 96  wifiCredentials
 
   //
-  // Current format tests
+  // CLI format tests (exported from keeper CLI)
   //
 
   it("should parse address", async () => {
-    // Cipher
-    const address = getCipher(result, "Home Address");
-    expect(address).toBeDefined();
-    expect(address.type).toEqual(CipherType.SecureNote);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const address = getCipher(result, "Home Address");
+      expect(address).toBeDefined();
+      expect(address.type).toEqual(CipherType.SecureNote);
 
-    // Properties
-    expect(address.notes).toEqual("Primary residence - mailing and billing address");
+      // Properties
+      expect(address.notes).toEqual("Primary residence - mailing and billing address");
 
-    // Fields
-    expect(address.fields.length).toEqual(1);
-    expect(getField(address, "address")?.value).toEqual(
-      "742 Evergreen Terrace, Apt 3B, Springfield, Oregon, 97477, US",
-    );
+      // Fields
+      expect(address.fields.length).toEqual(1);
+      expect(getField(address, "address")?.value).toEqual(
+        "742 Evergreen Terrace, Apt 3B, Springfield, Oregon, 97477, US",
+      );
+    });
   });
 
   it("should parse bankAccount", async () => {
-    // Cipher
-    const bankAccount = getCipher(result, "Wells Fargo Checking");
-    expect(bankAccount).toBeDefined();
-    expect(bankAccount.type).toEqual(CipherType.Login);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const bankAccount = getCipher(result, "Wells Fargo Checking");
+      expect(bankAccount).toBeDefined();
+      expect(bankAccount.type).toEqual(CipherType.Login);
 
-    // Properties
-    expect(bankAccount.notes).toEqual(
-      "Primary checking account for direct deposit and bill payments",
-    );
-    expect(bankAccount.login.username).toEqual("m.thompson@email.com");
-    expect(bankAccount.login.password).toEqual("BankS3cur3!Pass");
-    expect(bankAccount.login.totp).toContain("otpauth://totp/");
+      // Properties
+      expect(bankAccount.notes).toEqual(
+        "Primary checking account for direct deposit and bill payments",
+      );
+      expect(bankAccount.login.username).toEqual("m.thompson@email.com");
+      expect(bankAccount.login.password).toEqual("BankS3cur3!Pass");
+      expect(bankAccount.login.totp).toContain("otpauth://totp/");
 
-    // Fields
-    expect(bankAccount.fields.length).toEqual(2);
-    expect(getField(bankAccount, "bankAccount")?.value).toEqual(
-      "Type: Checking, Account Number: 8472651938, Routing Number: 121000248",
-    );
-    expect(getField(bankAccount, "name")?.value).toEqual("Michael James Thompson");
+      // Fields
+      expect(bankAccount.fields.length).toEqual(2);
+      expect(getField(bankAccount, "bankAccount")?.value).toEqual(
+        "Type: Checking, Account Number: 8472651938, Routing Number: 121000248",
+      );
+      expect(getField(bankAccount, "name")?.value).toEqual("Michael James Thompson");
+    });
   });
 
   it("should parse bankAccount with other type", async () => {
-    // Cipher
-    const bankAccount = getCipher(result, "Other bank");
-    expect(bankAccount).toBeDefined();
-    expect(bankAccount.type).toEqual(CipherType.SecureNote);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const bankAccount = getCipher(result, "Other bank");
+      expect(bankAccount).toBeDefined();
+      expect(bankAccount.type).toEqual(CipherType.SecureNote);
 
-    // Fields
-    expect(bankAccount.fields.length).toEqual(2);
-    expect(getField(bankAccount, "bankAccount")?.value).toEqual(
-      "Type: Crypto, Account Number: 12345678",
-    );
-    expect(getField(bankAccount, "name")?.value).toEqual("Mark Zwei");
+      // Fields
+      expect(bankAccount.fields.length).toEqual(2);
+      expect(getField(bankAccount, "bankAccount")?.value).toEqual(
+        "Type: Crypto, Account Number: 12345678",
+      );
+      expect(getField(bankAccount, "name")?.value).toEqual("Mark Zwei");
+    });
   });
 
   it("should parse bankCard", async () => {
-    // Cipher
-    const bankCard = getCipher(result, "Chase Visa");
-    expect(bankCard).toBeDefined();
-    expect(bankCard.type).toEqual(CipherType.Card);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const bankCard = getCipher(result, "Chase Visa");
+      expect(bankCard).toBeDefined();
+      expect(bankCard.type).toEqual(CipherType.Card);
 
-    // Properties
-    expect(bankCard.notes).toEqual("Primary credit card for everyday purchases and rewards");
-    expect(bankCard.card.number).toEqual("4532123456789010");
-    expect(bankCard.card.cardholderName).toEqual("Sarah Johnson");
-    expect(bankCard.card.brand).toEqual("Visa");
-    expect(bankCard.card.expMonth).toEqual("06");
-    expect(bankCard.card.expYear).toEqual("2030");
+      // Properties
+      expect(bankCard.notes).toEqual("Primary credit card for everyday purchases and rewards");
+      expect(bankCard.card.number).toEqual("4532123456789010");
+      expect(bankCard.card.cardholderName).toEqual("Sarah Johnson");
+      expect(bankCard.card.brand).toEqual("Visa");
+      expect(bankCard.card.expMonth).toEqual("06");
+      expect(bankCard.card.expYear).toEqual("2030");
 
-    // Fields
-    expect(bankCard.fields.length).toEqual(1);
-    expect(getField(bankCard, "PIN")?.value).toEqual("8426");
-    expect(getField(bankCard, "PIN")?.type).toEqual(FieldType.Hidden);
+      // Fields
+      expect(bankCard.fields.length).toEqual(1);
+      expect(getField(bankCard, "PIN")?.value).toEqual("8426");
+      expect(getField(bankCard, "PIN")?.type).toEqual(FieldType.Hidden);
+    });
   });
 
   it("should parse birthCertificate", async () => {
-    // Cipher
-    const birthCertificate = getCipher(result, "John Doe Birth Certificate");
-    expect(birthCertificate).toBeDefined();
-    expect(birthCertificate.type).toEqual(CipherType.SecureNote);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const birthCertificate = getCipher(result, "John Doe Birth Certificate");
+      expect(birthCertificate).toBeDefined();
+      expect(birthCertificate.type).toEqual(CipherType.SecureNote);
 
-    // Properties
-    expect(birthCertificate.notes).toEqual(
-      "Official birth certificate for identification purposes",
-    );
+      // Properties
+      expect(birthCertificate.notes).toEqual(
+        "Official birth certificate for identification purposes",
+      );
 
-    // Fields
-    expect(birthCertificate.fields.length).toEqual(2);
-    expect(getField(birthCertificate, "name")?.value).toEqual("John Michael Doe");
-    expect(getField(birthCertificate, "birthDate")?.value).toEqual("5/15/1990, 12:00:00 AM");
+      // Fields
+      expect(birthCertificate.fields.length).toEqual(2);
+      expect(getField(birthCertificate, "name")?.value).toEqual("John Michael Doe");
+      expect(getField(birthCertificate, "birthDate")?.value).toEqual("5/15/1990, 12:00:00 AM");
+    });
   });
 
   it("should parse contact", async () => {
-    // Cipher
-    const contact = getCipher(result, "Dr. Emily Chen");
-    expect(contact).toBeDefined();
-    expect(contact.type).toEqual(CipherType.SecureNote);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const contact = getCipher(result, "Dr. Emily Chen");
+      expect(contact).toBeDefined();
+      expect(contact.type).toEqual(CipherType.SecureNote);
 
-    // Properties
-    expect(contact.notes).toEqual("Primary care physician - office visits and consultations");
+      // Properties
+      expect(contact.notes).toEqual("Primary care physician - office visits and consultations");
 
-    // Fields
-    expect(contact.fields.length).toEqual(4);
-    expect(getField(contact, "name")?.value).toEqual("Emily Marie Chen");
-    expect(getField(contact, "company")?.value).toEqual("Springfield Medical Center");
-    expect(getField(contact, "email")?.value).toEqual("emily.chen@smc.org");
-    expect(getField(contact, "phone")?.value).toEqual("(AF) 5415558723 ext. 5577 (Work)");
+      // Fields
+      expect(contact.fields.length).toEqual(4);
+      expect(getField(contact, "name")?.value).toEqual("Emily Marie Chen");
+      expect(getField(contact, "company")?.value).toEqual("Springfield Medical Center");
+      expect(getField(contact, "email")?.value).toEqual("emily.chen@smc.org");
+      expect(getField(contact, "phone")?.value).toEqual("(AF) 5415558723 ext. 5577 (Work)");
+    });
   });
 
   it("should parse databaseCredentials", async () => {
-    // Cipher
-    const databaseCredentials = getCipher(result, "Production MySQL Database");
-    expect(databaseCredentials).toBeDefined();
-    expect(databaseCredentials.type).toEqual(CipherType.Login);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const databaseCredentials = getCipher(result, "Production MySQL Database");
+      expect(databaseCredentials).toBeDefined();
+      expect(databaseCredentials.type).toEqual(CipherType.Login);
 
-    // Properties
-    expect(databaseCredentials.notes).toEqual(
-      "Production database server for main application - handle with care",
-    );
-    expect(databaseCredentials.login.username).toEqual("db_admin");
-    expect(databaseCredentials.login.password).toEqual("SecureDb#2024$Pass");
+      // Properties
+      expect(databaseCredentials.notes).toEqual(
+        "Production database server for main application - handle with care",
+      );
+      expect(databaseCredentials.login.username).toEqual("db_admin");
+      expect(databaseCredentials.login.password).toEqual("SecureDb#2024$Pass");
 
-    // Fields
-    expect(databaseCredentials.fields.length).toEqual(3);
-    expect(getField(databaseCredentials, "type")?.value).toEqual("MySQL");
-    expect(getField(databaseCredentials, "Hostname")?.value).toEqual("db.production.company.com");
-    expect(getField(databaseCredentials, "Port")?.value).toEqual("3306");
+      // Fields
+      expect(databaseCredentials.fields.length).toEqual(3);
+      expect(getField(databaseCredentials, "type")?.value).toEqual("MySQL");
+      expect(getField(databaseCredentials, "Hostname")?.value).toEqual("db.production.company.com");
+      expect(getField(databaseCredentials, "Port")?.value).toEqual("3306");
+    });
   });
 
   it("should parse driverLicense", async () => {
-    // Cipher
-    const driverLicense = getCipher(result, "Oregon Driver's License");
-    expect(driverLicense).toBeDefined();
-    expect(driverLicense.type).toEqual(CipherType.SecureNote);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const driverLicense = getCipher(result, "Oregon Driver's License");
+      expect(driverLicense).toBeDefined();
+      expect(driverLicense.type).toEqual(CipherType.SecureNote);
 
-    // Properties
-    expect(driverLicense.notes).toEqual("Valid Oregon driver's license - Class C");
+      // Properties
+      expect(driverLicense.notes).toEqual("Valid Oregon driver's license - Class C");
 
-    // Fields
-    expect(driverLicense.fields.length).toEqual(4);
-    expect(getField(driverLicense, "dlNumber")?.value).toEqual("DL-7482693");
-    expect(getField(driverLicense, "name")?.value).toEqual("Robert William Anderson");
-    expect(getField(driverLicense, "birthDate")?.value).toEqual("3/15/1985, 12:00:00 AM");
-    expect(getField(driverLicense, "expirationDate")?.value).toEqual("3/15/2028, 12:00:00 AM");
+      // Fields
+      expect(driverLicense.fields.length).toEqual(4);
+      expect(getField(driverLicense, "dlNumber")?.value).toEqual("DL-7482693");
+      expect(getField(driverLicense, "name")?.value).toEqual("Robert William Anderson");
+      expect(getField(driverLicense, "birthDate")?.value).toEqual("3/15/1985, 12:00:00 AM");
+      expect(getField(driverLicense, "expirationDate")?.value).toEqual("3/15/2028, 12:00:00 AM");
+    });
   });
 
   it("should parse encryptedNotes", async () => {
-    // Cipher
-    const encryptedNotes = getCipher(result, "Important Meeting Notes");
-    expect(encryptedNotes).toBeDefined();
-    expect(encryptedNotes.type).toEqual(CipherType.SecureNote);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const encryptedNotes = getCipher(result, "Important Meeting Notes");
+      expect(encryptedNotes).toBeDefined();
+      expect(encryptedNotes.type).toEqual(CipherType.SecureNote);
 
-    // Properties
-    expect(encryptedNotes.notes).toEqual(
-      "Confidential meeting with executive team - requires follow-up by end of month",
-    );
+      // Properties
+      expect(encryptedNotes.notes).toEqual(
+        "Confidential meeting with executive team - requires follow-up by end of month",
+      );
 
-    // Fields
-    expect(encryptedNotes.fields.length).toEqual(2);
-    expect(getField(encryptedNotes, "note")?.value).toEqual(
-      "Q4 2024 Strategic Planning - Discussed budget allocations, team restructuring, and new product launch timeline",
-    );
-    expect(getField(encryptedNotes, "date")?.value).toEqual("10/15/2024, 12:00:00 AM");
+      // Fields
+      expect(encryptedNotes.fields.length).toEqual(2);
+      expect(getField(encryptedNotes, "note")?.value).toEqual(
+        "Q4 2024 Strategic Planning - Discussed budget allocations, team restructuring, and new product launch timeline",
+      );
+      expect(getField(encryptedNotes, "date")?.value).toEqual("10/15/2024, 12:00:00 AM");
+    });
   });
 
   it("should parse file", async () => {
-    // Cipher
-    const file = getCipher(result, "Project Proposal Document");
-    expect(file).toBeDefined();
-    expect(file.type).toEqual(CipherType.SecureNote);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const file = getCipher(result, "Project Proposal Document");
+      expect(file).toBeDefined();
+      expect(file.type).toEqual(CipherType.SecureNote);
 
-    // Properties
-    expect(file.notes).toEqual(
-      "Annual project proposal for Q1 2025 business development initiatives",
-    );
+      // Properties
+      expect(file.notes).toEqual(
+        "Annual project proposal for Q1 2025 business development initiatives",
+      );
 
-    // Fields
-    expect(file.fields.length).toEqual(0);
+      // Fields
+      expect(file.fields.length).toEqual(0);
+    });
   });
 
   it("should parse general", async () => {
-    // Cipher
-    const general = getCipher(result, "General Information Record");
-    expect(general).toBeDefined();
-    expect(general.type).toEqual(CipherType.Login);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const general = getCipher(result, "General Information Record");
+      expect(general).toBeDefined();
+      expect(general.type).toEqual(CipherType.Login);
 
-    // Properties
-    expect(general.notes).toEqual(
-      "General purpose record for miscellaneous information and credentials",
-    );
-    expect(general.login.username).toEqual("general_user@example.com");
-    expect(general.login.password).toEqual("GeneralPass#2024!Secure");
-    expect(general.login.uri).toEqual("https://general.example.com");
-    expect(general.login.totp).toContain("otpauth://totp/");
+      // Properties
+      expect(general.notes).toEqual(
+        "General purpose record for miscellaneous information and credentials",
+      );
+      expect(general.login.username).toEqual("general_user@example.com");
+      expect(general.login.password).toEqual("GeneralPass#2024!Secure");
+      expect(general.login.uri).toEqual("https://general.example.com");
+      expect(general.login.totp).toContain("otpauth://totp/");
 
-    // Fields
-    expect(general.fields.length).toEqual(0);
+      // Fields
+      expect(general.fields.length).toEqual(0);
+    });
   });
 
   it("should parse healthInsurance", async () => {
-    // Cipher
-    const healthInsurance = getCipher(result, "Blue Cross Blue Shield");
-    expect(healthInsurance).toBeDefined();
-    expect(healthInsurance.type).toEqual(CipherType.Login);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const healthInsurance = getCipher(result, "Blue Cross Blue Shield");
+      expect(healthInsurance).toBeDefined();
+      expect(healthInsurance.type).toEqual(CipherType.Login);
 
-    // Properties
-    expect(healthInsurance.notes).toEqual(
-      "PPO plan with nationwide coverage - family deductible $2500",
-    );
-    expect(healthInsurance.login.username).toEqual("david.martinez@email.com");
-    expect(healthInsurance.login.password).toEqual("Health$ecure789");
-    expect(healthInsurance.login.uri).toEqual("https://www.bcbs.com");
+      // Properties
+      expect(healthInsurance.notes).toEqual(
+        "PPO plan with nationwide coverage - family deductible $2500",
+      );
+      expect(healthInsurance.login.username).toEqual("david.martinez@email.com");
+      expect(healthInsurance.login.password).toEqual("Health$ecure789");
+      expect(healthInsurance.login.uri).toEqual("https://www.bcbs.com");
 
-    // Fields
-    expect(healthInsurance.fields.length).toEqual(2);
-    expect(getField(healthInsurance, "accountNumber")?.value).toEqual("BCBS-12345678");
-    expect(getField(healthInsurance, "insuredsName")?.value).toEqual("David Alan Martinez");
+      // Fields
+      expect(healthInsurance.fields.length).toEqual(2);
+      expect(getField(healthInsurance, "accountNumber")?.value).toEqual("BCBS-12345678");
+      expect(getField(healthInsurance, "insuredsName")?.value).toEqual("David Alan Martinez");
+    });
   });
 
   it("should parse login", async () => {
-    // Cipher
-    const login = getCipher(result, "Amazon Account");
-    expect(login).toBeDefined();
-    expect(login.type).toEqual(CipherType.Login);
-    expect(login.login.totp).toContain("otpauth://totp/");
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const login = getCipher(result, "Amazon Account");
+      expect(login).toBeDefined();
+      expect(login.type).toEqual(CipherType.Login);
+      expect(login.login.totp).toContain("otpauth://totp/");
 
-    // Properties
-    expect(login.notes).toEqual("Primary Amazon account for online shopping and Prime membership");
-    expect(login.login.username).toEqual("john.martinez@email.com");
-    expect(login.login.password).toEqual("Sp@rkl3Sun!2024");
-    expect(login.login.uri).toEqual("https://www.amazon.com");
-    expect(login.login.uris.map((x) => x.uri)).toEqual([
-      "https://www.amazon.com",
-      "https://login.amazon.com",
-      "https://logout.amazon.com",
-      "https://account.amazon.com",
-      "https://profile.amazon.com",
-    ]);
+      // Properties
+      expect(login.notes).toEqual(
+        "Primary Amazon account for online shopping and Prime membership",
+      );
+      expect(login.login.username).toEqual("john.martinez@email.com");
+      expect(login.login.password).toEqual("Sp@rkl3Sun!2024");
+      expect(login.login.uri).toEqual("https://www.amazon.com");
+      expect(login.login.uris.map((x) => x.uri)).toEqual([
+        "https://www.amazon.com",
+        "https://login.amazon.com",
+        "https://logout.amazon.com",
+        "https://account.amazon.com",
+        "https://profile.amazon.com",
+      ]);
 
-    // Fields
-    expect(login.fields.length).toEqual(15);
+      // Fields
+      expect(login.fields.length).toEqual(15);
 
-    // 1
-    expect(getField(login, "some label")?.value).toEqual("some text");
+      // 1
+      expect(getField(login, "some label")?.value).toEqual("some text");
 
-    // 2
-    expect(getField(login, "some more text")?.value).toEqual(
-      "some lines\nsome more lines\nblah blah blah",
-    );
+      // 2
+      expect(getField(login, "some more text")?.value).toEqual(
+        "some lines\nsome more lines\nblah blah blah",
+      );
 
-    // 3
-    expect(getField(login, "pin-pin-pin")?.value).toEqual("1234");
-    expect(getField(login, "pin-pin-pin")?.type).toEqual(FieldType.Hidden);
+      // 3
+      expect(getField(login, "pin-pin-pin")?.value).toEqual("1234");
+      expect(getField(login, "pin-pin-pin")?.type).toEqual(FieldType.Hidden);
 
-    // 4-9
-    const questions = getFields(login, "Security question");
-    expect(questions.map((x) => x.value)).toEqual([
-      "how old were you when you were born?",
-      "how are you?",
-      "how old are you?",
-    ]);
-    const answers = getFields(login, "Security question answer");
-    expect(answers.map((x) => x.value)).toEqual(["zero", "good, thanks!", "five"]);
-    expect(answers.map((x) => x.type)).toEqual([
-      FieldType.Hidden,
-      FieldType.Hidden,
-      FieldType.Hidden,
-    ]);
+      // 4-9
+      const questions = getFields(login, "Security question");
+      expect(questions.map((x) => x.value)).toEqual([
+        "how old were you when you were born?",
+        "how are you?",
+        "how old are you?",
+      ]);
+      const answers = getFields(login, "Security question answer");
+      expect(answers.map((x) => x.value)).toEqual(["zero", "good, thanks!", "five"]);
+      expect(answers.map((x) => x.type)).toEqual([
+        FieldType.Hidden,
+        FieldType.Hidden,
+        FieldType.Hidden,
+      ]);
 
-    // 10-11
-    const phones = getFields(login, "phone");
-    expect(phones.map((x) => x.value)).toEqual([
-      "(AZ) 123123123 (Home)",
-      "(CZ) 555555555 ext. 444",
-    ]);
+      // 10-11
+      const phones = getFields(login, "phone");
+      expect(phones.map((x) => x.value)).toEqual([
+        "(AZ) 123123123 (Home)",
+        "(CZ) 555555555 ext. 444",
+      ]);
 
-    // 12
-    expect(getField(login, "some date")?.value).toEqual("11/30/2025, 9:50:48 PM");
+      // 12
+      expect(getField(login, "some date")?.value).toEqual("11/30/2025, 9:50:48 PM");
 
-    // 13
-    expect(getField(login, "email")?.value).toEqual("blah@blah.com");
+      // 13
+      expect(getField(login, "email")?.value).toEqual("blah@blah.com");
 
-    // 14
-    expect(getField(login, "someone")?.value).toEqual("Maria Smith");
+      // 14
+      expect(getField(login, "someone")?.value).toEqual("Maria Smith");
 
-    // 15
-    expect(getField(login, "special secret")?.value).toEqual("big secret");
-    expect(getField(login, "special secret")?.type).toEqual(FieldType.Hidden);
+      // 15
+      expect(getField(login, "special secret")?.value).toEqual("big secret");
+      expect(getField(login, "special secret")?.type).toEqual(FieldType.Hidden);
+    });
   });
 
   it("should parse membership", async () => {
-    // Cipher
-    const membership = getCipher(result, "LA Fitness Gym");
-    expect(membership).toBeDefined();
-    expect(membership.type).toEqual(CipherType.Login);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const membership = getCipher(result, "LA Fitness Gym");
+      expect(membership).toBeDefined();
+      expect(membership.type).toEqual(CipherType.Login);
 
-    // Properties
-    expect(membership.notes).toEqual(
-      "Annual membership - full gym access including pool and classes",
-    );
+      // Properties
+      expect(membership.notes).toEqual(
+        "Annual membership - full gym access including pool and classes",
+      );
 
-    // Fields
-    expect(membership.fields.length).toEqual(2);
-    expect(getField(membership, "accountNumber")?.value).toEqual("LAF-987654321");
-    expect(getField(membership, "name")?.value).toEqual("Lisa Marie Rodriguez");
+      // Fields
+      expect(membership.fields.length).toEqual(2);
+      expect(getField(membership, "accountNumber")?.value).toEqual("LAF-987654321");
+      expect(getField(membership, "name")?.value).toEqual("Lisa Marie Rodriguez");
+    });
   });
 
   it("should parse passport", async () => {
-    // Cipher
-    const passport = getCipher(result, "US Passport");
-    expect(passport).toBeDefined();
-    expect(passport.type).toEqual(CipherType.Login);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const passport = getCipher(result, "US Passport");
+      expect(passport).toBeDefined();
+      expect(passport.type).toEqual(CipherType.Login);
 
-    // Properties
-    expect(passport.notes).toEqual("Valid US passport for international travel");
+      // Properties
+      expect(passport.notes).toEqual("Valid US passport for international travel");
 
-    // Fields
-    expect(passport.fields.length).toEqual(5);
-    expect(getField(passport, "passportNumber")?.value).toEqual("543826194");
-    expect(getField(passport, "name")?.value).toEqual("Jennifer Lynn Williams");
-    expect(getField(passport, "birthDate")?.value).toEqual("7/22/1990, 12:00:00 AM");
-    expect(getField(passport, "expirationDate")?.value).toEqual("7/22/2033, 12:00:00 AM");
-    expect(getField(passport, "dateIssued")?.value).toEqual("8/15/2023, 12:00:00 AM");
+      // Fields
+      expect(passport.fields.length).toEqual(5);
+      expect(getField(passport, "passportNumber")?.value).toEqual("543826194");
+      expect(getField(passport, "name")?.value).toEqual("Jennifer Lynn Williams");
+      expect(getField(passport, "birthDate")?.value).toEqual("7/22/1990, 12:00:00 AM");
+      expect(getField(passport, "expirationDate")?.value).toEqual("7/22/2033, 12:00:00 AM");
+      expect(getField(passport, "dateIssued")?.value).toEqual("8/15/2023, 12:00:00 AM");
+    });
   });
 
   it("should parse photo", async () => {
-    // Cipher
-    const photo = getCipher(result, "Family Vacation 2024");
-    expect(photo).toBeDefined();
-    expect(photo.type).toEqual(CipherType.SecureNote);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const photo = getCipher(result, "Family Vacation 2024");
+      expect(photo).toBeDefined();
+      expect(photo.type).toEqual(CipherType.SecureNote);
 
-    // Properties
-    expect(photo.notes).toEqual("Summer vacation photos from Hawaii trip - scenic beach views");
+      // Properties
+      expect(photo.notes).toEqual("Summer vacation photos from Hawaii trip - scenic beach views");
 
-    // Fields
-    expect(photo.fields.length).toEqual(0);
+      // Fields
+      expect(photo.fields.length).toEqual(0);
+    });
   });
 
   it("should parse serverCredentials", async () => {
-    // Cipher
-    const serverCredentials = getCipher(result, "Web Server - Production");
-    expect(serverCredentials).toBeDefined();
-    expect(serverCredentials.type).toEqual(CipherType.Login);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const serverCredentials = getCipher(result, "Web Server - Production");
+      expect(serverCredentials).toBeDefined();
+      expect(serverCredentials.type).toEqual(CipherType.Login);
 
-    // Properties
-    expect(serverCredentials.notes).toEqual(
-      "Primary production web server - Apache 2.4.52 - Ubuntu 22.04",
-    );
-    expect(serverCredentials.login.username).toEqual("sysadmin");
-    expect(serverCredentials.login.password).toEqual("Srv#Prod2024!Sec");
+      // Properties
+      expect(serverCredentials.notes).toEqual(
+        "Primary production web server - Apache 2.4.52 - Ubuntu 22.04",
+      );
+      expect(serverCredentials.login.username).toEqual("sysadmin");
+      expect(serverCredentials.login.password).toEqual("Srv#Prod2024!Sec");
 
-    // Fields
-    expect(serverCredentials.fields.length).toEqual(2);
-    expect(getField(serverCredentials, "Hostname")?.value).toEqual("web01.company.com");
-    expect(getField(serverCredentials, "Port")?.value).toEqual("22");
+      // Fields
+      expect(serverCredentials.fields.length).toEqual(2);
+      expect(getField(serverCredentials, "Hostname")?.value).toEqual("web01.company.com");
+      expect(getField(serverCredentials, "Port")?.value).toEqual("22");
+    });
   });
 
   it("should parse softwareLicense", async () => {
-    // Cipher
-    const softwareLicense = getCipher(result, "Adobe Creative Cloud");
-    expect(softwareLicense).toBeDefined();
-    expect(softwareLicense.type).toEqual(CipherType.SecureNote);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const softwareLicense = getCipher(result, "Adobe Creative Cloud");
+      expect(softwareLicense).toBeDefined();
+      expect(softwareLicense.type).toEqual(CipherType.SecureNote);
 
-    // Properties
-    expect(softwareLicense.notes).toEqual(
-      "Annual subscription - full access to Photoshop, Illustrator, Premiere Pro",
-    );
+      // Properties
+      expect(softwareLicense.notes).toEqual(
+        "Annual subscription - full access to Photoshop, Illustrator, Premiere Pro",
+      );
 
-    // Fields
-    expect(softwareLicense.fields.length).toEqual(3);
-    expect(getField(softwareLicense, "licenseNumber")?.value).toEqual("ACDB-7849-2635-1947-8520");
-    expect(getField(softwareLicense, "expirationDate")?.value).toEqual("12/31/2025, 12:00:00 AM");
-    expect(getField(softwareLicense, "dateActive")?.value).toEqual("1/15/2024, 12:00:00 AM");
+      // Fields
+      expect(softwareLicense.fields.length).toEqual(3);
+      expect(getField(softwareLicense, "licenseNumber")?.value).toEqual("ACDB-7849-2635-1947-8520");
+      expect(getField(softwareLicense, "expirationDate")?.value).toEqual("12/31/2025, 12:00:00 AM");
+      expect(getField(softwareLicense, "dateActive")?.value).toEqual("1/15/2024, 12:00:00 AM");
+    });
   });
 
   it("should parse sshKeys", async () => {
-    // Cipher
-    const sshKey = getCipher(result, "Production Server SSH Key");
-    expect(sshKey).toBeDefined();
-    expect(sshKey.type).toEqual(CipherType.SshKey);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const sshKey = getCipher(result, "Production Server SSH Key");
+      expect(sshKey).toBeDefined();
+      expect(sshKey.type).toEqual(CipherType.SshKey);
 
-    // Properties
-    expect(sshKey.notes).toEqual("SSH key for production server deployment - RSA 2048 bit");
+      // Properties
+      expect(sshKey.notes).toEqual("SSH key for production server deployment - RSA 2048 bit");
 
-    // Fields
-    expect(sshKey.fields.length).toEqual(3);
-    expect(getField(sshKey, "Username")?.value).toEqual("deploy_user");
-    expect(getField(sshKey, "Hostname")?.value).toEqual("prod-server.company.com");
-    expect(getField(sshKey, "Port")?.value).toEqual("22");
+      // Fields
+      expect(sshKey.fields.length).toEqual(3);
+      expect(getField(sshKey, "Username")?.value).toEqual("deploy_user");
+      expect(getField(sshKey, "Hostname")?.value).toEqual("prod-server.company.com");
+      expect(getField(sshKey, "Port")?.value).toEqual("22");
+    });
   });
 
   it("should parse sshKeys with a passphrase", async () => {
-    // Cipher
-    const sshKey = getCipher(result, "Production Server SSH Key with a passphrase");
-    expect(sshKey).toBeDefined();
-    expect(sshKey.type).toEqual(CipherType.SshKey);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const sshKey = getCipher(result, "Production Server SSH Key with a passphrase");
+      expect(sshKey).toBeDefined();
+      expect(sshKey.type).toEqual(CipherType.SshKey);
 
-    // Properties
-    expect(sshKey.notes).toEqual("SSH key for production server deployment - RSA 2048 bit");
+      // Properties
+      expect(sshKey.notes).toEqual("SSH key for production server deployment - RSA 2048 bit");
 
-    // Fields
-    expect(sshKey.fields.length).toEqual(3);
-    expect(getField(sshKey, "Username")?.value).toEqual("deploy_user");
-    expect(getField(sshKey, "Hostname")?.value).toEqual("prod-server.company.com");
-    expect(getField(sshKey, "Port")?.value).toEqual("22");
+      // Fields
+      expect(sshKey.fields.length).toEqual(3);
+      expect(getField(sshKey, "Username")?.value).toEqual("deploy_user");
+      expect(getField(sshKey, "Hostname")?.value).toEqual("prod-server.company.com");
+      expect(getField(sshKey, "Port")?.value).toEqual("22");
+    });
   });
 
   it("should parse an invalid ssh key as secure note", async () => {
-    // Cipher
-    const secNote = getCipher(result, "Invalid SSH key");
-    expect(secNote).toBeDefined();
-    expect(secNote.type).toEqual(CipherType.SecureNote);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const secNote = getCipher(result, "Invalid SSH key");
+      expect(secNote).toBeDefined();
+      expect(secNote.type).toEqual(CipherType.SecureNote);
 
-    // Properties
-    expect(secNote.notes).toEqual("Broken ssh key");
+      // Properties
+      expect(secNote.notes).toEqual("Broken ssh key");
 
-    // Fields
-    expect(secNote.fields.length).toEqual(5);
-    expect(getField(secNote, "Public key")?.value).toEqual("blah blah public key");
-    expect(getField(secNote, "Private key")?.value).toEqual("blah blah blah private key");
-    expect(getField(secNote, "Passphrase")?.value).toEqual("blah-blah-blah");
-    expect(getField(secNote, "Hostname")?.value).toEqual("prod-server.company.com");
-    expect(getField(secNote, "Port")?.value).toEqual("22");
+      // Fields
+      expect(secNote.fields.length).toEqual(5);
+      expect(getField(secNote, "Public key")?.value).toEqual("blah blah public key");
+      expect(getField(secNote, "Private key")?.value).toEqual("blah blah blah private key");
+      expect(getField(secNote, "Passphrase")?.value).toEqual("blah-blah-blah");
+      expect(getField(secNote, "Hostname")?.value).toEqual("prod-server.company.com");
+      expect(getField(secNote, "Port")?.value).toEqual("22");
+    });
   });
 
   it("should parse ssnCard", async () => {
-    // Cipher
-    const ssnCard = getCipher(result, "National Identity Card");
-    expect(ssnCard).toBeDefined();
-    expect(ssnCard.type).toEqual(CipherType.SecureNote);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const ssnCard = getCipher(result, "National Identity Card");
+      expect(ssnCard).toBeDefined();
+      expect(ssnCard.type).toEqual(CipherType.SecureNote);
 
-    // Properties
-    expect(ssnCard.notes).toEqual("National identification card - Valid through 2028");
+      // Properties
+      expect(ssnCard.notes).toEqual("National identification card - Valid through 2028");
 
-    // Fields
-    expect(ssnCard.fields.length).toEqual(2);
-    expect(getField(ssnCard, "identityNumber")?.value).toEqual("ID-7849521");
-    expect(getField(ssnCard, "name")?.value).toEqual("Sarah Elizabeth Johnson");
+      // Fields
+      expect(ssnCard.fields.length).toEqual(2);
+      expect(getField(ssnCard, "identityNumber")?.value).toEqual("ID-7849521");
+      expect(getField(ssnCard, "name")?.value).toEqual("Sarah Elizabeth Johnson");
+    });
   });
+
   it("should parse wifiCredentials", async () => {
-    // Cipher
-    const wifiCredentials = getCipher(result, "Home Wi-Fi");
-    expect(wifiCredentials).toBeDefined();
-    expect(wifiCredentials.type).toEqual(CipherType.Login);
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const wifiCredentials = getCipher(result, "Home Wi-Fi");
+      expect(wifiCredentials).toBeDefined();
+      expect(wifiCredentials.type).toEqual(CipherType.Login);
 
-    // Properties
-    expect(wifiCredentials.notes).toEqual("My cozy home wi-fi");
-    expect(wifiCredentials.login.password).toEqual("secure-password-123");
+      // Properties
+      expect(wifiCredentials.notes).toEqual("My cozy home wi-fi");
+      expect(wifiCredentials.login.password).toEqual("secure-password-123");
 
-    // Fields
-    expect(wifiCredentials.fields.length).toEqual(1);
-    expect(getField(wifiCredentials, "SSID")?.value).toEqual("cozy-home-netz");
+      // Fields
+      expect(wifiCredentials.fields.length).toEqual(1);
+      expect(getField(wifiCredentials, "SSID")?.value).toEqual("cozy-home-netz");
+    });
   });
 
   it("should create folders and assigned ciphers to them", async () => {
-    const folders = result.folders;
-    expect(folders.length).toEqual(29);
+    [cliResult, webResult].forEach((result) => {
+      const folders = result.folders;
+      expect(folders.length).toEqual(29);
 
-    // Sort names and compare in bulk so we don't depend on specific ordering
-    const folderNames = folders.map((f) => f.name).sort((a, b) => a.localeCompare(b));
-    expect(folderNames).toEqual(allFolderNames);
+      // Sort names and compare in bulk so we don't depend on specific ordering
+      const folderNames = folders.map((f) => f.name).sort((a, b) => a.localeCompare(b));
+      expect(folderNames).toEqual(allFolderNames);
 
-    // No collections should be created outside of org context
-    expect(result.collections.length).toEqual(0);
+      // No collections should be created outside of org context
+      expect(result.collections.length).toEqual(0);
 
-    // Folder relationships
-    assertInFolder(result, "Home Address", "Personal/Finance/Banking");
-    assertInFolder(
-      result,
-      "Production Server SSH Key",
-      "Development/Name-with-both-slashes/Android",
-    );
-    assertInFolder(result, "Chase Visa", "Work/Projects/2025/Q4");
-    assertInFolder(result, "John Doe Birth Certificate", "Work/Documents");
+      // Folder relationships
+      assertInFolder(result, "Home Address", "Personal/Finance/Banking");
+      assertInFolder(
+        result,
+        "Production Server SSH Key",
+        "Development/Name-with-both-slashes/Android",
+      );
+      assertInFolder(result, "Chase Visa", "Work/Projects/2025/Q4");
+      assertInFolder(result, "John Doe Birth Certificate", "Work/Documents");
 
-    // In two folders at the same time
-    assertInFolder(
-      result,
-      "Production MySQL Database",
-      "Development/Name-with-both-slashes/Name-with-forward-slashes/Name-with-backslashes",
-    );
-    assertInFolder(
-      result,
-      "Production MySQL Database",
-      "Development/Name-with-both-slashes/Name-with-forward-slashes",
-    );
+      // In two folders at the same time
+      assertInFolder(
+        result,
+        "Production MySQL Database",
+        "Development/Name-with-both-slashes/Name-with-forward-slashes/Name-with-backslashes",
+      );
+      assertInFolder(
+        result,
+        "Production MySQL Database",
+        "Development/Name-with-both-slashes/Name-with-forward-slashes",
+      );
+    });
   });
+
+  //
+  // Org parser tests
+  //
 
   it("should create collections if part of an organization", async () => {
     const folders = orgResult.collections;
