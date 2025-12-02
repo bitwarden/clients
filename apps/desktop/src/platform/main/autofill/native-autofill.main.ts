@@ -84,6 +84,17 @@ export class NativeAutofillMain {
       },
     );
 
+    ipcMain.handle(
+      "autofill.transferFocus",
+      (
+        _event: any,
+        handle: Uint8Array,
+      ): Promise<void> => {
+        return this.transferFocus(handle);
+      },
+    );
+
+
     this.ipcServer = await autofill.IpcServer.listen(
       "af",
       // RegistrationCallback
@@ -227,5 +238,11 @@ export class NativeAutofillMain {
 
       return { type: "error", error: String(e) } as RunCommandResult<C>;
     }
+  }
+
+  private transferFocus(handle: Uint8Array): Promise<void> {
+    const h = Array.from(handle);
+    this.logService.debug("Transferring focus to", h);
+    return autofill.transferFocus(h);
   }
 }

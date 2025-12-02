@@ -147,6 +147,7 @@ export declare namespace autostart {
 }
 export declare namespace autofill {
   export function runCommand(value: string): Promise<string>
+  export function transferFocus(handle: Array<number>): Promise<void>
   export const enum UserVerification {
     Preferred = 'preferred',
     Required = 'required',

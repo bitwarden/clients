@@ -938,6 +938,7 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-subscriber",
+ "windows 0.61.3",
  "windows-registry",
  "windows_plugin_authenticator",
 ]

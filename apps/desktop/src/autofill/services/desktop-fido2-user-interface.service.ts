@@ -383,9 +383,11 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     // TODO: modalState is just a proxy for what we actually want: whether the window is visible.
     // We should add a way for services to query window visibility.
     const modalState = await firstValueFrom(this.desktopSettingsService.modalMode$);
-    const windowHandle = modalState.isModalModeActive ? await ipc.platform.getNativeWindowHandle() : this.windowObject.handle;
-
-    const uvRequest = ipc.autofill.runCommand<NativeAutofillUserVerificationCommand>({
+    await ipc.autofill.transferFocus(windowHandle);
+    // Ensure our window is hidden when showing the OS user verification dialog.
+    this.logService.debug("Hiding UI");
+    this.hideUi();
+    const uvResult = await ipc.autofill.runCommand<NativeAutofillUserVerificationCommand>({
       namespace: "autofill",
       command: "user-verification",
       params: {
@@ -395,12 +397,6 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         displayHint,
       },
     });
-    // Ensure our window is hidden when showing the OS user verification dialog.
-    // TODO: This is prone to data races and, on Windows, may cause the Windows
-    // Hello dialog not to have keyboard input focus. We need a better solution
-    // than this.
-    this.hideUi();
-    const uvResult = await uvRequest;
     if (uvResult.type === "error") {
       this.logService.error("Error getting user verification", uvResult.error);
       return false;

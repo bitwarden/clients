@@ -636,10 +636,18 @@ pub mod autofill {
     use serde::{de::DeserializeOwned, Deserialize, Serialize};
     use tracing::error;
 
+    use crate::passkey_authenticator_internal;
+
     #[napi]
     pub async fn run_command(value: String) -> napi::Result<String> {
         desktop_core::autofill::run_command(value)
             .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn transfer_focus(handle: Vec<u8>) -> napi::Result<()> {
+        passkey_authenticator_internal::transfer_focus(handle)
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
