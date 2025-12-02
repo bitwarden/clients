@@ -63,7 +63,7 @@ describe("Password Depot 17 Xml Importer", () => {
     const result = await importer.parse(PasswordTestData);
     expect(result.folders).toEqual([
       expect.objectContaining({
-        id: "",
+        id: null,
         name: "tempDB",
         revisionDate: expect.any(Date),
       }),
