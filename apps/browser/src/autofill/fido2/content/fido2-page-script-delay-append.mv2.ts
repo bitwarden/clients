@@ -2,7 +2,7 @@
  * This script handles injection of the FIDO2 override page script into the document.
  * This is required for manifest v2, but will be removed when we migrate fully to manifest v3.
  */
-void (async function (globalContext) {
+(function (globalContext) {
   if (globalContext.document.contentType !== "text/html") {
     return;
   }
