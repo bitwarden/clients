@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogRef, AsyncActionsModule, ButtonModule, DialogModule } from "@bitwarden/components";
 import type { chromium_importer } from "@bitwarden/desktop-napi";
 import { ImportMetadataServiceAbstraction } from "@bitwarden/importer-core";
@@ -42,7 +43,10 @@ export class ImportDesktopComponent {
   protected readonly onLoadProfilesFromBrowser = this._onLoadProfilesFromBrowser.bind(this);
   protected readonly onImportFromBrowser = this._onImportFromBrowser.bind(this);
 
-  constructor(public dialogRef: DialogRef) {}
+  constructor(
+    public dialogRef: DialogRef,
+    private i18nService: I18nService,
+  ) {}
 
   /**
    * Callback that is called after a successful import.
@@ -54,8 +58,12 @@ export class ImportDesktopComponent {
   private async _onLoadProfilesFromBrowser(
     browser: string,
   ): Promise<chromium_importer.ProfileInfo[]> {
-    // Request browser access (required for sandboxed builds, no-op otherwise)
-    await ipc.tools.chromiumImporter.requestBrowserAccess(browser);
+    try {
+      // Request browser access (required for sandboxed builds, no-op otherwise)
+      await ipc.tools.chromiumImporter.requestBrowserAccess(browser);
+    } catch {
+      throw new Error(this.i18nService.t("browserAccessDenied"));
+    }
     return ipc.tools.chromiumImporter.getAvailableProfiles(browser);
   }
 

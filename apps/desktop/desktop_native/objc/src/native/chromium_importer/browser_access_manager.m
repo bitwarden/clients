@@ -14,17 +14,13 @@
 }
 
 - (NSString *)requestAccessToBrowserDir:(NSString *)browserName relativePath:(NSString *)relativePath {
-    // NSLog(@"[OBJC] requestAccessToBrowserDir called for: %@", browserName);
-
+    
     if (!relativePath) {
-        // NSLog(@"[OBJC] Unknown browser: %@", browserName);
         return nil;
     }
 
     NSURL *homeDir = [[NSFileManager defaultManager] homeDirectoryForCurrentUser];
     NSURL *browserPath = [homeDir URLByAppendingPathComponent:relativePath];
-
-    // NSLog(@"[OBJC] Browser path: %@", browserPath.path);
 
     // NSOpenPanel must be run on the main thread
     __block NSURL *selectedURL = nil;
@@ -41,31 +37,22 @@
         openPanel.canChooseFiles = NO;
         openPanel.directoryURL = browserPath;
 
-        // NSLog(@"[OBJC] About to call runModal");
         panelResult = [openPanel runModal];
         selectedURL = openPanel.URL;
-        // NSLog(@"[OBJC] runModal returned: %ld", (long)panelResult);
     };
 
     if ([NSThread isMainThread]) {
-        // NSLog(@"[OBJC] Already on main thread");
         showPanel();
     } else {
-        // NSLog(@"[OBJC] Dispatching to main queue...");
         dispatch_sync(dispatch_get_main_queue(), showPanel);
     }
 
     if (panelResult != NSModalResponseOK || !selectedURL) {
-        // NSLog(@"[OBJC] User cancelled access request or panel failed");
         return nil;
     }
 
-    // NSLog(@"[OBJC] User selected URL: %@", selectedURL.path);
-
     NSURL *localStatePath = [selectedURL URLByAppendingPathComponent:@"Local State"];
     if (![[NSFileManager defaultManager] fileExistsAtPath:localStatePath.path]) {
-        // NSLog(@"[OBJC] Selected folder doesn't appear to be a valid %@ directory", browserName);
-
         NSAlert *alert = [[NSAlert alloc] init];
         alert.messageText = @"Invalid Folder";
         alert.informativeText = [NSString stringWithFormat:
@@ -85,12 +72,10 @@
                                             error:&error];
 
     if (!bookmarkData) {
-        // NSLog(@"[OBJC] Failed to create bookmark: %@", error);
         return nil;
     }
 
     [self saveBookmark:bookmarkData forBrowser:browserName];
-    // NSLog(@"[OBJC] Successfully created and saved bookmark");
     return [bookmarkData base64EncodedStringWithOptions:0];
 }
 
@@ -113,19 +98,16 @@
                             error:&error];
 
     if (!url) {
-        // NSLog(@"Failed to resolve bookmark: %@", error);
         return nil;
     }
 
     if (isStale) {
-        // NSLog(@"Security bookmark for %@ is stale, attempting to re-create it", browserName);
         NSData *newBookmarkData = [url bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope
                                             includingResourceValuesForKeys:nil
                                             relativeToURL:nil
                                             error:&error];
 
         if (!newBookmarkData) {
-            // NSLog(@"Failed to create bookmark: %@", error);
             return nil;
         }
 
@@ -133,7 +115,6 @@
     }
 
     if (![url startAccessingSecurityScopedResource]) {
-        // NSLog(@"Failed to start accessing security-scoped resource");
         return nil;
     }
 
@@ -155,7 +136,6 @@
                                 error:&error];
 
     if (!url) {
-        // NSLog(@"Failed to resolve bookmark for stop: %@", error);
         return;
     }
 
