@@ -262,11 +262,29 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    */
   private notificationDataIncompleteOnBeforeRequest = (tabId: number) => {
     const modifyLoginData = this.modifyLoginCipherFormData.get(tabId);
-    return (
-      !modifyLoginData ||
-      !this.shouldAttemptNotification(modifyLoginData, NotificationTypes.Add) ||
-      !this.shouldAttemptNotification(modifyLoginData, NotificationTypes.Change)
+    if (!modifyLoginData) {
+      return true;
+    }
+
+    const shouldAttemptAddNotification = this.shouldAttemptNotification(
+      modifyLoginData,
+      NotificationTypes.Add,
     );
+
+    if (!shouldAttemptAddNotification) {
+      return true;
+    }
+
+    const shouldAttemptChangeNotification = this.shouldAttemptNotification(
+      modifyLoginData,
+      NotificationTypes.Change,
+    );
+
+    if (!shouldAttemptChangeNotification) {
+      return true;
+    }
+
+    return false;
   };
 
   /**
@@ -454,15 +472,17 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     modifyLoginData: ModifyLoginCipherFormData,
     notificationType: NotificationType,
   ): boolean => {
+    const usernameFieldHasValue = !!(modifyLoginData?.username || "").length;
+    const passwordFieldHasValue = !!(modifyLoginData?.password || "").length;
+    const newPasswordFieldHasValue = !!(modifyLoginData?.newPassword || "").length;
+
     switch (notificationType) {
       case NotificationTypes.Add:
-        return (
-          modifyLoginData?.username && !!(modifyLoginData.password || modifyLoginData.newPassword)
-        );
+        return usernameFieldHasValue && (passwordFieldHasValue || newPasswordFieldHasValue);
       case NotificationTypes.Change:
-        return !!(modifyLoginData.password || modifyLoginData.newPassword);
+        return passwordFieldHasValue || newPasswordFieldHasValue;
       case NotificationTypes.AtRiskPassword:
-        return !modifyLoginData.newPassword;
+        return !newPasswordFieldHasValue;
       case NotificationTypes.Unlock:
         // Unlock notifications are handled separately and do not require form data
         return false;
