@@ -94,12 +94,11 @@ pub fn request_browser_access(browser_name: &str, mas_build: bool) -> Result<()>
 pub async fn import_logins(
     browser_name: &str,
     profile_id: &str,
-    #[cfg(target_os = "macos")]
-    mas_build: bool,
+    _mas_build: bool,
 ) -> Result<Vec<LoginImportResult>> {
     // MAS builds will use the formerly created security bookmark
     #[cfg(target_os = "macos")]
-    let _access = if mas_build {
+    let _access = if _mas_build {
         Some(platform::sandbox::ScopedBrowserAccess::resume(
             browser_name,
         )?)
