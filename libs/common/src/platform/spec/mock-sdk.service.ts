@@ -7,7 +7,7 @@ import {
   throwIfEmpty,
 } from "rxjs";
 
-import { BitwardenClient } from "@bitwarden/sdk-internal";
+import { PasswordManagerClient } from "@bitwarden/sdk-internal";
 
 import { UserId } from "../../types/guid";
 import { SdkService, UserNotLoggedInError } from "../abstractions/sdk/sdk.service";
@@ -17,18 +17,18 @@ import { DeepMockProxy, mockDeep } from "./mock-deep";
 
 export class MockSdkService implements SdkService {
   private userClients$ = new BehaviorSubject<{
-    [userId: UserId]: Rc<BitwardenClient> | undefined;
+    [userId: UserId]: Rc<PasswordManagerClient> | undefined;
   }>({});
 
-  private _client$ = new BehaviorSubject(mockDeep<BitwardenClient>());
+  private _client$ = new BehaviorSubject(mockDeep<PasswordManagerClient>());
   client$ = this._client$.asObservable();
 
   version$ = new BehaviorSubject("0.0.1-test").asObservable();
 
-  userClient$(userId: UserId): Observable<Rc<BitwardenClient>> {
+  userClient$(userId: UserId): Observable<Rc<PasswordManagerClient>> {
     return this.userClients$.pipe(
       takeWhile((clients) => clients[userId] !== undefined, false),
-      map((clients) => clients[userId] as Rc<BitwardenClient>),
+      map((clients) => clients[userId] as Rc<PasswordManagerClient>),
       distinctUntilChanged(),
       throwIfEmpty(() => new UserNotLoggedInError(userId)),
     );
@@ -42,7 +42,7 @@ export class MockSdkService implements SdkService {
    * Returns the non-user scoped client mock.
    * This is what is returned by the `client$` observable.
    */
-  get client(): DeepMockProxy<BitwardenClient> {
+  get client(): DeepMockProxy<PasswordManagerClient> {
     return this._client$.value;
   }
 
@@ -55,7 +55,7 @@ export class MockSdkService implements SdkService {
      * @returns A user-scoped mock for the user.
      */
     userLogin: (userId: UserId) => {
-      const client = mockDeep<BitwardenClient>();
+      const client = mockDeep<PasswordManagerClient>();
       this.userClients$.next({
         ...this.userClients$.getValue(),
         [userId]: new Rc(client),

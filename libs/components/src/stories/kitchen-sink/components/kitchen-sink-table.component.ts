@@ -57,4 +57,4 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
     </bit-table>
   `,
 })
-export class KitchenSinkTable {}
+export class KitchenSinkTableComponent {}

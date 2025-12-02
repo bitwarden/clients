@@ -19,6 +19,7 @@ export class UriMatchDefaultPolicy extends BasePolicyEditDefinition {
   component = UriMatchDefaultPolicyComponent;
 }
 @Component({
+  selector: "uri-match-default-policy-edit",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "uri-match-default.component.html",
   imports: [SharedModule],

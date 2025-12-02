@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "",
   "scripts": {
-    "build": "napi build --platform --js false",
+    "build": "node scripts/build.js",
     "test": "cargo test"
   },
   "author": "",

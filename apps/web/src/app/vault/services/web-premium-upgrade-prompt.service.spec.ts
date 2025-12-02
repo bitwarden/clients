@@ -187,6 +187,13 @@ describe("WebVaultPremiumUpgradePromptService", () => {
         expect(routerMock.navigate).toHaveBeenCalledWith(["settings/subscription/premium"]);
         expect(dialogServiceMock.openSimpleDialog).not.toHaveBeenCalled();
       });
+
+      it("should close dialog when redirecting to subscription page", async () => {
+        await service.promptForPremium();
+
+        expect(dialogRefMock.close).toHaveBeenCalledWith(VaultItemDialogResult.PremiumUpgrade);
+        expect(routerMock.navigate).toHaveBeenCalledWith(["settings/subscription/premium"]);
+      });
     });
 
     describe("when not self-hosted", () => {

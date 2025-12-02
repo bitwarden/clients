@@ -2,6 +2,7 @@ use bitwarden_russh::ssh_agent;
 pub mod named_pipe_listener_stream;
 
 use std::sync::Arc;
+
 use tokio::sync::Mutex;
 
 use super::{BitwardenDesktopAgent, SshAgentUIRequest};

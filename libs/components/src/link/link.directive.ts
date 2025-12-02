@@ -25,7 +25,7 @@ const commonStyles = [
   "tw-leading-none",
   "tw-px-0",
   "tw-py-0.5",
-  "tw-font-medium",
+  "tw-font-semibold",
   "tw-bg-transparent",
   "tw-border-0",
   "tw-border-none",
