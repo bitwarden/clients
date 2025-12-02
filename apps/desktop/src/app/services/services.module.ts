@@ -146,6 +146,7 @@ import { BiometricMessageHandlerService } from "../../services/biometric-message
 import { DuckDuckGoMessageHandlerService } from "../../services/duckduckgo-message-handler.service";
 import { EncryptedMessageHandlerService } from "../../services/encrypted-message-handler.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
+import { isWindowsPortable } from "../../utils";
 import { SearchBarService } from "../layout/search/search-bar.service";
 
 import { DesktopFileDownloadService } from "./desktop-file-download.service";
@@ -200,8 +201,11 @@ const safeProviders: SafeProvider[] = [
     // We manually override the value of SUPPORTS_SECURE_STORAGE here to avoid
     // the TokenService having to inject the PlatformUtilsService which introduces a
     // circular dependency on Desktop only.
+    //
+    // Note: Portable mode does not use secure storage for read/write/clear operations,
+    // preventing any collision with tokens from a regular desktop installation.
     provide: SUPPORTS_SECURE_STORAGE,
-    useValue: ELECTRON_SUPPORTS_SECURE_STORAGE,
+    useValue: ELECTRON_SUPPORTS_SECURE_STORAGE && !isWindowsPortable(),
   }),
   safeProvider({
     provide: DEFAULT_VAULT_TIMEOUT,
