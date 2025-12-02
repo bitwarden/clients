@@ -6,11 +6,11 @@ import {
 } from "@angular/cdk/overlay";
 import { ComponentPortal } from "@angular/cdk/portal";
 import { Component } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { Observable, Subject } from "rxjs";
 
-import { TooltipDirective } from "./tooltip.directive";
+import { TooltipDirective, TOOLTIP_DELAY_MS } from "./tooltip.directive";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -90,23 +90,25 @@ describe("TooltipDirective (visibility only)", () => {
     return hostDE.injector.get(TooltipDirective);
   }
 
-  it("sets isVisible to true on mouseenter", () => {
+  it("sets isVisible to true on mouseenter", fakeAsync(() => {
     const button: HTMLButtonElement = fixture.debugElement.query(By.css("button")).nativeElement;
     const directive = getDirective();
 
     const isVisible = (directive as unknown as { isVisible: () => boolean }).isVisible;
 
     button.dispatchEvent(new Event("mouseenter"));
+    tick(TOOLTIP_DELAY_MS);
     expect(isVisible()).toBe(true);
-  });
+  }));
 
-  it("sets isVisible to true on focus", () => {
+  it("sets isVisible to true on focus", fakeAsync(() => {
     const button: HTMLButtonElement = fixture.debugElement.query(By.css("button")).nativeElement;
     const directive = getDirective();
 
     const isVisible = (directive as unknown as { isVisible: () => boolean }).isVisible;
 
     button.dispatchEvent(new Event("focus"));
+    tick(TOOLTIP_DELAY_MS);
     expect(isVisible()).toBe(true);
-  });
+  }));
 });

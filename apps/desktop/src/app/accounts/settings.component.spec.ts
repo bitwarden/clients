@@ -302,7 +302,6 @@ describe("SettingsComponent", () => {
     describe("windows desktop", () => {
       beforeEach(() => {
         platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
-        desktopBiometricsService.isWindowsV2BiometricsEnabled.mockResolvedValue(true);
 
         // Recreate component to apply the correct device
         fixture = TestBed.createComponent(SettingsComponent);
@@ -449,7 +448,6 @@ describe("SettingsComponent", () => {
             desktopBiometricsService.hasPersistentKey.mockResolvedValue(enrolled);
 
             await component.ngOnInit();
-            component.isWindowsV2BiometricsEnabled = true;
             component.isWindows = true;
             component.form.value.requireMasterPasswordOnAppRestart = true;
             component.userHasMasterPassword = false;
@@ -558,7 +556,6 @@ describe("SettingsComponent", () => {
             desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
 
             await component.ngOnInit();
-            component.isWindowsV2BiometricsEnabled = true;
             component.isWindows = true;
             component.form.value.requireMasterPasswordOnAppRestart =
               requireMasterPasswordOnAppRestart;
@@ -659,6 +656,7 @@ describe("SettingsComponent", () => {
       describe("windows test cases", () => {
         beforeEach(() => {
           platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+          keyService.userKey$ = jest.fn().mockReturnValue(of(mockUserKey));
           component.isWindows = true;
           component.isLinux = false;
 
@@ -683,8 +681,6 @@ describe("SettingsComponent", () => {
 
         describe("when windows v2 biometrics is enabled", () => {
           beforeEach(() => {
-            component.isWindowsV2BiometricsEnabled = true;
-
             keyService.userKey$ = jest.fn().mockReturnValue(of(mockUserKey));
           });
 
