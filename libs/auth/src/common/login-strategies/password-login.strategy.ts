@@ -79,7 +79,10 @@ export class PasswordLoginStrategy extends LoginStrategy {
     const { email, masterPassword, twoFactor } = credentials;
 
     const data = new PasswordLoginStrategyData();
-    data.masterKey = await this.loginStrategyService.makePreloginKey(masterPassword, email);
+    data.masterKey = await this.loginStrategyService.makePasswordPreLoginMasterKey(
+      masterPassword,
+      email,
+    );
     data.userEnteredEmail = email;
 
     // Hash the password early (before authentication) so we don't persist it in memory in plaintext

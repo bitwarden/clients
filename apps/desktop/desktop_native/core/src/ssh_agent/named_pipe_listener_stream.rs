@@ -1,7 +1,6 @@
-use futures::Stream;
-use std::os::windows::prelude::AsRawHandle as _;
 use std::{
     io,
+    os::windows::prelude::AsRawHandle as _,
     pin::Pin,
     sync::{
         atomic::{AtomicBool, Ordering},
@@ -9,6 +8,8 @@ use std::{
     },
     task::{Context, Poll},
 };
+
+use futures::Stream;
 use tokio::{
     net::windows::named_pipe::{NamedPipeServer, ServerOptions},
     select,

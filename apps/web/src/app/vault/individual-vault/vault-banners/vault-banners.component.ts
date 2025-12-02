@@ -1,10 +1,12 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { filter, firstValueFrom, map, Observable, switchMap } from "rxjs";
+import { combineLatest, filter, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BannerModule } from "@bitwarden/components";
@@ -15,6 +17,8 @@ import { SharedModule } from "../../../shared";
 
 import { VaultBannersService, VisibleVaultBanner } from "./services/vault-banners.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-banners",
   templateUrl: "./vault-banners.component.html",
@@ -30,6 +34,8 @@ export class VaultBannersComponent implements OnInit {
   visibleBanners: VisibleVaultBanner[] = [];
   premiumBannerVisible$: Observable<boolean>;
   VisibleVaultBanner = VisibleVaultBanner;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() organizations: Organization[] = [];
 
   private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
@@ -39,10 +45,21 @@ export class VaultBannersComponent implements OnInit {
     private router: Router,
     private accountService: AccountService,
     private messageListener: MessageListener,
+    private configService: ConfigService,
   ) {
     this.premiumBannerVisible$ = this.activeUserId$.pipe(
       filter((userId): userId is UserId => userId != null),
-      switchMap((userId) => this.vaultBannerService.shouldShowPremiumBanner$(userId)),
+      switchMap((userId) =>
+        combineLatest([
+          this.vaultBannerService.shouldShowPremiumBanner$(userId),
+          this.configService.getFeatureFlag$(FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog),
+        ]).pipe(
+          map(
+            ([shouldShowBanner, PM24996_ImplementUpgradeFromFreeDialogEnabled]) =>
+              shouldShowBanner && !PM24996_ImplementUpgradeFromFreeDialogEnabled,
+          ),
+        ),
+      ),
     );
 
     // Listen for auth request messages and show banner immediately

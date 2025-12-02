@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -19,7 +19,9 @@ export class DesktopAutotypeDefaultSettingPolicy extends BasePolicyEditDefinitio
   }
 }
 @Component({
+  selector: "autotype-policy-edit",
   templateUrl: "autotype-policy.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DesktopAutotypeDefaultSettingPolicyComponent extends BasePolicyEditComponent {}

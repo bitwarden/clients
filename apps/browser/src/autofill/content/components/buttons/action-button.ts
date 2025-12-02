@@ -68,7 +68,7 @@ const actionButtonStyles = ({
   overflow: hidden;
   text-align: center;
   text-overflow: ellipsis;
-  font-weight: 700;
+  font-weight: 500;
 
   ${disabled || isLoading
     ? `

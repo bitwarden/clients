@@ -26,13 +26,21 @@ import { FakeAccountService, mockAccountServiceWith } from "../../../../../commo
 import { CipherAttachmentsComponent } from "./cipher-attachments.component";
 import { DeleteAttachmentComponent } from "./delete-attachment/delete-attachment.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-download-attachment",
   template: "",
 })
 class MockDownloadAttachmentComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() attachment: AttachmentView;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() cipher: CipherView;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() admin: boolean = false;
 }
 
@@ -238,6 +246,49 @@ describe("CipherAttachmentsComponent", () => {
           variant: "error",
           title: "errorOccurred",
           message: "maxFileSize",
+        });
+      });
+
+      it("shows error toast with server message when saveAttachmentWithServer fails", async () => {
+        const file = { size: 100 } as File;
+        component.attachmentForm.controls.file.setValue(file);
+
+        const serverError = new Error("Cipher has been modified by another client");
+        saveAttachmentWithServer.mockRejectedValue(serverError);
+
+        await component.submit();
+
+        expect(showToast).toHaveBeenCalledWith({
+          variant: "error",
+          message: "Cipher has been modified by another client",
+        });
+      });
+
+      it("shows error toast with fallback message when error has no message property", async () => {
+        const file = { size: 100 } as File;
+        component.attachmentForm.controls.file.setValue(file);
+
+        saveAttachmentWithServer.mockRejectedValue({ code: "UNKNOWN_ERROR" });
+
+        await component.submit();
+
+        expect(showToast).toHaveBeenCalledWith({
+          variant: "error",
+          message: "unexpectedError",
+        });
+      });
+
+      it("shows error toast with string error message", async () => {
+        const file = { size: 100 } as File;
+        component.attachmentForm.controls.file.setValue(file);
+
+        saveAttachmentWithServer.mockRejectedValue("Network connection failed");
+
+        await component.submit();
+
+        expect(showToast).toHaveBeenCalledWith({
+          variant: "error",
+          message: "Network connection failed",
         });
       });
     });

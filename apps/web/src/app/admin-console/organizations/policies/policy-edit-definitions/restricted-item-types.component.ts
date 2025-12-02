@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 
@@ -13,8 +13,10 @@ export class RestrictedItemTypesPolicy extends BasePolicyEditDefinition {
 }
 
 @Component({
+  selector: "restricted-item-types-policy-edit",
   templateUrl: "restricted-item-types.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RestrictedItemTypesPolicyComponent extends BasePolicyEditComponent {
   constructor() {

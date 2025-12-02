@@ -36,6 +36,8 @@ import {
 
 import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-autofill-uri-option",
   templateUrl: "./uri-option.component.html",
@@ -58,9 +60,13 @@ import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.c
   ],
 })
 export class UriOptionComponent implements ControlValueAccessor {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("uriInput")
   private inputElement: ElementRef<HTMLInputElement>;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("matchDetectionSelect")
   private matchDetectionSelect: SelectComponent<UriMatchStrategySetting>;
 
@@ -92,18 +98,24 @@ export class UriOptionComponent implements ControlValueAccessor {
   /**
    * Whether the option can be reordered. If false, the reorder button will be hidden.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true })
   canReorder: boolean;
 
   /**
    * Whether the URI can be removed from the form. If false, the remove button will be hidden.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true })
   canRemove: boolean;
 
   /**
    * The user's current default match detection strategy. Will be displayed in () after "Default"
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true })
   set defaultMatchDetection(value: UriMatchStrategySetting) {
     // The default selection has a value of `null` avoid showing "Default (Default)"
@@ -112,7 +124,7 @@ export class UriOptionComponent implements ControlValueAccessor {
     }
 
     this.uriMatchOptions[0].label = this.i18nService.t(
-      "defaultLabel",
+      "defaultLabelWithValue",
       this.uriMatchOptions.find((o) => o.value === value)?.label,
     );
   }
@@ -120,14 +132,20 @@ export class UriOptionComponent implements ControlValueAccessor {
   /**
    * The index of the URI in the form. Used to render the correct label.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) index: number;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   onKeydown = new EventEmitter<KeyboardEvent>();
 
   /**
    * Emits when the remove button is clicked and URI should be removed from the form.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   remove = new EventEmitter<void>();
 

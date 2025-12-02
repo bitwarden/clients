@@ -34,6 +34,8 @@ const Controls = Object.freeze({
 });
 
 /** Options group for passwords */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-password-settings",
   templateUrl: "password-settings.component.html",
@@ -55,6 +57,8 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
    *  @remarks this is initialized to null but since it's a required input it'll
    *     never have that value in practice.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true })
   account: Account = null!;
 
@@ -67,14 +71,20 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /** When `true`, an options header is displayed by the component. Otherwise, the header is hidden. */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   showHeader: boolean = true;
 
   /** Number of milliseconds to wait before accepting user input. */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   waitMs: number = 100;
 
   /** Removes bottom margin from `bit-section` */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ transform: coerceBooleanProperty }) disableMargin = false;
 
   /** Emits settings updates and completes if the settings become unavailable.
@@ -82,6 +92,8 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
    *   to receive live settings updates including the initial update,
    *   use `CredentialGeneratorService.settings(...)` instead.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   readonly onUpdated = new EventEmitter<PasswordGenerationOptions>();
 

@@ -45,6 +45,39 @@ function buildProxyBin(target, release = true) {
     }
 }
 
+function buildImporterBinaries(target, release = true) {
+    // These binaries are only built for Windows, so we can skip them on other platforms
+    if (process.platform !== "win32") {
+        return;
+    }
+
+    const bin = "bitwarden_chromium_import_helper";
+    const targetArg = target ? `--target ${target}` : "";
+    const releaseArg = release ? "--release" : "";
+    child_process.execSync(`cargo build --bin ${bin} ${releaseArg} ${targetArg}`);
+
+    if (target) {
+        // Copy the resulting binary to the dist folder
+        const targetFolder = release ? "release" : "debug";
+        const nodeArch = rustTargetsMap[target].nodeArch;
+        fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `${bin}.exe`), path.join(__dirname, "dist", `${bin}.${process.platform}-${nodeArch}.exe`));
+    }
+}
+
+function buildProcessIsolation() {
+    if (process.platform !== "linux") {
+        return;
+    }
+
+    child_process.execSync(`cargo build --release`, {
+        stdio: 'inherit',
+        cwd: path.join(__dirname, "process_isolation")
+    });
+
+    console.log("Copying process isolation library to dist folder");
+    fs.copyFileSync(path.join(__dirname, "target", "release", "libprocess_isolation.so"), path.join(__dirname, "dist", `libprocess_isolation.so`));
+}
+
 function installTarget(target) {
     child_process.execSync(`rustup target add ${target}`, { stdio: 'inherit', cwd: __dirname });
 }
@@ -53,6 +86,8 @@ if (!crossPlatform && !target) {
     console.log(`Building native modules in ${mode} mode for the native architecture`);
     buildNapiModule(false, mode === "release");
     buildProxyBin(false, mode === "release");
+    buildImporterBinaries(false, mode === "release");
+    buildProcessIsolation();
     return;
 }
 
@@ -61,6 +96,8 @@ if (target) {
     installTarget(target);
     buildNapiModule(target, mode === "release");
     buildProxyBin(target, mode === "release");
+    buildImporterBinaries(false, mode === "release");
+    buildProcessIsolation();
     return;
 }
 
@@ -78,4 +115,6 @@ platformTargets.forEach(([target, _]) => {
     installTarget(target);
     buildNapiModule(target);
     buildProxyBin(target);
+    buildImporterBinaries(target);
+    buildProcessIsolation();
 });

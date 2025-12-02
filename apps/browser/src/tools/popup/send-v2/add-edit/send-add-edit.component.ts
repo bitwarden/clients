@@ -41,7 +41,12 @@ import { SendFilePopoutDialogContainerComponent } from "../send-file-popout-dial
 class QueryParams {
   constructor(params: Params) {
     this.sendId = params.sendId;
-    this.type = parseInt(params.type, 10);
+    const sendTypeValue = parseInt(params.type, 10);
+    if (sendTypeValue === SendType.Text || sendTypeValue === SendType.File) {
+      this.type = sendTypeValue;
+    } else {
+      throw new Error(`Invalid SendType: ${params.type}`);
+    }
   }
 
   /**
@@ -60,6 +65,8 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
 /**
  * Component for adding or editing a send item.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-send-add-edit",
   templateUrl: "send-add-edit.component.html",

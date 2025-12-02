@@ -5,6 +5,8 @@ import { LogService } from "@bitwarden/logging";
 
 import { WindowMain } from "../../main/window.main";
 import { stringIsNotUndefinedNullAndEmpty } from "../../utils";
+import { AutotypeMatchError } from "../models/autotype-errors";
+import { AutotypeVaultData } from "../models/autotype-vault-data";
 import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
 
 export class MainDesktopAutotypeService {
@@ -47,19 +49,21 @@ export class MainDesktopAutotypeService {
       }
     });
 
-    ipcMain.on("autofill.completeAutotypeRequest", (event, data) => {
-      const { response } = data;
-
+    ipcMain.on("autofill.completeAutotypeRequest", (_event, vaultData: AutotypeVaultData) => {
       if (
-        stringIsNotUndefinedNullAndEmpty(response.username) &&
-        stringIsNotUndefinedNullAndEmpty(response.password)
+        stringIsNotUndefinedNullAndEmpty(vaultData.username) &&
+        stringIsNotUndefinedNullAndEmpty(vaultData.password)
       ) {
-        this.doAutotype(
-          response.username,
-          response.password,
-          this.autotypeKeyboardShortcut.getArrayFormat(),
-        );
+        this.doAutotype(vaultData, this.autotypeKeyboardShortcut.getArrayFormat());
       }
+    });
+
+    ipcMain.on("autofill.completeAutotypeError", (_event, matchError: AutotypeMatchError) => {
+      this.logService.debug(
+        "autofill.completeAutotypeError",
+        "No match for window: " + matchError.windowTitle,
+      );
+      this.logService.error("autofill.completeAutotypeError", matchError.errorMessage);
     });
   }
 
@@ -89,8 +93,9 @@ export class MainDesktopAutotypeService {
       : this.logService.info("Enabling autotype failed.");
   }
 
-  private doAutotype(username: string, password: string, keyboardShortcut: string[]) {
-    const inputPattern = username + "\t" + password;
+  private doAutotype(vaultData: AutotypeVaultData, keyboardShortcut: string[]) {
+    const TAB = "\t";
+    const inputPattern = vaultData.username + TAB + vaultData.password;
     const inputArray = new Array<number>(inputPattern.length);
 
     for (let i = 0; i < inputPattern.length; i++) {

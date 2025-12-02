@@ -5,6 +5,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Params, Router, RouterModule } from "@angular/router";
 import { Subject, firstValueFrom } from "rxjs";
 
+import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
@@ -31,6 +32,14 @@ import { PasswordInputResult } from "../../input-password/password-input-result"
 
 import { RegistrationFinishService } from "./registration-finish.service";
 
+const MarketingInitiative = Object.freeze({
+  Premium: "premium",
+} as const);
+
+type MarketingInitiative = (typeof MarketingInitiative)[keyof typeof MarketingInitiative];
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "auth-registration-finish",
   templateUrl: "./registration-finish.component.html",
@@ -43,6 +52,12 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
   loading = true;
   submitting = false;
   email: string;
+
+  /**
+   * Indicates that the user is coming from a marketing page designed to streamline
+   * users who intend to setup a premium subscription after registration.
+   */
+  premiumInterest = false;
 
   // Note: this token is the email verification token. When it is supplied as a query param,
   // it either comes from the email verification email or, if email verification is disabled server side
@@ -77,6 +92,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
+    private premiumInterestStateService: PremiumInterestStateService,
   ) {}
 
   async ngOnInit() {
@@ -123,6 +139,10 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     if (qParams.providerInviteToken != null && qParams.providerUserId != null) {
       this.providerInviteToken = qParams.providerInviteToken;
       this.providerUserId = qParams.providerUserId;
+    }
+
+    if (qParams.fromMarketing != null && qParams.fromMarketing === MarketingInitiative.Premium) {
+      this.premiumInterest = true;
     }
   }
 
@@ -187,6 +207,13 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
       }
 
       await this.loginSuccessHandlerService.run(authenticationResult.userId);
+
+      if (this.premiumInterest) {
+        await this.premiumInterestStateService.setPremiumInterest(
+          authenticationResult.userId,
+          true,
+        );
+      }
 
       await this.router.navigate(["/vault"]);
     } catch (e) {

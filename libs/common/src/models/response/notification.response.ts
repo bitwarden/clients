@@ -1,6 +1,7 @@
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { NotificationViewResponse as EndUserNotificationResponse } from "@bitwarden/common/vault/notifications/models";
 
-import { NotificationType } from "../../enums";
+import { NotificationType, PushNotificationLogOutReasonType } from "../../enums";
 
 import { BaseResponse } from "./base.response";
 
@@ -41,8 +42,10 @@ export class NotificationResponse extends BaseResponse {
       case NotificationType.SyncOrganizations:
       case NotificationType.SyncOrgKeys:
       case NotificationType.SyncSettings:
-      case NotificationType.LogOut:
         this.payload = new UserNotification(payload);
+        break;
+      case NotificationType.LogOut:
+        this.payload = new LogOutNotification(payload);
         break;
       case NotificationType.SyncSendCreate:
       case NotificationType.SyncSendUpdate:
@@ -68,6 +71,9 @@ export class NotificationResponse extends BaseResponse {
         break;
       case NotificationType.ProviderBankAccountVerified:
         this.payload = new ProviderBankAccountVerifiedPushNotification(payload);
+        break;
+      case NotificationType.SyncPolicy:
+        this.payload = new SyncPolicyNotification(payload);
         break;
       default:
         break;
@@ -182,5 +188,25 @@ export class ProviderBankAccountVerifiedPushNotification extends BaseResponse {
     super(response);
     this.providerId = this.getResponseProperty("ProviderId");
     this.adminId = this.getResponseProperty("AdminId");
+  }
+}
+
+export class SyncPolicyNotification extends BaseResponse {
+  policy: Policy;
+
+  constructor(response: any) {
+    super(response);
+    this.policy = this.getResponseProperty("Policy");
+  }
+}
+
+export class LogOutNotification extends BaseResponse {
+  userId: string;
+  reason?: PushNotificationLogOutReasonType;
+
+  constructor(response: any) {
+    super(response);
+    this.userId = this.getResponseProperty("UserId");
+    this.reason = this.getResponseProperty("Reason");
   }
 }

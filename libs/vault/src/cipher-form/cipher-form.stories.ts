@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { importProvidersFrom, signal } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { action } from "@storybook/addon-actions";
 import {
   applicationConfig,
   componentWrapperDecorator,
@@ -10,7 +9,8 @@ import {
   moduleMetadata,
   StoryObj,
 } from "@storybook/angular";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
+import { action } from "storybook/actions";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -156,6 +156,20 @@ export default {
           },
         },
         {
+          provide: CipherArchiveService,
+          useValue: {
+            userCanArchive$: of(false),
+          },
+        },
+        {
+          provide: AccountService,
+          useValue: {
+            activeAccount$: of({
+              name: "User 1",
+            }),
+          } as Partial<AccountService>,
+        },
+        {
           provide: CipherFormService,
           useClass: TestAddEditFormService,
         },
@@ -201,7 +215,9 @@ export default {
         {
           provide: DomainSettingsService,
           useValue: {
-            defaultUriMatchStrategy$: new BehaviorSubject(UriMatchStrategy.StartsWith),
+            resolvedDefaultUriMatchStrategy$: new BehaviorSubject(UriMatchStrategy.StartsWith),
+            defaultUriMatchStrategy$: new BehaviorSubject(UriMatchStrategy.Domain),
+            defaultUriMatchStrategyPolicy$: new BehaviorSubject(null),
           },
         },
         {

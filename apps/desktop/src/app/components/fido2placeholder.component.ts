@@ -9,6 +9,8 @@ import {
 } from "../../autofill/services/desktop-fido2-user-interface.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   standalone: true,
   imports: [CommonModule],

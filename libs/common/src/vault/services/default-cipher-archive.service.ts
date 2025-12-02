@@ -27,6 +27,10 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
     private configService: ConfigService,
   ) {}
 
+  hasArchiveFlagEnabled$(): Observable<boolean> {
+    return this.configService.getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive);
+  }
+
   /**
    * Observable that contains the list of ciphers that have been archived.
    */

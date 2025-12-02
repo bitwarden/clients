@@ -1,14 +1,14 @@
-import { DOCUMENT } from "@angular/common";
-import { Inject, Injectable } from "@angular/core";
+import { Inject, Injectable, DOCUMENT } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/common/auth/abstractions/two-factor.service";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
@@ -30,7 +30,7 @@ export class InitService {
     private vaultTimeoutService: DefaultVaultTimeoutService,
     private i18nService: I18nServiceAbstraction,
     private eventUploadService: EventUploadServiceAbstraction,
-    private twoFactorService: TwoFactorServiceAbstraction,
+    private twoFactorService: TwoFactorService,
     private keyService: KeyServiceAbstraction,
     private themingService: AbstractThemingService,
     private encryptService: EncryptService,
@@ -40,6 +40,7 @@ export class InitService {
     private ipcService: IpcService,
     private sdkLoadService: SdkLoadService,
     private taskService: TaskService,
+    private configService: ConfigService,
     private readonly migrationRunner: MigrationRunner,
     @Inject(DOCUMENT) private document: Document,
   ) {}
@@ -48,6 +49,7 @@ export class InitService {
     return async () => {
       await this.sdkLoadService.loadAndInit();
       await this.migrationRunner.run();
+      this.encryptService.init(this.configService);
 
       const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
       if (activeAccount) {

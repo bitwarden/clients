@@ -13,6 +13,8 @@ export class ResizeObserverDirective implements OnDestroy {
     }
   });
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   resize = new EventEmitter();
 

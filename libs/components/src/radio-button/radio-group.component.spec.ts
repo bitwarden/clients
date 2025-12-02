@@ -11,19 +11,19 @@ import { RadioButtonComponent } from "./radio-button.component";
 import { RadioButtonModule } from "./radio-button.module";
 
 describe("RadioGroupComponent", () => {
-  let fixture: ComponentFixture<TestApp>;
-  let testAppComponent: TestApp;
+  let fixture: ComponentFixture<TestAppComponent>;
+  let testAppComponent: TestAppComponent;
   let buttonElements: RadioButtonComponent[];
   let radioButtons: HTMLInputElement[];
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [TestApp],
+      imports: [TestAppComponent],
       providers: [{ provide: I18nService, useValue: new I18nMockService({}) }],
     });
 
     await TestBed.compileComponents();
-    fixture = TestBed.createComponent(TestApp);
+    fixture = TestBed.createComponent(TestAppComponent);
     fixture.detectChanges();
     testAppComponent = fixture.debugElement.componentInstance;
     buttonElements = fixture.debugElement
@@ -63,6 +63,8 @@ describe("RadioGroupComponent", () => {
   });
 });
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "test-app",
   template: `
@@ -74,6 +76,6 @@ describe("RadioGroupComponent", () => {
   `,
   imports: [FormsModule, RadioButtonModule],
 })
-class TestApp {
+class TestAppComponent {
   selected?: string;
 }

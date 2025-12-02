@@ -24,6 +24,8 @@ import { AbstractSelfHostingLicenseUploaderComponent } from "../../shared/self-h
  * Processes license file uploads for organizations.
  * @remarks Requires self-hosting.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "organization-self-hosting-license-uploader",
   templateUrl: "./self-hosting-license-uploader.component.html",
@@ -33,6 +35,8 @@ export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSel
   /**
    * Notifies the parent component of the `organizationId` the license was created for.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onLicenseFileUploaded: EventEmitter<string> = new EventEmitter<string>();
 
   constructor(

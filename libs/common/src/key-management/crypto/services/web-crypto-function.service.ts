@@ -1,5 +1,8 @@
 import * as forge from "node-forge";
 
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { PureCrypto } from "@bitwarden/sdk-internal";
+
 import { EncryptionType } from "../../../platform/enums";
 import { Utils } from "../../../platform/misc/utils";
 import {
@@ -8,6 +11,7 @@ import {
 } from "../../../platform/models/domain/decrypt-parameters";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "../../../types/csprng";
+import { UnsignedPublicKey } from "../../types";
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
 
 export class WebCryptoFunctionService implements CryptoFunctionService {
@@ -288,28 +292,9 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     return new Uint8Array(buffer);
   }
 
-  async rsaExtractPublicKey(privateKey: Uint8Array): Promise<Uint8Array> {
-    const rsaParams = {
-      name: "RSA-OAEP",
-      // Have to specify some algorithm
-      hash: { name: this.toWebCryptoAlgorithm("sha1") },
-    };
-    const impPrivateKey = await this.subtle.importKey("pkcs8", privateKey, rsaParams, true, [
-      "decrypt",
-    ]);
-    const jwkPrivateKey = await this.subtle.exportKey("jwk", impPrivateKey);
-    const jwkPublicKeyParams = {
-      kty: "RSA",
-      e: jwkPrivateKey.e,
-      n: jwkPrivateKey.n,
-      alg: "RSA-OAEP",
-      ext: true,
-    };
-    const impPublicKey = await this.subtle.importKey("jwk", jwkPublicKeyParams, rsaParams, true, [
-      "encrypt",
-    ]);
-    const buffer = await this.subtle.exportKey("spki", impPublicKey);
-    return new Uint8Array(buffer);
+  async rsaExtractPublicKey(privateKey: Uint8Array): Promise<UnsignedPublicKey> {
+    await SdkLoadService.Ready;
+    return PureCrypto.rsa_extract_public_key(privateKey) as UnsignedPublicKey;
   }
 
   async aesGenerateKey(bitLength = 128 | 192 | 256 | 512): Promise<CsprngArray> {

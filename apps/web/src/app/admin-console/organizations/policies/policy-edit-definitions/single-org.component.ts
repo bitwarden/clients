@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 
@@ -13,8 +13,10 @@ export class SingleOrgPolicy extends BasePolicyEditDefinition {
 }
 
 @Component({
+  selector: "single-org-policy-edit",
   templateUrl: "single-org.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SingleOrgPolicyComponent extends BasePolicyEditComponent implements OnInit {
   async ngOnInit() {

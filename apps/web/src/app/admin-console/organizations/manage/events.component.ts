@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, filter, firstValueFrom, lastValueFrom, map, switchMap, takeUntil } from "rxjs";
+import { concatMap, firstValueFrom, lastValueFrom, map, of, switchMap, takeUntil, tap } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -46,6 +46,8 @@ const EVENT_SYSTEM_USER_TO_TRANSLATION: Record<EventSystemUser, string> = {
   [EventSystemUser.PublicApi]: "publicApi",
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "events.component.html",
   imports: [SharedModule, HeaderModule],
@@ -141,17 +143,23 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
             getUserId,
             switchMap((userId) => this.providerService.get$(this.organization.providerId, userId)),
             map((provider) => provider != null && provider.canManageUsers),
-            filter((result) => result),
-            switchMap(() => this.apiService.getProviderUsers(this.organization.id)),
-            map((providerUsersResponse) =>
-              providerUsersResponse.data.forEach((u) => {
-                const name = this.userNamePipe.transform(u);
-                this.orgUsersUserIdMap.set(u.userId, {
-                  name: `${name} (${this.organization.providerName})`,
-                  email: u.email,
+            switchMap((canManage) => {
+              if (canManage) {
+                return this.apiService.getProviderUsers(this.organization.providerId);
+              }
+              return of(null);
+            }),
+            tap((providerUsersResponse) => {
+              if (providerUsersResponse) {
+                providerUsersResponse.data.forEach((u) => {
+                  const name = this.userNamePipe.transform(u);
+                  this.orgUsersUserIdMap.set(u.userId, {
+                    name: `${name} (${this.organization.providerName})`,
+                    email: u.email,
+                  });
                 });
-              }),
-            ),
+              }
+            }),
           ),
         );
       } catch (e) {

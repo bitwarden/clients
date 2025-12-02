@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit, TemplateRef, ViewChild } from "@angular/core";
 import { lastValueFrom, Observable } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -9,7 +9,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrgKey } from "@bitwarden/common/types/key";
-import { DialogService } from "@bitwarden/components";
+import { CenterPositionStrategy, DialogService } from "@bitwarden/components";
 import { EncString } from "@bitwarden/sdk-internal";
 
 import { SharedModule } from "../../../../shared";
@@ -35,8 +35,10 @@ export class vNextOrganizationDataOwnershipPolicy extends BasePolicyEditDefiniti
 }
 
 @Component({
+  selector: "vnext-organization-data-ownership-policy-edit",
   templateUrl: "vnext-organization-data-ownership.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class vNextOrganizationDataOwnershipPolicyComponent
   extends BasePolicyEditComponent
@@ -50,11 +52,15 @@ export class vNextOrganizationDataOwnershipPolicyComponent
     super();
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("dialog", { static: true }) warningContent!: TemplateRef<unknown>;
 
   override async confirm(): Promise<boolean> {
     if (this.policyResponse?.enabled && !this.enabled.value) {
-      const dialogRef = this.dialogService.open(this.warningContent);
+      const dialogRef = this.dialogService.open(this.warningContent, {
+        positionStrategy: new CenterPositionStrategy(),
+      });
       const result = await lastValueFrom(dialogRef.closed);
       return Boolean(result);
     }
@@ -70,7 +76,6 @@ export class vNextOrganizationDataOwnershipPolicyComponent
 
     const request: VNextPolicyRequest = {
       policy: {
-        type: this.policy.type,
         enabled: this.enabled.value ?? false,
         data: this.buildRequestData(),
       },

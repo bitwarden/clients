@@ -26,6 +26,8 @@ const DEFAULT_COLOR: Record<SimpleDialogType, string> = {
   danger: "tw-text-danger",
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./simple-configurable-dialog.component.html",
   imports: [

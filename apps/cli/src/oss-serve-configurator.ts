@@ -10,12 +10,12 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfirmCommand } from "./admin-console/commands/confirm.command";
 import { ShareCommand } from "./admin-console/commands/share.command";
 import { LockCommand } from "./auth/commands/lock.command";
-import { UnlockCommand } from "./auth/commands/unlock.command";
 import { EditCommand } from "./commands/edit.command";
 import { GetCommand } from "./commands/get.command";
 import { ListCommand } from "./commands/list.command";
 import { RestoreCommand } from "./commands/restore.command";
 import { StatusCommand } from "./commands/status.command";
+import { UnlockCommand } from "./key-management/commands/unlock.command";
 import { Response } from "./models/response";
 import { FileResponse } from "./models/response/file.response";
 import { ServiceContainer } from "./service-container/service-container";
@@ -160,7 +160,10 @@ export class OssServeConfigurator {
       this.serviceContainer.cipherService,
       this.serviceContainer.accountService,
     );
-    this.lockCommand = new LockCommand(this.serviceContainer.vaultTimeoutService);
+    this.lockCommand = new LockCommand(
+      serviceContainer.lockService,
+      serviceContainer.accountService,
+    );
     this.unlockCommand = new UnlockCommand(
       this.serviceContainer.accountService,
       this.serviceContainer.masterPasswordService,
@@ -173,6 +176,8 @@ export class OssServeConfigurator {
       this.serviceContainer.organizationApiService,
       async () => await this.serviceContainer.logout(),
       this.serviceContainer.i18nService,
+      this.serviceContainer.masterPasswordUnlockService,
+      this.serviceContainer.configService,
     );
 
     this.sendCreateCommand = new SendCreateCommand(
@@ -211,6 +216,7 @@ export class OssServeConfigurator {
       this.serviceContainer.sendService,
       this.serviceContainer.sendApiService,
       this.serviceContainer.environmentService,
+      this.serviceContainer.accountService,
     );
   }
 

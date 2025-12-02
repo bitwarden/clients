@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { combineLatest, map, Observable, startWith, switchMap } from "rxjs";
+import { combineLatest, map, Observable, switchMap } from "rxjs";
 
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -205,7 +205,7 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
     this.showInlineMenuCardsState = this.stateProvider.getActive(SHOW_INLINE_MENU_CARDS);
     this.showInlineMenuCards$ = combineLatest([
       this.showInlineMenuCardsState.state$.pipe(map((x) => x ?? true)),
-      this.restrictedItemTypesService.restricted$.pipe(startWith([])),
+      this.restrictedItemTypesService.restricted$,
     ]).pipe(
       map(
         ([enabled, restrictions]) =>

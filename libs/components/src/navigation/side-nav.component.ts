@@ -23,6 +23,8 @@ const BIT_SIDE_NAV_WIDTH_KEY_DEF = new KeyDefinition<number>(BIT_SIDE_NAV_DISK, 
   deserializer: (s) => s,
 });
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-side-nav",
   templateUrl: "side-nav.component.html",
@@ -36,13 +38,15 @@ const BIT_SIDE_NAV_WIDTH_KEY_DEF = new KeyDefinition<number>(BIT_SIDE_NAV_DISK, 
   ],
 })
 export class SideNavComponent implements OnDestroy {
+  protected sideNavService = inject(SideNavService);
+
   readonly variant = input<SideNavVariant>("primary");
 
   private readonly toggleButton = viewChild("toggleButton", { read: ElementRef });
 
   private elementRef = inject(ElementRef<HTMLElement>);
   protected lastOpenWidth = DEFAULT_OPEN_WIDTH;
-  private width = signal<number>(DEFAULT_OPEN_WIDTH);
+  private readonly width = signal<number>(DEFAULT_OPEN_WIDTH);
   protected width$ = toObservable(this.width);
 
   private readonly widthState = inject(GlobalStateProvider).get(BIT_SIDE_NAV_WIDTH_KEY_DEF);
@@ -50,7 +54,7 @@ export class SideNavComponent implements OnDestroy {
 
   private readonly destroy$ = new Subject<void>();
 
-  constructor(protected sideNavService: SideNavService) {
+  constructor() {
     this.width$.pipe(debounceTime(200), takeUntil(this.destroy$)).subscribe((width) => {
       // Store the last open width when the side nav is open
       if (this.sideNavService.open) {

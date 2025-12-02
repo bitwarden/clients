@@ -297,6 +297,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.sendService,
           this.serviceContainer.sendApiService,
           this.serviceContainer.environmentService,
+          this.serviceContainer.accountService,
         );
         const response = await cmd.run(id);
         this.processResponse(response);
@@ -307,7 +308,7 @@ export class SendProgram extends BaseProgram {
     let sendFile = null;
     let sendText = null;
     let name = Utils.newGuid();
-    let type = SendType.Text;
+    let type: SendType = SendType.Text;
     if (options.file != null) {
       data = path.resolve(data);
       if (!fs.existsSync(data)) {
