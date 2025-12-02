@@ -1623,7 +1623,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
             !policyEnabled &&
             autoConfirmState.showSetupDialog &&
             !!organization &&
-            (organization.canManageUsers || organization.canManagePolicies);
+            organization.canEnableAutoConfirmPolicy;
 
           if (showDialog) {
             await this.openAutoConfirmFeatureDialog(organization);

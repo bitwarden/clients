@@ -8,9 +8,6 @@ use tracing_subscriber::{
     fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter, Layer as _,
 };
 
-#[cfg(target_os = "windows")]
-mod windows;
-
 #[cfg(target_os = "macos")]
 embed_plist::embed_info_plist!("../../../resources/info.desktop_proxy.plist");
 
@@ -60,14 +57,10 @@ fn init_logging(log_path: &Path, console_level: LevelFilter, file_level: LevelFi
 /// a stable communication channel between the proxy and the running desktop application.
 ///
 /// Browser extension <-[native messaging]-> proxy <-[ipc]-> desktop
-///
 // FIXME: Remove unwraps! They panic and terminate the whole application.
 #[allow(clippy::unwrap_used)]
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    #[cfg(target_os = "windows")]
-    let should_foreground = windows::allow_foreground();
-
     let sock_path = desktop_core::ipc::path("bw");
 
     let log_path = {
@@ -83,8 +76,10 @@ async fn main() {
     // Different browsers send different arguments when the app starts:
     //
     // Firefox:
-    // - The complete path to the app manifest. (in the form `/Users/<user>/Library/.../Mozilla/NativeMessagingHosts/com.8bit.bitwarden.json`)
-    // - (in Firefox 55+) the ID (as given in the manifest.json) of the add-on that started it (in the form `{[UUID]}`).
+    // - The complete path to the app manifest. (in the form
+    //   `/Users/<user>/Library/.../Mozilla/NativeMessagingHosts/com.8bit.bitwarden.json`)
+    // - (in Firefox 55+) the ID (as given in the manifest.json) of the add-on that started it (in
+    //   the form `{[UUID]}`).
     //
     // Chrome on Windows:
     // - Origin of the extension that started it (in the form `chrome-extension://[ID]`).
@@ -96,7 +91,8 @@ async fn main() {
     let args: Vec<_> = std::env::args().skip(1).collect();
     info!(?args, "Process args");
 
-    // Setup two channels, one for sending messages to the desktop application (`out`) and one for receiving messages from the desktop application (`in`)
+    // Setup two channels, one for sending messages to the desktop application (`out`) and one for
+    // receiving messages from the desktop application (`in`)
     let (in_send, in_recv) = tokio::sync::mpsc::channel(MESSAGE_CHANNEL_BUFFER);
     let (out_send, mut out_recv) = tokio::sync::mpsc::channel(MESSAGE_CHANNEL_BUFFER);
 
@@ -156,9 +152,6 @@ async fn main() {
 
             // Listen to stdin and send messages to ipc processor.
             msg = stdin.next() => {
-                #[cfg(target_os = "windows")]
-                should_foreground.store(true, std::sync::atomic::Ordering::Relaxed);
-
                 match msg {
                     Some(Ok(msg)) => {
                         let msg = String::from_utf8(msg.to_vec()).unwrap();

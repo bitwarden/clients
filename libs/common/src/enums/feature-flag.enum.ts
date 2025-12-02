@@ -13,9 +13,9 @@ export enum FeatureFlag {
   /* Admin Console Team */
   CreateDefaultLocation = "pm-19467-create-default-location",
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
+  BlockClaimedDomainAccountCreation = "pm-28297-block-uninvited-claimed-domain-registration",
 
   /* Auth */
-  PM22110_DisableAlternateLoginMethods = "pm-22110-disable-alternate-login-methods",
   PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
 
   /* Autofill */
@@ -40,7 +40,6 @@ export enum FeatureFlag {
   EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
   ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
   PM25174_DisableType0Decryption = "pm-25174-disable-type-0-decryption",
-  WindowsBiometricsV2 = "pm-25373-windows-biometrics-v2",
   LinuxBiometricsV2 = "pm-26340-linux-biometrics-v2",
   UnlockWithMasterPasswordUnlockData = "pm-23246-unlock-with-master-password-unlock-data",
   NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
@@ -72,6 +71,12 @@ export enum FeatureFlag {
 
   /* Innovation */
   PM19148_InnovationArchive = "pm-19148-innovation-archive",
+
+  /* Desktop */
+  DesktopUiMigrationMilestone1 = "desktop-ui-migration-milestone-1",
+
+  /* UIF */
+  RouterFocusManagement = "router-focus-management",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -91,6 +96,7 @@ export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.CreateDefaultLocation]: FALSE,
   [FeatureFlag.AutoConfirm]: FALSE,
+  [FeatureFlag.BlockClaimedDomainAccountCreation]: FALSE,
 
   /* Autofill */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
@@ -116,7 +122,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.VaultLoadingSkeletons]: FALSE,
 
   /* Auth */
-  [FeatureFlag.PM22110_DisableAlternateLoginMethods]: FALSE,
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
 
   /* Billing */
@@ -137,7 +142,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
   [FeatureFlag.ForceUpdateKDFSettings]: FALSE,
   [FeatureFlag.PM25174_DisableType0Decryption]: FALSE,
-  [FeatureFlag.WindowsBiometricsV2]: FALSE,
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.UnlockWithMasterPasswordUnlockData]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
@@ -150,6 +154,12 @@ export const DefaultFeatureFlagValue = {
 
   /* Innovation */
   [FeatureFlag.PM19148_InnovationArchive]: FALSE,
+
+  /* Desktop */
+  [FeatureFlag.DesktopUiMigrationMilestone1]: FALSE,
+
+  /* UIF */
+  [FeatureFlag.RouterFocusManagement]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

@@ -141,6 +141,8 @@ export class CipherService implements CipherServiceAbstraction {
    * Usage of the {@link CipherViewLike} type is recommended to ensure both `CipherView` and `CipherListView` are supported.
    */
   cipherListViews$ = perUserCache$((userId: UserId) => {
+    let decryptStartTime: number;
+
     return this.configService.getFeatureFlag$(FeatureFlag.PM22134SdkCipherListView).pipe(
       switchMap((useSdk) => {
         if (!useSdk) {
@@ -158,10 +160,22 @@ export class CipherService implements CipherServiceAbstraction {
               (cipherData) => new Cipher(cipherData, localData?.[cipherData.id as CipherId]),
             ),
           ),
+          tap(() => {
+            decryptStartTime = performance.now();
+          }),
           switchMap(async (ciphers) => {
             const [decrypted, failures] = await this.decryptCiphersWithSdk(ciphers, userId, false);
             await this.setFailedDecryptedCiphers(failures, userId);
             return decrypted;
+          }),
+          tap((decrypted) => {
+            this.logService.measure(
+              decryptStartTime,
+              "Vault",
+              "CipherService",
+              "listView decrypt complete",
+              [["Items", decrypted.length]],
+            );
           }),
         );
       }),

@@ -31,7 +31,7 @@ jobs:
       release_channel: ${{ steps.release_channel.outputs.channel }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           persist-credentials: false
 
@@ -107,10 +107,10 @@ jobs:
         with:
           artifacts: "apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-amd64.deb,
             apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-x86_64.rpm,
-            apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-x64.freebsd,
             apps/desktop/artifacts/bitwarden_${{ env.PKG_VERSION }}_amd64.snap,
             apps/desktop/artifacts/bitwarden_${{ env.PKG_VERSION }}_arm64.snap,
             apps/desktop/artifacts/bitwarden_${{ env.PKG_VERSION }}_arm64.tar.gz,
+            apps/desktop/artifacts/bitwarden_${{ env.PKG_VERSION }}_x64.tar.gz,
             apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-x86_64.AppImage,
             apps/desktop/artifacts/Bitwarden-Portable-${{ env.PKG_VERSION }}.exe,
             apps/desktop/artifacts/Bitwarden-Installer-${{ env.PKG_VERSION }}.exe,

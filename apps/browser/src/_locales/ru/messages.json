@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать этот элемент?"
   },
+  "upgradeToUseArchive": {
+    "message": "Для использования архива требуется премиум-статус."
+  },
   "edit": {
     "message": "Изменить"
   },
@@ -593,6 +596,9 @@
   },
   "viewAll": {
     "message": "Посмотреть все"
+  },
+  "showAll": {
+    "message": "Показать все"
   },
   "viewLess": {
     "message": "Свернуть"
@@ -1867,6 +1873,9 @@
   "expirationYear": {
     "message": "Год"
   },
+  "monthly": {
+    "message": "месяц"
+  },
   "expiration": {
     "message": "Срок действия"
   },
@@ -2435,6 +2444,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Эта страница мешает работе Bitwarden. Встроенное меню Bitwarden было временно отключено в целях безопасности."
   },
   "setMasterPassword": {
     "message": "Задать мастер-пароль"
@@ -4899,6 +4911,9 @@
   "premium": {
     "message": "Премиум"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Разблокируйте отчеты, экстренный доступ и другие функции безопасности с помощью Премиум."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Бесплатные организации не могут использовать вложения"
   },
@@ -5808,6 +5823,15 @@
   },
   "upgradeToPremium": {
     "message": "Обновить до Премиум"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Разблокировать дополнительные функции безопасности"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "Премиум-подписка дает вам больше возможностей для обеспечения безопасности и контроля"
+  },
+  "explorePremium": {
+    "message": "Познакомиться с Премиум"
   },
   "loadingVault": {
     "message": "Загрузка хранилища"
