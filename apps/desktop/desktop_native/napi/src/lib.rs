@@ -1203,7 +1203,7 @@ pub mod chromium_importer {
         }
         #[cfg(not(target_os = "macos"))]
         {
-            // No-op outside of Mac OS 
+            // No-op outside of Mac OS
             Ok(())
         }
     }
