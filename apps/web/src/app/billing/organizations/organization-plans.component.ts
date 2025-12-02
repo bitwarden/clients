@@ -711,11 +711,18 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       return orgId;
     };
 
-    this.formPromise = doSubmit();
-    const organizationId = await this.formPromise;
-    this.onSuccess.emit({ organizationId: organizationId });
-    // TODO: No one actually listening to this message?
-    this.messagingService.send("organizationCreated", { organizationId });
+    try {
+      this.formPromise = doSubmit();
+      const organizationId = await this.formPromise;
+      this.onSuccess.emit({ organizationId: organizationId });
+      // TODO: No one actually listening to this message?
+      this.messagingService.send("organizationCreated", { organizationId });
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message === "Payment method validation failed") {
+        return;
+      }
+      throw error;
+    }
   };
 
   protected get showTaxIdField(): boolean {
@@ -834,6 +841,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         return;
       }
       const paymentMethod = await this.enterPaymentMethodComponent.tokenize();
+      if (!paymentMethod) {
+        throw new Error("Payment method validation failed");
+      }
       await this.subscriberBillingClient.updatePaymentMethod(
         { type: "organization", data: this.organization },
         paymentMethod,
@@ -885,6 +895,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       }
 
       const paymentMethod = await this.enterPaymentMethodComponent.tokenize();
+      if (!paymentMethod) {
+        throw new Error("Payment method validation failed");
+      }
 
       const billingAddress = getBillingAddressFromForm(
         this.billingFormGroup.controls.billingAddress,
