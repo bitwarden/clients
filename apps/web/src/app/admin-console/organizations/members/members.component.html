@@ -103,15 +103,7 @@
               <th bitCell bitSortable="type">{{ "role" | i18n }}</th>
               <th bitCell>{{ "policies" | i18n }}</th>
               <th bitCell class="tw-w-10">
-                <div class="tw-flex tw-items-center tw-gap-2">
-                  <button
-                    type="button"
-                    bitIconButton="bwi-download"
-                    size="small"
-                    [bitAction]="exportMembers"
-                    [disabled]="!firstLoaded"
-                    label="{{ 'export' | i18n }}"
-                  ></button>
+                <div class="tw-flex tw-flex-row tw-items-center tw-justify-end tw-gap-2">
                   <button
                     [bitMenuTriggerFor]="headerMenu"
                     type="button"
@@ -119,6 +111,14 @@
                     size="small"
                     label="{{ 'options' | i18n }}"
                     *ngIf="showUserManagementControls()"
+                  ></button>
+                  <button
+                    type="button"
+                    bitIconButton="bwi-download"
+                    size="small"
+                    [bitAction]="exportMembers"
+                    [disabled]="!firstLoaded"
+                    label="{{ 'export' | i18n }}"
                   ></button>
                 </div>
 
