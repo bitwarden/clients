@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DestroyRef } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { combineLatest, map, Observable, shareReplay } from "rxjs";
+import { computed, Signal } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { map } from "rxjs";
 
 import {
   OrganizationUserStatusType,
@@ -72,37 +72,18 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
   confirmedUserCount: number;
   revokedUserCount: number;
 
-  /**
-   * Observable that emits `true` when the increased bulk limit feature is enabled
-   * (feature flag enabled AND cloud environment), `false` otherwise.
-   */
-  readonly isIncreasedLimitEnabled$: Observable<boolean>;
+  /** True when increased bulk limit feature is enabled (feature flag + cloud environment) */
+  readonly isIncreasedBulkLimitEnabled: Signal<boolean>;
 
-  /**
-   * Indicates whether the increased bulk limit feature is enabled.
-   * When true, "Check All" allows checking all users, and bulk operations enforce higher limits.
-   * When false, maintains legacy behavior with 500-user limit enforced at check time.
-   */
-  private isIncreasedBulkLimitEnabled: boolean = false;
-
-  constructor(
-    configService: ConfigService,
-    environmentService: EnvironmentService,
-    destroyRef: DestroyRef,
-  ) {
+  constructor(configService: ConfigService, environmentService: EnvironmentService) {
     super();
 
-    this.isIncreasedLimitEnabled$ = combineLatest([
+    const featureFlagEnabled = toSignal(
       configService.getFeatureFlag$(FeatureFlag.IncreaseBulkReinviteLimitForCloud),
-      environmentService.environment$.pipe(map((env) => env.isCloud())),
-    ]).pipe(
-      map(([featureFlagEnabled, isCloud]) => featureFlagEnabled && isCloud),
-      shareReplay({ bufferSize: 1, refCount: true }),
     );
+    const isCloud = toSignal(environmentService.environment$.pipe(map((env) => env.isCloud())));
 
-    this.isIncreasedLimitEnabled$.pipe(takeUntilDestroyed(destroyRef)).subscribe((enabled) => {
-      this.isIncreasedBulkLimitEnabled = enabled;
-    });
+    this.isIncreasedBulkLimitEnabled = computed(() => featureFlagEnabled() && isCloud());
   }
 
   override set data(data: T[]) {
@@ -161,7 +142,7 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
     // When the increased bulk limit feature is enabled, allow checking all users.
     // Individual bulk operations will enforce their specific limits.
     // When disabled, enforce the legacy limit at check time.
-    const selectCount = this.isIncreasedBulkLimitEnabled
+    const selectCount = this.isIncreasedBulkLimitEnabled()
       ? filteredUsers.length
       : Math.min(filteredUsers.length, MaxCheckedCount);
 

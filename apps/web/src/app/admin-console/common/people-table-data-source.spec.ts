@@ -1,6 +1,5 @@
-import { DestroyRef } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
-import { BehaviorSubject } from "rxjs";
+import { ReplaySubject } from "rxjs";
 
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -11,8 +10,6 @@ import {
 
 import { PeopleTableDataSource } from "./people-table-data-source";
 
-// Mock user type for testing
-// We use 'any' cast in the class to bypass strict type checking since this is just for testing
 interface MockUser {
   id: string;
   name: string;
@@ -21,18 +18,12 @@ interface MockUser {
   checked?: boolean;
 }
 
-// Concrete implementation for testing
 class TestPeopleTableDataSource extends PeopleTableDataSource<any> {
   protected statusType = OrganizationUserStatusType;
 }
 
 describe("PeopleTableDataSource", () => {
   let dataSource: TestPeopleTableDataSource;
-  let configService: jest.Mocked<ConfigService>;
-  let environmentService: jest.Mocked<EnvironmentService>;
-  let destroyRef: DestroyRef;
-  let featureFlagSubject: BehaviorSubject<boolean>;
-  let environmentSubject: BehaviorSubject<Environment>;
 
   const createMockUser = (id: string, checked: boolean = false): MockUser => ({
     id,
@@ -47,28 +38,32 @@ describe("PeopleTableDataSource", () => {
   };
 
   beforeEach(() => {
-    featureFlagSubject = new BehaviorSubject<boolean>(false);
-    environmentSubject = new BehaviorSubject<Environment>({
+    const featureFlagSubject = new ReplaySubject<boolean>(1);
+    featureFlagSubject.next(false);
+
+    const environmentSubject = new ReplaySubject<Environment>(1);
+    environmentSubject.next({
       isCloud: () => false,
     } as Environment);
 
-    configService = {
-      getFeatureFlag$: jest.fn().mockReturnValue(featureFlagSubject.asObservable()),
+    const mockConfigService = {
+      getFeatureFlag$: jest.fn(() => featureFlagSubject.asObservable()),
     } as any;
 
-    environmentService = {
+    const mockEnvironmentService = {
       environment$: environmentSubject.asObservable(),
     } as any;
 
     TestBed.configureTestingModule({
       providers: [
-        { provide: ConfigService, useValue: configService },
-        { provide: EnvironmentService, useValue: environmentService },
+        { provide: ConfigService, useValue: mockConfigService },
+        { provide: EnvironmentService, useValue: mockEnvironmentService },
       ],
     });
 
-    destroyRef = TestBed.inject(DestroyRef);
-    dataSource = new TestPeopleTableDataSource(configService, environmentService, destroyRef);
+    dataSource = TestBed.runInInjectionContext(
+      () => new TestPeopleTableDataSource(mockConfigService, mockEnvironmentService),
+    );
   });
 
   describe("limitAndUncheckExcess", () => {

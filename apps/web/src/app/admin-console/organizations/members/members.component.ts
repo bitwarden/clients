@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, Signal } from "@angular/core";
+import { Component, computed, Signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import {
@@ -64,14 +64,6 @@ import {
 
 class MembersTableDataSource extends PeopleTableDataSource<OrganizationUserView> {
   protected statusType = OrganizationUserStatusType;
-
-  constructor(
-    configService: ConfigService,
-    environmentService: EnvironmentService,
-    destroyRef: DestroyRef,
-  ) {
-    super(configService, environmentService, destroyRef);
-  }
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -131,7 +123,6 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private organizationMetadataService: OrganizationMetadataServiceAbstraction,
     private configService: ConfigService,
     private environmentService: EnvironmentService,
-    private destroyRef: DestroyRef,
   ) {
     super(
       apiService,
@@ -145,15 +136,9 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       toastService,
     );
 
-    this.dataSource = new MembersTableDataSource(
-      this.configService,
-      this.environmentService,
-      this.destroyRef,
-    );
+    this.dataSource = new MembersTableDataSource(this.configService, this.environmentService);
 
-    this.increasedBulkLimitEnabled = toSignal(this.dataSource.isIncreasedLimitEnabled$, {
-      initialValue: false,
-    });
+    this.increasedBulkLimitEnabled = this.dataSource.isIncreasedBulkLimitEnabled;
 
     const organization$ = this.route.params.pipe(
       concatMap((params) =>

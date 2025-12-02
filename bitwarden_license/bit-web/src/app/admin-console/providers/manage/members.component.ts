@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, DestroyRef, Signal } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { Component, Signal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, firstValueFrom, lastValueFrom, switchMap } from "rxjs";
 import { first, map } from "rxjs/operators";
@@ -50,14 +50,6 @@ type ProviderUser = ProviderUserUserDetailsResponse;
 
 class MembersTableDataSource extends PeopleTableDataSource<ProviderUser> {
   protected statusType = ProviderUserStatusType;
-
-  constructor(
-    configService: ConfigService,
-    environmentService: EnvironmentService,
-    destroyRef: DestroyRef,
-  ) {
-    super(configService, environmentService, destroyRef);
-  }
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -97,7 +89,6 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
     private accountService: AccountService,
     private configService: ConfigService,
     private environmentService: EnvironmentService,
-    private destroyRef: DestroyRef,
   ) {
     super(
       apiService,
@@ -111,15 +102,9 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       toastService,
     );
 
-    this.dataSource = new MembersTableDataSource(
-      this.configService,
-      this.environmentService,
-      this.destroyRef,
-    );
+    this.dataSource = new MembersTableDataSource(this.configService, this.environmentService);
 
-    this.increasedBulkLimitEnabled = toSignal(this.dataSource.isIncreasedLimitEnabled$, {
-      initialValue: false,
-    });
+    this.increasedBulkLimitEnabled = this.dataSource.isIncreasedBulkLimitEnabled;
 
     combineLatest([
       this.activatedRoute.parent.params,
