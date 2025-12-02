@@ -16,7 +16,6 @@ import {
 import { TooltipPositionIdentifier, tooltipPositions } from "./tooltip-positions";
 import { TooltipComponent, TOOLTIP_DATA } from "./tooltip.component";
 
-export const TOOLTIP_DELAY_MS = 800;
 /**
  * Directive to add a tooltip to any element. The tooltip content is provided via the `bitTooltip` input.
  * The position of the tooltip can be set via the `tooltipPosition` input. Default position is "above-center".
@@ -86,7 +85,7 @@ export class TooltipDirective implements OnInit {
     this.isVisible.set(false);
   };
 
-  protected showTooltip = () => {
+  private showTooltip = () => {
     if (!this.overlayRef) {
       this.overlayRef = this.overlay.create({
         ...this.defaultPopoverConfig,
@@ -95,17 +94,14 @@ export class TooltipDirective implements OnInit {
 
       this.overlayRef.attach(this.tooltipPortal);
     }
-
-    setTimeout(() => {
-      this.isVisible.set(true);
-    }, TOOLTIP_DELAY_MS);
+    this.isVisible.set(true);
   };
 
-  protected hideTooltip = () => {
+  private hideTooltip = () => {
     this.destroyTooltip();
   };
 
-  protected readonly resolvedDescribedByIds = computed(() => {
+  private readonly resolvedDescribedByIds = computed(() => {
     if (this.addTooltipToDescribedby()) {
       if (this.currentDescribedByIds) {
         return `${this.currentDescribedByIds || ""} ${this.tooltipId}`;
