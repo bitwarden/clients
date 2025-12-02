@@ -62,9 +62,7 @@ pub mod sandbox {
 
             let path_ptr = unsafe { startBrowserAccess(c_name.as_ptr()) };
             if path_ptr.is_null() {
-                return Err(anyhow!(
-                    "Existing security scoped access has become stale"
-                ));
+                return Err(anyhow!("Existing security scoped access has become stale"));
             }
             unsafe { libc::free(path_ptr as *mut libc::c_void) };
 
