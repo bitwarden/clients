@@ -272,8 +272,8 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
       NotificationTypes.Add,
     );
 
-    if (!shouldAttemptAddNotification) {
-      return true;
+    if (shouldAttemptAddNotification) {
+      return false;
     }
 
     const shouldAttemptChangeNotification = this.shouldAttemptNotification(
@@ -281,8 +281,8 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
       NotificationTypes.Change,
     );
 
-    if (!shouldAttemptChangeNotification) {
-      return true;
+    if (shouldAttemptChangeNotification) {
+      return false;
     }
 
     return false;
@@ -479,13 +479,19 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     const passwordFieldHasValue = !!(modifyLoginData?.password || "").length;
     const newPasswordFieldHasValue = !!(modifyLoginData?.newPassword || "").length;
 
+    const canBeUserLogin = usernameFieldHasValue && passwordFieldHasValue;
+    const canBePasswordUpdate = passwordFieldHasValue && newPasswordFieldHasValue;
+
     switch (notificationType) {
       // `Add` case included because all forms with cached usernames (from previous
       // visits) will appear to be "password only" and otherwise trigger the new login
       // save notification.
       case NotificationTypes.Add:
-      case NotificationTypes.Change:
+        // Can be values for nonstored login or account creation
         return usernameFieldHasValue && (passwordFieldHasValue || newPasswordFieldHasValue);
+      case NotificationTypes.Change:
+        // Can be login with nonstored login changes or account password update
+        return canBeUserLogin || canBePasswordUpdate;
       case NotificationTypes.AtRiskPassword:
         return !newPasswordFieldHasValue;
       case NotificationTypes.Unlock:
