@@ -146,7 +146,6 @@ import { BiometricMessageHandlerService } from "../../services/biometric-message
 import { DuckDuckGoMessageHandlerService } from "../../services/duckduckgo-message-handler.service";
 import { EncryptedMessageHandlerService } from "../../services/encrypted-message-handler.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
-import { isWindowsPortable } from "../../utils";
 import { SearchBarService } from "../layout/search/search-bar.service";
 
 import { DesktopFileDownloadService } from "./desktop-file-download.service";
@@ -202,10 +201,15 @@ const safeProviders: SafeProvider[] = [
     // the TokenService having to inject the PlatformUtilsService which introduces a
     // circular dependency on Desktop only.
     //
+    // For Windows portable builds, we disable secure storage to ensure tokens are
+    // stored on disk (in bitwarden-appdata) rather than in Windows Credential
+    // Manager, making them portable across machines. This allows users to move the USB drive
+    // between computers while maintaining authentication.
+    //
     // Note: Portable mode does not use secure storage for read/write/clear operations,
     // preventing any collision with tokens from a regular desktop installation.
     provide: SUPPORTS_SECURE_STORAGE,
-    useValue: ELECTRON_SUPPORTS_SECURE_STORAGE && !isWindowsPortable(),
+    useValue: ELECTRON_SUPPORTS_SECURE_STORAGE && !ipc.platform.isWindowsPortable,
   }),
   safeProvider({
     provide: DEFAULT_VAULT_TIMEOUT,
