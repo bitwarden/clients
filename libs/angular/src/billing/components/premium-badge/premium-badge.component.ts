@@ -14,10 +14,11 @@ import { BadgeModule } from "@bitwarden/components";
       type="button"
       *appNotPremium
       bitBadge
-      variant="success"
+      class="tw-text-primary-600 tw-border-primary-600"
       (click)="promptForPremium($event)"
     >
-      {{ "premium" | i18n }}
+      <i class="bwi bwi-premium"></i>
+      {{ "upgrade" | i18n }}
     </button>
   `,
   imports: [BadgeModule, JslibModule],
