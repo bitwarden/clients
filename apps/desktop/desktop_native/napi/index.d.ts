@@ -163,6 +163,8 @@ export declare namespace autofill {
     windowHandle: string
   }
   export interface WindowHandleQueryResponse {
+    isVisible: boolean
+    isFocused: boolean
     handle: string
   }
   export interface Position {

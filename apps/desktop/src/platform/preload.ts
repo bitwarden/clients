@@ -21,6 +21,7 @@ import {
 } from "../utils";
 
 import { ClipboardWriteMessage } from "./types/clipboard";
+import { WindowDetails } from "../main/window.main";
 
 const storage = {
   get: <T>(key: string): Promise<T> => ipcRenderer.invoke("storageService", { action: "get", key }),
@@ -137,7 +138,11 @@ export default {
   hideWindow: () => ipcRenderer.send("window-hide"),
   log: (level: LogLevelType, message?: any, ...optionalParams: any[]) =>
     ipcRenderer.invoke("ipc.log", { level, message, optionalParams }),
-  getNativeWindowHandle: async () => Buffer.from(await ipcRenderer.invoke("get-native-window-handle"), "base64"),
+  getNativeWindowDetails: async (): Promise<WindowDetails> => {
+    const windowDetails = await ipcRenderer.invoke("get-native-window-details")
+    const handle = Buffer.from(windowDetails.handle, "base64")
+    return { ...windowDetails, handle }
+  },
 
   openContextMenu: (
     menu: {

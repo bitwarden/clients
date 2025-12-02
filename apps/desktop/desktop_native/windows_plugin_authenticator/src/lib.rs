@@ -27,16 +27,19 @@ use win_webauthn::{
     },
     AuthenticatorInfo, CtapVersion, PublicKeyCredentialParameters,
 };
-use windows::Win32::{
-    Foundation::HWND,
-    System::Threading::{AttachThreadInput, GetCurrentThreadId},
-    UI::WindowsAndMessaging::{
-        AllowSetForegroundWindow, BringWindowToTop, GetForegroundWindow, GetWindowThreadProcessId,
+use windows::{
+    core::GUID,
+    Win32::{
+        Foundation::HWND,
+        System::Threading::{AttachThreadInput, GetCurrentThreadId},
+        UI::WindowsAndMessaging::{
+            AllowSetForegroundWindow, BringWindowToTop, GetForegroundWindow,
+            GetWindowThreadProcessId,
+        },
     },
 };
-use windows_core::GUID;
 
-use crate::ipc2::{ConnectionStatus, TimedCallback, WindowsProviderClient};
+use crate::ipc2::{ConnectionStatus, LockStatusResponse, TimedCallback, WindowsProviderClient};
 
 // Re-export main functionality
 pub use types::UserVerificationRequirement;
@@ -136,36 +139,14 @@ impl PluginAuthenticator for BitwardenPluginAuthenticator {
         tracing::debug!("Received MakeCredential: {request:?}");
         let client = self.get_client();
 
-        let plugin_hwnd = get_window_handle(&client)?;
+        let plugin_window = get_window_details(&client)?;
         unsafe {
-            // tracing::debug!(
-            //     "Setting window {plugin_hwnd:?} as child of {:?}",
-            //     client_hwnd
-            // );
-            // if let Err(err) = SetParent(plugin_hwnd, Some(client_hwnd)) {
-            //     tracing::warn!(
-            //         "Failed to set {plugin_hwnd:?} as child of {:?}: {err}",
-            //         request.window_handle
-            //     )
-            // };
-
             let dw_current_thread = GetCurrentThreadId();
             let dw_fg_thread = GetWindowThreadProcessId(GetForegroundWindow(), None);
             let result = AttachThreadInput(dw_current_thread, dw_fg_thread, true);
             tracing::debug!("AttachThreadInput() - attach? {result:?}");
-            // let result = SetForegroundWindow(plugin_hwnd);
-            // tracing::debug!("SetForegroundWindow? {result:?}");
-            // let result = SetFocus(Some(plugin_hwnd));
-            // tracing::debug!("SetFocus? {result:?}");
-            // let result = SetActiveWindow(plugin_hwnd);
-            // tracing::debug!("Set active window? {result:?}");
-            // let result = EnableWindow(plugin_hwnd, true);
-            // tracing::debug!("EnableWindow? {result:?}");
-            let result = BringWindowToTop(plugin_hwnd);
+            let result = BringWindowToTop(plugin_window.handle);
             tracing::debug!("BringWindowToTop? {result:?}");
-
-            // let result = SwitchToThisWindow(plugin_hwnd, true);
-            // tracing::debug!("SwitchToThisWindow? {result:?}");
             let result = AttachThreadInput(dw_current_thread, dw_fg_thread, false);
             tracing::debug!("AttachThreadInput() - detach? {result:?}");
         };
@@ -181,19 +162,6 @@ impl PluginAuthenticator for BitwardenPluginAuthenticator {
             .lock()
             .expect("not poisoned")
             .remove(&transaction_id);
-        unsafe {
-            /*
-            _ = SetParent(plugin_hwnd, None)
-                .inspect_err(|err| tracing::debug!("Failed to reset parent: {err}"));
-            */
-            let mut client_pid = MaybeUninit::uninit();
-            if GetWindowThreadProcessId(client_hwnd, Some(client_pid.as_mut_ptr())) != 0 {
-                let client_pid = client_pid.assume_init();
-                if let Err(err) = AllowSetForegroundWindow(client_pid) {
-                    tracing::debug!("Failed to allow client to set foreground window: {err}")
-                };
-            }
-        };
         response
     }
 
@@ -204,17 +172,23 @@ impl PluginAuthenticator for BitwardenPluginAuthenticator {
         tracing::debug!("Received GetAssertion: {request:?}");
         let client = self.get_client();
 
-        let plugin_hwnd = get_window_handle(&client)?;
-        unsafe {
-            let dw_current_thread = GetCurrentThreadId();
-            let dw_fg_thread = GetWindowThreadProcessId(GetForegroundWindow(), None);
-            let result = AttachThreadInput(dw_current_thread, dw_fg_thread, true);
-            tracing::debug!("AttachThreadInput() - attach? {result:?}");
-            let result = BringWindowToTop(plugin_hwnd);
-            tracing::debug!("BringWindowToTop? {result:?}");
-            let result = AttachThreadInput(dw_current_thread, dw_fg_thread, false);
-            tracing::debug!("AttachThreadInput() - detach? {result:?}");
-        };
+        let is_unlocked = get_lock_status(&client).map_or(false, |response| response.is_unlocked);
+        // Don't mess with the window unless we're going to need it: if the
+        // vault is locked or if we need to show credential selection dialog.
+        let needs_ui = !is_unlocked || request.allow_credentials().cCredentials != 1;
+        if needs_ui {
+            unsafe {
+                let plugin_window = get_window_details(&client)?;
+                let dw_current_thread = GetCurrentThreadId();
+                let dw_fg_thread = GetWindowThreadProcessId(GetForegroundWindow(), None);
+                let result = AttachThreadInput(dw_current_thread, dw_fg_thread, true);
+                tracing::debug!("AttachThreadInput() - attach? {result:?}");
+                let result = BringWindowToTop(plugin_window.handle);
+                tracing::debug!("BringWindowToTop? {result:?}");
+                let result = AttachThreadInput(dw_current_thread, dw_fg_thread, false);
+                tracing::debug!("AttachThreadInput() - detach? {result:?}");
+            };
+        }
         let (cancel_tx, cancel_rx) = mpsc::channel();
         let transaction_id = request.transaction_id;
         self.callbacks
@@ -252,43 +226,42 @@ impl PluginAuthenticator for BitwardenPluginAuthenticator {
     }
 
     fn lock_status(&self) -> Result<PluginLockStatus, Box<dyn std::error::Error>> {
-        let callback = Arc::new(TimedCallback::new());
-        let client = self.get_client();
-        client.get_lock_status(callback.clone());
-        match callback.wait_for_response(Duration::from_secs(3), None) {
-            Ok(Ok(response)) => {
+        get_lock_status(&self.get_client())
+            .map(|response| {
                 if response.is_unlocked {
-                    Ok(PluginLockStatus::PluginUnlocked)
+                    PluginLockStatus::PluginUnlocked
                 } else {
-                    Ok(PluginLockStatus::PluginLocked)
+                    PluginLockStatus::PluginLocked
                 }
-            }
-            Ok(Err(err)) => Err(format!("GetLockStatus() call failed: {err}").into()),
-            Err(_) => Err(format!("GetLockStatus() call timed out").into()),
-        }
+            })
+            .map_err(|err| err.into())
     }
 }
 
-fn get_window_handle(client: &WindowsProviderClient) -> Result<HWND, String> {
+fn get_lock_status(client: &WindowsProviderClient) -> Result<LockStatusResponse, String> {
+    let callback = Arc::new(TimedCallback::new());
+    client.get_lock_status(callback.clone());
+    match callback.wait_for_response(Duration::from_secs(3), None) {
+        Ok(Ok(response)) => Ok(response),
+        Ok(Err(err)) => Err(format!("GetLockStatus() call failed: {err}").into()),
+        Err(_) => Err(format!("GetLockStatus() call timed out").into()),
+    }
+}
+
+fn get_window_details(client: &WindowsProviderClient) -> Result<WindowDetails, String> {
     tracing::debug!("Get Window Handle!");
     let window_handle_callback = Arc::new(TimedCallback::new());
     client.get_window_handle(window_handle_callback.clone());
-    let plugin_window_handle = window_handle_callback
+    let response = window_handle_callback
         .wait_for_response(Duration::from_secs(3), None)
         .unwrap()
-        .unwrap()
-        .handle;
-    unsafe {
-        // SAFETY: We check to make sure that the vec is the expected size
-        // before converting it. If the handle is invalid when passed to
-        // Windows, the request will be rejected.
-        if plugin_window_handle.len() == size_of::<HWND>() {
-            Ok(*plugin_window_handle.as_ptr().cast())
-        } else {
-            Err(format!(
-                "Invalid window handle received: {:?}",
-                plugin_window_handle
-            ))
-        }
-    }
+        .unwrap();
+    tracing::debug!("Got Window Handle: {response:?}");
+    response.try_into()
+}
+
+struct WindowDetails {
+    is_visible: bool,
+    is_focused: bool,
+    handle: HWND,
 }

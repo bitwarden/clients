@@ -691,6 +691,8 @@ pub mod autofill {
     #[derive(Debug, Serialize, Deserialize)]
     #[serde(rename_all = "camelCase")]
     pub struct WindowHandleQueryResponse {
+        pub is_visible: bool,
+        pub is_focused: bool,
         pub handle: String,
     }
 

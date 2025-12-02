@@ -45,7 +45,6 @@ import {
   NativeAutofillPasswordCredential,
   NativeAutofillSyncCommand,
 } from "../../platform/main/autofill/sync.command";
-import { NativeAutofillUserVerificationCommand } from "../../platform/main/autofill/user-verification.command";
 
 import type { NativeWindowObject } from "./desktop-fido2-user-interface.service";
 
@@ -409,10 +408,11 @@ export class DesktopAutofillService implements OnDestroy {
       }
 
       this.logService.debug("listenGetWindowHandle", clientId, sequenceNumber, request);
-      let handle = Utils.fromBufferToB64(await ipc.platform.getNativeWindowHandle());
-      const response = { handle };
+      const windowDetails = await ipc.platform.getNativeWindowDetails();
+      const handle = Utils.fromBufferToB64(windowDetails.handle);
+      const response = { ...windowDetails, handle };
       this.logService.debug("listenGetWindowHandle: sending", response);
-      callback(null, { handle })
+      callback(null, response)
     })
 
     ipc.autofill.listenerReady();

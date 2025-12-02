@@ -379,14 +379,20 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     // 
     // For Windows, if the selected window handle is not in the foreground, then the Windows
     // Hello dialog will also be in the background.
-    // 
-    // TODO: modalState is just a proxy for what we actually want: whether the window is visible.
-    // We should add a way for services to query window visibility.
-    const modalState = await firstValueFrom(this.desktopSettingsService.modalMode$);
-    await ipc.autofill.transferFocus(windowHandle);
-    // Ensure our window is hidden when showing the OS user verification dialog.
-    this.logService.debug("Hiding UI");
-    this.hideUi();
+    const windowDetails = await ipc.platform.getNativeWindowDetails();
+    this.logService.debug("Window details:", windowDetails);
+    let windowHandle;
+    if (windowDetails.isVisible && windowDetails.isFocused) {
+      windowHandle = windowDetails.handle
+      this.logService.debug("Window is visible, setting Electron window as parent of Windows Hello UV dialog", windowHandle.buffer)
+    }
+    else {
+      windowHandle = this.windowObject.handle;
+      this.logService.debug("Window is not visible: setting client window as parent of Windows Hello UV dialog", windowHandle.buffer)
+    }
+
+    this.logService.debug("Prompting for user verification");
+
     const uvResult = await ipc.autofill.runCommand<NativeAutofillUserVerificationCommand>({
       namespace: "autofill",
       command: "user-verification",
@@ -452,7 +458,9 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         this.unsusbscribeCancellation(abortFn);
       }
 
+      // It seems that this is redirecting _after_ the above promise
       if (status2 === AuthenticationStatus.Unlocked) {
+        this.logService.debug(("Account status changed: redirecting to main page"))
         await this.router.navigate(["/"]);
       }
 
