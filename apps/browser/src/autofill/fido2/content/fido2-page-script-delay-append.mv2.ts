@@ -8,19 +8,10 @@ void (async function (globalContext) {
   }
 
   const script = globalContext.document.createElement("script");
+  // We're removing stack trace information in the page script instead
+  // eslint-disable-next-line @bitwarden/platform/no-page-script-url-leakage
+  script.src = chrome.runtime.getURL("content/fido2-page-script.js");
   script.async = false;
-
-  const pageScriptUrl = chrome.runtime.getURL("content/fido2-page-script.js");
-  // Inject the script contents directly to avoid leaking the extension URL
-  try {
-    const response = await fetch(pageScriptUrl);
-    const scriptContents = await response.text();
-    script.innerHTML = scriptContents;
-  } catch {
-    // eslint-disable-next-line no-console
-    console.error("Failed to load FIDO2 page script contents. Injection failed.");
-    return;
-  }
 
   // We are ensuring that the script injection is delayed in the event that we are loading
   // within an iframe element. This prevents an issue with web mail clients that load content
