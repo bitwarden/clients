@@ -10,7 +10,7 @@ anyhow = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
 itertools.workspace = true
-mockall = "=0.13.1"
+mockall = "=0.14.0"
 serial_test = "=3.2.0"
 tracing.workspace = true
 windows = { workspace = true, features = [

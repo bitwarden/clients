@@ -10,9 +10,6 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 import { DarkImageSourceDirective } from "@bitwarden/vault";
 
-import { DefaultAdminTaskService } from "../../../../vault/services/default-admin-task.service";
-import { AccessIntelligenceSecurityTasksService } from "../../shared/security-tasks.service";
-
 /**
  * Embedded component for displaying task assignment UI.
  * Not a dialog - intended to be embedded within a parent dialog.
@@ -36,7 +33,6 @@ import { AccessIntelligenceSecurityTasksService } from "../../shared/security-ta
     DarkImageSourceDirective,
     CalloutComponent,
   ],
-  providers: [AccessIntelligenceSecurityTasksService, DefaultAdminTaskService],
 })
 export class AssignTasksViewComponent {
   readonly criticalApplicationsCount = input.required<number>();

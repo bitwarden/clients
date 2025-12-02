@@ -1,4 +1,3 @@
-use crate::password::PASSWORD_NOT_FOUND;
 use anyhow::{anyhow, Result};
 use widestring::{U16CString, U16String};
 use windows::{
@@ -11,6 +10,8 @@ use windows::{
         },
     },
 };
+
+use crate::password::PASSWORD_NOT_FOUND;
 
 const CRED_FLAGS_NONE: u32 = 0;
 

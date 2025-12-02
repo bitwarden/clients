@@ -3,23 +3,26 @@
 import { randomBytes } from "crypto";
 
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
-import { RotateableKeySet } from "@bitwarden/auth/common";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginCredentialAssertionView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion.view";
 import { WebAuthnLoginAssertionResponseRequest } from "@bitwarden/common/auth/services/webauthn-login/request/webauthn-login-assertion-response.request";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { RotateableKeySet } from "@bitwarden/common/key-management/keys/models/rotateable-key-set";
+import { RotateableKeySetService } from "@bitwarden/common/key-management/keys/services/abstractions/rotateable-key-set.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { makeEncString, makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { PrfKey, UserKey } from "@bitwarden/common/types/key";
+import { newGuid } from "@bitwarden/guid";
+import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 
 import { WebauthnLoginCredentialPrfStatus } from "../../enums/webauthn-login-credential-prf-status.enum";
 import { CredentialCreateOptionsView } from "../../views/credential-create-options.view";
 import { PendingWebauthnLoginCredentialView } from "../../views/pending-webauthn-login-credential.view";
-import { RotateableKeySetService } from "../rotateable-key-set.service";
 
 import { EnableCredentialEncryptionRequest } from "./request/enable-credential-encryption.request";
 import { WebauthnLoginCredentialResponse } from "./response/webauthn-login-credential.response";
@@ -32,9 +35,12 @@ describe("WebauthnAdminService", () => {
   let rotateableKeySetService!: MockProxy<RotateableKeySetService>;
   let webAuthnLoginPrfKeyService!: MockProxy<WebAuthnLoginPrfKeyServiceAbstraction>;
   let credentials: MockProxy<CredentialsContainer>;
+  let keyService: MockProxy<KeyService>;
   let service!: WebauthnLoginAdminService;
 
   let originalAuthenticatorAssertionResponse!: AuthenticatorAssertionResponse | any;
+  const mockUserId = newGuid() as UserId;
+  const mockUserKey = makeSymmetricCryptoKey(64) as UserKey;
 
   beforeAll(() => {
     // Polyfill missing class
@@ -45,12 +51,14 @@ describe("WebauthnAdminService", () => {
     userVerificationService = mock<UserVerificationService>();
     rotateableKeySetService = mock<RotateableKeySetService>();
     webAuthnLoginPrfKeyService = mock<WebAuthnLoginPrfKeyServiceAbstraction>();
+    keyService = mock<KeyService>();
     credentials = mock<CredentialsContainer>();
     service = new WebauthnLoginAdminService(
       apiService,
       userVerificationService,
       rotateableKeySetService,
       webAuthnLoginPrfKeyService,
+      keyService,
       credentials,
     );
 
@@ -58,6 +66,8 @@ describe("WebauthnAdminService", () => {
     originalAuthenticatorAssertionResponse = global.AuthenticatorAssertionResponse;
     // Mock the global AuthenticatorAssertionResponse class b/c the class is only available in secure contexts
     global.AuthenticatorAssertionResponse = MockAuthenticatorAssertionResponse;
+
+    keyService.userKey$.mockReturnValue(of(mockUserKey));
   });
 
   beforeEach(() => {
@@ -124,7 +134,7 @@ describe("WebauthnAdminService", () => {
       const request = new EnableCredentialEncryptionRequest();
       request.token = assertionOptions.token;
       request.deviceResponse = assertionOptions.deviceResponse;
-      request.encryptedUserKey = prfKeySet.encryptedUserKey.encryptedString;
+      request.encryptedUserKey = prfKeySet.encapsulatedDownstreamKey.encryptedString;
       request.encryptedPublicKey = prfKeySet.encryptedPublicKey.encryptedString;
       request.encryptedPrivateKey = prfKeySet.encryptedPrivateKey.encryptedString;
 
@@ -135,10 +145,10 @@ describe("WebauthnAdminService", () => {
       const updateCredentialMock = jest.spyOn(apiService, "updateCredential").mockResolvedValue();
 
       // Act
-      await service.enableCredentialEncryption(assertionOptions);
+      await service.enableCredentialEncryption(assertionOptions, mockUserId);
 
       // Assert
-      expect(createKeySetMock).toHaveBeenCalledWith(assertionOptions.prfKey);
+      expect(createKeySetMock).toHaveBeenCalledWith(assertionOptions.prfKey, mockUserKey);
       expect(updateCredentialMock).toHaveBeenCalledWith(request);
     });
 
@@ -161,13 +171,26 @@ describe("WebauthnAdminService", () => {
 
       // Act
       try {
-        await service.enableCredentialEncryption(assertionOptions);
+        await service.enableCredentialEncryption(assertionOptions, mockUserId);
       } catch (error) {
         // Assert
         expect(error).toEqual(new Error("invalid credential"));
         expect(createKeySetMock).not.toHaveBeenCalled();
         expect(updateCredentialMock).not.toHaveBeenCalled();
       }
+    });
+
+    test.each([null, undefined, ""])("should throw an error when userId is %p", async (userId) => {
+      const response = new MockPublicKeyCredential();
+      const assertionOptions: WebAuthnLoginCredentialAssertionView =
+        new WebAuthnLoginCredentialAssertionView(
+          "enable_credential_encryption_test_token",
+          new WebAuthnLoginAssertionResponseRequest(response),
+          {} as PrfKey,
+        );
+      await expect(
+        service.enableCredentialEncryption(assertionOptions, userId as any),
+      ).rejects.toThrow("userId is required");
     });
 
     it("should throw error when WehAuthnLoginCredentialAssertionView is undefined", async () => {
@@ -182,7 +205,7 @@ describe("WebauthnAdminService", () => {
 
       // Act
       try {
-        await service.enableCredentialEncryption(assertionOptions);
+        await service.enableCredentialEncryption(assertionOptions, mockUserId);
       } catch (error) {
         // Assert
         expect(error).toEqual(new Error("invalid credential"));

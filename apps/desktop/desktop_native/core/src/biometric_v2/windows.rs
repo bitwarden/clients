@@ -2,38 +2,40 @@
 //!
 //! There are two paths implemented here.
 //! The former via UV + ephemerally (but protected) keys. This only works after first unlock.
-//! The latter via a signing API, that deterministically signs a challenge, from which a windows hello key is derived. This key
-//! is used to encrypt the protected key.
+//! The latter via a signing API, that deterministically signs a challenge, from which a windows
+//! hello key is derived. This key is used to encrypt the protected key.
 //!
 //! # Security
-//! The security goal is that a locked vault - a running app - cannot be unlocked when the device (user-space)
-//! is compromised in this state.
+//! The security goal is that a locked vault - a running app - cannot be unlocked when the device
+//! (user-space) is compromised in this state.
 //!
 //! ## UV path
-//! When first unlocking the app, the app sends the user-key to this module, which holds it in secure memory,
-//! protected by DPAPI. This makes it inaccessible to other processes, unless they compromise the system administrator, or kernel.
-//! While the app is running this key is held in memory, even if locked. When unlocking, the app will prompt the user via
+//! When first unlocking the app, the app sends the user-key to this module, which holds it in
+//! secure memory, protected by DPAPI. This makes it inaccessible to other processes, unless they
+//! compromise the system administrator, or kernel. While the app is running this key is held in
+//! memory, even if locked. When unlocking, the app will prompt the user via
 //! `windows_hello_authenticate` to get a yes/no decision on whether to release the key to the app.
-//! Note: Further process isolation is needed here so that code cannot be injected into the running process, which may
-//! circumvent DPAPI.
+//! Note: Further process isolation is needed here so that code cannot be injected into the running
+//! process, which may circumvent DPAPI.
 //!
 //! ## Sign path
-//! In this scenario, when enrolling, the app sends the user-key to this module, which derives the windows hello key
-//! with the Windows Hello prompt. This is done by signing a per-user challenge, which produces a deterministic
-//! signature which is hashed to obtain a key. This key is used to encrypt and persist the vault unlock key (user key).
+//! In this scenario, when enrolling, the app sends the user-key to this module, which derives the
+//! windows hello key with the Windows Hello prompt. This is done by signing a per-user challenge,
+//! which produces a deterministic signature which is hashed to obtain a key. This key is used to
+//! encrypt and persist the vault unlock key (user key).
 //!
-//! Since the keychain can be accessed by all user-space processes, the challenge is known to all userspace processes.
-//! Therefore, to circumvent the security measure, the attacker would need to create a fake Windows-Hello prompt, and
-//! get the user to confirm it.
+//! Since the keychain can be accessed by all user-space processes, the challenge is known to all
+//! userspace processes. Therefore, to circumvent the security measure, the attacker would need to
+//! create a fake Windows-Hello prompt, and get the user to confirm it.
 
 use std::sync::{atomic::AtomicBool, Arc};
-use tracing::{debug, warn};
 
 use aes::cipher::KeyInit;
 use anyhow::{anyhow, Result};
 use chacha20poly1305::{aead::Aead, XChaCha20Poly1305, XNonce};
 use sha2::{Digest, Sha256};
 use tokio::sync::Mutex;
+use tracing::{debug, warn};
 use windows::{
     core::{factory, h, Interface, HSTRING},
     Security::{
@@ -74,8 +76,8 @@ struct WindowsHelloKeychainEntry {
 
 /// The Windows OS implementation of the biometric trait.
 pub struct BiometricLockSystem {
-    // The userkeys that are held in memory MUST be protected from memory dumping attacks, to ensure
-    // locked vaults cannot be unlocked
+    // The userkeys that are held in memory MUST be protected from memory dumping attacks, to
+    // ensure locked vaults cannot be unlocked
     secure_memory: Arc<Mutex<crate::secure_memory::dpapi::DpapiSecretKVStore>>,
 }
 
@@ -114,12 +116,14 @@ impl super::BiometricTrait for BiometricLockSystem {
     }
 
     async fn enroll_persistent(&self, user_id: &str, key: &[u8]) -> Result<()> {
-        // Enrollment works by first generating a random challenge unique to the user / enrollment. Then,
-        // with the challenge and a Windows-Hello prompt, the "windows hello key" is derived. The windows
-        // hello key is used to encrypt the key to store with XChaCha20Poly1305. The bundle of nonce,
-        // challenge and wrapped-key are stored to the keychain
+        // Enrollment works by first generating a random challenge unique to the user / enrollment.
+        // Then, with the challenge and a Windows-Hello prompt, the "windows hello key" is
+        // derived. The windows hello key is used to encrypt the key to store with
+        // XChaCha20Poly1305. The bundle of nonce, challenge and wrapped-key are stored to
+        // the keychain
 
-        // Each enrollment (per user) has a unique challenge, so that the windows-hello key is unique
+        // Each enrollment (per user) has a unique challenge, so that the windows-hello key is
+        // unique
         let challenge: [u8; CHALLENGE_LENGTH] = rand::random();
 
         // This key is unique to the challenge
@@ -155,8 +159,8 @@ impl super::BiometricTrait for BiometricLockSystem {
         });
 
         let mut secure_memory = self.secure_memory.lock().await;
-        // If the key is held ephemerally, always use UV API. Only use signing API if the key is not held
-        // ephemerally but the keychain holds it persistently.
+        // If the key is held ephemerally, always use UV API. Only use signing API if the key is not
+        // held ephemerally but the keychain holds it persistently.
         if secure_memory.has(user_id) {
             if windows_hello_authenticate("Unlock your vault".to_string()).await? {
                 secure_memory
@@ -175,7 +179,8 @@ impl super::BiometricTrait for BiometricLockSystem {
                 &keychain_entry.wrapped_key,
                 &keychain_entry.nonce,
             )?;
-            // The first unlock already sets the key for subsequent unlocks. The key may again be set externally after unlock finishes.
+            // The first unlock already sets the key for subsequent unlocks. The key may again be
+            // set externally after unlock finishes.
             secure_memory.put(user_id.to_string(), &decrypted_key.clone());
             Ok(decrypted_key)
         }
@@ -231,8 +236,8 @@ async fn windows_hello_authenticate_with_crypto(
 ) -> Result<[u8; XCHACHA20POLY1305_KEY_LENGTH]> {
     debug!("[Windows Hello] Authenticating to sign challenge");
 
-    // Ugly hack: We need to focus the window via window focusing APIs until Microsoft releases a new API.
-    // This is unreliable, and if it does not work, the operation may fail
+    // Ugly hack: We need to focus the window via window focusing APIs until Microsoft releases a
+    // new API. This is unreliable, and if it does not work, the operation may fail
     let stop_focusing = Arc::new(AtomicBool::new(false));
     let stop_focusing_clone = stop_focusing.clone();
     let _ = std::thread::spawn(move || loop {
@@ -243,8 +248,8 @@ async fn windows_hello_authenticate_with_crypto(
             break;
         }
     });
-    // Only stop focusing once this function exits. The focus MUST run both during the initial creation
-    // with RequestCreateAsync, and also with the subsequent use with RequestSignAsync.
+    // Only stop focusing once this function exits. The focus MUST run both during the initial
+    // creation with RequestCreateAsync, and also with the subsequent use with RequestSignAsync.
     let _guard = scopeguard::guard((), |_| {
         stop_focusing.store(true, std::sync::atomic::Ordering::Relaxed);
     });
@@ -283,8 +288,8 @@ async fn windows_hello_authenticate_with_crypto(
     let signature_buffer = signature.Result()?;
     let signature_value = unsafe { as_mut_bytes(&signature_buffer)? };
 
-    // The signature is deterministic based on the challenge and keychain key. Thus, it can be hashed to a key.
-    // It is unclear what entropy this key provides.
+    // The signature is deterministic based on the challenge and keychain key. Thus, it can be
+    // hashed to a key. It is unclear what entropy this key provides.
     let windows_hello_key = Sha256::digest(signature_value).into();
     Ok(windows_hello_key)
 }

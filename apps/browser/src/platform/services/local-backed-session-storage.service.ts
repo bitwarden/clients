@@ -43,7 +43,7 @@ export class LocalBackedSessionStorageService
       if (port.name !== portName(chrome.storage.session)) {
         return;
       }
-      if (!BrowserApi.senderIsInternal(port.sender)) {
+      if (!BrowserApi.senderIsInternal(port.sender, this.logService)) {
         return;
       }
 
