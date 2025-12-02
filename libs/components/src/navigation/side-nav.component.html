@@ -9,7 +9,7 @@
     <nav
       id="bit-side-nav"
       class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-screen tw-flex-col tw-overscroll-none tw-overflow-auto tw-bg-background-alt3 tw-outline-none"
-      [style.width.px]="data.open ? (width$ | async) : undefined"
+      [style.width.px]="data.open ? (sideNavService.width$ | async) : undefined"
       [ngStyle]="
         variant() === 'secondary' && {
           '--color-text-alt2': 'var(--color-text-main)',

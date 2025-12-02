@@ -1,5 +1,5 @@
 import { RouterTestingModule } from "@angular/router/testing";
-import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { userEvent } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -28,6 +28,10 @@ export default {
             return new I18nMockService(mockLayoutI18n);
           },
         },
+      ],
+    }),
+    applicationConfig({
+      providers: [
         {
           provide: GlobalStateProvider,
           useClass: StorybookGlobalStateProvider,

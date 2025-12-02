@@ -47,10 +47,6 @@ export default {
             });
           },
         },
-        {
-          provide: GlobalStateProvider,
-          useClass: StorybookGlobalStateProvider,
-        },
       ],
     }),
     applicationConfig({
@@ -64,6 +60,10 @@ export default {
             { useHash: true },
           ),
         ),
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
+        },
       ],
     }),
   ],
