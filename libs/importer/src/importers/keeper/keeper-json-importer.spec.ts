@@ -175,11 +175,16 @@ describe("Keeper Json Importer", () => {
       expect(contact.notes).toEqual("Primary care physician - office visits and consultations");
 
       // Fields
-      expect(contact.fields.length).toEqual(4);
+      expect(contact.fields.length).toEqual(5);
       expect(getField(contact, "name")?.value).toEqual("Emily Marie Chen");
       expect(getField(contact, "company")?.value).toEqual("Springfield Medical Center");
       expect(getField(contact, "email")?.value).toEqual("emily.chen@smc.org");
       expect(getField(contact, "phone")?.value).toEqual("(AF) 5415558723 ext. 5577 (Work)");
+
+      // Resolved reference field
+      expect(getField(contact, "address")?.value).toEqual(
+        "1428 Elm Street, Suite 200, Portland, Oregon, 97204, US",
+      );
     });
   });
 
@@ -329,7 +334,7 @@ describe("Keeper Json Importer", () => {
       ]);
 
       // Fields
-      expect(login.fields.length).toEqual(15);
+      expect(login.fields.length).toEqual(17);
 
       // 1
       expect(getField(login, "some label")?.value).toEqual("some text");
@@ -377,6 +382,13 @@ describe("Keeper Json Importer", () => {
       // 15
       expect(getField(login, "special secret")?.value).toEqual("big secret");
       expect(getField(login, "special secret")?.type).toEqual(FieldType.Hidden);
+
+      // 16-17
+      const addresses = getFields(login, "address");
+      expect(addresses.map((x) => x.value).sort()).toEqual([
+        "1428 Elm Street, Suite 200, Portland, Oregon, 97204, US",
+        "742 Evergreen Terrace, Apt 3B, Springfield, Oregon, 97477, US",
+      ]);
     });
   });
 

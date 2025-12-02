@@ -9,6 +9,7 @@ export type KeeperJsonExport = {
 export type Record = {
   $type?: string;
 
+  uid?: string;
   title?: string;
   login?: string;
   password?: string;
@@ -16,15 +17,18 @@ export type Record = {
   notes?: string;
   last_modified?: number;
   custom_fields?: CustomFields;
+  references?: References;
   folders?: Folder[];
 
   // Ignored at the moment
-  uid?: string;
   schema?: any;
-  references?: any;
 };
 
 export type CustomFields = {
+  [key: string]: any;
+};
+
+export type References = {
   [key: string]: any;
 };
 

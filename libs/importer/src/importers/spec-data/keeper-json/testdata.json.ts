@@ -209,7 +209,7 @@ export const CliTestData = {
       uid: "Cc7XJclmnKeOqdFnG4Dz2A",
       notes: "Primary care physician - office visits and consultations",
       $type: "contact",
-      last_modified: 1764674791,
+      last_modified: 1764693718,
       custom_fields: {
         $name: {
           first: "Emily",
@@ -224,6 +224,9 @@ export const CliTestData = {
           ext: "5577",
           type: "Work",
         },
+      },
+      references: {
+        $address: ["1tjq4jlAla4S6GsBZpc8LQ"],
       },
       folders: [
         {
@@ -869,6 +872,9 @@ export const WebTestData = {
           ext: "5577",
           type: "Work",
         },
+      },
+      references: {
+        "$addressRef::1": [15],
       },
       folders: [
         {

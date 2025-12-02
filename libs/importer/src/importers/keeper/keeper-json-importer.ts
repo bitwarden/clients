@@ -13,7 +13,15 @@ import { Importer } from "../importer";
 
 import { KeeperJsonExport, Record, CustomFields } from "./types/keeper-json-types";
 
+type Reference = {
+  id: string;
+  type: string;
+};
+
 export class KeeperJsonImporter extends BaseImporter implements Importer {
+  private references: Map<string, Reference[]> = new Map<string, Reference[]>();
+  private idToCipher: Map<string, CipherView> = new Map<string, CipherView>();
+
   parse(data: string): Promise<ImportResult> {
     const result = new ImportResult();
     const keeperExport: KeeperJsonExport = JSON.parse(data);
@@ -24,6 +32,7 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
 
     this.parseSharedFolders(keeperExport, result);
     this.parseRecords(keeperExport, result);
+    this.resolveReferences();
 
     if (this.organization) {
       this.moveFoldersToCollections(result);
@@ -40,6 +49,26 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
 
     keeperExport.shared_folders.forEach((folder) => {
       this.processFolder(result, folder.path ?? "", false);
+    });
+  }
+
+  private parseReferences(keeperExport: KeeperJsonExport) {
+    keeperExport.records.forEach((record) => {
+      if (record.references) {
+        for (const [key, values] of Object.entries(record.references)) {
+          let [type] = this.parseFieldKey(key);
+
+          // Web exporter appends "Ref" to the type names
+          if (type.endsWith("Ref")) {
+            type = type.substring(0, type.length - 3);
+          }
+
+          this.references.set(
+            record.uid!,
+            this.makeArray(values).map((id) => ({ id: id, type: type })),
+          );
+        }
+      }
     });
   }
 
@@ -78,11 +107,57 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
         this.importCustomFields(record.custom_fields, cipher);
       }
 
+      if (record.references) {
+        const refs = [];
+        for (const [key, values] of Object.entries(record.references)) {
+          let [type] = this.parseFieldKey(key);
+
+          // Web exporter appends "Ref" to the type names
+          if (type.endsWith("Ref")) {
+            type = type.substring(0, type.length - 3);
+          }
+
+          refs.push(...this.makeArray(values).map((id) => ({ id: id, type: type })));
+        }
+
+        if (refs.length > 0) {
+          this.references.set(record.uid!, refs);
+        }
+      }
+
       this.convertToNoteIfNeeded(cipher);
       this.cleanupCipher(cipher);
 
       result.ciphers.push(cipher);
+
+      // This is needed for resolving references later
+      this.idToCipher.set(record.uid!, cipher);
     });
+  }
+
+  private resolveReferences() {
+    for (const [uid, refs] of this.references) {
+      const cipher = this.idToCipher.get(uid);
+      if (!cipher) {
+        continue;
+      }
+
+      for (const { id, type } of refs) {
+        const refCipher = this.idToCipher.get(id);
+        if (!refCipher) {
+          continue;
+        }
+
+        const value = this.findFieldByName(refCipher, type)?.value || "";
+        if (value) {
+          this.addField(cipher, type, value);
+        }
+      }
+    }
+  }
+
+  private findFieldByName(cipher: CipherView, name: string): FieldView | null {
+    return cipher.fields.find((f) => f.name === name) || null;
   }
 
   private importBankCard(record: Record, cipher: CipherView) {
