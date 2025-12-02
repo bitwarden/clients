@@ -279,7 +279,7 @@ export abstract class BaseImporter {
       const collection = new CollectionView({
         name: f.name,
         organizationId: this.organizationId,
-        id: f.id as CollectionId,
+        id: (f.id as CollectionId) ?? null,
       });
       return collection;
     });
