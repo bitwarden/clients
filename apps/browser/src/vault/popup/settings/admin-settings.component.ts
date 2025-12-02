@@ -87,8 +87,8 @@ export class AdminSettingsComponent implements OnInit {
           this.adminForm.setValue({ autoConfirm: false }, { emitEvent: false });
           return false;
         }),
-        withLatestFrom(this.userId$, this.autoConfirmService.configuration$(userId)),
-        switchMap(([newValue, userId, existingState]) =>
+        withLatestFrom(this.autoConfirmService.configuration$(userId)),
+        switchMap(([newValue, existingState]) =>
           this.autoConfirmService.upsert(userId, {
             ...existingState,
             enabled: newValue,

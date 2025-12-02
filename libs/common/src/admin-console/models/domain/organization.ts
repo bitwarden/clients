@@ -379,6 +379,9 @@ export class Organization {
     return this.familySponsorshipAvailable || this.familySponsorshipFriendlyName !== null;
   }
 
+  /**
+   * Do not call this function to perform business logic, consider using the function in @link AutomaticUserConfirmationService instead.
+   **/
   get canManageAutoConfirm() {
     return this.isMember && this.canManageUsers && this.useAutomaticUserConfirmation;
   }

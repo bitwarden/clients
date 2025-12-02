@@ -56,7 +56,7 @@ export function canAccessOrgAdmin(org: Organization): boolean {
   );
 }
 
-export function canAccessAutoConfirm(
+export function canAccessEmergencyAccess(
   userId: UserId,
   configService: ConfigService,
   policyService: PolicyService,
@@ -64,15 +64,8 @@ export function canAccessAutoConfirm(
   return combineLatest([
     configService.getFeatureFlag$(FeatureFlag.AutoConfirm),
     policyService.policiesByType$(PolicyType.AutoConfirm, userId),
-  ]).pipe(map(([enabled, policies]) => enabled && policies.some((p) => p.enabled)));
-}
-
-export function canAccessEmergencyAccess(
-  userId: UserId,
-  configService: ConfigService,
-  policyService: PolicyService,
-) {
-  return canAccessAutoConfirm(userId, configService, policyService).pipe(
+  ]).pipe(
+    map(([enabled, policies]) => enabled && policies.some((p) => p.enabled)),
     map((canAccess) => !canAccess),
   );
 }

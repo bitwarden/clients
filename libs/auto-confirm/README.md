@@ -15,4 +15,4 @@ browser. This is an intentional security measure to ensure that the server canno
 
 Once enabled, the AutomaticUserConfirmationService runs in the background on admins' devices and reacts to push notifications from the server containing organization members who need confirmation.
 
-For more information about security goals and the push notification system, see [README in server repo](https://github.com/bitwarden/server/blob/116ead6bf6ca091365f4412fd4c4c4e6164fdb1c/src/Core/AdminConsole/OrganizationFeatures/OrganizationUsers/AutoConfirmUser/README.md).
+For more information about security goals and the push notification system, see [README in server repo](https://github.com/bitwarden/server/tree/main/src/Core/AdminConsole/OrganizationFeatures/OrganizationUsers/AutoConfirmUser).
