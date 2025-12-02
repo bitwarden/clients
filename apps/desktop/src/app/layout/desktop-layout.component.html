@@ -2,7 +2,7 @@
   <app-side-nav slot="side-nav">
     <bit-nav-logo [openIcon]="logo" route="." [label]="'passwordManager' | i18n"></bit-nav-logo>
 
-    <bit-nav-item icon="bwi-vault" [text]="'vault' | i18n" route="new-vault"></bit-nav-item>
+    <app-vault-nav></app-vault-nav>
     <bit-nav-item icon="bwi-send" [text]="'send' | i18n" route="new-sends"></bit-nav-item>
   </app-side-nav>
 
