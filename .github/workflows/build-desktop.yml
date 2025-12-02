@@ -180,7 +180,7 @@ jobs:
           persist-credentials: false
 
       - name: Check folder sizes
-        run: sudo du -h --max-depth=1 / | sort -hr
+        run: sudo du -h --max-depth=1 /usr | sort -hr
 
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
