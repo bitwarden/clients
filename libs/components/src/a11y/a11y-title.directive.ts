@@ -27,6 +27,7 @@ export class A11yTitleDirective {
   constructor() {
     const originalAriaLabel = this.elementRef.nativeElement.getAttribute("aria-label");
 
+    // setting aria-label as a workaround for testing purposes. Should be removed once tests are updated to check element content.
     effect(() => {
       setA11yTitleAndAriaLabel({
         element: this.elementRef.nativeElement,
