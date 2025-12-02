@@ -5,7 +5,6 @@ import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ProviderId } from "@bitwarden/common/types/guid";
@@ -21,7 +20,6 @@ describe("ProviderWarningsService", () => {
   let service: ProviderWarningsService;
   let activatedRoute: MockProxy<ActivatedRoute>;
   let apiService: MockProxy<ApiService>;
-  let configService: MockProxy<ConfigService>;
   let dialogService: MockProxy<DialogService>;
   let i18nService: MockProxy<I18nService>;
   let router: MockProxy<Router>;
@@ -42,7 +40,6 @@ describe("ProviderWarningsService", () => {
   beforeEach(() => {
     activatedRoute = mock<ActivatedRoute>();
     apiService = mock<ApiService>();
-    configService = mock<ConfigService>();
     dialogService = mock<DialogService>();
     i18nService = mock<I18nService>();
     router = mock<Router>();
@@ -72,7 +69,6 @@ describe("ProviderWarningsService", () => {
         ProviderWarningsService,
         { provide: ActivatedRoute, useValue: activatedRoute },
         { provide: ApiService, useValue: apiService },
-        { provide: ConfigService, useValue: configService },
         { provide: DialogService, useValue: dialogService },
         { provide: I18nService, useValue: i18nService },
         { provide: Router, useValue: router },
@@ -211,22 +207,7 @@ describe("ProviderWarningsService", () => {
   });
 
   describe("showProviderSuspendedDialog$", () => {
-    it("should not show dialog when feature flag is disabled", (done) => {
-      configService.getFeatureFlag$.mockReturnValue(of(false));
-      apiService.send.mockResolvedValue({
-        Suspension: { Resolution: "add_payment_method" },
-      });
-
-      service.showProviderSuspendedDialog$(provider).subscribe({
-        complete: () => {
-          expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
-          done();
-        },
-      });
-    });
-
     it("should not show dialog when no suspension warning exists", (done) => {
-      configService.getFeatureFlag$.mockReturnValue(of(true));
       apiService.send.mockResolvedValue({});
 
       service.showProviderSuspendedDialog$(provider).subscribe({
@@ -239,7 +220,6 @@ describe("ProviderWarningsService", () => {
 
     it("should show add payment method dialog with cancellation date", (done) => {
       const cancelsAt = new Date(2024, 11, 31);
-      configService.getFeatureFlag$.mockReturnValue(of(true));
       apiService.send.mockResolvedValue({
         Suspension: {
           Resolution: "add_payment_method",
@@ -282,7 +262,6 @@ describe("ProviderWarningsService", () => {
     });
 
     it("should show add payment method dialog without cancellation date", (done) => {
-      configService.getFeatureFlag$.mockReturnValue(of(true));
       apiService.send.mockResolvedValue({
         Suspension: {
           Resolution: "add_payment_method",
@@ -319,7 +298,6 @@ describe("ProviderWarningsService", () => {
     });
 
     it("should show contact administrator dialog for contact_administrator resolution", (done) => {
-      configService.getFeatureFlag$.mockReturnValue(of(true));
       apiService.send.mockResolvedValue({
         Suspension: {
           Resolution: "contact_administrator",
@@ -343,7 +321,6 @@ describe("ProviderWarningsService", () => {
     });
 
     it("should show contact support dialog with action for contact_support resolution", (done) => {
-      configService.getFeatureFlag$.mockReturnValue(of(true));
       apiService.send.mockResolvedValue({
         Suspension: {
           Resolution: "contact_support",
