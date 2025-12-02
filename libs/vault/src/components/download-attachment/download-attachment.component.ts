@@ -6,7 +6,6 @@ import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { DECRYPT_ERROR } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -60,7 +59,7 @@ export class DownloadAttachmentComponent {
   ) {}
 
   protected get isDecryptionFailure(): boolean {
-    return this.attachment.fileName === DECRYPT_ERROR;
+    return this.attachment.hasDecryptionError;
   }
 
   /** Download the attachment */

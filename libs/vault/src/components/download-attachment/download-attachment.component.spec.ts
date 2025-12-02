@@ -36,12 +36,11 @@ describe("DownloadAttachmentComponent", () => {
     .mockResolvedValue({ url: "https://www.downloadattachement.com" });
   const download = jest.fn();
 
-  const attachment = {
-    id: "222-3333-4444",
-    url: "https://www.attachment.com",
-    fileName: "attachment-filename",
-    size: "1234",
-  } as AttachmentView;
+  const attachment = new AttachmentView();
+  attachment.id = "222-3333-4444";
+  attachment.url = "https://www.attachment.com";
+  attachment.fileName = "attachment-filename";
+  attachment.size = "1234";
 
   const cipherView = {
     id: "5555-444-3333",

@@ -4235,6 +4235,9 @@
   "sessionTimeoutSettingsAction": {
     "message": "Timeout action"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "sessionTimeoutHeader": {
     "message": "Session timeout"
   }
