@@ -54,6 +54,12 @@ module.exports.buildConfig = function buildConfig(params) {
   configurator.log(envConfig);
 
   const commonConfig = {
+    cache: {
+      type: "filesystem",
+      buildDependencies: {
+        config: [__filename],
+      },
+    },
     resolve: {
       extensions: [".tsx", ".ts", ".js"],
       symlinks: false,
@@ -86,11 +92,18 @@ module.exports.buildConfig = function buildConfig(params) {
     },
     output: getOutputConfig(NODE_ENV === "development"),
     devtool: NODE_ENV === "development" ? "cheap-source-map" : false,
+    cache: commonConfig.cache,
     module: {
       rules: [
         {
           test: /\.tsx?$/,
-          use: "ts-loader",
+          use: {
+            loader: "esbuild-loader",
+            options: {
+              loader: "ts",
+              target: "es2016",
+            },
+          },
           exclude: /node_modules\/(?!(@bitwarden)\/).*/,
         },
         {
@@ -144,11 +157,18 @@ module.exports.buildConfig = function buildConfig(params) {
     },
     output: getOutputConfig(NODE_ENV === "development"),
     devtool: NODE_ENV === "development" ? "cheap-source-map" : false,
+    cache: commonConfig.cache,
     module: {
       rules: [
         {
           test: /\.tsx?$/,
-          use: "ts-loader",
+          use: {
+            loader: "esbuild-loader",
+            options: {
+              loader: "ts",
+              target: "es2016",
+            },
+          },
           exclude: /node_modules\/(?!(@bitwarden)\/).*/,
         },
       ],
@@ -167,8 +187,9 @@ module.exports.buildConfig = function buildConfig(params) {
   const rendererConfig = {
     name: "renderer",
     mode: NODE_ENV,
-    devtool: "source-map",
+    devtool: NODE_ENV === "production" ? false : "cheap-source-map",
     target: "web",
+    cache: commonConfig.cache,
     node: {
       __dirname: false,
     },
@@ -298,7 +319,7 @@ module.exports.buildConfig = function buildConfig(params) {
       new AngularWebpackPlugin({
         tsConfigPath: params.renderer.tsConfig,
         entryModule: params.renderer.entryModule,
-        sourceMap: true,
+        sourceMap: NODE_ENV !== "production",
       }),
       // ref: https://github.com/angular/angular/issues/20357
       new webpack.ContextReplacementPlugin(
@@ -310,9 +331,13 @@ module.exports.buildConfig = function buildConfig(params) {
         filename: "index.html",
         chunks: ["app/vendor", "app/main"],
       }),
-      new webpack.SourceMapDevToolPlugin({
-        include: ["app/main.js"],
-      }),
+      ...(NODE_ENV !== "production"
+        ? [
+            new webpack.SourceMapDevToolPlugin({
+              include: ["app/main.js"],
+            }),
+          ]
+        : []),
       new MiniCssExtractPlugin({
         filename: "[name].[contenthash].css",
         chunkFilename: "[id].[contenthash].css",
