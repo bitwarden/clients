@@ -15,7 +15,7 @@
       [attr.label]="'back' | i18n"
       (click)="prevSlide()"
       [disabled]="selectedIndex <= 0"
-      appA11yTitle="{{ 'back' | i18n }}"
+      label="{{ 'back' | i18n }}"
     ></button>
     <div
       class="tw-w-full tw-flex tw-gap-2 tw-justify-center tw-mt-auto"
@@ -38,7 +38,7 @@
       size="small"
       (click)="nextSlide()"
       [disabled]="selectedIndex >= slides.length - 1"
-      appA11yTitle="{{ 'next' | i18n }}"
+      label="{{ 'next' | i18n }}"
     ></button>
   </div>
   <div class="tw-absolute tw-invisible" #tempSlideContainer *ngIf="minHeight === null">
