@@ -287,7 +287,7 @@
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "para evitar a perca adicional dos dados.",
+    "message": "para evitar a perca de dados adicionais.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
@@ -2088,16 +2088,16 @@
     }
   },
   "policyInEffectUppercase": {
-    "message": "Contém um ou mais caracteres em maiúsculo"
+    "message": "Conter um ou mais caracteres em maiúsculo"
   },
   "policyInEffectLowercase": {
-    "message": "Contém um ou mais caracteres em minúsculo"
+    "message": "Conter um ou mais caracteres em minúsculo"
   },
   "policyInEffectNumbers": {
-    "message": "Contém um ou mais números"
+    "message": "Conter um ou mais números"
   },
   "policyInEffectSpecial": {
-    "message": "Contém um ou mais dos seguintes caracteres especiais $CHARS$",
+    "message": "Conter um ou mais dos seguintes caracteres especiais $CHARS$",
     "placeholders": {
       "chars": {
         "content": "$1",
