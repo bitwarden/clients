@@ -562,7 +562,7 @@
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Nicht mehr archivieren"
+    "message": "Wiederherstellen"
   },
   "itemsInArchive": {
     "message": "Einträge im Archiv"
@@ -574,16 +574,19 @@
     "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Vorschlägen zum automatischen Ausfüllen ausgeschlossen."
   },
   "itemWasSentToArchive": {
-    "message": "Eintrag wurde ins Archiv verschoben"
+    "message": "Eintrag wurde archiviert"
   },
   "itemUnarchived": {
-    "message": "Eintrag wird nicht mehr archiviert"
+    "message": "Eintrag wurde wiederhergestellt"
   },
   "archiveItem": {
     "message": "Eintrag archivieren"
   },
   "archiveItemConfirmDesc": {
     "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen sowie Vorschlägen zum automatischen Ausfüllen ausgeschlossen. Bist du sicher, dass du diesen Eintrag archivieren möchtest?"
+  },
+  "upgradeToUseArchive": {
+    "message": "Für die Nutzung des Archivs ist eine Premium-Mitgliedschaft erforderlich."
   },
   "edit": {
     "message": "Bearbeiten"
@@ -592,6 +595,9 @@
     "message": "Anzeigen"
   },
   "viewAll": {
+    "message": "Alles anzeigen"
+  },
+  "showAll": {
     "message": "Alles anzeigen"
   },
   "viewLess": {
@@ -1044,7 +1050,7 @@
     "message": "Eintrag gespeichert"
   },
   "savedWebsite": {
-    "message": "Website gespeichert"
+    "message": "Gespeicherte Website"
   },
   "savedWebsites": {
     "message": "Gespeicherte Websites ($COUNT$)",
@@ -1704,7 +1710,7 @@
     "message": "Auto-Ausfüllen bestätigen"
   },
   "confirmAutofillDesc": {
-    "message": "Diese Website stimmt nicht mit deinen gespeicherten Zugangsdaten überein. Bevor du deine Zugangsdaten eingibst, stelle sicher, dass es sich um eine vertrauenswürdige Website handelt."
+    "message": "Diese Website stimmt nicht mit deinen gespeicherten Zugangsdaten überein. Stelle sicher, dass dies eine vertrauenswürdige Website ist, bevor du deine Zugangsdaten eingibst."
   },
   "showInlineMenuLabel": {
     "message": "Vorschläge zum Auto-Ausfüllen in Formularfeldern anzeigen"
@@ -1866,6 +1872,9 @@
   },
   "expirationYear": {
     "message": "Ablaufjahr"
+  },
+  "monthly": {
+    "message": "Monatlich"
   },
   "expiration": {
     "message": "Gültig bis"
@@ -2437,7 +2446,7 @@
     }
   },
   "topLayerHijackWarning": {
-    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
+    "message": "Diese Seite stört die Bitwarden-Nutzung. Das Bitwarden Inline-Menü wurde aus Sicherheitsgründen vorübergehend deaktiviert."
   },
   "setMasterPassword": {
     "message": "Master-Passwort festlegen"
@@ -4066,7 +4075,7 @@
     "message": "Kein Auto-Ausfüllen möglich"
   },
   "cannotAutofillExactMatch": {
-    "message": "Die Standard-Übereinstimmungserkennung steht auf \"Exakte Übereinstimmung\". Die aktuelle Website stimmt nicht genau mit den gespeicherten Zugangsdaten für diesen Eintrag überein."
+    "message": "Die Standard-Übereinstimmungserkennung ist auf „Exakte Übereinstimmung“ eingestellt. Die aktuelle Website stimmt nicht genau mit den gespeicherten Zugangsdaten für diesen Eintrag überein."
   },
   "okay": {
     "message": "Okay"
@@ -4902,6 +4911,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Schalte mit Premium Berichte, Notfallzugriff und weitere Sicherheitsfunktionen frei."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Kostenlose Organisationen können Anhänge nicht verwenden"
   },
@@ -5653,7 +5665,7 @@
     "message": "Phishing-Versuch erkannt"
   },
   "phishingPageSummary": {
-    "message": "Die Website, die du versuchst zu öffnen, ist eine bekannte böswillige Website und ein Sicherheitsrisiko."
+    "message": "Die Website, die du öffnen möchtest, ist als böswillige Website bekannt und stellt ein Sicherheitsrisiko dar."
   },
   "phishingPageCloseTabV2": {
     "message": "Diesen Tab schließen"
@@ -5801,7 +5813,7 @@
     "message": "Notfallzugriff"
   },
   "breachMonitoring": {
-    "message": "Datendiebstahl-Überwachung"
+    "message": "Datenleck-Überwachung"
   },
   "andMoreFeatures": {
     "message": "Und mehr!"
@@ -5812,14 +5824,14 @@
   "upgradeToPremium": {
     "message": "Upgrade auf Premium"
   },
-  "upgradeCompleteSecurity": {
-    "message": "Upgrade für umfassende Sicherheit"
+  "unlockAdvancedSecurity": {
+    "message": "Erweiterte Sicherheitsfunktionen freischalten"
   },
-  "premiumGivesMoreTools": {
-    "message": "Premium gibt dir mehr Werkzeuge, um sicher zu bleiben, effizient zu arbeiten und die Kontrolle zu behalten."
+  "unlockAdvancedSecurityDesc": {
+    "message": "Mit einem Premium-Abonnement erhältst du mehr Werkzeuge für mehr Sicherheit und Kontrolle"
   },
   "explorePremium": {
-    "message": "Premium erkunden"
+    "message": "Premium entdecken"
   },
   "loadingVault": {
     "message": "Tresor wird geladen"
