@@ -93,8 +93,18 @@ export class CipherAttachmentsComponent {
   /** An optional submit button, whose loading/disabled state will be tied to the form state. */
   readonly submitBtn = input<ButtonComponent>();
 
+  /** Emits when a file upload is started */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
+  @Output() onUploadStarted = new EventEmitter<void>();
+
   /** Emits after a file has been successfully uploaded */
   readonly onUploadSuccess = output<void>();
+
+  /** Emits when a file upload fails */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
+  @Output() onUploadFailed = new EventEmitter<void>();
 
   /** Emits after a file has been successfully removed */
   readonly onRemoveSuccess = output<void>();
@@ -186,6 +196,8 @@ export class CipherAttachmentsComponent {
 
   /** Save the attachments to the cipher */
   submit = async () => {
+    this.onUploadStarted.emit();
+
     const file = this.attachmentForm.value.file;
     if (file == null) {
       this.toastService.showToast({
@@ -249,6 +261,7 @@ export class CipherAttachmentsComponent {
         variant: "error",
         message: errorMessage,
       });
+      this.onUploadFailed.emit();
     }
   };
 
