@@ -7,18 +7,14 @@ import {
   signal,
   viewChild,
   AfterViewInit,
-  OnInit,
-  OnDestroy,
-  NgZone,
 } from "@angular/core";
-import { takeUntilDestroyed , toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -39,7 +35,7 @@ import { AddEditComponent } from "../send/add-edit.component";
   templateUrl: "send-v2.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SendV2Component implements OnInit, AfterViewInit, OnDestroy {
+export class SendV2Component implements AfterViewInit {
   protected readonly sendType = SendType;
   protected readonly addEditComponent = viewChild(AddEditComponent);
   protected readonly filteredSends = toSignal(this.sendItemsService.filteredAndSortedSends$, {
@@ -84,8 +80,6 @@ export class SendV2Component implements OnInit, AfterViewInit, OnDestroy {
     private toastService: ToastService,
     private policyService: PolicyService,
     private accountService: AccountService,
-    private broadcasterService: BroadcasterService,
-    private ngZone: NgZone,
     private destroyRef: DestroyRef,
   ) {
     // Check if DisableSend enterprise policy applies to current user
@@ -102,27 +96,12 @@ export class SendV2Component implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  ngOnInit(): void {
-    // Subscribe to sync completion events to refresh send list
-    this.broadcasterService.subscribe("SendV2Component", (message: any) => {
-      void this.ngZone.run(async () => {
-        if (message.command === "syncCompleted") {
-          // SendItemsService automatically refreshes via observable
-        }
-      });
-    });
-  }
-
   ngAfterViewInit(): void {
     // Handle pending add operation after view initializes
     if (this.action() === "add" && this.pendingAddType() !== null) {
       void this.initializeAddEdit(this.pendingAddType());
       this.pendingAddType.set(null);
     }
-  }
-
-  ngOnDestroy(): void {
-    this.broadcasterService.unsubscribe("SendV2Component");
   }
 
   // Select a Send to view/edit

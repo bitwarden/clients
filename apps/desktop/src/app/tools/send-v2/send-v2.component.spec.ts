@@ -4,7 +4,6 @@ import { BehaviorSubject } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -69,7 +68,6 @@ describe("SendV2Component", () => {
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: PolicyService, useValue: mockPolicyService },
         { provide: AccountService, useValue: mockAccountService },
-        { provide: BroadcasterService, useValue: mock<BroadcasterService>() },
       ],
     })
       .overrideComponent(SendV2Component, {
@@ -466,28 +464,6 @@ describe("SendV2Component", () => {
         expect(component["sendId"]()).toBeNull();
         expect(component["pendingAddType"]()).toBeNull();
       });
-    });
-  });
-
-  describe("Sync Completion Handling", () => {
-    it("subscribes to broadcaster on init", () => {
-      const broadcasterService = TestBed.inject(BroadcasterService);
-
-      component.ngOnInit();
-
-      expect(broadcasterService.subscribe).toHaveBeenCalledWith(
-        "SendV2Component",
-        expect.any(Function),
-      );
-    });
-
-    it("unsubscribes from broadcaster on destroy", () => {
-      const broadcasterService = TestBed.inject(BroadcasterService);
-
-      component.ngOnInit();
-      component.ngOnDestroy();
-
-      expect(broadcasterService.unsubscribe).toHaveBeenCalledWith("SendV2Component");
     });
   });
 });
