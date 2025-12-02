@@ -1,7 +1,7 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionView } from "@bitwarden/admin-console/common";
-import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { FieldType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherType } from "@bitwarden/sdk-internal";
@@ -63,7 +63,7 @@ describe("Password Depot 17 Xml Importer", () => {
     const result = await importer.parse(PasswordTestData);
     expect(result.folders).toEqual([
       expect.objectContaining({
-        id: null,
+        id: "",
         name: "tempDB",
         revisionDate: expect.any(Date),
       }),
@@ -495,7 +495,7 @@ describe("Password Depot 17 Xml Importer", () => {
     const collection = new CollectionView({
       name: "tempDB",
       organizationId: importer.organizationId,
-      id: "" as CollectionId,
+      id: null,
     });
     const actual = [collection];
 
