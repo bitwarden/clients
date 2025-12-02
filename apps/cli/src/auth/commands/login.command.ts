@@ -13,6 +13,7 @@ import {
   SsoLoginCredentials,
   SsoUrlService,
   UserApiLoginCredentials,
+  UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -81,6 +82,7 @@ export class LoginCommand {
     protected ssoUrlService: SsoUrlService,
     protected i18nService: I18nService,
     protected masterPasswordService: MasterPasswordServiceAbstraction,
+    protected userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
   ) {}
 
   async run(email: string, password: string, options: OptionValues) {
@@ -326,7 +328,11 @@ export class LoginCommand {
         return Response.error("Login failed.");
       }
 
-      if (response.resetMasterPassword) {
+      const userDecryptionOptions = await firstValueFrom(
+        this.userDecryptionOptionsService.userDecryptionOptionsById$(response.userId),
+      );
+
+      if (!userDecryptionOptions.hasMasterPassword) {
         return Response.error(
           "In order to log in with SSO from the CLI, you must first log in" +
             " through the web vault to set your master password.",

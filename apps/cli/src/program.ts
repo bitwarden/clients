@@ -195,6 +195,7 @@ export class Program extends BaseProgram {
             this.serviceContainer.ssoUrlService,
             this.serviceContainer.i18nService,
             this.serviceContainer.masterPasswordService,
+            this.serviceContainer.userDecryptionOptionsService,
           );
           const response = await command.run(email, password, options);
           this.processResponse(response, true);
