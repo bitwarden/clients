@@ -5,7 +5,7 @@ import { SecurityStateService } from "@bitwarden/common/key-management/security-
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
-import { BitwardenClient } from "@bitwarden/sdk-internal";
+import { PasswordManagerClient } from "@bitwarden/sdk-internal";
 
 import {
   ObservableTracker,
@@ -109,7 +109,7 @@ describe("DefaultSdkService", () => {
       });
 
       describe("given no client override has been set for the user", () => {
-        let mockClient!: MockProxy<BitwardenClient>;
+        let mockClient!: MockProxy<PasswordManagerClient>;
 
         beforeEach(() => {
           mockClient = createMockClient();
@@ -123,8 +123,8 @@ describe("DefaultSdkService", () => {
         });
 
         it("does not create an SDK client when called the second time with same userId", async () => {
-          const subject_1 = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
-          const subject_2 = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
+          const subject_1 = new BehaviorSubject<Rc<PasswordManagerClient> | undefined>(undefined);
+          const subject_2 = new BehaviorSubject<Rc<PasswordManagerClient> | undefined>(undefined);
 
           // Use subjects to ensure the subscription is kept alive
           service.userClient$(userId).subscribe(subject_1);
@@ -139,8 +139,8 @@ describe("DefaultSdkService", () => {
         });
 
         it("destroys the internal SDK client when all subscriptions are closed", async () => {
-          const subject_1 = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
-          const subject_2 = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
+          const subject_1 = new BehaviorSubject<Rc<PasswordManagerClient> | undefined>(undefined);
+          const subject_2 = new BehaviorSubject<Rc<PasswordManagerClient> | undefined>(undefined);
           const subscription_1 = service.userClient$(userId).subscribe(subject_1);
           const subscription_2 = service.userClient$(userId).subscribe(subject_2);
           await new Promise(process.nextTick);
@@ -170,7 +170,7 @@ describe("DefaultSdkService", () => {
 
       describe("given overrides are used", () => {
         it("does not create a new client and emits the override client when a client override has already been set ", async () => {
-          const mockClient = mock<BitwardenClient>();
+          const mockClient = mock<PasswordManagerClient>();
           service.setClient(userId, mockClient);
           const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
           await userClientTracker.pauseUntilReceived(1);
@@ -242,8 +242,8 @@ describe("DefaultSdkService", () => {
   });
 });
 
-function createMockClient(): MockProxy<BitwardenClient> {
-  const client = mock<BitwardenClient>();
+function createMockClient(): MockProxy<PasswordManagerClient> {
+  const client = mock<PasswordManagerClient>();
   client.crypto.mockReturnValue(mock());
   client.platform.mockReturnValue({
     state: jest.fn().mockReturnValue(mock()),

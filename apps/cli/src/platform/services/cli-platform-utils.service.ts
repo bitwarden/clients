@@ -152,4 +152,8 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
   getAutofillKeyboardShortcut(): Promise<string> {
     return null;
   }
+
+  async packageType(): Promise<string | null> {
+    return null;
+  }
 }

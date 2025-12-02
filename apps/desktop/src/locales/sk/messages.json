@@ -1692,7 +1692,7 @@
     "description": "Default URI match detection for auto-fill."
   },
   "toggleOptions": {
-    "message": "Voľby prepínača"
+    "message": "Zobraziť/skryť možnosti"
   },
   "organization": {
     "message": "Organizácia",
@@ -2425,7 +2425,7 @@
     "message": "Hlavné heslo bolo úspešne nastavené"
   },
   "updatedMasterPassword": {
-    "message": "Hlavné heslo aktualizované"
+    "message": "Hlavné heslo bolo aktualizované"
   },
   "updateMasterPassword": {
     "message": "Aktualizovať hlavné heslo"
@@ -2476,7 +2476,7 @@
     "message": "Použiť PIN kód"
   },
   "useBiometrics": {
-    "message": "Použiť biometrické údaje"
+    "message": "Použiť biometriu"
   },
   "enterVerificationCodeSentToEmail": {
     "message": "Zadajte overovací kód, ktorý vám bol zaslaný na e-mail."
@@ -2574,7 +2574,7 @@
     "message": "Táto organizácia má podnikovú politiku, ktorá vás automaticky zaregistruje na obnovenie hesla. Registrácia umožní správcom organizácie zmeniť vaše hlavné heslo."
   },
   "vaultExportDisabled": {
-    "message": "Export trezoru je zakázaný"
+    "message": "Export trezoru bol odstránený"
   },
   "personalVaultExportPolicyInEffect": {
     "message": "Jedna alebo viacero zásad organizácie vám bráni exportovať váš osobný trezor."
@@ -2619,7 +2619,7 @@
     "message": "Predvoľby"
   },
   "appPreferences": {
-    "message": "Nastavenia aplikácie (Všetky účty)"
+    "message": "Nastavenia aplikácie (všetky účty)"
   },
   "accountSwitcherLimitReached": {
     "message": "Dosiahnutý limit počtu účtov. Odhláste sa z účtu aby ste mohli pridať ďalší."
@@ -2790,7 +2790,7 @@
     "message": "Použiť možnosti subadresovania svojho poskytovateľa e-mailu."
   },
   "catchallEmail": {
-    "message": "Catch-all Email"
+    "message": "E-mail Catch-all"
   },
   "catchallEmailDesc": {
     "message": "Použiť doručenú poštu typu catch-all nastavenú na doméne."
@@ -2843,7 +2843,7 @@
     "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
-    "message": "$SERVICENAME$ chyba: $ERRORMESSAGE$",
+    "message": "Chyba $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Reports an error returned by a forwarding service to the user.",
     "placeholders": {
       "servicename": {
@@ -2959,7 +2959,7 @@
     }
   },
   "forwarderUnknownForwarder": {
-    "message": "Nepodporovaná služba: '$SERVICENAME$'.",
+    "message": "Neznáme presmerovanie: '$SERVICENAME$'.",
     "description": "Displayed when the forwarding service is not supported.",
     "placeholders": {
       "servicename": {
@@ -2976,7 +2976,7 @@
     "message": "Prístupový token API"
   },
   "apiKey": {
-    "message": "API kľúč"
+    "message": "Kľúč API"
   },
   "premiumSubcriptionRequired": {
     "message": "Vyžaduje sa predplatné Prémium"

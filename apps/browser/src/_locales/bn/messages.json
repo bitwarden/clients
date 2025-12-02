@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   },
+  "upgradeToUseArchive": {
+    "message": "A premium membership is required to use Archive."
+  },
   "edit": {
     "message": "সম্পাদনা"
   },
@@ -593,6 +596,9 @@
   },
   "viewAll": {
     "message": "View all"
+  },
+  "showAll": {
+    "message": "Show all"
   },
   "viewLess": {
     "message": "View less"
@@ -1867,6 +1873,9 @@
   "expirationYear": {
     "message": "মেয়াদোত্তীর্ণ বছর"
   },
+  "monthly": {
+    "message": "month"
+  },
   "expiration": {
     "message": "মেয়াদোত্তীর্ণতা"
   },
@@ -2435,6 +2444,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
   },
   "setMasterPassword": {
     "message": "মূল পাসওয়ার্ড ধার্য করুন"
@@ -4899,6 +4911,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Unlock reporting, emergency access, and more security features with Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Free organizations cannot use attachments"
   },
@@ -5808,6 +5823,15 @@
   },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Unlock advanced security features"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "A Premium subscription gives you more tools to stay secure and in control"
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
   },
   "loadingVault": {
     "message": "Loading vault"
