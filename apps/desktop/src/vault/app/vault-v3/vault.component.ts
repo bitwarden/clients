@@ -83,6 +83,7 @@ import {
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
 import { DesktopCredentialGenerationService } from "../../../services/desktop-cipher-form-generator.service";
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
+import { VaultStateService } from "../../../services/vault-state.service";
 import { invokeMenu, RendererMenuItem } from "../../../utils";
 import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
 import { ItemFooterComponent } from "../vault/item-footer.component";
@@ -225,6 +226,7 @@ export class VaultComponent<C extends CipherViewLike>
     private cipherArchiveService: CipherArchiveService,
     private policyService: PolicyService,
     private archiveCipherUtilitiesService: ArchiveCipherUtilitiesService,
+    private vaultStateService: VaultStateService,
   ) {}
 
   async ngOnInit() {
@@ -239,6 +241,30 @@ export class VaultComponent<C extends CipherViewLike>
       .subscribe((canAccessPremium: boolean) => {
         this.userHasPremiumAccess = canAccessPremium;
       });
+
+    // Subscribe to filter changes from VaultNavComponent
+    this.vaultStateService.filterChange$
+      .pipe(
+        switchMap((vaultFilter: VaultFilter) => this.applyVaultFilter(vaultFilter)),
+        takeUntil(this.componentIsDestroyed$),
+      )
+      .subscribe();
+
+    // Subscribe to add folder requests from VaultNavComponent
+    this.vaultStateService.addFolder$
+      .pipe(
+        switchMap(() => this.addFolder()),
+        takeUntil(this.componentIsDestroyed$),
+      )
+      .subscribe();
+
+    // Subscribe to edit folder requests from VaultNavComponent
+    this.vaultStateService.editFolder$
+      .pipe(
+        switchMap((folderId: string) => this.editFolder(folderId)),
+        takeUntil(this.componentIsDestroyed$),
+      )
+      .subscribe();
 
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
       this.ngZone

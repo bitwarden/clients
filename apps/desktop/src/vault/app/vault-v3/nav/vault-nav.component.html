@@ -1,1 +1,9 @@
-<bit-nav-group icon="bwi-vault" [text]="'vault' | i18n" route="new-vault"></bit-nav-group>
+<bit-nav-group icon="bwi-vault" [text]="'vault' | i18n" route="new-vault">
+  <app-vault-filter
+    class="vault-filters"
+    [activeFilter]="vaultStateService.activeFilter"
+    (onFilterChange)="vaultStateService.applyFilter($event)"
+    (onAddFolder)="vaultStateService.requestAddFolder()"
+    (onEditFolder)="vaultStateService.requestEditFolder($event.id)"
+  ></app-vault-filter>
+</bit-nav-group>
