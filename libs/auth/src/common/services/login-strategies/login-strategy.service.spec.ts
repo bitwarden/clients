@@ -10,6 +10,7 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { PreloginResponse } from "@bitwarden/common/auth/models/response/prelogin.response";
+import { UserDecryptionOptionsResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -495,6 +496,7 @@ describe("LoginStrategyService", () => {
         refresh_token: "REFRESH_TOKEN",
         scope: "api offline_access",
         token_type: "Bearer",
+        userDecryptionOptions: new UserDecryptionOptionsResponse({ HasMasterPassword: true }),
       }),
     );
     apiService.postPrelogin.mockResolvedValue(
@@ -561,6 +563,7 @@ describe("LoginStrategyService", () => {
         refresh_token: "REFRESH_TOKEN",
         scope: "api offline_access",
         token_type: "Bearer",
+        userDecryptionOptions: new UserDecryptionOptionsResponse({ HasMasterPassword: true }),
       }),
     );
 
@@ -688,6 +691,7 @@ describe("LoginStrategyService", () => {
         refresh_token: "REFRESH_TOKEN",
         scope: "api offline_access",
         token_type: "Bearer",
+        userDecryptionOptions: new UserDecryptionOptionsResponse({ HasMasterPassword: true }),
       }),
     );
 

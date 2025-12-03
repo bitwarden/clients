@@ -10,6 +10,8 @@ export class AuthResult {
   email: string;
   requiresEncryptionKeyMigration: boolean;
   requiresDeviceVerification: boolean;
+  // The master-password used in the authentication process
+  masterPassword: string | null;
 
   get requiresTwoFactor() {
     return this.twoFactorProviders != null;

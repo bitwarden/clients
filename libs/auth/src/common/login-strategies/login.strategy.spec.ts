@@ -258,7 +258,7 @@ describe("LoginStrategy", () => {
 
       expect(userDecryptionOptionsService.setUserDecryptionOptionsById).toHaveBeenCalledWith(
         userId,
-        UserDecryptionOptions.fromResponse(idTokenResponse),
+        UserDecryptionOptions.fromIdentityTokenResponse(idTokenResponse),
       );
       expect(masterPasswordService.mock.setMasterPasswordUnlockData).toHaveBeenCalledWith(
         new MasterPasswordUnlockData(
@@ -306,6 +306,7 @@ describe("LoginStrategy", () => {
       const result = await passwordLoginStrategy.logIn(credentials);
 
       const expected = new AuthResult();
+      expected.masterPassword = "password";
       expected.userId = userId;
       expected.twoFactorProviders = null;
       expect(result).toEqual(expected);
@@ -320,6 +321,7 @@ describe("LoginStrategy", () => {
       const result = await passwordLoginStrategy.logIn(credentials);
 
       const expected = new AuthResult();
+      expected.masterPassword = "password";
       expected.userId = userId;
       expected.twoFactorProviders = null;
       expect(result).toEqual(expected);
