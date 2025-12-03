@@ -2,8 +2,9 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnInit, OnDestroy, ViewChild, NgZone, ChangeDetectorRef } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { mergeMap } from "rxjs";
+import { mergeMap, Subscription } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
@@ -14,11 +15,13 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { SendListFiltersService } from "@bitwarden/send-ui";
 
 import { invokeMenu, RendererMenuItem } from "../../../utils";
 import { SearchBarService } from "../../layout/search/search-bar.service";
@@ -55,6 +58,11 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
   // Tracks the current UI state: viewing list (None), adding new Send (Add), or editing existing Send (Edit)
   action: Action = Action.None;
 
+  // Subscription for filter changes cleanup
+  private filterSubscription: Subscription;
+  // Subscription for sendViews$ cleanup
+  private sendViewsSubscription: Subscription;
+
   constructor(
     sendService: SendService,
     i18nService: I18nService,
@@ -71,6 +79,7 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
     toastService: ToastService,
     accountService: AccountService,
     private cdr: ChangeDetectorRef,
+    private sendListFiltersService: SendListFiltersService,
   ) {
     super(
       sendService,
@@ -88,8 +97,7 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
     );
 
     // Listen to search bar changes and update the Send list filter
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.searchBarService.searchText$.subscribe((searchText) => {
+    this.searchBarService.searchText$.pipe(takeUntilDestroyed()).subscribe((searchText) => {
       this.searchText = searchText;
       this.searchTextChanged();
       setTimeout(() => this.cdr.detectChanges(), 250);
@@ -102,6 +110,19 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
     this.searchBarService.setPlaceholderText(this.i18nService.t("searchSends"));
 
     await super.ngOnInit();
+
+    // Read current filter synchronously to avoid race condition on navigation
+    const currentFilter = this.sendListFiltersService.filterForm.value;
+    this.applySendTypeFilter(currentFilter);
+
+    // Subscribe to future filter changes from sidebar navigation
+    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
+    this.filterSubscription = this.sendListFiltersService.filterForm.valueChanges.subscribe(
+      (filters) => {
+        this.applySendTypeFilter(filters);
+        this.cdr.detectChanges();
+      },
+    );
 
     // Listen for sync completion events to refresh the Send list
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
@@ -118,8 +139,19 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
     await this.load();
   }
 
+  // Apply send type filter to display: centralized logic for initial load and filter changes
+  private applySendTypeFilter(filters: Partial<{ sendType: SendType | null }>): void {
+    if (filters.sendType === null || filters.sendType === undefined) {
+      this.selectAll();
+    } else {
+      this.selectType(filters.sendType);
+    }
+  }
+
   // Clean up subscriptions and disable search bar when component is destroyed
   ngOnDestroy() {
+    this.sendViewsSubscription?.unsubscribe();
+    this.filterSubscription?.unsubscribe();
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
     this.searchBarService.setEnabled(false);
   }
@@ -130,7 +162,11 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
   // Note: The filter parameter is ignored in this implementation for desktop-specific behavior.
   async load(filter: (send: SendView) => boolean = null) {
     this.loading = true;
-    this.sendService.sendViews$
+
+    // Clean up existing subscription to prevent memory leak
+    this.sendViewsSubscription?.unsubscribe();
+
+    this.sendViewsSubscription = this.sendService.sendViews$
       .pipe(
         mergeMap(async (sends) => {
           this.sends = sends;
@@ -143,9 +179,6 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
       .subscribe();
     if (this.onSuccessfulLoad != null) {
       await this.onSuccessfulLoad();
-    } else {
-      // Default action
-      this.selectAll();
     }
     this.loading = false;
     this.loaded = true;

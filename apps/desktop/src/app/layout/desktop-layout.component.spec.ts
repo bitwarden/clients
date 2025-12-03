@@ -4,6 +4,9 @@ import { mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { NavigationModule } from "@bitwarden/components";
+import { SendListFiltersService } from "@bitwarden/send-ui";
+
+import { SendFiltersNavComponent } from "../tools/send-v2/send-filters-nav.component";
 
 import { DesktopLayoutComponent } from "./desktop-layout.component";
 
@@ -26,12 +29,27 @@ describe("DesktopLayoutComponent", () => {
   let fixture: ComponentFixture<DesktopLayoutComponent>;
 
   beforeEach(async () => {
+    const sendListFiltersService = mock<SendListFiltersService>();
+    sendListFiltersService.filterForm = {
+      value: { sendType: null },
+      patchValue: jest.fn(),
+    } as any;
+
     await TestBed.configureTestingModule({
-      imports: [DesktopLayoutComponent, RouterModule.forRoot([]), NavigationModule],
+      imports: [
+        DesktopLayoutComponent,
+        SendFiltersNavComponent,
+        RouterModule.forRoot([]),
+        NavigationModule,
+      ],
       providers: [
         {
           provide: I18nService,
           useValue: mock<I18nService>(),
+        },
+        {
+          provide: SendListFiltersService,
+          useValue: sendListFiltersService,
         },
       ],
     }).compileComponents();
@@ -57,5 +75,12 @@ describe("DesktopLayoutComponent", () => {
     const ngContent = compiled.querySelectorAll("ng-content");
 
     expect(ngContent).toBeTruthy();
+  });
+
+  it("renders send filters navigation component", () => {
+    const compiled = fixture.nativeElement;
+    const sendFiltersNav = compiled.querySelector("app-send-filters-nav");
+
+    expect(sendFiltersNav).toBeTruthy();
   });
 });
