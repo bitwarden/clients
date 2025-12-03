@@ -127,8 +127,8 @@ where
 ///
 /// # Errors
 ///
-/// - If the actual window title length (what the win32 API declares was written into the
-///   buffer), is length zero and `GetLastError()` != 0 , return the `GetLastError()` message.
+/// - If the actual window title length (what the win32 API declares was written into the buffer),
+///   is length zero and `GetLastError()` != 0 , return the `GetLastError()` message.
 fn get_window_title<H, E>(window_handle: &H, expected_title_length: usize) -> Result<String>
 where
     H: WindowHandleOperations,
