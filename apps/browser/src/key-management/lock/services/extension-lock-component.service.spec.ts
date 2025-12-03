@@ -377,6 +377,7 @@ describe("ExtensionLockComponentService", () => {
       const unlockOptions = await firstValueFrom(service.getAvailableUnlockOptions$(userId));
 
       expect(unlockOptions).toEqual(expectedOutput);
+      expect(biometricStateService.biometricUnlockEnabled$).toHaveBeenCalledWith(userId);
     });
   });
 });
