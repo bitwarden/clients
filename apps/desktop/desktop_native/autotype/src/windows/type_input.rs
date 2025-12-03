@@ -7,9 +7,8 @@ use windows::Win32::UI::Input::KeyboardAndMouse::{
     VIRTUAL_KEY,
 };
 
-use crate::get_modifier_keys;
-
 use super::{ErrorOperations, KeyboardShortcutInput, Win32ErrorOperations};
+use crate::get_modifier_keys;
 
 const IS_VIRTUAL_KEY: bool = true;
 const IS_REAL_KEY: bool = false;
