@@ -945,7 +945,8 @@ export class InlineMenuFieldQualificationService
       !fieldType ||
       !this.usernameFieldTypes.has(fieldType) ||
       this.isExcludedFieldType(field, this.excludedAutofillFieldTypesSet) ||
-      this.fieldHasDisqualifyingAttributeValue(field)
+      this.fieldHasDisqualifyingAttributeValue(field) ||
+      this.isTotpField(field)
     ) {
       return false;
     }
