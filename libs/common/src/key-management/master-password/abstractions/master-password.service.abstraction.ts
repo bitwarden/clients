@@ -106,6 +106,13 @@ export abstract class MasterPasswordServiceAbstraction {
     password: string,
     masterPasswordUnlockData: MasterPasswordUnlockData,
   ) => Promise<UserKey>;
+
+  /**
+   * Returns whether the user has a master password set.
+   * @param userId The user ID.
+   * @throws If the user ID is missing.
+   */
+  abstract userHasMasterPassword(userId: UserId): Promise<boolean>;
 }
 
 export abstract class InternalMasterPasswordServiceAbstraction extends MasterPasswordServiceAbstraction {
