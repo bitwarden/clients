@@ -67,6 +67,7 @@ export default {
               yes: "Yes",
               no: "No",
               loading: "Loading",
+              resizeSideNavigation: "Resize side navigation",
             });
           },
         },

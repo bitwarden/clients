@@ -33,6 +33,7 @@ export default {
               toggleSideNavigation: "Toggle side navigation",
               skipToContent: "Skip to content",
               loading: "Loading",
+              resizeSideNavigation: "Resize side navigation",
             });
           },
         },

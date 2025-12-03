@@ -55,4 +55,12 @@ export class SideNavComponent {
     const element = event.source.element.nativeElement;
     element.style.transform = "none";
   }
+
+  protected onKeydown(event: KeyboardEvent) {
+    if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+      this.sideNavService.setWidthFromKeys(event.key);
+    }
+
+    return;
+  }
 }

@@ -4237,5 +4237,8 @@
   },
   "sessionTimeoutHeader": {
     "message": "Session timeout"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   }
 }

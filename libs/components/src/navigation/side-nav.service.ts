@@ -1,5 +1,5 @@
-import { inject, Injectable, signal } from "@angular/core";
-import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import { inject, Injectable } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   BehaviorSubject,
   Observable,
@@ -17,9 +17,6 @@ import { BREAKPOINTS, isAtOrLargerThanBreakpoint } from "../utils/responsive-uti
 
 type CollapsePreference = "open" | "closed" | null;
 
-const DEFAULT_OPEN_WIDTH = 288;
-const MIN_OPEN_WIDTH = 240;
-const MAX_OPEN_WIDTH = 384;
 const BIT_SIDE_NAV_WIDTH_KEY_DEF = new KeyDefinition<number>(BIT_SIDE_NAV_DISK, "side-nav-width", {
   deserializer: (s) => s,
 });
@@ -28,6 +25,10 @@ const BIT_SIDE_NAV_WIDTH_KEY_DEF = new KeyDefinition<number>(BIT_SIDE_NAV_DISK, 
   providedIn: "root",
 })
 export class SideNavService {
+  readonly DEFAULT_OPEN_WIDTH = 288;
+  readonly MIN_OPEN_WIDTH = 240;
+  readonly MAX_OPEN_WIDTH = 384;
+
   private _open$ = new BehaviorSubject<boolean>(isAtOrLargerThanBreakpoint("md"));
   open$ = this._open$.asObservable();
 
@@ -39,12 +40,14 @@ export class SideNavService {
     map(([open, isLargeScreen]) => open && !isLargeScreen),
   );
 
-  protected lastOpenWidth = DEFAULT_OPEN_WIDTH;
-  private readonly width = signal<number>(DEFAULT_OPEN_WIDTH);
-  readonly width$ = toObservable(this.width);
+  protected lastOpenWidth = this.DEFAULT_OPEN_WIDTH;
+  private readonly _width$ = new BehaviorSubject<number>(this.DEFAULT_OPEN_WIDTH);
+  readonly width$ = this._width$.asObservable();
 
   private readonly widthState = inject(GlobalStateProvider).get(BIT_SIDE_NAV_WIDTH_KEY_DEF);
-  readonly widthState$ = this.widthState.state$.pipe(map((width) => width ?? DEFAULT_OPEN_WIDTH));
+  readonly widthState$ = this.widthState.state$.pipe(
+    map((width) => width ?? this.DEFAULT_OPEN_WIDTH),
+  );
 
   constructor() {
     // Handle open/close state
@@ -60,8 +63,8 @@ export class SideNavService {
       });
 
     // Initialize the resizable width from state provider
-    this.widthState$.pipe(first(), takeUntilDestroyed()).subscribe((width: number) => {
-      this.width.set(width);
+    this.widthState$.pipe(first()).subscribe((width: number) => {
+      this._width$.next(width);
     });
 
     // Handle width resize events
@@ -104,18 +107,44 @@ export class SideNavService {
   }
 
   /**
-   * Calculate and set new side nav width from drag event coordinates
+   * Set new side nav width from drag event coordinates
    *
    * @param eventXCoordinate x coordinate of the pointer's bounding client rect
    * @param dragElementXCoordinate x coordinate of the drag element's bounding client rect
    */
   setWidthFromDrag(eventXPointer: number, dragElementXCoordinate: number) {
-    const width = Math.min(
-      Math.max(eventXPointer - dragElementXCoordinate, MIN_OPEN_WIDTH),
-      MAX_OPEN_WIDTH,
-    );
+    const newWidth = eventXPointer - dragElementXCoordinate;
 
-    this.width.set(width);
+    this._setWidthWithinMinMax(newWidth);
+  }
+
+  /**
+   * Set new side nav width from arrow key events
+   *
+   * @param key event key, must be either ArrowRight or ArrowLeft
+   */
+  setWidthFromKeys(key: "ArrowRight" | "ArrowLeft") {
+    const currentWidth = this._width$.getValue();
+
+    if (key === "ArrowLeft") {
+      const newWidth = currentWidth - 10;
+      this._setWidthWithinMinMax(newWidth);
+    }
+
+    if (key === "ArrowRight") {
+      const newWidth = currentWidth + 10;
+      this._setWidthWithinMinMax(newWidth);
+    }
+  }
+
+  /**
+   * Calculate and set the new width, not going out of the min/max bounds
+   * @param newWidth desired new width: number
+   */
+  private _setWidthWithinMinMax(newWidth: number) {
+    const width = Math.min(Math.max(newWidth, this.MIN_OPEN_WIDTH), this.MAX_OPEN_WIDTH);
+
+    this._width$.next(width);
   }
 }
 

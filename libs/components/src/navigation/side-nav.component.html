@@ -50,8 +50,17 @@
     <div
       cdkDrag
       (cdkDragMoved)="onDragMoved($event)"
-      class="tw-absolute tw-top-0 -tw-right-1.5 tw-z-30 tw-h-full tw-w-3 tw-cursor-col-resize"
+      class="tw-absolute tw-top-0 -tw-right-0.5 tw-z-30 tw-h-full tw-w-1 tw-cursor-col-resize tw-transition-colors tw-duration-200 hover:tw-ease-in-out hover:tw-delay-500 hover:tw-bg-primary-300 focus:tw-outline-none focus-visible:tw-bg-primary-300 before:tw-content-[''] before:tw-absolute before:tw-block before:tw-inset-y-0 before:-tw-left-0.5 before:-tw-right-1"
       [ngClass]="{ 'tw-hidden': !data.open }"
+      tabindex="0"
+      (keydown)="onKeydown($event)"
+      role="separator"
+      [attr.aria-valuenow]="sideNavService.width$ | async"
+      [attr.aria-valuemax]="sideNavService.MAX_OPEN_WIDTH"
+      [attr.aria-valuemin]="sideNavService.MIN_OPEN_WIDTH"
+      aria-orientation="vertical"
+      aria-controls="bit-side-nav"
+      [attr.aria-label]="'resizeSideNavigation' | i18n"
     ></div>
   </div>
 }
