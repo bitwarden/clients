@@ -96,12 +96,20 @@
     },
     "extraFiles": [
       {
-        "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}.exe",
+        "from": "desktop_native/dist/desktop_proxy.win32-${arch}.exe",
         "to": "desktop_proxy.exe"
       },
       {
-        "from": "desktop_native/dist/bitwarden_chromium_import_helper.${platform}-${arch}.exe",
+        "from": "desktop_native/dist/bitwarden_chromium_import_helper.win32-${arch}.exe",
         "to": "bitwarden_chromium_import_helper.exe"
+      },
+      {
+        "from": "desktop_native/dist/windows_plugin_authenticator.win32-${arch}.exe",
+        "to": "bitwarden_plugin_authenticator.exe"
+      },
+      {
+        "from": "desktop_native/dist/windows_plugin_authenticator.win32-${arch}.pdb",
+        "to": "bitwarden_plugin_authenticator.pdb"
       }
     ]
   },

@@ -46,6 +46,25 @@ function buildProxyBin(target, release = true) {
     }
 }
 
+function buildWindowsPluginBin(target, release = true) {
+    const isWindowsTarget = (target && target.includes("windows")) || process.platform === "win32";
+    if (!isWindowsTarget) {
+        console.log("Not compiling for Winodws, skipping Windows plugin build");
+        return;
+    }
+    const targetArg = target ? `--target ${target}` : "";
+    const releaseArg = release ? "--release" : "";
+    const xwin = process.platform !== "win32" ? "xwin" : "";
+    child_process.execSync(`cargo ${xwin} build --bin windows_plugin_authenticator ${releaseArg} ${targetArg}`, {stdio: 'inherit', cwd: path.join(__dirname, "windows_plugin_authenticator")});
+
+    if (target) {
+        // Copy the resulting binary to the dist folder
+        const targetFolder = release ? "release" : "debug";
+        const { nodeArch, platform } = rustTargetsMap[target];
+        fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `windows_plugin_authenticator.exe`), path.join(__dirname, "dist", `windows_plugin_authenticator.${platform}-${nodeArch}.exe`));
+    }
+}
+
 function buildImporterBinaries(target, release = true) {
     // These binaries are only built for Windows, so we can skip them on other platforms
     if (process.platform !== "win32") {
@@ -84,20 +103,24 @@ function installTarget(target) {
 }
 
 if (!crossPlatform && !target) {
+    const isRelease = mode === "release";
     console.log(`Building native modules in ${mode} mode for the native architecture`);
-    buildNapiModule(false, mode === "release");
-    buildProxyBin(false, mode === "release");
-    buildImporterBinaries(false, mode === "release");
+    buildNapiModule(false, isRelease);
+    buildWindowsPluginBin(null, isRelease);
+    buildProxyBin(false, isRelease);
+    buildImporterBinaries(false, isRelease);
     buildProcessIsolation();
     return;
 }
 
 if (target) {
     console.log(`Building for target: ${target} in ${mode} mode`);
+    const isRelease = mode === "release";
     installTarget(target);
-    buildNapiModule(target, mode === "release");
-    buildProxyBin(target, mode === "release");
-    buildImporterBinaries(false, mode === "release");
+    buildNapiModule(target, isRelease);
+    buildWindowsPluginBin(target, isRelease);
+    buildProxyBin(target, isRelease);
+    buildImporterBinaries(false, isRelease);
     buildProcessIsolation();
     return;
 }
@@ -115,6 +138,7 @@ if (process.platform === "linux") {
 platformTargets.forEach(([target, _]) => {
     installTarget(target);
     buildNapiModule(target);
+    buildWindowsPluginBin(target, isRelease);
     buildProxyBin(target);
     buildImporterBinaries(target);
     buildProcessIsolation();

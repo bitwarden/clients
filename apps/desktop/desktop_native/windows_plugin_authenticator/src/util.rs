@@ -26,8 +26,14 @@ impl HwndExt for HWND {
                 (window.bottom + window.top) / 2,
             );
 
+            tracing::debug!("Coordinates for {:?}: {center:?}", *self);
+            // when running as a separate process, we're not DPI aware, so the pixels are logical pixels
+            return Ok(center);
+            /*
             // Convert from physical to logical pixels
+            tracing::debug!("Getting DPI for {:?}", *self);
             let dpi = GetDpiForWindow(*self);
+            tracing::debug!("DPI: {dpi}");
             if dpi == BASE_DPI {
                 return Ok(center);
             }
@@ -38,6 +44,7 @@ impl HwndExt for HWND {
             );
 
             Ok((scaled_center.0 as i32, scaled_center.1 as i32))
+            */
         }
     }
 }

@@ -307,6 +307,16 @@ pub enum CallbackError {
     Cancelled,
 }
 
+impl Display for CallbackError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Timeout => f.write_str("Callback timed out"),
+            Self::Cancelled => f.write_str("Callback cancelled"),
+        }
+    }
+}
+impl std::error::Error for CallbackError {}
+
 pub struct TimedCallback<T> {
     tx: Arc<Mutex<Option<Sender<Result<T, BitwardenError>>>>>,
     rx: Arc<Mutex<Receiver<Result<T, BitwardenError>>>>,

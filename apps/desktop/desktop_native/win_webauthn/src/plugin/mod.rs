@@ -64,7 +64,7 @@ impl WebAuthnPlugin {
     /// The handler should be an instance of your type that implements PluginAuthenticator.
     /// The same instance will be shared across all COM calls.
     ///
-    /// This only needs to be called on installation of your application.
+    /// This only needs to be called at the start of your application.
     pub fn register_server<T>(&self, handler: T) -> Result<(), WinWebAuthnError>
     where
         T: PluginAuthenticator + Send + Sync + 'static,
