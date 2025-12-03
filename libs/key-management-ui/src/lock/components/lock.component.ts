@@ -67,6 +67,7 @@ import {
 } from "../services/lock-component.service";
 
 import { MasterPasswordLockComponent } from "./master-password-lock/master-password-lock.component";
+import { UnlockViaPrfComponent } from "./unlock-via-prf.component";
 
 const BroadcasterSubscriptionId = "LockComponent";
 
@@ -99,6 +100,7 @@ const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
     FormFieldModule,
     AsyncActionsModule,
     IconButtonModule,
+    UnlockViaPrfComponent,
     MasterPasswordLockComponent,
   ],
 })
@@ -439,6 +441,10 @@ export class LockComponent implements OnInit, OnDestroy {
 
       this.unlockingViaBiometrics = false;
     }
+  }
+
+  async onPrfUnlockSuccess(userKey: UserKey): Promise<void> {
+    await this.setUserKeyAndContinue(userKey);
   }
 
   //TODO PM-25385 This code isn't used and should be removed when removing the UnlockWithMasterPasswordUnlockData feature flag.

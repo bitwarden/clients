@@ -859,7 +859,7 @@ const safeProviders: SafeProvider[] = [
       FolderApiServiceAbstraction,
       InternalOrganizationServiceAbstraction,
       SendApiServiceAbstraction,
-      UserDecryptionOptionsServiceAbstraction,
+      InternalUserDecryptionOptionsServiceAbstraction,
       AvatarServiceAbstraction,
       LOGOUT_CALLBACK,
       BillingAccountProfileStateService,

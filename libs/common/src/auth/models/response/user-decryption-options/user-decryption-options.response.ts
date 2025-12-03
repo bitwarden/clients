@@ -27,6 +27,10 @@ export class UserDecryptionOptionsResponse extends BaseResponse {
   masterPasswordUnlock?: MasterPasswordUnlockResponse;
   trustedDeviceOption?: TrustedDeviceUserDecryptionOptionResponse;
   keyConnectorOption?: KeyConnectorUserDecryptionOptionResponse;
+  /**
+   * The IdTokenresponse only returns a single WebAuthn PRF option.
+   * To support immediate unlock after logging in with the same PRF passkey.
+   */
   webAuthnPrfOption?: WebAuthnPrfDecryptionOptionResponse;
 
   constructor(response: IUserDecryptionOptionsServerResponse) {
