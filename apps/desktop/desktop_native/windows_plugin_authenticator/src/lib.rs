@@ -2,11 +2,12 @@
 #![allow(non_snake_case)]
 #![allow(non_camel_case_types)]
 
-use std::ffi::c_uchar;
-use std::ptr;
-use windows::Win32::Foundation::*;
-use windows::Win32::System::Com::*;
-use windows::Win32::System::LibraryLoader::*;
+use std::{ffi::c_uchar, ptr};
+
+use windows::Win32::{
+    Foundation::*,
+    System::{Com::*, LibraryLoader::*},
+};
 use windows_core::*;
 
 mod pluginauthenticator;

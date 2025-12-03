@@ -30,7 +30,8 @@ pub(crate) fn start_impersonating() -> Result<HANDLE> {
     // Need to enable SE_DEBUG_PRIVILEGE to enumerate and open SYSTEM processes
     enable_debug_privilege()?;
 
-    // Find a SYSTEM process and get its token. Not every SYSTEM process allows token duplication, so try several.
+    // Find a SYSTEM process and get its token. Not every SYSTEM process allows token duplication,
+    // so try several.
     let (token, pid, name) = find_system_process_with_token(get_system_pid_list())?;
 
     // Impersonate the SYSTEM process

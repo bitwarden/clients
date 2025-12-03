@@ -3,6 +3,7 @@ import { BehaviorSubject, bufferCount, firstValueFrom, Subject, ObservedValueOf 
 
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
@@ -34,6 +35,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
   let webPushNotificationConnectionService: MockProxy<WebPushConnectionService>;
   let authRequestAnsweringService: MockProxy<AuthRequestAnsweringServiceAbstraction>;
   let configService: MockProxy<ConfigService>;
+  let policyService: MockProxy<InternalPolicyService>;
 
   let activeUserAccount$: BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>;
   let userAccounts$: BehaviorSubject<ObservedValueOf<AccountService["accounts$"]>>;
@@ -136,6 +138,8 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
       return new BehaviorSubject(flagValueByFlag[flag] ?? false) as any;
     });
 
+    policyService = mock<InternalPolicyService>();
+
     defaultServerNotificationsService = new DefaultServerNotificationsService(
       mock<LogService>(),
       syncService,
@@ -149,6 +153,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
       webPushNotificationConnectionService,
       authRequestAnsweringService,
       configService,
+      policyService,
     );
   });
 
