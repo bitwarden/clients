@@ -17,6 +17,7 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
   /** Non-null asserted. */
   protected windowMessageHandlers!: AutofillInlineMenuPageElementWindowMessageHandlers;
   private token?: string;
+  protected pointerIsDown = false;
 
   constructor() {
     super();
@@ -94,7 +95,24 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
     globalThis.addEventListener(EVENTS.MESSAGE, this.handleWindowMessage);
     globalThis.addEventListener(EVENTS.BLUR, this.handleWindowBlurEvent);
     globalThis.document.addEventListener(EVENTS.KEYDOWN, this.handleDocumentKeyDownEvent);
+    globalThis.document.addEventListener(EVENTS.POINTERDOWN, this.handlePointerDownEvent, true);
+    globalThis.document.addEventListener(EVENTS.POINTERUP, this.handlePointerUpEvent, true);
+    globalThis.document.addEventListener(EVENTS.POINTERCANCEL, this.handlePointerUpEvent, true);
   }
+
+  /**
+   * Handles pointerdown events. Sets a flag when the user is actively interacting with the menu.
+   */
+  private handlePointerDownEvent = () => {
+    this.pointerIsDown = true;
+  };
+
+  /**
+   * Handles pointerup/pointercancel events. Clears the `pointerIsDown` flag.
+   */
+  private handlePointerUpEvent = () => {
+    this.pointerIsDown = false;
+  };
 
   /**
    * Handles window messages from the parent window.

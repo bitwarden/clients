@@ -1226,6 +1226,36 @@ describe("AutofillInlineMenuList", () => {
       });
     });
 
+    describe("pointerdown event", () => {
+      it("prevents list updates from destroying buttons mid-click", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers: [],
+            portKey,
+          }),
+        );
+        await flushPromises();
+
+        const newItemButton = autofillInlineMenuList["newItemButtonElement"];
+        expect(newItemButton).toBeDefined();
+
+        const pointerDownEvent = new Event("pointerdown", { bubbles: true });
+        globalThis.document.dispatchEvent(pointerDownEvent);
+
+        postWindowMessage({
+          command: "updateAutofillInlineMenuListCiphers",
+          ciphers: [],
+          showInlineMenuAccountCreation: true,
+          portKey,
+          token: "test-token",
+        });
+        await flushPromises();
+
+        expect(autofillInlineMenuList["newItemButtonElement"]).toBe(newItemButton);
+      });
+    });
+
     describe("keydown event", () => {
       beforeEach(() => {
         postWindowMessage(createInitAutofillInlineMenuListMessageMock({ portKey }));

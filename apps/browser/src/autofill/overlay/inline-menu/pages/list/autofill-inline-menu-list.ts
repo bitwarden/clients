@@ -476,6 +476,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     ciphers,
     showInlineMenuAccountCreation,
   }: UpdateAutofillInlineMenuListCiphersParams) {
+    // Skip updates while user is actively clicking to prevent destroying buttons mid-click
+    if (this.pointerIsDown) {
+      return;
+    }
+
     if (this.isPasskeyAuthInProgress) {
       return;
     }

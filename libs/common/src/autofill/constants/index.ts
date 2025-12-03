@@ -25,6 +25,9 @@ export const EVENTS = {
   MOUSELEAVE: "mouseleave",
   MOUSEUP: "mouseup",
   MOUSEOUT: "mouseout",
+  POINTERDOWN: "pointerdown",
+  POINTERUP: "pointerup",
+  POINTERCANCEL: "pointercancel",
   SUBMIT: "submit",
 } as const;
 
