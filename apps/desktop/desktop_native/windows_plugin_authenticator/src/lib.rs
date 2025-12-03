@@ -226,6 +226,10 @@ impl PluginAuthenticator for BitwardenPluginAuthenticator {
     }
 
     fn lock_status(&self) -> Result<PluginLockStatus, Box<dyn std::error::Error>> {
+        // If the IPC pipe is not open, then the client is not open and must be locked/logged out.
+        if !WindowsProviderClient::is_available() {
+            return Ok(PluginLockStatus::PluginLocked);
+        }
         get_lock_status(&self.get_client())
             .map(|response| {
                 if response.is_unlocked {

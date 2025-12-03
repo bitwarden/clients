@@ -103,6 +103,10 @@ pub struct NativeStatus {
 const NO_CALLBACK_INDICATOR: u32 = 0;
 
 impl WindowsProviderClient {
+    pub fn is_available() -> bool {
+        desktop_core::ipc::path("af").exists()
+    }
+
     // FIXME: Remove unwraps! They panic and terminate the whole application.
     #[allow(clippy::unwrap_used)]
     pub fn connect() -> Self {
