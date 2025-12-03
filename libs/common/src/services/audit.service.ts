@@ -69,10 +69,6 @@ export class AuditService implements AuditServiceAbstraction {
   }
 
   async breachedAccounts(username: string): Promise<BreachAccountResponse[]> {
-    try {
-      return await this.hibpApiService.getHibpBreach(username);
-    } catch {
-      throw new Error();
-    }
+    return this.hibpApiService.getHibpBreach(username);
   }
 }
