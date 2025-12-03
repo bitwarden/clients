@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+
 import { UserId } from "../../../types/guid";
 import { TwoFactorProviderType } from "../../enums/two-factor-provider-type";
 
@@ -18,7 +20,7 @@ export class AuthResult {
   email: string;
   requiresEncryptionKeyMigration: boolean;
   requiresDeviceVerification: boolean;
-  ssoOrganizationIdentifier?: string;
+  ssoOrganizationIdentifier?: string | null;
 
   get requiresTwoFactor() {
     return this.twoFactorProviders != null;
@@ -26,6 +28,6 @@ export class AuthResult {
 
   // This is not as extensible as an object-based approach. In the future we may need to adjust to an object based approach.
   get requiresSso() {
-    return this.ssoOrganizationIdentifier != null && this.ssoOrganizationIdentifier.length > 0;
+    return !Utils.isNullOrWhitespace(this.ssoOrganizationIdentifier);
   }
 }

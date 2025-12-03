@@ -40,7 +40,7 @@ export abstract class LoginComponentService {
    */
   redirectToSsoLoginWithOrganizationSsoIdentifier: (
     email: string,
-    orgSsoIdentifier: string,
+    orgSsoIdentifier: string | null | undefined,
   ) => Promise<void | null>;
 
   /**
