@@ -63,11 +63,8 @@ export function canAccessEmergencyAccess(
 ) {
   return combineLatest([
     configService.getFeatureFlag$(FeatureFlag.AutoConfirm),
-    policyService.policiesByType$(PolicyType.AutoConfirm, userId),
-  ]).pipe(
-    map(([enabled, policies]) => enabled && policies.some((p) => p.enabled)),
-    map((canAccess) => !canAccess),
-  );
+    policyService.policyAppliesToUser$(PolicyType.AutoConfirm, userId),
+  ]).pipe(map(([enabled, policyAppliesToUser]) => !(enabled && policyAppliesToUser)));
 }
 
 /**
