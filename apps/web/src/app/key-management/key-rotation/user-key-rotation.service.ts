@@ -655,7 +655,7 @@ export class UserKeyRotationService {
           publicKeyEncryptionKeyPair: {
             wrappedPrivateKey: currentUserKeyWrappedPrivateKey,
             publicKey: publicKey,
-            signedPublicKey: signedPublicKey,
+            signedPublicKey: signedPublicKey!,
           },
           signingKey: signingKey!,
           securityState: securityState!,
