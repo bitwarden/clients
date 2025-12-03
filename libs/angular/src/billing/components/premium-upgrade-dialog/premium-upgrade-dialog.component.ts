@@ -95,10 +95,12 @@ export class PremiumUpgradeDialogComponent {
     return {
       title: tier.name,
       tagline: tier.description,
-      price: {
-        amount: tier.passwordManager.annualPrice / 12,
-        cadence: SubscriptionCadenceIds.Monthly,
-      },
+      price: tier.passwordManager.annualPrice
+        ? {
+            amount: tier.passwordManager.annualPrice / 12,
+            cadence: SubscriptionCadenceIds.Monthly,
+          }
+        : null,
       button: {
         text: this.i18nService.t("upgradeNow"),
         type: "primary",

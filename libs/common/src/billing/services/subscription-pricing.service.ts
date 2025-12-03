@@ -19,6 +19,10 @@ import { PremiumPlanResponse } from "@bitwarden/common/billing/models/response/p
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import {
+  EnvironmentService,
+  Region,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/logging";
 
@@ -47,11 +51,13 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
     private configService: ConfigService,
     private i18nService: I18nService,
     private logService: LogService,
+    private environmentService: EnvironmentService,
   ) {}
 
   /**
    * Gets personal subscription pricing tiers (Premium and Families).
    * Throws any errors that occur during api request so callers must handle errors.
+   * Pricing information will be empty/missing if current environment is self-hosted.
    * @returns An observable of an array of personal subscription pricing tiers.
    * @throws Error if any errors occur during api request.
    */
@@ -66,6 +72,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
   /**
    * Gets business subscription pricing tiers (Teams, Enterprise, and Custom).
    * Throws any errors that occur during api request so callers must handle errors.
+   * Pricing information will be empty/missing if current environment is self-hosted.
    * @returns An observable of an array of business subscription pricing tiers.
    * @throws Error if any errors occur during api request.
    */
@@ -80,6 +87,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
   /**
    * Gets developer subscription pricing tiers (Free, Teams, and Enterprise).
    * Throws any errors that occur during api request so callers must handle errors.
+   * Pricing information will be empty/missing if current environment is self-hosted.
    * @returns An observable of an array of business subscription pricing tiers for developers.
    * @throws Error if any errors occur during api request.
    */
@@ -91,19 +99,32 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
       }),
     );
 
-  private plansResponse$: Observable<ListResponse<PlanResponse>> = from(
-    this.billingApiService.getPlans(),
-  ).pipe(shareReplay({ bufferSize: 1, refCount: false }));
+  private plansResponse$: Observable<ListResponse<PlanResponse>> =
+    this.environmentService.environment$.pipe(
+      take(1),
+      switchMap((environment) =>
+        environment.getRegion() === Region.SelfHosted
+          ? of(null as unknown as ListResponse<PlanResponse>)
+          : from(this.billingApiService.getPlans()),
+      ),
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
 
-  private premiumPlanResponse$: Observable<PremiumPlanResponse> = from(
-    this.billingApiService.getPremiumPlan(),
-  ).pipe(
-    catchError((error: unknown) => {
-      this.logService.error("Failed to fetch premium plan from API", error);
-      return throwError(() => error); // Re-throw to propagate to higher-level error handler
-    }),
-    shareReplay({ bufferSize: 1, refCount: false }),
-  );
+  private premiumPlanResponse$: Observable<PremiumPlanResponse> =
+    this.environmentService.environment$.pipe(
+      take(1),
+      switchMap((environment) =>
+        environment.getRegion() === Region.SelfHosted
+          ? of(null as unknown as PremiumPlanResponse)
+          : from(this.billingApiService.getPremiumPlan()).pipe(
+              catchError((error: unknown) => {
+                this.logService.error("Failed to fetch premium plan from API", error);
+                return throwError(() => error); // Re-throw to propagate to higher-level error handler
+              }),
+            ),
+      ),
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
 
   private premium$: Observable<PersonalSubscriptionPricingTier> = this.configService
     .getFeatureFlag$(FeatureFlag.PM26793_FetchPremiumPriceFromPricingService)
@@ -113,9 +134,9 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
         fetchPremiumFromPricingService
           ? this.premiumPlanResponse$.pipe(
               map((premiumPlan) => ({
-                seat: premiumPlan.seat.price,
-                storage: premiumPlan.storage.price,
-                provided: premiumPlan.storage.provided,
+                seat: premiumPlan?.seat?.price,
+                storage: premiumPlan?.storage?.price,
+                provided: premiumPlan?.storage?.provided,
               })),
             )
           : of({
@@ -148,11 +169,11 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
   private families$: Observable<PersonalSubscriptionPricingTier> = this.plansResponse$.pipe(
     combineLatestWith(this.configService.getFeatureFlag$(FeatureFlag.PM26462_Milestone_3)),
     map(([plans, milestone3FeatureEnabled]) => {
-      const familiesPlan = plans.data.find(
+      const familiesPlan = plans?.data?.find(
         (plan) =>
           plan.type ===
           (milestone3FeatureEnabled ? PlanType.FamiliesAnnually : PlanType.FamiliesAnnually2025),
-      )!;
+      );
 
       return {
         id: PersonalSubscriptionPricingTierIds.Families,
@@ -161,11 +182,11 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
         availableCadences: [SubscriptionCadenceIds.Annually],
         passwordManager: {
           type: "packaged",
-          users: familiesPlan.PasswordManager.baseSeats,
-          annualPrice: familiesPlan.PasswordManager.basePrice,
+          users: familiesPlan?.PasswordManager?.baseSeats,
+          annualPrice: familiesPlan?.PasswordManager?.basePrice,
           annualPricePerAdditionalStorageGB:
-            familiesPlan.PasswordManager.additionalStoragePricePerGb,
-          providedStorageGB: familiesPlan.PasswordManager.baseStorageGb,
+            familiesPlan?.PasswordManager?.additionalStoragePricePerGb,
+          providedStorageGB: familiesPlan?.PasswordManager?.baseStorageGb,
           features: [
             this.featureTranslations.premiumAccounts(),
             this.featureTranslations.familiesUnlimitedSharing(),
@@ -179,7 +200,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
 
   private free$: Observable<BusinessSubscriptionPricingTier> = this.plansResponse$.pipe(
     map((plans): BusinessSubscriptionPricingTier => {
-      const freePlan = plans.data.find((plan) => plan.type === PlanType.Free)!;
+      const freePlan = plans?.data?.find((plan) => plan.type === PlanType.Free);
 
       return {
         id: BusinessSubscriptionPricingTierIds.Free,
@@ -189,8 +210,10 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
         passwordManager: {
           type: "free",
           features: [
-            this.featureTranslations.limitedUsersV2(freePlan.PasswordManager.maxSeats),
-            this.featureTranslations.limitedCollectionsV2(freePlan.PasswordManager.maxCollections),
+            this.featureTranslations.limitedUsersV2(freePlan?.PasswordManager?.maxSeats),
+            this.featureTranslations.limitedCollectionsV2(
+              freePlan?.PasswordManager?.maxCollections,
+            ),
             this.featureTranslations.alwaysFree(),
           ],
         },
@@ -198,7 +221,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
           type: "free",
           features: [
             this.featureTranslations.twoSecretsIncluded(),
-            this.featureTranslations.projectsIncludedV2(freePlan.SecretsManager.maxProjects),
+            this.featureTranslations.projectsIncludedV2(freePlan?.SecretsManager?.maxProjects),
           ],
         },
       };
@@ -207,7 +230,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
 
   private teams$: Observable<BusinessSubscriptionPricingTier> = this.plansResponse$.pipe(
     map((plans) => {
-      const annualTeamsPlan = plans.data.find((plan) => plan.type === PlanType.TeamsAnnually)!;
+      const annualTeamsPlan = plans?.data?.find((plan) => plan.type === PlanType.TeamsAnnually);
 
       return {
         id: BusinessSubscriptionPricingTierIds.Teams,
@@ -216,10 +239,10 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
         availableCadences: [SubscriptionCadenceIds.Annually, SubscriptionCadenceIds.Monthly],
         passwordManager: {
           type: "scalable",
-          annualPricePerUser: annualTeamsPlan.PasswordManager.seatPrice,
+          annualPricePerUser: annualTeamsPlan?.PasswordManager?.seatPrice,
           annualPricePerAdditionalStorageGB:
-            annualTeamsPlan.PasswordManager.additionalStoragePricePerGb,
-          providedStorageGB: annualTeamsPlan.PasswordManager.baseStorageGb,
+            annualTeamsPlan?.PasswordManager?.additionalStoragePricePerGb,
+          providedStorageGB: annualTeamsPlan?.PasswordManager?.baseStorageGb,
           features: [
             this.featureTranslations.secureItemSharing(),
             this.featureTranslations.eventLogMonitoring(),
@@ -245,9 +268,9 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
 
   private enterprise$: Observable<BusinessSubscriptionPricingTier> = this.plansResponse$.pipe(
     map((plans) => {
-      const annualEnterprisePlan = plans.data.find(
+      const annualEnterprisePlan = plans?.data?.find(
         (plan) => plan.type === PlanType.EnterpriseAnnually,
-      )!;
+      );
 
       return {
         id: BusinessSubscriptionPricingTierIds.Enterprise,
@@ -256,10 +279,10 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
         availableCadences: [SubscriptionCadenceIds.Annually, SubscriptionCadenceIds.Monthly],
         passwordManager: {
           type: "scalable",
-          annualPricePerUser: annualEnterprisePlan.PasswordManager.seatPrice,
+          annualPricePerUser: annualEnterprisePlan?.PasswordManager?.seatPrice,
           annualPricePerAdditionalStorageGB:
-            annualEnterprisePlan.PasswordManager.additionalStoragePricePerGb,
-          providedStorageGB: annualEnterprisePlan.PasswordManager.baseStorageGb,
+            annualEnterprisePlan?.PasswordManager?.additionalStoragePricePerGb,
+          providedStorageGB: annualEnterprisePlan?.PasswordManager?.baseStorageGb,
           features: [
             this.featureTranslations.enterpriseSecurityPolicies(),
             this.featureTranslations.passwordLessSso(),
