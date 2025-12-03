@@ -112,10 +112,11 @@ export class UserDecryptionOptions {
    * @throws If the response is nullish, this method will throw an error. User decryption options
    * are required for client initialization.
    */
-  // TODO: Change response type to `UserDecryptionOptionsResponse` after 2023.10 release (https://bitwarden.atlassian.net/browse/PM-3537)
-  static fromResponse(response: IdentityTokenResponse): UserDecryptionOptions {
+  static fromIdentityTokenResponse(response: IdentityTokenResponse): UserDecryptionOptions {
     if (response == null) {
-      throw new Error("User Decryption Options are required for client initialization.");
+      throw new Error(
+        "User Decryption Options are required for client initialization. Response is nullish.",
+      );
     }
 
     const decryptionOptions = new UserDecryptionOptions();
@@ -134,17 +135,9 @@ export class UserDecryptionOptions {
         responseOptions.keyConnectorOption,
       );
     } else {
-      // If the response does not have userDecryptionOptions, this means it's on a pre-TDE server version and so
-      // we must base our decryption options on the presence of the keyConnectorUrl.
-      // Note that the presence of keyConnectorUrl implies that the user does not have a master password, as in pre-TDE
-      // server versions, a master password short-circuited the addition of the keyConnectorUrl to the response.
-      // TODO: remove this check after 2023.10 release (https://bitwarden.atlassian.net/browse/PM-3537)
-      const usingKeyConnector = response.keyConnectorUrl != null;
-      decryptionOptions.hasMasterPassword = !usingKeyConnector;
-      if (usingKeyConnector) {
-        decryptionOptions.keyConnectorOption = new KeyConnectorUserDecryptionOption();
-        decryptionOptions.keyConnectorOption.keyConnectorUrl = response.keyConnectorUrl;
-      }
+      throw new Error(
+        "User Decryption Options are required for client initialization. userDecryptionOptions is missing in response.",
+      );
     }
     return decryptionOptions;
   }
