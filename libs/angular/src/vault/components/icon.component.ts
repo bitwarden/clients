@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, signal } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
@@ -42,6 +42,21 @@ export class IconComponent {
   readonly size = input<number>();
 
   readonly imageLoaded = signal(false);
+
+  /**
+   * Computed style object for icon dimensions.
+   * Centralizes the sizing logic to avoid repetition in the template.
+   */
+  protected readonly iconStyle = computed(() => {
+    if (this.coloredIcon()) {
+      return { width: "36px", height: "36px" };
+    }
+    const size = this.size();
+    if (size) {
+      return { width: size + "px", height: size + "px" };
+    }
+    return {};
+  });
 
   protected data$: Observable<CipherIconDetails>;
 
