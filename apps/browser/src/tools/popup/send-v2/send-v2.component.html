@@ -47,8 +47,8 @@
     <app-send-list-items-container [headerText]="title | i18n" [sends]="sends$ | async" />
   </ng-container>
   @if (showSkeletonsLoaders$ | async) {
-    <vault-fade-in-skeleton>
+    <vault-fade-in-out-skeleton>
       <vault-loading-skeleton></vault-loading-skeleton>
-    </vault-fade-in-skeleton>
+    </vault-fade-in-out-skeleton>
   }
 </popup-page>

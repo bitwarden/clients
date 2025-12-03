@@ -5809,9 +5809,9 @@
     "message": "Необходимо, чтобы все элементы принадлежали организации, что исключает возможность их хранения на уровне аккаунта.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
+  "organizationDataOwnershipDescContent": {
     "message": "Все элементы будут принадлежать организации и сохраняться в ней, что позволит осуществлять контроль, видимость и отчетность в масштабах всей организации. При включении для каждого участника будет доступна коллекция по умолчанию для хранения элементов. Узнайте больше об управлении ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "жизненным циклом учетных данных",
@@ -9820,6 +9820,14 @@
     "message": "Слишком дорого",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "switchToFreePlan": {
+    "message": "Переход на бесплатный план",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "switchToFreeOrg": {
+    "message": "Переключение на бесплатную организацию",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "Бесплатно на 1 год"
   },
@@ -11339,14 +11347,6 @@
   "openedExtensionViewAtRiskPasswords": {
     "message": "Расширение для браузера Bitwarden успешно открыто. Теперь вы можете просмотреть свои пароли, подверженные риску."
   },
-  "openExtensionManuallyPart1": {
-    "message": "У нас возникли проблемы с открытием расширения для браузера Bitwarden. Нажмите на значок Bitwarden",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
-  "openExtensionManuallyPart2": {
-    "message": "на панели инструментов.",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
   "resellerRenewalWarningMsg": {
     "message": "Ваша подписка скоро будет продлена. Чтобы обеспечить непрерывность сервиса, свяжитесь с $RESELLER$ для подтверждения продления до $RENEWAL_DATE$.",
     "placeholders": {
@@ -11667,11 +11667,8 @@
   "bitwardenExtensionInstalled": {
     "message": "Расширение Bitwarden установлено!"
   },
-  "openTheBitwardenExtension": {
-    "message": "Открыть расширение Bitwarden"
-  },
-  "bitwardenExtensionInstalledOpenExtension": {
-    "message": "Расширение Bitwarden установлено! Откройте расширение, чтобы авторизоваться и начать автозаполнение."
+  "bitwardenExtensionIsInstalled": {
+    "message": "Расширение Bitwarden установлено!"
   },
   "openExtensionToAutofill": {
     "message": "Откройте расширение, чтобы авторизоваться и начать использовать автозаполнение."
@@ -11686,6 +11683,14 @@
   "gettingStartedWithBitwardenPart2": {
     "message": "База знаний",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "openExtensionFromToolbarPart1": {
+    "message": "Если расширение не открылось, возможно, вам потребуется открыть Bitwarden с помощью значка ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
+  },
+  "openExtensionFromToolbarPart2": {
+    "message": " на панели инструментов.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "gettingStartedWithBitwardenPart3": {
     "message": "Центр поддержки",
@@ -12118,6 +12123,15 @@
   "startFreeFamiliesTrial": {
     "message": "Начать пробную версию Families"
   },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Блокировать создание аккаунта для заявленных доменов"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Запретите пользователям создавать аккаунты за пределами вашей организации, используя адреса email из заявленных доменов."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "Перед активацией этой политики необходимо заявить домен."
+  },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Настройте способ разблокировки для изменения действия по тайм-ауту хранилища."
   },
@@ -12157,5 +12171,8 @@
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Вы действительно хотите продолжить?"
+  },
+  "userVerificationFailed": {
+    "message": "Проверка пользователя не удалась."
   }
 }

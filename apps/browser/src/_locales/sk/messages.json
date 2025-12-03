@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Archivované položky sú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania. Naozaj chcete archivovať túto položku?"
   },
+  "upgradeToUseArchive": {
+    "message": "Na použitie archívu je potrebné prémiové členstvo."
+  },
   "edit": {
     "message": "Upraviť"
   },
@@ -593,6 +596,9 @@
   },
   "viewAll": {
     "message": "Zobraziť všetky"
+  },
+  "showAll": {
+    "message": "Zobraziť všetko"
   },
   "viewLess": {
     "message": "Zobraziť menej"
@@ -1867,6 +1873,9 @@
   "expirationYear": {
     "message": "Rok exspirácie"
   },
+  "monthly": {
+    "message": "mesačne"
+  },
   "expiration": {
     "message": "Expirácia"
   },
@@ -2435,6 +2444,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Táto stránka narúša zážitok zo Bitwardenu. Inline ponuka Bitwardenu bola dočasne vypnutá ako bezpečnostné opatrenie."
   },
   "setMasterPassword": {
     "message": "Nastaviť hlavné heslo"
@@ -4899,6 +4911,9 @@
   "premium": {
     "message": "Prémium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Odomknite reportovanie, núdzový prístup a ďalšie bezpečnostné funkcie s predplatným Prémium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Bezplatné organizácie nemôžu používať prílohy"
   },
@@ -5809,11 +5824,11 @@
   "upgradeToPremium": {
     "message": "Upgradovať na Prémium"
   },
-  "upgradeCompleteSecurity": {
-    "message": "Upgradovať pre úplné zabezpečenie"
+  "unlockAdvancedSecurity": {
+    "message": "Odomknutie pokročilých funkcií zabezpečenia"
   },
-  "premiumGivesMoreTools": {
-    "message": "Predplatné Prémium vám poskytuje viac nástrojov na zabezpečenie, efektívnu prácu a kontrolu."
+  "unlockAdvancedSecurityDesc": {
+    "message": "Predplatné Prémium vám poskytne viac nástrojov na zabezpečenie a kontrolu"
   },
   "explorePremium": {
     "message": "Preskúmať Prémium"
