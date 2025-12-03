@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { NavigationEnd, Router, RouterModule } from "@angular/router";
+import { Router, RouterModule } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { Subject } from "rxjs";
 
@@ -29,7 +29,6 @@ describe("SendFiltersNavComponent", () => {
   let fixture: ComponentFixture<SendFiltersNavComponent>;
   let sendListFiltersService: MockProxy<SendListFiltersService>;
   let router: MockProxy<Router>;
-  let routerEventsSubject: Subject<any>;
 
   beforeEach(async () => {
     sendListFiltersService = mock<SendListFiltersService>();
@@ -38,9 +37,10 @@ describe("SendFiltersNavComponent", () => {
       patchValue: jest.fn(),
     } as any;
 
-    routerEventsSubject = new Subject();
     router = mock<Router>();
-    router.events = routerEventsSubject.asObservable();
+    router.url = "/vault";
+    router.navigate = jest.fn().mockResolvedValue(true);
+    router.events = new Subject().asObservable();
 
     await TestBed.configureTestingModule({
       imports: [SendFiltersNavComponent, NavigationModule, RouterModule.forRoot([])],
@@ -81,88 +81,38 @@ describe("SendFiltersNavComponent", () => {
     expect(component["SendType"]).toBe(SendType);
   });
 
-  it("clicking Text filter calls selectType with Text type", () => {
-    jest.spyOn(component as any, "selectType");
+  describe("isSendRouteActive", () => {
+    it("returns true when on /new-sends route", () => {
+      router.url = "/new-sends";
 
-    const compiled = fixture.debugElement.nativeElement;
-    const navItems = compiled.querySelectorAll("bit-nav-item");
-    const textNavItem = Array.from(navItems).find(
-      (item: Element) => item.getAttribute("icon") === "bwi-file-text",
-    );
-
-    if (textNavItem) {
-      (textNavItem as HTMLElement).click();
-      expect(component["selectType"]).toHaveBeenCalledWith(SendType.Text);
-    }
-  });
-
-  describe("ngOnInit", () => {
-    it("subscribes to router events", () => {
-      component.ngOnInit();
-
-      expect(router.events).toBeDefined();
+      expect(component["isSendRouteActive"]()).toBe(true);
     });
 
-    it("clears sendType filter when navigating to /new-sends route directly", () => {
-      sendListFiltersService.filterForm.value = { sendType: SendType.Text };
-      component.ngOnInit();
+    it("returns false when not on /new-sends route", () => {
+      router.url = "/vault";
 
-      routerEventsSubject.next(new NavigationEnd(1, "/new-sends", "/new-sends"));
-
-      expect(sendListFiltersService.filterForm.patchValue).toHaveBeenCalledWith({
-        sendType: null,
-      });
-    });
-
-    it("does not clear sendType filter when navigating via filter click", () => {
-      sendListFiltersService.filterForm.value = { sendType: SendType.Text };
-
-      component["selectType"](SendType.File);
-
-      (sendListFiltersService.filterForm.patchValue as jest.Mock).mockClear();
-
-      routerEventsSubject.next(new NavigationEnd(1, "/new-sends", "/new-sends"));
-
-      expect(sendListFiltersService.filterForm.patchValue).not.toHaveBeenCalled();
-    });
-
-    it("resets navigating flag after navigation", () => {
-      component.ngOnInit();
-
-      component["selectType"](SendType.Text);
-      expect(component["isNavigatingViaFilter"]).toBe(true);
-
-      routerEventsSubject.next(new NavigationEnd(1, "/new-sends", "/new-sends"));
-
-      expect(component["isNavigatingViaFilter"]).toBe(false);
-    });
-
-    it("ignores navigation events that are not NavigationEnd", () => {
-      component.ngOnInit();
-
-      routerEventsSubject.next({ type: "NavigationStart" });
-
-      expect(sendListFiltersService.filterForm.patchValue).not.toHaveBeenCalled();
-    });
-
-    it("ignores navigation to routes that do not include /new-sends", () => {
-      component.ngOnInit();
-
-      routerEventsSubject.next(new NavigationEnd(1, "/vault", "/vault"));
-
-      expect(sendListFiltersService.filterForm.patchValue).not.toHaveBeenCalled();
+      expect(component["isSendRouteActive"]()).toBe(false);
     });
   });
 
   describe("isTypeActive", () => {
-    it("returns true when filter type matches", () => {
+    it("returns true when on send route and filter type matches", () => {
+      router.url = "/new-sends";
       sendListFiltersService.filterForm.value = { sendType: SendType.Text };
 
       expect(component["isTypeActive"](SendType.Text)).toBe(true);
       expect(component["isTypeActive"](SendType.File)).toBe(false);
     });
 
+    it("returns false when not on send route", () => {
+      router.url = "/vault";
+      sendListFiltersService.filterForm.value = { sendType: SendType.Text };
+
+      expect(component["isTypeActive"](SendType.Text)).toBe(false);
+    });
+
     it("returns false when no type is selected", () => {
+      router.url = "/new-sends";
       sendListFiltersService.filterForm.value = { sendType: null };
 
       expect(component["isTypeActive"](SendType.Text)).toBe(false);
@@ -170,27 +120,63 @@ describe("SendFiltersNavComponent", () => {
     });
   });
 
-  describe("selectType", () => {
+  describe("selectAllAndNavigate", () => {
+    it("clears the sendType filter", () => {
+      component["selectAllAndNavigate"]();
+
+      expect(sendListFiltersService.filterForm.patchValue).toHaveBeenCalledWith({
+        sendType: null,
+      });
+    });
+
+    it("navigates to /new-sends when not on send route", () => {
+      router.url = "/vault";
+
+      component["selectAllAndNavigate"]();
+
+      expect(router.navigate).toHaveBeenCalledWith(["/new-sends"]);
+    });
+
+    it("does not navigate when already on send route", () => {
+      router.url = "/new-sends";
+
+      component["selectAllAndNavigate"]();
+
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("selectTypeAndNavigate", () => {
     it("updates filter form with selected type", () => {
-      component["selectType"](SendType.Text);
+      component["selectTypeAndNavigate"](SendType.Text);
 
       expect(sendListFiltersService.filterForm.patchValue).toHaveBeenCalledWith({
         sendType: SendType.Text,
       });
     });
 
-    it("sets navigating flag", () => {
-      component["selectType"](SendType.File);
-
-      expect(component["isNavigatingViaFilter"]).toBe(true);
-    });
-
     it("updates filter form with File type", () => {
-      component["selectType"](SendType.File);
+      component["selectTypeAndNavigate"](SendType.File);
 
       expect(sendListFiltersService.filterForm.patchValue).toHaveBeenCalledWith({
         sendType: SendType.File,
       });
+    });
+
+    it("navigates to /new-sends when not on send route", () => {
+      router.url = "/vault";
+
+      component["selectTypeAndNavigate"](SendType.Text);
+
+      expect(router.navigate).toHaveBeenCalledWith(["/new-sends"]);
+    });
+
+    it("does not navigate when already on send route", () => {
+      router.url = "/new-sends";
+
+      component["selectTypeAndNavigate"](SendType.Text);
+
+      expect(router.navigate).not.toHaveBeenCalled();
     });
   });
 });

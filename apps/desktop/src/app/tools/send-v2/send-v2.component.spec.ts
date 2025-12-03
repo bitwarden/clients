@@ -341,14 +341,14 @@ describe("SendV2Component", () => {
       expect(component.loaded).toBe(true);
     });
 
-    it("calls selectAll when onSuccessfulLoad is not set", async () => {
+    it("does not call selectAll when onSuccessfulLoad is not set", async () => {
       jest.spyOn(component, "search").mockResolvedValue();
       jest.spyOn(component, "selectAll");
       component.onSuccessfulLoad = null;
 
       await component.load();
 
-      expect(component.selectAll).toHaveBeenCalled();
+      expect(component.selectAll).not.toHaveBeenCalled();
     });
 
     it("calls onSuccessfulLoad when it is set", async () => {
