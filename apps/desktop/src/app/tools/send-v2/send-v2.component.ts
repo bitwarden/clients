@@ -14,11 +14,13 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { SendListFiltersService } from "@bitwarden/send-ui";
 
 import { invokeMenu, RendererMenuItem } from "../../../utils";
 import { SearchBarService } from "../../layout/search/search-bar.service";
@@ -71,6 +73,7 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
     toastService: ToastService,
     accountService: AccountService,
     private cdr: ChangeDetectorRef,
+    private sendListFiltersService: SendListFiltersService,
   ) {
     super(
       sendService,
@@ -103,6 +106,17 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
 
     await super.ngOnInit();
 
+    // Read current filter synchronously to avoid race condition on navigation
+    const currentFilter = this.sendListFiltersService.filterForm.value;
+    this.applySendTypeFilter(currentFilter);
+
+    // Subscribe to future filter changes from sidebar navigation
+    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
+    this.sendListFiltersService.filterForm.valueChanges.subscribe((filters) => {
+      this.applySendTypeFilter(filters);
+      this.cdr.detectChanges();
+    });
+
     // Listen for sync completion events to refresh the Send list
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -116,6 +130,15 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
       });
     });
     await this.load();
+  }
+
+  // Apply send type filter to display: centralized logic for initial load and filter changes
+  private applySendTypeFilter(filters: Partial<{ sendType: SendType | null }>): void {
+    if (filters.sendType === null || filters.sendType === undefined) {
+      this.selectAll();
+    } else {
+      this.selectType(filters.sendType);
+    }
   }
 
   // Clean up subscriptions and disable search bar when component is destroyed
@@ -143,9 +166,6 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
       .subscribe();
     if (this.onSuccessfulLoad != null) {
       await this.onSuccessfulLoad();
-    } else {
-      // Default action
-      this.selectAll();
     }
     this.loading = false;
     this.loaded = true;
