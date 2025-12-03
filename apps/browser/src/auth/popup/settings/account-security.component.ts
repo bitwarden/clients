@@ -393,7 +393,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     this.form.controls.enablePhishingDetection.valueChanges
       .pipe(
         concatMap(async (enabled) => {
-          await this.phishingDetectionSettingsService.setEnablePhishingDetection(enabled);
+          const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+          await this.phishingDetectionSettingsService.setEnablePhishingDetection(userId, enabled);
         }),
         takeUntil(this.destroy$),
       )

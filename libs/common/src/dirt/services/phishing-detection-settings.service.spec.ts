@@ -1,7 +1,6 @@
 import { firstValueFrom } from "rxjs";
 
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../spec";
-import { Utils } from "../../platform/misc/utils";
 import { UserId } from "../../types/guid";
 
 import { PhishingDetectionSettingsService } from "./phishing-detection-settings.service";
@@ -9,7 +8,7 @@ import { PhishingDetectionSettingsService } from "./phishing-detection-settings.
 describe("PhishingDetectionSettingsService", () => {
   let service: PhishingDetectionSettingsService;
   let stateProvider: FakeStateProvider;
-  const mockUserId = Utils.newGuid() as UserId;
+  const mockUserId = "mock-user-id" as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
 
   beforeEach(() => {
@@ -24,7 +23,7 @@ describe("PhishingDetectionSettingsService", () => {
     });
 
     it("should return the stored value", async () => {
-      await service.setEnablePhishingDetection(false);
+      await service.setEnablePhishingDetection(mockUserId, false);
       const result = await firstValueFrom(service.enablePhishingDetection$);
       expect(result).toBe(false);
     });
@@ -32,11 +31,11 @@ describe("PhishingDetectionSettingsService", () => {
 
   describe("setEnablePhishingDetection", () => {
     it("should update the stored value", async () => {
-      await service.setEnablePhishingDetection(false);
+      await service.setEnablePhishingDetection(mockUserId, false);
       let result = await firstValueFrom(service.enablePhishingDetection$);
       expect(result).toBe(false);
 
-      await service.setEnablePhishingDetection(true);
+      await service.setEnablePhishingDetection(mockUserId, true);
       result = await firstValueFrom(service.enablePhishingDetection$);
       expect(result).toBe(true);
     });

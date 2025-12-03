@@ -1,19 +1,21 @@
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 
+import { UserId } from "@bitwarden/user-core";
+
 import {
-  GlobalState,
-  KeyDefinition,
+  ActiveUserState,
   PHISHING_DETECTION_DISK,
   StateProvider,
+  UserKeyDefinition,
 } from "../../platform/state";
 
-// Global (client-level) setting - applies to all users on this browser
-const ENABLE_PHISHING_DETECTION = new KeyDefinition(
+const ENABLE_PHISHING_DETECTION = new UserKeyDefinition(
   PHISHING_DETECTION_DISK,
   "enablePhishingDetection",
   {
     deserializer: (value: boolean) => value ?? true, // Default: enabled
+    clearOn: ["logout"],
   },
 );
 
@@ -30,25 +32,25 @@ export abstract class PhishingDetectionSettingsServiceAbstraction {
    *
    * @param enabled True to enable, false to disable
    */
-  abstract setEnablePhishingDetection: (enabled: boolean) => Promise<void>;
+  abstract setEnablePhishingDetection: (userId: UserId, enabled: boolean) => Promise<void>;
 }
 
 export class PhishingDetectionSettingsService
   implements PhishingDetectionSettingsServiceAbstraction
 {
-  private enablePhishingDetectionState: GlobalState<boolean>;
+  private enablePhishingDetectionState: ActiveUserState<boolean>;
   readonly enablePhishingDetection$: Observable<boolean>;
 
   constructor(private stateProvider: StateProvider) {
     // Use getGlobal() for client-level setting
-    this.enablePhishingDetectionState = this.stateProvider.getGlobal(ENABLE_PHISHING_DETECTION);
+    this.enablePhishingDetectionState = this.stateProvider.getActive(ENABLE_PHISHING_DETECTION);
 
     this.enablePhishingDetection$ = this.enablePhishingDetectionState.state$.pipe(
       map((x) => x ?? true),
     );
   }
 
-  async setEnablePhishingDetection(enabled: boolean): Promise<void> {
-    await this.enablePhishingDetectionState.update(() => enabled);
+  async setEnablePhishingDetection(userId: UserId, enabled: boolean): Promise<void> {
+    await this.stateProvider.getUser(userId, ENABLE_PHISHING_DETECTION).update(() => enabled);
   }
 }
