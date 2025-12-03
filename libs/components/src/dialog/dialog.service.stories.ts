@@ -1,9 +1,9 @@
 import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
-import { Component, Inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { NoopAnimationsModule, provideAnimations } from "@angular/platform-browser/animations";
 import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import { getAllByRole, userEvent } from "@storybook/test";
+import { getAllByRole, userEvent } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -36,7 +36,7 @@ interface Animal {
   imports: [ButtonModule, LayoutComponent],
 })
 class StoryDialogComponent {
-  constructor(public dialogService: DialogService) {}
+  dialogService = inject(DialogService);
 
   openDialog() {
     this.dialogService.open(StoryDialogContentComponent, {
@@ -47,7 +47,7 @@ class StoryDialogComponent {
   }
 
   openDialogNonDismissable() {
-    this.dialogService.open(NonDismissableContent, {
+    this.dialogService.open(NonDismissableContentComponent, {
       data: {
         animal: "panda",
       },
@@ -85,10 +85,8 @@ class StoryDialogComponent {
   imports: [DialogModule, ButtonModule],
 })
 class StoryDialogContentComponent {
-  constructor(
-    public dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) private data: Animal,
-  ) {}
+  dialogRef = inject(DialogRef);
+  private data = inject<Animal>(DIALOG_DATA);
 
   get animal() {
     return this.data?.animal;
@@ -117,11 +115,9 @@ class StoryDialogContentComponent {
   `,
   imports: [DialogModule, ButtonModule],
 })
-class NonDismissableContent {
-  constructor(
-    public dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) private data: Animal,
-  ) {}
+class NonDismissableContentComponent {
+  dialogRef = inject(DialogRef);
+  private data = inject<Animal>(DIALOG_DATA);
 
   get animal() {
     return this.data?.animal;

@@ -1176,6 +1176,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       fillNewPassword: true,
       allowTotpAutofill: true,
       focusedFieldForm: this.focusedFieldData?.focusedFieldForm,
+      focusedFieldOpid: this.focusedFieldData?.focusedFieldOpid,
+      inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
     });
 
     if (totpCode) {
@@ -1422,11 +1424,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * calculates the postion and width for multi-input totp field inline menu
-   * @param totpFieldArray - the totp fields used to evaluate the position of the menu
+   * calculates the position and width for multi-input TOTP field inline menu
+   * @param totpFieldArray - the TOTP fields used to evaluate the position of the menu
    */
   private calculateTotpMultiInputMenuBounds(totpFieldArray: AutofillField[]) {
-    // Filter the fields based on the provided totpfields
+    // Filter the fields based on the provided TOTP fields
     const filteredObjects = this.allFieldData.filter((obj) =>
       totpFieldArray.some((o) => o.opid === obj.opid),
     );
@@ -1449,8 +1451,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * calculates the postion for multi-input totp field inline button
-   * @param totpFieldArray - the totp fields used to evaluate the position of the menu
+   * calculates the position for multi-input TOTP field inline button
+   * @param totpFieldArray - the TOTP fields used to evaluate the position of the menu
    */
   private calculateTotpMultiInputButtonBounds(totpFieldArray: AutofillField[]) {
     const filteredObjects = this.allFieldData.filter((obj) =>
@@ -1861,6 +1863,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       fillNewPassword: true,
       allowTotpAutofill: false,
       focusedFieldForm: this.focusedFieldData?.focusedFieldForm,
+      focusedFieldOpid: this.focusedFieldData?.focusedFieldOpid,
+      inlineMenuFillType: InlineMenuFillTypes.PasswordGeneration,
     });
 
     globalThis.setTimeout(async () => {
@@ -2945,17 +2949,21 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       (await this.checkFocusedFieldHasValue(port.sender.tab)) &&
       (await this.shouldShowSaveLoginInlineMenuList(port.sender.tab));
 
+    const iframeUrl = BrowserApi.getRuntimeURL(
+      `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.html`,
+    );
+    const styleSheetUrl = BrowserApi.getRuntimeURL(
+      `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.css`,
+    );
+    const extensionOrigin = iframeUrl ? new URL(iframeUrl).origin : null;
+
     this.postMessageToPort(port, {
       command: `initAutofillInlineMenu${isInlineMenuListPort ? "List" : "Button"}`,
-      iframeUrl: chrome.runtime.getURL(
-        `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.html`,
-      ),
+      iframeUrl,
       pageTitle: chrome.i18n.getMessage(
         isInlineMenuListPort ? "bitwardenVault" : "bitwardenOverlayButton",
       ),
-      styleSheetUrl: chrome.runtime.getURL(
-        `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.css`,
-      ),
+      styleSheetUrl,
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       translations: this.getInlineMenuTranslations(),
       ciphers: isInlineMenuListPort ? await this.getInlineMenuCipherData() : null,
@@ -2969,6 +2977,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       showSaveLoginMenu,
       showInlineMenuAccountCreation,
       authStatus,
+      extensionOrigin,
     });
     this.updateInlineMenuPosition(
       port.sender,

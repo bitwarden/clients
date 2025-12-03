@@ -145,6 +145,9 @@ export const Tree: StoryObj<NavGroupComponent> = {
               <bit-nav-item text="Level 3 - no children, no icon" route="t5" variant="tree"></bit-nav-item>
               <bit-nav-group text="Level 3 - with children" route="t6" icon="bwi-collection-shared" variant="tree" [open]="true">
                 <bit-nav-item text="Level 4 - no children, no icon" route="t7" variant="tree"></bit-nav-item>
+                <bit-nav-group text="Level 4 - with children" route="t6" icon="bwi-collection-shared" variant="tree" [open]="true">
+                  <bit-nav-item text="Level 5 - no children, no icon" route="t7" variant="tree"></bit-nav-item>
+                </bit-nav-group>
               </bit-nav-group>
             </bit-nav-group>
           </bit-nav-group>

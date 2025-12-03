@@ -166,16 +166,16 @@ export abstract class KeyService {
    */
   abstract makeMasterKey(password: string, email: string, kdfConfig: KdfConfig): Promise<MasterKey>;
   /**
-   * Encrypts the existing (or provided) user key with the
-   * provided master key
+   * Encrypts the provided user key with the provided master key.
    * @deprecated Interacting with the master key directly is prohibited. Use a high level function from MasterPasswordService instead.
    * @param masterKey The user's master key
    * @param userKey The user key
+   * @throws Error when userKey or masterKey is null/undefined.
    * @returns The user key and the master key protected version of it
    */
   abstract encryptUserKeyWithMasterKey(
     masterKey: MasterKey,
-    userKey?: UserKey,
+    userKey: UserKey,
   ): Promise<[UserKey, EncString]>;
   /**
    * Creates a master password hash from the user's master password. Can

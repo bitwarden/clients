@@ -1,5 +1,6 @@
 import { mock } from "jest-mock-extended";
 
+import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -13,11 +14,14 @@ import {
   PasswordHealthData,
 } from "../report-models";
 
+const mockCipherId1 = "cipher-1" as CipherId;
+const mockCipherId2 = "cipher-2" as CipherId;
+
 const mockApplication1: ApplicationHealthReportDetail = {
   applicationName: "application1.com",
   passwordCount: 2,
   atRiskPasswordCount: 1,
-  atRiskCipherIds: ["cipher-1"],
+  atRiskCipherIds: [mockCipherId1],
   memberCount: 2,
   atRiskMemberCount: 1,
   memberDetails: [
@@ -33,10 +37,10 @@ const mockApplication1: ApplicationHealthReportDetail = {
       userGuid: "user-id-2",
       userName: "tom",
       email: "tom2@application1.com",
-      cipherId: "cipher-2",
+      cipherId: mockCipherId2,
     },
   ],
-  cipherIds: ["cipher-1", "cipher-2"],
+  cipherIds: [mockCipherId1, mockCipherId2],
 };
 
 const mockApplication2: ApplicationHealthReportDetail = {

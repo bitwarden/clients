@@ -30,7 +30,7 @@ export class BackgroundTaskSchedulerService extends BrowserTaskSchedulerServiceI
     if (port.name !== BrowserTaskSchedulerPortName) {
       return;
     }
-    if (!BrowserApi.senderIsInternal(port.sender)) {
+    if (!BrowserApi.senderIsInternal(port.sender, this.logService)) {
       return;
     }
 
