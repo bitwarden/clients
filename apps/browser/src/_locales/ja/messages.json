@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   },
+  "upgradeToUseArchive": {
+    "message": "A premium membership is required to use Archive."
+  },
   "edit": {
     "message": "編集"
   },
@@ -593,6 +596,9 @@
   },
   "viewAll": {
     "message": "View all"
+  },
+  "showAll": {
+    "message": "Show all"
   },
   "viewLess": {
     "message": "View less"
@@ -1867,6 +1873,9 @@
   "expirationYear": {
     "message": "有効期限年"
   },
+  "monthly": {
+    "message": "month"
+  },
   "expiration": {
     "message": "有効期限"
   },
@@ -2435,6 +2444,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
   },
   "setMasterPassword": {
     "message": "マスターパスワードを設定"
@@ -3365,7 +3377,7 @@
     "message": "サービス"
   },
   "forwardedEmail": {
-    "message": "転送されたメールエイリアス"
+    "message": "転送されるメールエイリアス"
   },
   "forwardedEmailDesc": {
     "message": "外部転送サービスを使用してメールエイリアスを生成します。"
@@ -4517,7 +4529,7 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "URI の一致検出方法は、Bitwarden が自動入力候補をどのように判別するかを指定します。",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
@@ -4898,6 +4910,9 @@
   },
   "premium": {
     "message": "プレミアム"
+  },
+  "unlockFeaturesWithPremium": {
+    "message": "Unlock reporting, emergency access, and more security features with Premium."
   },
   "freeOrgsCannotUseAttachments": {
     "message": "無料の組織は添付ファイルを使用できません"
@@ -5809,11 +5824,11 @@
   "upgradeToPremium": {
     "message": "プレミアムにアップグレード"
   },
-  "upgradeCompleteSecurity": {
-    "message": "Upgrade for complete security"
+  "unlockAdvancedSecurity": {
+    "message": "Unlock advanced security features"
   },
-  "premiumGivesMoreTools": {
-    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  "unlockAdvancedSecurityDesc": {
+    "message": "A Premium subscription gives you more tools to stay secure and in control"
   },
   "explorePremium": {
     "message": "Explore Premium"

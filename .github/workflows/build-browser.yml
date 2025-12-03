@@ -55,7 +55,7 @@ jobs:
       has_secrets: ${{ steps.check-secrets.outputs.has_secrets }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -94,7 +94,7 @@ jobs:
         working-directory: apps/browser
     steps:
       - name: Check out repo
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -146,7 +146,7 @@ jobs:
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -218,6 +218,7 @@ jobs:
             source_archive_name_prefix: ""
             archive_name_prefix: ""
             npm_command_prefix: "dist:"
+            npm_package_dev_prefix: "package:dev:"
             readable: "open source license"
             type: "oss"
           - build_prefix: "bit-"
@@ -225,6 +226,7 @@ jobs:
             source_archive_name_prefix: "bit-"
             archive_name_prefix: "bit-"
             npm_command_prefix: "dist:bit:"
+            npm_package_dev_prefix: "package:bit:dev:"
             readable: "commercial license"
             type: "commercial"
         browser:
@@ -232,6 +234,8 @@ jobs:
             npm_command_suffix: "chrome"
             archive_name: "dist-chrome.zip"
             artifact_name: "dist-chrome-MV3"
+            artifact_name_dev: "dev-chrome-MV3"
+            archive_name_dev: "dev-chrome.zip"
           - name: "edge"
             npm_command_suffix: "edge"
             archive_name: "dist-edge.zip"
@@ -250,7 +254,7 @@ jobs:
             artifact_name: "dist-opera-MV3"
     steps:
       - name: Check out repo
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -338,6 +342,19 @@ jobs:
           path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_name }}
           if-no-files-found: error
 
+      - name: Package dev extension
+        if: ${{ matrix.browser.archive_name_dev != '' }}
+        run: npm run ${{ matrix.license_type.npm_package_dev_prefix }}${{ matrix.browser.npm_command_suffix }}
+        working-directory: browser-source/apps/browser
+
+      - name: Upload dev extension artifact
+        if: ${{ matrix.browser.archive_name_dev != '' }}
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: ${{ matrix.license_type.artifact_prefix }}${{ matrix.browser.artifact_name_dev }}-${{ env._BUILD_NUMBER }}.zip
+          path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_name_dev }}
+          if-no-files-found: error
+
 
   build-safari:
     name: Build Safari - ${{ matrix.license_type.readable }}
@@ -369,7 +386,7 @@ jobs:
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -525,7 +542,7 @@ jobs:
       - build-safari
     steps:
       - name: Check out repo
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false

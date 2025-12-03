@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Directive, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { firstValueFrom, map, Observable } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -88,16 +88,10 @@ export class VaultFilterComponent implements OnInit {
     this.folders$ = await this.vaultFilterService.buildNestedFolders();
     this.collections = await this.initCollections();
 
-    const userCanArchive = await firstValueFrom(
-      this.cipherArchiveService.userCanArchive$(this.activeUserId),
-    );
-    const hasArchiveItems = await firstValueFrom(
-      this.cipherArchiveService
-        .archivedCiphers$(this.activeUserId)
-        .pipe(map((ciphers) => ciphers.length > 0)),
+    this.showArchiveVaultFilter = await firstValueFrom(
+      this.cipherArchiveService.hasArchiveFlagEnabled$,
     );
 
-    this.showArchiveVaultFilter = userCanArchive || hasArchiveItems;
     this.isLoaded = true;
   }
 

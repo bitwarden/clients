@@ -322,7 +322,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
 
     const data$ = combineLatest([
       this.restrictedItemTypesService.restricted$,
-      this.cipherService.cipherViews$(userId),
+      this.cipherService.cipherListViews$(userId),
     ]).pipe(
       map(([restrictedTypes, ciphers]) => {
         const restrictedForUser = restrictedTypes

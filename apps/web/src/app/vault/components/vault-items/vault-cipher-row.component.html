@@ -109,10 +109,12 @@
           <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
           {{ "copyUsername" | i18n }}
         </button>
-        <button bitMenuItem type="button" appCopyField="password" [cipher]="cipher">
-          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-          {{ "copyPassword" | i18n }}
-        </button>
+        @if (cipher.viewPassword) {
+          <button bitMenuItem type="button" appCopyField="password" [cipher]="cipher">
+            <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+            {{ "copyPassword" | i18n }}
+          </button>
+        }
         <button bitMenuItem type="button" appCopyField="totp" [cipher]="cipher">
           <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
           {{ "copyVerificationCode" | i18n }}

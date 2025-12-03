@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "보관된 항목은 일반 검색 결과와 자동 완성 제안에서 제외됩니다. 이 항목을 보관하시겠습니까?"
   },
+  "upgradeToUseArchive": {
+    "message": "A premium membership is required to use Archive."
+  },
   "edit": {
     "message": "편집"
   },
@@ -593,6 +596,9 @@
   },
   "viewAll": {
     "message": "View all"
+  },
+  "showAll": {
+    "message": "Show all"
   },
   "viewLess": {
     "message": "View less"
@@ -1867,6 +1873,9 @@
   "expirationYear": {
     "message": "만료 연도"
   },
+  "monthly": {
+    "message": "month"
+  },
   "expiration": {
     "message": "만료"
   },
@@ -2435,6 +2444,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
   },
   "setMasterPassword": {
     "message": "마스터 비밀번호 설정"
@@ -4899,6 +4911,9 @@
   "premium": {
     "message": "프리미엄"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Unlock reporting, emergency access, and more security features with Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "무료 조직에서는 첨부 파일을 사용할 수 없습니다."
   },
@@ -5809,11 +5824,11 @@
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
   },
-  "upgradeCompleteSecurity": {
-    "message": "Upgrade for complete security"
+  "unlockAdvancedSecurity": {
+    "message": "Unlock advanced security features"
   },
-  "premiumGivesMoreTools": {
-    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  "unlockAdvancedSecurityDesc": {
+    "message": "A Premium subscription gives you more tools to stay secure and in control"
   },
   "explorePremium": {
     "message": "Explore Premium"
