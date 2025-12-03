@@ -12,6 +12,7 @@ import {
 } from "rxjs";
 import {
   catchError,
+  delay,
   distinctUntilChanged,
   exhaustMap,
   filter,
@@ -71,6 +72,9 @@ import { RiskInsightsReportService } from "./risk-insights-report.service";
 
 export class RiskInsightsOrchestratorService {
   private _destroy$ = new Subject<void>();
+
+  // Minimum delay between progress steps (in milliseconds) to prevent jarring UI jumps
+  private readonly PROGRESS_STEP_DELAY_MS = 500;
 
   // -------------------------- Context state --------------------------
   // Current user viewing risk insights
@@ -675,6 +679,7 @@ export class RiskInsightsOrchestratorService {
 
     // Start the generation pipeline
     const reportGeneration$ = forkJoin([this._ciphers$.pipe(take(1)), memberCiphers$]).pipe(
+      delay(this.PROGRESS_STEP_DELAY_MS),
       switchMap(([ciphers, memberCiphers]) => {
         this.logService.debug("[RiskInsightsOrchestratorService] Analyzing password health");
         this._reportProgressSubject.next(ReportProgress.AnalyzingPasswords);
@@ -690,12 +695,14 @@ export class RiskInsightsOrchestratorService {
           }),
         );
       }),
+      delay(this.PROGRESS_STEP_DELAY_MS),
       map(({ cipherHealthReports, totalMemberCount }) => {
         this.logService.debug("[RiskInsightsOrchestratorService] Calculating risk scores");
         this._reportProgressSubject.next(ReportProgress.CalculatingRisks);
         const report = this.reportService.generateApplicationsReport(cipherHealthReports);
         return { report, totalMemberCount };
       }),
+      delay(this.PROGRESS_STEP_DELAY_MS),
       tap(() => {
         this.logService.debug("[RiskInsightsOrchestratorService] Generating report data");
         this._reportProgressSubject.next(ReportProgress.GeneratingReport);
@@ -736,6 +743,7 @@ export class RiskInsightsOrchestratorService {
           metrics,
         };
       }),
+      delay(this.PROGRESS_STEP_DELAY_MS),
       switchMap(({ report, summary, applications, metrics }) => {
         this.logService.debug("[RiskInsightsOrchestratorService] Saving report");
         this._reportProgressSubject.next(ReportProgress.Saving);
@@ -754,6 +762,7 @@ export class RiskInsightsOrchestratorService {
             })),
           );
       }),
+      delay(this.PROGRESS_STEP_DELAY_MS),
       // Update the running state
       tap(() => {
         this.logService.debug("[RiskInsightsOrchestratorService] Report generation complete");
