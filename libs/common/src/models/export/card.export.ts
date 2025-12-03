@@ -1,6 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { EncString } from "../../key-management/crypto/models/enc-string";
+import { conditionalEncString } from "@bitwarden/common/vault/utils/domain-utils";
+
 import { Card as CardDomain } from "../../vault/models/domain/card";
 import { CardView } from "../../vault/models/view/card.view";
 
@@ -29,21 +28,21 @@ export class CardExport {
   }
 
   static toDomain(req: CardExport, domain = new CardDomain()) {
-    domain.cardholderName = req.cardholderName != null ? new EncString(req.cardholderName) : null;
-    domain.brand = req.brand != null ? new EncString(req.brand) : null;
-    domain.number = req.number != null ? new EncString(req.number) : null;
-    domain.expMonth = req.expMonth != null ? new EncString(req.expMonth) : null;
-    domain.expYear = req.expYear != null ? new EncString(req.expYear) : null;
-    domain.code = req.code != null ? new EncString(req.code) : null;
+    domain.cardholderName = conditionalEncString(req.cardholderName);
+    domain.brand = conditionalEncString(req.brand);
+    domain.number = conditionalEncString(req.number);
+    domain.expMonth = conditionalEncString(req.expMonth);
+    domain.expYear = conditionalEncString(req.expYear);
+    domain.code = conditionalEncString(req.code);
     return domain;
   }
 
-  cardholderName: string;
-  brand: string;
-  number: string;
-  expMonth: string;
-  expYear: string;
-  code: string;
+  cardholderName?: string;
+  brand?: string;
+  number?: string;
+  expMonth?: string;
+  expYear?: string;
+  code?: string;
 
   constructor(o?: CardView | CardDomain) {
     if (o == null) {

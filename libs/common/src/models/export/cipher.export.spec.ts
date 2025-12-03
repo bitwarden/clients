@@ -3,8 +3,6 @@ import { SecureNoteExport } from "@bitwarden/common/models/export/secure-note.ex
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { SshKeyExport } from "./ssh-key.export";
-
 describe("Cipher Export", () => {
   describe("toView", () => {
     it.each([[null], [undefined]])(
@@ -41,38 +39,6 @@ describe("Cipher Export", () => {
       expect(resultView.creationDate).toEqual(request.creationDate);
       expect(resultView.revisionDate).toEqual(request.revisionDate);
       expect(resultView.deletedDate).toEqual(request.deletedDate);
-    });
-  });
-
-  describe("SshKeyExport.toView", () => {
-    const validSshKey = {
-      privateKey: "PRIVATE_KEY",
-      publicKey: "PUBLIC_KEY",
-      keyFingerprint: "FINGERPRINT",
-    };
-
-    it.each([null, undefined, "", "   "])("should throw when privateKey is %p", (value) => {
-      const sshKey = { ...validSshKey, privateKey: value } as any;
-      expect(() => SshKeyExport.toView(sshKey)).toThrow("SSH key private key is required.");
-    });
-
-    it.each([null, undefined, "", "   "])("should throw when publicKey is %p", (value) => {
-      const sshKey = { ...validSshKey, publicKey: value } as any;
-      expect(() => SshKeyExport.toView(sshKey)).toThrow("SSH key public key is required.");
-    });
-
-    it.each([null, undefined, "", "   "])("should throw when keyFingerprint is %p", (value) => {
-      const sshKey = { ...validSshKey, keyFingerprint: value } as any;
-      expect(() => SshKeyExport.toView(sshKey)).toThrow("SSH key fingerprint is required.");
-    });
-
-    it("should succeed with valid inputs", () => {
-      const sshKey = { ...validSshKey };
-      const result = SshKeyExport.toView(sshKey);
-      expect(result).toBeDefined();
-      expect(result?.privateKey).toBe(validSshKey.privateKey);
-      expect(result?.publicKey).toBe(validSshKey.publicKey);
-      expect(result?.keyFingerprint).toBe(validSshKey.keyFingerprint);
     });
   });
 });

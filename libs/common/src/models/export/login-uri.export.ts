@@ -1,6 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { EncString } from "../../key-management/crypto/models/enc-string";
+import { conditionalEncString } from "@bitwarden/common/vault/utils/domain-utils";
+
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { LoginUri as LoginUriDomain } from "../../vault/models/domain/login-uri";
 import { LoginUriView } from "../../vault/models/view/login-uri.view";
@@ -11,7 +10,6 @@ export class LoginUriExport {
   static template(): LoginUriExport {
     const req = new LoginUriExport();
     req.uri = "https://google.com";
-    req.match = null;
     return req;
   }
 
@@ -22,15 +20,15 @@ export class LoginUriExport {
   }
 
   static toDomain(req: LoginUriExport, domain = new LoginUriDomain()) {
-    domain.uri = req.uri != null ? new EncString(req.uri) : null;
-    domain.uriChecksum = req.uriChecksum != null ? new EncString(req.uriChecksum) : null;
+    domain.uri = conditionalEncString(req.uri);
+    domain.uriChecksum = conditionalEncString(req.uriChecksum);
     domain.match = req.match;
     return domain;
   }
 
-  uri: string;
-  uriChecksum: string | undefined;
-  match: UriMatchStrategySetting = null;
+  uri?: string;
+  uriChecksum?: string;
+  match?: UriMatchStrategySetting;
 
   constructor(o?: LoginUriView | LoginUriDomain) {
     if (o == null) {
