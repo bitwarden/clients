@@ -1,7 +1,6 @@
 import { ApiService } from "../abstractions/api.service";
 import { HibpApiService } from "../dirt/services/hibp-api.service";
 import { CryptoFunctionService } from "../key-management/crypto/abstractions/crypto-function.service";
-import { ErrorResponse } from "../models/response/error.response";
 
 import { AuditService } from "./audit.service";
 
@@ -80,8 +79,9 @@ describe("AuditService", () => {
     expect(result).toEqual([]);
   });
 
-  it("should throw error for breachedAccounts on error", async () => {
-    mockHibpApi.getHibpBreach.mockRejectedValueOnce({ statusCode: 500 } as ErrorResponse);
-    await expect(auditService.breachedAccounts("user@example.com")).rejects.toThrow();
+  it("should propagate errors from breachedAccounts", async () => {
+    const error = new Error("API error");
+    mockHibpApi.getHibpBreach.mockRejectedValueOnce(error);
+    await expect(auditService.breachedAccounts("user@example.com")).rejects.toBe(error);
   });
 });
