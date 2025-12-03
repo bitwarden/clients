@@ -368,8 +368,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   /**
    * Determine value of showExcludeMyItems. Returns true when:
-   * CreateDefaultLocation feature flag is on
-   * AND organizationDataOwnershipPolicy is enabled for the selected organization
+   * organizationDataOwnershipPolicy is enabled for the selected organization
    * AND a valid OrganizationId is present (not exporting from individual vault)
    */
   private observeMyItemsExclusionCriteria(): void {
