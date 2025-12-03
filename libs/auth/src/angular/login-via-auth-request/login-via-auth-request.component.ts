@@ -822,7 +822,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
   }
 
   private async handleSuccessfulLoginNavigation(userId: UserId) {
-    await this.loginSuccessHandlerService.run(userId);
+    await this.loginSuccessHandlerService.run(userId, null);
     await this.router.navigate(["vault"]);
   }
 }

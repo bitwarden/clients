@@ -31,6 +31,7 @@ import { TwoFactorService, TwoFactorApiService } from "@bitwarden/common/auth/tw
 import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -81,6 +82,7 @@ export class LoginCommand {
     protected ssoUrlService: SsoUrlService,
     protected i18nService: I18nService,
     protected masterPasswordService: MasterPasswordServiceAbstraction,
+    protected encryptedMigrator: EncryptedMigrator,
   ) {}
 
   async run(email: string, password: string, options: OptionValues) {
@@ -366,6 +368,8 @@ export class LoginCommand {
           return await this.updateWeakPassword(response.userId, password);
         }
       }
+
+      await this.encryptedMigrator.runMigrations(response.userId, password);
 
       return await this.handleSuccessResponse(response);
     } catch (e) {
