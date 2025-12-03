@@ -9820,6 +9820,14 @@
     "message": "Příliš drahé",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "switchToFreePlan": {
+    "message": "Přepínání na bezplatný tarif",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "switchToFreeOrg": {
+    "message": "Přepínání na bezplatnou organizaci",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "Zdarma na 1 rok"
   },
@@ -11339,14 +11347,6 @@
   "openedExtensionViewAtRiskPasswords": {
     "message": "Rozšíření Bitwarden pro prohlížeč bylo úspěšně otevřeno. Nyní můžete zkontrolovat Vaše ohrožená hesla."
   },
-  "openExtensionManuallyPart1": {
-    "message": "Měli jsme potíže s otevřením rozšíření Bitwarden pro pohlížeč. Klepněte na ikonu Bitwarden",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
-  "openExtensionManuallyPart2": {
-    "message": "na panelu nástrojů.",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
   "resellerRenewalWarningMsg": {
     "message": "Vaše předplatné se brzy obnoví. Chcete-li zajistit nepřerušenou službu, kontaktujte $RESELLER$ pro potvrzení obnovení před $RENEWAL_DATE$.",
     "placeholders": {
@@ -11667,11 +11667,8 @@
   "bitwardenExtensionInstalled": {
     "message": "Rozšíření Bitwarden nainstalováno!"
   },
-  "openTheBitwardenExtension": {
-    "message": "Otevřít rozšíření Bitwarden"
-  },
-  "bitwardenExtensionInstalledOpenExtension": {
-    "message": "Rozšíření Bitwarden je nainstalováno! Otevřete rozšíření pro přihlášení a začněte používat automatické vyplňování."
+  "bitwardenExtensionIsInstalled": {
+    "message": "Rozšíření Bitwarden je nainstalováno!"
   },
   "openExtensionToAutofill": {
     "message": "Otevřete rozšíření pro příhlášení a spuštění automatického vyplňování."
@@ -11686,6 +11683,14 @@
   "gettingStartedWithBitwardenPart2": {
     "message": "Centrum výuky",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "openExtensionFromToolbarPart1": {
+    "message": "Pokud není rozšíření otevřeno, možná budete muset otevřít Bitwarden z ikony ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
+  },
+  "openExtensionFromToolbarPart2": {
+    "message": " na panelu nástrojů.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "gettingStartedWithBitwardenPart3": {
     "message": "Centrum nápovědy",
@@ -12166,5 +12171,8 @@
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Opravdu chcete pokračovat?"
+  },
+  "userVerificationFailed": {
+    "message": "Ověření uživatele se nezdařilo."
   }
 }

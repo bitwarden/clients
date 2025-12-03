@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ErrorHandler, LOCALE_ID, NgModule } from "@angular/core";
+import { APP_INITIALIZER, ErrorHandler, LOCALE_ID, NgModule } from "@angular/core";
+import { Router } from "@angular/router";
 import { Subject } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -177,10 +178,12 @@ import { EncryptServiceImplementation } from "@bitwarden/common/key-management/c
 import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
+import { DefaultEncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/default-encrypted-migrator";
+import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { DefaultChangeKdfApiService } from "@bitwarden/common/key-management/kdf/change-kdf-api.service";
 import { ChangeKdfApiService } from "@bitwarden/common/key-management/kdf/change-kdf-api.service.abstraction";
-import { DefaultChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf-service";
-import { ChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf-service.abstraction";
+import { DefaultChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf.service";
+import { ChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf.service.abstraction";
 import { KeyConnectorApiService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector-api.service";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { DefaultKeyConnectorApiService } from "@bitwarden/common/key-management/key-connector/services/default-key-connector-api.service";
@@ -225,6 +228,7 @@ import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platfor
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
@@ -263,6 +267,7 @@ import { FileUploadService } from "@bitwarden/common/platform/services/file-uplo
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
+import { DefaultRegisterSdkService } from "@bitwarden/common/platform/services/sdk/register-sdk.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { ValidationService } from "@bitwarden/common/platform/services/validation.service";
@@ -328,6 +333,7 @@ import { DefaultTaskService, TaskService } from "@bitwarden/common/vault/tasks";
 import {
   AnonLayoutWrapperDataService,
   DefaultAnonLayoutWrapperDataService,
+  DialogService,
   ToastService,
 } from "@bitwarden/components";
 import {
@@ -396,6 +402,8 @@ import { DeviceTrustToastService as DeviceTrustToastServiceAbstraction } from ".
 import { DeviceTrustToastService } from "../auth/services/device-trust-toast.service.implementation";
 import { NoopPremiumInterestStateService } from "../billing/services/premium-interest/noop-premium-interest-state.service";
 import { PremiumInterestStateService } from "../billing/services/premium-interest/premium-interest-state.service.abstraction";
+import { DefaultEncryptedMigrationsSchedulerService } from "../key-management/encrypted-migration/encrypted-migrations-scheduler.service";
+import { EncryptedMigrationsSchedulerService } from "../key-management/encrypted-migration/encrypted-migrations-scheduler.service.abstraction";
 import { FormValidationErrorsService as FormValidationErrorsServiceAbstraction } from "../platform/abstractions/form-validation-errors.service";
 import { DocumentLangSetter } from "../platform/i18n";
 import { FormValidationErrorsService } from "../platform/services/form-validation-errors.service";
@@ -514,6 +522,23 @@ const safeProviders: SafeProvider[] = [
       ApiServiceAbstraction,
       StateServiceAbstraction,
       TokenServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: ChangeKdfService,
+    useClass: DefaultChangeKdfService,
+    deps: [ChangeKdfApiService, SdkService],
+  }),
+  safeProvider({
+    provide: EncryptedMigrator,
+    useClass: DefaultEncryptedMigrator,
+    deps: [
+      KdfConfigService,
+      ChangeKdfService,
+      LogService,
+      ConfigService,
+      MasterPasswordServiceAbstraction,
+      SyncService,
     ],
   }),
   safeProvider({
@@ -1026,6 +1051,7 @@ const safeProviders: SafeProvider[] = [
       WebPushConnectionService,
       AuthRequestAnsweringServiceAbstraction,
       ConfigService,
+      InternalPolicyService,
     ],
   }),
   safeProvider({
@@ -1064,7 +1090,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: InternalPolicyService,
     useClass: DefaultPolicyService,
-    deps: [StateProvider, OrganizationServiceAbstraction],
+    deps: [StateProvider, OrganizationServiceAbstraction, AccountServiceAbstraction],
   }),
   safeProvider({
     provide: PolicyServiceAbstraction,
@@ -1589,6 +1615,19 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
+    provide: RegisterSdkService,
+    useClass: DefaultRegisterSdkService,
+    deps: [
+      SdkClientFactory,
+      EnvironmentService,
+      PlatformUtilsServiceAbstraction,
+      AccountServiceAbstraction,
+      ApiServiceAbstraction,
+      StateProvider,
+      ConfigService,
+    ],
+  }),
+  safeProvider({
     provide: SdkService,
     useClass: DefaultSdkService,
     deps: [
@@ -1651,6 +1690,7 @@ const safeProviders: SafeProvider[] = [
       SsoLoginServiceAbstraction,
       SyncService,
       UserAsymmetricKeysRegenerationService,
+      EncryptedMigrator,
       LogService,
     ],
   }),
@@ -1720,6 +1760,28 @@ const safeProviders: SafeProvider[] = [
       MasterPasswordApiServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
     ],
+  }),
+  safeProvider({
+    provide: EncryptedMigrationsSchedulerService,
+    useClass: DefaultEncryptedMigrationsSchedulerService,
+    deps: [
+      SyncService,
+      AccountService,
+      StateProvider,
+      EncryptedMigrator,
+      AuthServiceAbstraction,
+      LogService,
+      DialogService,
+      ToastService,
+      I18nServiceAbstraction,
+      Router,
+    ],
+  }),
+  safeProvider({
+    provide: APP_INITIALIZER as SafeInjectionToken<() => Promise<void>>,
+    useFactory: (encryptedMigrationsScheduler: EncryptedMigrationsSchedulerService) => () => {},
+    deps: [EncryptedMigrationsSchedulerService],
+    multi: true,
   }),
   safeProvider({
     provide: LockService,

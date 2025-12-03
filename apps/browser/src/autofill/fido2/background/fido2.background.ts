@@ -176,7 +176,6 @@ export class Fido2Background implements Fido2BackgroundInterface {
         { file: await this.getFido2PageScriptAppendFileName() },
         { file: Fido2ContentScript.ContentScript },
       ],
-      world: "MAIN",
       ...this.sharedRegistrationOptions,
     });
   }
