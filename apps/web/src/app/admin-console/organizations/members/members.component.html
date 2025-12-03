@@ -87,13 +87,28 @@
           <ng-container header>
             <tr>
               <th bitCell class="tw-w-20" *ngIf="showUserManagementControls()">
-                <input
-                  type="checkbox"
-                  bitCheckbox
-                  class="tw-mr-1"
-                  (change)="dataSource.checkAllFilteredUsers($any($event.target).checked)"
-                  id="selectAll"
-                />
+                @if (batchingEnabled$ | async) {
+                  <input
+                    type="checkbox"
+                    bitCheckbox
+                    class="tw-mr-1"
+                    (change)="
+                      dataSource.vNextCheckAllFilteredUsers(
+                        $any($event.target).checked,
+                        platformUtilsService.isSelfHost()
+                      )
+                    "
+                    id="selectAll"
+                  />
+                } @else {
+                  <input
+                    type="checkbox"
+                    bitCheckbox
+                    class="tw-mr-1"
+                    (change)="dataSource.checkAllFilteredUsers($any($event.target).checked)"
+                    id="selectAll"
+                  />
+                }
                 <label class="tw-mb-0 !tw-font-medium !tw-text-muted" for="selectAll">{{
                   "all" | i18n
                 }}</label>
