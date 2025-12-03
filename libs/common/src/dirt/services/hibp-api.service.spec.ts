@@ -35,5 +35,26 @@ describe("HibpApiService", () => {
       expect(result).toHaveLength(1);
       expect(result[0]).toBeInstanceOf(BreachAccountResponse);
     });
+
+    it("should return empty array when no breaches found (REST semantics)", async () => {
+      // Server now returns 200 OK with empty array [] instead of 404
+      const mockResponse: any[] = [];
+      const username = "safe@example.com";
+
+      apiService.send.mockResolvedValue(mockResponse);
+
+      const result = await sut.getHibpBreach(username);
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/hibp/breach?username=" + encodeURIComponent(username),
+        null,
+        true,
+        true,
+      );
+      expect(result).toEqual([]);
+      expect(result).toBeInstanceOf(Array);
+      expect(result).toHaveLength(0);
+    });
   });
 });

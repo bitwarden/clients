@@ -258,16 +258,19 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
   }
 
   async hasMasterPassword(userId?: string): Promise<boolean> {
-    if (userId) {
-      const decryptionOptions = await firstValueFrom(
-        this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
-      );
+    const resolvedUserId = userId ?? (await firstValueFrom(this.accountService.activeAccount$))?.id;
 
-      if (decryptionOptions?.hasMasterPassword != undefined) {
-        return decryptionOptions.hasMasterPassword;
-      }
+    if (!resolvedUserId) {
+      return false;
     }
-    return await firstValueFrom(this.userDecryptionOptionsService.hasMasterPassword$);
+
+    // Ideally, this method would accept a UserId over string. To avoid scope creep in PM-26413, we are
+    // doing the cast here. Future work should be done to make this type-safe, and should be considered
+    // as part of PM-27009.
+
+    return await firstValueFrom(
+      this.userDecryptionOptionsService.hasMasterPasswordById$(resolvedUserId as UserId),
+    );
   }
 
   async hasMasterPasswordAndMasterKeyHash(userId?: string): Promise<boolean> {

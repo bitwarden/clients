@@ -91,7 +91,7 @@ export abstract class CryptoFunctionService {
   abstract rsaEncrypt(
     data: Uint8Array,
     publicKey: Uint8Array,
-    algorithm: "sha1" | "sha256",
+    algorithm: "sha1",
   ): Promise<Uint8Array>;
   /**
    * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. Implement low-level crypto operations
@@ -100,10 +100,10 @@ export abstract class CryptoFunctionService {
   abstract rsaDecrypt(
     data: Uint8Array,
     privateKey: Uint8Array,
-    algorithm: "sha1" | "sha256",
+    algorithm: "sha1",
   ): Promise<Uint8Array>;
   abstract rsaExtractPublicKey(privateKey: Uint8Array): Promise<Uint8Array>;
-  abstract rsaGenerateKeyPair(length: 1024 | 2048 | 4096): Promise<[Uint8Array, Uint8Array]>;
+  abstract rsaGenerateKeyPair(length: 2048): Promise<[Uint8Array, Uint8Array]>;
   /**
    * Generates a key of the given length suitable for use in AES encryption
    */

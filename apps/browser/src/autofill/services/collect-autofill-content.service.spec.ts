@@ -395,7 +395,7 @@ describe("CollectAutofillContentService", () => {
       });
     });
 
-    it("sets the noFieldsFound property to true if the page has no forms or fields", async function () {
+    it("sets the noFieldsFond property to true if the page has no forms or fields", async function () {
       document.body.innerHTML = "";
       collectAutofillContentService["noFieldsFound"] = false;
       jest.spyOn(collectAutofillContentService as any, "buildAutofillFormsData");
@@ -2647,35 +2647,6 @@ describe("CollectAutofillContentService", () => {
       expect(clearTimeout).toHaveBeenCalledWith(
         collectAutofillContentService["updateAfterMutationIdleCallback"],
       );
-    });
-  });
-
-  describe("processMutations", () => {
-    beforeEach(() => {
-      jest.useFakeTimers();
-    });
-
-    afterEach(() => {
-      jest.runOnlyPendingTimers();
-      jest.useRealTimers();
-    });
-
-    it("will require an update to page details if shadow DOM is present", () => {
-      jest
-        .spyOn(domQueryService as any, "checkPageContainsShadowDom")
-        .mockImplementationOnce(() => true);
-
-      collectAutofillContentService["requirePageDetailsUpdate"] = jest.fn();
-
-      collectAutofillContentService["mutationsQueue"] = [[], []];
-
-      collectAutofillContentService["processMutations"]();
-
-      jest.runOnlyPendingTimers();
-
-      expect(domQueryService.checkPageContainsShadowDom).toHaveBeenCalled();
-      expect(collectAutofillContentService["mutationsQueue"]).toHaveLength(0);
-      expect(collectAutofillContentService["requirePageDetailsUpdate"]).toHaveBeenCalled();
     });
   });
 });

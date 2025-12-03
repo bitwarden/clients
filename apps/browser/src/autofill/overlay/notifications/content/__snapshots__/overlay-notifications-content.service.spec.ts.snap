@@ -7,7 +7,7 @@ exports[`OverlayNotificationsContentService opening the notification bar creates
 >
   <iframe
     id="bit-notification-bar-iframe"
-    src="chrome-extension://id/notification/bar.html"
+    src="chrome-extension://id/notification/bar.html?parentOrigin=http%3A%2F%2Flocalhost"
     style="width: 100% !important; height: 100% !important; border: 0px !important; display: block !important; position: relative !important; transition: transform 0.15s ease-out, opacity 0.15s ease !important; border-radius: 4px !important; color-scheme: auto !important; transform: translateX(0) !important; opacity: 0;"
   />
 </div>

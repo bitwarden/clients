@@ -38,12 +38,8 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
     styleSheetUrl: string,
     translations: Record<string, string>,
     portKey: string,
-    token?: string,
   ): Promise<HTMLLinkElement> {
     this.portKey = portKey;
-    if (token) {
-      this.token = token;
-    }
 
     this.translations = translations;
     globalThis.document.documentElement.setAttribute("lang", this.getTranslation("locale"));
@@ -63,11 +59,16 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
    * @param message - The message to post
    */
   protected postMessageToParent(message: AutofillInlineMenuPageElementWindowMessage) {
-    const messageWithAuth: Record<string, unknown> = { portKey: this.portKey, ...message };
-    if (this.token) {
-      messageWithAuth.token = this.token;
+    // never send messages containing authentication tokens without a valid token and an established messageOrigin
+    if (!this.token || !this.messageOrigin) {
+      return;
     }
-    globalThis.parent.postMessage(messageWithAuth, "*");
+    const messageWithAuth: Record<string, unknown> = {
+      portKey: this.portKey,
+      ...message,
+      token: this.token,
+    };
+    globalThis.parent.postMessage(messageWithAuth, this.messageOrigin);
   }
 
   /**
@@ -105,6 +106,10 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
       return;
     }
 
+    if (event.source !== globalThis.parent) {
+      return;
+    }
+
     if (!this.messageOrigin) {
       this.messageOrigin = event.origin;
     }
@@ -115,12 +120,23 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
 
     const message = event?.data;
 
-    if (
-      message?.token &&
-      (message?.command === "initAutofillInlineMenuButton" ||
-        message?.command === "initAutofillInlineMenuList")
-    ) {
+    if (!message?.command) {
+      return;
+    }
+
+    const isInitCommand =
+      message.command === "initAutofillInlineMenuButton" ||
+      message.command === "initAutofillInlineMenuList";
+
+    if (isInitCommand) {
+      if (!message?.token) {
+        return;
+      }
       this.token = message.token;
+    } else {
+      if (!this.token || !message?.token || message.token !== this.token) {
+        return;
+      }
     }
 
     const handler = this.windowMessageHandlers[message?.command];

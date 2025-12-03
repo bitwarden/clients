@@ -95,7 +95,10 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     combineLatest([
       this.organization$,
       resetPasswordPolicies$,
-      this.userDecryptionOptionsService.userDecryptionOptions$,
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.userDecryptionOptionsService.userDecryptionOptionsById$(userId)),
+      ),
       managingOrg$,
     ])
       .pipe(takeUntil(this.destroy$))

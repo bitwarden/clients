@@ -88,14 +88,10 @@ export class VaultFilterComponent implements OnInit {
     this.folders$ = await this.vaultFilterService.buildNestedFolders();
     this.collections = await this.initCollections();
 
-    const userCanArchive = await firstValueFrom(
-      this.cipherArchiveService.userCanArchive$(this.activeUserId),
-    );
-    const showArchiveVault = await firstValueFrom(
-      this.cipherArchiveService.showArchiveVault$(this.activeUserId),
+    this.showArchiveVaultFilter = await firstValueFrom(
+      this.cipherArchiveService.hasArchiveFlagEnabled$,
     );
 
-    this.showArchiveVaultFilter = userCanArchive || showArchiveVault;
     this.isLoaded = true;
   }
 

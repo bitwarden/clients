@@ -91,6 +91,11 @@ describe("AutofillConfirmationDialogComponent", () => {
     jest.resetAllMocks();
   });
 
+  const findShowAll = (inFx?: ComponentFixture<AutofillConfirmationDialogComponent>) =>
+    (inFx || fixture).nativeElement.querySelector(
+      "button.tw-text-sm.tw-font-medium.tw-cursor-pointer",
+    ) as HTMLButtonElement | null;
+
   it("normalizes currentUrl and savedUrls via Utils.getHostname", () => {
     expect(Utils.getHostname).toHaveBeenCalledTimes(1 + (params.savedUrls?.length ?? 0));
     expect(component.currentUrl()).toBe("example.com");
@@ -191,21 +196,47 @@ describe("AutofillConfirmationDialogComponent", () => {
     expect(text).toContain("two.example.com");
   });
 
-  it("shows the 'view all' button when savedUrls > 1 and toggles the button text when clicked", () => {
-    const findViewAll = () =>
-      fixture.nativeElement.querySelector(
-        "button.tw-text-sm.tw-font-medium.tw-cursor-pointer",
-      ) as HTMLButtonElement | null;
-
-    let btn = findViewAll();
+  it("shows the 'show all' button when savedUrls > 1", () => {
+    const btn = findShowAll();
     expect(btn).toBeTruthy();
+    expect(btn!.textContent).toContain("showAll");
+  });
 
+  it('hides the "show all" button when savedUrls is empty', async () => {
+    const newParams: AutofillConfirmationDialogParams = {
+      currentUrl: "https://bitwarden.com/help",
+      savedUrls: [],
+    };
+
+    const { fixture: vf } = await createFreshFixture({ params: newParams });
+    vf.detectChanges();
+    const btn = findShowAll(vf);
+    expect(btn).toBeNull();
+  });
+
+  it("handles toggling of the 'show all' button correctly", async () => {
+    const { fixture: vf, component: vc } = await createFreshFixture();
+
+    let btn = findShowAll(vf);
+    expect(btn).toBeTruthy();
+    expect(vc.savedUrlsExpanded()).toBe(false);
+    expect(btn!.textContent).toContain("showAll");
+
+    // click to expand
     btn!.click();
-    fixture.detectChanges();
+    vf.detectChanges();
 
-    btn = findViewAll();
-    expect(btn!.textContent).toContain("viewLess");
-    expect(component.savedUrlsExpanded()).toBe(true);
+    btn = findShowAll(vf);
+    expect(btn!.textContent).toContain("showLess");
+    expect(vc.savedUrlsExpanded()).toBe(true);
+
+    // click to collapse
+    btn!.click();
+    vf.detectChanges();
+
+    btn = findShowAll(vf);
+    expect(btn!.textContent).toContain("showAll");
+    expect(vc.savedUrlsExpanded()).toBe(false);
   });
 
   it("shows autofillWithoutAdding text on autofill button when viewOnly is false", () => {

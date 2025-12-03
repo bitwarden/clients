@@ -22,6 +22,7 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "tw-relative",
     "tw-transition",
     "tw-cursor-pointer",
+    "disabled:tw-cursor-default",
     "tw-inline-block",
     "tw-align-sub",
     "tw-flex-none", // Flexbox fix for bit-form-control
@@ -62,7 +63,7 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "[&:not(bit-form-control_*)]:focus-visible:before:tw-ring-offset-2",
     "[&:not(bit-form-control_*)]:focus-visible:before:tw-ring-primary-600",
 
-    "disabled:before:tw-cursor-auto",
+    "disabled:before:tw-cursor-default",
     "disabled:before:tw-border",
     "disabled:before:hover:tw-border",
     "disabled:before:tw-bg-secondary-100",

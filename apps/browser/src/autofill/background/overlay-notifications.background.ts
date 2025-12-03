@@ -262,11 +262,30 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    */
   private notificationDataIncompleteOnBeforeRequest = (tabId: number) => {
     const modifyLoginData = this.modifyLoginCipherFormData.get(tabId);
-    return (
-      !modifyLoginData ||
-      !this.shouldAttemptNotification(modifyLoginData, NotificationTypes.Add) ||
-      !this.shouldAttemptNotification(modifyLoginData, NotificationTypes.Change)
+
+    if (!modifyLoginData) {
+      return true;
+    }
+
+    const shouldAttemptAddNotification = this.shouldAttemptNotification(
+      modifyLoginData,
+      NotificationTypes.Add,
     );
+
+    if (shouldAttemptAddNotification) {
+      return false;
+    }
+
+    const shouldAttemptChangeNotification = this.shouldAttemptNotification(
+      modifyLoginData,
+      NotificationTypes.Change,
+    );
+
+    if (shouldAttemptChangeNotification) {
+      return false;
+    }
+
+    return false;
   };
 
   /**
@@ -454,15 +473,27 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     modifyLoginData: ModifyLoginCipherFormData,
     notificationType: NotificationType,
   ): boolean => {
+    // Intentionally not stripping whitespace characters here as they
+    // represent user entry.
+    const usernameFieldHasValue = !!(modifyLoginData?.username || "").length;
+    const passwordFieldHasValue = !!(modifyLoginData?.password || "").length;
+    const newPasswordFieldHasValue = !!(modifyLoginData?.newPassword || "").length;
+
+    const canBeUserLogin = usernameFieldHasValue && passwordFieldHasValue;
+    const canBePasswordUpdate = passwordFieldHasValue && newPasswordFieldHasValue;
+
     switch (notificationType) {
+      // `Add` case included because all forms with cached usernames (from previous
+      // visits) will appear to be "password only" and otherwise trigger the new login
+      // save notification.
       case NotificationTypes.Add:
-        return (
-          modifyLoginData?.username && !!(modifyLoginData.password || modifyLoginData.newPassword)
-        );
+        // Can be values for nonstored login or account creation
+        return usernameFieldHasValue && (passwordFieldHasValue || newPasswordFieldHasValue);
       case NotificationTypes.Change:
-        return !!(modifyLoginData.password || modifyLoginData.newPassword);
+        // Can be login with nonstored login changes or account password update
+        return canBeUserLogin || canBePasswordUpdate;
       case NotificationTypes.AtRiskPassword:
-        return !modifyLoginData.newPassword;
+        return !newPasswordFieldHasValue;
       case NotificationTypes.Unlock:
         // Unlock notifications are handled separately and do not require form data
         return false;

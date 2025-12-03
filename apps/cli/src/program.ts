@@ -195,6 +195,7 @@ export class Program extends BaseProgram {
             this.serviceContainer.ssoUrlService,
             this.serviceContainer.i18nService,
             this.serviceContainer.masterPasswordService,
+            this.serviceContainer.encryptedMigrator,
           );
           const response = await command.run(email, password, options);
           this.processResponse(response, true);
@@ -277,6 +278,11 @@ export class Program extends BaseProgram {
       })
       .option("--check", "Check lock status.", async () => {
         await this.exitIfNotAuthed();
+        const userId = (await firstValueFrom(this.serviceContainer.accountService.activeAccount$))
+          ?.id;
+        await this.serviceContainer.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(
+          userId,
+        );
 
         const authStatus = await this.serviceContainer.authService.getAuthStatus();
         if (authStatus === AuthenticationStatus.Unlocked) {
@@ -306,6 +312,7 @@ export class Program extends BaseProgram {
             this.serviceContainer.organizationApiService,
             async () => await this.serviceContainer.logout(),
             this.serviceContainer.i18nService,
+            this.serviceContainer.encryptedMigrator,
             this.serviceContainer.masterPasswordUnlockService,
             this.serviceContainer.configService,
           );

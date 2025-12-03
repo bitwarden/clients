@@ -3,6 +3,7 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 
+import { BrowserApi } from "../../../../platform/browser/browser-api";
 import { sendExtensionMessage, setElementStyles } from "../../../utils";
 import {
   BackgroundPortMessageHandlers,
@@ -15,6 +16,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   private readonly sendExtensionMessage = sendExtensionMessage;
   private port: chrome.runtime.Port | null = null;
   private portKey: string;
+  private readonly extensionOrigin: string;
   private iframeMutationObserver: MutationObserver;
   private iframe: HTMLIFrameElement;
   private ariaAlertElement: HTMLDivElement;
@@ -69,6 +71,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     private iframeTitle: string,
     private ariaAlert?: string,
   ) {
+    this.extensionOrigin = BrowserApi.getRuntimeURL("")?.slice(0, -1);
     this.iframeMutationObserver = new MutationObserver(this.handleMutations);
   }
 
@@ -81,7 +84,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    * that is declared.
    */
   initMenuIframe() {
-    this.defaultIframeAttributes.src = chrome.runtime.getURL("overlay/menu.html");
+    this.defaultIframeAttributes.src = BrowserApi.getRuntimeURL("overlay/menu.html");
     this.defaultIframeAttributes.title = this.iframeTitle;
 
     this.iframe = globalThis.document.createElement("iframe");
@@ -259,7 +262,10 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   }
 
   private postMessageToIFrame(message: any) {
-    this.iframe.contentWindow?.postMessage({ portKey: this.portKey, ...message }, "*");
+    this.iframe.contentWindow?.postMessage(
+      { portKey: this.portKey, ...message },
+      this.extensionOrigin,
+    );
   }
 
   /**
@@ -276,11 +282,56 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     const styles = this.fadeInTimeout ? Object.assign(position, { opacity: "0" }) : position;
     this.updateElementStyles(this.iframe, styles);
 
+    const elementHeightCompletelyInViewport = this.isElementCompletelyWithinViewport(
+      this.iframe.getBoundingClientRect(),
+    );
+
+    if (!elementHeightCompletelyInViewport) {
+      this.forceCloseInlineMenu();
+      return;
+    }
+
     if (this.fadeInTimeout) {
       this.handleFadeInInlineMenuIframe();
     }
 
     this.announceAriaAlert(this.ariaAlert, 2000);
+  }
+
+  /**
+   * Check if element is completely within the browser viewport.
+   */
+  private isElementCompletelyWithinViewport(elementPosition: DOMRect) {
+    // An element that lacks size should be considered within the viewport
+    if (!elementPosition.height || !elementPosition.width) {
+      return true;
+    }
+
+    const [viewportHeight, viewportWidth] = this.getViewportSize();
+
+    const rightSideIsWithinViewport = (elementPosition.right || 0) <= viewportWidth;
+    const leftSideIsWithinViewport = (elementPosition.left || 0) >= 0;
+    const topSideIsWithinViewport = (elementPosition.top || 0) >= 0;
+    const bottomSideIsWithinViewport = (elementPosition.bottom || 0) <= viewportHeight;
+
+    return (
+      rightSideIsWithinViewport &&
+      leftSideIsWithinViewport &&
+      topSideIsWithinViewport &&
+      bottomSideIsWithinViewport
+    );
+  }
+
+  /** Use Visual Viewport API if available (better for mobile/zoom) */
+  private getViewportSize(): [
+    VisualViewport["height"] | Window["innerHeight"],
+    VisualViewport["width"] | Window["innerWidth"],
+  ] {
+    if ("visualViewport" in globalThis.window && globalThis.window.visualViewport) {
+      return [globalThis.window.visualViewport.height, globalThis.window.visualViewport.width];
+    }
+
+    return [globalThis.window.innerHeight, globalThis.window.innerWidth];
   }
 
   /**

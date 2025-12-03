@@ -30,20 +30,23 @@
       </span>
     </li>
     <li
-      class="filter-option"
-      *ngIf="!hideArchive"
+      class="filter-option tw-flex tw-items-center tw-gap-2 [&>span]:tw-w-min"
       [ngClass]="{ active: activeFilter.status === 'archive' }"
+      *ngIf="!hideArchive"
     >
       <span class="filter-buttons">
         <button
           type="button"
           class="filter-button"
-          (click)="applyFilter('archive')"
+          (click)="handleArchiveFilter($event)"
           [attr.aria-pressed]="activeFilter.status === 'archive'"
         >
           <i class="bwi bwi-fw bwi-archive" aria-hidden="true"></i>&nbsp;{{ "archiveNoun" | i18n }}
         </button>
       </span>
+      @if (!(canArchive$ | async)) {
+        <app-premium-badge></app-premium-badge>
+      }
     </li>
     <li
       class="filter-option"

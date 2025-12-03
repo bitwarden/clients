@@ -55,6 +55,7 @@ describe("DefaultSubscriptionPricingService", () => {
       basePrice: 36,
       seatPrice: 0,
       additionalStoragePricePerGb: 4,
+      providedStorageGB: 1,
       allowSeatAutoscale: false,
       maxSeats: 6,
       maxCollections: null,
@@ -94,6 +95,7 @@ describe("DefaultSubscriptionPricingService", () => {
       basePrice: 0,
       seatPrice: 36,
       additionalStoragePricePerGb: 4,
+      providedStorageGB: 1,
       allowSeatAutoscale: true,
       maxSeats: null,
       maxCollections: null,
@@ -359,6 +361,7 @@ describe("DefaultSubscriptionPricingService", () => {
             type: "standalone",
             annualPrice: 10,
             annualPricePerAdditionalStorageGB: 4,
+            providedStorageGB: 1,
             features: [
               { key: "builtInAuthenticator", value: "Built-in authenticator" },
               { key: "secureFileStorage", value: "Secure file storage" },
@@ -383,6 +386,7 @@ describe("DefaultSubscriptionPricingService", () => {
             annualPrice: mockFamiliesPlan.PasswordManager.basePrice,
             annualPricePerAdditionalStorageGB:
               mockFamiliesPlan.PasswordManager.additionalStoragePricePerGb,
+            providedStorageGB: mockFamiliesPlan.PasswordManager.baseStorageGb,
             features: [
               { key: "premiumAccounts", value: "6 premium accounts" },
               { key: "familiesUnlimitedSharing", value: "Unlimited sharing for families" },
@@ -456,12 +460,16 @@ describe("DefaultSubscriptionPricingService", () => {
 
         expect(premiumTier.passwordManager.annualPrice).toEqual(10);
         expect(premiumTier.passwordManager.annualPricePerAdditionalStorageGB).toEqual(4);
+        expect(premiumTier.passwordManager.providedStorageGB).toEqual(1);
 
         expect(familiesTier.passwordManager.annualPrice).toEqual(
           mockFamiliesPlan.PasswordManager.basePrice,
         );
         expect(familiesTier.passwordManager.annualPricePerAdditionalStorageGB).toEqual(
           mockFamiliesPlan.PasswordManager.additionalStoragePricePerGb,
+        );
+        expect(familiesTier.passwordManager.providedStorageGB).toEqual(
+          mockFamiliesPlan.PasswordManager.baseStorageGb,
         );
 
         done();
@@ -487,6 +495,7 @@ describe("DefaultSubscriptionPricingService", () => {
             annualPricePerUser: mockTeamsPlan.PasswordManager.seatPrice,
             annualPricePerAdditionalStorageGB:
               mockTeamsPlan.PasswordManager.additionalStoragePricePerGb,
+            providedStorageGB: mockTeamsPlan.PasswordManager.baseStorageGb,
             features: [
               { key: "secureItemSharing", value: "Secure item sharing" },
               { key: "eventLogMonitoring", value: "Event log monitoring" },
@@ -522,6 +531,7 @@ describe("DefaultSubscriptionPricingService", () => {
             annualPricePerUser: mockEnterprisePlan.PasswordManager.seatPrice,
             annualPricePerAdditionalStorageGB:
               mockEnterprisePlan.PasswordManager.additionalStoragePricePerGb,
+            providedStorageGB: mockEnterprisePlan.PasswordManager.baseStorageGb,
             features: [
               { key: "enterpriseSecurityPolicies", value: "Enterprise security policies" },
               { key: "passwordLessSso", value: "Passwordless SSO" },
@@ -648,6 +658,9 @@ describe("DefaultSubscriptionPricingService", () => {
         expect(teamsSecretsManager.annualPricePerAdditionalServiceAccount).toEqual(
           mockTeamsPlan.SecretsManager.additionalPricePerServiceAccount,
         );
+        expect(teamsPasswordManager.providedStorageGB).toEqual(
+          mockTeamsPlan.PasswordManager.baseStorageGb,
+        );
 
         const enterprisePasswordManager = enterpriseTier.passwordManager as any;
         const enterpriseSecretsManager = enterpriseTier.secretsManager as any;
@@ -656,6 +669,9 @@ describe("DefaultSubscriptionPricingService", () => {
         );
         expect(enterprisePasswordManager.annualPricePerAdditionalStorageGB).toEqual(
           mockEnterprisePlan.PasswordManager.additionalStoragePricePerGb,
+        );
+        expect(enterprisePasswordManager.providedStorageGB).toEqual(
+          mockEnterprisePlan.PasswordManager.baseStorageGb,
         );
         expect(enterpriseSecretsManager.annualPricePerUser).toEqual(
           mockEnterprisePlan.SecretsManager.seatPrice,
@@ -729,6 +745,7 @@ describe("DefaultSubscriptionPricingService", () => {
             annualPricePerUser: mockTeamsPlan.PasswordManager.seatPrice,
             annualPricePerAdditionalStorageGB:
               mockTeamsPlan.PasswordManager.additionalStoragePricePerGb,
+            providedStorageGB: mockTeamsPlan.PasswordManager.baseStorageGb,
             features: [
               { key: "secureItemSharing", value: "Secure item sharing" },
               { key: "eventLogMonitoring", value: "Event log monitoring" },
@@ -764,6 +781,7 @@ describe("DefaultSubscriptionPricingService", () => {
             annualPricePerUser: mockEnterprisePlan.PasswordManager.seatPrice,
             annualPricePerAdditionalStorageGB:
               mockEnterprisePlan.PasswordManager.additionalStoragePricePerGb,
+            providedStorageGB: mockEnterprisePlan.PasswordManager.baseStorageGb,
             features: [
               { key: "enterpriseSecurityPolicies", value: "Enterprise security policies" },
               { key: "passwordLessSso", value: "Passwordless SSO" },
