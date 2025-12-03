@@ -37,14 +37,19 @@
     @if (showArchiveItem()) {
       @if (userCanArchive()) {
         <bit-item>
-          <a bit-item-content routerLink="/archive">
+          <a data-test-id="archive-link" bit-item-content routerLink="/archive">
             {{ "archiveNoun" | i18n }}
             <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
           </a>
         </bit-item>
       } @else {
         <bit-item>
-          <a bit-item-content [routerLink]="userHasArchivedItems() ? '/archive' : '/premium'">
+          <a
+            data-test-id="premium-archive-link"
+            bit-item-content
+            href="#"
+            (click)="conditionallyRouteToArchive($event)"
+          >
             <span class="tw-flex tw-items-center tw-gap-2">
               {{ "archiveNoun" | i18n }}
               @if (!userHasArchivedItems()) {
