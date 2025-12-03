@@ -9,7 +9,10 @@ import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
-import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
+import {
+  CipherRepromptType,
+  normalizeCipherRepromptTypeForSdk,
+} from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { CipherPermissionsApi } from "../api/cipher-permissions.api";
@@ -414,10 +417,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       creationDate: this.creationDate.toISOString(),
       deletedDate: this.deletedDate?.toISOString(),
       archivedDate: this.archivedDate?.toISOString(),
-      reprompt:
-        this.reprompt === CipherRepromptType.Password
-          ? CipherRepromptType.Password
-          : CipherRepromptType.None,
+      reprompt: normalizeCipherRepromptTypeForSdk(this.reprompt),
       // Initialize all cipher-type-specific properties as undefined
       login: undefined,
       identity: undefined,

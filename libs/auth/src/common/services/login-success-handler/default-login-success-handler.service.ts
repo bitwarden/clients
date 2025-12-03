@@ -25,7 +25,7 @@ export class DefaultLoginSuccessHandlerService implements LoginSuccessHandlerSer
     const ssoLoginEmail = await this.ssoLoginService.getSsoEmail();
 
     if (!ssoLoginEmail) {
-      this.logService.error("SSO login email not found.");
+      this.logService.debug("SSO login email not found.");
       return;
     }
 
