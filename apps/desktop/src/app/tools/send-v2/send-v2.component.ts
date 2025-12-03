@@ -60,6 +60,8 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
 
   // Subscription for filter changes cleanup
   private filterSubscription: Subscription;
+  // Subscription for sendViews$ cleanup
+  private sendViewsSubscription: Subscription;
 
   constructor(
     sendService: SendService,
@@ -148,6 +150,7 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
 
   // Clean up subscriptions and disable search bar when component is destroyed
   ngOnDestroy() {
+    this.sendViewsSubscription?.unsubscribe();
     this.filterSubscription?.unsubscribe();
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
     this.searchBarService.setEnabled(false);
@@ -159,7 +162,11 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
   // Note: The filter parameter is ignored in this implementation for desktop-specific behavior.
   async load(filter: (send: SendView) => boolean = null) {
     this.loading = true;
-    this.sendService.sendViews$
+
+    // Clean up existing subscription to prevent memory leak
+    this.sendViewsSubscription?.unsubscribe();
+
+    this.sendViewsSubscription = this.sendService.sendViews$
       .pipe(
         mergeMap(async (sends) => {
           this.sends = sends;
