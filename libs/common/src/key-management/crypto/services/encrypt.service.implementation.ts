@@ -252,15 +252,9 @@ export class EncryptServiceImplementation implements EncryptService {
       throw new Error("[Encrypt service] rsaDecrypt: No data provided for decryption.");
     }
 
-    let algorithm: "sha1" | "sha256";
     switch (data.encryptionType) {
       case EncryptionType.Rsa2048_OaepSha1_B64:
       case EncryptionType.Rsa2048_OaepSha1_HmacSha256_B64:
-        algorithm = "sha1";
-        break;
-      case EncryptionType.Rsa2048_OaepSha256_B64:
-      case EncryptionType.Rsa2048_OaepSha256_HmacSha256_B64:
-        algorithm = "sha256";
         break;
       default:
         throw new Error("Invalid encryption type.");
@@ -270,6 +264,6 @@ export class EncryptServiceImplementation implements EncryptService {
       throw new Error("[Encrypt service] rsaDecrypt: No private key provided for decryption.");
     }
 
-    return this.cryptoFunctionService.rsaDecrypt(data.dataBytes, privateKey, algorithm);
+    return this.cryptoFunctionService.rsaDecrypt(data.dataBytes, privateKey, "sha1");
   }
 }
