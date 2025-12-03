@@ -551,7 +551,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.newItemButtonElement.textContent = this.getNewItemButtonText(showLogin);
     this.newItemButtonElement.setAttribute("aria-label", this.getNewItemAriaLabel(showLogin));
     this.newItemButtonElement.prepend(buildSvgDomElement(plusIcon));
-    this.newItemButtonElement.addEventListener(EVENTS.CLICK, this.handleNewLoginVaultItemAction);
+    this.newItemButtonElement.addEventListener(
+      // Use mousedown instead of click for immediate response - necessary for some sites where
+      // the click event arrives too late.
+      EVENTS.MOUSEDOWN,
+      this.handleNewLoginVaultItemAction,
+    );
 
     return this.buildButtonContainer(this.newItemButtonElement);
   }
