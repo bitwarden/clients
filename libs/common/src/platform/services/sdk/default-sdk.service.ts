@@ -25,7 +25,7 @@ import {
   ClientSettings,
   TokenProvider,
   UnsignedSharedKey,
-  WrappedUserAccountCryptographicState,
+  WrappedAccountCryptographicState,
 } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
@@ -216,7 +216,7 @@ export class DefaultSdkService implements SdkService {
                 settings,
               );
 
-              let accountCryptographicState: WrappedUserAccountCryptographicState;
+              let accountCryptographicState: WrappedAccountCryptographicState;
               if (signingKey != null && securityState != null && signedPublicKey != null) {
                 accountCryptographicState = {
                   V2: {
@@ -276,7 +276,7 @@ export class DefaultSdkService implements SdkService {
     account: AccountInfo,
     kdfParams: KdfConfig,
     userKey: UserKey,
-    accountCryptographicState: WrappedUserAccountCryptographicState,
+    accountCryptographicState: WrappedAccountCryptographicState,
     orgKeys: Record<OrganizationId, EncString>,
   ) {
     await client.crypto().initialize_user_crypto({
