@@ -17,7 +17,7 @@ import {
 } from "../master-password/types/master-password.types";
 
 import { ChangeKdfApiService } from "./change-kdf-api.service.abstraction";
-import { DefaultChangeKdfService } from "./change-kdf-service";
+import { DefaultChangeKdfService } from "./change-kdf.service";
 
 describe("ChangeKdfService", () => {
   const changeKdfApiService = mock<ChangeKdfApiService>();

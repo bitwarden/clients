@@ -70,7 +70,7 @@
     }
   },
   "noEditPermissions": {
-    "message": "Du bist nicht berechtigt, diesen Eintrag zu bearbeiten"
+    "message": "Keine Berechtigung zum Bearbeiten dieses Eintrags"
   },
   "welcomeBack": {
     "message": "Willkommen zurück"
@@ -2562,7 +2562,7 @@
     }
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "Das minimal benutzerdefinierte Timeout beträgt 1 Minute."
+    "message": "Minimale benutzerdefinierte Timeout-Zeit beträgt 1 Minute."
   },
   "inviteAccepted": {
     "message": "Einladung angenommen"
@@ -4165,7 +4165,7 @@
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Nicht mehr archivieren"
+    "message": "Wiederherstellen"
   },
   "itemsInArchive": {
     "message": "Einträge im Archiv"
@@ -4177,10 +4177,10 @@
     "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Auto-Ausfüllen-Vorschlägen ausgeschlossen."
   },
   "itemWasSentToArchive": {
-    "message": "Eintrag wurde ins Archiv verschoben"
+    "message": "Eintrag wurde archiviert"
   },
   "itemWasUnarchived": {
-    "message": "Eintrag wird nicht mehr archiviert"
+    "message": "Eintrag wurde wiederhergestellt"
   },
   "archiveItem": {
     "message": "Eintrag archivieren"
@@ -4201,22 +4201,22 @@
     "message": "Integrierter Authenticator"
   },
   "secureFileStorage": {
-    "message": "Sicherer Dateispeicher"
+    "message": "Sichere Dateispeicherung"
   },
   "emergencyAccess": {
     "message": "Notfallzugriff"
   },
   "breachMonitoring": {
-    "message": "Datendiebstahl-Überwachung"
+    "message": "Datenleck-Überwachung"
   },
   "andMoreFeatures": {
-    "message": "Und mehr!"
+    "message": "Und vieles mehr!"
   },
   "planDescPremium": {
-    "message": "Umfassende Online-Sicherheit"
+    "message": "Kompletter Online-Sicherheitsplan"
   },
   "upgradeToPremium": {
-    "message": "Upgrade auf Premium"
+    "message": "Auf Premium upgraden"
   },
   "sessionTimeoutSettingsAction": {
     "message": "Timeout-Aktion"
