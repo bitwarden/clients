@@ -1,6 +1,6 @@
 <ng-template>
   @if (icon(); as icon) {
-    <i class="bwi {{ icon }} !tw-me-2" aria-hidden="true"></i>
+    <i class="bwi !tw-me-2" [class]="icon" aria-hidden="true"></i>
   }
   <ng-content></ng-content>
 </ng-template>
