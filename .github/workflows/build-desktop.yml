@@ -249,6 +249,8 @@ jobs:
           PKG_CONFIG_ALLOW_CROSS: true
           PKG_CONFIG_ALL_STATIC: true
           TARGET: musl
+        # Note: It is important that we use the release build because some compute heavy
+        # operations such as key derivation for oo7 on linux are too slow in debug mode 
         run: |
           rustup target add x86_64-unknown-linux-musl
           node build.js --target=x86_64-unknown-linux-musl --release
@@ -412,9 +414,11 @@ jobs:
           PKG_CONFIG_ALLOW_CROSS: true
           PKG_CONFIG_ALL_STATIC: true
           TARGET: musl
+        # Note: It is important that we use the release build because some compute heavy
+        # operations such as key derivation for oo7 on linux are too slow in debug mode
         run: |
           rustup target add aarch64-unknown-linux-musl
-          node build.js --target=aarch64-unknown-linux-musl
+          node build.js --target=aarch64-unknown-linux-musl --release
 
       - name: Check index.d.ts generated
         if: github.event_name == 'pull_request' && steps.cache.outputs.cache-hit != 'true'
