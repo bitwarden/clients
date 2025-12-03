@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
   },
+  "upgradeToUseArchive": {
+    "message": "Az Archívum használatához prémium tagság szükséges."
+  },
   "edit": {
     "message": "Szerkesztés"
   },
@@ -593,6 +596,9 @@
   },
   "viewAll": {
     "message": "Összes megtekintése"
+  },
+  "showAll": {
+    "message": "Összes megjelenítése"
   },
   "viewLess": {
     "message": "kevesebb megjelenítése"
@@ -1866,6 +1872,9 @@
   },
   "expirationYear": {
     "message": "Lejárati év"
+  },
+  "monthly": {
+    "message": "hónap"
   },
   "expiration": {
     "message": "Lejárat"
@@ -4902,6 +4911,9 @@
   "premium": {
     "message": "Prémium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "A Prémium segítségével feloldhatjuk a jelentés készítést, a vészhelyzeti hozzáférést és a további biztonsági funkciókat."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Az ingyenes szervezetek nem használhatnak mellékleteket."
   },
@@ -5812,11 +5824,11 @@
   "upgradeToPremium": {
     "message": "Áttérés Prémium csomagra"
   },
-  "upgradeCompleteSecurity": {
-    "message": "Áttérés a teljes biztonságért"
+  "unlockAdvancedSecurity": {
+    "message": "Fejlett biztonsági funkciók feloldása"
   },
-  "premiumGivesMoreTools": {
-    "message": "A Premium több eszközt ad a biztonság megőrzéséhez, a hatékony munkavégzéshez és az irányítás megőrzéséhez."
+  "unlockAdvancedSecurityDesc": {
+    "message": "A prémium előfizetés több eszközt biztosít a biztonság és az irányítás megőrzéséhez."
   },
   "explorePremium": {
     "message": "Premium felfedezése"

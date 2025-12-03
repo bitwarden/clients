@@ -1,8 +1,8 @@
 import { importProvidersFrom } from "@angular/core";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-import { action } from "@storybook/addon-actions";
 import { Meta, StoryObj, applicationConfig } from "@storybook/angular";
 import { of } from "rxjs";
+import { action } from "storybook/actions";
 import { ZXCVBNResult } from "zxcvbn";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";

@@ -1424,11 +1424,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * calculates the postion and width for multi-input totp field inline menu
-   * @param totpFieldArray - the totp fields used to evaluate the position of the menu
+   * calculates the position and width for multi-input TOTP field inline menu
+   * @param totpFieldArray - the TOTP fields used to evaluate the position of the menu
    */
   private calculateTotpMultiInputMenuBounds(totpFieldArray: AutofillField[]) {
-    // Filter the fields based on the provided totpfields
+    // Filter the fields based on the provided TOTP fields
     const filteredObjects = this.allFieldData.filter((obj) =>
       totpFieldArray.some((o) => o.opid === obj.opid),
     );
@@ -1451,8 +1451,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * calculates the postion for multi-input totp field inline button
-   * @param totpFieldArray - the totp fields used to evaluate the position of the menu
+   * calculates the position for multi-input TOTP field inline button
+   * @param totpFieldArray - the TOTP fields used to evaluate the position of the menu
    */
   private calculateTotpMultiInputButtonBounds(totpFieldArray: AutofillField[]) {
     const filteredObjects = this.allFieldData.filter((obj) =>

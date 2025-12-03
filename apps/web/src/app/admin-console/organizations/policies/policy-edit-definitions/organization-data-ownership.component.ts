@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { map, Observable } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -22,10 +22,10 @@ export class OrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
   }
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  selector: "organization-data-ownership-policy-edit",
   templateUrl: "organization-data-ownership.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrganizationDataOwnershipPolicyComponent extends BasePolicyEditComponent {}
