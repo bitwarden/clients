@@ -18,7 +18,7 @@ import {
   ToastService,
   ButtonModule,
   BitActionDirective,
-  PopoverModule,
+  IconButtonModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -28,7 +28,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
   selector: "km-ui-remove-password",
   templateUrl: "remove-password.component.html",
   standalone: true,
-  imports: [CommonModule, ButtonModule, I18nPipe, BitActionDirective, PopoverModule],
+  imports: [CommonModule, ButtonModule, I18nPipe, BitActionDirective, IconButtonModule],
 })
 export class RemovePasswordComponent implements OnInit {
   continuing = false;
@@ -91,7 +91,7 @@ export class RemovePasswordComponent implements OnInit {
 
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("removedMasterPassword"),
+        message: this.i18nService.t("organizationVerified"),
       });
 
       await this.router.navigate(["/"]);
@@ -104,9 +104,11 @@ export class RemovePasswordComponent implements OnInit {
 
   leave = async () => {
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: this.organization.name,
-      content: { key: "leaveOrganizationConfirmation" },
+      title: { key: "leaveOrganization" },
+      content: { key: "leaveOrganizationContent" },
       type: "warning",
+      acceptButtonText: { key: "leaveNow" },
+      cancelButtonText: { key: "cancel" },
     });
 
     if (!confirmed) {

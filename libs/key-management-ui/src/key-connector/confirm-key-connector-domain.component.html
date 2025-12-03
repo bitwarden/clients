@@ -8,26 +8,24 @@
     <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   </div>
 } @else {
-  <p>{{ "confirmKeyConnectorOrganizationUserDescription" | i18n }}</p>
-
   @if (organizationName) {
+    <p>{{ "confirmKeyConnectorOrganizationUserDescription" | i18n }}</p>
+
     <p class="tw-mb-0 tw-font-bold">{{ "organization" | i18n }}</p>
     <p class="tw-mb-6">{{ organizationName }}</p>
+  } @else {
+    <p>{{ "verifyYourDomainDescription" | i18n }}</p>
   }
 
-  <p class="tw-mb-0 tw-font-bold">
+  <p class="tw-mb-0 tw-font-bold tw-inline-flex tw-items-center">
     {{ "domain" | i18n }}
     <button
-      [bitPopoverTriggerFor]="domainPopover"
       type="button"
-      class="tw-border-none tw-bg-transparent tw-pr-1"
-      [position]="'above-center'"
-    >
-      <i class="bwi bwi-info-circle tw-text-sm" aria-hidden="true"></i>
-    </button>
-    <bit-popover #domainPopover>
-      <p class="tw-mb-0">{{ "keyConnectorDomainPopoverDescription" | i18n }}</p>
-    </bit-popover>
+      [label]="'keyConnectorDomainTooltip' | i18n"
+      tooltipPosition="above-center"
+      bitIconButton="bwi-info-circle"
+      size="small"
+    ></button>
   </p>
   <p class="tw-mb-6 tw-font-mono">{{ keyConnectorHostName }}</p>
 
