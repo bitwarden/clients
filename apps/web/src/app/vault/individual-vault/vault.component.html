@@ -34,6 +34,16 @@
     <bit-callout type="warning" *ngIf="activeFilter.isDeleted">
       {{ trashCleanupWarning }}
     </bit-callout>
+    <bit-callout
+      type="info"
+      [title]="'premiumSubscriptionEnded' | i18n"
+      *ngIf="showSubscriptionEndedMessaging$ | async"
+    >
+      <p>{{ "premiumSubscriptionEndedDesc" | i18n }}</p>
+      <a routerLink="/settings/subscription/premium" bitButton buttonType="primary">{{
+        "restartPremium" | i18n
+      }}</a>
+    </bit-callout>
     <app-vault-items
       #vaultItems
       [ciphers]="ciphers"

@@ -84,7 +84,7 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
-import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { DialogRef, DialogService, ToastService, BannerComponent } from "@bitwarden/components";
 import { CipherListView } from "@bitwarden/sdk-internal";
 import {
   AddEditFolderDialogComponent,
@@ -177,6 +177,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     VaultItemsModule,
     SharedModule,
     OrganizationWarningsModule,
+    BannerComponent,
   ],
   providers: [
     RoutedVaultFilterService,
@@ -229,13 +230,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   organizations$ = this.accountService.activeAccount$
     .pipe(map((a) => a?.id))
     .pipe(switchMap((id) => this.organizationService.organizations$(id)));
-
-  protected userCanArchive$ = this.accountService.activeAccount$.pipe(
-    getUserId,
-    switchMap((userId) => {
-      return this.cipherArchiveService.userCanArchive$(userId);
-    }),
-  );
 
   emptyState$ = combineLatest([
     this.currentSearchText$,
@@ -295,14 +289,28 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }),
   );
 
-  protected enforceOrgDataOwnershipPolicy$ = this.accountService.activeAccount$.pipe(
-    getUserId,
+  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
+
+  protected enforceOrgDataOwnershipPolicy$ = this.userId$.pipe(
     switchMap((userId) =>
       this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
     ),
   );
 
-  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
+  protected userCanArchive$ = this.userId$.pipe(
+    switchMap((userId) => {
+      return this.cipherArchiveService.userCanArchive$(userId);
+    }),
+  );
+
+  protected showSubscriptionEndedMessaging$ = this.userId$.pipe(
+    switchMap((userId) =>
+      combineLatest([
+        this.routedVaultFilterBridgeService.activeFilter$,
+        this.cipherArchiveService.showSubscriptionEndedMessaging$(userId),
+      ]).pipe(map(([activeFilter, showMessaging]) => activeFilter.isArchived && showMessaging)),
+    ),
+  );
 
   constructor(
     private syncService: SyncService,
@@ -438,13 +446,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       allowedCiphers$,
       filter$,
       this.currentSearchText$,
-      this.cipherArchiveService.hasArchiveFlagEnabled$(),
+      this.cipherArchiveService.hasArchiveFlagEnabled$,
     ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText, archiveEnabled]) => {
+      concatMap(async ([ciphers, filter, searchText, showArchiveVault]) => {
         const failedCiphers =
           (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
-        const filterFunction = createFilterFunction(filter, archiveEnabled);
+        const filterFunction = createFilterFunction(filter, showArchiveVault);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
 

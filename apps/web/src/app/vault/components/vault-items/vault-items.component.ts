@@ -7,6 +7,7 @@ import { Observable, combineLatest, map, of, startWith, switchMap } from "rxjs";
 
 import { CollectionView, Unassigned, CollectionAdminView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
   RestrictedCipherType,
@@ -145,9 +146,12 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   protected disableMenu$: Observable<boolean>;
   private restrictedTypes: RestrictedCipherType[] = [];
 
+  protected archiveFeatureEnabled$ = this.cipherArchiveService.hasArchiveFlagEnabled$;
+
   constructor(
     protected cipherAuthorizationService: CipherAuthorizationService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
+    protected cipherArchiveService: CipherArchiveService,
   ) {
     this.canDeleteSelected$ = this.selection.changed.pipe(
       startWith(null),
