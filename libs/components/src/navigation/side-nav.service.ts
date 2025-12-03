@@ -40,7 +40,6 @@ export class SideNavService {
     map(([open, isLargeScreen]) => open && !isLargeScreen),
   );
 
-  protected lastOpenWidth = this.DEFAULT_OPEN_WIDTH;
   private readonly _width$ = new BehaviorSubject<number>(this.DEFAULT_OPEN_WIDTH);
   readonly width$ = this._width$.asObservable();
 
@@ -69,12 +68,6 @@ export class SideNavService {
 
     // Handle width resize events
     this.width$.pipe(debounceTime(200), takeUntilDestroyed()).subscribe((width) => {
-      // Store the last open width when the side nav is open
-      if (this.open) {
-        this.lastOpenWidth = width;
-      }
-
-      // Update the stored width state
       void this.widthState.update(() => width);
     });
   }
