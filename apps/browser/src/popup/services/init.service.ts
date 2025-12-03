@@ -36,6 +36,7 @@ export class InitService {
   ) {}
 
   init() {
+    performance.mark("init-start");
     return async () => {
       await this.sdkLoadService.loadAndInit();
       await this.migrationRunner.waitForCompletion(); // Browser background is responsible for migrations
@@ -65,6 +66,7 @@ export class InitService {
       }
 
       this.setupVaultPopupHeartbeat();
+      performance.mark("init-end");
     };
   }
 
