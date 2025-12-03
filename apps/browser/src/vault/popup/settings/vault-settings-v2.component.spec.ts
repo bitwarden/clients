@@ -149,13 +149,15 @@ describe("VaultSettingsV2Component", () => {
 
     it("prompts for premium when user cannot archive and has no archived items", async () => {
       setArchiveState(false, []);
+      const badge = component["premiumBadgeComponent"]();
+      jest.spyOn(badge, "promptForPremium");
 
       const premiumArchiveLink = queryByTestId("premium-archive-link");
 
       premiumArchiveLink.nativeElement.click();
       await fixture.whenStable();
 
-      expect(router.navigate).toHaveBeenCalledWith(["/premium"]);
+      expect(badge.promptForPremium).toHaveBeenCalled();
     });
   });
 
