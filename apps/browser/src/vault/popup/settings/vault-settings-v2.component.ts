@@ -125,11 +125,11 @@ export class VaultSettingsV2Component implements OnInit, OnDestroy {
    * the archive page. Otherwise, prompt them to upgrade to premium.
    */
   async conditionallyRouteToArchive(event: Event) {
+    event.preventDefault();
     const premiumBadge = this.premiumBadgeComponent();
     if (this.userCanArchive() || this.userHasArchivedItems()) {
       await this.router.navigate(["/archive"]);
     } else if (premiumBadge) {
-      // The `premiumBadgeComponent` should always be defined here, adding the `if` to satisfy TypeScript.
       await premiumBadge.promptForPremium(event);
     }
   }
