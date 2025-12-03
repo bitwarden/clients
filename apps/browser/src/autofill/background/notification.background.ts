@@ -658,7 +658,7 @@ export default class NotificationBackground {
       if (
         username !== null &&
         newPassword === null &&
-        cipher.login.username === normalizedUsername &&
+        cipher.login.username.toLowerCase() === normalizedUsername &&
         cipher.login.password === currentPassword
       ) {
         // Assumed to be a login
