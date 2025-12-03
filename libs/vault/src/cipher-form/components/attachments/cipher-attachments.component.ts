@@ -94,17 +94,13 @@ export class CipherAttachmentsComponent {
   readonly submitBtn = input<ButtonComponent>();
 
   /** Emits when a file upload is started */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() onUploadStarted = new EventEmitter<void>();
+  readonly onUploadStarted = output<void>();
 
   /** Emits after a file has been successfully uploaded */
   readonly onUploadSuccess = output<void>();
 
   /** Emits when a file upload fails */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() onUploadFailed = new EventEmitter<void>();
+  readonly onUploadFailed = output<void>();
 
   /** Emits after a file has been successfully removed */
   readonly onRemoveSuccess = output<void>();
