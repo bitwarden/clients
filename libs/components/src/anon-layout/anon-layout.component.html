@@ -6,7 +6,11 @@
   }"
 >
   <div class="tw-flex tw-justify-between tw-items-center tw-w-full tw-mb-12">
-    <a *ngIf="!hideLogo()" [routerLink]="['/']" class="tw-w-[200px] tw-block [&>*]:tw-align-top">
+    <a
+      *ngIf="!hideLogo()"
+      [routerLink]="['/']"
+      class="tw-w-[200px] tw-self-start tw-block [&>*]:tw-align-top"
+    >
       <bit-icon [icon]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-icon>
     </a>
     <div class="tw-ms-auto">
