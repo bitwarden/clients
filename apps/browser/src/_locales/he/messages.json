@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "פריטים בארכיון מוחרגים מתוצאות חיפוש כללי והצעות למילוי אוטומטי. האם אתה בטוח שברצונך להעביר פריט זה לארכיון?"
   },
+  "upgradeToUseArchive": {
+    "message": "A premium membership is required to use Archive."
+  },
   "edit": {
     "message": "ערוך"
   },
@@ -593,6 +596,9 @@
   },
   "viewAll": {
     "message": "הצג הכל"
+  },
+  "showAll": {
+    "message": "Show all"
   },
   "viewLess": {
     "message": "הצג פחות"
@@ -1867,6 +1873,9 @@
   "expirationYear": {
     "message": "שנת תפוגה"
   },
+  "monthly": {
+    "message": "month"
+  },
   "expiration": {
     "message": "תוקף"
   },
@@ -2435,6 +2444,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
   },
   "setMasterPassword": {
     "message": "הגדר סיסמה ראשית"
@@ -4899,6 +4911,9 @@
   "premium": {
     "message": "פרימיום"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Unlock reporting, emergency access, and more security features with Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "ארגונים חינמיים לא יכולים להשתמש בצרופות"
   },
@@ -5809,11 +5824,11 @@
   "upgradeToPremium": {
     "message": "שדרג לפרימיום"
   },
-  "upgradeCompleteSecurity": {
-    "message": "Upgrade for complete security"
+  "unlockAdvancedSecurity": {
+    "message": "Unlock advanced security features"
   },
-  "premiumGivesMoreTools": {
-    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  "unlockAdvancedSecurityDesc": {
+    "message": "A Premium subscription gives you more tools to stay secure and in control"
   },
   "explorePremium": {
     "message": "Explore Premium"

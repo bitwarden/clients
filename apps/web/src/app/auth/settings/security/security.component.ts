@@ -1,7 +1,9 @@
 import { Component, OnInit } from "@angular/core";
-import { Observable } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
-import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
@@ -20,7 +22,8 @@ export class SecurityComponent implements OnInit {
   consolidatedSessionTimeoutComponent$: Observable<boolean>;
 
   constructor(
-    private userVerificationService: UserVerificationService,
+    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+    private accountService: AccountService,
     private configService: ConfigService,
   ) {
     this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
@@ -29,6 +32,9 @@ export class SecurityComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.showChangePassword = await this.userVerificationService.hasMasterPassword();
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    this.showChangePassword = userId
+      ? await firstValueFrom(this.userDecryptionOptionsService.hasMasterPasswordById$(userId))
+      : false;
   }
 }
