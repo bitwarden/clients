@@ -1475,6 +1475,15 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB encrypted storage for file attachments."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpEmergency": {
     "message": "Emergency access."
   },
@@ -1872,6 +1881,9 @@
   },
   "expirationYear": {
     "message": "Expiration year"
+  },
+  "monthly": {
+    "message": "month"
   },
   "expiration": {
     "message": "Expiration"
@@ -5839,11 +5851,11 @@
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
   },
-  "upgradeCompleteSecurity": {
-    "message": "Upgrade for complete security"
+  "unlockAdvancedSecurity": {
+    "message": "Unlock advanced security features"
   },
-  "premiumGivesMoreTools": {
-    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  "unlockAdvancedSecurityDesc": {
+    "message": "A Premium subscription gives you more tools to stay secure and in control"
   },
   "explorePremium": {
     "message": "Explore Premium"
