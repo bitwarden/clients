@@ -14,7 +14,7 @@
               *ngIf="attachment.key == null"
               slot="default-trailing"
               class="bwi bwi-exclamation-triangle bwi-sm tw-text-muted"
-              [appA11yTitle]="'attachmentFixDescription' | i18n"
+              [appA11yTitle]="'fixEncryptionTooltip' | i18n"
             ></i>
           </bit-item-content>
 
@@ -34,7 +34,7 @@
                   size="small"
                   type="button"
                 >
-                  {{ "fix" | i18n }}
+                  {{ "fixEncryption" | i18n }}
                 </button>
               }
             </bit-item-action>

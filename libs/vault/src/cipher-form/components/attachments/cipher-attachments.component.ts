@@ -349,7 +349,7 @@ export class CipherAttachmentsComponent {
         this.cipher.set(updatedCipher);
         this.toastService.showToast({
           variant: "success",
-          message: this.i18nService.t("attachmentSaved"),
+          message: this.i18nService.t("attachmentUpdated"),
         });
         this.onUploadSuccess.emit();
       } catch {
