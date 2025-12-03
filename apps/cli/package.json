@@ -1,7 +1,7 @@
 {
   "name": "@bitwarden/cli",
   "description": "A secure and free password manager for all of your devices.",
-  "version": "2025.11.0",
+  "version": "2025.12.0",
   "keywords": [
     "bitwarden",
     "password",
@@ -88,7 +88,7 @@
     "proper-lockfile": "4.1.2",
     "rxjs": "7.8.1",
     "semver": "7.7.3",
-    "tldts": "7.0.18",
+    "tldts": "7.0.19",
     "zxcvbn": "4.4.2"
   }
 }
