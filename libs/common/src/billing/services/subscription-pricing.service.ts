@@ -40,6 +40,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
    */
   private static readonly FALLBACK_PREMIUM_SEAT_PRICE = 10;
   private static readonly FALLBACK_PREMIUM_STORAGE_PRICE = 4;
+  private static readonly FALLBACK_PREMIUM_PROVIDED_STORAGE_GB = 1;
 
   constructor(
     private billingApiService: BillingApiServiceAbstraction,
@@ -114,11 +115,13 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
               map((premiumPlan) => ({
                 seat: premiumPlan.seat.price,
                 storage: premiumPlan.storage.price,
+                provided: premiumPlan.storage.provided,
               })),
             )
           : of({
               seat: DefaultSubscriptionPricingService.FALLBACK_PREMIUM_SEAT_PRICE,
               storage: DefaultSubscriptionPricingService.FALLBACK_PREMIUM_STORAGE_PRICE,
+              provided: DefaultSubscriptionPricingService.FALLBACK_PREMIUM_PROVIDED_STORAGE_GB,
             }),
       ),
       map((premiumPrices) => ({
@@ -130,6 +133,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
           type: "standalone",
           annualPrice: premiumPrices.seat,
           annualPricePerAdditionalStorageGB: premiumPrices.storage,
+          providedStorageGB: premiumPrices.provided,
           features: [
             this.featureTranslations.builtInAuthenticator(),
             this.featureTranslations.secureFileStorage(),
@@ -161,6 +165,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
           annualPrice: familiesPlan.PasswordManager.basePrice,
           annualPricePerAdditionalStorageGB:
             familiesPlan.PasswordManager.additionalStoragePricePerGb,
+          providedStorageGB: familiesPlan.PasswordManager.baseStorageGb,
           features: [
             this.featureTranslations.premiumAccounts(),
             this.featureTranslations.familiesUnlimitedSharing(),
@@ -214,6 +219,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
           annualPricePerUser: annualTeamsPlan.PasswordManager.seatPrice,
           annualPricePerAdditionalStorageGB:
             annualTeamsPlan.PasswordManager.additionalStoragePricePerGb,
+          providedStorageGB: annualTeamsPlan.PasswordManager.baseStorageGb,
           features: [
             this.featureTranslations.secureItemSharing(),
             this.featureTranslations.eventLogMonitoring(),
@@ -253,6 +259,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
           annualPricePerUser: annualEnterprisePlan.PasswordManager.seatPrice,
           annualPricePerAdditionalStorageGB:
             annualEnterprisePlan.PasswordManager.additionalStoragePricePerGb,
+          providedStorageGB: annualEnterprisePlan.PasswordManager.baseStorageGb,
           features: [
             this.featureTranslations.enterpriseSecurityPolicies(),
             this.featureTranslations.passwordLessSso(),
