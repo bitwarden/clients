@@ -138,7 +138,7 @@ pub async fn import_logins(
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct BrowserConfig {
     pub name: &'static str,
-    pub data_dir: &'static str,
+    pub data_dir: &'static [&'static str],
 }
 
 pub(crate) static SUPPORTED_BROWSER_MAP: LazyLock<
@@ -150,11 +150,19 @@ pub(crate) static SUPPORTED_BROWSER_MAP: LazyLock<
         .collect::<std::collections::HashMap<_, _>>()
 });
 
-fn get_browser_data_dir(config: &BrowserConfig) -> Result<PathBuf> {
-    let dir = dirs::home_dir()
-        .ok_or_else(|| anyhow!("Home directory not found"))?
-        .join(config.data_dir);
-    Ok(dir)
+fn get_and_validate_data_dir(config: &BrowserConfig) -> Result<PathBuf> {
+    for data_dir in config.data_dir.iter() {
+        let dir = dirs::home_dir()
+            .ok_or_else(|| anyhow!("Home directory not found"))?
+            .join(data_dir);
+        if dir.exists() {
+            return Ok(dir);
+        }
+    }
+    Err(anyhow!(
+        "Browser user data directory '{:?}' not found",
+        config.data_dir
+    ))
 }
 
 //
@@ -198,13 +206,7 @@ fn load_local_state_for_browser(browser_name: &str) -> Result<(PathBuf, LocalSta
         .get(browser_name)
         .ok_or_else(|| anyhow!("Unsupported browser: {}", browser_name))?;
 
-    let data_dir = get_browser_data_dir(config)?;
-    if !data_dir.exists() {
-        return Err(anyhow!(
-            "Browser user data directory '{}' not found",
-            data_dir.display()
-        ));
-    }
+    let data_dir = get_and_validate_data_dir(config)?;
 
     let local_state = load_local_state(&data_dir)?;
 
