@@ -658,7 +658,7 @@ export default class NotificationBackground {
       if (
         username !== null &&
         newPassword === null &&
-        cipher.login.username === normalizedUsername &&
+        cipher.login.username.toLowerCase() === normalizedUsername &&
         cipher.login.password === currentPassword
       ) {
         // Assumed to be a login
@@ -1344,7 +1344,7 @@ export default class NotificationBackground {
       return;
     }
 
-    const extensionUrl = chrome.runtime.getURL("popup/index.html");
+    const extensionUrl = BrowserApi.getRuntimeURL("popup/index.html");
     const unlockPopoutTabs = (await BrowserApi.tabsQuery({ url: `${extensionUrl}*` })).filter(
       (tab) => tab.url?.includes(`singleActionPopout=${AuthPopoutType.unlockExtension}`),
     );

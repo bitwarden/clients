@@ -63,7 +63,7 @@ export default tseslint.config(
       // TODO: Enable these.
       "@angular-eslint/component-class-suffix": "error",
       "@angular-eslint/contextual-lifecycle": "error",
-      "@angular-eslint/directive-class-suffix": 0,
+      "@angular-eslint/directive-class-suffix": "error",
       "@angular-eslint/no-empty-lifecycle-method": 0,
       "@angular-eslint/no-input-rename": 0,
       "@angular-eslint/no-inputs-metadata-property": "error",
@@ -71,6 +71,7 @@ export default tseslint.config(
       "@angular-eslint/no-output-on-prefix": 0,
       "@angular-eslint/no-output-rename": "error",
       "@angular-eslint/no-outputs-metadata-property": "error",
+      "@angular-eslint/prefer-inject": 0,
       "@angular-eslint/prefer-on-push-component-change-detection": "error",
       "@angular-eslint/prefer-output-emitter-ref": "error",
       "@angular-eslint/prefer-signals": "error",
@@ -80,6 +81,7 @@ export default tseslint.config(
 
       "@bitwarden/platform/required-using": "error",
       "@bitwarden/platform/no-enums": "error",
+      "@bitwarden/platform/no-page-script-url-leakage": "error",
       "@bitwarden/components/require-theme-colors-in-svg": "error",
 
       "@typescript-eslint/explicit-member-accessibility": ["error", { accessibility: "no-public" }],
