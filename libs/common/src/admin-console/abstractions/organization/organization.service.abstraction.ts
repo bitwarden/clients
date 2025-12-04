@@ -42,6 +42,14 @@ export function canAccessBillingTab(org: Organization): boolean {
   return org.isOwner;
 }
 
+/**
+ * Access Intelligence is only available to:
+ * - Enterprise organizations
+ * - Users in those organizations with report access
+ *
+ * @param org The organization to verify access
+ * @returns If true can access the Access Intelligence feature
+ */
 export function canAccessAccessIntelligence(org: Organization): boolean {
   return org.productTierType === ProductTierType.Enterprise && org.canAccessReports;
 }
