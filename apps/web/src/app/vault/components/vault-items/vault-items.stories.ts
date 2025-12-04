@@ -38,7 +38,8 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { LayoutComponent } from "@bitwarden/components";
+import { LayoutComponent, StorybookGlobalStateProvider } from "@bitwarden/components";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
@@ -149,6 +150,10 @@ export default {
       providers: [
         importProvidersFrom(RouterModule.forRoot([], { useHash: true })),
         importProvidersFrom(PreloadedEnglishI18nModule),
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
+        },
       ],
     }),
   ],
