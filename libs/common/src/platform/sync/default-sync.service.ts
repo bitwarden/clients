@@ -9,8 +9,8 @@ import {
   CollectionDetailsResponse,
   CollectionService,
 } from "@bitwarden/admin-console/common";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
-import { AccountCryptographicStateService } from "@bitwarden/common/key-management/user-account-cryptography/account-cryptographic-state.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
