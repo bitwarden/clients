@@ -1,4 +1,4 @@
-import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
+import { SignedPublicKey, WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
 import { SecurityStateResponse } from "../../security-state/response/security-state.response";
 
@@ -69,8 +69,8 @@ export class PrivateKeysResponseModel {
         V2: {
           private_key: this.publicKeyEncryptionKeyPair.wrappedPrivateKey,
           signing_key: this.signatureKeyPair.wrappedSigningKey,
-          signed_public_key: this.publicKeyEncryptionKeyPair.signedPublicKey,
-          security_state: this.securityState.securityState,
+          signed_public_key: this.publicKeyEncryptionKeyPair.signedPublicKey as SignedPublicKey,
+          security_state: this.securityState.securityState as string,
         },
       };
     } else {
