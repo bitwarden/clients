@@ -1,4 +1,7 @@
-import { combineLatest, map, Observable, of } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
+
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
@@ -25,6 +28,7 @@ export class DefaultPolicyService implements PolicyService {
   constructor(
     private stateProvider: StateProvider,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
   ) {}
 
   private policyState(userId: UserId) {
@@ -325,5 +329,14 @@ export class DefaultPolicyService implements PolicyService {
       target.requireSpecial = Boolean(target.requireSpecial || source.requireSpecial);
       target.enforceOnLogin = Boolean(target.enforceOnLogin || source.enforceOnLogin);
     }
+  }
+
+  async syncPolicy(policyData: PolicyData) {
+    await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.upsert(policyData, userId)),
+      ),
+    );
   }
 }

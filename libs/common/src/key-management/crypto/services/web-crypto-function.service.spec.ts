@@ -1,11 +1,19 @@
 import { mock } from "jest-mock-extended";
 
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
+import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "../../../platform/misc/utils";
 import { EcbDecryptParameters } from "../../../platform/models/domain/decrypt-parameters";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 
 import { WebCryptoFunctionService } from "./web-crypto-function.service";
+
+class TestSdkLoadService extends SdkLoadService {
+  protected override load(): Promise<void> {
+    // Simulate successful WASM load
+    return Promise.resolve();
+  }
+}
 
 const RsaPublicKey =
   "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAl0Vawl/toXzkEvB82FEtqHP" +
@@ -40,6 +48,10 @@ const Sha512Mac =
   "5ea7817a0b7c5d4d9b00364ccd214669131fc17fe4aca";
 
 describe("WebCrypto Function Service", () => {
+  beforeAll(async () => {
+    await new TestSdkLoadService().loadAndInit();
+  });
+
   describe("pbkdf2", () => {
     const regular256Key = "pj9prw/OHPleXI6bRdmlaD+saJS4awrMiQsQiDjeu2I=";
     const utf8256Key = "yqvoFXgMRmHR3QPYr5pyR4uVuoHkltv9aHUP63p8n7I=";
@@ -287,7 +299,6 @@ describe("WebCrypto Function Service", () => {
   });
 
   describe("rsaGenerateKeyPair", () => {
-    testRsaGenerateKeyPair(1024);
     testRsaGenerateKeyPair(2048);
 
     // Generating 4096 bit keys can be slow. Commenting it out to save CI.
@@ -483,7 +494,7 @@ function testHmac(algorithm: "sha1" | "sha256" | "sha512", mac: string) {
   });
 }
 
-function testRsaGenerateKeyPair(length: 1024 | 2048 | 4096) {
+function testRsaGenerateKeyPair(length: 2048) {
   it(
     "should successfully generate a " + length + " bit key pair",
     async () => {

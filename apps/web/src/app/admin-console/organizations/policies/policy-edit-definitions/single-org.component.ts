@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 
@@ -12,11 +12,11 @@ export class SingleOrgPolicy extends BasePolicyEditDefinition {
   component = SingleOrgPolicyComponent;
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  selector: "single-org-policy-edit",
   templateUrl: "single-org.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SingleOrgPolicyComponent extends BasePolicyEditComponent implements OnInit {
   async ngOnInit() {

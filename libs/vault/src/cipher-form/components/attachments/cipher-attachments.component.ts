@@ -108,10 +108,20 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() submitBtn?: ButtonComponent;
 
+  /** Emits when a file upload is started */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
+  @Output() onUploadStarted = new EventEmitter<void>();
+
   /** Emits after a file has been successfully uploaded */
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onUploadSuccess = new EventEmitter<void>();
+
+  /** Emits when a file upload fails */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
+  @Output() onUploadFailed = new EventEmitter<void>();
 
   /** Emits after a file has been successfully removed */
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -196,6 +206,8 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
 
   /** Save the attachments to the cipher */
   submit = async () => {
+    this.onUploadStarted.emit();
+
     const file = this.attachmentForm.value.file;
     if (file === null) {
       this.toastService.showToast({
@@ -253,6 +265,7 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
         variant: "error",
         message: errorMessage,
       });
+      this.onUploadFailed.emit();
     }
   };
 

@@ -282,11 +282,56 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     const styles = this.fadeInTimeout ? Object.assign(position, { opacity: "0" }) : position;
     this.updateElementStyles(this.iframe, styles);
 
+    const elementHeightCompletelyInViewport = this.isElementCompletelyWithinViewport(
+      this.iframe.getBoundingClientRect(),
+    );
+
+    if (!elementHeightCompletelyInViewport) {
+      this.forceCloseInlineMenu();
+      return;
+    }
+
     if (this.fadeInTimeout) {
       this.handleFadeInInlineMenuIframe();
     }
 
     this.announceAriaAlert(this.ariaAlert, 2000);
+  }
+
+  /**
+   * Check if element is completely within the browser viewport.
+   */
+  private isElementCompletelyWithinViewport(elementPosition: DOMRect) {
+    // An element that lacks size should be considered within the viewport
+    if (!elementPosition.height || !elementPosition.width) {
+      return true;
+    }
+
+    const [viewportHeight, viewportWidth] = this.getViewportSize();
+
+    const rightSideIsWithinViewport = (elementPosition.right || 0) <= viewportWidth;
+    const leftSideIsWithinViewport = (elementPosition.left || 0) >= 0;
+    const topSideIsWithinViewport = (elementPosition.top || 0) >= 0;
+    const bottomSideIsWithinViewport = (elementPosition.bottom || 0) <= viewportHeight;
+
+    return (
+      rightSideIsWithinViewport &&
+      leftSideIsWithinViewport &&
+      topSideIsWithinViewport &&
+      bottomSideIsWithinViewport
+    );
+  }
+
+  /** Use Visual Viewport API if available (better for mobile/zoom) */
+  private getViewportSize(): [
+    VisualViewport["height"] | Window["innerHeight"],
+    VisualViewport["width"] | Window["innerWidth"],
+  ] {
+    if ("visualViewport" in globalThis.window && globalThis.window.visualViewport) {
+      return [globalThis.window.visualViewport.height, globalThis.window.visualViewport.width];
+    }
+
+    return [globalThis.window.innerHeight, globalThis.window.innerWidth];
   }
 
   /**

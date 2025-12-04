@@ -89,7 +89,7 @@ export class VaultFilterComponent implements OnInit {
     this.collections = await this.initCollections();
 
     this.showArchiveVaultFilter = await firstValueFrom(
-      this.cipherArchiveService.hasArchiveFlagEnabled$(),
+      this.cipherArchiveService.hasArchiveFlagEnabled$,
     );
 
     this.isLoaded = true;

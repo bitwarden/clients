@@ -14,7 +14,7 @@ import {
 } from "../master-password/types/master-password.types";
 
 import { ChangeKdfApiService } from "./change-kdf-api.service.abstraction";
-import { ChangeKdfService } from "./change-kdf-service.abstraction";
+import { ChangeKdfService } from "./change-kdf.service.abstraction";
 
 export class DefaultChangeKdfService implements ChangeKdfService {
   constructor(

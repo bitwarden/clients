@@ -203,7 +203,6 @@ describe("Fido2Background", () => {
             { file: Fido2ContentScript.PageScriptDelayAppend },
             { file: Fido2ContentScript.ContentScript },
           ],
-          world: "MAIN",
           ...sharedRegistrationOptions,
         });
       });

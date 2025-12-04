@@ -157,22 +157,12 @@ export class SsoLoginStrategy extends LoginStrategy {
       // In order for us to set the master key from Key Connector, we need to have a Key Connector URL
       // and the user must not have a master password.
       return userHasKeyConnectorUrl && !userHasMasterPassword;
-    } else {
-      // In pre-TDE versions of the server, the userDecryptionOptions will not be present.
-      // In this case, we can determine if the user has a master password and has a Key Connector URL by
-      // just checking the keyConnectorUrl property. This is because the server short-circuits on the response
-      // and will not pass back the URL in the response if the user has a master password.
-      // TODO: remove compatibility check after 2023.10 release (https://bitwarden.atlassian.net/browse/PM-3537)
-      return tokenResponse.keyConnectorUrl != null;
     }
   }
 
   private getKeyConnectorUrl(tokenResponse: IdentityTokenResponse): string {
-    // TODO: remove tokenResponse.keyConnectorUrl reference after 2023.10 release (https://bitwarden.atlassian.net/browse/PM-3537)
     const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
-    return (
-      tokenResponse.keyConnectorUrl ?? userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl
-    );
+    return userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl;
   }
 
   // TODO: future passkey login strategy will need to support setting user key (decrypting via TDE or admin approval request)

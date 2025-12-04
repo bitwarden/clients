@@ -54,17 +54,20 @@ export class ItemCopyActionsComponent {
       { key: "copyPassword", field: "password" },
       { key: "copyVerificationCode", field: "totp" },
     ];
-    // If both the password and username are visible but the password is hidden, return the username
+    // If both the password and username are visible but the password is hidden and there's no
+    // totp code to copy return the username
     if (
       !this.cipher.viewPassword &&
       CipherViewLikeUtils.hasCopyableValue(this.cipher, "username") &&
-      CipherViewLikeUtils.hasCopyableValue(this.cipher, "password")
+      CipherViewLikeUtils.hasCopyableValue(this.cipher, "password") &&
+      !CipherViewLikeUtils.hasCopyableValue(this.cipher, "totp")
     ) {
       return {
         key: this.i18nService.t("copyUsername"),
         field: "username" as const,
       };
     }
+
     return this.findSingleCopyableItem(loginItems);
   }
 

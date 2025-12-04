@@ -1603,14 +1603,14 @@ describe("AutofillOverlayContentService", () => {
 
         it("skips triggering submission if a button is not found", async () => {
           const submitButton = document.querySelector("button");
-          submitButton.remove();
+          submitButton?.remove();
 
           await autofillOverlayContentService.setupOverlayListeners(
             autofillFieldElement,
             autofillFieldData,
             pageDetailsMock,
           );
-          submitButton.dispatchEvent(new KeyboardEvent("keyup", { code: "Enter" }));
+          submitButton?.dispatchEvent(new KeyboardEvent("keyup", { code: "Enter" }));
 
           expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith(
             "formFieldSubmitted",
@@ -1627,7 +1627,7 @@ describe("AutofillOverlayContentService", () => {
             pageDetailsMock,
           );
           await flushPromises();
-          submitButton.dispatchEvent(new KeyboardEvent("keyup", { code: "Enter" }));
+          submitButton?.dispatchEvent(new KeyboardEvent("keyup", { code: "Enter" }));
 
           expect(sendExtensionMessageSpy).toHaveBeenCalledWith(
             "formFieldSubmitted",
@@ -1641,7 +1641,7 @@ describe("AutofillOverlayContentService", () => {
             <div id="shadow-root"></div>
             <button id="button-el">Change Password</button>
           </div>`;
-          const shadowRoot = document.getElementById("shadow-root").attachShadow({ mode: "open" });
+          const shadowRoot = document.getElementById("shadow-root")!.attachShadow({ mode: "open" });
           shadowRoot.innerHTML = `
             <input type="password" id="password-field-1" placeholder="new password" />
           `;
@@ -1668,7 +1668,7 @@ describe("AutofillOverlayContentService", () => {
             pageDetailsMock,
           );
           await flushPromises();
-          buttonElement.dispatchEvent(new KeyboardEvent("keyup", { code: "Enter" }));
+          buttonElement?.dispatchEvent(new KeyboardEvent("keyup", { code: "Enter" }));
 
           expect(sendExtensionMessageSpy).toHaveBeenCalledWith(
             "formFieldSubmitted",
@@ -1713,6 +1713,85 @@ describe("AutofillOverlayContentService", () => {
       expect(autofillOverlayContentService["mostRecentlyFocusedField"]).toEqual(
         autofillFieldElement,
       );
+    });
+  });
+
+  describe("refreshMenuLayerPosition", () => {
+    it("calls refreshTopLayerPosition on the inline menu content service", () => {
+      autofillOverlayContentService.refreshMenuLayerPosition();
+
+      expect(inlineMenuContentService.refreshTopLayerPosition).toHaveBeenCalled();
+    });
+
+    it("does not throw if inline menu content service is not available", () => {
+      const serviceWithoutInlineMenu = new AutofillOverlayContentService(
+        domQueryService,
+        domElementVisibilityService,
+        inlineMenuFieldQualificationService,
+      );
+
+      expect(() => serviceWithoutInlineMenu.refreshMenuLayerPosition()).not.toThrow();
+    });
+  });
+
+  describe("getOwnedInlineMenuTagNames", () => {
+    it("returns tag names from the inline menu content service", () => {
+      inlineMenuContentService.getOwnedTagNames.mockReturnValue(["div", "span"]);
+
+      const result = autofillOverlayContentService.getOwnedInlineMenuTagNames();
+
+      expect(result).toEqual(["div", "span"]);
+    });
+
+    it("returns an empty array if inline menu content service is not available", () => {
+      const serviceWithoutInlineMenu = new AutofillOverlayContentService(
+        domQueryService,
+        domElementVisibilityService,
+        inlineMenuFieldQualificationService,
+      );
+
+      const result = serviceWithoutInlineMenu.getOwnedInlineMenuTagNames();
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe("getUnownedTopLayerItems", () => {
+    it("returns unowned top layer items from the inline menu content service", () => {
+      const mockElements = document.querySelectorAll("div");
+      inlineMenuContentService.getUnownedTopLayerItems.mockReturnValue(mockElements);
+
+      const result = autofillOverlayContentService.getUnownedTopLayerItems(true);
+
+      expect(result).toEqual(mockElements);
+      expect(inlineMenuContentService.getUnownedTopLayerItems).toHaveBeenCalledWith(true);
+    });
+
+    it("returns undefined if inline menu content service is not available", () => {
+      const serviceWithoutInlineMenu = new AutofillOverlayContentService(
+        domQueryService,
+        domElementVisibilityService,
+        inlineMenuFieldQualificationService,
+      );
+
+      const result = serviceWithoutInlineMenu.getUnownedTopLayerItems();
+
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe("clearUserFilledFields", () => {
+    it("deletes all user filled fields", () => {
+      const mockElement1 = document.createElement("input") as FillableFormFieldElement;
+      const mockElement2 = document.createElement("input") as FillableFormFieldElement;
+      autofillOverlayContentService["userFilledFields"] = {
+        username: mockElement1,
+        password: mockElement2,
+      };
+
+      autofillOverlayContentService.clearUserFilledFields();
+
+      expect(autofillOverlayContentService["userFilledFields"]).toEqual({});
     });
   });
 
@@ -2049,7 +2128,7 @@ describe("AutofillOverlayContentService", () => {
       });
 
       it("skips focusing an element if no recently focused field exists", async () => {
-        autofillOverlayContentService["mostRecentlyFocusedField"] = undefined;
+        (autofillOverlayContentService as any)["mostRecentlyFocusedField"] = null;
 
         sendMockExtensionMessage({
           command: "redirectAutofillInlineMenuFocusOut",
@@ -2149,7 +2228,6 @@ describe("AutofillOverlayContentService", () => {
       });
 
       it("returns null if the sub frame URL cannot be parsed correctly", async () => {
-        delete globalThis.location;
         globalThis.location = { href: "invalid-base" } as Location;
         sendMockExtensionMessage(
           {

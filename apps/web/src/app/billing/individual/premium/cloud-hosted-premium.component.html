@@ -24,7 +24,7 @@
         <ul class="bwi-ul">
           <li>
             <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
-            {{ "premiumSignUpStorage" | i18n }}
+            {{ "premiumSignUpStorageV2" | i18n: `${(providedStorageGb$ | async)} GB` }}
           </li>
           <li>
             <i class="bwi bwi-check tw-text-success bwi-li" aria-hidden="true"></i>
@@ -82,7 +82,10 @@
             />
             <bit-hint>{{
               "additionalStorageIntervalDesc"
-                | i18n: "1 GB" : (storagePrice$ | async | currency: "$") : ("year" | i18n)
+                | i18n
+                  : `${(providedStorageGb$ | async)} GB`
+                  : (storagePrice$ | async | currency: "$")
+                  : ("year" | i18n)
             }}</bit-hint>
           </bit-form-field>
         </div>

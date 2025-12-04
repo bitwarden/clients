@@ -30,13 +30,19 @@ type HasAdditionalStorage = {
   annualPricePerAdditionalStorageGB: number;
 };
 
+type HasProvidedStorage = {
+  providedStorageGB: number;
+};
+
 type StandalonePasswordManager = HasFeatures &
-  HasAdditionalStorage & {
+  HasAdditionalStorage &
+  HasProvidedStorage & {
     type: "standalone";
     annualPrice: number;
   };
 
 type PackagedPasswordManager = HasFeatures &
+  HasProvidedStorage &
   HasAdditionalStorage & {
     type: "packaged";
     users: number;
@@ -52,6 +58,7 @@ type CustomPasswordManager = HasFeatures & {
 };
 
 type ScalablePasswordManager = HasFeatures &
+  HasProvidedStorage &
   HasAdditionalStorage & {
     type: "scalable";
     annualPricePerUser: number;

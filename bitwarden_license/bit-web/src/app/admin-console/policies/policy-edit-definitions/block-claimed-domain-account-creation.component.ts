@@ -25,6 +25,7 @@ export class BlockClaimedDomainAccountCreationPolicy extends BasePolicyEditDefin
 }
 
 @Component({
+  selector: "block-claimed-domain-account-creation-policy-edit",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "block-claimed-domain-account-creation.component.html",
   imports: [SharedModule],

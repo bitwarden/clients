@@ -496,9 +496,11 @@ describe("DefaultCipherEncryptionService", () => {
         .mockReturnValueOnce(expectedViews[0])
         .mockReturnValueOnce(expectedViews[1]);
 
-      const result = await cipherEncryptionService.decryptManyLegacy(ciphers, userId);
+      const [successfulDecryptions, failedDecryptions] =
+        await cipherEncryptionService.decryptManyLegacy(ciphers, userId);
 
-      expect(result).toEqual(expectedViews);
+      expect(successfulDecryptions).toEqual(expectedViews);
+      expect(failedDecryptions).toEqual([]);
       expect(mockSdkClient.vault().ciphers().decrypt).toHaveBeenCalledTimes(2);
       expect(CipherView.fromSdkCipherView).toHaveBeenCalledTimes(2);
     });

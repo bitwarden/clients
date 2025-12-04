@@ -17,6 +17,7 @@ export class DisablePersonalVaultExportPolicy extends BasePolicyEditDefinition {
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  selector: "disable-personal-vault-export-policy-edit",
   templateUrl: "disable-personal-vault-export.component.html",
   imports: [SharedModule],
 })

@@ -1,5 +1,5 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
-import { getByRole, userEvent } from "@storybook/test";
+import { getByRole, userEvent } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
