@@ -38,9 +38,21 @@ describe("SendFiltersNavComponent", () => {
     } as any;
 
     router = mock<Router>();
-    router.url = "/vault";
-    router.navigate = jest.fn().mockResolvedValue(true);
-    router.events = new Subject().asObservable();
+    Object.defineProperty(router, "url", {
+      value: "/vault",
+      writable: true,
+      configurable: true,
+    });
+    Object.defineProperty(router, "navigate", {
+      value: jest.fn().mockResolvedValue(true),
+      writable: true,
+      configurable: true,
+    });
+    Object.defineProperty(router, "events", {
+      value: new Subject().asObservable(),
+      writable: true,
+      configurable: true,
+    });
 
     await TestBed.configureTestingModule({
       imports: [SendFiltersNavComponent, NavigationModule, RouterModule.forRoot([])],
@@ -83,13 +95,13 @@ describe("SendFiltersNavComponent", () => {
 
   describe("isSendRouteActive", () => {
     it("returns true when on /new-sends route", () => {
-      router.url = "/new-sends";
+      Object.defineProperty(router, "url", { value: "/new-sends", configurable: true });
 
       expect(component["isSendRouteActive"]()).toBe(true);
     });
 
     it("returns false when not on /new-sends route", () => {
-      router.url = "/vault";
+      Object.defineProperty(router, "url", { value: "/vault", configurable: true });
 
       expect(component["isSendRouteActive"]()).toBe(false);
     });
@@ -97,7 +109,7 @@ describe("SendFiltersNavComponent", () => {
 
   describe("isTypeActive", () => {
     it("returns true when on send route and filter type matches", () => {
-      router.url = "/new-sends";
+      Object.defineProperty(router, "url", { value: "/new-sends", configurable: true });
       sendListFiltersService.filterForm.value = { sendType: SendType.Text };
 
       expect(component["isTypeActive"](SendType.Text)).toBe(true);
@@ -105,14 +117,14 @@ describe("SendFiltersNavComponent", () => {
     });
 
     it("returns false when not on send route", () => {
-      router.url = "/vault";
+      Object.defineProperty(router, "url", { value: "/vault", configurable: true });
       sendListFiltersService.filterForm.value = { sendType: SendType.Text };
 
       expect(component["isTypeActive"](SendType.Text)).toBe(false);
     });
 
     it("returns false when no type is selected", () => {
-      router.url = "/new-sends";
+      Object.defineProperty(router, "url", { value: "/new-sends", configurable: true });
       sendListFiltersService.filterForm.value = { sendType: null };
 
       expect(component["isTypeActive"](SendType.Text)).toBe(false);
@@ -120,63 +132,53 @@ describe("SendFiltersNavComponent", () => {
     });
   });
 
-  describe("selectAllAndNavigate", () => {
-    it("clears the sendType filter", () => {
-      component["selectAllAndNavigate"]();
+  describe("selectTypeAndNavigate", () => {
+    it("clears the sendType filter when called with no parameter", async () => {
+      await component["selectTypeAndNavigate"]();
 
       expect(sendListFiltersService.filterForm.patchValue).toHaveBeenCalledWith({
         sendType: null,
       });
     });
 
-    it("navigates to /new-sends when not on send route", () => {
-      router.url = "/vault";
-
-      component["selectAllAndNavigate"]();
-
-      expect(router.navigate).toHaveBeenCalledWith(["/new-sends"]);
-    });
-
-    it("does not navigate when already on send route", () => {
-      router.url = "/new-sends";
-
-      component["selectAllAndNavigate"]();
-
-      expect(router.navigate).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("selectTypeAndNavigate", () => {
-    it("updates filter form with selected type", () => {
-      component["selectTypeAndNavigate"](SendType.Text);
+    it("updates filter form with Text type", async () => {
+      await component["selectTypeAndNavigate"](SendType.Text);
 
       expect(sendListFiltersService.filterForm.patchValue).toHaveBeenCalledWith({
         sendType: SendType.Text,
       });
     });
 
-    it("updates filter form with File type", () => {
-      component["selectTypeAndNavigate"](SendType.File);
+    it("updates filter form with File type", async () => {
+      await component["selectTypeAndNavigate"](SendType.File);
 
       expect(sendListFiltersService.filterForm.patchValue).toHaveBeenCalledWith({
         sendType: SendType.File,
       });
     });
 
-    it("navigates to /new-sends when not on send route", () => {
-      router.url = "/vault";
+    it("navigates to /new-sends when not on send route", async () => {
+      Object.defineProperty(router, "url", { value: "/vault", configurable: true });
 
-      component["selectTypeAndNavigate"](SendType.Text);
+      await component["selectTypeAndNavigate"](SendType.Text);
 
       expect(router.navigate).toHaveBeenCalledWith(["/new-sends"]);
     });
 
-    it("does not navigate when already on send route", () => {
-      router.url = "/new-sends";
+    it("does not navigate when already on send route", async () => {
+      Object.defineProperty(router, "url", { value: "/new-sends", configurable: true });
 
-      component["selectTypeAndNavigate"](SendType.Text);
+      await component["selectTypeAndNavigate"](SendType.Text);
 
       expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it("navigates when clearing filter from different route", async () => {
+      Object.defineProperty(router, "url", { value: "/vault", configurable: true });
+
+      await component["selectTypeAndNavigate"](); // No parameter = clear filter
+
+      expect(router.navigate).toHaveBeenCalledWith(["/new-sends"]);
     });
   });
 });

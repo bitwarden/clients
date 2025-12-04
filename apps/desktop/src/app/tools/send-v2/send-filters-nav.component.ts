@@ -40,25 +40,14 @@ export class SendFiltersNavComponent {
     return this.isSendRouteActive() && this.filtersService.filterForm.value.sendType === type;
   }
 
-  // Parent "Send" click: Clear filter, ensure on send route
-  protected selectAllAndNavigate(): void {
-    this.filtersService.filterForm.patchValue({ sendType: null });
+  // Set filter and navigate to send route if needed
+  // - No type parameter (undefined): clears filter (shows all sends)
+  // - Specific type: filters to that send type
+  protected async selectTypeAndNavigate(type?: SendType): Promise<void> {
+    this.filtersService.filterForm.patchValue({ sendType: type !== undefined ? type : null });
 
     if (!this.isSendRouteActive()) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.router.navigate(["/new-sends"]);
-    }
-  }
-
-  // Child "Text"/"File" click: Set filter, ensure on send route
-  protected selectTypeAndNavigate(type: SendType): void {
-    this.filtersService.filterForm.patchValue({ sendType: type });
-
-    if (!this.isSendRouteActive()) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.router.navigate(["/new-sends"]);
+      await this.router.navigate(["/new-sends"]);
     }
   }
 }
