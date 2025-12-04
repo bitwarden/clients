@@ -1,9 +1,11 @@
 #!/usr/bin/env pwsh
 param(
+    [Parameter(Mandatory=$true)]
+    [System.Runtime.InteropServices.Architecture]$Architecture,
     $CertificatePath,
     $CertificatePassword,
     $ElectronConfigFile="electron-builder.json",
-    $Target="debug"
+    [Switch]$Release=$false
 )
 $ErrorActionPreference = "Stop"
 $PSNativeCommandUseErrorActionPreference = $true
@@ -22,10 +24,10 @@ $assetsDir = Get-Item $builderConfig.directories.buildResources
 $buildDir = Get-Item $builderConfig.directories.app
 $outDir = Join-Path (Get-Location) ($builderConfig.directories.output ?? "dist")
 
-if ($target -eq "release") {
-    $targetStr = "--release"
+if ($Release) {
+    $buildConfiguration = "--release"
 }
-$arch = 'arm64'
+$arch = "$Architecture".ToLower()
 $ext = "appx"
 $version = Get-Date -Format "yyyy.M.d.Hmm"
 # $buildNumber = Get-Date -Format "HHmm"
@@ -34,7 +36,15 @@ $productName = $builderConfig.productName
 $artifactName = "${productName}-$($packageConfig.version)-${arch}.$ext"
 
 Write-Host "Building native code"
-npm run build-native-win-cross -- $targetStr
+$rustTarget = switch ($Architecture) {
+    X64 { "x86_64-pc-windows-msvc" }
+    ARM64 { "aarch64-pc-windows-msvc" }
+    default {
+        Write-Error "Unsupported architecture: $Architecture. Supported architectures are x64 and arm64"
+        Exit(1)
+    }
+}
+npm run build-native-win-cross -- $buildConfiguration "--target=$rustTarget"
 
 Write-Host "Building Javascript code"
 if ($target -eq "release") {
@@ -55,7 +65,12 @@ New-Item -Type Directory (Join-Path $outDir "appx")
 
 Write-Host "Building Appx directory structure"
 $appxDir = (Join-Path $outDir appx/app)
-Move-Item (Join-Path $outDir "win-${arch}-unpacked") $appxDir
+if ($arch -eq "x64") {
+    Move-Item (Join-Path $outDir "win-unpacked") $appxDir
+}
+else {
+    Move-Item (Join-Path $outDir "win-${arch}-unpacked") $appxDir
+}
 
 Write-Host "Copying Assets"
 New-Item -Type Directory (Join-Path $outDir appx/assets)
@@ -103,7 +118,7 @@ else {
 $endTime = Get-Date
 $elapsed = $endTime - $startTime
 Write-Host "Successfully packaged $(Get-Item $outfile)"
-Write-Host ("Finished in $($elapsed.ToString('mm')) minutes and $($elapsed.ToString('ss')).$($elapsed.ToString('fff')) seconds")
+Write-Host ("Finished at $($endTime.ToString('HH:mm:ss')) in $($elapsed.ToString('mm')) minutes and $($elapsed.ToString('ss')).$($elapsed.ToString('fff')) seconds")
 }
 finally {
     Set-Location -Path $originalLocation
