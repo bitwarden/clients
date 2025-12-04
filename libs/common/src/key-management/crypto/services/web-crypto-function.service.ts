@@ -263,38 +263,31 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
   async rsaEncrypt(
     data: Uint8Array,
     publicKey: Uint8Array,
-    algorithm: "sha1" | "sha256",
+    _algorithm: "sha1",
   ): Promise<Uint8Array> {
-    // Note: Edge browser requires that we specify name and hash for both key import and decrypt.
-    // We cannot use the proper types here.
-    const rsaParams = {
-      name: "RSA-OAEP",
-      hash: { name: this.toWebCryptoAlgorithm(algorithm) },
-    };
-    const impKey = await this.subtle.importKey("spki", publicKey, rsaParams, false, ["encrypt"]);
-    const buffer = await this.subtle.encrypt(rsaParams, impKey, data);
-    return new Uint8Array(buffer);
+    await SdkLoadService.Ready;
+    return PureCrypto.rsa_encrypt_data(data, publicKey);
   }
 
   async rsaDecrypt(
     data: Uint8Array,
     privateKey: Uint8Array,
-    algorithm: "sha1" | "sha256",
+    _algorithm: "sha1",
   ): Promise<Uint8Array> {
-    // Note: Edge browser requires that we specify name and hash for both key import and decrypt.
-    // We cannot use the proper types here.
-    const rsaParams = {
-      name: "RSA-OAEP",
-      hash: { name: this.toWebCryptoAlgorithm(algorithm) },
-    };
-    const impKey = await this.subtle.importKey("pkcs8", privateKey, rsaParams, false, ["decrypt"]);
-    const buffer = await this.subtle.decrypt(rsaParams, impKey, data);
-    return new Uint8Array(buffer);
+    await SdkLoadService.Ready;
+    return PureCrypto.rsa_decrypt_data(data, privateKey);
   }
 
   async rsaExtractPublicKey(privateKey: Uint8Array): Promise<UnsignedPublicKey> {
     await SdkLoadService.Ready;
     return PureCrypto.rsa_extract_public_key(privateKey) as UnsignedPublicKey;
+  }
+
+  async rsaGenerateKeyPair(_length: 2048): Promise<[UnsignedPublicKey, Uint8Array]> {
+    await SdkLoadService.Ready;
+    const privateKey = PureCrypto.rsa_generate_keypair();
+    const publicKey = await this.rsaExtractPublicKey(privateKey);
+    return [publicKey, privateKey];
   }
 
   async aesGenerateKey(bitLength = 128 | 192 | 256 | 512): Promise<CsprngArray> {
@@ -312,20 +305,6 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     const key = await this.subtle.generateKey(aesParams, true, ["encrypt", "decrypt"]);
     const rawKey = await this.subtle.exportKey("raw", key);
     return new Uint8Array(rawKey) as CsprngArray;
-  }
-
-  async rsaGenerateKeyPair(length: 1024 | 2048 | 4096): Promise<[Uint8Array, Uint8Array]> {
-    const rsaParams = {
-      name: "RSA-OAEP",
-      modulusLength: length,
-      publicExponent: new Uint8Array([0x01, 0x00, 0x01]), // 65537
-      // Have to specify some algorithm
-      hash: { name: this.toWebCryptoAlgorithm("sha1") },
-    };
-    const keyPair = await this.subtle.generateKey(rsaParams, true, ["encrypt", "decrypt"]);
-    const publicKey = await this.subtle.exportKey("spki", keyPair.publicKey);
-    const privateKey = await this.subtle.exportKey("pkcs8", keyPair.privateKey);
-    return [new Uint8Array(publicKey), new Uint8Array(privateKey)];
   }
 
   randomBytes(length: number): Promise<CsprngArray> {

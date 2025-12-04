@@ -30,6 +30,7 @@ import {
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -142,6 +143,12 @@ export default {
           useValue: {
             restricted$: of([]), // No restricted item types for this story
             isCipherRestricted: () => false, // No restrictions for this story
+          },
+        },
+        {
+          provide: CipherArchiveService,
+          useValue: {
+            hasArchiveFlagEnabled$: of(true),
           },
         },
       ],

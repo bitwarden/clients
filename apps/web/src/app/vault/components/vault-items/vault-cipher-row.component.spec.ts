@@ -72,6 +72,7 @@ describe("VaultCipherRowComponent", () => {
 
     fixture = TestBed.createComponent(VaultCipherRowComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput("archiveEnabled", false);
     overlayContainer = TestBed.inject(OverlayContainer);
   });
 

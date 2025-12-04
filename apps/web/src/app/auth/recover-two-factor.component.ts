@@ -108,7 +108,7 @@ export class RecoverTwoFactorComponent implements OnInit {
         message: this.i18nService.t("twoStepRecoverDisabled"),
       });
 
-      await this.loginSuccessHandlerService.run(authResult.userId);
+      await this.loginSuccessHandlerService.run(authResult.userId, this.masterPassword);
 
       await this.router.navigate(["/settings/security/two-factor"]);
     } catch (error: unknown) {
