@@ -12,8 +12,10 @@ import {
   tap,
 } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -54,6 +56,7 @@ export class PhishingDetectionService {
     billingAccountProfileStateService: BillingAccountProfileStateService,
     configService: ConfigService,
     logService: LogService,
+    organizationService: OrganizationService,
     phishingDataService: PhishingDataService,
     messageListener: MessageListener,
   ) {
@@ -118,6 +121,10 @@ export class PhishingDetectionService {
       .messages$(PHISHING_DETECTION_CANCEL_COMMAND)
       .pipe(switchMap((message) => BrowserApi.closeTab(message.tabId)));
 
+    // The active account only has access if phishing detection is enabled in feature flags
+    // The active account has access to the phishing detection through one of the following sources
+    // 1. Personal Premium subscription
+    // 2. An organization is a Family plan with usePhishingBlocker AND usersGetPremium enabled
     const activeAccountHasAccess$ = combineLatest([
       accountService.activeAccount$,
       configService.getFeatureFlag$(FeatureFlag.PhishingDetection),
@@ -127,9 +134,25 @@ export class PhishingDetectionService {
           logService.debug("[PhishingDetectionService] No active account.");
           return of(false);
         }
-        return billingAccountProfileStateService
-          .hasPremiumFromAnySource$(account.id)
-          .pipe(map((hasPremium) => hasPremium && featureEnabled));
+
+        return combineLatest([
+          billingAccountProfileStateService.hasPremiumPersonally$(account.id),
+          organizationService.organizations$(account.id),
+        ]).pipe(
+          map(([hasPremium, organizations]) => {
+            // Check if any organization for the user passes requirements for phishing detection
+            let hasPhishingDetectionInOrg = false;
+            if (organizations && organizations.length > 0) {
+              hasPhishingDetectionInOrg = organizations.some(
+                (org) =>
+                  org.usePhishingBlocker &&
+                  org.usersGetPremium &&
+                  org.productTierType === ProductTierType.Families,
+              );
+            }
+            return featureEnabled && (hasPremium || hasPhishingDetectionInOrg);
+          }),
+        );
       }),
     );
 
