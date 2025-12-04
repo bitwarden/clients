@@ -237,7 +237,7 @@ describe("PremiumUpgradeDialogComponent", () => {
       const cardDetails = await firstValueFrom(selfHostedComponent["cardDetails$"]);
 
       expect(cardDetails?.title).toBe("Premium");
-      expect(cardDetails?.price).toBeNull();
+      expect(cardDetails?.price).toBeUndefined();
       expect(cardDetails?.features).toEqual(["Feature 1", "Feature 2"]);
     });
   });

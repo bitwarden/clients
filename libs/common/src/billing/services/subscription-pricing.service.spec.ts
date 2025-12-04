@@ -339,6 +339,7 @@ describe("DefaultSubscriptionPricingService", () => {
   ) => {
     envService.environment$ = of({
       getRegion: () => region,
+      isCloud: () => region !== Region.SelfHosted,
     } as any);
   };
 

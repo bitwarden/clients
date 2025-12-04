@@ -3,12 +3,12 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { catchError, EMPTY, firstValueFrom, map, Observable } from "rxjs";
 
+import { SubscriptionPricingCardDetails } from "@bitwarden/angular/billing/types/subscription-pricing-card-details";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierIds,
-  SubscriptionCadence,
   SubscriptionCadenceIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -16,7 +16,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   ButtonModule,
-  ButtonType,
   CenterPositionStrategy,
   DialogModule,
   DialogRef,
@@ -26,14 +25,6 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-
-type CardDetails = {
-  title: string;
-  tagline: string;
-  price: { amount: number; cadence: SubscriptionCadence };
-  button: { text: string; type: ButtonType; icon?: { type: string; position: "before" | "after" } };
-  features: string[];
-};
 
 @Component({
   selector: "billing-premium-upgrade-dialog",
@@ -51,9 +42,8 @@ type CardDetails = {
   templateUrl: "./premium-upgrade-dialog.component.html",
 })
 export class PremiumUpgradeDialogComponent {
-  protected cardDetails$: Observable<CardDetails | null> = this.subscriptionPricingService
-    .getPersonalSubscriptionPricingTiers$()
-    .pipe(
+  protected cardDetails$: Observable<SubscriptionPricingCardDetails | null> =
+    this.subscriptionPricingService.getPersonalSubscriptionPricingTiers$().pipe(
       map((tiers) => tiers.find((tier) => tier.id === PersonalSubscriptionPricingTierIds.Premium)),
       map((tier) => this.mapPremiumTierToCardDetails(tier!)),
       catchError((error: unknown) => {
@@ -91,7 +81,9 @@ export class PremiumUpgradeDialogComponent {
     this.dialogRef.close();
   }
 
-  private mapPremiumTierToCardDetails(tier: PersonalSubscriptionPricingTier): CardDetails {
+  private mapPremiumTierToCardDetails(
+    tier: PersonalSubscriptionPricingTier,
+  ): SubscriptionPricingCardDetails {
     return {
       title: tier.name,
       tagline: tier.description,
@@ -100,7 +92,7 @@ export class PremiumUpgradeDialogComponent {
             amount: tier.passwordManager.annualPrice / 12,
             cadence: SubscriptionCadenceIds.Monthly,
           }
-        : null,
+        : undefined,
       button: {
         text: this.i18nService.t("upgradeNow"),
         type: "primary",
