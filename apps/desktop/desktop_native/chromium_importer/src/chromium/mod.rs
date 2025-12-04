@@ -99,9 +99,7 @@ pub async fn import_logins(
     // MAS builds will use the formerly created security bookmark
     #[cfg(target_os = "macos")]
     let _access = if _mas_build {
-        Some(platform::sandbox::ScopedBrowserAccess::resume(
-            browser_name,
-        ).await?)
+        Some(platform::sandbox::ScopedBrowserAccess::resume(browser_name).await?)
     } else {
         None
     };

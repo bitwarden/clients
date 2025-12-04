@@ -94,9 +94,10 @@ pub mod sandbox {
                 }),
             };
 
-            let has_access_output = desktop_objc::run_command(serde_json::to_string(&has_access_input)?)
-                .await
-                .map_err(|e| anyhow!("Failed to call ObjC command: {}", e))?;
+            let has_access_output =
+                desktop_objc::run_command(serde_json::to_string(&has_access_input)?)
+                    .await
+                    .map_err(|e| anyhow!("Failed to call ObjC command: {}", e))?;
 
             let has_access_result: CommandResult<HasStoredAccessResponse> =
                 serde_json::from_str(&has_access_output)
