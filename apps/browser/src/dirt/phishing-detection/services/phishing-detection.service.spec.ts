@@ -85,7 +85,7 @@ describe("PhishingDetectionService", () => {
   // });
 
   // TODO
-  // it("shout not enable phishing detection for safari", () => {")
+  // it("should not enable phishing detection for safari", () => {
   //
   // });
 });
