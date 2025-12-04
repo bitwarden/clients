@@ -1,8 +1,6 @@
 import { BehaviorSubject, firstValueFrom, Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { NotificationType } from "@bitwarden/common/enums";
@@ -23,7 +21,6 @@ describe("Default task service", () => {
 
   const userId = "user-id" as UserId;
   const mockApiSend = jest.fn();
-  const mockGetAllOrgs$ = jest.fn();
   const mockAuthStatuses$ = new BehaviorSubject<Record<UserId, AuthenticationStatus>>({});
   const mockNotifications$ = new Subject<readonly [NotificationResponse, UserId]>();
   const mockMessages$ = new Subject<Message<Record<string, unknown>>>();
@@ -31,13 +28,11 @@ describe("Default task service", () => {
 
   beforeEach(async () => {
     mockApiSend.mockClear();
-    mockGetAllOrgs$.mockClear();
 
     fakeStateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
     service = new DefaultTaskService(
       fakeStateProvider,
       { send: mockApiSend } as unknown as ApiService,
-      { organizations$: mockGetAllOrgs$ } as unknown as OrganizationService,
       { authStatuses$: mockAuthStatuses$.asObservable() } as unknown as AuthService,
       {
         notifications$: mockNotifications$.asObservable(),
@@ -46,74 +41,7 @@ describe("Default task service", () => {
     );
   });
 
-  describe("tasksEnabled$", () => {
-    it("should emit true if any organization uses risk insights", async () => {
-      mockGetAllOrgs$.mockReturnValue(
-        new BehaviorSubject([
-          {
-            useAccessIntelligence: false,
-          },
-          {
-            useAccessIntelligence: true,
-          },
-        ] as Organization[]),
-      );
-
-      const { tasksEnabled$ } = service;
-
-      const result = await firstValueFrom(tasksEnabled$("user-id" as UserId));
-
-      expect(result).toBe(true);
-    });
-
-    it("should emit false if no organization uses risk insights", async () => {
-      mockGetAllOrgs$.mockReturnValue(
-        new BehaviorSubject([
-          {
-            useAccessIntelligence: false,
-          },
-          {
-            useAccessIntelligence: false,
-          },
-        ] as Organization[]),
-      );
-
-      const { tasksEnabled$ } = service;
-
-      const result = await firstValueFrom(tasksEnabled$("user-id" as UserId));
-
-      expect(result).toBe(false);
-    });
-  });
-
   describe("tasks$", () => {
-    beforeEach(() => {
-      mockGetAllOrgs$.mockReturnValue(
-        new BehaviorSubject([
-          {
-            useAccessIntelligence: true,
-          },
-        ] as Organization[]),
-      );
-    });
-
-    it("should return an empty array if tasks are not enabled", async () => {
-      mockGetAllOrgs$.mockReturnValue(
-        new BehaviorSubject([
-          {
-            useAccessIntelligence: false,
-          },
-        ] as Organization[]),
-      );
-
-      const { tasks$ } = service;
-
-      const result = await firstValueFrom(tasks$("user-id" as UserId));
-
-      expect(result.length).toBe(0);
-      expect(mockApiSend).not.toHaveBeenCalled();
-    });
-
     it("should fetch tasks from the API when the state is null", async () => {
       mockApiSend.mockResolvedValue({
         data: [
@@ -159,33 +87,6 @@ describe("Default task service", () => {
   });
 
   describe("pendingTasks$", () => {
-    beforeEach(() => {
-      mockGetAllOrgs$.mockReturnValue(
-        new BehaviorSubject([
-          {
-            useAccessIntelligence: true,
-          },
-        ] as Organization[]),
-      );
-    });
-
-    it("should return an empty array if tasks are not enabled", async () => {
-      mockGetAllOrgs$.mockReturnValue(
-        new BehaviorSubject([
-          {
-            useAccessIntelligence: false,
-          },
-        ] as Organization[]),
-      );
-
-      const { pendingTasks$ } = service;
-
-      const result = await firstValueFrom(pendingTasks$("user-id" as UserId));
-
-      expect(result.length).toBe(0);
-      expect(mockApiSend).not.toHaveBeenCalled();
-    });
-
     it("should filter tasks to only pending tasks", async () => {
       fakeStateProvider.singleUser.mockFor("user-id" as UserId, SECURITY_TASKS, [
         {
@@ -309,7 +210,6 @@ describe("Default task service", () => {
         [userId]: AuthenticationStatus.Locked,
       });
 
-      service.tasksEnabled$ = jest.fn(() => new BehaviorSubject(true));
       const notificationHelper$ = (service["securityTaskNotifications$"] = jest.fn());
       const syncCompletedHelper$ = (service["syncCompletedMessage$"] = jest.fn());
 
@@ -320,27 +220,10 @@ describe("Default task service", () => {
       subscription.unsubscribe();
     });
 
-    it("should not subscribe to notifications when no users have tasks enabled", () => {
+    it("should subscribe to notifications when there are unlocked users", () => {
       mockAuthStatuses$.next({
         [userId]: AuthenticationStatus.Unlocked,
       });
-
-      service.tasksEnabled$ = jest.fn(() => new BehaviorSubject(false));
-      const notificationHelper$ = (service["securityTaskNotifications$"] = jest.fn());
-      const syncCompletedHelper$ = (service["syncCompletedMessage$"] = jest.fn());
-
-      const subscription = service.listenForTaskNotifications();
-
-      expect(notificationHelper$).not.toHaveBeenCalled();
-      expect(syncCompletedHelper$).not.toHaveBeenCalled();
-      subscription.unsubscribe();
-    });
-
-    it("should subscribe to notifications when there are unlocked users with tasks enabled", () => {
-      mockAuthStatuses$.next({
-        [userId]: AuthenticationStatus.Unlocked,
-      });
-      service.tasksEnabled$ = jest.fn(() => new BehaviorSubject(true));
 
       const notificationHelper$ = (service["securityTaskNotifications$"] = jest.fn());
       const syncCompletedHelper$ = (service["syncCompletedMessage$"] = jest.fn());
@@ -357,7 +240,6 @@ describe("Default task service", () => {
         mockAuthStatuses$.next({
           [userId]: AuthenticationStatus.Unlocked,
         });
-        service.tasksEnabled$ = jest.fn(() => new BehaviorSubject(true));
 
         const syncCompletedHelper$ = (service["syncCompletedMessage$"] = jest.fn(
           () => new Subject(),
@@ -382,7 +264,6 @@ describe("Default task service", () => {
         mockAuthStatuses$.next({
           [userId]: AuthenticationStatus.Unlocked,
         });
-        service.tasksEnabled$ = jest.fn(() => new BehaviorSubject(true));
 
         const syncCompletedHelper$ = (service["syncCompletedMessage$"] = jest.fn(
           () => new Subject(),
@@ -407,7 +288,6 @@ describe("Default task service", () => {
         mockAuthStatuses$.next({
           [userId]: AuthenticationStatus.Unlocked,
         });
-        service.tasksEnabled$ = jest.fn(() => new BehaviorSubject(true));
 
         const syncCompletedHelper$ = (service["syncCompletedMessage$"] = jest.fn(
           () => new Subject(),
@@ -434,7 +314,6 @@ describe("Default task service", () => {
         mockAuthStatuses$.next({
           [userId]: AuthenticationStatus.Unlocked,
         });
-        service.tasksEnabled$ = jest.fn(() => new BehaviorSubject(true));
 
         const notificationHelper$ = (service["securityTaskNotifications$"] = jest.fn(
           () => new Subject(),
@@ -460,7 +339,6 @@ describe("Default task service", () => {
         mockAuthStatuses$.next({
           [userId]: AuthenticationStatus.Unlocked,
         });
-        service.tasksEnabled$ = jest.fn(() => new BehaviorSubject(true));
 
         const notificationHelper$ = (service["securityTaskNotifications$"] = jest.fn(
           () => new Subject(),
@@ -484,7 +362,6 @@ describe("Default task service", () => {
         mockAuthStatuses$.next({
           [userId]: AuthenticationStatus.Unlocked,
         });
-        service.tasksEnabled$ = jest.fn(() => new BehaviorSubject(true));
 
         const notificationHelper$ = (service["securityTaskNotifications$"] = jest.fn(
           () => new Subject(),
@@ -510,7 +387,6 @@ describe("Default task service", () => {
         mockAuthStatuses$.next({
           [userId]: AuthenticationStatus.Unlocked,
         });
-        service.tasksEnabled$ = jest.fn(() => new BehaviorSubject(true));
 
         const notificationHelper$ = (service["securityTaskNotifications$"] = jest.fn(
           () => new Subject(),
