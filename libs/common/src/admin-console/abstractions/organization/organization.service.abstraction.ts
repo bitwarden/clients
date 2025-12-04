@@ -1,6 +1,5 @@
 import { combineLatest, map, Observable } from "rxjs";
 
-import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
@@ -51,7 +50,7 @@ export function canAccessBillingTab(org: Organization): boolean {
  * @returns If true can access the Access Intelligence feature
  */
 export function canAccessAccessIntelligence(org: Organization): boolean {
-  return org.productTierType === ProductTierType.Enterprise && org.canAccessReports;
+  return org.canUseAccessIntelligence && org.canAccessReports;
 }
 
 export function canAccessOrgAdmin(org: Organization): boolean {

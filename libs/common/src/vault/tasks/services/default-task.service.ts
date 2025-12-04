@@ -1,6 +1,7 @@
-import { filter, map, merge, Subscription, switchMap } from "rxjs";
+import { distinctUntilChanged, filter, map, merge, Subscription, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { NotificationType } from "@bitwarden/common/enums";
@@ -29,10 +30,18 @@ export class DefaultTaskService implements TaskService {
   constructor(
     private stateProvider: StateProvider,
     private apiService: ApiService,
+    private organizationService: OrganizationService,
     private authService: AuthService,
     private notificationService: ServerNotificationsService,
     private messageListener: MessageListener,
   ) {}
+
+  tasksEnabled$ = perUserCache$((userId) => {
+    return this.organizationService.organizations$(userId).pipe(
+      map((orgs) => orgs.some((o) => o.canUseAccessIntelligence)),
+      distinctUntilChanged(),
+    );
+  });
 
   tasks$ = perUserCache$((userId) => {
     return this.taskState(userId).state$.pipe(
