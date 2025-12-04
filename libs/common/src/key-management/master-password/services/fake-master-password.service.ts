@@ -33,6 +33,10 @@ export class FakeMasterPasswordService implements InternalMasterPasswordServiceA
     this.masterKeyHashSubject.next(initialMasterKeyHash);
   }
 
+  userHasMasterPassword(userId: UserId): Promise<boolean> {
+    return this.mock.userHasMasterPassword(userId);
+  }
+
   emailToSalt(email: string): MasterPasswordSalt {
     return this.mock.emailToSalt(email);
   }
