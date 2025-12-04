@@ -165,7 +165,9 @@ export class CipherService implements CipherServiceAbstraction {
           }),
           switchMap(async (ciphers) => {
             const [decrypted, failures] = await this.decryptCiphersWithSdk(ciphers, userId, false);
-            await this.setFailedDecryptedCiphers(failures, userId);
+            void this.setFailedDecryptedCiphers(failures, userId);
+            // Trigger full decryption and indexing in background
+            void this.getAllDecrypted(userId);
             return decrypted;
           }),
           tap((decrypted) => {
