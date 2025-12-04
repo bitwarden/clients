@@ -6,14 +6,6 @@ import { SecurityTask } from "../models";
 
 export abstract class TaskService {
   /**
-   * Observable indicating if tasks are enabled for a given user.
-   *
-   * @remarks Internally, this checks the user's organization details to determine if tasks are enabled.
-   * @param userId
-   */
-  abstract tasksEnabled$(userId: UserId): Observable<boolean>;
-
-  /**
    * Observable of all tasks for a given user.
    * @param userId
    */

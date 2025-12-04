@@ -1,17 +1,6 @@
-import {
-  combineLatest,
-  filter,
-  map,
-  merge,
-  Observable,
-  of,
-  Subscription,
-  switchMap,
-  distinctUntilChanged,
-} from "rxjs";
+import { filter, map, merge, Subscription, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { NotificationType } from "@bitwarden/common/enums";
@@ -40,37 +29,22 @@ export class DefaultTaskService implements TaskService {
   constructor(
     private stateProvider: StateProvider,
     private apiService: ApiService,
-    private organizationService: OrganizationService,
     private authService: AuthService,
     private notificationService: ServerNotificationsService,
     private messageListener: MessageListener,
   ) {}
 
-  tasksEnabled$ = perUserCache$((userId) => {
-    return this.organizationService.organizations$(userId).pipe(
-      map((orgs) => orgs.some((o) => o.useAccessIntelligence)),
-      distinctUntilChanged(),
-    );
-  });
-
   tasks$ = perUserCache$((userId) => {
-    return this.tasksEnabled$(userId).pipe(
-      switchMap((enabled) => {
-        if (!enabled) {
-          return of([]);
+    return this.taskState(userId).state$.pipe(
+      switchMap(async (tasks) => {
+        if (tasks == null) {
+          await this.fetchTasksFromApi(userId);
+          return null;
         }
-        return this.taskState(userId).state$.pipe(
-          switchMap(async (tasks) => {
-            if (tasks == null) {
-              await this.fetchTasksFromApi(userId);
-              return null;
-            }
-            return tasks;
-          }),
-          filterOutNullish(),
-          map((tasks) => tasks.map((t) => new SecurityTask(t))),
-        );
+        return tasks;
       }),
+      filterOutNullish(),
+      map((tasks) => tasks.map((t) => new SecurityTask(t))),
     );
   });
 
@@ -135,22 +109,6 @@ export class DefaultTaskService implements TaskService {
   }
 
   /**
-   * Helper observable that filters the list of unlocked user IDs to only those with tasks enabled.
-   * @private
-   */
-  private getOnlyTaskEnabledUsers = switchMap<UserId[], Observable<UserId[]>>((unlockedUserIds) => {
-    if (unlockedUserIds.length === 0) {
-      return of([]);
-    }
-
-    return combineLatest(
-      unlockedUserIds.map((userId) =>
-        this.tasksEnabled$(userId).pipe(map((enabled) => (enabled ? userId : null))),
-      ),
-    ).pipe(map((userIds) => userIds.filter((userId) => userId !== null) as UserId[]));
-  });
-
-  /**
    * Helper observable that emits whenever a security task notification is received for a user in the provided list.
    * @private
    */
@@ -183,7 +141,6 @@ export class DefaultTaskService implements TaskService {
     return this.authService.authStatuses$
       .pipe(
         getUnlockedUserIds,
-        this.getOnlyTaskEnabledUsers,
         filter((allowedUserIds) => allowedUserIds.length > 0),
         switchMap((allowedUserIds) =>
           merge(
