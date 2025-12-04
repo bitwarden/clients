@@ -11526,6 +11526,9 @@
   "unArchive": {
     "message": "Unarchive"
   },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
+  },
   "itemsInArchive": {
     "message": "Items in archive"
   },

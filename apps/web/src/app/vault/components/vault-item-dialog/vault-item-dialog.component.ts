@@ -222,10 +222,10 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   protected collections?: CollectionView[];
 
   /**
-   * Flag to indicate if the user has access to attachments via a premium subscription.
+   * Flag to indicate if the user has a premium subscription. Using for access to attachments, and archives
    * @protected
    */
-  protected canAccessAttachments$ = this.accountService.activeAccount$.pipe(
+  protected userHasPremium$ = this.accountService.activeAccount$.pipe(
     switchMap((account) =>
       this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
     ),
@@ -252,6 +252,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   protected showRestore: boolean;
+
+  protected cipherIsArchived: boolean;
 
   protected get loadingForm() {
     return this.loadForm && !this.formReady;
@@ -363,6 +365,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.filter = await firstValueFrom(this.routedVaultFilterService.filter$);
 
     this.showRestore = await this.canUserRestore();
+    this.cipherIsArchived = this.cipher.isArchived;
     this.performingInitialLoad = false;
   }
 
@@ -468,7 +471,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   };
 
   openAttachmentsDialog = async () => {
-    const canAccessAttachments = await firstValueFrom(this.canAccessAttachments$);
+    const canAccessAttachments = await firstValueFrom(this.userHasPremium$);
 
     if (!canAccessAttachments) {
       await this.premiumUpgradeService.promptForPremium(this.cipher?.organizationId);

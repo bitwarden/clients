@@ -2,6 +2,10 @@
   <span bitDialogTitle aria-live="polite">
     {{ title }}
   </span>
+  @if (cipherIsArchived) {
+    <span bitBadge bitDialogBadge> {{ "archiveNoun" | i18n }} </span>
+  }
+
   <div bitDialogContent #dialogContent>
     <app-cipher-view
       *ngIf="showCipherView"
@@ -49,13 +53,20 @@
         {{ "edit" | i18n }}
       </button>
     </ng-container>
+
+    @if (cipherIsArchived && !(userHasPremium$ | async) && !showCipherView && !showRestore) {
+      <button bitButton type="submit" form="cipherForm" buttonType="primary" #submitBtn>
+        {{ "unArchiveAndSave" | i18n }}
+      </button>
+    }
+
     <button
       bitButton
       type="submit"
       form="cipherForm"
       buttonType="primary"
       #submitBtn
-      [hidden]="showCipherView || showRestore"
+      [hidden]="showCipherView || showRestore || (cipherIsArchived && !(userHasPremium$ | async))"
     >
       {{ "save" | i18n }}
     </button>
