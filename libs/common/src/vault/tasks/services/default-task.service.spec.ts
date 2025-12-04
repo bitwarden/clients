@@ -318,6 +318,22 @@ describe("Default task service", () => {
       subscription.unsubscribe();
     });
 
+    it("should not subscribe to notifications when no users have tasks enabled", () => {
+      mockAuthStatuses$.next({
+        [userId]: AuthenticationStatus.Unlocked,
+      });
+
+      service.tasksEnabled$ = jest.fn(() => new BehaviorSubject(false));
+      const notificationHelper$ = (service["securityTaskNotifications$"] = jest.fn());
+      const syncCompletedHelper$ = (service["syncCompletedMessage$"] = jest.fn());
+
+      const subscription = service.listenForTaskNotifications();
+
+      expect(notificationHelper$).not.toHaveBeenCalled();
+      expect(syncCompletedHelper$).not.toHaveBeenCalled();
+      subscription.unsubscribe();
+    });
+
     it("should subscribe to notifications when there are unlocked users with tasks enabled", () => {
       mockAuthStatuses$.next({
         [userId]: AuthenticationStatus.Unlocked,
