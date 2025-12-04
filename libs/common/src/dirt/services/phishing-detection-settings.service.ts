@@ -15,7 +15,7 @@ const ENABLE_PHISHING_DETECTION = new UserKeyDefinition(
   "enablePhishingDetection",
   {
     deserializer: (value: boolean) => value ?? true, // Default: enabled
-    clearOn: ["logout"],
+    clearOn: [],
   },
 );
 
