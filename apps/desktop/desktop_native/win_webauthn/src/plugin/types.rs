@@ -9,9 +9,8 @@ use std::{mem::MaybeUninit, ptr::NonNull};
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use windows::{
     core::{GUID, HRESULT},
-    Win32::{Foundation::HWND, System::LibraryLoader::GetProcAddress},
+    Win32::Foundation::HWND,
 };
-use windows_core::s;
 
 use crate::{
     types::UserId,
