@@ -5,7 +5,7 @@
     'tw-min-h-full': clientType === 'browser' || clientType === 'desktop',
   }"
 >
-  <div class="tw-flex tw-justify-between tw-items-center tw-w-full tw-mb-12 empty:tw-hidden">
+  <div class="tw-flex tw-justify-between tw-items-center tw-w-full tw-mb-12">
     @if (!hideLogo()) {
       <a [routerLink]="['/']" class="tw-w-[200px] tw-self-start tw-block [&>*]:tw-align-top">
         <bit-icon [icon]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-icon>
