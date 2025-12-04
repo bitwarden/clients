@@ -5,14 +5,12 @@
     'tw-min-h-full': clientType === 'browser' || clientType === 'desktop',
   }"
 >
-  <div class="tw-flex tw-justify-between tw-items-center tw-w-full tw-mb-12">
-    <a
-      *ngIf="!hideLogo()"
-      [routerLink]="['/']"
-      class="tw-w-[200px] tw-self-start tw-block [&>*]:tw-align-top"
-    >
-      <bit-icon [icon]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-icon>
-    </a>
+  <div class="tw-flex tw-justify-between tw-items-center tw-w-full tw-mb-12 empty:tw-hidden">
+    @if (!hideLogo()) {
+      <a [routerLink]="['/']" class="tw-w-[200px] tw-self-start tw-block [&>*]:tw-align-top">
+        <bit-icon [icon]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-icon>
+      </a>
+    }
     <div class="tw-ms-auto">
       <ng-content select="[slot=header-actions]"></ng-content>
     </div>
@@ -30,18 +28,22 @@
       <bit-icon [icon]="iconInput"></bit-icon>
     </div>
 
-    <ng-container *ngIf="title()">
-      <!-- Small screens -->
-      <h1 bitTypography="h2" class="tw-mt-2 sm:tw-hidden">
-        {{ title() }}
-      </h1>
-      <!-- Medium to Larger screens -->
-      <h1 bitTypography="h1" class="tw-mt-2 tw-hidden sm:tw-block">
-        {{ title() }}
-      </h1>
-    </ng-container>
+    @if (title()) {
+      <ng-container>
+        <!-- Small screens -->
+        <h1 bitTypography="h2" class="tw-mt-2 sm:tw-hidden">
+          {{ title() }}
+        </h1>
+        <!-- Medium to Larger screens -->
+        <h1 bitTypography="h1" class="tw-mt-2 tw-hidden sm:tw-block">
+          {{ title() }}
+        </h1>
+      </ng-container>
+    }
 
-    <div *ngIf="subtitle()" class="tw-text-sm sm:tw-text-base">{{ subtitle() }}</div>
+    @if (subtitle()) {
+      <div class="tw-text-sm sm:tw-text-base">{{ subtitle() }}</div>
+    }
   </div>
 
   <div
@@ -62,18 +64,22 @@
     <ng-content select="[slot=secondary]"></ng-content>
   </div>
 
-  <footer *ngIf="!hideFooter()" class="tw-text-center tw-mt-4 sm:tw-mt-6">
-    <div *ngIf="showReadonlyHostname()" bitTypography="body2">
-      {{ "accessing" | i18n }} {{ hostname }}
-    </div>
-    <ng-container *ngIf="!showReadonlyHostname()">
-      <ng-content select="[slot=environment-selector]"></ng-content>
-    </ng-container>
-    <ng-container *ngIf="!hideYearAndVersion">
-      <div bitTypography="body2">&copy; {{ year }} Bitwarden Inc.</div>
-      <div bitTypography="body2">{{ version }}</div>
-    </ng-container>
-  </footer>
+  @if (!hideFooter()) {
+    <footer class="tw-text-center tw-mt-4 sm:tw-mt-6">
+      @if (showReadonlyHostname()) {
+        <div bitTypography="body2">{{ "accessing" | i18n }} {{ hostname }}</div>
+      } @else {
+        <ng-content select="[slot=environment-selector]"></ng-content>
+      }
+
+      @if (!hideYearAndVersion) {
+        <ng-container>
+          <div bitTypography="body2">&copy; {{ year }} Bitwarden Inc.</div>
+          <div bitTypography="body2">{{ version }}</div>
+        </ng-container>
+      }
+    </footer>
+  }
 
   @if (!hideBackgroundIllustration()) {
     <div
