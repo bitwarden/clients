@@ -1195,17 +1195,14 @@ pub mod chromium_importer {
     }
 
     #[napi]
-    pub fn request_browser_access(_browser: String, _mas_build: bool) -> napi::Result<()> {
+    pub async fn request_browser_access(_browser: String, _mas_build: bool) -> napi::Result<()> {
         #[cfg(target_os = "macos")]
-        {
-            chromium_importer::chromium::request_browser_access(&_browser, _mas_build)
-                .map_err(|e| napi::Error::from_reason(e.to_string()))
-        }
+        return chromium_importer::chromium::request_browser_access(&_browser, _mas_build)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()));
+
         #[cfg(not(target_os = "macos"))]
-        {
-            // No-op outside of Mac OS
-            Ok(())
-        }
+        Ok(())
     }
 }
 

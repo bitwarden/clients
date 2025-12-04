@@ -84,9 +84,9 @@ pub fn get_available_profiles(browser_name: &str) -> Result<Vec<ProfileInfo>> {
 /// Request access to browser directory (MAS builds only)
 /// This shows the permission dialog and creates a security-scoped bookmark
 #[cfg(target_os = "macos")]
-pub fn request_browser_access(browser_name: &str, mas_build: bool) -> Result<()> {
+pub async fn request_browser_access(browser_name: &str, mas_build: bool) -> Result<()> {
     if mas_build {
-        platform::sandbox::ScopedBrowserAccess::request_only(browser_name)?;
+        platform::sandbox::ScopedBrowserAccess::request_only(browser_name).await?;
     }
     Ok(())
 }
@@ -101,7 +101,7 @@ pub async fn import_logins(
     let _access = if _mas_build {
         Some(platform::sandbox::ScopedBrowserAccess::resume(
             browser_name,
-        )?)
+        ).await?)
     } else {
         None
     };

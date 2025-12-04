@@ -18,10 +18,11 @@ serde_json = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cbc = { workspace = true, features = ["alloc"] }
+desktop_objc = { path = "../objc" }
 pbkdf2 = "=0.12.2"
 security-framework = { workspace = true }
-libc = { workspace = true }
 sha1 = "=0.10.6"
+tokio = { workspace = true, features = ["rt"] }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 aes-gcm = { workspace = true }
