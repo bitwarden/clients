@@ -30,7 +30,6 @@ import {
 
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
-import { DeviceType } from "../../../enums/device-type.enum";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { SecurityStateService } from "../../../key-management/security-state/abstractions/security-state.service";
 import { OrganizationId, UserId } from "../../../types/guid";
