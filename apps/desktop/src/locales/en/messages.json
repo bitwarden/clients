@@ -4247,6 +4247,9 @@
   "planDescPremium": {
     "message": "Complete online security"
   },
+  "advancedOnlineSecurity": {
+    "message": "Advanced online security"
+  },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
   },
