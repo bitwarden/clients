@@ -33,9 +33,9 @@ export class WebSetInitialPasswordService
     protected organizationApiService: OrganizationApiServiceAbstraction,
     protected organizationUserApiService: OrganizationUserApiService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
-    protected accountCryptographicStateService: AccountCryptographicStateService,
     private organizationInviteService: OrganizationInviteService,
     private routerService: RouterService,
+    protected accountCryptographicStateService: AccountCryptographicStateService,
   ) {
     super(
       apiService,
