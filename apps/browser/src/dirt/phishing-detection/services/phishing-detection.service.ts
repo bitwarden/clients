@@ -123,15 +123,15 @@ export class PhishingDetectionService {
       configService.getFeatureFlag$(FeatureFlag.PhishingDetection),
     ]).pipe(
       switchMap(([account, featureEnabled]) => {
-        if (!account) {
-          logService.debug("[PhishingDetectionService] No active account.");
-          return of(false);
-        }
-
         if (BrowserApi.isSafariApi) {
           logService.debug(
             "[PhishingDetectionService] Disabling phishing detection service for Safari.",
           );
+          return of(false);
+        }
+
+        if (!account) {
+          logService.debug("[PhishingDetectionService] No active account.");
           return of(false);
         }
 
