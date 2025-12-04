@@ -11,4 +11,4 @@ if (isRelease) {
   process.env.RUST_LOG = 'debug';
 }
 
-execSync(`napi build --platform --no-js`, { stdio: 'inherit', env: process.env });
+execSync(`napi build --platform --no-js false ${isRelease ? '--release' : ''}`, { stdio: 'inherit', env: process.env });

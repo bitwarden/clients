@@ -175,8 +175,22 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
+          fetch-depth: 1
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
+
+      - name: Free disk space for build
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/share/swift
+          sudo rm -rf /usr/local/.ghcup
+          sudo rm -rf /usr/share/miniconda
+          sudo rm -rf /usr/share/az_*
+          sudo rm -rf /usr/local/julia*
+          sudo rm -rf /usr/lib/mono
+          sudo rm -rf /usr/lib/heroku
+          sudo rm -rf /usr/local/aws-cli
+          sudo rm -rf /usr/local/aws-sam-cli
 
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
@@ -186,7 +200,7 @@ jobs:
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
         with:
           workspaces: |
             apps/desktop/desktop_native -> target
@@ -248,11 +262,20 @@ jobs:
         env:
           PKG_CONFIG_ALLOW_CROSS: true
           PKG_CONFIG_ALL_STATIC: true
+        # Note: It is important that we use the release build because some compute heavy
+        # operations such as key derivation for oo7 on linux are too slow in debug mode
         run: |
           node build.js --release
 
       - name: Build application
         run: npm run dist:lin
+
+      - name: Upload tar.gz artifact
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: bitwarden_${{ env._PACKAGE_VERSION }}_x64.tar.gz
+          path: apps/desktop/dist/bitwarden_desktop_x64.tar.gz
+          if-no-files-found: error
 
       - name: Upload .deb artifact
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
@@ -333,7 +356,7 @@ jobs:
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
         with:
           workspaces: |
             apps/desktop/desktop_native -> target
@@ -402,6 +425,8 @@ jobs:
         env:
           PKG_CONFIG_ALLOW_CROSS: true
           PKG_CONFIG_ALL_STATIC: true
+        # Note: It is important that we use the release build because some compute heavy
+        # operations such as key derivation for oo7 on linux are too slow in debug mode
         run: |
           node build.js --release
 
@@ -479,7 +504,7 @@ jobs:
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
         with:
           workspaces: |
             apps/desktop/desktop_native -> target
@@ -745,7 +770,7 @@ jobs:
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
         with:
           workspaces: |
             apps/desktop/desktop_native -> target
@@ -996,7 +1021,7 @@ jobs:
         run: python3 -m pip install setuptools
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
         with:
           workspaces: |
             apps/desktop/desktop_native -> target
@@ -1233,7 +1258,7 @@ jobs:
         run: python3 -m pip install setuptools
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
         with:
           workspaces: |
             apps/desktop/desktop_native -> target
@@ -1505,7 +1530,7 @@ jobs:
         run: python3 -m pip install setuptools
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
         with:
           workspaces: |
             apps/desktop/desktop_native -> target

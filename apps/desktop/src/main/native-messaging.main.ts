@@ -314,6 +314,7 @@ export class NativeMessagingMain {
       "Microsoft Edge Canary": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Canary/`,
       Vivaldi: `${this.homedir()}/Library/Application\ Support/Vivaldi/`,
       Zen: `${this.homedir()}/Library/Application\ Support/Zen/`,
+      Helium: `${this.homedir()}/Library/Application\ Support/net.imput.helium/`,
     };
     /* eslint-enable no-useless-escape */
   }
