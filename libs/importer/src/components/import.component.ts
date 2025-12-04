@@ -112,7 +112,6 @@ import { ImportLastPassComponent } from "./lastpass";
   providers: ImporterProviders,
 })
 export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
-  errorMessage: string | undefined = undefined;
   DefaultCollectionType = CollectionTypes.DefaultUserCollection;
 
   featuredImportOptions: ImportOption[];
@@ -440,7 +439,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   protected async performImport() {
-    this.errorMessage = undefined;
     if (!(await this.validateImport())) {
       return;
     }
@@ -456,14 +454,22 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     );
 
     if (importer === null) {
-      this.errorMessage = this.i18nService.t("selectFormat");
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("selectFormat"),
+      });
       return;
     }
 
     const importContents = await this.setImportContents();
 
     if (importContents == null || importContents === "") {
-      this.errorMessage = this.i18nService.t("selectFile");
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("selectFile"),
+      });
       return;
     }
 
@@ -607,7 +613,11 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     if (this.importBlockedByPolicy && this.organizationId == null) {
-      this.errorMessage = this.i18nService.t("personalOwnershipPolicyInEffectImports");
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("personalOwnershipPolicyInEffectImports"),
+      });
       return false;
     }
 
