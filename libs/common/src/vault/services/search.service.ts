@@ -335,8 +335,10 @@ export class SearchService implements SearchServiceAbstraction {
 
       if (
         login &&
-        login.uris.length &&
-        login.uris.some((loginUri) => loginUri?.uri?.toLowerCase().indexOf(query) > -1)
+        login.uris?.length &&
+        login.uris?.some(
+          (loginUri) => loginUri?.uri && loginUri.uri.toLowerCase().indexOf(query) > -1,
+        )
       ) {
         return true;
       }
