@@ -215,6 +215,7 @@ module.exports.buildConfig = function buildConfig(params) {
       NODE_ENV: NODE_ENV === "production" ? "production" : "development",
       APPLICATION_VERSION: pjson.version,
       CACHE_TAG: Math.random().toString(36).substring(7),
+      SELF_HOSTED: process.env.SELF_HOSTED ?? (ENV === "selfhosted" ? "true" : "false"),
       URLS: envConfig["urls"] ?? {},
       STRIPE_KEY: envConfig["stripeKey"] ?? "",
       BRAINTREE_KEY: envConfig["braintreeKey"] ?? "",

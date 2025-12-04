@@ -1,5 +1,6 @@
 import { getQsParam } from "./common";
 import { TranslationService } from "./translation.service";
+import { buildMobileCallbackUri } from "./utils/callbackUri";
 
 const mobileDesktopCallback = "bitwarden://duo-callback";
 let localeService: TranslationService | null = null;
@@ -41,14 +42,22 @@ window.addEventListener("load", async () => {
   } else if (client === "mobile" || client === "desktop") {
     if (client === "desktop") {
       displayHandoffMessage(client);
+      document.location.replace(
+        mobileDesktopCallback +
+          "?code=" +
+          encodeURIComponent(code) +
+          "&state=" +
+          encodeURIComponent(state),
+      );
+    } else {
+      document.location.replace(
+        buildMobileCallbackUri("duo") +
+          "?code=" +
+          encodeURIComponent(code) +
+          "&state=" +
+          encodeURIComponent(state),
+      );
     }
-    document.location.replace(
-      mobileDesktopCallback +
-        "?code=" +
-        encodeURIComponent(code) +
-        "&state=" +
-        encodeURIComponent(state),
-    );
   }
 });
 
