@@ -1,4 +1,4 @@
-import { WrappedUserAccountCryptographicState } from "@bitwarden/sdk-internal";
+import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
 import { SecurityStateResponse } from "../../security-state/response/security-state.response";
 
@@ -55,7 +55,7 @@ export class PrivateKeysResponseModel {
     }
   }
 
-  toWrappedAccountCryptographicState(): WrappedUserAccountCryptographicState {
+  toWrappedAccountCryptographicState(): WrappedAccountCryptographicState {
     if (this.signatureKeyPair === null && this.securityState === null) {
       // V1 user
       return {
