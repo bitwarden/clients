@@ -526,6 +526,7 @@ describe("LoginStrategy", () => {
         kdfConfigService,
         environmentService,
         configService,
+        accountCryptographicStateService,
       );
 
       apiService.postIdentityToken.mockResolvedValue(identityTokenResponseFactory());
@@ -590,7 +591,6 @@ describe("LoginStrategy", () => {
         accountCryptographicStateService,
       );
 
-      const result = await passwordLoginStrategy.logIn(credentials);
       const result = await passwordLoginStrategy.logIn(credentials);
 
       expect(result.requiresDeviceVerification).toBe(true);
