@@ -17,8 +17,7 @@ import { BadgeModule } from "@bitwarden/components";
       class="tw-text-primary-600 tw-border-primary-600"
       (click)="promptForPremium($event)"
     >
-      <i class="bwi bwi-premium"></i>
-      {{ "upgrade" | i18n }}
+      <i class="bwi bwi-premium tw-pe-1"></i>{{ "upgrade" | i18n }}
     </button>
   `,
   imports: [BadgeModule, JslibModule],
