@@ -5,7 +5,7 @@ import { Component, DestroyRef, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
-import { catchError, defer, firstValueFrom, from, map, of, switchMap, throwError } from "rxjs";
+import { catchError, concatMap, defer, firstValueFrom, from, map, of, switchMap, throwError } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -25,6 +25,7 @@ import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { UserId } from "@bitwarden/common/types/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -112,6 +113,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private validationService: ValidationService,
     private logoutService: LogoutService,
+    private registerSdkService: RegisterSdkService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -251,6 +253,22 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     }
 
     try {
+      const userId = this.activeAccountId;
+      const organizationId = this.newUserOrgId;
+      const orgKeyResponse = await this.organizationApiService.getKeys(organizationId);
+      const result = await firstValueFrom(
+        this.registerSdkService.registerClient$(userId).pipe(
+          concatMap(async (sdk) => {
+            if (!sdk) {
+              throw new Error("SDK not available");
+            }
+
+            using ref = sdk.take();
+            return await ref.value.auth().registration().post_keys_for_tde_registration(organizationId, orgKeyResponse.publicKey);
+          }),
+        ),
+      );
+      console.log("TDE Registration Result:", result);
       const { publicKey, privateKey } = await this.keyService.initAccount(this.activeAccountId);
       const keysRequest = new KeysRequest(publicKey, privateKey.encryptedString);
       await this.apiService.postAccountKeys(keysRequest);
