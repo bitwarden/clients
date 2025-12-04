@@ -44,7 +44,6 @@ export const SendItemDialogResult = Object.freeze({
 } as const);
 
 /** A result of the Send add/edit dialog. */
-// export type SendItemDialogResult = (typeof SendItemDialogResult)[keyof typeof SendItemDialogResult];
 export type SendItemDialogResult =
   | (typeof SendItemDialogResult)[keyof typeof SendItemDialogResult]
   | { result: typeof SendItemDialogResult.Saved; send: SendView };
