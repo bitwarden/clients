@@ -29,16 +29,14 @@
     </div>
 
     @if (title()) {
-      <ng-container>
-        <!-- Small screens -->
-        <h1 bitTypography="h2" class="tw-mt-2 sm:tw-hidden">
-          {{ title() }}
-        </h1>
-        <!-- Medium to Larger screens -->
-        <h1 bitTypography="h1" class="tw-mt-2 tw-hidden sm:tw-block">
-          {{ title() }}
-        </h1>
-      </ng-container>
+      <!-- Small screens -->
+      <h1 bitTypography="h2" class="tw-mt-2 sm:tw-hidden">
+        {{ title() }}
+      </h1>
+      <!-- Medium to Larger screens -->
+      <h1 bitTypography="h1" class="tw-mt-2 tw-hidden sm:tw-block">
+        {{ title() }}
+      </h1>
     }
 
     @if (subtitle()) {
@@ -73,10 +71,8 @@
       }
 
       @if (!hideYearAndVersion) {
-        <ng-container>
-          <div bitTypography="body2">&copy; {{ year }} Bitwarden Inc.</div>
-          <div bitTypography="body2">{{ version }}</div>
-        </ng-container>
+        <div bitTypography="body2">&copy; {{ year }} Bitwarden Inc.</div>
+        <div bitTypography="body2">{{ version }}</div>
       }
     </footer>
   }
