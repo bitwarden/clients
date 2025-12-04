@@ -78,7 +78,7 @@ export default {
           [hideFooter]="hideFooter"
           [hideBackgroundIllustration]="hideBackgroundIllustration"
         >
-          <div *ngIf="includeHeaderActions" slot="headerActions" class="tw-flex tw-items-center tw-gap-2">
+          <div *ngIf="includeHeaderActions" slot="header-actions" class="tw-flex tw-items-center tw-gap-2">
             <bit-avatar
               size="small"
               text="Bob Loblaw"

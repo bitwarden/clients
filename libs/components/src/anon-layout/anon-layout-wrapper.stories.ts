@@ -183,7 +183,7 @@ export const DefaultContentExample: Story = {
               {
                 path: "",
                 component: DefaultHeaderActionsOutletExampleComponent,
-                outlet: "headerActions",
+                outlet: "header-actions",
               },
             ],
           },
