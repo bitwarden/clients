@@ -30,7 +30,10 @@
     "build-storybook": "ng run components:build-storybook",
     "build-storybook:ci": "ng run components:build-storybook --webpack-stats-json",
     "test-stories": "test-storybook --url http://localhost:6006",
-    "test-stories:watch": "test-stories --watch"
+    "test-stories:watch": "test-stories --watch",
+    "icons:install": "npm install @material-design-icons/svg",
+    "icons:extract": "ts-node scripts/material-icons/extract-material-svgs.ts",
+    "icons:setup": "npm run icons:install && npm run icons:extract"
   },
   "workspaces": [
     "apps/*",
@@ -157,12 +160,13 @@
     "@angular/platform-browser": "20.3.15",
     "@angular/platform-browser-dynamic": "20.3.15",
     "@angular/router": "20.3.15",
-    "@bitwarden/sdk-internal": "0.2.0-main.403",
     "@bitwarden/commercial-sdk-internal": "0.2.0-main.403",
+    "@bitwarden/sdk-internal": "0.2.0-main.403",
     "@electron/fuses": "1.8.0",
     "@emotion/css": "11.13.5",
     "@koa/multer": "4.0.0",
     "@koa/router": "14.0.0",
+    "@material-design-icons/svg": "0.14.15",
     "@microsoft/signalr": "8.0.7",
     "@microsoft/signalr-protocol-msgpack": "8.0.7",
     "@ng-select/ng-select": "20.7.0",

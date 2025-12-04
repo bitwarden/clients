@@ -1,0 +1,674 @@
+{
+  "timestamp": "2025-12-04T19:01:40.371Z",
+  "variant": "outlined",
+  "totalMapped": 95,
+  "successful": 95,
+  "failed": 0,
+  "results": [
+    {
+      "bwiName": "bwi-check",
+      "materialName": "check",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/check.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-check.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-error",
+      "materialName": "error",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/error.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-error.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-info-circle",
+      "materialName": "info",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/info.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-info-circle.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-spinner",
+      "materialName": "sync",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/sync.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-spinner.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-question-circle",
+      "materialName": "help",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/help.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-question-circle.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-exclamation-triangle",
+      "materialName": "warning",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/warning.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-exclamation-triangle.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-business",
+      "materialName": "business",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/business.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-business.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-collection",
+      "materialName": "folder_shared",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/folder_shared.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-collection.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-collection-shared",
+      "materialName": "folder_shared",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/folder_shared.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-collection-shared.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-credit-card",
+      "materialName": "credit_card",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/credit_card.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-credit-card.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-dashboard",
+      "materialName": "dashboard",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/dashboard.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-dashboard.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-family",
+      "materialName": "family_restroom",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/family_restroom.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-family.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-folder",
+      "materialName": "folder",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/folder.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-folder.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-user",
+      "materialName": "person",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/person.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-user.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-users",
+      "materialName": "group",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/group.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-users.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-id-card",
+      "materialName": "badge",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/badge.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-id-card.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-globe",
+      "materialName": "public",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/public.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-globe.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-sticky-note",
+      "materialName": "sticky_note_2",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/sticky_note_2.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-sticky-note.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-send",
+      "materialName": "send",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/send.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-send.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-vault",
+      "materialName": "inventory_2",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/inventory_2.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-vault.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-plus",
+      "materialName": "add",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/add.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-plus.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-plus-circle",
+      "materialName": "add_circle",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/add_circle.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-plus-circle.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-archive",
+      "materialName": "archive",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/archive.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-archive.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-import",
+      "materialName": "upload_file",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/upload_file.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-import.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-check-circle",
+      "materialName": "check_circle",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/check_circle.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-check-circle.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-clone",
+      "materialName": "content_copy",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/content_copy.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-clone.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-close",
+      "materialName": "close",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/close.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-close.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-download",
+      "materialName": "download",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/download.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-download.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-pencil",
+      "materialName": "edit",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/edit.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-pencil.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-pencil-square",
+      "materialName": "edit_note",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/edit_note.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-pencil-square.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-lock-encrypted",
+      "materialName": "enhanced_encryption",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/enhanced_encryption.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-lock-encrypted.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-external-link",
+      "materialName": "open_in_new",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/open_in_new.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-external-link.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-files",
+      "materialName": "content_copy",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/content_copy.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-files.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-generate",
+      "materialName": "cached",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/cached.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-generate.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-lock",
+      "materialName": "lock",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/lock.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-lock.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-lock-f",
+      "materialName": "lock",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/lock.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-lock-f.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-envelope",
+      "materialName": "mail",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/mail.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-envelope.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-sign-in",
+      "materialName": "login",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/login.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-sign-in.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-sign-out",
+      "materialName": "logout",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/logout.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-sign-out.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-popout",
+      "materialName": "open_in_new",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/open_in_new.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-popout.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-refresh",
+      "materialName": "refresh",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/refresh.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-refresh.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-search",
+      "materialName": "search",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/search.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-search.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-cog",
+      "materialName": "settings",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/settings.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-cog.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-cog-f",
+      "materialName": "settings",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/settings.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-cog-f.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-share",
+      "materialName": "share",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/share.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-share.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-star",
+      "materialName": "star_outline",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/star_outline.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-star.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-star-f",
+      "materialName": "star",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/star.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-star-f.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-minus-circle",
+      "materialName": "remove_circle",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/remove_circle.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-minus-circle.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-trash",
+      "materialName": "delete",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/delete.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-trash.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-undo",
+      "materialName": "undo",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/undo.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-undo.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-unlock",
+      "materialName": "lock_open",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/lock_open.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-unlock.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-eye",
+      "materialName": "visibility",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/visibility.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-eye.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-eye-slash",
+      "materialName": "visibility_off",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/visibility_off.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-eye-slash.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-angle-down",
+      "materialName": "keyboard_arrow_down",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/keyboard_arrow_down.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-angle-down.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-angle-left",
+      "materialName": "keyboard_arrow_left",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/keyboard_arrow_left.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-angle-left.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-angle-right",
+      "materialName": "keyboard_arrow_right",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/keyboard_arrow_right.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-angle-right.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-angle-up",
+      "materialName": "keyboard_arrow_up",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/keyboard_arrow_up.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-angle-up.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-up-down-btn",
+      "materialName": "unfold_more",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/unfold_more.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-up-down-btn.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-down-solid",
+      "materialName": "arrow_drop_down",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/arrow_drop_down.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-down-solid.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-up-solid",
+      "materialName": "arrow_drop_up",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/arrow_drop_up.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-up-solid.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-drag-and-drop",
+      "materialName": "drag_indicator",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/drag_indicator.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-drag-and-drop.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-ellipsis-h",
+      "materialName": "more_horiz",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/more_horiz.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-ellipsis-h.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-ellipsis-v",
+      "materialName": "more_vert",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/more_vert.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-ellipsis-v.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-filter",
+      "materialName": "filter_list",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/filter_list.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-filter.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-list-alt",
+      "materialName": "view_agenda",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/view_agenda.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-list-alt.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-list",
+      "materialName": "list",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/list.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-list.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-numbered-list",
+      "materialName": "format_list_numbered",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/format_list_numbered.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-numbered-list.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-sliders",
+      "materialName": "tune",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/tune.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-sliders.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-universal-access",
+      "materialName": "accessibility",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/accessibility.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-universal-access.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-paperclip",
+      "materialName": "attach_file",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/attach_file.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-paperclip.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-shield",
+      "materialName": "shield",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/shield.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-shield.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-browser",
+      "materialName": "web",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/web.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-browser.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-bug",
+      "materialName": "bug_report",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/bug_report.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-bug.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-camera",
+      "materialName": "photo_camera",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/photo_camera.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-camera.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-clock",
+      "materialName": "schedule",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/schedule.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-clock.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-desktop",
+      "materialName": "computer",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/computer.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-desktop.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-dollar",
+      "materialName": "attach_money",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/attach_money.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-dollar.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-puzzle",
+      "materialName": "extension",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/extension.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-puzzle.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-file",
+      "materialName": "description",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/description.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-file.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-file-text",
+      "materialName": "article",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/article.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-file-text.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-hashtag",
+      "materialName": "tag",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/tag.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-hashtag.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-key",
+      "materialName": "vpn_key",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/vpn_key.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-key.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-mobile",
+      "materialName": "smartphone",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/smartphone.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-mobile.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-msp",
+      "materialName": "business_center",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/business_center.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-msp.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-brush",
+      "materialName": "palette",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/palette.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-brush.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-passkey",
+      "materialName": "password",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/password.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-passkey.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-bell",
+      "materialName": "notifications",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/notifications.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-bell.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-billing",
+      "materialName": "receipt",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/receipt.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-billing.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-cli",
+      "materialName": "terminal",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/terminal.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-cli.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-tag",
+      "materialName": "label",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/label.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-tag.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-provider",
+      "materialName": "handshake",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/handshake.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-provider.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-wireless",
+      "materialName": "wifi",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/wifi.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-wireless.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-wrench",
+      "materialName": "build",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/build.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-wrench.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-bitcoin",
+      "materialName": "currency_bitcoin",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/currency_bitcoin.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-bitcoin.svg",
+      "success": true
+    },
+    {
+      "bwiName": "bwi-paypal",
+      "materialName": "payments",
+      "sourcePath": "/Users/bryancunningham/Desktop/Code/clients/node_modules/@material-design-icons/svg/outlined/payments.svg",
+      "outputPath": "/Users/bryancunningham/Desktop/Code/clients/.material-icons-staging/bwi-paypal.svg",
+      "success": true
+    }
+  ]
+}
