@@ -20,7 +20,7 @@
         {{ "sendCreatedDescription" | i18n }}
       </p>
 
-      <bit-form-field class="form-group tw-w-full tw-max-w-sm tw-mb-4">
+      <bit-form-field class="tw-w-full tw-max-w-sm tw-mb-4">
         <bit-label>{{ "sendLink" | i18n }}</bit-label>
         <input bitInput disabled type="text" [value]="sendLink()" />
         <button
@@ -35,7 +35,11 @@
   </ng-container>
 
   <ng-container bitDialogFooter>
-    <button bitButton buttonType="primary" (click)="copyLink()">{{ "copyLink" | i18n }}</button>
-    <button bitButton buttonType="secondary" bitDialogClose>{{ "close" | i18n }}</button>
+    <button type="button" bitButton buttonType="primary" (click)="copyLink()">
+      {{ "copyLink" | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="secondary" bitDialogClose>
+      {{ "close" | i18n }}
+    </button>
   </ng-container>
 </bit-dialog>
