@@ -47,6 +47,9 @@ import {
 } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
+// eslint-disable-next-line no-restricted-imports
+import { SpinnerComponent } from "../../../../components/src/spinner";
+
 import { SsoClientType, SsoComponentService } from "./sso-component.service";
 
 interface QueryParams {
@@ -77,6 +80,7 @@ interface QueryParams {
     JslibModule,
     ReactiveFormsModule,
     RouterModule,
+    SpinnerComponent,
   ],
 })
 export class SsoComponent implements OnInit {
@@ -85,7 +89,7 @@ export class SsoComponent implements OnInit {
   });
 
   protected redirectUri: string | undefined;
-  protected loggingIn = false;
+  protected showLoadingSpinner = false;
   protected identifier: string | undefined;
   protected state: string | undefined;
   protected codeChallenge: string | undefined;
@@ -168,7 +172,7 @@ export class SsoComponent implements OnInit {
     // directly to their IdP to simulate IdP-initiated SSO, so we submit automatically.
     if (qParams.identifier != null) {
       this.identifierFormControl.setValue(qParams.identifier);
-      this.loggingIn = true;
+      this.showLoadingSpinner = true;
       await this.submit();
       return;
     }
@@ -294,8 +298,10 @@ export class SsoComponent implements OnInit {
     this.ssoComponentService.setDocumentCookies?.();
 
     try {
+      this.showLoadingSpinner = true;
       await this.submitSso();
     } catch (error) {
+      this.showLoadingSpinner = false;
       if (autoSubmit) {
         await this.router.navigate(["/login"]);
       } else {
@@ -311,6 +317,7 @@ export class SsoComponent implements OnInit {
    */
   private async submitSso(returnUri?: string, includeUserIdentifier?: boolean) {
     if (this.identifier == null || this.identifier === "") {
+      this.showLoadingSpinner = false;
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("ssoValidationFailed"),
@@ -416,7 +423,7 @@ export class SsoComponent implements OnInit {
    * We have received the code from IdentityServer, which we will now present with the code verifier to get a token.
    */
   private async logIn(code: string, codeVerifier: string, orgSsoIdentifier: string): Promise<void> {
-    this.loggingIn = true;
+    this.showLoadingSpinner = true;
     try {
       // The code verifier is used to ensure that the client presenting the code is the same one that initiated the authentication request.
       // The redirect URI is also supplied on the request to the token endpoint, so the server can ensure it matches the original request
@@ -606,7 +613,7 @@ export class SsoComponent implements OnInit {
   private async initializeIdentifierFromEmailOrStorage(): Promise<void> {
     if (this.email) {
       // show loading spinner
-      this.loggingIn = true;
+      this.showLoadingSpinner = true;
       try {
         // Check if email matches any claimed domains
         const response: ListResponse<VerifiedOrganizationDomainSsoDetailsResponse> =
@@ -621,7 +628,7 @@ export class SsoComponent implements OnInit {
         this.handleGetClaimedDomainByEmailError(error);
       }
 
-      this.loggingIn = false;
+      this.showLoadingSpinner = false;
     }
 
     // If we don't find a claimed domain, check to see if we stored an identifier in state

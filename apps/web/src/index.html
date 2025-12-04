@@ -21,11 +21,35 @@
           <img class="new-logo-themed !tw-w-[200px]" alt="Bitwarden" />
         </div>
         <div class="spinner-container tw-justify-center">
-          <i
-            class="bwi bwi-spinner bwi-spin bwi-3x tw-text-muted"
-            title="Loading"
-            aria-hidden="true"
-          ></i>
+          <span class="tw-inline-block tw-overflow-hidden tw-flex tw-items-center tw-h-16">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 56 56"
+              fill="none"
+              class="tw-size-full tw-animate-spin"
+              aria-hidden="true"
+            >
+              <circle
+                cx="28"
+                cy="28"
+                r="23"
+                class="tw-stroke-primary-600"
+                pathLength="4"
+                stroke-width="5"
+                stroke-dasharray="1 3"
+                stroke-linecap="round"
+              ></circle>
+              <circle
+                cx="28"
+                cy="28"
+                r="23"
+                class="tw-stroke-primary-600"
+                stroke-width="5"
+                opacity="0.4"
+              ></circle>
+            </svg>
+            <span class="tw-sr-only">Loading</span>
+          </span>
         </div>
         <div class="tw-relative tw-grow">
           <div
