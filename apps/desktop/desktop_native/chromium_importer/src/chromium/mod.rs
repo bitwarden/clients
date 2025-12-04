@@ -65,7 +65,7 @@ impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
                 browsers.push((*browser).to_string());
             } else {
                 // When not in sandbox check file system directly
-                let data_dir = get_browser_data_dir(config)?;
+                let data_dir = get_and_validate_data_dir(config)?;
                 if data_dir.exists() {
                     browsers.push((*browser).to_string());
                 }
