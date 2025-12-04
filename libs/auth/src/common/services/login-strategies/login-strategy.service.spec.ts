@@ -17,6 +17,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
+import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/user-account-cryptography/default-account-cryptographic-state.service";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
@@ -84,6 +85,7 @@ describe("LoginStrategyService", () => {
   let kdfConfigService: MockProxy<KdfConfigService>;
   let taskSchedulerService: MockProxy<TaskSchedulerService>;
   let configService: MockProxy<ConfigService>;
+  let accountCryptographicStateService: MockProxy<DefaultAccountCryptographicStateService>;
 
   let stateProvider: FakeGlobalStateProvider;
   let loginStrategyCacheExpirationState: FakeGlobalState<Date | null>;
@@ -117,6 +119,7 @@ describe("LoginStrategyService", () => {
     kdfConfigService = mock<KdfConfigService>();
     taskSchedulerService = mock<TaskSchedulerService>();
     configService = mock<ConfigService>();
+    accountCryptographicStateService = mock<DefaultAccountCryptographicStateService>();
 
     sut = new LoginStrategyService(
       accountService,
@@ -145,6 +148,7 @@ describe("LoginStrategyService", () => {
       kdfConfigService,
       taskSchedulerService,
       configService,
+      accountCryptographicStateService,
     );
 
     loginStrategyCacheExpirationState = stateProvider.getFake(CACHE_EXPIRATION_KEY);
