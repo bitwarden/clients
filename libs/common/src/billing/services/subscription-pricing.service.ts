@@ -114,7 +114,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
     this.environmentService.environment$.pipe(
       take(1),
       switchMap((environment) =>
-        environment.getRegion() === Region.SelfHosted
+        !environment.isCloud()
           ? of(null as unknown as PremiumPlanResponse)
           : from(this.billingApiService.getPremiumPlan()).pipe(
               catchError((error: unknown) => {
