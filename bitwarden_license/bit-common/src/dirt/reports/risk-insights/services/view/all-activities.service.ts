@@ -39,9 +39,6 @@ export class AllActivitiesService {
       if (report) {
         this.setAllAppsReportSummary(report.summaryData);
         this.setAllAppsReportDetails(report.reportData);
-      } else {
-        // Reset to initial state when report is null (e.g., during organization switch)
-        this.resetAllAppsData();
       }
     });
 
@@ -49,9 +46,6 @@ export class AllActivitiesService {
     this.dataService.criticalReportResults$.pipe(takeUntilDestroyed()).subscribe((report) => {
       if (report) {
         this.setCriticalAppsReportSummary(report.summaryData);
-      } else {
-        // Reset to initial state when report is null (e.g., during organization switch)
-        this.resetCriticalAppsData();
       }
     });
   }
@@ -94,27 +88,5 @@ export class AllActivitiesService {
 
   setExtendPasswordWidget(hasProgressBar: boolean) {
     this.extendPasswordChangeWidgetSubject$.next(hasProgressBar);
-  }
-
-  private resetAllAppsData() {
-    this.reportSummarySubject$.next({
-      ...this.reportSummarySubject$.getValue(),
-      totalMemberCount: 0,
-      totalAtRiskMemberCount: 0,
-      totalApplicationCount: 0,
-      totalAtRiskApplicationCount: 0,
-    });
-    this.allApplicationsDetailsSubject$.next([]);
-    this.atRiskPasswordsCountSubject$.next(0);
-  }
-
-  private resetCriticalAppsData() {
-    this.reportSummarySubject$.next({
-      ...this.reportSummarySubject$.getValue(),
-      totalCriticalApplicationCount: 0,
-      totalCriticalAtRiskApplicationCount: 0,
-      totalCriticalMemberCount: 0,
-      totalCriticalAtRiskMemberCount: 0,
-    });
   }
 }
