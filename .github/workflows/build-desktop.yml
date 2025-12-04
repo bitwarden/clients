@@ -37,6 +37,10 @@ on:
         description: "Custom SDK branch"
         required: false
         type: string
+      use_rust_cache:
+        description: "Use Rust cache for native module builds"
+        type: boolean
+        default: true
       testflight_distribute:
         description: "Force distribute to TestFlight regardless of branch (useful for QA testing on feature branches)"
         type: boolean
@@ -200,6 +204,7 @@ jobs:
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Cache Rust dependencies
+        if: ${{ inputs.use_rust_cache }}
         uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
         with:
           workspaces: |
@@ -246,6 +251,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
+        if: ${{ inputs.use_rust_cache }}
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         id: cache
         with:
@@ -264,7 +270,7 @@ jobs:
           PKG_CONFIG_ALL_STATIC: true
           TARGET: musl
         # Note: It is important that we use the release build because some compute heavy
-        # operations such as key derivation for oo7 on linux are too slow in debug mode 
+        # operations such as key derivation for oo7 on linux are too slow in debug mode
         run: |
           rustup target add x86_64-unknown-linux-musl
           node build.js --target=x86_64-unknown-linux-musl --release
@@ -358,6 +364,7 @@ jobs:
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Cache Rust dependencies
+        if: ${{ inputs.use_rust_cache }}
         uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
         with:
           workspaces: |
@@ -411,6 +418,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
+        if: ${{ inputs.use_rust_cache }}
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         id: cache
         with:
@@ -508,6 +516,7 @@ jobs:
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Cache Rust dependencies
+        if: ${{ inputs.use_rust_cache }}
         uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
         with:
           workspaces: |
@@ -576,6 +585,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
+        if: ${{ inputs.use_rust_cache }}
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         id: cache
         with:
@@ -774,6 +784,7 @@ jobs:
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Cache Rust dependencies
+        if: ${{ inputs.use_rust_cache }}
         uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
         with:
           workspaces: |
@@ -839,6 +850,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
+        if: ${{ inputs.use_rust_cache }}
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         id: cache
         with:
@@ -1025,6 +1037,7 @@ jobs:
         run: python3 -m pip install setuptools
 
       - name: Cache Rust dependencies
+        if: ${{ inputs.use_rust_cache }}
         uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
         with:
           workspaces: |
@@ -1194,6 +1207,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
+        if: ${{ inputs.use_rust_cache }}
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         id: cache
         with:
@@ -1262,6 +1276,7 @@ jobs:
         run: python3 -m pip install setuptools
 
       - name: Cache Rust dependencies
+        if: ${{ inputs.use_rust_cache }}
         uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
         with:
           workspaces: |
@@ -1415,6 +1430,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
+        if: ${{ inputs.use_rust_cache }}
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         id: cache
         with:
@@ -1534,6 +1550,7 @@ jobs:
         run: python3 -m pip install setuptools
 
       - name: Cache Rust dependencies
+        if: ${{ inputs.use_rust_cache }}
         uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
         with:
           workspaces: |
@@ -1695,6 +1712,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
+        if: ${{ inputs.use_rust_cache }}
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         id: cache
         with:
