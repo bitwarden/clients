@@ -1187,6 +1187,7 @@ pub mod chromium_importer {
     }
 
     #[napi]
+    #[allow(clippy::unused_async)]
     pub async fn request_browser_access(_browser: String, _mas_build: bool) -> napi::Result<()> {
         #[cfg(target_os = "macos")]
         return chromium_importer::chromium::request_browser_access(&_browser, _mas_build)
