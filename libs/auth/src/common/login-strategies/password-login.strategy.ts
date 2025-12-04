@@ -34,6 +34,8 @@ export class PasswordLoginStrategyData implements LoginStrategyData {
   localMasterKeyHash: string;
   /** The user's master key */
   masterKey: MasterKey;
+  /** The user's master password */
+  masterPassword: string;
   /**
    * Tracks if the user needs to update their password due to
    * a password that does not meet an organization's master password policy.
@@ -84,6 +86,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
       masterPassword,
       email,
     );
+    data.masterPassword = masterPassword;
     data.userEnteredEmail = email;
 
     // Hash the password early (before authentication) so we don't persist it in memory in plaintext
@@ -258,6 +261,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
     this.cache.next(data);
 
     const [authResult] = await this.startLogIn();
+    authResult.masterPassword = this.cache.value["masterPassword"] ?? null;
     return authResult;
   }
 

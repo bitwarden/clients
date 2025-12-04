@@ -396,7 +396,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
 
     // User logged in successfully so execute side effects
-    await this.loginSuccessHandlerService.run(authResult.userId);
+    await this.loginSuccessHandlerService.run(authResult.userId, authResult.masterPassword);
 
     // Determine where to send the user next
     // The AuthGuard will handle routing to change-password based on state
