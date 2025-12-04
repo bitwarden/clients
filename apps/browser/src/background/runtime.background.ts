@@ -407,15 +407,14 @@ export default class RuntimeBackground {
       return false;
     }
 
-    const env = await firstValueFrom(this.environmentService.environment$);
-    const vaultUrl = env.getWebVaultUrl();
-    const vaultHostname = Utils.getHostname(vaultUrl);
+    const regions = this.environmentService.availableRegions();
+    const vaultHostnames = regions.map((r) => Utils.getHostname(r.urls.webVault)).filter(Boolean);
 
-    if (!vaultHostname) {
+    if (vaultHostnames.length === 0) {
       return false;
     }
 
-    return vaultHostname === referrer;
+    return vaultHostnames.includes(referrer);
   }
 
   private async autofillPage(tabToAutoFill: chrome.tabs.Tab) {
