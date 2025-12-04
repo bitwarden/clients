@@ -7,7 +7,9 @@ import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/sen
 import { NoSendsIcon } from "@bitwarden/assets/svg";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -77,6 +79,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     toastService: ToastService,
     private addEditFormConfigService: DefaultSendFormConfigService,
     accountService: AccountService,
+    private configService: ConfigService,
   ) {
     super(
       sendService,
@@ -149,9 +152,16 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
       return;
     }
 
-    this.sendItemDialogRef = SendAddEditDialogComponent.open(this.dialogService, {
-      formConfig,
-    });
+    const useRefresh = await this.configService.getFeatureFlag(FeatureFlag.SendUIRefresh);
+    if (useRefresh) {
+      this.sendItemDialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+        formConfig,
+      });
+    } else {
+      this.sendItemDialogRef = SendAddEditDialogComponent.open(this.dialogService, {
+        formConfig,
+      });
+    }
 
     const result = await lastValueFrom(this.sendItemDialogRef.closed);
     this.sendItemDialogRef = undefined;
