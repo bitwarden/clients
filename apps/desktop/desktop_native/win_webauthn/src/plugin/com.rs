@@ -26,7 +26,7 @@ use super::types::{
 use super::PluginAuthenticator;
 use crate::{ErrorKind, WinWebAuthnError};
 
-static HANDLER: OnceLock<Arc<dyn PluginAuthenticator + Send + Sync>> = OnceLock::new();
+static HANDLER: OnceLock<(GUID, Arc<dyn PluginAuthenticator + Send + Sync>)> = OnceLock::new();
 
 #[implement(IClassFactory)]
 pub struct Factory;
@@ -38,14 +38,14 @@ impl IClassFactory_Impl for Factory_Impl {
         iid: *const windows::core::GUID,
         object: *mut *mut core::ffi::c_void,
     ) -> windows::core::Result<()> {
-        let handler = match HANDLER.get() {
-            Some(handler) => handler,
+        let (clsid, handler) = match HANDLER.get() {
+            Some(state) => state,
             None => {
                 tracing::error!("Cannot create COM class object instance because the handler is not initialized. register_server() must be called before starting the COM server.");
                 return Err(E_FAIL.into());
             }
         }.clone();
-        let unknown: IInspectable = PluginAuthenticatorComObject { handler }.into();
+        let unknown: IInspectable = PluginAuthenticatorComObject { clsid, handler }.into();
         unsafe { unknown.query(iid, object).ok() }
     }
 
@@ -74,6 +74,7 @@ pub unsafe trait IPluginAuthenticator: windows::core::IUnknown {
 
 #[implement(IPluginAuthenticator)]
 struct PluginAuthenticatorComObject {
+    clsid: GUID,
     handler: Arc<dyn PluginAuthenticator + Send + Sync>,
 }
 
@@ -269,7 +270,7 @@ where
     T: PluginAuthenticator + Send + Sync + 'static,
 {
     // Store the handler as a static so it can be initialized
-    HANDLER.set(Arc::new(handler)).map_err(|_| {
+    HANDLER.set((*clsid, Arc::new(handler))).map_err(|_| {
         WinWebAuthnError::new(ErrorKind::WindowsInternal, "Handler already initialized")
     })?;
 
