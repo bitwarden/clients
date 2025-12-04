@@ -1530,5 +1530,63 @@ describe("NotificationBackground", () => {
         expect(environmentServiceSpy).toHaveBeenCalled();
       });
     });
+
+    describe("handleUnlockPopoutClosed", () => {
+      let onRemovedListeners: Array<(tabId: number, removeInfo: chrome.tabs.OnRemovedInfo) => void>;
+      let tabsQuerySpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        onRemovedListeners = [];
+        chrome.tabs.onRemoved.addListener = jest.fn((listener) => {
+          onRemovedListeners.push(listener);
+        });
+        chrome.runtime.getURL = jest.fn().mockReturnValue("chrome-extension://id/popup/index.html");
+        notificationBackground.init();
+      });
+
+      const triggerTabRemoved = async (tabId: number) => {
+        onRemovedListeners[0](tabId, mock<chrome.tabs.OnRemovedInfo>());
+        await flushPromises();
+      };
+
+      it("sends abandon message when unlock popout is closed and vault is locked", async () => {
+        activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+        tabsQuerySpy = jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([]);
+
+        await triggerTabRemoved(1);
+
+        expect(tabsQuerySpy).toHaveBeenCalled();
+        expect(messagingService.send).toHaveBeenCalledWith("abandonAutofillPendingNotifications");
+      });
+
+      it("uses tracked tabId for fast lookup when available", async () => {
+        activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+        tabsQuerySpy = jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([
+          {
+            id: 123,
+            url: "chrome-extension://id/popup/index.html?singleActionPopout=auth_unlockExtension",
+          } as chrome.tabs.Tab,
+        ]);
+
+        await triggerTabRemoved(999);
+        tabsQuerySpy.mockClear();
+        messagingService.send.mockClear();
+
+        await triggerTabRemoved(123);
+
+        expect(tabsQuerySpy).not.toHaveBeenCalled();
+        expect(messagingService.send).toHaveBeenCalledWith("abandonAutofillPendingNotifications");
+      });
+
+      it("returns early when vault is unlocked", async () => {
+        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+        tabsQuerySpy = jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([]);
+
+        await triggerTabRemoved(1);
+
+        expect(tabsQuerySpy).not.toHaveBeenCalled();
+        expect(messagingService.send).not.toHaveBeenCalled();
+      });
+    });
   });
 });

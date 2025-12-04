@@ -209,10 +209,13 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     userId: UserId,
   ) {
     const userDecryptionOpts = await firstValueFrom(
-      this.userDecryptionOptionsService.userDecryptionOptions$,
+      this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
     );
     userDecryptionOpts.hasMasterPassword = true;
-    await this.userDecryptionOptionsService.setUserDecryptionOptions(userDecryptionOpts);
+    await this.userDecryptionOptionsService.setUserDecryptionOptionsById(
+      userId,
+      userDecryptionOpts,
+    );
     await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
     await this.masterPasswordService.setMasterKey(masterKey, userId);
     await this.keyService.setUserKey(masterKeyEncryptedUserKey[0], userId);

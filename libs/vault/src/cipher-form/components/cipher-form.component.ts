@@ -281,7 +281,6 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
 
       if (this.config.mode === "clone") {
         this.updatedCipherView.id = null;
-        this.updatedCipherView.archivedDate = null;
 
         if (this.updatedCipherView.login) {
           this.updatedCipherView.login.fido2Credentials = null;
@@ -305,13 +304,30 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
    * Updates `updatedCipherView` based on the value from the cache.
    */
   setInitialCipherFromCache() {
+    // If we are coming from the overlay/popup flow clear the cache to avoid old cached data
+    const hasOverlayData =
+      this.config.initialValues &&
+      (this.config.initialValues.username !== undefined ||
+        this.config.initialValues.password !== undefined);
+
+    if (hasOverlayData) {
+      this.cipherFormCacheService.clearCache();
+      return;
+    }
+
     const cachedCipher = this.cipherFormCacheService.getCachedCipherView();
     if (cachedCipher === null) {
       return;
     }
 
-    // Use the cached cipher when it matches the cipher being edited
-    if (this.updatedCipherView.id === cachedCipher.id) {
+    const isEditingExistingCipher =
+      this.updatedCipherView.id && this.updatedCipherView.id === cachedCipher.id;
+    const isCreatingNewCipher =
+      !this.updatedCipherView.id &&
+      !cachedCipher.id &&
+      this.updatedCipherView.type === cachedCipher.type;
+
+    if (isEditingExistingCipher || isCreatingNewCipher) {
       this.updatedCipherView = cachedCipher;
     }
   }
@@ -382,6 +398,9 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
       this.updatedCipherView,
       this.config,
     );
+
+    // Clear the cache after successful save
+    this.cipherFormCacheService.clearCache();
 
     this.toastService.showToast({
       variant: "success",

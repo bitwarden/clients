@@ -204,7 +204,7 @@ jobs:
       _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           persist-credentials: false
 
@@ -258,7 +258,7 @@ jobs:
       _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           persist-credentials: false
 
@@ -315,7 +315,7 @@ jobs:
       _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           persist-credentials: false
 
@@ -336,7 +336,7 @@ jobs:
           ruby-version: '3.4.7'
           bundler-cache: false
           working-directory: apps/desktop
-        
+
       - name: Install Fastlane
         working-directory: apps/desktop
         run: gem install fastlane
@@ -377,15 +377,15 @@ jobs:
             echo "📦 Publishing build $BUILD_NUMBER to Mac App Store"
             IS_DRY_RUN="false"
           fi
-          
+
           echo "📝 Release notes (${#CHANGELOG} chars): ${CHANGELOG:0:100}..."
-          
+
           # Validate changelog length (App Store limit is 4000 chars)
           if [ ${#CHANGELOG} -gt 4000 ]; then
             echo "❌ Release notes too long: ${#CHANGELOG} characters (max 4000)"
             exit 1
           fi
-          
+
           fastlane publish --verbose \
             app_version:"${_PKG_VERSION}" \
             build_number:"$BUILD_NUMBER" \

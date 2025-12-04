@@ -5,7 +5,7 @@
         ? hasNoCriticalApplications()
           ? ("prioritizeCriticalApplications" | i18n)
           : ("reviewNewApplications" | i18n)
-        : ("assignTasksToMembers" | i18n)
+        : ("assignSecurityTasksToMembers" | i18n)
     }}
   </span>
 
@@ -15,8 +15,8 @@
         <p bitTypography="body1" class="tw-mb-5">
           {{
             hasNoCriticalApplications()
-              ? ("selectCriticalApplicationsDescription" | i18n)
-              : ("reviewNewApplicationsDescription" | i18n)
+              ? ("selectCriticalAppsDescription" | i18n)
+              : ("reviewNewAppsDescription" | i18n)
           }}
         </p>
 
@@ -28,7 +28,7 @@
         </div>
 
         <dirt-review-applications-view
-          [applications]="getApplications()"
+          [applications]="applicationsWithIcons()"
           [selectedApplications]="selectedApplications()"
           (onToggleSelection)="toggleSelection($event)"
           (onToggleAll)="toggleAll()"
