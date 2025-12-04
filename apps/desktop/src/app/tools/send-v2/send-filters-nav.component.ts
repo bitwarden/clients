@@ -27,11 +27,11 @@ export class SendFiltersNavComponent {
   protected readonly SendType = SendType;
 
   // Inject services at class level
-  protected readonly filtersService = inject(SendListFiltersService);
+  private readonly filtersService = inject(SendListFiltersService);
   private readonly router = inject(Router);
 
   // Convert filter form to signal for reactive updates
-  protected readonly currentFilter = toSignal(
+  private readonly currentFilter = toSignal(
     this.filtersService.filterForm.valueChanges.pipe(
       startWith(this.filtersService.filterForm.value),
     ),
@@ -39,7 +39,7 @@ export class SendFiltersNavComponent {
   );
 
   // Computed: Is send route currently active?
-  protected isSendRouteActive(): boolean {
+  private isSendRouteActive(): boolean {
     return this.router.url.includes("/new-sends");
   }
 

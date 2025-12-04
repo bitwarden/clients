@@ -1,16 +1,20 @@
+import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { NavigationModule } from "@bitwarden/components";
-import { SendListFiltersService } from "@bitwarden/send-ui";
-
-import { SendFiltersNavComponent } from "../tools/send-v2/send-filters-nav.component";
 
 import { DesktopLayoutComponent } from "./desktop-layout.component";
+
+// Mock the child component to isolate DesktopLayoutComponent testing
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  selector: "app-send-filters-nav",
+  template: "",
+})
+class MockSendFiltersNavComponent {}
 
 Object.defineProperty(window, "matchMedia", {
   writable: true,
@@ -31,21 +35,10 @@ describe("DesktopLayoutComponent", () => {
   let fixture: ComponentFixture<DesktopLayoutComponent>;
 
   beforeEach(async () => {
-    const filterFormValueSubject = new BehaviorSubject<{ sendType: SendType | null }>({
-      sendType: null,
-    });
-
-    const sendListFiltersService = mock<SendListFiltersService>();
-    sendListFiltersService.filterForm = {
-      value: { sendType: null },
-      valueChanges: filterFormValueSubject.asObservable(),
-      patchValue: jest.fn(),
-    } as any;
-
     await TestBed.configureTestingModule({
       imports: [
         DesktopLayoutComponent,
-        SendFiltersNavComponent,
+        MockSendFiltersNavComponent,
         RouterModule.forRoot([]),
         NavigationModule,
       ],
@@ -53,10 +46,6 @@ describe("DesktopLayoutComponent", () => {
         {
           provide: I18nService,
           useValue: mock<I18nService>(),
-        },
-        {
-          provide: SendListFiltersService,
-          useValue: sendListFiltersService,
         },
       ],
     }).compileComponents();
