@@ -718,6 +718,10 @@ export class ServiceContainer {
       this.accountService,
     );
 
+    this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
+      this.stateProvider,
+    );
+
     this.loginStrategyService = new LoginStrategyService(
       this.accountService,
       this.masterPasswordService,
@@ -745,6 +749,7 @@ export class ServiceContainer {
       this.kdfConfigService,
       this.taskSchedulerService,
       this.configService,
+      this.accountCryptographicStateService,
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(
@@ -852,10 +857,6 @@ export class ServiceContainer {
     );
 
     this.avatarService = new AvatarService(this.apiService, this.stateProvider);
-
-    this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
-      this.stateProvider,
-    );
 
     this.syncService = new DefaultSyncService(
       this.masterPasswordService,
