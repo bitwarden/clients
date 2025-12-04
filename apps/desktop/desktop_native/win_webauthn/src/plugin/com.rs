@@ -24,7 +24,7 @@ use super::types::{
 };
 
 use super::PluginAuthenticator;
-use crate::{ErrorKind, WinWebAuthnError};
+use crate::{plugin::crypto, ErrorKind, WinWebAuthnError};
 
 static HANDLER: OnceLock<(GUID, Arc<dyn PluginAuthenticator + Send + Sync>)> = OnceLock::new();
 
@@ -104,7 +104,10 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
             }
         };
 
-        // TODO: verify request signature
+        if let Err(err) = verify_operation_request(op_request_ptr.as_ref(), &self.clsid) {
+            tracing::error!("Failed to verify request signature: {err}");
+            return E_INVALIDARG;
+        }
 
         let registration_request = match op_request_ptr.try_into() {
             Ok(r) => r,
@@ -160,7 +163,12 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
                 return E_INVALIDARG;
             }
         };
-        // TODO: verify request signature
+
+        if let Err(err) = verify_operation_request(op_request_ptr.as_ref(), &self.clsid) {
+            tracing::error!("Failed to verify request signature: {err}");
+            return E_INVALIDARG;
+        }
+
         let assertion_request = match op_request_ptr.try_into() {
             Ok(assertion_request) => assertion_request,
             Err(err) => {
@@ -264,6 +272,7 @@ unsafe fn write_operation_response(
     });
     Ok(())
 }
+
 /// Registers the plugin authenticator COM library with Windows.
 pub(super) fn register_server<T>(clsid: &GUID, handler: T) -> Result<(), WinWebAuthnError>
 where
@@ -417,4 +426,28 @@ impl<T: AsRef<[u8]>> From<T> for ComBuffer {
         }
         com_buffer
     }
+}
+
+unsafe fn verify_operation_request(
+    request: &WEBAUTHN_PLUGIN_OPERATION_REQUEST,
+    clsid: &GUID,
+) -> Result<(), WinWebAuthnError> {
+    // Verify request
+    tracing::debug!("Verifying request");
+    let request_data =
+        std::slice::from_raw_parts(request.pbEncodedRequest, request.cbEncodedRequest as usize);
+    let signature = std::slice::from_raw_parts(
+        request.pbRequestSignature,
+        request.cbRequestSignature as usize,
+    );
+    tracing::debug!("Retrieving signing key");
+    let op_pub_key = crypto::get_operation_signing_public_key(clsid).map_err(|err| {
+        WinWebAuthnError::with_cause(
+            ErrorKind::WindowsInternal,
+            "Failed to get signing key for operation",
+            err,
+        )
+    })?;
+    tracing::debug!("Verifying signature");
+    op_pub_key.verify_signature(request_data, signature)
 }
