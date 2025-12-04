@@ -105,6 +105,7 @@ describe("DefaultSdkService", () => {
           .mockReturnValue(of("private-key" as EncryptedString));
         keyService.encryptedOrgKeys$.calledWith(userId).mockReturnValue(of({}));
         keyService.userSigningKey$.calledWith(userId).mockReturnValue(of(null));
+        keyService.userSignedPublicKey$.calledWith(userId).mockReturnValue(of(null));
         securityStateService.accountSecurityState$.calledWith(userId).mockReturnValue(of(null));
       });
 
