@@ -159,7 +159,8 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
   async load(filter: (send: SendView) => boolean = null) {
     this.loading = true;
 
-    // Clean up existing subscription to prevent memory leak
+    // Recreate subscription on each load (required for sync refresh)
+    // Manual cleanup in ngOnDestroy is intentional - load() is called multiple times
     this.sendViewsSubscription?.unsubscribe();
 
     this.sendViewsSubscription = this.sendService.sendViews$

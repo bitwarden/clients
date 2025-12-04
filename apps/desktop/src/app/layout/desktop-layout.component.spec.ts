@@ -1,8 +1,10 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { NavigationModule } from "@bitwarden/components";
 import { SendListFiltersService } from "@bitwarden/send-ui";
 
@@ -29,9 +31,14 @@ describe("DesktopLayoutComponent", () => {
   let fixture: ComponentFixture<DesktopLayoutComponent>;
 
   beforeEach(async () => {
+    const filterFormValueSubject = new BehaviorSubject<{ sendType: SendType | null }>({
+      sendType: null,
+    });
+
     const sendListFiltersService = mock<SendListFiltersService>();
     sendListFiltersService.filterForm = {
       value: { sendType: null },
+      valueChanges: filterFormValueSubject.asObservable(),
       patchValue: jest.fn(),
     } as any;
 

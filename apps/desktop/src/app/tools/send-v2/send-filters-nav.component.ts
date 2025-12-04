@@ -1,6 +1,8 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
+import { startWith } from "rxjs";
 
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { NavigationModule } from "@bitwarden/components";
@@ -19,16 +21,22 @@ import { I18nPipe } from "@bitwarden/ui-common";
 @Component({
   selector: "app-send-filters-nav",
   templateUrl: "./send-filters-nav.component.html",
-  standalone: true,
   imports: [CommonModule, NavigationModule, I18nPipe],
 })
 export class SendFiltersNavComponent {
   protected readonly SendType = SendType;
 
-  constructor(
-    protected readonly filtersService: SendListFiltersService,
-    private router: Router,
-  ) {}
+  // Inject services at class level
+  protected readonly filtersService = inject(SendListFiltersService);
+  private readonly router = inject(Router);
+
+  // Convert filter form to signal for reactive updates
+  protected readonly currentFilter = toSignal(
+    this.filtersService.filterForm.valueChanges.pipe(
+      startWith(this.filtersService.filterForm.value),
+    ),
+    { initialValue: this.filtersService.filterForm.value },
+  );
 
   // Computed: Is send route currently active?
   protected isSendRouteActive(): boolean {
@@ -37,7 +45,7 @@ export class SendFiltersNavComponent {
 
   // Computed: Is specific type currently active (on send route AND that filter is set)?
   protected isTypeActive(type: SendType): boolean {
-    return this.isSendRouteActive() && this.filtersService.filterForm.value.sendType === type;
+    return this.isSendRouteActive() && this.currentFilter()?.sendType === type;
   }
 
   // Set filter and navigate to send route if needed
