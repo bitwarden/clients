@@ -437,7 +437,7 @@ export class SsoComponent implements OnInit {
 
       // Everything after the 2FA check is considered a successful login
       // Just have to figure out where to send the user
-      await this.loginSuccessHandlerService.run(authResult.userId);
+      await this.loginSuccessHandlerService.run(authResult.userId, null);
 
       // Save off the OrgSsoIdentifier for use in the TDE flows (or elsewhere)
       // - TDE login decryption options component

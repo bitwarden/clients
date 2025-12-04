@@ -24,7 +24,6 @@ export enum FeatureFlag {
 
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
-  PM21821_ProviderPortalTakeover = "pm-21821-provider-portal-takeover",
   PM22415_TaxIDWarnings = "pm-22415-tax-id-warnings",
   PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
   PM25379_UseNewOrganizationMetadataStructure = "pm-25379-use-new-organization-metadata-structure",
@@ -71,6 +70,9 @@ export enum FeatureFlag {
 
   /* Innovation */
   PM19148_InnovationArchive = "pm-19148-innovation-archive",
+
+  /* Desktop */
+  DesktopUiMigrationMilestone1 = "desktop-ui-migration-milestone-1",
 
   /* UIF */
   RouterFocusManagement = "router-focus-management",
@@ -123,7 +125,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
-  [FeatureFlag.PM21821_ProviderPortalTakeover]: FALSE,
   [FeatureFlag.PM22415_TaxIDWarnings]: FALSE,
   [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
   [FeatureFlag.PM25379_UseNewOrganizationMetadataStructure]: FALSE,
@@ -151,6 +152,9 @@ export const DefaultFeatureFlagValue = {
 
   /* Innovation */
   [FeatureFlag.PM19148_InnovationArchive]: FALSE,
+
+  /* Desktop */
+  [FeatureFlag.DesktopUiMigrationMilestone1]: FALSE,
 
   /* UIF */
   [FeatureFlag.RouterFocusManagement]: FALSE,
