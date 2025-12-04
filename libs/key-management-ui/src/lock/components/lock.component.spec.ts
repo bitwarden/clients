@@ -22,6 +22,7 @@ import {
 } from "@bitwarden/common/auth/types/verification";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -91,6 +92,8 @@ describe("LockComponent", () => {
   const mockLockComponentService = mock<LockComponentService>();
   const mockAnonLayoutWrapperDataService = mock<AnonLayoutWrapperDataService>();
   const mockBroadcasterService = mock<BroadcasterService>();
+  const mockEncryptedMigrator = mock<EncryptedMigrator>();
+  const mockConfigService = mock<ConfigService>();
   const mockActivatedRoute = {
     snapshot: {
       paramMap: {
@@ -98,7 +101,6 @@ describe("LockComponent", () => {
       },
     },
   };
-  const mockConfigService = mock<ConfigService>();
 
   beforeEach(async () => {
     jest.resetAllMocks();
@@ -157,6 +159,7 @@ describe("LockComponent", () => {
         { provide: AnonLayoutWrapperDataService, useValue: mockAnonLayoutWrapperDataService },
         { provide: BroadcasterService, useValue: mockBroadcasterService },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
+        { provide: EncryptedMigrator, useValue: mockEncryptedMigrator },
         { provide: ConfigService, useValue: mockConfigService },
       ],
     })
