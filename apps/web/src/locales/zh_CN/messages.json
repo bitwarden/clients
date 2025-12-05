@@ -1477,7 +1477,7 @@
     "message": "移除通行密钥"
   },
   "removePasskeyInfo": {
-    "message": "如果所有通行密钥被移除，不使用主密码您将无法登录新的设备。"
+    "message": "如果所有通行密钥被移除，没有主密码您将无法登录新的设备。"
   },
   "passkeyLimitReachedInfo": {
     "message": "已达到通行密钥上限。请移除一个通行密钥后再添加其他通行密钥。"
@@ -2500,7 +2500,7 @@
     "message": "要强制实施 Duo 方式的两步登录，请使用下面的选项。"
   },
   "twoStepLoginOrganizationSsoDesc": {
-    "message": "如果您已设置或计划设置 SSO，两步登录可能已经通过您的身份提供程序强制实施了。"
+    "message": "如果您已设置 SSO 或计划设置 SSO，两步登录可能已经通过您的身份提供程序强制实施了。"
   },
   "twoStepLoginRecoveryWarning": {
     "message": "启用两步登录可能会将您永久锁定在 Bitwarden 账户之外。当您无法使用常规的两步登录提供程序（例如您丢失了设备）时，可以使用恢复代码访问您的账户。如果您失去对您账户的访问，Bitwarden 支持也无法帮助您。我们建议您写下或打印恢复代码，并将其妥善保管。"
@@ -3060,7 +3060,16 @@
     "message": "将您的账户升级为高级会员，将解锁一些强大的附加功能。"
   },
   "premiumSignUpStorage": {
-    "message": "1 GB 文件附件加密存储。"
+    "message": "1 GB 文件附件加密存储空间。"
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ 文件附件加密存储空间。",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "专有的两步登录选项，如 YubiKey 和 Duo。"
@@ -3123,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "additionalStorageGb": {
     "message": "附加存储 (GB)"
@@ -3350,7 +3368,7 @@
     "message": "GB 存储空间将增加"
   },
   "gbStorageRemove": {
-    "message": "GB 存储空间将删除"
+    "message": "GB 存储空间将移除"
   },
   "storageAddNote": {
     "message": "添加存储空间将会调整计费总金额，并立即通过您的付款方式进行扣款。第一笔费用将按当前计费周期的剩余时间按比例分配。"
@@ -3541,7 +3559,7 @@
     "message": "创建不限数量的集合"
   },
   "gbEncryptedFileStorage": {
-    "message": "$SIZE$ 加密文件存储",
+    "message": "$SIZE$ 加密文件存储空间",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -3694,7 +3712,7 @@
     "message": "确定要移除此用户吗？"
   },
   "removeOrgUserConfirmation": {
-    "message": "移除成员后，他们将不再具有对组织数据的访问权限，并且此操作无法撤销。要将此成员添加回组织，必须再次邀请他们并加入。"
+    "message": "移除成员后，他们将不再具有对组织数据的访问权限，并且此操作无法撤销。要将此成员添加回组织，必须再次邀请他们并重新入职。"
   },
   "revokeUserConfirmation": {
     "message": "撤销成员后，他们将不再具有对组织数据的访问权限。要快速恢复此成员的访问权限，请转到「已撤销」标签页。"
@@ -3802,7 +3820,7 @@
     "message": "用户"
   },
   "userDesc": {
-    "message": "访问并添加项目到已分配的集合"
+    "message": "访问项目和将项目添加到已分配的集合"
   },
   "all": {
     "message": "全部"
@@ -4124,7 +4142,7 @@
     }
   },
   "removeUserIdAccess": {
-    "message": "移除了 $ID$ 的访问权限",
+    "message": "移除 $ID$ 的访问权限",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4350,10 +4368,10 @@
     "message": "检查您的电子邮箱"
   },
   "followTheLinkInTheEmailSentTo": {
-    "message": "点击发送到电子邮件中的链接"
+    "message": "点击发送到"
   },
   "andContinueCreatingYourAccount": {
-    "message": "然后继续创建您的账户。"
+    "message": "的电子邮件中的链接，然后继续创建您的账户。"
   },
   "noEmail": {
     "message": "没有收到电子邮件吗？"
@@ -4607,6 +4625,24 @@
   },
   "learnMore": {
     "message": "进一步了解"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "更新设置"
   },
   "deleteRecoverDesc": {
     "message": "请在下面输入您的电子邮箱地址以恢复和删除您的账户。"
@@ -6385,7 +6421,7 @@
     "message": "确定要移除以下用户吗？该过程可能需要几秒钟才能完成，并且不能中断或取消。"
   },
   "removeOrgUsersConfirmation": {
-    "message": "移除成员后，他们将不再具有对组织数据的访问权限，并且此操作无法撤销。要将成员添加回组织，必须再次邀请他们并加入。该过程可能需要几秒钟才能完成，并且不能被中断或取消。"
+    "message": "移除成员后，他们将不再具有对组织数据的访问权限，并且此操作无法撤销。要将此成员添加回组织，必须再次邀请他们并重新入职。该过程可能需要几秒钟才能完成，并且不能被中断或取消。"
   },
   "revokeUsersWarning": {
     "message": "撤销成员后，他们将不再具有对组织数据的访问权限。要快速恢复成员的访问权限，请转到「已撤销」标签页。该过程可能需要几秒钟才能完成，并且不能被中断或取消。"
@@ -9527,13 +9563,13 @@
     "message": "允许所有者和管理员从管理控制台管理所有集合和项目"
   },
   "restrictCollectionCreationDescription": {
-    "message": "限制为所有者和管理员可以创建集合"
+    "message": "限制为仅所有者和管理员可以创建集合"
   },
   "restrictCollectionDeletionDescription": {
-    "message": "限制为所有者和管理员可以删除集合"
+    "message": "限制为仅所有者和管理员可以删除集合"
   },
   "restrictItemDeletionDescriptionStart": {
-    "message": "限制为具有以下权限的成员可以删除项目：",
+    "message": "限制为仅具有以下权限的成员可以删除项目：",
     "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "restrictItemDeletionDescriptionEnd": {
@@ -11729,7 +11765,7 @@
     "message": "关于此设置"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden 将使用已保存的登录 URI 来识别应使用哪个图标或更改密码的 URL 来改善您的体验。当您使用此服务时，不会收集或保存任何信息。"
+    "message": "Bitwarden 将使用已保存的登录 URI 来确定应使用的图标或更改密码的 URL，以提升您的使用体验。使用此服务时不会收集或保存任何信息。"
   },
   "billingAddress": {
     "message": "计费地址"
@@ -12092,9 +12128,6 @@
   },
   "updateYourEncryptionSettings": {
     "message": "更新您的加密设置"
-  },
-  "updateSettings": {
-    "message": "更新设置"
   },
   "algorithm": {
     "message": "算法"

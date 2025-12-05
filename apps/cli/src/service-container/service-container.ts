@@ -76,6 +76,10 @@ import {
 import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
+import { DefaultEncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/default-encrypted-migrator";
+import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
+import { DefaultChangeKdfApiService } from "@bitwarden/common/key-management/kdf/change-kdf-api.service";
+import { DefaultChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -324,6 +328,7 @@ export class ServiceContainer {
   cipherEncryptionService: CipherEncryptionService;
   restrictedItemTypesService: RestrictedItemTypesService;
   cliRestrictedItemTypesService: CliRestrictedItemTypesService;
+  encryptedMigrator: EncryptedMigrator;
   securityStateService: SecurityStateService;
   masterPasswordUnlockService: MasterPasswordUnlockService;
   cipherArchiveService: CipherArchiveService;
@@ -518,7 +523,11 @@ export class ServiceContainer {
     this.ssoUrlService = new SsoUrlService();
 
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
-    this.policyService = new DefaultPolicyService(this.stateProvider, this.organizationService);
+    this.policyService = new DefaultPolicyService(
+      this.stateProvider,
+      this.organizationService,
+      this.accountService,
+    );
 
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
@@ -971,6 +980,16 @@ export class ServiceContainer {
     );
 
     this.masterPasswordApiService = new MasterPasswordApiService(this.apiService, this.logService);
+    const changeKdfApiService = new DefaultChangeKdfApiService(this.apiService);
+    const changeKdfService = new DefaultChangeKdfService(changeKdfApiService, this.sdkService);
+    this.encryptedMigrator = new DefaultEncryptedMigrator(
+      this.kdfConfigService,
+      changeKdfService,
+      this.logService,
+      this.configService,
+      this.masterPasswordService,
+      this.syncService,
+    );
   }
 
   async logout() {
