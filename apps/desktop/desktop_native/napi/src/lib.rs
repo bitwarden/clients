@@ -1168,8 +1168,12 @@ pub mod chromium_importer {
     }
 
     #[napi]
-    pub fn get_available_profiles(browser: String) -> napi::Result<Vec<ProfileInfo>> {
-        chromium_importer::chromium::get_available_profiles(&browser)
+    pub async fn get_available_profiles(
+        browser: String,
+        mas_build: bool,
+    ) -> napi::Result<Vec<ProfileInfo>> {
+        chromium_importer::chromium::get_available_profiles(&browser, mas_build)
+            .await
             .map(|profiles| profiles.into_iter().map(ProfileInfo::from).collect())
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }

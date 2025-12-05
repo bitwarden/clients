@@ -33,7 +33,7 @@
             browserName, browserPath.path];
         openPanel.prompt = @"Grant Access";
         openPanel.allowsMultipleSelection = NO;
-        openPanel.canChooseDirectories = NO;
+        openPanel.canChooseDirectories = YES;
         openPanel.canChooseFiles = NO;
         openPanel.directoryURL = browserPath;
 

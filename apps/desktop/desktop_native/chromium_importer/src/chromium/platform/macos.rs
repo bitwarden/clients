@@ -61,12 +61,18 @@ pub mod sandbox {
                 .find(|b| b.name == browser_name)
                 .ok_or_else(|| anyhow!("Unsupported browser: {}", browser_name))?;
 
+            // For macOS, data_dir is always a single-element array
+            let relative_path = config
+                .data_dir
+                .first()
+                .ok_or_else(|| anyhow!("No data directory configured for browser"))?;
+
             let input = CommandInput {
                 namespace: "chromium_importer".to_string(),
                 command: "request_access".to_string(),
                 params: serde_json::json!({
                     "browserName": browser_name,
-                    "relativePath": config.data_dir,
+                    "relativePath": relative_path,
                 }),
             };
 

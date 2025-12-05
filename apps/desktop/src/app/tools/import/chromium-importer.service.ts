@@ -20,7 +20,7 @@ export class ChromiumImporterService {
     });
 
     ipcMain.handle("chromium_importer.getAvailableProfiles", async (event, browser: string) => {
-      return await chromium_importer.getAvailableProfiles(browser);
+      return await chromium_importer.getAvailableProfiles(browser, isMacAppStore());
     });
 
     ipcMain.handle(

@@ -76,7 +76,18 @@ impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
     }
 }
 
-pub fn get_available_profiles(browser_name: &str) -> Result<Vec<ProfileInfo>> {
+pub async fn get_available_profiles(
+    browser_name: &str,
+    mas_build: bool,
+) -> Result<Vec<ProfileInfo>> {
+    // MAS builds need to resume security-scoped access before reading browser files
+    #[cfg(target_os = "macos")]
+    let _access = if mas_build {
+        Some(platform::sandbox::ScopedBrowserAccess::resume(browser_name).await?)
+    } else {
+        None
+    };
+
     let (_, local_state) = load_local_state_for_browser(browser_name)?;
     Ok(get_profile_info(&local_state))
 }
