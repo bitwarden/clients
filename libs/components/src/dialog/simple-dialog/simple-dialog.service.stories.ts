@@ -1,8 +1,8 @@
 import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
-import { Component, Inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { provideAnimations } from "@angular/platform-browser/animations";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
-import { getAllByRole, userEvent } from "@storybook/test";
+import { getAllByRole, userEvent } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -30,7 +30,7 @@ interface Animal {
   imports: [ButtonModule],
 })
 class StoryDialogComponent {
-  constructor(public dialogService: DialogService) {}
+  dialogService = inject(DialogService);
 
   openSimpleDialog() {
     this.dialogService.open(SimpleDialogContentComponent, {
@@ -84,10 +84,8 @@ class StoryDialogComponent {
   imports: [ButtonModule, DialogModule],
 })
 class SimpleDialogContentComponent {
-  constructor(
-    public dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) private data: Animal,
-  ) {}
+  dialogRef = inject(DialogRef);
+  private data = inject<Animal>(DIALOG_DATA);
 
   get animal() {
     return this.data?.animal;
@@ -115,10 +113,8 @@ class SimpleDialogContentComponent {
   imports: [ButtonModule, DialogModule],
 })
 class NonDismissableWithPrimaryButtonContentComponent {
-  constructor(
-    public dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) private data: Animal,
-  ) {}
+  dialogRef = inject(DialogRef);
+  private data = inject<Animal>(DIALOG_DATA);
 
   get animal() {
     return this.data?.animal;
@@ -141,10 +137,8 @@ class NonDismissableWithPrimaryButtonContentComponent {
   imports: [ButtonModule, DialogModule],
 })
 class NonDismissableWithNoButtonsContentComponent {
-  constructor(
-    public dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) private data: Animal,
-  ) {}
+  dialogRef = inject(DialogRef);
+  private data = inject<Animal>(DIALOG_DATA);
 
   get animal() {
     return this.data?.animal;

@@ -67,7 +67,10 @@ export abstract class CipherEncryptionService {
    *
    * @returns A promise that resolves to an array of decrypted cipher views
    */
-  abstract decryptManyLegacy(ciphers: Cipher[], userId: UserId): Promise<CipherView[]>;
+  abstract decryptManyLegacy(
+    ciphers: Cipher[],
+    userId: UserId,
+  ): Promise<[CipherView[], CipherView[]]>;
   /**
    * Decrypts many ciphers using the SDK for the given userId, and returns a list of
    * failures.
