@@ -61,8 +61,26 @@ export class ImportDesktopComponent {
     try {
       // Request browser access (required for sandboxed builds, no-op otherwise)
       await ipc.tools.chromiumImporter.requestBrowserAccess(browser);
-    } catch {
-      throw new Error(this.i18nService.t("browserAccessDenied"));
+    } catch (error) {
+      const rawMessage = error instanceof Error ? error.message : "";
+
+      // Check verbose error chain for specific i18n key indicating browser not installed
+      const browserNotInstalledMatch = rawMessage.match(
+        /chromiumImporterBrowserNotInstalled:([^:]+)/,
+      );
+      let message: string;
+
+      if (browserNotInstalledMatch) {
+        message = this.i18nService.t(
+          "chromiumImporterBrowserNotInstalled",
+          browserNotInstalledMatch[1],
+        );
+      } else {
+        // Invalid folder, explicit permission denial, or system error
+        message = this.i18nService.t("browserAccessDenied");
+      }
+
+      throw new Error(message);
     }
     return ipc.tools.chromiumImporter.getAvailableProfiles(browser);
   }

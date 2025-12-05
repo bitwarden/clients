@@ -14,7 +14,7 @@
 }
 
 - (NSString *)requestAccessToBrowserDir:(NSString *)browserName relativePath:(NSString *)relativePath {
-    
+
     if (!relativePath) {
         return nil;
     }
@@ -53,14 +53,7 @@
 
     NSURL *localStatePath = [selectedURL URLByAppendingPathComponent:@"Local State"];
     if (![[NSFileManager defaultManager] fileExistsAtPath:localStatePath.path]) {
-        NSAlert *alert = [[NSAlert alloc] init];
-        alert.messageText = @"Invalid Folder";
-        alert.informativeText = [NSString stringWithFormat:
-            @"The selected folder doesn't appear to be a valid %@ data directory. Please select the correct folder.",
-            browserName];
-        alert.alertStyle = NSAlertStyleWarning;
-        [alert runModal];
-
+        // Invalid directory selected caller will handle
         return nil;
     }
 

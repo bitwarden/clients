@@ -15,6 +15,17 @@ pub mod sandbox {
     use anyhow::{anyhow, Result};
     use serde::{Deserialize, Serialize};
 
+    // Before requesting access outside of sandbox, determine if browser is actually installed
+    const BROWSER_BUNDLE_IDS: &[(&str, &str)] = &[
+        ("Chrome", "com.google.Chrome"),
+        ("Chromium", "org.chromium.Chromium"),
+        ("Microsoft Edge", "com.microsoft.edgemac"),
+        ("Brave", "com.brave.Browser"),
+        ("Arc", "company.thebrowser.Browser"),
+        ("Opera", "com.operasoftware.Opera"),
+        ("Vivaldi", "com.vivaldi.Vivaldi"),
+    ];
+
     #[derive(Debug, Deserialize)]
     #[serde(tag = "type")]
     enum CommandResult<T> {
@@ -60,6 +71,13 @@ pub mod sandbox {
                 .iter()
                 .find(|b| b.name == browser_name)
                 .ok_or_else(|| anyhow!("Unsupported browser: {}", browser_name))?;
+
+            if !is_browser_installed(browser_name).await? {
+                return Err(anyhow!(
+                    "chromiumImporterBrowserNotInstalled:{}",
+                    browser_name
+                ));
+            }
 
             // For macOS, data_dir is always a single-element array
             let relative_path = config
@@ -162,6 +180,44 @@ pub mod sandbox {
                 }
             });
         }
+    }
+
+    async fn is_browser_installed(browser_name: &str) -> Result<bool> {
+        let bundle_id = BROWSER_BUNDLE_IDS
+            .iter()
+            .find(|(name, _)| *name == browser_name)
+            .map(|(_, id)| *id);
+
+        let bundle_id = match bundle_id {
+            Some(id) => id,
+            None => return Ok(true),
+        };
+
+        let input = CommandInput {
+            namespace: "chromium_importer".to_string(),
+            command: "check_browser_installed".to_string(),
+            params: serde_json::json!({
+                "bundleId": bundle_id,
+            }),
+        };
+
+        let output = desktop_objc::run_command(serde_json::to_string(&input)?)
+            .await
+            .map_err(|e| anyhow!("Failed to call ObjC command: {}", e))?;
+
+        let result: CommandResult<CheckBrowserInstalledResponse> = serde_json::from_str(&output)
+            .map_err(|e| anyhow!("Failed to parse ObjC response: {}", e))?;
+
+        match result {
+            CommandResult::Success { value } => Ok(value.is_installed),
+            CommandResult::Error { error } => Err(anyhow!("{}", error)),
+        }
+    }
+
+    #[derive(Debug, Deserialize)]
+    struct CheckBrowserInstalledResponse {
+        #[serde(rename = "isInstalled")]
+        is_installed: bool,
     }
 }
 

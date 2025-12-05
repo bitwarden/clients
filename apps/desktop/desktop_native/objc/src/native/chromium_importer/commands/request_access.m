@@ -15,7 +15,7 @@ void requestAccessCommand(void* context, NSDictionary *params) {
   NSString *bookmarkData = [manager requestAccessToBrowserDir:browserName relativePath:relativePath];
 
   if (bookmarkData == nil) {
-    return _return(context, _error(@"User denied access or selected an invalid browser directory"));
+    return _return(context, _error(@"browserAccessDenied"));
   }
 
   _return(context, _success(@{@"bookmark": bookmarkData}));

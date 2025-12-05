@@ -3,6 +3,7 @@
 #import "commands/has_stored_access.h"
 #import "commands/start_access.h"
 #import "commands/stop_access.h"
+#import "commands/check_browser_installed.h"
 #import "../interop.h"
 #import "../utils.h"
 #import "run_chromium_command.h"
@@ -19,6 +20,8 @@ void runChromiumCommand(void* context, NSDictionary *input) {
     return startAccessCommand(context, params);
   } else if ([command isEqual:@"stop_access"]) {
     return stopAccessCommand(context, params);
+  } else if ([command isEqual:@"check_browser_installed"]) {
+    return checkBrowserInstalledCommand(context, params);
   }
 
   _return(context, _error([NSString stringWithFormat:@"Unknown command: %@", command]));
