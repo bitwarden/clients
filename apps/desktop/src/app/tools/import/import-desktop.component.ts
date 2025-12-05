@@ -3,8 +3,6 @@ import { Component } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DialogRef, AsyncActionsModule, ButtonModule, DialogModule } from "@bitwarden/components";
-// eslint-disable-next-line no-restricted-imports
-import { SpinnerComponent } from "@bitwarden/components/src/spinner";
 import type { chromium_importer } from "@bitwarden/desktop-napi";
 import { ImportMetadataServiceAbstraction } from "@bitwarden/importer-core";
 import {
@@ -27,7 +25,6 @@ import { DesktopImportMetadataService } from "./desktop-import-metadata.service"
     AsyncActionsModule,
     ButtonModule,
     ImportComponent,
-    SpinnerComponent,
   ],
   providers: [
     ...ImporterProviders,
