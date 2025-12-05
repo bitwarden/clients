@@ -104,7 +104,7 @@ export class DialogComponent {
     // `tw-max-h-[90vh]` is needed to prevent dialogs from overlapping the desktop header
     const baseClasses = ["tw-flex", "tw-flex-col", "tw-w-screen"];
     const sizeClasses = this.dialogRef?.isDrawer
-      ? ["tw-min-h-screen", "md:tw-w-[23rem]"]
+      ? ["tw-h-full", "md:tw-w-[23rem]"]
       : ["md:tw-p-4", "tw-w-screen", "tw-max-h-[90vh]"];
 
     const animationClasses =
