@@ -70,7 +70,7 @@ import {
   BiometricsStatus,
 } from "@bitwarden/key-management";
 import {
-  SessionTimeoutInputComponent,
+  SessionTimeoutInputLegacyComponent,
   SessionTimeoutSettingsComponent,
 } from "@bitwarden/key-management-ui";
 
@@ -109,7 +109,7 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     SessionTimeoutSettingsComponent,
     SpotlightComponent,
     TypographyModule,
-    SessionTimeoutInputComponent,
+    SessionTimeoutInputLegacyComponent,
   ],
 })
 export class AccountSecurityComponent implements OnInit, OnDestroy {

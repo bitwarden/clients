@@ -62,6 +62,7 @@ import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypt
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
+import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
@@ -128,7 +129,7 @@ import { DesktopBiometricsService } from "../../key-management/biometrics/deskto
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
 import { ElectronKeyService } from "../../key-management/electron-key.service";
 import { DesktopLockComponentService } from "../../key-management/lock/services/desktop-lock-component.service";
-import { DesktopSessionTimeoutSettingsComponentService } from "../../key-management/session-timeout/services/desktop-session-timeout-settings-component.service";
+import { DesktopSessionTimeoutTypeService } from "../../key-management/session-timeout/services/desktop-session-timeout-type.service";
 import { flagEnabled } from "../../platform/flags";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { ElectronLogRendererService } from "../../platform/services/electron-log.renderer.service";
@@ -485,9 +486,14 @@ const safeProviders: SafeProvider[] = [
     deps: [AccountServiceAbstraction, AuthServiceAbstraction, InternalPolicyService, ConfigService],
   }),
   safeProvider({
+    provide: SessionTimeoutTypeService,
+    useClass: DesktopSessionTimeoutTypeService,
+    deps: [],
+  }),
+  safeProvider({
     provide: SessionTimeoutSettingsComponentService,
-    useClass: DesktopSessionTimeoutSettingsComponentService,
-    deps: [I18nServiceAbstraction],
+    useClass: SessionTimeoutSettingsComponentService,
+    deps: [I18nServiceAbstraction, SessionTimeoutTypeService, PolicyServiceAbstraction],
   }),
 ];
 
