@@ -1093,6 +1093,24 @@
   "learnMore": {
     "message": "بیشتر بدانید"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
   "featureUnavailable": {
     "message": "ویژگی موجود نیست"
   },
@@ -1489,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "۱ گیگابایت فضای ذخیره‌سازی رمزنگاری شده برای پرونده‌های پیوست."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "گزینه‌های ورود اضافی دو مرحله‌ای مانند YubiKey و Duo."
@@ -2227,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "اطلاعات تماس"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "همه ارسال‌ها",
@@ -2991,7 +3022,8 @@
     "message": "آیا جداً می‌خواهید از گزینه \"هرگز\" استفاده کنید؟ تنظیم کردن گزینه قفل به \"هرگز\" کلیدهای رمزنگاری گاوصندوقتان را بر روی دستگاه شما ذخیره خواهد کرد. اگر از این گزینه استفاده می‌کنید باید اطمینان داشته باشید که دستگاه شما کاملا محافظت شده است."
   },
   "vault": {
-    "message": "گاوصندوق"
+    "message": "گاوصندوق",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "با کلمه عبور اصلی وارد شوید"
