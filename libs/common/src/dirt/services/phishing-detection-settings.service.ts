@@ -1,14 +1,9 @@
-import { Observable } from "rxjs";
+import { Observable, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { UserId } from "@bitwarden/user-core";
 
-import {
-  ActiveUserState,
-  PHISHING_DETECTION_DISK,
-  StateProvider,
-  UserKeyDefinition,
-} from "../../platform/state";
+import { PHISHING_DETECTION_DISK, StateProvider, UserKeyDefinition } from "../../platform/state";
 
 const ENABLE_PHISHING_DETECTION = new UserKeyDefinition(
   PHISHING_DETECTION_DISK,
@@ -38,14 +33,15 @@ export abstract class PhishingDetectionSettingsServiceAbstraction {
 export class PhishingDetectionSettingsService
   implements PhishingDetectionSettingsServiceAbstraction
 {
-  private enablePhishingDetectionState: ActiveUserState<boolean>;
   readonly enablePhishingDetection$: Observable<boolean>;
 
   constructor(private stateProvider: StateProvider) {
-    // Use getGlobal() for client-level setting
-    this.enablePhishingDetectionState = this.stateProvider.getActive(ENABLE_PHISHING_DETECTION);
-
-    this.enablePhishingDetection$ = this.enablePhishingDetectionState.state$.pipe(
+    this.enablePhishingDetection$ = this.stateProvider.activeUserId$.pipe(
+      switchMap((userId) =>
+        userId != null
+          ? this.stateProvider.getUser(userId, ENABLE_PHISHING_DETECTION).state$
+          : [true],
+      ),
       map((x) => x ?? true),
     );
   }
