@@ -39,6 +39,7 @@ export class AutoFillConstants {
     "otpcode",
     "onetimepassword",
     "security_code",
+    "second-factor",
     "twofactor",
     "twofa",
     "twofactorcode",

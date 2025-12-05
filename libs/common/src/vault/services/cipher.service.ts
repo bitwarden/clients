@@ -634,6 +634,15 @@ export class CipherService implements CipherServiceAbstraction {
     );
   }
 
+  async getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]> {
+    return firstValueFrom(
+      this.cipherViews$(userId).pipe(
+        filter((ciphers) => ciphers != null),
+        map((ciphers) => ciphers.filter((cipher) => ids.includes(cipher.id))),
+      ),
+    );
+  }
+
   async filterCiphersForUrl<C extends CipherViewLike>(
     ciphers: C[],
     url: string,
@@ -2143,14 +2152,18 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     fullDecryption: boolean = true,
   ): Promise<[CipherViewLike[], CipherView[]]> {
+    if (fullDecryption) {
+      const [decryptedViews, failedViews] = await this.cipherEncryptionService.decryptManyLegacy(
+        ciphers,
+        userId,
+      );
+      return [decryptedViews.sort(this.getLocaleSortingFunction()), failedViews];
+    }
+
     const [decrypted, failures] = await this.cipherEncryptionService.decryptManyWithFailures(
       ciphers,
       userId,
     );
-
-    const decryptedViews = fullDecryption
-      ? await Promise.all(decrypted.map((c) => this.getFullCipherView(c)))
-      : decrypted;
 
     const failedViews = failures.map((c) => {
       const cipher_view = new CipherView(c);
@@ -2159,7 +2172,7 @@ export class CipherService implements CipherServiceAbstraction {
       return cipher_view;
     });
 
-    return [decryptedViews.sort(this.getLocaleSortingFunction()), failedViews];
+    return [decrypted.sort(this.getLocaleSortingFunction()), failedViews];
   }
 
   /** Fetches the full `CipherView` when a `CipherListView` is passed. */

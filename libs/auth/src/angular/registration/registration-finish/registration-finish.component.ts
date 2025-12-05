@@ -206,7 +206,10 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
         return;
       }
 
-      await this.loginSuccessHandlerService.run(authenticationResult.userId);
+      await this.loginSuccessHandlerService.run(
+        authenticationResult.userId,
+        authenticationResult.masterPassword ?? null,
+      );
 
       if (this.premiumInterest) {
         await this.premiumInterestStateService.setPremiumInterest(
