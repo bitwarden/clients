@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { Router, provideRouter } from "@angular/router";
 import { RouterTestingHarness } from "@angular/router/testing";
@@ -11,9 +11,7 @@ import { SendListFiltersService } from "@bitwarden/send-ui";
 
 import { SendFiltersNavComponent } from "./send-filters-nav.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
-@Component({ template: "" })
+@Component({ template: "", changeDetection: ChangeDetectionStrategy.OnPush })
 class DummyComponent {}
 
 Object.defineProperty(window, "matchMedia", {
@@ -54,6 +52,7 @@ describe("SendFiltersNavComponent", () => {
           filterFormValueSubject.next(mockSendListFiltersService.filterForm.value);
         }),
       } as any,
+      filters$: filterFormValueSubject.asObservable(),
     };
 
     await TestBed.configureTestingModule({
@@ -104,6 +103,7 @@ describe("SendFiltersNavComponent", () => {
   describe("isSendRouteActive", () => {
     it("returns true when on /new-sends route", async () => {
       await harness.navigateByUrl("/new-sends");
+      fixture.detectChanges();
 
       expect(component["isSendRouteActive"]()).toBe(true);
     });
@@ -113,33 +113,31 @@ describe("SendFiltersNavComponent", () => {
     });
   });
 
-  describe("isTypeActive", () => {
-    it("returns true when on send route and filter type matches", async () => {
+  describe("activeSendType", () => {
+    it("returns the active send type when on send route and filter type is set", async () => {
       await harness.navigateByUrl("/new-sends");
       mockSendListFiltersService.filterForm.value = { sendType: SendType.Text };
       filterFormValueSubject.next({ sendType: SendType.Text });
       fixture.detectChanges();
 
-      expect(component["isTypeActive"](SendType.Text)).toBe(true);
-      expect(component["isTypeActive"](SendType.File)).toBe(false);
+      expect(component["activeSendType"]()).toBe(SendType.Text);
     });
 
-    it("returns false when not on send route", () => {
+    it("returns undefined when not on send route", () => {
       mockSendListFiltersService.filterForm.value = { sendType: SendType.Text };
       filterFormValueSubject.next({ sendType: SendType.Text });
       fixture.detectChanges();
 
-      expect(component["isTypeActive"](SendType.Text)).toBe(false);
+      expect(component["activeSendType"]()).toBeUndefined();
     });
 
-    it("returns false when no type is selected", async () => {
+    it("returns null when on send route but no type is selected", async () => {
       await harness.navigateByUrl("/new-sends");
       mockSendListFiltersService.filterForm.value = { sendType: null };
       filterFormValueSubject.next({ sendType: null });
       fixture.detectChanges();
 
-      expect(component["isTypeActive"](SendType.Text)).toBe(false);
-      expect(component["isTypeActive"](SendType.File)).toBe(false);
+      expect(component["activeSendType"]()).toBeNull();
     });
   });
 
@@ -180,7 +178,7 @@ describe("SendFiltersNavComponent", () => {
       });
     });
 
-    it("does not navigate when already on send route", async () => {
+    it("does not navigate when already on send route (component is reactive)", async () => {
       await harness.navigateByUrl("/new-sends");
       const router = TestBed.inject(Router);
       const navigateSpy = jest.spyOn(router, "navigate");

@@ -1,8 +1,8 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { Router } from "@angular/router";
-import { startWith } from "rxjs";
+import { NavigationEnd, Router } from "@angular/router";
+import { filter, map, startWith } from "rxjs";
 
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { NavigationModule } from "@bitwarden/components";
@@ -11,50 +11,46 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
  * Navigation component that renders Send filter options in the sidebar.
- * Follows reactive pattern: updates filter state, display component reacts.
+ * Fully reactive using signals - no manual subscriptions or method-based computed values.
  * - Parent "Send" nav-group clears filter (shows all sends)
  * - Child "Text"/"File" items set filter to specific type
- * - Active states computed from current filter value + route
+ * - Active states computed reactively from filter signal + route signal
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send-filters-nav",
   templateUrl: "./send-filters-nav.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, NavigationModule, I18nPipe],
 })
 export class SendFiltersNavComponent {
   protected readonly SendType = SendType;
 
-  // Inject services at class level
   private readonly filtersService = inject(SendListFiltersService);
   private readonly router = inject(Router);
 
-  // Convert filter form to signal for reactive updates
-  private readonly currentFilter = toSignal(
-    this.filtersService.filterForm.valueChanges.pipe(
-      startWith(this.filtersService.filterForm.value),
+  // Convert filters$ observable to signal for reactive updates
+  private readonly currentFilter = toSignal(this.filtersService.filters$);
+
+  // Track whether current route is the send route
+  private readonly isSendRouteActive = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      map((event) => (event as NavigationEnd).urlAfterRedirects.includes("/new-sends")),
+      startWith(this.router.url.includes("/new-sends")),
     ),
-    { initialValue: this.filtersService.filterForm.value },
+    { initialValue: this.router.url.includes("/new-sends") },
   );
 
-  // Computed: Is send route currently active?
-  private isSendRouteActive(): boolean {
-    return this.router.url.includes("/new-sends");
-  }
+  // Computed: Active send type (null when on send route with no filter, undefined when not on send route)
+  protected readonly activeSendType = computed(() => {
+    return this.isSendRouteActive() ? this.currentFilter()?.sendType : undefined;
+  });
 
-  // Computed: Is specific type currently active (on send route AND that filter is set)?
-  protected isTypeActive(type: SendType): boolean {
-    return this.isSendRouteActive() && this.currentFilter()?.sendType === type;
-  }
-
-  // Set filter and navigate to send route if needed
-  // - No type parameter (undefined): clears filter (shows all sends)
-  // - Specific type: filters to that send type
+  // Update send filter and navigate to /new-sends (only if not already there - send-v2 component reacts to filter changes)
   protected async selectTypeAndNavigate(type?: SendType): Promise<void> {
     this.filtersService.filterForm.patchValue({ sendType: type !== undefined ? type : null });
 
-    if (!this.isSendRouteActive()) {
+    if (!this.router.url.includes("/new-sends")) {
       await this.router.navigate(["/new-sends"]);
     }
   }

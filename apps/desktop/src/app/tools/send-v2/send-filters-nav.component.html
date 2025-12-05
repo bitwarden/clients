@@ -8,12 +8,12 @@
     icon="bwi-file-text"
     [text]="'sendTypeText' | i18n"
     (click)="selectTypeAndNavigate(SendType.Text); $event.stopPropagation()"
-    [forceActiveStyles]="isTypeActive(SendType.Text)"
+    [forceActiveStyles]="activeSendType() === SendType.Text"
   ></bit-nav-item>
   <bit-nav-item
     icon="bwi-file"
     [text]="'sendTypeFile' | i18n"
     (click)="selectTypeAndNavigate(SendType.File); $event.stopPropagation()"
-    [forceActiveStyles]="isTypeActive(SendType.File)"
+    [forceActiveStyles]="activeSendType() === SendType.File"
   ></bit-nav-item>
 </bit-nav-group>

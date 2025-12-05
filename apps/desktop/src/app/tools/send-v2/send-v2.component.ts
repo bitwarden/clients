@@ -98,7 +98,6 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
     this.searchBarService.searchText$.pipe(takeUntilDestroyed()).subscribe((searchText) => {
       this.searchText = searchText;
       this.searchTextChanged();
-      setTimeout(() => this.cdr.detectChanges(), 250);
     });
 
     // Listen to filter changes from sidebar navigation
@@ -106,7 +105,6 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
       .pipe(takeUntilDestroyed())
       .subscribe((filters) => {
         this.applySendTypeFilter(filters);
-        this.cdr.detectChanges();
       });
   }
 

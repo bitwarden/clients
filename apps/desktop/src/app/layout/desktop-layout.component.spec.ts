@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
@@ -9,10 +9,10 @@ import { NavigationModule } from "@bitwarden/components";
 import { DesktopLayoutComponent } from "./desktop-layout.component";
 
 // Mock the child component to isolate DesktopLayoutComponent testing
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send-filters-nav",
   template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockSendFiltersNavComponent {}
 
