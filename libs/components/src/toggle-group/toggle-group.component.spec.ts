@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal, WritableSignal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
@@ -30,31 +30,29 @@ describe("Button", () => {
   });
 
   it("should select second element when setting selected to second", () => {
-    testAppComponent.selected = "second";
+    testAppComponent.selected.set("second");
     fixture.detectChanges();
 
-    expect(buttonElements[1].selected).toBe(true);
+    expect(buttonElements[1].selected()).toBe(true);
   });
 
   it("should not select second element when setting selected to third", () => {
-    testAppComponent.selected = "third";
+    testAppComponent.selected.set("third");
     fixture.detectChanges();
 
-    expect(buttonElements[1].selected).toBe(false);
+    expect(buttonElements[1].selected()).toBe(false);
   });
 
   it("should emit new value when changing selection by clicking on radio button", () => {
-    testAppComponent.selected = "first";
+    testAppComponent.selected.set("first");
     fixture.detectChanges();
 
     radioButtons[1].click();
 
-    expect(testAppComponent.selected).toBe("second");
+    expect(testAppComponent.selected()).toBe("second");
   });
 });
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "test-app",
   template: `
@@ -65,7 +63,8 @@ describe("Button", () => {
     </bit-toggle-group>
   `,
   imports: [ToggleGroupModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class TestAppComponent {
-  selected?: string;
+  readonly selected: WritableSignal<string | undefined> = signal(undefined);
 }
