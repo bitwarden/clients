@@ -17,6 +17,10 @@ export interface UserState<T> {
 
 export const activeMarker: unique symbol = Symbol("active");
 
+/**
+ * @deprecated ActiveUserState is deprecated. Use SingleUserState instead.
+ * See https://github.com/bitwarden/clients/tree/main/libs/state#should-i-use-activeuserstate
+ */
 export interface ActiveUserState<T> extends UserState<T> {
   readonly [activeMarker]: true;
 
