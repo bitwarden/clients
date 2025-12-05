@@ -1343,7 +1343,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       name: () => updateAttribute("htmlName"),
       class: () => updateAttribute("htmlClass"),
       tabindex: () => updateAttribute("tabindex"),
-      title: () => updateAttribute("tabindex"),
+      title: () => updateAttribute("title"),
       rel: () => updateAttribute("rel"),
       tagname: () => (dataTarget.tagName = this.getAttributeLowerCase(element, "tagName")),
       type: () => (dataTarget.type = this.getAttributeLowerCase(element, "type")),
