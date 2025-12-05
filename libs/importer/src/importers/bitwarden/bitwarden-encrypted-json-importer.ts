@@ -69,6 +69,7 @@ export class BitwardenEncryptedJsonImporter extends BitwardenJsonImporter implem
   }
 
   private async parseEncrypted(data: BitwardenEncryptedJsonExport): Promise<ImportResult> {
+    const result = new ImportResult();
     const account = await firstValueFrom(this.accountService.activeAccount$);
 
     if (data.encKeyValidation_DO_NOT_EDIT != null) {
@@ -79,7 +80,6 @@ export class BitwardenEncryptedJsonImporter extends BitwardenJsonImporter implem
       }
 
       if (!keyForDecryption) {
-        const result = new ImportResult();
         result.success = false;
         result.errorMessage = this.i18nService.t("importEncKeyError");
         return result;
@@ -88,14 +88,11 @@ export class BitwardenEncryptedJsonImporter extends BitwardenJsonImporter implem
       try {
         await this.encryptService.decryptString(encKeyValidation, keyForDecryption);
       } catch {
-        const result = new ImportResult();
         result.success = false;
         result.errorMessage = this.i18nService.t("importEncKeyError");
         return result;
       }
     }
-
-    const result = new ImportResult();
 
     let groupingsMap: Map<string, number> | null = null;
     if (isOrgEncrypted(data)) {
