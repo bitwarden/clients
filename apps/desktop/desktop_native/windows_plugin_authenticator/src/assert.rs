@@ -55,7 +55,7 @@ pub fn get_assertion(
         rp_id,
         allowed_credential_ids
     );
-    let context = create_context_string(request.transaction_id);
+    let context = create_context_string(request.transaction_id, &request.request_hash);
 
     // Send assertion request
     let assertion_request = PasskeyAssertionRequest {

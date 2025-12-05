@@ -13,6 +13,7 @@ use windows::{
 };
 
 use crate::{
+    plugin::crypto,
     types::UserId,
     util::{webauthn_call, WindowsString},
     CredentialId, ErrorKind, WinWebAuthnError,
@@ -391,6 +392,8 @@ pub struct PluginMakeCredentialRequest {
     pub window_handle: HWND,
     pub transaction_id: GUID,
     pub request_signature: Vec<u8>,
+    /// SHA-256 hash of the request.
+    pub request_hash: Vec<u8>,
 }
 
 impl PluginMakeCredentialRequest {
@@ -483,6 +486,17 @@ impl TryFrom<NonNull<WEBAUTHN_PLUGIN_OPERATION_REQUEST>> for PluginMakeCredentia
                     "Unknown plugin operation request type",
                 ));
             }
+            let request_slice = std::slice::from_raw_parts(
+                request.pbEncodedRequest,
+                request.cbEncodedRequest as usize,
+            );
+            let request_hash = crypto::hash_sha256(request_slice).map_err(|err| {
+                WinWebAuthnError::with_cause(
+                    ErrorKind::WindowsInternal,
+                    "failed to hash request",
+                    err,
+                )
+            })?;
             let mut registration_request = MaybeUninit::uninit();
             webauthn_decode_make_credential_request(
                 request.cbEncodedRequest,
@@ -508,6 +522,7 @@ impl TryFrom<NonNull<WEBAUTHN_PLUGIN_OPERATION_REQUEST>> for PluginMakeCredentia
                     request.cbEncodedRequest as usize,
                 )
                 .to_vec(),
+                request_hash,
             })
         }
     }
@@ -775,6 +790,7 @@ pub struct PluginGetAssertionRequest {
     pub window_handle: HWND,
     pub transaction_id: GUID,
     pub request_signature: Vec<u8>,
+    pub request_hash: Vec<u8>,
 }
 
 impl PluginGetAssertionRequest {
@@ -839,6 +855,17 @@ impl TryFrom<NonNull<WEBAUTHN_PLUGIN_OPERATION_REQUEST>> for PluginGetAssertionR
                     "Unknown plugin operation request type",
                 ));
             }
+            let request_slice = std::slice::from_raw_parts(
+                request.pbEncodedRequest,
+                request.cbEncodedRequest as usize,
+            );
+            let request_hash = crypto::hash_sha256(request_slice).map_err(|err| {
+                WinWebAuthnError::with_cause(
+                    ErrorKind::WindowsInternal,
+                    "failed to hash request",
+                    err,
+                )
+            })?;
             let mut assertion_request: *mut WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST =
                 std::ptr::null_mut();
             webauthn_decode_get_assertion_request(
@@ -863,6 +890,7 @@ impl TryFrom<NonNull<WEBAUTHN_PLUGIN_OPERATION_REQUEST>> for PluginGetAssertionR
                     request.cbEncodedRequest as usize,
                 )
                 .to_vec(),
+                request_hash,
             })
         }
     }

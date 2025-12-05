@@ -436,6 +436,9 @@ unsafe fn verify_operation_request(
     tracing::debug!("Verifying request");
     let request_data =
         std::slice::from_raw_parts(request.pbEncodedRequest, request.cbEncodedRequest as usize);
+    let request_hash = crypto::hash_sha256(request_data).map_err(|err| {
+        WinWebAuthnError::with_cause(ErrorKind::WindowsInternal, "failed to hash request", err)
+    })?;
     let signature = std::slice::from_raw_parts(
         request.pbRequestSignature,
         request.cbRequestSignature as usize,
@@ -449,5 +452,5 @@ unsafe fn verify_operation_request(
         )
     })?;
     tracing::debug!("Verifying signature");
-    op_pub_key.verify_signature(request_data, signature)
+    op_pub_key.verify_signature(&request_hash, signature)
 }

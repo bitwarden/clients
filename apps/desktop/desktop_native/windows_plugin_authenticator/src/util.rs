@@ -49,8 +49,9 @@ impl HwndExt for HWND {
     }
 }
 
-pub fn create_context_string(transaction_id: GUID) -> String {
-    STANDARD.encode(transaction_id.to_u128().to_le_bytes().to_vec())
+pub fn create_context_string(transaction_id: GUID, request_hash: &[u8]) -> String {
+    let context = [&transaction_id.to_u128().to_le_bytes(), request_hash].concat();
+    STANDARD.encode(context)
 }
 
 pub fn deserialize_b64<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Vec<u8>, D::Error> {

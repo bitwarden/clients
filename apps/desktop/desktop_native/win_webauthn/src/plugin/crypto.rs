@@ -90,9 +90,10 @@ pub(super) fn get_user_verification_public_key(
 
 fn verify_signature(
     public_key: &SigningKey,
-    data: &[u8],
+    hash: &[u8],
     signature: &[u8],
 ) -> Result<(), windows::core::Error> {
+    // Verify the signature over the hash of dataBuffer using the hKey
     unsafe {
         tracing::debug!("Getting provider");
         // Get the provider
@@ -115,8 +116,41 @@ fn verify_signature(
         )?;
         let key_handle = key_handle.assume_init();
 
-        // Verify the signature over the hash of dataBuffer using the hKey
+        tracing::debug!("Trying to read public key slice as key blob");
+        let public_key = public_key.as_ref();
+        if public_key.len() < size_of::<BCRYPT_KEY_BLOB>() {
+            return Err(windows::core::Error::from_hresult(E_INVALIDARG));
+        }
+        let key_blob: &BCRYPT_KEY_BLOB = &*public_key.as_ptr().cast();
+        tracing::debug!("  got key magic: {}", key_blob.Magic);
+        let (padding_info, cng_flags) = if key_blob.Magic == BCRYPT_RSAPUBLIC_MAGIC.0 {
+            tracing::debug!("Detected RSA key, adding PKCS1 padding");
+            let padding_info = BCRYPT_PKCS1_PADDING_INFO {
+                pszAlgId: BCRYPT_SHA256_ALGORITHM,
+            };
+            (Some(padding_info), NCRYPT_PAD_PKCS1_FLAG)
+        } else {
+            tracing::debug!("Non-RSA key, no PKCS1 padding added");
+            (None, NCRYPT_FLAGS(0))
+        };
 
+        tracing::debug!("Verifying signature");
+        NCryptVerifySignature(
+            key_handle,
+            padding_info
+                .as_ref()
+                .map(|padding: &BCRYPT_PKCS1_PADDING_INFO| std::ptr::from_ref(padding).cast()),
+            hash,
+            signature,
+            cng_flags,
+        )?;
+        tracing::debug!("Verified");
+        Ok(())
+    }
+}
+
+pub(super) fn hash_sha256(data: &[u8]) -> Result<Vec<u8>, windows::core::Error> {
+    unsafe {
         tracing::debug!("Getting length of hash buffer object");
         // Get length of SHA-256 buffer
         let mut len_size_buf = [0; size_of::<u32>()];
@@ -174,37 +208,7 @@ fn verify_signature(
         hash_buffer.set_len(hash_output_len);
         BCryptFinishHash(hash_handle, hash_buffer.as_mut_slice(), 0).ok()?;
         tracing::debug!(" Hash: {hash_buffer:?}");
-
-        tracing::debug!("Trying to read public key slice as key blob");
-        let public_key = public_key.as_ref();
-        if public_key.len() < size_of::<BCRYPT_KEY_BLOB>() {
-            return Err(windows::core::Error::from_hresult(E_INVALIDARG));
-        }
-        let key_blob: &BCRYPT_KEY_BLOB = &*public_key.as_ptr().cast();
-        tracing::debug!("  got key magic: {}", key_blob.Magic);
-        let (padding_info, cng_flags) = if key_blob.Magic == BCRYPT_RSAPUBLIC_MAGIC.0 {
-            tracing::debug!("Detected RSA key, adding PKCS1 padding");
-            let padding_info = BCRYPT_PKCS1_PADDING_INFO {
-                pszAlgId: BCRYPT_SHA256_ALGORITHM,
-            };
-            (Some(padding_info), NCRYPT_PAD_PKCS1_FLAG)
-        } else {
-            tracing::debug!("Non-RSA key, no PKCS1 padding added");
-            (None, NCRYPT_FLAGS(0))
-        };
-
-        tracing::debug!("Verifying signature");
-        NCryptVerifySignature(
-            key_handle,
-            padding_info
-                .as_ref()
-                .map(|padding: &BCRYPT_PKCS1_PADDING_INFO| std::ptr::from_ref(padding).cast()),
-            hash_buffer.as_slice(),
-            signature,
-            cng_flags,
-        )?;
-        tracing::debug!("Verified");
-        Ok(())
+        Ok(hash_buffer)
     }
 }
 

@@ -92,7 +92,7 @@ pub fn make_credential(
         .center_position()
         .unwrap_or((640, 480));
 
-    let context = create_context_string(request.transaction_id);
+    let context = create_context_string(request.transaction_id, &request.request_hash);
 
     // Create Windows registration request
     let registration_request = PasskeyRegistrationRequest {
