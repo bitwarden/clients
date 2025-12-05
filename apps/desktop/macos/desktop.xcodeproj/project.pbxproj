@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		3368DB392C654B8100896B75 /* BitwardenMacosProviderFFI.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3368DB382C654B8100896B75 /* BitwardenMacosProviderFFI.xcframework */; };
 		3368DB3B2C654F3800896B75 /* BitwardenMacosProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3368DB3A2C654F3800896B75 /* BitwardenMacosProvider.swift */; };
+		9AE299092DF9D82E00AAE454 /* bitwarden-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 9AE299082DF9D82E00AAE454 /* bitwarden-icon.png */; };
+		9AE299122DFB57A200AAE454 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9AE2990D2DFB57A200AAE454 /* Localizable.strings */; };
 		E1DF713F2B342F6900F29026 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1DF713E2B342F6900F29026 /* AuthenticationServices.framework */; };
 		E1DF71422B342F6900F29026 /* CredentialProviderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1DF71412B342F6900F29026 /* CredentialProviderViewController.swift */; };
 		E1DF71452B342F6900F29026 /* CredentialProviderViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E1DF71432B342F6900F29026 /* CredentialProviderViewController.xib */; };
@@ -18,6 +20,8 @@
 		3368DB382C654B8100896B75 /* BitwardenMacosProviderFFI.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = BitwardenMacosProviderFFI.xcframework; path = ../desktop_native/macos_provider/BitwardenMacosProviderFFI.xcframework; sourceTree = "<group>"; };
 		3368DB3A2C654F3800896B75 /* BitwardenMacosProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BitwardenMacosProvider.swift; sourceTree = "<group>"; };
 		968ED08A2C52A47200FFFEE6 /* ReleaseAppStore.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ReleaseAppStore.xcconfig; sourceTree = "<group>"; };
+		9AE299082DF9D82E00AAE454 /* bitwarden-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bitwarden-icon.png"; sourceTree = "<group>"; };
+		9AE2990C2DFB57A200AAE454 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localizable.strings; sourceTree = "<group>"; };
 		D83832AB2D67B9AE003FB9F8 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		D83832AD2D67B9D0003FB9F8 /* ReleaseDeveloper.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ReleaseDeveloper.xcconfig; sourceTree = "<group>"; };
 		E1DF713C2B342F6900F29026 /* autofill-extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "autofill-extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -41,6 +45,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		9AE2990E2DFB57A200AAE454 /* en.lproj */ = {
+			isa = PBXGroup;
+			children = (
+				9AE2990D2DFB57A200AAE454 /* Localizable.strings */,
+			);
+			path = en.lproj;
+			sourceTree = "<group>";
+		};
 		E1DF711D2B342E2800F29026 = {
 			isa = PBXGroup;
 			children = (
@@ -73,6 +85,8 @@
 		E1DF71402B342F6900F29026 /* autofill-extension */ = {
 			isa = PBXGroup;
 			children = (
+				9AE2990E2DFB57A200AAE454 /* en.lproj */,
+				9AE299082DF9D82E00AAE454 /* bitwarden-icon.png */,
 				3368DB3A2C654F3800896B75 /* BitwardenMacosProvider.swift */,
 				E1DF71412B342F6900F29026 /* CredentialProviderViewController.swift */,
 				E1DF71432B342F6900F29026 /* CredentialProviderViewController.xib */,
@@ -124,6 +138,7 @@
 			knownRegions = (
 				en,
 				Base,
+				sv,
 			);
 			mainGroup = E1DF711D2B342E2800F29026;
 			productRefGroup = E1DF71272B342E2800F29026 /* Products */;
@@ -141,6 +156,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				E1DF71452B342F6900F29026 /* CredentialProviderViewController.xib in Resources */,
+				9AE299122DFB57A200AAE454 /* Localizable.strings in Resources */,
+				9AE299092DF9D82E00AAE454 /* bitwarden-icon.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -159,6 +176,14 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
+		9AE2990D2DFB57A200AAE454 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				9AE2990C2DFB57A200AAE454 /* en */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
 		E1DF71432B342F6900F29026 /* CredentialProviderViewController.xib */ = {
 			isa = PBXVariantGroup;
 			children = (

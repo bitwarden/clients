@@ -169,6 +169,18 @@
   }
 
   /**
+  * tw-app-region-drag and tw-app-region-no-drag are used for Electron window dragging behavior
+  * These will replace direct -webkit-app-region usage as part of the migration to Tailwind CSS
+  */
+  .tw-app-region-drag {
+    -webkit-app-region: drag;
+  }
+
+  .tw-app-region-no-drag {
+    -webkit-app-region: no-drag;
+  }
+
+  /**
   * Bootstrap uses z-index: 1050 for modals, dialogs and drag-and-drop previews should appear above them.
   * When bootstrap is removed, test if these styles are still needed and that overlays display properly over other content.
   * CL-483
