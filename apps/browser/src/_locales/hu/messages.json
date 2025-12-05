@@ -1406,6 +1406,27 @@
   "learnMore": {
     "message": "Tudjon meg többet"
   },
+  "migrationsFailed": {
+    "message": "Hiba történt a titkosítási beállítások frissítésekor."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "A titkosítási beállítások frissítése"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Az új ajánlott titkosítási beállítások javítják a fiók biztonságát. Adjuk meg a mesterjelszót a frissítéshez most."
+  },
+  "confirmIdentityToContinue": {
+    "message": "A folytatáshoz meg kell erősíteni a személyazonosságot."
+  },
+  "enterYourMasterPassword": {
+    "message": "Mesterjelszó megadása"
+  },
+  "updateSettings": {
+    "message": "Beállítások frissítése"
+  },
+  "later": {
+    "message": "Később"
+  },
   "authenticatorKeyTotp": {
     "message": "Hitelesítő kulcs (egyszeri időalapú)"
   },
@@ -1474,6 +1495,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1 GB titkosított tárhely a fájlmellékleteknek."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ titkosított tárhely a fájlmellékletekhez.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Sürgősségi hozzáférés"

@@ -1406,6 +1406,27 @@
   "learnMore": {
     "message": "Saber mais"
   },
+  "migrationsFailed": {
+    "message": "Ocorreu um erro ao atualizar as definições de encriptação."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Atualize as suas definições de encriptação"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "As novas definições de encriptação recomendadas irão melhorar a segurança da sua conta. Introduza a sua palavra-passe mestra para atualizar agora."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirme a sua identidade para continuar"
+  },
+  "enterYourMasterPassword": {
+    "message": "Introduza a sua palavra-passe mestra"
+  },
+  "updateSettings": {
+    "message": "Atualizar definições"
+  },
+  "later": {
+    "message": "Mais tarde"
+  },
   "authenticatorKeyTotp": {
     "message": "Chave de autenticação (TOTP)"
   },
@@ -1474,6 +1495,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1 GB de armazenamento encriptado para anexos de ficheiros."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ de armazenamento encriptado para anexos de ficheiros.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Acesso de emergência."

@@ -586,7 +586,7 @@
     "message": "Arxivlənmiş elementlər ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək. Bu elementi arxivləmək istədiyinizə əminsiniz?"
   },
   "upgradeToUseArchive": {
-    "message": "A premium membership is required to use Archive."
+    "message": "Arxivi istifadə etmək üçün premium üzvlük tələb olunur."
   },
   "edit": {
     "message": "Düzəliş et"
@@ -598,7 +598,7 @@
     "message": "Hamısına bax"
   },
   "showAll": {
-    "message": "Show all"
+    "message": "Hamısını göstər"
   },
   "viewLess": {
     "message": "Daha azına bax"
@@ -1406,6 +1406,27 @@
   "learnMore": {
     "message": "Daha ətraflı"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
+  "later": {
+    "message": "Later"
+  },
   "authenticatorKeyTotp": {
     "message": "Kimlik doğrulayıcı açarı (TOTP)"
   },
@@ -1474,6 +1495,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "Fayl qoşmaları üçün 1 GB şifrələnmiş anbar sahəsi"
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Fövqəladə hal erişimi."
@@ -1874,7 +1904,7 @@
     "message": "Son istifadə ili"
   },
   "monthly": {
-    "message": "month"
+    "message": "ay"
   },
   "expiration": {
     "message": "Bitmə vaxtı"
@@ -4912,7 +4942,7 @@
     "message": "Premium"
   },
   "unlockFeaturesWithPremium": {
-    "message": "Unlock reporting, emergency access, and more security features with Premium."
+    "message": "Premium ilə şikayət göndərmə, fövqəladə hal erişimi və daha çox təhlükəsizlik özəlliyinin kilidini açın."
   },
   "freeOrgsCannotUseAttachments": {
     "message": "Ödənişsiz təşkilatlar qoşmaları istifadə edə bilməz"
@@ -5825,10 +5855,10 @@
     "message": "\"Premium\"a yüksəlt"
   },
   "unlockAdvancedSecurity": {
-    "message": "Unlock advanced security features"
+    "message": "Qabaqcıl təhlükəsizlik özəlliklərinin kilidini aç"
   },
   "unlockAdvancedSecurityDesc": {
-    "message": "A Premium subscription gives you more tools to stay secure and in control"
+    "message": "Premium abunəlik, güvəndə qalmağınız və nəzarəti əlinizdə saxlamağınız üçün sizə daha çox alət verir"
   },
   "explorePremium": {
     "message": "Premium-u kəşf et"

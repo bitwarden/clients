@@ -586,7 +586,7 @@
     "message": "Các mục đã lưu trữ sẽ bị loại khỏi kết quả tìm kiếm chung và gợi ý tự động điền. Bạn có chắc chắn muốn lưu trữ mục này không?"
   },
   "upgradeToUseArchive": {
-    "message": "A premium membership is required to use Archive."
+    "message": "Cần là thành viên premium để sử dụng Archive."
   },
   "edit": {
     "message": "Sửa"
@@ -598,10 +598,10 @@
     "message": "Xem tất cả"
   },
   "showAll": {
-    "message": "Show all"
+    "message": "Hiện tất cả"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "Ẩn bớt"
   },
   "viewLogin": {
     "message": "Xem đăng nhập"
@@ -806,10 +806,10 @@
     "message": "Mỗi khi khóa máy"
   },
   "onIdle": {
-    "message": "On system idle"
+    "message": "Khi hệ thống rãnh rỗi"
   },
   "onSleep": {
-    "message": "On system sleep"
+    "message": "Khi hệ thống ngủ"
   },
   "onRestart": {
     "message": "Mỗi khi khởi động lại trình duyệt"
@@ -1406,6 +1406,27 @@
   "learnMore": {
     "message": "Tìm hiểu thêm"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
+  "later": {
+    "message": "Later"
+  },
   "authenticatorKeyTotp": {
     "message": "Khóa xác thực (TOTP)"
   },
@@ -1474,6 +1495,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1GB bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Truy cập khẩn cấp."
@@ -1874,7 +1904,7 @@
     "message": "Năm hết hạn"
   },
   "monthly": {
-    "message": "month"
+    "message": "tháng"
   },
   "expiration": {
     "message": "Hết hạn"
@@ -2446,7 +2476,7 @@
     }
   },
   "topLayerHijackWarning": {
-    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
+    "message": "Trang này đang cản trở trải nghiệm Bitwarden. Menu nội tuyến Bitwarden đã tạm thời bị vô hiệu hóa như một biện pháp an toàn."
   },
   "setMasterPassword": {
     "message": "Đặt mật khẩu chính"
@@ -4912,7 +4942,7 @@
     "message": "Cao cấp"
   },
   "unlockFeaturesWithPremium": {
-    "message": "Unlock reporting, emergency access, and more security features with Premium."
+    "message": "Mở khóa tính năng báo cáo, quyền truy cập khẩn cấp và nhiều tính năng bảo mật khác với Premium."
   },
   "freeOrgsCannotUseAttachments": {
     "message": "Các tổ chức miễn phí không thể sử dụng tệp đính kèm"
@@ -4999,7 +5029,7 @@
     }
   },
   "defaultLabelWithValue": {
-    "message": "Default ( $VALUE$ )",
+    "message": "Mặc định ( $VALUE$ )",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5825,19 +5855,19 @@
     "message": "Nâng cấp lên gói Cao cấp"
   },
   "unlockAdvancedSecurity": {
-    "message": "Unlock advanced security features"
+    "message": "Mở khóa các tính năng bảo mật nâng cao"
   },
   "unlockAdvancedSecurityDesc": {
-    "message": "A Premium subscription gives you more tools to stay secure and in control"
+    "message": "Đăng ký Premium cung cấp cho bạn nhiều công cụ hơn để luôn an toàn và kiểm soát"
   },
   "explorePremium": {
-    "message": "Explore Premium"
+    "message": "Khám phá Premium"
   },
   "loadingVault": {
-    "message": "Loading vault"
+    "message": "Đang tải kho"
   },
   "vaultLoaded": {
-    "message": "Vault loaded"
+    "message": "Đã tải kho"
   },
   "settingDisabledByPolicy": {
     "message": "Cài đặt này bị vô hiệu hóa bởi chính sách tổ chức của bạn.",
@@ -5850,6 +5880,6 @@
     "message": "Số thẻ"
   },
   "sessionTimeoutSettingsAction": {
-    "message": "Timeout action"
+    "message": "Hành động sau khi đóng kho"
   }
 }
