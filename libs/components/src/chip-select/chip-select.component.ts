@@ -20,7 +20,7 @@ import { compareValues } from "@bitwarden/common/platform/misc/compare-values";
 
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
-import { MenuComponent, MenuItemDirective, MenuModule, MenuTriggerForDirective } from "../menu";
+import { MenuComponent, MenuItemComponent, MenuModule, MenuTriggerForDirective } from "../menu";
 import { Option } from "../select/option";
 import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
@@ -51,7 +51,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
   private readonly cdr = inject(ChangeDetectorRef);
 
   readonly menu = viewChild(MenuComponent);
-  readonly menuItems = viewChildren(MenuItemDirective);
+  readonly menuItems = viewChildren(MenuItemComponent);
   readonly chipSelectButton = viewChild<ElementRef<HTMLButtonElement>>("chipSelectButton");
   readonly menuTrigger = viewChild(MenuTriggerForDirective);
 

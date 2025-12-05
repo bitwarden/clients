@@ -20,7 +20,6 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -28,10 +27,11 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
-import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorService, TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -82,6 +82,7 @@ export class LoginCommand {
     protected ssoUrlService: SsoUrlService,
     protected i18nService: I18nService,
     protected masterPasswordService: MasterPasswordServiceAbstraction,
+    protected encryptedMigrator: EncryptedMigrator,
   ) {}
 
   async run(email: string, password: string, options: OptionValues) {
@@ -367,6 +368,8 @@ export class LoginCommand {
           return await this.updateWeakPassword(response.userId, password);
         }
       }
+
+      await this.encryptedMigrator.runMigrations(response.userId, password);
 
       return await this.handleSuccessResponse(response);
     } catch (e) {

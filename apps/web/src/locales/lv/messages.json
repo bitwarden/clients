@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Piešķirt dalībniekiem uzdevumus, lai pārraudzītu virzību"
   },
-  "onceYouReviewApps": {
-    "message": "Tiklīdz lietotnes būs pārskatītas un atzīmētas kā būtiskas, dalībniekiem varēs piešķirt uzdevumus atrisināt riskam pakļautos vienumus un šeit pārskatīt virzību"
+  "onceYouReviewApplications": {
+    "message": "Tiklīdz lietotnes ir izskatītas un atzīmētas kā būtiskas, piešķir uzdevumus dalībniekiem nomainīt savas paroles!"
   },
   "sendReminders": {
     "message": "Nosūtīt atgādinājumus"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "$ORG NAME$ netika atrasta neviena lietotne",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "Dati netika atrasti"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Ievieto savas apvienības pieteikšanās datus, lai uzsāktu to drošības risku uzraudzīšanu. Tiklīdz dati ir ievietoti, Tu vari:"
+  "noDataInOrgDescription": {
+    "message": "Ievieto savas apvienības pieteikšanās datus, lai uzsāktu Access Intelligence izmantošanu. Tiklīdz to izdarīsi, varēsi:"
   },
-  "benefit1Title": {
-    "message": "Noteikt risku svarīgumu"
+  "feature1Title": {
+    "message": "Atzīmēt lietotnes kā būtiskas"
   },
-  "benefit1Description": {
-    "message": "Pievērst uzmanību visbūtiskākajām lietotnēm"
+  "feature1Description": {
+    "message": "This will help you remove risks to your most important applications first."
   },
-  "benefit2Title": {
-    "message": "Virzīt nepilnību novēršanu"
+  "feature2Title": {
+    "message": "Help members improve their security"
   },
-  "benefit2Description": {
-    "message": "Piešķirt riskam pakļautajiem dalībniekiem uzdevumus riskam pakļauto pieteikšanās datu nomaiņai"
+  "feature2Description": {
+    "message": "Assign at-risk members guided security tasks to update credentials."
   },
-  "benefit3Title": {
-    "message": "Pārraudzīt virzību"
+  "feature3Title": {
+    "message": "Monitor progress"
   },
-  "benefit3Description": {
-    "message": "Sekot izmaiņām, lai uzrādītu drošības uzlabojumus"
+  "feature3Description": {
+    "message": "Track changes over time to show security improvements."
   },
-  "noReportRunTitle": {
-    "message": "Izveidot savu pirmo atskaiti, lai redzētu lietotnes"
+  "noReportsRunTitle": {
+    "message": "Generate report"
   },
-  "noReportRunDescription": {
-    "message": "Izveidot riska ieskatu atskaiti, lai izvērtētu savas apvienības lietotnes un noteiktu riskam pakļautas paroles, kurēm jāpievērš uzmanība. Pirmās atskaites izveidošana:"
+  "noReportsRunDescription": {
+    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Neviena lietotne nav atzīmēta kā kritiska"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Riskam pakļautie dalībnieki"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Dalībnieki ar piekluvi riskam pakļautajiem vienumiem būtiskajām lietotnēm"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "These members have access to vulnerable items for critical applications."
   },
   "membersWithAtRiskPasswords": {
     "message": "Dalībnieki ar riskam pakļautām parolēm"
   },
-  "membersWillReceiveNotification": {
-    "message": "Dalībnieki pārlūka paplašinājumā saņems paziņojumu, ka jānomaina riskam pakļautās paroles."
+  "membersWillReceiveSecurityTask": {
+    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ dalībnieki ir pakļauti riskam",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Šie dalībnieki piesakās lietotnēs ar vājām, atklātām vai atkārtoti izmantotām parolēm."
+  "atRiskMemberDescription": {
+    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Nav dalībnieku, kas piesakās lietotnēs ar vājām, atklātām vai atkārtoti izmantotām parolēm."
@@ -391,14 +385,14 @@
   "prioritizeCriticalApplications": {
     "message": "Paaugstināt būtisko lietotņu svarīgumu"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Jāatlasa, kuras lietontes apvienībai ir visbūtiskākās, tad jāpiešķir drošības uzdevumi dalībniekiem risku novēršanai."
+  "selectCriticalAppsDescription": {
+    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "reviewNewApplications": {
     "message": "Pārskatīt jaunās lietotnes"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "Mēs izcēlām riskam pakļautos vienumus jaunām lietotnēm, kas tiek glabātas pārvaldības konsolē un kurās ir vājas, atklātas vai atkārtoti izmantotas paroles."
+  "reviewNewAppsDescription": {
+    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Jāklikšķina uz zvaigznes, lai atzīmētu lietotni kā būtisku"
@@ -3068,6 +3062,15 @@
   "premiumSignUpStorage": {
     "message": "1 GB šifrētas krātuves datņu pielikumiem."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ šifrētas krātuves datņu pielikumiem.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Tādas slēgtā pirmavota divpakāpju pieteikšanās iespējas kā YubiKey un Duo."
   },
@@ -3129,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Tavs Premium abonements beidzās"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Lai atgūtu piekļuvi savam arhīvam, jāatsāk Premium abonements. Ja labosi arhivēta vienuma informāciju pirms atsākšanas, tas tiks pārvietots atpakaļ Tavā glabātavā."
+  },
+  "restartPremium": {
+    "message": "Atsākt Premium"
   },
   "additionalStorageGb": {
     "message": "Papildu krātuve (GB)"
@@ -4614,6 +4626,24 @@
   "learnMore": {
     "message": "Uzzināt vairāk"
   },
+  "migrationsFailed": {
+    "message": "Atgadījās kļūda šifrēšanas iestatījumu atjaunināšanā."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Atjaunini savus šifrēšanas iestatījumus"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Jaunie ieteicamie šifrēšanas iestatījumi uzlabos Tava konta drošību. Jāievada sava galvenā parole, lai atjauninātu tagad."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Jāapliecina sava identitāte, lai turpinātu"
+  },
+  "enterYourMasterPassword": {
+    "message": "Jāievada sava galvenā parole"
+  },
+  "updateSettings": {
+    "message": "Atjaunināt Iestatījumus"
+  },
   "deleteRecoverDesc": {
     "message": "Jāievada e-pasta adrese zemāk esošajā laukā, lai atkoptu un izdzēstu savu kontu."
   },
@@ -5815,9 +5845,9 @@
     "message": "Visiem vienumiem jāpieder apvienībai, tādējādi noņemot iespēju glabāt tos konta līmenī.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
-    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  "organizationDataOwnershipDescContent": {
+    "message": "Visi vienumi piederēs apvienībai un tiks tajā saglabāti, iespējojot visaptverošu pārvaldību, redzamību un ziņošanu apvienībā. Kad ieslēgta, noklusējuma krājums, kurā glabātat vienumus, būs pieejams katram dalībniekam. Uzzināt vairāk par ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "credential lifecycle",
@@ -9826,6 +9856,14 @@
     "message": "Pārāk dārgi",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "switchToFreePlan": {
+    "message": "Pārslēdzas uz bezmaksas plānu",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "switchToFreeOrg": {
+    "message": "Pārslēdzas uz bezmaksas apvienību",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "1 gadu bez maksas"
   },
@@ -9856,8 +9894,8 @@
   "assignTasks": {
     "message": "Piešķirt uzdevumus"
   },
-  "assignTasksToMembers": {
-    "message": "Piešķirt uzdevumus dalībniekiem risinājumam ar norādēm"
+  "assignSecurityTasksToMembers": {
+    "message": "Send notifications to change passwords"
   },
   "assignToCollections": {
     "message": "Piešķirt krājumiem"
@@ -11345,14 +11383,6 @@
   "openedExtensionViewAtRiskPasswords": {
     "message": "Bitwarden pārlūka paplašinājums tika veiksmīgi atvērts. Tagad var pārskatīt savas riskam pakļautās paroles."
   },
-  "openExtensionManuallyPart1": {
-    "message": "Mums bija sarežģījumi Bitwarden pārlūka paplašinājuma atvēršanā. Rīkjoslā jāatver Bitwarden ikona",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
-  "openExtensionManuallyPart2": {
-    "message": "rīkjoslā.",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
   "resellerRenewalWarningMsg": {
     "message": "Abonements drīz tiks atjaunots. Lai nodrošinātu nepārtrauktu pakalpojumu, pirms $RENEWAL_DATE$ jāsazinās ar $RESELLER$, lai apstiprinātu atjaunošanu.",
     "placeholders": {
@@ -11673,11 +11703,8 @@
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden paplašinājums uzstādīts."
   },
-  "openTheBitwardenExtension": {
-    "message": "Atvērt Bitwarden paplašinājumu"
-  },
-  "bitwardenExtensionInstalledOpenExtension": {
-    "message": "Bitwarden paplašinājums ir uzstādīts. Atver paplašinājumu, lai pieteiktos un sāktu automātsko aizpildīšanu!"
+  "bitwardenExtensionIsInstalled": {
+    "message": "Bitwarden paplašinājums ir uzstādīts."
   },
   "openExtensionToAutofill": {
     "message": "Jāatver paplašinājums, lai pieteiktos un uzsāktu automātisko aizpildi."
@@ -11692,6 +11719,14 @@
   "gettingStartedWithBitwardenPart2": {
     "message": "Mācīšanāš centrs",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "openExtensionFromToolbarPart1": {
+    "message": "Ja paplašinājums neatvērās, var būt nepieciešams atvērt Bitwarden ar ikonu ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
+  },
+  "openExtensionFromToolbarPart2": {
+    "message": " rīkjoslā.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "gettingStartedWithBitwardenPart3": {
     "message": "Palīdzības centrs",
@@ -12094,9 +12129,6 @@
   "updateYourEncryptionSettings": {
     "message": "Atjaunini savus šifrēšanas iestatījumus"
   },
-  "updateSettings": {
-    "message": "Atjaunināt Iestatījumus"
-  },
   "algorithm": {
     "message": "Algoritms"
   },
@@ -12123,6 +12155,15 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Uzsākt ģimenes plāna bezmaksas izmēģinājumu"
+  },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Liegt konta izveidošanu pieteiktajiem domēniem"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Neļaut lietotājiem kontu izveidošanu ārpus apvienības ar e-pasta adresēm no pieteikajiem domēniem."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "Domēnam jābūt pieteiktam pirms šīs pamatnostādnes aktivēšanas."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Jāuzstāda atslēgšanas veids, lai mainītu glabātavas noildzes darbību."
@@ -12163,5 +12204,8 @@
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Vai tiešām turpināt?"
+  },
+  "userVerificationFailed": {
+    "message": "Lietotāja apliecināšana neizdevās."
   }
 }

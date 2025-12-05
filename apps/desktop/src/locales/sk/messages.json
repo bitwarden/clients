@@ -1093,6 +1093,24 @@
   "learnMore": {
     "message": "Zistiť viac"
   },
+  "migrationsFailed": {
+    "message": "Pri aktualizácii nastavení šifrovania došlo k chybe."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Aktualizujte nastavenie šifrovania"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Nové odporúčané nastavenia šifrovania zlepšia bezpečnosť vášho účtu. Ak ich chcete aktualizovať teraz, zadajte hlavné heslo."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Ak chcete pokračovať, potvrďte svoju identitu"
+  },
+  "enterYourMasterPassword": {
+    "message": "Zadajte hlavné heslo"
+  },
+  "updateSettings": {
+    "message": "Aktualizovať nastavenia"
+  },
   "featureUnavailable": {
     "message": "Funkcia nie je k dispozícii"
   },
@@ -1490,6 +1508,15 @@
   "premiumSignUpStorage": {
     "message": "1 GB šifrovaného úložiska."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ šifrovaného úložiska na prílohy.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Proprietárne možnosti dvojstupňového prihlásenia ako napríklad YubiKey a Duo."
   },
@@ -1692,7 +1719,7 @@
     "description": "Default URI match detection for auto-fill."
   },
   "toggleOptions": {
-    "message": "Voľby prepínača"
+    "message": "Zobraziť/skryť možnosti"
   },
   "organization": {
     "message": "Organizácia",
@@ -2228,6 +2255,10 @@
   "contactInfo": {
     "message": "Kontaktné informácie"
   },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "allSends": {
     "message": "Všetky Sendy",
     "description": "'Sends' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -2425,7 +2456,7 @@
     "message": "Hlavné heslo bolo úspešne nastavené"
   },
   "updatedMasterPassword": {
-    "message": "Hlavné heslo aktualizované"
+    "message": "Hlavné heslo bolo aktualizované"
   },
   "updateMasterPassword": {
     "message": "Aktualizovať hlavné heslo"
@@ -2476,7 +2507,7 @@
     "message": "Použiť PIN kód"
   },
   "useBiometrics": {
-    "message": "Použiť biometrické údaje"
+    "message": "Použiť biometriu"
   },
   "enterVerificationCodeSentToEmail": {
     "message": "Zadajte overovací kód, ktorý vám bol zaslaný na e-mail."
@@ -2574,7 +2605,7 @@
     "message": "Táto organizácia má podnikovú politiku, ktorá vás automaticky zaregistruje na obnovenie hesla. Registrácia umožní správcom organizácie zmeniť vaše hlavné heslo."
   },
   "vaultExportDisabled": {
-    "message": "Export trezoru je zakázaný"
+    "message": "Export trezoru bol odstránený"
   },
   "personalVaultExportPolicyInEffect": {
     "message": "Jedna alebo viacero zásad organizácie vám bráni exportovať váš osobný trezor."
@@ -2619,7 +2650,7 @@
     "message": "Predvoľby"
   },
   "appPreferences": {
-    "message": "Nastavenia aplikácie (Všetky účty)"
+    "message": "Nastavenia aplikácie (všetky účty)"
   },
   "accountSwitcherLimitReached": {
     "message": "Dosiahnutý limit počtu účtov. Odhláste sa z účtu aby ste mohli pridať ďalší."
@@ -2790,7 +2821,7 @@
     "message": "Použiť možnosti subadresovania svojho poskytovateľa e-mailu."
   },
   "catchallEmail": {
-    "message": "Catch-all Email"
+    "message": "E-mail Catch-all"
   },
   "catchallEmailDesc": {
     "message": "Použiť doručenú poštu typu catch-all nastavenú na doméne."
@@ -2843,7 +2874,7 @@
     "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
-    "message": "$SERVICENAME$ chyba: $ERRORMESSAGE$",
+    "message": "Chyba $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Reports an error returned by a forwarding service to the user.",
     "placeholders": {
       "servicename": {
@@ -2959,7 +2990,7 @@
     }
   },
   "forwarderUnknownForwarder": {
-    "message": "Nepodporovaná služba: '$SERVICENAME$'.",
+    "message": "Neznáme presmerovanie: '$SERVICENAME$'.",
     "description": "Displayed when the forwarding service is not supported.",
     "placeholders": {
       "servicename": {
@@ -2976,7 +3007,7 @@
     "message": "Prístupový token API"
   },
   "apiKey": {
-    "message": "API kľúč"
+    "message": "Kľúč API"
   },
   "premiumSubcriptionRequired": {
     "message": "Vyžaduje sa predplatné Prémium"
@@ -2991,7 +3022,8 @@
     "message": "Ste si istí, že chcete použiť možnosť \"Nikdy\"? Táto predvoľba ukladá šifrovací kľúč od trezora priamo na zariadení. Ak použijete túto možnosť, mali by ste svoje zariadenie náležite zabezpečiť."
   },
   "vault": {
-    "message": "Trezor"
+    "message": "Trezor",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Prihlásenie pomocou hlavného hesla"

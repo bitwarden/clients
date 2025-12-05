@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Arhivētie vienumi netiek iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos. Vai tiešām ahrivēt šo vienumu?"
   },
+  "upgradeToUseArchive": {
+    "message": "Ir nepieciešama Premium dalība, lai izmantotu arhīvu."
+  },
   "edit": {
     "message": "Labot"
   },
@@ -593,6 +596,9 @@
   },
   "viewAll": {
     "message": "Apskatīt visu"
+  },
+  "showAll": {
+    "message": "Rādīt visu"
   },
   "viewLess": {
     "message": "Skatīt mazāk"
@@ -1400,6 +1406,27 @@
   "learnMore": {
     "message": "Uzzināt vairāk"
   },
+  "migrationsFailed": {
+    "message": "Atgadījās kļūda šifrēšanas iestatījumu atjaunināšanā."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Atjaunini savus šifrēšanas iestatījumus"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Jaunie ieteicamie šifrēšanas iestatījumi uzlabos Tava konta drošību. Jāievada sava galvenā parole, lai atjauninātu tagad."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Jāapliecina sava identitāte, lai turpinātu"
+  },
+  "enterYourMasterPassword": {
+    "message": "Jāievada sava galvenā parole"
+  },
+  "updateSettings": {
+    "message": "Atjaunināt Iestatījumus"
+  },
+  "later": {
+    "message": "Vēlāk"
+  },
   "authenticatorKeyTotp": {
     "message": "Autentificētāja atslēga (TOTP)"
   },
@@ -1468,6 +1495,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1 GB šifrētas krātuves datņu pielikumiem."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ šifrētas krātuves datņu pielikumiem.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Ārkārtas piekļuve"
@@ -1866,6 +1902,9 @@
   },
   "expirationYear": {
     "message": "Derīguma gads"
+  },
+  "monthly": {
+    "message": "mēnesī"
   },
   "expiration": {
     "message": "Derīgums"
@@ -2435,6 +2474,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Šī lapa traucē Bitwarden darbību. Bitwarden iekļautā izvēlne ir īslaicīgi atspējot kā drošības mērs."
   },
   "setMasterPassword": {
     "message": "Uzstādīt galveno paroli"
@@ -4899,6 +4941,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Iegūsti piekļuvi atskaitēm, ārkārtas piekļuvei un citām drošības iespējām ar Premium!"
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Bezmaksas apvienības nevar izmantot pielikumus"
   },
@@ -5808,6 +5853,15 @@
   },
   "upgradeToPremium": {
     "message": "Uzlabot uz Premium"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Atslēdz papildu drošības iespējas"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "Premium abonements sniedz vairāk rīku drošības uzturēšanai un pārraudzībai"
+  },
+  "explorePremium": {
+    "message": "Izpētīt Premium"
   },
   "loadingVault": {
     "message": "Ielādē glabātavu"

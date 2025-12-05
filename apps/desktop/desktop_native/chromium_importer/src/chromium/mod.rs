@@ -1,6 +1,8 @@
-use std::collections::HashMap;
-use std::path::{Path, PathBuf};
-use std::sync::LazyLock;
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+    sync::LazyLock,
+};
 
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
@@ -10,10 +12,9 @@ use rusqlite::{params, Connection};
 
 mod platform;
 
+pub(crate) use platform::SUPPORTED_BROWSERS as PLATFORM_SUPPORTED_BROWSERS;
 #[cfg(target_os = "windows")]
 pub use platform::*;
-
-pub(crate) use platform::SUPPORTED_BROWSERS as PLATFORM_SUPPORTED_BROWSERS;
 
 //
 // Public API
@@ -60,8 +61,8 @@ impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
         let mut browsers = Vec::with_capacity(SUPPORTED_BROWSER_MAP.len());
 
         for (browser, config) in SUPPORTED_BROWSER_MAP.iter() {
-            let data_dir = get_browser_data_dir(config)?;
-            if data_dir.exists() {
+            let data_dir = get_and_validate_data_dir(config);
+            if data_dir.is_ok() {
                 browsers.push((*browser).to_string());
             }
         }
@@ -87,14 +88,15 @@ pub async fn import_logins(
     let local_logins = get_logins(&data_dir, profile_id, "Login Data")
         .map_err(|e| anyhow!("Failed to query logins: {}", e))?;
 
-    // This is not available in all browsers, but there's no harm in trying. If the file doesn't exist we just get an empty vector.
+    // This is not available in all browsers, but there's no harm in trying. If the file doesn't
+    // exist we just get an empty vector.
     let account_logins = get_logins(&data_dir, profile_id, "Login Data For Account")
         .map_err(|e| anyhow!("Failed to query logins: {}", e))?;
 
     // TODO: Do we need a better merge strategy? Maybe ignore duplicates at least?
-    // TODO: Should we also ignore an error from one of the two imports? If one is successful and the other fails,
-    //       should we still return the successful ones? At the moment it doesn't fail for a missing file, only when
-    //       something goes really wrong.
+    // TODO: Should we also ignore an error from one of the two imports? If one is successful and
+    // the other fails, should we still return the successful ones? At the moment it
+    // doesn't fail for a missing file, only when something goes really wrong.
     let all_logins = local_logins
         .into_iter()
         .chain(account_logins.into_iter())
@@ -112,7 +114,7 @@ pub async fn import_logins(
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct BrowserConfig {
     pub name: &'static str,
-    pub data_dir: &'static str,
+    pub data_dir: &'static [&'static str],
 }
 
 pub(crate) static SUPPORTED_BROWSER_MAP: LazyLock<
@@ -124,11 +126,19 @@ pub(crate) static SUPPORTED_BROWSER_MAP: LazyLock<
         .collect::<std::collections::HashMap<_, _>>()
 });
 
-fn get_browser_data_dir(config: &BrowserConfig) -> Result<PathBuf> {
-    let dir = dirs::home_dir()
-        .ok_or_else(|| anyhow!("Home directory not found"))?
-        .join(config.data_dir);
-    Ok(dir)
+fn get_and_validate_data_dir(config: &BrowserConfig) -> Result<PathBuf> {
+    for data_dir in config.data_dir.iter() {
+        let dir = dirs::home_dir()
+            .ok_or_else(|| anyhow!("Home directory not found"))?
+            .join(data_dir);
+        if dir.exists() {
+            return Ok(dir);
+        }
+    }
+    Err(anyhow!(
+        "Browser user data directory '{:?}' not found",
+        config.data_dir
+    ))
 }
 
 //
@@ -172,13 +182,7 @@ fn load_local_state_for_browser(browser_name: &String) -> Result<(PathBuf, Local
         .get(browser_name.as_str())
         .ok_or_else(|| anyhow!("Unsupported browser: {}", browser_name))?;
 
-    let data_dir = get_browser_data_dir(config)?;
-    if !data_dir.exists() {
-        return Err(anyhow!(
-            "Browser user data directory '{}' not found",
-            data_dir.display()
-        ));
-    }
+    let data_dir = get_and_validate_data_dir(config)?;
 
     let local_state = load_local_state(&data_dir)?;
 

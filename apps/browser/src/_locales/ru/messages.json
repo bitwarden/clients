@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать этот элемент?"
   },
+  "upgradeToUseArchive": {
+    "message": "Для использования архива требуется премиум-статус."
+  },
   "edit": {
     "message": "Изменить"
   },
@@ -593,6 +596,9 @@
   },
   "viewAll": {
     "message": "Посмотреть все"
+  },
+  "showAll": {
+    "message": "Показать все"
   },
   "viewLess": {
     "message": "Свернуть"
@@ -1400,6 +1406,27 @@
   "learnMore": {
     "message": "Подробнее"
   },
+  "migrationsFailed": {
+    "message": "Произошла ошибка при обновлении настроек шифрования."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Обновите настройки шифрования"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Новые рекомендуемые настройки шифрования повысят безопасность вашего аккаунта. Введите мастер-пароль, чтобы обновить сейчас."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Подтвердите вашу личность, чтобы продолжить"
+  },
+  "enterYourMasterPassword": {
+    "message": "Введите ваш мастер-пароль"
+  },
+  "updateSettings": {
+    "message": "Обновить настройки"
+  },
+  "later": {
+    "message": "Позже"
+  },
   "authenticatorKeyTotp": {
     "message": "Ключ аутентификатора (TOTP)"
   },
@@ -1468,6 +1495,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1 ГБ зашифрованного хранилища для вложенных файлов."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "Зашифрованного хранилища для вложенных файлов: $SIZE$",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Экстренный доступ"
@@ -1866,6 +1902,9 @@
   },
   "expirationYear": {
     "message": "Год"
+  },
+  "monthly": {
+    "message": "месяц"
   },
   "expiration": {
     "message": "Срок действия"
@@ -2435,6 +2474,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Эта страница мешает работе Bitwarden. Встроенное меню Bitwarden было временно отключено в целях безопасности."
   },
   "setMasterPassword": {
     "message": "Задать мастер-пароль"
@@ -4899,6 +4941,9 @@
   "premium": {
     "message": "Премиум"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Разблокируйте отчеты, экстренный доступ и другие функции безопасности с помощью Премиум."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Бесплатные организации не могут использовать вложения"
   },
@@ -5808,6 +5853,15 @@
   },
   "upgradeToPremium": {
     "message": "Обновить до Премиум"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Разблокировать дополнительные функции безопасности"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "Премиум-подписка дает вам больше возможностей для обеспечения безопасности и контроля"
+  },
+  "explorePremium": {
+    "message": "Познакомиться с Премиум"
   },
   "loadingVault": {
     "message": "Загрузка хранилища"
