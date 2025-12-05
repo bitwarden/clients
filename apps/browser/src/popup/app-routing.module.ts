@@ -43,7 +43,11 @@ import {
   TwoFactorAuthGuard,
 } from "@bitwarden/auth/angular";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
-import { LockComponent, ConfirmKeyConnectorDomainComponent } from "@bitwarden/key-management-ui";
+import {
+  LockComponent,
+  ConfirmKeyConnectorDomainComponent,
+  RemovePasswordComponent,
+} from "@bitwarden/key-management-ui";
 
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { AuthExtensionRoute } from "../auth/popup/constants/auth-extension-route.constant";
@@ -59,7 +63,6 @@ import { NotificationsSettingsComponent } from "../autofill/popup/settings/notif
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
 import { PhishingWarning } from "../dirt/phishing-detection/popup/phishing-warning.component";
 import { ProtectedByComponent } from "../dirt/phishing-detection/popup/protected-by-component";
-import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { popupRouterCacheGuard } from "../platform/popup/view-cache/popup-router-cache.service";
 import { RouteCacheOptions } from "../platform/services/popup-view-cache-background.service";
@@ -188,9 +191,22 @@ const routes: Routes = [
   },
   {
     path: "remove-password",
-    component: RemovePasswordComponent,
+    component: ExtensionAnonLayoutWrapperComponent,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
+    children: [
+      {
+        path: "",
+        component: RemovePasswordComponent,
+        data: {
+          pageTitle: {
+            key: "verifyYourOrganization",
+          },
+          showBackButton: false,
+          pageIcon: LockIcon,
+        } satisfies ExtensionAnonLayoutWrapperData,
+      },
+    ],
   },
   {
     path: "view-cipher",
@@ -646,7 +662,7 @@ const routes: Routes = [
         component: ConfirmKeyConnectorDomainComponent,
         data: {
           pageTitle: {
-            key: "confirmKeyConnectorDomain",
+            key: "verifyYourOrganization",
           },
           showBackButton: true,
           pageIcon: DomainIcon,
