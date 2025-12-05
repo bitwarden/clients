@@ -264,7 +264,7 @@ jobs:
           PKG_CONFIG_ALL_STATIC: true
           TARGET: musl
         # Note: It is important that we use the release build because some compute heavy
-        # operations such as key derivation for oo7 on linux are too slow in debug mode 
+        # operations such as key derivation for oo7 on linux are too slow in debug mode
         run: |
           rustup target add x86_64-unknown-linux-musl
           node build.js --target=x86_64-unknown-linux-musl --release
@@ -587,7 +587,9 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
+        env:
+          MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
+        run: node build.js cross-platform ${MODE}
 
       - name: Build
         run: npm run build
@@ -850,7 +852,9 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
+        env:
+          MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
+        run: node build.js cross-platform ${MODE}
 
       - name: Build
         run: npm run build
@@ -1205,7 +1209,9 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
+        env:
+          MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
+        run: node build.js cross-platform ${MODE}
 
       - name: Build application (dev)
         run: npm run build
@@ -1426,7 +1432,9 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
+        env:
+          MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
+        run: node build.js cross-platform ${MODE}
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
@@ -1706,7 +1714,9 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
+        env:
+          MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
+        run: node build.js cross-platform ${MODE}
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
