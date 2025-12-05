@@ -1,0 +1,84 @@
+<h2 class="tw-mt-6 tw-mb-2 tw-pb-2.5">{{ "dataRecoveryTitle" | i18n }}</h2>
+
+<div class="tw-max-w-lg">
+  <p bitTypography="body1" class="tw-mb-4">
+    {{ "dataRecoveryDescription" | i18n }}
+  </p>
+
+  @if (!diagnosticsCompleted() && !recoveryCompleted()) {
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      [disabled]="isRunning()"
+      (click)="runDiagnostics()"
+      class="tw-mb-6"
+    >
+      @if (isRunning()) {
+        <i class="bwi bwi-spinner bwi-spin" aria-hidden="true"></i>
+        {{ "runningDiagnostics" | i18n }}
+      } @else {
+        {{ "runDiagnostics" | i18n }}
+      }
+    </button>
+  }
+
+  <div class="tw-space-y-3 tw-mb-6">
+    @for (step of steps(); track $index) {
+      @if (
+        ($index === 0 && hasStarted()) ||
+        ($index > 0 && (steps()[$index - 1].completed || steps()[$index - 1].failed))
+      ) {
+        <div class="tw-flex tw-items-start tw-gap-3">
+          <div class="tw-mt-1">
+            @if (step.failed) {
+              <i class="bwi bwi-close tw-text-danger" aria-hidden="true"></i>
+            } @else if (step.completed) {
+              <i class="bwi bwi-check tw-text-success" aria-hidden="true"></i>
+            } @else if (step.inProgress) {
+              <i class="bwi bwi-spinner bwi-spin tw-text-primary-600" aria-hidden="true"></i>
+            } @else {
+              <i class="bwi bwi-circle tw-text-secondary-300" aria-hidden="true"></i>
+            }
+          </div>
+          <div>
+            <span
+              [class.tw-text-danger]="step.failed"
+              [class.tw-text-success]="step.completed"
+              [class.tw-text-primary-600]="step.inProgress"
+              [class.tw-font-semibold]="step.inProgress"
+              [class.tw-text-secondary-500]="!step.completed && !step.inProgress && !step.failed"
+            >
+              {{ step.title }}
+            </span>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  @if (diagnosticsCompleted()) {
+    <div class="tw-flex tw-gap-3">
+      @if (hasIssues() && !recoveryCompleted()) {
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          [disabled]="isRunning()"
+          (click)="runRecovery()"
+        >
+          @if (isRunning()) {
+            <i class="bwi bwi-spinner bwi-spin" aria-hidden="true"></i>
+            {{ "repairing" | i18n }}
+          } @else {
+            {{ "repairIssues" | i18n }}
+          }
+        </button>
+      }
+      <button type="button" bitButton buttonType="secondary" (click)="saveDiagnosticLogs()">
+        <i class="bwi bwi-download" aria-hidden="true"></i>
+        {{ "saveDiagnosticLogs" | i18n }}
+      </button>
+    </div>
+  }
+</div>

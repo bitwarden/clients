@@ -7,4 +7,6 @@ export abstract class UserAsymmetricKeysRegenerationService {
    * @param userId The user id.
    */
   abstract regenerateIfNeeded(userId: UserId): Promise<void>;
+
+  abstract regenerateUserPublicKeyEncryptionKeyPair(userId: UserId): Promise<void>;
 }
