@@ -597,8 +597,11 @@ export default class NotificationBackground {
   }
 
   /**
-   * Adds a change password message to the notification queue, prompting the user
-   * to update the password for a login that has changed.
+   * Receives filled form values (which have prequalified a potential cipher update).
+   * If an update scenario is identified, a change password message is added to the
+   * notification queue, prompting the user to update a stored login that has changed.
+   * Returns `true` or `false` to indicate if such an update notification was
+   * triggered or not.
    *
    * @param message - The message to add to the queue
    * @param sender - The contextual sender of the message
@@ -626,85 +629,118 @@ export default class NotificationBackground {
       return false;
     }
 
-    const username: string | null = data.username || null;
+    const usernameFieldValue: string | null = data.username || null;
     const currentPasswordFieldValue = data.password || null;
     const newPasswordFieldValue = data.newPassword || null;
 
-    if (authStatus === AuthenticationStatus.Locked && newPasswordFieldValue !== null) {
-      await this.pushChangePasswordToQueue(null, loginDomain, newPasswordFieldValue, tab, true);
-      return true;
+    /*
+     * We only show the unlock notification if a new password field was filled, since
+     * it's very likely to represent an updated cipher value and the other
+     * scenarios below require the vault to be unlocked in order to determine
+     * if an update has been made.
+     */
+    if (authStatus === AuthenticationStatus.Locked) {
+      if (newPasswordFieldValue !== null) {
+        await this.pushChangePasswordToQueue(null, loginDomain, newPasswordFieldValue, tab, true);
+        return true;
+      }
+
+      return false;
     }
 
-    let ciphers: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
+    let updateCandidateCiphers: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
       data.uri,
       activeUserId,
     );
 
-    const normalizedUsername: string = username ? username.toLowerCase() : "";
+    const normalizedUsername: string = usernameFieldValue ? usernameFieldValue.toLowerCase() : "";
+    const currentPasswordFieldHasValue =
+      typeof currentPasswordFieldValue === "string" && currentPasswordFieldValue.length > 0;
+    const newPasswordFieldHasValue =
+      typeof newPasswordFieldValue === "string" && newPasswordFieldValue.length > 0;
 
-    const shouldMatchUsername = typeof username === "string" && username.length > 0;
+    const checkForUsernameMatch =
+      typeof usernameFieldValue === "string" && usernameFieldValue.length > 0;
+    const checkForPasswordMatch = newPasswordFieldHasValue && currentPasswordFieldHasValue;
 
-    if (shouldMatchUsername) {
-      // Presence of a username should filter ciphers further.
-      ciphers = ciphers.filter(
+    // If a username was entered, use that value as the basis for finding stored cipher to update
+    if (checkForUsernameMatch) {
+      updateCandidateCiphers = updateCandidateCiphers.filter(
         (cipher) =>
+          // Presence of a stored username should filter ciphers further.
           cipher.login.username !== null &&
           cipher.login.username.toLowerCase() === normalizedUsername,
       );
-    }
 
-    if (ciphers.length === 1) {
-      const [cipher] = ciphers;
-      if (
-        username !== null &&
-        newPasswordFieldValue === null &&
-        cipher.login.username.toLowerCase() === normalizedUsername &&
-        cipher.login.password === currentPasswordFieldValue
-      ) {
-        // Assumed to be a login
-        return false;
+      /*
+       * Because we have stored ciphers with username values matching the entered
+       * username value, we can now further filter ciphers on the basis of password
+       * matches (do not offer to update ciphers that already match the username and
+       * password of what was entered).
+       */
+
+      /*
+       * If a new password value was entered (ignore current password value, assume
+       * password update), filter out stored ciphers that have a password matching the
+       * new password value entered (because there's no change for those).
+       */
+      if (newPasswordFieldHasValue) {
+        updateCandidateCiphers = updateCandidateCiphers.filter(
+          (cipher) =>
+            // include ciphers without passwords as update candidates
+            !cipher.login.password || cipher.login.password !== newPasswordFieldValue,
+        );
+      } else if (currentPasswordFieldHasValue) {
+        /*
+         * Otherwise, if a _current_ password value was entered, and _no_ new password
+         * value was entered (account creation or login with non-stored credentials),
+         * filter out ciphers that have a password matching the current password value
+         * entered (because there's no change for those).
+         */
+        updateCandidateCiphers = updateCandidateCiphers.filter(
+          (cipher) =>
+            // include ciphers without passwords as update candidates
+            !cipher.login.password || cipher.login.password !== currentPasswordFieldValue,
+        );
       }
-    }
-
-    if (
-      ciphers.length > 0 &&
-      currentPasswordFieldValue?.length &&
-      // Only use current password for change if no new password present.
-      !newPasswordFieldValue
-    ) {
-      const currentPasswordMatchesAnExistingValue = ciphers.some(
+    } else if (checkForPasswordMatch) {
+      /*
+       * Since no username was provided, use the password field entries to filter
+       * matching cipher update candidates. Both current and new values are needed.
+       */
+      updateCandidateCiphers = updateCandidateCiphers.filter(
         (cipher) =>
-          cipher.login?.password?.length && cipher.login.password === currentPasswordFieldValue,
+          cipher.login.password &&
+          cipher.login.password === currentPasswordFieldValue &&
+          // If the new password value also matches a stored cipher password,
+          // there is no change, and we should filter out that cipher
+          // from update candidates
+          cipher.login.password !== newPasswordFieldValue,
       );
+    }
+    // Insufficient field changes were given (e.g. new password only,
+    // no field values at all, etc); no update to make, may be a new cipher case
+    // (handled by `triggerAddLoginNotification`)
+    else {
+      return false;
+    }
 
-      // The password entered matched a stored cipher value with
-      // the same username (no change)
-      if (currentPasswordMatchesAnExistingValue) {
-        return false;
-      }
-
+    // If any ciphers remain after filtering, trigger an update notification
+    // with those ciphers
+    const resolvedPasswordUpdateValue = newPasswordFieldHasValue
+      ? newPasswordFieldValue
+      : currentPasswordFieldHasValue
+        ? currentPasswordFieldValue
+        : null;
+    if (updateCandidateCiphers.length && resolvedPasswordUpdateValue) {
       await this.pushChangePasswordToQueue(
-        ciphers.map((cipher) => cipher.id),
+        updateCandidateCiphers.map((cipher) => cipher.id),
         loginDomain,
-        currentPasswordFieldValue,
+        resolvedPasswordUpdateValue,
         tab,
       );
 
       return true;
-    }
-
-    if (newPasswordFieldValue) {
-      // Otherwise include all known ciphers.
-      if (ciphers.length > 0) {
-        await this.pushChangePasswordToQueue(
-          ciphers.map((cipher) => cipher.id),
-          loginDomain,
-          newPasswordFieldValue,
-          tab,
-        );
-
-        return true;
-      }
     }
 
     return false;
