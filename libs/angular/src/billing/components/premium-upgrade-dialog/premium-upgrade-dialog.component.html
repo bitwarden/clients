@@ -27,7 +27,7 @@
         </div>
 
         <!-- Tagline with consistent height (exactly 2 lines) -->
-        <div class="tw-mb-6 tw-h-6">
+        <div class="tw-h-6">
           <p bitTypography="helper" class="tw-text-muted tw-m-0 tw-leading-relaxed tw-line-clamp-2">
             {{ cardDetails.tagline }}
           </p>
@@ -35,7 +35,7 @@
 
         <!-- Price Section -->
         @if (cardDetails.price) {
-          <div class="tw-mb-6">
+          <div class="tw-my-5">
             <div class="tw-flex tw-items-baseline tw-gap-1 tw-flex-wrap">
               <span class="tw-text-3xl tw-font-medium tw-leading-none tw-m-0">{{
                 cardDetails.price.amount | currency: "$"
