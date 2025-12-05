@@ -3062,6 +3062,15 @@
   "premiumSignUpStorage": {
     "message": "1GB의 암호화된 파일 저장소."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "YubiKey, Duo와 같은 \b상용 2단계 로그인 방법."
   },
@@ -3123,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "additionalStorageGb": {
     "message": "추가 저장소 용량 (GB)"
@@ -4607,6 +4625,24 @@
   },
   "learnMore": {
     "message": "더 알아보기"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
   },
   "deleteRecoverDesc": {
     "message": "계정을 복구하거나 삭제하려면 아래에 이메일 주소를 입력하십시오."
@@ -12092,9 +12128,6 @@
   },
   "updateYourEncryptionSettings": {
     "message": "Update your encryption settings"
-  },
-  "updateSettings": {
-    "message": "Update settings"
   },
   "algorithm": {
     "message": "Algorithm"

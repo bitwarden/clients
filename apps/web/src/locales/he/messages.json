@@ -3062,6 +3062,15 @@
   "premiumSignUpStorage": {
     "message": "1 ג'יגה של מקום אחסון מוצפן עבור קבצים מצורפים."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "אפשרויות כניסה דו־שלבית קנייניות כגון YubiKey ו־Duo."
   },
@@ -3123,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "additionalStorageGb": {
     "message": "אחסון נוסף (GB)"
@@ -4607,6 +4625,24 @@
   },
   "learnMore": {
     "message": "למידע נוסף"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "עדכן הגדרות"
   },
   "deleteRecoverDesc": {
     "message": "הזן את כתובת האימייל שלך כדי לשחזר ולמחוק את החשבון שלך."
@@ -12092,9 +12128,6 @@
   },
   "updateYourEncryptionSettings": {
     "message": "עדכן את הגדרות ההצפנה שלך"
-  },
-  "updateSettings": {
-    "message": "עדכן הגדרות"
   },
   "algorithm": {
     "message": "אלגוריתם"

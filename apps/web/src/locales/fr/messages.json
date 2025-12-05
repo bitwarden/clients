@@ -3062,6 +3062,15 @@
   "premiumSignUpStorage": {
     "message": "1 Go de stockage chiffré pour les fichiers joints."
   },
+  "premiumSignUpStorageV2": {
+    "message": "Stockage chiffré de $SIZE$ pour les pièces jointes.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Options de connexion propriétaires à deux facteurs telles que YubiKey et Duo."
   },
@@ -3123,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Votre abonnement Premium est terminé"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Pour récupérer l'accès à vos archives, redémarrez votre abonnement Premium. Si vous modifiez les détails d'un élément archivé avant de le redémarrer, il sera déplacé dans votre coffre."
+  },
+  "restartPremium": {
+    "message": "Redémarrer Premium"
   },
   "additionalStorageGb": {
     "message": "Stockage additionnel (Go)"
@@ -4607,6 +4625,24 @@
   },
   "learnMore": {
     "message": "En savoir plus"
+  },
+  "migrationsFailed": {
+    "message": "Une erreur s'est produite lors de la mise à jour des paramètres de chiffrement."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Mettre à jour vos paramètres de chiffrement"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Les nouveaux paramètres de chiffrement recommandés amélioreront la sécurité de votre compte. Entrez votre mot de passe principal pour faire la mise à jour maintenant."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirmez votre identité pour continuer"
+  },
+  "enterYourMasterPassword": {
+    "message": "Entrez votre mot de passe principal"
+  },
+  "updateSettings": {
+    "message": "Mettre à jour les paramètres"
   },
   "deleteRecoverDesc": {
     "message": "Saisissez votre adresse électronique ci-dessous pour récupérer et supprimer votre compte."
@@ -12092,9 +12128,6 @@
   },
   "updateYourEncryptionSettings": {
     "message": "Mettre à jour vos paramètres de chiffrement"
-  },
-  "updateSettings": {
-    "message": "Mettre à jour les paramètres"
   },
   "algorithm": {
     "message": "Algorithme"

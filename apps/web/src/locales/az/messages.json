@@ -3062,6 +3062,15 @@
   "premiumSignUpStorage": {
     "message": "Fayl qoşmaları üçün 1 GB şifrələnmiş saxlama sahəsi."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "YubiKey və Duo kimi mülkiyyətçi iki addımlı giriş seçimləri."
   },
@@ -3123,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "additionalStorageGb": {
     "message": "Əlavə saxlama sahəsi (GB)"
@@ -4607,6 +4625,24 @@
   },
   "learnMore": {
     "message": "Daha ətraflı"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Güncəlləmə ayarları"
   },
   "deleteRecoverDesc": {
     "message": "Hesabınızı geri qaytarmaq və silmək üçün e-poçtunuzu aşağıda daxil edin."
@@ -11668,7 +11704,7 @@
     "message": "Bitwarden uzantısı quraşdırıldı!"
   },
   "bitwardenExtensionIsInstalled": {
-    "message": "Bitwarden extension is installed!"
+    "message": "Bitwarden uzantısı quraşdırıldı!"
   },
   "openExtensionToAutofill": {
     "message": "Giriş etmək üçün uzantını aç və avto-doldurmağa başla."
@@ -11685,11 +11721,11 @@
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "openExtensionFromToolbarPart1": {
-    "message": "If the extension didn't open, you may need to open Bitwarden from the icon ",
+    "message": "Uzantı açılmasa, alət çubuğundakı ikondan Bitwarden-i açmağınız ",
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "openExtensionFromToolbarPart2": {
-    "message": " on the toolbar.",
+    "message": " lazımdır.",
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "gettingStartedWithBitwardenPart3": {
@@ -12093,9 +12129,6 @@
   "updateYourEncryptionSettings": {
     "message": "Şifrələmə ayarlarınızı güncəlləyin"
   },
-  "updateSettings": {
-    "message": "Güncəlləmə ayarları"
-  },
   "algorithm": {
     "message": "Alqoritm"
   },
@@ -12173,6 +12206,6 @@
     "message": "Davam etmək istədiyinizə əminsiniz?"
   },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "İstifadəçi doğrulaması uğursuz oldu."
   }
 }

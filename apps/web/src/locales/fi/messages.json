@@ -3062,6 +3062,15 @@
   "premiumSignUpStorage": {
     "message": "1 Gt salattua tallennustilaa tiedostoliitteille."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Kaksivaiheisen kirjautumisen erikoisvaihtoehdot, kuten YubiKey ja Duo."
   },
@@ -3123,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "additionalStorageGb": {
     "message": "Lisää tallennustilaa (Gt)"
@@ -4607,6 +4625,24 @@
   },
   "learnMore": {
     "message": "Lue lisää"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
   },
   "deleteRecoverDesc": {
     "message": "Kirjoita sähköpostiosoitteesi alle palauttaaksesi ja poistaaksesi tilisi."
@@ -12092,9 +12128,6 @@
   },
   "updateYourEncryptionSettings": {
     "message": "Update your encryption settings"
-  },
-  "updateSettings": {
-    "message": "Update settings"
   },
   "algorithm": {
     "message": "Algorithm"

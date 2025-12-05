@@ -3062,6 +3062,15 @@
   "premiumSignUpStorage": {
     "message": "Dosya ekleri için 1 GB şifrelenmiş depolama."
   },
+  "premiumSignUpStorageV2": {
+    "message": "Dosya ekleri için $SIZE$ şifrelenmiş depolama.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "YubiKey ve Duo gibi marka bazlı iki aşamalı giriş seçenekleri."
   },
@@ -3123,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "additionalStorageGb": {
     "message": "Ek depolama alanı (GB)"
@@ -4607,6 +4625,24 @@
   },
   "learnMore": {
     "message": "Daha fazla bilgi al"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Ayarları güncelle"
   },
   "deleteRecoverDesc": {
     "message": "Hesabınızı kurtarmak ve silmek için e-posta adresinizi yazın."
@@ -12092,9 +12128,6 @@
   },
   "updateYourEncryptionSettings": {
     "message": "Şifreleme ayarlarınızı güncelleyin"
-  },
-  "updateSettings": {
-    "message": "Ayarları güncelle"
   },
   "algorithm": {
     "message": "Algoritma"
