@@ -24,7 +24,9 @@ import {
   BitwardenEncryptedJsonExport,
   BitwardenEncryptedOrgJsonExport,
   BitwardenJsonExport,
+  BitwardenPasswordProtectedFileFormat,
   isOrgEncrypted,
+  isPasswordProtected,
   isUnencrypted,
 } from "@bitwarden/vault-export-core";
 
@@ -45,7 +47,14 @@ export class BitwardenEncryptedJsonImporter extends BitwardenJsonImporter implem
   }
 
   async parse(data: string): Promise<ImportResult> {
-    const results: BitwardenJsonExport = JSON.parse(data);
+    const results: BitwardenPasswordProtectedFileFormat | BitwardenJsonExport = JSON.parse(data);
+
+    if (isPasswordProtected(results)) {
+      throw new Error(
+        "Data is password-protected. Use BitwardenPasswordProtectedImporter instead.",
+      );
+    }
+
     if (results == null || results.items == null) {
       const result = new ImportResult();
       result.success = false;
