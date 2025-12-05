@@ -1,0 +1,28 @@
+<bit-simple-dialog>
+  <i bitDialogIcon class="bwi bwi-info-circle tw-text-3xl tw-text-info" aria-hidden="true"></i>
+
+  <span bitDialogTitle>{{ data.title }}</span>
+
+  <div bitDialogContent class="tw-text-left">
+    <ng-container *ngFor="let s of data.sections; let last = last">
+      <div class="tw-font-medium tw-mb-1">{{ s.title }}</div>
+      <ul class="tw-list-disc tw-pl-6 tw-mb-2">
+        <li *ngFor="let item of s.items">{{ item }}</li>
+      </ul>
+      <div *ngIf="s.help" class="tw-text-sm tw-text-secondary-700 tw-mb-3">{{ s.help }}</div>
+      <hr *ngIf="!last" class="tw-my-3" />
+    </ng-container>
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button
+      id="de-duplicate-warnings-dialog_button_ok"
+      type="button"
+      bitButton
+      buttonType="primary"
+      (click)="dialogRef.close(true)"
+    >
+      {{ okText }}
+    </button>
+  </ng-container>
+</bit-simple-dialog>
