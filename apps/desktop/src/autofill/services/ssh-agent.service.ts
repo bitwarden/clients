@@ -130,7 +130,7 @@ export class SshAgentService implements OnDestroy {
                 // The active account may have switched with account switching during unlock
                 const updatedAccount = await firstValueFrom(this.accountService.activeAccount$);
                 return [message, updatedAccount.id] as const;
-              })
+              }),
             );
           }
 
