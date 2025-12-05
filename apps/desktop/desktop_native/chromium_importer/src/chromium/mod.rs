@@ -76,6 +76,7 @@ impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
     }
 }
 
+#[allow(unused_variables, clippy::unused_async)]
 pub async fn get_available_profiles(
     browser_name: &str,
     mas_build: bool,
