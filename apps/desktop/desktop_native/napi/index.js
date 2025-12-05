@@ -82,20 +82,20 @@ switch (platform) {
     switch (arch) {
       case "x64":
         nativeBinding = loadFirstAvailable(
-          ["desktop_napi.linux-x64-musl.node", "desktop_napi.linux-x64-gnu.node"],
-          "@bitwarden/desktop-napi-linux-x64-musl",
+          ["desktop_napi.linux-x64-gnu.node"],
+          "@bitwarden/desktop-napi-linux-x64-gnu",
         );
         break;
       case "arm64":
         nativeBinding = loadFirstAvailable(
-          ["desktop_napi.linux-arm64-musl.node", "desktop_napi.linux-arm64-gnu.node"],
-          "@bitwarden/desktop-napi-linux-arm64-musl",
+          ["desktop_napi.linux-arm64-gnu.node"],
+          "@bitwarden/desktop-napi-linux-arm64-gnu",
         );
         break;
       case "arm":
         nativeBinding = loadFirstAvailable(
-          ["desktop_napi.linux-arm-musl.node", "desktop_napi.linux-arm-gnu.node"],
-          "@bitwarden/desktop-napi-linux-arm-musl",
+          ["desktop_napi.linux-arm-gnu.node"],
+          "@bitwarden/desktop-napi-linux-arm-gnu",
         );
         localFileExisted = existsSync(join(__dirname, "desktop_napi.linux-arm-gnueabihf.node"));
         try {
