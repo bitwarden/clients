@@ -7158,8 +7158,8 @@
   "enabledSso": {
     "message": "SSO turned on"
   },
-  "disabledSso": {
-    "message": "SSO turned on"
+  "ssoTurnedOff": {
+    "message": "SSO turned off"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ must login with Single Sign-on",
