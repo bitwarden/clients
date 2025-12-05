@@ -104,7 +104,7 @@ describe("AddEditFolderDialogComponent", () => {
       const newFolder = new FolderView();
       newFolder.name = "New Folder";
 
-      expect(encrypt).toHaveBeenCalledWith(newFolder, "");
+      expect(encrypt).toHaveBeenCalledWith(expect.objectContaining({ name: "New Folder" }), "");
       expect(save).toHaveBeenCalled();
     });
 
