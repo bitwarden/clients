@@ -3062,6 +3062,15 @@
   "premiumSignUpStorage": {
     "message": "1 GB пространство за файлове, които се шифрират."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ пространство за файлове, които се шифрират.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Частно двустепенно удостоверяване чрез YubiKey и Duo."
   },
@@ -3123,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Вашият абонамент за платения план е приключил"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Ако искате отново да получите достъп до архива си, трябва да подновите платения си абонамент. Ако редактирате данните за архивиран елемент преди подновяването, той ще бъде върнат в трезора."
+  },
+  "restartPremium": {
+    "message": "Подновяване на платения абонамент"
   },
   "additionalStorageGb": {
     "message": "Допълнително място [GB]"
@@ -4607,6 +4625,24 @@
   },
   "learnMore": {
     "message": "Научете повече"
+  },
+  "migrationsFailed": {
+    "message": "Възникна грешка при обновяването на настройките за шифроване."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Обновете настройките си за шифроване"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Новите препоръчани настройки за шифроване ще подобрят сигурността на акаунта Ви. Въведете главната си парола, за да ги обновите сега."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Потвърдете самоличността си, за да продължите"
+  },
+  "enterYourMasterPassword": {
+    "message": "Въведете главната си парола"
+  },
+  "updateSettings": {
+    "message": "Обновяване на настройките"
   },
   "deleteRecoverDesc": {
     "message": "Въведете адреса на електронната си поща, за да възстановите и да изтриете абонамента си."
@@ -12092,9 +12128,6 @@
   },
   "updateYourEncryptionSettings": {
     "message": "Обновете настройките си за шифроване"
-  },
-  "updateSettings": {
-    "message": "Обновяване на настройките"
   },
   "algorithm": {
     "message": "Алгоритъм"
