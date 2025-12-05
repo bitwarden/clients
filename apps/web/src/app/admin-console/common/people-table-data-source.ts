@@ -194,4 +194,22 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
 
     return users.slice(0, limit);
   }
+
+  /**
+   * Gets checked users with optional limiting based on the IncreaseBulkReinviteLimitForCloud feature flag.
+   *
+   * When the feature flag is enabled: Returns checked users in visible order, limited to the specified count.
+   * When the feature flag is disabled: Returns all checked users without applying any limit.
+   *
+   * @param limit The maximum number of users to return (only applied when feature flag is enabled)
+   * @returns The checked users array
+   */
+  getCheckedUsersWithLimit(limit: number): T[] {
+    if (this.isIncreasedBulkLimitEnabled()) {
+      const allUsers = this.getCheckedUsersInVisibleOrder();
+      return this.limitAndUncheckExcess(allUsers, limit);
+    } else {
+      return this.getCheckedUsers();
+    }
+  }
 }

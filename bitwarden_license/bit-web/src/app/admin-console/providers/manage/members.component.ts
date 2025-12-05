@@ -142,12 +142,7 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return;
     }
 
-    const allUsers = this.dataSource.isIncreasedBulkLimitEnabled()
-      ? this.dataSource.getCheckedUsersInVisibleOrder()
-      : this.dataSource.getCheckedUsers();
-    const users = this.dataSource.isIncreasedBulkLimitEnabled()
-      ? this.dataSource.limitAndUncheckExcess(allUsers, MaxCheckedCount)
-      : allUsers;
+    const users = this.dataSource.getCheckedUsersWithLimit(MaxCheckedCount);
 
     const dialogRef = BulkConfirmDialogComponent.open(this.dialogService, {
       data: {
@@ -165,18 +160,28 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return;
     }
 
-    const users = this.dataSource.isIncreasedBulkLimitEnabled()
-      ? this.dataSource.getCheckedUsersInVisibleOrder()
-      : this.dataSource.getCheckedUsers();
+    let users: ProviderUser[];
+    if (this.dataSource.isIncreasedBulkLimitEnabled()) {
+      users = this.dataSource.getCheckedUsersInVisibleOrder();
+    } else {
+      users = this.dataSource.getCheckedUsers();
+    }
+
     const allInvitedUsers = users.filter((user) => user.status === ProviderUserStatusType.Invited);
 
     // Capture the original count BEFORE enforcing the limit
     const originalInvitedCount = allInvitedUsers.length;
 
     // When feature flag is enabled, limit invited users and uncheck the excess
-    const checkedInvitedUsers = this.dataSource.isIncreasedBulkLimitEnabled()
-      ? this.dataSource.limitAndUncheckExcess(allInvitedUsers, CloudBulkReinviteLimit)
-      : allInvitedUsers;
+    let checkedInvitedUsers: ProviderUser[];
+    if (this.dataSource.isIncreasedBulkLimitEnabled()) {
+      checkedInvitedUsers = this.dataSource.limitAndUncheckExcess(
+        allInvitedUsers,
+        CloudBulkReinviteLimit,
+      );
+    } else {
+      checkedInvitedUsers = allInvitedUsers;
+    }
 
     if (checkedInvitedUsers.length <= 0) {
       this.toastService.showToast({
@@ -246,12 +251,7 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return;
     }
 
-    const allUsers = this.dataSource.isIncreasedBulkLimitEnabled()
-      ? this.dataSource.getCheckedUsersInVisibleOrder()
-      : this.dataSource.getCheckedUsers();
-    const users = this.dataSource.isIncreasedBulkLimitEnabled()
-      ? this.dataSource.limitAndUncheckExcess(allUsers, MaxCheckedCount)
-      : allUsers;
+    const users = this.dataSource.getCheckedUsersWithLimit(MaxCheckedCount);
 
     const dialogRef = BulkRemoveDialogComponent.open(this.dialogService, {
       data: {
