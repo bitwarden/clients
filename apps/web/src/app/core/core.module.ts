@@ -66,7 +66,6 @@ import { OrganizationInviteService } from "@bitwarden/common/auth/services/organ
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
-import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -85,7 +84,6 @@ import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platfor
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
@@ -314,7 +312,6 @@ const safeProviders: SafeProvider[] = [
       InternalUserDecryptionOptionsServiceAbstraction,
       OrganizationInviteService,
       RouterService,
-      AccountCryptographicStateService,
     ],
   }),
   safeProvider({
