@@ -3,7 +3,8 @@ import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { NavigationModule } from "@bitwarden/components";
+import { NavigationModule, StorybookGlobalStateProvider } from "@bitwarden/components";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { DesktopLayoutComponent } from "./desktop-layout.component";
 
@@ -32,6 +33,10 @@ describe("DesktopLayoutComponent", () => {
         {
           provide: I18nService,
           useValue: mock<I18nService>(),
+        },
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
         },
       ],
     }).compileComponents();
