@@ -1093,6 +1093,24 @@
   "learnMore": {
     "message": "Dowiedz się więcej"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
   "featureUnavailable": {
     "message": "Funkcja jest niedostępna"
   },
@@ -1489,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 GB miejsca na zaszyfrowane załączniki."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Specjalne opcje logowania dwustopniowego, takie jak YubiKey i Duo."
@@ -2227,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Informacje kontaktowe"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Wszystkie wysyłki",
@@ -2991,7 +3022,8 @@
     "message": "Czy na pewno chcesz użyć opcji „Nigdy”? Ustawienie blokady na „Nigdy” spowoduje przechowywanie klucza szyfrowania sejfu na urządzeniu. Upewnij się, że urządzenie jest odpowiednio chronione."
   },
   "vault": {
-    "message": "Sejf"
+    "message": "Sejf",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Logowanie hasłem głównym"

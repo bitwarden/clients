@@ -1093,6 +1093,24 @@
   "learnMore": {
     "message": "Mehr erfahren"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
   "featureUnavailable": {
     "message": "Funktion nicht verfügbar"
   },
@@ -1489,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 GB verschlüsselter Speicherplatz für Dateianhänge."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ verschlüsselter Speicher für Dateianhänge.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Proprietäre Optionen für die Zwei-Faktor Authentifizierung wie YubiKey und Duo."
@@ -2227,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Kontaktinformationen"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Alle Sends",
@@ -2991,7 +3022,8 @@
     "message": "Bist du sicher, dass du die Option \"Nie\" verwenden möchtest? Durch das Setzen der Sperroptionen zu \"Nie\" wird der Verschlüsselungscode deines Tresors auf deinem Gerät gespeichert. Wenn du diese Option verwendest, solltest du sicherstellen, dass dein Gerät ausreichend geschützt ist."
   },
   "vault": {
-    "message": "Tresor"
+    "message": "Tresor",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Mit Master-Passwort anmelden"
