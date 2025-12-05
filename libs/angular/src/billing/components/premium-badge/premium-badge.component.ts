@@ -14,7 +14,8 @@ import { BadgeModule } from "@bitwarden/components";
       type="button"
       *appNotPremium
       bitBadge
-      class="tw-text-primary-600 tw-border-primary-600"
+      [variant]="'primary'"
+      class="!tw-text-primary-600 !tw-border-primary-600"
       (click)="promptForPremium($event)"
     >
       <i class="bwi bwi-premium tw-pe-1"></i>{{ "upgrade" | i18n }}
