@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { Observable, Subject } from "rxjs";
+
 import {
   OrganizationUserStatusType,
   ProviderUserStatusType,
@@ -83,10 +85,17 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
    */
   checkUser(user: T, select?: boolean) {
     (user as any).checked = select == null ? !(user as any).checked : select;
+    this.checkedUsersUpdated$.next();
   }
 
   getCheckedUsers() {
     return this.data.filter((u) => (u as any).checked);
+  }
+
+  private checkedUsersUpdated$ = new Subject<void>();
+
+  usersUpdated(): Observable<void> {
+    return this.checkedUsersUpdated$.asObservable();
   }
 
   /**
