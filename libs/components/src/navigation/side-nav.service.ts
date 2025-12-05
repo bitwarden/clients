@@ -40,9 +40,20 @@ export class SideNavService {
     map(([open, isLargeScreen]) => open && !isLargeScreen),
   );
 
+  /**
+   * Local component state width
+   *
+   * This observable has immediate pixel-perfect updates for the sidebar display width to use
+   */
   private readonly _width$ = new BehaviorSubject<number>(this.DEFAULT_OPEN_WIDTH);
   readonly width$ = this._width$.asObservable();
 
+  /**
+   * State provider width
+   *
+   * This observable is used to initialize the component state and will be periodically synced
+   * to the local _width$ state to avoid excessive writes
+   */
   private readonly widthState = inject(GlobalStateProvider).get(BIT_SIDE_NAV_WIDTH_KEY_DEF);
   readonly widthState$ = this.widthState.state$.pipe(
     map((width) => width ?? this.DEFAULT_OPEN_WIDTH),
@@ -66,7 +77,7 @@ export class SideNavService {
       this._width$.next(width);
     });
 
-    // Handle width resize events
+    // Periodically sync to state provider when component state changes
     this.width$.pipe(debounceTime(200), takeUntilDestroyed()).subscribe((width) => {
       void this.widthState.update(() => width);
     });
@@ -119,15 +130,10 @@ export class SideNavService {
   setWidthFromKeys(key: "ArrowRight" | "ArrowLeft") {
     const currentWidth = this._width$.getValue();
 
-    if (key === "ArrowLeft") {
-      const newWidth = currentWidth - 10;
-      this._setWidthWithinMinMax(newWidth);
-    }
+    const delta = key === "ArrowLeft" ? -10 : 10;
+    const newWidth = currentWidth + delta;
 
-    if (key === "ArrowRight") {
-      const newWidth = currentWidth + 10;
-      this._setWidthWithinMinMax(newWidth);
-    }
+    this._setWidthWithinMinMax(newWidth);
   }
 
   /**
