@@ -36,14 +36,24 @@
         {{ trashCleanupWarning }}
       </bit-callout>
     }
+    <!--    <bit-callout-->
+    <!--      type="info"-->
+    <!--      [title]="'premiumSubscriptionEnded' | i18n"-->
+    <!--      *ngIf="showSubscriptionEndedMessaging$ | async"-->
+    <!--    >-->
+    <!--      <p>{{ "premiumSubscriptionEndedDesc" | i18n }}</p>-->
+    <!--      <a routerLink="/settings/subscription/premium" bitButton buttonType="primary">{{-->
+    <!--          "restartPremium" | i18n-->
+    <!--        }}</a>-->
+    <!--    </bit-callout>-->
 
-    @if (filter.type === "archive" && !canAccessPremium && (hasArchivedCiphers$ | async)) {
-      <bit-callout type="default" [title]="'archivePremiumSubscriptionEnded' | i18n">
+    @if (showSubscriptionEndedMessaging$ | async) {
+      <bit-callout type="default" [title]="'premiumSubscriptionEnded' | i18n">
         <ng-container>
           <div>
-            {{ "archivePremiumSubscriptionEndedDesc" | i18n }}
+            {{ "premiumSubscriptionEndedDesc" | i18n }}
           </div>
-          <a bitLink (click)="navigateToGetPremium()"> {{ "archiveRestartPremium" | i18n }} </a>
+          <a bitLink (click)="navigateToGetPremium()"> {{ "restartPremium" | i18n }} </a>
         </ng-container>
       </bit-callout>
     }
