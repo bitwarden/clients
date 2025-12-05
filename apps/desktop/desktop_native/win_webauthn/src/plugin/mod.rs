@@ -149,10 +149,19 @@ impl WebAuthnPlugin {
         }
     }
 
+    /// Perform user verification related to an associated MakeCredential or GetAssertion request.
+    /// request
     pub fn perform_user_verification(
+        &self,
         request: PluginUserVerificationRequest,
+        operation_request: &[u8],
     ) -> Result<PluginUserVerificationResponse, WinWebAuthnError> {
         tracing::debug!(?request, "Handling user verification request");
+
+        // Get pub key
+        let pub_key = crypto::get_user_verification_public_key(&self.clsid.0)?;
+
+        // Send UV request
         let user_name = request.user_name.to_utf16().to_com_buffer();
         let hint = request.display_hint.map(|d| d.to_utf16().to_com_buffer());
         let uv_request = WEBAUTHN_PLUGIN_USER_VERIFICATION_REQUEST {
@@ -174,11 +183,13 @@ impl WebAuthnPlugin {
                     Vec::new()
                 } else {
                     // SAFETY: Windows returned successful response code and length, so we assume that the data is initialized
-                    unsafe {
+                    let signature = unsafe {
                         // SAFETY: Windows only runs on platforms where usize >= u32;
                         let len = response_len as usize;
                         std::slice::from_raw_parts(response_ptr, len).to_vec()
-                    }
+                    };
+                    pub_key.verify_signature(operation_request, &signature)?;
+                    signature
                 };
                 webauthn_plugin_free_user_verification_response(response_ptr)?;
                 Ok(PluginUserVerificationResponse {

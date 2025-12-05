@@ -59,7 +59,9 @@ fn handle_user_verification_request(
     request: UserVerificationParameters,
 ) -> Result<UserVerificationResponse> {
     tracing::debug!(?request, "Handling user verification request");
-    let (buf, _) = request.transaction_context[..16].split_at(16);
+    // 0-15 GUID
+    // 16..47 SHA256 hash of Windows operation request
+    let (buf, operation_request_hash) = request.transaction_context[..16].split_at(16);
     let guid_u128 = buf
         .try_into()
         .map_err(|e| anyhow!("Failed to parse transaction ID as u128: {e}"))?;
@@ -81,7 +83,10 @@ fn handle_user_verification_request(
         user_name: request.username,
         display_hint: Some(request.display_hint),
     };
-    let _response = WebAuthnPlugin::perform_user_verification(uv_request)
+    let clsid = Clsid::try_from(PLUGIN_CLSID)
+        .map_err(|err| anyhow!("Failed to parse CLSID from string {PLUGIN_CLSID}: {err}"))?;
+    let plugin = WebAuthnPlugin::new(clsid);
+    let _response = plugin.perform_user_verification(uv_request, operation_request_hash)
         .map_err(|err| anyhow!("User Verification request failed: {err}"))?;
     return Ok(UserVerificationResponse {});
 }
