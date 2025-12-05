@@ -1,5 +1,5 @@
 <popup-page [disablePadding]="true">
-  <popup-header
+  <!-- <popup-header
     slot="header"
     [background]="'alt'"
     [showBackButton]="showBackButton"
@@ -13,7 +13,7 @@
       <app-pop-out></app-pop-out>
       <app-current-account *ngIf="showAcctSwitcher && hasLoggedInAccount"></app-current-account>
     </ng-container>
-  </popup-header>
+  </popup-header> -->
 
   <auth-anon-layout
     [title]="pageTitle"
@@ -26,6 +26,17 @@
     [hideCardWrapper]="hideCardWrapper"
   >
     <router-outlet></router-outlet>
+    @if (showLogo) {
+      <div slot="custom-logo" class="tw-w-32">
+        <bit-icon [icon]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-icon>
+      </div>
+    }
+    <div class="tw-flex tw-gap-2" slot="header-actions">
+      <app-pop-out></app-pop-out>
+      @if (showAcctSwitcher && hasLoggedInAccount) {
+        <app-current-account slot="header-actions"></app-current-account>
+      }
+    </div>
     <router-outlet slot="secondary" name="secondary"></router-outlet>
     <router-outlet slot="environment-selector" name="environment-selector"></router-outlet>
   </auth-anon-layout>
