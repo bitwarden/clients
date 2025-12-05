@@ -2,8 +2,8 @@
 // for reference on the Keeper JSON format. It's not comprehensive but covers the main fields.
 
 export type KeeperJsonExport = {
-  records?: Record[] | null | undefined;
-  shared_folders?: SharedFolder[] | null | undefined;
+  records?: Record[] | null;
+  shared_folders?: SharedFolder[] | null;
 };
 
 export type Record = {

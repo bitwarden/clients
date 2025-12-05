@@ -52,30 +52,8 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     });
   }
 
-  private parseReferences(keeperExport: KeeperJsonExport) {
-    keeperExport.records.forEach((record) => {
-      if (record.references) {
-        for (const [key, values] of Object.entries(record.references)) {
-          let [type] = this.parseFieldKey(key);
-
-          // Web exporter appends "Ref" to the type names
-          if (type.endsWith("Ref")) {
-            type = type.substring(0, type.length - 3);
-          }
-
-          this.references.set(
-            record.uid!,
-            this.makeArray(values).map((id) => ({ id: id, type: type })),
-          );
-        }
-      }
-    });
-  }
-
   private parseRecords(keeperExport: KeeperJsonExport, result: ImportResult) {
     keeperExport.records.forEach((record) => {
-      // TODO: This adds a folder/folders to the import result and records a relationship with the to-be-added cipher.
-      //       If for some reason we don't add a cipher later, the whole relationship map becomes invalid.
       this.parseFolders(result, record);
 
       // TODO: Check the $type field to handle other types of records
@@ -107,7 +85,7 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
         this.importCustomFields(record.custom_fields, cipher);
       }
 
-      if (record.references) {
+      if (record.uid && record.references) {
         const refs = [];
         for (const [key, values] of Object.entries(record.references)) {
           let [type] = this.parseFieldKey(key);
@@ -121,7 +99,7 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
         }
 
         if (refs.length > 0) {
-          this.references.set(record.uid!, refs);
+          this.references.set(record.uid, refs);
         }
       }
 
@@ -131,7 +109,9 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
       result.ciphers.push(cipher);
 
       // This is needed for resolving references later
-      this.idToCipher.set(record.uid!, cipher);
+      if (record.uid) {
+        this.idToCipher.set(record.uid, cipher);
+      }
     });
   }
 
@@ -272,11 +252,6 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
 
         // Import as a single field with JSON.stringify as the last resort fallback
         this.importSingleField(type, importedName, value, cipher);
-
-        // TODO: Remove this eventually! Keep it here while debugging, though.
-        // console.log(
-        //   `Custom field: '${originalKey}'='${JSON.stringify(originalValue)}':\n  - type='${type}'\n  - name='${name}'\n  - value='${JSON.stringify(originalValue)}'\nConverted to:\n  - name='${importedName}'\n  - value='${importedValue}'`,
-        // );
       }
     }
   }

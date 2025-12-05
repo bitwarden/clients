@@ -159,14 +159,14 @@
         </ng-container>
         <ng-container *ngIf="format === 'keepercsv'">
           Log into the Keeper web vault (keepersecurity.com/vault). Click on your "account email"
-          (top right) and select "Settings". Go to "Export" and find the "Export to .csv File"
-          option. Click "Export" to save the CSV file.
+          (top right) and select "Settings". Go to "Export" and in the "Export File" section select
+          the "CSV" option. Click "Export" to save the CSV file.
         </ng-container>
         <!-- FIXME - verify keeperjson instructions -->
         <ng-container *ngIf="format === 'keeperjson'">
           Log into the Keeper web vault (keepersecurity.com/vault). Click on your "account email"
-          (top right) and select "Settings". Go to "Export" and find the "Export to .json File"
-          option. Click "Export" to save the JSON file.
+          (top right) and select "Settings". Go to "Export" and in the "Export File" section select
+          the "JSON" option. Click "Export" to save the JSON file.
         </ng-container>
         <ng-container *ngIf="showChromiumInstructions$ | async">
           <span *ngIf="format !== 'chromecsv'">
