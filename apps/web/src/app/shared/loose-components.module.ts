@@ -1,9 +1,5 @@
 import { NgModule } from "@angular/core";
 
-import { RecoverDeleteComponent } from "../auth/recover-delete.component";
-import { RecoverTwoFactorComponent } from "../auth/recover-two-factor.component";
-import { VerifyEmailTokenComponent } from "../auth/verify-email-token.component";
-import { VerifyRecoverDeleteComponent } from "../auth/verify-recover-delete.component";
 import { FreeBitwardenFamiliesComponent } from "../billing/members/free-bitwarden-families.component";
 import { SponsoredFamiliesComponent } from "../billing/settings/sponsored-families.component";
 import { SponsoringOrgRowComponent } from "../billing/settings/sponsoring-org-row.component";
@@ -19,22 +15,11 @@ import { SharedModule } from "./shared.module";
 @NgModule({
   imports: [SharedModule, HeaderModule, OrganizationBadgeModule, PipesModule],
   declarations: [
-    RecoverDeleteComponent,
-    RecoverTwoFactorComponent,
     RemovePasswordComponent,
     SponsoredFamiliesComponent,
     FreeBitwardenFamiliesComponent,
     SponsoringOrgRowComponent,
-    VerifyEmailTokenComponent,
-    VerifyRecoverDeleteComponent,
   ],
-  exports: [
-    RecoverDeleteComponent,
-    RecoverTwoFactorComponent,
-    RemovePasswordComponent,
-    SponsoredFamiliesComponent,
-    VerifyEmailTokenComponent,
-    VerifyRecoverDeleteComponent,
-  ],
+  exports: [SponsoredFamiliesComponent],
 })
 export class LooseComponentsModule {}
