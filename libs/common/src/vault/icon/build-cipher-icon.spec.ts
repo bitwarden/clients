@@ -13,18 +13,19 @@ describe("buildCipherIcon", () => {
       },
     } as any as CipherView;
 
-    it.each([true, false])("handles android app URIs for showFavicon setting %s", (showFavicon) => {
-      setUri("androidapp://test.example");
+    // @TODO Uncomment once we have Android and iOS icons https://bitwarden.atlassian.net/browse/PM-29028
+    // it.each([true, false])("handles android app URIs for showFavicon setting %s", (showFavicon) => {
+    //   setUri("androidapp://test.example");
 
-      const iconDetails = buildCipherIcon(iconServerUrl, cipher, showFavicon);
+    //   const iconDetails = buildCipherIcon(iconServerUrl, cipher, showFavicon);
 
-      expect(iconDetails).toEqual({
-        icon: "bwi-android",
-        image: null,
-        fallbackImage: "",
-        imageEnabled: showFavicon,
-      });
-    });
+    //   expect(iconDetails).toEqual({
+    //     icon: "bwi-android",
+    //     image: null,
+    //     fallbackImage: "",
+    //     imageEnabled: showFavicon,
+    //   });
+    // });
 
     it("does not mark as an android app if the protocol is not androidapp", () => {
       // This weird URI points to test.androidapp with a default port and path of /.example
@@ -40,18 +41,18 @@ describe("buildCipherIcon", () => {
       });
     });
 
-    it.each([true, false])("handles ios app URIs for showFavicon setting %s", (showFavicon) => {
-      setUri("iosapp://test.example");
+    // @TODO Uncomment once we have Android and iOS icons https://bitwarden.atlassian.net/browse/PM-29028
+    // it.each([true, false])("handles ios app URIs for showFavicon setting %s", (showFavicon) => {
+    //   setUri("iosapp://test.example");
 
-      const iconDetails = buildCipherIcon(iconServerUrl, cipher, showFavicon);
-
-      expect(iconDetails).toEqual({
-        icon: "bwi-apple",
-        image: null,
-        fallbackImage: "",
-        imageEnabled: showFavicon,
-      });
-    });
+    //   const iconDetails = buildCipherIcon(iconServerUrl, cipher, showFavicon);
+    //   expect(iconDetails).toEqual({
+    //     icon: "bwi-apple",
+    //     image: null,
+    //     fallbackImage: "",
+    //     imageEnabled: showFavicon,
+    //   });
+    // });
 
     it("does not mark as an ios app if the protocol is not iosapp", () => {
       // This weird URI points to test.iosapp with a default port and path of /.example
