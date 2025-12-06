@@ -1588,6 +1588,7 @@ export class ApiService implements ApiServiceAbstraction {
       body,
       alterHeaders,
     );
+
     let response = await this.fetch(this.httpOperations.createRequest(requestUrl, request));
 
     // First, check to see if we were making an authenticated request and received an Unauthorized (401)
@@ -1598,6 +1599,9 @@ export class ApiService implements ApiServiceAbstraction {
       userIdMakingRequest != null &&
       response.status === HttpStatusCode.Unauthorized
     ) {
+      this.logService.warning(
+        "Unauthorized response received for request to " + path + ". Attempting request again.",
+      );
       request = await this.buildRequest(
         method,
         userIdMakingRequest,
