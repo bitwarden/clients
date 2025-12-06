@@ -8,9 +8,11 @@ import { NEVER, switchMap } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { EmergencyAccessId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
+import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   ItemModule,
@@ -59,6 +61,7 @@ export class AttachmentsV2ViewComponent {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private stateProvider: StateProvider,
     private accountService: AccountService,
+    private i18nService: I18nService,
   ) {
     this.subscribeToHasPremiumCheck();
     this.subscribeToOrgKey();
@@ -88,5 +91,13 @@ export class AttachmentsV2ViewComponent {
           this.orgKey = data[this.cipher.organizationId as OrganizationId];
         }
       });
+  }
+
+  getAttachmentFileName(attachment: AttachmentView): string {
+    if (attachment.hasDecryptionError) {
+      return this.i18nService.t("errorCannotDecrypt");
+    }
+
+    return attachment.fileName ?? "";
   }
 }
