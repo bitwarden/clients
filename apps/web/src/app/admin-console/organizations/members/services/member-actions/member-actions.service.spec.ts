@@ -4,6 +4,7 @@ import { of } from "rxjs";
 import {
   OrganizationUserApiService,
   OrganizationUserBulkResponse,
+  OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import {
   OrganizationUserType,
@@ -22,9 +23,8 @@ import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
-import { OrganizationUserService } from "../organization-user/organization-user.service";
 
-import { MemberActionsService } from "./member-actions.service";
+import { BATCH_SIZE, MemberActionsService } from "./member-actions.service";
 
 describe("MemberActionsService", () => {
   let service: MemberActionsService;
@@ -308,24 +308,27 @@ describe("MemberActionsService", () => {
   });
 
   describe("bulkReinvite", () => {
-    const userIds = [newGuid(), newGuid(), newGuid()];
+    const userIds = [newGuid() as UserId, newGuid() as UserId, newGuid() as UserId];
 
     it("should successfully reinvite multiple users", async () => {
-      const mockResponse = {
-        data: userIds.map((id) => ({
-          id,
-          error: null,
-        })),
-        continuationToken: null,
-      } as ListResponse<OrganizationUserBulkResponse>;
+      const mockResponse = new ListResponse(
+        {
+          data: userIds.map((id) => ({
+            id,
+            error: null,
+          })),
+          continuationToken: null,
+        },
+        OrganizationUserBulkResponse,
+      );
+
       organizationUserApiService.postManyOrganizationUserReinvite.mockResolvedValue(mockResponse);
 
       const result = await service.bulkReinvite(mockOrganization, userIds);
 
-      expect(result).toEqual({
-        successful: mockResponse,
-        failed: [],
-      });
+      expect(result.failed).toEqual([]);
+      expect(result.successful).toBeDefined();
+      expect(result.successful?.response).toEqual(mockResponse.data);
       expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledWith(
         organizationId,
         userIds,
@@ -343,6 +346,293 @@ describe("MemberActionsService", () => {
       expect(result.successful).toBeUndefined();
       expect(result.failed).toHaveLength(3);
       expect(result.failed[0]).toEqual({ id: userIds[0], error: errorMessage });
+    });
+
+    describe("batching behavior", () => {
+      it("should process users in a single batch when count equals BATCH_SIZE", async () => {
+        const userIdsBatch = Array.from({ length: BATCH_SIZE }, () => newGuid() as UserId);
+        const mockResponse = new ListResponse(
+          {
+            data: userIdsBatch.map((id) => ({
+              id,
+              error: null,
+            })),
+            continuationToken: null,
+          },
+          OrganizationUserBulkResponse,
+        );
+
+        organizationUserApiService.postManyOrganizationUserReinvite.mockResolvedValue(mockResponse);
+
+        const result = await service.bulkReinvite(mockOrganization, userIdsBatch);
+
+        expect(result.successful).toBeDefined();
+        expect(result.successful?.response).toHaveLength(BATCH_SIZE);
+        expect(result.failed).toHaveLength(0);
+        expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledTimes(
+          1,
+        );
+        expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledWith(
+          organizationId,
+          userIdsBatch,
+        );
+      });
+
+      it("should process users in multiple batches when count exceeds BATCH_SIZE", async () => {
+        const totalUsers = BATCH_SIZE + 100;
+        const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
+
+        const mockResponse1 = new ListResponse(
+          {
+            data: userIdsBatch.slice(0, BATCH_SIZE).map((id) => ({
+              id,
+              error: null,
+            })),
+            continuationToken: null,
+          },
+          OrganizationUserBulkResponse,
+        );
+
+        const mockResponse2 = new ListResponse(
+          {
+            data: userIdsBatch.slice(BATCH_SIZE).map((id) => ({
+              id,
+              error: null,
+            })),
+            continuationToken: null,
+          },
+          OrganizationUserBulkResponse,
+        );
+
+        organizationUserApiService.postManyOrganizationUserReinvite
+          .mockResolvedValueOnce(mockResponse1)
+          .mockResolvedValueOnce(mockResponse2);
+
+        const result = await service.bulkReinvite(mockOrganization, userIdsBatch);
+
+        expect(result.successful).toBeDefined();
+        expect(result.successful?.response).toHaveLength(totalUsers);
+        expect(result.failed).toHaveLength(0);
+        expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledTimes(
+          2,
+        );
+        expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenNthCalledWith(
+          1,
+          organizationId,
+          userIdsBatch.slice(0, BATCH_SIZE),
+        );
+        expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenNthCalledWith(
+          2,
+          organizationId,
+          userIdsBatch.slice(BATCH_SIZE),
+        );
+      });
+
+      it("should process users in three batches when count requires it", async () => {
+        const totalUsers = BATCH_SIZE * 2 + 250;
+        const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
+
+        const mockResponse1 = new ListResponse(
+          {
+            data: userIdsBatch.slice(0, BATCH_SIZE).map((id) => ({
+              id,
+              error: null,
+            })),
+            continuationToken: null,
+          },
+          OrganizationUserBulkResponse,
+        );
+
+        const mockResponse2 = new ListResponse(
+          {
+            data: userIdsBatch.slice(BATCH_SIZE, BATCH_SIZE * 2).map((id) => ({
+              id,
+              error: null,
+            })),
+            continuationToken: null,
+          },
+          OrganizationUserBulkResponse,
+        );
+
+        const mockResponse3 = new ListResponse(
+          {
+            data: userIdsBatch.slice(BATCH_SIZE * 2).map((id) => ({
+              id,
+              error: null,
+            })),
+            continuationToken: null,
+          },
+          OrganizationUserBulkResponse,
+        );
+
+        organizationUserApiService.postManyOrganizationUserReinvite
+          .mockResolvedValueOnce(mockResponse1)
+          .mockResolvedValueOnce(mockResponse2)
+          .mockResolvedValueOnce(mockResponse3);
+
+        const result = await service.bulkReinvite(mockOrganization, userIdsBatch);
+
+        expect(result.successful).toBeDefined();
+        expect(result.successful?.response).toHaveLength(totalUsers);
+        expect(result.failed).toHaveLength(0);
+        expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledTimes(
+          3,
+        );
+      });
+
+      it("should aggregate results across multiple successful batches", async () => {
+        const totalUsers = BATCH_SIZE + 50;
+        const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
+
+        const mockResponse1 = new ListResponse(
+          {
+            data: userIdsBatch.slice(0, BATCH_SIZE).map((id) => ({
+              id,
+              error: null,
+            })),
+            continuationToken: null,
+          },
+          OrganizationUserBulkResponse,
+        );
+
+        const mockResponse2 = new ListResponse(
+          {
+            data: userIdsBatch.slice(BATCH_SIZE).map((id) => ({
+              id,
+              error: null,
+            })),
+            continuationToken: null,
+          },
+          OrganizationUserBulkResponse,
+        );
+
+        organizationUserApiService.postManyOrganizationUserReinvite
+          .mockResolvedValueOnce(mockResponse1)
+          .mockResolvedValueOnce(mockResponse2);
+
+        const result = await service.bulkReinvite(mockOrganization, userIdsBatch);
+
+        expect(result.successful).toBeDefined();
+        expect(result.successful?.response).toHaveLength(totalUsers);
+        expect(result.successful?.response.slice(0, BATCH_SIZE)).toEqual(mockResponse1.data);
+        expect(result.successful?.response.slice(BATCH_SIZE)).toEqual(mockResponse2.data);
+        expect(result.failed).toHaveLength(0);
+      });
+
+      it("should handle partial batch failures and continue processing remaining batches", async () => {
+        const totalUsers = BATCH_SIZE * 2;
+        const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
+        const errorMessage = "First batch failed";
+
+        const mockResponse2 = new ListResponse(
+          {
+            data: userIdsBatch.slice(BATCH_SIZE).map((id) => ({
+              id,
+              error: null,
+            })),
+            continuationToken: null,
+          },
+          OrganizationUserBulkResponse,
+        );
+
+        organizationUserApiService.postManyOrganizationUserReinvite
+          .mockRejectedValueOnce(new Error(errorMessage))
+          .mockResolvedValueOnce(mockResponse2);
+
+        const result = await service.bulkReinvite(mockOrganization, userIdsBatch);
+
+        expect(result.successful).toBeDefined();
+        expect(result.successful?.response).toHaveLength(BATCH_SIZE);
+        expect(result.failed).toHaveLength(BATCH_SIZE);
+        expect(result.failed.every((f) => f.error === errorMessage)).toBe(true);
+        expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledTimes(
+          2,
+        );
+      });
+
+      it("should aggregate all failures when all batches fail", async () => {
+        const totalUsers = BATCH_SIZE + 100;
+        const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
+        const errorMessage = "All batches failed";
+
+        organizationUserApiService.postManyOrganizationUserReinvite.mockRejectedValue(
+          new Error(errorMessage),
+        );
+
+        const result = await service.bulkReinvite(mockOrganization, userIdsBatch);
+
+        expect(result.successful).toBeUndefined();
+        expect(result.failed).toHaveLength(totalUsers);
+        expect(result.failed.every((f) => f.error === errorMessage)).toBe(true);
+        expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledTimes(
+          2,
+        );
+      });
+
+      it("should handle empty data in batch response", async () => {
+        const totalUsers = BATCH_SIZE + 50;
+        const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
+
+        const mockResponse1 = new ListResponse(
+          {
+            data: userIdsBatch.slice(0, BATCH_SIZE).map((id) => ({
+              id,
+              error: null,
+            })),
+            continuationToken: null,
+          },
+          OrganizationUserBulkResponse,
+        );
+
+        const mockResponse2 = new ListResponse(
+          {
+            data: [],
+            continuationToken: null,
+          },
+          OrganizationUserBulkResponse,
+        );
+
+        organizationUserApiService.postManyOrganizationUserReinvite
+          .mockResolvedValueOnce(mockResponse1)
+          .mockResolvedValueOnce(mockResponse2);
+
+        const result = await service.bulkReinvite(mockOrganization, userIdsBatch);
+
+        expect(result.successful).toBeDefined();
+        expect(result.successful?.response).toHaveLength(BATCH_SIZE);
+        expect(result.failed).toHaveLength(0);
+      });
+
+      it("should process batches sequentially in order", async () => {
+        const totalUsers = BATCH_SIZE * 2;
+        const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
+        const callOrder: number[] = [];
+
+        organizationUserApiService.postManyOrganizationUserReinvite.mockImplementation(
+          async (orgId, ids) => {
+            const batchIndex = ids.includes(userIdsBatch[0]) ? 1 : 2;
+            callOrder.push(batchIndex);
+
+            return new ListResponse(
+              {
+                data: ids.map((id) => ({
+                  id,
+                  error: null,
+                })),
+                continuationToken: null,
+              },
+              OrganizationUserBulkResponse,
+            );
+          },
+        );
+
+        await service.bulkReinvite(mockOrganization, userIdsBatch);
+
+        expect(callOrder).toEqual([1, 2]);
+        expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledTimes(
+          2,
+        );
+      });
     });
   });
 

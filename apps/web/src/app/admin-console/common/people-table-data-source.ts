@@ -9,6 +9,8 @@ import { TableDataSource } from "@bitwarden/components";
 import { StatusType, UserViewTypes } from "./base-members.component";
 
 const MaxCheckedCount = 500;
+const CloudMaxCheckedCount = 8000;
+const SelfHostMaxCheckedCount = 1000;
 
 /**
  * Returns true if the user matches the status, or where the status is `null`, if the user is active (not revoked).
@@ -100,6 +102,23 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
     }
 
     const filteredUsers = this.filteredData;
+
+    const selectCount =
+      filteredUsers.length > MaxCheckedCount ? MaxCheckedCount : filteredUsers.length;
+    for (let i = 0; i < selectCount; i++) {
+      this.checkUser(filteredUsers[i], select);
+    }
+  }
+
+  vNextCheckAllFilteredUsers(select: boolean, selfHost: boolean) {
+    if (select) {
+      // Reset checkbox selection first so we know nothing else is selected
+      this.uncheckAllUsers();
+    }
+
+    const filteredUsers = this.filteredData;
+
+    const MaxCheckedCount = selfHost ? SelfHostMaxCheckedCount : CloudMaxCheckedCount;
 
     const selectCount =
       filteredUsers.length > MaxCheckedCount ? MaxCheckedCount : filteredUsers.length;
