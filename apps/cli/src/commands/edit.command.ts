@@ -186,15 +186,15 @@ export class EditCommand {
       return Response.notFound();
     }
 
-    let folderView = await folder.decrypt();
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
+    let folderView = await folder.decrypt(userKey);
     folderView = FolderExport.toView(req, folderView);
 
-    const userKey = await this.keyService.getUserKey(activeUserId);
     const encFolder = await this.folderService.encrypt(folderView, userKey);
     try {
       const folder = await this.folderApiService.save(encFolder, activeUserId);
       const updatedFolder = new Folder(folder);
-      const decFolder = await updatedFolder.decrypt();
+      const decFolder = await updatedFolder.decrypt(userKey);
       const res = new FolderResponse(decFolder);
       return Response.success(res);
     } catch (e) {
