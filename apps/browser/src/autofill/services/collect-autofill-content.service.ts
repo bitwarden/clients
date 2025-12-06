@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
+
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -946,6 +948,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.mutationObserver = new MutationObserver(this.handleMutationObserverMutation);
     this.mutationObserver.observe(document.documentElement, {
       attributes: true,
+      attributeFilter: Object.values(AUTOFILL_ATTRIBUTES),
       childList: true,
       subtree: true,
     });
@@ -1340,7 +1343,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       name: () => updateAttribute("htmlName"),
       class: () => updateAttribute("htmlClass"),
       tabindex: () => updateAttribute("tabindex"),
-      title: () => updateAttribute("tabindex"),
+      title: () => updateAttribute("title"),
       rel: () => updateAttribute("rel"),
       tagname: () => (dataTarget.tagName = this.getAttributeLowerCase(element, "tagName")),
       type: () => (dataTarget.type = this.getAttributeLowerCase(element, "type")),
