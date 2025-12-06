@@ -172,7 +172,7 @@
       <bit-menu-divider *ngIf="showMenuDivider"></bit-menu-divider>
 
       @if (!viewingOrgVault) {
-        <button bitMenuItem type="button" (click)="toggleFavorite()">
+        <button bitMenuItem type="button" *ngIf="showFavorite" (click)="toggleFavorite()">
           <i class="bwi bwi-fw bwi-star" aria-hidden="true"></i>
           {{ (cipher.favorite ? "unfavorite" : "favorite") | i18n }}
         </button>
