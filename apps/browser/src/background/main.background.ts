@@ -1483,6 +1483,7 @@ export default class MainBackground {
       this.billingAccountProfileStateService,
       this.configService,
       this.logService,
+      this.organizationService,
       this.phishingDataService,
       messageListener,
     );

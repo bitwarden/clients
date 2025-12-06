@@ -1,6 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { Observable, of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -15,6 +16,7 @@ describe("PhishingDetectionService", () => {
   let billingAccountProfileStateService: BillingAccountProfileStateService;
   let configService: ConfigService;
   let logService: LogService;
+  let organizationService: MockProxy<OrganizationService>;
   let phishingDataService: MockProxy<PhishingDataService>;
   let messageListener: MockProxy<MessageListener>;
 
@@ -23,6 +25,7 @@ describe("PhishingDetectionService", () => {
     billingAccountProfileStateService = {} as any;
     configService = { getFeatureFlag$: jest.fn(() => of(false)) } as any;
     logService = { info: jest.fn(), debug: jest.fn(), warning: jest.fn(), error: jest.fn() } as any;
+    organizationService = mock<OrganizationService>();
     phishingDataService = mock();
     messageListener = mock<MessageListener>({
       messages$(_commandDefinition) {
@@ -38,6 +41,7 @@ describe("PhishingDetectionService", () => {
         billingAccountProfileStateService,
         configService,
         logService,
+        organizationService,
         phishingDataService,
         messageListener,
       );
