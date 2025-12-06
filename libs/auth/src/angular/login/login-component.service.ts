@@ -36,6 +36,14 @@ export abstract class LoginComponentService {
   redirectToSsoLogin: (email: string) => Promise<void | null>;
 
   /**
+   * Redirects the user to the SSO login page with organization SSO identifier, either via route or in a new browser window.
+   */
+  redirectToSsoLoginWithOrganizationSsoIdentifier: (
+    email: string,
+    orgSsoIdentifier: string | null | undefined,
+  ) => Promise<void | null>;
+
+  /**
    * Shows the back button.
    */
   showBackButton: (showBackButton: boolean) => void;
