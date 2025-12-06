@@ -18,7 +18,6 @@ export class IdentityTokenResponse extends BaseResponse {
   tokenType: string;
 
   // Decryption Information
-  resetMasterPassword: boolean;
   privateKey: string; // userKeyEncryptedPrivateKey
   key?: EncString; // masterKeyEncryptedUserKey
   twoFactorToken: string;
@@ -52,7 +51,6 @@ export class IdentityTokenResponse extends BaseResponse {
       this.refreshToken = refreshToken;
     }
 
-    this.resetMasterPassword = this.getResponseProperty("ResetMasterPassword");
     this.privateKey = this.getResponseProperty("PrivateKey");
     const key = this.getResponseProperty("Key");
     if (key) {
