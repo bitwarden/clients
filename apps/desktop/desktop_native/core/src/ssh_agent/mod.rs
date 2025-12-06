@@ -226,7 +226,7 @@ impl BitwardenDesktopAgent {
         keystore.0.write().expect("RwLock is not poisoned").clear();
 
         self.needs_unlock
-            .store(true, std::sync::atomic::Ordering::Relaxed);
+            .store(false, std::sync::atomic::Ordering::Relaxed);
 
         for (key, name, cipher_id) in new_keys.iter() {
             match parse_key_safe(key) {
