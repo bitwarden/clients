@@ -1,0 +1,52 @@
+import { Observable, switchMap } from "rxjs";
+import { map } from "rxjs/operators";
+
+import { UserId } from "@bitwarden/user-core";
+
+import { PHISHING_DETECTION_DISK, StateProvider, UserKeyDefinition } from "../../platform/state";
+
+const ENABLE_PHISHING_DETECTION = new UserKeyDefinition(
+  PHISHING_DETECTION_DISK,
+  "enablePhishingDetection",
+  {
+    deserializer: (value: boolean) => value ?? true, // Default: enabled
+    clearOn: [],
+  },
+);
+
+/**
+ * Abstraction for phishing detection settings
+ */
+export abstract class PhishingDetectionSettingsServiceAbstraction {
+  /**
+   * An observable for whether phishing detection is enabled
+   */
+  abstract enablePhishingDetection$: Observable<boolean>;
+  /**
+   * Sets whether phishing detection is enabled
+   *
+   * @param enabled True to enable, false to disable
+   */
+  abstract setEnablePhishingDetection: (userId: UserId, enabled: boolean) => Promise<void>;
+}
+
+export class PhishingDetectionSettingsService
+  implements PhishingDetectionSettingsServiceAbstraction
+{
+  readonly enablePhishingDetection$: Observable<boolean>;
+
+  constructor(private stateProvider: StateProvider) {
+    this.enablePhishingDetection$ = this.stateProvider.activeUserId$.pipe(
+      switchMap((userId) =>
+        userId != null
+          ? this.stateProvider.getUser(userId, ENABLE_PHISHING_DETECTION).state$
+          : [true],
+      ),
+      map((x) => x ?? true),
+    );
+  }
+
+  async setEnablePhishingDetection(userId: UserId, enabled: boolean): Promise<void> {
+    await this.stateProvider.getUser(userId, ENABLE_PHISHING_DETECTION).update(() => enabled);
+  }
+}

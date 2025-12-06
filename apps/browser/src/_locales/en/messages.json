@@ -4796,6 +4796,18 @@
   "accountSecurity": {
     "message": "Account security"
   },
+  "phishingBlocker": {
+    "message": "Phishing Blocker"
+  },
+  "enablePhishingDetection": {
+    "message": "Phishing detection"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Display warning before accessing suspected phishing sites"
+  },
+  "on": {
+    "message": "On"
+  },
   "notifications": {
     "message": "Notifications"
   },

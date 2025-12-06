@@ -14,6 +14,7 @@ import {
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/phishing-detection-settings.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -55,6 +56,7 @@ export class PhishingDetectionService {
     configService: ConfigService,
     logService: LogService,
     phishingDataService: PhishingDataService,
+    phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
     messageListener: MessageListener,
   ) {
     if (this._didInit) {
@@ -121,10 +123,15 @@ export class PhishingDetectionService {
     const activeAccountHasAccess$ = combineLatest([
       accountService.activeAccount$,
       configService.getFeatureFlag$(FeatureFlag.PhishingDetection),
+      phishingDetectionSettingsService.enablePhishingDetection$,
     ]).pipe(
-      switchMap(([account, featureEnabled]) => {
+      switchMap(([account, featureEnabled, userSettingEnabled]) => {
         if (!account) {
           logService.debug("[PhishingDetectionService] No active account.");
+          return of(false);
+        }
+        if (!userSettingEnabled) {
+          logService.debug("[PhishingDetectionService] Disabled by user setting.");
           return of(false);
         }
         return billingAccountProfileStateService
