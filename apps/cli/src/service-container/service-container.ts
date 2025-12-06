@@ -69,6 +69,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import {
   DefaultKeyGenerationService,
   KeyGenerationService,
@@ -334,6 +335,7 @@ export class ServiceContainer {
   masterPasswordUnlockService: MasterPasswordUnlockService;
   cipherArchiveService: CipherArchiveService;
   lockService: LockService;
+  private accountCryptographicStateService: DefaultAccountCryptographicStateService;
 
   constructor() {
     let p = null;
@@ -720,6 +722,10 @@ export class ServiceContainer {
       this.accountService,
     );
 
+    this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
+      this.stateProvider,
+    );
+
     this.loginStrategyService = new LoginStrategyService(
       this.accountService,
       this.masterPasswordService,
@@ -747,6 +753,7 @@ export class ServiceContainer {
       this.kdfConfigService,
       this.taskSchedulerService,
       this.configService,
+      this.accountCryptographicStateService,
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(
@@ -882,6 +889,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.securityStateService,
       this.kdfConfigService,
+      this.accountCryptographicStateService,
     );
 
     this.totpService = new TotpService(this.sdkService);

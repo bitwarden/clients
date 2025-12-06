@@ -10,6 +10,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -34,6 +35,7 @@ export class WebSetInitialPasswordService
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     private organizationInviteService: OrganizationInviteService,
     private routerService: RouterService,
+    protected accountCryptographicStateService: AccountCryptographicStateService,
   ) {
     super(
       apiService,
@@ -46,6 +48,7 @@ export class WebSetInitialPasswordService
       organizationApiService,
       organizationUserApiService,
       userDecryptionOptionsService,
+      accountCryptographicStateService,
     );
   }
 

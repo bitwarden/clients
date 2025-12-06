@@ -11,6 +11,7 @@ import {
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -76,6 +77,7 @@ describe("DefaultSyncService", () => {
   let stateProvider: MockProxy<StateProvider>;
   let securityStateService: MockProxy<SecurityStateService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
+  let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
 
   let sut: DefaultSyncService;
 
@@ -107,6 +109,7 @@ describe("DefaultSyncService", () => {
     stateProvider = mock();
     securityStateService = mock();
     kdfConfigService = mock();
+    accountCryptographicStateService = mock();
 
     sut = new DefaultSyncService(
       masterPasswordAbstraction,
@@ -135,6 +138,7 @@ describe("DefaultSyncService", () => {
       stateProvider,
       securityStateService,
       kdfConfigService,
+      accountCryptographicStateService,
     );
   });
 

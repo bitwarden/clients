@@ -1,3 +1,5 @@
+import { SignedPublicKey, WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
+
 import { SecurityStateResponse } from "../../security-state/response/security-state.response";
 
 import { PublicKeyEncryptionKeyPairResponse } from "./public-key-encryption-key-pair.response";
@@ -50,6 +52,29 @@ export class PrivateKeysResponseModel {
       throw new TypeError(
         "Both signatureKeyPair and securityState must be present or absent together",
       );
+    }
+  }
+
+  toWrappedAccountCryptographicState(): WrappedAccountCryptographicState {
+    if (this.signatureKeyPair === null && this.securityState === null) {
+      // V1 user
+      return {
+        V1: {
+          private_key: this.publicKeyEncryptionKeyPair.wrappedPrivateKey,
+        },
+      };
+    } else if (this.signatureKeyPair !== null && this.securityState !== null) {
+      // V2 user
+      return {
+        V2: {
+          private_key: this.publicKeyEncryptionKeyPair.wrappedPrivateKey,
+          signing_key: this.signatureKeyPair.wrappedSigningKey,
+          signed_public_key: this.publicKeyEncryptionKeyPair.signedPublicKey as SignedPublicKey,
+          security_state: this.securityState.securityState as string,
+        },
+      };
+    } else {
+      throw new Error("Both signatureKeyPair and securityState must be present or absent together");
     }
   }
 }
