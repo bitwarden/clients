@@ -417,10 +417,11 @@ export class GetCommand extends DownloadCommand {
   private async getFolder(id: string) {
     let decFolder: FolderView = null;
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
     if (Utils.isGuid(id)) {
       const folder = await this.folderService.getFromState(id, activeUserId);
       if (folder != null) {
-        decFolder = await folder.decrypt();
+        decFolder = await folder.decrypt(userKey);
       }
     } else if (id.trim() !== "") {
       let folders = await this.folderService.getAllDecryptedFromState(activeUserId);

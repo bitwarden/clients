@@ -6,7 +6,7 @@ import {
   IdentityLinkedIdType,
 } from "@bitwarden/sdk-internal";
 
-import { mockEnc, mockFromJson } from "../../../../spec";
+import { mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { CardLinkedId, IdentityLinkedId, LoginLinkedId } from "../../enums";
 import { FieldData } from "../../models/data/field.data";
@@ -22,6 +22,7 @@ describe("Field", () => {
       value: "encValue",
       linkedId: null,
     };
+    mockContainerService();
   });
 
   it("Convert from empty", () => {
