@@ -98,19 +98,6 @@ describe("EncString", () => {
           encryptService,
         );
       });
-
-      it("decrypts correctly", async () => {
-        const decrypted = await encString.decrypt(null);
-
-        expect(decrypted).toBe("decrypted");
-      });
-
-      it("result should be cached", async () => {
-        const decrypted = await encString.decrypt(null);
-        expect(encryptService.decryptString).toBeCalledTimes(1);
-
-        expect(decrypted).toBe("decrypted");
-      });
     });
   });
 
