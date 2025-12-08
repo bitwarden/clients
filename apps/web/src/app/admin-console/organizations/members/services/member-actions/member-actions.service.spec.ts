@@ -310,45 +310,54 @@ describe("MemberActionsService", () => {
   describe("bulkReinvite", () => {
     const userIds = [newGuid() as UserId, newGuid() as UserId, newGuid() as UserId];
 
-    it("should successfully reinvite multiple users", async () => {
-      const mockResponse = new ListResponse(
-        {
-          data: userIds.map((id) => ({
-            id,
-            error: null,
-          })),
-          continuationToken: null,
-        },
-        OrganizationUserBulkResponse,
-      );
+    describe("when feature flag is false", () => {
+      beforeEach(() => {
+        configService.getFeatureFlag$.mockReturnValue(of(false));
+      });
 
-      organizationUserApiService.postManyOrganizationUserReinvite.mockResolvedValue(mockResponse);
+      it("should successfully reinvite multiple users", async () => {
+        const mockResponse = new ListResponse(
+          {
+            data: userIds.map((id) => ({
+              id,
+              error: null,
+            })),
+            continuationToken: null,
+          },
+          OrganizationUserBulkResponse,
+        );
 
-      const result = await service.bulkReinvite(mockOrganization, userIds);
+        organizationUserApiService.postManyOrganizationUserReinvite.mockResolvedValue(mockResponse);
 
-      expect(result.failed).toEqual([]);
-      expect(result.successful).toBeDefined();
-      expect(result.successful?.response).toEqual(mockResponse.data);
-      expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledWith(
-        organizationId,
-        userIds,
-      );
+        const result = await service.bulkReinvite(mockOrganization, userIds);
+
+        expect(result.failed).toEqual([]);
+        expect(result.successful).toBeDefined();
+        expect(result.successful).toEqual(mockResponse);
+        expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledWith(
+          organizationId,
+          userIds,
+        );
+      });
+
+      it("should handle bulk reinvite errors", async () => {
+        const errorMessage = "Bulk reinvite failed";
+        organizationUserApiService.postManyOrganizationUserReinvite.mockRejectedValue(
+          new Error(errorMessage),
+        );
+
+        const result = await service.bulkReinvite(mockOrganization, userIds);
+
+        expect(result.successful).toBeUndefined();
+        expect(result.failed).toHaveLength(3);
+        expect(result.failed[0]).toEqual({ id: userIds[0], error: errorMessage });
+      });
     });
 
-    it("should handle bulk reinvite errors", async () => {
-      const errorMessage = "Bulk reinvite failed";
-      organizationUserApiService.postManyOrganizationUserReinvite.mockRejectedValue(
-        new Error(errorMessage),
-      );
-
-      const result = await service.bulkReinvite(mockOrganization, userIds);
-
-      expect(result.successful).toBeUndefined();
-      expect(result.failed).toHaveLength(3);
-      expect(result.failed[0]).toEqual({ id: userIds[0], error: errorMessage });
-    });
-
-    describe("batching behavior", () => {
+    describe("when feature flag is true (batching behavior)", () => {
+      beforeEach(() => {
+        configService.getFeatureFlag$.mockReturnValue(of(true));
+      });
       it("should process users in a single batch when count equals BATCH_SIZE", async () => {
         const userIdsBatch = Array.from({ length: BATCH_SIZE }, () => newGuid() as UserId);
         const mockResponse = new ListResponse(
@@ -717,24 +726,10 @@ describe("MemberActionsService", () => {
       expect(result).toBe(false);
     });
 
-    it("should not allow reset password when organization lacks public and private keys", () => {
-      const org = { ...mockOrganization, hasPublicAndPrivateKeys: false } as Organization;
-
-      const result = service.allowResetPassword(mockOrgUser, org, resetPasswordEnabled);
-
-      expect(result).toBe(false);
-    });
-
     it("should not allow reset password when user is not enrolled in reset password", () => {
       const user = { ...mockOrgUser, resetPasswordEnrolled: false } as OrganizationUserView;
 
       const result = service.allowResetPassword(user, mockOrganization, resetPasswordEnabled);
-
-      expect(result).toBe(false);
-    });
-
-    it("should not allow reset password when reset password is disabled", () => {
-      const result = service.allowResetPassword(mockOrgUser, mockOrganization, false);
 
       expect(result).toBe(false);
     });

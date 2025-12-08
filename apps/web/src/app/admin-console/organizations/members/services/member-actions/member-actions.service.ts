@@ -207,7 +207,31 @@ export class MemberActionsService {
     };
   }
 
-  async bulkReinvite(organization: Organization, userIds: UserId[]): Promise<BulkActionResult> {
+  async bulkReinvite(organization: Organization, userIds: string[]): Promise<BulkActionResult> {
+    const increaseBulkReinviteLimitForCloud = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.IncreaseBulkReinviteLimitForCloud),
+    );
+    if (increaseBulkReinviteLimitForCloud) {
+      return await this.vNextBulkReinvite(organization, userIds as UserId[]);
+    } else {
+      try {
+        const result = await this.organizationUserApiService.postManyOrganizationUserReinvite(
+          organization.id,
+          userIds,
+        );
+        return { successful: result, failed: [] };
+      } catch (error) {
+        return {
+          failed: userIds.map((id) => ({ id, error: (error as Error).message ?? String(error) })),
+        };
+      }
+    }
+  }
+
+  async vNextBulkReinvite(
+    organization: Organization,
+    userIds: UserId[],
+  ): Promise<BulkActionResult> {
     return this.processBatchedOperation(userIds, BATCH_SIZE, (batch) =>
       this.organizationUserApiService.postManyOrganizationUserReinvite(organization.id, batch),
     );

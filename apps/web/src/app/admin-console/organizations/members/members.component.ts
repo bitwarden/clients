@@ -120,7 +120,6 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private policyApiService: PolicyApiServiceAbstraction,
     private organizationMetadataService: OrganizationMetadataServiceAbstraction,
     private configService: ConfigService,
-    private configService: ConfigService,
     private environmentService: EnvironmentService,
   ) {
     super(
