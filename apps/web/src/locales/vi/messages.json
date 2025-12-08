@@ -3062,6 +3062,15 @@
   "premiumSignUpStorage": {
     "message": "1GB bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Các tùy chọn xác minh hai bước như YubiKey và Duo."
   },
@@ -3123,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "additionalStorageGb": {
     "message": "Dung lượng lưu trữ bổ sung (GB)"
@@ -4607,6 +4625,24 @@
   },
   "learnMore": {
     "message": "Tìm hiểu thêm"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Cập nhật cài đặt"
   },
   "deleteRecoverDesc": {
     "message": "Nhập địa chỉ email của bạn vào bên dưới để khôi phục và xóa tài khoản của bạn."
@@ -12092,9 +12128,6 @@
   },
   "updateYourEncryptionSettings": {
     "message": "Cập nhật cài đặt mã hóa của bạn"
-  },
-  "updateSettings": {
-    "message": "Cập nhật cài đặt"
   },
   "algorithm": {
     "message": "Thuật toán"
