@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Os itens arquivados são excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático. Tem a certeza de que pretende arquivar este item?"
   },
+  "upgradeToUseArchive": {
+    "message": "É necessária uma subscrição Premium para utilizar o Arquivo."
+  },
   "edit": {
     "message": "Editar"
   },
@@ -593,6 +596,9 @@
   },
   "viewAll": {
     "message": "Ver tudo"
+  },
+  "showAll": {
+    "message": "Mostrar tudo"
   },
   "viewLess": {
     "message": "Ver menos"
@@ -1400,6 +1406,27 @@
   "learnMore": {
     "message": "Saber mais"
   },
+  "migrationsFailed": {
+    "message": "Ocorreu um erro ao atualizar as definições de encriptação."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Atualize as suas definições de encriptação"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "As novas definições de encriptação recomendadas irão melhorar a segurança da sua conta. Introduza a sua palavra-passe mestra para atualizar agora."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirme a sua identidade para continuar"
+  },
+  "enterYourMasterPassword": {
+    "message": "Introduza a sua palavra-passe mestra"
+  },
+  "updateSettings": {
+    "message": "Atualizar definições"
+  },
+  "later": {
+    "message": "Mais tarde"
+  },
   "authenticatorKeyTotp": {
     "message": "Chave de autenticação (TOTP)"
   },
@@ -1468,6 +1495,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1 GB de armazenamento encriptado para anexos de ficheiros."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ de armazenamento encriptado para anexos de ficheiros.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Acesso de emergência."
@@ -1866,6 +1902,9 @@
   },
   "expirationYear": {
     "message": "Ano de validade"
+  },
+  "monthly": {
+    "message": "mês"
   },
   "expiration": {
     "message": "Prazo de validade"
@@ -2435,6 +2474,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Esta página está a interferir com a experiência do Bitwarden. O menu em linha do Bitwarden foi temporariamente desativado como medida de segurança."
   },
   "setMasterPassword": {
     "message": "Definir a palavra-passe mestra"
@@ -4899,6 +4941,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Desbloqueie relatórios, acesso de emergência e outras funcionalidades de segurança com o Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "As organizações gratuitas não podem utilizar anexos"
   },
@@ -5809,11 +5854,11 @@
   "upgradeToPremium": {
     "message": "Atualizar para o Premium"
   },
-  "upgradeCompleteSecurity": {
-    "message": "Atualize para obter segurança total"
+  "unlockAdvancedSecurity": {
+    "message": "Desbloqueie funcionalidades de segurança avançadas"
   },
-  "premiumGivesMoreTools": {
-    "message": "O Premium oferece mais ferramentas para manter a segurança, trabalhar com eficiência e manter o controlo."
+  "unlockAdvancedSecurityDesc": {
+    "message": "Uma subscrição Premium dá-lhe ferramentas adicionais para reforçar a sua segurança e manter o controlo"
   },
   "explorePremium": {
     "message": "Explorar o Premium"

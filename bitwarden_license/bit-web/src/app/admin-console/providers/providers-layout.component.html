@@ -12,7 +12,7 @@
       route="clients"
     >
       <i
-        *ngIf="!provider.enabled && (providerPortalTakeover$ | async)"
+        *ngIf="!provider.enabled"
         slot="end"
         class="bwi bwi-exclamation-triangle tw-text-danger"
         title="{{ 'providerIsDisabled' | i18n }}"

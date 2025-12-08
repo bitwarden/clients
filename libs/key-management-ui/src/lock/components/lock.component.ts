@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { Router } from "@angular/router";
+import { Router, ActivatedRoute } from "@angular/router";
 import {
   BehaviorSubject,
   filter,
@@ -31,6 +31,7 @@ import {
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -167,6 +168,7 @@ export class LockComponent implements OnInit, OnDestroy {
     private keyService: KeyService,
     private platformUtilsService: PlatformUtilsService,
     private router: Router,
+    private activatedRoute: ActivatedRoute,
     private dialogService: DialogService,
     private messagingService: MessagingService,
     private biometricStateService: BiometricStateService,
@@ -185,6 +187,8 @@ export class LockComponent implements OnInit, OnDestroy {
     private logoutService: LogoutService,
     private lockComponentService: LockComponentService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
+    private encryptedMigrator: EncryptedMigrator,
+
     private configService: ConfigService,
     // desktop deps
     private broadcasterService: BroadcasterService,
@@ -671,6 +675,16 @@ export class LockComponent implements OnInit, OnDestroy {
     }
 
     await this.biometricStateService.resetUserPromptCancelled();
+
+    try {
+      await this.encryptedMigrator.runMigrations(
+        this.activeAccount.id,
+        afterUnlockActions.passwordEvaluation?.masterPassword ?? null,
+      );
+    } catch {
+      // Don't block login success on migration failure
+    }
+
     this.messagingService.send("unlocked");
 
     if (afterUnlockActions.passwordEvaluation) {
@@ -729,7 +743,13 @@ export class LockComponent implements OnInit, OnDestroy {
     }
 
     // determine success route based on client type
-    if (this.clientType != null) {
+    // The disable-redirect parameter allows callers to prevent automatic navigation after unlock,
+    // useful when the lock component is used in contexts where custom post-unlock behavior is needed
+    // such as passkey modals.
+    if (
+      this.clientType != null &&
+      this.activatedRoute.snapshot.paramMap.get("disable-redirect") === null
+    ) {
       const successRoute = clientTypeToSuccessRouteRecord[this.clientType];
       await this.router.navigate([successRoute]);
     }

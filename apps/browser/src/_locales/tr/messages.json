@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Arşivlenmiş kayıtlar genel arama sonuçları ve otomatik doldurma önerilerinden hariç tutulur. Bu kaydı arşivlemek istediğine emin misin?"
   },
+  "upgradeToUseArchive": {
+    "message": "Arşivi kullanmak için premium üyelik gereklidir."
+  },
   "edit": {
     "message": "Düzenle"
   },
@@ -592,6 +595,9 @@
     "message": "Görüntüle"
   },
   "viewAll": {
+    "message": "Tümünü göster"
+  },
+  "showAll": {
     "message": "Tümünü göster"
   },
   "viewLess": {
@@ -1400,6 +1406,27 @@
   "learnMore": {
     "message": "Daha fazla bilgi al"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
+  "later": {
+    "message": "Later"
+  },
   "authenticatorKeyTotp": {
     "message": "Kimlik doğrulama anahtarı (TOTP)"
   },
@@ -1468,6 +1495,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "Dosya ekleri için 1 GB şifrelenmiş depolama."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "Dosya ekleri için $SIZE$ şifrelenmiş depolama.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Acil durum erişimi."
@@ -1866,6 +1902,9 @@
   },
   "expirationYear": {
     "message": "Son kullanma yılı"
+  },
+  "monthly": {
+    "message": "ay"
   },
   "expiration": {
     "message": "Son kullanma tarihi"
@@ -2435,6 +2474,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Bu sayfa Bitwarden deneyimiyle çakışıyor. Güvenlik önlemi olarak Bitwarden satır içi menüsü geçici olarak devre dışı bırakıldı."
   },
   "setMasterPassword": {
     "message": "Ana parolayı belirle"
@@ -4899,6 +4941,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Unlock reporting, emergency access, and more security features with Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Ücretsiz kuruluşlar dosya eklerini kullanamaz"
   },
@@ -5809,11 +5854,11 @@
   "upgradeToPremium": {
     "message": "Premium'a yükselt"
   },
-  "upgradeCompleteSecurity": {
-    "message": "Upgrade for complete security"
+  "unlockAdvancedSecurity": {
+    "message": "Gelişmiş güvenlik özelliklerinin kilidini açın"
   },
-  "premiumGivesMoreTools": {
-    "message": "Premium gives you more tools to stay secure, work efficiently, and stay in control."
+  "unlockAdvancedSecurityDesc": {
+    "message": "Premium abonelik size daha fazla güvenlik ve kontrol olanağı sunan ek araçlara erişmenizi sağlar"
   },
   "explorePremium": {
     "message": "Explore Premium"

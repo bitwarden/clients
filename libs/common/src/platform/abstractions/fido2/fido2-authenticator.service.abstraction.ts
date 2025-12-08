@@ -138,7 +138,7 @@ export interface Fido2AuthenticatorGetAssertionParams {
   rpId: string;
   /** The hash of the serialized client data, provided by the client. */
   hash: BufferSource;
-  allowCredentialDescriptorList: PublicKeyCredentialDescriptor[];
+  allowCredentialDescriptorList?: PublicKeyCredentialDescriptor[];
   /** The effective user verification requirement for assertion, a Boolean value provided by the client. */
   requireUserVerification: boolean;
   /** The constant Boolean value true. It is included here as a pseudo-parameter to simplify applying this abstract authenticator model to implementations that may wish to make a test of user presence optional although WebAuthn does not. */
