@@ -165,7 +165,9 @@ export class CipherService implements CipherServiceAbstraction {
           }),
           switchMap(async (ciphers) => {
             const [decrypted, failures] = await this.decryptCiphersWithSdk(ciphers, userId, false);
-            await this.setFailedDecryptedCiphers(failures, userId);
+            void this.setFailedDecryptedCiphers(failures, userId);
+            // Trigger full decryption and indexing in background
+            void this.getAllDecrypted(userId);
             return decrypted;
           }),
           tap((decrypted) => {
@@ -630,6 +632,15 @@ export class CipherService implements CipherServiceAbstraction {
               overrideNeverMatchStrategy,
             ),
         ),
+      ),
+    );
+  }
+
+  async getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]> {
+    return firstValueFrom(
+      this.cipherViews$(userId).pipe(
+        filter((ciphers) => ciphers != null),
+        map((ciphers) => ciphers.filter((cipher) => ids.includes(cipher.id))),
       ),
     );
   }
@@ -2143,14 +2154,18 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     fullDecryption: boolean = true,
   ): Promise<[CipherViewLike[], CipherView[]]> {
+    if (fullDecryption) {
+      const [decryptedViews, failedViews] = await this.cipherEncryptionService.decryptManyLegacy(
+        ciphers,
+        userId,
+      );
+      return [decryptedViews.sort(this.getLocaleSortingFunction()), failedViews];
+    }
+
     const [decrypted, failures] = await this.cipherEncryptionService.decryptManyWithFailures(
       ciphers,
       userId,
     );
-
-    const decryptedViews = fullDecryption
-      ? await Promise.all(decrypted.map((c) => this.getFullCipherView(c)))
-      : decrypted;
 
     const failedViews = failures.map((c) => {
       const cipher_view = new CipherView(c);
@@ -2159,7 +2174,7 @@ export class CipherService implements CipherServiceAbstraction {
       return cipher_view;
     });
 
-    return [decryptedViews.sort(this.getLocaleSortingFunction()), failedViews];
+    return [decrypted.sort(this.getLocaleSortingFunction()), failedViews];
   }
 
   /** Fetches the full `CipherView` when a `CipherListView` is passed. */

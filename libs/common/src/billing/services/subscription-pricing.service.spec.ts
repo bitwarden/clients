@@ -250,7 +250,7 @@ describe("DefaultSubscriptionPricingService", () => {
           return "Custom";
 
         // Plan descriptions
-        case "planDescPremium":
+        case "advancedOnlineSecurity":
           return "Premium plan description";
         case "planDescFamiliesV2":
           return "Families plan description";
@@ -397,7 +397,7 @@ describe("DefaultSubscriptionPricingService", () => {
         });
 
         expect(i18nService.t).toHaveBeenCalledWith("premium");
-        expect(i18nService.t).toHaveBeenCalledWith("planDescPremium");
+        expect(i18nService.t).toHaveBeenCalledWith("advancedOnlineSecurity");
         expect(i18nService.t).toHaveBeenCalledWith("planNameFamilies");
         expect(i18nService.t).toHaveBeenCalledWith("planDescFamiliesV2");
         expect(i18nService.t).toHaveBeenCalledWith("builtInAuthenticator");
