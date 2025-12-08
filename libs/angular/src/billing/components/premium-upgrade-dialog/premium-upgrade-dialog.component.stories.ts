@@ -103,11 +103,11 @@ export default {
             t: (key: string) => {
               switch (key) {
                 case "upgradeNow":
-                  return "Upgrade Now";
+                  return "Upgrade now";
                 case "month":
                   return "month";
                 case "upgradeToPremium":
-                  return "Upgrade To Premium";
+                  return "Upgrade to Premium";
                 default:
                   return key;
               }

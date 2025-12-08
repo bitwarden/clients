@@ -1035,7 +1035,7 @@ describe("DefaultSubscriptionPricingService", () => {
       const getPlansSpy = jest.spyOn(selfHostedBillingApiService, "getPlans");
       const getPremiumPlanSpy = jest.spyOn(selfHostedBillingApiService, "getPremiumPlan");
 
-      selfHostedConfigService.getFeatureFlag$.mockReturnValue(of(false));
+      selfHostedConfigService.getFeatureFlag$.mockReturnValue(of(true));
       setupEnvironmentService(selfHostedEnvironmentService, Region.SelfHosted);
 
       const selfHostedService = new DefaultSubscriptionPricingService(
@@ -1054,6 +1054,37 @@ describe("DefaultSubscriptionPricingService", () => {
       // API should not be called for self-hosted environments
       expect(getPlansSpy).not.toHaveBeenCalled();
       expect(getPremiumPlanSpy).not.toHaveBeenCalled();
+    });
+
+    it("should return valid tier structure with undefined prices for self-hosted", (done) => {
+      const selfHostedBillingApiService = mock<BillingApiServiceAbstraction>();
+      const selfHostedConfigService = mock<ConfigService>();
+      const selfHostedEnvironmentService = mock<EnvironmentService>();
+
+      selfHostedConfigService.getFeatureFlag$.mockReturnValue(of(true));
+      setupEnvironmentService(selfHostedEnvironmentService, Region.SelfHosted);
+
+      const selfHostedService = new DefaultSubscriptionPricingService(
+        selfHostedBillingApiService,
+        selfHostedConfigService,
+        i18nService,
+        logService,
+        selfHostedEnvironmentService,
+      );
+
+      selfHostedService.getPersonalSubscriptionPricingTiers$().subscribe((tiers) => {
+        expect(tiers).toHaveLength(2); // Premium and Families
+
+        const premiumTier = tiers.find((t) => t.id === PersonalSubscriptionPricingTierIds.Premium);
+        expect(premiumTier).toBeDefined();
+        expect(premiumTier?.passwordManager.annualPrice).toBeUndefined();
+        expect(premiumTier?.passwordManager.annualPricePerAdditionalStorageGB).toBeUndefined();
+        expect(premiumTier?.passwordManager.providedStorageGB).toBeUndefined();
+        expect(premiumTier?.passwordManager.features).toBeDefined();
+        expect(premiumTier?.passwordManager.features.length).toBeGreaterThan(0);
+
+        done();
+      });
     });
   });
 });

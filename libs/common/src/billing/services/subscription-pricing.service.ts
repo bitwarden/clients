@@ -54,7 +54,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
   /**
    * Gets personal subscription pricing tiers (Premium and Families).
    * Throws any errors that occur during api request so callers must handle errors.
-   * Pricing information will be empty/missing if current environment is self-hosted.
+   * Pricing information will be undefined if current environment is self-hosted.
    * @returns An observable of an array of personal subscription pricing tiers.
    * @throws Error if any errors occur during api request.
    */
@@ -69,7 +69,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
   /**
    * Gets business subscription pricing tiers (Teams, Enterprise, and Custom).
    * Throws any errors that occur during api request so callers must handle errors.
-   * Pricing information will be empty/missing if current environment is self-hosted.
+   * Pricing information will be undefined if current environment is self-hosted.
    * @returns An observable of an array of business subscription pricing tiers.
    * @throws Error if any errors occur during api request.
    */
@@ -84,7 +84,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
   /**
    * Gets developer subscription pricing tiers (Free, Teams, and Enterprise).
    * Throws any errors that occur during api request so callers must handle errors.
-   * Pricing information will be empty/missing if current environment is self-hosted.
+   * Pricing information will be undefined if current environment is self-hosted.
    * @returns An observable of an array of business subscription pricing tiers for developers.
    * @throws Error if any errors occur during api request.
    */
@@ -101,7 +101,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
       take(1),
       switchMap((environment) =>
         !environment.isCloud()
-          ? of(null as unknown as ListResponse<PlanResponse>)
+          ? of({ data: [] } as ListResponse<PlanResponse>)
           : from(this.billingApiService.getPlans()),
       ),
       shareReplay({ bufferSize: 1, refCount: false }),
@@ -112,7 +112,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
       take(1),
       switchMap((environment) =>
         !environment.isCloud()
-          ? of(null as unknown as PremiumPlanResponse)
+          ? of({ seat: undefined, storage: undefined } as PremiumPlanResponse)
           : from(this.billingApiService.getPremiumPlan()).pipe(
               catchError((error: unknown) => {
                 this.logService.error("Failed to fetch premium plan from API", error);
@@ -131,9 +131,9 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
         fetchPremiumFromPricingService
           ? this.premiumPlanResponse$.pipe(
               map((premiumPlan) => ({
-                seat: premiumPlan?.seat?.price,
-                storage: premiumPlan?.storage?.price,
-                provided: premiumPlan?.storage?.provided,
+                seat: premiumPlan.seat?.price,
+                storage: premiumPlan.storage?.price,
+                provided: premiumPlan.storage?.provided,
               })),
             )
           : of({
@@ -167,7 +167,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
     this.organizationPlansResponse$.pipe(
       combineLatestWith(this.configService.getFeatureFlag$(FeatureFlag.PM26462_Milestone_3)),
       map(([plans, milestone3FeatureEnabled]) => {
-        const familiesPlan = plans?.data?.find(
+        const familiesPlan = plans.data.find(
           (plan) =>
             plan.type ===
             (milestone3FeatureEnabled ? PlanType.FamiliesAnnually : PlanType.FamiliesAnnually2025),
@@ -198,7 +198,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
 
   private free$: Observable<BusinessSubscriptionPricingTier> = this.organizationPlansResponse$.pipe(
     map((plans): BusinessSubscriptionPricingTier => {
-      const freePlan = plans?.data?.find((plan) => plan.type === PlanType.Free);
+      const freePlan = plans.data.find((plan) => plan.type === PlanType.Free);
 
       return {
         id: BusinessSubscriptionPricingTierIds.Free,
@@ -229,7 +229,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
   private teams$: Observable<BusinessSubscriptionPricingTier> =
     this.organizationPlansResponse$.pipe(
       map((plans) => {
-        const annualTeamsPlan = plans?.data?.find((plan) => plan.type === PlanType.TeamsAnnually);
+        const annualTeamsPlan = plans.data.find((plan) => plan.type === PlanType.TeamsAnnually);
 
         return {
           id: BusinessSubscriptionPricingTierIds.Teams,
@@ -268,7 +268,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
   private enterprise$: Observable<BusinessSubscriptionPricingTier> =
     this.organizationPlansResponse$.pipe(
       map((plans) => {
-        const annualEnterprisePlan = plans?.data?.find(
+        const annualEnterprisePlan = plans.data.find(
           (plan) => plan.type === PlanType.EnterpriseAnnually,
         );
 
