@@ -1,16 +1,17 @@
 use sysinfo::{Pid, System};
+use tracing::error;
 
 use super::models::PeerInfo;
 
-pub fn get_peer_info(peer_pid: u32) -> Result<PeerInfo, String> {
+///
+/// # Errors
+///
+/// This function returns an error string if there is no matching process
+/// for the provided `peer_pid`.
+pub(crate) fn get_peer_info(peer_pid: u32) -> Result<PeerInfo, String> {
     let s = System::new_all();
     if let Some(process) = s.process(Pid::from_u32(peer_pid)) {
-        let peer_process_name = match process.name().to_str() {
-            Some(name) => name.to_string(),
-            None => {
-                return Err("Failed to get process name".to_string());
-            }
-        };
+        let peer_process_name = process.name().to_string_lossy().to_string();
 
         return Ok(PeerInfo::new(
             peer_pid,
@@ -19,5 +20,6 @@ pub fn get_peer_info(peer_pid: u32) -> Result<PeerInfo, String> {
         ));
     }
 
-    Err("Failed to get process".to_string())
+    error!(peer_pid, "No process matching peer PID.");
+    Err("No process matching PID".to_string())
 }

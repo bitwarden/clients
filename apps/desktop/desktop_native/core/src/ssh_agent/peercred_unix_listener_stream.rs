@@ -31,14 +31,14 @@ impl Stream for PeercredUnixListenerStream {
             Poll::Ready(Ok((stream, _))) => {
                 let pid = match stream.peer_cred() {
                     Ok(peer) => match peer.pid() {
-                        Some(pid) => pid,
+                        Some(pid) => u32::try_from(pid).expect("pid should not be negative."),
                         None => {
                             return Poll::Ready(Some(Ok((stream, PeerInfo::unknown()))));
                         }
                     },
                     Err(_) => return Poll::Ready(Some(Ok((stream, PeerInfo::unknown())))),
                 };
-                let peer_info = peerinfo::gather::get_peer_info(pid as u32);
+                let peer_info = peerinfo::gather::get_peer_info(pid);
                 match peer_info {
                     Ok(info) => Poll::Ready(Some(Ok((stream, info)))),
                     Err(_) => Poll::Ready(Some(Ok((stream, PeerInfo::unknown())))),
