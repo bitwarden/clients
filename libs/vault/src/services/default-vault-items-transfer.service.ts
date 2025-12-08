@@ -206,26 +206,24 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
     );
 
     for (const cipher of ciphers) {
-      for (const attachment of cipher.attachments) {
-        if (attachment.key != null) {
+      try {
+        if (!cipher.hasOldAttachments) {
           continue;
         }
 
-        try {
-          const upgraded = await this.cipherService.upgradeOldCipherAttachments(cipher, userId);
+        const upgraded = await this.cipherService.upgradeOldCipherAttachments(cipher, userId);
 
-          if (upgraded.hasOldAttachments) {
-            this.logService.error(
-              `Attachment upgrade did not complete successfully for cipher ${cipher.id} during transfer to organization ${organizationId} for user ${userId}`,
-            );
-            throw new Error(`Failed to upgrade old attachments for cipher ${cipher.id}`);
-          }
-        } catch (e) {
+        if (upgraded.hasOldAttachments) {
           this.logService.error(
-            `Failed to upgrade old attachments for cipher ${cipher.id} during transfer to organization ${organizationId} for user ${userId}: ${e}`,
+            `Attachment upgrade did not complete successfully for cipher ${cipher.id} during transfer to organization ${organizationId} for user ${userId}`,
           );
           throw new Error(`Failed to upgrade old attachments for cipher ${cipher.id}`);
         }
+      } catch (e) {
+        this.logService.error(
+          `Failed to upgrade old attachments for cipher ${cipher.id} during transfer to organization ${organizationId} for user ${userId}: ${e}`,
+        );
+        throw new Error(`Failed to upgrade old attachments for cipher ${cipher.id}`);
       }
     }
 
