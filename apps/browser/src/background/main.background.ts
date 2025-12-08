@@ -838,6 +838,7 @@ export default class MainBackground {
       this.apiService,
       this.stateProvider,
       this.configService,
+      this.logService,
     );
 
     this.pinService = new PinService(

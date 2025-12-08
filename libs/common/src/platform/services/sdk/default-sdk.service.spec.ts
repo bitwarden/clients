@@ -20,6 +20,7 @@ import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
+import { LogService } from "../../abstractions/log.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
@@ -49,6 +50,7 @@ describe("DefaultSdkService", () => {
     let service!: DefaultSdkService;
     let accountService!: FakeAccountService;
     let fakeStateProvider!: FakeStateProvider;
+    let logService!: MockProxy<LogService>;
     let apiService!: MockProxy<ApiService>;
 
     beforeEach(async () => {
@@ -64,6 +66,7 @@ describe("DefaultSdkService", () => {
       const mockUserId = Utils.newGuid() as UserId;
       accountService = mockAccountServiceWith(mockUserId);
       fakeStateProvider = new FakeStateProvider(accountService);
+      logService = mock<LogService>();
       configService = mock<ConfigService>();
 
       configService.serverConfig$ = new BehaviorSubject(null);
@@ -82,6 +85,7 @@ describe("DefaultSdkService", () => {
         apiService,
         fakeStateProvider,
         configService,
+        logService,
       );
     });
 

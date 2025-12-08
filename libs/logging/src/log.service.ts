@@ -1,6 +1,16 @@
+import type { FieldValue, Span, TracingLevel } from "@bitwarden/sdk-internal";
+
 import { LogLevel } from "./log-level";
 
 export abstract class LogService {
+  abstract span(name: string, level: TracingLevel, fields: FieldValue[]): Span;
+  abstract event(
+    span: Span,
+    name: string,
+    message: string,
+    level: TracingLevel,
+    fields: FieldValue[],
+  ): void;
   abstract debug(message?: any, ...optionalParams: any[]): void;
   abstract info(message?: any, ...optionalParams: any[]): void;
   abstract warning(message?: any, ...optionalParams: any[]): void;
