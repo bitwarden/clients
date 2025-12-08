@@ -1,14 +1,22 @@
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { NavigationModule } from "@bitwarden/components";
-import { SendListFiltersService } from "@bitwarden/send-ui";
 
 import { SendFiltersNavComponent } from "../tools/send-v2/send-filters-nav.component";
 
 import { DesktopLayoutComponent } from "./desktop-layout.component";
+
+// Mock the child component to isolate DesktopLayoutComponent testing
+@Component({
+  selector: "app-send-filters-nav",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockSendFiltersNavComponent {}
 
 Object.defineProperty(window, "matchMedia", {
   writable: true,
@@ -29,30 +37,20 @@ describe("DesktopLayoutComponent", () => {
   let fixture: ComponentFixture<DesktopLayoutComponent>;
 
   beforeEach(async () => {
-    const sendListFiltersService = mock<SendListFiltersService>();
-    sendListFiltersService.filterForm = {
-      value: { sendType: null },
-      patchValue: jest.fn(),
-    } as any;
-
     await TestBed.configureTestingModule({
-      imports: [
-        DesktopLayoutComponent,
-        SendFiltersNavComponent,
-        RouterModule.forRoot([]),
-        NavigationModule,
-      ],
+      imports: [DesktopLayoutComponent, RouterModule.forRoot([]), NavigationModule],
       providers: [
         {
           provide: I18nService,
           useValue: mock<I18nService>(),
         },
-        {
-          provide: SendListFiltersService,
-          useValue: sendListFiltersService,
-        },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(DesktopLayoutComponent, {
+        remove: { imports: [SendFiltersNavComponent] },
+        add: { imports: [MockSendFiltersNavComponent] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(DesktopLayoutComponent);
     component = fixture.componentInstance;

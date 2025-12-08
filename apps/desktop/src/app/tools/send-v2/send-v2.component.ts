@@ -58,8 +58,6 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
   // Tracks the current UI state: viewing list (None), adding new Send (Add), or editing existing Send (Edit)
   action: Action = Action.None;
 
-  // Subscription for filter changes cleanup
-  private filterSubscription: Subscription;
   // Subscription for sendViews$ cleanup
   private sendViewsSubscription: Subscription;
 
@@ -100,8 +98,14 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
     this.searchBarService.searchText$.pipe(takeUntilDestroyed()).subscribe((searchText) => {
       this.searchText = searchText;
       this.searchTextChanged();
-      setTimeout(() => this.cdr.detectChanges(), 250);
     });
+
+    // Listen to filter changes from sidebar navigation
+    this.sendListFiltersService.filterForm.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((filters) => {
+        this.applySendTypeFilter(filters);
+      });
   }
 
   // Initialize the component: enable search bar, subscribe to sync events, and load Send items
@@ -114,15 +118,6 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
     // Read current filter synchronously to avoid race condition on navigation
     const currentFilter = this.sendListFiltersService.filterForm.value;
     this.applySendTypeFilter(currentFilter);
-
-    // Subscribe to future filter changes from sidebar navigation
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.filterSubscription = this.sendListFiltersService.filterForm.valueChanges.subscribe(
-      (filters) => {
-        this.applySendTypeFilter(filters);
-        this.cdr.detectChanges();
-      },
-    );
 
     // Listen for sync completion events to refresh the Send list
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
@@ -151,7 +146,6 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
   // Clean up subscriptions and disable search bar when component is destroyed
   ngOnDestroy() {
     this.sendViewsSubscription?.unsubscribe();
-    this.filterSubscription?.unsubscribe();
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
     this.searchBarService.setEnabled(false);
   }
@@ -163,7 +157,8 @@ export class SendV2Component extends BaseSendComponent implements OnInit, OnDest
   async load(filter: (send: SendView) => boolean = null) {
     this.loading = true;
 
-    // Clean up existing subscription to prevent memory leak
+    // Recreate subscription on each load (required for sync refresh)
+    // Manual cleanup in ngOnDestroy is intentional - load() is called multiple times
     this.sendViewsSubscription?.unsubscribe();
 
     this.sendViewsSubscription = this.sendService.sendViews$

@@ -1,6 +1,8 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
-import { Router } from "@angular/router";
+import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { NavigationEnd, Router } from "@angular/router";
+import { filter, map, startWith } from "rxjs";
 
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { NavigationModule } from "@bitwarden/components";
@@ -9,56 +11,44 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
  * Navigation component that renders Send filter options in the sidebar.
- * Follows reactive pattern: updates filter state, display component reacts.
+ * Fully reactive using signals - no manual subscriptions or method-based computed values.
  * - Parent "Send" nav-group clears filter (shows all sends)
  * - Child "Text"/"File" items set filter to specific type
- * - Active states computed from current filter value + route
+ * - Active states computed reactively from filter signal + route signal
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send-filters-nav",
   templateUrl: "./send-filters-nav.component.html",
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, NavigationModule, I18nPipe],
 })
 export class SendFiltersNavComponent {
   protected readonly SendType = SendType;
+  private readonly filtersService = inject(SendListFiltersService);
+  private readonly router = inject(Router);
+  private readonly currentFilter = toSignal(this.filtersService.filters$);
 
-  constructor(
-    protected readonly filtersService: SendListFiltersService,
-    private router: Router,
-  ) {}
+  // Track whether current route is the send route
+  private readonly isSendRouteActive = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      map((event) => (event as NavigationEnd).urlAfterRedirects.includes("/new-sends")),
+      startWith(this.router.url.includes("/new-sends")),
+    ),
+    { initialValue: this.router.url.includes("/new-sends") },
+  );
 
-  // Computed: Is send route currently active?
-  protected isSendRouteActive(): boolean {
-    return this.router.url.includes("/new-sends");
-  }
+  // Computed: Active send type (null when on send route with no filter, undefined when not on send route)
+  protected readonly activeSendType = computed(() => {
+    return this.isSendRouteActive() ? this.currentFilter()?.sendType : undefined;
+  });
 
-  // Computed: Is specific type currently active (on send route AND that filter is set)?
-  protected isTypeActive(type: SendType): boolean {
-    return this.isSendRouteActive() && this.filtersService.filterForm.value.sendType === type;
-  }
+  // Update send filter and navigate to /new-sends (only if not already there - send-v2 component reacts to filter changes)
+  protected async selectTypeAndNavigate(type?: SendType): Promise<void> {
+    this.filtersService.filterForm.patchValue({ sendType: type !== undefined ? type : null });
 
-  // Parent "Send" click: Clear filter, ensure on send route
-  protected selectAllAndNavigate(): void {
-    this.filtersService.filterForm.patchValue({ sendType: null });
-
-    if (!this.isSendRouteActive()) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.router.navigate(["/new-sends"]);
-    }
-  }
-
-  // Child "Text"/"File" click: Set filter, ensure on send route
-  protected selectTypeAndNavigate(type: SendType): void {
-    this.filtersService.filterForm.patchValue({ sendType: type });
-
-    if (!this.isSendRouteActive()) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.router.navigate(["/new-sends"]);
+    if (!this.router.url.includes("/new-sends")) {
+      await this.router.navigate(["/new-sends"]);
     }
   }
 }
