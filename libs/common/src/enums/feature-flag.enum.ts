@@ -14,7 +14,7 @@ export enum FeatureFlag {
   CreateDefaultLocation = "pm-19467-create-default-location",
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
   BlockClaimedDomainAccountCreation = "pm-28297-block-uninvited-claimed-domain-registration",
-  BulkReinviteBatching = "todo",
+  IncreaseBulkReinviteLimitForCloud = "pm-28251-increase-bulk-reinvite-limit-for-cloud",
 
   /* Auth */
   PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
@@ -63,6 +63,7 @@ export enum FeatureFlag {
   AutofillConfirmation = "pm-25083-autofill-confirm-from-search",
   RiskInsightsForPremium = "pm-23904-risk-insights-for-premium",
   VaultLoadingSkeletons = "pm-25081-vault-skeleton-loaders",
+  BrowserPremiumSpotlight = "pm-23384-browser-premium-spotlight",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -97,7 +98,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.CreateDefaultLocation]: FALSE,
   [FeatureFlag.AutoConfirm]: FALSE,
   [FeatureFlag.BlockClaimedDomainAccountCreation]: FALSE,
-  [FeatureFlag.BulkReinviteBatching]: FALSE,
+  [FeatureFlag.IncreaseBulkReinviteLimitForCloud]: FALSE,
 
   /* Autofill */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
@@ -121,6 +122,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AutofillConfirmation]: FALSE,
   [FeatureFlag.RiskInsightsForPremium]: FALSE,
   [FeatureFlag.VaultLoadingSkeletons]: FALSE,
+  [FeatureFlag.BrowserPremiumSpotlight]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
