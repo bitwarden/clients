@@ -3062,6 +3062,15 @@
   "premiumSignUpStorage": {
     "message": "1 Go de stockage chiffré pour les fichiers joints."
   },
+  "premiumSignUpStorageV2": {
+    "message": "Stockage chiffré de $SIZE$ pour les pièces jointes.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Options de connexion propriétaires à deux facteurs telles que YubiKey et Duo."
   },
@@ -3123,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Votre abonnement Premium est terminé"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Pour récupérer l'accès à vos archives, redémarrez votre abonnement Premium. Si vous modifiez les détails d'un élément archivé avant de le redémarrer, il sera déplacé dans votre coffre."
+  },
+  "restartPremium": {
+    "message": "Redémarrer Premium"
   },
   "additionalStorageGb": {
     "message": "Stockage additionnel (Go)"
@@ -4607,6 +4625,24 @@
   },
   "learnMore": {
     "message": "En savoir plus"
+  },
+  "migrationsFailed": {
+    "message": "Une erreur s'est produite lors de la mise à jour des paramètres de chiffrement."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Mettre à jour vos paramètres de chiffrement"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Les nouveaux paramètres de chiffrement recommandés amélioreront la sécurité de votre compte. Entrez votre mot de passe principal pour faire la mise à jour maintenant."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirmez votre identité pour continuer"
+  },
+  "enterYourMasterPassword": {
+    "message": "Entrez votre mot de passe principal"
+  },
+  "updateSettings": {
+    "message": "Mettre à jour les paramètres"
   },
   "deleteRecoverDesc": {
     "message": "Saisissez votre adresse électronique ci-dessous pour récupérer et supprimer votre compte."
@@ -9820,6 +9856,14 @@
     "message": "Trop cher",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "switchToFreePlan": {
+    "message": "Passage à l'abonnement gratuit",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "switchToFreeOrg": {
+    "message": "Passage à l'organisation gratuite",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "Gratuit pour 1 an"
   },
@@ -11339,14 +11383,6 @@
   "openedExtensionViewAtRiskPasswords": {
     "message": "Ouverture réussie de l'extension du navigateur Bitwarden. Vous pouvez maintenant revoir vos mots de passe à risque."
   },
-  "openExtensionManuallyPart1": {
-    "message": "Nous avons eu des difficultés à ouvrir l'extension de navigateur Bitwarden. Ouvrez l'icône Bitwarden",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
-  "openExtensionManuallyPart2": {
-    "message": "de la barre d'outils.",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
   "resellerRenewalWarningMsg": {
     "message": "Votre abonnement sera renouvelé bientôt. Pour assurer un service ininterrompu, contactez $RESELLER$ pour confirmer votre renouvellement avant le $RENEWAL_DATE$.",
     "placeholders": {
@@ -11667,11 +11703,8 @@
   "bitwardenExtensionInstalled": {
     "message": "L'extension Bitwarden est installée !"
   },
-  "openTheBitwardenExtension": {
-    "message": "Ouvrir l'extension Bitwarden"
-  },
-  "bitwardenExtensionInstalledOpenExtension": {
-    "message": "L'extension Bitwarden est installée! Ouvrez l'extension pour vous connecter et démarrer le remplissage automatique."
+  "bitwardenExtensionIsInstalled": {
+    "message": "L'extension Bitwarden est installée !"
   },
   "openExtensionToAutofill": {
     "message": "Ouvrez l'extension pour vous connecter et démarrer le remplissage automatique."
@@ -11686,6 +11719,14 @@
   "gettingStartedWithBitwardenPart2": {
     "message": "Centre d'apprentissage",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "openExtensionFromToolbarPart1": {
+    "message": "Si l'extension n'est pas ouverte, vous devrez peut-être ouvrir Bitwarden à partir de l'icône ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
+  },
+  "openExtensionFromToolbarPart2": {
+    "message": " sur la barre d'outils.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "gettingStartedWithBitwardenPart3": {
     "message": "Centre d’aide",
@@ -12088,9 +12129,6 @@
   "updateYourEncryptionSettings": {
     "message": "Mettre à jour vos paramètres de chiffrement"
   },
-  "updateSettings": {
-    "message": "Mettre à jour les paramètres"
-  },
   "algorithm": {
     "message": "Algorithme"
   },
@@ -12166,5 +12204,8 @@
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Êtes-vous sûr de vouloir continuer ?"
+  },
+  "userVerificationFailed": {
+    "message": "La vérification de l'utilisateur a échoué."
   }
 }

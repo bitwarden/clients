@@ -48,6 +48,7 @@ import { LockComponent, ConfirmKeyConnectorDomainComponent } from "@bitwarden/ke
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { AuthExtensionRoute } from "../auth/popup/constants/auth-extension-route.constant";
 import { fido2AuthGuard } from "../auth/popup/guards/fido2-auth.guard";
+import { platformPopoutGuard } from "../auth/popup/guards/platform-popout.guard";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { ExtensionDeviceManagementComponent } from "../auth/popup/settings/extension-device-management.component";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
@@ -56,8 +57,8 @@ import { BlockedDomainsComponent } from "../autofill/popup/settings/blocked-doma
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
-import { PhishingWarning } from "../dirt/phishing-detection/pages/phishing-warning.component";
-import { ProtectedByComponent } from "../dirt/phishing-detection/pages/protected-by-component";
+import { PhishingWarning } from "../dirt/phishing-detection/popup/phishing-warning.component";
+import { ProtectedByComponent } from "../dirt/phishing-detection/popup/protected-by-component";
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { popupRouterCacheGuard } from "../platform/popup/view-cache/popup-router-cache.service";
@@ -414,7 +415,7 @@ const routes: Routes = [
       },
       {
         path: AuthRoute.LoginWithPasskey,
-        canActivate: [unauthGuardFn(unauthRouteOverrides)],
+        canActivate: [unauthGuardFn(unauthRouteOverrides), platformPopoutGuard(["linux"])],
         data: {
           pageIcon: TwoFactorAuthSecurityKeyIcon,
           pageTitle: {
