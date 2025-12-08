@@ -1,5 +1,7 @@
 import { Theme } from "@bitwarden/common/platform/enums";
 
+import { NotificationTaskInfo } from "../../../notification/abstractions/notification-bar";
+
 export type NotificationTypeData = {
   isVaultLocked?: boolean;
   theme?: Theme;
@@ -8,18 +10,37 @@ export type NotificationTypeData = {
   launchTimestamp?: number;
 };
 
-export type NotificationsExtensionMessage = {
-  command: string;
-  data?: {
-    type?: string;
-    typeData?: NotificationTypeData;
-    height?: number;
-    error?: string;
-    closedByUser?: boolean;
-    fadeOutNotification?: boolean;
-    params: object;
+type OpenNotificationBarMessage = {
+  command: "openNotificationBar";
+  data: {
+    type: string;
+    typeData: NotificationTypeData;
+    params?: object;
   };
 };
+
+type CloseNotificationBarMessage = {
+  command: "closeNotificationBar";
+  data?: {
+    closedByUser?: boolean;
+    fadeOutNotification?: boolean;
+  };
+};
+
+type SaveCipherAttemptCompletedMessage = {
+  command: "saveCipherAttemptCompleted";
+  data?: {
+    error?: string;
+    cipherId?: string;
+    task?: NotificationTaskInfo;
+    itemName?: string;
+  };
+};
+
+export type NotificationsExtensionMessage =
+  | OpenNotificationBarMessage
+  | CloseNotificationBarMessage
+  | SaveCipherAttemptCompletedMessage;
 
 type OverlayNotificationsExtensionMessageParam = {
   message: NotificationsExtensionMessage;
@@ -34,7 +55,6 @@ export type OverlayNotificationsExtensionMessageHandlers = {
   [key: string]: ({ message, sender }: OverlayNotificationsExtensionMessageParams) => any;
   openNotificationBar: ({ message }: OverlayNotificationsExtensionMessageParam) => void;
   closeNotificationBar: ({ message }: OverlayNotificationsExtensionMessageParam) => void;
-  adjustNotificationBar: ({ message }: OverlayNotificationsExtensionMessageParam) => void;
   saveCipherAttemptCompleted: ({ message }: OverlayNotificationsExtensionMessageParam) => void;
 };
 

@@ -7,7 +7,7 @@
 
     "../../apps/browser/src/autofill/content/*.ts",
     "../../apps/browser/src/autofill/fido2/content/*.ts",
-    "../../apps/browser/src/autofill/notification/bar.ts",
+    "../../apps/browser/src/autofill/notification/notification-bar-helpers.ts",
     "../../apps/browser/src/autofill/overlay/inline-menu/**/*.ts",
     "../../apps/browser/src/platform/ipc/content/*.ts",
     "../../apps/browser/src/platform/offscreen-document/offscreen-document.ts",

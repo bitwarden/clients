@@ -6,7 +6,7 @@ import { NotificationTypes } from "../../../../../notification/abstractions/noti
 import {
   getConfirmationHeaderMessage,
   getNotificationTestId,
-} from "../../../../../notification/bar";
+} from "../../../../../notification/notification-bar-helpers";
 import {
   NotificationConfirmationContainer,
   NotificationConfirmationContainerProps,

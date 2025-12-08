@@ -3,7 +3,7 @@ import { Meta, StoryObj } from "@storybook/web-components";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { NotificationTypes } from "../../../../../notification/abstractions/notification-bar";
-import { getNotificationTestId } from "../../../../../notification/bar";
+import { getNotificationTestId } from "../../../../../notification/notification-bar-helpers";
 import {
   AtRiskNotification,
   AtRiskNotificationProps,

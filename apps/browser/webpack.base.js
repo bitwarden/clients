@@ -146,11 +146,6 @@ module.exports.buildConfig = function buildConfig(params) {
       browser: browser,
     }),
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, "src/autofill/notification/bar.html"),
-      filename: "notification/bar.html",
-      chunks: ["notification/bar"],
-    }),
-    new HtmlWebpackPlugin({
       template: path.resolve(
         __dirname,
         "src/autofill/overlay/inline-menu/pages/button/button.html",
@@ -264,7 +259,6 @@ module.exports.buildConfig = function buildConfig(params) {
         __dirname,
         "src/platform/ipc/content/ipc-content-script.ts",
       ),
-      "notification/bar": path.resolve(__dirname, "src/autofill/notification/bar.ts"),
       "overlay/menu-button": path.resolve(
         __dirname,
         "src/autofill/overlay/inline-menu/pages/button/bootstrap-autofill-inline-menu-button.ts",

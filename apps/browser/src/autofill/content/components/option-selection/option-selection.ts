@@ -160,7 +160,9 @@ declare global {
   }
 }
 
-export default customElements.define(optionSelectionTagName, OptionSelection);
+if (!globalThis.customElements?.get(optionSelectionTagName)) {
+  globalThis.customElements?.define(optionSelectionTagName, OptionSelection);
+}
 
 function getDefaultOption(options: Option[] = []) {
   return options.find((option: Option) => option.default) || options[0];

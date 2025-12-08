@@ -130,7 +130,6 @@
   },
   "web_accessible_resources": [
     "content/fido2-page-script.js",
-    "notification/bar.html",
     "images/icon38.png",
     "images/icon38_locked.png",
     "overlay/menu-button.html",
