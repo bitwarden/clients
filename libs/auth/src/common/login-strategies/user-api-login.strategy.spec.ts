@@ -230,4 +230,38 @@ describe("UserApiLoginStrategy", () => {
     );
     expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, userId);
   });
+
+  it("sets account cryptographic state when accountKeysResponseModel is present", async () => {
+    const accountKeysData = {
+      publicKeyEncryptionKeyPair: {
+        publicKey: "testPublicKey",
+        wrappedPrivateKey: "testPrivateKey",
+      },
+    };
+
+    const tokenResponse = identityTokenResponseFactory();
+    // Add accountKeysResponseModel to the response
+    (tokenResponse as any).accountKeysResponseModel = {
+      publicKeyEncryptionKeyPair: accountKeysData.publicKeyEncryptionKeyPair,
+      toWrappedAccountCryptographicState: jest.fn().mockReturnValue({
+        V1: {
+          private_key: "testPrivateKey",
+        },
+      }),
+    };
+
+    apiService.postIdentityToken.mockResolvedValue(tokenResponse);
+
+    await apiLogInStrategy.logIn(credentials);
+
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledTimes(1);
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+      {
+        V1: {
+          private_key: "testPrivateKey",
+        },
+      },
+      userId,
+    );
+  });
 });

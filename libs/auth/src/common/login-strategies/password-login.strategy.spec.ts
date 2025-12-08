@@ -29,7 +29,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
 import {
   PasswordStrengthServiceAbstraction,
   PasswordStrengthService,
@@ -396,5 +396,44 @@ describe("PasswordLoginStrategy", () => {
     );
     expect(result.resetMasterPassword).toBe(false);
     expect(result.userId).toBe(userId);
+  });
+
+  it("sets account cryptographic state when accountKeysResponseModel is present", async () => {
+    const accountKeysData = {
+      publicKeyEncryptionKeyPair: {
+        publicKey: "testPublicKey",
+        wrappedPrivateKey: "testPrivateKey",
+      },
+    };
+
+    tokenResponse = identityTokenResponseFactory();
+    tokenResponse.key = makeEncString("mockEncryptedUserKey");
+    // Add accountKeysResponseModel to the response
+    (tokenResponse as any).accountKeysResponseModel = {
+      publicKeyEncryptionKeyPair: accountKeysData.publicKeyEncryptionKeyPair,
+      toWrappedAccountCryptographicState: jest.fn().mockReturnValue({
+        V1: {
+          private_key: "testPrivateKey",
+        },
+      }),
+    };
+
+    apiService.postIdentityToken.mockResolvedValue(tokenResponse);
+    masterPasswordService.masterKeySubject.next(masterKey);
+    masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(
+      new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey,
+    );
+
+    await passwordLoginStrategy.logIn(credentials);
+
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledTimes(1);
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+      {
+        V1: {
+          private_key: "testPrivateKey",
+        },
+      },
+      userId,
+    );
   });
 });

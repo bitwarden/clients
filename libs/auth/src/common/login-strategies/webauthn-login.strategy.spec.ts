@@ -345,6 +345,53 @@ describe("WebAuthnLoginStrategy", () => {
     // Assert
     expect(keyService.setUserKey).not.toHaveBeenCalled();
   });
+
+  it("sets account cryptographic state when accountKeysResponseModel is present", async () => {
+    // Arrange
+    const accountKeysData = {
+      publicKeyEncryptionKeyPair: {
+        publicKey: "testPublicKey",
+        wrappedPrivateKey: "testPrivateKey",
+      },
+    };
+
+    const idTokenResponse: IdentityTokenResponse = identityTokenResponseFactory(
+      null,
+      userDecryptionOptsServerResponseWithWebAuthnPrfOption,
+    );
+    // Add accountKeysResponseModel to the response
+    (idTokenResponse as any).accountKeysResponseModel = {
+      publicKeyEncryptionKeyPair: accountKeysData.publicKeyEncryptionKeyPair,
+      toWrappedAccountCryptographicState: jest.fn().mockReturnValue({
+        V1: {
+          private_key: "testPrivateKey",
+        },
+      }),
+    };
+
+    apiService.postIdentityToken.mockResolvedValue(idTokenResponse);
+
+    const mockPrfPrivateKey: Uint8Array = randomBytes(32);
+    const mockUserKeyArray: Uint8Array = randomBytes(32);
+    encryptService.unwrapDecapsulationKey.mockResolvedValue(mockPrfPrivateKey);
+    encryptService.decapsulateKeyUnsigned.mockResolvedValue(
+      new SymmetricCryptoKey(mockUserKeyArray),
+    );
+
+    // Act
+    await webAuthnLoginStrategy.logIn(webAuthnCredentials);
+
+    // Assert
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledTimes(1);
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+      {
+        V1: {
+          private_key: "testPrivateKey",
+        },
+      },
+      userId,
+    );
+  });
 });
 
 // Helpers and mocks

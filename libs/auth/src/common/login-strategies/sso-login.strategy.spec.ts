@@ -31,7 +31,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DeviceKey, MasterKey, UserKey } from "@bitwarden/common/types/key";
@@ -559,5 +559,40 @@ describe("SsoLoginStrategy", () => {
       );
       expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, userId);
     });
+  });
+
+  it("sets account cryptographic state when accountKeysResponseModel is present", async () => {
+    const accountKeysData = {
+      publicKeyEncryptionKeyPair: {
+        publicKey: "testPublicKey",
+        wrappedPrivateKey: "testPrivateKey",
+      },
+    };
+
+    const tokenResponse = identityTokenResponseFactory();
+    tokenResponse.key = makeEncString("mockEncryptedUserKey");
+    // Add accountKeysResponseModel to the response
+    (tokenResponse as any).accountKeysResponseModel = {
+      publicKeyEncryptionKeyPair: accountKeysData.publicKeyEncryptionKeyPair,
+      toWrappedAccountCryptographicState: jest.fn().mockReturnValue({
+        V1: {
+          private_key: "testPrivateKey",
+        },
+      }),
+    };
+
+    apiService.postIdentityToken.mockResolvedValue(tokenResponse);
+
+    await ssoLoginStrategy.logIn(credentials);
+
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledTimes(1);
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+      {
+        V1: {
+          private_key: "testPrivateKey",
+        },
+      },
+      userId,
+    );
   });
 });

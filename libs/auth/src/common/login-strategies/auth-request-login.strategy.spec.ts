@@ -23,7 +23,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { makeEncString, FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
@@ -211,5 +211,42 @@ describe("AuthRequestLoginStrategy", () => {
 
     // trustDeviceIfRequired should be called
     expect(deviceTrustService.trustDeviceIfRequired).not.toHaveBeenCalled();
+  });
+
+  it("sets account cryptographic state when accountKeysResponseModel is present", async () => {
+    const accountKeysData = {
+      publicKeyEncryptionKeyPair: {
+        publicKey: "testPublicKey",
+        wrappedPrivateKey: "testPrivateKey",
+      },
+    };
+
+    tokenResponse = identityTokenResponseFactory();
+    tokenResponse.key = makeEncString("mockEncryptedUserKey");
+    // Add accountKeysResponseModel to the response
+    (tokenResponse as any).accountKeysResponseModel = {
+      publicKeyEncryptionKeyPair: accountKeysData.publicKeyEncryptionKeyPair,
+      toWrappedAccountCryptographicState: jest.fn().mockReturnValue({
+        V1: {
+          private_key: "testPrivateKey",
+        },
+      }),
+    };
+
+    apiService.postIdentityToken.mockResolvedValue(tokenResponse);
+    masterPasswordService.masterKeySubject.next(decMasterKey);
+    masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(decUserKey);
+
+    await authRequestLoginStrategy.logIn(credentials);
+
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledTimes(1);
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+      {
+        V1: {
+          private_key: "testPrivateKey",
+        },
+      },
+      mockUserId,
+    );
   });
 });

@@ -30,10 +30,24 @@ describe("DefaultAccountCryptographicStateService", () => {
       expect(result).toBeNull();
     });
 
-    it("returns the account cryptographic state when set", async () => {
+    it("returns the account cryptographic state when set (V1)", async () => {
       const mockState: WrappedAccountCryptographicState = {
         V1: {
           private_key: "test-wrapped-state" as any,
+        },
+      };
+      await stateProvider.setUserState(ACCOUNT_CRYPTOGRAPHIC_STATE, mockState, mockUserId);
+      const result = await firstValueFrom(service.accountCryptographicState$(mockUserId));
+      expect(result).toEqual(mockState);
+    });
+
+    it("returns the account cryptographic state when set (V2)", async () => {
+      const mockState: WrappedAccountCryptographicState = {
+        V2: {
+          private_key: "test-wrapped-private-key" as any,
+          signing_key: "test-wrapped-signing-key" as any,
+          signed_public_key: "test-signed-public-key" as any,
+          security_state: "test-security-state",
         },
       };
       await stateProvider.setUserState(ACCOUNT_CRYPTOGRAPHIC_STATE, mockState, mockUserId);
