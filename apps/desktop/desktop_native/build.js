@@ -30,8 +30,7 @@ function buildNapiModule(target, release = true) {
     const releaseArg = release ? "--release" : "";
     child_process.execSync(`npm run build -- ${releaseArg} ${targetArg}`, {
         stdio: 'inherit',
-        cwd: path.join(__dirname, "napi"),
-        env: process.env  // Pass environment variables including SANDBOX_BUILD
+        cwd: path.join(__dirname, "napi")    
     });
 }
 
