@@ -25,6 +25,9 @@ export type SideNavVariant = "primary" | "secondary";
     I18nPipe,
     DragDropModule,
   ],
+  host: {
+    class: "tw-block tw-h-full",
+  },
 })
 export class SideNavComponent {
   protected sideNavService = inject(SideNavService);

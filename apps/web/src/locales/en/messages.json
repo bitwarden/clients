@@ -3060,7 +3060,7 @@
     "message": "Upgrade your account to a Premium membership and unlock some great additional features."
   },
   "premiumSignUpStorage": {
-    "message": "1 GB encrypted storage for file attachments."  
+    "message": "1 GB encrypted storage for file attachments."
   },
   "premiumSignUpStorageV2": {
     "message": "$SIZE$ encrypted storage for file attachments.",
@@ -7158,8 +7158,8 @@
   "enabledSso": {
     "message": "SSO turned on"
   },
-  "disabledSso": {
-    "message": "SSO turned on"
+  "ssoTurnedOff": {
+    "message": "SSO turned off"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ must login with Single Sign-on",
@@ -11965,8 +11965,8 @@
   "familiesMembership": {
     "message": "Families membership"
   },
-  "planDescPremium": {
-    "message": "Complete online security"
+  "advancedOnlineSecurity": {
+    "message": "Advanced online security"
   },
   "planDescFamiliesV2": {
     "message": "Premium security for your family"

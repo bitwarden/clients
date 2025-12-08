@@ -165,7 +165,9 @@ export class CipherService implements CipherServiceAbstraction {
           }),
           switchMap(async (ciphers) => {
             const [decrypted, failures] = await this.decryptCiphersWithSdk(ciphers, userId, false);
-            await this.setFailedDecryptedCiphers(failures, userId);
+            void this.setFailedDecryptedCiphers(failures, userId);
+            // Trigger full decryption and indexing in background
+            void this.getAllDecrypted(userId);
             return decrypted;
           }),
           tap((decrypted) => {
@@ -630,6 +632,15 @@ export class CipherService implements CipherServiceAbstraction {
               overrideNeverMatchStrategy,
             ),
         ),
+      ),
+    );
+  }
+
+  async getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]> {
+    return firstValueFrom(
+      this.cipherViews$(userId).pipe(
+        filter((ciphers) => ciphers != null),
+        map((ciphers) => ciphers.filter((cipher) => ids.includes(cipher.id))),
       ),
     );
   }
