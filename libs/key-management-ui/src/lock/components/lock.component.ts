@@ -60,6 +60,8 @@ import {
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
 
+// eslint-disable-next-line no-restricted-imports
+import { SpinnerComponent } from "../../../../components/src/spinner";
 import {
   UnlockOption,
   LockComponentService,
@@ -101,6 +103,7 @@ const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
     AsyncActionsModule,
     IconButtonModule,
     MasterPasswordLockComponent,
+    SpinnerComponent,
   ],
 })
 export class LockComponent implements OnInit, OnDestroy {
