@@ -123,7 +123,7 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
     // Temporary confirmation dialog. Full implementation in PM-27663
     const confirmMigration = await this.dialogService.openSimpleDialog({
       title: "Requires migration",
-      content: "You vault requires migration of personal items to your organization.",
+      content: "Your vault requires migration of personal items to your organization.",
       type: "warning",
     });
 
