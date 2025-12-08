@@ -17,6 +17,9 @@ export type SideNavVariant = "primary" | "secondary";
   selector: "bit-side-nav",
   templateUrl: "side-nav.component.html",
   imports: [CommonModule, CdkTrapFocus, NavDividerComponent, BitIconButtonComponent, I18nPipe],
+  host: {
+    class: "tw-block tw-h-full",
+  },
 })
 export class SideNavComponent {
   readonly variant = input<SideNavVariant>("primary");

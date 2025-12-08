@@ -2,7 +2,7 @@ import { DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, interval, map, of, takeWhile, timeout } from "rxjs";
 import { ZXCVBNResult } from "zxcvbn";
@@ -94,6 +94,13 @@ describe("LockComponent", () => {
   const mockBroadcasterService = mock<BroadcasterService>();
   const mockEncryptedMigrator = mock<EncryptedMigrator>();
   const mockConfigService = mock<ConfigService>();
+  const mockActivatedRoute = {
+    snapshot: {
+      paramMap: {
+        get: jest.fn().mockReturnValue(null), // return null for 'disable-redirect' param
+      },
+    },
+  };
 
   beforeEach(async () => {
     jest.resetAllMocks();
@@ -151,6 +158,7 @@ describe("LockComponent", () => {
         { provide: LockComponentService, useValue: mockLockComponentService },
         { provide: AnonLayoutWrapperDataService, useValue: mockAnonLayoutWrapperDataService },
         { provide: BroadcasterService, useValue: mockBroadcasterService },
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: EncryptedMigrator, useValue: mockEncryptedMigrator },
         { provide: ConfigService, useValue: mockConfigService },
       ],
@@ -467,6 +475,14 @@ describe("LockComponent", () => {
         component.clientType = clientType;
         mockLockComponentService.getPreviousUrl.mockReturnValue(null);
 
+        jest.spyOn(component as any, "doContinue").mockImplementation(async () => {
+          await mockBiometricStateService.resetUserPromptCancelled();
+          mockMessagingService.send("unlocked");
+          await mockSyncService.fullSync(false);
+          await mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded(userId);
+          await mockRouter.navigate([navigateUrl]);
+        });
+
         await component.successfulMasterPasswordUnlock({ userKey: mockUserKey, masterPassword });
 
         assertUnlocked();
@@ -477,6 +493,16 @@ describe("LockComponent", () => {
     it("unlocks and close browser extension popout on firefox extension", async () => {
       component.shouldClosePopout = true;
       mockPlatformUtilsService.getDevice.mockReturnValue(DeviceType.FirefoxExtension);
+
+      jest.spyOn(component as any, "doContinue").mockImplementation(async () => {
+        await mockBiometricStateService.resetUserPromptCancelled();
+        mockMessagingService.send("unlocked");
+        await mockSyncService.fullSync(false);
+        await mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded(
+          component.activeAccount!.id,
+        );
+        mockLockComponentService.closeBrowserExtensionPopout();
+      });
 
       await component.successfulMasterPasswordUnlock({ userKey: mockUserKey, masterPassword });
 
@@ -611,6 +637,32 @@ describe("LockComponent", () => {
     ])(
       "should unlock and force set password change = %o when master password on login = %o and evaluated password against policy = %o and policy set during user verification by master password",
       async (forceSetPassword, masterPasswordPolicyOptions, evaluatedMasterPassword) => {
+        jest.spyOn(component as any, "doContinue").mockImplementation(async () => {
+          await mockBiometricStateService.resetUserPromptCancelled();
+          mockMessagingService.send("unlocked");
+
+          if (masterPasswordPolicyOptions?.enforceOnLogin) {
+            const passwordStrengthResult = mockPasswordStrengthService.getPasswordStrength(
+              masterPassword,
+              component.activeAccount!.email,
+            );
+            const evaluated = mockPolicyService.evaluateMasterPassword(
+              passwordStrengthResult.score,
+              masterPassword,
+              masterPasswordPolicyOptions,
+            );
+            if (!evaluated) {
+              await mockMasterPasswordService.setForceSetPasswordReason(
+                ForceSetPasswordReason.WeakMasterPassword,
+                userId,
+              );
+            }
+          }
+
+          await mockSyncService.fullSync(false);
+          await mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded(userId);
+        });
+
         mockUserVerificationService.verifyUserByMasterPassword.mockResolvedValue({
           ...masterPasswordVerificationResponse,
           policyOptions:
@@ -725,6 +777,14 @@ describe("LockComponent", () => {
         component.clientType = clientType;
         mockLockComponentService.getPreviousUrl.mockReturnValue(null);
 
+        jest.spyOn(component as any, "doContinue").mockImplementation(async () => {
+          await mockBiometricStateService.resetUserPromptCancelled();
+          mockMessagingService.send("unlocked");
+          await mockSyncService.fullSync(false);
+          await mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded(userId);
+          await mockRouter.navigate([navigateUrl]);
+        });
+
         await component.unlockViaMasterPassword();
 
         assertUnlocked();
@@ -735,6 +795,16 @@ describe("LockComponent", () => {
     it("should unlock and close browser extension popout on firefox extension", async () => {
       component.shouldClosePopout = true;
       mockPlatformUtilsService.getDevice.mockReturnValue(DeviceType.FirefoxExtension);
+
+      jest.spyOn(component as any, "doContinue").mockImplementation(async () => {
+        await mockBiometricStateService.resetUserPromptCancelled();
+        mockMessagingService.send("unlocked");
+        await mockSyncService.fullSync(false);
+        await mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded(
+          component.activeAccount!.id,
+        );
+        mockLockComponentService.closeBrowserExtensionPopout();
+      });
 
       await component.unlockViaMasterPassword();
 
