@@ -141,7 +141,7 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
       );
       this.toastService.showToast({
         variant: "success",
-        message: "Items transferred",
+        message: this.i18nService.t("itemsTransferred"),
       });
     } catch (error) {
       this.logService.error("Error transferring personal items to organization", error);
