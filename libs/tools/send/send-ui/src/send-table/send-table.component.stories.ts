@@ -9,12 +9,11 @@ import { SendTableComponent } from "./send-table.component";
 
 function createMockSend(id: number, overrides: Partial<SendView> = {}): SendView {
   const send = new SendView();
-  const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
   send.id = `send-${id}`;
   send.name = "My Send";
   send.type = SendType.Text;
-  send.deletionDate = futureDate;
+  send.deletionDate = new Date("2030-01-01T12:00:00Z");
   send.password = null as any;
 
   Object.assign(send, overrides);
@@ -45,7 +44,7 @@ dataSource.data = [
   createMockSend(4, {
     name: "Expired Send",
     type: SendType.File,
-    expirationDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
+    expirationDate: new Date("2025-12-01T00:00:00Z"),
   }),
   createMockSend(5, {
     name: "Max Access Reached",
