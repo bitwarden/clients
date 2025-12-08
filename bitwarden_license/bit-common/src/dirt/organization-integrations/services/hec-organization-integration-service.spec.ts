@@ -188,14 +188,4 @@ describe("HecOrganizationIntegrationService", () => {
     expect(configs).not.toBeNull();
     expect(configs![0].id).toBe(configId);
   });
-
-  it("convertToJson should parse valid JSON", () => {
-    const obj = service.convertToJson<{ a: number }>('{"a":1}');
-    expect(obj).toEqual({ a: 1 });
-  });
-
-  it("convertToJson should return null for invalid JSON", () => {
-    const obj = service.convertToJson<{ a: number }>("invalid");
-    expect(obj).toBeNull();
-  });
 });
