@@ -83,7 +83,7 @@
     "@webcomponents/custom-elements": "1.6.0",
     "@yao-pkg/pkg": "6.5.1",
     "angular-eslint": "20.7.0",
-    "autoprefixer": "10.4.21",
+    "autoprefixer": "10.4.22",
     "axe-playwright": "2.2.2",
     "babel-loader": "9.2.1",
     "base64-loader": "1.0.0",
