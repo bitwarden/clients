@@ -96,12 +96,17 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
   }
 
   async enforceOrganizationDataOwnership(userId: UserId): Promise<void> {
-    const migrationInfo = await firstValueFrom(this.userMigrationInfo$(userId));
     const featureEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.MigrateMyVaultToMyItems,
     );
 
-    if (!featureEnabled || !migrationInfo.requiresMigration) {
+    if (!featureEnabled) {
+      return;
+    }
+
+    const migrationInfo = await firstValueFrom(this.userMigrationInfo$(userId));
+
+    if (!migrationInfo.requiresMigration) {
       return;
     }
 
