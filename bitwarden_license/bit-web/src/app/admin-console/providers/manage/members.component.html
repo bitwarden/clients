@@ -1,8 +1,10 @@
 @let providerId = providerId$ | async;
+@let bulkFlags = bulkFlags$ | async;
+
 <app-header>
   <bit-search class="tw-grow" [formControl]="searchControl" [placeholder]="'searchMembers' | i18n">
   </bit-search>
-  <button type="button" bitButton buttonType="primary" (click)="invite(providerId)">
+  <button type="button" bitButton buttonType="primary" (click)="edit(providerId)">
     <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
     {{ "inviteMember" | i18n }}
   </button>
@@ -48,7 +50,7 @@
     <p>{{ "noMembersInList" | i18n }}</p>
   }
   @if (dataSource.filteredData?.length) {
-    @if (showConfirmUsers) {
+    @if (bulkFlags.showConfirmUsers) {
       <bit-callout type="info" title="{{ 'confirmUsers' | i18n }}" icon="bwi-check-circle">
         {{ "providerUsersNeedConfirmed" | i18n }}
       </bit-callout>
@@ -80,13 +82,13 @@
                 label="{{ 'options' | i18n }}"
               ></button>
               <bit-menu #headerMenu>
-                @if (showBulkReinviteUsers) {
+                @if (bulkFlags.showBulkReinviteUsers) {
                   <button type="button" bitMenuItem (click)="bulkReinvite(providerId)">
                     <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
                     {{ "reinviteSelected" | i18n }}
                   </button>
                 }
-                @if (showBulkConfirmUsers) {
+                @if (bulkFlags.showBulkConfirmUsers) {
                   <button type="button" bitMenuItem (click)="bulkConfirm(providerId)">
                     <span class="tw-text-success">
                       <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
@@ -114,7 +116,7 @@
             <td bitCell (click)="dataSource.checkUser(user)">
               <input type="checkbox" bitCheckbox [(ngModel)]="$any(user).checked" />
             </td>
-            <td bitCell (click)="edit(user, providerId)" class="tw-cursor-pointer">
+            <td bitCell (click)="edit(providerId, user)" class="tw-cursor-pointer">
               <div class="tw-flex tw-items-center">
                 <bit-avatar
                   size="small"

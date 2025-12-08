@@ -28,7 +28,6 @@ import { ProviderUserStatusType, ProviderUserType } from "@bitwarden/common/admi
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { ProviderUserBulkRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-bulk.request";
 import { ProviderUserConfirmRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-confirm.request";
-import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
@@ -41,9 +40,11 @@ import { ProviderId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import {
-  peopleFilter,
-  PeopleTableDataSource,
-} from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
+  configureProviderMemberFlags,
+  ProvidersTableDataSource,
+  ProviderUser,
+} from "@bitwarden/web-vault/app/admin-console/common/member-component-utils";
+import { peopleFilter } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/admin-console/organizations/manage/entity-events.component";
 import { UserConfirmComponent } from "@bitwarden/web-vault/app/admin-console/organizations/manage/user-confirm.component";
 import { BulkStatusComponent } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/bulk/bulk-status.component";
@@ -56,12 +57,6 @@ import {
 } from "./dialogs/add-edit-member-dialog.component";
 import { BulkConfirmDialogComponent } from "./dialogs/bulk-confirm-dialog.component";
 import { BulkRemoveDialogComponent } from "./dialogs/bulk-remove-dialog.component";
-
-type ProviderUser = ProviderUserUserDetailsResponse;
-
-class MembersTableDataSource extends PeopleTableDataSource<ProviderUser> {
-  protected statusType = ProviderUserStatusType;
-}
 
 @Component({
   templateUrl: "members.component.html",
@@ -88,7 +83,7 @@ export class MembersComponent {
   private changeDetectorRef = inject(ChangeDetectorRef);
 
   protected accessEvents = false;
-  protected dataSource = new MembersTableDataSource();
+  protected dataSource = new ProvidersTableDataSource();
 
   protected providerId$: Observable<ProviderId>;
   protected provider$: Observable<Provider | undefined>;
@@ -104,29 +99,7 @@ export class MembersComponent {
   protected statusToggle = new BehaviorSubject<ProviderUserStatusType | undefined>(undefined);
   protected readonly firstLoaded: WritableSignal<boolean> = signal(false);
 
-  /**
-   * Shows a banner alerting the admin that users need to be confirmed.
-   */
-  get showConfirmUsers(): boolean {
-    return (
-      this.dataSource.activeUserCount > 1 &&
-      this.dataSource.confirmedUserCount > 0 &&
-      this.dataSource.confirmedUserCount < 3 &&
-      this.dataSource.acceptedUserCount > 0
-    );
-  }
-
-  get showBulkConfirmUsers(): boolean {
-    return this.dataSource
-      .getCheckedUsers()
-      .every((member) => member.status == this.userStatusType.Accepted);
-  }
-
-  get showBulkReinviteUsers(): boolean {
-    return this.dataSource
-      .getCheckedUsers()
-      .every((member) => member.status == this.userStatusType.Invited);
-  }
+  protected bulkFlags$ = configureProviderMemberFlags(this.dataSource);
 
   constructor() {
     this.dataSource
@@ -230,10 +203,6 @@ export class MembersComponent {
     } catch (error) {
       this.validationService.showError(error);
     }
-  }
-
-  async invite(providerId: ProviderId) {
-    await this.edit(null, providerId);
   }
 
   async bulkRemove(providerId: ProviderId): Promise<void> {
@@ -390,7 +359,7 @@ export class MembersComponent {
     }
   }
 
-  edit = async (user: ProviderUser | null, providerId: ProviderId): Promise<void> => {
+  async edit(providerId: ProviderId, user?: ProviderUser): Promise<void> {
     const data: AddEditMemberDialogParams = {
       providerId: providerId,
     };
@@ -415,10 +384,10 @@ export class MembersComponent {
         await this.load();
         break;
     }
-  };
+  }
 
-  openEventsDialog = (user: ProviderUser, providerId: ProviderId): DialogRef<void> =>
-    openEntityEventsDialog(this.dialogService, {
+  openEventsDialog(user: ProviderUser, providerId: ProviderId): DialogRef<void> {
+    return openEntityEventsDialog(this.dialogService, {
       data: {
         name: this.userNamePipe.transform(user),
         providerId: providerId,
@@ -427,6 +396,7 @@ export class MembersComponent {
         entity: "user",
       },
     });
+  }
 
   private async reinviteUserInternal(
     id: string,
