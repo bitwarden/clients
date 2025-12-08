@@ -5,6 +5,12 @@
   (click)="selectTypeAndNavigate()"
 >
   <bit-nav-item
+    icon="bwi-send"
+    [text]="'allSends' | i18n"
+    (click)="selectTypeAndNavigate(null); $event.stopPropagation()"
+    [forceActiveStyles]="activeSendType() === null"
+  ></bit-nav-item>
+  <bit-nav-item
     icon="bwi-file-text"
     [text]="'sendTypeText' | i18n"
     (click)="selectTypeAndNavigate(SendType.Text); $event.stopPropagation()"
