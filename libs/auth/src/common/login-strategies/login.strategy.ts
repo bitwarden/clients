@@ -3,7 +3,6 @@ import { BehaviorSubject, filter, firstValueFrom, timeout, Observable } from "rx
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -16,6 +15,7 @@ import { WebAuthnLoginTokenRequest } from "@bitwarden/common/auth/models/request
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -108,6 +108,8 @@ export abstract class LoginStrategy {
     data.tokenRequest.setTwoFactor(twoFactor);
     this.cache.next(data);
     const [authResult] = await this.startLogIn();
+    // There is an import cycle between PasswordLoginStrategyData and LoginStrategy, which means this cast is necessary, which is solved by extracting the data classes.
+    authResult.masterPassword = (this.cache.value as any)["masterPassword"] ?? null;
     return authResult;
   }
 
@@ -195,8 +197,9 @@ export abstract class LoginStrategy {
 
     // We must set user decryption options before retrieving vault timeout settings
     // as the user decryption options help determine the available timeout actions.
-    await this.userDecryptionOptionsService.setUserDecryptionOptions(
-      UserDecryptionOptions.fromResponse(tokenResponse),
+    await this.userDecryptionOptionsService.setUserDecryptionOptionsById(
+      userId,
+      UserDecryptionOptions.fromIdentityTokenResponse(tokenResponse),
     );
 
     if (tokenResponse.userDecryptionOptions?.masterPasswordUnlock != null) {
@@ -263,6 +266,9 @@ export abstract class LoginStrategy {
     await this.processForceSetPasswordReason(response.forcePasswordReset, userId);
 
     this.messagingService.send("loggedIn");
+    // There is an import cycle between PasswordLoginStrategyData and LoginStrategy, which means this cast is necessary, which is solved by extracting the data classes.
+    // TODO: https://bitwarden.atlassian.net/browse/PM-27573
+    result.masterPassword = (this.cache.value as any)["masterPassword"] ?? null;
 
     return result;
   }

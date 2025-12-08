@@ -82,7 +82,6 @@ export class Identity extends Domain {
         "passportNumber",
         "licenseNumber",
       ],
-      null,
       encKey,
       "DomainType: Identity; " + context,
     );

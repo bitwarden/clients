@@ -806,13 +806,18 @@ describe("Cipher Service", () => {
 
       // Set up expected results
       const expectedSuccessCipherViews = [
-        { id: mockCiphers[0].id, name: "Success 1" } as unknown as CipherListView,
+        { id: mockCiphers[0].id, name: "Success 1", decryptionFailure: false } as CipherView,
       ];
 
       const expectedFailedCipher = new CipherView(mockCiphers[1]);
       expectedFailedCipher.name = "[error: cannot decrypt]";
       expectedFailedCipher.decryptionFailure = true;
       const expectedFailedCipherViews = [expectedFailedCipher];
+
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([
+        expectedSuccessCipherViews,
+        expectedFailedCipherViews,
+      ]);
 
       // Execute
       const [successes, failures] = await (cipherService as any).decryptCiphers(
@@ -821,10 +826,7 @@ describe("Cipher Service", () => {
       );
 
       // Verify the SDK was used for decryption
-      expect(cipherEncryptionService.decryptManyWithFailures).toHaveBeenCalledWith(
-        mockCiphers,
-        userId,
-      );
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(mockCiphers, userId);
 
       expect(successes).toEqual(expectedSuccessCipherViews);
       expect(failures).toEqual(expectedFailedCipherViews);

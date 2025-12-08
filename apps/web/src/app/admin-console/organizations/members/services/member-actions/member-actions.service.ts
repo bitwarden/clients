@@ -2,10 +2,10 @@ import { Injectable } from "@angular/core";
 import { firstValueFrom, switchMap, map } from "rxjs";
 
 import {
-  DefaultOrganizationUserService,
   OrganizationUserApiService,
   OrganizationUserBulkResponse,
   OrganizationUserConfirmRequest,
+  OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import {
   OrganizationUserType,
@@ -39,7 +39,7 @@ export class MemberActionsService {
 
   constructor(
     private organizationUserApiService: OrganizationUserApiService,
-    private organizationUserService: DefaultOrganizationUserService,
+    private organizationUserService: OrganizationUserService,
     private keyService: KeyService,
     private encryptService: EncryptService,
     private configService: ConfigService,

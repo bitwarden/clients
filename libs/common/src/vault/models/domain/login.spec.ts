@@ -29,6 +29,14 @@ describe("Login DTO", () => {
       password: undefined,
       totp: undefined,
     });
+
+    expect(data.username).toBeUndefined();
+    expect(data.password).toBeUndefined();
+    expect(data.passwordRevisionDate).toBeUndefined();
+    expect(data.totp).toBeUndefined();
+    expect(data.autofillOnPageLoad).toBeUndefined();
+    expect(data.uris).toBeUndefined();
+    expect(data.fido2Credentials).toBeUndefined();
   });
 
   it("Convert from full LoginData", () => {

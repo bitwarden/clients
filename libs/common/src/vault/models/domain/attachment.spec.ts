@@ -37,6 +37,12 @@ describe("Attachment", () => {
       key: undefined,
       fileName: undefined,
     });
+    expect(data.id).toBeUndefined();
+    expect(data.url).toBeUndefined();
+    expect(data.fileName).toBeUndefined();
+    expect(data.key).toBeUndefined();
+    expect(data.size).toBeUndefined();
+    expect(data.sizeName).toBeUndefined();
   });
 
   it("Convert", () => {

@@ -75,8 +75,7 @@ export default class Domain {
     domain: DomainEncryptableKeys<D>,
     viewModel: ViewEncryptableKeys<V>,
     props: EncryptableKeys<D, V>[],
-    orgId: null,
-    key: SymmetricCryptoKey | null,
+    key: SymmetricCryptoKey | null = null,
     objectContext: string = "No Domain Context",
   ): Promise<V> {
     const encryptService = Utils.getContainerService().getEncryptService();

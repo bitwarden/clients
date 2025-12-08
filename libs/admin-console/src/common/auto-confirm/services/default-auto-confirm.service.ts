@@ -11,10 +11,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { StateProvider } from "@bitwarden/state";
 import { UserId } from "@bitwarden/user-core";
 
-import {
-  DefaultOrganizationUserService,
-  OrganizationUserApiService,
-} from "../../organization-user";
+import { OrganizationUserApiService, OrganizationUserService } from "../../organization-user";
 import { AutomaticUserConfirmationService } from "../abstractions/auto-confirm.service.abstraction";
 import { AUTO_CONFIRM_STATE, AutoConfirmState } from "../models/auto-confirm-state.model";
 
@@ -22,7 +19,7 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
   constructor(
     private configService: ConfigService,
     private apiService: ApiService,
-    private organizationUserService: DefaultOrganizationUserService,
+    private organizationUserService: OrganizationUserService,
     private stateProvider: StateProvider,
     private organizationService: InternalOrganizationServiceAbstraction,
     private organizationUserApiService: OrganizationUserApiService,

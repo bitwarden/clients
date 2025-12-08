@@ -17,9 +17,19 @@ import { setA11yTitleAndAriaLabel } from "../a11y/set-a11y-title-and-aria-label"
 import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
 import { FocusableElement } from "../shared/focusable-element";
 import { SpinnerComponent } from "../spinner";
+import { TooltipDirective } from "../tooltip";
 import { ariaDisableElement } from "../utils";
 
-export type IconButtonType = "primary" | "danger" | "contrast" | "main" | "muted" | "nav-contrast";
+export const IconButtonTypes = [
+  "primary",
+  "danger",
+  "contrast",
+  "main",
+  "muted",
+  "nav-contrast",
+] as const;
+
+export type IconButtonType = (typeof IconButtonTypes)[number];
 
 const focusRing = [
   // Workaround for box-shadow with transparent offset issue:
@@ -100,7 +110,10 @@ const sizes: Record<IconButtonSize, string[]> = {
      */
     "[attr.bitIconButton]": "icon()",
   },
-  hostDirectives: [AriaDisableDirective],
+  hostDirectives: [
+    AriaDisableDirective,
+    { directive: TooltipDirective, inputs: ["tooltipPosition"] },
+  ],
 })
 export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableElement {
   readonly icon = model.required<string>({ alias: "bitIconButton" });
@@ -109,17 +122,20 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
 
   readonly size = model<IconButtonSize>("default");
 
+  private elementRef = inject(ElementRef);
+  private tooltip = inject(TooltipDirective, { host: true, optional: true });
+
   /**
    * label input will be used to set the `aria-label` attributes on the button.
    * This is for accessibility purposes, as it provides a text alternative for the icon button.
    *
-   * NOTE: It will also be used to set the `title` attribute on the button if no `title` is provided.
+   * NOTE: It will also be used to set the content of the tooltip on the button if no `title` is provided.
    */
   readonly label = input<string>();
 
   @HostBinding("class") get classList() {
     return [
-      "tw-font-semibold",
+      "tw-font-medium",
       "tw-leading-[0px]",
       "tw-border-none",
       "tw-transition",
@@ -141,9 +157,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
       );
   }
 
-  get iconClass() {
-    return [this.icon(), "!tw-m-0"];
-  }
+  readonly iconClass = computed(() => [this.icon(), "!tw-m-0"]);
 
   protected readonly disabledAttr = computed(() => {
     const disabled = this.disabled() != null && this.disabled() !== false;
@@ -186,8 +200,6 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     return this.elementRef.nativeElement;
   }
 
-  private elementRef = inject(ElementRef);
-
   constructor() {
     const element = this.elementRef.nativeElement;
 
@@ -198,9 +210,15 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     effect(() => {
       setA11yTitleAndAriaLabel({
         element: this.elementRef.nativeElement,
-        title: originalTitle ?? this.label(),
+        title: undefined,
         label: this.label(),
       });
+
+      const tooltipContent: string = originalTitle || this.label();
+
+      if (tooltipContent) {
+        this.tooltip?.tooltipContent.set(tooltipContent);
+      }
     });
   }
 }
