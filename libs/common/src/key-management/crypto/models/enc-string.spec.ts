@@ -1,15 +1,4 @@
-import { mock } from "jest-mock-extended";
-
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { KeyService } from "@bitwarden/key-management";
-
-import { makeStaticByteArray } from "../../../../spec";
 import { EncryptionType } from "../../../platform/enums";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { ContainerService } from "../../../platform/services/container.service";
-import { UserKey } from "../../../types/key";
-import { EncryptService } from "../abstractions/encrypt.service";
 
 import { EncString } from "./enc-string";
 
@@ -75,28 +64,6 @@ describe("EncString", () => {
         const dataBytes = encString.dataBytes;
         expect(dataBytes).not.toBeNull();
         expect(dataBytes.length).toBeGreaterThan(0);
-      });
-    });
-
-    describe("decrypt", () => {
-      const encString = new EncString(EncryptionType.Rsa2048_OaepSha256_B64, "data");
-
-      const keyService = mock<KeyService>();
-      keyService.hasUserKey.mockResolvedValue(true);
-      keyService.getUserKey.mockResolvedValue(
-        new SymmetricCryptoKey(makeStaticByteArray(32)) as UserKey,
-      );
-
-      const encryptService = mock<EncryptService>();
-      encryptService.decryptString
-        .calledWith(encString, expect.anything())
-        .mockResolvedValue("decrypted");
-
-      beforeEach(() => {
-        (window as any).bitwardenContainerService = new ContainerService(
-          keyService,
-          encryptService,
-        );
       });
     });
   });
