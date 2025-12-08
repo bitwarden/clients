@@ -57,7 +57,7 @@ dataSource.data = [
 ];
 
 export default {
-  title: "Tools/Send Table",
+  title: "Tools/Sends/Send Table",
   component: SendTableComponent,
   decorators: [
     moduleMetadata({
