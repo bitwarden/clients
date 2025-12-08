@@ -4,23 +4,31 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { OrganizationId, CollectionId } from "@bitwarden/common/types/guid";
 import { UserId } from "@bitwarden/user-core";
 
-export type UserMigrationInfo = {
-  /**
-   * Whether the user requires migration of their vault items from My Vault to a My Items collection due to an
-   * organizational policy change. (Enforce organization data ownership policy enabled)
-   */
-  requiresMigration: boolean;
+export type UserMigrationInfo =
+  | {
+      /**
+       * Whether the user requires migration of their vault items from My Vault to a My Items collection due to an
+       * organizational policy change. (Enforce organization data ownership policy enabled)
+       */
+      requiresMigration: false;
+    }
+  | {
+      /**
+       * Whether the user requires migration of their vault items from My Vault to a My Items collection due to an
+       * organizational policy change. (Enforce organization data ownership policy enabled)
+       */
+      requiresMigration: true;
 
-  /**
-   * The organization that is enforcing data ownership policies for the given user, if any.
-   */
-  enforcingOrganization?: Organization;
+      /**
+       * The organization that is enforcing data ownership policies for the given user.
+       */
+      enforcingOrganization: Organization;
 
-  /**
-   * The default collection ID for the user in the enforcing organization, if available.
-   */
-  defaultCollectionId?: CollectionId;
-};
+      /**
+       * The default collection ID for the user in the enforcing organization, if available.
+       */
+      defaultCollectionId?: CollectionId;
+    };
 
 export abstract class VaultItemsTransferService {
   /**

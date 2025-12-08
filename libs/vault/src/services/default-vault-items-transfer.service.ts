@@ -77,7 +77,7 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
     return this.enforcingOrganization$(userId).pipe(
       switchMap((enforcingOrganization) => {
         if (enforcingOrganization == null) {
-          return of({
+          return of<UserMigrationInfo>({
             requiresMigration: false,
           });
         }
@@ -85,11 +85,13 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
           this.personalCiphers$(userId),
           this.defaultUserCollection$(userId, enforcingOrganization.id),
         ]).pipe(
-          map(([personalCiphers, defaultCollectionId]) => ({
-            requiresMigration: personalCiphers.length > 0,
-            enforcingOrganization: enforcingOrganization,
-            defaultCollectionId: defaultCollectionId,
-          })),
+          map(([personalCiphers, defaultCollectionId]): UserMigrationInfo => {
+            return {
+              requiresMigration: personalCiphers.length > 0,
+              enforcingOrganization,
+              defaultCollectionId,
+            };
+          }),
         );
       }),
     );
@@ -134,7 +136,7 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
     try {
       await this.transferPersonalItems(
         userId,
-        migrationInfo.enforcingOrganization!.id,
+        migrationInfo.enforcingOrganization.id,
         migrationInfo.defaultCollectionId,
       );
       this.toastService.showToast({
