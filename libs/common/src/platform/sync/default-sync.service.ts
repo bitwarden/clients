@@ -246,12 +246,10 @@ export class DefaultSyncService extends CoreSyncService {
         response.id,
       );
 
-      if (response.accountKeys.signatureKeyPair !== null) {
-        // User is V2 user
-        await this.keyService.setPrivateKey(
-          response.accountKeys.publicKeyEncryptionKeyPair.wrappedPrivateKey,
-          response.id,
-        );
+      // V1 and V2 users
+      await this.keyService.setPrivateKey(response.privateKey, response.id);
+      // V2 users only
+      if (response.accountKeys.isV2Encryption()) {
         await this.keyService.setUserSigningKey(
           response.accountKeys.signatureKeyPair.wrappedSigningKey,
           response.id,

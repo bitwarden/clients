@@ -77,4 +77,8 @@ export class PrivateKeysResponseModel {
       throw new Error("Both signatureKeyPair and securityState must be present or absent together");
     }
   }
+
+  isV2Encryption(): boolean {
+    return this.signatureKeyPair !== null && this.securityState !== null;
+  }
 }
