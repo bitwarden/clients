@@ -559,6 +559,109 @@ describe("MemberActionsService", () => {
         );
       });
 
+      it("should separate successful and failed users within a single batch based on individual errors", async () => {
+        const userIdsBatch = [newGuid() as UserId, newGuid() as UserId, newGuid() as UserId];
+        const individualErrorMessage = "User already invited";
+
+        const mockResponse = new ListResponse(
+          {
+            data: [
+              { id: userIdsBatch[0], error: null },
+              { id: userIdsBatch[1], error: individualErrorMessage },
+              { id: userIdsBatch[2], error: null },
+            ],
+            continuationToken: null,
+          },
+          OrganizationUserBulkResponse,
+        );
+
+        organizationUserApiService.postManyOrganizationUserReinvite.mockResolvedValue(mockResponse);
+
+        const result = await service.bulkReinvite(mockOrganization, userIdsBatch);
+
+        expect(result.successful).toBeDefined();
+        expect(result.successful?.response).toHaveLength(2);
+        expect(result.successful?.response[0].id).toBe(userIdsBatch[0]);
+        expect(result.successful?.response[1].id).toBe(userIdsBatch[2]);
+        expect(result.failed).toHaveLength(1);
+        expect(result.failed[0]).toEqual({ id: userIdsBatch[1], error: individualErrorMessage });
+      });
+
+      it("should handle mixed individual errors across multiple batches", async () => {
+        const totalUsers = BATCH_SIZE + 4;
+        const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
+
+        const mockResponse1 = new ListResponse(
+          {
+            data: userIdsBatch.slice(0, BATCH_SIZE).map((id, index) => ({
+              id,
+              error: index % 10 === 0 ? "Rate limit exceeded" : null,
+            })),
+            continuationToken: null,
+          },
+          OrganizationUserBulkResponse,
+        );
+
+        const mockResponse2 = new ListResponse(
+          {
+            data: [
+              { id: userIdsBatch[BATCH_SIZE], error: null },
+              { id: userIdsBatch[BATCH_SIZE + 1], error: "Invalid email" },
+              { id: userIdsBatch[BATCH_SIZE + 2], error: null },
+              { id: userIdsBatch[BATCH_SIZE + 3], error: "User suspended" },
+            ],
+            continuationToken: null,
+          },
+          OrganizationUserBulkResponse,
+        );
+
+        organizationUserApiService.postManyOrganizationUserReinvite
+          .mockResolvedValueOnce(mockResponse1)
+          .mockResolvedValueOnce(mockResponse2);
+
+        const result = await service.bulkReinvite(mockOrganization, userIdsBatch);
+
+        // Count expected failures: every 10th index (0, 10, 20, ..., 490) in first batch + 2 explicit in second batch
+        // Indices 0 to BATCH_SIZE-1 where index % 10 === 0: that's floor((BATCH_SIZE-1)/10) + 1 values
+        const expectedFailuresInBatch1 = Math.floor((BATCH_SIZE - 1) / 10) + 1;
+        const expectedFailuresInBatch2 = 2;
+        const expectedTotalFailures = expectedFailuresInBatch1 + expectedFailuresInBatch2;
+        const expectedSuccesses = totalUsers - expectedTotalFailures;
+
+        expect(result.successful).toBeDefined();
+        expect(result.successful?.response).toHaveLength(expectedSuccesses);
+        expect(result.failed).toHaveLength(expectedTotalFailures);
+        expect(result.failed.some((f) => f.error === "Rate limit exceeded")).toBe(true);
+        expect(result.failed.some((f) => f.error === "Invalid email")).toBe(true);
+        expect(result.failed.some((f) => f.error === "User suspended")).toBe(true);
+      });
+
+      it("should handle all users failing with individual errors in a successful batch response", async () => {
+        const userIdsBatch = [newGuid() as UserId, newGuid() as UserId, newGuid() as UserId];
+
+        const mockResponse = new ListResponse(
+          {
+            data: [
+              { id: userIdsBatch[0], error: "User not found" },
+              { id: userIdsBatch[1], error: "Permission denied" },
+              { id: userIdsBatch[2], error: "Invalid state" },
+            ],
+            continuationToken: null,
+          },
+          OrganizationUserBulkResponse,
+        );
+
+        organizationUserApiService.postManyOrganizationUserReinvite.mockResolvedValue(mockResponse);
+
+        const result = await service.bulkReinvite(mockOrganization, userIdsBatch);
+
+        expect(result.successful).toBeUndefined();
+        expect(result.failed).toHaveLength(3);
+        expect(result.failed[0]).toEqual({ id: userIdsBatch[0], error: "User not found" });
+        expect(result.failed[1]).toEqual({ id: userIdsBatch[1], error: "Permission denied" });
+        expect(result.failed[2]).toEqual({ id: userIdsBatch[2], error: "Invalid state" });
+      });
+
       it("should aggregate all failures when all batches fail", async () => {
         const totalUsers = BATCH_SIZE + 100;
         const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);

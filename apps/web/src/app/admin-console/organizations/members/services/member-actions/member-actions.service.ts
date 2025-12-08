@@ -187,7 +187,13 @@ export class MemberActionsService {
         const result = await processBatch(batch);
 
         if (result?.data) {
-          allSuccessful.push(...result.data);
+          for (const response of result.data) {
+            if (response.error) {
+              allFailed.push({ id: response.id, error: response.error });
+            } else {
+              allSuccessful.push(response);
+            }
+          }
         }
       } catch (error) {
         allFailed.push(
@@ -207,12 +213,12 @@ export class MemberActionsService {
     };
   }
 
-  async bulkReinvite(organization: Organization, userIds: string[]): Promise<BulkActionResult> {
+  async bulkReinvite(organization: Organization, userIds: UserId[]): Promise<BulkActionResult> {
     const increaseBulkReinviteLimitForCloud = await firstValueFrom(
       this.configService.getFeatureFlag$(FeatureFlag.IncreaseBulkReinviteLimitForCloud),
     );
     if (increaseBulkReinviteLimitForCloud) {
-      return await this.vNextBulkReinvite(organization, userIds as UserId[]);
+      return await this.vNextBulkReinvite(organization, userIds);
     } else {
       try {
         const result = await this.organizationUserApiService.postManyOrganizationUserReinvite(
