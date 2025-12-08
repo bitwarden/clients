@@ -127,7 +127,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
       map((premiumPrices) => ({
         id: PersonalSubscriptionPricingTierIds.Premium,
         name: this.i18nService.t("premium"),
-        description: this.i18nService.t("planDescPremium"),
+        description: this.i18nService.t("advancedOnlineSecurity"),
         availableCadences: [SubscriptionCadenceIds.Annually],
         passwordManager: {
           type: "standalone",
