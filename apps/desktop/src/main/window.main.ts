@@ -229,6 +229,8 @@ export class WindowMain {
   // TODO: REMOVE ONCE WE CAN STOP USING FAKE POP UP BTN FROM TRAY
   // Only used for development
   async loadUrl(targetPath: string, modal: boolean = false) {
+    this.logService.info(`Loading url: ${targetPath} in modal mode: ${modal}`);
+
     if (this.win == null || this.win.isDestroyed()) {
       await this.createWindow("modal-app");
       return;
@@ -250,9 +252,37 @@ export class WindowMain {
         userAgent: cleanUserAgent(this.win.webContents.userAgent),
       },
     );
+
+    let shownWindow = false;
+
     this.win.once("ready-to-show", () => {
+      this.logService.info(`Url loaded: ${targetPath}. Showing window. ${shownWindow}`);
+      if (shownWindow) {
+        return;
+      }
+      shownWindow = true;
       this.win.show();
     });
+
+    // The `ready-to-show` event doesn't always fire on wayland.
+    // Use the `did-finish-load` event on the web contents instead as that is similar enough
+    // https://github.com/electron/electron/issues/48859
+
+    if (process.env.ENABLE_LINUX_WORKAROUND === "1") {
+      this.logService.info(
+        `Using linux workaround to show window on did-finish-load event for url: ${targetPath}`,
+      );
+      this.win.webContents.once("did-finish-load", () => {
+        this.logService.info(
+          `Using did-finish-load event to show ${targetPath} on linux. Showing window. ${shownWindow}`,
+        );
+        if (shownWindow) {
+          return;
+        }
+        shownWindow = true;
+        this.win.show();
+      });
+    }
   }
 
   /**
