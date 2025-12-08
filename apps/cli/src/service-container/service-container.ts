@@ -668,6 +668,7 @@ export class ServiceContainer {
       this.apiService,
       this.stateProvider,
       this.configService,
+      this.logService,
       customUserAgent,
     );
 

@@ -1,7 +1,9 @@
-import { init_sdk } from "@bitwarden/sdk-internal";
+import { init_sdk, LogLevel } from "@bitwarden/sdk-internal";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used in docs
 import type { SdkService } from "./sdk.service";
+
+type PromiseWithGetters<T> = Promise<T> & { value?: T; requiredValue: T };
 
 export class SdkLoadFailedError extends Error {
   constructor(error: unknown) {
@@ -34,6 +36,36 @@ export abstract class SdkLoadService {
   });
 
   /**
+   * Helper to run a function after the SDK is ready.
+   * @param fn The function to run after the SDK is ready.
+   * @returns The result of the function.
+   */
+  static readonly WithSdk = <T>(fn: () => T | Promise<T>): PromiseWithGetters<T> => {
+    let value: T | undefined = undefined;
+    const promise = SdkLoadService.Ready.then(() => fn()).then((result) => {
+      value = result;
+      return result;
+    });
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    Object.defineProperty(promise, "value", {
+      get() {
+        return value;
+      },
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    Object.defineProperty(promise, "requiredValue", {
+      get() {
+        if (value === undefined) {
+          throw new Error("SDK is not loaded yet");
+        }
+        return value;
+      },
+    });
+    return promise as PromiseWithGetters<T>;
+  };
+
+  /**
    * Load WASM and initalize SDK-JS integrations such as logging.
    * This method should be called once at the start of the application.
    * Raw functions and classes from the SDK can be used after this method resolves.
@@ -41,7 +73,7 @@ export abstract class SdkLoadService {
   async loadAndInit(): Promise<void> {
     try {
       await this.load();
-      init_sdk();
+      init_sdk(LogLevel.Debug);
       SdkLoadService.markAsReady();
     } catch (error) {
       SdkLoadService.markAsFailed(error);

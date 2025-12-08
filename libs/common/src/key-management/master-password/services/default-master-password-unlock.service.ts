@@ -3,14 +3,61 @@ import { firstValueFrom } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
-import { isCryptoError } from "@bitwarden/sdk-internal";
+import {
+  EventDefinition,
+  FieldValue,
+  isCryptoError,
+  SpanDefinition,
+  TracingLevel,
+} from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
+import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { HashPurpose } from "../../../platform/enums";
 import { UserKey } from "../../../types/key";
 import { MasterPasswordUnlockService } from "../abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
 import { MasterPasswordUnlockData } from "../types/master-password.types";
+
+const UnlockWithMasterPasswordSpan = SdkLoadService.WithSdk(
+  () =>
+    new SpanDefinition(
+      "unlockWithMasterPassword",
+      "DefaultMasterPasswordUnlockService",
+      TracingLevel.Info,
+      ["userId"],
+    ),
+);
+
+const InputValidatedEvent = SdkLoadService.WithSdk(
+  () =>
+    new EventDefinition(
+      "inputValidated",
+      "DefaultMasterPasswordUnlockService",
+      TracingLevel.Debug,
+      [],
+    ),
+);
+
+const UserKeyUnwrappedEvent = SdkLoadService.WithSdk(
+  () =>
+    new EventDefinition(
+      "userKeyUnwrapped",
+      "DefaultMasterPasswordUnlockService",
+      TracingLevel.Debug,
+      [],
+    ),
+);
+
+const LegacyStateSetEvent = SdkLoadService.WithSdk(
+  () =>
+    new EventDefinition(
+      "legacyStateSet",
+      "DefaultMasterPasswordUnlockService",
+      TracingLevel.Debug,
+      [],
+    ),
+);
 
 export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockService {
   constructor(
@@ -20,7 +67,12 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
   ) {}
 
   async unlockWithMasterPassword(masterPassword: string, userId: UserId): Promise<UserKey> {
+    using span = (await UnlockWithMasterPasswordSpan).enter([new FieldValue("userId", userId)]);
+    // eslint-disable-next-line no-console
+    console.log("DefaultMasterPasswordUnlockService: unlockWithMasterPassword called");
+
     this.validateInput(masterPassword, userId);
+    span.event(await InputValidatedEvent, "Input validated");
 
     const masterPasswordUnlockData = await firstValueFrom(
       this.masterPasswordService.masterPasswordUnlockData$(userId),
@@ -34,8 +86,10 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
       masterPassword,
       masterPasswordUnlockData,
     );
+    span.event(await UserKeyUnwrappedEvent, "User key unwrapped");
 
     await this.setLegacyState(masterPassword, masterPasswordUnlockData, userId);
+    span.event(await LegacyStateSetEvent, "Legacy state set");
 
     return userKey;
   }
