@@ -5,7 +5,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { I18nMockService } from "../utils";
 
-import { BitIconButtonComponent } from "./icon-button.component";
+import { BitIconButtonComponent, IconButtonTypes } from "./icon-button.component";
 
 export default {
   title: "Component Library/Icon Button",
@@ -30,7 +30,7 @@ export default {
   },
   argTypes: {
     buttonType: {
-      options: ["primary", "secondary", "danger", "unstyled", "contrast", "main", "muted", "light"],
+      options: IconButtonTypes,
     },
   },
   parameters: {

@@ -335,9 +335,14 @@ export class DesktopSettingsService {
    * Sets the modal mode of the application. Setting this changes the windows-size and other properties.
    * @param value `true` if the application is in modal mode, `false` if it is not.
    */
-  async setModalMode(value: boolean, modalPosition?: { x: number; y: number }) {
+  async setModalMode(
+    value: boolean,
+    showTrafficButtons?: boolean,
+    modalPosition?: { x: number; y: number },
+  ) {
     await this.modalModeState.update(() => ({
       isModalModeActive: value,
+      showTrafficButtons,
       modalPosition,
     }));
   }
