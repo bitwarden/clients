@@ -101,7 +101,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
       take(1),
       switchMap((environment) =>
         !environment.isCloud()
-          ? of({ data: [] } as ListResponse<PlanResponse>)
+          ? of({ data: [] } as unknown as ListResponse<PlanResponse>)
           : from(this.billingApiService.getPlans()),
       ),
       shareReplay({ bufferSize: 1, refCount: false }),
@@ -112,7 +112,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
       take(1),
       switchMap((environment) =>
         !environment.isCloud()
-          ? of({ seat: undefined, storage: undefined } as PremiumPlanResponse)
+          ? of({ seat: undefined, storage: undefined } as unknown as PremiumPlanResponse)
           : from(this.billingApiService.getPremiumPlan()).pipe(
               catchError((error: unknown) => {
                 this.logService.error("Failed to fetch premium plan from API", error);
