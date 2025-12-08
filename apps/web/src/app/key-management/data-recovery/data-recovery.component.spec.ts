@@ -99,11 +99,11 @@ describe("DataRecoveryComponent", () => {
     it("should initialize steps in correct order", () => {
       const steps = component.steps();
       expect(steps.length).toBe(5);
-      expect(steps[0].title).toBe("recoveryStepUserInfoTitle");
-      expect(steps[1].title).toBe("recoveryStepSyncTitle");
-      expect(steps[2].title).toBe("recoveryStepPrivateKeyTitle");
-      expect(steps[3].title).toBe("recoveryStepFoldersTitle");
-      expect(steps[4].title).toBe("recoveryStepCipherTitle");
+      expect(steps[0].title).toBe("recoveryStepUserInfoTitle_used-i18n");
+      expect(steps[1].title).toBe("recoveryStepSyncTitle_used-i18n");
+      expect(steps[2].title).toBe("recoveryStepPrivateKeyTitle_used-i18n");
+      expect(steps[3].title).toBe("recoveryStepFoldersTitle_used-i18n");
+      expect(steps[4].title).toBe("recoveryStepCipherTitle_used-i18n");
     });
   });
 
