@@ -162,6 +162,17 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     admin?: boolean,
   ): Promise<Cipher>;
   /**
+   * Upgrade all old attachments for a cipher by downloading, decrypting, re-uploading with new key, and deleting old.
+   * @param cipher - The cipher with old attachments to upgrade
+   * @param userId - The user ID
+   * @param attachmentId - If provided, only upgrade the attachment with this ID
+   */
+  abstract upgradeOldCipherAttachments(
+    cipher: CipherView,
+    userId: UserId,
+    attachmentId?: string,
+  ): Promise<CipherView>;
+  /**
    * Save the collections for a cipher with the server
    *
    * @param cipher The cipher to save collections for
@@ -274,7 +285,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     response: Response,
     userId: UserId,
     useLegacyDecryption?: boolean,
-  ): Promise<Uint8Array | null>;
+  ): Promise<Uint8Array>;
 
   /**
    * Decrypts the full `CipherView` for a given `CipherViewLike`.
