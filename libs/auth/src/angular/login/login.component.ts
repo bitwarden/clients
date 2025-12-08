@@ -385,7 +385,11 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (authResult.requiresSso) {
       const email = this.formGroup.value.email;
       if (!email) {
-        this.logService.error("Email is required for SSO");
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("emailRequiredForSsoLogin"),
+        });
         return;
       }
       await this.loginComponentService.redirectToSsoLoginWithOrganizationSsoIdentifier(

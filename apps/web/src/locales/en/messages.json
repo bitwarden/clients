@@ -3060,7 +3060,7 @@
     "message": "Upgrade your account to a Premium membership and unlock some great additional features."
   },
   "premiumSignUpStorage": {
-    "message": "1 GB encrypted storage for file attachments."  
+    "message": "1 GB encrypted storage for file attachments."
   },
   "premiumSignUpStorageV2": {
     "message": "$SIZE$ encrypted storage for file attachments.",
@@ -9451,6 +9451,9 @@
   },
   "ssoLoginIsRequired": {
     "message": "SSO login is required"
+  },
+  "emailRequiredForSsoLogin": {
+    "message": "Email is required for SSO"
   },
   "selectedRegionFlag": {
     "message": "Selected region flag"
