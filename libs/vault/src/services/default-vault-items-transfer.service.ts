@@ -10,6 +10,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -47,9 +48,7 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
         if (policy == null) {
           return of(undefined);
         }
-        return this.organizationService
-          .organizations$(userId)
-          .pipe(map((orgs) => orgs.find((o) => policy.organizationId === o.id)));
+        return this.organizationService.organizations$(userId).pipe(getById(policy.organizationId));
       }),
     );
   }
