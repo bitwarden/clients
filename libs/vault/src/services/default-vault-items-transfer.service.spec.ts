@@ -633,7 +633,7 @@ describe("DefaultVaultItemsTransferService", () => {
 
       expect(mockDialogService.openSimpleDialog).toHaveBeenCalledWith({
         title: "Requires migration",
-        content: "You vault requires migration of personal items to your organization.",
+        content: "Your vault requires migration of personal items to your organization.",
         type: "warning",
       });
     });
@@ -685,7 +685,7 @@ describe("DefaultVaultItemsTransferService", () => {
       );
       expect(mockToastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        message: "Items transferred",
+        message: "itemsTransferred",
       });
     });
 
