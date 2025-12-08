@@ -1406,6 +1406,27 @@
   "learnMore": {
     "message": "Saiba mais"
   },
+  "migrationsFailed": {
+    "message": "Ocorreu um erro ao atualizar as configurações de criptografia."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Atualize suas configurações de criptografia"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "As novas configurações de criptografia recomendadas melhorarão a segurança da sua conta. Digite sua senha principal para atualizar agora."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirme sua identidade para continuar"
+  },
+  "enterYourMasterPassword": {
+    "message": "Digite sua senha principal"
+  },
+  "updateSettings": {
+    "message": "Atualizar configurações"
+  },
+  "later": {
+    "message": "Depois"
+  },
   "authenticatorKeyTotp": {
     "message": "Chave do autenticador (TOTP)"
   },
@@ -1474,6 +1495,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1 GB de armazenamento criptografado para anexo de arquivos."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ de armazenamento criptografado para anexos de arquivo.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Acesso de emergência."
