@@ -1,8 +1,8 @@
 import { Observable } from "rxjs";
 
-import { UserId } from "@bitwarden/common/types/guid";
 import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 import { CRYPTO_DISK, StateProvider, UserKeyDefinition } from "@bitwarden/state";
+import { UserId } from "@bitwarden/user-core";
 
 import { AccountCryptographicStateService } from "./account-cryptographic-state.service";
 

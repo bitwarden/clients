@@ -1,4 +1,3 @@
-import { PrivateKeysResponseModel } from "@bitwarden/common/key-management/keys/response/private-keys.response";
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -6,6 +5,7 @@ import { PrivateKeysResponseModel } from "@bitwarden/common/key-management/keys/
 import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { PrivateKeysResponseModel } from "../../../key-management/keys/response/private-keys.response";
 import { BaseResponse } from "../../../models/response/base.response";
 
 import { MasterPasswordPolicyResponse } from "./master-password-policy.response";
