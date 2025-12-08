@@ -24,11 +24,8 @@ import { I18nPipe } from "@bitwarden/ui-common";
 })
 export class SendFiltersNavComponent {
   protected readonly SendType = SendType;
-
   private readonly filtersService = inject(SendListFiltersService);
   private readonly router = inject(Router);
-
-  // Convert filters$ observable to signal for reactive updates
   private readonly currentFilter = toSignal(this.filtersService.filters$);
 
   // Track whether current route is the send route

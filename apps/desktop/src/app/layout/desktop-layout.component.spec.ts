@@ -6,6 +6,8 @@ import { mock } from "jest-mock-extended";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { NavigationModule } from "@bitwarden/components";
 
+import { SendFiltersNavComponent } from "../tools/send-v2/send-filters-nav.component";
+
 import { DesktopLayoutComponent } from "./desktop-layout.component";
 
 // Mock the child component to isolate DesktopLayoutComponent testing
@@ -36,19 +38,19 @@ describe("DesktopLayoutComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        DesktopLayoutComponent,
-        MockSendFiltersNavComponent,
-        RouterModule.forRoot([]),
-        NavigationModule,
-      ],
+      imports: [DesktopLayoutComponent, RouterModule.forRoot([]), NavigationModule],
       providers: [
         {
           provide: I18nService,
           useValue: mock<I18nService>(),
         },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(DesktopLayoutComponent, {
+        remove: { imports: [SendFiltersNavComponent] },
+        add: { imports: [MockSendFiltersNavComponent] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(DesktopLayoutComponent);
     component = fixture.componentInstance;
