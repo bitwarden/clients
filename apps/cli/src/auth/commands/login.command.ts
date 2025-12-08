@@ -228,6 +228,29 @@ export class LoginCommand {
             twoFactor,
           ),
         );
+
+        const userDecryptionOptions = await firstValueFrom(
+          this.userDecryptionOptionsService.userDecryptionOptionsById$(response.userId),
+        );
+
+        const notUsingTrustedDeviceEncryption = !userDecryptionOptions.trustedDeviceOption;
+        const notUsingKeyConnector = !userDecryptionOptions.keyConnectorOption;
+
+        if (
+          notUsingTrustedDeviceEncryption &&
+          notUsingKeyConnector &&
+          !userDecryptionOptions.hasMasterPassword
+        ) {
+          // If user is in an org that is using MP encryption and they JIT provisioned but
+          // have not yet set a MP and come to the CLI to login, they won't be able to unlock
+          // or set a MP in the CLI as it isn't supported. So, they must go to the web
+          // to finish setting a MP.
+          await this.logoutCallback();
+          return Response.error(
+            "In order to log in with SSO from the CLI, you must first log in" +
+              " through the web vault, the desktop, or the extension to set your master password.",
+          );
+        }
       } else {
         response = await this.loginStrategyService.logIn(
           new PasswordLoginCredentials(email, password, twoFactor),
@@ -328,17 +351,6 @@ export class LoginCommand {
 
       if (response.requiresTwoFactor) {
         return Response.error("Login failed.");
-      }
-
-      const userDecryptionOptions = await firstValueFrom(
-        this.userDecryptionOptionsService.userDecryptionOptionsById$(response.userId),
-      );
-
-      if (!userDecryptionOptions.hasMasterPassword) {
-        return Response.error(
-          "In order to log in with SSO from the CLI, you must first log in" +
-            " through the web vault to set your master password.",
-        );
       }
 
       // Check if Key Connector domain confirmation is required
