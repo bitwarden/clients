@@ -3060,7 +3060,16 @@
     "message": "将您的账户升级为高级会员，将解锁一些强大的附加功能。"
   },
   "premiumSignUpStorage": {
-    "message": "1 GB 文件附件加密存储。"
+    "message": "1 GB 文件附件加密存储空间。"
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ 文件附件加密存储空间。",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "专有的两步登录选项，如 YubiKey 和 Duo。"
@@ -3123,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "additionalStorageGb": {
     "message": "附加存储 (GB)"
@@ -3350,7 +3368,7 @@
     "message": "GB 存储空间将增加"
   },
   "gbStorageRemove": {
-    "message": "GB 存储空间将删除"
+    "message": "GB 存储空间将移除"
   },
   "storageAddNote": {
     "message": "添加存储空间将会调整计费总金额，并立即通过您的付款方式进行扣款。第一笔费用将按当前计费周期的剩余时间按比例分配。"
@@ -3541,7 +3559,7 @@
     "message": "创建不限数量的集合"
   },
   "gbEncryptedFileStorage": {
-    "message": "$SIZE$ 加密文件存储",
+    "message": "$SIZE$ 加密文件存储空间",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -4607,6 +4625,24 @@
   },
   "learnMore": {
     "message": "进一步了解"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "更新设置"
   },
   "deleteRecoverDesc": {
     "message": "请在下面输入您的电子邮箱地址以恢复和删除您的账户。"
@@ -12092,9 +12128,6 @@
   },
   "updateYourEncryptionSettings": {
     "message": "更新您的加密设置"
-  },
-  "updateSettings": {
-    "message": "更新设置"
   },
   "algorithm": {
     "message": "算法"

@@ -63,6 +63,7 @@ export enum FeatureFlag {
   AutofillConfirmation = "pm-25083-autofill-confirm-from-search",
   RiskInsightsForPremium = "pm-23904-risk-insights-for-premium",
   VaultLoadingSkeletons = "pm-25081-vault-skeleton-loaders",
+  BrowserPremiumSpotlight = "pm-23384-browser-premium-spotlight",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -121,6 +122,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AutofillConfirmation]: FALSE,
   [FeatureFlag.RiskInsightsForPremium]: FALSE,
   [FeatureFlag.VaultLoadingSkeletons]: FALSE,
+  [FeatureFlag.BrowserPremiumSpotlight]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
