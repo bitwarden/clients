@@ -10,7 +10,7 @@ export const ACCOUNT_CRYPTOGRAPHIC_STATE = new UserKeyDefinition<WrappedAccountC
   CRYPTO_DISK,
   "accountCryptographicState",
   {
-    deserializer: (obj) => obj,
+    deserializer: (obj) => obj as WrappedAccountCryptographicState,
     clearOn: ["logout"],
   },
 );
