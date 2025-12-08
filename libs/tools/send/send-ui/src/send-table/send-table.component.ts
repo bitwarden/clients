@@ -16,8 +16,7 @@ import {
 } from "@bitwarden/components";
 
 /**
- * A reusable table component for displaying Send items with sorting, status indicators,
- * and action menus. Handles the presentation of sends in a tabular format with options
+ * A table component for displaying Send items with sorting, status indicators, and action menus. Handles the presentation of sends in a tabular format with options
  * for editing, copying links, removing passwords, and deleting.
  */
 @Component({
@@ -41,7 +40,6 @@ export class SendTableComponent {
 
   /**
    * The data source containing the Send items to display in the table.
-   * Provides sorting, filtering, and pagination capabilities through TableDataSource.
    */
   readonly dataSource = input<TableDataSource<SendView>>();
 
