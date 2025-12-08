@@ -11,9 +11,6 @@ import {
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
@@ -30,6 +27,8 @@ import { TokenService } from "../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
+import { AccountCryptographicStateService } from "../../key-management/account-cryptography/account-cryptographic-state.service";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
 import {
@@ -37,6 +36,7 @@ import {
   MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "../../key-management/master-password/types/master-password.types";
+import { SecurityStateService } from "../../key-management/security-state/abstractions/security-state.service";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
 import { UserId } from "../../types/guid";
