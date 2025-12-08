@@ -15,6 +15,8 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId, CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -40,6 +42,7 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
     private i18nService: I18nService,
     private dialogService: DialogService,
     private toastService: ToastService,
+    private configService: ConfigService,
   ) {}
 
   private enforcingOrganization$(userId: UserId): Observable<Organization | undefined> {
@@ -103,8 +106,11 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
 
   async enforceOrganizationDataOwnership(userId: UserId): Promise<void> {
     const migrationInfo = await firstValueFrom(this.userMigrationInfo$(userId));
+    const featureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.MigrateMyVaultToMyItems,
+    );
 
-    if (!migrationInfo.requiresMigration) {
+    if (!featureEnabled || !migrationInfo.requiresMigration) {
       return;
     }
 
@@ -212,13 +218,13 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
             this.logService.error(
               `Attachment upgrade did not complete successfully for cipher ${cipher.id} during transfer to organization ${organizationId} for user ${userId}`,
             );
-            throw new Error(`Failed to upgrade old attachments for cipher ${cipher.name}`);
+            throw new Error(`Failed to upgrade old attachments for cipher ${cipher.id}`);
           }
         } catch (e) {
           this.logService.error(
             `Failed to upgrade old attachments for cipher ${cipher.id} during transfer to organization ${organizationId} for user ${userId}: ${e}`,
           );
-          throw new Error(`Failed to upgrade old attachments for cipher ${cipher.name}`);
+          throw new Error(`Failed to upgrade old attachments for cipher ${cipher.id}`);
         }
       }
     }
