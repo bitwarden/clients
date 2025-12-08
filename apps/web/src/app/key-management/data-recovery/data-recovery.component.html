@@ -1,0 +1,75 @@
+<h2 class="tw-mt-6 tw-mb-2 tw-pb-2.5">{{ "dataRecoveryTitle" | i18n }}</h2>
+
+<div class="tw-max-w-lg">
+  <p bitTypography="body1" class="tw-mb-4">
+    {{ "dataRecoveryDescription" | i18n }}
+  </p>
+
+  @if (!diagnosticsCompleted() && !recoveryCompleted()) {
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      [bitAction]="runDiagnostics"
+      class="tw-mb-6"
+    >
+      {{ "runDiagnostics" | i18n }}
+    </button>
+  }
+
+  <div class="tw-space-y-3 tw-mb-6">
+    @for (step of steps(); track $index) {
+      @if (
+        ($index === 0 && hasStarted()) ||
+        ($index > 0 &&
+          (steps()[$index - 1].status === StepStatus.Completed ||
+            steps()[$index - 1].status === StepStatus.Failed))
+      ) {
+        <div class="tw-flex tw-items-start tw-gap-3">
+          <div class="tw-mt-1">
+            @if (step.status === StepStatus.Failed) {
+              <i class="bwi bwi-close tw-text-danger" aria-hidden="true"></i>
+            } @else if (step.status === StepStatus.Completed) {
+              <i class="bwi bwi-check tw-text-success" aria-hidden="true"></i>
+            } @else if (step.status === StepStatus.InProgress) {
+              <i class="bwi bwi-spinner bwi-spin tw-text-primary-600" aria-hidden="true"></i>
+            } @else {
+              <i class="bwi bwi-circle tw-text-secondary-300" aria-hidden="true"></i>
+            }
+          </div>
+          <div>
+            <span
+              [class.tw-text-danger]="step.status === StepStatus.Failed"
+              [class.tw-text-success]="step.status === StepStatus.Completed"
+              [class.tw-text-primary-600]="step.status === StepStatus.InProgress"
+              [class.tw-font-semibold]="step.status === StepStatus.InProgress"
+              [class.tw-text-secondary-500]="step.status === StepStatus.NotStarted"
+            >
+              {{ step.title }}
+            </span>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  @if (diagnosticsCompleted()) {
+    <div class="tw-flex tw-gap-3">
+      @if (hasIssues() && !recoveryCompleted()) {
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          [disabled]="status() === StepStatus.InProgress"
+          [bitAction]="runRecovery"
+        >
+          {{ "repairIssues" | i18n }}
+        </button>
+      }
+      <button type="button" bitButton buttonType="secondary" (click)="saveDiagnosticLogs()">
+        <i class="bwi bwi-download" aria-hidden="true"></i>
+        {{ "saveDiagnosticLogs" | i18n }}
+      </button>
+    </div>
+  }
+</div>
