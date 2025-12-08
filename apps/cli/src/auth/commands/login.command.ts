@@ -243,8 +243,7 @@ export class LoginCommand {
         ) {
           // If user is in an org that is using MP encryption and they JIT provisioned but
           // have not yet set a MP and come to the CLI to login, they won't be able to unlock
-          // or set a MP in the CLI as it isn't supported. So, they must go to the web
-          // to finish setting a MP.
+          // or set a MP in the CLI as it isn't supported.
           await this.logoutCallback();
           return Response.error(
             "In order to log in with SSO from the CLI, you must first log in" +
