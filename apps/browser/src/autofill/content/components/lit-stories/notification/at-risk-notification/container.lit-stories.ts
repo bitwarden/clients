@@ -2,6 +2,8 @@ import { Meta, StoryObj } from "@storybook/web-components";
 
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 
+import { NotificationTypes } from "../../../../../notification/abstractions/notification-bar";
+import { getNotificationTestId } from "../../../../../notification/bar";
 import {
   AtRiskNotification,
   AtRiskNotificationProps,
@@ -30,8 +32,10 @@ export default {
   },
 } as Meta<AtRiskNotificationProps>;
 
-const Template = (args: AtRiskNotificationProps) => AtRiskNotification({ ...args });
-
+const Template = (args: AtRiskNotificationProps) => {
+  const notificationTestId = getNotificationTestId(NotificationTypes.AtRiskPassword);
+  return AtRiskNotification({ ...args, notificationTestId });
+};
 export const Default: StoryObj<AtRiskNotificationProps> = {
   render: Template,
 };

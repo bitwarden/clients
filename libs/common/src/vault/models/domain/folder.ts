@@ -39,8 +39,8 @@ export class Folder extends Domain {
     this.revisionDate = obj.revisionDate != null ? new Date(obj.revisionDate) : null;
   }
 
-  decrypt(): Promise<FolderView> {
-    return this.decryptObj<Folder, FolderView>(this, new FolderView(this), ["name"], null);
+  decrypt(key: SymmetricCryptoKey): Promise<FolderView> {
+    return this.decryptObj<Folder, FolderView>(this, new FolderView(this), ["name"], key);
   }
 
   async decryptWithKey(
@@ -50,7 +50,14 @@ export class Folder extends Domain {
     const folderView = new FolderView();
     folderView.id = this.id;
     folderView.revisionDate = this.revisionDate;
-    folderView.name = await encryptService.decryptString(this.name, key);
+    try {
+      folderView.name = await encryptService.decryptString(this.name, key);
+    } catch (e) {
+      // Note: This should be replaced by the owning team with appropriate, domain-specific behavior.
+      // eslint-disable-next-line no-console
+      console.error("[Folder] Error decrypting folder", e);
+      throw e;
+    }
     return folderView;
   }
 

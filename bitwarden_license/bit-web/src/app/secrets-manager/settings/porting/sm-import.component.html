@@ -3,7 +3,7 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit" class="tw-max-w-xl">
   <bit-form-field>
     <bit-label>{{ "fileUpload" | i18n }}</bit-label>
-    <div class="file-selector">
+    <div class="file-selector tw-pt-2 tw-pb-1 tw-break-words">
       <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
         {{ "chooseFile" | i18n }}
       </button>

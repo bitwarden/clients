@@ -19,6 +19,25 @@ import {
 
 import { BackgroundTaskSchedulerService } from "./background-task-scheduler.service";
 
+function createInternalPortSpyMock(name: string) {
+  return mock<chrome.runtime.Port>({
+    name,
+    onMessage: {
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+    },
+    onDisconnect: {
+      addListener: jest.fn(),
+    },
+    postMessage: jest.fn(),
+    disconnect: jest.fn(),
+    sender: {
+      url: chrome.runtime.getURL(""),
+      origin: chrome.runtime.getURL(""),
+    },
+  });
+}
+
 describe("BackgroundTaskSchedulerService", () => {
   let logService: MockProxy<LogService>;
   let stateProvider: MockProxy<StateProvider>;
@@ -35,7 +54,7 @@ describe("BackgroundTaskSchedulerService", () => {
     stateProvider = mock<StateProvider>({
       getGlobal: jest.fn(() => globalStateMock),
     });
-    portMock = createPortSpyMock(BrowserTaskSchedulerPortName);
+    portMock = createInternalPortSpyMock(BrowserTaskSchedulerPortName);
     backgroundTaskSchedulerService = new BackgroundTaskSchedulerService(logService, stateProvider);
     jest.spyOn(globalThis, "setTimeout");
   });

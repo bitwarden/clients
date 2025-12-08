@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { Icon, svgIcon } from "./icon";
+import { Icon, svgIcon } from "@bitwarden/assets/svg";
+
 import { BitIconComponent } from "./icon.component";
 
 describe("IconComponent", () => {

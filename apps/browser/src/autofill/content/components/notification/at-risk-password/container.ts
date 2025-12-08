@@ -18,11 +18,13 @@ export type AtRiskNotificationProps = NotificationBarIframeInitData & {
   handleCloseNotification: (e: Event) => void;
 } & {
   i18n: I18n;
+  notificationTestId: string;
 };
 
 export function AtRiskNotification({
   handleCloseNotification,
   i18n,
+  notificationTestId,
   theme = ThemeTypes.Light,
   params,
 }: AtRiskNotificationProps) {
@@ -33,7 +35,7 @@ export function AtRiskNotification({
   );
 
   return html`
-    <div class=${atRiskNotificationContainerStyles(theme)}>
+    <div data-testid="${notificationTestId}" class=${atRiskNotificationContainerStyles(theme)}>
       ${NotificationHeader({
         handleCloseNotification,
         i18n,

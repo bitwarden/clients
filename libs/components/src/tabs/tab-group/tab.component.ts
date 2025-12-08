@@ -1,18 +1,18 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { TemplatePortal } from "@angular/cdk/portal";
 import {
   Component,
   ContentChild,
   OnInit,
   TemplateRef,
-  ViewChild,
   ViewContainerRef,
   input,
+  viewChild,
 } from "@angular/core";
 
 import { TabLabelDirective } from "./tab-label.directive";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-tab",
   templateUrl: "./tab.component.html",
@@ -34,8 +34,10 @@ export class TabComponent implements OnInit {
    */
   readonly contentTabIndex = input<number | undefined>();
 
-  @ViewChild(TemplateRef, { static: true }) implicitContent: TemplateRef<unknown>;
-  @ContentChild(TabLabelDirective) templateLabel: TabLabelDirective;
+  readonly implicitContent = viewChild.required(TemplateRef);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @ContentChild(TabLabelDirective) templateLabel?: TabLabelDirective;
 
   private _contentPortal: TemplatePortal | null = null;
 
@@ -43,11 +45,11 @@ export class TabComponent implements OnInit {
     return this._contentPortal;
   }
 
-  isActive: boolean;
+  isActive?: boolean;
 
   constructor(private _viewContainerRef: ViewContainerRef) {}
 
   ngOnInit(): void {
-    this._contentPortal = new TemplatePortal(this.implicitContent, this._viewContainerRef);
+    this._contentPortal = new TemplatePortal(this.implicitContent(), this._viewContainerRef);
   }
 }

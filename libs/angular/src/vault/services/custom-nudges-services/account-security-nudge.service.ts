@@ -3,12 +3,10 @@ import { Observable, combineLatest, from, of } from "rxjs";
 import { catchError, switchMap } from "rxjs/operators";
 
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricStateService } from "@bitwarden/key-management";

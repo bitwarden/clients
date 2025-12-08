@@ -78,8 +78,8 @@ export abstract class CipherFormContainer {
   abstract enableFormFields(): void;
 
   /**
-   * An observable that emits when the form status changes to enabled.
-   * This can be used to disable child forms when the parent form is enabled.
+   * An observable that emits when the form status changes between enabled/disabled.
+   * This can be used for child forms to react to changes in the form status.
    */
-  formEnabled$: Observable<void>;
+  formStatusChange$: Observable<"enabled" | "disabled">;
 }

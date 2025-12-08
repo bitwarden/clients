@@ -1,4 +1,5 @@
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SecureNoteType, CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
@@ -16,8 +17,8 @@ const namesTestData = [
     fullName: "MyFirstName",
     expected: Object.assign(new IdentityView(), {
       firstName: "MyFirstName",
-      middleName: null,
-      lastName: null,
+      middleName: undefined,
+      lastName: undefined,
     }),
   },
   {
@@ -25,7 +26,7 @@ const namesTestData = [
     fullName: "MyFirstName MyLastName",
     expected: Object.assign(new IdentityView(), {
       firstName: "MyFirstName",
-      middleName: null,
+      middleName: undefined,
       lastName: "MyLastName",
     }),
   },
@@ -224,7 +225,7 @@ describe("NordPass CSV Importer", () => {
   });
 
   it("should parse an item and create a collection if organizationId is set", async () => {
-    importer.organizationId = Utils.newGuid();
+    importer.organizationId = Utils.newGuid() as OrganizationId;
     const result = await importer.parse(secureNoteData);
 
     expect(result).not.toBeNull();

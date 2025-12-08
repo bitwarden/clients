@@ -66,10 +66,27 @@ export class WebLoginComponentService
     return;
   }
 
-  async getOrgPoliciesFromOrgInvite(): Promise<PasswordPolicies | undefined> {
+  async getOrgPoliciesFromOrgInvite(email: string): Promise<PasswordPolicies | undefined> {
     const orgInvite = await this.organizationInviteService.getOrganizationInvite();
 
     if (orgInvite != null) {
+      /**
+       * Check if the email on the org invite matches the email submitted in the login form. This is
+       * important because say userA at "userA@mail.com" clicks an emailed org invite link, but then
+       * on the login page form they change the email to "userB@mail.com". We don't want to apply the org
+       * invite in state to userB. Therefore we clear the login redirect url as well as the org invite,
+       * allowing userB to login as normal.
+       */
+      if (orgInvite.email !== email.toLowerCase()) {
+        await this.routerService.getAndClearLoginRedirectUrl();
+        await this.organizationInviteService.clearOrganizationInvitation();
+
+        this.logService.error(
+          `WebLoginComponentService.getOrgPoliciesFromOrgInvite: Email mismatch. Expected: ${orgInvite.email}, Received: ${email}`,
+        );
+        return undefined;
+      }
+
       let policies: Policy[];
 
       try {

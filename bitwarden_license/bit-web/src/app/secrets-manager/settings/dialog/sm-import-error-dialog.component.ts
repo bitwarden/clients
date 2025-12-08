@@ -10,6 +10,8 @@ export interface SecretsManagerImportErrorDialogOperation {
   error: SecretsManagerImportError;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./sm-import-error-dialog.component.html",
   standalone: false,

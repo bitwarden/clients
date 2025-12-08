@@ -1,7 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, Validators, ReactiveFormsModule } from "@angular/forms";
 
@@ -12,6 +10,8 @@ import { CheckboxModule, FormFieldModule, SectionComponent } from "@bitwarden/co
 import { SendFormConfig } from "../../abstractions/send-form-config.service";
 import { SendFormContainer } from "../../send-form-container";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-send-text-details",
   templateUrl: "./send-text-details.component.html",
@@ -25,8 +25,8 @@ import { SendFormContainer } from "../../send-form-container";
   ],
 })
 export class SendTextDetailsComponent implements OnInit {
-  @Input() config: SendFormConfig;
-  @Input() originalSendView?: SendView;
+  readonly config = input.required<SendFormConfig>();
+  readonly originalSendView = input<SendView>();
 
   sendTextDetailsForm = this.formBuilder.group({
     text: new FormControl("", Validators.required),
@@ -51,15 +51,13 @@ export class SendTextDetailsComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
-    if (this.originalSendView) {
-      this.sendTextDetailsForm.patchValue({
-        text: this.originalSendView.text?.text || "",
-        hidden: this.originalSendView.text?.hidden || false,
-      });
-    }
+  async ngOnInit(): Promise<void> {
+    this.sendTextDetailsForm.patchValue({
+      text: this.originalSendView()?.text?.text || "",
+      hidden: this.originalSendView()?.text?.hidden || false,
+    });
 
-    if (!this.config.areSendsAllowed) {
+    if (!this.config().areSendsAllowed) {
       this.sendTextDetailsForm.disable();
     }
   }

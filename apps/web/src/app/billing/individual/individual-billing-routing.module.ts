@@ -1,12 +1,16 @@
-import { NgModule } from "@angular/core";
+import { inject, NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { map } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { AccountPaymentDetailsComponent } from "@bitwarden/web-vault/app/billing/individual/payment-details/account-payment-details.component";
-
-import { PaymentMethodComponent } from "../shared";
+import { SelfHostedPremiumComponent } from "@bitwarden/web-vault/app/billing/individual/premium/self-hosted-premium.component";
 
 import { BillingHistoryViewComponent } from "./billing-history-view.component";
-import { PremiumComponent } from "./premium/premium.component";
+import { CloudHostedPremiumVNextComponent } from "./premium/cloud-hosted-premium-vnext.component";
+import { CloudHostedPremiumComponent } from "./premium/cloud-hosted-premium.component";
 import { SubscriptionComponent } from "./subscription.component";
 import { UserSubscriptionComponent } from "./user-subscription.component";
 
@@ -22,15 +26,54 @@ const routes: Routes = [
         component: UserSubscriptionComponent,
         data: { titleId: "premiumMembership" },
       },
+      /**
+       * Three-Route Matching Strategy for /premium:
+       *
+       * Routes are evaluated in order using canMatch guards. The first route that matches will be selected.
+       *
+       * 1. Self-Hosted Environment → SelfHostedPremiumComponent
+       *    - Matches when platformUtilsService.isSelfHost() === true
+       *
+       * 2. Cloud-Hosted + Feature Flag Enabled → CloudHostedPremiumVNextComponent
+       *    - Only evaluated if Route 1 doesn't match (not self-hosted)
+       *    - Matches when PM24033PremiumUpgradeNewDesign feature flag === true
+       *
+       * 3. Cloud-Hosted + Feature Flag Disabled → CloudHostedPremiumComponent (Fallback)
+       *    - No canMatch guard, so this always matches as the fallback route
+       *    - Used when neither Route 1 nor Route 2 match
+       */
+      // Route 1: Self-Hosted -> SelfHostedPremiumComponent
       {
         path: "premium",
-        component: PremiumComponent,
+        component: SelfHostedPremiumComponent,
         data: { titleId: "goPremium" },
+        canMatch: [
+          () => {
+            const platformUtilsService = inject(PlatformUtilsService);
+            return platformUtilsService.isSelfHost();
+          },
+        ],
       },
+      // Route 2: Cloud Hosted + FF -> CloudHostedPremiumVNextComponent
       {
-        path: "payment-method",
-        component: PaymentMethodComponent,
-        data: { titleId: "paymentMethod" },
+        path: "premium",
+        component: CloudHostedPremiumVNextComponent,
+        data: { titleId: "goPremium" },
+        canMatch: [
+          () => {
+            const configService = inject(ConfigService);
+
+            return configService
+              .getFeatureFlag$(FeatureFlag.PM24033PremiumUpgradeNewDesign)
+              .pipe(map((flagValue) => flagValue === true));
+          },
+        ],
+      },
+      // Route 3: Cloud Hosted + FF Disabled -> CloudHostedPremiumComponent (Fallback)
+      {
+        path: "premium",
+        component: CloudHostedPremiumComponent,
+        data: { titleId: "goPremium" },
       },
       {
         path: "payment-details",

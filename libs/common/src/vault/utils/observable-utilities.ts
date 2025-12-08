@@ -30,7 +30,7 @@ export function perUserCache$<TValue>(
         create(userId),
         clearBuffer$.pipe(
           filter((clearId) => clearId === userId || clearId === null),
-          map(() => null),
+          map((): any => null),
         ),
       ).pipe(shareReplay({ bufferSize: 1, refCount: false }));
       cache.set(userId, observable);

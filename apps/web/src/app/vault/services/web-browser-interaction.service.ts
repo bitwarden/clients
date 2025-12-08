@@ -25,7 +25,7 @@ import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum
  * used to allow for the extension to open and then emit to the message.
  * NOTE: This value isn't computed by any means, it is just a reasonable timeout for the extension to respond.
  */
-const OPEN_RESPONSE_TIMEOUT_MS = 1500;
+const OPEN_RESPONSE_TIMEOUT_MS = 2000;
 
 /**
  * Timeout for checking if the extension is installed.

@@ -37,7 +37,7 @@
           bitButton
           buttonType="primary"
           [disabled]="orgInfoFormGroup.controls.name.invalid"
-          [loading]="loading && (trialPaymentOptional$ | async)"
+          [loading]="loading && (trialPaymentOptional$ | async)!"
           (click)="orgNameEntrySubmit()"
         >
           {{
@@ -54,17 +54,7 @@
       >
         <app-trial-billing-step
           *ngIf="stepper.selectedIndex === 2"
-          [organizationInfo]="{
-            name: orgInfoFormGroup.value.name,
-            email: orgInfoFormGroup.value.billingEmail,
-            type: trialOrganizationType,
-          }"
-          [subscriptionProduct]="
-            product === ProductType.SecretsManager
-              ? SubscriptionProduct.SecretsManager
-              : SubscriptionProduct.PasswordManager
-          "
-          [trialLength]="trialLength"
+          [trial]="trial"
           (steppedBack)="previousStep()"
           (organizationCreated)="createdOrganization($event)"
         >

@@ -15,6 +15,8 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ClientType } from "@bitwarden/common/enums";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { KeyConnectorDomainConfirmation } from "@bitwarden/common/key-management/key-connector/models/key-connector-domain-confirmation";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -33,29 +35,35 @@ interface SetupParams {
 }
 
 describe("lockGuard", () => {
+  const keyConnectorService = mock<KeyConnectorService>();
+
   const setup = (setupParams: SetupParams) => {
     const authService: MockProxy<AuthService> = mock<AuthService>();
     authService.authStatusFor$.mockReturnValue(of(setupParams.authStatus));
 
     const vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService> =
       mock<VaultTimeoutSettingsService>();
-    vaultTimeoutSettingsService.canLock.mockResolvedValue(setupParams.canLock);
+    vaultTimeoutSettingsService.canLock.mockResolvedValue(setupParams.canLock ?? true);
 
     const keyService: MockProxy<KeyService> = mock<KeyService>();
-    keyService.everHadUserKey$.mockReturnValue(of(setupParams.everHadUserKey));
+    keyService.everHadUserKey$.mockReturnValue(of(setupParams.everHadUserKey ?? true));
 
     const platformUtilService: MockProxy<PlatformUtilsService> = mock<PlatformUtilsService>();
-    platformUtilService.getClientType.mockReturnValue(setupParams.clientType);
+    platformUtilService.getClientType.mockReturnValue(setupParams.clientType ?? ClientType.Web);
 
     const messagingService: MockProxy<MessagingService> = mock<MessagingService>();
 
     const deviceTrustService: MockProxy<DeviceTrustServiceAbstraction> =
       mock<DeviceTrustServiceAbstraction>();
-    deviceTrustService.supportsDeviceTrust$ = of(setupParams.supportsDeviceTrust);
+    deviceTrustService.supportsDeviceTrust$ = of(setupParams.supportsDeviceTrust ?? false);
 
     const userVerificationService: MockProxy<UserVerificationService> =
       mock<UserVerificationService>();
-    userVerificationService.hasMasterPassword.mockResolvedValue(setupParams.hasMasterPassword);
+    userVerificationService.hasMasterPassword.mockResolvedValue(
+      setupParams.hasMasterPassword ?? true,
+    );
+
+    keyConnectorService.requiresDomainConfirmation$.mockReturnValue(of(null));
 
     const accountService: MockProxy<AccountService> = mock<AccountService>();
     const activeAccountSubject = new BehaviorSubject<Account | null>(null);
@@ -77,6 +85,7 @@ describe("lockGuard", () => {
           { path: "", component: EmptyComponent },
           { path: "lock", component: EmptyComponent, canActivate: [lockGuard()] },
           { path: "non-lock-route", component: EmptyComponent },
+          { path: "confirm-key-connector-domain", component: EmptyComponent },
         ]),
       ],
       providers: [
@@ -88,6 +97,7 @@ describe("lockGuard", () => {
         { provide: PlatformUtilsService, useValue: platformUtilService },
         { provide: DeviceTrustServiceAbstraction, useValue: deviceTrustService },
         { provide: UserVerificationService, useValue: userVerificationService },
+        { provide: KeyConnectorService, useValue: keyConnectorService },
       ],
     });
 
@@ -192,5 +202,20 @@ describe("lockGuard", () => {
 
     await router.navigate(["lock"]);
     expect(router.url).toBe("/");
+  });
+
+  it("should redirect to the confirm-key-connector-domain route when the auth status is locked, can't lock and requires key connector domain confirmation", async () => {
+    const { router } = setup({
+      authStatus: AuthenticationStatus.Locked,
+      canLock: false,
+    });
+    keyConnectorService.requiresDomainConfirmation$.mockReturnValue(
+      of({
+        keyConnectorUrl: "https://example.com",
+      } as KeyConnectorDomainConfirmation),
+    );
+
+    await router.navigate(["lock"]);
+    expect(router.url).toBe("/confirm-key-connector-domain");
   });
 });

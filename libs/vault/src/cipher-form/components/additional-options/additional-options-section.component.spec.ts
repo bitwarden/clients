@@ -13,11 +13,15 @@ import { CustomFieldsComponent } from "../custom-fields/custom-fields.component"
 
 import { AdditionalOptionsSectionComponent } from "./additional-options-section.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-custom-fields",
   template: "",
 })
 class MockCustomFieldsComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() disableSectionMargin: boolean;
 }
 
@@ -28,12 +32,13 @@ describe("AdditionalOptionsSectionComponent", () => {
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
   let passwordRepromptEnabled$: BehaviorSubject<boolean>;
 
-  const getInitialCipherView = jest.fn(() => null);
+  const getInitialCipherView = jest.fn((): any => null);
+  const formStatusChange$ = new BehaviorSubject<"enabled" | "disabled">("enabled");
 
   beforeEach(async () => {
     getInitialCipherView.mockClear();
 
-    cipherFormProvider = mock<CipherFormContainer>({ getInitialCipherView });
+    cipherFormProvider = mock<CipherFormContainer>({ getInitialCipherView, formStatusChange$ });
     passwordRepromptService = mock<PasswordRepromptService>();
     passwordRepromptEnabled$ = new BehaviorSubject(true);
     passwordRepromptService.enabled$ = passwordRepromptEnabled$;
@@ -85,7 +90,10 @@ describe("AdditionalOptionsSectionComponent", () => {
     expect(cipherFormProvider.patchCipher).toHaveBeenCalled();
     const patchFn = cipherFormProvider.patchCipher.mock.lastCall[0];
 
-    const updated = patchFn(new CipherView());
+    const newCipher = new CipherView();
+    newCipher.creationDate = newCipher.revisionDate = expectedCipher.creationDate;
+
+    const updated = patchFn(newCipher);
 
     expect(updated).toEqual(expectedCipher);
   });

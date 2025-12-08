@@ -526,13 +526,6 @@
     width: calc(100% - 25px);
   }
 
-  .row-sub-icon,
-  .row-sub-label + i.bwi {
-    @include themify($themes) {
-      color: themed("disabledIconColor");
-    }
-  }
-
   .icon {
     display: flex;
     justify-content: center;

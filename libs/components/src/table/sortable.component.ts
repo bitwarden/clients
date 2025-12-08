@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
 import { Component, HostBinding, OnInit, input } from "@angular/core";
@@ -7,6 +5,8 @@ import { Component, HostBinding, OnInit, input } from "@angular/core";
 import type { SortDirection, SortFn } from "./table-data-source";
 import { TableComponent } from "./table.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "th[bitSortable]",
   template: `
@@ -26,7 +26,7 @@ export class SortableComponent implements OnInit {
   /**
    * Mark the column as sortable and specify the key to sort by
    */
-  readonly bitSortable = input<string>();
+  readonly bitSortable = input.required<string>();
 
   readonly default = input(false, {
     transform: (value: SortDirection | boolean | "") => {
@@ -63,7 +63,7 @@ export class SortableComponent implements OnInit {
     if (!this.isActive) {
       return undefined;
     }
-    return this.sort.direction === "asc" ? "ascending" : "descending";
+    return this.sort?.direction === "asc" ? "ascending" : "descending";
   }
 
   protected setActive() {
@@ -106,10 +106,7 @@ export class SortableComponent implements OnInit {
   get classList() {
     return [
       "tw-min-w-max",
-
-      // Offset to border and padding
-      "-tw-m-1.5",
-      "tw-font-bold",
+      "tw-font-medium",
 
       // Below is copied from BitIconButtonComponent
       "tw-border",

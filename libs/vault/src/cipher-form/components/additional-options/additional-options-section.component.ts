@@ -21,6 +21,8 @@ import { PasswordRepromptService } from "../../../services/password-reprompt.ser
 import { CipherFormContainer } from "../../cipher-form-container";
 import { CustomFieldsComponent } from "../custom-fields/custom-fields.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-additional-options-section",
   templateUrl: "./additional-options-section.component.html",
@@ -39,6 +41,8 @@ import { CustomFieldsComponent } from "../custom-fields/custom-fields.component"
   ],
 })
 export class AdditionalOptionsSectionComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(CustomFieldsComponent) customFieldsComponent: CustomFieldsComponent;
 
   additionalOptionsForm = this.formBuilder.group({
@@ -56,7 +60,14 @@ export class AdditionalOptionsSectionComponent implements OnInit {
   /** True when the form is in `partial-edit` mode */
   isPartialEdit = false;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() disableSectionMargin: boolean;
+
+  /** True when the form allows new fields to be added */
+  get allowNewField(): boolean {
+    return this.additionalOptionsForm.enabled;
+  }
 
   constructor(
     private cipherFormContainer: CipherFormContainer,

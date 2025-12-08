@@ -43,7 +43,12 @@ export const RANDOMIZER = new SafeInjectionToken<Randomizer>("Randomizer");
 const GENERATOR_SERVICE_PROVIDER = new SafeInjectionToken<providers.CredentialGeneratorProviders>(
   "CredentialGeneratorProviders",
 );
-const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("SystemServices");
+
+// FIXME: relocate the system service provider to a more general module once
+//        NX migration is complete.
+export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>(
+  "SystemServices",
+);
 
 /** Shared module containing generator component dependencies */
 @NgModule({

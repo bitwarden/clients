@@ -67,7 +67,7 @@
                 (change)="dataSource.checkAllFilteredUsers($any($event.target).checked)"
                 id="selectAll"
               />
-              <label class="tw-mb-0 !tw-font-bold !tw-text-muted" for="selectAll">
+              <label class="tw-mb-0 !tw-font-medium !tw-text-muted" for="selectAll">
                 {{ "all" | i18n }}
               </label>
             </th>
@@ -79,7 +79,7 @@
                 type="button"
                 bitIconButton="bwi-ellipsis-v"
                 size="small"
-                appA11yTitle="{{ 'options' | i18n }}"
+                label="{{ 'options' | i18n }}"
               ></button>
               <bit-menu #headerMenu>
                 <button
@@ -177,7 +177,7 @@
                 type="button"
                 bitIconButton="bwi-ellipsis-v"
                 size="small"
-                appA11yTitle="{{ 'options' | i18n }}"
+                label="{{ 'options' | i18n }}"
               ></button>
               <bit-menu #rowMenu>
                 <button

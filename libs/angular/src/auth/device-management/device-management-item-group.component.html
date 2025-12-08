@@ -6,8 +6,7 @@
         bit-item-content
         type="button"
         [attr.tabindex]="device.pendingAuthRequest != null ? 0 : null"
-        (click)="approveOrDenyAuthRequest(device.pendingAuthRequest)"
-        (keydown.enter)="approveOrDenyAuthRequest(device.pendingAuthRequest)"
+        (click)="answerAuthRequest(device.pendingAuthRequest)"
       >
         <!-- Default Content -->
         <span class="tw-text-base">{{ device.displayName }}</span>
@@ -21,9 +20,9 @@
 
         <!-- Secondary Content -->
         <span slot="secondary" class="tw-text-sm">
-          <span>{{ "needsApproval" | i18n }}</span>
+          <br />
           <div>
-            <span class="tw-font-semibold"> {{ "firstLogin" | i18n }}: </span>
+            <span class="tw-font-medium"> {{ "firstLogin" | i18n }}: </span>
             <span>{{ device.firstLogin | date: "medium" }}</span>
           </div>
         </span>
@@ -53,7 +52,7 @@
           }
 
           <div>
-            <span class="tw-font-semibold">{{ "firstLogin" | i18n }}: </span>
+            <span class="tw-font-medium">{{ "firstLogin" | i18n }}: </span>
             <span>{{ device.firstLogin | date: "medium" }}</span>
           </div>
         </div>

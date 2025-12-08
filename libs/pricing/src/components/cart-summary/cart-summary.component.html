@@ -1,0 +1,139 @@
+@let passwordManager = this.passwordManager();
+@let additionalStorage = this.additionalStorage();
+@let secretsManager = this.secretsManager();
+@let additionalServiceAccounts = this.secretsManager()?.additionalServiceAccounts;
+
+<div class="tw-size-full">
+  <div class="tw-flex tw-items-center tw-pb-2">
+    <div class="tw-flex tw-items-center">
+      <h2
+        bitTypography="h4"
+        id="purchase-summary-heading"
+        class="!tw-m-0"
+        data-testid="purchase-summary-heading-total"
+      >
+        {{ "total" | i18n }}: {{ total() | currency: "USD" : "symbol" }} USD
+      </h2>
+      <span bitTypography="h3">&nbsp;</span>
+      <span bitTypography="body1" class="tw-text-main">/ {{ passwordManager.cadence | i18n }}</span>
+    </div>
+    <button
+      type="button"
+      size="small"
+      (click)="toggleExpanded()"
+      [bitIconButton]="isExpanded() ? 'bwi-angle-up' : 'bwi-angle-down'"
+      [label]="
+        isExpanded() ? ('Collapse purchase details' | i18n) : ('Expand purchase details' | i18n)
+      "
+      [attr.aria-expanded]="isExpanded()"
+      [attr.aria-controls]="'purchase-summary-details'"
+      data-testid="toggle-purchase-summary-details"
+    ></button>
+  </div>
+
+  @if (isExpanded()) {
+    <div id="purchase-summary-details" class="tw-pb-2">
+      <!-- Password Manager Section -->
+      <div id="password-manager" class="tw-border-b tw-border-secondary-100 tw-pb-2">
+        <div class="tw-flex tw-justify-between tw-mb-1">
+          <h3 bitTypography="h5" class="tw-text-muted">{{ "passwordManager" | i18n }}</h3>
+        </div>
+
+        <!-- Password Manager Members -->
+        <div id="password-manager-members" class="tw-flex tw-justify-between">
+          <div class="tw-flex-1">
+            <div bitTypography="body1" class="tw-text-muted">
+              {{ passwordManager.quantity }} {{ passwordManager.name | i18n }} x
+              {{ passwordManager.cost | currency: "USD" : "symbol" }}
+              /
+              {{ passwordManager.cadence | i18n }}
+            </div>
+          </div>
+          <div bitTypography="body1" class="tw-text-muted" data-testid="password-manager-total">
+            {{ passwordManagerTotal() | currency: "USD" : "symbol" }}
+          </div>
+        </div>
+
+        <!-- Additional Storage -->
+        @if (additionalStorage) {
+          <div id="additional-storage" class="tw-flex tw-justify-between">
+            <div class="tw-flex-1">
+              <div bitTypography="body1" class="tw-text-muted">
+                {{ additionalStorage.quantity }} {{ additionalStorage.name | i18n }} x
+                {{ additionalStorage.cost | currency: "USD" : "symbol" }} /
+                {{ additionalStorage.cadence | i18n }}
+              </div>
+            </div>
+            <div bitTypography="body1" class="tw-text-muted" data-testid="additional-storage-total">
+              {{ additionalStorageTotal() | currency: "USD" : "symbol" }}
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Secrets Manager Section -->
+      @if (secretsManager) {
+        <div id="secrets-manager" class="tw-border-b tw-border-secondary-100 tw-py-2">
+          <div class="tw-flex tw-justify-between">
+            <h3 bitTypography="h5" class="tw-text-muted">{{ "secretsManager" | i18n }}</h3>
+          </div>
+
+          <!-- Secrets Manager Members -->
+          <div id="secrets-manager-members" class="tw-flex tw-justify-between">
+            <div bitTypography="body1" class="tw-text-muted">
+              {{ secretsManager.seats.quantity }} {{ secretsManager.seats.name | i18n }} x
+              {{ secretsManager.seats.cost | currency: "USD" : "symbol" }}
+              / {{ secretsManager.seats.cadence | i18n }}
+            </div>
+            <div
+              bitTypography="body1"
+              class="tw-text-muted"
+              data-testid="secrets-manager-seats-total"
+            >
+              {{ secretsManagerSeatsTotal() | currency: "USD" : "symbol" }}
+            </div>
+          </div>
+
+          <!-- Additional Service Accounts -->
+          @if (additionalServiceAccounts) {
+            <div id="additional-service-accounts" class="tw-flex tw-justify-between">
+              <div bitTypography="body1" class="tw-text-muted">
+                {{ additionalServiceAccounts.quantity }}
+                {{ additionalServiceAccounts.name | i18n }} x
+                {{ additionalServiceAccounts.cost | currency: "USD" : "symbol" }}
+                /
+                {{ additionalServiceAccounts.cadence | i18n }}
+              </div>
+              <div
+                bitTypography="body1"
+                class="tw-text-muted"
+                data-testid="additional-service-accounts-total"
+              >
+                {{ additionalServiceAccountsTotal() | currency: "USD" : "symbol" }}
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Estimated Tax -->
+      <div
+        id="estimated-tax-section"
+        class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-pt-2 tw-pb-0.5"
+      >
+        <h3 bitTypography="h5" class="tw-text-muted">{{ "estimatedTax" | i18n }}</h3>
+        <div bitTypography="body1" class="tw-text-muted" data-testid="estimated-tax">
+          {{ estimatedTax() | currency: "USD" : "symbol" }}
+        </div>
+      </div>
+
+      <!-- Total -->
+      <div id="total-section" class="tw-flex tw-justify-between tw-items-center tw-pt-2">
+        <h3 bitTypography="h5" class="tw-text-muted">{{ "total" | i18n }}</h3>
+        <div bitTypography="body1" class="tw-text-muted" data-testid="final-total">
+          {{ total() | currency: "USD" : "symbol" }} / {{ passwordManager.cadence | i18n }}
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -30,6 +30,7 @@ export default {
               toggleCollapse: "toggle collapse",
               toggleSideNavigation: "Toggle side navigation",
               skipToContent: "Skip to content",
+              loading: "Loading",
             });
           },
         },
@@ -41,7 +42,7 @@ export default {
       type: "figma",
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-40145&t=b5tDKylm5sWm2yKo-4",
     },
-    chromatic: { viewports: [640, 1280] },
+    chromatic: { delay: 1000 },
   },
 } as Meta;
 
@@ -86,23 +87,25 @@ export const WithoutRoute: Story = {
 export const WithChildButtons: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <bit-nav-item text="Hello World Very Cool World" [route]="['']" icon="bwi-collection-shared">
         <button
+          type="button" 
           slot="end"
           class="tw-ms-auto"
           [bitIconButton]="'bwi-pencil-square'"
-          [buttonType]="'light'"
+          [buttonType]="'nav-contrast'"
           size="small"
-          aria-label="option 2"
+          label="Edit"
         ></button>
         <button
+          type="button" 
           slot="end"
           class="tw-ms-auto"
           [bitIconButton]="'bwi-check'"
-          [buttonType]="'light'"
+          [buttonType]="'nav-contrast'"
           size="small"
-          aria-label="option 3"
+          label="Confirm"
         ></button>
       </bit-nav-item>
     `,
@@ -131,4 +134,29 @@ export const ForceActiveStyles: Story = {
       <bit-nav-item text="Third Nav" icon="bwi-collection-shared"></bit-nav-item>
     `,
   }),
+};
+
+export const CollapsedNavItems: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-nav-item text="First Nav" icon="bwi-collection-shared"></bit-nav-item>
+      <bit-nav-item text="Active Nav" icon="bwi-collection-shared" [forceActiveStyles]="true"></bit-nav-item>
+      <bit-nav-item text="Third Nav" icon="bwi-collection-shared"></bit-nav-item>
+    `,
+  }),
+  play: async () => {
+    const toggleButton = document.querySelector(
+      "[aria-label='Toggle side navigation']",
+    ) as HTMLButtonElement;
+
+    if (toggleButton) {
+      toggleButton.click();
+    }
+  },
+  parameters: {
+    chromatic: {
+      delay: 1000,
+    },
+  },
 };

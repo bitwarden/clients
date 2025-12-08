@@ -36,6 +36,7 @@ export class CipherExport {
     req.creationDate = null;
     req.revisionDate = null;
     req.deletedDate = null;
+    req.archivedDate = null;
     return req;
   }
 
@@ -81,9 +82,10 @@ export class CipherExport {
       view.passwordHistory = req.passwordHistory.map((ph) => PasswordHistoryExport.toView(ph));
     }
 
-    view.creationDate = req.creationDate ? new Date(req.creationDate) : null;
-    view.revisionDate = req.revisionDate ? new Date(req.revisionDate) : null;
-    view.deletedDate = req.deletedDate ? new Date(req.deletedDate) : null;
+    view.creationDate = req.creationDate ? new Date(req.creationDate) : view.creationDate;
+    view.revisionDate = req.revisionDate ? new Date(req.revisionDate) : view.revisionDate;
+    view.deletedDate = req.deletedDate ? new Date(req.deletedDate) : view.deletedDate;
+    view.archivedDate = req.archivedDate ? new Date(req.archivedDate) : view.archivedDate;
     return view;
   }
 
@@ -128,6 +130,7 @@ export class CipherExport {
     domain.creationDate = req.creationDate ? new Date(req.creationDate) : null;
     domain.revisionDate = req.revisionDate ? new Date(req.revisionDate) : null;
     domain.deletedDate = req.deletedDate ? new Date(req.deletedDate) : null;
+    domain.archivedDate = req.archivedDate ? new Date(req.archivedDate) : null;
     return domain;
   }
 
@@ -149,6 +152,7 @@ export class CipherExport {
   revisionDate: Date = null;
   creationDate: Date = null;
   deletedDate: Date = null;
+  archivedDate: Date = null;
   key: string;
 
   // Use build method instead of ctor so that we can control order of JSON stringify for pretty print
@@ -195,5 +199,6 @@ export class CipherExport {
     this.creationDate = o.creationDate;
     this.revisionDate = o.revisionDate;
     this.deletedDate = o.deletedDate;
+    this.archivedDate = o.archivedDate;
   }
 }

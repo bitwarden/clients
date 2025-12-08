@@ -7,7 +7,7 @@
         size="small"
         appCopyField="username"
         [cipher]="cipher"
-        [appA11yTitle]="'copyUsername' | i18n"
+        [label]="'copyUsername' | i18n"
       ></button>
     </bit-item-action>
     <bit-item-action>
@@ -18,7 +18,7 @@
         size="small"
         appCopyField="password"
         [cipher]="cipher"
-        [appA11yTitle]="'copyPassword' | i18n"
+        [label]="'copyPassword' | i18n"
       ></button>
     </bit-item-action>
     <bit-item-action>
@@ -28,7 +28,7 @@
         size="small"
         appCopyField="totp"
         [cipher]="cipher"
-        [appA11yTitle]="'copyVerificationCode' | i18n"
+        [label]="'copyVerificationCode' | i18n"
       ></button>
     </bit-item-action>
   </ng-container>
@@ -40,7 +40,7 @@
         type="button"
         bitIconButton="bwi-clone"
         size="small"
-        [appA11yTitle]="'copyFieldCipherName' | i18n: singleCopyableLogin.key : cipher.name"
+        [label]="'copyFieldCipherName' | i18n: singleCopyableLogin.key : cipher.name"
         [appCopyField]="singleCopyableLogin.field"
         [cipher]="cipher"
       ></button>
@@ -49,7 +49,7 @@
           type="button"
           bitIconButton="bwi-clone"
           size="small"
-          [appA11yTitle]="
+          [label]="
             hasLoginValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
           "
           [disabled]="!hasLoginValues"
@@ -86,7 +86,7 @@
         size="small"
         appCopyField="cardNumber"
         [cipher]="cipher"
-        [appA11yTitle]="'copyNumber' | i18n"
+        [label]="'copyNumber' | i18n"
       ></button>
     </bit-item-action>
     <bit-item-action>
@@ -96,7 +96,7 @@
         size="small"
         appCopyField="securityCode"
         [cipher]="cipher"
-        [appA11yTitle]="'copySecurityCode' | i18n"
+        [label]="'copySecurityCode' | i18n"
       ></button>
     </bit-item-action>
   </ng-container>
@@ -107,7 +107,7 @@
         type="button"
         bitIconButton="bwi-clone"
         size="small"
-        [appA11yTitle]="'copyFieldCipherName' | i18n: singleCopyableCard.key : cipher.name"
+        [label]="'copyFieldCipherName' | i18n: singleCopyableCard.key : cipher.name"
         [appCopyField]="singleCopyableCard.field"
         [cipher]="cipher"
         showToast
@@ -117,7 +117,7 @@
           type="button"
           bitIconButton="bwi-clone"
           size="small"
-          [appA11yTitle]="
+          [label]="
             hasCardValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
           "
           [disabled]="!hasCardValues"
@@ -142,7 +142,7 @@
     type="button"
     bitIconButton="bwi-clone"
     size="small"
-    [appA11yTitle]="'copyFieldCipherName' | i18n: singleCopyableIdentity.key : cipher.name"
+    [label]="'copyFieldCipherName' | i18n: singleCopyableIdentity.key : cipher.name"
     [appCopyField]="singleCopyableIdentity.field"
     [cipher]="cipher"
     showToast
@@ -152,7 +152,7 @@
       type="button"
       bitIconButton="bwi-clone"
       size="small"
-      [appA11yTitle]="
+      [label]="
         hasIdentityValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
       "
       [disabled]="!hasIdentityValues"
@@ -180,9 +180,7 @@
     type="button"
     bitIconButton="bwi-clone"
     size="small"
-    [appA11yTitle]="
-      hasSecureNoteValue ? ('copyNoteTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
-    "
+    [label]="hasSecureNoteValue ? ('copyNoteTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)"
     appCopyField="secureNote"
     [cipher]="cipher"
   ></button>
@@ -193,9 +191,7 @@
     type="button"
     bitIconButton="bwi-clone"
     size="small"
-    [appA11yTitle]="
-      hasSshKeyValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
-    "
+    [label]="hasSshKeyValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)"
     [disabled]="!hasSshKeyValues"
     [bitMenuTriggerFor]="sshKeyOptions"
   ></button>

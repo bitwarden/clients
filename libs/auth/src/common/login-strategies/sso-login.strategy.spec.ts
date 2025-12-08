@@ -3,12 +3,12 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/admin-auth-req-storable";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
@@ -33,8 +33,8 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DeviceKey, UserKey, MasterKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { DeviceKey, MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { Argon2KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import {
   AuthRequestServiceAbstraction,
@@ -134,7 +134,9 @@ describe("SsoLoginStrategy", () => {
     );
 
     const userDecryptionOptions = new UserDecryptionOptions();
-    userDecryptionOptionsService.userDecryptionOptions$ = of(userDecryptionOptions);
+    userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+      of(userDecryptionOptions),
+    );
 
     ssoLoginStrategy = new SsoLoginStrategy(
       {} as SsoLoginStrategyData,
@@ -501,7 +503,6 @@ describe("SsoLoginStrategy", () => {
         HasMasterPassword: false,
         KeyConnectorOption: { KeyConnectorUrl: keyConnectorUrl },
       });
-      tokenResponse.keyConnectorUrl = keyConnectorUrl;
     });
 
     it("gets and sets the master key if Key Connector is enabled and the user doesn't have a master password", async () => {
@@ -518,71 +519,19 @@ describe("SsoLoginStrategy", () => {
     });
 
     it("converts new SSO user with no master password to Key Connector on first login", async () => {
-      tokenResponse.key = null;
+      tokenResponse.key = undefined;
+      tokenResponse.kdfConfig = new Argon2KdfConfig(10, 64, 4);
 
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
       await ssoLoginStrategy.logIn(credentials);
 
-      expect(keyConnectorService.convertNewSsoUserToKeyConnector).toHaveBeenCalledWith(
-        tokenResponse,
-        ssoOrgId,
-        userId,
-      );
-    });
-
-    it("decrypts and sets the user key if Key Connector is enabled and the user doesn't have a master password", async () => {
-      const userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
-      const masterKey = new SymmetricCryptoKey(
-        new Uint8Array(64).buffer as CsprngArray,
-      ) as MasterKey;
-
-      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-      masterPasswordService.masterKeySubject.next(masterKey);
-      masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(userKey);
-
-      await ssoLoginStrategy.logIn(credentials);
-
-      expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
-        masterKey,
-        userId,
-        undefined,
-      );
-      expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, userId);
-    });
-  });
-
-  describe("Key Connector Pre-TDE", () => {
-    let tokenResponse: IdentityTokenResponse;
-    beforeEach(() => {
-      tokenResponse = identityTokenResponseFactory();
-      tokenResponse.userDecryptionOptions = null;
-      tokenResponse.keyConnectorUrl = keyConnectorUrl;
-    });
-
-    it("gets and sets the master key if Key Connector is enabled and the user doesn't have a master password", async () => {
-      const masterKey = new SymmetricCryptoKey(
-        new Uint8Array(64).buffer as CsprngArray,
-      ) as MasterKey;
-
-      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-      masterPasswordService.masterKeySubject.next(masterKey);
-
-      await ssoLoginStrategy.logIn(credentials);
-
-      expect(keyConnectorService.setMasterKeyFromUrl).toHaveBeenCalledWith(keyConnectorUrl, userId);
-    });
-
-    it("converts new SSO user with no master password to Key Connector on first login", async () => {
-      tokenResponse.key = null;
-
-      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-
-      await ssoLoginStrategy.logIn(credentials);
-
-      expect(keyConnectorService.convertNewSsoUserToKeyConnector).toHaveBeenCalledWith(
-        tokenResponse,
-        ssoOrgId,
+      expect(keyConnectorService.setNewSsoUserKeyConnectorConversionData).toHaveBeenCalledWith(
+        {
+          kdfConfig: new Argon2KdfConfig(10, 64, 4),
+          keyConnectorUrl: keyConnectorUrl,
+          organizationId: ssoOrgId,
+        },
         userId,
       );
     });

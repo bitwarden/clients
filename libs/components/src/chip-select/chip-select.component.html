@@ -3,11 +3,11 @@
   class="tw-inline-flex tw-items-center tw-rounded-full tw-w-full tw-border-solid tw-border tw-gap-1.5 tw-group/chip-select"
   [ngClass]="{
     'tw-bg-text-muted hover:tw-bg-secondary-700 tw-text-contrast hover:!tw-border-secondary-700':
-      selectedOption && !disabled,
+      selectedOption && !disabled(),
     'tw-bg-transparent hover:tw-border-secondary-700 !tw-text-muted hover:tw-bg-secondary-100':
-      !selectedOption && !disabled,
-    'tw-bg-secondary-300 tw-text-muted tw-border-transparent': disabled,
-    'tw-border-text-muted': !disabled,
+      !selectedOption && !disabled(),
+    'tw-bg-secondary-300 tw-text-muted tw-border-transparent': disabled(),
+    'tw-border-text-muted': !disabled(),
     'tw-ring-2 tw-ring-primary-600 tw-ring-offset-1': focusVisibleWithin(),
   }"
 >
@@ -17,11 +17,11 @@
     class="tw-inline-flex tw-gap-1.5 tw-items-center tw-justify-between tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-w-full tw-py-1 tw-ps-3 last:tw-pe-3 [&:not(:last-child)]:tw-pe-0 tw-truncate tw-text-[color:inherit] tw-text-[length:inherit]"
     data-fvw-target
     [ngClass]="{
-      'tw-cursor-not-allowed': disabled,
-      'group-hover/chip-select:tw-text-secondary-700': !selectedOption && !disabled,
+      'tw-cursor-not-allowed': disabled(),
+      'group-hover/chip-select:tw-text-secondary-700': !selectedOption && !disabled(),
     }"
     [bitMenuTriggerFor]="menu"
-    [disabled]="disabled"
+    [disabled]="disabled()"
     [title]="label"
     #menuTrigger="menuTrigger"
     (click)="setMenuWidth()"
@@ -45,10 +45,10 @@
     <button
       type="button"
       [attr.aria-label]="'removeItem' | i18n: label"
-      [disabled]="disabled"
-      class="tw-bg-transparent hover:tw-bg-transparent tw-outline-none tw-rounded-full tw-py-0.5 tw-px-1 tw-me-1 tw-text-[color:inherit] tw-text-[length:inherit] tw-border-solid tw-border tw-border-transparent hover:tw-border-text-contrast hover:disabled:tw-border-transparent tw-flex tw-items-center tw-justify-center focus-visible:tw-ring-2 tw-ring-text-contrast focus-visible:hover:tw-border-transparent"
+      [disabled]="disabled()"
+      class="tw-bg-transparent hover:tw-bg-hover-contrast tw-outline-none tw-rounded-full tw-py-0.5 tw-px-1 tw-me-1 tw-text-[color:inherit] tw-text-[length:inherit] tw-border-solid tw-border tw-border-transparent tw-flex tw-items-center tw-justify-center focus-visible:tw-ring-2 tw-ring-text-contrast hover:disabled:tw-bg-transparent"
       [ngClass]="{
-        'tw-cursor-not-allowed': disabled,
+        'tw-cursor-not-allowed': disabled(),
       }"
       (click)="clear()"
     >

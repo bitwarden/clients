@@ -23,7 +23,7 @@ export function clearAuthRequestAndResortDevices(
  *
  * This is a helper function that gets passed to the `Array.sort()` method
  */
-function resortDevices(deviceA: DeviceDisplayData, deviceB: DeviceDisplayData) {
+export function resortDevices(deviceA: DeviceDisplayData, deviceB: DeviceDisplayData) {
   // Devices with a pending auth request should be first
   if (deviceA.pendingAuthRequest) {
     return -1;
@@ -40,11 +40,11 @@ function resortDevices(deviceA: DeviceDisplayData, deviceB: DeviceDisplayData) {
     return 1;
   }
 
-  // Then sort the rest by display name (alphabetically)
-  if (deviceA.displayName < deviceB.displayName) {
+  // Then sort the rest by creation date (newest to oldest)
+  if (deviceA.creationDate > deviceB.creationDate) {
     return -1;
   }
-  if (deviceA.displayName > deviceB.displayName) {
+  if (deviceA.creationDate < deviceB.creationDate) {
     return 1;
   }
 

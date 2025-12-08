@@ -5,20 +5,21 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 export interface PlanCard {
   title: string;
   costPerMember: number;
-  discount?: number;
   isDisabled: boolean;
   isAnnual: boolean;
   isSelected: boolean;
   productTier: ProductTierType;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-plan-card",
   templateUrl: "./plan-card.component.html",
   standalone: false,
 })
 export class PlanCardComponent {
-  plan = input.required<PlanCard>();
+  readonly plan = input.required<PlanCard>();
   productTiers = ProductTierType;
 
   cardClicked = output();

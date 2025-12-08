@@ -14,7 +14,11 @@ import {
   take,
 } from "rxjs";
 
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import {
+  CollectionService,
+  CollectionTypes,
+  CollectionView,
+} from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { DynamicTreeNode } from "@bitwarden/angular/vault/vault-filter/models/dynamic-tree-node.model";
 import { sortDefaultCollections } from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
@@ -28,6 +32,7 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   KeyDefinition,
@@ -236,7 +241,10 @@ export class VaultPopupListFiltersService {
               return false;
             }
 
-            if (filters.collection && !cipher.collectionIds?.includes(filters.collection.id!)) {
+            if (
+              filters.collection &&
+              !cipher.collectionIds?.includes(asUuid(filters.collection.id!))
+            ) {
               return false;
             }
 
@@ -469,7 +477,14 @@ export class VaultPopupListFiltersService {
         });
       }),
       map((tree) =>
-        tree.nestedList.map((c) => this.convertToChipSelectOption(c, "bwi-collection-shared")),
+        tree.nestedList.map((c) =>
+          this.convertToChipSelectOption(
+            c,
+            c.node.type === CollectionTypes.DefaultUserCollection
+              ? "bwi-user"
+              : "bwi-collection-shared",
+          ),
+        ),
       ),
       shareReplay({ bufferSize: 1, refCount: true }),
     );

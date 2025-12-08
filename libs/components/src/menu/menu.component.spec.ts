@@ -7,7 +7,7 @@ import { MenuTriggerForDirective } from "./menu-trigger-for.directive";
 import { MenuModule } from "./index";
 
 describe("Menu", () => {
-  let fixture: ComponentFixture<TestApp>;
+  let fixture: ComponentFixture<TestAppComponent>;
   const getMenuTriggerDirective = () => {
     const buttonDebugElement = fixture.debugElement.query(By.directive(MenuTriggerForDirective));
     return buttonDebugElement.injector.get(MenuTriggerForDirective);
@@ -18,12 +18,12 @@ describe("Menu", () => {
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [TestApp],
+      imports: [TestAppComponent],
     });
 
     await TestBed.compileComponents();
 
-    fixture = TestBed.createComponent(TestApp);
+    fixture = TestBed.createComponent(TestAppComponent);
     fixture.detectChanges();
   });
 
@@ -58,8 +58,18 @@ describe("Menu", () => {
 
     expect(getBitMenuPanel()).toBeFalsy();
   });
+
+  it("should not open when the trigger button is disabled", () => {
+    const buttonDebugElement = fixture.debugElement.query(By.directive(MenuTriggerForDirective));
+    buttonDebugElement.nativeElement.setAttribute("disabled", "true");
+    (buttonDebugElement.nativeElement as HTMLButtonElement).click();
+
+    expect(getBitMenuPanel()).toBeFalsy();
+  });
 });
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "test-app",
   template: `
@@ -72,4 +82,4 @@ describe("Menu", () => {
   `,
   imports: [MenuModule],
 })
-class TestApp {}
+class TestAppComponent {}

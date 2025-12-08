@@ -1,9 +1,9 @@
 import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
-import { Component, Inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { NoopAnimationsModule, provideAnimations } from "@angular/platform-browser/animations";
 import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import { getAllByRole, userEvent } from "@storybook/test";
+import { getAllByRole, userEvent } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -21,6 +21,8 @@ interface Animal {
   animal: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-layout>
@@ -34,7 +36,7 @@ interface Animal {
   imports: [ButtonModule, LayoutComponent],
 })
 class StoryDialogComponent {
-  constructor(public dialogService: DialogService) {}
+  dialogService = inject(DialogService);
 
   openDialog() {
     this.dialogService.open(StoryDialogContentComponent, {
@@ -45,7 +47,7 @@ class StoryDialogComponent {
   }
 
   openDialogNonDismissable() {
-    this.dialogService.open(NonDismissableContent, {
+    this.dialogService.open(NonDismissableContentComponent, {
       data: {
         animal: "panda",
       },
@@ -62,6 +64,8 @@ class StoryDialogComponent {
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-dialog title="Dialog Title" dialogSize="large">
@@ -81,19 +85,22 @@ class StoryDialogComponent {
   imports: [DialogModule, ButtonModule],
 })
 class StoryDialogContentComponent {
-  constructor(
-    public dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) private data: Animal,
-  ) {}
+  dialogRef = inject(DialogRef);
+  private data = inject<Animal>(DIALOG_DATA);
 
   get animal() {
     return this.data?.animal;
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
-    <bit-dialog title="Dialog Title" dialogSize="large">
+    <bit-dialog
+      title="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
+      dialogSize="large"
+    >
       <span bitDialogContent>
         Dialog body text goes here.
         <br />
@@ -108,11 +115,9 @@ class StoryDialogContentComponent {
   `,
   imports: [DialogModule, ButtonModule],
 })
-class NonDismissableContent {
-  constructor(
-    public dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) private data: Animal,
-  ) {}
+class NonDismissableContentComponent {
+  dialogRef = inject(DialogRef);
+  private data = inject<Animal>(DIALOG_DATA);
 
   get animal() {
     return this.data?.animal;
@@ -152,6 +157,7 @@ export default {
               toggleSideNavigation: "Toggle side navigation",
               yes: "Yes",
               no: "No",
+              loading: "Loading",
             });
           },
         },

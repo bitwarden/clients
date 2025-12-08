@@ -5,7 +5,7 @@ import { SupportStatus } from "@bitwarden/common/platform/misc/support-status";
 import {
   WebPushConnector,
   WorkerWebPushConnectionService,
-} from "@bitwarden/common/platform/notifications/internal";
+} from "@bitwarden/common/platform/server-notifications/internal";
 import { UserId } from "@bitwarden/common/types/guid";
 
 export class PermissionsWebPushConnectionService extends WorkerWebPushConnectionService {

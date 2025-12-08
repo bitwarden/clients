@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { filter, firstValueFrom, interval, of, switchMap, takeWhile, timeout } from "rxjs";
 
 import { ScrollOptions } from "./abstractions/browser-popup-utils.abstractions";
 import { BrowserApi } from "./browser-api";
@@ -17,7 +18,7 @@ export const PopupWidthOptions = Object.freeze({
 type PopupWidthOptions = typeof PopupWidthOptions;
 export type PopupWidthOption = keyof PopupWidthOptions;
 
-class BrowserPopupUtils {
+export default class BrowserPopupUtils {
   /**
    * Identifies if the popup is within the sidebar.
    *
@@ -167,8 +168,29 @@ class BrowserPopupUtils {
     ) {
       return;
     }
+    const platform = await BrowserApi.getPlatformInfo();
+    const isMacOS = platform.os === "mac";
+    const isFullscreen = senderWindow.state === "fullscreen";
+    const isFullscreenAndMacOS = isFullscreen && isMacOS;
+    //macOS specific handling for improved UX when sender in fullscreen aka green button;
+    if (isFullscreenAndMacOS) {
+      await BrowserApi.updateWindowProperties(senderWindow.id, {
+        state: "maximized",
+      });
 
-    return await BrowserApi.createWindow(popoutWindowOptions);
+      //wait for macOS animation to finish
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+
+    const newWindow = await BrowserApi.createWindow(popoutWindowOptions);
+
+    if (isFullscreenAndMacOS) {
+      await BrowserApi.updateWindowProperties(newWindow.id, {
+        focused: true,
+      });
+    }
+
+    return newWindow;
   }
 
   /**
@@ -210,6 +232,27 @@ class BrowserPopupUtils {
     if (BrowserPopupUtils.inPopup(win)) {
       BrowserApi.closePopup(win);
     }
+  }
+
+  /**
+   * Waits for all browser action popups to close, polling up to the specified timeout.
+   * Used before extension reload to prevent zombie popups with invalidated contexts.
+   *
+   * @param timeoutMs - Maximum time to wait in milliseconds. Defaults to 1 second.
+   * @returns Promise that resolves when all popups are closed or timeout is reached.
+   */
+  static async waitForAllPopupsClose(timeoutMs = 1000): Promise<void> {
+    await firstValueFrom(
+      interval(100).pipe(
+        switchMap(() => BrowserApi.isPopupOpen()),
+        takeWhile((isOpen) => isOpen, true),
+        filter((isOpen) => !isOpen),
+        timeout({
+          first: timeoutMs,
+          with: () => of(true),
+        }),
+      ),
+    );
   }
 
   /**
@@ -288,5 +331,3 @@ class BrowserPopupUtils {
     return parsedUrl.toString();
   }
 }
-
-export default BrowserPopupUtils;

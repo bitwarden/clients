@@ -69,8 +69,8 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 if let url = panel.url {
                     do {
                         let fileManager = FileManager.default
-                        if !fileManager.fileExists(atPath: url.absoluteString) {
-                            fileManager.createFile(atPath: url.absoluteString, contents: Data(),
+                        if !fileManager.fileExists(atPath: url.path) {
+                            fileManager.createFile(atPath: url.path, contents: Data(),
                                                    attributes: nil)
                         }
                         try data.write(to: url)

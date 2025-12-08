@@ -1,12 +1,9 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CLEAR_NOTIFICATION_LOGIN_DATA_DURATION } from "@bitwarden/common/autofill/constants";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { EnvironmentServerConfigData } from "@bitwarden/common/platform/models/data/server-config.data";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { TaskService } from "@bitwarden/common/vault/tasks";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import AutofillField from "../models/autofill-field";
@@ -27,9 +24,6 @@ import { OverlayNotificationsBackground } from "./overlay-notifications.backgrou
 describe("OverlayNotificationsBackground", () => {
   let logService: MockProxy<LogService>;
   let notificationBackground: NotificationBackground;
-  let taskService: TaskService;
-  let accountService: AccountService;
-  let cipherService: CipherService;
   let getEnableChangedPasswordPromptSpy: jest.SpyInstance;
   let getEnableAddedLoginPromptSpy: jest.SpyInstance;
   let overlayNotificationsBackground: OverlayNotificationsBackground;
@@ -38,9 +32,6 @@ describe("OverlayNotificationsBackground", () => {
     jest.useFakeTimers();
     logService = mock<LogService>();
     notificationBackground = mock<NotificationBackground>();
-    taskService = mock<TaskService>();
-    accountService = mock<AccountService>();
-    cipherService = mock<CipherService>();
     getEnableChangedPasswordPromptSpy = jest
       .spyOn(notificationBackground, "getEnableChangedPasswordPrompt")
       .mockResolvedValue(true);
@@ -50,9 +41,6 @@ describe("OverlayNotificationsBackground", () => {
     overlayNotificationsBackground = new OverlayNotificationsBackground(
       logService,
       notificationBackground,
-      taskService,
-      accountService,
-      cipherService,
     );
     await overlayNotificationsBackground.init();
   });
@@ -397,7 +385,7 @@ describe("OverlayNotificationsBackground", () => {
 
       it("ignores requests that are not part of an active form submission", async () => {
         triggerWebRequestOnCompletedEvent(
-          mock<chrome.webRequest.WebResponseDetails>({
+          mock<chrome.webRequest.OnCompletedDetails>({
             url: sender.url,
             tabId: sender.tab.id,
             requestId: "123345",
@@ -421,7 +409,7 @@ describe("OverlayNotificationsBackground", () => {
         await flushPromises();
 
         triggerWebRequestOnCompletedEvent(
-          mock<chrome.webRequest.WebResponseDetails>({
+          mock<chrome.webRequest.OnCompletedDetails>({
             url: sender.url,
             tabId: sender.tab.id,
             requestId,
@@ -450,7 +438,7 @@ describe("OverlayNotificationsBackground", () => {
         await flushPromises();
 
         triggerWebRequestOnCompletedEvent(
-          mock<chrome.webRequest.WebResponseDetails>({
+          mock<chrome.webRequest.OnCompletedDetails>({
             url: sender.url,
             tabId: sender.tab.id,
             statusCode: 404,
@@ -504,7 +492,7 @@ describe("OverlayNotificationsBackground", () => {
           );
         });
         triggerWebRequestOnCompletedEvent(
-          mock<chrome.webRequest.WebResponseDetails>({
+          mock<chrome.webRequest.OnCompletedDetails>({
             url: sender.url,
             tabId: sender.tab.id,
             requestId,
@@ -553,7 +541,7 @@ describe("OverlayNotificationsBackground", () => {
         });
 
         triggerWebRequestOnCompletedEvent(
-          mock<chrome.webRequest.WebResponseDetails>({
+          mock<chrome.webRequest.OnCompletedDetails>({
             url: sender.url,
             tabId: sender.tab.id,
             requestId,
@@ -655,7 +643,7 @@ describe("OverlayNotificationsBackground", () => {
     });
 
     it("clears all associated data with a removed tab", () => {
-      triggerTabOnRemovedEvent(sender.tab.id, mock<chrome.tabs.TabRemoveInfo>());
+      triggerTabOnRemovedEvent(sender.tab.id, mock<chrome.tabs.OnRemovedInfo>());
 
       expect(overlayNotificationsBackground["websiteOriginsWithFields"].size).toBe(0);
     });
@@ -664,7 +652,7 @@ describe("OverlayNotificationsBackground", () => {
       it("skips clearing the website origins if the changeInfo does not contain a `loading` status", () => {
         triggerTabOnUpdatedEvent(
           sender.tab.id,
-          mock<chrome.tabs.TabChangeInfo>({ status: "complete" }),
+          mock<chrome.tabs.OnUpdatedInfo>({ status: "complete" }),
           mock<chrome.tabs.Tab>({ status: "complete" }),
         );
 
@@ -674,7 +662,7 @@ describe("OverlayNotificationsBackground", () => {
       it("skips clearing the website origins if the changeInfo does not contain a url", () => {
         triggerTabOnUpdatedEvent(
           sender.tab.id,
-          mock<chrome.tabs.TabChangeInfo>({ status: "loading", url: "" }),
+          mock<chrome.tabs.OnUpdatedInfo>({ status: "loading", url: "" }),
           mock<chrome.tabs.Tab>({ status: "loading" }),
         );
 
@@ -684,7 +672,7 @@ describe("OverlayNotificationsBackground", () => {
       it("skips clearing the website origins if the tab does not contain known website origins", () => {
         triggerTabOnUpdatedEvent(
           199,
-          mock<chrome.tabs.TabChangeInfo>({ status: "loading", url: "https://example.com" }),
+          mock<chrome.tabs.OnUpdatedInfo>({ status: "loading", url: "https://example.com" }),
           mock<chrome.tabs.Tab>({ status: "loading", id: 199 }),
         );
 
@@ -694,7 +682,7 @@ describe("OverlayNotificationsBackground", () => {
       it("skips clearing the website origins if the changeInfo's url is present as part of the know website origin match patterns", () => {
         triggerTabOnUpdatedEvent(
           sender.tab.id,
-          mock<chrome.tabs.TabChangeInfo>({
+          mock<chrome.tabs.OnUpdatedInfo>({
             status: "loading",
             url: "https://subdomain.example.com",
           }),
@@ -707,7 +695,7 @@ describe("OverlayNotificationsBackground", () => {
       it("clears all associated data with a tab that is entering a `loading` state", () => {
         triggerTabOnUpdatedEvent(
           sender.tab.id,
-          mock<chrome.tabs.TabChangeInfo>({ status: "loading" }),
+          mock<chrome.tabs.OnUpdatedInfo>({ status: "loading" }),
           mock<chrome.tabs.Tab>({ status: "loading" }),
         );
 

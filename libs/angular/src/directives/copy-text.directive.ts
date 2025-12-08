@@ -15,6 +15,8 @@ export class CopyTextDirective {
     private platformUtilsService: PlatformUtilsService,
   ) {}
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input("appCopyText") copyText: string;
 
   @HostListener("copy") onCopy() {

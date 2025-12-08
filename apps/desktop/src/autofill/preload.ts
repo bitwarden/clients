@@ -5,9 +5,14 @@ import type { autofill } from "@bitwarden/desktop-napi";
 import { Command } from "../platform/main/autofill/command";
 import { RunCommandParams, RunCommandResult } from "../platform/main/autofill/native-autofill.main";
 
+import { AutotypeMatchError } from "./models/autotype-errors";
+import { AutotypeVaultData } from "./models/autotype-vault-data";
+
 export default {
   runCommand: <C extends Command>(params: RunCommandParams<C>): Promise<RunCommandResult<C>> =>
     ipcRenderer.invoke("autofill.runCommand", params),
+
+  listenerReady: () => ipcRenderer.send("autofill.listenerReady"),
 
   listenPasskeyRegistration: (
     fn: (
@@ -123,6 +128,60 @@ export default {
             sequenceNumber,
             response,
           });
+        });
+      },
+    );
+  },
+
+  listenNativeStatus: (
+    fn: (clientId: number, sequenceNumber: number, status: { key: string; value: string }) => void,
+  ) => {
+    ipcRenderer.on(
+      "autofill.nativeStatus",
+      (
+        event,
+        data: {
+          clientId: number;
+          sequenceNumber: number;
+          status: { key: string; value: string };
+        },
+      ) => {
+        const { clientId, sequenceNumber, status } = data;
+        fn(clientId, sequenceNumber, status);
+      },
+    );
+  },
+  configureAutotype: (enabled: boolean, keyboardShortcut: string[]) => {
+    ipcRenderer.send("autofill.configureAutotype", { enabled, keyboardShortcut });
+  },
+  listenAutotypeRequest: (
+    fn: (
+      windowTitle: string,
+      completeCallback: (error: Error | null, response: AutotypeVaultData | null) => void,
+    ) => void,
+  ) => {
+    ipcRenderer.on(
+      "autofill.listenAutotypeRequest",
+      (
+        _event,
+        data: {
+          windowTitle: string;
+        },
+      ) => {
+        const { windowTitle } = data;
+
+        fn(windowTitle, (error, vaultData) => {
+          if (error) {
+            const matchError: AutotypeMatchError = {
+              windowTitle,
+              errorMessage: error.message,
+            };
+            ipcRenderer.send("autofill.completeAutotypeError", matchError);
+            return;
+          }
+          if (vaultData !== null) {
+            ipcRenderer.send("autofill.completeAutotypeRequest", vaultData);
+          }
         });
       },
     );

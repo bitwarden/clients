@@ -1,8 +1,11 @@
-import path, { dirname, join } from "path";
+import { createRequire } from "module";
+import { dirname, join } from "path";
 
-import type { StorybookConfig } from "@storybook/web-components-webpack5";
+import type { StorybookConfig } from "@storybook/web-components-vite";
 import remarkGfm from "remark-gfm";
-import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
+import tsconfigPaths from "vite-tsconfig-paths";
+
+const require = createRequire(import.meta.url);
 
 const getAbsolutePath = (value: string): string =>
   dirname(require.resolve(join(value, "package.json")));
@@ -11,10 +14,8 @@ const config: StorybookConfig = {
   stories: ["../lit-stories/**/*.lit-stories.@(js|jsx|ts|tsx)", "../lit-stories/**/*.mdx"],
   addons: [
     getAbsolutePath("@storybook/addon-links"),
-    getAbsolutePath("@storybook/addon-essentials"),
     getAbsolutePath("@storybook/addon-a11y"),
     getAbsolutePath("@storybook/addon-designs"),
-    getAbsolutePath("@storybook/addon-interactions"),
     {
       name: "@storybook/addon-docs",
       options: {
@@ -27,10 +28,8 @@ const config: StorybookConfig = {
     },
   ],
   framework: {
-    name: getAbsolutePath("@storybook/web-components-webpack5"),
-    options: {
-      legacyRootApi: true,
-    },
+    name: getAbsolutePath("@storybook/web-components-vite"),
+    options: {},
   },
   core: {
     disableTelemetry: true,
@@ -39,33 +38,12 @@ const config: StorybookConfig = {
     ...existingConfig,
     FLAGS: JSON.stringify({}),
   }),
-  webpackFinal: async (config) => {
-    if (config.resolve) {
-      config.resolve.plugins = [
-        new TsconfigPathsPlugin({
-          configFile: path.resolve(__dirname, "../../../../../tsconfig.json"),
-        }),
-      ] as any;
-    }
-
-    if (config.module && config.module.rules) {
-      config.module.rules.push({
-        test: /\.(ts|tsx)$/,
-        exclude: /node_modules/,
-        use: [
-          {
-            loader: require.resolve("ts-loader"),
-          },
-        ],
-      });
-      config.module.rules.push({
-        test: /\.scss$/,
-        use: [require.resolve("css-loader"), require.resolve("sass-loader")],
-      });
-    }
-    return config;
+  viteFinal: async (config) => {
+    return {
+      ...config,
+      plugins: [...(config.plugins ?? []), tsconfigPaths()],
+    };
   },
-  docs: {},
 };
 
 export default config;

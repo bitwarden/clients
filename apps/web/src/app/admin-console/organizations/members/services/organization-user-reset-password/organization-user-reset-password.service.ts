@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -10,6 +10,8 @@ import {
 } from "@bitwarden/admin-console/common";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   EncryptedString,
@@ -47,6 +49,7 @@ export class OrganizationUserResetPasswordService
     private organizationUserApiService: OrganizationUserApiService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private i18nService: I18nService,
+    private accountService: AccountService,
   ) {}
 
   /**
@@ -111,7 +114,14 @@ export class OrganizationUserResetPasswordService
     }
 
     // Decrypt Organization's encrypted Private Key with org key
-    const orgSymKey = await this.keyService.getOrgKey(orgId);
+    const orgSymKey = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.keyService.orgKeys$(userId)),
+        map((orgKeys) => orgKeys[orgId as OrganizationId] ?? null),
+      ),
+    );
+
     if (orgSymKey == null) {
       throw new Error("No org key found");
     }

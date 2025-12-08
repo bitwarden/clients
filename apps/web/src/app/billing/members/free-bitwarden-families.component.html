@@ -53,7 +53,7 @@
                       bitIconButton="bwi-ellipsis-v"
                       buttonType="main"
                       [bitMenuTriggerFor]="appListDropdown"
-                      appA11yTitle="{{ 'options' | i18n }}"
+                      label="{{ 'options' | i18n }}"
                     ></button>
                     <bit-menu #appListDropdown>
                       @if (!isSelfHosted && !sponsoredFamily.validUntil) {

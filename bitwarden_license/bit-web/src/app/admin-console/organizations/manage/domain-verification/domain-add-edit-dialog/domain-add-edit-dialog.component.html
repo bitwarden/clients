@@ -36,7 +36,7 @@
           type="button"
           bitSuffix
           bitIconButton="bwi-clone"
-          appA11yTitle="{{ 'copyDnsTxtRecord' | i18n }}"
+          label="{{ 'copyDnsTxtRecord' | i18n }}"
           (click)="copyDnsTxt()"
         ></button>
       </bit-form-field>
@@ -67,8 +67,7 @@
         bitIconButton="bwi-trash"
         buttonType="danger"
         size="default"
-        title="{{ 'delete' | i18n }}"
-        aria-label="Delete"
+        label="{{ 'delete' | i18n }}"
         [bitAction]="deleteDomain"
         type="submit"
         bitFormButton

@@ -137,8 +137,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       newPasswordHint,
       orgSsoIdentifier,
       keysRequest,
-      kdfConfig.kdfType,
-      kdfConfig.iterations,
+      kdfConfig,
     );
 
     await this.masterPasswordApiService.setPassword(request);
@@ -183,7 +182,10 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     if (userKey == null) {
       masterKeyEncryptedUserKey = await this.keyService.makeUserKey(masterKey);
     } else {
-      masterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(masterKey);
+      masterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
+        masterKey,
+        userKey,
+      );
     }
 
     return masterKeyEncryptedUserKey;
@@ -196,10 +198,13 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     userId: UserId,
   ) {
     const userDecryptionOpts = await firstValueFrom(
-      this.userDecryptionOptionsService.userDecryptionOptions$,
+      this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
     );
     userDecryptionOpts.hasMasterPassword = true;
-    await this.userDecryptionOptionsService.setUserDecryptionOptions(userDecryptionOpts);
+    await this.userDecryptionOptionsService.setUserDecryptionOptionsById(
+      userId,
+      userDecryptionOpts,
+    );
     await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
     await this.masterPasswordService.setMasterKey(masterKey, userId);
     await this.keyService.setUserKey(masterKeyEncryptedUserKey[0], userId);

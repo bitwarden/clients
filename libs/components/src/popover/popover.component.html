@@ -1,21 +1,26 @@
 <ng-template>
-  <section cdkTrapFocus cdkTrapFocusAutoCapture class="tw-relative" role="dialog" aria-modal="true">
-    <div class="tw-overflow-hidden tw-rounded-xl tw-border tw-border-solid tw-border-secondary-300">
+  <section
+    cdkTrapFocus
+    cdkTrapFocusAutoCapture
+    class="tw-relative"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="title()"
+  >
+    <div class="tw-overflow-hidden tw-rounded-xl tw-shadow-lg">
       <div
-        class="tw-relative tw-z-20 tw-w-72 tw-break-words tw-bg-background tw-pb-4 tw-pt-2 tw-text-main"
+        class="tw-relative tw-z-20 tw-w-72 tw-break-words tw-bg-primary-100 tw-pb-4 tw-pt-2 tw-text-main"
       >
-        <div class="tw-mb-1 tw-me-2 tw-flex tw-items-start tw-justify-between tw-gap-4 tw-ps-4">
-          <h2 bitTypography="h5" class="tw-mt-1 tw-font-semibold">
+        <div class="tw-me-2 tw-flex tw-items-start tw-justify-between tw-gap-4 tw-ps-4">
+          <h2 bitTypography="h5" class="tw-font-medium tw-mt-1">
             {{ title() }}
           </h2>
           <button
             type="button"
             bitIconButton="bwi-close"
-            [attr.title]="'close' | i18n"
-            [attr.aria-label]="'close' | i18n"
+            [label]="'close' | i18n"
             (click)="closed.emit()"
             size="small"
-            class="tw-mt-0.5"
           ></button>
         </div>
         <div bitTypography="body2" class="tw-px-4">

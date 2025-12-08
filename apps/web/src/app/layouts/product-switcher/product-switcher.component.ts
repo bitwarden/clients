@@ -5,6 +5,8 @@ import { AfterViewInit, ChangeDetectorRef, Component, Input } from "@angular/cor
 import { IconButtonType } from "@bitwarden/components/src/icon-button/icon-button.component";
 
 import { ProductSwitcherService } from "./shared/product-switcher.service";
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "product-switcher",
   templateUrl: "./product-switcher.component.html",
@@ -14,6 +16,8 @@ export class ProductSwitcherComponent implements AfterViewInit {
   /**
    * Passed to the product switcher's `bitIconButton`
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   buttonType: IconButtonType = "main";
 

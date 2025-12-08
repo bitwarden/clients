@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import {
@@ -10,21 +8,55 @@ import {
 import { ItemView } from "./item.view";
 
 export class Fido2CredentialView extends ItemView {
-  credentialId: string;
-  keyType: "public-key";
-  keyAlgorithm: "ECDSA";
-  keyCurve: "P-256";
-  keyValue: string;
-  rpId: string;
-  userHandle: string;
-  userName: string;
-  counter: number;
-  rpName: string;
-  userDisplayName: string;
-  discoverable: boolean;
-  creationDate: Date = null;
+  credentialId!: string;
+  keyType!: "public-key";
+  keyAlgorithm!: "ECDSA";
+  keyCurve!: "P-256";
+  keyValue!: string;
+  rpId!: string;
+  userHandle?: string;
+  userName?: string;
+  counter!: number;
+  rpName?: string;
+  userDisplayName?: string;
+  discoverable: boolean = false;
+  creationDate!: Date;
 
-  get subTitle(): string {
+  constructor(f?: {
+    credentialId: string;
+    keyType: "public-key";
+    keyAlgorithm: "ECDSA";
+    keyCurve: "P-256";
+    keyValue: string;
+    rpId: string;
+    userHandle?: string;
+    userName?: string;
+    counter: number;
+    rpName?: string;
+    userDisplayName?: string;
+    discoverable?: boolean;
+    creationDate: Date;
+  }) {
+    super();
+    if (f == null) {
+      return;
+    }
+    this.credentialId = f.credentialId;
+    this.keyType = f.keyType;
+    this.keyAlgorithm = f.keyAlgorithm;
+    this.keyCurve = f.keyCurve;
+    this.keyValue = f.keyValue;
+    this.rpId = f.rpId;
+    this.userHandle = f.userHandle;
+    this.userName = f.userName;
+    this.counter = f.counter;
+    this.rpName = f.rpName;
+    this.userDisplayName = f.userDisplayName;
+    this.discoverable = f.discoverable ?? false;
+    this.creationDate = f.creationDate;
+  }
+
+  get subTitle(): string | undefined {
     return this.userDisplayName;
   }
 
@@ -43,21 +75,21 @@ export class Fido2CredentialView extends ItemView {
       return undefined;
     }
 
-    const view = new Fido2CredentialView();
-    view.credentialId = obj.credentialId;
-    view.keyType = obj.keyType as "public-key";
-    view.keyAlgorithm = obj.keyAlgorithm as "ECDSA";
-    view.keyCurve = obj.keyCurve as "P-256";
-    view.rpId = obj.rpId;
-    view.userHandle = obj.userHandle;
-    view.userName = obj.userName;
-    view.counter = parseInt(obj.counter);
-    view.rpName = obj.rpName;
-    view.userDisplayName = obj.userDisplayName;
-    view.discoverable = obj.discoverable?.toLowerCase() === "true" ? true : false;
-    view.creationDate = obj.creationDate ? new Date(obj.creationDate) : null;
-
-    return view;
+    return new Fido2CredentialView({
+      credentialId: obj.credentialId,
+      keyType: obj.keyType as "public-key",
+      keyAlgorithm: obj.keyAlgorithm as "ECDSA",
+      keyCurve: obj.keyCurve as "P-256",
+      keyValue: obj.keyValue,
+      rpId: obj.rpId,
+      userHandle: obj.userHandle,
+      userName: obj.userName,
+      counter: parseInt(obj.counter),
+      rpName: obj.rpName,
+      userDisplayName: obj.userDisplayName,
+      discoverable: obj.discoverable?.toLowerCase() === "true",
+      creationDate: new Date(obj.creationDate),
+    });
   }
 
   toSdkFido2CredentialFullView(): Fido2CredentialFullView {

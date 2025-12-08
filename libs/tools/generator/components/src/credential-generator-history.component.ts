@@ -26,6 +26,8 @@ import { GeneratedCredential, GeneratorHistoryService } from "@bitwarden/generat
 import { GeneratorModule } from "./generator.module";
 import { translate } from "./util";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-credential-generator-history",
   templateUrl: "credential-generator-history.component.html",
@@ -50,6 +52,8 @@ export class CredentialGeneratorHistoryComponent implements OnChanges, OnInit, O
     private logService: LogService,
   ) {}
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true })
   account: Account;
 
@@ -60,6 +64,8 @@ export class CredentialGeneratorHistoryComponent implements OnChanges, OnInit, O
    *
    *  @warning this may reveal sensitive information in plaintext.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   debug: boolean = false;
 

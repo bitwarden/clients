@@ -8,7 +8,7 @@ import { BehaviorSubject } from "rxjs";
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BreachAccountResponse } from "@bitwarden/common/models/response/breach-account.response";
+import { BreachAccountResponse } from "@bitwarden/common/dirt/models/response/breach-account.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 

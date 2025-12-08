@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
@@ -174,11 +175,17 @@ export class EmergencyAccessService
    * Step 3 of the 3 step setup flow.
    * Intended for grantor.
    * @param id emergency access id
-   * @param token secret token provided in email
+   * @param granteeId id of the grantee
    * @param publicKey public key of grantee
+   * @param activeUserId the active user's id
    */
-  async confirm(id: string, granteeId: string, publicKey: Uint8Array): Promise<void> {
-    const userKey = await this.keyService.getUserKey();
+  async confirm(
+    id: string,
+    granteeId: string,
+    publicKey: Uint8Array,
+    activeUserId: UserId,
+  ): Promise<void> {
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
     if (!userKey) {
       throw new Error("No user key found");
     }
@@ -237,11 +244,14 @@ export class EmergencyAccessService
    * Gets the grantor ciphers for an emergency access in view mode.
    * Intended for grantee.
    * @param id emergency access id
+   * @param activeUserId the user id of the active user
    */
-  async getViewOnlyCiphers(id: string): Promise<CipherView[]> {
+  async getViewOnlyCiphers(id: string, activeUserId: UserId): Promise<CipherView[]> {
     const response = await this.emergencyAccessApiService.postEmergencyAccessView(id);
 
-    const activeUserPrivateKey = await this.keyService.getPrivateKey();
+    const activeUserPrivateKey = await firstValueFrom(
+      this.keyService.userPrivateKey$(activeUserId),
+    );
 
     if (activeUserPrivateKey == null) {
       throw new Error("Active user does not have a private key, cannot get view only ciphers.");
@@ -264,11 +274,14 @@ export class EmergencyAccessService
    * @param id emergency access id
    * @param masterPassword new master password
    * @param email email address of grantee (must be consistent or login will fail)
+   * @param activeUserId the user id of the active user
    */
-  async takeover(id: string, masterPassword: string, email: string) {
+  async takeover(id: string, masterPassword: string, email: string, activeUserId: UserId) {
     const takeoverResponse = await this.emergencyAccessApiService.postEmergencyAccessTakeover(id);
 
-    const activeUserPrivateKey = await this.keyService.getPrivateKey();
+    const activeUserPrivateKey = await firstValueFrom(
+      this.keyService.userPrivateKey$(activeUserId),
+    );
 
     if (activeUserPrivateKey == null) {
       throw new Error("Active user does not have a private key, cannot complete a takeover.");
@@ -312,9 +325,7 @@ export class EmergencyAccessService
     request.newMasterPasswordHash = masterKeyHash;
     request.key = encKey[1].encryptedString;
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.emergencyAccessApiService.postEmergencyAccessPassword(id, request);
+    await this.emergencyAccessApiService.postEmergencyAccessPassword(id, request);
   }
 
   private async getEmergencyAccessData(): Promise<EmergencyAccessGranteeDetailsResponse[]> {

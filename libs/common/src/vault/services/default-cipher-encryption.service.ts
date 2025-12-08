@@ -6,10 +6,11 @@ import {
   CipherListView,
   BitwardenClient,
   CipherView as SdkCipherView,
+  DecryptCipherListResult,
 } from "@bitwarden/sdk-internal";
 
 import { LogService } from "../../platform/abstractions/log.service";
-import { SdkService, asUuid } from "../../platform/abstractions/sdk/sdk.service";
+import { SdkService, asUuid, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId, OrganizationId } from "../../types/guid";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
 import { CipherType } from "../enums";
@@ -39,7 +40,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
           return {
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
-            encryptedFor: asUuid<UserId>(encryptionContext.encryptedFor),
+            encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
           };
         }),
         catchError((error: unknown) => {
@@ -74,7 +75,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
           return {
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
-            encryptedFor: asUuid<UserId>(encryptionContext.encryptedFor),
+            encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
           };
         }),
         catchError((error: unknown) => {
@@ -107,7 +108,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
           return {
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
-            encryptedFor: asUuid<UserId>(encryptionContext.encryptedFor),
+            encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
           };
         }),
         catchError((error: unknown) => {
@@ -167,7 +168,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     );
   }
 
-  decryptManyLegacy(ciphers: Cipher[], userId: UserId): Promise<CipherView[]> {
+  decryptManyLegacy(ciphers: Cipher[], userId: UserId): Promise<[CipherView[], CipherView[]]> {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         map((sdk) => {
@@ -177,38 +178,49 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
           using ref = sdk.take();
 
-          return ciphers.map((cipher) => {
-            const sdkCipherView = ref.value.vault().ciphers().decrypt(cipher.toSdkCipher());
-            const clientCipherView = CipherView.fromSdkCipherView(sdkCipherView)!;
+          const successful: CipherView[] = [];
+          const failed: CipherView[] = [];
 
-            // Handle FIDO2 credentials if present
-            if (
-              clientCipherView.type === CipherType.Login &&
-              sdkCipherView.login?.fido2Credentials?.length
-            ) {
-              const fido2CredentialViews = ref.value
-                .vault()
-                .ciphers()
-                .decrypt_fido2_credentials(sdkCipherView);
+          ciphers.forEach((cipher) => {
+            try {
+              const sdkCipherView = ref.value.vault().ciphers().decrypt(cipher.toSdkCipher());
+              const clientCipherView = CipherView.fromSdkCipherView(sdkCipherView)!;
 
-              // TODO (PM-21259): Remove manual keyValue decryption for FIDO2 credentials.
-              // This is a temporary workaround until we can use the SDK for FIDO2 authentication.
-              const decryptedKeyValue = ref.value
-                .vault()
-                .ciphers()
-                .decrypt_fido2_private_key(sdkCipherView);
+              // Handle FIDO2 credentials if present
+              if (
+                clientCipherView.type === CipherType.Login &&
+                sdkCipherView.login?.fido2Credentials?.length
+              ) {
+                const fido2CredentialViews = ref.value
+                  .vault()
+                  .ciphers()
+                  .decrypt_fido2_credentials(sdkCipherView);
 
-              clientCipherView.login.fido2Credentials = fido2CredentialViews
-                .map((f) => {
-                  const view = Fido2CredentialView.fromSdkFido2CredentialView(f)!;
-                  view.keyValue = decryptedKeyValue;
-                  return view;
-                })
-                .filter((view): view is Fido2CredentialView => view !== undefined);
+                const decryptedKeyValue = ref.value
+                  .vault()
+                  .ciphers()
+                  .decrypt_fido2_private_key(sdkCipherView);
+
+                clientCipherView.login.fido2Credentials = fido2CredentialViews
+                  .map((f) => {
+                    const view = Fido2CredentialView.fromSdkFido2CredentialView(f)!;
+                    view.keyValue = decryptedKeyValue;
+                    return view;
+                  })
+                  .filter((view): view is Fido2CredentialView => view !== undefined);
+              }
+
+              successful.push(clientCipherView);
+            } catch (error) {
+              this.logService.error(`Failed to decrypt cipher ${cipher.id}: ${error}`);
+              const failedView = new CipherView(cipher);
+              failedView.name = "[error: cannot decrypt]";
+              failedView.decryptionFailure = true;
+              failed.push(failedView);
             }
-
-            return clientCipherView;
           });
+
+          return [successful, failed] as [CipherView[], CipherView[]];
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to decrypt ciphers: ${error}`);
@@ -218,7 +230,10 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     );
   }
 
-  async decryptMany(ciphers: Cipher[], userId: UserId): Promise<CipherListView[]> {
+  async decryptManyWithFailures(
+    ciphers: Cipher[],
+    userId: UserId,
+  ): Promise<[CipherListView[], Cipher[]]> {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         map((sdk) => {
@@ -228,14 +243,17 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
           using ref = sdk.take();
 
-          return ref.value
+          const result: DecryptCipherListResult = ref.value
             .vault()
             .ciphers()
-            .decrypt_list(ciphers.map((cipher) => cipher.toSdkCipher()));
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to decrypt cipher list: ${error}`);
-          return EMPTY;
+            .decrypt_list_with_failures(ciphers.map((cipher) => cipher.toSdkCipher()));
+
+          const decryptedCiphers = result.successes;
+          const failedCiphers: Cipher[] = result.failures
+            .map((cipher) => Cipher.fromSdkCipher(cipher))
+            .filter((cipher): cipher is Cipher => cipher !== undefined);
+
+          return [decryptedCiphers, failedCiphers];
         }),
       ),
     );

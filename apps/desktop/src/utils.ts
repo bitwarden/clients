@@ -20,11 +20,7 @@ export function invokeMenu(menu: RendererMenuItem[]) {
 }
 
 export function isDev() {
-  // ref: https://github.com/sindresorhus/electron-is-dev
-  if ("ELECTRON_IS_DEV" in process.env) {
-    return parseInt(process.env.ELECTRON_IS_DEV, 10) === 1;
-  }
-  return process.defaultApp || /node_modules[\\/]electron[\\/]/.test(process.execPath);
+  return BIT_ENVIRONMENT === "development";
 }
 
 export function isLinux() {
@@ -57,7 +53,8 @@ export function isWindowsStore() {
   if (
     windows &&
     !windowsStore &&
-    process.resourcesPath?.indexOf("8bitSolutionsLLC.bitwardendesktop_") > -1
+    (process.resourcesPath?.indexOf("8bitSolutionsLLC.bitwardendesktop_") > -1 ||
+      process.resourcesPath?.indexOf("8bitSolutionsLLC.BitwardenBeta_") > -1)
   ) {
     windowsStore = true;
   }
@@ -73,8 +70,7 @@ export function isWindowsPortable() {
 }
 
 /**
- * We block the browser integration on some unsupported platforms, which also
- * blocks partially supported platforms (mac .dmg in dev builds) / prevents
+ * We block the browser integration on some unsupported platforms prevents
  * experimenting with the feature for QA. So this env var allows overriding
  * the block.
  */
@@ -97,4 +93,12 @@ export function cleanUserAgent(userAgent: string): string {
     .replace(userAgentItem("(", ")"), systemInformation)
     .replace(userAgentItem("Bitwarden", " "), "")
     .replace(userAgentItem("Electron", " "), "");
+}
+
+/**
+ * Returns `true` if the provided string is not undefined, not null, and not empty.
+ * Otherwise, returns `false`.
+ */
+export function stringIsNotUndefinedNullAndEmpty(str: string): boolean {
+  return str?.length > 0;
 }

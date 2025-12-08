@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { Router } from "@angular/router";
+import { Router, ActivatedRoute } from "@angular/router";
 import {
   BehaviorSubject,
   filter,
@@ -16,7 +16,7 @@ import {
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { LogoutService, PinServiceAbstraction } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/auth/common";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -29,9 +29,13 @@ import {
   MasterPasswordVerificationResponse,
 } from "@bitwarden/common/auth/types/verification";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -63,6 +67,8 @@ import {
   UnlockOptionValue,
 } from "../services/lock-component.service";
 
+import { MasterPasswordLockComponent } from "./master-password-lock/master-password-lock.component";
+
 const BroadcasterSubscriptionId = "LockComponent";
 
 const clientTypeToSuccessRouteRecord: Partial<Record<ClientType, string>> = {
@@ -71,9 +77,18 @@ const clientTypeToSuccessRouteRecord: Partial<Record<ClientType, string>> = {
   [ClientType.Browser]: "/tabs/current",
 };
 
+type AfterUnlockActions = {
+  passwordEvaluation?: {
+    masterPassword: string;
+  };
+};
+
 /// The minimum amount of time to wait after a process reload for a biometrics auto prompt to be possible
 /// Fixes safari autoprompt behavior
 const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-lock",
   templateUrl: "lock.component.html",
@@ -85,11 +100,16 @@ const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
     FormFieldModule,
     AsyncActionsModule,
     IconButtonModule,
+    MasterPasswordLockComponent,
   ],
 })
 export class LockComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected loading = true;
+
+  protected unlockWithMasterPasswordUnlockDataFlag$ = this.configService.getFeatureFlag$(
+    FeatureFlag.UnlockWithMasterPasswordUnlockData,
+  );
 
   activeAccount: Account | null = null;
 
@@ -123,7 +143,7 @@ export class LockComponent implements OnInit, OnDestroy {
   formGroup: FormGroup | null = null;
 
   // Browser extension properties:
-  private shouldClosePopout = false;
+  shouldClosePopout = false;
 
   // Desktop properties:
   private deferFocus: boolean | null = null;
@@ -140,6 +160,7 @@ export class LockComponent implements OnInit, OnDestroy {
     private keyService: KeyService,
     private platformUtilsService: PlatformUtilsService,
     private router: Router,
+    private activatedRoute: ActivatedRoute,
     private dialogService: DialogService,
     private messagingService: MessagingService,
     private biometricStateService: BiometricStateService,
@@ -154,13 +175,13 @@ export class LockComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private toastService: ToastService,
     private userAsymmetricKeysRegenerationService: UserAsymmetricKeysRegenerationService,
-
     private biometricService: BiometricsService,
     private logoutService: LogoutService,
-
     private lockComponentService: LockComponentService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
+    private encryptedMigrator: EncryptedMigrator,
 
+    private configService: ConfigService,
     // desktop deps
     private broadcasterService: BroadcasterService,
   ) {}
@@ -211,7 +232,7 @@ export class LockComponent implements OnInit, OnDestroy {
       });
   }
 
-  private buildMasterPasswordForm() {
+  buildMasterPasswordForm() {
     this.formGroup = this.formBuilder.group(
       {
         masterPassword: ["", [Validators.required]],
@@ -380,7 +401,7 @@ export class LockComponent implements OnInit, OnDestroy {
 
       // If user cancels biometric prompt, userKey is undefined.
       if (userKey) {
-        await this.setUserKeyAndContinue(userKey, false);
+        await this.setUserKeyAndContinue(userKey);
       }
 
       this.unlockingViaBiometrics = false;
@@ -424,6 +445,7 @@ export class LockComponent implements OnInit, OnDestroy {
     }
   }
 
+  //TODO PM-25385 This code isn't used and should be removed when removing the UnlockWithMasterPasswordUnlockData feature flag.
   togglePassword() {
     this.showPassword = !this.showPassword;
     const input = document.getElementById(
@@ -499,6 +521,7 @@ export class LockComponent implements OnInit, OnDestroy {
     }
   }
 
+  // TODO PM-25385 remove when removing the UnlockWithMasterPasswordUnlockData feature flag.
   private validateMasterPassword(): boolean {
     if (this.formGroup?.invalid) {
       this.toastService.showToast({
@@ -512,7 +535,8 @@ export class LockComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  private async unlockViaMasterPassword() {
+  // TODO PM-25385 remove when removing the UnlockWithMasterPasswordUnlockData feature flag.
+  async unlockViaMasterPassword() {
     if (!this.validateMasterPassword() || this.formGroup == null || this.activeAccount == null) {
       return;
     }
@@ -569,10 +593,33 @@ export class LockComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.setUserKeyAndContinue(userKey, true);
+    await this.setUserKeyAndContinue(userKey, {
+      passwordEvaluation: { masterPassword },
+    });
   }
 
-  private async setUserKeyAndContinue(key: UserKey, evaluatePasswordAfterUnlock = false) {
+  async successfulMasterPasswordUnlock(event: {
+    userKey: UserKey;
+    masterPassword: string;
+  }): Promise<void> {
+    if (event.userKey == null || !event.masterPassword) {
+      this.logService.error(
+        "[LockComponent] successfulMasterPasswordUnlock called with invalid data.",
+      );
+      return;
+    }
+
+    await this.setUserKeyAndContinue(event.userKey, {
+      passwordEvaluation: {
+        masterPassword: event.masterPassword,
+      },
+    });
+  }
+
+  protected async setUserKeyAndContinue(
+    key: UserKey,
+    afterUnlockActions: AfterUnlockActions = {},
+  ): Promise<void> {
     if (this.activeAccount == null) {
       throw new Error("No active user.");
     }
@@ -581,23 +628,34 @@ export class LockComponent implements OnInit, OnDestroy {
     this.logService.mark("Vault unlocked");
 
     await this.keyService.setUserKey(key, this.activeAccount.id);
+    await this.pinService.userUnlocked(this.activeAccount.id);
 
     // Now that we have a decrypted user key in memory, we can check if we
     // need to establish trust on the current device
     await this.deviceTrustService.trustDeviceIfRequired(this.activeAccount.id);
 
-    await this.doContinue(evaluatePasswordAfterUnlock);
+    await this.doContinue(afterUnlockActions);
   }
 
-  private async doContinue(evaluatePasswordAfterUnlock: boolean) {
+  private async doContinue(afterUnlockActions: AfterUnlockActions) {
     if (this.activeAccount == null) {
       throw new Error("No active user.");
     }
 
     await this.biometricStateService.resetUserPromptCancelled();
+
+    try {
+      await this.encryptedMigrator.runMigrations(
+        this.activeAccount.id,
+        afterUnlockActions.passwordEvaluation?.masterPassword ?? null,
+      );
+    } catch {
+      // Don't block login success on migration failure
+    }
+
     this.messagingService.send("unlocked");
 
-    if (evaluatePasswordAfterUnlock) {
+    if (afterUnlockActions.passwordEvaluation) {
       const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
       if (userId == null) {
         throw new Error("No active user.");
@@ -614,7 +672,7 @@ export class LockComponent implements OnInit, OnDestroy {
           );
         }
 
-        if (this.requirePasswordChange()) {
+        if (this.requirePasswordChange(afterUnlockActions.passwordEvaluation.masterPassword)) {
           await this.masterPasswordService.setForceSetPasswordReason(
             ForceSetPasswordReason.WeakMasterPassword,
             userId,
@@ -626,7 +684,7 @@ export class LockComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Vault can be de-synced since notifications get ignored while locked. Need to check whether sync is required using the sync service.
+    // Vault can be de-synced since server notifications get ignored while locked. Need to check whether sync is required using the sync service.
     const startSync = new Date().getTime();
     // TODO: This should probably not be blocking
     await this.syncService.fullSync(false);
@@ -653,7 +711,13 @@ export class LockComponent implements OnInit, OnDestroy {
     }
 
     // determine success route based on client type
-    if (this.clientType != null) {
+    // The disable-redirect parameter allows callers to prevent automatic navigation after unlock,
+    // useful when the lock component is used in contexts where custom post-unlock behavior is needed
+    // such as passkey modals.
+    if (
+      this.clientType != null &&
+      this.activatedRoute.snapshot.paramMap.get("disable-redirect") === null
+    ) {
       const successRoute = clientTypeToSuccessRouteRecord[this.clientType];
       await this.router.navigate([successRoute]);
     }
@@ -670,17 +734,14 @@ export class LockComponent implements OnInit, OnDestroy {
    * Checks if the master password meets the enforced policy requirements
    * If not, returns false
    */
-  private requirePasswordChange(): boolean {
+  private requirePasswordChange(masterPassword: string): boolean {
     if (
       this.enforcedMasterPasswordOptions == undefined ||
       !this.enforcedMasterPasswordOptions.enforceOnLogin ||
-      this.formGroup == null ||
       this.activeAccount == null
     ) {
       return false;
     }
-
-    const masterPassword = this.formGroup.controls.masterPassword.value;
 
     const passwordStrength = this.passwordStrengthService.getPasswordStrength(
       masterPassword,

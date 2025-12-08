@@ -34,7 +34,7 @@
               (change)="toggleAllVisible($event)"
               id="selectAll"
             />
-            <label class="tw-mb-0 !tw-font-bold !tw-text-muted" for="selectAll">{{
+            <label class="tw-mb-0 !tw-font-medium !tw-text-muted" for="selectAll">{{
               "all" | i18n
             }}</label>
           </th>
@@ -46,7 +46,7 @@
               type="button"
               bitIconButton="bwi-ellipsis-v"
               size="small"
-              appA11yTitle="{{ 'options' | i18n }}"
+              label="{{ 'options' | i18n }}"
             ></button>
 
             <bit-menu #headerMenu>
@@ -64,7 +64,7 @@
           <td bitCell (click)="check(g)" class="tw-cursor-pointer">
             <input type="checkbox" bitCheckbox [(ngModel)]="g.checked" />
           </td>
-          <td bitCell class="tw-cursor-pointer tw-font-bold" (click)="edit(g)">
+          <td bitCell class="tw-cursor-pointer tw-font-medium" (click)="edit(g)">
             <button type="button" bitLink>
               {{ g.details.name }}
             </button>
@@ -82,7 +82,7 @@
               type="button"
               bitIconButton="bwi-ellipsis-v"
               size="small"
-              appA11yTitle="{{ 'options' | i18n }}"
+              label="{{ 'options' | i18n }}"
             ></button>
 
             <bit-menu #rowMenu>
