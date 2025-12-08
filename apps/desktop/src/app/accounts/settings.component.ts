@@ -301,12 +301,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // Autotype is for Windows initially
     const isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
     if (isWindows) {
-      this.configService
-        .getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((enabled) => {
-          this.showEnableAutotype = enabled;
-        });
+      this.showEnableAutotype = true;
     }
 
     this.userHasMasterPassword = await this.userVerificationService.hasMasterPassword();

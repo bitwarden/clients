@@ -5,8 +5,6 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { DeviceType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   GlobalStateProvider,
@@ -58,7 +56,6 @@ export class DesktopAutotypeService {
     private accountService: AccountService,
     private authService: AuthService,
     private cipherService: CipherService,
-    private configService: ConfigService,
     private globalStateProvider: GlobalStateProvider,
     private platformUtilsService: PlatformUtilsService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
@@ -106,7 +103,6 @@ export class DesktopAutotypeService {
       // feature should be on or off.
       this.resolvedAutotypeEnabled$ = combineLatest([
         this.autotypeEnabledState.state$,
-        this.configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype),
         this.accountService.activeAccount$.pipe(
           map((activeAccount) => activeAccount?.id),
           switchMap((userId) => this.authService.authStatusFor$(userId)),
@@ -119,11 +115,8 @@ export class DesktopAutotypeService {
         ),
       ]).pipe(
         map(
-          ([autotypeEnabled, windowsDesktopAutotypeFeatureFlag, authStatus, hasPremium]) =>
-            autotypeEnabled &&
-            windowsDesktopAutotypeFeatureFlag &&
-            authStatus == AuthenticationStatus.Unlocked &&
-            hasPremium,
+          ([autotypeEnabled, authStatus, hasPremium]) =>
+            autotypeEnabled && authStatus == AuthenticationStatus.Unlocked && hasPremium,
         ),
       );
 
