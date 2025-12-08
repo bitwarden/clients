@@ -19,6 +19,8 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -27,6 +29,8 @@ import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { BaseMembersComponent } from "@bitwarden/web-vault/app/admin-console/common/base-members.component";
 import {
+  CloudBulkReinviteLimit,
+  MaxCheckedCount,
   peopleFilter,
   PeopleTableDataSource,
 } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
@@ -56,7 +60,7 @@ class MembersTableDataSource extends PeopleTableDataSource<ProviderUser> {
 })
 export class MembersComponent extends BaseMembersComponent<ProviderUser> {
   accessEvents = false;
-  dataSource = new MembersTableDataSource();
+  dataSource: MembersTableDataSource;
   loading = true;
   providerId: string;
   rowHeight = 70;
@@ -81,6 +85,8 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
     private providerService: ProviderService,
     private router: Router,
     private accountService: AccountService,
+    private configService: ConfigService,
+    private environmentService: EnvironmentService,
   ) {
     super(
       apiService,
@@ -93,6 +99,8 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       organizationManagementPreferencesService,
       toastService,
     );
+
+    this.dataSource = new MembersTableDataSource(this.configService, this.environmentService);
 
     combineLatest([
       this.activatedRoute.parent.params,
@@ -134,10 +142,12 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return;
     }
 
+    const users = this.dataSource.getCheckedUsersWithLimit(MaxCheckedCount);
+
     const dialogRef = BulkConfirmDialogComponent.open(this.dialogService, {
       data: {
         providerId: this.providerId,
-        users: this.dataSource.getCheckedUsers(),
+        users: users,
       },
     });
 
@@ -150,10 +160,28 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return;
     }
 
-    const checkedUsers = this.dataSource.getCheckedUsers();
-    const checkedInvitedUsers = checkedUsers.filter(
-      (user) => user.status === ProviderUserStatusType.Invited,
-    );
+    let users: ProviderUser[];
+    if (this.dataSource.isIncreasedBulkLimitEnabled()) {
+      users = this.dataSource.getCheckedUsersInVisibleOrder();
+    } else {
+      users = this.dataSource.getCheckedUsers();
+    }
+
+    const allInvitedUsers = users.filter((user) => user.status === ProviderUserStatusType.Invited);
+
+    // Capture the original count BEFORE enforcing the limit
+    const originalInvitedCount = allInvitedUsers.length;
+
+    // When feature flag is enabled, limit invited users and uncheck the excess
+    let checkedInvitedUsers: ProviderUser[];
+    if (this.dataSource.isIncreasedBulkLimitEnabled()) {
+      checkedInvitedUsers = this.dataSource.limitAndUncheckExcess(
+        allInvitedUsers,
+        CloudBulkReinviteLimit,
+      );
+    } else {
+      checkedInvitedUsers = allInvitedUsers;
+    }
 
     if (checkedInvitedUsers.length <= 0) {
       this.toastService.showToast({
@@ -165,20 +193,50 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
     }
 
     try {
-      const request = this.apiService.postManyProviderUserReinvite(
-        this.providerId,
-        new ProviderUserBulkRequest(checkedInvitedUsers.map((user) => user.id)),
-      );
+      // When feature flag is enabled, show toast instead of dialog
+      if (this.dataSource.isIncreasedBulkLimitEnabled()) {
+        await this.apiService.postManyProviderUserReinvite(
+          this.providerId,
+          new ProviderUserBulkRequest(checkedInvitedUsers.map((user) => user.id)),
+        );
 
-      const dialogRef = BulkStatusComponent.open(this.dialogService, {
-        data: {
-          users: checkedUsers,
-          filteredUsers: checkedInvitedUsers,
-          request,
-          successfulMessage: this.i18nService.t("bulkReinviteMessage"),
-        },
-      });
-      await lastValueFrom(dialogRef.closed);
+        const selectedCount = originalInvitedCount;
+        const invitedCount = checkedInvitedUsers.length;
+
+        if (selectedCount > CloudBulkReinviteLimit) {
+          const excludedCount = selectedCount - CloudBulkReinviteLimit;
+          this.toastService.showToast({
+            variant: "success",
+            message: this.i18nService.t(
+              "bulkReinviteLimitedSuccessToast",
+              CloudBulkReinviteLimit.toLocaleString(),
+              selectedCount.toLocaleString(),
+              excludedCount.toLocaleString(),
+            ),
+          });
+        } else {
+          this.toastService.showToast({
+            variant: "success",
+            message: this.i18nService.t("bulkReinviteSuccessToast", invitedCount.toString()),
+          });
+        }
+      } else {
+        // Feature flag disabled - show legacy dialog
+        const request = this.apiService.postManyProviderUserReinvite(
+          this.providerId,
+          new ProviderUserBulkRequest(checkedInvitedUsers.map((user) => user.id)),
+        );
+
+        const dialogRef = BulkStatusComponent.open(this.dialogService, {
+          data: {
+            users: users,
+            filteredUsers: checkedInvitedUsers,
+            request,
+            successfulMessage: this.i18nService.t("bulkReinviteMessage"),
+          },
+        });
+        await lastValueFrom(dialogRef.closed);
+      }
     } catch (error) {
       this.validationService.showError(error);
     }
@@ -193,10 +251,12 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return;
     }
 
+    const users = this.dataSource.getCheckedUsersWithLimit(MaxCheckedCount);
+
     const dialogRef = BulkRemoveDialogComponent.open(this.dialogService, {
       data: {
         providerId: this.providerId,
-        users: this.dataSource.getCheckedUsers(),
+        users: users,
       },
     });
 
