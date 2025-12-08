@@ -6,9 +6,13 @@ const isRelease = args.includes('--release');
 
 if (isRelease) {
   console.log('Building release mode.');
+
+  execSync('napi build --platform --js false');
+
 } else {
   console.log('Building debug mode.');
-  process.env.RUST_LOG = 'debug';
-}
 
-execSync(`napi build --platform --js false ${isRelease ? '--release' : ''}`, { stdio: 'inherit', env: process.env });
+  execSync('napi build --platform --js false', {
+    env: { ...process.env, RUST_LOG: 'debug' }
+  });
+}
