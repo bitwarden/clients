@@ -367,8 +367,10 @@ export class MembersComponent {
       assertNonNullish(providerKey, "Provider key not found");
 
       const key = await this.encryptService.encapsulateKeyUnsigned(providerKey, publicKey);
-      const request = new ProviderUserConfirmRequest();
-      request.key = key.encryptedString;
+      if (key.encryptedString == null) {
+        throw new Error("No key was provided");
+      }
+      const request = new ProviderUserConfirmRequest(key.encryptedString);
       await this.apiService.postProviderUserConfirm(providerId, user.id, request);
       return { success: true };
     } catch (error: any) {
