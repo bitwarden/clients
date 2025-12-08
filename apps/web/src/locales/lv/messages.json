@@ -3062,6 +3062,15 @@
   "premiumSignUpStorage": {
     "message": "1 GB šifrētas krātuves datņu pielikumiem."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ šifrētas krātuves datņu pielikumiem.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Tādas slēgtā pirmavota divpakāpju pieteikšanās iespējas kā YubiKey un Duo."
   },
@@ -3123,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Tavs Premium abonements beidzās"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Lai atgūtu piekļuvi savam arhīvam, jāatsāk Premium abonements. Ja labosi arhivēta vienuma informāciju pirms atsākšanas, tas tiks pārvietots atpakaļ Tavā glabātavā."
+  },
+  "restartPremium": {
+    "message": "Atsākt Premium"
   },
   "additionalStorageGb": {
     "message": "Papildu krātuve (GB)"
@@ -4607,6 +4625,24 @@
   },
   "learnMore": {
     "message": "Uzzināt vairāk"
+  },
+  "migrationsFailed": {
+    "message": "Atgadījās kļūda šifrēšanas iestatījumu atjaunināšanā."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Atjaunini savus šifrēšanas iestatījumus"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Jaunie ieteicamie šifrēšanas iestatījumi uzlabos Tava konta drošību. Jāievada sava galvenā parole, lai atjauninātu tagad."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Jāapliecina sava identitāte, lai turpinātu"
+  },
+  "enterYourMasterPassword": {
+    "message": "Jāievada sava galvenā parole"
+  },
+  "updateSettings": {
+    "message": "Atjaunināt Iestatījumus"
   },
   "deleteRecoverDesc": {
     "message": "Jāievada e-pasta adrese zemāk esošajā laukā, lai atkoptu un izdzēstu savu kontu."
@@ -12092,9 +12128,6 @@
   },
   "updateYourEncryptionSettings": {
     "message": "Atjaunini savus šifrēšanas iestatījumus"
-  },
-  "updateSettings": {
-    "message": "Atjaunināt Iestatījumus"
   },
   "algorithm": {
     "message": "Algoritms"
