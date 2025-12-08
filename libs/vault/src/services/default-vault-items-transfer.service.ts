@@ -1,13 +1,5 @@
 import { Injectable } from "@angular/core";
-import {
-  firstValueFrom,
-  switchMap,
-  map,
-  of,
-  Observable,
-  combineLatest,
-  distinctUntilChanged,
-} from "rxjs";
+import { firstValueFrom, switchMap, map, of, Observable, combineLatest } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -100,7 +92,6 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
           })),
         );
       }),
-      distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
     );
   }
 
