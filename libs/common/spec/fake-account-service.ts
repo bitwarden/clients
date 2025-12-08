@@ -37,6 +37,8 @@ export class FakeAccountService implements AccountService {
   accountActivitySubject = new ReplaySubject<Record<UserId, Date>>(1);
   // eslint-disable-next-line rxjs/no-exposed-subjects -- test class
   accountVerifyDevicesSubject = new ReplaySubject<boolean>(1);
+  // eslint-disable-next-line rxjs/no-exposed-subjects -- test class
+  showHeaderSubject = new ReplaySubject<boolean>(1);
   private _activeUserId: UserId;
   get activeUserId() {
     return this._activeUserId;
@@ -55,6 +57,7 @@ export class FakeAccountService implements AccountService {
       }),
     );
   }
+  showHeader$ = this.showHeaderSubject.asObservable();
   get nextUpAccount$(): Observable<Account> {
     return combineLatest([this.accounts$, this.activeAccount$, this.sortedUserIds$]).pipe(
       map(([accounts, activeAccount, sortedUserIds]) => {
@@ -113,6 +116,10 @@ export class FakeAccountService implements AccountService {
     const updated = { ...current, [userId]: loggedOutInfo };
     this.accountsSubject.next(updated);
     await this.mock.clean(userId);
+  }
+
+  async setShowHeader(value: boolean): Promise<void> {
+    this.showHeaderSubject.next(value);
   }
 }
 

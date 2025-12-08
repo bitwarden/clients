@@ -236,7 +236,7 @@
     "message": "Applikationer markerade som kritiska"
   },
   "criticalApplicationsMarkedSuccess": {
-    "message": "$COUNT$ applications marked as critical",
+    "message": "$COUNT$ applikationer markerade som kritiska",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -269,7 +269,7 @@
     "message": "These members have access to vulnerable items for critical applications."
   },
   "membersWithAtRiskPasswords": {
-    "message": "Members with at-risk passwords"
+    "message": "Medlemmar med lösenord i riskzonen"
   },
   "membersWillReceiveSecurityTask": {
     "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
@@ -3062,6 +3062,15 @@
   "premiumSignUpStorage": {
     "message": "1 GB krypterad lagring."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Premium-alternativ för tvåstegsverifiering, såsom YubiKey och Duo."
   },
@@ -3123,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Starta om Premium"
   },
   "additionalStorageGb": {
     "message": "Ytterligare lagring (GB)"
@@ -4482,7 +4500,7 @@
     "message": "Sammanställer insikter..."
   },
   "loadingProgress": {
-    "message": "Loading progress"
+    "message": "Inläsningsförlopp"
   },
   "thisMightTakeFewMinutes": {
     "message": "Detta kan ta några minuter."
@@ -4607,6 +4625,24 @@
   },
   "learnMore": {
     "message": "Läs mer"
+  },
+  "migrationsFailed": {
+    "message": "Ett fel inträffade när krypteringsinställningarna skulle uppdateras."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Uppdatera dina krypteringsinställningar"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "De nya rekommenderade krypteringsinställningarna kommer att förbättra säkerheten för ditt konto. Ange ditt huvudlösenord för att uppdatera nu."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Bekräfta din identitet för att fortsätta"
+  },
+  "enterYourMasterPassword": {
+    "message": "Ange ditt huvudlösenord"
+  },
+  "updateSettings": {
+    "message": "Uppdatera inställningar"
   },
   "deleteRecoverDesc": {
     "message": "Ange din e-postadress nedan för att återställa och radera ditt konto."
@@ -6614,7 +6650,7 @@
     "message": "Ditt huvudlösenord uppfyller inte en eller flera av organisationens policyer. För att få tillgång till valvet måste du uppdatera ditt huvudlösenord nu. Om du fortsätter loggas du ut från din nuvarande session och måste logga in igen. Aktiva sessioner på andra enheter kan fortsätta att vara aktiva i upp till en timme."
   },
   "automaticAppLoginWithSSO": {
-    "message": "Automatic login with SSO"
+    "message": "Automatisk inloggning med SSO"
   },
   "automaticAppLoginWithSSODesc": {
     "message": "Extend SSO security and convenience to unmanaged apps. When users launch an app from your identity provider, their login details are automatically filled and submitted, creating a one-click, secure flow from the identity provider to the app."
@@ -7393,7 +7429,7 @@
     "message": "Åtkomst nekad. Du har inte behörighet att visa den här sidan."
   },
   "noPageAccess": {
-    "message": "You do not have access to this page"
+    "message": "Du har inte tillgång till denna sida"
   },
   "masterPassword": {
     "message": "Huvudlösenord"
@@ -12092,9 +12128,6 @@
   },
   "updateYourEncryptionSettings": {
     "message": "Uppdatera dina krypteringsinställningar"
-  },
-  "updateSettings": {
-    "message": "Uppdatera inställningar"
   },
   "algorithm": {
     "message": "Algoritm"
