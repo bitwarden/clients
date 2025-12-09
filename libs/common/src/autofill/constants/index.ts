@@ -38,6 +38,7 @@ export const AUTOFILL_ATTRIBUTES = {
   MAXLENGTH: "maxlength",
   TYPE: "type",
   VALUE: "value",
+  PLACEHOLDER: "placeholder",
   CHECKED: "checked",
   DISABLED: "disabled",
   READONLY: "readonly",
