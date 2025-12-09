@@ -1,6 +1,7 @@
+import { IOrgIntegrationJsonify } from "../integration-jsonify";
 import { OrganizationIntegrationServiceType } from "../organization-integration-service-type";
 
-export class HecConfiguration {
+export class HecConfiguration implements IOrgIntegrationJsonify {
   uri: string;
   scheme = "Bearer";
   token: string;

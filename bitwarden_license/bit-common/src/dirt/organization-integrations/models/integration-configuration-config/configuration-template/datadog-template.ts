@@ -1,6 +1,7 @@
+import { IOrgIntegrationJsonify } from "../../integration-jsonify";
 import { OrganizationIntegrationServiceType } from "../../organization-integration-service-type";
 
-export class DatadogTemplate {
+export class DatadogTemplate implements IOrgIntegrationJsonify {
   source_type_name = "Bitwarden";
   title: string = "#Title#";
   text: string =

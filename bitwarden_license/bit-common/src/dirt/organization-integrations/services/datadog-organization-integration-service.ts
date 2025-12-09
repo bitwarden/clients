@@ -38,15 +38,11 @@ export class DatadogOrganizationIntegrationService extends BaseOrganizationInteg
     super(integrationApiService, integrationConfigurationApiService);
   }
 
-  protected createConfiguration(
-    url: string,
-    apiKey: string,
-    service: string,
-  ): DatadogConfiguration {
+  private createConfiguration(url: string, apiKey: string, service: string): DatadogConfiguration {
     return new DatadogConfiguration(url, apiKey, service);
   }
 
-  protected createTemplate(service: string): DatadogTemplate {
+  private createTemplate(service: string): DatadogTemplate {
     return new DatadogTemplate(service);
   }
 

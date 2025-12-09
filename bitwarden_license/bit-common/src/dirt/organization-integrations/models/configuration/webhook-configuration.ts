@@ -1,5 +1,7 @@
+import { IOrgIntegrationJsonify } from "../integration-jsonify";
+
 // Added to reflect how future webhook integrations could be structured within the OrganizationIntegration
-export class WebhookConfiguration {
+export class WebhookConfiguration implements IOrgIntegrationJsonify {
   propA: string;
   propB: string;
 

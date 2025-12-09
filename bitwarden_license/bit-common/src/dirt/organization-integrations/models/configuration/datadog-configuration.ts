@@ -1,6 +1,7 @@
+import { IOrgIntegrationJsonify } from "../integration-jsonify";
 import { OrganizationIntegrationServiceType } from "../organization-integration-service-type";
 
-export class DatadogConfiguration {
+export class DatadogConfiguration implements IOrgIntegrationJsonify {
   uri: string;
   apiKey: string;
   service: OrganizationIntegrationServiceType;

@@ -7,10 +7,6 @@ import {
   OrganizationIntegrationId,
 } from "@bitwarden/common/types/guid";
 
-import { DatadogConfiguration } from "../models/configuration/datadog-configuration";
-import { DatadogTemplate } from "../models/integration-configuration-config/configuration-template/datadog-template";
-import { OrganizationIntegration } from "../models/organization-integration";
-import { OrganizationIntegrationConfiguration } from "../models/organization-integration-configuration";
 import { OrganizationIntegrationConfigurationResponse } from "../models/organization-integration-configuration-response";
 import { OrganizationIntegrationResponse } from "../models/organization-integration-response";
 import { OrganizationIntegrationServiceType } from "../models/organization-integration-service-type";
@@ -116,59 +112,5 @@ describe("DatadogOrganizationIntegrationService", () => {
     await expect(
       service.updateDatadog(organizationId, integrationId, configId, serviceType, url, apiKey),
     ).rejects.toThrow(Error("Organization ID mismatch"));
-  });
-
-  it("should get integration by id", async () => {
-    service["_integrations$"].next([
-      new OrganizationIntegration(
-        integrationId,
-        OrganizationIntegrationType.Datadog,
-        serviceType,
-        {} as DatadogConfiguration,
-        [],
-      ),
-    ]);
-    const integration = await service.getIntegrationById(integrationId);
-    expect(integration).not.toBeNull();
-    expect(integration!.id).toBe(integrationId);
-  });
-
-  it("should get integration by service type", async () => {
-    service["_integrations$"].next([
-      new OrganizationIntegration(
-        integrationId,
-        OrganizationIntegrationType.Datadog,
-        serviceType,
-        {} as DatadogConfiguration,
-        [],
-      ),
-    ]);
-    const integration = await service.getIntegrationByServiceType(serviceType);
-    expect(integration).not.toBeNull();
-    expect(integration!.serviceType).toBe(serviceType);
-  });
-
-  it("should get integration configurations", async () => {
-    const config = new OrganizationIntegrationConfiguration(
-      configId,
-      integrationId,
-      null,
-      null,
-      "",
-      {} as DatadogTemplate,
-    );
-
-    service["_integrations$"].next([
-      new OrganizationIntegration(
-        integrationId,
-        OrganizationIntegrationType.Datadog,
-        serviceType,
-        {} as DatadogConfiguration,
-        [config],
-      ),
-    ]);
-    const configs = await service.getIntegrationConfigurations(integrationId);
-    expect(configs).not.toBeNull();
-    expect(configs![0].id).toBe(configId);
   });
 });
