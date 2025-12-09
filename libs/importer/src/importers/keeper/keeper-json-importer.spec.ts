@@ -23,18 +23,13 @@ describe("Keeper Json Importer", () => {
   let legacyResult: ImportResult;
 
   beforeAll(async () => {
-    const importer = new KeeperJsonImporter();
-    cliResult = await expectParse(importer, cliTestDataJson, 24);
+    // Disable the logging. The SSH key parsing will log errors for invalid keys during tests.
+    jest.spyOn(console, "warn").mockImplementation();
 
-    const webImporter = new KeeperJsonImporter();
-    webResult = await expectParse(webImporter, webTestDataJson, 24);
-
-    const orgImporter = new KeeperJsonImporter();
-    orgImporter.organizationId = newGuid() as OrganizationId;
-    orgResult = await expectParse(orgImporter, cliTestDataJson, 24);
-
-    const legacyImporter = new KeeperJsonImporter();
-    legacyResult = await expectParse(legacyImporter, legacyTestDataJson, 78);
+    cliResult = await expectParse(makeImporter(), cliTestDataJson, 24);
+    webResult = await expectParse(makeImporter(), webTestDataJson, 24);
+    orgResult = await expectParse(makeImporter(newGuid()), cliTestDataJson, 24);
+    legacyResult = await expectParse(makeImporter(), legacyTestDataJson, 78);
   });
 
   // All possible record types
@@ -747,6 +742,14 @@ describe("Keeper Json Importer", () => {
   //
   // Helpers
   //
+
+  function makeImporter(orgId?: string): KeeperJsonImporter {
+    const importer = new KeeperJsonImporter();
+    if (orgId) {
+      importer.organizationId = orgId as OrganizationId;
+    }
+    return importer;
+  }
 
   async function expectParse(
     importer: KeeperJsonImporter,

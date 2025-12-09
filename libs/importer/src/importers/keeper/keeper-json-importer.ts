@@ -25,7 +25,7 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
   parse(data: string): Promise<ImportResult> {
     const result = new ImportResult();
     const keeperExport: KeeperJsonExport = JSON.parse(data);
-    if (!keeperExport || !keeperExport.records || keeperExport.records.length === 0) {
+    if (!keeperExport?.records?.length) {
       result.success = false;
       return Promise.resolve(result);
     }
@@ -57,11 +57,11 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
       this.parseFolders(result, record);
 
       const cipher = this.initLoginCipher();
-      cipher.name = record.title ?? "";
-      cipher.notes = record.notes ?? "";
+      cipher.name = this.getValueOrDefault(record.title);
+      cipher.notes = this.getValueOrDefault(record.notes);
 
-      cipher.login.username = record.login ?? "";
-      cipher.login.password = record.password ?? "";
+      cipher.login.username = this.getValueOrDefault(record.login);
+      cipher.login.password = this.getValueOrDefault(record.password);
       cipher.login.uris = this.makeUriArray(record.login_url);
 
       // Force type based on the record type
@@ -181,6 +181,9 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     try {
       keyView = import_ssh_key(privateKey, cipher.login.password);
     } catch {
+      this.logService.warning(
+        `Unable to import SSH key (id: ${record.uid}, title: ${record.title})`,
+      );
       return false;
     }
     if (!keyView) {
