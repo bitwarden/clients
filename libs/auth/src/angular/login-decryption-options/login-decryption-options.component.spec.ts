@@ -155,8 +155,6 @@ describe("LoginDecryptionOptionsComponent", () => {
       // Ensure Symbol.dispose exists so the SDK mock satisfies the using statement helper
       (Symbol as any).dispose ??= Symbol("dispose");
 
-      deviceTrustService.setDeviceKey = jest.fn().mockResolvedValue(undefined);
-
       mockPrivateKey = "mock-private-key";
       mockSignedPublicKey = "mock-signed-public-key";
       mockSigningKey = "mock-signing-key";
