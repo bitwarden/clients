@@ -234,22 +234,14 @@ export class MembersComponent {
       return false;
     }
 
-    try {
-      const result = await this.memberActionsService.removeUser(organization, user.id);
-      const sideEffect = () => this.dataSource.removeUser(user);
-      await this.handleMemberActionResult(result, "removedUserId", user, sideEffect);
-    } catch (e) {
-      this.validationService.showError(e);
-    }
+    const result = await this.memberActionsService.removeUser(organization, user.id);
+    const sideEffect = () => this.dataSource.removeUser(user);
+    await this.handleMemberActionResult(result, "removedUserId", user, sideEffect);
   }
 
   async reinvite(user: OrganizationUserView, organization: Organization) {
-    try {
-      const result = await this.memberActionsService.reinviteUser(organization, user.id);
-      await this.handleMemberActionResult(result, "hasBeenReinvited", user);
-    } catch (e) {
-      this.validationService.showError(e);
-    }
+    const result = await this.memberActionsService.reinviteUser(organization, user.id);
+    await this.handleMemberActionResult(result, "hasBeenReinvited", user);
   }
 
   async confirm(user: OrganizationUserView, organization: Organization) {
@@ -259,18 +251,8 @@ export class MembersComponent {
     };
 
     const confirmUser = async (publicKey: Uint8Array) => {
-      try {
-        const result = await this.memberActionsService.confirmUser(user, publicKey, organization);
-        await this.handleMemberActionResult(
-          result,
-          "hasBeenConfirmed",
-          user,
-          confirmUserSideEffect,
-        );
-      } catch (e) {
-        this.validationService.showError(e);
-        throw e;
-      }
+      const result = await this.memberActionsService.confirmUser(user, publicKey, organization);
+      await this.handleMemberActionResult(result, "hasBeenConfirmed", user, confirmUserSideEffect);
     };
 
     try {
@@ -316,23 +298,15 @@ export class MembersComponent {
       return false;
     }
 
-    try {
-      const result = await this.memberActionsService.revokeUser(organization, user.id);
-      const sideEffect = async () => await this.load(organization);
-      await this.handleMemberActionResult(result, "revokedUserId", user, sideEffect);
-    } catch (e) {
-      this.validationService.showError(e);
-    }
+    const result = await this.memberActionsService.revokeUser(organization, user.id);
+    const sideEffect = async () => await this.load(organization);
+    await this.handleMemberActionResult(result, "revokedUserId", user, sideEffect);
   }
 
   async restore(user: OrganizationUserView, organization: Organization) {
-    try {
-      const result = await this.memberActionsService.restoreUser(organization, user.id);
-      const sideEffect = async () => await this.load(organization);
-      await this.handleMemberActionResult(result, "restoredUserId", user, sideEffect);
-    } catch (e) {
-      this.validationService.showError(e);
-    }
+    const result = await this.memberActionsService.restoreUser(organization, user.id);
+    const sideEffect = async () => await this.load(organization);
+    await this.handleMemberActionResult(result, "restoredUserId", user, sideEffect);
   }
 
   allowResetPassword(
@@ -458,7 +432,6 @@ export class MembersComponent {
         throw new Error();
       }
 
-      // Bulk Status component open
       await this.memberDialogManager.openBulkStatusDialog(
         users,
         filteredUsers,
@@ -520,14 +493,10 @@ export class MembersComponent {
       return false;
     }
 
-    try {
-      const result = await this.memberActionsService.deleteUser(organization, user.id);
-      await this.handleMemberActionResult(result, "organizationUserDeleted", user, () => {
-        this.dataSource.removeUser(user);
-      });
-    } catch (e) {
-      this.validationService.showError(e);
-    }
+    const result = await this.memberActionsService.deleteUser(organization, user.id);
+    await this.handleMemberActionResult(result, "organizationUserDeleted", user, () => {
+      this.dataSource.removeUser(user);
+    });
   }
 
   async handleMemberActionResult(
@@ -536,16 +505,20 @@ export class MembersComponent {
     user: OrganizationUserView,
     sideEffect?: () => void | Promise<void>,
   ) {
-    if (result.success) {
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t(successKey, this.userNamePipe.transform(user)),
-      });
-      if (sideEffect) {
-        await sideEffect();
+    try {
+      if (result.success) {
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t(successKey, this.userNamePipe.transform(user)),
+        });
+        if (sideEffect) {
+          await sideEffect();
+        }
+      } else {
+        throw new Error(result.error);
       }
-    } else {
-      throw new Error(result.error);
+    } catch (e) {
+      this.validationService.showError(e);
     }
   }
 }
