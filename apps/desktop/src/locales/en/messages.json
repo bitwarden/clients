@@ -4392,5 +4392,8 @@
         "example": "Chrome"
       }
     }
+  },
+  "upgrade": {
+    "message": "Upgrade"
   }
 }
