@@ -47,8 +47,8 @@
           <!-- The `data-fvw` attribute passes focus to `this.focusVisibleWithin$` -->
           <!-- The following `class` field should match the `#isButton` class field below -->
           <a
-            class="tw-size-full tw-px-4 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]"
-            [class.tw-ps-0]="variant() === 'tree' || treeDepth() > 0"
+            class="tw-size-full tw-pe-1 tw-ps-4 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]"
+            [class.!tw-ps-0]="variant() === 'tree' || treeDepth() > 0"
             data-fvw
             [routerLink]="route()"
             [relativeTo]="relativeTo()"
@@ -68,10 +68,9 @@
           <!-- Class field should match `#isAnchor` class field above -->
           <button
             type="button"
-            class="tw-size-full tw-px-4 tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]"
+            class="tw-size-full tw-pe-1 tw-ps-4 tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]"
             [class.tw-pe-4]="!open"
-            [class.tw-ps-0]="variant() === 'tree' || treeDepth() > 0"
-            [class.tw-py-0]="variant() === 'tree' || treeDepth() > 0"
+            [class.!tw-ps-0]="variant() === 'tree' || treeDepth() > 0"
             data-fvw
             (click)="mainContentClicked.emit()"
           >
