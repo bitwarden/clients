@@ -7,7 +7,7 @@ import {
   OrganizationIntegrationConfigurationId,
 } from "@bitwarden/common/types/guid";
 
-import { IOrgIntegrationJsonify } from "../models/integration-jsonify";
+import { OrgIntegrationConfiguration, OrgIntegrationTemplate } from "../models/integration-jsonify";
 import { OrganizationIntegration } from "../models/organization-integration";
 import { OrganizationIntegrationConfiguration } from "../models/organization-integration-configuration";
 import { OrganizationIntegrationConfigurationRequest } from "../models/organization-integration-configuration-request";
@@ -35,8 +35,8 @@ export type IntegrationModificationResult = {
  * @template TTemplate - The template type specific to the integration (e.g., HecTemplate, DatadogTemplate)
  */
 export abstract class BaseOrganizationIntegrationService<
-  TConfig extends IOrgIntegrationJsonify,
-  TTemplate extends IOrgIntegrationJsonify,
+  TConfig extends OrgIntegrationConfiguration,
+  TTemplate extends OrgIntegrationTemplate,
 > {
   private organizationId$ = new BehaviorSubject<OrganizationId | null>(null);
   private _integrations$ = new BehaviorSubject<OrganizationIntegration[]>([]);
@@ -265,7 +265,7 @@ export abstract class BaseOrganizationIntegrationService<
     return new OrganizationIntegration(
       integrationResponse.id,
       integrationResponse.type,
-      (config as any).service,
+      (config as OrgIntegrationConfiguration).service,
       config as any,
       [integrationConfig],
     );

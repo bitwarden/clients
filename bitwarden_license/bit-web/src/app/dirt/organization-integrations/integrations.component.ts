@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, Observable, Subject, switchMap, takeUntil, takeWhile } from "rxjs";
 
@@ -24,6 +24,7 @@ import { FilterIntegrationsPipe } from "./integrations.pipe";
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "ac-integrations",
   templateUrl: "./integrations.component.html",
   imports: [SharedModule, IntegrationGridComponent, HeaderModule, FilterIntegrationsPipe],

@@ -18,6 +18,11 @@ import { OrganizationIntegrationsRoutingModule } from "./organization-integratio
       deps: [OrganizationIntegrationApiService, OrganizationIntegrationConfigurationApiService],
     }),
     safeProvider({
+      provide: OrganizationIntegrationService,
+      useClass: OrganizationIntegrationService,
+      deps: [OrganizationIntegrationApiService, OrganizationIntegrationConfigurationApiService],
+    }),
+    safeProvider({
       provide: OrganizationIntegrationApiService,
       useClass: OrganizationIntegrationApiService,
       deps: [ApiService],
