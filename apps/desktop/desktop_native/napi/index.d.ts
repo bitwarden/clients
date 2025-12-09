@@ -9,7 +9,7 @@ export declare namespace autofill {
      * connection and must be the same for both the server and client. @param callback
      * This function will be called whenever a message is received from a client.
      */
-    static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void, assertionWithoutUserInterfaceCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void): Promise<AutofillIpcServer>
+    static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void, assertionWithoutUserInterfaceCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void, nativeStatusCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: NativeStatus) => void): Promise<AutofillIpcServer>
     /** Return the path to the IPC server. */
     getPath(): string
     /** Stop the IPC server. */
@@ -17,6 +17,10 @@ export declare namespace autofill {
     completeRegistration(clientId: number, sequenceNumber: number, response: PasskeyRegistrationResponse): number
     completeAssertion(clientId: number, sequenceNumber: number, response: PasskeyAssertionResponse): number
     completeError(clientId: number, sequenceNumber: number, error: string): number
+  }
+  export interface NativeStatus {
+    key: string
+    value: string
   }
   export interface PasskeyAssertionRequest {
     rpId: string
@@ -51,6 +55,7 @@ export declare namespace autofill {
     userVerification: UserVerification
     supportedAlgorithms: Array<number>
     windowXy: Position
+    excludedCredentials: Array<Array<number>>
   }
   export interface PasskeyRegistrationResponse {
     rpId: string
