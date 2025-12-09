@@ -64,15 +64,9 @@ export class EnpassJsonImporter extends BaseImporter implements Importer {
         }
       }
 
-      const noteContent = this.getValueOrDefault(item.note, "");
-      if (noteContent) {
-        if (cipher.notes) {
-          cipher.notes = (cipher.notes + "\n" + noteContent).trimEnd();
-        } else {
-          cipher.notes = noteContent.trimEnd();
-        }
-      } else if (cipher.notes) {
-        cipher.notes = cipher.notes.trimEnd();
+      const note = this.getValueOrDefault(item.note, "");
+      if (note) {
+        cipher.notes = note.trimEnd();
       }
       this.convertToNoteIfNeeded(cipher);
       this.cleanupCipher(cipher);
