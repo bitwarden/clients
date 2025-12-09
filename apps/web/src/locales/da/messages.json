@@ -3062,6 +3062,15 @@
   "premiumSignUpStorage": {
     "message": "1 GB krypteret lager til vedhæftede filer."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Proprietære totrins-login muligheder, såsom YubiKey og Duo."
   },
@@ -3123,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "additionalStorageGb": {
     "message": "Ekstra lagerplads (GB)"
@@ -4607,6 +4625,24 @@
   },
   "learnMore": {
     "message": "Få mere at vide"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
   },
   "deleteRecoverDesc": {
     "message": "Indtast din e-mailadresse nedenfor for at gendanne og slette din konto."
@@ -12092,9 +12128,6 @@
   },
   "updateYourEncryptionSettings": {
     "message": "Update your encryption settings"
-  },
-  "updateSettings": {
-    "message": "Update settings"
   },
   "algorithm": {
     "message": "Algorithm"
