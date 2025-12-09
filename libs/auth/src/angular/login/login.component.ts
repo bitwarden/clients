@@ -383,7 +383,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     // redirect to SSO if ssoOrganizationIdentifier is present in token response
     if (authResult.requiresSso) {
-      const email = this.formGroup.value.email;
+      const email = this.formGroup?.value?.email;
       if (!email) {
         this.toastService.showToast({
           variant: "error",
