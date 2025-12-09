@@ -16,8 +16,9 @@ export abstract class SingleUserStateProvider {
   abstract get<T>(userId: UserId, userKeyDefinition: UserKeyDefinition<T>): SingleUserState<T>;
 }
 
-/** A provider for getting an implementation of state scoped to a given key, but always pointing
- * to the currently active user
+/**
+ * @deprecated ActiveUserStateProvider is deprecated. Use SingleUserStateProvider instead.
+ * See [state README](../../README.md#should-i-use-activeuserstate) for details.
  */
 export abstract class ActiveUserStateProvider {
   /**
