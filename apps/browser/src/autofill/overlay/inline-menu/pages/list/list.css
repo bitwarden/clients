@@ -405,22 +405,6 @@ body * {
   font-size: 2.6rem;
 }
 
-.theme_light .inline-menu-list-actions-item .cipher-icon.bwi:not(.cipher-icon) {
-  color: #175ddc;
-}
-
-.theme_dark .inline-menu-list-actions-item .cipher-icon.bwi:not(.cipher-icon) {
-  color: #6f9df1;
-}
-
-.theme_light .inline-menu-list-actions-item .cipher-icon.bwi:not(.cipher-icon) svg path {
-  fill: #175ddc !important;
-}
-
-.theme_dark .inline-menu-list-actions-item .cipher-icon.bwi:not(.cipher-icon) svg path {
-  fill: #6f9df1 !important;
-}
-
 .inline-menu-list-actions-item .cipher-details {
   display: block;
   width: 100%;
