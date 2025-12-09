@@ -66,7 +66,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     "time",
     "datetime",
     "datetime-local",
-    "month",
     "week",
     "color",
     "range",
