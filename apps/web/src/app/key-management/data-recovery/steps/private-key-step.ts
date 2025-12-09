@@ -1,4 +1,5 @@
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { DialogService } from "@bitwarden/components";
 import { UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
@@ -32,6 +33,7 @@ export class PrivateKeyStep implements RecoveryStep {
     logger.record("Private key length: " + encryptedPrivateKey.length);
     let privateKey: Uint8Array;
     try {
+      await SdkLoadService.Ready;
       privateKey = PureCrypto.unwrap_decapsulation_key(
         encryptedPrivateKey,
         workingData.userKey.toEncoded(),

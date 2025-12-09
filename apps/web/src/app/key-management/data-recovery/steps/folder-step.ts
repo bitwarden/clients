@@ -1,3 +1,4 @@
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { DialogService } from "@bitwarden/components";
 import { PureCrypto } from "@bitwarden/sdk-internal";
@@ -30,6 +31,7 @@ export class FolderStep implements RecoveryStep {
         continue;
       }
       try {
+        await SdkLoadService.Ready;
         PureCrypto.symmetric_decrypt_string(
           folder.name.encryptedString,
           workingData.userKey.toEncoded(),

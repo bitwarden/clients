@@ -7,7 +7,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { ButtonModule, DialogService } from "@bitwarden/components";
@@ -93,9 +92,6 @@ export class DataRecoveryComponent {
     if (this.status() === StepStatus.InProgress) {
       return;
     }
-
-    // Ensure SDK is loaded
-    await SdkLoadService.Ready;
 
     this.hasStarted.set(true);
     this.status.set(StepStatus.InProgress);
@@ -195,7 +191,7 @@ export class DataRecoveryComponent {
     }
   };
 
-  saveDiagnosticLogs() {
+  saveDiagnosticLogs = () => {
     const logs = this.logger.getLogs();
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const filename = `data-recovery-logs-${timestamp}.txt`;
@@ -208,5 +204,5 @@ export class DataRecoveryComponent {
     });
 
     this.logger.record("Diagnostic logs saved");
-  }
+  };
 }
