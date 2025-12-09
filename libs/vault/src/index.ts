@@ -35,5 +35,7 @@ export { DefaultSshImportPromptService } from "./services/default-ssh-import-pro
 export { SshImportPromptService } from "./services/ssh-import-prompt.service";
 
 export * from "./abstractions/change-login-password.service";
+export * from "./abstractions/vault-items-transfer.service";
+export * from "./services/default-vault-items-transfer.service";
 export * from "./services/default-change-login-password.service";
 export * from "./services/archive-cipher-utilities.service";

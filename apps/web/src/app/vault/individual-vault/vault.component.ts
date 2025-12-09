@@ -84,7 +84,7 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
-import { DialogRef, DialogService, ToastService, BannerComponent } from "@bitwarden/components";
+import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { CipherListView } from "@bitwarden/sdk-internal";
 import {
   AddEditFolderDialogComponent,
@@ -97,6 +97,8 @@ import {
   DecryptionFailureDialogComponent,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
+  VaultItemsTransferService,
+  DefaultVaultItemsTransferService,
 } from "@bitwarden/vault";
 import { UnifiedUpgradePromptService } from "@bitwarden/web-vault/app/billing/individual/upgrade/services";
 import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
@@ -177,12 +179,12 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     VaultItemsModule,
     SharedModule,
     OrganizationWarningsModule,
-    BannerComponent,
   ],
   providers: [
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
     DefaultCipherFormConfigService,
+    { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
   ],
 })
 export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
@@ -349,6 +351,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private premiumUpgradePromptService: PremiumUpgradePromptService,
     private autoConfirmService: AutomaticUserConfirmationService,
     private configService: ConfigService,
+    private vaultItemTransferService: VaultItemsTransferService,
   ) {}
 
   async ngOnInit() {
@@ -644,6 +647,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     void this.unifiedUpgradePromptService.displayUpgradePromptConditionally();
 
     this.setupAutoConfirm();
+
+    void this.vaultItemTransferService.enforceOrganizationDataOwnership(activeUserId);
   }
 
   ngOnDestroy() {

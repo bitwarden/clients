@@ -64,6 +64,7 @@ export enum FeatureFlag {
   RiskInsightsForPremium = "pm-23904-risk-insights-for-premium",
   VaultLoadingSkeletons = "pm-25081-vault-skeleton-loaders",
   BrowserPremiumSpotlight = "pm-23384-browser-premium-spotlight",
+  MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -123,6 +124,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.RiskInsightsForPremium]: FALSE,
   [FeatureFlag.VaultLoadingSkeletons]: FALSE,
   [FeatureFlag.BrowserPremiumSpotlight]: FALSE,
+  [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
