@@ -1,6 +1,7 @@
+import { IOrgIntegrationJsonify } from "../../integration-jsonify";
 import { OrganizationIntegrationServiceType } from "../../organization-integration-service-type";
 
-export class HecTemplate {
+export class HecTemplate implements IOrgIntegrationJsonify {
   event = "#EventMessage#";
   source = "Bitwarden";
   index: string;

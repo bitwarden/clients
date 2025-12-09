@@ -38,15 +38,11 @@ export class HecOrganizationIntegrationService extends BaseOrganizationIntegrati
     super(integrationApiService, integrationConfigurationApiService);
   }
 
-  protected createConfiguration(
-    url: string,
-    bearerToken: string,
-    service: string,
-  ): HecConfiguration {
+  private createConfiguration(url: string, bearerToken: string, service: string): HecConfiguration {
     return new HecConfiguration(url, bearerToken, service);
   }
 
-  protected createTemplate(index: string, service: string): HecTemplate {
+  private createTemplate(index: string, service: string): HecTemplate {
     return new HecTemplate(index, service);
   }
 
