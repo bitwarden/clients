@@ -7,9 +7,10 @@ import {
   OrganizationIntegrationId,
 } from "@bitwarden/common/types/guid";
 
+import { OrgIntegrationConfiguration, OrgIntegrationTemplate } from "../models/integration-jsonify";
 import { OrganizationIntegrationConfigurationResponse } from "../models/organization-integration-configuration-response";
 import { OrganizationIntegrationResponse } from "../models/organization-integration-response";
-import { OrganizationIntegrationServiceType } from "../models/organization-integration-service-type";
+import { OrganizationIntegrationServiceName } from "../models/organization-integration-service-type";
 import { OrganizationIntegrationType } from "../models/organization-integration-type";
 
 import { BaseOrganizationIntegrationService } from "./base-organization-integration.service";
@@ -17,19 +18,19 @@ import { OrganizationIntegrationApiService } from "./organization-integration-ap
 import { OrganizationIntegrationConfigurationApiService } from "./organization-integration-configuration-api.service";
 
 // Mock configuration and template types for testing
-class MockConfiguration {
+class MockConfiguration implements OrgIntegrationConfiguration {
   constructor(
     public url: string,
     public apiKey: string,
-    public service: string,
+    public service: OrganizationIntegrationServiceName,
   ) {}
   toString(): string {
     return JSON.stringify(this);
   }
 }
 
-class MockTemplate {
-  constructor(public service: string) {}
+class MockTemplate implements OrgIntegrationTemplate {
+  constructor(public service: OrganizationIntegrationServiceName) {}
   toString(): string {
     return JSON.stringify(this);
   }
@@ -42,11 +43,15 @@ class TestOrganizationIntegrationService extends BaseOrganizationIntegrationServ
 > {
   protected readonly integrationType = OrganizationIntegrationType.Datadog;
 
-  createConfiguration(url: string, apiKey: string, service: string): MockConfiguration {
+  createConfiguration(
+    url: string,
+    apiKey: string,
+    service: OrganizationIntegrationServiceName,
+  ): MockConfiguration {
     return new MockConfiguration(url, apiKey, service);
   }
 
-  createTemplate(service: string): MockTemplate {
+  createTemplate(service: OrganizationIntegrationServiceName): MockTemplate {
     return new MockTemplate(service);
   }
 
@@ -82,7 +87,7 @@ describe("BaseOrganizationIntegrationService", () => {
   const organizationId = "org-1" as OrganizationId;
   const integrationId = "int-1" as OrganizationIntegrationId;
   const configId = "conf-1" as OrganizationIntegrationConfigurationId;
-  const serviceType = OrganizationIntegrationServiceType.CrowdStrike;
+  const serviceType = OrganizationIntegrationServiceName.CrowdStrike;
   const url = "https://example.com";
   const apiKey = "test-api-key";
 
