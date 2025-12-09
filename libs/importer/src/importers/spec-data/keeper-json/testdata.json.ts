@@ -131,9 +131,10 @@ export const CliTestData = {
     {
       title: "Chase Visa",
       uid: "62Vj29V4-0gFyJBGgtppqA",
+      login_url: "https://bank.card/test",
       notes: "Primary credit card for everyday purchases and rewards",
       $type: "bankCard",
-      last_modified: 1764674791,
+      last_modified: 1765279737,
       custom_fields: {
         $paymentCard: {
           cardNumber: "4532123456789010",
@@ -142,6 +143,7 @@ export const CliTestData = {
         },
         "$text:cardholderName": "Sarah Johnson",
         $pinCode: "8426",
+        "$url:URL label": "https://bank.card/test/with/label",
       },
       folders: [
         {
@@ -209,7 +211,7 @@ export const CliTestData = {
       uid: "Cc7XJclmnKeOqdFnG4Dz2A",
       notes: "Primary care physician - office visits and consultations",
       $type: "contact",
-      last_modified: 1764693718,
+      last_modified: 1764695948,
       custom_fields: {
         $name: {
           first: "Emily",
@@ -227,10 +229,33 @@ export const CliTestData = {
       },
       references: {
         $address: ["1tjq4jlAla4S6GsBZpc8LQ"],
+        $card: ["62Vj29V4-0gFyJBGgtppqA"],
       },
       folders: [
         {
           folder: "Work\\Projects",
+        },
+      ],
+    },
+    {
+      title: "Home Address",
+      uid: "O5Fua1ytoHF1c40mPGfwcA",
+      notes: "Primary residence - mailing and billing address",
+      $type: "address",
+      last_modified: 1764674791,
+      custom_fields: {
+        $address: {
+          street1: "742 Evergreen Terrace",
+          street2: "Apt 3B",
+          city: "Springfield",
+          state: "Oregon",
+          zip: "97477",
+          country: "US",
+        },
+      },
+      folders: [
+        {
+          folder: "Personal\\Finance\\Banking",
         },
       ],
     },
@@ -254,28 +279,6 @@ export const CliTestData = {
         },
         {
           folder: "Clients\\Enterprise\\North America\\TechCorp",
-        },
-      ],
-    },
-    {
-      title: "Home Address",
-      uid: "O5Fua1ytoHF1c40mPGfwcA",
-      notes: "Primary residence - mailing and billing address",
-      $type: "address",
-      last_modified: 1764674791,
-      custom_fields: {
-        $address: {
-          street1: "742 Evergreen Terrace",
-          street2: "Apt 3B",
-          city: "Springfield",
-          state: "Oregon",
-          zip: "97477",
-          country: "US",
-        },
-      },
-      folders: [
-        {
-          folder: "Personal\\Finance\\Banking",
         },
       ],
     },
@@ -322,6 +325,27 @@ export const CliTestData = {
       ],
     },
     {
+      title: "National Identity Card",
+      uid: "vFSao19hayaD-okllcPwLw",
+      notes: "National identification card - Valid through 2028",
+      $type: "ssnCard",
+      last_modified: 1764674791,
+      custom_fields: {
+        "$accountNumber:identityNumber": "ID-7849521",
+        $name: {
+          first: "Sarah",
+          middle: "Elizabeth",
+          last: "Johnson",
+        },
+      },
+      folders: [
+        {
+          folder:
+            "Development\\Name/with\\\\both/slashes\\Name/with/forward/slashes\\Name\\\\with\\\\backslashes",
+        },
+      ],
+    },
+    {
       title: "Wells Fargo Checking",
       uid: "FLrhKWqZ2o3gRsEenMNvQA",
       login: "m.thompson@email.com",
@@ -347,27 +371,6 @@ export const CliTestData = {
       folders: [
         {
           folder: "Clients\\Enterprise\\North America\\TechCorp",
-        },
-      ],
-    },
-    {
-      title: "National Identity Card",
-      uid: "vFSao19hayaD-okllcPwLw",
-      notes: "National identification card - Valid through 2028",
-      $type: "ssnCard",
-      last_modified: 1764674791,
-      custom_fields: {
-        "$accountNumber:identityNumber": "ID-7849521",
-        $name: {
-          first: "Sarah",
-          middle: "Elizabeth",
-          last: "Johnson",
-        },
-      },
-      folders: [
-        {
-          folder:
-            "Development\\Name/with\\\\both/slashes\\Name/with/forward/slashes\\Name\\\\with\\\\backslashes",
         },
       ],
     },
@@ -429,6 +432,26 @@ export const CliTestData = {
       custom_fields: {
         "$text:SSID": "cozy-home-netz",
       },
+    },
+    {
+      title: "John Doe Birth Certificate",
+      uid: "MC6-26aDdCglT0uRV16ZUg",
+      notes: "Official birth certificate for identification purposes",
+      $type: "birthCertificate",
+      last_modified: 1764674791,
+      custom_fields: {
+        $name: {
+          first: "John",
+          middle: "Michael",
+          last: "Doe",
+        },
+        $birthDate: 642722400000,
+      },
+      folders: [
+        {
+          folder: "Work\\Documents",
+        },
+      ],
     },
     {
       title: "Amazon Account",
@@ -498,22 +521,21 @@ export const CliTestData = {
       ],
     },
     {
-      title: "John Doe Birth Certificate",
-      uid: "MC6-26aDdCglT0uRV16ZUg",
-      notes: "Official birth certificate for identification purposes",
-      $type: "birthCertificate",
+      title: "General Information Record",
+      uid: "Zf0Rw6Uhvw5y_8X81lYiqg",
+      login: "general_user@example.com",
+      password: "GeneralPass#2024!Secure",
+      login_url: "https://general.example.com",
+      notes: "General purpose record for miscellaneous information and credentials",
+      $type: "login",
       last_modified: 1764674791,
       custom_fields: {
-        $name: {
-          first: "John",
-          middle: "Michael",
-          last: "Doe",
-        },
-        $birthDate: 642722400000,
+        $oneTimeCode:
+          "otpauth://totp/totp%40authenticationtest.com?secret=I65VU7K5ZQL7WB4E&issuer=&algorithm=SHA1&digits=6&period=30",
       },
       folders: [
         {
-          folder: "Work\\Documents",
+          folder: "Personal\\Finance\\Banking\\Accounts",
         },
       ],
     },
@@ -535,25 +557,6 @@ export const CliTestData = {
           port: "22",
         },
       },
-    },
-    {
-      title: "General Information Record",
-      uid: "Zf0Rw6Uhvw5y_8X81lYiqg",
-      login: "general_user@example.com",
-      password: "GeneralPass#2024!Secure",
-      login_url: "https://general.example.com",
-      notes: "General purpose record for miscellaneous information and credentials",
-      $type: "login",
-      last_modified: 1764674791,
-      custom_fields: {
-        $oneTimeCode:
-          "otpauth://totp/totp%40authenticationtest.com?secret=I65VU7K5ZQL7WB4E&issuer=&algorithm=SHA1&digits=6&period=30",
-      },
-      folders: [
-        {
-          folder: "Personal\\Finance\\Banking\\Accounts",
-        },
-      ],
     },
     {
       title: "LA Fitness Gym",
@@ -846,7 +849,9 @@ export const WebTestData = {
         },
         "$text:cardholderName:1": "Sarah Johnson",
         "$pinCode::1": "8426",
+        "$url:URL label:1": "https://bank.card/test/with/label",
       },
+      login_url: "https://bank.card/test",
       folders: [
         {
           folder: "Work\\Projects\\2025\\Q4",
@@ -875,6 +880,7 @@ export const WebTestData = {
       },
       references: {
         "$addressRef::1": [15],
+        "$cardRef::1": [4],
       },
       folders: [
         {

@@ -56,13 +56,13 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     keeperExport.records.forEach((record) => {
       this.parseFolders(result, record);
 
-      // TODO: Check the $type field to handle other types of records
       const cipher = this.initLoginCipher();
       cipher.name = record.title ?? "";
+      cipher.notes = record.notes ?? "";
+
       cipher.login.username = record.login ?? "";
       cipher.login.password = record.password ?? "";
       cipher.login.uris = this.makeUriArray(record.login_url);
-      cipher.notes = record.notes ?? "";
 
       // Force type based on the record type
       switch (record.$type) {
@@ -159,6 +159,8 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
       this.addField(cipher, "PIN", pinCode, FieldType.Hidden);
     }
 
+    this.copyLoginPropertiesAsCustomFields(cipher);
+
     // These should not be imported as custom fields since they are mapped to card properties
     this.deleteTopLevelCustomField(record.custom_fields, "$paymentCard");
     this.deleteTopLevelCustomField(record.custom_fields, "$text:cardholderName");
@@ -186,9 +188,7 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     cipher.sshKey.publicKey = keyView.publicKey;
     cipher.sshKey.keyFingerprint = keyView.fingerprint;
 
-    if (!this.isNullOrWhitespace(cipher.login.username)) {
-      this.addField(cipher, "Username", cipher.login.username!);
-    }
+    this.copyLoginPropertiesAsCustomFields(cipher);
 
     const hostName = this.findCustomField(record.custom_fields, "$host/hostName");
     if (hostName) {
@@ -204,6 +204,25 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     this.deleteTopLevelCustomField(record.custom_fields, "$host");
 
     return true;
+  }
+
+  private copyLoginPropertiesAsCustomFields(cipher: CipherView) {
+    if (!this.isNullOrWhitespace(cipher.login.username)) {
+      this.addField(cipher, "Username", cipher.login.username!);
+      cipher.login.username = undefined;
+    }
+
+    if (!this.isNullOrWhitespace(cipher.login.password)) {
+      this.addField(cipher, "Password", cipher.login.password!, FieldType.Hidden);
+      cipher.login.password = undefined;
+    }
+
+    if (cipher.login.uris) {
+      cipher.login.uris.forEach((uri, index) => {
+        this.addField(cipher, "URL", uri.uri);
+      });
+      cipher.login.uris = [];
+    }
   }
 
   private findCustomField(customFields: CustomFields, path: string): string {
@@ -264,23 +283,33 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     switch (type) {
       case "oneTimeCode":
         {
-          // TODO: If not a login, add as a custom field
           const totps = this.makeArray(originalValue);
           if (totps.length === 0) {
             break;
           }
 
-          cipher.login.totp = totps[0];
-          if (totps.length > 1) {
-            totps.slice(1).forEach((code) => {
-              this.addField(cipher, "TOTP", code, FieldType.Hidden);
-            });
+          // Login has a dedicated TOTP field. All others get added as custom fields.
+          if (cipher.type === CipherType.Login) {
+            cipher.login.totp = totps[0];
+            totps.shift();
           }
+
+          totps.forEach((code) => {
+            this.addField(cipher, "TOTP", code, FieldType.Hidden);
+          });
         }
         break;
       case "url":
-        // TODO: If not a login, add as a custom field
-        cipher.login.uris.push(...this.makeUriArray(originalValue));
+        {
+          const urls = this.makeUriArray(originalValue);
+          if (cipher.type === CipherType.Login) {
+            cipher.login.uris.push(...urls);
+          } else {
+            urls.forEach((url) => {
+              this.addField(cipher, "URL", url.uri);
+            });
+          }
+        }
         break;
       default:
         return false;

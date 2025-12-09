@@ -139,9 +139,14 @@ describe("Keeper Json Importer", () => {
       expect(bankCard.card.expYear).toEqual("2030");
 
       // Fields
-      expect(bankCard.fields.length).toEqual(1);
+      expect(bankCard.fields.length).toEqual(3);
       expect(getField(bankCard, "PIN")?.value).toEqual("8426");
       expect(getField(bankCard, "PIN")?.type).toEqual(FieldType.Hidden);
+      expect(
+        getFields(bankCard, "URL")
+          .map((x) => x.value)
+          .sort(),
+      ).toEqual(["https://bank.card/test", "https://bank.card/test/with/label"]);
     });
   });
 
@@ -516,8 +521,10 @@ describe("Keeper Json Importer", () => {
       expect(sshKey.notes).toEqual("SSH key for production server deployment - RSA 2048 bit");
 
       // Fields
-      expect(sshKey.fields.length).toEqual(3);
+      expect(sshKey.fields.length).toEqual(4);
       expect(getField(sshKey, "Username")?.value).toEqual("deploy_user");
+      expect(getField(sshKey, "Password")?.value).toEqual("blah-blah-blah");
+      expect(getField(sshKey, "Password")?.type).toEqual(FieldType.Hidden);
       expect(getField(sshKey, "Hostname")?.value).toEqual("prod-server.company.com");
       expect(getField(sshKey, "Port")?.value).toEqual("22");
     });
@@ -736,8 +743,6 @@ describe("Keeper Json Importer", () => {
 
     importer.parseFieldKey("$text:cardholderName:1");
   });
-
-  // TODO: Add more legacy format tests!!!
 
   //
   // Helpers
