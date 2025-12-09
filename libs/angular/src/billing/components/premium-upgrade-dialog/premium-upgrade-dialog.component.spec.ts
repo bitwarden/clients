@@ -206,4 +206,39 @@ describe("PremiumUpgradeDialogComponent", () => {
       });
     });
   });
+
+  describe("self-hosted environment", () => {
+    it("should handle null price data for self-hosted environment", async () => {
+      const selfHostedPremiumTier: PersonalSubscriptionPricingTier = {
+        id: PersonalSubscriptionPricingTierIds.Premium,
+        name: "Premium",
+        description: "Advanced features for power users",
+        availableCadences: [SubscriptionCadenceIds.Annually],
+        passwordManager: {
+          type: "standalone",
+          annualPrice: undefined as any, // self-host will have these prices empty
+          annualPricePerAdditionalStorageGB: undefined as any,
+          providedStorageGB: undefined as any,
+          features: [
+            { key: "feature1", value: "Feature 1" },
+            { key: "feature2", value: "Feature 2" },
+          ],
+        },
+      };
+
+      mockSubscriptionPricingService.getPersonalSubscriptionPricingTiers$.mockReturnValue(
+        of([selfHostedPremiumTier]),
+      );
+
+      const selfHostedFixture = TestBed.createComponent(PremiumUpgradeDialogComponent);
+      const selfHostedComponent = selfHostedFixture.componentInstance;
+      selfHostedFixture.detectChanges();
+
+      const cardDetails = await firstValueFrom(selfHostedComponent["cardDetails$"]);
+
+      expect(cardDetails?.title).toBe("Premium");
+      expect(cardDetails?.price).toBeUndefined();
+      expect(cardDetails?.features).toEqual(["Feature 1", "Feature 2"]);
+    });
+  });
 });
