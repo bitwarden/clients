@@ -1,13 +1,4 @@
-import {
-  BehaviorSubject,
-  firstValueFrom,
-  map,
-  Observable,
-  Subject,
-  switchMap,
-  takeUntil,
-  zip,
-} from "rxjs";
+import { BehaviorSubject, Observable, of, Subject, switchMap, takeUntil, zip } from "rxjs";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import {
@@ -16,21 +7,20 @@ import {
   OrganizationIntegrationConfigurationId,
 } from "@bitwarden/common/types/guid";
 
+import { IOrgIntegrationJsonify } from "../models/integration-jsonify";
 import { OrganizationIntegration } from "../models/organization-integration";
 import { OrganizationIntegrationConfiguration } from "../models/organization-integration-configuration";
 import { OrganizationIntegrationConfigurationRequest } from "../models/organization-integration-configuration-request";
 import { OrganizationIntegrationConfigurationResponse } from "../models/organization-integration-configuration-response";
 import { OrganizationIntegrationRequest } from "../models/organization-integration-request";
 import { OrganizationIntegrationResponse } from "../models/organization-integration-response";
-import { OrganizationIntegrationServiceType } from "../models/organization-integration-service-type";
 import { OrganizationIntegrationType } from "../models/organization-integration-type";
 
 import { OrganizationIntegrationApiService } from "./organization-integration-api.service";
 import { OrganizationIntegrationConfigurationApiService } from "./organization-integration-configuration-api.service";
-
 /**
  * Common result type for integration modification operations (save, update, delete).
- * Indicates whether the operation succeeded and if failure was due to insufficient permissions.
+ * was the server side failure due to insufficient permissions (must be owner)?
  */
 export type IntegrationModificationResult = {
   mustBeOwner: boolean;
@@ -44,7 +34,10 @@ export type IntegrationModificationResult = {
  * @template TConfig - The configuration type specific to the integration (e.g., HecConfiguration, DatadogConfiguration)
  * @template TTemplate - The template type specific to the integration (e.g., HecTemplate, DatadogTemplate)
  */
-export abstract class BaseOrganizationIntegrationService<TConfig, TTemplate> {
+export abstract class BaseOrganizationIntegrationService<
+  TConfig extends IOrgIntegrationJsonify,
+  TTemplate extends IOrgIntegrationJsonify,
+> {
   private organizationId$ = new BehaviorSubject<OrganizationId | null>(null);
   private _integrations$ = new BehaviorSubject<OrganizationIntegration[]>([]);
   private destroy$ = new Subject<void>();
@@ -53,12 +46,11 @@ export abstract class BaseOrganizationIntegrationService<TConfig, TTemplate> {
 
   private fetch$ = this.organizationId$
     .pipe(
-      switchMap(async (orgId) => {
+      switchMap((orgId) => {
         if (orgId) {
-          const data$ = await this.setIntegrations(orgId);
-          return await firstValueFrom(data$);
+          return this.setIntegrations(orgId);
         } else {
-          return [] as OrganizationIntegration[];
+          return of([]) as Observable<OrganizationIntegration[]>;
         }
       }),
       takeUntil(this.destroy$),
@@ -70,28 +62,10 @@ export abstract class BaseOrganizationIntegrationService<TConfig, TTemplate> {
     });
 
   /**
-   * The integration type that this service manages.
+   * The integration type that this service manages ex: Hec, Webhook, DataDog etc
    * Must be implemented by child classes to specify their integration type.
    */
   protected abstract readonly integrationType: OrganizationIntegrationType;
-
-  /**
-   * Creates a configuration object specific to this integration type.
-   * Must be implemented by child classes.
-   *
-   * @param args - Arguments needed to create the configuration
-   * @returns The configuration object
-   */
-  protected abstract createConfiguration(...args: any[]): TConfig;
-
-  /**
-   * Creates a template object specific to this integration type.
-   * Must be implemented by child classes.
-   *
-   * @param args - Arguments needed to create the template
-   * @returns The template object
-   */
-  protected abstract createTemplate(...args: any[]): TTemplate;
 
   constructor(
     protected integrationApiService: OrganizationIntegrationApiService,
@@ -130,13 +104,13 @@ export abstract class BaseOrganizationIntegrationService<TConfig, TTemplate> {
     }
 
     try {
-      const configString = (config as any).toString();
+      const configString = config.toString();
       const newIntegrationResponse = await this.integrationApiService.createOrganizationIntegration(
         organizationId,
         new OrganizationIntegrationRequest(this.integrationType, configString),
       );
 
-      const templateString = (template as any).toString();
+      const templateString = template.toString();
       const newIntegrationConfigResponse =
         await this.integrationConfigurationApiService.createOrganizationIntegrationConfiguration(
           organizationId,
@@ -182,7 +156,7 @@ export abstract class BaseOrganizationIntegrationService<TConfig, TTemplate> {
     }
 
     try {
-      const configString = (config as any).toString();
+      const configString = config.toString();
       const updatedIntegrationResponse =
         await this.integrationApiService.updateOrganizationIntegration(
           organizationId,
@@ -190,7 +164,7 @@ export abstract class BaseOrganizationIntegrationService<TConfig, TTemplate> {
           new OrganizationIntegrationRequest(this.integrationType, configString),
         );
 
-      const templateString = (template as any).toString();
+      const templateString = template.toString();
       const updatedIntegrationConfigResponse =
         await this.integrationConfigurationApiService.updateOrganizationIntegrationConfiguration(
           organizationId,
@@ -263,57 +237,6 @@ export abstract class BaseOrganizationIntegrationService<TConfig, TTemplate> {
   }
 
   /**
-   * Gets an OrganizationIntegration by its ID.
-   *
-   * @param integrationId - ID of the integration
-   * @returns Promise resolving to the OrganizationIntegration or null if not found
-   */
-  async getIntegrationById(
-    integrationId: OrganizationIntegrationId,
-  ): Promise<OrganizationIntegration | null> {
-    return await firstValueFrom(
-      this.integrations$.pipe(
-        map((integrations) => integrations.find((i) => i.id === integrationId) || null),
-      ),
-    );
-  }
-
-  /**
-   * Gets an OrganizationIntegration by its service type.
-   *
-   * @param serviceType - Type of the service
-   * @returns Promise resolving to the OrganizationIntegration or null if not found
-   */
-  async getIntegrationByServiceType(
-    serviceType: OrganizationIntegrationServiceType,
-  ): Promise<OrganizationIntegration | null> {
-    return await firstValueFrom(
-      this.integrations$.pipe(
-        map((integrations) => integrations.find((i) => i.serviceType === serviceType) || null),
-      ),
-    );
-  }
-
-  /**
-   * Gets all OrganizationIntegrationConfigurations for a given integration ID.
-   *
-   * @param integrationId - ID of the integration
-   * @returns Promise resolving to an array of OrganizationIntegrationConfiguration or null
-   */
-  async getIntegrationConfigurations(
-    integrationId: OrganizationIntegrationId,
-  ): Promise<OrganizationIntegrationConfiguration[] | null> {
-    return await firstValueFrom(
-      this.integrations$.pipe(
-        map((integrations) => {
-          const integration = integrations.find((i) => i.id === integrationId);
-          return integration ? integration.integrationConfiguration : null;
-        }),
-      ),
-    );
-  }
-
-  /**
    * Maps API responses to an OrganizationIntegration domain model.
    *
    * @param integrationResponse - The integration response from the API
@@ -334,7 +257,6 @@ export abstract class BaseOrganizationIntegrationService<TConfig, TTemplate> {
     const integrationConfig = new OrganizationIntegrationConfiguration(
       configurationResponse.id,
       integrationResponse.id,
-      null,
       null,
       "",
       template as any,
@@ -402,5 +324,12 @@ export abstract class BaseOrganizationIntegrationService<TConfig, TTemplate> {
     } catch {
       return null;
     }
+  }
+  /**
+   * Cleans up subscriptions. Should be called when the service is destroyed.
+   */
+  destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
