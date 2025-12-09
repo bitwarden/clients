@@ -1,0 +1,734 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  overflow: hidden;
+  pointer-events: none;
+}
+
+html {
+  font-size: 10px;
+}
+
+body {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  font-family: Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+}
+
+.theme_light body {
+  color: #212529;
+  background-color: #ffffff;
+}
+
+.theme_dark body {
+  color: #ffffff;
+  background-color: #2f343d;
+}
+
+body * {
+  pointer-events: auto;
+}
+
+.inline-menu-list-message {
+  font-size: 1.4rem;
+  line-height: 1.5;
+  width: 100%;
+  padding: 0.8rem;
+}
+
+.theme_light .inline-menu-list-message {
+  color: #212529;
+}
+
+.theme_dark .inline-menu-list-message {
+  color: #ffffff;
+}
+
+.inline-menu-list-message.no-items,
+.inline-menu-list-message.save-login {
+  font-size: 1.6rem;
+}
+
+.inline-menu-list-message.no-items:has(:focus-visible),
+.inline-menu-list-message.save-login:has(:focus-visible) {
+  outline-width: 0.2rem;
+  outline-style: solid;
+}
+
+.theme_light .inline-menu-list-message.no-items:has(:focus-visible),
+.theme_light .inline-menu-list-message.save-login:has(:focus-visible) {
+  outline-color: #1252a3;
+}
+
+.theme_dark .inline-menu-list-message.no-items:has(:focus-visible),
+.theme_dark .inline-menu-list-message.save-login:has(:focus-visible) {
+  outline-color: #5c9fee;
+}
+
+.inline-menu-list-button-container {
+  width: 100%;
+  padding: 0.2rem;
+  transition: background-color 0.2s ease-in-out;
+  border-top-width: 0.1rem;
+  border-top-style: solid;
+}
+
+.theme_light .inline-menu-list-button-container {
+  background: #ffffff;
+  border-top-color: #ced4dc;
+}
+
+.theme_dark .inline-menu-list-button-container {
+  background: #2f343d;
+  border-top-color: #4c525f;
+}
+
+.theme_light .inline-menu-list-button-container:hover {
+  background: #f0f0f0;
+}
+
+.theme_dark .inline-menu-list-button-container:hover {
+  background: #292d35;
+}
+
+.inline-menu-list-button {
+  display: flex;
+  align-content: center;
+  justify-content: flex-start;
+  width: 100%;
+  font-family: Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 1.6rem;
+  font-weight: 500;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 0.7rem;
+  margin: 0;
+  cursor: pointer;
+  border-radius: 0.4rem;
+}
+
+.theme_light .inline-menu-list-button {
+  color: #175ddc;
+}
+
+.theme_dark .inline-menu-list-button {
+  color: #6f9df1;
+}
+
+.inline-menu-list-button:focus:focus-visible {
+  outline-width: 0.2rem;
+  outline-style: solid;
+}
+
+.theme_light .inline-menu-list-button:focus:focus-visible {
+  outline-color: #1252a3;
+}
+
+.theme_dark .inline-menu-list-button:focus:focus-visible {
+  outline-color: #5c9fee;
+}
+
+.inline-menu-list-button svg {
+  position: relative;
+  margin-left: 0.4rem;
+  margin-right: 0.8rem;
+}
+
+.theme_light .inline-menu-list-button svg path {
+  fill: #175ddc !important;
+}
+
+.theme_dark .inline-menu-list-button svg path {
+  fill: #6f9df1 !important;
+}
+
+.unlock-button svg {
+  top: 0.2rem;
+  width: 1.6rem;
+  height: 1.7rem;
+}
+
+.add-new-item-button svg {
+  top: 0.25rem;
+  width: 1.7rem;
+  height: 1.7rem;
+}
+
+.inline-menu-list-actions {
+  padding: 0;
+  margin: 0;
+  max-height: 18rem;
+  -ms-overflow-style: none;
+  scrollbar-width: thin;
+}
+
+.inline-menu-list-actions--scrollbar {
+  overflow-y: scroll;
+}
+
+.theme_light .inline-menu-list-actions {
+  scrollbar-color: #d8d8d8 #fdfdfd;
+  border-right-color: #ced4dc;
+}
+
+.theme_dark .inline-menu-list-actions {
+  scrollbar-color: #4c525f #2f343d;
+  border-right-color: #4c525f;
+}
+
+.inline-menu-list-actions::-webkit-scrollbar {
+  width: 0.5rem;
+  background-color: transparent;
+}
+
+.inline-menu-list-actions::-webkit-scrollbar-button {
+  display: none;
+}
+
+.inline-menu-list-actions::-webkit-scrollbar-track {
+  background-color: transparent;
+  border: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  border-radius: 1rem;
+}
+
+.inline-menu-list-actions::-webkit-scrollbar-track-piece {
+  background-color: transparent;
+  border: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+.inline-menu-list-actions::-webkit-scrollbar-thumb {
+  border-radius: 1rem;
+}
+
+.theme_light .inline-menu-list-actions::-webkit-scrollbar-thumb {
+  background-color: #ced4dc;
+}
+
+.theme_dark .inline-menu-list-actions::-webkit-scrollbar-thumb {
+  background-color: #4c525f;
+}
+
+.inline-menu-list-heading {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  font-family: Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.3;
+  letter-spacing: 0.025rem;
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  will-change: transform;
+  border-bottom: 0.1rem solid;
+}
+
+.theme_light .inline-menu-list-heading {
+  color: #212529;
+  background-color: #ffffff;
+  border-bottom-color: #ffffff;
+}
+
+.theme_dark .inline-menu-list-heading {
+  color: #ffffff;
+  background-color: #2f343d;
+  border-bottom-color: #2f343d;
+}
+
+.inline-menu-list-heading--bordered {
+  transition: border-bottom-color 0.15s ease;
+}
+
+.theme_light .inline-menu-list-heading--bordered {
+  border-bottom-color: #ced4dc;
+}
+
+.theme_dark .inline-menu-list-heading--bordered {
+  border-bottom-color: #4c525f;
+}
+
+.inline-menu-list-container--with-new-item-button .inline-menu-list-actions {
+  max-height: 13.8rem;
+}
+
+.inline-menu-list-actions-item {
+  transition: background-color 0.2s ease-in-out;
+  list-style: none;
+  padding: 0.2rem;
+}
+
+.inline-menu-list-actions-item:not(:last-child) {
+  border-bottom-width: 0.1rem;
+  border-bottom-style: solid;
+}
+
+.theme_light .inline-menu-list-actions-item:not(:last-child) {
+  border-bottom-color: #ced4dc;
+}
+
+.theme_dark .inline-menu-list-actions-item:not(:last-child) {
+  border-bottom-color: #4c525f;
+}
+
+.theme_light .inline-menu-list-actions-item:hover {
+  background: #f0f0f0;
+}
+
+.theme_dark .inline-menu-list-actions-item:hover {
+  background: #292d35;
+}
+
+.inline-menu-list-actions-item .cipher-container {
+  display: flex;
+  align-content: flex-start;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0.7rem 0.3rem 0.7rem 0.7rem;
+  border-radius: 0.4rem;
+}
+
+.inline-menu-list-actions-item .cipher-container:has(:focus-visible):not(.remove-outline) {
+  outline-width: 0.2rem;
+  outline-style: solid;
+}
+
+.theme_light
+  .inline-menu-list-actions-item
+  .cipher-container:has(:focus-visible):not(.remove-outline) {
+  outline-color: #1252a3;
+}
+
+.theme_dark
+  .inline-menu-list-actions-item
+  .cipher-container:has(:focus-visible):not(.remove-outline) {
+  outline-color: #5c9fee;
+}
+
+.inline-menu-list-actions-item .fill-cipher-button,
+.inline-menu-list-actions-item .view-cipher-button {
+  padding: 0;
+  margin: 0;
+  line-height: 0;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.inline-menu-list-actions-item .fill-cipher-button {
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: flex-start;
+  width: calc(100% - 4rem);
+  outline: none;
+}
+
+.inline-menu-list-actions-item .view-cipher-button {
+  flex-shrink: 0;
+  width: 4rem;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.4rem;
+}
+
+.inline-menu-list-actions-item .view-cipher-button:focus:focus-visible {
+  outline-width: 0.2rem;
+  outline-style: solid;
+}
+
+.theme_light .inline-menu-list-actions-item .view-cipher-button:focus:focus-visible {
+  outline-color: #1252a3;
+}
+
+.theme_dark .inline-menu-list-actions-item .view-cipher-button:focus:focus-visible {
+  outline-color: #5c9fee;
+}
+
+.theme_light .inline-menu-list-actions-item .view-cipher-button svg path {
+  fill: #175ddc !important;
+}
+
+.theme_dark .inline-menu-list-actions-item .view-cipher-button svg path {
+  fill: #6f9df1 !important;
+}
+
+.inline-menu-list-actions-item .cipher-icon {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 3.2rem;
+  height: 3.2rem;
+  margin: 0 1rem 0 0;
+  line-height: 0;
+  background-size: 2.6rem;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.theme_light .inline-menu-list-actions-item .cipher-icon {
+  color: #175ddc;
+}
+
+.theme_dark .inline-menu-list-actions-item .cipher-icon {
+  color: #6f9df1;
+}
+
+.inline-menu-list-actions-item .cipher-icon svg {
+  width: 100%;
+  height: auto;
+  flex-shrink: 0;
+}
+
+.theme_light .inline-menu-list-actions-item .cipher-icon svg path {
+  fill: #175ddc !important;
+}
+
+.theme_dark .inline-menu-list-actions-item .cipher-icon svg path {
+  fill: #6f9df1 !important;
+}
+
+.inline-menu-list-actions-item .cipher-icon.bwi {
+  font-size: 2.6rem;
+}
+
+.theme_light .inline-menu-list-actions-item .cipher-icon.bwi:not(.cipher-icon) {
+  color: #175ddc;
+}
+
+.theme_dark .inline-menu-list-actions-item .cipher-icon.bwi:not(.cipher-icon) {
+  color: #6f9df1;
+}
+
+.theme_light .inline-menu-list-actions-item .cipher-icon.bwi:not(.cipher-icon) svg path {
+  fill: #175ddc !important;
+}
+
+.theme_dark .inline-menu-list-actions-item .cipher-icon.bwi:not(.cipher-icon) svg path {
+  fill: #6f9df1 !important;
+}
+
+.inline-menu-list-actions-item .cipher-details {
+  display: block;
+  width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  text-align: left;
+}
+
+.inline-menu-list-actions-item .totp-sec-span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.theme_light .inline-menu-list-actions-item .totp-sec-span {
+  color: #212529;
+}
+
+.theme_dark .inline-menu-list-actions-item .totp-sec-span {
+  color: #ffffff;
+}
+
+.theme_light .inline-menu-list-actions-item .totp-sec-span-danger {
+  color: #b80017;
+}
+
+.theme_dark .inline-menu-list-actions-item .totp-sec-span-danger {
+  color: #ff8d85;
+}
+
+.theme_light .inline-menu-list-actions-item .circle-color {
+  stroke: #175ddc;
+}
+
+.theme_dark .inline-menu-list-actions-item .circle-color {
+  stroke: #6f9df1;
+}
+
+.theme_light .inline-menu-list-actions-item .circle-danger-color {
+  stroke: #b80017;
+}
+
+.theme_dark .inline-menu-list-actions-item .circle-danger-color {
+  stroke: #ff8d85;
+}
+
+.inline-menu-list-actions-item .cipher-name,
+.inline-menu-list-actions-item .cipher-subtitle {
+  display: block;
+  width: 100%;
+  line-height: 1.5;
+  font-family: Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.inline-menu-list-actions-item .cipher-name {
+  font-size: 1.6rem;
+}
+
+.theme_light .inline-menu-list-actions-item .cipher-name {
+  color: #212529;
+}
+
+.theme_dark .inline-menu-list-actions-item .cipher-name {
+  color: #ffffff;
+}
+
+.inline-menu-list-actions-item .cipher-subtitle {
+  font-size: 1.4rem;
+}
+
+.theme_light .inline-menu-list-actions-item .cipher-subtitle {
+  color: #6c747c;
+}
+
+.theme_dark .inline-menu-list-actions-item .cipher-subtitle {
+  color: #bac0ce;
+}
+
+.inline-menu-list-actions-item .cipher-subtitle.masked-totp {
+  font-size: 0.875rem;
+  letter-spacing: 0.2rem;
+}
+
+.inline-menu-list-actions-item .cipher-subtitle--passkey {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.inline-menu-list-actions-item .cipher-subtitle--passkey svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 0.2rem;
+}
+
+.theme_light .inline-menu-list-actions-item .cipher-subtitle--passkey svg {
+  fill: #6c747c !important;
+}
+
+.theme_dark .inline-menu-list-actions-item .cipher-subtitle--passkey svg {
+  fill: #bac0ce !important;
+}
+
+.theme_light .inline-menu-list-actions-item .cipher-subtitle--passkey svg path {
+  fill: #6c747c !important;
+}
+
+.theme_dark .inline-menu-list-actions-item .cipher-subtitle--passkey svg path {
+  fill: #bac0ce !important;
+}
+
+@keyframes bwi-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(359deg);
+  }
+}
+
+.passkey-authenticating-loader {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1rem 0.8rem;
+  font-size: 1.4rem;
+  font-weight: 400;
+}
+
+.theme_light .passkey-authenticating-loader {
+  color: #5a6d91;
+}
+
+.theme_dark .passkey-authenticating-loader {
+  color: #bac0ce;
+}
+
+.passkey-authenticating-loader svg {
+  animation: bwi-spin 2s infinite linear;
+  margin-left: 1rem;
+}
+
+.theme_light .passkey-authenticating-loader svg path {
+  fill: #5a6d91 !important;
+}
+
+.theme_dark .passkey-authenticating-loader svg path {
+  fill: #bac0ce !important;
+}
+
+/* Password generator styles */
+.password-generator-container {
+  padding: 0.2rem;
+}
+
+.password-generator-actions {
+  display: flex;
+  align-content: flex-start;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0.8rem 0.4rem 1.1rem 0.65rem;
+  border-radius: 0.4rem;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.theme_light .password-generator-actions:hover {
+  background: #f0f0f0;
+}
+
+.theme_dark .password-generator-actions:hover {
+  background: #292d35;
+}
+
+.password-generator-actions:has(:focus-visible):not(.remove-outline) {
+  outline-width: 0.2rem;
+  outline-style: solid;
+}
+
+.theme_light .password-generator-actions:has(:focus-visible):not(.remove-outline) {
+  outline-color: #1252a3;
+}
+
+.theme_dark .password-generator-actions:has(:focus-visible):not(.remove-outline) {
+  outline-color: #5c9fee;
+}
+
+.password-generator-actions .inline-menu-list-action {
+  padding: 0;
+  margin: 0;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.theme_light .password-generator-actions .inline-menu-list-action {
+  color: #212529;
+}
+
+.theme_dark .password-generator-actions .inline-menu-list-action {
+  color: #ffffff;
+}
+
+.theme_light .password-generator-actions .inline-menu-list-action svg path {
+  fill: #175ddc !important;
+}
+
+.theme_dark .password-generator-actions .inline-menu-list-action svg path {
+  fill: #6f9df1 !important;
+}
+
+.password-generator-actions .fill-generated-password-button {
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: flex-start;
+  width: calc(100% - 4rem);
+  outline: none;
+  padding-right: 0.2rem;
+}
+
+.password-generator-actions .fill-generated-password-button svg {
+  flex-shrink: 0;
+  width: 3.2rem;
+  margin-top: 0.2rem;
+  margin-right: 0.65rem;
+}
+
+.password-generator-actions .refresh-generated-password-button {
+  flex-shrink: 0;
+  width: 4rem;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.4rem;
+}
+
+.password-generator-actions .refresh-generated-password-button:focus:focus-visible {
+  outline-width: 0.2rem;
+  outline-style: solid;
+}
+
+.theme_light .password-generator-actions .refresh-generated-password-button:focus:focus-visible {
+  outline-color: #1252a3;
+}
+
+.theme_dark .password-generator-actions .refresh-generated-password-button:focus:focus-visible {
+  outline-color: #5c9fee;
+}
+
+.password-generator-actions .refresh-generated-password-button svg {
+  margin-top: 0.2rem;
+}
+
+.theme_light .password-generator-actions .refresh-generated-password-button svg path {
+  fill: #175ddc !important;
+}
+
+.theme_dark .password-generator-actions .refresh-generated-password-button svg path {
+  fill: #6f9df1 !important;
+}
+
+.password-generator-actions .password-generator-content {
+  text-align: left;
+}
+
+.password-generator-actions .password-generator-heading {
+  font-size: 1.4rem;
+  line-height: 1.6;
+  margin-bottom: 0.1rem;
+  font-family: Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.password-generator-actions .colorized-password {
+  font-size: 1.2rem;
+  line-height: 1.3;
+  font-family: "Source Code Pro", monospace;
+  letter-spacing: 0.05rem;
+  font-weight: 400;
+  display: flex;
+  align-content: center;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.theme_light .password-generator-actions .colorized-password .password-special {
+  color: #b80017 !important;
+}
+
+.theme_dark .password-generator-actions .colorized-password .password-special {
+  color: #ff8d85 !important;
+}
+
+.theme_light .password-generator-actions .colorized-password .password-number {
+  color: #1452c1 !important;
+}
+
+.theme_dark .password-generator-actions .colorized-password .password-number {
+  color: #6f9df1 !important;
+}
