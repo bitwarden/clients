@@ -1,10 +1,6 @@
 import { Observable } from "rxjs";
 
-import { BitwardenClient, Uuid, DeviceType as SdkDeviceType } from "@bitwarden/sdk-internal";
-
-// PasswordManagerClient is an alias for BitwardenClient in newer SDK versions
-// Using BitwardenClient for compatibility
-type PasswordManagerClient = BitwardenClient;
+import { PasswordManagerClient, Uuid, DeviceType as SdkDeviceType } from "@bitwarden/sdk-internal";
 
 import { DeviceType } from "../../../enums";
 import { UserId } from "../../../types/guid";
