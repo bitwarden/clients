@@ -293,7 +293,7 @@ describe("accountService", () => {
 
     it("should update the account with a new creation date", async () => {
       const newCreationDate = "2024-12-31T00:00:00.000Z";
-      await sut.setCreationDate(userId, newCreationDate);
+      await sut.setAccountCreationDate(userId, newCreationDate);
       const currentState = await firstValueFrom(accountsState.state$);
 
       expect(currentState).toEqual({
@@ -302,7 +302,7 @@ describe("accountService", () => {
     });
 
     it("should not update if the creation date is the same", async () => {
-      await sut.setCreationDate(userId, userInfo.creationDate);
+      await sut.setAccountCreationDate(userId, userInfo.creationDate);
       const currentState = await firstValueFrom(accountsState.state$);
 
       expect(currentState).toEqual(initialState);
@@ -316,7 +316,7 @@ describe("accountService", () => {
       accountsState.stateSubject.next({ [userId]: accountWithoutCreationDate });
 
       const newCreationDate = "2024-06-15T12:30:00.000Z";
-      await sut.setCreationDate(userId, newCreationDate);
+      await sut.setAccountCreationDate(userId, newCreationDate);
       const currentState = await firstValueFrom(accountsState.state$);
 
       expect(currentState).toEqual({
@@ -326,7 +326,7 @@ describe("accountService", () => {
 
     it("should update to a different creation date string format", async () => {
       const newCreationDate = "2023-03-15T08:45:30.123Z";
-      await sut.setCreationDate(userId, newCreationDate);
+      await sut.setAccountCreationDate(userId, newCreationDate);
       const currentState = await firstValueFrom(accountsState.state$);
 
       expect(currentState).toEqual({

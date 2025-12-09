@@ -75,6 +75,7 @@ describe("AccountSwitcherService", () => {
         name: "Test User 1",
         email: "test1@email.com",
         emailVerified: true,
+        creationDate: "2024-01-01T00:00:00.000Z",
       };
 
       avatarService.getUserAvatarColor$.mockReturnValue(of("#cccccc"));
@@ -113,6 +114,7 @@ describe("AccountSwitcherService", () => {
             email: `test${i}@email.com`,
             emailVerified: true,
             name: "Test User ${i}",
+            creationDate: "2024-01-01T00:00:00.000Z",
           };
           seedStatuses[`${i}` as UserId] = AuthenticationStatus.Unlocked;
         }
@@ -137,6 +139,7 @@ describe("AccountSwitcherService", () => {
         name: "Test User 1",
         email: "",
         emailVerified: true,
+        creationDate: "2024-01-01T00:00:00.000Z",
       };
       accountsSubject.next({ ["1" as UserId]: user1AccountInfo });
       authStatusSubject.next({ ["1" as UserId]: AuthenticationStatus.LoggedOut });

@@ -139,11 +139,22 @@ describe("NotificationsService", () => {
       activeAccount.next(null);
       accounts.next({} as any);
     } else {
-      activeAccount.next({ id: userId, email: "email", name: "Test Name", emailVerified: true });
+      activeAccount.next({
+        id: userId,
+        email: "email",
+        name: "Test Name",
+        emailVerified: true,
+        creationDate: "2024-01-01T00:00:00.000Z",
+      });
       const current = (accounts.getValue() as Record<string, any>) ?? {};
       accounts.next({
         ...current,
-        [userId]: { email: "email", name: "Test Name", emailVerified: true },
+        [userId]: {
+          email: "email",
+          name: "Test Name",
+          emailVerified: true,
+          creationDate: "2024-01-01T00:00:00.000Z",
+        },
       } as any);
     }
   }
@@ -349,7 +360,13 @@ describe("NotificationsService", () => {
   describe("processNotification", () => {
     beforeEach(async () => {
       appIdService.getAppId.mockResolvedValue("test-app-id");
-      activeAccount.next({ id: mockUser1, email: "email", name: "Test Name", emailVerified: true });
+      activeAccount.next({
+        id: mockUser1,
+        email: "email",
+        name: "Test Name",
+        emailVerified: true,
+        creationDate: "2024-01-01T00:00:00.000Z",
+      });
     });
 
     describe("NotificationType.LogOut", () => {

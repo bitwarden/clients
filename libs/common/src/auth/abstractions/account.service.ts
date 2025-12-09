@@ -77,7 +77,7 @@ export abstract class AccountService {
    * @param userId
    * @param creationDate
    */
-  abstract setCreationDate(userId: UserId, creationDate: string): Promise<void>;
+  abstract setAccountCreationDate(userId: UserId, creationDate: string): Promise<void>;
   /**
    * updates the `accounts$` observable with the new VerifyNewDeviceLogin property for the account.
    * @param userId

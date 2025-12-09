@@ -174,7 +174,12 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     const currentAccounts = (userAccounts$.getValue() as Record<string, any>) ?? {};
     userAccounts$.next({
       ...currentAccounts,
-      [userId]: { email: "email", name: "Test Name", emailVerified: true },
+      [userId]: {
+        email: "email",
+        name: "Test Name",
+        emailVerified: true,
+        creationDate: "2024-01-01T00:00:00.000Z",
+      },
     } as any);
   }
 

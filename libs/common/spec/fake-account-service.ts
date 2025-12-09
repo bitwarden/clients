@@ -17,6 +17,7 @@ export function mockAccountServiceWith(
       name: "name",
       email: "email",
       emailVerified: true,
+      creationDate: "2024-01-01T00:00:00.000Z",
     },
   };
 
@@ -104,6 +105,10 @@ export class FakeAccountService implements AccountService {
     await this.mock.setAccountEmailVerified(userId, emailVerified);
   }
 
+  async setAccountCreationDate(userId: UserId, creationDate: string): Promise<void> {
+    await this.mock.setAccountCreationDate(userId, creationDate);
+  }
+
   async switchAccount(userId: UserId): Promise<void> {
     const next =
       userId == null ? null : { id: userId, ...this.accountsSubject["_buffer"]?.[0]?.[userId] };
@@ -127,4 +132,5 @@ const loggedOutInfo: AccountInfo = {
   name: undefined,
   email: "",
   emailVerified: false,
+  creationDate: undefined,
 };

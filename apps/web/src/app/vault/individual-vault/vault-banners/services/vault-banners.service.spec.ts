@@ -28,7 +28,12 @@ describe("VaultBannersService", () => {
   const getEmailVerified = jest.fn().mockResolvedValue(true);
   const lastSync$ = new BehaviorSubject<Date | null>(null);
   const accounts$ = new BehaviorSubject<Record<UserId, AccountInfo>>({
-    [userId]: { email: "test@bitwarden.com", emailVerified: true, name: "name" } as AccountInfo,
+    [userId]: {
+      email: "test@bitwarden.com",
+      emailVerified: true,
+      name: "name",
+      creationDate: "2024-01-01T00:00:00.000Z",
+    } as AccountInfo,
   });
   const pendingAuthRequests$ = new BehaviorSubject<Array<AuthRequestResponse>>([]);
 

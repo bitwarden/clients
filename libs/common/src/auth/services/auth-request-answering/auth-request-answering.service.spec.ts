@@ -53,9 +53,15 @@ describe("AuthRequestAnsweringService", () => {
       email: "user@example.com",
       emailVerified: true,
       name: "User",
+      creationDate: "2024-01-01T00:00:00.000Z",
     });
     accountService.accounts$ = of({
-      [userId]: { email: "user@example.com", emailVerified: true, name: "User" },
+      [userId]: {
+        email: "user@example.com",
+        emailVerified: true,
+        name: "User",
+        creationDate: "2024-01-01T00:00:00.000Z",
+      },
     });
     (masterPasswordService.forceSetPasswordReason$ as jest.Mock).mockReturnValue(
       of(ForceSetPasswordReason.None),

@@ -168,7 +168,7 @@ export class AccountServiceImplementation implements InternalAccountService {
     await this.setAccountInfo(userId, { emailVerified });
   }
 
-  async setCreationDate(userId: UserId, creationDate: string): Promise<void> {
+  async setAccountCreationDate(userId: UserId, creationDate: string): Promise<void> {
     await this.setAccountInfo(userId, { creationDate });
   }
 

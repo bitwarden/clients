@@ -92,7 +92,12 @@ describe("DefaultSdkService", () => {
           .calledWith(userId)
           .mockReturnValue(new BehaviorSubject(mock<Environment>()));
         accountService.accounts$ = of({
-          [userId]: { email: "email", emailVerified: true, name: "name" } as AccountInfo,
+          [userId]: {
+            email: "email",
+            emailVerified: true,
+            name: "name",
+            creationDate: "2024-01-01T00:00:00.000Z",
+          } as AccountInfo,
         });
         kdfConfigService.getKdfConfig$
           .calledWith(userId)

@@ -76,7 +76,12 @@ describe("DefaultRegisterSdkService", () => {
           .calledWith(userId)
           .mockReturnValue(new BehaviorSubject(mock<Environment>()));
         accountService.accounts$ = of({
-          [userId]: { email: "email", emailVerified: true, name: "name" } as AccountInfo,
+          [userId]: {
+            email: "email",
+            emailVerified: true,
+            name: "name",
+            creationDate: "2024-01-01T00:00:00.000Z",
+          } as AccountInfo,
         });
       });
 
@@ -125,7 +130,12 @@ describe("DefaultRegisterSdkService", () => {
 
       it("destroys the internal SDK client when the account is removed (logout)", async () => {
         const accounts$ = new BehaviorSubject({
-          [userId]: { email: "email", emailVerified: true, name: "name" } as AccountInfo,
+          [userId]: {
+            email: "email",
+            emailVerified: true,
+            name: "name",
+            creationDate: "2024-01-01T00:00:00.000Z",
+          } as AccountInfo,
         });
         accountService.accounts$ = accounts$;
 
