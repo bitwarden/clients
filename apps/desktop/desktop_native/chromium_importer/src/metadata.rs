@@ -22,7 +22,7 @@ pub fn get_supported_importers<T: InstalledBrowserRetriever>(
     let mut map = HashMap::new();
 
     // Check for installed browsers
-    let installed_browsers = T::get_installed_browsers(mas_build).unwrap_or_default();
+    let installed_browsers = T::get_installed_browsers(mas_build);
 
     const IMPORTERS: &[(&str, &str)] = &[
         ("chromecsv", "Chrome"),
@@ -68,11 +68,11 @@ mod tests {
     pub struct MockInstalledBrowserRetriever {}
 
     impl InstalledBrowserRetriever for MockInstalledBrowserRetriever {
-        fn get_installed_browsers(_mas_build: bool) -> Result<Vec<String>, anyhow::Error> {
-            Ok(SUPPORTED_BROWSER_MAP
+        fn get_installed_browsers(_mas_build: bool) -> Vec<String> {
+            SUPPORTED_BROWSER_MAP
                 .keys()
                 .map(|browser| browser.to_string())
-                .collect())
+                .collect()
         }
     }
 

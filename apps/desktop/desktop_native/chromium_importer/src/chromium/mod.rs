@@ -51,28 +51,30 @@ pub enum LoginImportResult {
 }
 
 pub trait InstalledBrowserRetriever {
-    fn get_installed_browsers(mas_build: bool) -> Result<Vec<String>>;
+    fn get_installed_browsers(mas_build: bool) -> Vec<String>;
 }
 
 pub struct DefaultInstalledBrowserRetriever {}
 
 impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
-    fn get_installed_browsers(mas_build: bool) -> Result<Vec<String>> {
-        let mut browsers = Vec::with_capacity(SUPPORTED_BROWSER_MAP.len());
-        for (browser, config) in SUPPORTED_BROWSER_MAP.iter() {
-            if mas_build {
-                // show all browsers for MAS builds, user will grant access when selected
-                browsers.push((*browser).to_string());
-            } else {
-                // When not in sandbox check file system directly
-                let data_dir = get_and_validate_data_dir(config)?;
-                if data_dir.exists() {
-                    browsers.push((*browser).to_string());
-                }
-            }
+    fn get_installed_browsers(mas_build: bool) -> Vec<String> {
+        // Show all browsers for MAS builds, user will grant access when selected
+        if mas_build {
+            return SUPPORTED_BROWSER_MAP
+                .keys()
+                .map(|browser| (*browser).to_string())
+                .collect();
         }
-
-        Ok(browsers)
+        // When not in sandbox, check file system directly
+        SUPPORTED_BROWSER_MAP
+            .iter()
+            .filter_map(|(browser, config)| {
+                get_and_validate_data_dir(config)
+                    .ok()
+                    .filter(|data_dir| data_dir.exists())
+                    .map(|_| (*browser).to_string())
+            })
+            .collect()
     }
 }
 
@@ -83,11 +85,9 @@ pub async fn get_available_profiles(
 ) -> Result<Vec<ProfileInfo>> {
     // MAS builds need to resume security-scoped access before reading browser files
     #[cfg(target_os = "macos")]
-    let _access = if mas_build {
-        Some(platform::sandbox::ScopedBrowserAccess::resume(browser_name).await?)
-    } else {
-        None
-    };
+    if mas_build {
+        platform::sandbox::ScopedBrowserAccess::resume(browser_name).await?;
+    }
 
     let (_, local_state) = load_local_state_for_browser(browser_name)?;
     Ok(get_profile_info(&local_state))
@@ -103,18 +103,17 @@ pub async fn request_browser_access(browser_name: &str, mas_build: bool) -> Resu
     Ok(())
 }
 
+#[allow(unused_variables)]
 pub async fn import_logins(
     browser_name: &str,
     profile_id: &str,
-    _mas_build: bool,
+    mas_build: bool,
 ) -> Result<Vec<LoginImportResult>> {
     // MAS builds will use the formerly created security bookmark
     #[cfg(target_os = "macos")]
-    let _access = if _mas_build {
-        Some(platform::sandbox::ScopedBrowserAccess::resume(browser_name).await?)
-    } else {
-        None
-    };
+    if mas_build {
+        platform::sandbox::ScopedBrowserAccess::resume(browser_name).await?;
+    }
 
     let (data_dir, local_state) = load_local_state_for_browser(browser_name)?;
 
