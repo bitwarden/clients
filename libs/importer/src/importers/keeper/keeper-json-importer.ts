@@ -146,14 +146,18 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     cipher.card.number = this.findCustomField(record.custom_fields, "$paymentCard/cardNumber");
     cipher.card.code = this.findCustomField(record.custom_fields, "$paymentCard/cardSecurityCode");
     cipher.card.brand = CardView.getCardBrandByPatterns(cipher.card.number);
+
     const expDate = this.findCustomField(record.custom_fields, "$paymentCard/cardExpirationDate");
-    const [expMonth, expYear] = expDate.split("/");
-    if (expMonth) {
-      cipher.card.expMonth = expMonth;
+    if (expDate) {
+      const expDateParts = expDate.split("/");
+      if (expDateParts.length === 2) {
+        cipher.card.expMonth = expDateParts[0];
+        cipher.card.expYear = expDateParts[1];
+      } else {
+        this.addField(cipher, "Expiration date", expDate);
+      }
     }
-    if (expYear) {
-      cipher.card.expYear = expYear;
-    }
+
     const pinCode = this.findCustomField(record.custom_fields, "$pinCode");
     if (pinCode) {
       this.addField(cipher, "PIN", pinCode, FieldType.Hidden);
