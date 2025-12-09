@@ -30,7 +30,6 @@ import {
   SendFormConfig,
   SendAddEditDialogComponent,
   SendItemDialogResult,
-  SendTableComponent,
 } from "@bitwarden/send-ui";
 
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -44,14 +43,7 @@ const BroadcasterSubscriptionId = "SendComponent";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send",
-  imports: [
-    SharedModule,
-    SearchModule,
-    NoItemsModule,
-    HeaderModule,
-    NewSendDropdownComponent,
-    SendTableComponent,
-  ],
+  imports: [SharedModule, SearchModule, NoItemsModule, HeaderModule, NewSendDropdownComponent],
   templateUrl: "send.component.html",
   providers: [DefaultSendFormConfigService],
 })
