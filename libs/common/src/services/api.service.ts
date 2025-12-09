@@ -1602,10 +1602,8 @@ export class ApiService implements ApiServiceAbstraction {
       throw new Error("The request URL contains dangerous patterns.");
     }
 
-    // Prevent directory traversal from malicious paths
-    // Normalize path and ensure URLs use forward slashes (even on Windows)
-    const normalizedPath = Utils.normalizePath(pathParts[0]).replace(/\\/g, "/");
-    const requestUrl = apiUrl + normalizedPath + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
+    const requestUrl =
+      apiUrl + Utils.normalizePath(pathParts[0]) + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
 
     const [requestHeaders, requestBody] = await this.buildHeadersAndBody(
       userId,
