@@ -6,7 +6,7 @@ import {
 
 import { HecConfiguration } from "../models/configuration/hec-configuration";
 import { HecTemplate } from "../models/integration-configuration-config/configuration-template/hec-template";
-import { OrganizationIntegrationServiceType } from "../models/organization-integration-service-type";
+import { OrganizationIntegrationServiceName } from "../models/organization-integration-service-type";
 import { OrganizationIntegrationType } from "../models/organization-integration-type";
 
 import {
@@ -15,11 +15,6 @@ import {
 } from "./base-organization-integration.service";
 import { OrganizationIntegrationApiService } from "./organization-integration-api.service";
 import { OrganizationIntegrationConfigurationApiService } from "./organization-integration-configuration-api.service";
-
-/**
- * @deprecated Use IntegrationModificationResult instead
- */
-export type HecModificationFailureReason = IntegrationModificationResult;
 
 /**
  * Service for managing HEC (HTTP Event Collector) organization integrations.
@@ -58,7 +53,7 @@ export class HecOrganizationIntegrationService extends BaseOrganizationIntegrati
    */
   async saveHec(
     organizationId: OrganizationId,
-    service: OrganizationIntegrationServiceType,
+    service: OrganizationIntegrationServiceName,
     url: string,
     bearerToken: string,
     index: string,
@@ -84,7 +79,7 @@ export class HecOrganizationIntegrationService extends BaseOrganizationIntegrati
     organizationId: OrganizationId,
     integrationId: OrganizationIntegrationId,
     configurationId: OrganizationIntegrationConfigurationId,
-    service: OrganizationIntegrationServiceType,
+    service: OrganizationIntegrationServiceName,
     url: string,
     bearerToken: string,
     index: string,

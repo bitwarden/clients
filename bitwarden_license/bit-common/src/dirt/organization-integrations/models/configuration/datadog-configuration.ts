@@ -1,15 +1,15 @@
-import { IOrgIntegrationJsonify } from "../integration-jsonify";
-import { OrganizationIntegrationServiceType } from "../organization-integration-service-type";
+import { OrgIntegrationConfiguration } from "../integration-jsonify";
+import { OrganizationIntegrationServiceName } from "../organization-integration-service-type";
 
-export class DatadogConfiguration implements IOrgIntegrationJsonify {
+export class DatadogConfiguration implements OrgIntegrationConfiguration {
   uri: string;
   apiKey: string;
-  service: OrganizationIntegrationServiceType;
+  service: OrganizationIntegrationServiceName;
 
   constructor(uri: string, apiKey: string, service: string) {
     this.uri = uri;
     this.apiKey = apiKey;
-    this.service = service as OrganizationIntegrationServiceType;
+    this.service = service as OrganizationIntegrationServiceName;
   }
 
   toString(): string {

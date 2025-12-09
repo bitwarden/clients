@@ -12,7 +12,7 @@ import { Observable, Subject, combineLatest, lastValueFrom, takeUntil } from "rx
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
-import { OrganizationIntegrationServiceType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
+import { OrganizationIntegrationServiceName } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
 import { OrganizationIntegrationType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-type";
 import { DatadogOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/datadog-organization-integration-service";
 import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
@@ -266,7 +266,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
         this.organizationId,
         orgIntegrationId,
         orgIntegrationConfigurationId,
-        this.integrationSettings.name as OrganizationIntegrationServiceType,
+        this.integrationSettings.name as OrganizationIntegrationServiceName,
         result.url,
         result.bearerToken,
         result.index,
@@ -275,7 +275,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       // create new integration and configuration
       saveResponse = await this.hecOrganizationIntegrationService.saveHec(
         this.organizationId,
-        this.integrationSettings.name as OrganizationIntegrationServiceType,
+        this.integrationSettings.name as OrganizationIntegrationServiceName,
         result.url,
         result.bearerToken,
         result.index,
@@ -337,7 +337,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
         this.organizationId,
         orgIntegrationId,
         orgIntegrationConfigurationId,
-        this.integrationSettings.name as OrganizationIntegrationServiceType,
+        this.integrationSettings.name as OrganizationIntegrationServiceName,
         result.url,
         result.apiKey,
       );
@@ -345,7 +345,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       // create new integration and configuration
       await this.datadogOrganizationIntegrationService.saveDatadog(
         this.organizationId,
-        this.integrationSettings.name as OrganizationIntegrationServiceType,
+        this.integrationSettings.name as OrganizationIntegrationServiceName,
         result.url,
         result.apiKey,
       );

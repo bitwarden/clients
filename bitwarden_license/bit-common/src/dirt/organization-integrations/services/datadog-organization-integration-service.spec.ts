@@ -9,7 +9,7 @@ import {
 
 import { OrganizationIntegrationConfigurationResponse } from "../models/organization-integration-configuration-response";
 import { OrganizationIntegrationResponse } from "../models/organization-integration-response";
-import { OrganizationIntegrationServiceType } from "../models/organization-integration-service-type";
+import { OrganizationIntegrationServiceName } from "../models/organization-integration-service-type";
 import { OrganizationIntegrationType } from "../models/organization-integration-type";
 
 import { DatadogOrganizationIntegrationService } from "./datadog-organization-integration-service";
@@ -24,7 +24,7 @@ describe("DatadogOrganizationIntegrationService", () => {
   const organizationId = "org-1" as OrganizationId;
   const integrationId = "int-1" as OrganizationIntegrationId;
   const configId = "conf-1" as OrganizationIntegrationConfigurationId;
-  const serviceType = OrganizationIntegrationServiceType.CrowdStrike;
+  const serviceType = OrganizationIntegrationServiceName.CrowdStrike;
   const url = "https://example.com";
   const apiKey = "token";
 
@@ -71,7 +71,7 @@ describe("DatadogOrganizationIntegrationService", () => {
     const integrations = await firstValueFrom(service.integrations$);
     expect(integrations.length).toBe(1);
     expect(integrations[0].id).toBe(integrationId);
-    expect(integrations[0].serviceType).toBe(serviceType);
+    expect(integrations[0].serviceName).toBe(serviceType);
   });
 
   it("should throw error on organization ID mismatch in saveDatadog", async () => {

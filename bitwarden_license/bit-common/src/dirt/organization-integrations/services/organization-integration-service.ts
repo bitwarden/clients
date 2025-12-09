@@ -1,4 +1,13 @@
-import { BehaviorSubject, Observable, of, Subject, switchMap, takeUntil, zip } from "rxjs";
+import {
+  BehaviorSubject,
+  Observable,
+  of,
+  Subject,
+  Subscription,
+  switchMap,
+  takeUntil,
+  zip,
+} from "rxjs";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import {
@@ -7,6 +16,7 @@ import {
   OrganizationIntegrationConfigurationId,
 } from "@bitwarden/common/types/guid";
 
+import { OrgIntegrationBuilder } from "../models/integration-builder";
 import { OrgIntegrationConfiguration, OrgIntegrationTemplate } from "../models/integration-jsonify";
 import { OrganizationIntegration } from "../models/organization-integration";
 import { OrganizationIntegrationConfiguration } from "../models/organization-integration-configuration";
@@ -34,38 +44,30 @@ export type IntegrationModificationResult = {
  * @template TConfig - The configuration type specific to the integration (e.g., HecConfiguration, DatadogConfiguration)
  * @template TTemplate - The template type specific to the integration (e.g., HecTemplate, DatadogTemplate)
  */
-export abstract class BaseOrganizationIntegrationService<
-  TConfig extends OrgIntegrationConfiguration,
-  TTemplate extends OrgIntegrationTemplate,
-> {
+export class OrganizationIntegrationService {
   private organizationId$ = new BehaviorSubject<OrganizationId | null>(null);
   private _integrations$ = new BehaviorSubject<OrganizationIntegration[]>([]);
   private destroy$ = new Subject<void>();
 
   integrations$: Observable<OrganizationIntegration[]> = this._integrations$.asObservable();
 
-  private fetch$ = this.organizationId$
-    .pipe(
-      switchMap((orgId) => {
-        if (orgId) {
-          return this.setIntegrations(orgId);
-        } else {
-          return of([]) as Observable<OrganizationIntegration[]>;
-        }
-      }),
-      takeUntil(this.destroy$),
-    )
-    .subscribe({
-      next: (integrations) => {
-        this._integrations$.next(integrations);
-      },
-    });
-
-  /**
-   * The integration type that this service manages ex: Hec, Webhook, DataDog etc
-   * Must be implemented by child classes to specify their integration type.
-   */
-  protected abstract readonly integrationType: OrganizationIntegrationType;
+  private fetch$: Subscription | null = null;
+  // private fetch$ = this.organizationId$
+  //   .pipe(
+  //     switchMap((orgId) => {
+  //       if (orgId) {
+  //         return this.setIntegrations(orgId);
+  //       } else {
+  //         return of([]) as Observable<OrganizationIntegration[]>;
+  //       }
+  //     }),
+  //     takeUntil(this.destroy$),
+  //   )
+  //   .subscribe({
+  //     next: (integrations) => {
+  //       this._integrations$.next(integrations);
+  //     },
+  //   });
 
   constructor(
     protected integrationApiService: OrganizationIntegrationApiService,
@@ -84,6 +86,27 @@ export abstract class BaseOrganizationIntegrationService<
     }
     this._integrations$.next([]);
     this.organizationId$.next(orgId);
+
+    if (this.fetch$) {
+      this.fetch$.unsubscribe();
+    }
+
+    this.fetch$ = this.organizationId$
+      .pipe(
+        switchMap((orgId) => {
+          if (orgId) {
+            return this.setIntegrations(orgId);
+          } else {
+            return of([]) as Observable<OrganizationIntegration[]>;
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (integrations) => {
+          this._integrations$.next(integrations);
+        },
+      });
   }
 
   /**
@@ -94,10 +117,11 @@ export abstract class BaseOrganizationIntegrationService<
    * @param template - The template object for this integration
    * @returns Promise with the result indicating success or failure reason
    */
-  protected async save(
+  async save(
     organizationId: OrganizationId,
-    config: TConfig,
-    template: TTemplate,
+    integrationType: OrganizationIntegrationType,
+    config: OrgIntegrationConfiguration,
+    template: OrgIntegrationTemplate,
   ): Promise<IntegrationModificationResult> {
     if (organizationId != this.organizationId$.getValue()) {
       throw new Error("Organization ID mismatch");
@@ -107,7 +131,7 @@ export abstract class BaseOrganizationIntegrationService<
       const configString = config.toString();
       const newIntegrationResponse = await this.integrationApiService.createOrganizationIntegration(
         organizationId,
-        new OrganizationIntegrationRequest(this.integrationType, configString),
+        new OrganizationIntegrationRequest(integrationType, configString),
       );
 
       const templateString = template.toString();
@@ -144,12 +168,13 @@ export abstract class BaseOrganizationIntegrationService<
    * @param template - The updated template object
    * @returns Promise with the result indicating success or failure reason
    */
-  protected async update(
+  async update(
     organizationId: OrganizationId,
     integrationId: OrganizationIntegrationId,
+    integrationType: OrganizationIntegrationType,
     configurationId: OrganizationIntegrationConfigurationId,
-    config: TConfig,
-    template: TTemplate,
+    config: OrgIntegrationConfiguration,
+    template: OrgIntegrationTemplate,
   ): Promise<IntegrationModificationResult> {
     if (organizationId != this.organizationId$.getValue()) {
       throw new Error("Organization ID mismatch");
@@ -161,7 +186,7 @@ export abstract class BaseOrganizationIntegrationService<
         await this.integrationApiService.updateOrganizationIntegration(
           organizationId,
           integrationId,
-          new OrganizationIntegrationRequest(this.integrationType, configString),
+          new OrganizationIntegrationRequest(integrationType, configString),
         );
 
       const templateString = template.toString();
@@ -201,7 +226,7 @@ export abstract class BaseOrganizationIntegrationService<
    * @param configurationId - ID of the organization integration configuration
    * @returns Promise with the result indicating success or failure reason
    */
-  protected async delete(
+  async delete(
     organizationId: OrganizationId,
     integrationId: OrganizationIntegrationId,
     configurationId: OrganizationIntegrationConfigurationId,
@@ -247,8 +272,17 @@ export abstract class BaseOrganizationIntegrationService<
     integrationResponse: OrganizationIntegrationResponse,
     configurationResponse: OrganizationIntegrationConfigurationResponse,
   ): OrganizationIntegration | null {
-    const config = this.convertToJson<TConfig>(integrationResponse.configuration);
-    const template = this.convertToJson<TTemplate>(configurationResponse.template);
+    const integrationType = integrationResponse.type as OrganizationIntegrationType;
+    // const config = this.convertToJson<TConfig>(integrationResponse.configuration);
+    // const template = this.convertToJson<TTemplate>(configurationResponse.template);
+    const config = OrgIntegrationBuilder.buildConfiguration(
+      integrationType,
+      integrationResponse.configuration,
+    );
+    const template = OrgIntegrationBuilder.buildTemplate(
+      integrationType,
+      configurationResponse.template,
+    );
 
     if (!config || !template) {
       return null;
@@ -259,14 +293,14 @@ export abstract class BaseOrganizationIntegrationService<
       integrationResponse.id,
       null,
       "",
-      template as any,
+      template,
     );
 
     return new OrganizationIntegration(
       integrationResponse.id,
       integrationResponse.type,
       (config as OrgIntegrationConfiguration).service,
-      config as any,
+      config,
       [integrationConfig],
     );
   }
@@ -284,24 +318,22 @@ export abstract class BaseOrganizationIntegrationService<
         const promises: Promise<void>[] = [];
 
         responses.forEach((integration) => {
-          if (integration.type === this.integrationType) {
-            const promise = this.integrationConfigurationApiService
-              .getOrganizationIntegrationConfigurations(orgId, integration.id)
-              .then((response) => {
-                // Integration will only have one OrganizationIntegrationConfiguration
-                const config = response[0];
+          const promise = this.integrationConfigurationApiService
+            .getOrganizationIntegrationConfigurations(orgId, integration.id)
+            .then((response) => {
+              // Integration will only have one OrganizationIntegrationConfiguration
+              const config = response[0];
 
-                const orgIntegration = this.mapResponsesToOrganizationIntegration(
-                  integration,
-                  config,
-                );
+              const orgIntegration = this.mapResponsesToOrganizationIntegration(
+                integration,
+                config,
+              );
 
-                if (orgIntegration !== null) {
-                  integrations.push(orgIntegration);
-                }
-              });
-            promises.push(promise);
-          }
+              if (orgIntegration !== null) {
+                integrations.push(orgIntegration);
+              }
+            });
+          promises.push(promise);
         });
         return Promise.all(promises).then(() => {
           return integrations;

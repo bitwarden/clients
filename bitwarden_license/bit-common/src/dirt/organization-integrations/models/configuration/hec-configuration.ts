@@ -1,16 +1,16 @@
-import { IOrgIntegrationJsonify } from "../integration-jsonify";
-import { OrganizationIntegrationServiceType } from "../organization-integration-service-type";
+import { OrgIntegrationConfiguration } from "../integration-jsonify";
+import { OrganizationIntegrationServiceName } from "../organization-integration-service-type";
 
-export class HecConfiguration implements IOrgIntegrationJsonify {
+export class HecConfiguration implements OrgIntegrationConfiguration {
   uri: string;
   scheme = "Bearer";
   token: string;
-  service: OrganizationIntegrationServiceType;
+  service: OrganizationIntegrationServiceName;
 
   constructor(uri: string, token: string, service: string) {
     this.uri = uri;
     this.token = token;
-    this.service = service as OrganizationIntegrationServiceType;
+    this.service = service as OrganizationIntegrationServiceName;
   }
 
   toString(): string {

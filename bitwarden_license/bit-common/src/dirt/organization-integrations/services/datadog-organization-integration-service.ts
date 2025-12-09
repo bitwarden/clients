@@ -6,7 +6,7 @@ import {
 
 import { DatadogConfiguration } from "../models/configuration/datadog-configuration";
 import { DatadogTemplate } from "../models/integration-configuration-config/configuration-template/datadog-template";
-import { OrganizationIntegrationServiceType } from "../models/organization-integration-service-type";
+import { OrganizationIntegrationServiceName } from "../models/organization-integration-service-type";
 import { OrganizationIntegrationType } from "../models/organization-integration-type";
 
 import {
@@ -15,11 +15,6 @@ import {
 } from "./base-organization-integration.service";
 import { OrganizationIntegrationApiService } from "./organization-integration-api.service";
 import { OrganizationIntegrationConfigurationApiService } from "./organization-integration-configuration-api.service";
-
-/**
- * @deprecated Use IntegrationModificationResult instead
- */
-export type DatadogModificationFailureReason = IntegrationModificationResult;
 
 /**
  * Service for managing Datadog organization integrations.
@@ -57,7 +52,7 @@ export class DatadogOrganizationIntegrationService extends BaseOrganizationInteg
    */
   async saveDatadog(
     organizationId: OrganizationId,
-    service: OrganizationIntegrationServiceType,
+    service: OrganizationIntegrationServiceName,
     url: string,
     apiKey: string,
   ): Promise<IntegrationModificationResult> {
@@ -81,7 +76,7 @@ export class DatadogOrganizationIntegrationService extends BaseOrganizationInteg
     organizationId: OrganizationId,
     integrationId: OrganizationIntegrationId,
     configurationId: OrganizationIntegrationConfigurationId,
-    service: OrganizationIntegrationServiceType,
+    service: OrganizationIntegrationServiceName,
     url: string,
     apiKey: string,
   ): Promise<IntegrationModificationResult> {

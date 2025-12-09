@@ -4,23 +4,21 @@ import {
   OrganizationIntegrationId,
 } from "@bitwarden/common/types/guid";
 
-import { DatadogTemplate } from "./integration-configuration-config/configuration-template/datadog-template";
-import { HecTemplate } from "./integration-configuration-config/configuration-template/hec-template";
-import { WebhookTemplate } from "./integration-configuration-config/configuration-template/webhook-template";
+import { OrgIntegrationTemplate } from "./integration-jsonify";
 
 export class OrganizationIntegrationConfiguration {
   id: OrganizationIntegrationConfigurationId;
   integrationId: OrganizationIntegrationId;
   eventType?: EventType | null;
   filters?: string;
-  template?: HecTemplate | WebhookTemplate | DatadogTemplate | null;
+  template?: OrgIntegrationTemplate | null;
 
   constructor(
     id: OrganizationIntegrationConfigurationId,
     integrationId: OrganizationIntegrationId,
     eventType?: EventType | null,
     filters?: string,
-    template?: HecTemplate | WebhookTemplate | DatadogTemplate | null,
+    template?: OrgIntegrationTemplate | null,
   ) {
     this.id = id;
     this.integrationId = integrationId;
