@@ -708,6 +708,15 @@
   "addAttachment": {
     "message": "Add attachment"
   },
+  "fixEncryption": {
+    "message": "Fix encryption"
+  },
+  "fixEncryptionTooltip": {
+    "message": "This file is using an outdated encryption method."
+  },
+  "attachmentUpdated": {
+    "message": "Attachment updated"
+  },
   "maxFileSizeSansPunctuation": {
     "message": "Maximum file size is 500 MB"
   },
@@ -4319,8 +4328,8 @@
   "andMoreFeatures": {
     "message": "And more!"
   },
-  "planDescPremium": {
-    "message": "Complete online security"
+  "advancedOnlineSecurity": {
+    "message": "Advanced online security"
   },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
@@ -4371,6 +4380,9 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
+  },
+  "upgrade": {
+    "message": "Upgrade"
   },
   "leaveConfirmationDialogTitle": {
     "message": "Are you sure you want to leave?"

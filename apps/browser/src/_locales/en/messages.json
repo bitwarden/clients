@@ -1457,6 +1457,15 @@
   "attachmentSaved": {
     "message": "Attachment saved"
   },
+  "fixEncryption": {
+    "message": "Fix encryption"
+  },
+  "fixEncryptionTooltip": {
+    "message": "This file is using an outdated encryption method."
+  },
+  "attachmentUpdated": {
+    "message": "Attachment updated"
+  },
   "file": {
     "message": "File"
   },
@@ -5848,8 +5857,8 @@
   "andMoreFeatures": {
     "message": "And more!"
   },
-  "planDescPremium": {
-    "message": "Complete online security"
+  "advancedOnlineSecurity": {
+    "message": "Advanced online security"
   },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
@@ -5925,6 +5934,9 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
+  },
+  "upgrade": {
+    "message": "Upgrade"
   },
   "leaveConfirmationDialogTitle": {
     "message": "Are you sure you want to leave?"
