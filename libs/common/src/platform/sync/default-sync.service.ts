@@ -247,7 +247,10 @@ export class DefaultSyncService extends CoreSyncService {
       );
 
       // V1 and V2 users
-      await this.keyService.setPrivateKey(response.privateKey, response.id);
+      await this.keyService.setPrivateKey(
+        response.accountKeys.publicKeyEncryptionKeyPair.wrappedPrivateKey,
+        response.id,
+      );
       // V2 users only
       if (response.accountKeys.isV2Encryption()) {
         await this.keyService.setUserSigningKey(
@@ -260,11 +263,6 @@ export class DefaultSyncService extends CoreSyncService {
         );
         await this.keyService.setSignedPublicKey(
           response.accountKeys.publicKeyEncryptionKeyPair.signedPublicKey,
-          response.id,
-        );
-      } else {
-        await this.keyService.setPrivateKey(
-          response.accountKeys.publicKeyEncryptionKeyPair.wrappedPrivateKey,
           response.id,
         );
       }
