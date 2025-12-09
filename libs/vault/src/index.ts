@@ -29,6 +29,7 @@ export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.compon
 export * from "./components/carousel";
 export * from "./components/new-cipher-menu/new-cipher-menu.component";
 export * from "./components/permit-cipher-details-popover/permit-cipher-details-popover.component";
+export * from "./components/vault-items-transfer";
 
 export { DefaultSshImportPromptService } from "./services/default-ssh-import-prompt.service";
 export { SshImportPromptService } from "./services/ssh-import-prompt.service";
