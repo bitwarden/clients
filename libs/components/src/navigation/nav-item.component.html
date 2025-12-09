@@ -7,7 +7,7 @@
       [class.tw-bg-background-alt4]="showActiveStyles"
       [class.tw-bg-background-alt3]="!showActiveStyles"
       [class.hover:tw-bg-hover-contrast]="!showActiveStyles"
-      [ngClass]="fvwStyles$ | async"
+      [class]="fvwStyles$ | async"
     >
       <div class="tw-relative tw-flex tw-items-center tw-h-full">
         @if (open) {
