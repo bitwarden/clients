@@ -1355,6 +1355,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       tagname: () => updateAttribute(AUTOFILL_ATTRIBUTES.TAGNAME),
       type: () => (dataTarget.type = this.getAttributeLowerCase(element, AUTOFILL_ATTRIBUTES.TYPE)),
       value: () => (dataTarget.value = this.getElementValue(element)),
+      placeholder: () => updateAttribute(AUTOFILL_ATTRIBUTES.PLACEHOLDER),
       checked: () =>
         (dataTarget.checked = this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.CHECKED)),
       disabled: () =>
