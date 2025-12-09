@@ -6,3 +6,4 @@ export { SendItemsService } from "./services/send-items.service";
 export { SendSearchComponent } from "./send-search/send-search.component";
 export { SendListFiltersComponent } from "./send-list-filters/send-list-filters.component";
 export { SendListFiltersService } from "./services/send-list-filters.service";
+export { SendTableComponent } from "./send-table/send-table.component";
