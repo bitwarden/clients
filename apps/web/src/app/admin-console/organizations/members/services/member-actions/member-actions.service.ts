@@ -24,7 +24,7 @@ import { UserId } from "@bitwarden/user-core";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 
-export const BATCH_SIZE = 500;
+export const REQUESTS_PER_BATCH = 500;
 
 export interface MemberActionResult {
   success: boolean;
@@ -165,6 +165,68 @@ export class MemberActionsService {
     }
   }
 
+  async bulkReinvite(organization: Organization, userIds: UserId[]): Promise<BulkActionResult> {
+    const increaseBulkReinviteLimitForCloud = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.IncreaseBulkReinviteLimitForCloud),
+    );
+    if (increaseBulkReinviteLimitForCloud) {
+      return await this.vNextBulkReinvite(organization, userIds);
+    } else {
+      try {
+        const result = await this.organizationUserApiService.postManyOrganizationUserReinvite(
+          organization.id,
+          userIds,
+        );
+        return { successful: result, failed: [] };
+      } catch (error) {
+        return {
+          failed: userIds.map((id) => ({ id, error: (error as Error).message ?? String(error) })),
+        };
+      }
+    }
+  }
+
+  async vNextBulkReinvite(
+    organization: Organization,
+    userIds: UserId[],
+  ): Promise<BulkActionResult> {
+    return this.processBatchedOperation(userIds, REQUESTS_PER_BATCH, (batch) =>
+      this.organizationUserApiService.postManyOrganizationUserReinvite(organization.id, batch),
+    );
+  }
+
+  allowResetPassword(
+    orgUser: OrganizationUserView,
+    organization: Organization,
+    resetPasswordEnabled: boolean,
+  ): boolean {
+    let callingUserHasPermission = false;
+
+    switch (organization.type) {
+      case OrganizationUserType.Owner:
+        callingUserHasPermission = true;
+        break;
+      case OrganizationUserType.Admin:
+        callingUserHasPermission = orgUser.type !== OrganizationUserType.Owner;
+        break;
+      case OrganizationUserType.Custom:
+        callingUserHasPermission =
+          orgUser.type !== OrganizationUserType.Owner &&
+          orgUser.type !== OrganizationUserType.Admin;
+        break;
+    }
+
+    return (
+      organization.canManageUsersPassword &&
+      callingUserHasPermission &&
+      organization.useResetPassword &&
+      organization.hasPublicAndPrivateKeys &&
+      orgUser.resetPasswordEnrolled &&
+      resetPasswordEnabled &&
+      orgUser.status === OrganizationUserStatusType.Confirmed
+    );
+  }
+
   /**
    * Processes user IDs in sequential batches and aggregates results.
    * @param userIds - Array of user IDs to process
@@ -211,67 +273,5 @@ export class MemberActionsService {
       successful,
       failed: allFailed,
     };
-  }
-
-  async bulkReinvite(organization: Organization, userIds: UserId[]): Promise<BulkActionResult> {
-    const increaseBulkReinviteLimitForCloud = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.IncreaseBulkReinviteLimitForCloud),
-    );
-    if (increaseBulkReinviteLimitForCloud) {
-      return await this.vNextBulkReinvite(organization, userIds);
-    } else {
-      try {
-        const result = await this.organizationUserApiService.postManyOrganizationUserReinvite(
-          organization.id,
-          userIds,
-        );
-        return { successful: result, failed: [] };
-      } catch (error) {
-        return {
-          failed: userIds.map((id) => ({ id, error: (error as Error).message ?? String(error) })),
-        };
-      }
-    }
-  }
-
-  async vNextBulkReinvite(
-    organization: Organization,
-    userIds: UserId[],
-  ): Promise<BulkActionResult> {
-    return this.processBatchedOperation(userIds, BATCH_SIZE, (batch) =>
-      this.organizationUserApiService.postManyOrganizationUserReinvite(organization.id, batch),
-    );
-  }
-
-  allowResetPassword(
-    orgUser: OrganizationUserView,
-    organization: Organization,
-    resetPasswordEnabled: boolean,
-  ): boolean {
-    let callingUserHasPermission = false;
-
-    switch (organization.type) {
-      case OrganizationUserType.Owner:
-        callingUserHasPermission = true;
-        break;
-      case OrganizationUserType.Admin:
-        callingUserHasPermission = orgUser.type !== OrganizationUserType.Owner;
-        break;
-      case OrganizationUserType.Custom:
-        callingUserHasPermission =
-          orgUser.type !== OrganizationUserType.Owner &&
-          orgUser.type !== OrganizationUserType.Admin;
-        break;
-    }
-
-    return (
-      organization.canManageUsersPassword &&
-      callingUserHasPermission &&
-      organization.useResetPassword &&
-      organization.hasPublicAndPrivateKeys &&
-      orgUser.resetPasswordEnrolled &&
-      resetPasswordEnabled &&
-      orgUser.status === OrganizationUserStatusType.Confirmed
-    );
   }
 }
