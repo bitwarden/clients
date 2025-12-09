@@ -8,7 +8,7 @@ import { InternalPolicyService } from "@bitwarden/common/admin-console/abstracti
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 
-import { awaitAsync } from "../../../../spec";
+import { awaitAsync, mockAccountInfoWith } from "../../../../spec";
 import { Matrix } from "../../../../spec/matrix";
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
@@ -139,22 +139,18 @@ describe("NotificationsService", () => {
       activeAccount.next(null);
       accounts.next({} as any);
     } else {
-      activeAccount.next({
-        id: userId,
+      const accountInfo = mockAccountInfoWith({
         email: "email",
         name: "Test Name",
-        emailVerified: true,
-        creationDate: "2024-01-01T00:00:00.000Z",
+      });
+      activeAccount.next({
+        id: userId,
+        ...accountInfo,
       });
       const current = (accounts.getValue() as Record<string, any>) ?? {};
       accounts.next({
         ...current,
-        [userId]: {
-          email: "email",
-          name: "Test Name",
-          emailVerified: true,
-          creationDate: "2024-01-01T00:00:00.000Z",
-        },
+        [userId]: accountInfo,
       } as any);
     }
   }
@@ -362,10 +358,10 @@ describe("NotificationsService", () => {
       appIdService.getAppId.mockResolvedValue("test-app-id");
       activeAccount.next({
         id: mockUser1,
-        email: "email",
-        name: "Test Name",
-        emailVerified: true,
-        creationDate: "2024-01-01T00:00:00.000Z",
+        ...mockAccountInfoWith({
+          email: "email",
+          name: "Test Name",
+        }),
       });
     });
 

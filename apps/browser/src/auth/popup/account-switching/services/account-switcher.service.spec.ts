@@ -15,6 +15,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { AccountSwitcherService } from "./account-switcher.service";
@@ -71,12 +72,10 @@ describe("AccountSwitcherService", () => {
 
   describe("availableAccounts$", () => {
     it("should return all logged in accounts and an add account option when accounts are less than 5", async () => {
-      const accountInfo: AccountInfo = {
+      const accountInfo = mockAccountInfoWith({
         name: "Test User 1",
         email: "test1@email.com",
-        emailVerified: true,
-        creationDate: "2024-01-01T00:00:00.000Z",
-      };
+      });
 
       avatarService.getUserAvatarColor$.mockReturnValue(of("#cccccc"));
       accountsSubject.next({ ["1" as UserId]: accountInfo, ["2" as UserId]: accountInfo });
@@ -110,12 +109,10 @@ describe("AccountSwitcherService", () => {
         const seedAccounts: Record<UserId, AccountInfo> = {};
         const seedStatuses: Record<UserId, AuthenticationStatus> = {};
         for (let i = 0; i < numberOfAccounts; i++) {
-          seedAccounts[`${i}` as UserId] = {
+          seedAccounts[`${i}` as UserId] = mockAccountInfoWith({
             email: `test${i}@email.com`,
-            emailVerified: true,
             name: "Test User ${i}",
-            creationDate: "2024-01-01T00:00:00.000Z",
-          };
+          });
           seedStatuses[`${i}` as UserId] = AuthenticationStatus.Unlocked;
         }
         avatarService.getUserAvatarColor$.mockReturnValue(of("#cccccc"));
@@ -135,12 +132,10 @@ describe("AccountSwitcherService", () => {
     );
 
     it("excludes logged out accounts", async () => {
-      const user1AccountInfo: AccountInfo = {
+      const user1AccountInfo = mockAccountInfoWith({
         name: "Test User 1",
         email: "",
-        emailVerified: true,
-        creationDate: "2024-01-01T00:00:00.000Z",
-      };
+      });
       accountsSubject.next({ ["1" as UserId]: user1AccountInfo });
       authStatusSubject.next({ ["1" as UserId]: AuthenticationStatus.LoggedOut });
       accountsSubject.next({

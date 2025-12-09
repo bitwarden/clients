@@ -15,6 +15,7 @@ import {
   SystemNotificationEvent,
   SystemNotificationsService,
 } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec/fake-account-service";
 import { UserId } from "@bitwarden/user-core";
 
 import { AuthRequestAnsweringService } from "./auth-request-answering.service";
@@ -48,20 +49,16 @@ describe("AuthRequestAnsweringService", () => {
 
     // Common defaults
     authService.activeAccountStatus$ = of(AuthenticationStatus.Locked);
+    const accountInfo = mockAccountInfoWith({
+      email: "user@example.com",
+      name: "User",
+    });
     accountService.activeAccount$ = of({
       id: userId,
-      email: "user@example.com",
-      emailVerified: true,
-      name: "User",
-      creationDate: "2024-01-01T00:00:00.000Z",
+      ...accountInfo,
     });
     accountService.accounts$ = of({
-      [userId]: {
-        email: "user@example.com",
-        emailVerified: true,
-        name: "User",
-        creationDate: "2024-01-01T00:00:00.000Z",
-      },
+      [userId]: accountInfo,
     });
     (masterPasswordService.forceSetPasswordReason$ as jest.Mock).mockReturnValue(
       of(ForceSetPasswordReason.None),

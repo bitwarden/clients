@@ -6,6 +6,7 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
+import { mockAccountInfoWith } from "../../../spec/fake-account-service";
 import { FakeGlobalState } from "../../../spec/fake-state";
 import {
   FakeGlobalStateProvider,
@@ -27,12 +28,7 @@ import {
 } from "./account.service";
 
 describe("accountInfoEqual", () => {
-  const accountInfo: AccountInfo = {
-    name: "name",
-    email: "email",
-    emailVerified: true,
-    creationDate: "2024-01-01T00:00:00.000Z",
-  };
+  const accountInfo = mockAccountInfoWith();
 
   it("compares nulls", () => {
     expect(accountInfoEqual(null, null)).toBe(true);
@@ -79,12 +75,7 @@ describe("accountInfoEqual", () => {
   });
 
   it("compares undefined creationDate", () => {
-    const accountWithoutCreationDate: AccountInfo = {
-      name: "name",
-      email: "email",
-      emailVerified: true,
-      creationDate: undefined,
-    };
+    const accountWithoutCreationDate = mockAccountInfoWith({ creationDate: undefined });
     const same = { ...accountWithoutCreationDate };
     const different = { ...accountWithoutCreationDate, creationDate: "2024-01-01T00:00:00.000Z" };
 
@@ -103,12 +94,10 @@ describe("accountService", () => {
   let activeAccountIdState: FakeGlobalState<UserId>;
   let accountActivityState: FakeGlobalState<Record<UserId, Date>>;
   const userId = Utils.newGuid() as UserId;
-  const userInfo = {
+  const userInfo = mockAccountInfoWith({
     email: "email",
     name: "name",
-    emailVerified: true,
-    creationDate: "2024-01-01T00:00:00.000Z",
-  };
+  });
 
   beforeEach(() => {
     messagingService = mock();
@@ -309,10 +298,10 @@ describe("accountService", () => {
     });
 
     it("should update from undefined to a defined creation date", async () => {
-      const accountWithoutCreationDate: AccountInfo = {
+      const accountWithoutCreationDate = mockAccountInfoWith({
         ...userInfo,
         creationDate: undefined,
-      };
+      });
       accountsState.stateSubject.next({ [userId]: accountWithoutCreationDate });
 
       const newCreationDate = "2024-06-15T12:30:00.000Z";
