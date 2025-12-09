@@ -793,10 +793,7 @@ pub mod autofill {
             #[napi(
                 ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: NativeStatus) => void"
             )]
-            native_status_callback: ThreadsafeFunction<
-                (u32, u32, NativeStatus),
-                ErrorStrategy::CalleeHandled,
-            >,
+            native_status_callback: ThreadsafeFunction<(u32, u32, NativeStatus)>,
         ) -> napi::Result<Self> {
             let (send, mut recv) = tokio::sync::mpsc::channel::<Message>(32);
             tokio::spawn(async move {
