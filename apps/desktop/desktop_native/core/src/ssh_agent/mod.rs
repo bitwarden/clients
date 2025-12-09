@@ -352,7 +352,7 @@ h+OIoPZCzns+OFFjjm2vAAAAAAECAwQF
         let keys = vec![(
             TEST_ED25519_KEY.to_string(),
             "test_key".to_string(),
-            "cipher_id_123".to_string(),
+            "cipher_id".to_string(),
         )];
 
         agent.set_keys(keys).unwrap();
@@ -373,7 +373,7 @@ h+OIoPZCzns+OFFjjm2vAAAAAAECAwQF
         let keys = vec![(
             TEST_ED25519_KEY.to_string(),
             "test_key".to_string(),
-            "cipher_id_123".to_string(),
+            "cipher_id".to_string(),
         )];
         agent.set_keys(keys).unwrap();
 
@@ -385,6 +385,7 @@ h+OIoPZCzns+OFFjjm2vAAAAAAECAwQF
         // Clear keys should set needs_unlock back to true
         agent.clear_keys().unwrap();
 
+        // Verify needs_unlock is true
         assert!(agent
             .needs_unlock
             .load(std::sync::atomic::Ordering::Relaxed));
