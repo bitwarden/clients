@@ -23,6 +23,7 @@ import {
   isMac,
   isMacAppStore,
   isSnapStore,
+  isWayland,
   isWindows,
 } from "../utils";
 
@@ -250,9 +251,24 @@ export class WindowMain {
         userAgent: cleanUserAgent(this.win.webContents.userAgent),
       },
     );
-    this.win.once("ready-to-show", () => {
-      this.win.show();
-    });
+
+    let windowShown = false;
+    const maybeShowWindow = () => {
+      if (!windowShown) {
+        windowShown = true;
+        this.win.show();
+      }
+    };
+
+    this.win.once("ready-to-show", maybeShowWindow);
+    // This is a workaround for an electron bug where ready-to-show triggers inconsistently on Wayland.
+    // https://github.com/electron/electron/issues/48859
+    // The fix idea was taken from these two workarounds, linked in the issue above:
+    // https://github.com/FreeTubeApp/FreeTube/pull/8294
+    // https://github.com/signalapp/Signal-Desktop/commit/a034045935b2a4591299991c7803d6724ad2e5e4
+    if (isWayland()) {
+      this.win.webContents.once("did-finish-load", maybeShowWindow);
+    }
   }
 
   /**
