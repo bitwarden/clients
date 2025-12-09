@@ -48,7 +48,10 @@ import { LockComponent, ConfirmKeyConnectorDomainComponent } from "@bitwarden/ke
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { AuthExtensionRoute } from "../auth/popup/constants/auth-extension-route.constant";
 import { fido2AuthGuard } from "../auth/popup/guards/fido2-auth.guard";
-import { platformPopoutGuard } from "../auth/popup/guards/platform-popout.guard";
+import {
+  firefoxPopoutGuard,
+  platformPopoutGuard,
+} from "../auth/popup/guards/platform-popout.guard";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { ExtensionDeviceManagementComponent } from "../auth/popup/settings/extension-device-management.component";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
@@ -246,7 +249,7 @@ const routes: Routes = [
   {
     path: "import",
     component: ImportBrowserV2Component,
-    canActivate: [authGuard],
+    canActivate: [authGuard, firefoxPopoutGuard()],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
@@ -324,13 +327,13 @@ const routes: Routes = [
   {
     path: "add-send",
     component: SendAddEditV2Component,
-    canActivate: [authGuard],
+    canActivate: [authGuard, firefoxPopoutGuard()],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
     path: "edit-send",
     component: SendAddEditV2Component,
-    canActivate: [authGuard],
+    canActivate: [authGuard, firefoxPopoutGuard()],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
