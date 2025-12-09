@@ -1,12 +1,11 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, Observable, Subject, switchMap, takeUntil, takeWhile } from "rxjs";
 
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
-import { OrganizationIntegrationServiceType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
+import { OrganizationIntegrationServiceName } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
 import { OrganizationIntegrationType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-type";
-import { DatadogOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/datadog-organization-integration-service";
-import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
+import { OrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/organization-integration-service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -21,9 +20,8 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { IntegrationGridComponent } from "./integration-grid/integration-grid.component";
 import { FilterIntegrationsPipe } from "./integrations.pipe";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "ac-integrations",
   templateUrl: "./integrations.component.html",
   imports: [SharedModule, IntegrationGridComponent, HeaderModule, FilterIntegrationsPipe],
@@ -237,8 +235,7 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
 
     // Sets the organization ID which also loads the integrations$
     this.organization$.pipe(takeUntil(this.destroy$)).subscribe((org) => {
-      this.hecOrganizationIntegrationService.setOrganizationIntegrations(org.id);
-      this.datadogOrganizationIntegrationService.setOrganizationIntegrations(org.id);
+      this.organizationIntegrationService.setOrganizationIntegrations(org.id);
     });
   }
 
@@ -247,8 +244,7 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     private organizationService: OrganizationService,
     private accountService: AccountService,
     private configService: ConfigService,
-    private hecOrganizationIntegrationService: HecOrganizationIntegrationService,
-    private datadogOrganizationIntegrationService: DatadogOrganizationIntegrationService,
+    private organizationIntegrationService: OrganizationIntegrationService,
   ) {
     this.configService
       .getFeatureFlag$(FeatureFlag.EventManagementForDataDogAndCrowdStrike)
@@ -260,7 +256,7 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     // Add the new event based items to the list
     if (this.isEventManagementForDataDogAndCrowdStrikeEnabled) {
       const crowdstrikeIntegration: Integration = {
-        name: OrganizationIntegrationServiceType.CrowdStrike,
+        name: OrganizationIntegrationServiceName.CrowdStrike,
         linkURL: "https://bitwarden.com/help/crowdstrike-siem/",
         image: "../../../../../../../images/integrations/logo-crowdstrike-black.svg",
         type: IntegrationType.EVENT,
@@ -272,7 +268,7 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       this.integrationsList.push(crowdstrikeIntegration);
 
       const datadogIntegration: Integration = {
-        name: OrganizationIntegrationServiceType.Datadog,
+        name: OrganizationIntegrationServiceName.Datadog,
         linkURL: "https://bitwarden.com/help/datadog-siem/",
         image: "../../../../../../../images/integrations/logo-datadog-color.svg",
         type: IntegrationType.EVENT,
@@ -286,45 +282,27 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
 
     // For all existing event based configurations loop through and assign the
     // organizationIntegration for the correct services.
-    this.hecOrganizationIntegrationService.integrations$
+    this.organizationIntegrationService.integrations$
       .pipe(takeUntil(this.destroy$))
       .subscribe((integrations) => {
-        // reset all integrations to null first - in case one was deleted
+        // reset all event based integrations to null first - in case one was deleted
         this.integrationsList.forEach((i) => {
-          if (i.integrationType === OrganizationIntegrationType.Hec) {
-            i.organizationIntegration = null;
-          }
+          i.organizationIntegration = null;
         });
 
         integrations.map((integration) => {
-          const item = this.integrationsList.find((i) => i.name === integration.serviceType);
-          if (item) {
-            item.organizationIntegration = integration;
-          }
-        });
-      });
-
-    this.datadogOrganizationIntegrationService.integrations$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((integrations) => {
-        // reset all integrations to null first - in case one was deleted
-        this.integrationsList.forEach((i) => {
-          if (i.integrationType === OrganizationIntegrationType.Datadog) {
-            i.organizationIntegration = null;
-          }
-        });
-
-        integrations.map((integration) => {
-          const item = this.integrationsList.find((i) => i.name === integration.serviceType);
+          const item = this.integrationsList.find((i) => i.name === integration.serviceName);
           if (item) {
             item.organizationIntegration = integration;
           }
         });
       });
   }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.organizationIntegrationService.destroy();
   }
 
   // use in the view
