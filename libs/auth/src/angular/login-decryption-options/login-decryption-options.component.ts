@@ -30,11 +30,13 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { PasswordResetEnrollmentServiceAbstraction } from "@bitwarden/common/auth/abstractions/password-reset-enrollment.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 import { SignedSecurityState } from "@bitwarden/common/key-management/types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -131,6 +133,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private registerSdkService: RegisterSdkService,
     private securityStateService: SecurityStateService,
     private appIdService: AppIdService,
+    private configService: ConfigService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -270,7 +273,9 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     }
 
     try {
-      const useSdkV2Creation = true;
+      const useSdkV2Creation = await this.configService.getFeatureFlag(
+        FeatureFlag.PM27279_V2RegistrationTdeJit,
+      );
       if (useSdkV2Creation) {
         const deviceIdentifier = await this.appIdService.getAppId();
         const userId = this.activeAccountId;

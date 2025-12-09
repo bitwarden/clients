@@ -44,6 +44,7 @@ export enum FeatureFlag {
   UnlockWithMasterPasswordUnlockData = "pm-23246-unlock-with-master-password-unlock-data",
   NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
   ConsolidatedSessionTimeoutComponent = "pm-26056-consolidated-session-timeout-component",
+  PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
 
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
@@ -148,6 +149,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UnlockWithMasterPasswordUnlockData]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
   [FeatureFlag.ConsolidatedSessionTimeoutComponent]: FALSE,
+  [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,
