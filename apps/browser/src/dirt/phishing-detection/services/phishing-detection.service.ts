@@ -124,10 +124,8 @@ export class PhishingDetectionService {
     // The active account only has access if phishing detection is enabled in feature flags
     // The active account has access to the phishing detection through one of the following sources:
     // 1. Personal Premium subscription
-    // 2. Member of a Family organization (ProductTierType.Families) with BOTH:
-    //    - usePhishingBlocker permission enabled
-    //    - usersGetPremium permission enabled
-    // Note: Teams and Enterprise organizations are excluded per PM-29021 requirements
+    // 2. Member of a Family organization (ProductTierType.Families)
+    // 3. Member of an Enterprise organization (ProductTierType.Enterprise) with usePhishingBlocker permission enabled
     const activeAccountHasAccess$ = combineLatest([
       accountService.activeAccount$,
       configService.getFeatureFlag$(FeatureFlag.PhishingDetection),
@@ -143,17 +141,25 @@ export class PhishingDetectionService {
           organizationService.organizations$(account.id),
         ]).pipe(
           map(([hasPremium, organizations]) => {
-            // Check if any organization for the user passes requirements for phishing detection
-            const hasAccessThroughFamilyOrg =
-              organizations?.some(
-                (org) =>
-                  org.canAccess &&
-                  org.usePhishingBlocker &&
-                  org.usersGetPremium &&
-                  org.productTierType === ProductTierType.Families,
-              ) ?? false;
+            const hasAccessThroughOrg =
+              organizations?.some((org) => {
+                if (org.canAccess && org.isMember && org.usersGetPremium) {
+                  // Check if the user is a member of a family organization
+                  if (org.productTierType === ProductTierType.Families) {
+                    return true;
+                  }
+                  // Check if the user is a member of a enterprise organization with phishing blocker enabled
+                  if (
+                    org.productTierType === ProductTierType.Enterprise &&
+                    org.usePhishingBlocker
+                  ) {
+                    return true;
+                  }
+                }
+                return false;
+              }) ?? false;
 
-            return featureEnabled && (hasPremium || hasAccessThroughFamilyOrg);
+            return featureEnabled && (hasPremium || hasAccessThroughOrg);
           }),
         );
       }),
