@@ -1,5 +1,5 @@
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -16,27 +16,28 @@ export class DefaultLoginSuccessHandlerService implements LoginSuccessHandlerSer
     private ssoLoginService: SsoLoginServiceAbstraction,
     private syncService: SyncService,
     private userAsymmetricKeysRegenerationService: UserAsymmetricKeysRegenerationService,
+    private encryptedMigrator: EncryptedMigrator,
     private logService: LogService,
   ) {}
-  async run(userId: UserId): Promise<void> {
+
+  async run(userId: UserId, masterPassword: string | null): Promise<void> {
     await this.syncService.fullSync(true, { skipTokenRefresh: true });
     await this.userAsymmetricKeysRegenerationService.regenerateIfNeeded(userId);
     await this.loginEmailService.clearLoginEmail();
-
-    const disableAlternateLoginMethodsFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM22110_DisableAlternateLoginMethods,
-    );
-
-    if (disableAlternateLoginMethodsFlagEnabled) {
-      const ssoLoginEmail = await this.ssoLoginService.getSsoEmail();
-
-      if (!ssoLoginEmail) {
-        this.logService.error("SSO login email not found.");
-        return;
-      }
-
-      await this.ssoLoginService.updateSsoRequiredCache(ssoLoginEmail, userId);
-      await this.ssoLoginService.clearSsoEmail();
+    try {
+      await this.encryptedMigrator.runMigrations(userId, masterPassword);
+    } catch {
+      // Don't block login success on migration failure
     }
+
+    const ssoLoginEmail = await this.ssoLoginService.getSsoEmail();
+
+    if (!ssoLoginEmail) {
+      this.logService.debug("SSO login email not found.");
+      return;
+    }
+
+    await this.ssoLoginService.updateSsoRequiredCache(ssoLoginEmail, userId);
+    await this.ssoLoginService.clearSsoEmail();
   }
 }

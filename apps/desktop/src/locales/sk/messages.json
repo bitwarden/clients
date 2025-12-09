@@ -1093,6 +1093,24 @@
   "learnMore": {
     "message": "Zistiť viac"
   },
+  "migrationsFailed": {
+    "message": "Pri aktualizácii nastavení šifrovania došlo k chybe."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Aktualizujte nastavenie šifrovania"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Nové odporúčané nastavenia šifrovania zlepšia bezpečnosť vášho účtu. Ak ich chcete aktualizovať teraz, zadajte hlavné heslo."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Ak chcete pokračovať, potvrďte svoju identitu"
+  },
+  "enterYourMasterPassword": {
+    "message": "Zadajte hlavné heslo"
+  },
+  "updateSettings": {
+    "message": "Aktualizovať nastavenia"
+  },
   "featureUnavailable": {
     "message": "Funkcia nie je k dispozícii"
   },
@@ -1489,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 GB šifrovaného úložiska."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ šifrovaného úložiska na prílohy.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Proprietárne možnosti dvojstupňového prihlásenia ako napríklad YubiKey a Duo."
@@ -2227,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Kontaktné informácie"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Všetky Sendy",
@@ -2991,7 +3022,8 @@
     "message": "Ste si istí, že chcete použiť možnosť \"Nikdy\"? Táto predvoľba ukladá šifrovací kľúč od trezora priamo na zariadení. Ak použijete túto možnosť, mali by ste svoje zariadenie náležite zabezpečiť."
   },
   "vault": {
-    "message": "Trezor"
+    "message": "Trezor",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Prihlásenie pomocou hlavného hesla"

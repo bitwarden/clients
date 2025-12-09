@@ -3062,6 +3062,15 @@
   "premiumSignUpStorage": {
     "message": "1 GB encrypted storage for file attachments."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Proprietary two-step login options such as YubiKey and Duo."
   },
@@ -3123,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "additionalStorageGb": {
     "message": "Additional storage (GB)"
@@ -4612,6 +4630,24 @@
   "learnMore": {
     "message": "Learn more"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
   "deleteRecoverDesc": {
     "message": "Enter your email address below to recover and delete your account."
   },
@@ -5136,6 +5172,15 @@
   "fix": {
     "message": "Fix",
     "description": "This is a verb. ex. 'Fix The Car'"
+  },
+  "fixEncryption": {
+    "message": "Fix encryption"
+  },
+  "fixEncryptionTooltip": {
+    "message": "This file is using an outdated encryption method."
+  },
+  "attachmentUpdated": {
+    "message": "Attachment updated"
   },
   "oldAttachmentsNeedFixDesc": {
     "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
@@ -6421,6 +6466,32 @@
   "bulkReinviteMessage": {
     "message": "Reinvited successfully"
   },
+  "bulkReinviteSuccessToast": {
+    "message": "$COUNT$ users re-invited",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "$LIMIT$ of $SELECTEDCOUNT$ users re-invited. $EXCLUDEDCOUNT$ were not invited due to the $LIMIT$ invite limit.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
+  },
   "bulkRemovedMessage": {
     "message": "Removed successfully"
   },
@@ -7122,8 +7193,8 @@
   "enabledSso": {
     "message": "SSO turned on"
   },
-  "disabledSso": {
-    "message": "SSO turned on"
+  "ssoTurnedOff": {
+    "message": "SSO turned off"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ must login with Single Sign-on",
@@ -11351,14 +11422,6 @@
   "openedExtensionViewAtRiskPasswords": {
     "message": "Successfully opened the Bitwarden browser extension. You can now review your at-risk passwords."
   },
-  "openExtensionManuallyPart1": {
-    "message": "We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
-  "openExtensionManuallyPart2": {
-    "message": "from the toolbar.",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
   "resellerRenewalWarningMsg": {
     "message": "Your subscription will renew soon. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
     "placeholders": {
@@ -11679,11 +11742,8 @@
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden extension installed!"
   },
-  "openTheBitwardenExtension": {
-    "message": "Open the Bitwarden extension"
-  },
-  "bitwardenExtensionInstalledOpenExtension": {
-    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
+  "bitwardenExtensionIsInstalled": {
+    "message": "Bitwarden extension is installed!"
   },
   "openExtensionToAutofill": {
     "message": "Open the extension to log in and start autofilling."
@@ -11698,6 +11758,14 @@
   "gettingStartedWithBitwardenPart2": {
     "message": "Learning Center",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "openExtensionFromToolbarPart1": {
+    "message": "If the extension didn't open, you may need to open Bitwarden from the icon ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
+  },
+  "openExtensionFromToolbarPart2": {
+    "message": " on the toolbar.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "gettingStartedWithBitwardenPart3": {
     "message": "Help Center",
@@ -11932,8 +12000,8 @@
   "familiesMembership": {
     "message": "Families membership"
   },
-  "planDescPremium": {
-    "message": "Complete online security"
+  "advancedOnlineSecurity": {
+    "message": "Advanced online security"
   },
   "planDescFamiliesV2": {
     "message": "Premium security for your family"
@@ -12178,5 +12246,46 @@
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Are you sure you want to continue?"
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "This setting is managed by your organization."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Your organization has set the default session timeout to On browser refresh."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "On browser refresh"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Set an unlock method to change your timeout action"
   }
 }

@@ -1,5 +1,6 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
+import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import { generateRandomChars, setElementStyles } from "../../../../utils";
 import {
   InitAutofillInlineMenuElementMessage,
@@ -73,7 +74,7 @@ export class AutofillInlineMenuContainer {
 
   constructor() {
     this.token = generateRandomChars(32);
-    this.extensionOrigin = chrome.runtime.getURL("").slice(0, -1);
+    this.extensionOrigin = BrowserApi.getRuntimeURL("")?.slice(0, -1);
     globalThis.addEventListener("message", this.handleWindowMessage);
   }
 
@@ -87,11 +88,13 @@ export class AutofillInlineMenuContainer {
       return;
     }
 
-    if (!this.isExtensionUrl(message.iframeUrl)) {
+    const expectedOrigin = message.extensionOrigin || this.extensionOrigin;
+
+    if (!this.isExtensionUrlWithOrigin(message.iframeUrl, expectedOrigin)) {
       return;
     }
 
-    if (message.styleSheetUrl && !this.isExtensionUrl(message.styleSheetUrl)) {
+    if (message.styleSheetUrl && !this.isExtensionUrlWithOrigin(message.styleSheetUrl)) {
       return;
     }
 
@@ -115,20 +118,30 @@ export class AutofillInlineMenuContainer {
   }
 
   /**
-   * validates that a URL is from the extension origin.
-   * prevents loading arbitrary URLs in the iframe.
+   * Validates that a URL uses an extension protocol and matches the expected extension origin.
+   * If no expectedOrigin is provided, validates against the URL's own origin.
    *
    * @param url - The URL to validate.
    */
-  private isExtensionUrl(url: string): boolean {
+  private isExtensionUrlWithOrigin(url: string, expectedOrigin?: string): boolean {
     if (!url) {
       return false;
     }
     try {
       const urlObj = new URL(url);
-      return (
-        urlObj.origin === this.extensionOrigin || urlObj.href.startsWith(this.extensionOrigin + "/")
-      );
+      const extensionProtocols = new Set([
+        "chrome-extension:",
+        "moz-extension:",
+        "safari-web-extension:",
+      ]);
+      const isExtensionProtocol = extensionProtocols.has(urlObj.protocol);
+
+      if (!isExtensionProtocol) {
+        return false;
+      }
+
+      const originToValidate = expectedOrigin ?? urlObj.origin;
+      return urlObj.origin === originToValidate || urlObj.href.startsWith(originToValidate + "/");
     } catch {
       return false;
     }
@@ -196,6 +209,9 @@ export class AutofillInlineMenuContainer {
    */
   private handleWindowMessage = (event: MessageEvent<AutofillInlineMenuContainerWindowMessage>) => {
     const message = event.data;
+    if (!message?.command) {
+      return;
+    }
     if (this.isForeignWindowMessage(event)) {
       return;
     }
@@ -280,7 +296,10 @@ export class AutofillInlineMenuContainer {
    * every time the inline menu container is recreated.
    *
    */
-  private isValidSessionToken(message: { token?: string }): boolean {
+  private isValidSessionToken(message: { token: string }): boolean {
+    if (!this.token || !message?.token || !message?.token.length) {
+      return false;
+    }
     return message.token === this.token;
   }
 
