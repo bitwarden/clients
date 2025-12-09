@@ -75,6 +75,7 @@ export default {
     disableAnimations: {
       control: { type: "boolean" },
     },
+    headerEndContent: { control: { type: "text" } },
   },
   parameters: {
     design: {
@@ -84,7 +85,7 @@ export default {
   },
 } as Meta;
 
-type Story = StoryObj<DialogComponent & { title: string }>;
+type Story = StoryObj<DialogComponent & { title: string; headerEndContent?: string }>;
 
 export const Default: Story = {
   render: (args) => ({
@@ -94,6 +95,11 @@ export const Default: Story = {
         <ng-container bitDialogTitle>
           <span bitBadge variant="success">Foobar</span>
         </ng-container>
+
+        <ng-container bitDialogHeaderEnd>
+          <span bitBadge>{{ headerEndContent }}</span>
+        </ng-container>
+
         <ng-container bitDialogContent>Dialog body text goes here.</ng-container>
         <ng-container bitDialogFooter>
           <button type="button" bitButton buttonType="primary" [disabled]="loading">Save</button>
@@ -114,6 +120,7 @@ export const Default: Story = {
     dialogSize: "default",
     title: "Default",
     subtitle: "Subtitle",
+    headerEndContent: "header end",
   },
 };
 
@@ -155,6 +162,13 @@ export const Loading: Story = {
     dialogSize: "large",
     loading: true,
     title: "Loading",
+  },
+};
+
+export const LongHeaderEnd: Story = {
+  ...Default,
+  args: {
+    headerEndContent: "this is a very long header end content",
   },
 };
 
