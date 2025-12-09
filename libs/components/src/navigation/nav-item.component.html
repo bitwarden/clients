@@ -26,7 +26,6 @@
             class="tw-gap-2 tw-flex tw-items-center tw-font-medium tw-h-full"
             [class.tw-py-0]="variant() === 'tree' || treeDepth() > 0"
             [class.tw-py-2]="variant() !== 'tree' && treeDepth() === 0"
-            [class.tw-pe-4]="open"
             [class.tw-text-center]="!open"
             [class.tw-justify-center]="!open"
           >
@@ -70,9 +69,9 @@
           <button
             type="button"
             class="tw-size-full tw-px-4 tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]"
-            [class.tw-pe-3]="open"
             [class.tw-pe-4]="!open"
             [class.tw-ps-0]="variant() === 'tree' || treeDepth() > 0"
+            [class.tw-py-0]="variant() === 'tree' || treeDepth() > 0"
             data-fvw
             (click)="mainContentClicked.emit()"
           >
