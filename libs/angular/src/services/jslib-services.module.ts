@@ -207,6 +207,7 @@ import {
   SendPasswordService,
   DefaultSendPasswordService,
 } from "@bitwarden/common/key-management/sends";
+import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
   DefaultVaultTimeoutService,
   DefaultVaultTimeoutSettingsService,
@@ -912,6 +913,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       LogService,
       DEFAULT_VAULT_TIMEOUT,
+      SessionTimeoutTypeService,
     ],
   }),
   safeProvider({
@@ -1496,7 +1498,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SubscriptionPricingServiceAbstraction,
     useClass: DefaultSubscriptionPricingService,
-    deps: [BillingApiServiceAbstraction, ConfigService, I18nServiceAbstraction, LogService],
+    deps: [
+      BillingApiServiceAbstraction,
+      ConfigService,
+      I18nServiceAbstraction,
+      LogService,
+      EnvironmentService,
+    ],
   }),
   safeProvider({
     provide: OrganizationManagementPreferencesService,
