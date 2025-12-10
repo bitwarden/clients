@@ -409,4 +409,8 @@ export class Organization {
         this.permissions.accessEventLogs)
     );
   }
+
+  get canUseAccessIntelligence() {
+    return this.productTierType === ProductTierType.Enterprise;
+  }
 }

@@ -71,6 +71,7 @@ import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-managemen
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
   VaultTimeout,
   VaultTimeoutStringType,
@@ -126,7 +127,6 @@ import {
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
-import { WebSessionTimeoutSettingsComponentService } from "@bitwarden/web-vault/app/key-management/session-timeout/services/web-session-timeout-settings-component.service";
 import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 
 import { flagEnabled } from "../../utils/flags";
@@ -151,6 +151,7 @@ import { WebFileDownloadService } from "../core/web-file-download.service";
 import { UserKeyRotationService } from "../key-management/key-rotation/user-key-rotation.service";
 import { WebLockComponentService } from "../key-management/lock/services/web-lock-component.service";
 import { WebProcessReloadService } from "../key-management/services/web-process-reload.service";
+import { WebSessionTimeoutTypeService } from "../key-management/session-timeout/services/web-session-timeout-type.service";
 import { WebBiometricsService } from "../key-management/web-biometric.service";
 import { WebIpcService } from "../platform/ipc/web-ipc.service";
 import { WebEnvironmentService } from "../platform/web-environment.service";
@@ -473,9 +474,14 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: SessionTimeoutTypeService,
+    useClass: WebSessionTimeoutTypeService,
+    deps: [PlatformUtilsService],
+  }),
+  safeProvider({
     provide: SessionTimeoutSettingsComponentService,
-    useClass: WebSessionTimeoutSettingsComponentService,
-    deps: [I18nServiceAbstraction, PlatformUtilsService],
+    useClass: SessionTimeoutSettingsComponentService,
+    deps: [I18nServiceAbstraction, SessionTimeoutTypeService, PolicyService],
   }),
 ];
 
