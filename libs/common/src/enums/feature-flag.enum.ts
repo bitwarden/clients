@@ -64,6 +64,7 @@ export enum FeatureFlag {
   RiskInsightsForPremium = "pm-23904-risk-insights-for-premium",
   VaultLoadingSkeletons = "pm-25081-vault-skeleton-loaders",
   BrowserPremiumSpotlight = "pm-23384-browser-premium-spotlight",
+  SdkCipherOperations = "use_sdk_cipher_operations", // TODO: Create & use a real feature flag.
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -123,6 +124,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.RiskInsightsForPremium]: FALSE,
   [FeatureFlag.VaultLoadingSkeletons]: FALSE,
   [FeatureFlag.BrowserPremiumSpotlight]: FALSE,
+  [FeatureFlag.SdkCipherOperations]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,

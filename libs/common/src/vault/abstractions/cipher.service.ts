@@ -110,9 +110,11 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    * @returns A promise that resolves to the created cipher
    */
   abstract createWithServer(
-    { cipher, encryptedFor }: EncryptionContext,
+    cipherView: CipherView,
+    userId: UserId,
     orgAdmin?: boolean,
-  ): Promise<Cipher>;
+  ): Promise<CipherView>;
+
   /**
    * Update a cipher with the server
    * @param cipher The cipher to update
@@ -122,10 +124,10 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    * @returns A promise that resolves to the updated cipher
    */
   abstract updateWithServer(
-    { cipher, encryptedFor }: EncryptionContext,
+    cipherView: CipherView,
+    userId: UserId,
     orgAdmin?: boolean,
-    isNotClone?: boolean,
-  ): Promise<Cipher>;
+  ): Promise<CipherView>;
 
   /**
    * Move a cipher to an organization by re-encrypting its keys with the organization's key.

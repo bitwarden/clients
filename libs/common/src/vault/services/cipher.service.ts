@@ -1,7 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import {
+  catchError,
   combineLatest,
+  EMPTY,
   filter,
   firstValueFrom,
   map,
@@ -17,7 +19,7 @@ import { MessageSender } from "@bitwarden/common/platform/messaging";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
-import { CipherListView } from "@bitwarden/sdk-internal";
+import { CipherListView, CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../abstractions/api.service";
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -32,7 +34,7 @@ import { ListResponse } from "../../models/response/list.response";
 import { View } from "../../models/view/view";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
-import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
+import { SdkService, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../platform/misc/utils";
 import Domain from "../../platform/models/domain/domain-base";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
@@ -120,6 +122,7 @@ export class CipherService implements CipherServiceAbstraction {
     private logService: LogService,
     private cipherEncryptionService: CipherEncryptionService,
     private messageSender: MessageSender,
+    private sdkService: SdkService,
   ) {}
 
   localData$(userId: UserId): Observable<Record<CipherId, LocalData>> {
@@ -885,6 +888,51 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async createWithServer(
+    cipherView: CipherView,
+    userId: UserId,
+    orgAdmin?: boolean,
+  ): Promise<CipherView> {
+    const sdkCipherEncryptionEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.SdkCipherOperations,
+    );
+
+    if (sdkCipherEncryptionEnabled) {
+      // return await this.createWithServer_sdk({ cipher, encryptedFor }, orgAdmin);
+      return (await this.createWithServer_sdk(cipherView, userId, orgAdmin)) || new CipherView();
+    } else {
+      const encrypted = await this.encrypt(cipherView, userId);
+      const result = await this.createWithServer_legacy(encrypted, orgAdmin);
+      return await this.decrypt(result, userId);
+    }
+  }
+
+  // TODO: Find a cleaner way to do this to replace the existing `createWitHServer`
+  // - should we do a new SErvice, or hijack existing service & change interfaces??
+  private async createWithServer_sdk(
+    cipherView: CipherView,
+    userId: UserId,
+    orgAdmin?: boolean,
+  ): Promise<CipherView | void> {
+    return firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        map(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          const sdkCreateRequest = cipherView.toSdkCreateCipherRequest();
+          const result: SdkCipherView = await ref.value.vault().ciphers().create(sdkCreateRequest);
+          return CipherView.fromSdkCipherView(result);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to encrypt cipher: ${error}`);
+          return EMPTY;
+        }),
+      ),
+    );
+  }
+
+  private async createWithServer_legacy(
     { cipher, encryptedFor }: EncryptionContext,
     orgAdmin?: boolean,
   ): Promise<Cipher> {
@@ -911,6 +959,55 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async updateWithServer(
+    cipherView: CipherView,
+    userId: UserId,
+    orgAdmin?: boolean,
+  ): Promise<CipherView> {
+    const sdkCipherEncryptionEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.SdkCipherOperations,
+    );
+
+    if (sdkCipherEncryptionEnabled) {
+      return await this.updateWithServer_sdk(cipherView, userId, orgAdmin);
+    } else {
+      const encrypted = await this.encrypt(cipherView, userId);
+      const updatedCipher = await this.updateWithServer_legacy(encrypted, orgAdmin);
+      const updatedCipherView = this.decrypt(updatedCipher, userId);
+      return updatedCipherView;
+    }
+  }
+
+  async updateWithServer_sdk(
+    cipher: CipherView,
+    userId: UserId,
+    orgAdmin?: boolean,
+  ): Promise<CipherView> {
+    return firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        map(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          const sdkUpdateRequest = cipher.toSdkUpdateCipherRequest();
+          let result: SdkCipherView;
+          if (orgAdmin) {
+            // TODO: Need to expose ciphers admin client in SDK
+            result = await ref.value.vault().ciphers().edit(sdkUpdateRequest);
+          } else {
+            result = await ref.value.vault().ciphers().edit(sdkUpdateRequest);
+          }
+          return CipherView.fromSdkCipherView(result);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to encrypt cipher: ${error}`);
+          return EMPTY;
+        }),
+      ),
+    );
+  }
+
+  async updateWithServer_legacy(
     { cipher, encryptedFor }: EncryptionContext,
     orgAdmin?: boolean,
   ): Promise<Cipher> {
@@ -1101,8 +1198,7 @@ export class CipherService implements CipherServiceAbstraction {
     //in order to keep item and it's attachments with the same encryption level
     if (cipher.key != null && !cipherKeyEncryptionEnabled) {
       const model = await this.decrypt(cipher, userId);
-      const reEncrypted = await this.encrypt(model, userId);
-      await this.updateWithServer(reEncrypted);
+      await this.updateWithServer(model, userId);
     }
 
     const encFileName = await this.encryptService.encryptString(filename, cipherEncKey);

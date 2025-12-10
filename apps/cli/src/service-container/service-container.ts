@@ -787,6 +787,7 @@ export class ServiceContainer {
       this.logService,
       this.cipherEncryptionService,
       this.messagingService,
+      this.sdkService,
     );
 
     this.cipherArchiveService = new DefaultCipherArchiveService(

@@ -145,6 +145,7 @@ describe("Cipher Service", () => {
       logService,
       cipherEncryptionService,
       messageSender,
+      sdkService,
     );
 
     encryptionContext = { cipher: new Cipher(cipherData), encryptedFor: userId };

@@ -963,6 +963,7 @@ export default class MainBackground {
       this.logService,
       this.cipherEncryptionService,
       this.messagingService,
+      this.sdkService,
     );
     this.folderService = new FolderService(
       this.keyService,
