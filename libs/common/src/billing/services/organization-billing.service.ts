@@ -135,6 +135,7 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
       case PlanType.Free:
       case PlanType.FamiliesAnnually:
       case PlanType.FamiliesAnnually2019:
+      case PlanType.FamiliesAnnually2025:
       case PlanType.TeamsStarter2023:
       case PlanType.TeamsStarter:
         return true;

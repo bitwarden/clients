@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "welcomeBack": {
     "message": "Witaj ponownie"
   },
@@ -1035,6 +1038,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Musisz dodać podstawowy adres URL serwera lub co najmniej jedno niestandardowe środowisko."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
+  },
   "customEnvironment": {
     "message": "Niestandardowe środowisko"
   },
@@ -1086,6 +1092,24 @@
   },
   "learnMore": {
     "message": "Dowiedz się więcej"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
   },
   "featureUnavailable": {
     "message": "Funkcja jest niedostępna"
@@ -1483,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 GB miejsca na zaszyfrowane załączniki."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Specjalne opcje logowania dwustopniowego, takie jak YubiKey i Duo."
@@ -2144,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Wystąpił błąd podczas włączania połączenia z przeglądarką."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Połączenie z przeglądarką jest obsługiwane tylko z wersją aplikacji ze sklepu Mac App Store."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Połączenie z przeglądarką nie jest obecnie obsługiwane w aplikacji w wersji Windows Store."
   },
@@ -2224,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Informacje kontaktowe"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Wszystkie wysyłki",
@@ -2988,7 +3022,8 @@
     "message": "Czy na pewno chcesz użyć opcji „Nigdy”? Ustawienie blokady na „Nigdy” spowoduje przechowywanie klucza szyfrowania sejfu na urządzeniu. Upewnij się, że urządzenie jest odpowiednio chronione."
   },
   "vault": {
-    "message": "Sejf"
+    "message": "Sejf",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Logowanie hasłem głównym"
@@ -4190,5 +4225,35 @@
   },
   "cardNumberLabel": {
     "message": "Numer karty"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

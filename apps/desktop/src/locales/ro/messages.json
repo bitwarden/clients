@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "welcomeBack": {
     "message": "Welcome back"
   },
@@ -1035,6 +1038,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "You must add either the base Server URL or at least one custom environment."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
+  },
   "customEnvironment": {
     "message": "Mediu personalizat"
   },
@@ -1086,6 +1092,24 @@
   },
   "learnMore": {
     "message": "Aflați mai multe"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
   },
   "featureUnavailable": {
     "message": "Funcție indisponibilă"
@@ -1483,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 GB spațiu de stocare criptat pentru atașamente de fișiere."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Proprietary two-step login options such as YubiKey and Duo."
@@ -2144,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "An error has occurred while enabling browser integration."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Din păcate, integrarea browserului este acceptată numai în versiunea Mac App Store pentru moment."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Din păcate, integrarea browserului nu este susținută în prezent în versiunea Microsoft Store."
   },
@@ -2224,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Contact information"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Toate Send-urile",
@@ -2988,7 +3022,8 @@
     "message": "Sunteți sigur că doriți să folosiți opțiunea „Niciodată”? Setarea opțiunilor de blocare la „Niciodată” stochează cheia de criptare a seifului pe dispozitivul dumneavoastră. Dacă utilizați această opțiune, trebuie să vă asigurați că vă păstrați dispozitivul protejat corespunzător."
   },
   "vault": {
-    "message": "Seif"
+    "message": "Seif",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Autentificați-vă cu parola principală"
@@ -4190,5 +4225,35 @@
   },
   "cardNumberLabel": {
     "message": "Card number"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

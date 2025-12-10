@@ -9,6 +9,10 @@ import {
   DefaultCollectionAdminService,
   OrganizationUserApiService,
   CollectionService,
+  AutomaticUserConfirmationService,
+  DefaultAutomaticUserConfirmationService,
+  OrganizationUserService,
+  DefaultOrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth/device-management/default-device-management-component.service";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
@@ -44,7 +48,10 @@ import {
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  InternalOrganizationServiceAbstraction,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
   InternalPolicyService,
@@ -62,6 +69,7 @@ import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-managemen
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
   VaultTimeout,
   VaultTimeoutStringType,
@@ -110,7 +118,10 @@ import {
   KeyService as KeyServiceAbstraction,
   BiometricsService,
 } from "@bitwarden/key-management";
-import { LockComponentService } from "@bitwarden/key-management-ui";
+import {
+  LockComponentService,
+  SessionTimeoutSettingsComponentService,
+} from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
@@ -138,6 +149,7 @@ import { WebFileDownloadService } from "../core/web-file-download.service";
 import { UserKeyRotationService } from "../key-management/key-rotation/user-key-rotation.service";
 import { WebLockComponentService } from "../key-management/lock/services/web-lock-component.service";
 import { WebProcessReloadService } from "../key-management/services/web-process-reload.service";
+import { WebSessionTimeoutTypeService } from "../key-management/session-timeout/services/web-session-timeout-type.service";
 import { WebBiometricsService } from "../key-management/web-biometric.service";
 import { WebIpcService } from "../platform/ipc/web-ipc.service";
 import { WebEnvironmentService } from "../platform/web-environment.service";
@@ -339,6 +351,29 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
+    provide: OrganizationUserService,
+    useClass: DefaultOrganizationUserService,
+    deps: [
+      KeyServiceAbstraction,
+      EncryptService,
+      OrganizationUserApiService,
+      AccountService,
+      I18nServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: AutomaticUserConfirmationService,
+    useClass: DefaultAutomaticUserConfirmationService,
+    deps: [
+      ConfigService,
+      ApiService,
+      OrganizationUserService,
+      StateProvider,
+      InternalOrganizationServiceAbstraction,
+      OrganizationUserApiService,
+    ],
+  }),
+  safeProvider({
     provide: SdkLoadService,
     useClass: flagEnabled("sdk") ? WebSdkLoadService : NoopSdkLoadService,
     deps: [],
@@ -434,6 +469,16 @@ const safeProviders: SafeProvider[] = [
     provide: SystemService,
     useClass: WebSystemService,
     deps: [],
+  }),
+  safeProvider({
+    provide: SessionTimeoutTypeService,
+    useClass: WebSessionTimeoutTypeService,
+    deps: [PlatformUtilsService],
+  }),
+  safeProvider({
+    provide: SessionTimeoutSettingsComponentService,
+    useClass: SessionTimeoutSettingsComponentService,
+    deps: [I18nServiceAbstraction, SessionTimeoutTypeService, PolicyService],
   }),
 ];
 

@@ -32,10 +32,10 @@
     "message": "Usa il Single Sign-On"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "La tua organizzazione richiede un accesso Single Sign-On (SSO)."
   },
   "welcomeBack": {
-    "message": "Bentornato/a"
+    "message": "Bentornato"
   },
   "setAStrongPassword": {
     "message": "Imposta una password robusta"
@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Gli elementi archiviati sono esclusi dai risultati di ricerca e suggerimenti di autoriempimento. Vuoi davvero archiviare questo elemento?"
   },
+  "upgradeToUseArchive": {
+    "message": "Per utilizzare Archivio è necessario un abbonamento premium."
+  },
   "edit": {
     "message": "Modifica"
   },
@@ -592,7 +595,13 @@
     "message": "Visualizza"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "Mostra tutto"
+  },
+  "showAll": {
+    "message": "Mostra tutto"
+  },
+  "viewLess": {
+    "message": "Vedi meno"
   },
   "viewLogin": {
     "message": "Visualizza login"
@@ -795,6 +804,12 @@
   },
   "onLocked": {
     "message": "Al blocco del computer"
+  },
+  "onIdle": {
+    "message": "Quando il sistema è inattivo"
+  },
+  "onSleep": {
+    "message": "Quando il sistema è sospeso"
   },
   "onRestart": {
     "message": "Al riavvio del browser"
@@ -1035,10 +1050,10 @@
     "message": "Elemento salvato"
   },
   "savedWebsite": {
-    "message": "Saved website"
+    "message": "Sito Web salvato"
   },
   "savedWebsites": {
-    "message": "Saved websites ( $COUNT$ )",
+    "message": "Siti Web salvati ( $COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1391,6 +1406,27 @@
   "learnMore": {
     "message": "Ulteriori informazioni"
   },
+  "migrationsFailed": {
+    "message": "Si è verificato un errore durante l'aggiornamento delle impostazioni di cifratura."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Aggiorna le impostazioni di crittografia"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Le nuove impostazioni di crittografia consigliate miglioreranno la sicurezza del tuo account. Inserisci la tua password principale per aggiornare."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Conferma la tua identità per continuare"
+  },
+  "enterYourMasterPassword": {
+    "message": "Inserisci la tua password principale"
+  },
+  "updateSettings": {
+    "message": "Aggiorna impostazioni"
+  },
+  "later": {
+    "message": "Più tardi"
+  },
   "authenticatorKeyTotp": {
     "message": "Chiave di autenticazione (TOTP)"
   },
@@ -1460,6 +1496,15 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB di spazio di archiviazione crittografato per gli allegati."
   },
+  "premiumSignUpStorageV2": {
+    "message": "Archivio crittografato di $SIZE$ per allegati.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpEmergency": {
     "message": "Accesso di emergenza."
   },
@@ -1522,12 +1567,6 @@
   },
   "enableAutoBiometricsPrompt": {
     "message": "Richiedi dati biometrici all'avvio"
-  },
-  "premiumRequired": {
-    "message": "Premium necessario"
-  },
-  "premiumRequiredDesc": {
-    "message": "Passa a Premium per utilizzare questa funzionalità."
   },
   "authenticationTimeout": {
     "message": "Timeout autenticazione"
@@ -1641,6 +1680,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Devi aggiungere lo URL del server di base o almeno un ambiente personalizzato."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Gli indirizzi devono usare il protocollo HTTPS."
+  },
   "customEnvironment": {
     "message": "Ambiente personalizzato"
   },
@@ -1695,28 +1737,28 @@
     "message": "Disattiva il riempimento automatico"
   },
   "confirmAutofill": {
-    "message": "Confirm autofill"
+    "message": "Conferma il riempimento automatico"
   },
   "confirmAutofillDesc": {
-    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+    "message": "Questo sito non corrisponde ai tuoi dati di accesso salvati. Prima di compilare le credenziali di accesso, assicurati che si tratti di un sito affidabile."
   },
   "showInlineMenuLabel": {
     "message": "Mostra suggerimenti di riempimento automatico nei campi del modulo"
   },
   "howDoesBitwardenProtectFromPhishing": {
-    "message": "How does Bitwarden protect your data from phishing?"
+    "message": "In che modo Bitwarden ti protegge dai pericoli del phising?"
   },
   "currentWebsite": {
-    "message": "Current website"
+    "message": "Sito web corrente"
   },
   "autofillAndAddWebsite": {
-    "message": "Autofill and add this website"
+    "message": "Compila e aggiungi questo sito"
   },
   "autofillWithoutAdding": {
-    "message": "Autofill without adding"
+    "message": "Compila senza salvare"
   },
   "doNotAutofill": {
-    "message": "Do not autofill"
+    "message": "Non compilare con il riempimento automatico"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Mostra identità come consigli"
@@ -1860,6 +1902,9 @@
   },
   "expirationYear": {
     "message": "Anno di scadenza"
+  },
+  "monthly": {
+    "message": "mese"
   },
   "expiration": {
     "message": "Scadenza"
@@ -2429,6 +2474,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Questa pagina sta interferendo con Bitwarden. Il menu in linea di Bitwarden è stato temporaneamente disabilitato come misura di sicurezza."
   },
   "setMasterPassword": {
     "message": "Imposta password principale"
@@ -3280,7 +3328,7 @@
     "message": "Errore di decifrazione"
   },
   "errorGettingAutoFillData": {
-    "message": "Error getting autofill data"
+    "message": "Errore: impossibile accedere ai dati per il riempimento automatico"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden non può decifrare gli elementi elencati di seguito."
@@ -4054,13 +4102,13 @@
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "cannotAutofill": {
-    "message": "Cannot autofill"
+    "message": "Impossibile usare il riempimento automatico"
   },
   "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+    "message": "La corrispondenza predefinita è impostata su 'Corrispondenza esatta'. Il sito Web corrente non corrisponde esattamente ai dettagli di accesso salvati per questo elemento."
   },
   "okay": {
-    "message": "Okay"
+    "message": "OK"
   },
   "toggleSideNavigation": {
     "message": "Attiva/Disattiva navigazione laterale"
@@ -4893,6 +4941,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Sblocca reportistica, accesso d'emergenza e altre funzionalità di sicurezza con Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Le organizzazioni gratis non possono utilizzare gli allegati"
   },
@@ -4968,6 +5019,16 @@
     "message": "Elimina sito web"
   },
   "defaultLabel": {
+    "message": "Predefinito ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "defaultLabelWithValue": {
     "message": "Predefinito ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
@@ -5767,16 +5828,58 @@
     "message": "Conferma dominio Key Connector"
   },
   "atRiskLoginsSecured": {
-    "message": "Great job securing your at-risk logins!"
+    "message": "Ottimo lavoro, i tuoi dati di accesso sono al sicuro!"
+  },
+  "upgradeNow": {
+    "message": "Aggiorna ora"
+  },
+  "builtInAuthenticator": {
+    "message": "App di autenticazione integrata"
+  },
+  "secureFileStorage": {
+    "message": "Archiviazione sicura di file"
+  },
+  "emergencyAccess": {
+    "message": "Accesso di emergenza"
+  },
+  "breachMonitoring": {
+    "message": "Monitoraggio delle violazioni"
+  },
+  "andMoreFeatures": {
+    "message": "E molto altro!"
+  },
+  "planDescPremium": {
+    "message": "Sicurezza online completa"
+  },
+  "upgradeToPremium": {
+    "message": "Aggiorna a Premium"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Sblocca funzionalità di sicurezza avanzate"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "Un abbonamento Premium ti offre più strumenti per rimanere sicuro e in controllo"
+  },
+  "explorePremium": {
+    "message": "Scopri Premium"
+  },
+  "loadingVault": {
+    "message": "Caricamento cassaforte"
+  },
+  "vaultLoaded": {
+    "message": "Cassaforte caricata"
   },
   "settingDisabledByPolicy": {
     "message": "Questa impostazione è disabilitata dalle restrizioni della tua organizzazione.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "CAP"
   },
   "cardNumberLabel": {
-    "message": "Card number"
+    "message": "Numero di carta"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Azione al timeout"
   }
 }

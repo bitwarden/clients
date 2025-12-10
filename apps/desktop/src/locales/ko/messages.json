@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "welcomeBack": {
     "message": "돌아온 것을 환영합니다"
   },
@@ -1035,6 +1038,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "You must add either the base Server URL or at least one custom environment."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
+  },
   "customEnvironment": {
     "message": "사용자 지정 환경"
   },
@@ -1086,6 +1092,24 @@
   },
   "learnMore": {
     "message": "더 알아보기"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
   },
   "featureUnavailable": {
     "message": "기능 사용할 수 없음"
@@ -1483,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1GB의 암호화된 파일 저장소."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Proprietary two-step login options such as YubiKey and Duo."
@@ -2144,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "An error has occurred while enabling browser integration."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "브라우저와 연결은 현재 Mac App Store 버전에서만 지원됩니다."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "현재 Microsoft Store 버전에서는 브라우저와 연결이 지원되지 않습니다."
   },
@@ -2224,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Contact information"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "모든 Send",
@@ -2988,7 +3022,8 @@
     "message": "정말 \"잠그지 않음\" 옵션을 사용하시겠습니까? 잠금 옵션을 \"잠그지 않음\"으로 설정하면 사용자 보관함의 암호화 키를 사용자의 기기에 보관합니다. 이 옵션을 사용하기 전에 사용자의 기기가 잘 보호되어 있는 상태인지 확인하십시오."
   },
   "vault": {
-    "message": "보관함"
+    "message": "보관함",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "마스터 비밀번호로 로그인"
@@ -4190,5 +4225,35 @@
   },
   "cardNumberLabel": {
     "message": "Card number"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

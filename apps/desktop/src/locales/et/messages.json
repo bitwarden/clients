@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "welcomeBack": {
     "message": "Tere tulemast tagasi"
   },
@@ -1035,6 +1038,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Sa pead lisama serveri nime (base URL) või vähemalt ühe iseseadistatud keskkonna."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
+  },
   "customEnvironment": {
     "message": "Kohandatud keskkond"
   },
@@ -1086,6 +1092,24 @@
   },
   "learnMore": {
     "message": "Loe edasi"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
   },
   "featureUnavailable": {
     "message": "Funktsioon pole saadaval"
@@ -1483,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 GB ulatuses krüpteeritud salvestusruum."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Eraomanduses kaheastmelise logimise valikud, nagu näiteks YubiKey ja Duo."
@@ -2144,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Midagi läks valesti brauseriga ühendamisel."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Paraku on brauseri integratsioon hetkel toetatud ainult Mac App Store'i versioonis."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Paraku ei ole brauseri integratsioon hetkel Microsoft Store versioonis toetatud."
   },
@@ -2224,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Contact information"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Kõik Sendid",
@@ -2988,7 +3022,8 @@
     "message": "Oled kindel, et soovid kasutada valikut \"Mitte kunagi\"? Sellega talletatakse sinu hoidla krüpteerimise võtit seadme mälus. Peaksid olema väga hoolas ja kindel, et seade on ohutu ja selles ei ole pahavara."
   },
   "vault": {
-    "message": "Hoidla"
+    "message": "Hoidla",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Logi sisse ülemparooliga"
@@ -4190,5 +4225,35 @@
   },
   "cardNumberLabel": {
     "message": "Card number"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

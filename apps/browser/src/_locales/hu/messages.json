@@ -32,7 +32,7 @@
     "message": "Egyszeri bejelentkezés használata"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "A szervezet egyszeri bejelentkezést igényel."
   },
   "welcomeBack": {
     "message": "Üdvözlet újra"
@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
   },
+  "upgradeToUseArchive": {
+    "message": "Az Archívum használatához prémium tagság szükséges."
+  },
   "edit": {
     "message": "Szerkesztés"
   },
@@ -593,6 +596,12 @@
   },
   "viewAll": {
     "message": "Összes megtekintése"
+  },
+  "showAll": {
+    "message": "Összes megjelenítése"
+  },
+  "viewLess": {
+    "message": "kevesebb megjelenítése"
   },
   "viewLogin": {
     "message": "Bejelentkezés megtekintése"
@@ -795,6 +804,12 @@
   },
   "onLocked": {
     "message": "Rendszerzároláskor"
+  },
+  "onIdle": {
+    "message": "Rendszer üresjárat esetén"
+  },
+  "onSleep": {
+    "message": "Rendszer alvó mód esetén"
   },
   "onRestart": {
     "message": "Böngésző újraindításkor"
@@ -1391,6 +1406,27 @@
   "learnMore": {
     "message": "Tudjon meg többet"
   },
+  "migrationsFailed": {
+    "message": "Hiba történt a titkosítási beállítások frissítésekor."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "A titkosítási beállítások frissítése"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Az új ajánlott titkosítási beállítások javítják a fiók biztonságát. Adjuk meg a mesterjelszót a frissítéshez most."
+  },
+  "confirmIdentityToContinue": {
+    "message": "A folytatáshoz meg kell erősíteni a személyazonosságot."
+  },
+  "enterYourMasterPassword": {
+    "message": "Mesterjelszó megadása"
+  },
+  "updateSettings": {
+    "message": "Beállítások frissítése"
+  },
+  "later": {
+    "message": "Később"
+  },
   "authenticatorKeyTotp": {
     "message": "Hitelesítő kulcs (egyszeri időalapú)"
   },
@@ -1460,6 +1496,15 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB titkosított tárhely a fájlmellékleteknek."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ titkosított tárhely a fájlmellékletekhez.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpEmergency": {
     "message": "Sürgősségi hozzáférés"
   },
@@ -1522,12 +1567,6 @@
   },
   "enableAutoBiometricsPrompt": {
     "message": "Biometria kérése indításkor"
-  },
-  "premiumRequired": {
-    "message": "Prémium funkció szükséges"
-  },
-  "premiumRequiredDesc": {
-    "message": "Prémium tagság szükséges ennek a funkciónak eléréséhez a jövőben."
   },
   "authenticationTimeout": {
     "message": "Hitelesítési időkifutás"
@@ -1640,6 +1679,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Hozzá kell adni az alapszerver webcímét vagy legalább egy egyedi környezetet."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "A webcímeknek HTTPS-t kell használniuk."
   },
   "customEnvironment": {
     "message": "Egyedi környezet"
@@ -1860,6 +1902,9 @@
   },
   "expirationYear": {
     "message": "Lejárati év"
+  },
+  "monthly": {
+    "message": "hónap"
   },
   "expiration": {
     "message": "Lejárat"
@@ -2429,6 +2474,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Ez az oldal zavarja a Bitwarden élményt. Biztonsági intézkedésként ideiglenesen letiltásra került a Bitwarden belső menü."
   },
   "setMasterPassword": {
     "message": "Mesterjelszó beállítása"
@@ -4893,6 +4941,9 @@
   "premium": {
     "message": "Prémium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "A Prémium segítségével feloldhatjuk a jelentés készítést, a vészhelyzeti hozzáférést és a további biztonsági funkciókat."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Az ingyenes szervezetek nem használhatnak mellékleteket."
   },
@@ -4969,6 +5020,16 @@
   },
   "defaultLabel": {
     "message": "Alapértelmezés ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "defaultLabelWithValue": {
+    "message": "Alapértelmezett ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5769,6 +5830,45 @@
   "atRiskLoginsSecured": {
     "message": "Remek munka a kockázatos bejelentkezések biztosítása!"
   },
+  "upgradeNow": {
+    "message": "Áttérés most"
+  },
+  "builtInAuthenticator": {
+    "message": "Beépített hitelesítő"
+  },
+  "secureFileStorage": {
+    "message": "Biztonságos fájl tárolás"
+  },
+  "emergencyAccess": {
+    "message": "Sürgősségi hozzáférés"
+  },
+  "breachMonitoring": {
+    "message": "Adatszivárgás figyelés"
+  },
+  "andMoreFeatures": {
+    "message": "És még több!"
+  },
+  "planDescPremium": {
+    "message": "Teljes körű online biztonság"
+  },
+  "upgradeToPremium": {
+    "message": "Áttérés Prémium csomagra"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Fejlett biztonsági funkciók feloldása"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "A prémium előfizetés több eszközt biztosít a biztonság és az irányítás megőrzéséhez."
+  },
+  "explorePremium": {
+    "message": "Premium felfedezése"
+  },
+  "loadingVault": {
+    "message": "Széf betöltése"
+  },
+  "vaultLoaded": {
+    "message": "A széf betöltésre került."
+  },
   "settingDisabledByPolicy": {
     "message": "Ezt a beállítást a szervezet házirendje letiltotta.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5778,5 +5878,8 @@
   },
   "cardNumberLabel": {
     "message": "Kártya szám"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Időkifutási művelet"
   }
 }

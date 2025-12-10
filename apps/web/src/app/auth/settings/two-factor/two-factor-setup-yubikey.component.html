@@ -25,23 +25,21 @@
         <li>{{ "twoFactorYubikeySaveForm" | i18n }}</li>
       </ol>
       <hr />
-      <div class="tw-grid tw-grid-cols-12 tw-gap-4" formArrayName="formKeys">
-        <div class="tw-col-span-6" *ngFor="let k of keys; let i = index">
-          <div [formGroupName]="i">
-            <bit-label>{{ "yubikeyX" | i18n: (i + 1).toString() }}</bit-label>
-            <bit-form-field *ngIf="!keys[i].existingKey">
-              <input bitInput type="password" formControlName="key" appInputVerbatim />
-            </bit-form-field>
-            <div class="tw-flex tw-justify-between tw-mb-6" *ngIf="keys[i].existingKey">
-              <span class="tw-mr-2 tw-self-center">{{ keys[i].existingKey }}</span>
-              <button
-                bitIconButton="bwi-minus-circle"
-                type="button"
-                buttonType="danger"
-                (click)="remove(i)"
-                label="{{ 'remove' | i18n }}"
-              ></button>
-            </div>
+      <div class="tw-flex tw-flex-col tw-mt-4" formArrayName="formKeys">
+        <div *ngFor="let k of keys; let i = index" [formGroupName]="i">
+          <bit-label>{{ "yubikeyX" | i18n: (i + 1).toString() }}</bit-label>
+          <bit-form-field *ngIf="!keys[i].existingKey">
+            <input bitInput type="password" formControlName="key" appInputVerbatim />
+          </bit-form-field>
+          <div class="tw-flex tw-justify-between tw-mb-4" *ngIf="keys[i].existingKey">
+            <span class="tw-mr-2 tw-self-center">{{ keys[i].existingKey }}</span>
+            <button
+              bitIconButton="bwi-minus-circle"
+              type="button"
+              buttonType="danger"
+              (click)="remove(i)"
+              label="{{ 'remove' | i18n }}"
+            ></button>
           </div>
         </div>
       </div>

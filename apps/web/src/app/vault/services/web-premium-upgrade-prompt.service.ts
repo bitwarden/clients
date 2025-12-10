@@ -107,6 +107,9 @@ export class WebVaultPremiumUpgradePromptService implements PremiumUpgradePrompt
 
   private async redirectToSubscriptionPage() {
     await this.router.navigate([this.subscriptionPageRoute]);
+    if (this.dialog) {
+      this.dialog.close(VaultItemDialogResult.PremiumUpgrade);
+    }
   }
 
   private async openUpgradeDialog(account: Account) {

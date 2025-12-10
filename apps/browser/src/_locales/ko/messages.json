@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "보관된 항목은 일반 검색 결과와 자동 완성 제안에서 제외됩니다. 이 항목을 보관하시겠습니까?"
   },
+  "upgradeToUseArchive": {
+    "message": "A premium membership is required to use Archive."
+  },
   "edit": {
     "message": "편집"
   },
@@ -593,6 +596,12 @@
   },
   "viewAll": {
     "message": "View all"
+  },
+  "showAll": {
+    "message": "Show all"
+  },
+  "viewLess": {
+    "message": "View less"
   },
   "viewLogin": {
     "message": "로그인 보기"
@@ -795,6 +804,12 @@
   },
   "onLocked": {
     "message": "시스템 잠금 시"
+  },
+  "onIdle": {
+    "message": "On system idle"
+  },
+  "onSleep": {
+    "message": "On system sleep"
   },
   "onRestart": {
     "message": "브라우저 재시작 시"
@@ -1391,6 +1406,27 @@
   "learnMore": {
     "message": "더 알아보기"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
+  "later": {
+    "message": "Later"
+  },
   "authenticatorKeyTotp": {
     "message": "인증 키 (TOTP)"
   },
@@ -1460,6 +1496,15 @@
   "ppremiumSignUpStorage": {
     "message": "1GB의 암호화된 파일 저장소."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpEmergency": {
     "message": "비상 접근"
   },
@@ -1522,12 +1567,6 @@
   },
   "enableAutoBiometricsPrompt": {
     "message": "실행 시 생체 인증 요구하기"
-  },
-  "premiumRequired": {
-    "message": "프리미엄 멤버십 필요"
-  },
-  "premiumRequiredDesc": {
-    "message": "이 기능을 사용하려면 프리미엄 멤버십이 필요합니다."
   },
   "authenticationTimeout": {
     "message": "인증 시간 초과"
@@ -1640,6 +1679,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "기본 서버 URL이나 최소한 하나의 사용자 지정 환경을 추가해야 합니다."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
   },
   "customEnvironment": {
     "message": "사용자 지정 환경"
@@ -1860,6 +1902,9 @@
   },
   "expirationYear": {
     "message": "만료 연도"
+  },
+  "monthly": {
+    "message": "month"
   },
   "expiration": {
     "message": "만료"
@@ -2429,6 +2474,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
   },
   "setMasterPassword": {
     "message": "마스터 비밀번호 설정"
@@ -4893,6 +4941,9 @@
   "premium": {
     "message": "프리미엄"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Unlock reporting, emergency access, and more security features with Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "무료 조직에서는 첨부 파일을 사용할 수 없습니다."
   },
@@ -4969,6 +5020,16 @@
   },
   "defaultLabel": {
     "message": "기본값 ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "defaultLabelWithValue": {
+    "message": "Default ( $VALUE$ )",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5769,6 +5830,45 @@
   "atRiskLoginsSecured": {
     "message": "Great job securing your at-risk logins!"
   },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Unlock advanced security features"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "A Premium subscription gives you more tools to stay secure and in control"
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "Loading vault"
+  },
+  "vaultLoaded": {
+    "message": "Vault loaded"
+  },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5778,5 +5878,8 @@
   },
   "cardNumberLabel": {
     "message": "Card number"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
   }
 }

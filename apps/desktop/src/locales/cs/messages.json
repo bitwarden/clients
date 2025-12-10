@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Nemáte oprávnění upravit tuto položku"
+  },
   "welcomeBack": {
     "message": "Vítejte zpět"
   },
@@ -772,7 +775,7 @@
     "message": "Použít jednotné přihlášení"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Vaše organizace vyžaduje jednotné přihlášení."
   },
   "submit": {
     "message": "Odeslat"
@@ -1035,6 +1038,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Musíte přidat buď základní adresu URL serveru nebo alespoň jedno vlastní prostředí."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL adresy musí používat HTTPS."
+  },
   "customEnvironment": {
     "message": "Vlastní prostředí"
   },
@@ -1086,6 +1092,24 @@
   },
   "learnMore": {
     "message": "Dozvědět se více"
+  },
+  "migrationsFailed": {
+    "message": "Došlo k chybě při aktualizaci nastavení šifrování."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Aktualizovat nastavení šifrování"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Nové doporučené nastavení šifrování zlepší bezpečnost Vašeho účtu. Pokud chcete aktualizovat nyní, zadejte hlavní heslo."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Pro pokračování potvrďte svou identitu"
+  },
+  "enterYourMasterPassword": {
+    "message": "Zadejte své hlavní heslo"
+  },
+  "updateSettings": {
+    "message": "Aktualizovat nastavení"
   },
   "featureUnavailable": {
     "message": "Funkce není dostupná"
@@ -1483,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 GB šifrovaného uložiště pro přílohy."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ šifrovaného úložiště pro přílohy.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Volby proprietálních dvoufázových přihlášení jako je YubiKey a Duo."
@@ -2144,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Vyskytla se chyba při povolování integrace prohlížeče."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Integrace prohlížeče je podporována jen ve verzi pro Mac App Store."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Integrace prohlížeče není ve verzi pro Windows Store podporována."
   },
@@ -2224,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Contact information"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Všechny Sends",
@@ -2988,7 +3022,8 @@
     "message": "Opravdu chcete použít volbu \"Nikdy\"? Nastavením volby uzamčení na \"Nikdy\" bude šifrovací klíč k trezoru uložen přímo ve Vašem zařízení. Pokud tuto možnost použijete, měli byste Vaše zařízení řádně zabezpečit a chránit."
   },
   "vault": {
-    "message": "Trezor"
+    "message": "Trezor",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Přihlásit se pomocí hlavního hesla"
@@ -4190,5 +4225,35 @@
   },
   "cardNumberLabel": {
     "message": "Číslo karty"
+  },
+  "upgradeNow": {
+    "message": "Aktualizovat nyní"
+  },
+  "builtInAuthenticator": {
+    "message": "Vestavěný autentifikátor"
+  },
+  "secureFileStorage": {
+    "message": "Zabezpečené úložiště souborů"
+  },
+  "emergencyAccess": {
+    "message": "Nouzový přístup"
+  },
+  "breachMonitoring": {
+    "message": "Sledování úniků"
+  },
+  "andMoreFeatures": {
+    "message": "A ještě více!"
+  },
+  "planDescPremium": {
+    "message": "Dokončit online zabezpečení"
+  },
+  "upgradeToPremium": {
+    "message": "Aktualizovat na Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Akce vypršení časového limitu"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Časový limit relace"
   }
 }
