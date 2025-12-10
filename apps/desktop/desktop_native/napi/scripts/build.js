@@ -1,18 +1,22 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { execSync } = require('child_process');
 
-const args = process.argv.slice(2);
+args = process.argv.slice(2);
+
 const isRelease = args.includes('--release');
+
+const args = args.join(' ');
 
 if (isRelease) {
   console.log('Building release mode.');
 
-  execSync('napi build --platform --js false');
+  execSync(`napi build --platform --js false ${args}`, { stdio: 'inherit'});
 
 } else {
   console.log('Building debug mode.');
 
-  execSync('napi build --platform --js false', {
+  execSync(`napi build --platform --js false ${args}`, {
+    stdio: 'inherit',
     env: { ...process.env, RUST_LOG: 'debug' }
   });
 }
