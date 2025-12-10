@@ -98,41 +98,37 @@ export class UpgradePaymentService {
     planDetails: PlanDetails,
     billingAddress: BillingAddress,
   ): Promise<number> {
+    const isFamiliesPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Families;
+    const isPremiumPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Premium;
+
+    let taxClientCall: Promise<TaxAmounts> | null = null;
+
+    if (isFamiliesPlan) {
+      // Currently, only Families plan is supported for organization plans
+      const request: OrganizationSubscriptionPurchase = {
+        tier: "families",
+        cadence: "annually",
+        passwordManager: { seats: 1, additionalStorage: 0, sponsored: false },
+      };
+
+      taxClientCall = this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
+        request,
+        billingAddress,
+      );
+    }
+
+    if (isPremiumPlan) {
+      taxClientCall = this.taxClient.previewTaxForPremiumSubscriptionPurchase(0, billingAddress);
+    }
+
+    if (taxClientCall === null) {
+      throw new Error("Tax client call is not defined");
+    }
+
     try {
-      const isOrganizationPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Families;
-      const isPremiumPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Premium;
-
-      let taxClientCall: Promise<TaxAmounts> | null = null;
-
-      if (isOrganizationPlan) {
-        const seats = this.getPasswordManagerSeats(planDetails);
-        if (seats === 0) {
-          throw new Error("Seats must be greater than 0 for organization plan");
-        }
-        // Currently, only Families plan is supported for organization plans
-        const request: OrganizationSubscriptionPurchase = {
-          tier: "families",
-          cadence: "annually",
-          passwordManager: { seats, additionalStorage: 0, sponsored: false },
-        };
-
-        taxClientCall = this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
-          request,
-          billingAddress,
-        );
-      }
-
-      if (isPremiumPlan) {
-        taxClientCall = this.taxClient.previewTaxForPremiumSubscriptionPurchase(0, billingAddress);
-      }
-
-      if (taxClientCall === null) {
-        throw new Error("Tax client call is not defined");
-      }
-
       const preview = await taxClientCall;
       return preview.tax;
-    } catch (error: unknown) {
+    } catch (error) {
       this.logService.error("Tax calculation failed:", error);
       throw error;
     }

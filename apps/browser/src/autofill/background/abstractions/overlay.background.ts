@@ -47,6 +47,7 @@ export type FocusedFieldData = {
   accountCreationFieldType?: string;
   showPasskeys?: boolean;
   focusedFieldForm?: string;
+  focusedFieldOpid?: string;
 };
 
 export type InlineMenuElementPosition = {
@@ -68,8 +69,8 @@ export type FieldRect = {
 };
 
 export type InlineMenuPosition = {
-  button?: InlineMenuElementPosition;
-  list?: InlineMenuElementPosition;
+  button?: InlineMenuElementPosition | null;
+  list?: InlineMenuElementPosition | null;
 };
 
 export type NewLoginCipherData = {

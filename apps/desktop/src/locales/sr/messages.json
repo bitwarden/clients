@@ -70,7 +70,7 @@
     }
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "Немате дозволу да уређујете ову ставку"
   },
   "welcomeBack": {
     "message": "Добродошли назад"
@@ -775,7 +775,7 @@
     "message": "Употребити једнократну пријаву"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Ваша организација захтева јединствену пријаву."
   },
   "submit": {
     "message": "Пошаљи"
@@ -1039,7 +1039,7 @@
     "message": "Морате додати или основни УРЛ сервера или бар једно прилагођено окружење."
   },
   "selfHostedEnvMustUseHttps": {
-    "message": "URLs must use HTTPS."
+    "message": "Везе морају да користе HTTPS."
   },
   "customEnvironment": {
     "message": "Прилагођено окружење"
@@ -1092,6 +1092,24 @@
   },
   "learnMore": {
     "message": "Сазнај више"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
   },
   "featureUnavailable": {
     "message": "Функција је недоступна"
@@ -1490,6 +1508,15 @@
   "premiumSignUpStorage": {
     "message": "1ГБ шифровано складиште за прилоге."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Приоритарне опције пријаве у два корака као што су YubiKey и Duo."
   },
@@ -1862,10 +1889,10 @@
     "message": "Закључајте са главном лозинком при поновном покретању"
   },
   "requireMasterPasswordOrPinOnAppRestart": {
-    "message": "Require master password or PIN on app restart"
+    "message": "Потражити главну лозинку или ПИН при поновном покретању"
   },
   "requireMasterPasswordOnAppRestart": {
-    "message": "Require master password on app restart"
+    "message": "Потражити главну лозинку при поновном покретању апликације"
   },
   "deleteAccount": {
     "message": "Брисање налога"
@@ -2150,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Дошло је до грешке при омогућавању интеграције прегледача."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Нажалост, интеграција прегледача за сада је подржана само у верзији Mac App Store."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Нажалост, интеграција прегледача није за сада подржана у Windows Store."
   },
@@ -2230,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Контакт подаци"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Сва слања",
@@ -2994,7 +3022,8 @@
     "message": "Да ли сте сигурни да желите да користите опцију „Никад“? Ако поставите опције закључавања на „Никада“, на вашем уређају се чува кључ за шифровање сефа. Ако користите ову опцију, осигурајте да је уређај правилно заштићен."
   },
   "vault": {
-    "message": "Сеф"
+    "message": "Сеф",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Пријавите се са главном лозинком"
@@ -4183,7 +4212,7 @@
     "message": "Ставка је послата у архиву"
   },
   "itemWasUnarchived": {
-    "message": "Item was unarchived"
+    "message": "Ставка враћена из архиве"
   },
   "archiveItem": {
     "message": "Архивирај ставку"
@@ -4192,33 +4221,39 @@
     "message": "Архивиране ставке су искључене из општих резултата претраге и предлога за ауто попуњавање. Јесте ли сигурни да желите да архивирате ову ставку?"
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "ZIP/Поштански број"
   },
   "cardNumberLabel": {
-    "message": "Card number"
+    "message": "Број картице"
   },
   "upgradeNow": {
-    "message": "Upgrade now"
+    "message": "Надогради сада"
   },
   "builtInAuthenticator": {
-    "message": "Built-in authenticator"
+    "message": "Уграђени аутентификатор"
   },
   "secureFileStorage": {
-    "message": "Secure file storage"
+    "message": "Сигурно складиштење датотека"
   },
   "emergencyAccess": {
-    "message": "Emergency access"
+    "message": "Хитан приступ"
   },
   "breachMonitoring": {
-    "message": "Breach monitoring"
+    "message": "Праћење повreda безбедности"
   },
   "andMoreFeatures": {
-    "message": "And more!"
+    "message": "И још више!"
   },
   "planDescPremium": {
-    "message": "Complete online security"
+    "message": "Потпуна онлајн безбедност"
   },
   "upgradeToPremium": {
-    "message": "Upgrade to Premium"
+    "message": "Надоградите на Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

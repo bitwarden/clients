@@ -98,6 +98,7 @@ export class Organization {
   isAdminInitiated: boolean;
   ssoEnabled: boolean;
   ssoMemberDecryptionType?: MemberDecryptionType;
+  usePhishingBlocker: boolean;
 
   constructor(obj?: OrganizationData) {
     if (obj == null) {
@@ -162,6 +163,7 @@ export class Organization {
     this.isAdminInitiated = obj.isAdminInitiated;
     this.ssoEnabled = obj.ssoEnabled;
     this.ssoMemberDecryptionType = obj.ssoMemberDecryptionType;
+    this.usePhishingBlocker = obj.usePhishingBlocker;
   }
 
   get canAccess() {
@@ -310,6 +312,14 @@ export class Organization {
     return this.isAdmin || this.permissions.manageResetPassword;
   }
 
+  get canEnableAutoConfirmPolicy() {
+    return (
+      (this.canManageUsers || this.canManagePolicies) &&
+      this.useAutomaticUserConfirmation &&
+      !this.isProviderUser
+    );
+  }
+
   get canManageDeviceApprovals() {
     return (
       (this.isAdmin || this.permissions.manageResetPassword) &&
@@ -391,5 +401,9 @@ export class Organization {
         this.permissions.manageGroups ||
         this.permissions.accessEventLogs)
     );
+  }
+
+  get canUseAccessIntelligence() {
+    return this.productTierType === ProductTierType.Enterprise;
   }
 }

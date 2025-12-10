@@ -100,10 +100,10 @@ export class WindowMain {
             applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
             // Because modal is used in front of another app, UX wise it makes sense to hide the main window when leaving modal mode.
             this.win.hide();
-          } else if (!lastValue.isModalModeActive && newValue.isModalModeActive) {
+          } else if (newValue.isModalModeActive) {
             // Apply the popup modal styles
             this.logService.info("Applying popup modal styles", newValue.modalPosition);
-            applyPopupModalStyles(this.win, newValue.modalPosition);
+            applyPopupModalStyles(this.win, newValue.showTrafficButtons, newValue.modalPosition);
             this.win.show();
           }
         }),
@@ -185,6 +185,7 @@ export class WindowMain {
 
           await this.createWindow();
           resolve();
+
           if (this.argvCallback != null) {
             this.argvCallback(process.argv);
           }
@@ -272,7 +273,7 @@ export class WindowMain {
     this.win = new BrowserWindow({
       width: this.windowStates[mainWindowSizeKey].width,
       height: this.windowStates[mainWindowSizeKey].height,
-      minWidth: 680,
+      minWidth: 600,
       minHeight: 500,
       x: this.windowStates[mainWindowSizeKey].x,
       y: this.windowStates[mainWindowSizeKey].y,
@@ -303,7 +304,9 @@ export class WindowMain {
       this.win.webContents.zoomFactor = this.windowStates[mainWindowSizeKey].zoomFactor ?? 1.0;
     });
 
-    // Persist zoom changes immediately when user zooms in/out or resets zoom
+    // Persist zoom changes from mouse wheel and programmatic zoom operations
+    // NOTE: This event does NOT fire for keyboard shortcuts (Ctrl+/-/0, Cmd+/-/0)
+    // which are handled by custom menu click handlers in ViewMenu
     // We can't depend on higher level web events (like close) to do this
     // because locking the vault resets window state.
     this.win.webContents.on("zoom-changed", async () => {
@@ -430,6 +433,11 @@ export class WindowMain {
     this.enableAlwaysOnTop = !this.win.isAlwaysOnTop();
     this.win.setAlwaysOnTop(this.enableAlwaysOnTop);
     await this.desktopSettingsService.setAlwaysOnTop(this.enableAlwaysOnTop);
+  }
+
+  async saveZoomFactor(zoomFactor: number) {
+    this.windowStates[mainWindowSizeKey].zoomFactor = zoomFactor;
+    await this.desktopSettingsService.setWindow(this.windowStates[mainWindowSizeKey]);
   }
 
   private windowStateChangeHandler(configKey: string, win: BrowserWindow) {
