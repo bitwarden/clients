@@ -2300,3 +2300,441 @@ export const LegacyTestData = {
     },
   ],
 };
+
+export const EnterpriseTestData = {
+  shared_folders: [
+    {
+      uid: "IekxlXXiXfPuBzN4LOSH3g",
+      path: "Production Gateway Server Folder\\Production Gateway Server Folder - Users",
+      manage_users: false,
+      manage_records: true,
+      can_edit: true,
+      can_share: false,
+      permissions: [
+        {
+          name: "lastpass.ruby+10-december-2025@gmail.com",
+          manage_users: true,
+          manage_records: true,
+        },
+      ],
+    },
+    {
+      uid: "1Hgsx3lYavUL53TIADchiA",
+      path: "Production Gateway Server Folder\\Production Gateway Server Folder - Resources",
+      manage_users: false,
+      manage_records: true,
+      can_edit: true,
+      can_share: false,
+      permissions: [
+        {
+          name: "lastpass.ruby+10-december-2025@gmail.com",
+          manage_users: true,
+          manage_records: true,
+        },
+      ],
+    },
+  ],
+  records: [
+    {
+      title: "Admin Dashboard Connection",
+      notes: "Secure web browser connection to admin panel. Requires VPN access.",
+      $type: "pamRemoteBrowser",
+      custom_fields: {
+        "$rbiUrl::1": "https://admin.company.internal/dashboard",
+      },
+      folders: [
+        {
+          shared_folder:
+            "Production Gateway Server Folder\\Production Gateway Server Folder - Resources",
+          can_edit: true,
+          can_share: false,
+        },
+      ],
+    },
+    {
+      title: "Database Tunnel to Production MySQL",
+      $type: "pamDatabase",
+      custom_fields: {
+        "$pamHostname::1": {
+          hostName: "mysql-prod.company.internal",
+          port: "3306",
+        },
+        "$checkbox:useSSL:1": true,
+        "$pamSettings::1": {
+          connection: {
+            port: "3307",
+          },
+          portForward: {
+            port: "8306",
+          },
+        },
+        "$text:databaseId:1": "db-prod-mysql-01",
+        "$databaseType::1": "mysql",
+        "$text:providerGroup:1": "Production-Databases",
+        "$text:providerRegion:1": "us-east-1",
+      },
+      folders: [
+        {
+          shared_folder:
+            "Production Gateway Server Folder\\Production Gateway Server Folder - Resources",
+          can_edit: true,
+          can_share: false,
+        },
+      ],
+    },
+    {
+      title: "Dell PowerEdge R740 Server",
+      $type: "Hardware Asset",
+      schema: ["$text:Serial Number:1", "$date:Purchase Date:1", "$date:Warranty Expiration:1"],
+      custom_fields: {
+        "$text:Serial Number:1": "SN-R740-2024-001",
+        "$date:Purchase Date:1": 1710457200000,
+        "$date:Warranty Expiration:1": 1805065200000,
+      },
+    },
+    {
+      title: "GitHub Enterprise Plan",
+      $type: "SaaS Subscription",
+      schema: ["$text:Service Name:1", "$date:Renewal Date:1", "$text:Plan Type:1"],
+      custom_fields: {
+        "$text:Service Name:1": "GitHub",
+        "$date:Renewal Date:1": 1782770400000,
+        "$text:Plan Type:1": "Enterprise",
+      },
+    },
+    {
+      title: "Production Gateway Server - Bing Remote Browser",
+      $type: "pamRemoteBrowser",
+      custom_fields: {
+        "$rbiUrl::1": "https://bing.com",
+        "$pamRemoteBrowserSettings::1": {
+          connection: {
+            protocol: "http",
+            recordingIncludeKeys: true,
+            allowUrlManipulation: true,
+          },
+        },
+        "$trafficEncryptionSeed::1": "ZujawowmK4rAXEjdm08VCFHUVJsPiDirvvCute4Gb1g=",
+      },
+      folders: [
+        {
+          shared_folder:
+            "Production Gateway Server Folder\\Production Gateway Server Folder - Resources",
+          can_edit: true,
+          can_share: false,
+        },
+      ],
+    },
+    {
+      title: "Production Gateway Server - MySQL Admin User",
+      $type: "pamUser",
+      login: "root",
+      password: "r7gJ6Zl5BXktS4IPGh4D",
+      folders: [
+        {
+          shared_folder:
+            "Production Gateway Server Folder\\Production Gateway Server Folder - Users",
+          can_edit: true,
+          can_share: false,
+        },
+      ],
+    },
+    {
+      title: "Production Gateway Server - MySQL Database",
+      $type: "pamDatabase",
+      custom_fields: {
+        "$pamHostname::1": {
+          hostName: "db-mysql-1",
+          port: "3306",
+        },
+        "$checkbox:useSSL:1": true,
+        "$trafficEncryptionSeed::1": "PzOWZhg09VwxTwYeXZJmdHaNFtAruukP8gzXvkkPrqo=",
+        "$pamSettings::1": {
+          connection: {
+            protocol: "mysql",
+            port: "3306",
+            recordingIncludeKeys: true,
+          },
+          portForward: {
+            port: "3306",
+            reusePort: true,
+          },
+        },
+      },
+      folders: [
+        {
+          shared_folder:
+            "Production Gateway Server Folder\\Production Gateway Server Folder - Resources",
+          can_edit: true,
+          can_share: false,
+        },
+      ],
+    },
+    {
+      title: "Production Gateway Server - MySQL Rotation User",
+      $type: "pamUser",
+      login: "sqluser",
+      password: "wi7s3f3oiypS3QNc5zIe",
+      folders: [
+        {
+          shared_folder:
+            "Production Gateway Server Folder\\Production Gateway Server Folder - Users",
+          can_edit: true,
+          can_share: false,
+        },
+      ],
+    },
+    {
+      title: "Production Gateway Server - RDP Admin",
+      $type: "pamUser",
+      login: "root",
+      password: "3DI02SUdpQj5aHZ9Fsba",
+      folders: [
+        {
+          shared_folder:
+            "Production Gateway Server Folder\\Production Gateway Server Folder - Users",
+          can_edit: true,
+          can_share: false,
+        },
+      ],
+    },
+    {
+      title: "Production Gateway Server - RDP Machine",
+      $type: "pamMachine",
+      custom_fields: {
+        "$pamHostname::1": {
+          hostName: "server-rdp",
+          port: "22",
+        },
+        "$trafficEncryptionSeed::1": "yJsgoM7cuMAqkf5u8VTTVGNCKOirobWXOjthBRlb2bw=",
+        "$pamSettings::1": {
+          connection: {
+            protocol: "rdp",
+            port: "3389",
+            recordingIncludeKeys: true,
+            security: "any",
+            ignoreCert: true,
+            resizeMethod: "display-update",
+            enableFullWindowDrag: false,
+            enableWallpaper: false,
+          },
+          portForward: {
+            port: "3389",
+            reusePort: true,
+          },
+        },
+      },
+      folders: [
+        {
+          shared_folder:
+            "Production Gateway Server Folder\\Production Gateway Server Folder - Resources",
+          can_edit: true,
+          can_share: false,
+        },
+      ],
+    },
+    {
+      title: "Production Gateway Server - RDP User",
+      $type: "pamUser",
+      login: "rdpuser",
+      password: "vHnhlJGOYfYRh55X5O1v",
+      folders: [
+        {
+          shared_folder:
+            "Production Gateway Server Folder\\Production Gateway Server Folder - Users",
+          can_edit: true,
+          can_share: false,
+        },
+      ],
+    },
+    {
+      title: "Production Gateway Server - SSH Admin with Password",
+      $type: "pamUser",
+      login: "linuxuser",
+      password: "y85AT00NA2nlR2qijOpF",
+      folders: [
+        {
+          shared_folder:
+            "Production Gateway Server Folder\\Production Gateway Server Folder - Users",
+          can_edit: true,
+          can_share: false,
+        },
+      ],
+    },
+    {
+      title: "Production Gateway Server - SSH Admin with Private Key",
+      $type: "pamUser",
+      login: "linuxuser",
+      custom_fields: {
+        "$secret:privatePEMKey:1":
+          "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABFwAAAAdzc2gtcn\nNhAAAAAwEAAQAAAQEAoPQcja8tCSj2kCfCjszKP5Dvzj8xcqhmGug/f70SVJzrZagB0Bk1\nFtZ6v+RvGoOYLIuYoWBBBD0rIDPSfYP5Bu/aSsYf5LAHaRWZuli+ZVVkHCnahGs9+r5GJS\nSwFrlDHgTNrDOyb2ctnV304gJ1+OoG3SRVfGxztdAF34OUKkNCbf1z6qfL0VPBo7blm7aq\nqvn9xi99ukOjaxIWqMfQ0xVucoR6rHO/bpVLYtMuxaawtk9eSwlQf7m/A1bp4fL1cyPlhg\nO9b5NVaotZgQ7KW7r5Ofc90kpi9z4Y1gzQQGrh2TQ0kQe4w/yFn4NmPNzL1JSwJU/vqcJ9\n6guNss8rswAAA8grUkDYK1JA2AAAAAdzc2gtcnNhAAABAQCg9ByNry0JKPaQJ8KOzMo/kO\n/OPzFyqGYa6D9/vRJUnOtlqAHQGTUW1nq/5G8ag5gsi5ihYEEEPSsgM9J9g/kG79pKxh/k\nsAdpFZm6WL5lVWQcKdqEaz36vkYlJLAWuUMeBM2sM7JvZy2dXfTiAnX46gbdJFV8bHO10A\nXfg5QqQ0Jt/XPqp8vRU8GjtuWbtqqq+f3GL326Q6NrEhaox9DTFW5yhHqsc79ulUti0y7F\nprC2T15LCVB/ub8DVunh8vVzI+WGA71vk1Vqi1mBDspbuvk59z3SSmL3PhjWDNBAauHZND\nSRB7jD/IWfg2Y83MvUlLAlT++pwn3qC42yzyuzAAAAAwEAAQAAAQBAiB86n1WLKqVQvuA+\nqNUeD1pWcve8ZNArUZrD+GZ1DkVDCM1RRgoHEg89CLWTB9fnZEDZ0uG+dVfpHV3zfQpHQb\ntf53e6FOmjtElicVpE/quYrx8xoF3FPqyZD9CaC8VhL8PWmxObnt6nDZi1VQ8/sXT3DS5J\nKKJr7u+r4fFxz8r4xVkKdsJR9I9gjzUd/ntJdzdRPytaev5URg0G2Zc/iHMzJEV2+78RRM\nnWpCWAOJRJwfHt5dLDZ9qrF8aXVxLm+6c+dIWwJPUipQibyf4fTjAh6v+S29NeAfGFX5SB\n5DuKi4NsdgL0aaOQlE5G2+99BxZZwLsJiwx0jzmA/PKBAAAAgFNdYb3sWPxuPra8WkhnHe\ndhS3cu3EesiAlHxrJwqjyQYshIM4A7UIT6JrWgg35Y9C/9JGZKijJ7X6N7t0l+W5nO7FNy\nDE94uG9IX4twcUyHqU+lRrLfiQC9RrOrjqxVOlHqqKLndWtmwqK4HqncgUz8S/fk3GYsuv\nsYU96D+/AuAAAAgQDLnBuj8YoNmB+wv3Q/wvXrWG37q7n/GKQDya4AXMOWCcITl3FH3cm3\n9HlzJwonpGLq+NSqSnI6PH9flbqbFV7aMvmxrvLRQasJAn5+p8qkLQVxeAFqCkliUBfOPn\nXSB+zVzLJEJYcQ7d92ZPk7+RyRSw82BenELBwIiy9FSrKD0QAAAIEAyl42mHD+IUfUEU81\n2VrDinB9vLsIrpamW44ssl3g8MUKr70Il6vZ8YbGlcEzzopjVXsrArmgZQLImK/MYatv4W\n/NKD7FH2tqrsXe/k3hfsAvPfIZCt45I1G2aRL2BlnsFkVqEdtzuROuicVHB4K+zYawvaat\nFtphdeGIeany7EMAAAAPbGludXh1c2VyQGxvY2FsAQIDBA==\n-----END OPENSSH PRIVATE KEY-----",
+      },
+      folders: [
+        {
+          shared_folder:
+            "Production Gateway Server Folder\\Production Gateway Server Folder - Users",
+          can_edit: true,
+          can_share: false,
+        },
+      ],
+    },
+    {
+      title: "Production Gateway Server - SSH Machine with Password Access",
+      $type: "pamMachine",
+      custom_fields: {
+        "$pamHostname::1": {
+          hostName: "server-ssh-with-pwd-1",
+          port: "2222",
+        },
+        "$trafficEncryptionSeed::1": "mzwDi9MzsON9wbqygMvHoj0iFnPueFKpPjOfQ+lmgK4=",
+        "$pamSettings::1": {
+          connection: {
+            protocol: "ssh",
+            port: "2222",
+            recordingIncludeKeys: true,
+          },
+          portForward: {
+            port: "2222",
+            reusePort: true,
+          },
+        },
+      },
+      folders: [
+        {
+          shared_folder:
+            "Production Gateway Server Folder\\Production Gateway Server Folder - Resources",
+          can_edit: true,
+          can_share: false,
+        },
+      ],
+    },
+    {
+      title: "Production Gateway Server - SSH Machine with Private Key Access",
+      $type: "pamMachine",
+      custom_fields: {
+        "$pamHostname::1": {
+          hostName: "server-ssh-with-key-1",
+          port: "2222",
+        },
+        "$trafficEncryptionSeed::1": "lKqwNJhcekaLF9/6hRyp9WoZBYAkH7PWI3i+HXg5Klc=",
+        "$pamSettings::1": {
+          connection: {
+            protocol: "ssh",
+            port: "2222",
+            recordingIncludeKeys: true,
+          },
+          portForward: {
+            port: "2222",
+            reusePort: true,
+          },
+        },
+      },
+      folders: [
+        {
+          shared_folder:
+            "Production Gateway Server Folder\\Production Gateway Server Folder - Resources",
+          can_edit: true,
+          can_share: false,
+        },
+      ],
+    },
+    {
+      title: "Production Gateway Server - VNC Admin",
+      $type: "pamUser",
+      login: "vncuser",
+      password: "xWLu8Jix",
+      folders: [
+        {
+          shared_folder:
+            "Production Gateway Server Folder\\Production Gateway Server Folder - Users",
+          can_edit: true,
+          can_share: false,
+        },
+      ],
+    },
+    {
+      title: "Production Gateway Server - VNC Machine",
+      $type: "pamMachine",
+      custom_fields: {
+        "$pamHostname::1": {
+          hostName: "server-vnc",
+          port: "5901",
+        },
+        "$trafficEncryptionSeed::1": "dla+zeP1vYbOF+p5e9jltfkoWRb8tq1dmi4l+xfpUPI=",
+        "$pamSettings::1": {
+          connection: {
+            protocol: "vnc",
+            port: "5901",
+            recordingIncludeKeys: true,
+          },
+          portForward: {
+            port: "5901",
+            reusePort: true,
+          },
+        },
+      },
+      folders: [
+        {
+          shared_folder:
+            "Production Gateway Server Folder\\Production Gateway Server Folder - Resources",
+          can_edit: true,
+          can_share: false,
+        },
+      ],
+    },
+    {
+      title: "Production Server Auto Rotation",
+      notes:
+        "This is the main production server for auto-rotation. Critical system - handle with care. Rotation schedule: Daily at 3 AM UTC.",
+      $type: "pamMachine",
+      custom_fields: {
+        "$pamHostname::1": {
+          hostName: "prod-server-01.company.internal",
+          port: "22",
+        },
+        "$pamSettings::1": {
+          connection: {
+            port: "2200",
+          },
+          portForward: {
+            port: "8022",
+          },
+        },
+        "$text:operatingSystem:1": "Ubuntu 22.04 LTS",
+        "$text:instanceName:1": "prod-app-server-01",
+        "$text:instanceId:1": "i-0a1b2c3d4e5f6g7h8",
+        "$text:providerGroup:1": "Production-Servers",
+        "$text:providerRegion:1": "eu-central-1",
+        "$text:Application Version:1": "v2.5.3",
+      },
+      folders: [
+        {
+          shared_folder:
+            "Production Gateway Server Folder\\Production Gateway Server Folder - Resources",
+          can_edit: true,
+          can_share: false,
+        },
+      ],
+    },
+    {
+      title: "Windows Server 2022 License",
+      $type: "Server License",
+      schema: [
+        "$text:Number of Seats:1",
+        "$date:Expiration Date:1",
+        "$text:Vendor Name:1",
+        "$password:License Key:1",
+        "$date:Purchase Date:1",
+        "$text:Support Plan Level:1",
+      ],
+      custom_fields: {
+        "$text:Number of Seats:1": "50",
+        "$date:Expiration Date:1": 1767135600000,
+        "$text:Vendor Name:1": "Microsoft",
+        "$date:Purchase Date:1": 1673737200000,
+        "$text:Support Plan Level:1": "Premier Support",
+      },
+      password: "XXXXX-XXXXX-XXXXX-XXXXX-XXXXX",
+    },
+  ],
+};

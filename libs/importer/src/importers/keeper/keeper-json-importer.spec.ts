@@ -6,30 +6,33 @@ import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { newGuid } from "@bitwarden/guid";
 
 import { ImportResult } from "../../models";
-import { CliTestData, WebTestData, LegacyTestData } from "../spec-data/keeper-json/testdata.json";
+import {
+  CliTestData,
+  WebTestData,
+  LegacyTestData,
+  EnterpriseTestData,
+} from "../spec-data/keeper-json/testdata.json";
 
 import { KeeperJsonImporter } from "./keeper-json-importer";
 
 describe("Keeper Json Importer", () => {
-  // The CLI and Web exports should have the same content and their formats are very similar but do not appear
-  // to be the same. That's why they are tests here both.
-  const cliTestDataJson = JSON.stringify(CliTestData);
-  const webTestDataJson = JSON.stringify(WebTestData);
-  const legacyTestDataJson = JSON.stringify(LegacyTestData);
-
   let cliResult: ImportResult;
   let webResult: ImportResult;
   let orgResult: ImportResult;
   let legacyResult: ImportResult;
+  let enterpriseResult: ImportResult;
 
   beforeAll(async () => {
     // Disable the logging. The SSH key parsing will log errors for invalid keys during tests.
     jest.spyOn(console, "warn").mockImplementation();
 
-    cliResult = await expectParse(makeImporter(), cliTestDataJson, 24);
-    webResult = await expectParse(makeImporter(), webTestDataJson, 24);
-    orgResult = await expectParse(makeImporter(newGuid()), cliTestDataJson, 24);
-    legacyResult = await expectParse(makeImporter(), legacyTestDataJson, 78);
+    // The CLI and Web exports should have the same content and their formats are very similar but do not appear
+    // to be the same. That's why they are tests here both.
+    cliResult = await expectParse(makeImporter(), CliTestData, 24);
+    webResult = await expectParse(makeImporter(), WebTestData, 24);
+    orgResult = await expectParse(makeImporter(newGuid()), CliTestData, 24);
+    legacyResult = await expectParse(makeImporter(), LegacyTestData, 78);
+    enterpriseResult = await expectParse(makeImporter(), EnterpriseTestData, 19);
   });
 
   // All possible record types
@@ -715,6 +718,120 @@ describe("Keeper Json Importer", () => {
     expect(folderNames).toEqual(legacyFolderNames);
   });
 
+  //
+  // Enterprise entries tests
+  //
+
+  it("should parse pamRemoteBrowser", async () => {
+    // Cipher
+    const pamRemoteBrowser = getCipher(enterpriseResult, "Admin Dashboard Connection");
+    expect(pamRemoteBrowser).toBeDefined();
+    expect(pamRemoteBrowser.type).toEqual(CipherType.SecureNote);
+
+    // Fields
+    expect(pamRemoteBrowser.fields.length).toEqual(1);
+    expect(getField(pamRemoteBrowser, "rbiUrl")?.value).toEqual(
+      "https://admin.company.internal/dashboard",
+    );
+  });
+
+  it("should parse pamDatabase", async () => {
+    // Cipher
+    const pamDatabase = getCipher(enterpriseResult, "Database Tunnel to Production MySQL");
+    expect(pamDatabase).toBeDefined();
+    expect(pamDatabase.type).toEqual(CipherType.SecureNote);
+
+    // Fields
+    expect(pamDatabase.fields.length).toEqual(7);
+
+    // 1
+    expect(getField(pamDatabase, "pamHostname")?.value).toEqual(
+      `{"hostName":"mysql-prod.company.internal","port":"3306"}`,
+    );
+
+    // 2
+    expect(getField(pamDatabase, "useSSL")?.value).toEqual("true");
+
+    // 3
+    expect(getField(pamDatabase, "pamSettings")?.value).toEqual(
+      `{"connection":{"port":"3307"},"portForward":{"port":"8306"}}`,
+    );
+
+    // 4
+    expect(getField(pamDatabase, "databaseId")?.value).toEqual("db-prod-mysql-01");
+
+    // 5
+    expect(getField(pamDatabase, "databaseType")?.value).toEqual("mysql");
+
+    // 6
+    expect(getField(pamDatabase, "providerGroup")?.value).toEqual("Production-Databases");
+
+    // 7
+    expect(getField(pamDatabase, "providerRegion")?.value).toEqual("us-east-1");
+  });
+
+  it("should parse pamUser", async () => {
+    // Cipher
+    const pamUser = getCipher(enterpriseResult, "Production Gateway Server - MySQL Admin User");
+    expect(pamUser).toBeDefined();
+    expect(pamUser.type).toEqual(CipherType.Login);
+
+    // Properties
+    expect(pamUser.login.username).toEqual("root");
+    expect(pamUser.login.password).toEqual("r7gJ6Zl5BXktS4IPGh4D");
+  });
+
+  it("should parse pamMachine", async () => {
+    // Cipher
+    const pamMachine = getCipher(enterpriseResult, "Production Gateway Server - RDP Machine");
+    expect(pamMachine).toBeDefined();
+    expect(pamMachine.type).toEqual(CipherType.SecureNote);
+
+    // Fields
+    expect(pamMachine.fields.length).toEqual(3);
+
+    // 1
+    expect(getField(pamMachine, "pamHostname")?.value).toEqual(
+      `{"hostName":"server-rdp","port":"22"}`,
+    );
+
+    // 2
+    expect(getField(pamMachine, "trafficEncryptionSeed")?.value).toEqual(
+      "yJsgoM7cuMAqkf5u8VTTVGNCKOirobWXOjthBRlb2bw=",
+    );
+
+    // 3
+    expect(getField(pamMachine, "pamSettings")?.value).toEqual(
+      `{"connection":{"protocol":"rdp","port":"3389","recordingIncludeKeys":true,"security":"any","ignoreCert":true,"resizeMethod":"display-update","enableFullWindowDrag":false,"enableWallpaper":false},"portForward":{"port":"3389","reusePort":true}}`,
+    );
+  });
+
+  it("should parse pamHardware", async () => {
+    // Cipher
+    const pamHardware = getCipher(enterpriseResult, "Dell PowerEdge R740 Server");
+    expect(pamHardware).toBeDefined();
+    expect(pamHardware.type).toEqual(CipherType.SecureNote);
+
+    // Fields
+    expect(pamHardware.fields.length).toEqual(3);
+    expect(getField(pamHardware, "Serial Number")?.value).toEqual("SN-R740-2024-001");
+    expect(getField(pamHardware, "Purchase Date")?.value).toEqual("3/15/2024, 12:00:00 AM");
+    expect(getField(pamHardware, "Warranty Expiration")?.value).toEqual("3/15/2027, 12:00:00 AM");
+  });
+
+  it("should parse SaaS Subscription", async () => {
+    // Cipher
+    const saasSubscription = getCipher(enterpriseResult, "GitHub Enterprise Plan");
+    expect(saasSubscription).toBeDefined();
+    expect(saasSubscription.type).toEqual(CipherType.SecureNote);
+
+    // Fields
+    expect(saasSubscription.fields.length).toEqual(3);
+    expect(getField(saasSubscription, "Service Name")?.value).toEqual("GitHub");
+    expect(getField(saasSubscription, "Renewal Date")?.value).toEqual("6/30/2026, 12:00:00 AM");
+    expect(getField(saasSubscription, "Plan Type")?.value).toEqual("Enterprise");
+  });
+
   it("should parse custom field keys", () => {
     const importer = new KeeperJsonImporter() as any; // Accessing private method for testing
 
@@ -753,10 +870,10 @@ describe("Keeper Json Importer", () => {
 
   async function expectParse(
     importer: KeeperJsonImporter,
-    testDataJson: string,
+    testData: any,
     recordCount: number,
   ): Promise<ImportResult> {
-    const result = await importer.parse(testDataJson);
+    const result = await importer.parse(JSON.stringify(testData));
     expect(result).toBeDefined();
     expect(result.ciphers).toBeDefined();
     expect(result.ciphers.length).toEqual(recordCount);
