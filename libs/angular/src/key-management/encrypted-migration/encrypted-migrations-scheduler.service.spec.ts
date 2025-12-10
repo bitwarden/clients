@@ -8,7 +8,7 @@ import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-mi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { mockAccountInfoWith , FakeAccountService } from "@bitwarden/common/spec";
+import { mockAccountInfoWith, FakeAccountService } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";

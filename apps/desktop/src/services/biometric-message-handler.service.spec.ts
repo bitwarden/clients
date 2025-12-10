@@ -10,7 +10,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { mockAccountInfoWith , FakeAccountService } from "@bitwarden/common/spec";
+import { mockAccountInfoWith, FakeAccountService } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
