@@ -6,7 +6,7 @@ import { AccountPaymentDetailsComponent } from "@bitwarden/web-vault/app/billing
 import { SelfHostedPremiumComponent } from "@bitwarden/web-vault/app/billing/individual/premium/self-hosted-premium.component";
 
 import { BillingHistoryViewComponent } from "./billing-history-view.component";
-import { CloudHostedPremiumVNextComponent } from "./premium/cloud-hosted-premium-vnext.component";
+import { CloudHostedPremiumComponent } from "./premium/cloud-hosted-premium.component";
 import { SubscriptionComponent } from "./subscription.component";
 import { UserSubscriptionComponent } from "./user-subscription.component";
 
@@ -30,7 +30,7 @@ const routes: Routes = [
        * 1. Self-Hosted Environment → SelfHostedPremiumComponent
        *    - Matches when platformUtilsService.isSelfHost() === true
        *
-       * 2. Cloud-Hosted (default) → CloudHostedPremiumVNextComponent
+       * 2. Cloud-Hosted (default) → CloudHostedPremiumComponent
        *    - Evaluated when Route 1 doesn't match (not self-hosted)
        */
       // Route 1: Self-Hosted -> SelfHostedPremiumComponent
@@ -45,10 +45,10 @@ const routes: Routes = [
           },
         ],
       },
-      // Route 2: Cloud Hosted (default) -> CloudHostedPremiumVNextComponent
+      // Route 2: Cloud Hosted (default) -> CloudHostedPremiumComponent
       {
         path: "premium",
-        component: CloudHostedPremiumVNextComponent,
+        component: CloudHostedPremiumComponent,
         data: { titleId: "goPremium" },
       },
       {
