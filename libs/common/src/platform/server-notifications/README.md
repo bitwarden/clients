@@ -81,7 +81,7 @@ That should largely have the same behavior and would allow us to maintain one fe
 
 The foreground implementation is specially for browser foreground instances. At the moment this
 service acts as a stub to avoid accidentally doubling up SignalR connections. If we had the default
-implementation in both the background service worker and in each foreground instance anyone then
+implementation in both the background service worker and in each foreground instance then there
 would be a web socket connection made in each. With this special instance we avoid that by doing
 nothing at the moment. Once we begin to fully support the `notifications$` observable we can make
 a choice whether or not keep not supporting it in the browser foreground or we can decide to support
