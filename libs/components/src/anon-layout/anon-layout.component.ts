@@ -43,6 +43,15 @@ export type AnonLayoutMaxWidth = "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
   ],
 })
 export class AnonLayoutComponent implements OnInit, OnChanges {
+  constructor(
+    private environmentService: EnvironmentService,
+    private platformUtilsService: PlatformUtilsService,
+  ) {
+    this.year = new Date().getFullYear().toString();
+    this.clientType = this.platformUtilsService.getClientType();
+    this.hideYearAndVersion = this.clientType !== ClientType.Web;
+  }
+
   @HostBinding("class")
   get classList() {
     // AnonLayout should take up full height of parent container for proper footer placement.
@@ -92,15 +101,6 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
       case "4xl":
         return "tw-max-w-4xl";
     }
-  }
-
-  constructor(
-    private environmentService: EnvironmentService,
-    private platformUtilsService: PlatformUtilsService,
-  ) {
-    this.year = new Date().getFullYear().toString();
-    this.clientType = this.platformUtilsService.getClientType();
-    this.hideYearAndVersion = this.clientType !== ClientType.Web;
   }
 
   async ngOnInit() {
