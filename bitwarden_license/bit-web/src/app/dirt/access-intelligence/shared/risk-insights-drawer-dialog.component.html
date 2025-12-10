@@ -1,5 +1,5 @@
 @if (isActiveDrawerType(drawerTypes.OrgAtRiskMembers)) {
-  <bit-dialog dialogSize="large" disablePadding="false">
+  <bit-dialog [dialogSize]="drawerDetails.size ?? 'small'" disablePadding="false">
     <ng-container bitDialogTitle>
       <span>{{
         "atRiskMembersWithCount" | i18n: drawerDetails.atRiskMemberDetails?.length ?? 0
@@ -45,7 +45,7 @@
 }
 
 @if (isActiveDrawerType(drawerTypes.AppAtRiskMembers)) {
-  <bit-dialog dialogSize="large" disablePadding="false">
+  <bit-dialog [dialogSize]="drawerDetails.size ?? 'small'" disablePadding="false">
     <ng-container bitDialogTitle>
       <span>{{ drawerDetails.appAtRiskMembers?.applicationName }}</span>
     </ng-container>
@@ -71,7 +71,7 @@
 }
 
 @if (isActiveDrawerType(drawerTypes.OrgAtRiskApps)) {
-  <bit-dialog dialogSize="large" disablePadding="false">
+  <bit-dialog [dialogSize]="drawerDetails.size ?? 'small'" disablePadding="false">
     <ng-container bitDialogTitle>
       <span>{{
         "atRiskApplicationsWithCount" | i18n: drawerDetails.atRiskAppDetails?.length ?? 0
