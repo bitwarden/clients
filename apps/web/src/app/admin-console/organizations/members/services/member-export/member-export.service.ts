@@ -1,26 +1,20 @@
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import * as papa from "papaparse";
 
-import { UserStatusPipe } from "@bitwarden/angular/pipes/user-status.pipe";
 import { UserTypePipe } from "@bitwarden/angular/pipes/user-type.pipe";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ExportHelper } from "@bitwarden/vault-export-core";
 
 import { OrganizationUserView } from "../../../core";
+import { UserStatusPipe } from "../../pipes";
 
 import { MemberExport } from "./member.export";
 
-@Injectable({
-  providedIn: "root",
-})
+@Injectable()
 export class MemberExportService {
-  private userTypePipe: UserTypePipe;
-  private userStatusPipe: UserStatusPipe;
-
-  constructor(private i18nService: I18nService) {
-    this.userTypePipe = new UserTypePipe(i18nService);
-    this.userStatusPipe = new UserStatusPipe(i18nService);
-  }
+  private i18nService = inject(I18nService);
+  private userTypePipe = inject(UserTypePipe);
+  private userStatusPipe = inject(UserStatusPipe);
 
   getMemberExport(members: OrganizationUserView[]): string {
     const exportData = members.map((m) =>

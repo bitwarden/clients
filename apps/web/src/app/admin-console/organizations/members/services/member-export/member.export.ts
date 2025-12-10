@@ -1,8 +1,8 @@
-import { UserStatusPipe } from "@bitwarden/angular/pipes/user-status.pipe";
 import { UserTypePipe } from "@bitwarden/angular/pipes/user-type.pipe";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { OrganizationUserView } from "../../../core";
+import { UserStatusPipe } from "../../pipes";
 
 export class MemberExport {
   /**

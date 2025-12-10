@@ -1,7 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 
-import { UserStatusPipe } from "@bitwarden/angular/pipes/user-status.pipe";
 import { UserTypePipe } from "@bitwarden/angular/pipes/user-type.pipe";
 import {
   OrganizationUserStatusType,
@@ -10,6 +9,7 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { OrganizationUserView } from "../../../core";
+import { UserStatusPipe } from "../../pipes";
 
 import { MemberExportService } from "./member-export.service";
 
