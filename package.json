@@ -85,7 +85,7 @@
     "angular-eslint": "20.7.0",
     "autoprefixer": "10.4.22",
     "axe-playwright": "2.2.2",
-    "babel-loader": "9.2.1",
+    "babel-loader": "10.0.0",
     "base64-loader": "1.0.0",
     "browserslist": "4.28.1",
     "chromatic": "13.3.4",
