@@ -1,7 +1,7 @@
 import { firstValueFrom } from "rxjs";
 
-import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../spec";
-import { UserId } from "../../types/guid";
+import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
+import { UserId } from "../../../types/guid";
 
 import { PhishingDetectionSettingsService } from "./phishing-detection-settings.service";
 

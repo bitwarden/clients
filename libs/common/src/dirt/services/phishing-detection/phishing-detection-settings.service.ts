@@ -3,7 +3,7 @@ import { map } from "rxjs/operators";
 
 import { UserId } from "@bitwarden/user-core";
 
-import { PHISHING_DETECTION_DISK, StateProvider, UserKeyDefinition } from "../../platform/state";
+import { PHISHING_DETECTION_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
 
 const ENABLE_PHISHING_DETECTION = new UserKeyDefinition(
   PHISHING_DETECTION_DISK,
