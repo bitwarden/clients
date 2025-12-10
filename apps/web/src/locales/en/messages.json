@@ -9490,6 +9490,9 @@
   "ssoLoginIsRequired": {
     "message": "SSO login is required"
   },
+  "emailRequiredForSsoLogin": {
+    "message": "Email is required for SSO"
+  },
   "selectedRegionFlag": {
     "message": "Selected region flag"
   },
