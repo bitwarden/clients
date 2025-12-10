@@ -240,7 +240,7 @@ export const DefaultContentExample: Story = {
   }),
   parameters: {
     chromatic: {
-      viewports: [380],
+      viewports: [380, 1280],
     },
   },
 };
