@@ -78,18 +78,6 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
     );
   }
 
-  private defaultUserCollection$(
-    userId: UserId,
-    organizationId: OrganizationId,
-  ): Observable<CollectionId | undefined> {
-    return this.collectionService.decryptedCollections$(userId).pipe(
-      map((collections) => {
-        return collections.find((c) => c.isDefaultCollection && c.organizationId === organizationId)
-          ?.id;
-      }),
-    );
-  }
-
   userMigrationInfo$(userId: UserId): Observable<UserMigrationInfo> {
     return this.enforcingOrganization$(userId).pipe(
       switchMap((enforcingOrganization) => {
@@ -100,13 +88,13 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
         }
         return combineLatest([
           this.personalCiphers$(userId),
-          this.defaultUserCollection$(userId, enforcingOrganization.id),
+          this.collectionService.defaultUserCollection$(userId, enforcingOrganization.id),
         ]).pipe(
-          map(([personalCiphers, defaultCollectionId]): UserMigrationInfo => {
+          map(([personalCiphers, defaultCollection]): UserMigrationInfo => {
             return {
               requiresMigration: personalCiphers.length > 0,
               enforcingOrganization,
-              defaultCollectionId,
+              defaultCollectionId: defaultCollection?.id,
             };
           }),
         );

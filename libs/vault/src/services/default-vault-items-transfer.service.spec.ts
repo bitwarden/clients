@@ -95,12 +95,12 @@ describe("DefaultVaultItemsTransferService", () => {
       policies?: Policy[];
       organizations?: Organization[];
       ciphers?: CipherView[];
-      collections?: CollectionView[];
+      defaultCollection?: CollectionView;
     }): void {
       mockPolicyService.policiesByType$.mockReturnValue(of(options.policies ?? []));
       mockOrganizationService.organizations$.mockReturnValue(of(options.organizations ?? []));
       mockCipherService.cipherViews$.mockReturnValue(of(options.ciphers ?? []));
-      mockCollectionService.decryptedCollections$.mockReturnValue(of(options.collections ?? []));
+      mockCollectionService.defaultUserCollection$.mockReturnValue(of(options.defaultCollection));
     }
 
     it("calls policiesByType$ with correct PolicyType", async () => {
@@ -177,39 +177,12 @@ describe("DefaultVaultItemsTransferService", () => {
         });
 
         it("includes defaultCollectionId when a default collection exists", async () => {
-          mockCollectionService.decryptedCollections$.mockReturnValue(
-            of([
-              {
-                id: collectionId,
-                organizationId: organizationId,
-                isDefaultCollection: true,
-              } as CollectionView,
-            ]),
-          );
-
-          const result = await firstValueFrom(service.userMigrationInfo$(userId));
-
-          expect(result).toEqual({
-            requiresMigration: true,
-            enforcingOrganization: organization,
-            defaultCollectionId: collectionId,
-          });
-        });
-
-        it("returns default collection only for the enforcing organization", async () => {
-          mockCollectionService.decryptedCollections$.mockReturnValue(
-            of([
-              {
-                id: "wrong-collection-id" as CollectionId,
-                organizationId: "wrong-org-id" as OrganizationId,
-                isDefaultCollection: true,
-              } as CollectionView,
-              {
-                id: collectionId,
-                organizationId: organizationId,
-                isDefaultCollection: true,
-              } as CollectionView,
-            ]),
+          mockCollectionService.defaultUserCollection$.mockReturnValue(
+            of({
+              id: collectionId,
+              organizationId: organizationId,
+              isDefaultCollection: true,
+            } as CollectionView),
           );
 
           const result = await firstValueFrom(service.userMigrationInfo$(userId));
@@ -568,13 +541,13 @@ describe("DefaultVaultItemsTransferService", () => {
       policies?: Policy[];
       organizations?: Organization[];
       ciphers?: CipherView[];
-      collections?: CollectionView[];
+      defaultCollection?: CollectionView;
     }): void {
       mockConfigService.getFeatureFlag.mockResolvedValue(options.featureEnabled ?? true);
       mockPolicyService.policiesByType$.mockReturnValue(of(options.policies ?? []));
       mockOrganizationService.organizations$.mockReturnValue(of(options.organizations ?? []));
       mockCipherService.cipherViews$.mockReturnValue(of(options.ciphers ?? []));
-      mockCollectionService.decryptedCollections$.mockReturnValue(of(options.collections ?? []));
+      mockCollectionService.defaultUserCollection$.mockReturnValue(of(options.defaultCollection));
     }
 
     it("does nothing when feature flag is disabled", async () => {
@@ -583,13 +556,11 @@ describe("DefaultVaultItemsTransferService", () => {
         policies: [policy],
         organizations: [organization],
         ciphers: [{ id: "cipher-1" } as CipherView],
-        collections: [
-          {
-            id: collectionId,
-            organizationId: organizationId,
-            isDefaultCollection: true,
-          } as CollectionView,
-        ],
+        defaultCollection: {
+          id: collectionId,
+          organizationId: organizationId,
+          isDefaultCollection: true,
+        } as CollectionView,
       });
 
       await service.enforceOrganizationDataOwnership(userId);
@@ -628,7 +599,6 @@ describe("DefaultVaultItemsTransferService", () => {
         policies: [policy],
         organizations: [organization],
         ciphers: [{ id: "cipher-1" } as CipherView],
-        collections: [],
       });
 
       await service.enforceOrganizationDataOwnership(userId);
@@ -645,13 +615,11 @@ describe("DefaultVaultItemsTransferService", () => {
         policies: [policy],
         organizations: [organization],
         ciphers: [{ id: "cipher-1" } as CipherView],
-        collections: [
-          {
-            id: collectionId,
-            organizationId: organizationId,
-            isDefaultCollection: true,
-          } as CollectionView,
-        ],
+        defaultCollection: {
+          id: collectionId,
+          organizationId: organizationId,
+          isDefaultCollection: true,
+        } as CollectionView,
       });
 
       // User declines transfer, then confirms leaving
@@ -670,13 +638,11 @@ describe("DefaultVaultItemsTransferService", () => {
         policies: [policy],
         organizations: [organization],
         ciphers: personalCiphers,
-        collections: [
-          {
-            id: collectionId,
-            organizationId: organizationId,
-            isDefaultCollection: true,
-          } as CollectionView,
-        ],
+        defaultCollection: {
+          id: collectionId,
+          organizationId: organizationId,
+          isDefaultCollection: true,
+        } as CollectionView,
       });
 
       mockDialogService.open.mockReturnValueOnce(
@@ -704,13 +670,11 @@ describe("DefaultVaultItemsTransferService", () => {
         policies: [policy],
         organizations: [organization],
         ciphers: personalCiphers,
-        collections: [
-          {
-            id: collectionId,
-            organizationId: organizationId,
-            isDefaultCollection: true,
-          } as CollectionView,
-        ],
+        defaultCollection: {
+          id: collectionId,
+          organizationId: organizationId,
+          isDefaultCollection: true,
+        } as CollectionView,
       });
 
       mockDialogService.open.mockReturnValueOnce(
@@ -736,13 +700,11 @@ describe("DefaultVaultItemsTransferService", () => {
         policies: [policy],
         organizations: [organization],
         ciphers: personalCiphers,
-        collections: [
-          {
-            id: collectionId,
-            organizationId: organizationId,
-            isDefaultCollection: true,
-          } as CollectionView,
-        ],
+        defaultCollection: {
+          id: collectionId,
+          organizationId: organizationId,
+          isDefaultCollection: true,
+        } as CollectionView,
       });
 
       // User declines, goes back, then accepts
@@ -765,13 +727,11 @@ describe("DefaultVaultItemsTransferService", () => {
         policies: [policy],
         organizations: [organization],
         ciphers: personalCiphers,
-        collections: [
-          {
-            id: collectionId,
-            organizationId: organizationId,
-            isDefaultCollection: true,
-          } as CollectionView,
-        ],
+        defaultCollection: {
+          id: collectionId,
+          organizationId: organizationId,
+          isDefaultCollection: true,
+        } as CollectionView,
       });
 
       // User declines, goes back, declines again, goes back again, then accepts
@@ -795,13 +755,11 @@ describe("DefaultVaultItemsTransferService", () => {
         policies: [policy],
         organizations: [organization],
         ciphers: [{ id: "cipher-1" } as CipherView],
-        collections: [
-          {
-            id: collectionId,
-            organizationId: organizationId,
-            isDefaultCollection: true,
-          } as CollectionView,
-        ],
+        defaultCollection: {
+          id: collectionId,
+          organizationId: organizationId,
+          isDefaultCollection: true,
+        } as CollectionView,
       });
 
       // User declines, goes back, declines again, then confirms leaving
@@ -833,13 +791,13 @@ describe("DefaultVaultItemsTransferService", () => {
       policies?: Policy[];
       organizations?: Organization[];
       ciphers?: CipherView[];
-      collections?: CollectionView[];
+      defaultCollection?: CollectionView;
     }): void {
       mockConfigService.getFeatureFlag.mockResolvedValue(options.featureEnabled ?? true);
       mockPolicyService.policiesByType$.mockReturnValue(of(options.policies ?? []));
       mockOrganizationService.organizations$.mockReturnValue(of(options.organizations ?? []));
       mockCipherService.cipherViews$.mockReturnValue(of(options.ciphers ?? []));
-      mockCollectionService.decryptedCollections$.mockReturnValue(of(options.collections ?? []));
+      mockCollectionService.defaultUserCollection$.mockReturnValue(of(options.defaultCollection));
     }
 
     it("emits false initially", async () => {
@@ -854,13 +812,11 @@ describe("DefaultVaultItemsTransferService", () => {
         policies: [policy],
         organizations: [organization],
         ciphers: personalCiphers,
-        collections: [
-          {
-            id: collectionId,
-            organizationId: organizationId,
-            isDefaultCollection: true,
-          } as CollectionView,
-        ],
+        defaultCollection: {
+          id: collectionId,
+          organizationId: organizationId,
+          isDefaultCollection: true,
+        } as CollectionView,
       });
 
       mockDialogService.open.mockReturnValueOnce(
@@ -883,13 +839,11 @@ describe("DefaultVaultItemsTransferService", () => {
         policies: [policy],
         organizations: [organization],
         ciphers: personalCiphers,
-        collections: [
-          {
-            id: collectionId,
-            organizationId: organizationId,
-            isDefaultCollection: true,
-          } as CollectionView,
-        ],
+        defaultCollection: {
+          id: collectionId,
+          organizationId: organizationId,
+          isDefaultCollection: true,
+        } as CollectionView,
       });
 
       mockDialogService.open.mockReturnValueOnce(
