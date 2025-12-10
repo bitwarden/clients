@@ -22,7 +22,6 @@ import {
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { AnonLayoutWrapperDataService, ButtonModule, I18nMockService } from "@bitwarden/components";
 
@@ -77,12 +76,14 @@ const decorators = (options: {
         {
           provide: AccountService,
           useValue: {
+            // We can't use mockAccountInfoWith() here because we can't take a dependency on @bitwarden/common/spec.
+            // This is because that package relies on jest dependencies that aren't available here.
             activeAccount$: of({
               id: "test-user-id" as UserId,
-              ...mockAccountInfoWith({
-                name: "Test User 1",
-                email: "test@email.com",
-              }),
+              name: "Test User 1",
+              email: "test@email.com",
+              emailVerified: true,
+              creationDate: "2024-01-01T00:00:00.000Z",
             }),
           },
         },
