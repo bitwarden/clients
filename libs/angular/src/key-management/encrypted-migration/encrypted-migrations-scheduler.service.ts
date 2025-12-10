@@ -45,9 +45,7 @@ const VAULT_ROUTE = "/vault";
  * if it is required by showing a UI prompt. It is only one means of triggering migrations, in case the user stays unlocked for a while,
  * or regularly logs in without a master-password, when the migrations do require a master-password to run.
  */
-export class DefaultEncryptedMigrationsSchedulerService
-  implements EncryptedMigrationsSchedulerService
-{
+export class DefaultEncryptedMigrationsSchedulerService implements EncryptedMigrationsSchedulerService {
   isMigrating = false;
   url$: Observable<string>;
 

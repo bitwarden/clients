@@ -45,13 +45,10 @@ import { EmergencyAccessGranteeDetailsResponse } from "../response/emergency-acc
 import { EmergencyAccessApiService } from "./emergency-access-api.service";
 
 @Injectable()
-export class EmergencyAccessService
-  implements
-    UserKeyRotationKeyRecoveryProvider<
-      EmergencyAccessWithIdRequest,
-      GranteeEmergencyAccessWithPublicKey
-    >
-{
+export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvider<
+  EmergencyAccessWithIdRequest,
+  GranteeEmergencyAccessWithPublicKey
+> {
   constructor(
     private emergencyAccessApiService: EmergencyAccessApiService,
     private apiService: ApiService,

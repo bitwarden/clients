@@ -3,9 +3,7 @@ import { LoginApprovalDialogComponentServiceAbstraction } from "./login-approval
 /**
  * Default implementation of the LoginApprovalDialogComponentServiceAbstraction.
  */
-export class DefaultLoginApprovalDialogComponentService
-  implements LoginApprovalDialogComponentServiceAbstraction
-{
+export class DefaultLoginApprovalDialogComponentService implements LoginApprovalDialogComponentServiceAbstraction {
   /**
    * No-op implementation of the showLoginRequestedAlertIfWindowNotVisible method.
    * @returns

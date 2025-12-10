@@ -46,9 +46,9 @@ const KeyUsages: KeyUsage[] = ["sign"];
  *
  * It is highly recommended that the W3C specification is used a reference when reading this code.
  */
-export class Fido2AuthenticatorService<ParentWindowReference>
-  implements Fido2AuthenticatorServiceAbstraction<ParentWindowReference>
-{
+export class Fido2AuthenticatorService<
+  ParentWindowReference,
+> implements Fido2AuthenticatorServiceAbstraction<ParentWindowReference> {
   constructor(
     private cipherService: CipherService,
     private userInterface: Fido2UserInterfaceService<ParentWindowReference>,

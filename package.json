@@ -122,7 +122,7 @@
     "path-browserify": "1.0.1",
     "postcss": "8.5.6",
     "postcss-loader": "8.2.0",
-    "prettier": "3.6.2",
+    "prettier": "3.7.3",
     "prettier-plugin-tailwindcss": "0.7.1",
     "process": "0.11.10",
     "remark-gfm": "4.0.1",
