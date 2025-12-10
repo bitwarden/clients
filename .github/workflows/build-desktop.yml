@@ -585,7 +585,7 @@ jobs:
         working-directory: apps/desktop/desktop_native
         env:
           MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
-        run: node build.js cross-platform ${MODE}
+        run: node build.js cross-platform "$MODE"
 
       - name: Build
         run: npm run build
@@ -850,7 +850,7 @@ jobs:
         working-directory: apps/desktop/desktop_native
         env:
           MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
-        run: node build.js cross-platform ${MODE}
+        run: node build.js cross-platform "$MODE"
 
       - name: Build
         run: npm run build
@@ -1208,7 +1208,7 @@ jobs:
         working-directory: apps/desktop/desktop_native
         env:
           MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
-        run: node build.js cross-platform ${MODE}
+        run: node build.js cross-platform "$MODE"
 
       - name: Build application (dev)
         run: npm run build
@@ -1432,7 +1432,7 @@ jobs:
         working-directory: apps/desktop/desktop_native
         env:
           MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
-        run: node build.js cross-platform ${MODE}
+        run: node build.js cross-platform "$MODE"
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
@@ -1715,7 +1715,7 @@ jobs:
         working-directory: apps/desktop/desktop_native
         env:
           MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
-        run: node build.js cross-platform ${MODE}
+        run: node build.js cross-platform "$MODE"
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
