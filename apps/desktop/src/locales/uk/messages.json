@@ -1093,6 +1093,24 @@
   "learnMore": {
     "message": "Докладніше"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
   "featureUnavailable": {
     "message": "Функція недоступна"
   },
@@ -1489,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 ГБ зашифрованого сховища для файлів."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Додаткові можливості двоетапної авторизації, як-от YubiKey та Duo."
@@ -2150,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Під час увімкнення інтеграції з браузером сталася помилка."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "На жаль, зараз інтеграція з браузером підтримується лише у версії для Mac з App Store."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "На жаль, зараз інтеграція з браузером не підтримується у версії з Microsoft Store."
   },
@@ -2230,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Контактна інформація"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Усі відправлення",
@@ -2994,7 +3022,8 @@
     "message": "Ви впевнені, що ніколи не хочете блокувати? Встановивши параметр блокування \"Ніколи\", ключ шифрування сховища зберігатиметься на вашому пристрої. Користуючись цим параметром, ви маєте бути впевнені в тому, що ваш пристрій надійно захищений."
   },
   "vault": {
-    "message": "Сховище"
+    "message": "Сховище",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Увійти з головним паролем"
@@ -4220,5 +4249,11 @@
   },
   "upgradeToPremium": {
     "message": "Покращити до Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

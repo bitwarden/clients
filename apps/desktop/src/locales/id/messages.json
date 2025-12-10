@@ -1093,6 +1093,24 @@
   "learnMore": {
     "message": "Pelajari lebih lanjut"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
   "featureUnavailable": {
     "message": "Fitur Tidak Tersedia"
   },
@@ -1489,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 GB penyimpanan berkas yang dienkripsi."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Proprietary two-step login options such as YubiKey and Duo."
@@ -2150,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "An error has occurred while enabling browser integration."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Sayangnya integrasi browser hanya didukung di versi Mac App Store untuk saat ini."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Sayangnya integrasi browser saat ini tidak didukung di versi Windows Store."
   },
@@ -2230,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Contact information"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Semua Sends",
@@ -2994,7 +3022,8 @@
     "message": "Are you sure you want to use the \"Never\" option? Setting your lock options to \"Never\" stores your vault's encryption key on your device. If you use this option you should ensure that you keep your device properly protected."
   },
   "vault": {
-    "message": "Brankas"
+    "message": "Brankas",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Log in with master password"
@@ -4220,5 +4249,11 @@
   },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

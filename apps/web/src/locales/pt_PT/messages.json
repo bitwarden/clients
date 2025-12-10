@@ -15,7 +15,7 @@
     "message": "Não há aplicações críticas em risco"
   },
   "accessIntelligence": {
-    "message": "Aceder à informação"
+    "message": "Inteligência de Acesso"
   },
   "passwordRisk": {
     "message": "Risco da palavra-passe"
@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Atribuir tarefas aos membros para monitorizar o progresso"
   },
-  "onceYouReviewApps": {
-    "message": "Depois de analisar as aplicações e marcá-las como críticas, pode atribuir tarefas aos membros para resolver itens em risco e monitorizar o progresso aqui"
+  "onceYouReviewApplications": {
+    "message": "Depois de rever as aplicações e marcá-las como críticas, atribua tarefas aos seus membros para que alterem as respetivas palavras-passe."
   },
   "sendReminders": {
     "message": "Enviar lembretes"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "Não foram encontradas aplicações para $ORG NAME$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "Não foram encontrados dados"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Importe as credenciais da sua organização para começar a monitorizar os riscos de segurança das credenciais. Após a importação, poderá:"
+  "noDataInOrgDescription": {
+    "message": "Importe os dados de início de sessão da sua organização para começar a utilizar a Inteligência de Acesso. Depois disso, poderá:"
   },
-  "benefit1Title": {
-    "message": "Priorizar os riscos"
+  "feature1Title": {
+    "message": "Marcar aplicações como críticas"
   },
-  "benefit1Description": {
-    "message": "Com foco nas aplicações mais importantes"
+  "feature1Description": {
+    "message": "Isto ajudá-lo-á a eliminar primeiro os riscos nas suas aplicações mais importantes."
   },
-  "benefit2Title": {
-    "message": "Remediação de guias"
+  "feature2Title": {
+    "message": "Ajude os membros a melhorar a sua segurança"
   },
-  "benefit2Description": {
-    "message": "Atribuir tarefas orientadas aos membros em risco para alterar as credenciais em risco"
+  "feature2Description": {
+    "message": "Atribua aos membros em risco tarefas de segurança orientadas para atualizarem as suas credenciais."
   },
-  "benefit3Title": {
+  "feature3Title": {
     "message": "Monitorizar o progresso"
   },
-  "benefit3Description": {
-    "message": "Acompanhe as alterações ao longo do tempo para mostrar as melhorias na segurança"
+  "feature3Description": {
+    "message": "Acompanhe as alterações ao longo do tempo para mostrar as melhorias na segurança."
   },
-  "noReportRunTitle": {
-    "message": "Execute o seu primeiro relatório para ver as aplicações"
+  "noReportsRunTitle": {
+    "message": "Gerar relatório"
   },
-  "noReportRunDescription": {
-    "message": "Gere um relatório de insights de risco para analisar as aplicações da sua organização e identificar palavras-passe em risco que precisam de atenção. A execução do seu primeiro relatório irá:"
+  "noReportsRunDescription": {
+    "message": "Está pronto para começar a gerar relatórios. Depois de os gerar, poderá:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Não marcou nenhuma aplicação como crítica"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Membros em risco"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Membros com acesso a itens em risco para aplicações críticas"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "Estes membros têm acesso a itens vulneráveis de aplicações críticas."
   },
   "membersWithAtRiskPasswords": {
     "message": "Membros com palavras-passe em risco"
   },
-  "membersWillReceiveNotification": {
-    "message": "Os membros receberão uma notificação para resolver as credenciais em risco através da extensão do navegador."
+  "membersWillReceiveSecurityTask": {
+    "message": "Os membros da sua organização serão atribuídos a uma tarefa para alterar palavras-passe vulneráveis. Receberão uma notificação na extensão do Bitwarden do navegador."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ membros em risco",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Estes membros estão a iniciar sessão em aplicações com palavras-passe fracas, expostas ou reutilizadas."
+  "atRiskMemberDescription": {
+    "message": "Estes membros estão a iniciar sessão em aplicações críticas com palavras-passe fracas, expostas ou reutilizadas."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Estes não são membros que iniciam sessão em aplicações com palavras-passe fracas, expostas ou reutilizadas."
@@ -349,6 +343,9 @@
   "applicationsNeedingReview": {
     "message": "Aplicações que necessitam de análise"
   },
+  "newApplicationsCardTitle": {
+    "message": "Rever novas aplicações"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ novas aplicações",
     "placeholders": {
@@ -370,17 +367,32 @@
   "noNewApplicationsToReviewAtThisTime": {
     "message": "Não há novas aplicações para rever neste momento"
   },
+  "organizationHasItemsSavedForApplications": {
+    "message": "A sua organização tem itens guardados para $COUNT$ aplicações",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Reveja as aplicações para proteger os itens mais críticos para a segurança da sua organização"
+  },
+  "reviewApplications": {
+    "message": "Rever aplicações"
+  },
   "prioritizeCriticalApplications": {
     "message": "Dê prioridade a aplicações críticas"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Selecione quais aplicações são mais críticas para a sua organização e, em seguida, atribua tarefas de segurança aos membros para resolver os riscos."
+  "selectCriticalAppsDescription": {
+    "message": "Selecione quais aplicações são mais críticas para a sua organização. Depois, poderá atribuir tarefas de segurança aos membros para eliminar os riscos."
   },
   "reviewNewApplications": {
     "message": "Rever novas aplicações"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "Destacámos os itens em risco para novas aplicações armazenadas na consola de administração que têm palavras-passe fracas, expostas ou reutilizadas."
+  "reviewNewAppsDescription": {
+    "message": "Reveja as novas aplicações com itens vulneráveis e marque como críticas aquelas que pretende monitorizar de perto. Depois, poderá atribuir tarefas de segurança aos membros para eliminar os riscos."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Clique no ícone de estrela para marcar uma app como crítica"
@@ -1363,7 +1375,7 @@
     "message": "Iniciar sessão com o dispositivo"
   },
   "loginWithDeviceEnabledNote": {
-    "message": "O início de sessão com o dispositivo deve ser ativado nas definições da aplicação Bitwarden. Precisa de outra opção?"
+    "message": "O início de sessão com o dispositivo deve ser ativado nas definições da app Bitwarden. Precisa de outra opção?"
   },
   "needAnotherOptionV1": {
     "message": "Precisa de outra opção?"
@@ -3038,7 +3050,7 @@
     "message": "O crédito da sua conta pode ser utilizado para efetuar compras. Qualquer crédito disponível será automaticamente aplicado às faturas geradas para esta conta."
   },
   "goPremium": {
-    "message": "Tornar-se Premium",
+    "message": "Torne-se Premium",
     "description": "Another way of saying \"Get a Premium membership\""
   },
   "premiumUpdated": {
@@ -3049,6 +3061,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 GB de armazenamento encriptado para anexos de ficheiros."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ de armazenamento encriptado para anexos de ficheiros.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Opções proprietárias de verificação de dois passos, como YubiKey e Duo."
@@ -3111,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "A sua subscrição Premium terminou"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Para recuperar o acesso ao seu arquivo, reinicie a sua subscrição Premium. Se editar os detalhes de um item arquivado antes de reiniciar, ele será movido de volta para o seu cofre."
+  },
+  "restartPremium": {
+    "message": "Reiniciar Premium"
   },
   "additionalStorageGb": {
     "message": "Armazenamento adicional (GB)"
@@ -3232,8 +3262,17 @@
   "nextCharge": {
     "message": "Próxima cobrança"
   },
+  "nextChargeHeader": {
+    "message": "Próxima cobrança"
+  },
+  "plan": {
+    "message": "Plano"
+  },
   "details": {
     "message": "Detalhes"
+  },
+  "discount": {
+    "message": "desconto"
   },
   "downloadLicense": {
     "message": "Transferir licença"
@@ -4442,6 +4481,30 @@
   "generatingYourAccessIntelligence": {
     "message": "A gerar a sua Inteligência de Acesso..."
   },
+  "fetchingMemberData": {
+    "message": "A obter dados dos membros..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "A analisar a segurança da palavra-passe..."
+  },
+  "calculatingRiskScores": {
+    "message": "A calcular pontuações de risco..."
+  },
+  "generatingReportData": {
+    "message": "A gerar dados do relatório..."
+  },
+  "savingReport": {
+    "message": "A guardar relatório..."
+  },
+  "compilingInsights": {
+    "message": "A compilar insights..."
+  },
+  "loadingProgress": {
+    "message": "A carregar progresso"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Isto pode demorar alguns minutos."
+  },
   "riskInsightsRunReport": {
     "message": "Executar relatório"
   },
@@ -4562,6 +4625,24 @@
   },
   "learnMore": {
     "message": "Saber mais"
+  },
+  "migrationsFailed": {
+    "message": "Ocorreu um erro ao atualizar as definições de encriptação."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Atualize as suas definições de encriptação"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "As novas definições de encriptação recomendadas irão melhorar a segurança da sua conta. Introduza a sua palavra-passe mestra para atualizar agora."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirme a sua identidade para continuar"
+  },
+  "enterYourMasterPassword": {
+    "message": "Introduza a sua palavra-passe mestra"
+  },
+  "updateSettings": {
+    "message": "Atualizar definições"
   },
   "deleteRecoverDesc": {
     "message": "Introduza o seu endereço de e-mail abaixo para recuperar e eliminar a sua conta."
@@ -5764,9 +5845,9 @@
     "message": "Exigir que todos os itens sejam propriedade de uma organização, removendo a opção de armazenar itens ao nível da conta.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
-    "message": "Todos os itens pertencerão e serão guardados na organização, permitindo controlos, visibilidade e relatórios para toda a organização. Quando ativada, estará disponível uma coleção predefinida para cada membro armazenar itens. Saiba mais sobre como gerir o ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  "organizationDataOwnershipDescContent": {
+    "message": "Todos os itens passarão a ser propriedade da organização e serão aí guardados, permitindo controlos, visibilidade e relatórios a nível organizacional. Quando esta opção estiver ativa, ficará disponível uma coleção predefinida para cada membro guardar itens. Saiba mais sobre a gestão do ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "ciclo de vida das credenciais",
@@ -5804,16 +5885,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "Como ativar a confirmação automática do utilizador"
   },
-  "autoConfirmStep1": {
-    "message": "Abra a sua extensão Bitwarden."
+  "autoConfirmExtension1": {
+    "message": "Abra a sua extensão Bitwarden"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "Selecione",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " Ativar.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " Ativar",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "A extensão do navegador Bitwarden foi aberta com sucesso. Agora pode ativar a configuração de confirmação automática do utilizador."
@@ -9525,9 +9606,6 @@
   "loggedInExclamation": {
     "message": "Sessão iniciada!"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "assignCollectionAccess": {
     "message": "Atribuir acesso à coleção"
   },
@@ -9778,6 +9856,14 @@
     "message": "Demasiado caro",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "switchToFreePlan": {
+    "message": "A passar para o plano gratuito",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "switchToFreeOrg": {
+    "message": "A passar para uma organização gratuita",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "Gratuito durante 1 ano"
   },
@@ -9808,8 +9894,8 @@
   "assignTasks": {
     "message": "Atribuir tarefas"
   },
-  "assignTasksToMembers": {
-    "message": "Atribuir tarefas aos membros para resolução guiada"
+  "assignSecurityTasksToMembers": {
+    "message": "Enviar notificações para alterar palavras-passe"
   },
   "assignToCollections": {
     "message": "Atribuir às coleções"
@@ -10724,7 +10810,7 @@
     "message": "Saiba mais sobre as iterações do KDF"
   },
   "learnMoreAboutLocalization": {
-    "message": "Saiba mais sobre a localização"
+    "message": "Saiba mais sobre a tradução"
   },
   "learnMoreAboutWebsiteIcons": {
     "message": "Saiba mais sobre a utilização de ícones de sites"
@@ -11297,14 +11383,6 @@
   "openedExtensionViewAtRiskPasswords": {
     "message": "Abriu com sucesso a extensão de navegador Bitwarden. Pode agora rever as suas palavras-passe em risco."
   },
-  "openExtensionManuallyPart1": {
-    "message": "Tivemos problemas ao abrir a extensão de navegador Bitwarden. Abra o ícone do Bitwarden",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
-  "openExtensionManuallyPart2": {
-    "message": "da barra de ferramentas.",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
   "resellerRenewalWarningMsg": {
     "message": "A sua subscrição será renovada em breve. Para garantir um serviço ininterrupto, contacte a $RESELLER$ para confirmar a sua renovação antes de $RENEWAL_DATE$.",
     "placeholders": {
@@ -11625,11 +11703,8 @@
   "bitwardenExtensionInstalled": {
     "message": "Extensão Bitwarden instalada!"
   },
-  "openTheBitwardenExtension": {
-    "message": "Abrir a extensão Bitwarden"
-  },
-  "bitwardenExtensionInstalledOpenExtension": {
-    "message": "A extensão Bitwarden está instalada! Abra a extensão para iniciar sessão e começar o preenchimento automático."
+  "bitwardenExtensionIsInstalled": {
+    "message": "A extensão Bitwarden está instalada!"
   },
   "openExtensionToAutofill": {
     "message": "Abra a extensão para iniciar sessão e começar o preenchimento automático."
@@ -11644,6 +11719,14 @@
   "gettingStartedWithBitwardenPart2": {
     "message": "Centro de aprendizagem",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "openExtensionFromToolbarPart1": {
+    "message": "Se a extensão não tiver sido aberta, poderá ter de abrir o Bitwarden através do ícone ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
+  },
+  "openExtensionFromToolbarPart2": {
+    "message": " na barra de ferramentas.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "gettingStartedWithBitwardenPart3": {
     "message": "Centro de ajuda",
@@ -12035,7 +12118,7 @@
     "message": "Tem o plano gratuito do Bitwarden"
   },
   "upgradeCompleteSecurity": {
-    "message": "Atualize para segurança total"
+    "message": "Atualize para obter segurança total"
   },
   "viewbusinessplans": {
     "message": "Ver planos empresariais"
@@ -12045,9 +12128,6 @@
   },
   "updateYourEncryptionSettings": {
     "message": "Atualize as suas definições de encriptação"
-  },
-  "updateSettings": {
-    "message": "Atualizar definições"
   },
   "algorithm": {
     "message": "Algoritmo"
@@ -12075,5 +12155,57 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Comece o teste gratuito do plano Familiar"
+  },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Bloquear a criação de contas para domínios reclamados"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Impedir que os utilizadores criem contas fora da sua organização utilizando endereços de e-mail de domínios reclamados."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "Um domínio tem de ser reclamado antes de ativar esta política."
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Configure um método de desbloqueio para alterar a ação de tempo limite do seu cofre."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Os requisitos da política empresarial foram aplicados às suas opções de tempo limite"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "O tempo limite do seu cofre excede as restrições definidas pela sua organização."
+  },
+  "neverLockWarning": {
+    "message": "Tem a certeza de que deseja utilizar a opção \"Nunca\"? Ao definir as opções de bloqueio para \"Nunca\" armazena a chave de encriptação do seu cofre no seu dispositivo. Se utilizar esta opção deve assegurar-se de que mantém o seu dispositivo devidamente protegido."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Ação de tempo limite"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Tempo limite da sessão"
+  },
+  "appearance": {
+    "message": "Aspeto"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "O tempo limite excede a restrição definida pela sua organização: $HOURS$ hora(s) e $MINUTES$ minuto(s) no máximo",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "Não foram selecionadas aplicações críticas"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Tem a certeza de que deseja continuar?"
+  },
+  "userVerificationFailed": {
+    "message": "Falha na verificação do utilizador."
   }
 }

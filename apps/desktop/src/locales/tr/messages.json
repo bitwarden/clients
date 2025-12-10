@@ -1093,6 +1093,24 @@
   "learnMore": {
     "message": "Daha fazla bilgi al"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
   "featureUnavailable": {
     "message": "Özellik kullanılamıyor"
   },
@@ -1489,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "Dosya ekleri için 1 GB şifrelenmiş depolama."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "Dosya ekleri için $SIZE$ şifrelenmiş depolama.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "YubiKey ve Duo gibi marka bazlı iki aşamalı giriş seçenekleri."
@@ -2150,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Tarayıcı entegrasyonu etkinleştirilirken bir hata oluştu."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Ne yazık ki tarayıcı entegrasyonu şu anda sadece Mac App Store sürümünde destekleniyor."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Maalesef tarayıcı entegrasyonu şimdilik Windows Store sürümünde desteklenmiyor."
   },
@@ -2230,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "İletişim bilgileri"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Tüm Send'ler",
@@ -2994,7 +3022,8 @@
     "message": "\"Asla\" seçeneğini kullanmak istediğinizden emin misiniz? Kilit seçeneklerinizi \"Asla\" olarak ayarlarsanız kasanızın şifreleme anahtarı cihazınızda saklanacaktır. Bu seçeneği kullanırsanız cihazınızı çok iyi korumalısınız."
   },
   "vault": {
-    "message": "Kasa"
+    "message": "Kasa",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Ana parola ile giriş yap"
@@ -4220,5 +4249,11 @@
   },
   "upgradeToPremium": {
     "message": "Premium'a yükselt"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Zaman aşımı eylemi"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Oturum zaman aşımı"
   }
 }

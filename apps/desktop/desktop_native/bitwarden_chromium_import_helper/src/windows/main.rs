@@ -1,12 +1,14 @@
-use anyhow::{anyhow, Result};
-use clap::Parser;
-use scopeguard::defer;
 use std::{
     ffi::OsString,
     os::windows::{ffi::OsStringExt as _, io::AsRawHandle},
     path::PathBuf,
     time::Duration,
 };
+
+use anyhow::{anyhow, Result};
+use chromium_importer::chromium::{verify_signature, ADMIN_TO_USER_PIPE_NAME};
+use clap::Parser;
+use scopeguard::defer;
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::windows::named_pipe::{ClientOptions, NamedPipeClient},
@@ -24,8 +26,6 @@ use windows::Win32::{
     },
     UI::Shell::IsUserAnAdmin,
 };
-
-use chromium_importer::chromium::{verify_signature, ADMIN_TO_USER_PIPE_NAME};
 
 use super::{
     crypto::{

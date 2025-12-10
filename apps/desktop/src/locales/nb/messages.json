@@ -1093,6 +1093,24 @@
   "learnMore": {
     "message": "Lær mer"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
   "featureUnavailable": {
     "message": "Funksjonen er utilgjengelig"
   },
@@ -1489,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 GB med kryptert fillagring."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Proprietary two-step login options such as YubiKey and Duo."
@@ -2150,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "An error has occurred while enabling browser integration."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Nettleserintegrasjon støttes dessverre bare i Mac App Store-versjonen for øyeblikket."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Nettleserintegrasjon er for øyeblikket dessverre ikke støttet i Windows Store-versjonen."
   },
@@ -2230,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Kontaktinformasjon"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Alle Send-er",
@@ -2994,7 +3022,8 @@
     "message": "Er du sikker på at du vil bruke alternativet «Aldri»? Ved å angi låsemulighetene til «Aldri» lagres hvelvets krypteringsnøkkel på enheten. Hvis du bruker dette alternativet, bør du sørge for at du holder enheten forsvarlig beskyttet."
   },
   "vault": {
-    "message": "Hvelv"
+    "message": "Hvelv",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Logg inn med hovedpassord"
@@ -4220,5 +4249,11 @@
   },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

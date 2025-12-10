@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Архивираните елементи са изключени от общите резултати при търсене и от предложенията за автоматично попълване. Наистина ли искате да архивирате този елемент?"
   },
+  "upgradeToUseArchive": {
+    "message": "За да се възползвате от архивирането, трябва да ползвате платен абонамент."
+  },
   "edit": {
     "message": "Редактиране"
   },
@@ -593,6 +596,12 @@
   },
   "viewAll": {
     "message": "Показване на всички"
+  },
+  "showAll": {
+    "message": "Показване на всички"
+  },
+  "viewLess": {
+    "message": "Преглед на по-малко"
   },
   "viewLogin": {
     "message": "Преглед на елемента за вписване"
@@ -795,6 +804,12 @@
   },
   "onLocked": {
     "message": "При заключване на системата"
+  },
+  "onIdle": {
+    "message": "При бездействие на системата"
+  },
+  "onSleep": {
+    "message": "При заспиване на системата"
   },
   "onRestart": {
     "message": "При повторно пускане на браузъра"
@@ -1391,6 +1406,27 @@
   "learnMore": {
     "message": "Научете повече"
   },
+  "migrationsFailed": {
+    "message": "Възникна грешка при обновяването на настройките за шифроване."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Обновете настройките си за шифроване"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Новите препоръчани настройки за шифроване ще подобрят сигурността на акаунта Ви. Въведете главната си парола, за да ги обновите сега."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Потвърдете самоличността си, за да продължите"
+  },
+  "enterYourMasterPassword": {
+    "message": "Въведете главната си парола"
+  },
+  "updateSettings": {
+    "message": "Обновяване на настройките"
+  },
+  "later": {
+    "message": "По-късно"
+  },
   "authenticatorKeyTotp": {
     "message": "Удостоверителен ключ (TOTP)"
   },
@@ -1459,6 +1495,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1 GB пространство за файлове, които се шифрират."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ пространство за файлове, които се шифрират.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Авариен достъп"
@@ -1857,6 +1902,9 @@
   },
   "expirationYear": {
     "message": "Година на изтичане"
+  },
+  "monthly": {
+    "message": "месец"
   },
   "expiration": {
     "message": "Изтичане"
@@ -2426,6 +2474,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Тази страница пречи на работата на Битуорден. Вмъкнатото меню на Битуорден е временно изключено, като мярка за сигурност."
   },
   "setMasterPassword": {
     "message": "Задаване на главна парола"
@@ -4890,6 +4941,9 @@
   "premium": {
     "message": "Премиум"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Отключете докладите, аварийния достъп и още функционалности свързани със сигурността, с платения план."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Безплатните организации не могат да използват прикачени файлове"
   },
@@ -5800,6 +5854,21 @@
   "upgradeToPremium": {
     "message": "Надградете до Платения план"
   },
+  "unlockAdvancedSecurity": {
+    "message": "Отключване на разширените функционалности по сигурността"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "Платеният абонамент предоставя повече инструменти за защита и управление"
+  },
+  "explorePremium": {
+    "message": "Разгледайте платения план"
+  },
+  "loadingVault": {
+    "message": "Зареждане на трезора"
+  },
+  "vaultLoaded": {
+    "message": "Трезорът е зареден"
+  },
   "settingDisabledByPolicy": {
     "message": "Тази настройка е изключена съгласно политиката на организацията Ви.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
@@ -5809,5 +5878,8 @@
   },
   "cardNumberLabel": {
     "message": "Номер на картата"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Действие при изтичането на времето за достъп"
   }
 }

@@ -70,7 +70,7 @@
     }
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "Não tem permissão para editar este item"
   },
   "welcomeBack": {
     "message": "Bem-vindo de volta"
@@ -1093,6 +1093,24 @@
   "learnMore": {
     "message": "Saber mais"
   },
+  "migrationsFailed": {
+    "message": "Ocorreu um erro ao atualizar as definições de encriptação."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Atualize as suas definições de encriptação"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "As novas definições de encriptação recomendadas irão melhorar a segurança da sua conta. Introduza a sua palavra-passe mestra para atualizar agora."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirme a sua identidade para continuar"
+  },
+  "enterYourMasterPassword": {
+    "message": "Introduza a sua palavra-passe mestra"
+  },
+  "updateSettings": {
+    "message": "Atualizar definições"
+  },
   "featureUnavailable": {
     "message": "Funcionalidade indisponível"
   },
@@ -1489,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 GB de armazenamento encriptado para anexos de ficheiros."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ de armazenamento encriptado para anexos de ficheiros.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Opções proprietárias de verificação de dois passos, como YubiKey e Duo."
@@ -2150,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Ocorreu um erro ao ativar a integração do navegador."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Infelizmente, a integração do navegador só é suportada na versão da Mac App Store por enquanto."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Infelizmente, a integração do navegador não é atualmente suportada na versão da Microsoft Store."
   },
@@ -2230,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Informações de contacto"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Todos os Sends",
@@ -2994,7 +3022,8 @@
     "message": "Tem a certeza de que deseja utilizar a opção \"Nunca\"? Ao definir as opções de bloqueio para \"Nunca\" armazena a chave de encriptação do seu cofre no seu dispositivo. Se utilizar esta opção deve assegurar-se de que mantém o seu dispositivo devidamente protegido."
   },
   "vault": {
-    "message": "Cofre"
+    "message": "Cofre",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Iniciar sessão com a palavra-passe mestra"
@@ -3051,7 +3080,7 @@
     "message": "Será notificado quando o pedido for aprovado"
   },
   "needAnotherOption": {
-    "message": "O início de sessão com o dispositivo deve ser ativado nas definições da aplicação Bitwarden. Precisa de outra opção?"
+    "message": "O início de sessão com o dispositivo deve ser ativado nas definições da app Bitwarden. Precisa de outra opção?"
   },
   "viewAllLogInOptions": {
     "message": "Ver todas as opções de início de sessão"
@@ -4220,5 +4249,11 @@
   },
   "upgradeToPremium": {
     "message": "Atualizar para o Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Ação de tempo limite"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Tempo limite da sessão"
   }
 }

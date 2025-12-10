@@ -1093,6 +1093,24 @@
   "learnMore": {
     "message": "Подробнее"
   },
+  "migrationsFailed": {
+    "message": "Произошла ошибка при обновлении настроек шифрования."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Обновите настройки шифрования"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Новые рекомендуемые настройки шифрования повысят безопасность вашего аккаунта. Введите мастер-пароль, чтобы обновить сейчас."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Подтвердите вашу личность, чтобы продолжить"
+  },
+  "enterYourMasterPassword": {
+    "message": "Введите ваш мастер-пароль"
+  },
+  "updateSettings": {
+    "message": "Обновить настройки"
+  },
   "featureUnavailable": {
     "message": "Функция недоступна"
   },
@@ -1489,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 ГБ зашифрованного хранилища для вложенных файлов."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "Зашифрованного хранилища для вложенных файлов: $SIZE$",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Проприетарные варианты двухэтапной аутентификации, такие как YubiKey или Duo."
@@ -2150,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Произошла ошибка при включении интеграции с браузером."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "К сожалению, интеграция браузера пока поддерживается только в версии Mac App Store."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "К сожалению, интеграция браузера в версии для Microsoft Store в настоящее время не поддерживается."
   },
@@ -2230,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Контактная информация"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Все Send’ы",
@@ -2994,7 +3022,8 @@
     "message": "Вы действительно хотите отключить блокировку хранилища? В этом случае ключ шифрования вашего хранилища будет сохранен на вашем устройстве. Отключая блокировку, вы должны убедиться, что ваше устройство надежно защищено."
   },
   "vault": {
-    "message": "Хранилище"
+    "message": "Хранилище",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Войти с мастер-паролем"
@@ -4220,5 +4249,11 @@
   },
   "upgradeToPremium": {
     "message": "Обновить до Премиум"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Тайм-аут действия"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Тайм-аут сеанса"
   }
 }
