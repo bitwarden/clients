@@ -38,12 +38,7 @@
                   {{ i.amount | currency: "$" }}
                 </td>
                 <td bitCell class="tw-text-right">
-                  <ng-container
-                    *ngIf="
-                      sub?.customerDiscount?.appliesTo?.includes(i.productId);
-                      else calculateElse
-                    "
-                  >
+                  <ng-container *ngIf="isSecretsManagerTrial(); else calculateElse">
                     {{ "freeForOneYear" | i18n }}
                   </ng-container>
                   <ng-template #calculateElse>
@@ -52,7 +47,7 @@
                         {{ i.quantity * i.amount | currency: "$" }} /{{ i.interval | i18n }}
                       </span>
                       <span
-                        *ngIf="customerDiscount?.percentOff && !isSecretsManagerTrial()"
+                        *ngIf="customerDiscount?.percentOff"
                         class="tw-line-through !tw-text-muted"
                         >{{
                           calculateTotalAppliedDiscount(i.quantity * i.amount) | currency: "$"
