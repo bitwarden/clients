@@ -273,15 +273,13 @@ export class OrganizationIntegrationService {
     configurationResponse: OrganizationIntegrationConfigurationResponse,
   ): OrganizationIntegration | null {
     const integrationType = integrationResponse.type as OrganizationIntegrationType;
-    // const config = this.convertToJson<TConfig>(integrationResponse.configuration);
-    // const template = this.convertToJson<TTemplate>(configurationResponse.template);
     const config = OrgIntegrationBuilder.buildConfiguration(
       integrationType,
       integrationResponse.configuration,
     );
     const template = OrgIntegrationBuilder.buildTemplate(
       integrationType,
-      configurationResponse.template,
+      configurationResponse.template ?? "{}",
     );
 
     if (!config || !template) {
