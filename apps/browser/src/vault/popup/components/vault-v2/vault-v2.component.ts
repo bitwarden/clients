@@ -12,6 +12,7 @@ import {
   from,
   map,
   Observable,
+  of,
   shareReplay,
   switchMap,
   take,
@@ -42,7 +43,11 @@ import {
   NoItemsModule,
   TypographyModule,
 } from "@bitwarden/components";
-import { DecryptionFailureDialogComponent } from "@bitwarden/vault";
+import {
+  DecryptionFailureDialogComponent,
+  VaultItemsTransferService,
+  DefaultVaultItemsTransferService,
+} from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
 import { BrowserApi } from "../../../../platform/browser/browser-api";
@@ -105,6 +110,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
     VaultFadeInOutSkeletonComponent,
     VaultFadeInOutComponent,
   ],
+  providers: [{ provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService }],
 })
 export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -200,14 +206,18 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   protected showSkeletonsLoaders$ = combineLatest([
     this.loading$,
     this.searchService.isCipherSearching$,
+    this.vaultItemsTransferService.transferInProgress$,
     this.skeletonFeatureFlag$,
   ]).pipe(
-    map(
-      ([loading, cipherSearching, skeletonsEnabled]) =>
-        (loading || cipherSearching) && skeletonsEnabled,
-    ),
+    switchMap(([loading, cipherSearching, transferInProgress, skeletonsEnabled]) => {
+      const shouldShow = (loading || cipherSearching || transferInProgress) && skeletonsEnabled;
+
+      // Skip delay when transfer is in progress (show immediately)
+      const delay = transferInProgress ? 0 : 1000;
+
+      return of(shouldShow).pipe(skeletonLoadingDelay(delay));
+    }),
     distinctUntilChanged(),
-    skeletonLoadingDelay(),
   );
 
   protected newItemItemValues$: Observable<NewItemInitialValues> =
@@ -251,6 +261,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private i18nService: I18nService,
     private configService: ConfigService,
     private searchService: SearchService,
+    private vaultItemsTransferService: VaultItemsTransferService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
@@ -305,6 +316,8 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
           cipherIds: ciphers.map((c) => c.id as CipherId),
         });
       });
+
+    void this.vaultItemsTransferService.enforceOrganizationDataOwnership(this.activeUserId);
   }
 
   ngOnDestroy() {
