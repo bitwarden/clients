@@ -6,6 +6,7 @@ import { ObservedValueOf, of } from "rxjs";
 import { LogoutReason } from "@bitwarden/auth/common";
 import { UserId } from "@bitwarden/user-core";
 
+import { mockAccountInfoWith } from "../../spec";
 import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
 import { DeviceType } from "../enums";
@@ -19,7 +20,6 @@ import { AppIdService } from "../platform/abstractions/app-id.service";
 import { Environment, EnvironmentService } from "../platform/abstractions/environment.service";
 import { LogService } from "../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
-import { mockAccountInfoWith } from "../spec";
 
 import { InsecureUrlNotAllowedError } from "./api-errors";
 import { ApiService, HttpOperations } from "./api.service";
