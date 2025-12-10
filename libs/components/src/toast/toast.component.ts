@@ -25,6 +25,8 @@ const variants: Record<ToastVariant, { icon: string; bgColor: string }> = {
   },
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-toast",
   templateUrl: "toast.component.html",
@@ -49,6 +51,8 @@ export class ToastComponent {
   readonly progressWidth = input(0);
 
   /** Emits when the user presses the close button */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onClose = new EventEmitter<void>();
 
   protected get iconClass(): string {

@@ -10,12 +10,12 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { LockCommand } from "./auth/commands/lock.command";
 import { LoginCommand } from "./auth/commands/login.command";
 import { LogoutCommand } from "./auth/commands/logout.command";
-import { UnlockCommand } from "./auth/commands/unlock.command";
 import { BaseProgram } from "./base-program";
 import { CompletionCommand } from "./commands/completion.command";
 import { EncodeCommand } from "./commands/encode.command";
 import { StatusCommand } from "./commands/status.command";
 import { UpdateCommand } from "./commands/update.command";
+import { UnlockCommand } from "./key-management/commands/unlock.command";
 import { Response } from "./models/response";
 import { MessageResponse } from "./models/response/message.response";
 import { ConfigCommand } from "./platform/commands/config.command";
@@ -175,7 +175,7 @@ export class Program extends BaseProgram {
           const command = new LoginCommand(
             this.serviceContainer.loginStrategyService,
             this.serviceContainer.authService,
-            this.serviceContainer.apiService,
+            this.serviceContainer.twoFactorApiService,
             this.serviceContainer.masterPasswordApiService,
             this.serviceContainer.cryptoFunctionService,
             this.serviceContainer.environmentService,
@@ -195,6 +195,7 @@ export class Program extends BaseProgram {
             this.serviceContainer.ssoUrlService,
             this.serviceContainer.i18nService,
             this.serviceContainer.masterPasswordService,
+            this.serviceContainer.encryptedMigrator,
           );
           const response = await command.run(email, password, options);
           this.processResponse(response, true);
@@ -250,7 +251,10 @@ export class Program extends BaseProgram {
           return;
         }
 
-        const command = new LockCommand(this.serviceContainer.vaultTimeoutService);
+        const command = new LockCommand(
+          this.serviceContainer.lockService,
+          this.serviceContainer.accountService,
+        );
         const response = await command.run();
         this.processResponse(response);
       });
@@ -274,6 +278,11 @@ export class Program extends BaseProgram {
       })
       .option("--check", "Check lock status.", async () => {
         await this.exitIfNotAuthed();
+        const userId = (await firstValueFrom(this.serviceContainer.accountService.activeAccount$))
+          ?.id;
+        await this.serviceContainer.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(
+          userId,
+        );
 
         const authStatus = await this.serviceContainer.authService.getAuthStatus();
         if (authStatus === AuthenticationStatus.Unlocked) {
@@ -303,6 +312,9 @@ export class Program extends BaseProgram {
             this.serviceContainer.organizationApiService,
             async () => await this.serviceContainer.logout(),
             this.serviceContainer.i18nService,
+            this.serviceContainer.encryptedMigrator,
+            this.serviceContainer.masterPasswordUnlockService,
+            this.serviceContainer.configService,
           );
           const response = await command.run(password, cmd);
           this.processResponse(response);

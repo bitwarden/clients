@@ -60,6 +60,8 @@ const BANK_ACCOUNT_VERIFIED_COMMAND = new CommandDefinition<{ organizationId: st
   "organizationBankAccountVerified",
 );
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./organization-payment-details.component.html",
   standalone: true,

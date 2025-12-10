@@ -20,7 +20,13 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import {
+  BaseCardComponent,
+  CardContentComponent,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import {
@@ -32,22 +38,38 @@ import {
   openHecConnectDialog,
 } from "../integration-dialog/index";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-integration-card",
   templateUrl: "./integration-card.component.html",
-  imports: [SharedModule],
+  imports: [SharedModule, BaseCardComponent, CardContentComponent],
 })
 export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
   private destroyed$: Subject<void> = new Subject();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("imageEle") imageEle!: ElementRef<HTMLImageElement>;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() name: string = "";
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() image: string = "";
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() imageDarkMode: string = "";
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() linkURL: string = "";
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() integrationSettings!: Integration;
 
   /** Adds relevant `rel` attribute to external links */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() externalURL?: boolean;
 
   /**
@@ -56,8 +78,14 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
    *
    * @example "2024-12-31"
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() newBadgeExpiration?: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() description?: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() canSetupConnection?: boolean;
 
   organizationId: OrganizationId;

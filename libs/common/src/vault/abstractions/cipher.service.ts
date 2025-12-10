@@ -68,6 +68,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     /** When true, will override the match strategy for the cipher if it is Never. */
     overrideNeverMatchStrategy?: true,
   ): Promise<CipherView[]>;
+  abstract getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]>;
   abstract filterCiphersForUrl<C extends CipherViewLike = CipherView>(
     ciphers: C[],
     url: string,
@@ -76,7 +77,10 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     /** When true, will override the match strategy for the cipher if it is Never. */
     overrideNeverMatchStrategy?: true,
   ): Promise<C[]>;
-  abstract getAllFromApiForOrganization(organizationId: string): Promise<CipherView[]>;
+  abstract getAllFromApiForOrganization(
+    organizationId: string,
+    includeMemberItems?: boolean,
+  ): Promise<CipherView[]>;
   /**
    * Gets ciphers belonging to the specified organization that the user has explicit collection level access to.
    * Ciphers that are not assigned to any collections are only included for users with admin access.
@@ -157,6 +161,17 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     userId: UserId,
     admin?: boolean,
   ): Promise<Cipher>;
+  /**
+   * Upgrade all old attachments for a cipher by downloading, decrypting, re-uploading with new key, and deleting old.
+   * @param cipher - The cipher with old attachments to upgrade
+   * @param userId - The user ID
+   * @param attachmentId - If provided, only upgrade the attachment with this ID
+   */
+  abstract upgradeOldCipherAttachments(
+    cipher: CipherView,
+    userId: UserId,
+    attachmentId?: string,
+  ): Promise<CipherView>;
   /**
    * Save the collections for a cipher with the server
    *
@@ -270,7 +285,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     response: Response,
     userId: UserId,
     useLegacyDecryption?: boolean,
-  ): Promise<Uint8Array | null>;
+  ): Promise<Uint8Array>;
 
   /**
    * Decrypts the full `CipherView` for a given `CipherViewLike`.

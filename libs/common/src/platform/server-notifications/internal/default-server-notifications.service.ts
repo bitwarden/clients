@@ -15,6 +15,8 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { trackedMerge } from "@bitwarden/common/platform/misc";
@@ -22,8 +24,9 @@ import { trackedMerge } from "@bitwarden/common/platform/misc";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import { NotificationType } from "../../../enums";
+import { NotificationType, PushNotificationLogOutReasonType } from "../../../enums";
 import {
+  LogOutNotification,
   NotificationResponse,
   SyncCipherNotification,
   SyncFolderNotification,
@@ -66,6 +69,7 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     private readonly webPushConnectionService: WebPushConnectionService,
     private readonly authRequestAnsweringService: AuthRequestAnsweringServiceAbstraction,
     private readonly configService: ConfigService,
+    private readonly policyService: InternalPolicyService,
   ) {
     this.notifications$ = this.configService
       .getFeatureFlag$(FeatureFlag.InactiveUserServerNotification)
@@ -263,10 +267,25 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         this.activitySubject.next("inactive"); // Force a disconnect
         this.activitySubject.next("active"); // Allow a reconnect
         break;
-      case NotificationType.LogOut:
+      case NotificationType.LogOut: {
         this.logService.info("[Notifications Service] Received logout notification");
-        await this.logoutCallback("logoutNotification", userId);
+
+        const logOutNotification = notification.payload as LogOutNotification;
+        const noLogoutOnKdfChange = await firstValueFrom(
+          this.configService.getFeatureFlag$(FeatureFlag.NoLogoutOnKdfChange),
+        );
+        if (
+          noLogoutOnKdfChange &&
+          logOutNotification.reason === PushNotificationLogOutReasonType.KdfChange
+        ) {
+          this.logService.info(
+            "[Notifications Service] Skipping logout due to no logout KDF change",
+          );
+        } else {
+          await this.logoutCallback("logoutNotification", userId);
+        }
         break;
+      }
       case NotificationType.SyncSendCreate:
       case NotificationType.SyncSendUpdate:
         await this.syncService.syncUpsertSend(
@@ -313,6 +332,9 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
           providerId: notification.payload.providerId,
           adminId: notification.payload.adminId,
         });
+        break;
+      case NotificationType.SyncPolicy:
+        await this.policyService.syncPolicy(PolicyData.fromPolicy(notification.payload.policy));
         break;
       default:
         break;

@@ -6,12 +6,6 @@
   </popup-header>
 
   <bit-item-group>
-    <bit-item *ngIf="!(canAccessPremium$ | async)">
-      <a type="button" bit-item-content routerLink="/premium">
-        {{ "premiumMembership" | i18n }}
-        <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-      </a>
-    </bit-item>
     <bit-item
       *ngIf="
         (familySponsorshipAvailable$ | async) &&

@@ -20,12 +20,16 @@ import {
   getBillingAddressFromForm,
 } from "@bitwarden/web-vault/app/billing/payment/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "provider-setup",
   templateUrl: "setup.component.html",
   standalone: false,
 })
 export class SetupComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(EnterPaymentMethodComponent) enterPaymentMethodComponent!: EnterPaymentMethodComponent;
 
   loading = true;

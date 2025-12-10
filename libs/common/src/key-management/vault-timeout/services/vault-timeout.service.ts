@@ -1,32 +1,18 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { combineLatest, concatMap, filter, firstValueFrom, map, timeout } from "rxjs";
+import { combineLatest, concatMap, firstValueFrom } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionService } from "@bitwarden/admin-console/common";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "@bitwarden/auth/common";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { BiometricsService } from "@bitwarden/key-management";
+import { LockService, LogoutService } from "@bitwarden/auth/common";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
-import { TokenService } from "../../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { LogService } from "../../../platform/abstractions/log.service";
-import { MessagingService } from "../../../platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
-import { StateService } from "../../../platform/abstractions/state.service";
 import { TaskSchedulerService, ScheduledTaskNames } from "../../../platform/scheduling";
-import { StateEventRunnerService } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
-import { CipherService } from "../../../vault/abstractions/cipher.service";
-import { FolderService } from "../../../vault/abstractions/folder/folder.service.abstraction";
-import { SearchService } from "../../../vault/abstractions/search.service";
-import { InternalMasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
 import { VaultTimeoutSettingsService } from "../abstractions/vault-timeout-settings.service";
 import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "../abstractions/vault-timeout.service";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
@@ -36,26 +22,13 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
 
   constructor(
     private accountService: AccountService,
-    private masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    private cipherService: CipherService,
-    private folderService: FolderService,
-    private collectionService: CollectionService,
     protected platformUtilsService: PlatformUtilsService,
-    private messagingService: MessagingService,
-    private searchService: SearchService,
-    private stateService: StateService,
-    private tokenService: TokenService,
     private authService: AuthService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-    private stateEventRunnerService: StateEventRunnerService,
     private taskSchedulerService: TaskSchedulerService,
     protected logService: LogService,
-    private biometricService: BiometricsService,
-    private lockedCallback: (userId: UserId) => Promise<void> = null,
-    private loggedOutCallback: (
-      logoutReason: LogoutReason,
-      userId?: string,
-    ) => Promise<void> = null,
+    private lockService: LockService,
+    private logoutService: LogoutService,
   ) {
     this.taskSchedulerService.registerTaskHandler(
       ScheduledTaskNames.vaultTimeoutCheckInterval,
@@ -107,71 +80,6 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     );
   }
 
-  async lock(userId?: UserId): Promise<void> {
-    await this.biometricService.setShouldAutopromptNow(false);
-
-    const lockingUserId =
-      userId ?? (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id))));
-
-    const authed = await firstValueFrom(this.tokenService.hasAccessToken$(lockingUserId));
-    if (!authed) {
-      return;
-    }
-
-    const availableActions = await firstValueFrom(
-      this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(userId),
-    );
-    const supportsLock = availableActions.includes(VaultTimeoutAction.Lock);
-    if (!supportsLock) {
-      await this.logOut(userId);
-    }
-
-    // HACK: Start listening for the transition of the locking user from something to the locked state.
-    // This is very much a hack to ensure that the authentication status to retrievable right after
-    // it does its work. Particularly the `lockedCallback` and `"locked"` message. Instead
-    // lockedCallback should be deprecated and people should subscribe and react to `authStatusFor$` themselves.
-    const lockPromise = firstValueFrom(
-      this.authService.authStatusFor$(lockingUserId).pipe(
-        filter((authStatus) => authStatus === AuthenticationStatus.Locked),
-        timeout({
-          first: 5_000,
-          with: () => {
-            throw new Error("The lock process did not complete in a reasonable amount of time.");
-          },
-        }),
-      ),
-    );
-
-    await this.searchService.clearIndex(lockingUserId);
-
-    // ! DO NOT REMOVE folderService.clearDecryptedFolderState ! For more information see PM-25660
-    await this.folderService.clearDecryptedFolderState(lockingUserId);
-    await this.masterPasswordService.clearMasterKey(lockingUserId);
-
-    await this.stateService.setUserKeyAutoUnlock(null, { userId: lockingUserId });
-
-    await this.cipherService.clearCache(lockingUserId);
-
-    await this.stateEventRunnerService.handleEvent("lock", lockingUserId);
-
-    // HACK: Sit here and wait for the the auth status to transition to `Locked`
-    // to ensure the message and lockedCallback will get the correct status
-    // if/when they call it.
-    await lockPromise;
-
-    this.messagingService.send("locked", { userId: lockingUserId });
-
-    if (this.lockedCallback != null) {
-      await this.lockedCallback(lockingUserId);
-    }
-  }
-
-  async logOut(userId?: string): Promise<void> {
-    if (this.loggedOutCallback != null) {
-      await this.loggedOutCallback("vaultTimeout", userId);
-    }
-  }
-
   private async shouldLock(
     userId: string,
     lastActive: Date,
@@ -215,7 +123,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
       this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(userId),
     );
     timeoutAction === VaultTimeoutAction.LogOut
-      ? await this.logOut(userId)
-      : await this.lock(userId);
+      ? await this.logoutService.logout(userId, "vaultTimeout")
+      : await this.lockService.lock(userId);
   }
 }

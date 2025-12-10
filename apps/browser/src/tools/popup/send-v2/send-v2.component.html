@@ -1,4 +1,4 @@
-<popup-page [loading]="sendsLoading$ | async">
+<popup-page [loading]="showSpinnerLoaders$ | async" [hideOverflow]="showSkeletonsLoaders$ | async">
   <popup-header slot="header" [pageTitle]="'send' | i18n">
     <ng-container slot="end">
       <tools-new-send-dropdown *ngIf="!sendsDisabled"></tools-new-send-dropdown>
@@ -6,7 +6,7 @@
       <app-current-account></app-current-account>
     </ng-container>
   </popup-header>
-  <ng-container slot="above-scroll-area" *ngIf="!(sendsLoading$ | async)">
+  <ng-container slot="above-scroll-area">
     <bit-callout *ngIf="sendsDisabled" [title]="'sendDisabled' | i18n">
       {{ "sendDisabledWarning" | i18n }}
     </bit-callout>
@@ -34,7 +34,7 @@
     </bit-no-items>
   </div>
 
-  <ng-container *ngIf="listState !== sendState.Empty">
+  <ng-container *ngIf="listState !== sendState.Empty && !(showSkeletonsLoaders$ | async)">
     <div
       *ngIf="listState === sendState.NoResults"
       class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12"
@@ -46,4 +46,9 @@
     </div>
     <app-send-list-items-container [headerText]="title | i18n" [sends]="sends$ | async" />
   </ng-container>
+  @if (showSkeletonsLoaders$ | async) {
+    <vault-fade-in-out-skeleton>
+      <vault-loading-skeleton></vault-loading-skeleton>
+    </vault-fade-in-out-skeleton>
+  }
 </popup-page>

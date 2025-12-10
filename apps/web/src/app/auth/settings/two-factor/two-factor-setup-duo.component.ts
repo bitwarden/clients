@@ -2,11 +2,11 @@ import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Inject, OnInit, Output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { UpdateTwoFactorDuoRequest } from "@bitwarden/common/auth/models/request/update-two-factor-duo.request";
 import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -30,6 +30,8 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { TwoFactorSetupMethodBaseComponent } from "./two-factor-setup-method-base.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-setup-duo",
   templateUrl: "two-factor-setup-duo.component.html",
@@ -51,6 +53,8 @@ export class TwoFactorSetupDuoComponent
   extends TwoFactorSetupMethodBaseComponent
   implements OnInit
 {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onChangeStatus: EventEmitter<boolean> = new EventEmitter();
 
   type = TwoFactorProviderType.Duo;
@@ -63,7 +67,7 @@ export class TwoFactorSetupDuoComponent
 
   constructor(
     @Inject(DIALOG_DATA) protected data: TwoFactorDuoComponentConfig,
-    apiService: ApiService,
+    twoFactorService: TwoFactorService,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
     logService: LogService,
@@ -74,7 +78,7 @@ export class TwoFactorSetupDuoComponent
     protected toastService: ToastService,
   ) {
     super(
-      apiService,
+      twoFactorService,
       i18nService,
       platformUtilsService,
       logService,
@@ -139,9 +143,12 @@ export class TwoFactorSetupDuoComponent
     let response: TwoFactorDuoResponse;
 
     if (this.organizationId != null) {
-      response = await this.apiService.putTwoFactorOrganizationDuo(this.organizationId, request);
+      response = await this.twoFactorService.putTwoFactorOrganizationDuo(
+        this.organizationId,
+        request,
+      );
     } else {
-      response = await this.apiService.putTwoFactorDuo(request);
+      response = await this.twoFactorService.putTwoFactorDuo(request);
     }
 
     this.processResponse(response);

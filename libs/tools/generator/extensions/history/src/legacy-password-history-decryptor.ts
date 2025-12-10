@@ -1,3 +1,5 @@
+import { firstValueFrom } from "rxjs";
+
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -15,7 +17,11 @@ export class LegacyPasswordHistoryDecryptor {
 
   /** Decrypts a password history. */
   async decrypt(history: GeneratedPasswordHistory[]): Promise<GeneratedPasswordHistory[]> {
-    const key = await this.keyService.getUserKey(this.userId);
+    const key = await firstValueFrom(this.keyService.userKey$(this.userId));
+
+    if (key == undefined) {
+      throw new Error("No user key found for decryption");
+    }
 
     const promises = (history ?? []).map(async (item) => {
       const encrypted = new EncString(item.password);

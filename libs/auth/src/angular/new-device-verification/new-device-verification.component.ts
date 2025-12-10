@@ -30,6 +30,8 @@ import { NewDeviceVerificationComponentService } from "./new-device-verification
 /**
  * Component for verifying a new device via a one-time password (OTP).
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-new-device-verification",
   templateUrl: "./new-device-verification.component.html",
@@ -150,9 +152,7 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
         return;
       }
 
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.loginSuccessHandlerService.run(authResult.userId);
+      await this.loginSuccessHandlerService.run(authResult.userId, authResult.masterPassword);
 
       // TODO: PM-22663 use the new service to handle routing.
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));

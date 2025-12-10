@@ -35,7 +35,7 @@ import { TableComponent } from "./table.component";
 @Directive({
   selector: "[bitRowDef]",
 })
-export class BitRowDef {
+export class BitRowDefDirective {
   constructor(public template: TemplateRef<any>) {}
 }
 
@@ -44,6 +44,8 @@ export class BitRowDef {
  *
  * Utilizes virtual scrolling to render large datasets.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-table-scroll",
   templateUrl: "./table-scroll.component.html",
@@ -67,7 +69,7 @@ export class TableScrollComponent
   /** Optional trackBy function. */
   readonly trackBy = input<TrackByFunction<any> | undefined>();
 
-  protected readonly rowDef = contentChild(BitRowDef);
+  protected readonly rowDef = contentChild(BitRowDefDirective);
 
   /**
    * Height of the thead element (in pixels).

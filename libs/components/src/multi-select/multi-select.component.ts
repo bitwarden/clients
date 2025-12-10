@@ -34,6 +34,8 @@ import { SelectItemView } from "./models/select-item-view";
 // Increments for each instance of this component
 let nextId = 0;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-multi-select",
   templateUrl: "./multi-select.component.html",
@@ -64,6 +66,8 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   readonly loading = input(false);
   // TODO: Skipped for signal migration because:
   //  Your application code writes to the input. This prevents migration.
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ transform: booleanAttribute }) disabled?: boolean;
 
   // Internal tracking of selected items
@@ -79,6 +83,8 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   /**Implemented as part of NG_VALUE_ACCESSOR */
   private notifyOnTouched?: () => void;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onItemsConfirmed = new EventEmitter<any[]>();
 
   constructor(
@@ -102,11 +108,11 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   /** Needs to be arrow function to retain `this` scope. */
   keyDown = (event: KeyboardEvent) => {
     const select = this.select();
-    if (!select.isOpen && event.key === "Enter" && !hasModifierKey(event)) {
+    if (!select.isOpen() && event.key === "Enter" && !hasModifierKey(event)) {
       return false;
     }
 
-    if (select.isOpen && event.key === "Escape" && !hasModifierKey(event)) {
+    if (select.isOpen() && event.key === "Escape" && !hasModifierKey(event)) {
       this.selectedItems = [];
       select.close();
       event.stopPropagation();
@@ -192,7 +198,9 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   }
   set ariaDescribedBy(value: string | undefined) {
     this._ariaDescribedBy = value;
-    this.select()?.searchInput.nativeElement.setAttribute("aria-describedby", value ?? "");
+    this.select()
+      ?.searchInput()
+      .nativeElement.setAttribute("aria-describedby", value ?? "");
   }
   private _ariaDescribedBy?: string;
 
@@ -208,6 +216,8 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   // TODO: Skipped for signal migration because:
   //  Accessor inputs cannot be migrated as they are too complex.
   @HostBinding("attr.required")
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get required() {
     return this._required ?? this.ngControl?.control?.hasValidator(Validators.required) ?? false;

@@ -61,24 +61,28 @@ export default tseslint.config(
       "rxjs/no-exposed-subjects": ["error", { allowProtected: true }],
 
       // TODO: Enable these.
-      "@angular-eslint/component-class-suffix": 0,
-      "@angular-eslint/contextual-lifecycle": 0,
-      "@angular-eslint/directive-class-suffix": 0,
+      "@angular-eslint/component-class-suffix": "error",
+      "@angular-eslint/contextual-lifecycle": "error",
+      "@angular-eslint/directive-class-suffix": "error",
       "@angular-eslint/no-empty-lifecycle-method": 0,
-      "@angular-eslint/no-host-metadata-property": 0,
       "@angular-eslint/no-input-rename": 0,
-      "@angular-eslint/no-inputs-metadata-property": 0,
+      "@angular-eslint/no-inputs-metadata-property": "error",
       "@angular-eslint/no-output-native": 0,
       "@angular-eslint/no-output-on-prefix": 0,
-      "@angular-eslint/no-output-rename": 0,
-      "@angular-eslint/no-outputs-metadata-property": 0,
+      "@angular-eslint/no-output-rename": "error",
+      "@angular-eslint/no-outputs-metadata-property": "error",
+      "@angular-eslint/prefer-inject": 0,
+      "@angular-eslint/prefer-on-push-component-change-detection": "error",
+      "@angular-eslint/prefer-output-emitter-ref": "error",
+      "@angular-eslint/prefer-signals": "error",
       "@angular-eslint/prefer-standalone": 0,
       "@angular-eslint/use-lifecycle-interface": "error",
       "@angular-eslint/use-pipe-transform-interface": 0,
 
       "@bitwarden/platform/required-using": "error",
       "@bitwarden/platform/no-enums": "error",
-      "@bitwarden/components/require-theme-colors-in-svg": "warn",
+      "@bitwarden/platform/no-page-script-url-leakage": "error",
+      "@bitwarden/components/require-theme-colors-in-svg": "error",
 
       "@typescript-eslint/explicit-member-accessibility": ["error", { accessibility: "no-public" }],
       "@typescript-eslint/no-explicit-any": "off", // TODO: This should be re-enabled
@@ -157,6 +161,11 @@ export default tseslint.config(
               // allow module index import
               except: ["**/state/index.ts"],
             },
+            {
+              target: ["libs/**/*"],
+              from: ["apps/**/*"],
+              message: "Libs should not import app-specific code.",
+            },
           ],
         },
       ],
@@ -188,7 +197,7 @@ export default tseslint.config(
         {
           // uses negative lookahead to whitelist any class that doesn't start with "tw-"
           // in other words: classnames that start with tw- must be valid TailwindCSS classes
-          whitelist: ["(?!(tw)\\-).*"],
+          whitelist: ["(?!(tw)\\-).*", "tw-app-region-drag", "tw-app-region-no-drag"],
         },
       ],
       "tailwindcss/enforces-negative-arbitrary-values": "error",
@@ -322,7 +331,12 @@ export default tseslint.config(
   },
   // Tailwind migrated clients & libs
   {
-    files: ["apps/web/**/*.html", "bitwarden_license/bit-web/**/*.html", "libs/**/*.html"],
+    files: [
+      "apps/web/**/*.html",
+      "apps/browser/**/*.html",
+      "bitwarden_license/bit-web/**/*.html",
+      "libs/**/*.html",
+    ],
     rules: {
       "tailwindcss/no-custom-classname": [
         "error",
@@ -335,6 +349,7 @@ export default tseslint.config(
             "file-selector",
             "mfaType.*",
             "filter.*", // Temporary until filters are migrated
+            "tw-app-region*", // Custom utility for native passkey modals
             "tw-@container",
           ],
         },
@@ -680,6 +695,12 @@ function buildNoRestrictedImports(additionalForbiddenPatterns = [], skipPlatform
   return [
     "error",
     {
+      paths: [
+        {
+          name: "@bitwarden/commercial-sdk-internal",
+          message: "Use @bitwarden/sdk-internal instead.",
+        },
+      ],
       patterns: [
         ...(skipPlatform ? [] : ["**/platform/**/internal", "**/platform/messaging/**"]),
         "**/src/**/*", // Prevent relative imports across libs.

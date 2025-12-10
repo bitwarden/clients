@@ -16,6 +16,8 @@ import { TabListItemDirective } from "../shared/tab-list-item.directive";
 
 import { TabNavBarComponent } from "./tab-nav-bar.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-tab-link",
   templateUrl: "tab-link.component.html",
@@ -38,6 +40,8 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit {
   // TODO: Skipped for signal migration because:
   //  This input overrides a field from a superclass, while the superclass field
   //  is not migrated.
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() disabled = false;
 
   @HostListener("keydown", ["$event"]) onKeyDown(event: KeyboardEvent) {

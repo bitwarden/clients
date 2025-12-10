@@ -1,4 +1,4 @@
-import { Directive, EventEmitter, Output, input } from "@angular/core";
+import { Directive, EventEmitter, Output, input, model } from "@angular/core";
 import { RouterLink, RouterLinkActive } from "@angular/router";
 
 /**
@@ -20,6 +20,16 @@ export abstract class NavBaseComponent {
    * Optional icon, e.g. `"bwi-collection-shared"`
    */
   readonly icon = input<string>();
+
+  /**
+   * If this item is used within a tree, set `variant` to `"tree"`
+   */
+  readonly variant = input<"default" | "tree">("default");
+
+  /**
+   * Depth level when nested inside of a `'tree'` variant
+   */
+  readonly treeDepth = model(0);
 
   /**
    * Optional route to be passed to internal `routerLink`. If not provided, the nav component will render as a button.
@@ -61,5 +71,7 @@ export abstract class NavBaseComponent {
   /**
    * Fires when main content is clicked
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() mainContentClicked: EventEmitter<MouseEvent> = new EventEmitter();
 }

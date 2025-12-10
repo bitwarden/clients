@@ -94,7 +94,7 @@ const optionsLabelStyles = ({ theme }: { theme: Theme }) => css`
   user-select: none;
   padding: 0.375rem ${spacing["3"]};
   color: ${themes[theme].text.muted};
-  font-weight: 600;
+  font-weight: 500;
 `;
 
 export const optionsMenuItemMaxWidth = 260;

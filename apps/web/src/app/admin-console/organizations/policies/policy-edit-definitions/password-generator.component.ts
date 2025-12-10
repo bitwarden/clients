@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { UntypedFormBuilder, Validators } from "@angular/forms";
 import { BehaviorSubject, map } from "rxjs";
@@ -20,8 +20,10 @@ export class PasswordGeneratorPolicy extends BasePolicyEditDefinition {
 }
 
 @Component({
+  selector: "password-generator-policy-edit",
   templateUrl: "password-generator.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PasswordGeneratorPolicyComponent extends BasePolicyEditComponent {
   // these properties forward the application default settings to the UI

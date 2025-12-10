@@ -186,15 +186,15 @@ export class EditCommand {
       return Response.notFound();
     }
 
-    let folderView = await folder.decrypt();
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
+    let folderView = await folder.decrypt(userKey);
     folderView = FolderExport.toView(req, folderView);
 
-    const userKey = await this.keyService.getUserKey(activeUserId);
     const encFolder = await this.folderService.encrypt(folderView, userKey);
     try {
       const folder = await this.folderApiService.save(encFolder, activeUserId);
       const updatedFolder = new Folder(folder);
-      const decFolder = await updatedFolder.decrypt();
+      const decFolder = await updatedFolder.decrypt(userKey);
       const res = new FolderResponse(decFolder);
       return Response.success(res);
     } catch (e) {
@@ -261,8 +261,13 @@ export class EditCommand {
 
   /** Prompt the user to accept movement of their cipher back to the their vault. */
   private async promptForArchiveEdit(): Promise<boolean> {
-    // When running in serve or no interaction mode, automatically accept the prompt
-    if (process.env.BW_SERVE === "true" || process.env.BW_NOINTERACTION === "true") {
+    // When user has disabled interactivity or does not have the ability to prompt,
+    // automatically move the item back to the vault and inform them.
+    if (
+      process.env.BW_SERVE === "true" ||
+      process.env.BW_NOINTERACTION === "true" ||
+      !process.stdin.isTTY
+    ) {
       CliUtils.writeLn(
         "Archive is only available with a Premium subscription, which has ended. Your edit was saved and the item was moved back to your vault.",
       );

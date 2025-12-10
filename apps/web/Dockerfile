@@ -9,6 +9,12 @@ COPY package*.json ./
 COPY . .
 RUN npm ci
 
+# Remove commercial packages if LICENSE_TYPE is not 'commercial'
+ARG LICENSE_TYPE=oss
+RUN if [ "${LICENSE_TYPE}" != "commercial" ] ; then \
+      rm -rf node_modules/@bitwarden/commercial-sdk-internal ; \
+    fi
+
 WORKDIR /source/apps/web
 ARG NPM_COMMAND=dist:bit:selfhost
 RUN npm run ${NPM_COMMAND}

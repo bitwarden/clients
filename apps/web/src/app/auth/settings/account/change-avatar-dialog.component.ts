@@ -32,6 +32,8 @@ type ChangeAvatarDialogData = {
   profile: ProfileResponse;
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "change-avatar-dialog.component.html",
   encapsulation: ViewEncapsulation.None,
@@ -40,6 +42,8 @@ type ChangeAvatarDialogData = {
 export class ChangeAvatarDialogComponent implements OnInit, OnDestroy {
   profile: ProfileResponse;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("colorPicker") colorPickerElement: ElementRef<HTMLElement>;
 
   loading = false;

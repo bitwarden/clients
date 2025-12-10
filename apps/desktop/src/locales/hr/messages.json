@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Nemaš dozvolu za uređivanje ove stavke"
+  },
   "welcomeBack": {
     "message": "Dobro došli natrag"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "Jedinstvena prijava (SSO)"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Tvoja organizacija zahtijeva jedinstvenu prijavu."
+  },
   "submit": {
     "message": "Pošalji"
   },
@@ -1032,6 +1038,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Moraš dodati ili osnovni URL poslužitelja ili barem jedno prilagođeno okruženje."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL mora koristiti HTTPS."
+  },
   "customEnvironment": {
     "message": "Prilagođeno okruženje"
   },
@@ -1083,6 +1092,24 @@
   },
   "learnMore": {
     "message": "Saznaj više"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
   },
   "featureUnavailable": {
     "message": "Značajka nije dostupna"
@@ -1481,6 +1508,15 @@
   "premiumSignUpStorage": {
     "message": "1 GB šifriranog prostora za pohranu podataka."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Mogućnosti za prijavu u dva koraka kao što su YubiKey i Duo."
   },
@@ -1852,6 +1888,12 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Zaključaj glavnom lozinkom kod svakog pokretanja"
   },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Traži glavnu lozinku ili PIN kod ponovnog pokretanja aplikacije"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Traži glavnu lozinku kod ponovnog pokretanja aplikacije"
+  },
   "deleteAccount": {
     "message": "Obriši račun"
   },
@@ -2135,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Pogreška prillikom integracije s preglednikom."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Nažalost, za sada je integracija s preglednikom podržana samo u Mac App Store verziji aplikacije."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Nažalost, integracija s preglednikom trenutno nije podržana u Windows Store verziji aplikacije."
   },
@@ -2215,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Kontaktne informacije"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Svi Sendovi",
@@ -2548,6 +2591,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Najmanje prilagođeno vrijeme je 1 minuta."
   },
   "inviteAccepted": {
     "message": "Pozivnica prihvaćena"
@@ -2976,7 +3022,8 @@
     "message": "Sigurno želiš koristiti opciju „Nikada”? Postavljanje opcija zaključavanja na „Nikada” pohranjuje šifru tvojeg trezora na tvom uređaju. Ako koristiš ovu opciju, trebalo bi osigurati da je uređaj pravilno zaštićen."
   },
   "vault": {
-    "message": "Trezor"
+    "message": "Trezor",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Prijava glavnom lozinkom"
@@ -4149,7 +4196,7 @@
     "message": "Arhiviraj",
     "description": "Verb"
   },
-  "unarchive": {
+  "unArchive": {
     "message": "Poništi arhiviranje"
   },
   "itemsInArchive": {
@@ -4161,16 +4208,52 @@
   "noItemsInArchiveDesc": {
     "message": "Arhivirane stavke biti će prikazane ovdje i biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune."
   },
-  "itemSentToArchive": {
+  "itemWasSentToArchive": {
     "message": "Stavka poslana u arhivu"
   },
-  "itemRemovedFromArchive": {
-    "message": "Stavka maknute iz arhive"
+  "itemWasUnarchived": {
+    "message": "Stavka vraćena iz arhive"
   },
   "archiveItem": {
     "message": "Arhiviraj stavku"
   },
   "archiveItemConfirmDesc": {
     "message": "Arhivirane stavke biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune. Sigurno želiš arhivirati?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "Poštanski broj"
+  },
+  "cardNumberLabel": {
+    "message": "Broj kartice"
+  },
+  "upgradeNow": {
+    "message": "Nadogradi sada"
+  },
+  "builtInAuthenticator": {
+    "message": "Ugrađeni autentifikator"
+  },
+  "secureFileStorage": {
+    "message": "Sigurna pohrana datoteka"
+  },
+  "emergencyAccess": {
+    "message": "Pristup u nuždi"
+  },
+  "breachMonitoring": {
+    "message": "Nadzor proboja"
+  },
+  "andMoreFeatures": {
+    "message": "I više!"
+  },
+  "planDescPremium": {
+    "message": "Dovrši online sigurnost"
+  },
+  "upgradeToPremium": {
+    "message": " Nadogradi na Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Radnja nakon isteka"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Istek sesije"
   }
 }

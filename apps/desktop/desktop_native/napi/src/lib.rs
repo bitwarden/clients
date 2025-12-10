@@ -19,7 +19,8 @@ pub mod passwords {
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
-    /// Save the password to the keychain. Adds an entry if none exists otherwise updates the existing entry.
+    /// Save the password to the keychain. Adds an entry if none exists otherwise updates the
+    /// existing entry.
     #[napi]
     pub async fn set_password(
         service: String,
@@ -107,7 +108,8 @@ pub mod biometrics {
     /// base64 encoded key and the base64 encoded challenge used to create it
     /// separated by a `|` character.
     ///
-    /// If the iv is provided, it will be used as the challenge. Otherwise a random challenge will be generated.
+    /// If the iv is provided, it will be used as the challenge. Otherwise a random challenge will
+    /// be generated.
     ///
     /// `format!("<key_base64>|<iv_base64>")`
     #[allow(clippy::unused_async)] // FIXME: Remove unused async!
@@ -150,6 +152,123 @@ pub mod biometrics {
 }
 
 #[napi]
+pub mod biometrics_v2 {
+    use desktop_core::biometric_v2::BiometricTrait;
+
+    #[napi]
+    pub struct BiometricLockSystem {
+        inner: desktop_core::biometric_v2::BiometricLockSystem,
+    }
+
+    #[napi]
+    pub fn init_biometric_system() -> napi::Result<BiometricLockSystem> {
+        Ok(BiometricLockSystem {
+            inner: desktop_core::biometric_v2::BiometricLockSystem::new(),
+        })
+    }
+
+    #[napi]
+    pub async fn authenticate(
+        biometric_lock_system: &BiometricLockSystem,
+        hwnd: napi::bindgen_prelude::Buffer,
+        message: String,
+    ) -> napi::Result<bool> {
+        biometric_lock_system
+            .inner
+            .authenticate(hwnd.into(), message)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn authenticate_available(
+        biometric_lock_system: &BiometricLockSystem,
+    ) -> napi::Result<bool> {
+        biometric_lock_system
+            .inner
+            .authenticate_available()
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn enroll_persistent(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+        key: napi::bindgen_prelude::Buffer,
+    ) -> napi::Result<()> {
+        biometric_lock_system
+            .inner
+            .enroll_persistent(&user_id, &key)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn provide_key(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+        key: napi::bindgen_prelude::Buffer,
+    ) -> napi::Result<()> {
+        biometric_lock_system
+            .inner
+            .provide_key(&user_id, &key)
+            .await;
+        Ok(())
+    }
+
+    #[napi]
+    pub async fn unlock(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+        hwnd: napi::bindgen_prelude::Buffer,
+    ) -> napi::Result<napi::bindgen_prelude::Buffer> {
+        biometric_lock_system
+            .inner
+            .unlock(&user_id, hwnd.into())
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+            .map(|v| v.into())
+    }
+
+    #[napi]
+    pub async fn unlock_available(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+    ) -> napi::Result<bool> {
+        biometric_lock_system
+            .inner
+            .unlock_available(&user_id)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn has_persistent(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+    ) -> napi::Result<bool> {
+        biometric_lock_system
+            .inner
+            .has_persistent(&user_id)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn unenroll(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+    ) -> napi::Result<()> {
+        biometric_lock_system
+            .inner
+            .unenroll(&user_id)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+}
+
+#[napi]
 pub mod clipboards {
     #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
@@ -169,17 +288,16 @@ pub mod clipboards {
 pub mod sshagent {
     use std::sync::Arc;
 
-    use desktop_core::ssh_agent::BitwardenSshKey;
     use napi::{
         bindgen_prelude::Promise,
-        threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction},
+        threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode},
     };
     use tokio::{self, sync::Mutex};
     use tracing::error;
 
     #[napi]
     pub struct SshAgentState {
-        state: desktop_core::ssh_agent::BitwardenDesktopAgent<BitwardenSshKey>,
+        state: desktop_core::ssh_agent::BitwardenDesktopAgent,
     }
 
     #[napi(object)]
@@ -208,13 +326,15 @@ pub mod sshagent {
     #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
     pub async fn serve(
-        callback: ThreadsafeFunction<SshUIRequest, CalleeHandled>,
+        callback: ThreadsafeFunction<SshUIRequest, Promise<bool>>,
     ) -> napi::Result<SshAgentState> {
         let (auth_request_tx, mut auth_request_rx) =
             tokio::sync::mpsc::channel::<desktop_core::ssh_agent::SshAgentUIRequest>(32);
         let (auth_response_tx, auth_response_rx) =
             tokio::sync::broadcast::channel::<(u32, bool)>(32);
         let auth_response_tx_arc = Arc::new(Mutex::new(auth_response_tx));
+        // Wrap callback in Arc so it can be shared across spawned tasks
+        let callback = Arc::new(callback);
         tokio::spawn(async move {
             let _ = auth_response_rx;
 
@@ -224,42 +344,50 @@ pub mod sshagent {
                 tokio::spawn(async move {
                     let auth_response_tx_arc = cloned_response_tx_arc;
                     let callback = cloned_callback;
-                    let promise_result: Result<Promise<bool>, napi::Error> = callback
-                        .call_async(Ok(SshUIRequest {
+                    // In NAPI v3, obtain the JS callback return as a Promise<boolean> and await it
+                    // in Rust
+                    let (tx, rx) = std::sync::mpsc::channel::<Promise<bool>>();
+                    let status = callback.call_with_return_value(
+                        Ok(SshUIRequest {
                             cipher_id: request.cipher_id,
                             is_list: request.is_list,
                             process_name: request.process_name,
                             is_forwarding: request.is_forwarding,
                             namespace: request.namespace,
-                        }))
-                        .await;
-                    match promise_result {
-                        Ok(promise_result) => match promise_result.await {
-                            Ok(result) => {
-                                let _ = auth_response_tx_arc
-                                    .lock()
-                                    .await
-                                    .send((request.request_id, result))
-                                    .expect("should be able to send auth response to agent");
+                        }),
+                        ThreadsafeFunctionCallMode::Blocking,
+                        move |ret: Result<Promise<bool>, napi::Error>, _env| {
+                            if let Ok(p) = ret {
+                                let _ = tx.send(p);
                             }
-                            Err(e) => {
-                                error!(error = %e, "Calling UI callback promise was rejected");
-                                let _ = auth_response_tx_arc
-                                    .lock()
-                                    .await
-                                    .send((request.request_id, false))
-                                    .expect("should be able to send auth response to agent");
-                            }
+                            Ok(())
                         },
-                        Err(e) => {
-                            error!(error = %e, "Calling UI callback could not create promise");
-                            let _ = auth_response_tx_arc
-                                .lock()
-                                .await
-                                .send((request.request_id, false))
-                                .expect("should be able to send auth response to agent");
+                    );
+
+                    let result = if status == napi::Status::Ok {
+                        match rx.recv() {
+                            Ok(promise) => match promise.await {
+                                Ok(v) => v,
+                                Err(e) => {
+                                    error!(error = %e, "UI callback promise rejected");
+                                    false
+                                }
+                            },
+                            Err(e) => {
+                                error!(error = %e, "Failed to receive UI callback promise");
+                                false
+                            }
                         }
-                    }
+                    } else {
+                        error!(error = ?status, "Calling UI callback failed");
+                        false
+                    };
+
+                    let _ = auth_response_tx_arc
+                        .lock()
+                        .await
+                        .send((request.request_id, result))
+                        .expect("should be able to send auth response to agent");
                 });
             }
         });
@@ -347,14 +475,12 @@ pub mod processisolations {
 #[napi]
 pub mod powermonitors {
     use napi::{
-        threadsafe_function::{
-            ErrorStrategy::CalleeHandled, ThreadsafeFunction, ThreadsafeFunctionCallMode,
-        },
+        threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode},
         tokio,
     };
 
     #[napi]
-    pub async fn on_lock(callback: ThreadsafeFunction<(), CalleeHandled>) -> napi::Result<()> {
+    pub async fn on_lock(callback: ThreadsafeFunction<()>) -> napi::Result<()> {
         let (tx, mut rx) = tokio::sync::mpsc::channel::<()>(32);
         desktop_core::powermonitor::on_lock(tx)
             .await
@@ -393,9 +519,7 @@ pub mod windows_registry {
 #[napi]
 pub mod ipc {
     use desktop_core::ipc::server::{Message, MessageType};
-    use napi::threadsafe_function::{
-        ErrorStrategy, ThreadsafeFunction, ThreadsafeFunctionCallMode,
-    };
+    use napi::threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode};
 
     #[napi(object)]
     pub struct IpcMessage {
@@ -432,22 +556,23 @@ pub mod ipc {
     }
 
     #[napi]
-    pub struct IpcServer {
+    pub struct NativeIpcServer {
         server: desktop_core::ipc::server::Server,
     }
 
     #[napi]
-    impl IpcServer {
+    impl NativeIpcServer {
         /// Create and start the IPC server without blocking.
         ///
-        /// @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
-        /// @param callback This function will be called whenever a message is received from a client.
+        /// @param name The endpoint name to listen on. This name uniquely identifies the IPC
+        /// connection and must be the same for both the server and client. @param callback
+        /// This function will be called whenever a message is received from a client.
         #[allow(clippy::unused_async)] // FIXME: Remove unused async!
         #[napi(factory)]
         pub async fn listen(
             name: String,
             #[napi(ts_arg_type = "(error: null | Error, message: IpcMessage) => void")]
-            callback: ThreadsafeFunction<IpcMessage, ErrorStrategy::CalleeHandled>,
+            callback: ThreadsafeFunction<IpcMessage>,
         ) -> napi::Result<Self> {
             let (send, mut recv) = tokio::sync::mpsc::channel::<Message>(32);
             tokio::spawn(async move {
@@ -464,7 +589,7 @@ pub mod ipc {
                 ))
             })?;
 
-            Ok(IpcServer { server })
+            Ok(NativeIpcServer { server })
         }
 
         /// Return the path to the IPC server.
@@ -482,8 +607,9 @@ pub mod ipc {
 
         /// Send a message over the IPC server to all the connected clients
         ///
-        /// @return The number of clients that the message was sent to. Note that the number of messages
-        /// actually received may be less, as some clients could disconnect before receiving the message.
+        /// @return The number of clients that the message was sent to. Note that the number of
+        /// messages actually received may be less, as some clients could disconnect before
+        /// receiving the message.
         #[napi]
         pub fn send(&self, message: String) -> napi::Result<u32> {
             self.server
@@ -510,8 +636,9 @@ pub mod autostart {
 #[napi]
 pub mod autofill {
     use desktop_core::ipc::server::{Message, MessageType};
-    use napi::threadsafe_function::{
-        ErrorStrategy, ThreadsafeFunction, ThreadsafeFunctionCallMode,
+    use napi::{
+        bindgen_prelude::FnArgs,
+        threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode},
     };
     use serde::{de::DeserializeOwned, Deserialize, Serialize};
     use tracing::error;
@@ -566,6 +693,7 @@ pub mod autofill {
         pub user_verification: UserVerification,
         pub supported_algorithms: Vec<i32>,
         pub window_xy: Position,
+        pub excluded_credentials: Vec<Vec<u8>>,
     }
 
     #[napi(object)]
@@ -605,6 +733,14 @@ pub mod autofill {
     }
 
     #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct NativeStatus {
+        pub key: String,
+        pub value: String,
+    }
+
+    #[napi(object)]
     #[derive(Serialize, Deserialize)]
     #[serde(rename_all = "camelCase")]
     pub struct PasskeyAssertionResponse {
@@ -617,18 +753,19 @@ pub mod autofill {
     }
 
     #[napi]
-    pub struct IpcServer {
+    pub struct AutofillIpcServer {
         server: desktop_core::ipc::server::Server,
     }
 
     // FIXME: Remove unwraps! They panic and terminate the whole application.
     #[allow(clippy::unwrap_used)]
     #[napi]
-    impl IpcServer {
+    impl AutofillIpcServer {
         /// Create and start the IPC server without blocking.
         ///
-        /// @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
-        /// @param callback This function will be called whenever a message is received from a client.
+        /// @param name The endpoint name to listen on. This name uniquely identifies the IPC
+        /// connection and must be the same for both the server and client. @param callback
+        /// This function will be called whenever a message is received from a client.
         #[allow(clippy::unused_async)] // FIXME: Remove unused async!
         #[napi(factory)]
         pub async fn listen(
@@ -639,23 +776,24 @@ pub mod autofill {
                 ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void"
             )]
             registration_callback: ThreadsafeFunction<
-                (u32, u32, PasskeyRegistrationRequest),
-                ErrorStrategy::CalleeHandled,
+                FnArgs<(u32, u32, PasskeyRegistrationRequest)>,
             >,
             #[napi(
                 ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void"
             )]
             assertion_callback: ThreadsafeFunction<
-                (u32, u32, PasskeyAssertionRequest),
-                ErrorStrategy::CalleeHandled,
+                FnArgs<(u32, u32, PasskeyAssertionRequest)>,
             >,
             #[napi(
                 ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void"
             )]
             assertion_without_user_interface_callback: ThreadsafeFunction<
-                (u32, u32, PasskeyAssertionWithoutUserInterfaceRequest),
-                ErrorStrategy::CalleeHandled,
+                FnArgs<(u32, u32, PasskeyAssertionWithoutUserInterfaceRequest)>,
             >,
+            #[napi(
+                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: NativeStatus) => void"
+            )]
+            native_status_callback: ThreadsafeFunction<(u32, u32, NativeStatus)>,
         ) -> napi::Result<Self> {
             let (send, mut recv) = tokio::sync::mpsc::channel::<Message>(32);
             tokio::spawn(async move {
@@ -680,7 +818,7 @@ pub mod autofill {
                                 Ok(msg) => {
                                     let value = msg
                                         .value
-                                        .map(|value| (client_id, msg.sequence_number, value))
+                                        .map(|value| (client_id, msg.sequence_number, value).into())
                                         .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
 
                                     assertion_callback
@@ -699,7 +837,7 @@ pub mod autofill {
                                 Ok(msg) => {
                                     let value = msg
                                         .value
-                                        .map(|value| (client_id, msg.sequence_number, value))
+                                        .map(|value| (client_id, msg.sequence_number, value).into())
                                         .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
 
                                     assertion_without_user_interface_callback
@@ -717,7 +855,7 @@ pub mod autofill {
                                 Ok(msg) => {
                                     let value = msg
                                         .value
-                                        .map(|value| (client_id, msg.sequence_number, value))
+                                        .map(|value| (client_id, msg.sequence_number, value).into())
                                         .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
                                     registration_callback
                                         .call(value, ThreadsafeFunctionCallMode::NonBlocking);
@@ -725,6 +863,21 @@ pub mod autofill {
                                 }
                                 Err(e) => {
                                     error!(error = %e, "Error deserializing message2");
+                                }
+                            }
+
+                            match serde_json::from_str::<PasskeyMessage<NativeStatus>>(&message) {
+                                Ok(msg) => {
+                                    let value = msg
+                                        .value
+                                        .map(|value| (client_id, msg.sequence_number, value))
+                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
+                                    native_status_callback
+                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
+                                    continue;
+                                }
+                                Err(error) => {
+                                    error!(%error, "Unable to deserialze native status.");
                                 }
                             }
 
@@ -742,7 +895,7 @@ pub mod autofill {
                 ))
             })?;
 
-            Ok(IpcServer { server })
+            Ok(AutofillIpcServer { server })
         }
 
         /// Return the path to the IPC server.
@@ -830,24 +983,25 @@ pub mod logging {
     //!
     //! # Example
     //!
-    //! [Elec] 14:34:03.517 › [NAPI] [INFO] desktop_core::ssh_agent::platform_ssh_agent: Starting SSH Agent server {socket=/Users/foo/.bitwarden-ssh-agent.sock}
+    //! [Elec] 14:34:03.517 › [NAPI] [INFO] desktop_core::ssh_agent::platform_ssh_agent: Starting
+    //! SSH Agent server {socket=/Users/foo/.bitwarden-ssh-agent.sock}
 
-    use std::fmt::Write;
-    use std::sync::OnceLock;
+    use std::{fmt::Write, sync::OnceLock};
 
-    use napi::threadsafe_function::{
-        ErrorStrategy::CalleeHandled, ThreadsafeFunction, ThreadsafeFunctionCallMode,
+    use napi::{
+        bindgen_prelude::FnArgs,
+        threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode},
     };
     use tracing::Level;
-    use tracing_subscriber::fmt::format::{DefaultVisitor, Writer};
     use tracing_subscriber::{
         filter::{EnvFilter, LevelFilter},
+        fmt::format::{DefaultVisitor, Writer},
         layer::SubscriberExt,
         util::SubscriberInitExt,
         Layer,
     };
 
-    struct JsLogger(OnceLock<ThreadsafeFunction<(LogLevel, String), CalleeHandled>>);
+    struct JsLogger(OnceLock<ThreadsafeFunction<FnArgs<(LogLevel, String)>>>);
     static JS_LOGGER: JsLogger = JsLogger(OnceLock::new());
 
     #[napi]
@@ -919,13 +1073,13 @@ pub mod logging {
             let msg = (event.metadata().level().into(), buffer);
 
             if let Some(logger) = JS_LOGGER.0.get() {
-                let _ = logger.call(Ok(msg), ThreadsafeFunctionCallMode::NonBlocking);
+                let _ = logger.call(Ok(msg.into()), ThreadsafeFunctionCallMode::NonBlocking);
             };
         }
     }
 
     #[napi]
-    pub fn init_napi_log(js_log_fn: ThreadsafeFunction<(LogLevel, String), CalleeHandled>) {
+    pub fn init_napi_log(js_log_fn: ThreadsafeFunction<FnArgs<(LogLevel, String)>>) {
         let _ = JS_LOGGER.0.set(js_log_fn);
 
         let filter = EnvFilter::builder()
@@ -935,6 +1089,10 @@ pub mod logging {
             // overriding the default directive for matching targets.
             .from_env_lossy();
 
+        // With the `tracing-log` feature enabled for the `tracing_subscriber`,
+        // the registry below will initialize a log compatibility layer, which allows
+        // the subscriber to consume log::Records as though they were tracing Events.
+        // https://docs.rs/tracing-subscriber/latest/tracing_subscriber/util/trait.SubscriberInitExt.html#method.init
         tracing_subscriber::registry()
             .with(filter)
             .with(JsLayer)
@@ -944,8 +1102,15 @@ pub mod logging {
 
 #[napi]
 pub mod chromium_importer {
-    use bitwarden_chromium_importer::chromium::LoginImportResult as _LoginImportResult;
-    use bitwarden_chromium_importer::chromium::ProfileInfo as _ProfileInfo;
+    use std::collections::HashMap;
+
+    use chromium_importer::{
+        chromium::{
+            DefaultInstalledBrowserRetriever, LoginImportResult as _LoginImportResult,
+            ProfileInfo as _ProfileInfo,
+        },
+        metadata::NativeImporterMetadata as _NativeImporterMetadata,
+    };
 
     #[napi(object)]
     pub struct ProfileInfo {
@@ -972,6 +1137,13 @@ pub mod chromium_importer {
     pub struct LoginImportResult {
         pub login: Option<Login>,
         pub failure: Option<LoginImportFailure>,
+    }
+
+    #[napi(object)]
+    pub struct NativeImporterMetadata {
+        pub id: String,
+        pub loaders: Vec<String>,
+        pub instructions: String,
     }
 
     impl From<_LoginImportResult> for LoginImportResult {
@@ -1007,15 +1179,28 @@ pub mod chromium_importer {
         }
     }
 
+    impl From<_NativeImporterMetadata> for NativeImporterMetadata {
+        fn from(m: _NativeImporterMetadata) -> Self {
+            NativeImporterMetadata {
+                id: m.id,
+                loaders: m.loaders,
+                instructions: m.instructions,
+            }
+        }
+    }
+
     #[napi]
-    pub fn get_installed_browsers() -> napi::Result<Vec<String>> {
-        bitwarden_chromium_importer::chromium::get_installed_browsers()
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    /// Returns OS aware metadata describing supported Chromium based importers as a JSON string.
+    pub fn get_metadata() -> HashMap<String, NativeImporterMetadata> {
+        chromium_importer::metadata::get_supported_importers::<DefaultInstalledBrowserRetriever>()
+            .into_iter()
+            .map(|(browser, metadata)| (browser, NativeImporterMetadata::from(metadata)))
+            .collect()
     }
 
     #[napi]
     pub fn get_available_profiles(browser: String) -> napi::Result<Vec<ProfileInfo>> {
-        bitwarden_chromium_importer::chromium::get_available_profiles(&browser)
+        chromium_importer::chromium::get_available_profiles(&browser)
             .map(|profiles| profiles.into_iter().map(ProfileInfo::from).collect())
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
@@ -1025,7 +1210,7 @@ pub mod chromium_importer {
         browser: String,
         profile_id: String,
     ) -> napi::Result<Vec<LoginImportResult>> {
-        bitwarden_chromium_importer::chromium::import_logins(&browser, &profile_id)
+        chromium_importer::chromium::import_logins(&browser, &profile_id)
             .await
             .map(|logins| logins.into_iter().map(LoginImportResult::from).collect())
             .map_err(|e| napi::Error::from_reason(e.to_string()))
@@ -1035,7 +1220,7 @@ pub mod chromium_importer {
 #[napi]
 pub mod autotype {
     #[napi]
-    pub fn get_foreground_window_title() -> napi::Result<String, napi::Status> {
+    pub fn get_foreground_window_title() -> napi::Result<String> {
         autotype::get_foreground_window_title().map_err(|_| {
             napi::Error::from_reason(
                 "Autotype Error: failed to get foreground window title".to_string(),

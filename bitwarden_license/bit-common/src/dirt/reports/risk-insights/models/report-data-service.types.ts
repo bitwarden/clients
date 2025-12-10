@@ -1,5 +1,3 @@
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-
 import {
   ApplicationHealthReportDetail,
   OrganizationReportApplication,
@@ -8,7 +6,6 @@ import {
 
 export type ApplicationHealthReportDetailEnriched = ApplicationHealthReportDetail & {
   isMarkedAsCritical: boolean;
-  ciphers: CipherView[];
 };
 export interface RiskInsightsEnrichedData {
   reportData: ApplicationHealthReportDetailEnriched[];

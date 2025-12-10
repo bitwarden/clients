@@ -39,6 +39,7 @@ export class AutoFillConstants {
     "otpcode",
     "onetimepassword",
     "security_code",
+    "second-factor",
     "twofactor",
     "twofa",
     "twofactorcode",
@@ -57,6 +58,14 @@ export class AutoFillConstants {
     "newemail",
     "new email",
     "neue e-mail",
+  ];
+
+  static readonly RegistrationKeywords: string[] = [
+    "register",
+    "signup",
+    "sign-up",
+    "join",
+    "create",
   ];
 
   static readonly NewsletterFormNames: string[] = ["newsletter"];
