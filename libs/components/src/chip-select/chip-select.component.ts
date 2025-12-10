@@ -100,10 +100,21 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
   /** Tree constructed from `this.options` */
   private rootTree?: ChipSelectOption<T> | null;
 
+  /** Store the pending value when writeValue is called before options are initialized */
+  private pendingValue?: T;
+
   constructor() {
     // Initialize the root tree whenever options change
     effect(() => {
       this.initializeRootTree(this.options());
+
+      // If there's a pending value, apply it now that options are available
+      if (this.pendingValue !== undefined) {
+        this.selectedOption = this.findOption(this.rootTree, this.pendingValue);
+        this.setOrResetRenderedOptions();
+        this.pendingValue = undefined;
+        this.cdr.markForCheck();
+      }
     });
 
     // Focus the first menu item when menuItems change (e.g., navigating submenus)
@@ -255,6 +266,12 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
 
   /** Implemented as part of NG_VALUE_ACCESSOR */
   writeValue(obj: T): void {
+    // If rootTree is not yet initialized, store the value to apply it later
+    if (!this.rootTree) {
+      this.pendingValue = obj;
+      return;
+    }
+
     this.selectedOption = this.findOption(this.rootTree, obj);
     this.setOrResetRenderedOptions();
     // OnPush components require manual change detection when writeValue() is called

@@ -1,32 +1,57 @@
 <h2 class="tw-sr-only" id="attachments">{{ "attachments" | i18n }}</h2>
 
-<ul *ngIf="cipher?.attachments" aria-labelledby="attachments" class="tw-list-none tw-pl-0">
-  <li *ngFor="let attachment of cipher.attachments">
-    <bit-item>
-      <bit-item-content>
-        <span data-testid="file-name" [title]="attachment.fileName">{{ attachment.fileName }}</span>
-        <span slot="secondary" data-testid="file-size">{{ attachment.sizeName }}</span>
-      </bit-item-content>
-      <ng-container slot="end">
-        <bit-item-action>
-          <app-download-attachment
-            [admin]="admin && organization?.canEditAllCiphers"
-            [cipher]="cipher"
-            [attachment]="attachment"
-          ></app-download-attachment>
-        </bit-item-action>
-        <bit-item-action>
-          <app-delete-attachment
-            [admin]="admin && organization?.canEditAllCiphers"
-            [cipherId]="cipher.id"
-            [attachment]="attachment"
-            (onDeletionSuccess)="removeAttachment(attachment)"
-          ></app-delete-attachment>
-        </bit-item-action>
-      </ng-container>
-    </bit-item>
-  </li>
-</ul>
+@if (cipher()?.attachments; as attachments) {
+  <ul aria-labelledby="attachments" class="tw-list-none tw-pl-0">
+    @for (attachment of attachments; track attachment.id) {
+      <li>
+        <bit-item>
+          <bit-item-content>
+            <span data-testid="file-name" [title]="attachment.fileName">{{
+              attachment.fileName
+            }}</span>
+            <span slot="secondary" data-testid="file-size">{{ attachment.sizeName }}</span>
+            <i
+              *ngIf="attachment.key == null"
+              slot="default-trailing"
+              class="bwi bwi-exclamation-triangle bwi-sm tw-text-muted"
+              [appA11yTitle]="'fixEncryptionTooltip' | i18n"
+            ></i>
+          </bit-item-content>
+
+          <ng-container slot="end">
+            <bit-item-action>
+              @if (attachment.key != null) {
+                <app-download-attachment
+                  [admin]="admin() && organization()?.canEditAllCiphers"
+                  [cipher]="cipher()"
+                  [attachment]="attachment"
+                ></app-download-attachment>
+              } @else {
+                <button
+                  [bitAction]="fixOldAttachment(attachment)"
+                  bitButton
+                  buttonType="primary"
+                  size="small"
+                  type="button"
+                >
+                  {{ "fixEncryption" | i18n }}
+                </button>
+              }
+            </bit-item-action>
+            <bit-item-action>
+              <app-delete-attachment
+                [admin]="admin() && organization()?.canEditAllCiphers"
+                [cipherId]="cipher().id"
+                [attachment]="attachment"
+                (onDeletionSuccess)="removeAttachment(attachment)"
+              ></app-delete-attachment>
+            </bit-item-action>
+          </ng-container>
+        </bit-item>
+      </li>
+    }
+  </ul>
+}
 
 <form [id]="attachmentFormId" [formGroup]="attachmentForm" [bitSubmit]="submit">
   <bit-card>

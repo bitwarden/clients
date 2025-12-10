@@ -37,6 +37,6 @@ concurrently(
   {
     prefix: "name",
     outputStream: process.stdout,
-    killOthers: ["success", "failure"],
+    killOthersOn: ["success", "failure"],
   },
 );

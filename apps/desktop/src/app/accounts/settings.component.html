@@ -44,12 +44,12 @@
                     <h2 bitTypography="h6">{{ "vaultTimeoutHeader" | i18n }}</h2>
                   </bit-section-header>
 
-                  <bit-session-timeout-input
+                  <bit-session-timeout-input-legacy
                     [vaultTimeoutOptions]="vaultTimeoutOptions"
                     [formControl]="form.controls.vaultTimeout"
                     ngDefaultControl
                   >
-                  </bit-session-timeout-input>
+                  </bit-session-timeout-input-legacy>
 
                   <bit-form-field disableMargin>
                     <bit-label for="vaultTimeoutAction">{{

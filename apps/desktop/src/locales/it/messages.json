@@ -1093,6 +1093,24 @@
   "learnMore": {
     "message": "Ulteriori informazioni"
   },
+  "migrationsFailed": {
+    "message": "Si è verificato un errore durante l'aggiornamento delle impostazioni di cifratura."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Aggiorna le impostazioni di crittografia"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Le nuove impostazioni di crittografia consigliate miglioreranno la sicurezza del tuo account. Inserisci la tua password principale per aggiornare."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Conferma la tua identità per continuare"
+  },
+  "enterYourMasterPassword": {
+    "message": "Inserisci la tua password principale"
+  },
+  "updateSettings": {
+    "message": "Aggiorna impostazioni"
+  },
   "featureUnavailable": {
     "message": "Funzionalità non disponibile"
   },
@@ -1489,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 GB di spazio di archiviazione crittografato per gli allegati."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "Archivio crittografato di $SIZE$ per allegati.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Opzioni di verifica in due passaggi proprietarie come YubiKey e Duo."
@@ -2227,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Informazioni di contatto"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Tutti i Send",
@@ -2991,7 +3022,8 @@
     "message": "Sei sicuro di voler usare l'opzione \"Mai\"? Impostare le opzioni di blocco su \"Mai\" salverà la chiave di crittografia della cassaforte sul tuo dispositivo. Se usi questa opzione, assicurati di mantenere il tuo dispositivo adeguatamente protetto."
   },
   "vault": {
-    "message": "Cassaforte"
+    "message": "Cassaforte",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Accedi con password principale"

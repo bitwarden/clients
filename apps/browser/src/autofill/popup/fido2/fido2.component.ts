@@ -24,6 +24,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
@@ -198,7 +199,7 @@ export class Fido2Component implements OnInit, OnDestroy {
             this.displayedCiphers = this.ciphers.filter(
               (cipher) =>
                 cipher.login.matchesUri(this.url, equivalentDomains) &&
-                this.cipherHasNoOtherPasskeys(cipher, message.userHandle),
+                Fido2Utils.cipherHasNoOtherPasskeys(cipher, message.userHandle),
             );
 
             this.passkeyAction = PasskeyActions.Register;
@@ -471,17 +472,5 @@ export class Fido2Component implements OnInit, OnDestroy {
       sessionId: this.sessionId,
       ...msg,
     });
-  }
-
-  /**
-   * This methods returns true if a cipher either has no passkeys, or has a passkey matching with userHandle
-   * @param userHandle
-   */
-  private cipherHasNoOtherPasskeys(cipher: CipherView, userHandle: string): boolean {
-    if (cipher.login.fido2Credentials == null || cipher.login.fido2Credentials.length === 0) {
-      return true;
-    }
-
-    return cipher.login.fido2Credentials.some((passkey) => passkey.userHandle === userHandle);
   }
 }

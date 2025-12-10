@@ -372,7 +372,7 @@ export class EventService {
         msg = humanReadableMsg = this.i18nService.t("enabledSso");
         break;
       case EventType.Organization_DisabledSso:
-        msg = humanReadableMsg = this.i18nService.t("disabledSso");
+        msg = humanReadableMsg = this.i18nService.t("ssoTurnedOff");
         break;
       case EventType.Organization_EnabledKeyConnector:
         msg = humanReadableMsg = this.i18nService.t("enabledKeyConnector");

@@ -294,19 +294,11 @@ export default class RuntimeBackground {
         await this.openPopup();
         break;
       case VaultMessages.OpenAtRiskPasswords: {
-        if (await this.shouldRejectManyOriginMessage(msg)) {
-          return;
-        }
-
         await this.main.openAtRisksPasswordsPage();
         this.announcePopupOpen();
         break;
       }
       case VaultMessages.OpenBrowserExtensionToUrl: {
-        if (await this.shouldRejectManyOriginMessage(msg)) {
-          return;
-        }
-
         await this.main.openTheExtensionToPage(msg.url);
         this.announcePopupOpen();
         break;

@@ -1406,6 +1406,27 @@
   "learnMore": {
     "message": "Zistiť viac"
   },
+  "migrationsFailed": {
+    "message": "Pri aktualizácii nastavení šifrovania došlo k chybe."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Aktualizujte nastavenie šifrovania"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Nové odporúčané nastavenia šifrovania zlepšia bezpečnosť vášho účtu. Ak ich chcete aktualizovať teraz, zadajte hlavné heslo."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Ak chcete pokračovať, potvrďte svoju identitu"
+  },
+  "enterYourMasterPassword": {
+    "message": "Zadajte hlavné heslo"
+  },
+  "updateSettings": {
+    "message": "Aktualizovať nastavenia"
+  },
+  "later": {
+    "message": "Neskôr"
+  },
   "authenticatorKeyTotp": {
     "message": "Overovací kľúč (TOTP)"
   },
@@ -1474,6 +1495,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1 GB šifrovaného úložiska na prílohy."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ šifrovaného úložiska na prílohy.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Núdzový prístup."

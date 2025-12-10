@@ -83,12 +83,15 @@ describe("PolicyService", () => {
         type: PolicyType.MaximumVaultTimeout,
         enabled: true,
         data: { minutes: 14 },
+        revisionDate: expect.any(Date),
       },
       {
         id: "99",
         organizationId: "test-organization",
         type: PolicyType.DisableSend,
         enabled: true,
+        data: undefined,
+        revisionDate: expect.any(Date),
       },
     ]);
   });
@@ -113,6 +116,8 @@ describe("PolicyService", () => {
         organizationId: "test-organization",
         type: PolicyType.DisableSend,
         enabled: true,
+        data: undefined,
+        revisionDate: expect.any(Date),
       },
     ]);
   });
@@ -242,6 +247,8 @@ describe("PolicyService", () => {
         organizationId: "org1",
         type: PolicyType.DisablePersonalVaultExport,
         enabled: true,
+        data: undefined,
+        revisionDate: expect.any(Date),
       });
     });
 
@@ -331,24 +338,32 @@ describe("PolicyService", () => {
           organizationId: "org4",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy2",
           organizationId: "org1",
           type: PolicyType.ActivateAutofill,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy3",
           organizationId: "org5",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy4",
           organizationId: "org1",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
       ]);
     });
@@ -371,24 +386,32 @@ describe("PolicyService", () => {
           organizationId: "org4",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy2",
           organizationId: "org1",
           type: PolicyType.ActivateAutofill,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy3",
           organizationId: "org5",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: false,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy4",
           organizationId: "org1",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
       ]);
     });
@@ -411,24 +434,32 @@ describe("PolicyService", () => {
           organizationId: "org4",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy2",
           organizationId: "org1",
           type: PolicyType.ActivateAutofill,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy3",
           organizationId: "org5",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy4",
           organizationId: "org2",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
       ]);
     });
@@ -451,24 +482,32 @@ describe("PolicyService", () => {
           organizationId: "org4",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy2",
           organizationId: "org1",
           type: PolicyType.ActivateAutofill,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy3",
           organizationId: "org3",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy4",
           organizationId: "org1",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
       ]);
     });
@@ -788,6 +827,7 @@ describe("PolicyService", () => {
     policyData.type = type;
     policyData.enabled = enabled;
     policyData.data = data;
+    policyData.revisionDate = new Date().toISOString();
 
     return policyData;
   }

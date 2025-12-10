@@ -29,6 +29,7 @@ import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
   ],
   host: {
     "(document:keydown.tab)": "handleKeydown($event)",
+    class: "tw-block tw-h-screen",
   },
   hostDirectives: [DrawerHostDirective],
 })

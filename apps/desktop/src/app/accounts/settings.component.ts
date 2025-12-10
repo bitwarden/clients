@@ -55,7 +55,7 @@ import {
 } from "@bitwarden/components";
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
 import {
-  SessionTimeoutInputComponent,
+  SessionTimeoutInputLegacyComponent,
   SessionTimeoutSettingsComponent,
 } from "@bitwarden/key-management-ui";
 import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
@@ -97,7 +97,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     SectionHeaderComponent,
     SelectModule,
     TypographyModule,
-    SessionTimeoutInputComponent,
+    SessionTimeoutInputLegacyComponent,
     SessionTimeoutSettingsComponent,
     PermitCipherDetailsPopoverComponent,
     PremiumBadgeComponent,

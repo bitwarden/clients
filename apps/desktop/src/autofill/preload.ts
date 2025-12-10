@@ -14,6 +14,8 @@ export default {
   runCommand: <C extends Command>(params: RunCommandParams<C>): Promise<RunCommandResult<C>> =>
     ipcRenderer.invoke("autofill.runCommand", params),
 
+  listenerReady: () => ipcRenderer.send("autofill.listenerReady"),
+
   listenPasskeyRegistration: (
     fn: (
       clientId: number,
@@ -129,6 +131,24 @@ export default {
             response,
           });
         });
+      },
+    );
+  },
+  listenNativeStatus: (
+    fn: (clientId: number, sequenceNumber: number, status: { key: string; value: string }) => void,
+  ) => {
+    ipcRenderer.on(
+      "autofill.nativeStatus",
+      (
+        event,
+        data: {
+          clientId: number;
+          sequenceNumber: number;
+          status: { key: string; value: string };
+        },
+      ) => {
+        const { clientId, sequenceNumber, status } = data;
+        fn(clientId, sequenceNumber, status);
       },
     );
   },

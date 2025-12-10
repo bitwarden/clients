@@ -2,7 +2,10 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { authGuard } from "@bitwarden/angular/auth/guards";
-import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  canAccessAccessIntelligence,
+  canAccessSettingsTab,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { isEnterpriseOrgGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/is-enterprise-org.guard";
 import { organizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-permissions.guard";
 import { OrganizationLayoutComponent } from "@bitwarden/web-vault/app/admin-console/organizations/layouts/organization-layout.component";
@@ -79,7 +82,7 @@ const routes: Routes = [
       },
       {
         path: "access-intelligence",
-        canActivate: [organizationPermissionsGuard((org) => org.canAccessReports)],
+        canActivate: [organizationPermissionsGuard(canAccessAccessIntelligence)],
         loadChildren: () =>
           import("../../dirt/access-intelligence/access-intelligence.module").then(
             (m) => m.AccessIntelligenceModule,

@@ -451,6 +451,24 @@ describe("ChipSelectComponent", () => {
 
       expect(disabledMenuItem?.disabled).toBe(true);
     });
+
+    it("should handle writeValue called before options are initialized", async () => {
+      const testApp = fixture.componentInstance;
+
+      component["rootTree"] = null;
+
+      component.writeValue("opt1");
+
+      expect(component["pendingValue"]).toBe("opt1");
+      expect(component["selectedOption"]).toBeUndefined();
+
+      testApp.options.set(testOptions);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(component["selectedOption"]?.value).toBe("opt1");
+      expect(component["pendingValue"]).toBeUndefined();
+    });
   });
 });
 

@@ -14,7 +14,7 @@ type CharacterType = "letter" | "emoji" | "special" | "number";
 @Component({
   selector: "bit-color-password",
   template: `@for (character of passwordCharArray(); track $index; let i = $index) {
-    <span [class]="getCharacterClass(character)">
+    <span [class]="getCharacterClass(character)" class="tw-font-mono">
       <span>{{ character }}</span>
       @if (showCount()) {
         <span class="tw-whitespace-nowrap tw-text-xs tw-leading-5 tw-text-main">{{ i + 1 }}</span>

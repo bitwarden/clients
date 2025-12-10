@@ -86,12 +86,12 @@
         </bit-section-header>
 
         <bit-card>
-          <bit-session-timeout-input
+          <bit-session-timeout-input-legacy
             [vaultTimeoutOptions]="vaultTimeoutOptions"
             [formControl]="form.controls.vaultTimeout"
             ngDefaultControl
           >
-          </bit-session-timeout-input>
+          </bit-session-timeout-input-legacy>
 
           <bit-form-field disableMargin>
             <bit-label for="vaultTimeoutAction">{{ "vaultTimeoutAction1" | i18n }}</bit-label>

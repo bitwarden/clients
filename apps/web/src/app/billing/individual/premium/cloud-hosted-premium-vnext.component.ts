@@ -157,7 +157,7 @@ export class CloudHostedPremiumVNextComponent {
         return {
           tier,
           price:
-            tier?.passwordManager.type === "standalone"
+            tier?.passwordManager.type === "standalone" && tier.passwordManager.annualPrice
               ? Number((tier.passwordManager.annualPrice / 12).toFixed(2))
               : 0,
           features: tier?.passwordManager.features.map((f) => f.value) || [],
@@ -172,7 +172,7 @@ export class CloudHostedPremiumVNextComponent {
         return {
           tier,
           price:
-            tier?.passwordManager.type === "packaged"
+            tier?.passwordManager.type === "packaged" && tier.passwordManager.annualPrice
               ? Number((tier.passwordManager.annualPrice / 12).toFixed(2))
               : 0,
           features: tier?.passwordManager.features.map((f) => f.value) || [],
