@@ -50,13 +50,16 @@ import { OrganizationUserView } from "../core/views/organization-user.view";
 
 import { AccountRecoveryDialogResultType } from "./components/account-recovery/account-recovery-dialog.component";
 import { MemberDialogResult, MemberDialogTab } from "./components/member-dialog";
-import { MemberDialogManagerService, OrganizationMembersService } from "./services";
+import {
+  MemberDialogManagerService,
+  MemberExportService,
+  OrganizationMembersService,
+} from "./services";
 import { DeleteManagedMemberWarningService } from "./services/delete-managed-member/delete-managed-member-warning.service";
 import {
   MemberActionsService,
   MemberActionResult,
 } from "./services/member-actions/member-actions.service";
-import { MemberExportService } from "./services/member-export.service";
 
 class MembersTableDataSource extends PeopleTableDataSource<OrganizationUserView> {
   protected statusType = OrganizationUserStatusType;
@@ -573,7 +576,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       this.toastService.showToast({
         variant: "success",
         title: undefined,
-        message: this.i18nService.t("exportSuccess"),
+        message: this.i18nService.t("dataExportSuccess"),
       });
     } catch (e) {
       this.validationService.showError(e);
