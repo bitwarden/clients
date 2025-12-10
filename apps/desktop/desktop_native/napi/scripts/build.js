@@ -10,12 +10,12 @@ const args = args.join(' ');
 if (isRelease) {
   console.log('Building release mode.');
 
-  execSync(`napi build --platform --js false ${args}`, { stdio: 'inherit'});
+  execSync(`napi build --platform --no-js ${args}`, { stdio: 'inherit'});
 
 } else {
   console.log('Building debug mode.');
 
-  execSync(`napi build --platform --js false ${args}`, {
+  execSync(`napi build --platform --no-js ${args}`, {
     stdio: 'inherit',
     env: { ...process.env, RUST_LOG: 'debug' }
   });
