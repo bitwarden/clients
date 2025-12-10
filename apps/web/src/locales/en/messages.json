@@ -1975,9 +1975,6 @@
   "exportFrom": {
     "message": "Export from"
   },
-  "exportSecrets": {
-    "message": "Export secrets"
-  },
   "fileFormat": {
     "message": "File format"
   },
@@ -8756,9 +8753,6 @@
   },
   "server": {
     "message": "Server"
-  },
-  "exportData": {
-    "message": "Export data"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Exporting Organization Secret Data"
