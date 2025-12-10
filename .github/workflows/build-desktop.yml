@@ -585,7 +585,7 @@ jobs:
         working-directory: apps/desktop/desktop_native
         env:
           MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
-        run: node build.js cross-platform "$MODE"
+        run: node build.js cross-platform "$env:MODE"
 
       - name: Build
         run: npm run build
@@ -850,7 +850,7 @@ jobs:
         working-directory: apps/desktop/desktop_native
         env:
           MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
-        run: node build.js cross-platform "$MODE"
+        run: node build.js cross-platform "$env:MODE"
 
       - name: Build
         run: npm run build
