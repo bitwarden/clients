@@ -65,7 +65,7 @@
     "@types/jest": "29.5.14",
     "@types/jsdom": "21.1.7",
     "@types/koa": "3.0.1",
-    "@types/koa__multer": "2.0.7",
+    "@types/koa__multer": "2.0.8",
     "@types/koa__router": "12.0.4",
     "@types/koa-bodyparser": "4.3.7",
     "@types/koa-json": "2.0.23",
