@@ -18,6 +18,7 @@ import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/mode
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -60,6 +61,8 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       orgSsoIdentifier,
       orgId,
       resetPasswordAutoEnroll,
+      newPassword,
+      salt,
     } = credentials;
 
     for (const [key, value] of Object.entries(credentials)) {
@@ -153,6 +156,15 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       userId,
     );
 
+    // Set master password unlock data for new unlock path (requires: password, salt, kdf, userKey)
+    await this.setMasterPasswordUnlockData(
+      newPassword,
+      salt,
+      kdfConfig,
+      masterKeyEncryptedUserKey[0],
+      userId,
+    );
+
     /**
      * Set the private key only for new JIT provisioned users in MP encryption orgs.
      * (Existing TDE users will have their private key set on sync or on login.)
@@ -207,7 +219,28 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     );
     await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
     await this.masterPasswordService.setMasterKey(masterKey, userId);
+    await this.masterPasswordService.setMasterKeyEncryptedUserKey(
+      masterKeyEncryptedUserKey[1],
+      userId,
+    );
     await this.keyService.setUserKey(masterKeyEncryptedUserKey[0], userId);
+  }
+
+  private async setMasterPasswordUnlockData(
+    password: string,
+    salt: MasterPasswordSalt,
+    kdfConfig: KdfConfig,
+    userKey: UserKey,
+    userId: UserId,
+  ): Promise<void> {
+    const masterPasswordUnlockData = await this.masterPasswordService.makeMasterPasswordUnlockData(
+      password,
+      kdfConfig,
+      salt,
+      userKey,
+    );
+
+    await this.masterPasswordService.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
   }
 
   private async handleResetPasswordAutoEnroll(
