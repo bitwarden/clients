@@ -137,6 +137,10 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     FeatureFlag.VaultLoadingSkeletons,
   );
 
+  protected premiumSpotlightFeatureFlag$ = this.configService.getFeatureFlag$(
+    FeatureFlag.BrowserPremiumSpotlight,
+  );
+
   private showPremiumNudgeSpotlight$ = this.activeUserId$.pipe(
     switchMap((userId) => this.nudgesService.showNudgeSpotlight$(NudgeType.PremiumUpgrade, userId)),
   );
@@ -164,6 +168,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   );
 
   protected showPremiumSpotlight$ = combineLatest([
+    this.premiumSpotlightFeatureFlag$,
     this.showPremiumNudgeSpotlight$,
     this.showHasItemsVaultSpotlight$,
     this.hasPremium$,
@@ -171,8 +176,13 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     this.accountAgeInDays$,
   ]).pipe(
     map(
-      ([showPremiumNudge, showHasItemsNudge, hasPremium, count, age]) =>
-        showPremiumNudge && !showHasItemsNudge && !hasPremium && count >= 5 && age >= 7,
+      ([featureFlagEnabled, showPremiumNudge, showHasItemsNudge, hasPremium, count, age]) =>
+        featureFlagEnabled &&
+        showPremiumNudge &&
+        !showHasItemsNudge &&
+        !hasPremium &&
+        count >= 5 &&
+        age >= 7,
     ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
