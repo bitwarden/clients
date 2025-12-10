@@ -1,5 +1,3 @@
-import { EOL } from "os";
-
 import { diff } from "jest-diff";
 
 export const toContainPartialObjects: jest.CustomMatcher = function (
@@ -15,7 +13,7 @@ export const toContainPartialObjects: jest.CustomMatcher = function (
     return {
       message: () =>
         "Expected the received array NOT to include partial matches for all expected objects." +
-        EOL +
+        "\n" +
         diff(expected, received),
       pass: true,
     };
@@ -24,7 +22,7 @@ export const toContainPartialObjects: jest.CustomMatcher = function (
   return {
     message: () =>
       "Expected the received array to contain partial matches for all expected objects." +
-      EOL +
+      "\n" +
       diff(expected, received),
     pass: false,
   };
