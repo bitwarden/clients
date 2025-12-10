@@ -13,7 +13,7 @@
     <div class="tw-flex tw-gap-2" slot="header-actions">
       <app-pop-out></app-pop-out>
       @if (showAcctSwitcher && hasLoggedInAccount) {
-        <app-current-account slot="header-actions"></app-current-account>
+        <app-current-account></app-current-account>
       }
     </div>
     <router-outlet slot="secondary" name="secondary"></router-outlet>
