@@ -5891,6 +5891,9 @@
   "cardNumberLabel": {
     "message": "Card number"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "sessionTimeoutSettingsAction": {
     "message": "Timeout action"
   },
