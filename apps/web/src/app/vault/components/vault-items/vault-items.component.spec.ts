@@ -11,6 +11,7 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuModule, TableModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { RoutedVaultFilterService } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/services/routed-vault-filter.service";
 
 import { VaultItem } from "./vault-item";
 import { VaultItemsComponent } from "./vault-items.component";
@@ -59,6 +60,12 @@ describe("VaultItemsComponent", () => {
           provide: CipherArchiveService,
           useValue: {
             hasArchiveFlagEnabled$: of(true),
+          },
+        },
+        {
+          provide: RoutedVaultFilterService,
+          useValue: {
+            filter$: of(null),
           },
         },
       ],

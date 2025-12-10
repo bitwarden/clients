@@ -19,6 +19,7 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { SortDirection, TableDataSource } from "@bitwarden/components";
 import { OrganizationId } from "@bitwarden/sdk-internal";
+import { RoutedVaultFilterService } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/services/routed-vault-filter.service";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
@@ -148,10 +149,13 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   protected archiveFeatureEnabled$ = this.cipherArchiveService.hasArchiveFlagEnabled$;
 
+  private activeFilter: any;
+
   constructor(
     protected cipherAuthorizationService: CipherAuthorizationService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
     protected cipherArchiveService: CipherArchiveService,
+    protected routedVaultFilterService: RoutedVaultFilterService,
   ) {
     this.canDeleteSelected$ = this.selection.changed.pipe(
       startWith(null),
@@ -219,6 +223,13 @@ export class VaultItemsComponent<C extends CipherViewLike> {
         );
       }),
     );
+
+    this.routedVaultFilterService.filter$.pipe(takeUntilDestroyed()).subscribe((activeFilter) => {
+      if (this.activeFilter !== activeFilter) {
+        this.activeFilter = activeFilter;
+        this.clearSelection();
+      }
+    });
   }
 
   clearSelection() {
