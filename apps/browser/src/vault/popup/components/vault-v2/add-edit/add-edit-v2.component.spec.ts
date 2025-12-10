@@ -381,4 +381,88 @@ describe("AddEditV2Component", () => {
       expect(navigate).toHaveBeenCalledWith(["/tabs/vault"]);
     });
   });
+
+  describe("reloadAddEditCipherData", () => {
+    beforeEach(fakeAsync(() => {
+      addEditCipherInfo$.next({
+        cipher: {
+          name: "InitialName",
+          type: CipherType.Login,
+          login: {
+            password: "initialPassword",
+            username: "initialUsername",
+            uris: [{ uri: "https://initial.com" }],
+          },
+        },
+      } as AddEditCipherInfo);
+      queryParams$.next({});
+      tick();
+
+      cipherServiceMock.setAddEditCipherInfo.mockClear();
+    }));
+
+    it("replaces all initialValues with new data, clearing stale fields", fakeAsync(() => {
+      const newCipherInfo = {
+        cipher: {
+          name: "UpdatedName",
+          type: CipherType.Login,
+          login: {
+            password: "updatedPassword",
+            uris: [{ uri: "https://updated.com" }],
+          },
+        },
+      } as AddEditCipherInfo;
+
+      addEditCipherInfo$.next(newCipherInfo);
+
+      const messageListener = component["messageListener"];
+      messageListener({ command: "reloadAddEditCipherData" });
+      tick();
+
+      expect(component.config.initialValues).toEqual({
+        name: "UpdatedName",
+        password: "updatedPassword",
+        loginUri: "https://updated.com",
+      } as OptionalInitialValues);
+
+      expect(cipherServiceMock.setAddEditCipherInfo).toHaveBeenCalledWith(null, "UserId");
+    }));
+
+    it("does not reload data if config is not set", fakeAsync(() => {
+      component.config = null;
+
+      const messageListener = component["messageListener"];
+      messageListener({ command: "reloadAddEditCipherData" });
+      tick();
+
+      expect(cipherServiceMock.setAddEditCipherInfo).not.toHaveBeenCalled();
+    }));
+
+    it("does not reload data if latestCipherInfo is null", fakeAsync(() => {
+      addEditCipherInfo$.next(null);
+
+      const messageListener = component["messageListener"];
+      messageListener({ command: "reloadAddEditCipherData" });
+      tick();
+
+      expect(component.config.initialValues).toEqual({
+        name: "InitialName",
+        password: "initialPassword",
+        username: "initialUsername",
+        loginUri: "https://initial.com",
+      } as OptionalInitialValues);
+
+      expect(cipherServiceMock.setAddEditCipherInfo).not.toHaveBeenCalled();
+    }));
+
+    it("ignores messages with different commands", fakeAsync(() => {
+      const initialValues = component.config.initialValues;
+
+      const messageListener = component["messageListener"];
+      messageListener({ command: "someOtherCommand" });
+      tick();
+
+      expect(component.config.initialValues).toBe(initialValues);
+    }));
+  });
 });

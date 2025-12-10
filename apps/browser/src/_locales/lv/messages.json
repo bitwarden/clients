@@ -1406,6 +1406,27 @@
   "learnMore": {
     "message": "Uzzināt vairāk"
   },
+  "migrationsFailed": {
+    "message": "Atgadījās kļūda šifrēšanas iestatījumu atjaunināšanā."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Atjaunini savus šifrēšanas iestatījumus"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Jaunie ieteicamie šifrēšanas iestatījumi uzlabos Tava konta drošību. Jāievada sava galvenā parole, lai atjauninātu tagad."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Jāapliecina sava identitāte, lai turpinātu"
+  },
+  "enterYourMasterPassword": {
+    "message": "Jāievada sava galvenā parole"
+  },
+  "updateSettings": {
+    "message": "Atjaunināt Iestatījumus"
+  },
+  "later": {
+    "message": "Vēlāk"
+  },
   "authenticatorKeyTotp": {
     "message": "Autentificētāja atslēga (TOTP)"
   },
@@ -1474,6 +1495,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1 GB šifrētas krātuves datņu pielikumiem."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ šifrētas krātuves datņu pielikumiem.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Ārkārtas piekļuve"

@@ -99,8 +99,8 @@ describe("DownloadAttachmentComponent", () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(DownloadAttachmentComponent);
     component = fixture.componentInstance;
-    component.attachment = attachment;
-    component.cipher = cipherView;
+    fixture.componentRef.setInput("attachment", attachment);
+    fixture.componentRef.setInput("cipher", cipherView);
     fixture.detectChanges();
   });
 
@@ -122,7 +122,13 @@ describe("DownloadAttachmentComponent", () => {
     });
 
     it("hides download button when the attachment has decryption failure", () => {
-      component.attachment.fileName = DECRYPT_ERROR;
+      const decryptFailureAttachment = new AttachmentView();
+      decryptFailureAttachment.id = attachment.id;
+      decryptFailureAttachment.url = attachment.url;
+      decryptFailureAttachment.size = attachment.size;
+      decryptFailureAttachment.fileName = DECRYPT_ERROR;
+
+      fixture.componentRef.setInput("attachment", decryptFailureAttachment);
       fixture.detectChanges();
 
       expect(fixture.debugElement.query(By.css("button"))).toBeNull();
@@ -155,7 +161,6 @@ describe("DownloadAttachmentComponent", () => {
 
         expect(showToast).toHaveBeenCalledWith({
           message: "errorOccurred",
-          title: null,
           variant: "error",
         });
       });
@@ -171,7 +176,6 @@ describe("DownloadAttachmentComponent", () => {
 
         expect(showToast).toHaveBeenCalledWith({
           message: "errorOccurred",
-          title: null,
           variant: "error",
         });
       });
