@@ -109,9 +109,10 @@ describe("VaultTimeoutService", () => {
     if (globalSetups?.userId) {
       accountService.activeAccountSubject.next({
         id: globalSetups.userId as UserId,
-        email: null,
-        emailVerified: false,
-        name: null,
+        ...mockAccountInfoWith({
+          email: null,
+          name: null,
+        }),
       });
     }
     accountService.accounts$ = of(
