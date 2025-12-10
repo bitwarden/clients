@@ -7,7 +7,7 @@ import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import {
   isRoutedVaultFilterItemType,
   RoutedVaultFilterModel,
-} from "../shared/models/routed-vault-filter.model";
+} from "../models/routed-vault-filter.model";
 
 /**
  * This service is an abstraction layer on top of ActivatedRoute that

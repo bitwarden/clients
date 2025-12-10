@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { Observable } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
 import { CollectionAdminView, CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -13,7 +14,7 @@ import {
   CollectionFilter,
   FolderFilter,
   OrganizationFilter,
-} from "../../shared/models/vault-filter.type";
+} from "../models/vault-filter.type";
 
 export abstract class VaultFilterService {
   collapsedFilterNodes$: Observable<Set<string>>;
