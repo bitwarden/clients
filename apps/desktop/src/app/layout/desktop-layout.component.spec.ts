@@ -1,3 +1,4 @@
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
@@ -5,7 +6,17 @@ import { mock } from "jest-mock-extended";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { NavigationModule } from "@bitwarden/components";
 
+import { SendFiltersNavComponent } from "../tools/send-v2/send-filters-nav.component";
+
 import { DesktopLayoutComponent } from "./desktop-layout.component";
+
+// Mock the child component to isolate DesktopLayoutComponent testing
+@Component({
+  selector: "app-send-filters-nav",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockSendFiltersNavComponent {}
 
 Object.defineProperty(window, "matchMedia", {
   writable: true,
@@ -34,7 +45,12 @@ describe("DesktopLayoutComponent", () => {
           useValue: mock<I18nService>(),
         },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(DesktopLayoutComponent, {
+        remove: { imports: [SendFiltersNavComponent] },
+        add: { imports: [MockSendFiltersNavComponent] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(DesktopLayoutComponent);
     component = fixture.componentInstance;
@@ -57,5 +73,12 @@ describe("DesktopLayoutComponent", () => {
     const ngContent = compiled.querySelectorAll("ng-content");
 
     expect(ngContent).toBeTruthy();
+  });
+
+  it("renders send filters navigation component", () => {
+    const compiled = fixture.nativeElement;
+    const sendFiltersNav = compiled.querySelector("app-send-filters-nav");
+
+    expect(sendFiltersNav).toBeTruthy();
   });
 });
