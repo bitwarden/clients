@@ -220,6 +220,10 @@ export class LockComponent implements OnInit, OnDestroy {
             this.unlockOptions = await firstValueFrom(
               this.lockComponentService.getAvailableUnlockOptions$(this.activeAccount.id),
             );
+            if (this.activeUnlockOption == null) {
+              this.loading = false;
+              await this.setDefaultActiveUnlockOption(this.unlockOptions);
+            }
           }
         }),
         takeUntil(this.destroy$),
