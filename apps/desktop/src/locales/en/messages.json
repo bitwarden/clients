@@ -708,6 +708,9 @@
   "addAttachment": {
     "message": "Add attachment"
   },
+  "itemsTransferred": {
+    "message": "Items transferred"
+  },
   "fixEncryption": {
     "message": "Fix encryption"
   },
