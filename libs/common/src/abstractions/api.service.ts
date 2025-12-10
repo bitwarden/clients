@@ -50,6 +50,7 @@ import { UpdateProfileRequest } from "../auth/models/request/update-profile.requ
 import { ApiKeyResponse } from "../auth/models/response/api-key.response";
 import { AuthRequestResponse } from "../auth/models/response/auth-request.response";
 import { IdentityDeviceVerificationResponse } from "../auth/models/response/identity-device-verification.response";
+import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
@@ -140,7 +141,10 @@ export abstract class ApiService {
       | UserApiTokenRequest
       | WebAuthnLoginTokenRequest,
   ): Promise<
-    IdentityTokenResponse | IdentityTwoFactorResponse | IdentityDeviceVerificationResponse
+    | IdentityTokenResponse
+    | IdentityTwoFactorResponse
+    | IdentityDeviceVerificationResponse
+    | IdentitySsoRequiredResponse
   >;
   abstract refreshIdentityToken(userId?: UserId): Promise<any>;
 
