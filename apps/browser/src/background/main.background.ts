@@ -841,10 +841,7 @@ export default class MainBackground {
     );
 
     this.pinService = new PinService(
-      this.accountService,
       this.encryptService,
-      this.kdfConfigService,
-      this.keyGenerationService,
       this.logService,
       this.keyService,
       this.sdkService,
