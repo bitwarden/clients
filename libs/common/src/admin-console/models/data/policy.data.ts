@@ -11,6 +11,7 @@ export class PolicyData {
   type: PolicyType;
   data: Record<string, string | number | boolean>;
   enabled: boolean;
+  revisionDate: string;
 
   constructor(response?: PolicyResponse) {
     if (response == null) {
@@ -22,6 +23,7 @@ export class PolicyData {
     this.type = response.type;
     this.data = response.data;
     this.enabled = response.enabled;
+    this.revisionDate = response.revisionDate;
   }
 
   static fromPolicy(policy: Policy): PolicyData {

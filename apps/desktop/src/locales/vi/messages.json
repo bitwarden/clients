@@ -1093,6 +1093,24 @@
   "learnMore": {
     "message": "Tìm hiểu thêm"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
   "featureUnavailable": {
     "message": "Tính năng không có sẵn"
   },
@@ -1489,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1GB bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Các tùy chọn xác minh hai bước như YubiKey và Duo."
@@ -2227,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Thông tin liên hệ"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Tất cả Send",
@@ -2991,7 +3022,8 @@
     "message": "Bạn có chắc chắn muốn chọn \"Không bao giờ\" không? Lựa chọn này sẽ lưu khóa mã hóa kho của bạn trực tiếp trên thiết bị. Hãy nhớ bảo vệ thiết bị của bạn thật cẩn thận nếu bạn chọn tùy chọn này."
   },
   "vault": {
-    "message": "Kho lưu trữ"
+    "message": "Kho lưu trữ",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Đăng nhập bằng mật khẩu chính"

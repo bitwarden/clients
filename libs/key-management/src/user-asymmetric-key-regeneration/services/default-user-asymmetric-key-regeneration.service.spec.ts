@@ -370,3 +370,52 @@ describe("regenerateIfNeeded", () => {
     );
   });
 });
+
+describe("regenerateUserPublicKeyEncryptionKeyPair", () => {
+  let sut: DefaultUserAsymmetricKeysRegenerationService;
+  const userId = "userId" as UserId;
+
+  let keyService: MockProxy<KeyService>;
+  let cipherService: MockProxy<CipherService>;
+  let userAsymmetricKeysRegenerationApiService: MockProxy<UserAsymmetricKeysRegenerationApiService>;
+  let logService: MockProxy<LogService>;
+  let sdkService: MockSdkService;
+  let apiService: MockProxy<ApiService>;
+  let configService: MockProxy<ConfigService>;
+
+  beforeEach(() => {
+    keyService = mock<KeyService>();
+    cipherService = mock<CipherService>();
+    userAsymmetricKeysRegenerationApiService = mock<UserAsymmetricKeysRegenerationApiService>();
+    logService = mock<LogService>();
+    sdkService = new MockSdkService();
+    apiService = mock<ApiService>();
+    configService = mock<ConfigService>();
+
+    sut = new DefaultUserAsymmetricKeysRegenerationService(
+      keyService,
+      cipherService,
+      userAsymmetricKeysRegenerationApiService,
+      logService,
+      sdkService,
+      apiService,
+      configService,
+    );
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  it("should throw error when user key is not V1 encryption type", async () => {
+    const mockUserKey = {
+      keyB64: "mockKeyB64",
+      inner: () => ({ type: 7 }),
+    } as unknown as UserKey;
+    keyService.userKey$.mockReturnValue(of(mockUserKey));
+
+    await expect(sut.regenerateUserPublicKeyEncryptionKeyPair(userId)).rejects.toThrow(
+      "User key is not V1 encryption type",
+    );
+  });
+});

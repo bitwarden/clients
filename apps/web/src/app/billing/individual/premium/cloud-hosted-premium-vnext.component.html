@@ -21,7 +21,7 @@
       <div>
         @if (premiumCardData$ | async; as premiumData) {
           <billing-pricing-card
-            [tagline]="'planDescPremium' | i18n"
+            [tagline]="'advancedOnlineSecurity' | i18n"
             [price]="{ amount: premiumData.price, cadence: 'monthly' }"
             [button]="{ type: 'primary', text: ('upgradeToPremium' | i18n) }"
             [features]="premiumData.features"

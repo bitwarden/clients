@@ -1096,6 +1096,9 @@ describe("KeyRotationService", () => {
       mockKeyService.userSigningKey$.mockReturnValue(
         new BehaviorSubject(TEST_VECTOR_SIGNING_KEY_V2 as WrappedSigningKey),
       );
+      mockKeyService.userSignedPublicKey$.mockReturnValue(
+        new BehaviorSubject(TEST_VECTOR_SIGNED_PUBLIC_KEY_V2 as SignedPublicKey),
+      );
       mockSecurityStateService.accountSecurityState$.mockReturnValue(
         new BehaviorSubject(TEST_VECTOR_SECURITY_STATE_V2 as SignedSecurityState),
       );
@@ -1140,6 +1143,7 @@ describe("KeyRotationService", () => {
           publicKeyEncryptionKeyPair: {
             wrappedPrivateKey: TEST_VECTOR_PRIVATE_KEY_V2,
             publicKey: Utils.fromB64ToArray(TEST_VECTOR_PUBLIC_KEY_V2) as UnsignedPublicKey,
+            signedPublicKey: TEST_VECTOR_SIGNED_PUBLIC_KEY_V2 as SignedPublicKey,
           },
           signingKey: TEST_VECTOR_SIGNING_KEY_V2 as WrappedSigningKey,
           securityState: TEST_VECTOR_SECURITY_STATE_V2 as SignedSecurityState,

@@ -6,7 +6,6 @@ import { filter, firstValueFrom } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { Collection, CollectionView } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import {
@@ -46,6 +45,7 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
   }
 
   async parse(data: string): Promise<ImportResult> {
+    const account = await firstValueFrom(this.accountService.activeAccount$);
     this.result = new ImportResult();
     const results: BitwardenJsonExport = JSON.parse(data);
     if (results == null || results.items == null) {
@@ -54,9 +54,9 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
     }
 
     if (results.encrypted) {
-      await this.parseEncrypted(results as any);
+      await this.parseEncrypted(results as any, account.id);
     } else {
-      await this.parseDecrypted(results as any);
+      await this.parseDecrypted(results as any, account.id);
     }
 
     return this.result;
@@ -64,9 +64,8 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
 
   private async parseEncrypted(
     results: BitwardenEncryptedIndividualJsonExport | BitwardenEncryptedOrgJsonExport,
+    userId: UserId,
   ) {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-
     if (results.encKeyValidation_DO_NOT_EDIT != null) {
       const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
       let keyForDecryption: SymmetricCryptoKey = orgKeys?.[this.organizationId];
@@ -84,8 +83,8 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
     }
 
     const groupingsMap = this.organization
-      ? await this.parseCollections(userId, results as BitwardenEncryptedOrgJsonExport)
-      : await this.parseFolders(results as BitwardenEncryptedIndividualJsonExport);
+      ? await this.parseCollections(results as BitwardenEncryptedOrgJsonExport, userId)
+      : await this.parseFolders(results as BitwardenEncryptedIndividualJsonExport, userId);
 
     for (const c of results.items) {
       const cipher = CipherWithIdExport.toDomain(c);
@@ -125,12 +124,11 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
 
   private async parseDecrypted(
     results: BitwardenUnEncryptedIndividualJsonExport | BitwardenUnEncryptedOrgJsonExport,
+    userId: UserId,
   ) {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-
     const groupingsMap = this.organization
-      ? await this.parseCollections(userId, results as BitwardenUnEncryptedOrgJsonExport)
-      : await this.parseFolders(results as BitwardenUnEncryptedIndividualJsonExport);
+      ? await this.parseCollections(results as BitwardenUnEncryptedOrgJsonExport, userId)
+      : await this.parseFolders(results as BitwardenUnEncryptedIndividualJsonExport, userId);
 
     results.items.forEach((c) => {
       const cipher = CipherWithIdExport.toView(c);
@@ -169,10 +167,13 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
 
   private async parseFolders(
     data: BitwardenUnEncryptedIndividualJsonExport | BitwardenEncryptedIndividualJsonExport,
+    userId: UserId,
   ): Promise<Map<string, number>> | null {
     if (data.folders == null) {
       return null;
     }
+
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
     const groupingsMap = new Map<string, number>();
 
@@ -181,7 +182,7 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
       if (data.encrypted) {
         const folder = FolderWithIdExport.toDomain(f);
         if (folder != null) {
-          folderView = await folder.decrypt();
+          folderView = await folder.decrypt(userKey);
         }
       } else {
         folderView = FolderWithIdExport.toView(f);
@@ -196,8 +197,8 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
   }
 
   private async parseCollections(
-    userId: UserId,
     data: BitwardenUnEncryptedOrgJsonExport | BitwardenEncryptedOrgJsonExport,
+    userId: UserId,
   ): Promise<Map<string, number>> | null {
     if (data.collections == null) {
       return null;

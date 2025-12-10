@@ -3062,6 +3062,15 @@
   "premiumSignUpStorage": {
     "message": "1 GB de armazenamento criptografado para anexo de arquivos."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ de armazenamento criptografado para anexos de arquivo.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Opções de autenticação em duas etapas proprietárias como YubiKey e Duo."
   },
@@ -3123,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Sua assinatura Premium terminou"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Para recuperar o seu acesso ao seu arquivo, retoma sua assinatura Premium. Se editar detalhes de um item arquivado antes de retomar, ele será movido de volta para o seu cofre."
+  },
+  "restartPremium": {
+    "message": "Retomar Premium"
   },
   "additionalStorageGb": {
     "message": "Armazenamento adicional (GB)"
@@ -4607,6 +4625,24 @@
   },
   "learnMore": {
     "message": "Saiba mais"
+  },
+  "migrationsFailed": {
+    "message": "Ocorreu um erro ao atualizar as configurações de criptografia."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Atualize suas configurações de criptografia"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "As novas configurações de criptografia recomendadas melhorarão a segurança da sua conta. Digite sua senha principal para atualizar agora."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirme sua identidade para continuar"
+  },
+  "enterYourMasterPassword": {
+    "message": "Digite sua senha principal"
+  },
+  "updateSettings": {
+    "message": "Atualizar configurações"
   },
   "deleteRecoverDesc": {
     "message": "Digite seu endereço de e-mail abaixo para recuperar e apagar sua conta."
@@ -12092,9 +12128,6 @@
   },
   "updateYourEncryptionSettings": {
     "message": "Atualize suas configurações de criptografia"
-  },
-  "updateSettings": {
-    "message": "Atualizar configurações"
   },
   "algorithm": {
     "message": "Algoritmo"

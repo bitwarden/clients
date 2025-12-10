@@ -8,6 +8,7 @@ import { combineLatest, filter, map, Observable, switchMap, withLatestFrom } fro
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AdminConsoleLogo } from "@bitwarden/assets/svg";
 import {
+  canAccessAccessIntelligence,
   canAccessBillingTab,
   canAccessGroupsTab,
   canAccessMembersTab,
@@ -170,6 +171,10 @@ export class OrganizationLayoutComponent implements OnInit {
 
   canShowBillingTab(organization: Organization): boolean {
     return canAccessBillingTab(organization);
+  }
+
+  canShowAccessIntelligenceTab(organization: Organization): boolean {
+    return canAccessAccessIntelligence(organization);
   }
 
   getReportTabLabel(organization: Organization): string {

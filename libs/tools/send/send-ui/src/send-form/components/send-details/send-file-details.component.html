@@ -1,7 +1,9 @@
 <bit-section [formGroup]="sendFileDetailsForm">
   <div *ngIf="config().mode === 'edit'">
     <div bitTypography="body2" class="tw-text-muted">{{ "file" | i18n }}</div>
-    <div data-testid="file-name">{{ originalSendView().file.fileName }}</div>
+    <div class="tw-text-wrap tw-break-all" data-testid="file-name">
+      {{ originalSendView().file.fileName }}
+    </div>
     <div data-testid="file-size" class="tw-text-muted">{{ originalSendView().file.sizeName }}</div>
   </div>
   <bit-form-field *ngIf="config().mode !== 'edit'">
