@@ -2618,6 +2618,7 @@ describe("CollectAutofillContentService", () => {
 
     it("sets up the inline menu listeners on a viewable field", async () => {
       const formFieldElement = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      document.body.appendChild(formFieldElement);
       const autofillField = mock<AutofillField>();
       const entries = [
         { target: formFieldElement, isIntersecting: true },
@@ -2637,6 +2638,66 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
+  describe("setupOverlayOnField", () => {
+    it("executes immediately on first call then debounces subsequent rapid calls", () => {
+      const formFieldElement = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      document.body.appendChild(formFieldElement);
+      const autofillField = mock<AutofillField>();
+      collectAutofillContentService["autofillFieldElements"].set(formFieldElement, autofillField);
+      const setupAutofillOverlayListenerOnFieldSpy = jest.spyOn(
+        collectAutofillContentService["autofillOverlayContentService"],
+        "setupOverlayListeners",
+      );
+      jest.useFakeTimers();
+
+      // First call executes immediately
+      collectAutofillContentService["setupOverlayOnField"](formFieldElement, autofillField);
+      expect(setupAutofillOverlayListenerOnFieldSpy).toHaveBeenCalledTimes(1);
+
+      // Subsequent rapid calls are debounced
+      collectAutofillContentService["setupOverlayOnField"](formFieldElement, autofillField);
+      collectAutofillContentService["setupOverlayOnField"](formFieldElement, autofillField);
+      expect(setupAutofillOverlayListenerOnFieldSpy).toHaveBeenCalledTimes(1);
+
+      // After debounce delay, the next call executes immediately again
+      jest.advanceTimersByTime(150);
+      collectAutofillContentService["setupOverlayOnField"](formFieldElement, autofillField);
+      expect(setupAutofillOverlayListenerOnFieldSpy).toHaveBeenCalledTimes(2);
+
+      jest.useRealTimers();
+    });
+
+    it("does not call setupOverlayListeners if the element is not in DOM", () => {
+      const formFieldElement = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      // Note: not appending to document.body
+      const autofillField = mock<AutofillField>();
+      collectAutofillContentService["autofillFieldElements"].set(formFieldElement, autofillField);
+      const setupAutofillOverlayListenerOnFieldSpy = jest.spyOn(
+        collectAutofillContentService["autofillOverlayContentService"],
+        "setupOverlayListeners",
+      );
+
+      collectAutofillContentService["setupOverlayOnField"](formFieldElement, autofillField);
+
+      expect(setupAutofillOverlayListenerOnFieldSpy).not.toHaveBeenCalled();
+    });
+
+    it("does not call setupOverlayListeners if the element is not in cache", () => {
+      const formFieldElement = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      document.body.appendChild(formFieldElement);
+      const autofillField = mock<AutofillField>();
+      // Note: not adding to autofillFieldElements cache
+      const setupAutofillOverlayListenerOnFieldSpy = jest.spyOn(
+        collectAutofillContentService["autofillOverlayContentService"],
+        "setupOverlayListeners",
+      );
+
+      collectAutofillContentService["setupOverlayOnField"](formFieldElement, autofillField);
+
+      expect(setupAutofillOverlayListenerOnFieldSpy).not.toHaveBeenCalled();
+    });
+  });
+
   describe("destroy", () => {
     it("clears the updateAfterMutationIdleCallback", () => {
       jest.spyOn(window, "clearTimeout");
@@ -2647,6 +2708,29 @@ describe("CollectAutofillContentService", () => {
       expect(clearTimeout).toHaveBeenCalledWith(
         collectAutofillContentService["updateAfterMutationIdleCallback"],
       );
+    });
+
+    it("clears all pending overlay setup timeouts", () => {
+      const formFieldElement1 = document.createElement(
+        "input",
+      ) as ElementWithOpId<FormFieldElement>;
+      const formFieldElement2 = document.createElement(
+        "input",
+      ) as ElementWithOpId<FormFieldElement>;
+      const clearTimeoutSpy = jest.spyOn(window, "clearTimeout");
+      collectAutofillContentService["pendingOverlaySetup"].set(
+        formFieldElement1,
+        setTimeout(jest.fn, 100),
+      );
+      collectAutofillContentService["pendingOverlaySetup"].set(
+        formFieldElement2,
+        setTimeout(jest.fn, 100),
+      );
+
+      collectAutofillContentService.destroy();
+
+      expect(clearTimeoutSpy).toHaveBeenCalledTimes(2);
+      expect(collectAutofillContentService["pendingOverlaySetup"].size).toBe(0);
     });
   });
 });
