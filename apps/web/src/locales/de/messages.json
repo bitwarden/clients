@@ -21,13 +21,13 @@
     "message": "Passwort-Risiko"
   },
   "noEditPermissions": {
-    "message": "Du bist nicht berechtigt, diesen Eintrag zu bearbeiten"
+    "message": "Du hast keine Berechtigung, diesen Eintrag zu bearbeiten"
   },
   "reviewAtRiskPasswords": {
     "message": "Überprüfe gefährdete Passwörter (schwach, kompromittiert oder wiederverwendet) in allen Anwendungen. Wähle deine kritischsten Anwendungen aus, um die Sicherheitsmaßnahmen für deine Benutzer zu priorisieren, um gefährdete Passwörter zu beseitigen."
   },
   "reviewAtRiskLoginsPrompt": {
-    "message": "Überprüfung gefährdeter Zugangsdaten"
+    "message": "Gefährdete Zugangsdaten überprüfen"
   },
   "dataLastUpdated": {
     "message": "Daten zuletzt aktualisiert: $DATE$",
@@ -94,7 +94,7 @@
     "message": "Mitglieder Aufgaben zuweisen, um den Fortschritt zu überwachen"
   },
   "onceYouReviewApplications": {
-    "message": "Sobald du Anwendungen überprüft und als kritisch markiert hast, weist du deinen Mitgliedern Aufgaben zu, damit diese ihre Passwörter ändern."
+    "message": "Sobald du Anwendungen überprüft und als kritisch markiert hast, weise deinen Mitgliedern Aufgaben zu, um sie für das automatische Ausfüllen von Passwörtern zu aktivieren."
   },
   "sendReminders": {
     "message": "Erinnerungen senden"
@@ -3062,6 +3062,15 @@
   "premiumSignUpStorage": {
     "message": "1 GB verschlüsselter Speicherplatz für Dateianhänge."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Proprietäre Optionen für die Zwei-Faktor Authentifizierung wie YubiKey und Duo."
   },
@@ -3123,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "additionalStorageGb": {
     "message": "Zusätzlicher Speicher (GB)"
@@ -4607,6 +4625,24 @@
   },
   "learnMore": {
     "message": "Erfahre mehr"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Einstellungen aktualisieren"
   },
   "deleteRecoverDesc": {
     "message": "Geben Sie hier Ihre E-Mail-Adresse ein, um Ihr Konto wiederherzustellen und zu löschen."
@@ -12093,9 +12129,6 @@
   "updateYourEncryptionSettings": {
     "message": "Aktualisiere deine Verschlüsselungseinstellungen"
   },
-  "updateSettings": {
-    "message": "Einstellungen aktualisieren"
-  },
   "algorithm": {
     "message": "Algorithmus"
   },
@@ -12154,7 +12187,7 @@
     "message": "Aussehen"
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "Das Timeout überschreitet die von deiner Organisation festgelegte Beschränkung: Maximal $HOURS$ Stunde(n) und $MINUTES$ Minute(n)",
+    "message": "Das maximale Sitzungs-Timeout, das durch die Richtlinie deiner Organisation erlaubt ist, beträgt $HOURS$ Stunde(n) und $MINUTES$ Minute(n)",
     "placeholders": {
       "hours": {
         "content": "$1",

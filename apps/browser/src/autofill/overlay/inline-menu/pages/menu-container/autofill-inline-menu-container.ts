@@ -129,7 +129,12 @@ export class AutofillInlineMenuContainer {
     }
     try {
       const urlObj = new URL(url);
-      const isExtensionProtocol = /^[a-z]+(-[a-z]+)?-extension:$/i.test(urlObj.protocol);
+      const extensionProtocols = new Set([
+        "chrome-extension:",
+        "moz-extension:",
+        "safari-web-extension:",
+      ]);
+      const isExtensionProtocol = extensionProtocols.has(urlObj.protocol);
 
       if (!isExtensionProtocol) {
         return false;

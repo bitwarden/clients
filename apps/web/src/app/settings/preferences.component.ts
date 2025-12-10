@@ -33,7 +33,7 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { DialogService } from "@bitwarden/components";
-import { SessionTimeoutInputComponent } from "@bitwarden/key-management-ui";
+import { SessionTimeoutInputLegacyComponent } from "@bitwarden/key-management-ui";
 import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
 import { HeaderModule } from "../layouts/header/header.module";
@@ -52,8 +52,8 @@ import { SharedModule } from "../shared";
   imports: [
     SharedModule,
     HeaderModule,
-    SessionTimeoutInputComponent,
     PermitCipherDetailsPopoverComponent,
+    SessionTimeoutInputLegacyComponent,
   ],
 })
 export class PreferencesComponent implements OnInit, OnDestroy {

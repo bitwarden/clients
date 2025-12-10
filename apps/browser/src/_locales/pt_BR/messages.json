@@ -861,7 +861,7 @@
     "message": "A confirmação da senha principal não corresponde."
   },
   "newAccountCreated": {
-    "message": "A sua nova conta foi criada! Agora você pode conectar-se."
+    "message": "A sua conta nova foi criada! Agora você pode se conectar."
   },
   "newAccountCreated2": {
     "message": "Sua nova conta foi criada!"
@@ -870,7 +870,7 @@
     "message": "Você foi conectado!"
   },
   "youSuccessfullyLoggedIn": {
-    "message": "Você conectou-se à sua conta com sucesso"
+    "message": "Você se conectou com sucesso"
   },
   "youMayCloseThisWindow": {
     "message": "Você pode fechar esta janela"
@@ -1406,6 +1406,27 @@
   "learnMore": {
     "message": "Saiba mais"
   },
+  "migrationsFailed": {
+    "message": "Ocorreu um erro ao atualizar as configurações de criptografia."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Atualize suas configurações de criptografia"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "As novas configurações de criptografia recomendadas melhorarão a segurança da sua conta. Digite sua senha principal para atualizar agora."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirme sua identidade para continuar"
+  },
+  "enterYourMasterPassword": {
+    "message": "Digite sua senha principal"
+  },
+  "updateSettings": {
+    "message": "Atualizar configurações"
+  },
+  "later": {
+    "message": "Depois"
+  },
   "authenticatorKeyTotp": {
     "message": "Chave do autenticador (TOTP)"
   },
@@ -1474,6 +1495,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1 GB de armazenamento criptografado para anexo de arquivos."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ de armazenamento criptografado para anexos de arquivo.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Acesso de emergência."
@@ -2482,16 +2512,16 @@
     }
   },
   "policyInEffectUppercase": {
-    "message": "Contém um ou mais caracteres em maiúsculo"
+    "message": "Conter um ou mais caracteres em maiúsculo"
   },
   "policyInEffectLowercase": {
-    "message": "Contém um ou mais caracteres em minúsculo"
+    "message": "Conter um ou mais caracteres em minúsculo"
   },
   "policyInEffectNumbers": {
-    "message": "Contém um ou mais números"
+    "message": "Conter um ou mais números"
   },
   "policyInEffectSpecial": {
-    "message": "Contém um ou mais dos seguintes caracteres especiais $CHARS$",
+    "message": "Conter um ou mais dos seguintes caracteres especiais $CHARS$",
     "placeholders": {
       "chars": {
         "content": "$1",
@@ -3308,7 +3338,7 @@
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "para evitar a perca adicional dos dados.",
+    "message": "para evitar a perca de dados adicionais.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {

@@ -1,5 +1,5 @@
 <button bitButton [bitMenuTriggerFor]="itemOptions" [buttonType]="buttonType" type="button">
-  <i *ngIf="!hideIcon" class="bwi bwi-plus" aria-hidden="true"></i>
+  <i *ngIf="!hideIcon" class="bwi bwi-plus tw-me-2" aria-hidden="true"></i>
   {{ (hideIcon ? "createSend" : "new") | i18n }}
 </button>
 <bit-menu #itemOptions>
