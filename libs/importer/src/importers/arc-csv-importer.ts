@@ -14,7 +14,7 @@ export class ArcCsvImporter extends BaseImporter implements Importer {
 
     results.forEach((value) => {
       const cipher = this.initLoginCipher();
-      const url = this.getValueOrDefault(value.url, this.getValueOrDefault(value.hostname));
+      const url = this.getValueOrDefault(value.url);
       cipher.name = this.getValueOrDefault(this.nameFromUrl(url), "--");
       cipher.login.username = this.getValueOrDefault(value.username);
       cipher.login.password = this.getValueOrDefault(value.password);
