@@ -1093,6 +1093,24 @@
   "learnMore": {
     "message": "Saiba mais"
   },
+  "migrationsFailed": {
+    "message": "Ocorreu um erro ao atualizar as configurações de criptografia."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Atualize suas configurações de criptografia"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "As novas configurações de criptografia recomendadas melhorarão a segurança da sua conta. Digite sua senha principal para atualizar agora."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirme sua identidade para continuar"
+  },
+  "enterYourMasterPassword": {
+    "message": "Digite sua senha principal"
+  },
+  "updateSettings": {
+    "message": "Atualizar configurações"
+  },
   "featureUnavailable": {
     "message": "Recurso indisponível"
   },
@@ -1489,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 GB de armazenamento criptografado para anexos de arquivos."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ de armazenamento criptografado para anexos de arquivo.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Opções proprietárias de autenticação em duas etapas como YubiKey e Duo."
@@ -2227,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Informações de contato"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Todos os Sends",
@@ -2991,7 +3022,8 @@
     "message": "Você tem certeza que deseja usar a opção \"Nunca\"? Ao usar o \"Nunca\", a chave de criptografia do seu cofre é armazenada no seu dispositivo. Se você usar esta opção, deve garantir que mantém seu dispositivo devidamente protegido."
   },
   "vault": {
-    "message": "Cofre"
+    "message": "Cofre",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Conectar-se com senha principal"
