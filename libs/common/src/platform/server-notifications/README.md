@@ -44,11 +44,12 @@ This structure allows us to inject a different implementation of `WebPushConnect
 the client, depending on the best way to use web push in that client's ecosystem. For now it is only
 using the Service Worker of our Chrome MV3 extension. Possible future implementation of this service
 could be a `Worker` in our web app. This would require that we request the
-[`Notification` permission][notification-permission] and that browsers start allowing
-`userVisibleOnly: false`. Right now browsers require `true` and that a notification is shown to the
-user after push notification is received. If one isn't shown then browser will automatically show
-one stating "The website has refreshed in the background". Another possible implementation that
-could apply to web and desktop would be using our `autopush-manager` package. That package uses web
+[`Notification` permission](https://developer.mozilla.org/en-US/docs/Web/API/Notification/permission_static)
+and that browsers start allowing `userVisibleOnly: false`. Right now browsers require `true` and
+that a notification is shown to the user after push notification is received. If one isn't shown
+then browser will automatically show one stating "The website has refreshed in the background".
+Another possible implementation that could apply to web and desktop would be using our
+[`autopush-manager`](https://github.com/bitwarden/autopush-manager/) package. That package uses web
 sockets under the hood but implements the cryptography layer of web push on top of it so that we can
 offload the socket connection to another party.
 
@@ -86,5 +87,3 @@ would be a web socket connection made in each. With this special instance we avo
 nothing at the moment. Once we begin to fully support the `notifications$` observable we can make
 a choice whether or not keep not supporting it in the browser foreground or we can decide to support
 it through messaging the background.
-
-[notification-permission]:[https://developer.mozilla.org/en-US/docs/Web/API/Notification/permission_static]
