@@ -4,6 +4,7 @@ import { componentWrapperDecorator } from "@storybook/angular";
 import type { Preview } from "@storybook/angular";
 
 import docJson from "../documentation.json";
+
 setCompodocJson(docJson);
 
 const wrapperDecorator = componentWrapperDecorator((story) => {
@@ -27,7 +28,7 @@ const preview: Preview = {
   ],
   parameters: {
     a11y: {
-      element: "#storybook-root",
+      context: "#storybook-root",
     },
     controls: {
       matchers: {
@@ -48,7 +49,7 @@ const preview: Preview = {
       },
     },
     backgrounds: {
-      disable: true,
+      disabled: true,
     },
   },
   tags: ["autodocs"],

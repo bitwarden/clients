@@ -2,9 +2,7 @@ import { mock } from "jest-mock-extended";
 import { Jsonify } from "type-fest";
 
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { KeyService } from "@bitwarden/key-management";
+import { MockProxy } from "@bitwarden/common/platform/spec/mock-deep";
 import {
   CipherType as SdkCipherType,
   UriMatchType,
@@ -14,11 +12,15 @@ import {
   EncString as SdkEncString,
 } from "@bitwarden/sdk-internal";
 
-import { makeStaticByteArray, mockEnc, mockFromJson } from "../../../../spec/utils";
+import {
+  makeStaticByteArray,
+  mockContainerService,
+  mockEnc,
+  mockFromJson,
+} from "../../../../spec/utils";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
-import { ContainerService } from "../../../platform/services/container.service";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { UserId } from "../../../types/guid";
 import { CipherService } from "../../abstractions/cipher.service";
@@ -39,27 +41,36 @@ import { IdentityView } from "../../models/view/identity.view";
 import { LoginView } from "../../models/view/login.view";
 import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 
+const mockSymmetricKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+
 describe("Cipher DTO", () => {
+  let encryptService: MockProxy<EncryptService>;
+
+  beforeEach(() => {
+    const containerService = mockContainerService();
+    encryptService = containerService.encryptService;
+  });
+
   it("Convert from empty CipherData", () => {
     const data = new CipherData();
     const cipher = new Cipher(data);
 
-    expect(cipher.id).toBeUndefined();
+    expect(cipher.id).toEqual("");
     expect(cipher.organizationId).toBeUndefined();
     expect(cipher.folderId).toBeUndefined();
     expect(cipher.name).toBeInstanceOf(EncString);
     expect(cipher.notes).toBeUndefined();
-    expect(cipher.type).toBeUndefined();
-    expect(cipher.favorite).toBeUndefined();
-    expect(cipher.organizationUseTotp).toBeUndefined();
-    expect(cipher.edit).toBeUndefined();
-    expect(cipher.viewPassword).toBeUndefined();
+    expect(cipher.type).toEqual(CipherType.Login);
+    expect(cipher.favorite).toEqual(false);
+    expect(cipher.organizationUseTotp).toEqual(false);
+    expect(cipher.edit).toEqual(false);
+    expect(cipher.viewPassword).toEqual(true);
     expect(cipher.revisionDate).toBeInstanceOf(Date);
     expect(cipher.collectionIds).toEqual([]);
     expect(cipher.localData).toBeUndefined();
     expect(cipher.creationDate).toBeInstanceOf(Date);
     expect(cipher.deletedDate).toBeUndefined();
-    expect(cipher.reprompt).toBeUndefined();
+    expect(cipher.reprompt).toEqual(CipherRepromptType.None);
     expect(cipher.attachments).toBeUndefined();
     expect(cipher.fields).toBeUndefined();
     expect(cipher.passwordHistory).toBeUndefined();
@@ -95,13 +106,12 @@ describe("Cipher DTO", () => {
     login.decrypt.mockResolvedValue(loginView);
     cipher.login = login;
 
-    const keyService = mock<KeyService>();
-    const encryptService = mock<EncryptService>();
     const cipherService = mock<CipherService>();
 
     encryptService.unwrapSymmetricKey.mockRejectedValue(new Error("Failed to unwrap key"));
-
-    (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+    cipherService.getKeyForCipherKeyDecryption.mockResolvedValue(
+      new SymmetricCryptoKey(makeStaticByteArray(64)),
+    );
 
     const cipherView = await cipher.decrypt(
       await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
@@ -317,19 +327,11 @@ describe("Cipher DTO", () => {
       login.decrypt.mockResolvedValue(loginView);
       cipher.login = login;
 
-      const keyService = mock<KeyService>();
-      const encryptService = mock<EncryptService>();
-      const cipherService = mock<CipherService>();
-
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
       );
 
-      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
-
-      const cipherView = await cipher.decrypt(
-        await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
-      );
+      const cipherView = await cipher.decrypt(mockSymmetricKey);
 
       expect(cipherView).toMatchObject({
         id: "id",
@@ -445,19 +447,11 @@ describe("Cipher DTO", () => {
       cipher.permissions = new CipherPermissionsApi();
       cipher.archivedDate = undefined;
 
-      const keyService = mock<KeyService>();
-      const encryptService = mock<EncryptService>();
-      const cipherService = mock<CipherService>();
-
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
       );
 
-      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
-
-      const cipherView = await cipher.decrypt(
-        await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
-      );
+      const cipherView = await cipher.decrypt(mockSymmetricKey);
 
       expect(cipherView).toMatchObject({
         id: "id",
@@ -591,19 +585,11 @@ describe("Cipher DTO", () => {
       card.decrypt.mockResolvedValue(cardView);
       cipher.card = card;
 
-      const keyService = mock<KeyService>();
-      const encryptService = mock<EncryptService>();
-      const cipherService = mock<CipherService>();
-
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
       );
 
-      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
-
-      const cipherView = await cipher.decrypt(
-        await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
-      );
+      const cipherView = await cipher.decrypt(mockSymmetricKey);
 
       expect(cipherView).toMatchObject({
         id: "id",
@@ -761,19 +747,11 @@ describe("Cipher DTO", () => {
       identity.decrypt.mockResolvedValue(identityView);
       cipher.identity = identity;
 
-      const keyService = mock<KeyService>();
-      const encryptService = mock<EncryptService>();
-      const cipherService = mock<CipherService>();
-
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
       );
 
-      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
-
-      const cipherView = await cipher.decrypt(
-        await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
-      );
+      const cipherView = await cipher.decrypt(mockSymmetricKey);
 
       expect(cipherView).toMatchObject({
         id: "id",
@@ -834,6 +812,38 @@ describe("Cipher DTO", () => {
         archivedDate: archivedDate,
       });
       expect(actual).toBeInstanceOf(Cipher);
+    });
+
+    it("handles null permissions correctly without calling CipherPermissionsApi constructor", () => {
+      const spy = jest.spyOn(CipherPermissionsApi.prototype, "constructor" as any);
+      const revisionDate = new Date("2022-08-04T01:06:40.441Z");
+      const actual = Cipher.fromJSON({
+        name: "myName",
+        revisionDate: revisionDate.toISOString(),
+        permissions: null,
+      } as Jsonify<Cipher>);
+
+      expect(actual.permissions).toBeUndefined();
+      expect(actual).toBeInstanceOf(Cipher);
+      // Verify that CipherPermissionsApi constructor was not called for null permissions
+      expect(spy).not.toHaveBeenCalledWith(null);
+      spy.mockRestore();
+    });
+
+    it("calls CipherPermissionsApi constructor when permissions are provided", () => {
+      const spy = jest.spyOn(CipherPermissionsApi.prototype, "constructor" as any);
+      const revisionDate = new Date("2022-08-04T01:06:40.441Z");
+      const permissionsObj = { delete: true, restore: false };
+      const actual = Cipher.fromJSON({
+        name: "myName",
+        revisionDate: revisionDate.toISOString(),
+        permissions: permissionsObj,
+      } as Jsonify<Cipher>);
+
+      expect(actual.permissions).toBeInstanceOf(CipherPermissionsApi);
+      expect(actual.permissions.delete).toBe(true);
+      expect(actual.permissions.restore).toBe(false);
+      spy.mockRestore();
     });
 
     test.each([
@@ -1056,6 +1066,7 @@ describe("Cipher DTO", () => {
         card: undefined,
         secureNote: undefined,
         sshKey: undefined,
+        data: undefined,
         favorite: false,
         reprompt: SdkCipherRepromptType.None,
         organizationUseTotp: true,

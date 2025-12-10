@@ -4,7 +4,7 @@ A rust library that allows you to directly import credentials from Chromium-base
 
 ## Windows ABE Architecture
 
-On Windows chrome has additional protection measurements which needs to be circumvented in order to
+On Windows Chrome has additional protection measurements which needs to be circumvented in order to
 get access to the passwords.
 
 ### Overview
@@ -13,8 +13,6 @@ The Windows **Application Bound Encryption (ABE)** subsystem consists of two mai
 
 - **client library** — a library that is part of the desktop client application
 - **bitwarden_chromium_import_helper.exe** — a password decryptor running as **ADMINISTRATOR** and later as **SYSTEM**
-
-_(The name of the binary will be changed in the released product.)_
 
 See the last section for a concise summary of the entire process.
 
@@ -27,7 +25,9 @@ encryption scheme for some local profiles.
 The general idea of this encryption scheme is as follows:
 
 1. Chrome generates a unique random encryption key.
-2. This key is first encrypted at the **user level** with a fixed key.
+2. This key is first encrypted at the **user level** with a fixed key for v1/v2 of ABE. For ABE v3 a more complicated
+   scheme is used that encrypts the key with a combination of a fixed key and a randomly generated key at the **system
+   level** via Windows CNG API.
 3. It is then encrypted at the **user level** again using the Windows **Data Protection API (DPAPI)**.
 4. Finally, it is sent to a special service that encrypts it with DPAPI at the **system level**.
 
@@ -39,7 +39,7 @@ The following sections describe how the key is decrypted at each level.
 
 This is a Rust module that is part of the Chromium importer. It compiles and runs only on Windows (see `abe.rs` and
 `abe_config.rs`). Its main task is to launch `bitwarden_chromium_import_helper.exe` with elevated privileges, presenting
-the user with the UAC prompt. See the `abe::decrypt_with_admin` call in `windows.rs`.
+the user with the UAC prompt. See the `abe::decrypt_with_admin` call in `platform/windows/mod.rs`.
 
 This function takes two arguments:
 
@@ -77,10 +77,26 @@ With the duplicated token, `ImpersonateLoggedOnUser` is called to impersonate a 
 
 > **At this point `bitwarden_chromium_import_helper.exe` is running as SYSTEM.**
 
-The received encryption key can now be decrypted using DPAPI at the system level.
+The received encryption key can now be decrypted using DPAPI at the **system level**.
 
-The decrypted result is sent back to the client via the named pipe. `bitwarden_chromium_import_helper.exe` connects to
-the pipe and writes the result.
+Next, the impersonation is stopped and the feshly decrypted key is decrypted at the **user level** with DPAPI one more
+time.
+
+At this point, for browsers not using the custom encryption/obfuscation layer like unbranded Chromium, the twice
+decrypted key is the actual encryption key that could be used to decrypt the stored passwords.
+
+For other browsers like Google Chrome, some additional processing is required. The decrypted key is actually a blob of structured data that could take multiple forms:
+
+1. exactly 32 bytes: plain key, nothing to be done more in this case
+2. blob starts with 0x01: the key is encrypted with a fixed AES key found in Google Chrome binary, a random IV is stored
+   in the blob as well
+3. blob starts with 0x02: the key is encrypted with a fixed ChaCha20 key found in Google Chrome binary, a random IV is
+   stored in the blob as well
+4. blob starts with 0x03: the blob contains a random key, encrypted with CNG API with a random key stored in the
+   **system keychain** under the name `Google Chromekey1`. After that key is decryped (under **system level** impersonation again), the key is xor'ed with a fixed key from the Chrome binary and the it is used to decrypt the key from the last DPAPI decryption stage.
+
+The decrypted key is sent back to the client via the named pipe. `bitwarden_chromium_import_helper.exe` connects to the
+pipe and writes the result.
 
 The response can indicate success or failure:
 
@@ -94,17 +110,8 @@ Finally, `bitwarden_chromium_import_helper.exe` exits.
 
 ### 3. Back to the Client Library
 
-The decrypted Base64-encoded string is returned from `bitwarden_chromium_import_helper.exe` to the named pipe server at
-the user level. At this point it has been decrypted only once—at the system level.
-
-Next, the string is decrypted at the **user level** with DPAPI.
-
-Finally, for Google Chrome (but not Brave), it is decrypted again with a hard-coded key found in `elevation_service.exe`
-from the Chrome installation. Based on the version of the encrypted string (encoded within the string itself), this step
-uses either **AES-256-GCM** or **ChaCha20-Poly1305**. See `windows.rs` for details.
-
-After these steps, the master key is available and can be used to decrypt the password information stored in the
-browser’s local database.
+The decrypted Base64-encoded key is returned from `bitwarden_chromium_import_helper.exe` to the named pipe server at the
+user level. The key is used to decrypt the stored passwords and notes.
 
 ### TL;DR Steps
 
@@ -122,13 +129,12 @@ browser’s local database.
     2. Ensure `SE_DEBUG_PRIVILEGE` is enabled (not strictly necessary in tests).
     3. Impersonate a system process such as `services.exe` or `winlogon.exe`.
     4. Decrypt the key using DPAPI at the **SYSTEM** level.
+    5. Decrypt it again with DPAPI at the **USER** level.
+    6. (For Chrome only) Decrypt again with the hard-coded key, possibly at the **system level** again (see above).
     5. Send the result or error back via the named pipe.
     6. Exit.
 
 3. **Back on the client side:**
-    1. Receive the encryption key.
+    1. Receive the master key.
     2. Shutdown the pipe server.
-    3. Decrypt it with DPAPI at the **USER** level.
-    4. (For Chrome only) Decrypt again with the hard-coded key.
-    5. Obtain the fully decrypted master key.
-    6. Use the master key to read and decrypt stored passwords from Chrome, Brave, Edge, etc.
+    3. Use the master key to read and decrypt stored passwords from Chrome, Brave, Edge, etc.

@@ -9,6 +9,7 @@ config.content = [
   "../../libs/key-management-ui/src/**/*.{html,ts}",
   "../../libs/angular/src/**/*.{html,ts}",
   "../../libs/vault/src/**/*.{html,ts,mdx}",
+  "../../libs/pricing/src/**/*.{html,ts}",
 ];
 
 module.exports = config;

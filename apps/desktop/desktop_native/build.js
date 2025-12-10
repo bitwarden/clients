@@ -11,8 +11,8 @@ const rustTargetsMap = {
     "aarch64-pc-windows-msvc":    { nodeArch: 'arm64', platform: 'win32'  },
     "x86_64-apple-darwin":        { nodeArch: 'x64',   platform: 'darwin' },
     "aarch64-apple-darwin":       { nodeArch: 'arm64', platform: 'darwin' },
-    'x86_64-unknown-linux-musl':  { nodeArch: 'x64',   platform: 'linux'  },
-    'aarch64-unknown-linux-musl': { nodeArch: 'arm64', platform: 'linux'  },
+    'x86_64-unknown-linux-gnu':   { nodeArch: 'x64',   platform: 'linux'  },
+    'aarch64-unknown-linux-gnu':  { nodeArch: 'arm64', platform: 'linux'  },
 }
 
 // Ensure the dist directory exists
@@ -54,7 +54,7 @@ function buildImporterBinaries(target, release = true) {
     const bin = "bitwarden_chromium_import_helper";
     const targetArg = target ? `--target ${target}` : "";
     const releaseArg = release ? "--release" : "";
-    child_process.execSync(`cargo build --bin ${bin} ${releaseArg} ${targetArg} --features windows-binary`, {stdio: 'inherit', cwd: path.join(__dirname, "chromium_importer")});
+    child_process.execSync(`cargo build --bin ${bin} ${releaseArg} ${targetArg}`);
 
     if (target) {
         // Copy the resulting binary to the dist folder

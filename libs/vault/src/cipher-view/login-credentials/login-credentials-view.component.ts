@@ -71,7 +71,7 @@ export class LoginCredentialsViewComponent implements OnChanges {
   @Input() activeUserId: UserId;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() hadPendingChangePasswordTask: boolean;
+  @Input() showChangePasswordLink: boolean;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() handleChangePassword = new EventEmitter<void>();

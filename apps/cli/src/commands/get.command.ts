@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map, switchMap } from "rxjs";
+import { filter, firstValueFrom, map, switchMap } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -417,10 +417,11 @@ export class GetCommand extends DownloadCommand {
   private async getFolder(id: string) {
     let decFolder: FolderView = null;
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
     if (Utils.isGuid(id)) {
       const folder = await this.folderService.getFromState(id, activeUserId);
       if (folder != null) {
-        decFolder = await folder.decrypt();
+        decFolder = await folder.decrypt(userKey);
       }
     } else if (id.trim() !== "") {
       let folders = await this.folderService.getAllDecryptedFromState(activeUserId);
@@ -448,7 +449,9 @@ export class GetCommand extends DownloadCommand {
         this.collectionService.encryptedCollections$(activeUserId).pipe(getById(id)),
       );
       if (collection != null) {
-        const orgKeys = await firstValueFrom(this.keyService.activeUserOrgKeys$);
+        const orgKeys = await firstValueFrom(
+          this.keyService.orgKeys$(activeUserId).pipe(filter((orgKeys) => orgKeys != null)),
+        );
         decCollection = await collection.decrypt(
           orgKeys[collection.organizationId as OrganizationId],
           this.encryptService,

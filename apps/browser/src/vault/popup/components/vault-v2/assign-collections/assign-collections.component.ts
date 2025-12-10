@@ -49,6 +49,8 @@ import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-p
     PopOutComponent,
   ],
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class AssignCollections {
   /** Params needed to populate the assign collections component */
   params: CollectionAssignmentParams;

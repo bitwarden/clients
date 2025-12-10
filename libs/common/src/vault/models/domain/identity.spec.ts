@@ -1,4 +1,4 @@
-import { mockEnc, mockFromJson } from "../../../../spec";
+import { mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { IdentityData } from "../../models/data/identity.data";
 import { Identity } from "../../models/domain/identity";
@@ -27,6 +27,8 @@ describe("Identity", () => {
       passportNumber: "encpassportNumber",
       licenseNumber: "enclicenseNumber",
     };
+
+    mockContainerService();
   });
 
   it("Convert from empty", () => {
@@ -52,6 +54,27 @@ describe("Identity", () => {
       state: undefined,
       title: undefined,
       username: undefined,
+    });
+
+    expect(data).toEqual({
+      title: undefined,
+      firstName: undefined,
+      middleName: undefined,
+      lastName: undefined,
+      address1: undefined,
+      address2: undefined,
+      address3: undefined,
+      city: undefined,
+      state: undefined,
+      postalCode: undefined,
+      country: undefined,
+      company: undefined,
+      email: undefined,
+      phone: undefined,
+      ssn: undefined,
+      username: undefined,
+      passportNumber: undefined,
+      licenseNumber: undefined,
     });
   });
 

@@ -10,8 +10,15 @@ import { BadgeModule } from "@bitwarden/components";
   selector: "app-premium-badge",
   standalone: true,
   template: `
-    <button type="button" *appNotPremium bitBadge variant="success" (click)="promptForPremium()">
-      {{ "premium" | i18n }}
+    <button
+      type="button"
+      *appNotPremium
+      bitBadge
+      [variant]="'primary'"
+      class="!tw-text-primary-600 !tw-border-primary-600"
+      (click)="promptForPremium($event)"
+    >
+      <i class="bwi bwi-premium tw-pe-1"></i>{{ "upgrade" | i18n }}
     </button>
   `,
   imports: [BadgeModule, JslibModule],
@@ -21,7 +28,9 @@ export class PremiumBadgeComponent {
 
   constructor(private premiumUpgradePromptService: PremiumUpgradePromptService) {}
 
-  async promptForPremium() {
+  async promptForPremium(event: Event) {
+    event.stopPropagation();
+    event.preventDefault();
     await this.premiumUpgradePromptService.promptForPremium(this.organizationId());
   }
 }

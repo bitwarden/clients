@@ -11,8 +11,8 @@ import {
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 export class AutomaticAppLoginPolicy extends BasePolicyEditDefinition {
-  name = "automaticAppLogin";
-  description = "automaticAppLoginDesc";
+  name = "automaticAppLoginWithSSO";
+  description = "automaticAppLoginWithSSODesc";
   type = PolicyType.AutomaticAppLogIn;
   component = AutomaticAppLoginPolicyComponent;
 }
@@ -20,6 +20,7 @@ export class AutomaticAppLoginPolicy extends BasePolicyEditDefinition {
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  selector: "automatic-app-login-policy-edit",
   templateUrl: "automatic-app-login.component.html",
   imports: [SharedModule],
 })

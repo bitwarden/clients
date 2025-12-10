@@ -1,4 +1,9 @@
-import { mockEnc, mockFromJson } from "../../../../spec";
+import {
+  makeSymmetricCryptoKey,
+  mockContainerService,
+  mockEnc,
+  mockFromJson,
+} from "../../../../spec";
 import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { CardData } from "../../../vault/models/data/card.data";
 import { Card } from "../../models/domain/card";
@@ -29,6 +34,13 @@ describe("Card", () => {
       expYear: undefined,
       code: undefined,
     });
+
+    expect(data.cardholderName).toBeUndefined();
+    expect(data.brand).toBeUndefined();
+    expect(data.number).toBeUndefined();
+    expect(data.expMonth).toBeUndefined();
+    expect(data.expYear).toBeUndefined();
+    expect(data.code).toBeUndefined();
   });
 
   it("Convert", () => {
@@ -58,7 +70,10 @@ describe("Card", () => {
     card.expYear = mockEnc("expYear");
     card.code = mockEnc("code");
 
-    const view = await card.decrypt(null);
+    const userKey = makeSymmetricCryptoKey(64);
+
+    mockContainerService();
+    const view = await card.decrypt(userKey);
 
     expect(view).toEqual({
       _brand: "brand",
