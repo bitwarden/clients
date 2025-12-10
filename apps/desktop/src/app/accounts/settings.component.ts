@@ -15,6 +15,7 @@ import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { ClearClipboardDelay } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -268,13 +269,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
     ];
 
     this.clearClipboardOptions = [
-      { name: this.i18nService.t("never"), value: null },
-      { name: this.i18nService.t("tenSeconds"), value: 10 },
-      { name: this.i18nService.t("twentySeconds"), value: 20 },
-      { name: this.i18nService.t("thirtySeconds"), value: 30 },
-      { name: this.i18nService.t("oneMinute"), value: 60 },
-      { name: this.i18nService.t("twoMinutes"), value: 120 },
-      { name: this.i18nService.t("fiveMinutes"), value: 300 },
+      { name: i18nService.t("never"), value: ClearClipboardDelay.Never },
+      { name: i18nService.t("tenSeconds"), value: ClearClipboardDelay.TenSeconds },
+      { name: i18nService.t("twentySeconds"), value: ClearClipboardDelay.TwentySeconds },
+      { name: i18nService.t("thirtySeconds"), value: ClearClipboardDelay.ThirtySeconds },
+      { name: i18nService.t("oneMinute"), value: ClearClipboardDelay.OneMinute },
+      { name: i18nService.t("twoMinutes"), value: ClearClipboardDelay.TwoMinutes },
+      { name: i18nService.t("fiveMinutes"), value: ClearClipboardDelay.FiveMinutes },
     ];
     this.sshAgentPromptBehaviorOptions = [
       {
