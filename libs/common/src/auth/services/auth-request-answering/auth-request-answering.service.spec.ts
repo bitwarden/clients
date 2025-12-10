@@ -15,7 +15,7 @@ import {
   SystemNotificationEvent,
   SystemNotificationsService,
 } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
-import { mockAccountInfoWith } from "@bitwarden/common/spec/fake-account-service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/user-core";
 
 import { AuthRequestAnsweringService } from "./auth-request-answering.service";
