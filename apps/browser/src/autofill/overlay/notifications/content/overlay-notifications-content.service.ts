@@ -15,9 +15,7 @@ import {
   OverlayNotificationsExtensionMessageHandlers,
 } from "../abstractions/overlay-notifications-content.service";
 
-export class OverlayNotificationsContentService
-  implements OverlayNotificationsContentServiceInterface
-{
+export class OverlayNotificationsContentService implements OverlayNotificationsContentServiceInterface {
   private notificationBarRootElement: HTMLElement | null = null;
   private notificationBarElement: HTMLElement | null = null;
   private notificationBarIframeElement: HTMLIFrameElement | null = null;

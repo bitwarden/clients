@@ -78,6 +78,7 @@ import { freeTrialTextResolver } from "./billing/trial-initiation/complete-trial
 import { EnvironmentSelectorComponent } from "./components/environment-selector/environment-selector.component";
 import { RouteDataProperties } from "./core";
 import { ReportsModule } from "./dirt/reports";
+import { DataRecoveryComponent } from "./key-management/data-recovery/data-recovery.component";
 import { ConfirmKeyConnectorDomainComponent } from "./key-management/key-connector/confirm-key-connector-domain.component";
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
 import { UserLayoutComponent } from "./layouts/user-layout.component";
@@ -694,6 +695,12 @@ const routes: Routes = [
           {
             path: "security",
             loadChildren: () => SecurityRoutingModule,
+          },
+          {
+            path: "data-recovery",
+            component: DataRecoveryComponent,
+            canActivate: [canAccessFeature(FeatureFlag.DataRecoveryTool)],
+            data: { titleId: "dataRecovery" } satisfies RouteDataProperties,
           },
           {
             path: "domain-rules",
