@@ -27,6 +27,7 @@ import { DefaultVaultItemsTransferService } from "./default-vault-items-transfer
 
 describe("DefaultVaultItemsTransferService", () => {
   let service: DefaultVaultItemsTransferService;
+  let transferInProgressValues: boolean[];
 
   let mockCipherService: MockProxy<CipherService>;
   let mockPolicyService: MockProxy<PolicyService>;
@@ -73,6 +74,7 @@ describe("DefaultVaultItemsTransferService", () => {
     mockConfigService = mock<ConfigService>();
 
     mockI18nService.t.mockImplementation((key) => key);
+    transferInProgressValues = [];
 
     service = new DefaultVaultItemsTransferService(
       mockCipherService,
@@ -813,6 +815,95 @@ describe("DefaultVaultItemsTransferService", () => {
 
       expect(mockDialogService.open).toHaveBeenCalledTimes(4);
       expect(mockCipherService.shareManyWithServer).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("transferInProgress$", () => {
+    const policy = {
+      organizationId: organizationId,
+      revisionDate: new Date("2024-01-01"),
+    } as Policy;
+    const organization = {
+      id: organizationId,
+      name: "Test Org",
+    } as Organization;
+
+    function setupMocksForTransferScenario(options: {
+      featureEnabled?: boolean;
+      policies?: Policy[];
+      organizations?: Organization[];
+      ciphers?: CipherView[];
+      collections?: CollectionView[];
+    }): void {
+      mockConfigService.getFeatureFlag.mockResolvedValue(options.featureEnabled ?? true);
+      mockPolicyService.policiesByType$.mockReturnValue(of(options.policies ?? []));
+      mockOrganizationService.organizations$.mockReturnValue(of(options.organizations ?? []));
+      mockCipherService.cipherViews$.mockReturnValue(of(options.ciphers ?? []));
+      mockCollectionService.decryptedCollections$.mockReturnValue(of(options.collections ?? []));
+    }
+
+    it("emits false initially", async () => {
+      const result = await firstValueFrom(service.transferInProgress$);
+
+      expect(result).toBe(false);
+    });
+
+    it("emits true during transfer and false after successful completion", async () => {
+      const personalCiphers = [{ id: "cipher-1" } as CipherView];
+      setupMocksForTransferScenario({
+        policies: [policy],
+        organizations: [organization],
+        ciphers: personalCiphers,
+        collections: [
+          {
+            id: collectionId,
+            organizationId: organizationId,
+            isDefaultCollection: true,
+          } as CollectionView,
+        ],
+      });
+
+      mockDialogService.open.mockReturnValueOnce(
+        createMockDialogRef(TransferItemsDialogResult.Accepted),
+      );
+      mockCipherService.shareManyWithServer.mockResolvedValue(undefined);
+
+      // Subscribe to track all emitted values
+      service.transferInProgress$.subscribe((value) => transferInProgressValues.push(value));
+
+      await service.enforceOrganizationDataOwnership(userId);
+
+      // Should have emitted: false (initial), true (transfer started), false (transfer completed)
+      expect(transferInProgressValues).toEqual([false, true, false]);
+    });
+
+    it("emits false after transfer fails with error", async () => {
+      const personalCiphers = [{ id: "cipher-1" } as CipherView];
+      setupMocksForTransferScenario({
+        policies: [policy],
+        organizations: [organization],
+        ciphers: personalCiphers,
+        collections: [
+          {
+            id: collectionId,
+            organizationId: organizationId,
+            isDefaultCollection: true,
+          } as CollectionView,
+        ],
+      });
+
+      mockDialogService.open.mockReturnValueOnce(
+        createMockDialogRef(TransferItemsDialogResult.Accepted),
+      );
+      mockCipherService.shareManyWithServer.mockRejectedValue(new Error("Transfer failed"));
+
+      // Subscribe to track all emitted values
+      service.transferInProgress$.subscribe((value) => transferInProgressValues.push(value));
+
+      await service.enforceOrganizationDataOwnership(userId);
+
+      // Should have emitted: false (initial), true (transfer started), false (transfer failed)
+      expect(transferInProgressValues).toEqual([false, true, false]);
     });
   });
 });

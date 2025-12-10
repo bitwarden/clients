@@ -1,5 +1,13 @@
 import { Injectable } from "@angular/core";
-import { firstValueFrom, switchMap, map, of, Observable, combineLatest } from "rxjs";
+import {
+  firstValueFrom,
+  switchMap,
+  map,
+  of,
+  Observable,
+  combineLatest,
+  BehaviorSubject,
+} from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -43,6 +51,10 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
     private toastService: ToastService,
     private configService: ConfigService,
   ) {}
+
+  private _transferInProgressSubject = new BehaviorSubject(false);
+
+  transferInProgress$ = this._transferInProgressSubject.asObservable();
 
   private enforcingOrganization$(userId: UserId): Observable<Organization | undefined> {
     return this.policyService.policiesByType$(PolicyType.OrganizationDataOwnership, userId).pipe(
@@ -164,16 +176,19 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
     }
 
     try {
+      this._transferInProgressSubject.next(true);
       await this.transferPersonalItems(
         userId,
         migrationInfo.enforcingOrganization.id,
         migrationInfo.defaultCollectionId,
       );
+      this._transferInProgressSubject.next(false);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("itemsTransferred"),
       });
     } catch (error) {
+      this._transferInProgressSubject.next(false);
       this.logService.error("Error transferring personal items to organization", error);
       this.toastService.showToast({
         variant: "error",
