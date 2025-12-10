@@ -202,9 +202,16 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   }
 
   requiresDomainConfirmation$(userId: UserId): Observable<KeyConnectorDomainConfirmation | null> {
-    return this.stateProvider
-      .getUserState$(NEW_SSO_USER_KEY_CONNECTOR_CONVERSION, userId)
-      .pipe(map((data) => (data != null ? { keyConnectorUrl: data.keyConnectorUrl } : null)));
+    return this.stateProvider.getUserState$(NEW_SSO_USER_KEY_CONNECTOR_CONVERSION, userId).pipe(
+      map((data) =>
+        data != null
+          ? {
+              keyConnectorUrl: data.keyConnectorUrl,
+              organizationSsoIdentifier: data.organizationId,
+            }
+          : null,
+      ),
+    );
   }
 
   private handleKeyConnectorError(e: any) {
