@@ -1312,6 +1312,48 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   async fetch(request: Request): Promise<Response> {
+    let promise;
+    if ((window as any).cookiePromise === undefined) {
+      (window as any).cookiePromise = {};
+      (window as any).cookiePromise.promise = promise = new Promise((resolve) => {
+        (window as any).cookiePromise.resolve = resolve;
+      });
+    } else {
+      promise = (window as any).cookiePromise.promise;
+    }
+
+    console.log("Waiting for cookie promise...");
+    document.body.insertAdjacentHTML(
+      "beforeend",
+      `<div id="spinner-wrapper">
+        <style>
+          #spinner-wrapper{
+            position:fixed;inset:0;
+            background:rgba(0,0,0,0.4);
+            display:flex;flex-direction:column;
+            align-items:center;justify-content:center;
+            z-index:99999
+          }
+          #spinner-wrapper #spin{
+            width:40px;height:40px;
+            border:4px solid #ccc;border-top-color:#000;
+            border-radius:50%;animation:rot 1s linear infinite
+          }
+          @keyframes rot{to{transform:rotate(360deg)}}
+          #spinner-text{margin-top:12px;color:#fff;font-size:16px}
+        </style>
+        <div id="spin"></div>
+        <div id="spinner-text">Simulating cookie retrieval...<br>use window.cookiePromise.resolve() or press button beneath to continue</div>
+        <button id="spinner-btn">Continue</button>
+      </div>`,
+    );
+    document.getElementById("spinner-btn").onclick = () => {
+      (window as any).cookiePromise.resolve();
+    };
+    await promise;
+    document.getElementById("spinner-wrapper")?.remove();
+    console.log("Cookie promise resolved, continuing fetch...");
+
     if (!request.url.startsWith("https://") && !this.platformUtilsService.isDev()) {
       throw new InsecureUrlNotAllowedError();
     }
