@@ -1,7 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, mockReset } from "jest-mock-extended";
-import { mockAccountInfoWith } from "libs/common/spec";
 import { of } from "rxjs";
+
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
@@ -14,6 +14,7 @@ import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
 import { PersonalSubscriptionPricingTierIds } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
 
