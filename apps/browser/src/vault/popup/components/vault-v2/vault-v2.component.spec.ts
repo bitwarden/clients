@@ -180,7 +180,7 @@ describe("VaultV2Component", () => {
   const nudgesSvc = {
     showNudgeSpotlight$: jest.fn().mockImplementation((_type: NudgeType) => of(false)),
     dismissNudge: jest.fn().mockResolvedValue(undefined),
-  } as Partial<NudgesService>;
+  };
 
   const dialogSvc = {} as Partial<DialogService>;
 
@@ -207,6 +207,10 @@ describe("VaultV2Component", () => {
     getProfileCreationDate: jest
       .fn()
       .mockResolvedValue(new Date(Date.now() - 8 * 24 * 60 * 60 * 1000)), // 8 days ago
+  };
+
+  const configSvc = {
+    getFeatureFlag$: jest.fn().mockImplementation((_flag: string) => of(false)),
   };
 
   beforeEach(async () => {
@@ -256,9 +260,7 @@ describe("VaultV2Component", () => {
         { provide: StateProvider, useValue: mock<StateProvider>() },
         {
           provide: ConfigService,
-          useValue: {
-            getFeatureFlag$: (_: string) => of(false),
-          },
+          useValue: configSvc,
         },
         {
           provide: SearchService,
@@ -453,7 +455,9 @@ describe("VaultV2Component", () => {
 
     hasPremiumFromAnySource$.next(false);
 
-    (nudgesSvc.showNudgeSpotlight$ as jest.Mock).mockImplementation((type: NudgeType) =>
+    configSvc.getFeatureFlag$.mockImplementation((_flag: string) => of(true));
+
+    nudgesSvc.showNudgeSpotlight$.mockImplementation((type: NudgeType) =>
       of(type === NudgeType.PremiumUpgrade),
     );
 
@@ -482,9 +486,11 @@ describe("VaultV2Component", () => {
   }));
 
   it("renders Empty-Vault spotlight when vaultState is Empty and nudge is on", fakeAsync(() => {
+    configSvc.getFeatureFlag$.mockImplementation((_flag: string) => of(false));
+
     itemsSvc.emptyVault$.next(true);
 
-    (nudgesSvc.showNudgeSpotlight$ as jest.Mock).mockImplementation((type: NudgeType) => {
+    nudgesSvc.showNudgeSpotlight$.mockImplementation((type: NudgeType) => {
       return of(type === NudgeType.EmptyVaultNudge);
     });
 
