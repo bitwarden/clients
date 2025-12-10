@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, NgZone, OnInit, OnDestroy } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import { lastValueFrom } from "rxjs";
 
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
@@ -12,6 +13,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
@@ -24,6 +26,7 @@ import {
   SearchModule,
   TableDataSource,
   ToastService,
+  ToggleGroupModule,
 } from "@bitwarden/components";
 import {
   DefaultSendFormConfigService,
@@ -43,13 +46,21 @@ const BroadcasterSubscriptionId = "SendComponent";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send",
-  imports: [SharedModule, SearchModule, NoItemsModule, HeaderModule, NewSendDropdownComponent],
+  imports: [
+    SharedModule,
+    SearchModule,
+    NoItemsModule,
+    HeaderModule,
+    NewSendDropdownComponent,
+    ToggleGroupModule,
+  ],
   templateUrl: "send.component.html",
   providers: [DefaultSendFormConfigService],
 })
 export class SendComponent extends BaseSendComponent implements OnInit, OnDestroy {
   private sendItemDialogRef?: DialogRef<SendItemDialogResult> | undefined;
   noItemIcon = NoSendsIcon;
+  selectedToggleValue: "all" | "text" | "file" = "all";
 
   override set filteredSends(filteredSends: SendView[]) {
     super.filteredSends = filteredSends;
@@ -77,6 +88,8 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     toastService: ToastService,
     private addEditFormConfigService: DefaultSendFormConfigService,
     accountService: AccountService,
+    private route: ActivatedRoute,
+    private router: Router,
   ) {
     super(
       sendService,
@@ -96,6 +109,18 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
 
   async ngOnInit() {
     await super.ngOnInit();
+
+    const typeParam = this.route.snapshot.queryParamMap.get("type");
+    if (typeParam === "text") {
+      this.selectedToggleValue = "text";
+      this.selectType(SendType.Text);
+    } else if (typeParam === "file") {
+      this.selectedToggleValue = "file";
+      this.selectType(SendType.File);
+    } else {
+      this.selectedToggleValue = "all";
+    }
+
     await this.load();
 
     // Broadcaster subscription - load if sync completes in the background
@@ -159,6 +184,24 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     // If the dialog was closed by deleting the cipher, refresh the vault.
     if (result === SendItemDialogResult.Deleted || result === SendItemDialogResult.Saved) {
       await this.load();
+    }
+  }
+
+  onToggleChange(value: "all" | "text" | "file") {
+    const queryParams = value === "all" ? {} : { type: value };
+
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+      queryParamsHandling: "merge",
+    });
+
+    if (value === "all") {
+      this.selectAll();
+    } else if (value === "text") {
+      this.selectType(SendType.Text);
+    } else if (value === "file") {
+      this.selectType(SendType.File);
     }
   }
 }
