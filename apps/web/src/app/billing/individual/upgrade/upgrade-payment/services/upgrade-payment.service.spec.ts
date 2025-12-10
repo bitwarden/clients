@@ -1,5 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, mockReset } from "jest-mock-extended";
+import { mockAccountInfoWith } from "libs/common/spec";
 import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -46,11 +47,12 @@ describe("UpgradePaymentService", () => {
 
   let sut: UpgradePaymentService;
 
-  const mockAccount = {
+  const mockAccount: Account = {
     id: "user-id" as UserId,
-    email: "test@example.com",
-    emailVerified: true,
-    name: "Test User",
+    ...mockAccountInfoWith({
+      email: "test@example.com",
+      name: "Test User",
+    }),
   };
 
   const mockTokenizedPaymentMethod: TokenizedPaymentMethod = {
@@ -151,9 +153,10 @@ describe("UpgradePaymentService", () => {
 
       const mockAccount: Account = {
         id: "user-id" as UserId,
-        email: "test@example.com",
-        name: "Test User",
-        emailVerified: true,
+        ...mockAccountInfoWith({
+          email: "test@example.com",
+          name: "Test User",
+        }),
       };
 
       const paidOrgData = {
@@ -203,9 +206,10 @@ describe("UpgradePaymentService", () => {
 
       const mockAccount: Account = {
         id: "user-id" as UserId,
-        email: "test@example.com",
-        name: "Test User",
-        emailVerified: true,
+        ...mockAccountInfoWith({
+          email: "test@example.com",
+          name: "Test User",
+        }),
       };
 
       const paidOrgData = {
@@ -255,9 +259,10 @@ describe("UpgradePaymentService", () => {
 
       const mockAccount: Account = {
         id: "user-id" as UserId,
-        email: "test@example.com",
-        name: "Test User",
-        emailVerified: true,
+        ...mockAccountInfoWith({
+          email: "test@example.com",
+          name: "Test User",
+        }),
       };
 
       mockAccountService.activeAccount$ = of(mockAccount);
@@ -289,9 +294,10 @@ describe("UpgradePaymentService", () => {
 
       const mockAccount: Account = {
         id: "user-id" as UserId,
-        email: "test@example.com",
-        name: "Test User",
-        emailVerified: true,
+        ...mockAccountInfoWith({
+          email: "test@example.com",
+          name: "Test User",
+        }),
       };
       const expectedCredit = 25.5;
 
@@ -353,9 +359,10 @@ describe("UpgradePaymentService", () => {
 
       const mockAccount: Account = {
         id: "user-id" as UserId,
-        email: "test@example.com",
-        name: "Test User",
-        emailVerified: true,
+        ...mockAccountInfoWith({
+          email: "test@example.com",
+          name: "Test User",
+        }),
       };
 
       const paidOrgData = {

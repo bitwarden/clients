@@ -15,6 +15,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { LayoutComponent, NavigationModule } from "@bitwarden/components";
 // FIXME: remove `src` and fix import
@@ -77,9 +78,11 @@ class MockSyncService implements Partial<SyncService> {
 class MockAccountService implements Partial<AccountService> {
   activeAccount$?: Observable<Account> = of({
     id: "test-user-id" as UserId,
-    name: "Test User 1",
-    email: "test@email.com",
-    emailVerified: true,
+    ...mockAccountInfoWith({
+      email: "test@email.com",
+      name: "Test User 1",
+      emailVerified: true,
+    }),
   });
 }
 

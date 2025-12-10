@@ -19,6 +19,7 @@ import { AppIdService } from "../platform/abstractions/app-id.service";
 import { Environment, EnvironmentService } from "../platform/abstractions/environment.service";
 import { LogService } from "../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
+import { mockAccountInfoWith } from "../spec";
 
 import { InsecureUrlNotAllowedError } from "./api-errors";
 import { ApiService, HttpOperations } from "./api.service";
@@ -55,9 +56,10 @@ describe("ApiService", () => {
 
     accountService.activeAccount$ = of({
       id: testActiveUser,
-      email: "user1@example.com",
-      emailVerified: true,
-      name: "Test Name",
+      ...mockAccountInfoWith({
+        email: "user1@example.com",
+        name: "Test Name",
+      }),
     } satisfies ObservedValueOf<AccountService["activeAccount$"]>);
 
     httpOperations = mock();

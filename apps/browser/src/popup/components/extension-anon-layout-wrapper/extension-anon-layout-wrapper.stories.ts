@@ -22,6 +22,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { AnonLayoutWrapperDataService, ButtonModule, I18nMockService } from "@bitwarden/components";
 
@@ -78,9 +79,10 @@ const decorators = (options: {
           useValue: {
             activeAccount$: of({
               id: "test-user-id" as UserId,
-              name: "Test User 1",
-              email: "test@email.com",
-              emailVerified: true,
+              ...mockAccountInfoWith({
+                name: "Test User 1",
+                email: "test@email.com",
+              }),
             }),
           },
         },

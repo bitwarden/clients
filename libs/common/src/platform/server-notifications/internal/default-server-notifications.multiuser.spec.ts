@@ -164,9 +164,10 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     } else {
       activeUserAccount$.next({
         id: userId,
-        email: "email",
-        name: "Test Name",
-        emailVerified: true,
+        ...mockAccountInfoWith({
+          email: "email",
+          name: "Test Name",
+        }),
       });
     }
   }
