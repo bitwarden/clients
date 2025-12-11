@@ -292,7 +292,7 @@ export class NativeMessagingMain {
     Note that for the chromium-based browsers (Edge, Brave, Vivaldi, etc.) they
     usually fallback to checking Chrome's NativeMessagingHosts path if the manifest
     is not found in their own path, but we still want to install the manifest in their
-    own path as well if possible on MacOS and Linux.
+    own path as well if possible on macOS and Linux.
 
     This is because our code requires the browser paths to exist before installing the manifest,
     so the fallback included in these browsers won't work if the user hasn't installed Chrome
