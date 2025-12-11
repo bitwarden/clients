@@ -922,19 +922,13 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       queryParams = {
         action: this.action,
         cipherId: this.cipherId,
-        favorites: this.favorites ? true : null,
-        type: this.type,
-        folderId: this.folderId,
-        collectionId: this.collectionId,
-        deleted: this.deleted ? true : null,
-        organizationId: this.organizationId,
-        myVaultOnly: this.myVaultOnly,
       };
     }
     this.router
       .navigate([], {
         relativeTo: this.route,
         queryParams: queryParams,
+        queryParamsHandling: "merge",
         replaceUrl: true,
       })
       .catch(() => {});
