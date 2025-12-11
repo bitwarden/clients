@@ -23,6 +23,8 @@ export class UserStatusPipe implements PipeTransform {
         return this.i18nService.t("confirmed");
       case OrganizationUserStatusType.Revoked:
         return this.i18nService.t("revoked");
+      default:
+        return this.i18nService.t("unknown");
     }
   }
 }
