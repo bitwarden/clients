@@ -18,6 +18,8 @@ import { Subject, takeUntil } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-expiration-options",
   templateUrl: "./expiration-options.component.html",
@@ -40,8 +42,12 @@ export class ExpirationOptionsComponent
 {
   private destroy$ = new Subject<void>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() expirationDayOptions: number[];
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() set touched(val: boolean) {
     if (val) {
       this.form.markAllAsTouched();

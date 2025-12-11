@@ -10,7 +10,10 @@ import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
-import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
+import {
+  CipherRepromptType,
+  normalizeCipherRepromptTypeForSdk,
+} from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { CipherPermissionsApi } from "../api/cipher-permissions.api";
@@ -121,9 +124,6 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     }
   }
 
-  // We are passing the organizationId into the EncString.decrypt() method here, but because the encKey will always be
-  // present and so the organizationId will not be used.
-  // We will refactor the EncString.decrypt() in https://bitwarden.atlassian.net/browse/PM-3762 to remove the dependency on the organizationId.
   async decrypt(userKeyOrOrgKey: SymmetricCryptoKey): Promise<CipherView> {
     assertNonNullish(userKeyOrOrgKey, "userKeyOrOrgKey", "Cipher decryption");
 
@@ -148,13 +148,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       }
     }
 
-    await this.decryptObj<Cipher, CipherView>(
-      this,
-      model,
-      ["name", "notes"],
-      null,
-      cipherDecryptionKey,
-    );
+    await this.decryptObj<Cipher, CipherView>(this, model, ["name", "notes"], cipherDecryptionKey);
 
     switch (this.type) {
       case CipherType.Login:
@@ -407,13 +401,14 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       creationDate: this.creationDate.toISOString(),
       deletedDate: this.deletedDate?.toISOString(),
       archivedDate: this.archivedDate?.toISOString(),
-      reprompt: this.reprompt,
+      reprompt: normalizeCipherRepromptTypeForSdk(this.reprompt),
       // Initialize all cipher-type-specific properties as undefined
       login: undefined,
       identity: undefined,
       card: undefined,
       secureNote: undefined,
       sshKey: undefined,
+      data: undefined,
     };
 
     switch (this.type) {

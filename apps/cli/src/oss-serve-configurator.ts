@@ -160,7 +160,10 @@ export class OssServeConfigurator {
       this.serviceContainer.cipherService,
       this.serviceContainer.accountService,
     );
-    this.lockCommand = new LockCommand(this.serviceContainer.vaultTimeoutService);
+    this.lockCommand = new LockCommand(
+      serviceContainer.lockService,
+      serviceContainer.accountService,
+    );
     this.unlockCommand = new UnlockCommand(
       this.serviceContainer.accountService,
       this.serviceContainer.masterPasswordService,
@@ -173,6 +176,7 @@ export class OssServeConfigurator {
       this.serviceContainer.organizationApiService,
       async () => await this.serviceContainer.logout(),
       this.serviceContainer.i18nService,
+      this.serviceContainer.encryptedMigrator,
       this.serviceContainer.masterPasswordUnlockService,
       this.serviceContainer.configService,
     );

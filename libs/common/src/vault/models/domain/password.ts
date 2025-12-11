@@ -27,7 +27,6 @@ export class Password extends Domain {
       this,
       new PasswordHistoryView(this),
       ["password"],
-      null,
       encKey,
       "DomainType: PasswordHistory",
     );

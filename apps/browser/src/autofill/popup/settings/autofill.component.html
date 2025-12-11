@@ -232,7 +232,7 @@
             <input formControlName="enableAutoTotpCopy" bitCheckbox id="totp" type="checkbox" />
             <bit-label for="totp">{{ "enableAutoTotpCopy" | i18n }}</bit-label>
           </bit-form-control>
-          <bit-form-field>
+          <bit-form-field [disableMargin]="isDefaultUriMatchDisabledByPolicy">
             <bit-label for="clearClipboard">{{ "clearClipboard" | i18n }}</bit-label>
             <bit-select
               formControlName="clearClipboard"
@@ -250,7 +250,7 @@
               {{ "clearClipboardDesc" | i18n }}
             </bit-hint>
           </bit-form-field>
-          <bit-form-field disableMargin>
+          <bit-form-field disableMargin *ngIf="!isDefaultUriMatchDisabledByPolicy">
             <bit-label for="defaultUriMatch">{{ "defaultUriMatchDetection" | i18n }}</bit-label>
             <bit-select
               formControlName="defaultUriMatch"
@@ -265,9 +265,6 @@
                 [disabled]="option.disabled"
               ></bit-option>
             </bit-select>
-            <bit-hint *ngIf="isDefaultUriMatchDisabledByPolicy">
-              {{ "settingDisabledByPolicy" | i18n }}
-            </bit-hint>
             <bit-hint *ngIf="getMatchHints() as hints">
               {{ hints[0] | i18n }}
               <ng-container *ngIf="hints.length > 1">

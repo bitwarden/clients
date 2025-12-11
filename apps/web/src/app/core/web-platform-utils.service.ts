@@ -219,4 +219,8 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
   getAutofillKeyboardShortcut(): Promise<string> {
     return null;
   }
+
+  packageType(): Promise<string | null> {
+    return null;
+  }
 }

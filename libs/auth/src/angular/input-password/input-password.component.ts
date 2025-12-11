@@ -564,7 +564,7 @@ export class InputPasswordComponent implements OnInit {
       }
     } else if (passwordIsWeak) {
       const userAcceptedDialog = await this.dialogService.openSimpleDialog({
-        title: { key: "weakMasterPasswordDesc" },
+        title: { key: "weakMasterPassword" },
         content: { key: "weakMasterPasswordDesc" },
         type: "warning",
       });

@@ -62,6 +62,20 @@ export class BillingApiService implements BillingApiServiceAbstraction {
     return new OrganizationBillingMetadataResponse(r);
   }
 
+  async getOrganizationBillingMetadataVNextSelfHost(
+    organizationId: OrganizationId,
+  ): Promise<OrganizationBillingMetadataResponse> {
+    const r = await this.apiService.send(
+      "GET",
+      "/organizations/" + organizationId + "/billing/vnext/self-host/metadata",
+      null,
+      true,
+      true,
+    );
+
+    return new OrganizationBillingMetadataResponse(r);
+  }
+
   async getPlans(): Promise<ListResponse<PlanResponse>> {
     const r = await this.apiService.send("GET", "/plans", null, true, true);
     return new ListResponse(r, PlanResponse);

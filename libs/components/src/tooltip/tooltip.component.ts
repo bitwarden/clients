@@ -15,6 +15,7 @@ type TooltipData = {
   content: Signal<string>;
   isVisible: Signal<boolean>;
   tooltipPosition: Signal<TooltipPosition>;
+  id: Signal<string>;
 };
 
 export const TOOLTIP_DATA = new InjectionToken<TooltipData>("TOOLTIP_DATA");

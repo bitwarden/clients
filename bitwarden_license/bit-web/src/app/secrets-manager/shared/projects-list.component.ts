@@ -20,12 +20,16 @@ import { openEntityEventsDialog } from "@bitwarden/web-vault/app/admin-console/o
 import { ProjectListView } from "../models/view/project-list.view";
 import { ProjectView } from "../models/view/project.view";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-projects-list",
   templateUrl: "./projects-list.component.html",
   standalone: false,
 })
 export class ProjectsListComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get projects(): ProjectListView[] {
     return this._projects;
@@ -40,17 +44,29 @@ export class ProjectsListComponent implements OnInit {
   protected isAdmin$: Observable<boolean>;
   private destroy$: Subject<void> = new Subject<void>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showMenus?: boolean = true;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   set search(search: string) {
     this.selection.clear();
     this.dataSource.filter = search;
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() editProjectEvent = new EventEmitter<string>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() deleteProjectEvent = new EventEmitter<ProjectListView[]>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() newProjectEvent = new EventEmitter();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() copiedProjectUUIdEvent = new EventEmitter<string>();
 
   selection = new SelectionModel<string>(true, []);

@@ -15,23 +15,9 @@ export class BrowserFileDownloadService implements FileDownloadService {
   download(request: FileDownloadRequest): void {
     const builder = new FileDownloadBuilder(request);
     if (BrowserApi.isSafariApi) {
-      let data: BlobPart = null;
-      if (builder.blobOptions.type === "text/plain" && typeof request.blobData === "string") {
-        data = request.blobData;
-      } else {
-        data = Utils.fromBufferToB64(request.blobData as ArrayBuffer);
-      }
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      SafariApp.sendMessageToApp(
-        "downloadFile",
-        JSON.stringify({
-          blobData: data,
-          blobOptions: request.blobOptions,
-          fileName: request.fileName,
-        }),
-        true,
-      );
+      // Handle Safari download asynchronously to allow Blob conversion
+      // This function can't be async because the interface is not async
+      void this.downloadSafari(request, builder);
     } else {
       const a = window.document.createElement("a");
       a.href = URL.createObjectURL(builder.blob);
@@ -40,5 +26,32 @@ export class BrowserFileDownloadService implements FileDownloadService {
       a.click();
       window.document.body.removeChild(a);
     }
+  }
+
+  private async downloadSafari(
+    request: FileDownloadRequest,
+    builder: FileDownloadBuilder,
+  ): Promise<void> {
+    let data: string = null;
+    if (builder.blobOptions.type === "text/plain" && typeof request.blobData === "string") {
+      data = request.blobData;
+    } else if (request.blobData instanceof Blob) {
+      // Convert Blob to ArrayBuffer first, then to Base64
+      const arrayBuffer = await request.blobData.arrayBuffer();
+      data = Utils.fromBufferToB64(arrayBuffer);
+    } else {
+      // Already an ArrayBuffer
+      data = Utils.fromBufferToB64(request.blobData as ArrayBuffer);
+    }
+
+    await SafariApp.sendMessageToApp(
+      "downloadFile",
+      JSON.stringify({
+        blobData: data,
+        blobOptions: request.blobOptions,
+        fileName: request.fileName,
+      }),
+      true,
+    );
   }
 }
