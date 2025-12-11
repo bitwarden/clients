@@ -90,20 +90,28 @@ describe("PhishingDetectionSettingsService", () => {
   const getAccess = () => firstValueFrom(service.available$);
 
   describe("enabled$", () => {
-    it("should default to true", async () => {
+    it("should default to true if an account is logged in", async () => {
+      activeAccountSubject.next(account);
       const result = await firstValueFrom(service.enabled$);
       expect(result).toBe(true);
     });
 
     it("should return the stored value", async () => {
+      activeAccountSubject.next(account);
+
       await service.setEnabled(mockUserId, false);
-      const result = await firstValueFrom(service.enabled$);
-      expect(result).toBe(false);
+      const resultDisabled = await firstValueFrom(service.enabled$);
+      expect(resultDisabled).toBe(false);
+
+      await service.setEnabled(mockUserId, true);
+      const resultEnabled = await firstValueFrom(service.enabled$);
+      expect(resultEnabled).toBe(true);
     });
   });
 
   describe("setEnabled", () => {
     it("should update the stored value", async () => {
+      activeAccountSubject.next(account);
       await service.setEnabled(mockUserId, false);
       let result = await firstValueFrom(service.enabled$);
       expect(result).toBe(false);

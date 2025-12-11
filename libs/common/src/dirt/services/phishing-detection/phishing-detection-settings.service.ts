@@ -34,18 +34,15 @@ export class PhishingDetectionSettingsService implements PhishingDetectionSettin
     private organizationService: OrganizationService,
     private stateProvider: StateProvider,
   ) {
-    this.available$ = this.buildAccessPipeline$().pipe(
+    this.available$ = this.buildAvailablePipeline$().pipe(
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
-    this.enabled$ = this.stateProvider.activeUserId$.pipe(
-      switchMap((userId) =>
-        userId != null
-          ? this.stateProvider.getUser(userId, ENABLE_PHISHING_DETECTION).state$
-          : [true],
-      ),
-      map((x) => x ?? true),
+    this.enabled$ = this.buildEnabledPipeline$().pipe(
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true }),
     );
+
     this.on$ = combineLatest([this.available$, this.enabled$]).pipe(
       map(([available, enabled]) => available && enabled),
       distinctUntilChanged(),
@@ -58,11 +55,11 @@ export class PhishingDetectionSettingsService implements PhishingDetectionSettin
   }
 
   /**
-   * Builds the observable pipeline to determine if phishing detection is available
+   * Builds the observable pipeline to determine if phishing detection is available to the user
    *
    * @returns An observable pipeline that determines if phishing detection is available
    */
-  private buildAccessPipeline$(): Observable<boolean> {
+  private buildAvailablePipeline$(): Observable<boolean> {
     return combineLatest([
       this.accountService.activeAccount$,
       this.configService.getFeatureFlag$(FeatureFlag.PhishingDetection),
@@ -79,6 +76,23 @@ export class PhishingDetectionSettingsService implements PhishingDetectionSettin
           catchError(() => of(false)),
         );
       }),
+    );
+  }
+
+  /**
+   * Builds the observable pipeline to determine if phishing detection is enabled by the user
+   *
+   * @returns True if phishing detection is enabled for the active user
+   */
+  private buildEnabledPipeline$(): Observable<boolean> {
+    return this.accountService.activeAccount$.pipe(
+      switchMap((account) => {
+        if (!account) {
+          return of(false);
+        }
+        return this.stateProvider.getUserState$(ENABLE_PHISHING_DETECTION, account.id);
+      }),
+      map((enabled) => enabled ?? true),
     );
   }
 
