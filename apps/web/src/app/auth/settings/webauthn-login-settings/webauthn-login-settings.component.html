@@ -99,7 +99,7 @@
     </button>
   </ng-container>
 
-  <button *ngIf="hasMoreCredentials" type="button" bitLink (click)="toggleShowAll()">
+  <button *ngIf="hasMoreCredentials" type="button" bitLink (click)="toggleShowAll()" [attr.aria-label]="(showAll ? 'showLess' : 'showMore') | i18n">
     <ng-container *ngIf="!showAll"
       >{{ "showMore" | i18n }} ({{ (credentials?.length ?? 0) - displayLimit }})</ng-container
     >
