@@ -73,14 +73,13 @@ export default class Domain {
     domain: DomainEncryptableKeys<D>,
     viewModel: ViewEncryptableKeys<V>,
     props: EncryptableKeys<D, V>[],
-    orgId: string | null,
     key: SymmetricCryptoKey | null = null,
     objectContext: string = "No Domain Context",
   ): Promise<V> {
     for (const prop of props) {
       viewModel[prop] =
         (await domain[prop]?.decrypt(
-          orgId,
+          null,
           key,
           `Property: ${prop as string}; ObjectContext: ${objectContext}`,
         )) ?? null;

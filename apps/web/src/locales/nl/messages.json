@@ -3062,6 +3062,15 @@
   "premiumSignUpStorage": {
     "message": "1 GB versleutelde opslag voor bijlagen."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ versleutelde opslag voor bijlagen.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Gepatenteerde 2 stap login opties zoals YubiKey en Duo."
   },
@@ -3123,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Je Premium-abonnement is afgelopen"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Herstart je Premium-abonnement om toegang tot je archief te krijgen. Als je de details wijzigt voor een gearchiveerd item voor het opnieuw opstarten, zal het terug naar je kluis worden verplaatst."
+  },
+  "restartPremium": {
+    "message": "Premium herstarten"
   },
   "additionalStorageGb": {
     "message": "Extra opslagruimte (GB)"
@@ -4607,6 +4625,24 @@
   },
   "learnMore": {
     "message": "Meer informatie"
+  },
+  "migrationsFailed": {
+    "message": "Er is een fout opgetreden bij het bijwerken van de versleutelingsinstellingen."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Je versleutelingsinstellingen bijwerken"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "De nieuwe aanbevolen versleutelingsinstellingen verbeteren de beveiliging van je account. Voer je hoofdwachtwoord in om nu bij te werken."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Bevestig je identiteit om door te gaan"
+  },
+  "enterYourMasterPassword": {
+    "message": "Voer je hoofdwachtwoord in"
+  },
+  "updateSettings": {
+    "message": "Instellingen bijwerken"
   },
   "deleteRecoverDesc": {
     "message": "Voer hieronder je e-mailadres in om je account te herstellen en te verwijderen."
@@ -9820,6 +9856,14 @@
     "message": "Te duur",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "switchToFreePlan": {
+    "message": "Overstappen naar gratis abonnement",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "switchToFreeOrg": {
+    "message": "Overstappen naar gratis organisatie",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "1 jaar gratis"
   },
@@ -11339,14 +11383,6 @@
   "openedExtensionViewAtRiskPasswords": {
     "message": "De Bitwarden-browserextensie is geopend. Je kunt nu je risicovolle wachtwoorden bekijken."
   },
-  "openExtensionManuallyPart1": {
-    "message": "We konden de Bitwarden-browserextensie niet openen. Open het Bitwarden-pictogram",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
-  "openExtensionManuallyPart2": {
-    "message": "vanaf de werkbalk.",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
   "resellerRenewalWarningMsg": {
     "message": "Je abonnement wordt binnenkort verlengd. Neem voor $RENEWAL_DATE$ contact op met $RESELLER$ om je verlenging te bevestigen en een ononderbroken service te verzekeren.",
     "placeholders": {
@@ -11667,11 +11703,8 @@
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden extensie geïnstalleerd!"
   },
-  "openTheBitwardenExtension": {
-    "message": "De Bitwarden-extensie openen"
-  },
-  "bitwardenExtensionInstalledOpenExtension": {
-    "message": "De Bitwarden-extensie is geïnstalleerd! Open de extensie om in te loggen en te beginnen met automatisch invullen."
+  "bitwardenExtensionIsInstalled": {
+    "message": "Bitwarden-extensie geïnstalleerd!"
   },
   "openExtensionToAutofill": {
     "message": "Open de extensie om in te loggen en te beginnen met automatisch invullen."
@@ -11686,6 +11719,14 @@
   "gettingStartedWithBitwardenPart2": {
     "message": "Leercentrum",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "openExtensionFromToolbarPart1": {
+    "message": "Als de extensie niet is geopend, moet je misschien Bitwarden via het pictogram ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
+  },
+  "openExtensionFromToolbarPart2": {
+    "message": " op de werkbalk openen.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "gettingStartedWithBitwardenPart3": {
     "message": "Helpcentrum",
@@ -12088,9 +12129,6 @@
   "updateYourEncryptionSettings": {
     "message": "Je versleutelingsinstellingen bijwerken"
   },
-  "updateSettings": {
-    "message": "Instellingen bijwerken"
-  },
   "algorithm": {
     "message": "Algoritme"
   },
@@ -12166,5 +12204,8 @@
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Weet je zeker dat je wilt doorgaan?"
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }
