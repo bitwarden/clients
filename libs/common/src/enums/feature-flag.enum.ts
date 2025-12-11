@@ -112,7 +112,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ChromiumImporterWithABE]: FALSE,
 
   /* DIRT */
-  [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: FALSE,
+  [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: true,
   [FeatureFlag.PhishingDetection]: FALSE,
   [FeatureFlag.PM22887_RiskInsightsActivityTab]: FALSE,
 
