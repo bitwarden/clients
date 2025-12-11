@@ -1,4 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { ChangeDetectorRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { FormBuilder } from "@angular/forms";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
@@ -15,6 +19,7 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { SendListFiltersService } from "@bitwarden/send-ui";
 
 import * as utils from "../../../utils";
 import { SearchBarService } from "../../layout/search/search-bar.service";
@@ -35,6 +40,8 @@ describe("SendV2Component", () => {
   let broadcasterService: MockProxy<BroadcasterService>;
   let accountService: MockProxy<AccountService>;
   let policyService: MockProxy<PolicyService>;
+  let sendListFiltersService: SendListFiltersService;
+  let changeDetectorRef: MockProxy<ChangeDetectorRef>;
 
   beforeEach(async () => {
     sendService = mock<SendService>();
@@ -42,6 +49,13 @@ describe("SendV2Component", () => {
     broadcasterService = mock<BroadcasterService>();
     accountService = mock<AccountService>();
     policyService = mock<PolicyService>();
+    changeDetectorRef = mock<ChangeDetectorRef>();
+
+    // Create real SendListFiltersService with mocked dependencies
+    const formBuilder = new FormBuilder();
+    const i18nService = mock<I18nService>();
+    i18nService.t.mockImplementation((key: string) => key);
+    sendListFiltersService = new SendListFiltersService(i18nService, formBuilder);
 
     // Mock sendViews$ observable
     sendService.sendViews$ = of([]);
@@ -51,6 +65,10 @@ describe("SendV2Component", () => {
     accountService.activeAccount$ = of({ id: "test-user-id" } as any);
     policyService.policyAppliesToUser$ = jest.fn().mockReturnValue(of(false));
 
+    // Mock SearchService methods needed by base component
+    const mockSearchService = mock<SearchService>();
+    mockSearchService.isSearchable.mockResolvedValue(false);
+
     await TestBed.configureTestingModule({
       imports: [SendV2Component],
       providers: [
@@ -59,7 +77,7 @@ describe("SendV2Component", () => {
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: EnvironmentService, useValue: mock<EnvironmentService>() },
         { provide: BroadcasterService, useValue: broadcasterService },
-        { provide: SearchService, useValue: mock<SearchService>() },
+        { provide: SearchService, useValue: mockSearchService },
         { provide: PolicyService, useValue: policyService },
         { provide: SearchBarService, useValue: searchBarService },
         { provide: LogService, useValue: mock<LogService>() },
@@ -67,6 +85,8 @@ describe("SendV2Component", () => {
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: AccountService, useValue: accountService },
+        { provide: SendListFiltersService, useValue: sendListFiltersService },
+        { provide: ChangeDetectorRef, useValue: changeDetectorRef },
       ],
     }).compileComponents();
 
@@ -331,7 +351,6 @@ describe("SendV2Component", () => {
   describe("load", () => {
     it("sets loading states correctly", async () => {
       jest.spyOn(component, "search").mockResolvedValue();
-      jest.spyOn(component, "selectAll");
 
       expect(component.loaded).toBeFalsy();
 
@@ -341,14 +360,17 @@ describe("SendV2Component", () => {
       expect(component.loaded).toBe(true);
     });
 
-    it("calls selectAll when onSuccessfulLoad is not set", async () => {
+    it("sets up sendViews$ subscription", async () => {
+      const mockSends = [new SendView(), new SendView()];
+      sendService.sendViews$ = of(mockSends);
       jest.spyOn(component, "search").mockResolvedValue();
-      jest.spyOn(component, "selectAll");
-      component.onSuccessfulLoad = null;
 
       await component.load();
 
-      expect(component.selectAll).toHaveBeenCalled();
+      // Give observable time to emit
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(component.sends).toEqual(mockSends);
     });
 
     it("calls onSuccessfulLoad when it is set", async () => {
