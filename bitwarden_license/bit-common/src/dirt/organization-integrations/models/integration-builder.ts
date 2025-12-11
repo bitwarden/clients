@@ -88,7 +88,7 @@ export class OrgIntegrationBuilder {
     try {
       return JSON.parse(jsonString || "{}") as T;
     } catch {
-      return JSON.parse("{}") as T; // Return empty object on parse failure
+      throw new Error("Invalid JSON string provided for configuration/template.");
     }
   }
 }

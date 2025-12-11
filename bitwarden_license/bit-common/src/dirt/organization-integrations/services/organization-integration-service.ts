@@ -1,4 +1,4 @@
-import { BehaviorSubject, Observable, of, Subject, switchMap, takeUntil, zip } from "rxjs";
+import { BehaviorSubject, map, Observable, of, switchMap, tap, zip } from "rxjs";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import {
@@ -37,45 +37,39 @@ export type IntegrationModificationResult = {
 export class OrganizationIntegrationService {
   private organizationId$ = new BehaviorSubject<OrganizationId | null>(null);
   private _integrations$ = new BehaviorSubject<OrganizationIntegration[]>([]);
-  private destroy$ = new Subject<void>();
 
   integrations$: Observable<OrganizationIntegration[]> = this._integrations$.asObservable();
 
   constructor(
     protected integrationApiService: OrganizationIntegrationApiService,
     protected integrationConfigurationApiService: OrganizationIntegrationConfigurationApiService,
-  ) {
-    // Subscribe once to handle all organization changes
-    this.organizationId$
-      .pipe(
-        switchMap((orgId) => {
-          if (orgId) {
-            return this.setIntegrations(orgId);
-          } else {
-            return of([]);
-          }
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (integrations) => {
-          this._integrations$.next(integrations);
-        },
-      });
-  }
+  ) {}
 
   /**
    * Sets the organization Id and triggers the retrieval of integrations for the given organization.
-   * If the organization ID is the same as the current one, the operation is skipped.
+   * The integrations will be available via the integrations$ observable.
+   * If the organization ID is the same as the current one, no action is taken.
+   * Use this method to kick off loading integrations for a specific organization.
+   * Use integrations$ to subscribe to the loaded integrations.
    *
    * @param orgId - The organization ID to set
+   * @returns Observable<void> that completes when the operation is done. Subscribe to trigger the load.
    */
-  setOrganizationIntegrations(orgId: OrganizationId): void {
+  setOrganizationId(orgId: OrganizationId): Observable<void> {
     if (orgId == this.organizationId$.getValue()) {
-      return;
+      return of(void 0);
     }
     this._integrations$.next([]);
     this.organizationId$.next(orgId);
+
+    // subscribe to load and set integrations
+    // use integrations$ to get the loaded integrations
+    return this.setIntegrations(orgId).pipe(
+      tap((integrations) => {
+        this._integrations$.next(integrations);
+      }),
+      map((): void => void 0),
+    );
   }
 
   /**
@@ -313,13 +307,5 @@ export class OrganizationIntegrationService {
     );
 
     return results$;
-  }
-
-  /**
-   * Cleans up subscriptions. Should be called when the service is destroyed.
-   */
-  destroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

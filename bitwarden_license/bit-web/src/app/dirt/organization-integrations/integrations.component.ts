@@ -236,9 +236,12 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     );
 
     // Sets the organization ID which also loads the integrations$
-    this.organization$.pipe(takeUntil(this.destroy$)).subscribe((org) => {
-      this.organizationIntegrationService.setOrganizationIntegrations(org.id);
-    });
+    this.organization$
+      .pipe(
+        switchMap((org) => this.organizationIntegrationService.setOrganizationId(org.id)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
   }
 
   constructor(

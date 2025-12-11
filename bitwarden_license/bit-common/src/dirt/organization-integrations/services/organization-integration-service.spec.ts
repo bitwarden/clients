@@ -57,10 +57,6 @@ describe("OrganizationIntegrationService", () => {
     );
   });
 
-  afterEach(() => {
-    service.destroy();
-  });
-
   describe("initialization", () => {
     it("should be created", () => {
       expect(service).toBeTruthy();
@@ -72,7 +68,7 @@ describe("OrganizationIntegrationService", () => {
     });
   });
 
-  describe("setOrganizationIntegrations", () => {
+  describe("setOrganizationId", () => {
     it("should fetch and set integrations for the organization", async () => {
       integrationApiService.getOrganizationIntegrations.mockReturnValue(
         Promise.resolve([mockIntegrationResponse]),
@@ -81,7 +77,7 @@ describe("OrganizationIntegrationService", () => {
         Promise.resolve([mockConfigurationResponse]),
       );
 
-      service.setOrganizationIntegrations(orgId);
+      service.setOrganizationId(orgId).subscribe();
 
       // Wait for the observable to emit
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -99,13 +95,13 @@ describe("OrganizationIntegrationService", () => {
     it("should skip fetching if organization ID is the same", async () => {
       integrationApiService.getOrganizationIntegrations.mockReturnValue(Promise.resolve([]));
 
-      service.setOrganizationIntegrations(orgId);
+      service.setOrganizationId(orgId).subscribe();
       await new Promise((resolve) => setTimeout(resolve, 50));
 
       integrationApiService.getOrganizationIntegrations.mockClear();
 
       // Call again with the same org ID
-      service.setOrganizationIntegrations(orgId);
+      service.setOrganizationId(orgId).subscribe();
       await new Promise((resolve) => setTimeout(resolve, 50));
 
       expect(integrationApiService.getOrganizationIntegrations).not.toHaveBeenCalled();
@@ -121,7 +117,7 @@ describe("OrganizationIntegrationService", () => {
         Promise.resolve([mockConfigurationResponse]),
       );
 
-      service.setOrganizationIntegrations(orgId);
+      service.setOrganizationId(orgId).subscribe();
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       let integrations = await firstValueFrom(service.integrations$);
@@ -129,7 +125,7 @@ describe("OrganizationIntegrationService", () => {
 
       // Switch to different org
       integrationApiService.getOrganizationIntegrations.mockReturnValue(Promise.resolve([]));
-      service.setOrganizationIntegrations(orgId2);
+      service.setOrganizationId(orgId2).subscribe();
 
       // Should immediately clear
       integrations = await firstValueFrom(service.integrations$);
@@ -139,11 +135,11 @@ describe("OrganizationIntegrationService", () => {
     it("should unsubscribe from previous fetch when setting new organization", async () => {
       integrationApiService.getOrganizationIntegrations.mockReturnValue(Promise.resolve([]));
 
-      service.setOrganizationIntegrations(orgId);
+      service.setOrganizationId(orgId).subscribe();
       await new Promise((resolve) => setTimeout(resolve, 50));
 
       const orgId2 = "org-456" as OrganizationId;
-      service.setOrganizationIntegrations(orgId2);
+      service.setOrganizationId(orgId2).subscribe();
       await new Promise((resolve) => setTimeout(resolve, 50));
 
       // Should call the API for both organizations (no errors about duplicate subscriptions)
@@ -176,7 +172,7 @@ describe("OrganizationIntegrationService", () => {
         .mockReturnValueOnce(Promise.resolve([mockConfigurationResponse]))
         .mockReturnValueOnce(Promise.resolve([configuration2Response]));
 
-      service.setOrganizationIntegrations(orgId);
+      service.setOrganizationId(orgId).subscribe();
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const integrations = await firstValueFrom(service.integrations$);
@@ -198,7 +194,7 @@ describe("OrganizationIntegrationService", () => {
     beforeEach(() => {
       // Set the organization first
       integrationApiService.getOrganizationIntegrations.mockReturnValue(Promise.resolve([]));
-      service.setOrganizationIntegrations(orgId);
+      service.setOrganizationId(orgId).subscribe();
     });
 
     it("should save a new integration successfully", async () => {
@@ -289,7 +285,7 @@ describe("OrganizationIntegrationService", () => {
       integrationConfigurationApiService.getOrganizationIntegrationConfigurations.mockReturnValue(
         Promise.resolve([mockConfigurationResponse]),
       );
-      service.setOrganizationIntegrations(orgId);
+      service.setOrganizationId(orgId).subscribe();
     });
 
     it("should update an integration successfully", async () => {
@@ -421,7 +417,7 @@ describe("OrganizationIntegrationService", () => {
         .mockReturnValueOnce(Promise.resolve([mockConfigurationResponse]))
         .mockReturnValueOnce(Promise.resolve([configuration2Response]));
 
-      service.setOrganizationIntegrations(orgId2);
+      service.setOrganizationId(orgId2).subscribe();
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       let integrations = await firstValueFrom(service.integrations$);
@@ -460,7 +456,7 @@ describe("OrganizationIntegrationService", () => {
       integrationConfigurationApiService.getOrganizationIntegrationConfigurations.mockReturnValue(
         Promise.resolve([mockConfigurationResponse]),
       );
-      service.setOrganizationIntegrations(orgId);
+      service.setOrganizationId(orgId).subscribe();
     });
 
     it("should delete an integration successfully", async () => {
@@ -557,32 +553,6 @@ describe("OrganizationIntegrationService", () => {
     });
   });
 
-  describe("destroy", () => {
-    it("should complete destroy$ subject", () => {
-      const destroySpy = jest.spyOn(service["destroy$"], "complete");
-      service.destroy();
-      expect(destroySpy).toHaveBeenCalled();
-    });
-
-    it("should stop fetching integrations after destroy", async () => {
-      integrationApiService.getOrganizationIntegrations.mockReturnValue(Promise.resolve([]));
-
-      service.setOrganizationIntegrations(orgId);
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      service.destroy();
-
-      // Attempt to set organization again after destroy
-      const callCountBefore = integrationApiService.getOrganizationIntegrations.mock.calls.length;
-      service.setOrganizationIntegrations("org-456" as OrganizationId);
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      // Should not make additional API calls after destroy due to takeUntil(this.destroy$)
-      const callCountAfter = integrationApiService.getOrganizationIntegrations.mock.calls.length;
-      expect(callCountAfter).toBe(callCountBefore); // No new calls should be made
-    });
-  });
-
   describe("mapResponsesToOrganizationIntegration", () => {
     it("should return null if configuration cannot be built", () => {
       const invalidIntegrationResponse = new OrganizationIntegrationResponse({
@@ -635,7 +605,7 @@ describe("OrganizationIntegrationService", () => {
     it("should handle empty integration list from API", async () => {
       integrationApiService.getOrganizationIntegrations.mockReturnValue(Promise.resolve([]));
 
-      service.setOrganizationIntegrations(orgId);
+      service.setOrganizationId(orgId).subscribe();
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const integrations = await firstValueFrom(service.integrations$);
@@ -652,7 +622,7 @@ describe("OrganizationIntegrationService", () => {
         Promise.resolve([mockConfigurationResponse]),
       );
 
-      service.setOrganizationIntegrations(orgId);
+      service.setOrganizationId(orgId).subscribe();
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const integrations = await firstValueFrom(service.integrations$);
