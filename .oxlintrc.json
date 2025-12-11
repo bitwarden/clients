@@ -1,0 +1,66 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "import"],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "curly": ["error", "all"],
+    "no-console": "error",
+    // Disabled: false positives on test variables assigned in beforeEach
+    "no-unassigned-vars": "allow",
+    // Disabled: ESLint uses allowTernary option which oxlint doesn't support
+    "no-unused-expressions": "allow",
+    // Disabled: use typescript/no-unused-vars for .ts files instead
+    "no-unused-vars": 0,
+    // Disabled: not enabled in ESLint config
+    "no-useless-rename": "allow",
+    // Disabled: not enabled in ESLint config
+    "no-useless-catch": "allow",
+    // Disabled: not enabled in ESLint config
+    "no-unnecessary-parameter-property-assignment": "allow",
+    // Disabled: BOM characters slip through ESLint
+    "no-irregular-whitespace": "allow",
+    // Disabled: matches ESLint config (rule is off)
+    "typescript/no-explicit-any": "allow",
+    // Disabled: oxlint doesn't support allowedNames option, ESLint allows "self"
+    "typescript/no-this-alias": "allow",
+    // Matches ESLint: don't check unused function arguments
+    "typescript/no-unused-vars": [
+      "error",
+      { "args": "none", "caughtErrors": "none", "varsIgnorePattern": "^_" }
+    ],
+    // Requires --type-aware flag to work
+    "typescript/no-misused-promises": "error",
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "@bitwarden/commercial-sdk-internal",
+            "message": "Use @bitwarden/sdk-internal instead."
+          }
+        ]
+      }
+    ]
+  },
+  "ignorePatterns": [
+    "**/build/",
+    "**/dist/",
+    "**/coverage/",
+    ".angular/",
+    "storybook-static/",
+    "**/node_modules/",
+    "**/webpack.*.js",
+    "**/jest.config.js",
+    "**/config/*.js",
+    "apps/*/config.js",
+    "apps/desktop/desktop_native",
+    "apps/desktop/src/auth/scripts/*.js",
+    "scripts/**",
+    "jest.preset.js",
+    "tailwind.config.js",
+    "libs/components/tailwind.config.*.js",
+    "libs/nx-plugin/**"
+  ]
+}
