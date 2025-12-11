@@ -8,8 +8,9 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { NavigationModule } from "@bitwarden/components";
+import { NavigationModule, DialogService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   OrganizationFilter,
@@ -19,6 +20,7 @@ import {
   VaultFilter,
   VaultFilterServiceAbstraction as VaultFilterService,
   RoutedVaultFilterBridgeService,
+  AddEditFolderDialogComponent,
 } from "@bitwarden/vault";
 
 import { FolderFilterComponent } from "./filters/folder-filter.component";
@@ -47,7 +49,9 @@ export class VaultFilterComponent implements OnInit {
   private vaultFilterService: VaultFilterService = inject(VaultFilterService);
   private accountService: AccountService = inject(AccountService);
   private cipherArchiveService: CipherArchiveService = inject(CipherArchiveService);
+  private folderService: FolderService = inject(FolderService);
   private policyService: PolicyService = inject(PolicyService);
+  private dialogService: DialogService = inject(DialogService);
   private componentIsDestroyed$ = new Subject<boolean>();
 
   protected activeFilter: VaultFilter;
@@ -105,5 +109,26 @@ export class VaultFilterComponent implements OnInit {
       });
 
     this.isLoaded = true;
+  }
+
+  protected async editFolder(folder: FolderFilter) {
+    if (!this.activeUserId) {
+      return;
+    }
+    const folderView = await firstValueFrom(
+      this.folderService.getDecrypted$(folder.id, this.activeUserId),
+    );
+
+    if (!folderView) {
+      return;
+    }
+
+    AddEditFolderDialogComponent.open(this.dialogService, {
+      editFolderConfig: {
+        folder: {
+          ...folderView,
+        },
+      },
+    });
   }
 }

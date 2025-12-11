@@ -7,6 +7,18 @@
     [appA11yTitle]="displayName()"
     (click)="applyFilter($event)"
   >
+    @if (folder()?.node.id) {
+      <button
+        type="button"
+        slot="end"
+        class="edit-button"
+        [bitIconButton]="'bwi-pencil'"
+        [buttonType]="'nav-contrast'"
+        size="small"
+        label="'editFolder' | i18n"
+        (click)="editFolder(folder().node)"
+      ></button>
+    }
     @for (childFolder of folder().children; track childFolder.node.id) {
       <app-folder-filter [folder]="childFolder" [activeFilter]="activeFilter()" />
     }
@@ -19,5 +31,18 @@
     [variant]="'tree'"
     [appA11yTitle]="displayName()"
     (click)="applyFilter($event)"
-  />
+  >
+    @if (folder()?.node.id) {
+      <button
+        type="button"
+        slot="end"
+        class="edit-button"
+        [bitIconButton]="'bwi-pencil'"
+        [buttonType]="'nav-contrast'"
+        size="small"
+        label="'editFolder' | i18n"
+        (click)="editFolder(folder().node)"
+      ></button>
+    }
+  </bit-nav-item>
 }

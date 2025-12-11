@@ -1,6 +1,7 @@
-import { Component, input, computed } from "@angular/core";
+import { Component, input, computed, output } from "@angular/core";
 
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+import { IconButtonModule } from "@bitwarden/components";
 import { VaultFilter, FolderFilter } from "@bitwarden/vault";
 
 import { VAULT_FILTER_IMPORTS } from "../shared-filter-imports";
@@ -11,11 +12,12 @@ import { VAULT_FILTER_IMPORTS } from "../shared-filter-imports";
   selector: "app-folder-filter",
   templateUrl: "folder-filter.component.html",
   standalone: true,
-  imports: [...VAULT_FILTER_IMPORTS],
+  imports: [...VAULT_FILTER_IMPORTS, IconButtonModule],
 })
 export class FolderFilterComponent {
   protected readonly folder = input<TreeNode<FolderFilter>>();
   protected readonly activeFilter = input<VaultFilter>();
+  protected onEditFolder = output<FolderFilter>();
 
   protected readonly displayName = computed<string>(() => {
     return this.folder().node.name;
@@ -35,5 +37,9 @@ export class FolderFilterComponent {
     if (filter) {
       filter.selectedFolderNode = this.folder();
     }
+  }
+
+  protected editFolder(folder: FolderFilter) {
+    this.onEditFolder.emit(folder);
   }
 }

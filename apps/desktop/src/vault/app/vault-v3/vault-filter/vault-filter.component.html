@@ -22,7 +22,11 @@
     @if (!hideFolders()) {
       <bit-nav-group [icon]="'bwi-folder'" [text]="'folders' | i18n" [variant]="'tree'">
         @for (folder of (folders$ | async)?.children ?? []; track folder.node.id) {
-          <app-folder-filter [activeFilter]="activeFilter" [folder]="folder" />
+          <app-folder-filter
+            [activeFilter]="activeFilter"
+            [folder]="folder"
+            (onEditFolder)="editFolder($event)"
+          />
         }
       </bit-nav-group>
     }
