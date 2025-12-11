@@ -156,7 +156,12 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       userId,
     );
 
-    // Set master password unlock data for new unlock path (requires: password, salt, kdf, userKey)
+    // Set master password unlock data for unlock path pointed to with
+    // MasterPasswordUnlockData feature development
+    // (requires: password, salt, kdf, userKey).
+    // As migration to this strategy continues, both unlock paths need supported.
+    // Several invocations in this file become redundant and can be removed once
+    // the feature is enshrined/unwound. These are marked with [PM-23246] below.
     await this.setMasterPasswordUnlockData(
       newPassword,
       salt,
@@ -176,6 +181,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       await this.keyService.setPrivateKey(keyPair[1].encryptedString, userId);
     }
 
+    // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
     await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId);
 
     if (resetPasswordAutoEnroll) {
@@ -218,7 +224,9 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       userDecryptionOpts,
     );
     await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
+    // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
     await this.masterPasswordService.setMasterKey(masterKey, userId);
+    // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
     await this.masterPasswordService.setMasterKeyEncryptedUserKey(
       masterKeyEncryptedUserKey[1],
       userId,
@@ -226,6 +234,13 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.keyService.setUserKey(masterKeyEncryptedUserKey[0], userId);
   }
 
+  /**
+   * As part of [PM-28494], adding this setting path to accommodate the changes that are
+   * emerging with pm-23246-unlock-with-master-password-unlock-data.
+   * Without this, immediately locking/unlocking the vault with the new password _may_ still fail
+   * if sync has not completed. Sync will eventually set this data, but we want to ensure it's
+   * set right away here to prevent a race condition UX issue that prevents immediate unlock.
+   */
   private async setMasterPasswordUnlockData(
     password: string,
     salt: MasterPasswordSalt,
