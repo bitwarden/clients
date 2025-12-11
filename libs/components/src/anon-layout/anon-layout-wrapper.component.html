@@ -7,6 +7,7 @@
   [hideCardWrapper]="hideCardWrapper"
   [hideBackgroundIllustration]="hideBackgroundIllustration"
 >
+  <router-outlet slot="header-actions" name="header-actions"></router-outlet>
   <router-outlet></router-outlet>
   <router-outlet slot="secondary" name="secondary"></router-outlet>
   <router-outlet slot="environment-selector" name="environment-selector"></router-outlet>

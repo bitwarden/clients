@@ -238,6 +238,11 @@ export const DefaultContentExample: Story = {
       },
     ],
   }),
+  parameters: {
+    chromatic: {
+      viewports: [380, 1280],
+    },
+  },
 };
 
 // Dynamic Content Example
