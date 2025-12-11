@@ -20,8 +20,11 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { KeyService } from "@bitwarden/key-management";
+import { UserId } from "@bitwarden/user-core";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
+
+export const REQUESTS_PER_BATCH = 500;
 
 export interface MemberActionResult {
   success: boolean;
@@ -162,18 +165,34 @@ export class MemberActionsService {
     }
   }
 
-  async bulkReinvite(organization: Organization, userIds: string[]): Promise<BulkActionResult> {
-    try {
-      const result = await this.organizationUserApiService.postManyOrganizationUserReinvite(
-        organization.id,
-        userIds,
-      );
-      return { successful: result, failed: [] };
-    } catch (error) {
-      return {
-        failed: userIds.map((id) => ({ id, error: (error as Error).message ?? String(error) })),
-      };
+  async bulkReinvite(organization: Organization, userIds: UserId[]): Promise<BulkActionResult> {
+    const increaseBulkReinviteLimitForCloud = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.IncreaseBulkReinviteLimitForCloud),
+    );
+    if (increaseBulkReinviteLimitForCloud) {
+      return await this.vNextBulkReinvite(organization, userIds);
+    } else {
+      try {
+        const result = await this.organizationUserApiService.postManyOrganizationUserReinvite(
+          organization.id,
+          userIds,
+        );
+        return { successful: result, failed: [] };
+      } catch (error) {
+        return {
+          failed: userIds.map((id) => ({ id, error: (error as Error).message ?? String(error) })),
+        };
+      }
     }
+  }
+
+  async vNextBulkReinvite(
+    organization: Organization,
+    userIds: UserId[],
+  ): Promise<BulkActionResult> {
+    return this.processBatchedOperation(userIds, REQUESTS_PER_BATCH, (batch) =>
+      this.organizationUserApiService.postManyOrganizationUserReinvite(organization.id, batch),
+    );
   }
 
   allowResetPassword(
@@ -206,5 +225,53 @@ export class MemberActionsService {
       resetPasswordEnabled &&
       orgUser.status === OrganizationUserStatusType.Confirmed
     );
+  }
+
+  /**
+   * Processes user IDs in sequential batches and aggregates results.
+   * @param userIds - Array of user IDs to process
+   * @param batchSize - Number of IDs to process per batch
+   * @param processBatch - Async function that processes a single batch and returns the result
+   * @returns Aggregated bulk action result
+   */
+  private async processBatchedOperation(
+    userIds: UserId[],
+    batchSize: number,
+    processBatch: (batch: string[]) => Promise<ListResponse<OrganizationUserBulkResponse>>,
+  ): Promise<BulkActionResult> {
+    const allSuccessful: OrganizationUserBulkResponse[] = [];
+    const allFailed: { id: string; error: string }[] = [];
+
+    for (let i = 0; i < userIds.length; i += batchSize) {
+      const batch = userIds.slice(i, i + batchSize);
+
+      try {
+        const result = await processBatch(batch);
+
+        if (result?.data) {
+          for (const response of result.data) {
+            if (response.error) {
+              allFailed.push({ id: response.id, error: response.error });
+            } else {
+              allSuccessful.push(response);
+            }
+          }
+        }
+      } catch (error) {
+        allFailed.push(
+          ...batch.map((id) => ({ id, error: (error as Error).message ?? String(error) })),
+        );
+      }
+    }
+
+    const successful =
+      allSuccessful.length > 0
+        ? new ListResponse(allSuccessful, OrganizationUserBulkResponse)
+        : undefined;
+
+    return {
+      successful,
+      failed: allFailed,
+    };
   }
 }

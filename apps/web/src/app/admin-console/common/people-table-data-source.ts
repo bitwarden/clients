@@ -24,7 +24,7 @@ export const MaxCheckedCount = 500;
  * Maximum for bulk reinvite operations when the IncreaseBulkReinviteLimitForCloud
  * feature flag is enabled on cloud environments.
  */
-export const CloudBulkReinviteLimit = 4000;
+export const CloudBulkReinviteLimit = 8000;
 
 /**
  * Returns true if the user matches the status, or where the status is `null`, if the user is active (not revoked).
