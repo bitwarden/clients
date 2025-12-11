@@ -38,11 +38,7 @@ export type IntegrationModificationResult = {
 };
 
 /**
- * Base class for organization integration services.
  * Provides common functionality for managing integrations with different external services.
- *
- * @template TConfig - The configuration type specific to the integration (e.g., HecConfiguration, DatadogConfiguration)
- * @template TTemplate - The template type specific to the integration (e.g., HecTemplate, DatadogTemplate)
  */
 export class OrganizationIntegrationService {
   private organizationId$ = new BehaviorSubject<OrganizationId | null>(null);
@@ -52,22 +48,6 @@ export class OrganizationIntegrationService {
   integrations$: Observable<OrganizationIntegration[]> = this._integrations$.asObservable();
 
   private fetch$: Subscription | null = null;
-  // private fetch$ = this.organizationId$
-  //   .pipe(
-  //     switchMap((orgId) => {
-  //       if (orgId) {
-  //         return this.setIntegrations(orgId);
-  //       } else {
-  //         return of([]) as Observable<OrganizationIntegration[]>;
-  //       }
-  //     }),
-  //     takeUntil(this.destroy$),
-  //   )
-  //   .subscribe({
-  //     next: (integrations) => {
-  //       this._integrations$.next(integrations);
-  //     },
-  //   });
 
   constructor(
     protected integrationApiService: OrganizationIntegrationApiService,
@@ -97,7 +77,7 @@ export class OrganizationIntegrationService {
           if (orgId) {
             return this.setIntegrations(orgId);
           } else {
-            return of([]) as Observable<OrganizationIntegration[]>;
+            return of([]);
           }
         }),
         takeUntil(this.destroy$),
@@ -113,6 +93,7 @@ export class OrganizationIntegrationService {
    * Saves a new organization integration and updates the integrations$ observable.
    *
    * @param organizationId - ID of the organization
+   * @param integrationType - Type of the organization integration
    * @param config - The configuration object for this integration
    * @param template - The template object for this integration
    * @returns Promise with the result indicating success or failure reason
@@ -163,6 +144,7 @@ export class OrganizationIntegrationService {
    *
    * @param organizationId - ID of the organization
    * @param integrationId - ID of the organization integration
+   * @param integrationType - Type of the organization integration
    * @param configurationId - ID of the organization integration configuration
    * @param config - The updated configuration object
    * @param template - The updated template object
@@ -272,7 +254,7 @@ export class OrganizationIntegrationService {
     integrationResponse: OrganizationIntegrationResponse,
     configurationResponse: OrganizationIntegrationConfigurationResponse,
   ): OrganizationIntegration | null {
-    const integrationType = integrationResponse.type as OrganizationIntegrationType;
+    const integrationType = integrationResponse.type;
     const config = OrgIntegrationBuilder.buildConfiguration(
       integrationType,
       integrationResponse.configuration,
@@ -342,19 +324,6 @@ export class OrganizationIntegrationService {
     return results$;
   }
 
-  /**
-   * Converts a JSON string to a typed object.
-   *
-   * @param jsonString - JSON string to parse
-   * @returns Parsed object of type T or null if parsing fails
-   */
-  protected convertToJson<T>(jsonString?: string): T | null {
-    try {
-      return JSON.parse(jsonString || "") as T;
-    } catch {
-      return null;
-    }
-  }
   /**
    * Cleans up subscriptions. Should be called when the service is destroyed.
    */
