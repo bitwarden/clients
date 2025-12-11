@@ -84,39 +84,14 @@ describe("filePickerPopoutGuard", () => {
       inSidebarSpy.mockReturnValue(false);
     });
 
-    it("should open popout and block navigation when not in popout", async () => {
+    it("should allow navigation without popout requirement", async () => {
       const guard = filePickerPopoutGuard();
       const result = await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
 
       expect(getDeviceSpy).toHaveBeenCalledWith(window);
-      expect(inPopoutSpy).toHaveBeenCalledWith(window);
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=1");
-      expect(closePopupSpy).toHaveBeenCalledWith(window);
-      expect(result).toBe(false);
-    });
-
-    it("should allow navigation when already in popout", async () => {
-      inPopoutSpy.mockReturnValue(true);
-
-      const guard = filePickerPopoutGuard();
-      const result = await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
-
       expect(openPopoutSpy).not.toHaveBeenCalled();
       expect(closePopupSpy).not.toHaveBeenCalled();
       expect(result).toBe(true);
-    });
-
-    it("should not allow sidebar bypass (Safari doesn't support sidebar)", async () => {
-      inSidebarSpy.mockReturnValue(true);
-      inPopoutSpy.mockReturnValue(false);
-
-      const guard = filePickerPopoutGuard();
-      const result = await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
-
-      // Safari requires popout, sidebar is not sufficient
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=1");
-      expect(closePopupSpy).toHaveBeenCalledWith(window);
-      expect(result).toBe(false);
     });
   });
 

@@ -30,8 +30,6 @@ import { DialogService } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
 import { DecryptionFailureDialogComponent } from "@bitwarden/vault";
 
-import { BrowserApi } from "../../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../../platform/browser/browser-popup-utils";
 import { IntroCarouselService } from "../../services/intro-carousel.service";
 import { VaultPopupAutofillService } from "../../services/vault-popup-autofill.service";
 import { VaultPopupCopyButtonsService } from "../../services/vault-popup-copy-buttons.service";
@@ -141,8 +139,6 @@ jest
 jest
   .spyOn(DecryptionFailureDialogComponent, "open")
   .mockImplementation((_: DialogService, _params: any) => mockDialogRef as any);
-jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(false);
-jest.spyOn(BrowserPopupUtils, "openCurrentPagePopout").mockResolvedValue();
 
 describe("VaultV2Component", () => {
   let component: VaultV2Component;
@@ -379,29 +375,13 @@ describe("VaultV2Component", () => {
     expect(PremiumUpgradeDialogComponent.open).toHaveBeenCalledTimes(1);
   });
 
-  it("navigateToImport navigates and opens popout if popup is open", fakeAsync(async () => {
-    (BrowserApi.isPopupOpen as jest.Mock).mockResolvedValueOnce(true);
-
+  it("navigateToImport navigates to import route", fakeAsync(async () => {
     const ngRouter = TestBed.inject(Router);
     jest.spyOn(ngRouter, "navigate").mockResolvedValue(true as any);
 
     await component["navigateToImport"]();
 
     expect(ngRouter.navigate).toHaveBeenCalledWith(["/import"]);
-
-    expect(BrowserPopupUtils.openCurrentPagePopout).toHaveBeenCalled();
-  }));
-
-  it("navigateToImport does not popout when popup is not open", fakeAsync(async () => {
-    (BrowserApi.isPopupOpen as jest.Mock).mockResolvedValueOnce(false);
-
-    const ngRouter = TestBed.inject(Router);
-    jest.spyOn(ngRouter, "navigate").mockResolvedValue(true as any);
-
-    await component["navigateToImport"]();
-
-    expect(ngRouter.navigate).toHaveBeenCalledWith(["/import"]);
-    expect(BrowserPopupUtils.openCurrentPagePopout).not.toHaveBeenCalled();
   }));
 
   it("ngOnInit dismisses intro carousel and opens decryption dialog for non-deleted failures", fakeAsync(() => {

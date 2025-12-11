@@ -11,9 +11,9 @@ import { DeviceType } from "@bitwarden/common/enums";
  *
  * Browser-specific requirements:
  * - Firefox: Requires sidebar OR popout (crashes with file picker in popup: https://bugzilla.mozilla.org/show_bug.cgi?id=1292701)
- * - Safari: Requires popout only
  * - Chromium on Linux/Mac: Requires sidebar OR popout
  * - Chromium on Windows: No special requirement
+ * - Safari: No special requirement
  *
  * @returns CanActivateFn that opens popout and blocks navigation when file picker access is needed
  */
@@ -30,11 +30,6 @@ export function filePickerPopoutGuard(): CanActivateFn {
 
     // Firefox: needs sidebar OR popout to avoid crash with file picker
     if (deviceType === DeviceType.FirefoxExtension && !inPopout && !inSidebar) {
-      needsPopout = true;
-    }
-
-    // Safari: needs popout only (sidebar not available)
-    if (deviceType === DeviceType.SafariExtension && !inPopout) {
       needsPopout = true;
     }
 
