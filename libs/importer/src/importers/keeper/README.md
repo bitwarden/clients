@@ -55,7 +55,7 @@ handle some of the type conversion manually. Should the conversion types be forc
 
 - [x] Shared folders
 - [-] File attachments
-- [ ] PAM record types
-- [ ] Some more enterprise record types
-- [ ] Custom record types
+- [x] PAM record types
+- [x] Some more enterprise record types
+- [x] Custom record types
 - [x] Referenced fields
