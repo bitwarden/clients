@@ -1,6 +1,6 @@
 import { ConditionalExcept, ConditionalKeys } from "type-fest";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { DECRYPT_ERROR, EncString } from "../../../key-management/crypto/models/enc-string";
 import { View } from "../../../models/view/view";
 import { Utils } from "../../misc/utils";
 
@@ -88,11 +88,13 @@ export default class Domain {
       try {
         viewModel[prop] = await encryptService.decryptString(domain[prop]!, key);
       } catch (e) {
-        throw new Error(
+        // eslint-disable-next-line no-console
+        console.error(
           `Failed to decrypt property '${String(
             prop,
           )}' of domain. Context: ${objectContext}. Error: ${(e as Error).message}`,
         );
+        viewModel[prop] = DECRYPT_ERROR;
       }
     }
     return viewModel as V;
