@@ -135,10 +135,8 @@ export class Messenger {
 
       try {
         const handlerResponse = await this.handler(message, abortController);
-        if (handlerResponse) {
+        if (handlerResponse !== undefined) {
           port.postMessage({ ...handlerResponse, SENDER });
-        } else {
-          port.postMessage({ SENDER });
         }
       } catch (error) {
         port.postMessage({
