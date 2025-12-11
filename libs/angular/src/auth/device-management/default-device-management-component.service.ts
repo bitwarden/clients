@@ -3,9 +3,7 @@ import { DeviceManagementComponentServiceAbstraction } from "./device-management
 /**
  * Default implementation of the device management component service
  */
-export class DefaultDeviceManagementComponentService
-  implements DeviceManagementComponentServiceAbstraction
-{
+export class DefaultDeviceManagementComponentService implements DeviceManagementComponentServiceAbstraction {
   /**
    * Show header information in web client
    */

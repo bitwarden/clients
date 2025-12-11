@@ -12,9 +12,10 @@ import { observe$PerUserId, optionsToRandomAsciiRequest, sharedStateByUserId } f
 import { PASSWORD_SETTINGS } from "./storage";
 
 /** Generates passwords composed of random characters */
-export class PasswordGeneratorStrategy
-  implements GeneratorStrategy<PasswordGenerationOptions, PasswordGeneratorPolicy>
-{
+export class PasswordGeneratorStrategy implements GeneratorStrategy<
+  PasswordGenerationOptions,
+  PasswordGeneratorPolicy
+> {
   /** instantiates the password generator strategy.
    *  @param legacy generates the password
    */
