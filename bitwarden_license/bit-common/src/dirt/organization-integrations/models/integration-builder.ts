@@ -10,12 +10,15 @@ export class OrgIntegrationBuilder {
   static buildHecConfiguration(
     uri: string,
     token: string,
-    service: string,
+    service: OrganizationIntegrationServiceName,
   ): OrgIntegrationConfiguration {
     return new HecConfiguration(uri, token, service);
   }
 
-  static buildHecTemplate(index: string, service: string): OrgIntegrationTemplate {
+  static buildHecTemplate(
+    index: string,
+    service: OrganizationIntegrationServiceName,
+  ): OrgIntegrationTemplate {
     return new HecTemplate(index, service);
   }
 
@@ -23,7 +26,7 @@ export class OrgIntegrationBuilder {
     return new DatadogConfiguration(uri, apiKey, OrganizationIntegrationServiceName.Datadog);
   }
 
-  static buildDataDogTemplate(service: string): OrgIntegrationTemplate {
+  static buildDataDogTemplate(service: OrganizationIntegrationServiceName): OrgIntegrationTemplate {
     return new DatadogTemplate(service);
   }
 
@@ -63,7 +66,11 @@ export class OrgIntegrationBuilder {
     }
   }
 
-  private static convertToJson<T>(jsonString: string): T {
-    return JSON.parse(jsonString) as T;
+  private static convertToJson<T>(jsonString?: string): T {
+    try {
+      return JSON.parse(jsonString || "{}") as T;
+    } catch {
+      return JSON.parse("{}") as T; // Return empty object on parse failure
+    }
   }
 }

@@ -304,7 +304,6 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    this.organizationIntegrationService.destroy();
   }
 
   // use in the view

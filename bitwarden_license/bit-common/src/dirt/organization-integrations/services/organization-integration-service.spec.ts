@@ -577,9 +577,9 @@ describe("OrganizationIntegrationService", () => {
       service.setOrganizationIntegrations("org-456" as OrganizationId);
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      // Should not make additional API calls after destroy
+      // Should not make additional API calls after destroy due to takeUntil(this.destroy$)
       const callCountAfter = integrationApiService.getOrganizationIntegrations.mock.calls.length;
-      expect(callCountAfter).toBe(callCountBefore + 1); // One more call from setOrganizationIntegrations
+      expect(callCountAfter).toBe(callCountBefore); // No new calls should be made
     });
   });
 

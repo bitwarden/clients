@@ -1,13 +1,4 @@
-import {
-  BehaviorSubject,
-  Observable,
-  of,
-  Subject,
-  Subscription,
-  switchMap,
-  takeUntil,
-  zip,
-} from "rxjs";
+import { BehaviorSubject, Observable, of, Subject, switchMap, takeUntil, zip } from "rxjs";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import {
@@ -47,31 +38,12 @@ export class OrganizationIntegrationService {
 
   integrations$: Observable<OrganizationIntegration[]> = this._integrations$.asObservable();
 
-  private fetch$: Subscription | null = null;
-
   constructor(
     protected integrationApiService: OrganizationIntegrationApiService,
     protected integrationConfigurationApiService: OrganizationIntegrationConfigurationApiService,
-  ) {}
-
-  /**
-   * Sets the organization Id and triggers the retrieval of integrations for the given organization.
-   * If the organization ID is the same as the current one, the operation is skipped.
-   *
-   * @param orgId - The organization ID to set
-   */
-  setOrganizationIntegrations(orgId: OrganizationId): void {
-    if (orgId == this.organizationId$.getValue()) {
-      return;
-    }
-    this._integrations$.next([]);
-    this.organizationId$.next(orgId);
-
-    if (this.fetch$) {
-      this.fetch$.unsubscribe();
-    }
-
-    this.fetch$ = this.organizationId$
+  ) {
+    // Subscribe once to handle all organization changes
+    this.organizationId$
       .pipe(
         switchMap((orgId) => {
           if (orgId) {
@@ -87,6 +59,20 @@ export class OrganizationIntegrationService {
           this._integrations$.next(integrations);
         },
       });
+  }
+
+  /**
+   * Sets the organization Id and triggers the retrieval of integrations for the given organization.
+   * If the organization ID is the same as the current one, the operation is skipped.
+   *
+   * @param orgId - The organization ID to set
+   */
+  setOrganizationIntegrations(orgId: OrganizationId): void {
+    if (orgId == this.organizationId$.getValue()) {
+      return;
+    }
+    this._integrations$.next([]);
+    this.organizationId$.next(orgId);
   }
 
   /**
@@ -186,10 +172,12 @@ export class OrganizationIntegrationService {
       );
 
       if (updatedIntegration !== null) {
-        const unchangedIntegrations = this._integrations$
-          .getValue()
-          .filter((i) => i.id !== integrationId);
-        this._integrations$.next([...unchangedIntegrations, updatedIntegration]);
+        const integrations = this._integrations$.getValue();
+        const index = integrations.findIndex((i) => i.id === integrationId);
+        if (index !== -1) {
+          integrations[index] = updatedIntegration;
+          this._integrations$.next([...integrations]);
+        }
       }
       return { mustBeOwner: false, success: true };
     } catch (error) {
