@@ -1400,7 +1400,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.intersectionObserver = new IntersectionObserver(this.handleFormElementIntersection, {
       root: null,
       rootMargin: "0px",
-      threshold: 1.0,
+      threshold: 0.9999, // Safari doesn't seem to function properly with a threshold of 1,
     });
   }
 

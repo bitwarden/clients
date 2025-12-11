@@ -4,8 +4,9 @@ export { VaultTimeoutService } from "./abstractions/vault-timeout.service";
 export { VaultTimeoutService as DefaultVaultTimeoutService } from "./services/vault-timeout.service";
 export { VaultTimeoutAction } from "./enums/vault-timeout-action.enum";
 export {
+  isVaultTimeoutTypeNumeric,
   VaultTimeout,
   VaultTimeoutOption,
+  VaultTimeoutNumberType,
   VaultTimeoutStringType,
 } from "./types/vault-timeout.type";
-export { MaximumVaultTimeoutPolicyData } from "./types/maximum-vault-timeout-policy.type";

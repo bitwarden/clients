@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, input, ChangeDetectionStrategy } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -25,31 +25,23 @@ import { PopupRouterCacheService } from "../../../../../platform/popup/view-cach
 
 import { AttachmentsV2Component } from "./attachments-v2.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "popup-header",
   template: `<ng-content></ng-content>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockPopupHeaderComponent {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() pageTitle: string;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() backAction: () => void;
+  readonly pageTitle = input<string>();
+  readonly backAction = input<() => void>();
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "popup-footer",
   template: `<ng-content></ng-content>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockPopupFooterComponent {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() pageTitle: string;
+  readonly pageTitle = input<string>();
 }
 
 describe("AttachmentsV2Component", () => {
@@ -120,7 +112,7 @@ describe("AttachmentsV2Component", () => {
     const submitBtn = fixture.debugElement.queryAll(By.directive(ButtonComponent))[1]
       .componentInstance;
 
-    expect(cipherAttachment.submitBtn).toEqual(submitBtn);
+    expect(cipherAttachment.submitBtn()).toEqual(submitBtn);
   });
 
   it("navigates the user to the edit view `onUploadSuccess`", fakeAsync(() => {

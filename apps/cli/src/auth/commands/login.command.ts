@@ -31,6 +31,7 @@ import { TwoFactorService, TwoFactorApiService } from "@bitwarden/common/auth/tw
 import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -81,6 +82,7 @@ export class LoginCommand {
     protected ssoUrlService: SsoUrlService,
     protected i18nService: I18nService,
     protected masterPasswordService: MasterPasswordServiceAbstraction,
+    protected encryptedMigrator: EncryptedMigrator,
   ) {}
 
   async run(email: string, password: string, options: OptionValues) {
@@ -111,20 +113,14 @@ export class LoginCommand {
     } else if (options.sso != null && this.canInteract) {
       // If the optional Org SSO Identifier isn't provided, the option value is `true`.
       const orgSsoIdentifier = options.sso === true ? null : options.sso;
-      const passwordOptions: any = {
-        type: "password",
-        length: 64,
-        uppercase: true,
-        lowercase: true,
-        numbers: true,
-        special: false,
-      };
-      const state = await this.passwordGenerationService.generatePassword(passwordOptions);
-      ssoCodeVerifier = await this.passwordGenerationService.generatePassword(passwordOptions);
-      const codeVerifierHash = await this.cryptoFunctionService.hash(ssoCodeVerifier, "sha256");
-      const codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
+      const ssoPromptData = await this.makeSsoPromptData();
+      ssoCodeVerifier = ssoPromptData.ssoCodeVerifier;
       try {
-        const ssoParams = await this.openSsoPrompt(codeChallenge, state, orgSsoIdentifier);
+        const ssoParams = await this.openSsoPrompt(
+          ssoPromptData.codeChallenge,
+          ssoPromptData.state,
+          orgSsoIdentifier,
+        );
         ssoCode = ssoParams.ssoCode;
         orgIdentifier = ssoParams.orgIdentifier;
       } catch {
@@ -229,9 +225,43 @@ export class LoginCommand {
           new PasswordLoginCredentials(email, password, twoFactor),
         );
       }
+
+      // Begin Acting on initial AuthResult
+
       if (response.requiresEncryptionKeyMigration) {
         return Response.error(this.i18nService.t("legacyEncryptionUnsupported"));
       }
+
+      // Opting for not checking feature flag since the server will not respond with
+      // SsoOrganizationIdentifier if the feature flag is not enabled.
+      if (response.requiresSso && this.canInteract) {
+        const ssoPromptData = await this.makeSsoPromptData();
+        ssoCodeVerifier = ssoPromptData.ssoCodeVerifier;
+        try {
+          const ssoParams = await this.openSsoPrompt(
+            ssoPromptData.codeChallenge,
+            ssoPromptData.state,
+            response.ssoOrganizationIdentifier,
+          );
+          ssoCode = ssoParams.ssoCode;
+          orgIdentifier = ssoParams.orgIdentifier;
+          if (ssoCode != null && ssoCodeVerifier != null) {
+            response = await this.loginStrategyService.logIn(
+              new SsoLoginCredentials(
+                ssoCode,
+                ssoCodeVerifier,
+                this.ssoRedirectUri,
+                orgIdentifier,
+                undefined, // email to look up 2FA token not required as CLI can't remember 2FA token
+                twoFactor,
+              ),
+            );
+          }
+        } catch {
+          return Response.badRequest("Something went wrong. Try again.");
+        }
+      }
+
       if (response.requiresTwoFactor) {
         const twoFactorProviders = await this.twoFactorService.getSupportedProviders(null);
         if (twoFactorProviders.length === 0) {
@@ -277,6 +307,10 @@ export class LoginCommand {
         if (twoFactorToken == null && selectedProvider.type === TwoFactorProviderType.Email) {
           const emailReq = new TwoFactorEmailRequest();
           emailReq.email = await this.loginStrategyService.getEmail();
+          // if the user was logging in with SSO, we need to include the SSO session token
+          if (response.ssoEmail2FaSessionToken != null) {
+            emailReq.ssoEmail2FaSessionToken = response.ssoEmail2FaSessionToken;
+          }
           emailReq.masterPasswordHash = await this.loginStrategyService.getMasterPasswordHash();
           await this.twoFactorApiService.postTwoFactorEmail(emailReq);
         }
@@ -322,6 +356,7 @@ export class LoginCommand {
         response = await this.loginStrategyService.logInNewDeviceVerification(newDeviceToken);
       }
 
+      // We check response two factor again here since MFA could fail based on the logic on ln 226
       if (response.requiresTwoFactor) {
         return Response.error("Login failed.");
       }
@@ -366,6 +401,8 @@ export class LoginCommand {
           return await this.updateWeakPassword(response.userId, password);
         }
       }
+
+      await this.encryptedMigrator.runMigrations(response.userId, password);
 
       return await this.handleSuccessResponse(response);
     } catch (e) {
@@ -686,6 +723,27 @@ export class LoginCommand {
       clientId: await this.apiClientId(),
       clientSecret: await this.apiClientSecret(),
     };
+  }
+
+  /// Generate SSO prompt data: code verifier, code challenge, and state
+  private async makeSsoPromptData(): Promise<{
+    ssoCodeVerifier: string;
+    codeChallenge: string;
+    state: string;
+  }> {
+    const passwordOptions: any = {
+      type: "password",
+      length: 64,
+      uppercase: true,
+      lowercase: true,
+      numbers: true,
+      special: false,
+    };
+    const state = await this.passwordGenerationService.generatePassword(passwordOptions);
+    const ssoCodeVerifier = await this.passwordGenerationService.generatePassword(passwordOptions);
+    const codeVerifierHash = await this.cryptoFunctionService.hash(ssoCodeVerifier, "sha256");
+    const codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
+    return { ssoCodeVerifier, codeChallenge, state };
   }
 
   private async openSsoPrompt(

@@ -6,6 +6,7 @@ import { LayoutComponent, NavigationModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
+import { SendFiltersNavComponent } from "../tools/send-v2/send-filters-nav.component";
 
 import { DesktopSideNavComponent } from "./desktop-side-nav.component";
 
@@ -20,6 +21,7 @@ import { DesktopSideNavComponent } from "./desktop-side-nav.component";
     NavigationModule,
     DesktopSideNavComponent,
     VaultFilterComponent,
+    SendFiltersNavComponent,
   ],
   templateUrl: "./desktop-layout.component.html",
 })

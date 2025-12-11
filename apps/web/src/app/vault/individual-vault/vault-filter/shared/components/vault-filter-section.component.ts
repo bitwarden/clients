@@ -98,6 +98,11 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
   }
 
   async onFilterSelect(filterNode: TreeNode<VaultFilterType>) {
+    if (this.section?.premiumOptions?.blockFilterAction) {
+      await this.section.premiumOptions.blockFilterAction();
+      return;
+    }
+
     await this.section?.action(filterNode);
   }
 
@@ -123,6 +128,10 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
 
   get optionsInfo() {
     return this.section?.options;
+  }
+
+  get premiumFeature() {
+    return this.section?.premiumOptions?.showBadgeForNonPremium;
   }
 
   get divider() {

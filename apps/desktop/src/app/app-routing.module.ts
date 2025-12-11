@@ -43,7 +43,11 @@ import {
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
-import { LockComponent, ConfirmKeyConnectorDomainComponent } from "@bitwarden/key-management-ui";
+import {
+  LockComponent,
+  ConfirmKeyConnectorDomainComponent,
+  RemovePasswordComponent,
+} from "@bitwarden/key-management-ui";
 import {
   VaultFilterServiceAbstraction,
   VaultFilterService,
@@ -52,12 +56,13 @@ import {
 } from "@bitwarden/vault";
 
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
-import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
-import { DesktopPremiumUpgradePromptService } from "../services/desktop-premium-upgrade-prompt.service";
+import { reactiveUnlockVaultGuard } from "../autofill/guards/reactive-vault-guard";
+import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create.component";
+import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
+import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
 import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 import { VaultComponent } from "../vault/app/vault-v3/vault.component";
 
-import { Fido2PlaceholderComponent } from "./components/fido2placeholder.component";
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
 import { SendComponent } from "./tools/send/send.component";
 import { SendV2Component } from "./tools/send-v2/send-v2.component";
@@ -123,17 +128,16 @@ const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: "remove-password",
-    component: RemovePasswordComponent,
-    canActivate: [authGuard],
+    path: "fido2-assertion",
+    component: Fido2VaultComponent,
   },
   {
-    path: "passkeys",
-    component: Fido2PlaceholderComponent,
+    path: "fido2-creation",
+    component: Fido2CreateComponent,
   },
   {
-    path: "passkeys",
-    component: Fido2PlaceholderComponent,
+    path: "fido2-excluded",
+    component: Fido2ExcludedCiphersComponent,
   },
   {
     path: "",
@@ -279,7 +283,7 @@ const routes: Routes = [
       },
       {
         path: "lock",
-        canActivate: [lockGuard()],
+        canActivate: [lockGuard(), reactiveUnlockVaultGuard],
         data: {
           pageIcon: LockIcon,
           pageTitle: {
@@ -329,12 +333,23 @@ const routes: Routes = [
         } satisfies AnonLayoutWrapperData,
       },
       {
+        path: "remove-password",
+        component: RemovePasswordComponent,
+        canActivate: [authGuard],
+        data: {
+          pageTitle: {
+            key: "verifyYourOrganization",
+          },
+          pageIcon: LockIcon,
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+      },
+      {
         path: "confirm-key-connector-domain",
         component: ConfirmKeyConnectorDomainComponent,
         canActivate: [],
         data: {
           pageTitle: {
-            key: "confirmKeyConnectorDomain",
+            key: "verifyYourOrganization",
           },
           pageIcon: DomainIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
