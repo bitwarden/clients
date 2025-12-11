@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, NgZone, OnInit, OnDestroy } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { lastValueFrom } from "rxjs";
 
@@ -105,23 +106,28 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
       toastService,
       accountService,
     );
+
+    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+      const typeParam = params.get("type");
+      const value = (typeParam === "text" || typeParam === "file" ? typeParam : "all") as
+        | "all"
+        | "text"
+        | "file";
+      this.selectedToggleValue = value;
+
+      if (this.loaded) {
+        this.applyTypeFilter(value);
+      }
+    });
   }
 
   async ngOnInit() {
     await super.ngOnInit();
 
-    const typeParam = this.route.snapshot.queryParamMap.get("type");
-    if (typeParam === "text") {
-      this.selectedToggleValue = "text";
-      this.selectType(SendType.Text);
-    } else if (typeParam === "file") {
-      this.selectedToggleValue = "file";
-      this.selectType(SendType.File);
-    } else {
-      this.selectedToggleValue = "all";
-    }
-
+    this.filteredSends = [];
     await this.load();
+
+    this.applyTypeFilter(this.selectedToggleValue);
 
     // Broadcaster subscription - load if sync completes in the background
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
@@ -132,6 +138,8 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
           case "syncCompleted":
             if (message.successfully) {
               await this.load();
+
+              this.applyTypeFilter(this.selectedToggleValue);
             }
             break;
         }
@@ -187,15 +195,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     }
   }
 
-  onToggleChange(value: "all" | "text" | "file") {
-    const queryParams = value === "all" ? {} : { type: value };
-
-    void this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams,
-      queryParamsHandling: "merge",
-    });
-
+  private applyTypeFilter(value: "all" | "text" | "file") {
     if (value === "all") {
       this.selectAll();
     } else if (value === "text") {
@@ -203,5 +203,17 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     } else if (value === "file") {
       this.selectType(SendType.File);
     }
+  }
+
+  onToggleChange(value: "all" | "text" | "file") {
+    const queryParams = value === "all" ? { type: null } : { type: value };
+
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+      queryParamsHandling: "merge",
+    });
+
+    this.applyTypeFilter(value);
   }
 }
