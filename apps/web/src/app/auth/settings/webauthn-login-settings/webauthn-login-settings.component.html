@@ -32,7 +32,7 @@
 </p>
 
 <table *ngIf="hasCredentials" class="tw-mb-5">
-  <tr *ngFor="let credential of credentials">
+  <tr *ngFor="let credential of displayedCredentials">
     <td class="tw-p-2 tw-pl-0 tw-font-medium">{{ credential.name }}</td>
     <td class="tw-p-2 tw-pr-10 tw-text-left">
       <ng-container *ngIf="credential.prfStatus === WebauthnLoginCredentialPrfStatus.Enabled">
@@ -75,25 +75,34 @@
 
 <p bitTypography="body2" *ngIf="limitReached">{{ "passkeyLimitReachedInfo" | i18n }}</p>
 
-<ng-container *ngIf="hasData && !limitReached && !requireSsoPolicyEnabled">
-  <button
-    *ngIf="hasCredentials"
-    type="button"
-    bitButton
-    [disabled]="loading"
-    (click)="createCredential()"
-  >
-    {{ "newPasskey" | i18n }}
-  </button>
+<div class="tw-flex tw-items-center tw-gap-4">
+  <ng-container *ngIf="hasData && !limitReached && !requireSsoPolicyEnabled">
+    <button
+      *ngIf="hasCredentials"
+      type="button"
+      bitButton
+      [disabled]="loading"
+      (click)="createCredential()"
+    >
+      {{ "newPasskey" | i18n }}
+    </button>
 
-  <button
-    *ngIf="!hasCredentials"
-    type="button"
-    bitButton
-    [attr.aria-label]="('enable' | i18n) + ' ' + ('logInWithPasskey' | i18n)"
-    [disabled]="loading"
-    (click)="createCredential()"
-  >
-    {{ "enable" | i18n }}
+    <button
+      *ngIf="!hasCredentials"
+      type="button"
+      bitButton
+      [attr.aria-label]="('enable' | i18n) + ' ' + ('logInWithPasskey' | i18n)"
+      [disabled]="loading"
+      (click)="createCredential()"
+    >
+      {{ "enable" | i18n }}
+    </button>
+  </ng-container>
+
+  <button *ngIf="hasMoreCredentials" type="button" bitLink (click)="toggleShowAll()">
+    <ng-container *ngIf="!showAll"
+      >{{ "showMore" | i18n }} ({{ (credentials?.length ?? 0) - displayLimit }})</ng-container
+    >
+    <ng-container *ngIf="showAll">{{ "showLess" | i18n }}</ng-container>
   </button>
-</ng-container>
+</div>
