@@ -46,14 +46,6 @@ export abstract class PinStateServiceAbstraction {
   ): Promise<PasswordProtectedKeyEnvelope | null>;
 
   /**
-   * Gets the user's legacy PIN-protected UserKey
-   * @deprecated Use {@link getPinProtectedUserKeyEnvelope} instead. Only for migration support.
-   * @param userId The user's id
-   * @throws If the user id is not provided
-   */
-  abstract getLegacyPinKeyEncryptedUserKeyPersistent(userId: UserId): Promise<EncString | null>;
-
-  /**
    * Sets the PIN state for the user
    * @deprecated - This is not a public API. DO NOT USE IT
    * @param userId The user's id

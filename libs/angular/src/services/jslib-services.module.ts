@@ -952,7 +952,7 @@ const safeProviders: SafeProvider[] = [
     deps: [
       FolderServiceAbstraction,
       CipherServiceAbstraction,
-      PinServiceAbstraction,
+      KeyGenerationService,
       KeyService,
       EncryptService,
       CryptoFunctionServiceAbstraction,
@@ -972,7 +972,7 @@ const safeProviders: SafeProvider[] = [
     deps: [
       CipherServiceAbstraction,
       VaultExportApiService,
-      PinServiceAbstraction,
+      KeyGenerationService,
       KeyService,
       EncryptService,
       CryptoFunctionServiceAbstraction,
@@ -1357,16 +1357,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: PinServiceAbstraction,
     useClass: PinService,
-    deps: [
-      AccountServiceAbstraction,
-      EncryptService,
-      KdfConfigService,
-      KeyGenerationService,
-      LogService,
-      KeyService,
-      SdkService,
-      PinStateServiceAbstraction,
-    ],
+    deps: [EncryptService, LogService, KeyService, SdkService, PinStateServiceAbstraction],
   }),
   safeProvider({
     provide: WebAuthnLoginPrfKeyServiceAbstraction,
