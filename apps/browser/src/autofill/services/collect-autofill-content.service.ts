@@ -69,9 +69,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     "week",
     "color",
     "range",
-    // "radio", // test some of these in different scenarios - e.g. what if you have a radio to select register vs login?
-    "radiogroup",
-    // "checkbox",
   ]);
 
   constructor(
