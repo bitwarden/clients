@@ -154,8 +154,6 @@ describe("AccountSecurityComponent", () => {
     configService.getFeatureFlag$.mockReturnValue(of(false));
     billingService.hasPremiumPersonally$.mockReturnValue(of(true));
 
-    // Provide a default policy observable so firstValueFrom(maximumVaultTimeoutPolicy)
-    // in ngOnInit has a valid stream. Individual tests override this when needed.
     policyService.policiesByType$.mockReturnValue(of([null]));
 
     // Mock readonly observables for phishing detection using BehaviorSubjects so
