@@ -25,9 +25,12 @@ const BIT_SIDE_NAV_WIDTH_KEY_DEF = new KeyDefinition<number>(BIT_SIDE_NAV_DISK, 
   providedIn: "root",
 })
 export class SideNavService {
-  readonly DEFAULT_OPEN_WIDTH = 288;
-  readonly MIN_OPEN_WIDTH = 240;
-  readonly MAX_OPEN_WIDTH = 384;
+  // Units in rem
+  readonly DEFAULT_OPEN_WIDTH = 18;
+  readonly MIN_OPEN_WIDTH = 15;
+  readonly MAX_OPEN_WIDTH = 24;
+
+  private rootFontSizePx: number;
 
   private _open$ = new BehaviorSubject<boolean>(isAtOrLargerThanBreakpoint("md"));
   open$ = this._open$.asObservable();
@@ -60,6 +63,9 @@ export class SideNavService {
   );
 
   constructor() {
+    // Get computed root font size to support user-defined a11y font increases
+    this.rootFontSizePx = parseFloat(getComputedStyle(document.documentElement).fontSize || "16");
+
     // Handle open/close state
     combineLatest([this.isLargeScreen$, this.userCollapsePreference$])
       .pipe(takeUntilDestroyed())
@@ -117,9 +123,11 @@ export class SideNavService {
    * @param dragElementXCoordinate x coordinate of the drag element's bounding client rect
    */
   setWidthFromDrag(eventXPointer: number, dragElementXCoordinate: number) {
-    const newWidth = eventXPointer - dragElementXCoordinate;
+    const newWidthInPixels = eventXPointer - dragElementXCoordinate;
 
-    this._setWidthWithinMinMax(newWidth);
+    const newWidthInRem = newWidthInPixels / this.rootFontSizePx;
+
+    this._setWidthWithinMinMax(newWidthInRem);
   }
 
   /**
@@ -130,7 +138,7 @@ export class SideNavService {
   setWidthFromKeys(key: "ArrowRight" | "ArrowLeft") {
     const currentWidth = this._width$.getValue();
 
-    const delta = key === "ArrowLeft" ? -10 : 10;
+    const delta = key === "ArrowLeft" ? -1 : 1;
     const newWidth = currentWidth + delta;
 
     this._setWidthWithinMinMax(newWidth);

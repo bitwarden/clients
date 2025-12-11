@@ -63,7 +63,5 @@ export class SideNavComponent {
     if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
       this.sideNavService.setWidthFromKeys(event.key);
     }
-
-    return;
   }
 }
