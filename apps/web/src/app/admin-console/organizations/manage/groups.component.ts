@@ -77,6 +77,8 @@ const groupsFilter = (filter: string) => {
   };
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "groups.component.html",
   standalone: false,
@@ -253,8 +255,8 @@ export class GroupsComponent {
   private toCollectionMap(
     response: ListResponse<CollectionResponse>,
   ): Observable<Record<string, CollectionView>> {
-    const collections = response.data.map(
-      (r) => new Collection(new CollectionData(r as CollectionDetailsResponse)),
+    const collections = response.data.map((r) =>
+      Collection.fromCollectionData(new CollectionData(r as CollectionDetailsResponse)),
     );
 
     return this.accountService.activeAccount$.pipe(

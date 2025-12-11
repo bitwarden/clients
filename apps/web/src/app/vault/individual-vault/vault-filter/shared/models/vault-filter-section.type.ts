@@ -21,6 +21,7 @@ export const VaultFilterLabel = {
   TypeFilter: "typeFilter",
   FolderFilter: "folderFilter",
   CollectionFilter: "collectionFilter",
+  ArchiveFilter: "archiveFilter",
   TrashFilter: "trashFilter",
 } as const;
 
@@ -46,6 +47,16 @@ export type VaultFilterSection = {
     component: any;
   };
   divider?: boolean;
+  premiumOptions?: {
+    /**  When true, the premium badge will show on the filter for non-premium users. */
+    showBadgeForNonPremium?: true;
+    /**
+     * Action to be called instead of applying the filter.
+     * Useful when the user does not have access to a filter (e.g., premium feature)
+     * and custom behavior is needed when invoking the filter.
+     */
+    blockFilterAction?: () => Promise<void>;
+  };
 };
 
 export type VaultFilterList = {

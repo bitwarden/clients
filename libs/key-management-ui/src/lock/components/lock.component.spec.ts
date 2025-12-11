@@ -2,7 +2,7 @@ import { DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, interval, map, of, takeWhile, timeout } from "rxjs";
 import { ZXCVBNResult } from "zxcvbn";
@@ -11,7 +11,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LogoutService } from "@bitwarden/auth/common";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -22,9 +22,11 @@ import {
 } from "@bitwarden/common/auth/types/verification";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -49,13 +51,13 @@ import {
   BiometricsStatus,
   BiometricStateService,
   KeyService,
-  PBKDF2KdfConfig,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
 
 import {
   LockComponentService,
   UnlockOption,
+  UnlockOptionValue,
   UnlockOptions,
 } from "../services/lock-component.service";
 
@@ -91,9 +93,18 @@ describe("LockComponent", () => {
   const mockLockComponentService = mock<LockComponentService>();
   const mockAnonLayoutWrapperDataService = mock<AnonLayoutWrapperDataService>();
   const mockBroadcasterService = mock<BroadcasterService>();
+  const mockEncryptedMigrator = mock<EncryptedMigrator>();
+  const mockConfigService = mock<ConfigService>();
+  const mockActivatedRoute = {
+    snapshot: {
+      paramMap: {
+        get: jest.fn().mockReturnValue(null), // return null for 'disable-redirect' param
+      },
+    },
+  };
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
 
     // Setup default mock returns
     mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Web);
@@ -148,6 +159,9 @@ describe("LockComponent", () => {
         { provide: LockComponentService, useValue: mockLockComponentService },
         { provide: AnonLayoutWrapperDataService, useValue: mockAnonLayoutWrapperDataService },
         { provide: BroadcasterService, useValue: mockBroadcasterService },
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
+        { provide: EncryptedMigrator, useValue: mockEncryptedMigrator },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     })
       .overrideProvider(DialogService, { useValue: mockDialogService })
@@ -358,11 +372,157 @@ describe("LockComponent", () => {
     });
   });
 
+  describe("successfulMasterPasswordUnlock", () => {
+    const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
+    const masterPassword = "test-password";
+
+    beforeEach(async () => {
+      component.activeAccount = await firstValueFrom(mockAccountService.activeAccount$);
+    });
+
+    it.each([
+      [undefined as unknown as UserKey, undefined as unknown as string],
+      [null as unknown as UserKey, null as unknown as string],
+      [mockUserKey, undefined as unknown as string],
+      [mockUserKey, null as unknown as string],
+      [mockUserKey, ""],
+      [undefined as unknown as UserKey, masterPassword],
+      [null as unknown as UserKey, masterPassword],
+    ])(
+      "logs an error and doesn't unlock when called with invalid data",
+      async (userKey, masterPassword) => {
+        await component.successfulMasterPasswordUnlock({ userKey, masterPassword });
+
+        expect(mockLogService.error).toHaveBeenCalledWith(
+          "[LockComponent] successfulMasterPasswordUnlock called with invalid data.",
+        );
+        expect(mockKeyService.setUserKey).not.toHaveBeenCalled();
+      },
+    );
+
+    it.each([
+      [false, undefined, false],
+      [false, { enforceOnLogin: false } as MasterPasswordPolicyOptions, false],
+      [false, { enforceOnLogin: false } as MasterPasswordPolicyOptions, true],
+      [true, { enforceOnLogin: true } as MasterPasswordPolicyOptions, false],
+      [false, { enforceOnLogin: true } as MasterPasswordPolicyOptions, true],
+    ])(
+      "unlocks and force set password change = %o when master password on login = %o and evaluated password against policy = %o and policy loaded from policy service",
+      async (forceSetPassword, masterPasswordPolicyOptions, evaluatedMasterPassword) => {
+        mockPolicyService.masterPasswordPolicyOptions$.mockReturnValue(
+          of(masterPasswordPolicyOptions),
+        );
+        const passwordStrengthResult = { score: 1 } as ZXCVBNResult;
+        mockPasswordStrengthService.getPasswordStrength.mockReturnValue(passwordStrengthResult);
+        mockPolicyService.evaluateMasterPassword.mockReturnValue(evaluatedMasterPassword);
+
+        await component.successfulMasterPasswordUnlock({ userKey: mockUserKey, masterPassword });
+
+        assertUnlocked();
+        expect(mockPolicyService.masterPasswordPolicyOptions$).toHaveBeenCalledWith(userId);
+        if (masterPasswordPolicyOptions?.enforceOnLogin) {
+          expect(mockPasswordStrengthService.getPasswordStrength).toHaveBeenCalledWith(
+            masterPassword,
+            component.activeAccount!.email,
+          );
+          expect(mockPolicyService.evaluateMasterPassword).toHaveBeenCalledWith(
+            passwordStrengthResult.score,
+            masterPassword,
+            masterPasswordPolicyOptions,
+          );
+        }
+        if (forceSetPassword) {
+          expect(mockMasterPasswordService.setForceSetPasswordReason).toHaveBeenCalledWith(
+            ForceSetPasswordReason.WeakMasterPassword,
+            userId,
+          );
+        } else {
+          expect(mockMasterPasswordService.setForceSetPasswordReason).not.toHaveBeenCalled();
+        }
+      },
+    );
+
+    it.each([
+      [true, ClientType.Browser],
+      [false, ClientType.Cli],
+      [false, ClientType.Desktop],
+      [false, ClientType.Web],
+    ])(
+      "unlocks and navigate by url to previous url = %o when client type = %o and previous url was set",
+      async (shouldNavigate, clientType) => {
+        const previousUrl = "/test-url";
+        component.clientType = clientType;
+        mockLockComponentService.getPreviousUrl.mockReturnValue(previousUrl);
+
+        await component.successfulMasterPasswordUnlock({ userKey: mockUserKey, masterPassword });
+
+        assertUnlocked();
+        if (shouldNavigate) {
+          expect(mockRouter.navigateByUrl).toHaveBeenCalledWith(previousUrl);
+        } else {
+          expect(mockRouter.navigateByUrl).not.toHaveBeenCalled();
+        }
+      },
+    );
+
+    it.each([
+      ["/tabs/current", ClientType.Browser],
+      [undefined, ClientType.Cli],
+      ["vault", ClientType.Desktop],
+      ["vault", ClientType.Web],
+    ])(
+      "unlocks and navigate to success url = %o when client type = %o",
+      async (navigateUrl, clientType) => {
+        component.clientType = clientType;
+        mockLockComponentService.getPreviousUrl.mockReturnValue(null);
+
+        jest.spyOn(component as any, "doContinue").mockImplementation(async () => {
+          await mockBiometricStateService.resetUserPromptCancelled();
+          mockMessagingService.send("unlocked");
+          await mockSyncService.fullSync(false);
+          await mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded(userId);
+          await mockRouter.navigate([navigateUrl]);
+        });
+
+        await component.successfulMasterPasswordUnlock({ userKey: mockUserKey, masterPassword });
+
+        assertUnlocked();
+        expect(mockRouter.navigate).toHaveBeenCalledWith([navigateUrl]);
+      },
+    );
+
+    it("unlocks and close browser extension popout on firefox extension", async () => {
+      component.shouldClosePopout = true;
+      mockPlatformUtilsService.getDevice.mockReturnValue(DeviceType.FirefoxExtension);
+
+      jest.spyOn(component as any, "doContinue").mockImplementation(async () => {
+        await mockBiometricStateService.resetUserPromptCancelled();
+        mockMessagingService.send("unlocked");
+        await mockSyncService.fullSync(false);
+        await mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded(
+          component.activeAccount!.id,
+        );
+        mockLockComponentService.closeBrowserExtensionPopout();
+      });
+
+      await component.successfulMasterPasswordUnlock({ userKey: mockUserKey, masterPassword });
+
+      assertUnlocked();
+      expect(mockLockComponentService.closeBrowserExtensionPopout).toHaveBeenCalled();
+    });
+
+    function assertUnlocked(): void {
+      expect(mockKeyService.setUserKey).toHaveBeenCalledWith(
+        mockUserKey,
+        component.activeAccount!.id,
+      );
+    }
+  });
+
   describe("unlockViaMasterPassword", () => {
     const mockMasterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
     const masterPasswordVerificationResponse: MasterPasswordVerificationResponse = {
       masterKey: mockMasterKey,
-      kdfConfig: new PBKDF2KdfConfig(600_001),
       email: "test-email@example.com",
       policyOptions: null,
     };
@@ -478,6 +638,32 @@ describe("LockComponent", () => {
     ])(
       "should unlock and force set password change = %o when master password on login = %o and evaluated password against policy = %o and policy set during user verification by master password",
       async (forceSetPassword, masterPasswordPolicyOptions, evaluatedMasterPassword) => {
+        jest.spyOn(component as any, "doContinue").mockImplementation(async () => {
+          await mockBiometricStateService.resetUserPromptCancelled();
+          mockMessagingService.send("unlocked");
+
+          if (masterPasswordPolicyOptions?.enforceOnLogin) {
+            const passwordStrengthResult = mockPasswordStrengthService.getPasswordStrength(
+              masterPassword,
+              component.activeAccount!.email,
+            );
+            const evaluated = mockPolicyService.evaluateMasterPassword(
+              passwordStrengthResult.score,
+              masterPassword,
+              masterPasswordPolicyOptions,
+            );
+            if (!evaluated) {
+              await mockMasterPasswordService.setForceSetPasswordReason(
+                ForceSetPasswordReason.WeakMasterPassword,
+                userId,
+              );
+            }
+          }
+
+          await mockSyncService.fullSync(false);
+          await mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded(userId);
+        });
+
         mockUserVerificationService.verifyUserByMasterPassword.mockResolvedValue({
           ...masterPasswordVerificationResponse,
           policyOptions:
@@ -592,6 +778,14 @@ describe("LockComponent", () => {
         component.clientType = clientType;
         mockLockComponentService.getPreviousUrl.mockReturnValue(null);
 
+        jest.spyOn(component as any, "doContinue").mockImplementation(async () => {
+          await mockBiometricStateService.resetUserPromptCancelled();
+          mockMessagingService.send("unlocked");
+          await mockSyncService.fullSync(false);
+          await mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded(userId);
+          await mockRouter.navigate([navigateUrl]);
+        });
+
         await component.unlockViaMasterPassword();
 
         assertUnlocked();
@@ -602,6 +796,16 @@ describe("LockComponent", () => {
     it("should unlock and close browser extension popout on firefox extension", async () => {
       component.shouldClosePopout = true;
       mockPlatformUtilsService.getDevice.mockReturnValue(DeviceType.FirefoxExtension);
+
+      jest.spyOn(component as any, "doContinue").mockImplementation(async () => {
+        await mockBiometricStateService.resetUserPromptCancelled();
+        mockMessagingService.send("unlocked");
+        await mockSyncService.fullSync(false);
+        await mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded(
+          component.activeAccount!.id,
+        );
+        mockLockComponentService.closeBrowserExtensionPopout();
+      });
 
       await component.unlockViaMasterPassword();
 
@@ -673,6 +877,252 @@ describe("LockComponent", () => {
       });
       expect(mockLogoutService.logout).not.toHaveBeenCalled();
       expect(mockRouter.navigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("setDefaultActiveUnlockOption", () => {
+    it.each([
+      [
+        "biometrics enabled",
+        {
+          biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+          pin: { enabled: false },
+          masterPassword: { enabled: false },
+        } as UnlockOptions,
+        UnlockOption.Biometrics,
+      ],
+      [
+        "biometrics disabled, pin enabled",
+        {
+          biometrics: { enabled: false, biometricsStatus: BiometricsStatus.NotEnabledLocally },
+          pin: { enabled: true },
+          masterPassword: { enabled: false },
+        } as UnlockOptions,
+        UnlockOption.Pin,
+      ],
+      [
+        "biometrics and pin disabled, masterPassword enabled",
+        {
+          biometrics: { enabled: false, biometricsStatus: BiometricsStatus.NotEnabledLocally },
+          pin: { enabled: false },
+          masterPassword: { enabled: true },
+        } as UnlockOptions,
+        UnlockOption.MasterPassword,
+      ],
+      [
+        "hardware unavailable, no other options",
+        {
+          biometrics: { enabled: false, biometricsStatus: BiometricsStatus.HardwareUnavailable },
+          pin: { enabled: false },
+          masterPassword: { enabled: false },
+        } as UnlockOptions,
+        UnlockOption.Biometrics,
+      ],
+      [
+        "desktop disconnected, no other options",
+        {
+          biometrics: { enabled: false, biometricsStatus: BiometricsStatus.DesktopDisconnected },
+          pin: { enabled: false },
+          masterPassword: { enabled: false },
+        } as UnlockOptions,
+        UnlockOption.Biometrics,
+      ],
+      [
+        "not enabled in connected desktop app, no other options",
+        {
+          biometrics: {
+            enabled: false,
+            biometricsStatus: BiometricsStatus.NotEnabledInConnectedDesktopApp,
+          },
+          pin: { enabled: false },
+          masterPassword: { enabled: false },
+        } as UnlockOptions,
+        UnlockOption.Biometrics,
+      ],
+      [
+        "biometrics over pin priority",
+        {
+          biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+          pin: { enabled: true },
+          masterPassword: { enabled: false },
+        } as UnlockOptions,
+        UnlockOption.Biometrics,
+      ],
+      [
+        "biometrics over masterPassword priority",
+        {
+          biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+          pin: { enabled: false },
+          masterPassword: { enabled: true },
+        } as UnlockOptions,
+        UnlockOption.Biometrics,
+      ],
+      [
+        "pin over masterPassword priority",
+        {
+          biometrics: { enabled: false, biometricsStatus: BiometricsStatus.NotEnabledLocally },
+          pin: { enabled: true },
+          masterPassword: { enabled: true },
+        } as UnlockOptions,
+        UnlockOption.Pin,
+      ],
+      [
+        "all options enabled",
+        {
+          biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+          pin: { enabled: true },
+          masterPassword: { enabled: true },
+        } as UnlockOptions,
+        UnlockOption.Biometrics,
+      ],
+    ])(
+      "should set active unlock option to $1 when %s",
+      async (
+        description: string,
+        unlockOptions: UnlockOptions,
+        expectedOption: UnlockOptionValue,
+      ) => {
+        await component["setDefaultActiveUnlockOption"](unlockOptions);
+
+        expect(component.activeUnlockOption).toBe(expectedOption);
+      },
+    );
+  });
+
+  describe("handleActiveAccountChange", () => {
+    const mockActiveAccount: Account = {
+      id: userId,
+      email: "test@example.com",
+      name: "Test User",
+    } as Account;
+
+    beforeEach(async () => {
+      component.activeAccount = mockActiveAccount;
+    });
+
+    it("should return early when account already has user key", async () => {
+      mockKeyService.hasUserKey.mockResolvedValue(true);
+
+      await component["handleActiveAccountChange"](mockActiveAccount);
+
+      expect(mockKeyService.hasUserKey).toHaveBeenCalledWith(userId);
+      expect(mockAnonLayoutWrapperDataService.setAnonLayoutWrapperData).not.toHaveBeenCalled();
+    });
+
+    it("should set email as page subtitle when account is unlocked", async () => {
+      mockKeyService.hasUserKey.mockResolvedValue(false);
+      mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(
+        of({
+          biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+          pin: { enabled: false },
+          masterPassword: { enabled: false },
+        } as UnlockOptions),
+      );
+      mockBiometricService.getBiometricsStatusForUser.mockResolvedValue(BiometricsStatus.Available);
+
+      await component["handleActiveAccountChange"](mockActiveAccount);
+
+      expect(mockAnonLayoutWrapperDataService.setAnonLayoutWrapperData).toHaveBeenCalledWith({
+        pageSubtitle: mockActiveAccount.email,
+      });
+    });
+
+    it("should logout user when no unlock options are available", async () => {
+      mockKeyService.hasUserKey.mockResolvedValue(false);
+      mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(
+        of({
+          biometrics: { enabled: false, biometricsStatus: BiometricsStatus.UnlockNeeded },
+          pin: { enabled: false },
+          masterPassword: { enabled: false },
+        } as UnlockOptions),
+      );
+      mockBiometricService.getBiometricsStatusForUser.mockResolvedValue(
+        BiometricsStatus.UnlockNeeded,
+      );
+
+      await component["handleActiveAccountChange"](mockActiveAccount);
+
+      expect(mockLogService.warning).toHaveBeenCalledWith(
+        "[LockComponent] User cannot unlock again. Logging out!",
+      );
+      expect(mockLogoutService.logout).toHaveBeenCalledWith(userId);
+    });
+
+    it("should not logout when master password is enabled", async () => {
+      mockKeyService.hasUserKey.mockResolvedValue(false);
+      mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(
+        of({
+          biometrics: { enabled: false, biometricsStatus: BiometricsStatus.UnlockNeeded },
+          pin: { enabled: false },
+          masterPassword: { enabled: true },
+        } as UnlockOptions),
+      );
+      mockBiometricService.getBiometricsStatusForUser.mockResolvedValue(
+        BiometricsStatus.UnlockNeeded,
+      );
+
+      await component["handleActiveAccountChange"](mockActiveAccount);
+
+      expect(mockLogoutService.logout).not.toHaveBeenCalled();
+      expect(component.activeUnlockOption).toBe(UnlockOption.MasterPassword);
+    });
+
+    it("should not logout when pin is enabled", async () => {
+      mockKeyService.hasUserKey.mockResolvedValue(false);
+      mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(
+        of({
+          biometrics: { enabled: false, biometricsStatus: BiometricsStatus.UnlockNeeded },
+          pin: { enabled: true },
+          masterPassword: { enabled: false },
+        } as UnlockOptions),
+      );
+      mockBiometricService.getBiometricsStatusForUser.mockResolvedValue(
+        BiometricsStatus.UnlockNeeded,
+      );
+
+      await component["handleActiveAccountChange"](mockActiveAccount);
+
+      expect(mockLogoutService.logout).not.toHaveBeenCalled();
+      expect(component.activeUnlockOption).toBe(UnlockOption.Pin);
+    });
+
+    it("should not logout when biometrics is available", async () => {
+      mockKeyService.hasUserKey.mockResolvedValue(false);
+      mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(
+        of({
+          biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+          pin: { enabled: false },
+          masterPassword: { enabled: false },
+        } as UnlockOptions),
+      );
+      mockBiometricService.getBiometricsStatusForUser.mockResolvedValue(BiometricsStatus.Available);
+
+      await component["handleActiveAccountChange"](mockActiveAccount);
+
+      expect(mockLogoutService.logout).not.toHaveBeenCalled();
+      expect(component.activeUnlockOption).toBe(UnlockOption.Biometrics);
+    });
+
+    it("should not logout when biometrics is temporarily unavailable but no other options", async () => {
+      mockKeyService.hasUserKey.mockResolvedValue(false);
+      mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(
+        of({
+          biometrics: {
+            enabled: false,
+            biometricsStatus: BiometricsStatus.HardwareUnavailable,
+          },
+          pin: { enabled: false },
+          masterPassword: { enabled: false },
+        } as UnlockOptions),
+      );
+      mockBiometricService.getBiometricsStatusForUser.mockResolvedValue(
+        BiometricsStatus.HardwareUnavailable,
+      );
+
+      await component["handleActiveAccountChange"](mockActiveAccount);
+
+      expect(mockLogoutService.logout).not.toHaveBeenCalled();
+      expect(component.activeUnlockOption).toBe(UnlockOption.Biometrics);
     });
   });
 });

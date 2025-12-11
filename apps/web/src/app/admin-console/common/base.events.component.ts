@@ -1,8 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive } from "@angular/core";
+import { Directive, OnDestroy } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
+import { combineLatest, filter, map, Observable, Subject, switchMap, takeUntil } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventResponse } from "@bitwarden/common/models/response/event.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { EventView } from "@bitwarden/common/models/view/event.view";
@@ -12,16 +17,17 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
 
-import { EventService } from "../../core";
+import { EventOptions, EventService } from "../../core";
 import { EventExportService } from "../../tools/event-export";
 
 @Directive()
-export abstract class BaseEventsComponent {
+export abstract class BaseEventsComponent implements OnDestroy {
   loading = true;
   loaded = false;
   events: EventView[];
   dirtyDates = true;
   continuationToken: string;
+  canUseSM = false;
 
   abstract readonly exportFileName: string;
 
@@ -29,6 +35,15 @@ export abstract class BaseEventsComponent {
     start: new FormControl(null),
     end: new FormControl(null),
   });
+
+  protected canUseSM$: Observable<boolean>;
+  protected activeOrganization$: Observable<Organization | undefined>;
+  protected organizations$: Observable<Organization[]>;
+  private destroySubject$ = new Subject<void>();
+
+  protected get destroy$(): Observable<void> {
+    return this.destroySubject$.asObservable();
+  }
 
   constructor(
     protected eventService: EventService,
@@ -38,10 +53,37 @@ export abstract class BaseEventsComponent {
     protected logService: LogService,
     protected fileDownloadService: FileDownloadService,
     private toastService: ToastService,
+    protected activeRoute: ActivatedRoute,
+    protected accountService: AccountService,
+    protected organizationService: OrganizationService,
   ) {
     const defaultDates = this.eventService.getDefaultDateFilters();
     this.start = defaultDates[0];
     this.end = defaultDates[1];
+  }
+
+  protected initBase(): void {
+    this.organizations$ = this.accountService.activeAccount$.pipe(
+      filter((account): account is Account => !!account?.id),
+      switchMap((account) => this.organizationService.organizations$(account.id)),
+    );
+
+    this.activeOrganization$ = combineLatest([this.activeRoute.paramMap, this.organizations$]).pipe(
+      map(([params, orgs]) => orgs.find((org) => org.id === params.get("organizationId"))),
+    );
+
+    this.canUseSM$ = this.activeOrganization$.pipe(
+      map((org) => org?.canAccessSecretsManager ?? false),
+    );
+
+    this.canUseSM$.pipe(takeUntil(this.destroy$)).subscribe((value) => {
+      this.canUseSM = value;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroySubject$.next();
+    this.destroySubject$.complete();
   }
 
   get start(): string {
@@ -139,7 +181,10 @@ export abstract class BaseEventsComponent {
     const events = await Promise.all(
       response.data.map(async (r) => {
         const userId = r.actingUserId == null ? r.userId : r.actingUserId;
-        const eventInfo = await this.eventService.getEventInfo(r);
+        const options = new EventOptions();
+        options.disableLink = !this.canUseSM;
+
+        const eventInfo = await this.eventService.getEventInfo(r, options);
         const user = this.getUserName(r, userId);
         const userName = user != null ? user.name : this.i18nService.t("unknown");
 

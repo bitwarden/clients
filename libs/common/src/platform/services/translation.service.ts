@@ -66,6 +66,7 @@ export abstract class TranslationService implements TranslationServiceAbstractio
     ["sl", "Slovenski jezik, Slovenščina"],
     ["sr", "Српски"],
     ["sv", "svenska"],
+    ["ta", "தமிழ்"],
     ["te", "తెలుగు"],
     ["th", "ไทย"],
     ["tr", "Türkçe"],

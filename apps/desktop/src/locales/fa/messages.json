@@ -42,7 +42,7 @@
     "message": "جستجوی گاوصندوق"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "پاک کردن جستجو"
   },
   "addItem": {
     "message": "افزودن مورد"
@@ -68,6 +68,9 @@
         "example": "Company Name"
       }
     }
+  },
+  "noEditPermissions": {
+    "message": "شما اجازه ویرایش این آیتم را ندارید"
   },
   "welcomeBack": {
     "message": "خوش آمدید"
@@ -576,7 +579,7 @@
     "message": "کپی کد تأیید (TOTP)"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "کپی$FIELD$،$CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -702,6 +705,12 @@
   "attachmentSaved": {
     "message": "پیوست ذخیره شد"
   },
+  "addAttachment": {
+    "message": "افزودن پیوست"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "حداکثر حجم فایل ۵۰۰ مگابایت است"
+  },
   "file": {
     "message": "پرونده"
   },
@@ -764,6 +773,9 @@
   },
   "useSingleSignOn": {
     "message": "استفاده از ورود تک مرحله‌ای"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "سازمان شما ورود یکپارچه را الزامی کرده است."
   },
   "submit": {
     "message": "ثبت"
@@ -954,9 +966,6 @@
   "insertU2f": {
     "message": "کلید امنیتی خود را وارد پورت USB رایانه کنید، اگر دکمه‌ای دارد آن را بفشارید."
   },
-  "recoveryCodeDesc": {
-    "message": "دسترسی به تمامی ارائه‌دهندگان دو مرحله‌ای را از دست داده‌اید؟ از کد بازیابی خود برای غیرفعال‌سازی ارائه‌دهندگان دو مرحله‌ای حسابتان استفاده کنید."
-  },
   "recoveryCodeTitle": {
     "message": "کد بازیابی"
   },
@@ -1029,6 +1038,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "شما باید یا نشانی اینترنتی پایه سرور را اضافه کنید، یا حداقل یک محیط سفارشی تعریف کنید."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "آدرس‌های وب باید از HTTPS استفاده کنند."
+  },
   "customEnvironment": {
     "message": "محیط سفارشی"
   },
@@ -1080,6 +1092,24 @@
   },
   "learnMore": {
     "message": "بیشتر بدانید"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
   },
   "featureUnavailable": {
     "message": "ویژگی موجود نیست"
@@ -1219,6 +1249,15 @@
   "invalidMasterPassword": {
     "message": "کلمه عبور اصلی نامعتبر است"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "رمز عبور اصلی نامعتبر است. تأیید کنید که ایمیل شما صحیح است و حساب کاربری شما در $HOST$ ایجاد شده است.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "ورود دو مرحله‌ای باعث می شود که حساب کاربری شما با استفاده از یک دستگاه دیگر مانند کلید امنیتی، برنامه احراز هویت، پیامک، تماس تلفنی و یا رایانامه، اعتبار خود را با ایمنی بیشتر اثبات کند. ورود دو مرحله‌ای می‌تواند در bitwarden.com راه‌اندازی شود. آیا می‌خواهید از سایت بازدید کنید؟"
   },
@@ -1226,7 +1265,7 @@
     "message": "ورود دو مرحله‌ای"
   },
   "vaultTimeoutHeader": {
-    "message": "Vault timeout"
+    "message": "وقفه زمانی گاوصندوق"
   },
   "vaultTimeout": {
     "message": "متوقف شدن گاو‌صندوق"
@@ -1235,7 +1274,7 @@
     "message": "پایان زمان"
   },
   "vaultTimeoutAction1": {
-    "message": "Timeout action"
+    "message": "اقدام وقفه زمانی"
   },
   "vaultTimeoutDesc": {
     "message": "انتخاب کنید که گاو‌صندوق شما چه زمانی عمل توقف زمانی گاوصندوق را انجام دهد."
@@ -1299,11 +1338,8 @@
     "message": "به صورت خودکار، مقادیر کپی شده را از حافظه موقت پاک کن.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "نمایش نمادهای وب‌سایت"
-  },
-  "faviconDesc": {
-    "message": "یک تصویر قابل تشخیص در کنار هر ورود نشان دهید."
+  "showIconsChangePasswordUrls": {
+    "message": "نمایش آیکون‌های وب‌سایت و دریافت آدرس‌های تغییر رمز عبور"
   },
   "enableMinToTray": {
     "message": "کوچک کردن به نماد سینی"
@@ -1449,7 +1485,7 @@
     "description": "Copy credit card security code (CVV)"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "شماره کارت"
   },
   "premiumMembership": {
     "message": "عضویت پرمیوم"
@@ -1471,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "۱ گیگابایت فضای ذخیره‌سازی رمزنگاری شده برای پرونده‌های پیوست."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "گزینه‌های ورود اضافی دو مرحله‌ای مانند YubiKey و Duo."
@@ -1840,14 +1885,14 @@
   "autoPromptTouchId": {
     "message": "درخواست Touch ID در هنگام راه‌اندازی"
   },
-  "requirePasswordOnStart": {
-    "message": "هنگام شروع برنامه، کلمه عبور یا کد پین مورد نیاز است"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "هنگام شروع برنامه، کلمه عبور مورد نیاز است"
-  },
   "lockWithMasterPassOnRestart1": {
     "message": "در زمان شروع مجدد، با کلمه عبور اصلی قفل کن"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "درخواست رمز عبور اصلی یا پین هنگام راه‌اندازی مجدد برنامه"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "درخواست رمز عبور اصلی هنگام راه‌اندازی مجدد برنامه"
   },
   "deleteAccount": {
     "message": "حذف حساب کاربری"
@@ -2132,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "خطایی هنگام فعال‌سازی یکپارچه سازی مرورگر رخ داده است."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "متأسفانه در حال حاضر ادغام مرورگر فقط در نسخه Mac App Store پشتیبانی می‌شود."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "متأسفانه در حال حاضر ادغام مرورگر در نسخه فروشگاه ویندوز پشتیبانی نمی‌شود."
   },
@@ -2212,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "اطلاعات تماس"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "همه ارسال‌ها",
@@ -2422,13 +2468,13 @@
     "message": "کلمه عبور اصلی شما با یک یا چند سیاست سازمان‌تان مطابقت ندارد. برای دسترسی به گاوصندوق، باید همین حالا کلمه عبور اصلی خود را به‌روزرسانی کنید. در صورت ادامه، شما از نشست فعلی خود خارج می‌شوید و باید دوباره وارد سیستم شوید. نشست فعال در دستگاه‌های دیگر ممکن است تا یک ساعت همچنان فعال باقی بمانند."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "پس از تغییر رمز عبور، باید با رمز عبور جدید خود وارد شوید. نشست‌های فعال در سایر دستگاه‌ها ظرف یک ساعت خارج خواهند شد."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "برای تکمیل بازیابی حساب، رمز عبور اصلی خود را تغییر دهید."
   },
   "updateMasterPasswordSubtitle": {
-    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
+    "message": "رمز عبور اصلی شما با الزامات این سازمان مطابقت ندارد. برای ادامه، رمز عبور اصلی خود را تغییر دهید."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "سازمان شما رمزگذاری دستگاه‌های مورد اعتماد را غیرفعال کرده است. لطفاً برای دسترسی به گاوصندوق خود یک کلمه عبور اصلی تنظیم کنید."
@@ -2518,10 +2564,10 @@
     "message": "مهلت زمانی شما بیش از محدودیت‌های تعیین شده توسط سازمان‌تان است."
   },
   "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
+    "message": "الزامات سیاست سازمانی بر روی گزینه‌های وقفه زمانی شما اعمال شده است"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "message": "سیاست‌های سازمان شما حداکثر زمان مجاز وقفه گاوصندوق را روی $HOURS$ ساعت و $MINUTES$ دقیقه تنظیم کرده است.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2534,7 +2580,7 @@
     }
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "message": "زمان وقفه از محدودیت تعیین شده توسط سازمان شما بیشتر است: حداکثر $HOURS$ ساعت و $MINUTES$ دقیقه",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2545,6 +2591,9 @@
         "example": "5"
       }
     }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "حداقل زمان وقفه سفارشی ۱ دقیقه است."
   },
   "inviteAccepted": {
     "message": "دعوتنامه پذیرفته شد"
@@ -2657,6 +2706,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "فقط از گاوصندوق سازمانی مرتبط با $ORGANIZATION$ خروجی گرفته خواهد شد.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "فقط از گاوصندوق سازمانی مرتبط با $ORGANIZATION$ خروجی گرفته خواهد شد. مجموعه‌های «آیتم‌های من» شامل نخواهند شد.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -2955,7 +3022,8 @@
     "message": "آیا جداً می‌خواهید از گزینه \"هرگز\" استفاده کنید؟ تنظیم کردن گزینه قفل به \"هرگز\" کلیدهای رمزنگاری گاوصندوقتان را بر روی دستگاه شما ذخیره خواهد کرد. اگر از این گزینه استفاده می‌کنید باید اطمینان داشته باشید که دستگاه شما کاملا محافظت شده است."
   },
   "vault": {
-    "message": "گاوصندوق"
+    "message": "گاوصندوق",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "با کلمه عبور اصلی وارد شوید"
@@ -3037,7 +3105,7 @@
     }
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "درخواست ورود برای $EMAIL$ در $DEVICE$ تأیید شد",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3050,21 +3118,21 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "شما یک تلاش ورود از دستگاهی دیگر را رد کردید. اگر این شما بودید، دوباره با آن دستگاه برای ورود تلاش کنید."
   },
   "webApp": {
-    "message": "Web app"
+    "message": "نسخه وب"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "موبایل",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "افزونه",
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Desktop",
+    "message": "دسکتاپ",
     "description": "Desktop app"
   },
   "cli": {
@@ -3075,10 +3143,10 @@
     "description": "Software Development Kit"
   },
   "server": {
-    "message": "Server"
+    "message": "سرور"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "درخواست ورود"
   },
   "deviceType": {
     "message": "نوع دستگاه"
@@ -3222,10 +3290,10 @@
     "message": "درخواست تأیید مدیر"
   },
   "unableToCompleteLogin": {
-    "message": "Unable to complete login"
+    "message": "امکان تکمیل ورود وجود ندارد"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+    "message": "شما باید در یک دستگاه قابل اعتماد وارد شوید یا از مدیر خود بخواهید رمز عبوری به شما اختصاص دهد."
   },
   "region": {
     "message": "منطقه"
@@ -3491,15 +3559,11 @@
   "selectImportCollection": {
     "message": "یک مجموعه انتخاب کنید"
   },
-  "importTargetHint": {
-    "message": "اگر می‌خواهید محتوای پرونده درون ریزی شده به $DESTINATION$ منتقل شود، این گزینه را انتخاب کنید",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "اگر می‌خواهید محتویات فایل وارد شده به یک مجموعه منتقل شود، این گزینه را انتخاب کنید"
+  },
+  "importTargetHintFolder": {
+    "message": "اگر می‌خواهید محتویات فایل وارد شده به یک پوشه منتقل شود، این گزینه را انتخاب کنید"
   },
   "importUnassignedItemsError": {
     "message": "پرونده حاوی موارد اختصاص نیافته است."
@@ -3595,6 +3659,12 @@
   "awaitingSSODesc": {
     "message": "لطفاً برای ورود، از اطلاعات کاربری شرکت خود استفاده کنید."
   },
+  "importDirectlyFromBrowser": {
+    "message": "وارد کردن مستقیم از مرورگر"
+  },
+  "browserProfile": {
+    "message": "پروفایل مرورگر"
+  },
   "seeDetailedInstructions": {
     "message": "دستورالعمل‌های کامل را در سایت راهنمای ما مشاهده کنید در",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3635,11 +3705,11 @@
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "گزینه‌های پیشرفته",
     "description": "Advanced option placeholder for uri option component"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "هشدار",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
@@ -3837,6 +3907,12 @@
   "changeAtRiskPassword": {
     "message": "تغییر کلمه عبور در معرض خطر"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "این ورود در معرض خطر است و فاقد وب‌سایت می‌باشد. برای امنیت بیشتر، یک وب‌سایت اضافه کنید و رمز عبور را تغییر دهید."
+  },
+  "missingWebsite": {
+    "message": "وب‌سایت وجود ندارد"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "نمی‌توانید مجموعه‌هایی را که فقط دسترسی مشاهده دارند حذف کنید: $COLLECTIONS$",
     "placeholders": {
@@ -3931,6 +4007,12 @@
     "message": "اطلاعات بیشتر درباره عامل SSH را بیاموزید",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "درباره این تنظیم"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "بیت‌واردن از URI های ورود ذخیره شده استفاده می‌کند تا تشخیص دهد کدام آیکون یا آدرس تغییر رمز عبور باید برای بهبود تجربه شما استفاده شود. هنگام استفاده از این سرویس، هیچ اطلاعاتی جمع‌آوری یا ذخیره نمی‌شود."
   },
   "assignToCollections": {
     "message": "اختصاص به مجموعه‌ها"
@@ -4067,15 +4149,111 @@
     }
   },
   "showMore": {
-    "message": "Show more"
+    "message": "نمایش بیشتر"
   },
   "showLess": {
-    "message": "Show less"
-  },
-  "enableAutotype": {
-    "message": "Enable Autotype"
+    "message": "نمایش کمتر"
   },
   "enableAutotypeDescription": {
-    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+    "message": "بیت‌واردن مکان‌های ورودی را اعتبارسنجی نمی‌کند؛ قبل از استفاده از میانبر، مطمئن شوید که در پنجره و فیلد صحیح قرار دارید."
+  },
+  "typeShortcut": {
+    "message": "تایپ میانبر"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "شامل یک یا دو مورد از کلیدهای تغییردهنده زیر: Ctrl، Alt، Win یا Shift و یک حرف."
+  },
+  "invalidShortcut": {
+    "message": "میانبر نامعتبر"
+  },
+  "moreBreadcrumbs": {
+    "message": "مسیرهای بیشتر",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "بعدی"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "تأیید دامنه Key Connector"
+  },
+  "confirm": {
+    "message": "تأیید"
+  },
+  "enableAutotypeShortcutPreview": {
+    "message": "فعال‌سازی میانبر تایپ خودکار (پیش‌نمایش ویژگی)"
+  },
+  "enableAutotypeShortcutDescription": {
+    "message": "برای جلوگیری از پر کردن داده‌ها در مکان اشتباه، قبل از استفاده از میانبر مطمئن شوید که در فیلد صحیح قرار دارید."
+  },
+  "editShortcut": {
+    "message": "ویرایش میانبر"
+  },
+  "archiveNoun": {
+    "message": "بایگانی",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "بایگانی کردن",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "خارج کردن از بایگانی"
+  },
+  "itemsInArchive": {
+    "message": "آیتم‌های موجود در بایگانی"
+  },
+  "noItemsInArchive": {
+    "message": "آیتمی در بایگانی وجود ندارد"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "آیتم‌های بایگانی‌شده در اینجا نمایش داده می‌شوند و از نتایج جستجوی عمومی و پیشنهاد ها پر کردن خودکار حذف خواهند شد."
+  },
+  "itemWasSentToArchive": {
+    "message": "آیتم به بایگانی فرستاده شد"
+  },
+  "itemWasUnarchived": {
+    "message": "آیتم از بایگانی خارج شد"
+  },
+  "archiveItem": {
+    "message": "بایگانی آیتم"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "آیتم‌های بایگانی‌شده از نتایج جستجوی عمومی و پیشنهاد ها پر کردن خودکار حذف می‌شوند. آیا مطمئن هستید که می‌خواهید این آیتم را بایگانی کنید؟"
+  },
+  "zipPostalCodeLabel": {
+    "message": "کد پستی"
+  },
+  "cardNumberLabel": {
+    "message": "شماره کارت"
+  },
+  "upgradeNow": {
+    "message": "هم‌اکنون ارتقا دهید"
+  },
+  "builtInAuthenticator": {
+    "message": "تولیدکننده رمز دوعاملی داخلی"
+  },
+  "secureFileStorage": {
+    "message": "ذخیره‌سازی امن فایل"
+  },
+  "emergencyAccess": {
+    "message": "دسترسی اضطراری"
+  },
+  "breachMonitoring": {
+    "message": "پایش نشت اطلاعات"
+  },
+  "andMoreFeatures": {
+    "message": "و بیشتر!"
+  },
+  "planDescPremium": {
+    "message": "امنیت آنلاین کامل"
+  },
+  "upgradeToPremium": {
+    "message": "ارتقا به نسخه پرمیوم"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "اقدام وقفه زمانی"
+  },
+  "sessionTimeoutHeader": {
+    "message": "وقفه زمانی نشست"
   }
 }

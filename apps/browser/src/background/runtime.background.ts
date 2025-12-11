@@ -7,7 +7,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -15,7 +14,6 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { MessageListener, isExternalMessage } from "@bitwarden/common/platform/messaging";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 import { BiometricsCommands } from "@bitwarden/key-management";
@@ -46,7 +44,6 @@ export default class RuntimeBackground {
     private main: MainBackground,
     private autofillService: AutofillService,
     private platformUtilsService: BrowserPlatformUtilsService,
-    private notificationsService: NotificationsService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private processReloadService: ProcessReloadServiceAbstraction,
     private environmentService: BrowserEnvironmentService,
@@ -82,7 +79,6 @@ export default class RuntimeBackground {
         BiometricsCommands.UnlockWithBiometricsForUser,
         BiometricsCommands.GetBiometricsStatusForUser,
         BiometricsCommands.CanEnableBiometricUnlock,
-        "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
         "getUserPremiumStatus",
       ];
 
@@ -149,6 +145,7 @@ export default class RuntimeBackground {
             if (totpCode != null) {
               this.platformUtilsService.copyToClipboard(totpCode);
             }
+            await this.main.updateOverlayCiphers();
             break;
           }
           case ExtensionCommand.AutofillCard: {
@@ -207,11 +204,6 @@ export default class RuntimeBackground {
       case BiometricsCommands.CanEnableBiometricUnlock: {
         return await this.main.biometricsService.canEnableBiometricUnlock();
       }
-      case "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag": {
-        return await this.configService.getFeatureFlag(
-          FeatureFlag.UseTreeWalkerApiForPageDetailsCollection,
-        );
-      }
       case "getUserPremiumStatus": {
         const activeUserId = await firstValueFrom(
           this.accountService.activeAccount$.pipe(map((a) => a?.id)),
@@ -264,13 +256,24 @@ export default class RuntimeBackground {
       case "addToLockedVaultPendingNotifications":
         this.lockedVaultPendingNotifications.push(msg.data);
         break;
+      case "abandonAutofillPendingNotifications":
+        this.lockedVaultPendingNotifications = [];
+        break;
       case "lockVault":
-        await this.main.vaultTimeoutService.lock(msg.userId);
+        await this.lockService.lock(msg.userId);
         break;
       case "lockAll":
         {
           await this.lockService.lockAll();
           this.messagingService.send("lockAllFinished", { requestId: msg.requestId });
+        }
+        break;
+      case "lockUser":
+        {
+          await this.lockService.lock(msg.userId);
+          this.messagingService.send("lockUserFinished", {
+            requestId: msg.requestId,
+          });
         }
         break;
       case "logout":
@@ -290,14 +293,16 @@ export default class RuntimeBackground {
       case "openPopup":
         await this.openPopup();
         break;
-      case VaultMessages.OpenAtRiskPasswords:
+      case VaultMessages.OpenAtRiskPasswords: {
         await this.main.openAtRisksPasswordsPage();
         this.announcePopupOpen();
         break;
-      case VaultMessages.OpenBrowserExtensionToUrl:
+      }
+      case VaultMessages.OpenBrowserExtensionToUrl: {
         await this.main.openTheExtensionToPage(msg.url);
         this.announcePopupOpen();
         break;
+      }
       case "bgUpdateContextMenu":
       case "editedCipher":
       case "addedCipher":
@@ -309,10 +314,7 @@ export default class RuntimeBackground {
         break;
       }
       case "authResult": {
-        const env = await firstValueFrom(this.environmentService.environment$);
-        const vaultUrl = env.getWebVaultUrl();
-
-        if (msg.referrer == null || Utils.getHostname(vaultUrl) !== msg.referrer) {
+        if (!(await this.isValidVaultReferrer(msg.referrer))) {
           return;
         }
 
@@ -331,10 +333,7 @@ export default class RuntimeBackground {
         break;
       }
       case "webAuthnResult": {
-        const env = await firstValueFrom(this.environmentService.environment$);
-        const vaultUrl = env.getWebVaultUrl();
-
-        if (msg.referrer == null || Utils.getHostname(vaultUrl) !== msg.referrer) {
+        if (!(await this.isValidVaultReferrer(msg.referrer))) {
           return;
         }
 
@@ -367,6 +366,48 @@ export default class RuntimeBackground {
         break;
       }
     }
+  }
+
+  /**
+   * For messages that can originate from a vault host page or extension, validate referrer or external
+   *
+   * @param message
+   * @returns true if message fails validation
+   */
+  private async shouldRejectManyOriginMessage(message: {
+    webExtSender: chrome.runtime.MessageSender;
+  }): Promise<boolean> {
+    const isValidVaultReferrer = await this.isValidVaultReferrer(
+      Utils.getHostname(message?.webExtSender?.origin),
+    );
+
+    if (isValidVaultReferrer) {
+      return false;
+    }
+
+    return isExternalMessage(message);
+  }
+
+  /**
+   * Validates a message's referrer matches the configured web vault hostname.
+   *
+   * @param referrer - hostname from message source
+   * @returns true if referrer matches web vault
+   */
+  private async isValidVaultReferrer(referrer: string | null | undefined): Promise<boolean> {
+    if (!referrer) {
+      return false;
+    }
+
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const vaultUrl = env.getWebVaultUrl();
+    const vaultHostname = Utils.getHostname(vaultUrl);
+
+    if (!vaultHostname) {
+      return false;
+    }
+
+    return vaultHostname === referrer;
   }
 
   private async autofillPage(tabToAutoFill: chrome.tabs.Tab) {
@@ -424,6 +465,11 @@ export default class RuntimeBackground {
     return await BrowserApi.tabsQuery({ url: `${urlObj.href}*` });
   }
 
+  /**
+   * Opens the popup.
+   *
+   * @deprecated Migrating to the browser actions service.
+   */
   private async openPopup() {
     await this.main.openPopup();
   }
@@ -450,7 +496,7 @@ export default class RuntimeBackground {
   /** Sends a message to each tab that the popup was opened */
   private announcePopupOpen() {
     const announceToAllTabs = async () => {
-      const isOpen = await this.platformUtilsService.isViewOpen();
+      const isOpen = await this.platformUtilsService.isPopupOpen();
       const tabs = await this.getBwTabs();
 
       if (isOpen && tabs.length > 0) {

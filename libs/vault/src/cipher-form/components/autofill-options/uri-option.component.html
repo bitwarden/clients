@@ -8,7 +8,7 @@
           type="button"
           [bitIconButton]="showMatchDetection ? 'bwi-cog-f' : 'bwi-cog'"
           bitSuffix
-          [appA11yTitle]="toggleTitle"
+          [label]="toggleTitle"
           (click)="toggleMatchDetection()"
           data-testid="toggle-match-detection-button"
         ></button>
@@ -17,22 +17,21 @@
           bitIconButton="bwi-minus-circle"
           buttonType="danger"
           bitSuffix
-          [appA11yTitle]="'deleteWebsite' | i18n"
+          [label]="'deleteWebsite' | i18n"
           *ngIf="canRemove"
           (click)="removeUri()"
           data-testid="remove-uri-button"
         ></button>
       </bit-form-field>
-      <div class="tw-flex tw-items-center tw-ml-1.5">
+      <div class="tw-flex tw-items-center tw-ml-1.5" *ngIf="canReorder">
         <button
           type="button"
           bitIconButton="bwi-drag-and-drop"
           class="!tw-py-0 !tw-px-1"
           cdkDragHandle
-          [appA11yTitle]="'reorderToggleButton' | i18n: uriLabel"
+          [label]="'reorderToggleButton' | i18n: uriLabel"
           (keydown)="handleKeydown($event)"
           data-testid="reorder-toggle-button"
-          *ngIf="canReorder"
         ></button>
       </div>
     </div>

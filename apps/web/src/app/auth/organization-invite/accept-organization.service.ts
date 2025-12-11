@@ -25,6 +25,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
+import { UserId } from "@bitwarden/user-core";
 
 @Injectable()
 export class AcceptOrganizationInviteService {
@@ -54,16 +55,20 @@ export class AcceptOrganizationInviteService {
    * Note: Users might need to pass a MP policy check before accepting an invite to an existing organization. If the user
    * has not passed this check, they will be logged out and the invite will be stored for later use.
    * @param invite an organization invite
+   * @param activeUserId the user ID of the active user accepting the invite
    * @returns a promise that resolves a boolean indicating if the invite was accepted.
    */
-  async validateAndAcceptInvite(invite: OrganizationInvite): Promise<boolean> {
+  async validateAndAcceptInvite(
+    invite: OrganizationInvite,
+    activeUserId: UserId,
+  ): Promise<boolean> {
     if (invite == null) {
       throw new Error("Invite cannot be null.");
     }
 
     // Creation of a new org
     if (invite.initOrganization) {
-      await this.acceptAndInitOrganization(invite);
+      await this.acceptAndInitOrganization(invite, activeUserId);
       return true;
     }
 
@@ -81,8 +86,11 @@ export class AcceptOrganizationInviteService {
     return true;
   }
 
-  private async acceptAndInitOrganization(invite: OrganizationInvite): Promise<void> {
-    await this.prepareAcceptAndInitRequest(invite).then((request) =>
+  private async acceptAndInitOrganization(
+    invite: OrganizationInvite,
+    activeUserId: UserId,
+  ): Promise<void> {
+    await this.prepareAcceptAndInitRequest(invite, activeUserId).then((request) =>
       this.organizationUserApiService.postOrganizationUserAcceptInit(
         invite.organizationId,
         invite.organizationUserId,
@@ -95,11 +103,12 @@ export class AcceptOrganizationInviteService {
 
   private async prepareAcceptAndInitRequest(
     invite: OrganizationInvite,
+    activeUserId: UserId,
   ): Promise<OrganizationUserAcceptInitRequest> {
     const request = new OrganizationUserAcceptInitRequest();
     request.token = invite.token;
 
-    const [encryptedOrgKey, orgKey] = await this.keyService.makeOrgKey<OrgKey>();
+    const [encryptedOrgKey, orgKey] = await this.keyService.makeOrgKey<OrgKey>(activeUserId);
     const [orgPublicKey, encryptedOrgPrivateKey] = await this.keyService.makeKeyPair(orgKey);
     const collection = await this.encryptService.encryptString(
       this.i18nService.t("defaultCollection"),

@@ -4,8 +4,6 @@ import { Jsonify } from "type-fest";
 
 import { array, record } from "@bitwarden/serialization";
 
-import { StorageKey } from "../types/state";
-
 import { StateDefinition } from "./state-definition";
 
 export type DebugOptions = {
@@ -171,13 +169,4 @@ export class KeyDefinition<T> {
   protected get errorKeyName() {
     return `${this.stateDefinition.name} > ${this.key}`;
   }
-}
-
-/**
- * Creates a {@link StorageKey}
- * @param keyDefinition The key definition of which data the key should point to.
- * @returns A key that is ready to be used in a storage service to get data.
- */
-export function globalKeyBuilder(keyDefinition: KeyDefinition<unknown>): StorageKey {
-  return `global_${keyDefinition.stateDefinition.name}_${keyDefinition.key}` as StorageKey;
 }

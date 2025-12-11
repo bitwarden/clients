@@ -1,5 +1,7 @@
 import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+import { newGuid } from "@bitwarden/guid";
 
 import { getNestedCollectionTree, getFlatCollectionTree } from "./collection-utils";
 
@@ -9,11 +11,17 @@ describe("CollectionUtils Service", () => {
       // Arrange
       const collections: CollectionView[] = [];
 
-      const parentCollection = new CollectionView();
-      parentCollection.name = "Parent";
+      const parentCollection = new CollectionView({
+        name: "Parent",
+        organizationId: "orgId" as OrganizationId,
+        id: newGuid() as CollectionId,
+      });
 
-      const childCollection = new CollectionView();
-      childCollection.name = "Parent/Child";
+      const childCollection = new CollectionView({
+        name: "Parent/Child",
+        organizationId: "orgId" as OrganizationId,
+        id: newGuid() as CollectionId,
+      });
 
       collections.push(childCollection);
       collections.push(parentCollection);
@@ -41,12 +49,14 @@ describe("CollectionUtils Service", () => {
   describe("getFlatCollectionTree", () => {
     it("should flatten a tree node with no children", () => {
       // Arrange
-      const collection = new CollectionView();
-      collection.name = "Test Collection";
-      collection.id = "test-id";
+      const collection = new CollectionView({
+        name: "Test Collection",
+        id: "test-id" as CollectionId,
+        organizationId: "orgId" as OrganizationId,
+      });
 
       const treeNodes: TreeNode<CollectionView>[] = [
-        new TreeNode<CollectionView>(collection, null),
+        new TreeNode<CollectionView>(collection, {} as TreeNode<CollectionView>),
       ];
 
       // Act
@@ -59,23 +69,34 @@ describe("CollectionUtils Service", () => {
 
     it("should flatten a tree node with children", () => {
       // Arrange
-      const parentCollection = new CollectionView();
-      parentCollection.name = "Parent";
-      parentCollection.id = "parent-id";
+      const parentCollection = new CollectionView({
+        name: "Parent",
+        id: "parent-id" as CollectionId,
+        organizationId: "orgId" as OrganizationId,
+      });
 
-      const child1Collection = new CollectionView();
-      child1Collection.name = "Child 1";
-      child1Collection.id = "child1-id";
+      const child1Collection = new CollectionView({
+        name: "Child 1",
+        id: "child1-id" as CollectionId,
+        organizationId: "orgId" as OrganizationId,
+      });
 
-      const child2Collection = new CollectionView();
-      child2Collection.name = "Child 2";
-      child2Collection.id = "child2-id";
+      const child2Collection = new CollectionView({
+        name: "Child 2",
+        id: "child2-id" as CollectionId,
+        organizationId: "orgId" as OrganizationId,
+      });
 
-      const grandchildCollection = new CollectionView();
-      grandchildCollection.name = "Grandchild";
-      grandchildCollection.id = "grandchild-id";
+      const grandchildCollection = new CollectionView({
+        name: "Grandchild",
+        id: "grandchild-id" as CollectionId,
+        organizationId: "orgId" as OrganizationId,
+      });
 
-      const parentNode = new TreeNode<CollectionView>(parentCollection, null);
+      const parentNode = new TreeNode<CollectionView>(
+        parentCollection,
+        {} as TreeNode<CollectionView>,
+      );
       const child1Node = new TreeNode<CollectionView>(child1Collection, parentNode);
       const child2Node = new TreeNode<CollectionView>(child2Collection, parentNode);
       const grandchildNode = new TreeNode<CollectionView>(grandchildCollection, child1Node);

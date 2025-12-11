@@ -39,7 +39,7 @@ export interface ActiveUserState<T> extends UserState<T> {
    */
   readonly update: <TCombine>(
     configureState: (state: T | null, dependencies: TCombine) => T | null,
-    options?: StateUpdateOptions<T, TCombine>,
+    options?: Partial<StateUpdateOptions<T, TCombine>>,
   ) => Promise<[UserId, T | null]>;
 }
 
@@ -59,6 +59,6 @@ export interface SingleUserState<T> extends UserState<T> {
    */
   readonly update: <TCombine>(
     configureState: (state: T | null, dependencies: TCombine) => T | null,
-    options?: StateUpdateOptions<T, TCombine>,
+    options?: Partial<StateUpdateOptions<T, TCombine>>,
   ) => Promise<T | null>;
 }

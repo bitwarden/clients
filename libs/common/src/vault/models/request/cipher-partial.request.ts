@@ -1,7 +1,7 @@
 import { Cipher } from "../domain/cipher";
 
 export class CipherPartialRequest {
-  folderId: string;
+  folderId?: string;
   favorite: boolean;
 
   constructor(cipher: Cipher) {

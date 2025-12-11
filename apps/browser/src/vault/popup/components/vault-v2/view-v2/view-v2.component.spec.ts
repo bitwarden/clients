@@ -78,14 +78,14 @@ describe("ViewV2Component", () => {
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
 
   const mockCipherService = {
-    get: jest.fn().mockResolvedValue({ decrypt: jest.fn().mockResolvedValue(mockCipher) }),
+    cipherViews$: jest.fn().mockImplementation((userId) => of([mockCipher])),
     getKeyForCipherKeyDecryption: jest.fn().mockResolvedValue({}),
     deleteWithServer: jest.fn().mockResolvedValue(undefined),
     softDeleteWithServer: jest.fn().mockResolvedValue(undefined),
-    decrypt: jest.fn().mockResolvedValue(mockCipher),
   };
 
   beforeEach(async () => {
+    mockCipherService.cipherViews$.mockClear();
     mockCipherService.deleteWithServer.mockClear();
     mockCipherService.softDeleteWithServer.mockClear();
     mockNavigate.mockClear();
@@ -162,7 +162,7 @@ describe("ViewV2Component", () => {
 
       flush(); // Resolve all promises
 
-      expect(mockCipherService.get).toHaveBeenCalledWith("122-333-444", mockUserId);
+      expect(mockCipherService.cipherViews$).toHaveBeenCalledWith(mockUserId);
       expect(component.cipher).toEqual(mockCipher);
     }));
 
@@ -172,28 +172,28 @@ describe("ViewV2Component", () => {
       params$.next({ cipherId: mockCipher.id });
       flush(); // Resolve all promises
 
-      expect(component.headerText).toEqual("viewItemHeader typeLogin");
+      expect(component.headerText).toEqual("viewItemHeaderLogin");
 
       // Set header text for a card
       mockCipher.type = CipherType.Card;
       params$.next({ cipherId: mockCipher.id });
       flush(); // Resolve all promises
 
-      expect(component.headerText).toEqual("viewItemHeader typeCard");
+      expect(component.headerText).toEqual("viewItemHeaderCard");
 
       // Set header text for an identity
       mockCipher.type = CipherType.Identity;
       params$.next({ cipherId: mockCipher.id });
       flush(); // Resolve all promises
 
-      expect(component.headerText).toEqual("viewItemHeader typeIdentity");
+      expect(component.headerText).toEqual("viewItemHeaderIdentity");
 
       // Set header text for a secure note
       mockCipher.type = CipherType.SecureNote;
       params$.next({ cipherId: mockCipher.id });
       flush(); // Resolve all promises
 
-      expect(component.headerText).toEqual("viewItemHeader note");
+      expect(component.headerText).toEqual("viewItemHeaderNote");
     }));
 
     it("sends viewed event", fakeAsync(() => {
@@ -210,7 +210,7 @@ describe("ViewV2Component", () => {
     }));
 
     it('invokes `doAutofill` when action="AUTOFILL_ID"', fakeAsync(() => {
-      params$.next({ action: AUTOFILL_ID });
+      params$.next({ action: AUTOFILL_ID, cipherId: mockCipher.id });
 
       flush(); // Resolve all promises
 
@@ -218,7 +218,7 @@ describe("ViewV2Component", () => {
     }));
 
     it('invokes `copy` when action="copy-username"', fakeAsync(() => {
-      params$.next({ action: COPY_USERNAME_ID });
+      params$.next({ action: COPY_USERNAME_ID, cipherId: mockCipher.id });
 
       flush(); // Resolve all promises
 
@@ -226,7 +226,7 @@ describe("ViewV2Component", () => {
     }));
 
     it('invokes `copy` when action="copy-password"', fakeAsync(() => {
-      params$.next({ action: COPY_PASSWORD_ID });
+      params$.next({ action: COPY_PASSWORD_ID, cipherId: mockCipher.id });
 
       flush(); // Resolve all promises
 
@@ -234,7 +234,7 @@ describe("ViewV2Component", () => {
     }));
 
     it('invokes `copy` when action="copy-totp"', fakeAsync(() => {
-      params$.next({ action: COPY_VERIFICATION_CODE_ID });
+      params$.next({ action: COPY_VERIFICATION_CODE_ID, cipherId: mockCipher.id });
 
       flush(); // Resolve all promises
 
@@ -243,11 +243,13 @@ describe("ViewV2Component", () => {
 
     it("does not set the cipher until reprompt is complete", fakeAsync(() => {
       let promptPromise: (val?: unknown) => void;
-      mockCipherService.decrypt.mockImplementationOnce(() =>
-        Promise.resolve({
-          ...mockCipher,
-          reprompt: CipherRepromptType.Password,
-        }),
+      mockCipherService.cipherViews$.mockImplementationOnce((userId) =>
+        of([
+          {
+            ...mockCipher,
+            reprompt: CipherRepromptType.Password,
+          },
+        ]),
       );
       doAutofill.mockImplementationOnce(() => {
         return new Promise((resolve) => {
@@ -256,7 +258,7 @@ describe("ViewV2Component", () => {
         });
       });
 
-      params$.next({ action: AUTOFILL_ID });
+      params$.next({ action: AUTOFILL_ID, cipherId: mockCipher.id });
 
       flush(); // Flush all pending actions
 
@@ -271,11 +273,13 @@ describe("ViewV2Component", () => {
 
     it("does not set the cipher at all if doAutofill fails and reprompt is active", fakeAsync(() => {
       let promptPromise: (val?: unknown) => void;
-      mockCipherService.decrypt.mockImplementationOnce(() =>
-        Promise.resolve({
-          ...mockCipher,
-          reprompt: CipherRepromptType.Password,
-        }),
+      mockCipherService.cipherViews$.mockImplementationOnce((userId) =>
+        of([
+          {
+            ...mockCipher,
+            reprompt: CipherRepromptType.Password,
+          },
+        ]),
       );
       doAutofill.mockImplementationOnce(() => {
         return new Promise((resolve) => {
@@ -284,7 +288,7 @@ describe("ViewV2Component", () => {
         });
       });
 
-      params$.next({ action: AUTOFILL_ID });
+      params$.next({ action: AUTOFILL_ID, cipherId: mockCipher.id });
 
       flush(); // Flush all pending actions
 
@@ -301,11 +305,13 @@ describe("ViewV2Component", () => {
       "does not set cipher when copy fails for %s",
       fakeAsync((action: string) => {
         let promptPromise: (val?: unknown) => void;
-        mockCipherService.decrypt.mockImplementationOnce(() =>
-          Promise.resolve({
-            ...mockCipher,
-            reprompt: CipherRepromptType.Password,
-          }),
+        mockCipherService.cipherViews$.mockImplementationOnce((userId) =>
+          of([
+            {
+              ...mockCipher,
+              reprompt: CipherRepromptType.Password,
+            },
+          ]),
         );
         copy.mockImplementationOnce(() => {
           return new Promise((resolve) => {
@@ -314,7 +320,7 @@ describe("ViewV2Component", () => {
           });
         });
 
-        params$.next({ action });
+        params$.next({ action, cipherId: mockCipher.id });
 
         flush(); // Flush all pending actions
 
@@ -336,7 +342,7 @@ describe("ViewV2Component", () => {
         .spyOn(BrowserApi, "focusTab")
         .mockImplementation(() => Promise.resolve());
 
-      params$.next({ action: AUTOFILL_ID, senderTabId: 99 });
+      params$.next({ action: AUTOFILL_ID, senderTabId: 99, cipherId: mockCipher.id });
 
       flush(); // Resolve all promises
 

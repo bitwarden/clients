@@ -66,6 +66,8 @@ impl Drop for ObjCString {
 mod objc {
     use std::os::raw::c_void;
 
+    use tracing::error;
+
     use super::*;
 
     unsafe extern "C" {
@@ -79,8 +81,9 @@ mod objc {
         let value: String = match value.try_into() {
             Ok(value) => value,
             Err(e) => {
-                println!(
-                    "Error: Failed to convert ObjCString to Rust string during commandReturn: {e}"
+                error!(
+                    error = %e,
+                    "Error: Failed to convert ObjCString to Rust string during commandReturn"
                 );
 
                 return false;
@@ -90,7 +93,9 @@ mod objc {
         match context.send(value) {
             Ok(_) => 0,
             Err(e) => {
-                println!("Error: Failed to return ObjCString from ObjC code to Rust code: {e}");
+                error!(
+                    error = %e,
+                    "Error: Failed to return ObjCString from ObjC code to Rust code");
 
                 return false;
             }

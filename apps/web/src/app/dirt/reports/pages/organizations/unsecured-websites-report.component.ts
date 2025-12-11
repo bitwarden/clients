@@ -18,11 +18,17 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
 
+import { HeaderModule } from "../../../../layouts/header/header.module";
+import { SharedModule } from "../../../../shared";
+import { OrganizationBadgeModule } from "../../../../vault/individual-vault/organization-badge/organization-badge.module";
+import { PipesModule } from "../../../../vault/individual-vault/pipes/pipes.module";
 import { RoutedVaultFilterBridgeService } from "../../../../vault/individual-vault/vault-filter/services/routed-vault-filter-bridge.service";
 import { RoutedVaultFilterService } from "../../../../vault/individual-vault/vault-filter/services/routed-vault-filter.service";
 import { AdminConsoleCipherFormConfigService } from "../../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import { UnsecuredWebsitesReportComponent as BaseUnsecuredWebsitesReportComponent } from "../unsecured-websites-report.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-unsecured-websites-report",
   templateUrl: "../unsecured-websites-report.component.html",
@@ -35,7 +41,7 @@ import { UnsecuredWebsitesReportComponent as BaseUnsecuredWebsitesReportComponen
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
   ],
-  standalone: false,
+  imports: [SharedModule, HeaderModule, OrganizationBadgeModule, PipesModule],
 })
 export class UnsecuredWebsitesReportComponent
   extends BaseUnsecuredWebsitesReportComponent
@@ -89,7 +95,7 @@ export class UnsecuredWebsitesReportComponent
   }
 
   getAllCiphers(): Promise<CipherView[]> {
-    return this.cipherService.getAllFromApiForOrganization(this.organization.id);
+    return this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
   }
 
   protected canManageCipher(c: CipherView): boolean {

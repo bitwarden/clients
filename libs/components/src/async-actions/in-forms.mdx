@@ -1,4 +1,4 @@
-import { Meta } from "@storybook/addon-docs";
+import { Meta } from "@storybook/addon-docs/blocks";
 
 <Meta title="Component Library/Async Actions/In Forms/Documentation" />
 
@@ -125,7 +125,13 @@ handler.
 
 ```html
 <button type="button" bitFormButton bitButton [bitAction]="handler">Do action</button>
-<button type="button" bitFormButton bitIconButton="bwi-star" [bitAction]="handler"></button>
+<button
+  type="button"
+  bitFormButton
+  bitIconButton="bwi-star"
+  label="Your label here"
+  [bitAction]="handler"
+></button>
 ```
 
 ## `[bitSubmit]` Disabled Form Submit

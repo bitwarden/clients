@@ -2,8 +2,11 @@ import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testin
 import { By } from "@angular/platform-browser";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
+import { BehaviorSubject } from "rxjs";
 
+import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 
 import { AddExtensionVideosComponent } from "./add-extension-videos.component";
 
@@ -36,6 +39,8 @@ describe("AddExtensionVideosComponent", () => {
       providers: [
         provideNoopAnimations(),
         { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: SYSTEM_THEME_OBSERVABLE, useValue: new BehaviorSubject("system") },
+        { provide: ThemeStateService, useValue: { selectedTheme$: new BehaviorSubject("system") } },
       ],
     }).compileComponents();
 

@@ -4,8 +4,8 @@ import { Subject } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncOptions } from "@bitwarden/common/platform/sync/sync.service";
@@ -22,7 +22,7 @@ import { FullSyncFinishedMessage } from "./sync-service.listener";
 
 describe("ForegroundSyncService", () => {
   const userId = Utils.newGuid() as UserId;
-  const stateService = mock<StateService>();
+  const tokenService = mock<TokenService>();
   const folderService = mock<InternalFolderService>();
   const folderApiService = mock<FolderApiServiceAbstraction>();
   const messageSender = mock<MessageSender>();
@@ -38,7 +38,7 @@ describe("ForegroundSyncService", () => {
   const stateProvider = new FakeStateProvider(accountService);
 
   const sut = new ForegroundSyncService(
-    stateService,
+    tokenService,
     folderService,
     folderApiService,
     messageSender,

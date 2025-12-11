@@ -25,22 +25,29 @@ import { SearchBarService } from "../../layout/search/search-bar.service";
 
 import { AddEditComponent } from "./add-edit.component";
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-enum Action {
-  None = "",
-  Add = "add",
-  Edit = "edit",
-}
+const Action = Object.freeze({
+  /** No action is currently active. */
+  None: "",
+  /** The user is adding a new Send. */
+  Add: "add",
+  /** The user is editing an existing Send. */
+  Edit: "edit",
+} as const);
+
+type Action = (typeof Action)[keyof typeof Action];
 
 const BroadcasterSubscriptionId = "SendComponent";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send",
   templateUrl: "send.component.html",
   imports: [CommonModule, JslibModule, FormsModule, NavComponent, AddEditComponent],
 })
 export class SendComponent extends BaseSendComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(AddEditComponent) addEditComponent: AddEditComponent;
 
   sendId: string;

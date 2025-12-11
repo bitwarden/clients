@@ -1,23 +1,31 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import {
   combineLatest,
   filter,
   firstValueFrom,
+  from,
   map,
   Observable,
   shareReplay,
   switchMap,
 } from "rxjs";
 
+import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
+import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { UserId } from "@bitwarden/common/types/guid";
-import { BadgeComponent, ItemModule } from "@bitwarden/components";
+import {
+  BadgeComponent,
+  DialogService,
+  ItemModule,
+  LinkModule,
+  TypographyModule,
+} from "@bitwarden/components";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
 import { AutofillBrowserSettingsService } from "../../../autofill/services/autofill-browser-settings.service";
@@ -38,16 +46,28 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     ItemModule,
     CurrentAccountComponent,
     BadgeComponent,
+    SpotlightComponent,
+    TypographyModule,
+    LinkModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SettingsV2Component implements OnInit {
+export class SettingsV2Component {
   NudgeType = NudgeType;
-  activeUserId: UserId | null = null;
-  protected isBrowserAutofillSettingOverridden = false;
+
+  protected isBrowserAutofillSettingOverridden$ = from(
+    this.autofillBrowserSettingsService.isBrowserAutofillSettingOverridden(
+      BrowserApi.getBrowserClientVendor(window),
+    ),
+  );
 
   private authenticatedAccount$: Observable<Account> = this.accountService.activeAccount$.pipe(
     filter((account): account is Account => account !== null),
     shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  protected hasPremium$ = this.authenticatedAccount$.pipe(
+    switchMap((account) => this.accountProfileStateService.hasPremiumFromAnySource$(account.id)),
   );
 
   showDownloadBitwardenNudge$: Observable<boolean> = this.authenticatedAccount$.pipe(
@@ -75,22 +95,16 @@ export class SettingsV2Component implements OnInit {
     ),
   );
 
-  protected isNudgeFeatureEnabled$ = this.configService.getFeatureFlag$(
-    FeatureFlag.PM8851_BrowserOnboardingNudge,
-  );
-
   constructor(
     private readonly nudgesService: NudgesService,
     private readonly accountService: AccountService,
     private readonly autofillBrowserSettingsService: AutofillBrowserSettingsService,
-    private readonly configService: ConfigService,
+    private readonly accountProfileStateService: BillingAccountProfileStateService,
+    private readonly dialogService: DialogService,
   ) {}
 
-  async ngOnInit() {
-    this.isBrowserAutofillSettingOverridden =
-      await this.autofillBrowserSettingsService.isBrowserAutofillSettingOverridden(
-        BrowserApi.getBrowserClientVendor(window),
-      );
+  protected openUpgradeDialog() {
+    PremiumUpgradeDialogComponent.open(this.dialogService);
   }
 
   async dismissBadge(type: NudgeType) {

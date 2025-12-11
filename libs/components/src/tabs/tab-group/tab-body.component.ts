@@ -1,15 +1,15 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { TemplatePortal, CdkPortalOutlet } from "@angular/cdk/portal";
 import { Component, effect, HostBinding, input } from "@angular/core";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-tab-body",
   templateUrl: "tab-body.component.html",
   imports: [CdkPortalOutlet],
 })
 export class TabBodyComponent {
-  private _firstRender: boolean;
+  private _firstRender = false;
 
   readonly content = input<TemplatePortal>();
   readonly preserveContent = input(false);

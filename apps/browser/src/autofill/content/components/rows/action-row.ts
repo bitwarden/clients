@@ -34,7 +34,7 @@ const actionRowStyles = (theme: Theme) => css`
   min-height: 40px;
   text-align: left;
   color: ${themes[theme].primary["600"]};
-  font-weight: 700;
+  font-weight: 500;
 
   > span {
     display: block;

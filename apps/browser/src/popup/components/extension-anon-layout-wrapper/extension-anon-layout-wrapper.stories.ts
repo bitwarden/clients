@@ -9,6 +9,7 @@ import {
 } from "@storybook/angular";
 import { of } from "rxjs";
 
+import { LockIcon, RegistrationCheckEmailIcon } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
@@ -22,12 +23,7 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import {
-  AnonLayoutWrapperDataService,
-  ButtonModule,
-  Icons,
-  I18nMockService,
-} from "@bitwarden/components";
+import { AnonLayoutWrapperDataService, ButtonModule, I18nMockService } from "@bitwarden/components";
 
 import { AccountSwitcherService } from "../../../auth/popup/account-switching/services/account-switcher.service";
 import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popup-router-cache.service";
@@ -168,6 +164,8 @@ type Story = StoryObj<ExtensionAnonLayoutWrapperComponent>;
 
 // Default Example
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-default-primary-outlet-example-component",
   template: "<p>Primary Outlet Example: <br> your primary component goes here</p>",
@@ -175,6 +173,8 @@ type Story = StoryObj<ExtensionAnonLayoutWrapperComponent>;
 })
 class DefaultPrimaryOutletExampleComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-default-secondary-outlet-example-component",
   template: "<p>Secondary Outlet Example: <br> your secondary component goes here</p>",
@@ -182,6 +182,8 @@ class DefaultPrimaryOutletExampleComponent {}
 })
 class DefaultSecondaryOutletExampleComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-default-env-selector-outlet-example-component",
   template: "<p>Env Selector Outlet Example: <br> your env selector component goes here</p>",
@@ -212,7 +214,9 @@ export const DefaultContentExample: Story = {
         children: [
           {
             path: "default-example",
-            data: {},
+            data: {
+              pageIcon: LockIcon,
+            } satisfies ExtensionAnonLayoutWrapperData,
             children: [
               {
                 path: "",
@@ -244,11 +248,10 @@ const initialData: ExtensionAnonLayoutWrapperData = {
   pageSubtitle: {
     key: "finishCreatingYourAccountBySettingAPassword",
   },
-  pageIcon: Icons.LockIcon,
+  pageIcon: LockIcon,
   showAcctSwitcher: true,
   showBackButton: true,
   showLogo: true,
-  hideIcon: false,
 };
 
 const changedData: ExtensionAnonLayoutWrapperData = {
@@ -258,13 +261,14 @@ const changedData: ExtensionAnonLayoutWrapperData = {
   pageSubtitle: {
     key: "checkYourEmail",
   },
-  pageIcon: Icons.RegistrationCheckEmailIcon,
+  pageIcon: RegistrationCheckEmailIcon,
   showAcctSwitcher: false,
   showBackButton: false,
   showLogo: false,
-  hideIcon: false,
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-dynamic-content-example-component",
   template: `
@@ -341,9 +345,9 @@ export const HasLoggedInAccountExample: Story = {
           {
             path: "has-logged-in-account",
             data: {
-              hasLoggedInAccount: true,
               showAcctSwitcher: true,
-            },
+              pageIcon: LockIcon,
+            } satisfies ExtensionAnonLayoutWrapperData,
             children: [
               {
                 path: "",

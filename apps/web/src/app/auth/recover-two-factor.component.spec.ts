@@ -9,10 +9,12 @@ import {
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -34,6 +36,7 @@ describe("RecoverTwoFactorComponent", () => {
   let mockConfigService: MockProxy<ConfigService>;
   let mockLoginSuccessHandlerService: MockProxy<LoginSuccessHandlerService>;
   let mockLogService: MockProxy<LogService>;
+  let mockValidationService: MockProxy<ValidationService>;
 
   beforeEach(() => {
     mockRouter = mock<Router>();
@@ -46,6 +49,7 @@ describe("RecoverTwoFactorComponent", () => {
     mockConfigService = mock<ConfigService>();
     mockLoginSuccessHandlerService = mock<LoginSuccessHandlerService>();
     mockLogService = mock<LogService>();
+    mockValidationService = mock<ValidationService>();
 
     TestBed.configureTestingModule({
       declarations: [RecoverTwoFactorComponent],
@@ -60,6 +64,7 @@ describe("RecoverTwoFactorComponent", () => {
         { provide: ConfigService, useValue: mockConfigService },
         { provide: LoginSuccessHandlerService, useValue: mockLoginSuccessHandlerService },
         { provide: LogService, useValue: mockLogService },
+        { provide: ValidationService, useValue: mockValidationService },
       ],
       imports: [I18nPipe],
       // FIXME(PM-18598): Replace unknownElements and unknownProperties with actual imports
@@ -70,16 +75,21 @@ describe("RecoverTwoFactorComponent", () => {
     component = fixture.componentInstance;
   });
 
-  afterEach(() => {
-    jest.resetAllMocks();
-  });
-
   describe("handleRecoveryLogin", () => {
+    let email: string;
+    let recoveryCode: string;
+
+    beforeEach(() => {
+      email = "test@example.com";
+      recoveryCode = "testRecoveryCode";
+    });
+
+    afterEach(() => {
+      jest.resetAllMocks();
+    });
+
     it("should log in successfully and navigate to the two-factor settings page", async () => {
       // Arrange
-      const email = "test@example.com";
-      const recoveryCode = "testRecoveryCode";
-
       const authResult = new AuthResult();
       mockLoginStrategyService.logIn.mockResolvedValue(authResult);
 
@@ -98,13 +108,15 @@ describe("RecoverTwoFactorComponent", () => {
       expect(mockRouter.navigate).toHaveBeenCalledWith(["/settings/security/two-factor"]);
     });
 
-    it("should handle login errors and redirect to login page", async () => {
+    it("should log an error and set an inline error on the recoveryCode form control upon receiving an ErrorResponse due to an invalid token", async () => {
       // Arrange
-      const email = "test@example.com";
-      const recoveryCode = "testRecoveryCode";
-
-      const error = new Error("Login failed");
+      const error = new ErrorResponse("mockError", 400);
+      error.message = "Two-step token is invalid";
       mockLoginStrategyService.logIn.mockRejectedValue(error);
+
+      const recoveryCodeControl = component.formGroup.get("recoveryCode");
+      jest.spyOn(recoveryCodeControl, "setErrors");
+      mockI18nService.t.mockReturnValue("Invalid recovery code");
 
       // Act
       await component["loginWithRecoveryCode"](email, recoveryCode);
@@ -114,9 +126,43 @@ describe("RecoverTwoFactorComponent", () => {
         "Error logging in automatically: ",
         error.message,
       );
-      expect(mockRouter.navigate).toHaveBeenCalledWith(["/login"], {
-        queryParams: { email: email },
+      expect(recoveryCodeControl.setErrors).toHaveBeenCalledWith({
+        invalidRecoveryCode: { message: "Invalid recovery code" },
       });
+    });
+
+    it("should log an error and show validation but not set an inline error on the recoveryCode form control upon receiving some other ErrorResponse", async () => {
+      // Arrange
+      const error = new ErrorResponse("mockError", 400);
+      error.message = "Some other error";
+      mockLoginStrategyService.logIn.mockRejectedValue(error);
+
+      const recoveryCodeControl = component.formGroup.get("recoveryCode");
+      jest.spyOn(recoveryCodeControl, "setErrors");
+
+      // Act
+      await component["loginWithRecoveryCode"](email, recoveryCode);
+
+      // Assert
+      expect(mockLogService.error).toHaveBeenCalledWith(
+        "Error logging in automatically: ",
+        error.message,
+      );
+      expect(mockValidationService.showError).toHaveBeenCalledWith(error.message);
+      expect(recoveryCodeControl.setErrors).not.toHaveBeenCalled();
+    });
+
+    it("should log an error and show validation upon receiving a non-ErrorResponse error", async () => {
+      // Arrange
+      const error = new Error("Generic error");
+      mockLoginStrategyService.logIn.mockRejectedValue(error);
+
+      // Act
+      await component["loginWithRecoveryCode"](email, recoveryCode);
+
+      // Assert
+      expect(mockLogService.error).toHaveBeenCalledWith("Error logging in automatically: ", error);
+      expect(mockValidationService.showError).toHaveBeenCalledWith(error);
     });
   });
 });

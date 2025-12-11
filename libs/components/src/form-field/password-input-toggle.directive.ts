@@ -27,6 +27,8 @@ export class BitPasswordInputToggleDirective implements AfterContentInit, OnChan
    * Whether the input is toggled to show the password.
    */
   readonly toggled = model(false);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() toggledChange = new EventEmitter<boolean>();
 
   @HostBinding("attr.title") title = this.i18nService.t("toggleVisibility");
@@ -57,17 +59,19 @@ export class BitPasswordInputToggleDirective implements AfterContentInit, OnChan
   }
 
   ngAfterContentInit(): void {
-    if (this.formField.input?.type) {
-      this.toggled.set(this.formField.input.type() !== "password");
+    const input = this.formField.input();
+    if (input?.type) {
+      this.toggled.set(input.type() !== "password");
     }
     this.button.icon.set(this.icon);
   }
 
   private update() {
     this.button.icon.set(this.icon);
-    if (this.formField.input?.type != null) {
-      this.formField.input.type.set(this.toggled() ? "text" : "password");
-      this.formField?.input?.spellcheck?.set(this.toggled() ? false : undefined);
+    const input = this.formField.input();
+    if (input?.type != null) {
+      input.type.set(this.toggled() ? "text" : "password");
+      input?.spellcheck?.set(this.toggled() ? false : undefined);
     }
   }
 }

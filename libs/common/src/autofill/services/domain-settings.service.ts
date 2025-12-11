@@ -1,15 +1,19 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { map, Observable, switchMap, of } from "rxjs";
+import { combineLatest, map, Observable, switchMap, shareReplay } from "rxjs";
 
-import { FeatureFlag } from "../../enums/feature-flag.enum";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums/policy-type.enum";
+import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+
 import {
   NeverDomains,
   EquivalentDomains,
   UriMatchStrategySetting,
   UriMatchStrategy,
 } from "../../models/domain/domain-service";
-import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { Utils } from "../../platform/misc/utils";
 import {
   DOMAIN_SETTINGS_DISK,
@@ -90,6 +94,18 @@ export abstract class DomainSettingsService {
   setDefaultUriMatchStrategy: (newValue: UriMatchStrategySetting) => Promise<void>;
 
   /**
+   * Org policy value for default for URI-matching
+   * strategies. Can be overridden by cipher-specific settings.
+   */
+  defaultUriMatchStrategyPolicy$: Observable<UriMatchStrategySetting>;
+
+  /**
+   * Resolved (concerning user setting, org policy, etc) default for URI-matching
+   * strategies. Can be overridden by cipher-specific settings.
+   */
+  resolvedDefaultUriMatchStrategy$: Observable<UriMatchStrategySetting>;
+
+  /**
    * Helper function for the common resolution of a given URL against equivalent domains
    */
   getUrlEquivalentDomains: (url: string) => Observable<Set<string>>;
@@ -111,9 +127,14 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
   private defaultUriMatchStrategyState: ActiveUserState<UriMatchStrategySetting>;
   readonly defaultUriMatchStrategy$: Observable<UriMatchStrategySetting>;
 
+  readonly defaultUriMatchStrategyPolicy$: Observable<UriMatchStrategySetting>;
+
+  readonly resolvedDefaultUriMatchStrategy$: Observable<UriMatchStrategySetting>;
+
   constructor(
     private stateProvider: StateProvider,
-    private configService: ConfigService,
+    private policyService: PolicyService,
+    private accountService: AccountService,
   ) {
     this.showFaviconsState = this.stateProvider.getGlobal(SHOW_FAVICONS);
     this.showFavicons$ = this.showFaviconsState.state$.pipe(map((x) => x ?? true));
@@ -123,15 +144,9 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
 
     // Needs to be global to prevent pre-login injections
     this.blockedInteractionsUrisState = this.stateProvider.getGlobal(BLOCKED_INTERACTIONS_URIS);
-
-    this.blockedInteractionsUris$ = this.configService
-      .getFeatureFlag$(FeatureFlag.BlockBrowserInjectionsByDomain)
-      .pipe(
-        switchMap((featureIsEnabled) =>
-          featureIsEnabled ? this.blockedInteractionsUrisState.state$ : of({} as NeverDomains),
-        ),
-        map((disabledUris) => (Object.keys(disabledUris).length ? disabledUris : {})),
-      );
+    this.blockedInteractionsUris$ = this.blockedInteractionsUrisState.state$.pipe(
+      map((x) => x ?? ({} as NeverDomains)),
+    );
 
     this.equivalentDomainsState = this.stateProvider.getActive(EQUIVALENT_DOMAINS);
     this.equivalentDomains$ = this.equivalentDomainsState.state$.pipe(map((x) => x ?? null));
@@ -139,6 +154,31 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     this.defaultUriMatchStrategyState = this.stateProvider.getActive(DEFAULT_URI_MATCH_STRATEGY);
     this.defaultUriMatchStrategy$ = this.defaultUriMatchStrategyState.state$.pipe(
       map((x) => x ?? UriMatchStrategy.Domain),
+    );
+
+    this.defaultUriMatchStrategyPolicy$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policiesByType$(PolicyType.UriMatchDefaults, userId),
+      ),
+      getFirstPolicy,
+      map((policy) => {
+        if (!policy?.enabled || policy?.data == null) {
+          return null;
+        }
+        const data = policy.data?.uriMatchDetection;
+        // Validate that data is a valid UriMatchStrategy value
+        return Object.values(UriMatchStrategy).includes(data) ? data : null;
+      }),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+
+    this.resolvedDefaultUriMatchStrategy$ = combineLatest([
+      this.defaultUriMatchStrategy$,
+      this.defaultUriMatchStrategyPolicy$,
+    ]).pipe(
+      map(([userSettingValue, policySettingValue]) => policySettingValue || userSettingValue),
+      shareReplay({ bufferSize: 1, refCount: true }),
     );
   }
 

@@ -16,6 +16,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType } from "@bitwarden/common/enums";
 import { ListResponse as ApiListResponse } from "@bitwarden/common/models/response/list.response";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
@@ -45,6 +46,7 @@ export class ListCommand {
     private accountService: AccountService,
     private keyService: KeyService,
     private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
+    private cipherArchiveService: CipherArchiveService,
   ) {}
 
   async run(object: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -71,8 +73,13 @@ export class ListCommand {
     let ciphers: CipherView[];
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const userCanArchive = await firstValueFrom(
+      this.cipherArchiveService.userCanArchive$(activeUserId),
+    );
 
     options.trash = options.trash || false;
+    options.archived = userCanArchive && options.archived;
+
     if (options.url != null && options.url.trim() !== "") {
       ciphers = await this.cipherService.getAllDecryptedForUrl(options.url, activeUserId);
     } else {
@@ -85,14 +92,17 @@ export class ListCommand {
       options.organizationId != null
     ) {
       ciphers = ciphers.filter((c) => {
-        if (options.trash !== c.isDeleted) {
+        const matchesStateOptions = this.matchesStateOptions(c, options);
+
+        if (!matchesStateOptions) {
           return false;
         }
+
         if (options.folderId != null) {
           if (options.folderId === "notnull" && c.folderId != null) {
             return true;
           }
-          const folderId = options.folderId === "null" ? null : options.folderId;
+          const folderId = options.folderId === "null" ? undefined : options.folderId;
           if (folderId === c.folderId) {
             return true;
           }
@@ -102,7 +112,8 @@ export class ListCommand {
           if (options.organizationId === "notnull" && c.organizationId != null) {
             return true;
           }
-          const organizationId = options.organizationId === "null" ? null : options.organizationId;
+          const organizationId =
+            options.organizationId === "null" ? undefined : options.organizationId;
           if (organizationId === c.organizationId) {
             return true;
           }
@@ -131,11 +142,16 @@ export class ListCommand {
         return false;
       });
     } else if (options.search == null || options.search.trim() === "") {
-      ciphers = ciphers.filter((c) => options.trash === c.isDeleted);
+      ciphers = ciphers.filter((c) => this.matchesStateOptions(c, options));
     }
 
     if (options.search != null && options.search.trim() !== "") {
-      ciphers = this.searchService.searchCiphersBasic(ciphers, options.search, options.trash);
+      ciphers = this.searchService.searchCiphersBasic(
+        ciphers,
+        options.search,
+        options.trash,
+        options.archived,
+      );
     }
 
     ciphers = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(ciphers);
@@ -211,7 +227,9 @@ export class ListCommand {
       }
       const collections = response.data
         .filter((c) => c.organizationId === options.organizationId)
-        .map((r) => new Collection(new CollectionData(r as ApiCollectionDetailsResponse)));
+        .map((r) =>
+          Collection.fromCollectionData(new CollectionData(r as ApiCollectionDetailsResponse)),
+        );
       const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
       if (orgKeys == null) {
         throw new Error("Organization keys not found.");
@@ -285,6 +303,17 @@ export class ListCommand {
     const res = new ListResponse(organizations.map((o) => new OrganizationResponse(o)));
     return Response.success(res);
   }
+
+  /**
+   * Checks if the cipher passes the state filter options.
+   * @returns true if the cipher matches the requested state
+   */
+  private matchesStateOptions(c: CipherView, options: Options): boolean {
+    const passesTrashFilter = options.trash === c.isDeleted;
+    const passesArchivedFilter = options.archived === c.isArchived;
+
+    return passesTrashFilter && passesArchivedFilter;
+  }
 }
 
 class Options {
@@ -294,6 +323,7 @@ class Options {
   search: string;
   url: string;
   trash: boolean;
+  archived: boolean;
 
   constructor(passedOptions: Record<string, any>) {
     this.organizationId = passedOptions?.organizationid || passedOptions?.organizationId;
@@ -302,5 +332,6 @@ class Options {
     this.search = passedOptions?.search;
     this.url = passedOptions?.url;
     this.trash = CliUtils.convertBooleanOption(passedOptions?.trash);
+    this.archived = CliUtils.convertBooleanOption(passedOptions?.archived);
   }
 }

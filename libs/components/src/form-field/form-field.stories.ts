@@ -1,7 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { TextFieldModule } from "@angular/cdk/text-field";
-import { Directive, ElementRef, Input, OnInit, Renderer2 } from "@angular/core";
 import {
   AbstractControl,
   UntypedFormBuilder,
@@ -15,6 +12,7 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { A11yTitleDirective } from "../a11y/a11y-title.directive";
 import { AsyncActionsModule } from "../async-actions";
 import { BadgeModule } from "../badge";
 import { ButtonModule } from "../button";
@@ -30,41 +28,6 @@ import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { BitFormFieldComponent } from "./form-field.component";
 import { FormFieldModule } from "./form-field.module";
-
-// TOOD: This solves a circular dependency between components and angular.
-@Directive({
-  selector: "[appA11yTitle]",
-})
-export class A11yTitleDirective implements OnInit {
-  @Input() set appA11yTitle(title: string) {
-    this.title = title;
-    this.setAttributes();
-  }
-
-  private title: string;
-  private originalTitle: string | null;
-  private originalAriaLabel: string | null;
-
-  constructor(
-    private el: ElementRef,
-    private renderer: Renderer2,
-  ) {}
-
-  ngOnInit() {
-    this.originalTitle = this.el.nativeElement.getAttribute("title");
-    this.originalAriaLabel = this.el.nativeElement.getAttribute("aria-label");
-    this.setAttributes();
-  }
-
-  private setAttributes() {
-    if (this.originalTitle === null) {
-      this.renderer.setAttribute(this.el.nativeElement, "title", this.title);
-    }
-    if (this.originalAriaLabel === null) {
-      this.renderer.setAttribute(this.el.nativeElement, "aria-label", this.title);
-    }
-  }
-}
 
 export default {
   title: "Component Library/Form/Field",
@@ -100,6 +63,7 @@ export default {
               inputRequired: "Input is required.",
               inputEmail: "Input is not an email-address.",
               toggleVisibility: "Toggle visibility",
+              loading: "Loading",
             });
           },
         },
@@ -276,8 +240,8 @@ export const Readonly: Story = {
       <bit-form-field>
         <bit-label>Input</bit-label>
         <input bitInput type="password" value="Foobar" [readonly]="true" />
-        <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
-        <button type="button" bitSuffix bitIconButton="bwi-clone" [appA11yTitle]="'Clone Input'"></button>
+        <button type="button" label="Toggle password" bitIconButton bitSuffix bitPasswordInputToggle></button>
+        <button type="button" bitSuffix bitIconButton="bwi-clone" [label]="'Clone Input'"></button>
       </bit-form-field>
 
       <bit-form-field>
@@ -298,7 +262,7 @@ export const Readonly: Story = {
               <bit-label>Input</bit-label>
               <input bitInput type="password" value="Foobar" readonly />
               <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
-              <button type="button" bitSuffix bitIconButton="bwi-clone" [appA11yTitle]="'Clone Input'"></button>
+              <button type="button" bitSuffix bitIconButton="bwi-clone" [label]="'Clone Input'"></button>
             </bit-form-field>
 
             <bit-form-field>
@@ -346,11 +310,11 @@ export const ButtonInputGroup: Story = {
             <i class="bwi bwi-question-circle" aria-hidden="true"></i>
           </a>
         </bit-label>
-        <button type="button" bitPrefix bitIconButton="bwi-star" [appA11yTitle]="'Favorite Label'"></button>
+        <button type="button" bitPrefix bitIconButton="bwi-star" [label]="'Favorite Label'"></button>
         <input bitInput placeholder="Placeholder" />
-        <button type="button" bitSuffix bitIconButton="bwi-eye" [appA11yTitle]="'Hide Label'"></button>
-        <button type="button" bitSuffix bitIconButton="bwi-clone" [appA11yTitle]="'Clone Label'"></button>
-        <button type="button" bitSuffix bitIconButton="bwi-ellipsis-v" [appA11yTitle]="'Menu Label'"></button>
+        <button type="button" bitSuffix bitIconButton="bwi-eye" [label]="'Hide Label'"></button>
+        <button type="button" bitSuffix bitIconButton="bwi-clone" [label]="'Clone Label'"></button>
+        <button type="button" bitSuffix bitIconButton="bwi-ellipsis-v" [label]="'Menu Label'"></button>
       </bit-form-field>
     `,
   }),
@@ -363,11 +327,11 @@ export const DisabledButtonInputGroup: Story = {
     template: /*html*/ `
       <bit-form-field>
         <bit-label>Label</bit-label>
-        <button type="button" bitPrefix bitIconButton="bwi-star" disabled [appA11yTitle]="'Favorite Label'"></button>
+        <button type="button" bitPrefix bitIconButton="bwi-star" disabled [label]="'Favorite Label'"></button>
         <input bitInput placeholder="Placeholder" disabled />
-        <button type="button" bitSuffix bitIconButton="bwi-eye" disabled [appA11yTitle]="'Hide Label'"></button>
-        <button type="button" bitSuffix bitIconButton="bwi-clone" disabled [appA11yTitle]="'Clone Label'"></button>
-        <button type="button" bitSuffix bitIconButton="bwi-ellipsis-v" disabled [appA11yTitle]="'Menu Label'"></button>
+        <button type="button" bitSuffix bitIconButton="bwi-eye" disabled [label]="'Hide Label'"></button>
+        <button type="button" bitSuffix bitIconButton="bwi-clone" disabled [label]="'Clone Label'"></button>
+        <button type="button" bitSuffix bitIconButton="bwi-ellipsis-v" disabled [label]="'Menu Label'"></button>
 
       </bit-form-field>
     `,
@@ -382,9 +346,9 @@ export const PartiallyDisabledButtonInputGroup: Story = {
       <bit-form-field>
         <bit-label>Label</bit-label>
         <input bitInput placeholder="Placeholder" disabled />
-        <button type="button" bitSuffix bitIconButton="bwi-eye" [appA11yTitle]="'Hide Label'"></button>
-        <button type="button" bitSuffix bitIconButton="bwi-clone" [appA11yTitle]="'Clone Label'"></button>
-        <button type="button" bitSuffix bitIconButton="bwi-ellipsis-v" disabled [appA11yTitle]="'Menu Label'"></button>
+        <button type="button" bitSuffix bitIconButton="bwi-eye" [label]="'Hide Label'"></button>
+        <button type="button" bitSuffix bitIconButton="bwi-clone" [label]="'Clone Label'"></button>
+        <button type="button" bitSuffix bitIconButton="bwi-ellipsis-v" disabled [label]="'Menu Label'"></button>
       </bit-form-field>
     `,
   }),

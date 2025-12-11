@@ -360,6 +360,18 @@ form,
   }
 }
 
+.help-block a.settings-link {
+  text-decoration: none;
+  @include themify($themes) {
+    color: themed("primaryColor");
+
+    &:hover,
+    &:focus {
+      color: darken(themed("primaryColor"), 6%);
+    }
+  }
+}
+
 app-root > #loading,
 .loading {
   display: flex;

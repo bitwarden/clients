@@ -13,6 +13,8 @@ const testBooleanFeature: FeatureFlag = "boolean-feature" as FeatureFlag;
 const testStringFeature: FeatureFlag = "string-feature" as FeatureFlag;
 const testStringFeatureValue = "test-value";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <div *appIfFeature="testBooleanFeature">

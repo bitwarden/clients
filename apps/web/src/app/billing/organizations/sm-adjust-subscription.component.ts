@@ -56,14 +56,22 @@ export interface SecretsManagerSubscriptionOptions {
   additionalServiceAccountPrice: number;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-sm-adjust-subscription",
   templateUrl: "sm-adjust-subscription.component.html",
   standalone: false,
 })
 export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() organizationId: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() options: SecretsManagerSubscriptionOptions;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onAdjusted = new EventEmitter();
 
   private destroy$ = new Subject<void>();

@@ -1,4 +1,19 @@
 <popup-page>
+  <bit-spotlight *ngIf="!(hasPremium$ | async)" persistent>
+    <span class="tw-text-xs"
+      >{{ "unlockFeaturesWithPremium" | i18n }}
+      <button
+        bitLink
+        buttonType="primary"
+        class="tw-text-xs"
+        type="button"
+        (click)="openUpgradeDialog()"
+        [title]="'upgradeNow' | i18n"
+      >
+        {{ "upgradeNow" | i18n }}
+      </button>
+    </span>
+  </bit-spotlight>
   <popup-header slot="header" pageTitle="{{ 'settings' | i18n }}">
     <ng-container slot="end">
       <app-pop-out></app-pop-out>
@@ -20,7 +35,7 @@
         <div class="tw-flex tw-items-center tw-justify-center">
           <p class="tw-pr-2">{{ "autofill" | i18n }}</p>
           <span
-            *ngIf="!isBrowserAutofillSettingOverridden && (showAutofillBadge$ | async)"
+            *ngIf="!(isBrowserAutofillSettingOverridden$ | async) && (showAutofillBadge$ | async)"
             bitBadge
             variant="notification"
             [attr.aria-label]="'nudgeBadgeAria' | i18n"
@@ -76,7 +91,7 @@
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
     </bit-item>
-    <bit-item *ngIf="isNudgeFeatureEnabled$ | async">
+    <bit-item>
       <a bit-item-content routerLink="/download-bitwarden">
         <i slot="start" class="bwi bwi-mobile" aria-hidden="true"></i>
         <div class="tw-flex tw-items-center tw-justify-center">
@@ -92,7 +107,7 @@
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
     </bit-item>
-    <bit-item *ngIf="isNudgeFeatureEnabled$ | async">
+    <bit-item>
       <a bit-item-content routerLink="/more-from-bitwarden">
         <i slot="start" class="bwi bwi-filter" aria-hidden="true"></i>
         {{ "moreFromBitwarden" | i18n }}

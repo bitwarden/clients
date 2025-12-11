@@ -8,21 +8,26 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { map, ReplaySubject, skip, Subject, takeUntil, withLatestFrom } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { FormFieldModule } from "@bitwarden/components";
 import {
   CredentialGeneratorService,
   BuiltIn,
   SubaddressGenerationOptions,
 } from "@bitwarden/generator-core";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 /** Options group for plus-addressed emails */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-subaddress-settings",
   templateUrl: "subaddress-settings.component.html",
-  standalone: false,
+  imports: [ReactiveFormsModule, FormFieldModule, JslibModule, I18nPipe],
 })
 export class SubaddressSettingsComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the component
@@ -38,6 +43,8 @@ export class SubaddressSettingsComponent implements OnInit, OnChanges, OnDestroy
    *  @remarks this is initialized to null but since it's a required input it'll
    *     never have that value in practice.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true })
   account: Account = null!;
 
@@ -54,6 +61,8 @@ export class SubaddressSettingsComponent implements OnInit, OnChanges, OnDestroy
    *   to receive live settings updates including the initial update,
    *   use `CredentialGeneratorService.settings(...)` instead.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   readonly onUpdated = new EventEmitter<SubaddressGenerationOptions>();
 

@@ -1,4 +1,10 @@
-import { FormsModule, ReactiveFormsModule, FormControl, FormGroup } from "@angular/forms";
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  FormControl,
+  FormGroup,
+  Validators,
+} from "@angular/forms";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -159,6 +165,35 @@ export const BlockHint: Story = {
           </bit-radio-button>
 
           <bit-hint>This is a hint for the radio group</bit-hint>
+        </bit-radio-group>
+      </form>
+    `,
+  }),
+};
+
+export const Required: Story = {
+  render: () => ({
+    props: {
+      formObj: new FormGroup({
+        radio: new FormControl(0, Validators.required),
+      }),
+    },
+    template: /* HTML */ `
+      <form [formGroup]="formObj">
+        <bit-radio-group formControlName="radio" aria-label="Example radio group">
+          <bit-label>Group of radio buttons</bit-label>
+
+          <bit-radio-button [value]="0">
+            <bit-label>First</bit-label>
+          </bit-radio-button>
+
+          <bit-radio-button [value]="1">
+            <bit-label>Second</bit-label>
+          </bit-radio-button>
+
+          <bit-radio-button [value]="2">
+            <bit-label>Third</bit-label>
+          </bit-radio-button>
         </bit-radio-group>
       </form>
     `,

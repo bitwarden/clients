@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "welcomeBack": {
     "message": "Tervetuloa takaisin"
   },
@@ -702,6 +705,12 @@
   "attachmentSaved": {
     "message": "Tiedostoliite tallennettiin"
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "Tiedosto"
   },
@@ -764,6 +773,9 @@
   },
   "useSingleSignOn": {
     "message": "Käytä kertakirjautumista"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
   },
   "submit": {
     "message": "Jatka"
@@ -954,9 +966,6 @@
   "insertU2f": {
     "message": "Kytke suojausavaimesi tietokoneen USB-porttiin ja jos laitteessa on painike, paina sitä."
   },
-  "recoveryCodeDesc": {
-    "message": "Etkö pysty käyttämään kaksivaiheisen kirjautumisen todentajiasi? Poista kaikki tilillesi määritetyt todentajat käytöstä palautuskoodillasi."
-  },
   "recoveryCodeTitle": {
     "message": "Palautuskoodi"
   },
@@ -1029,6 +1038,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Sinun on lisättävä joko palvelimen perusosoite tai ainakin yksi mukautettu palvelinympäristö."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
+  },
   "customEnvironment": {
     "message": "Mukautettu palvelinympäristö"
   },
@@ -1080,6 +1092,24 @@
   },
   "learnMore": {
     "message": "Lue lisää"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
   },
   "featureUnavailable": {
     "message": "Ominaisuus ei ole käytettävissä"
@@ -1219,6 +1249,15 @@
   "invalidMasterPassword": {
     "message": "Virheellinen pääsalasana"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Kaksivaiheinen kirjautuminen parantaa tilisi suojausta vaatimalla kirjautumisen vahvistuksen salasanan lisäksi suojausavaimen, todennussovelluksen, tekstiviestin, puhelun tai sähköpostin avulla. Voit ottaa kaksivaiheisen kirjautumisen käyttöön bitwarden.com‑verkkoholvissa. Haluatko avata sen nyt?"
   },
@@ -1299,11 +1338,8 @@
     "message": "Poista kopioidut arvot leikepöydältä automaattisesti.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Näytä verkkosivustojen kuvakkeet"
-  },
-  "faviconDesc": {
-    "message": "Näytä tunnistettava kuva jokaiselle kirjautumistiedolle."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "Pienennä ilmoitusalueelle"
@@ -1471,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 Gt salattua tallennustilaa tiedostoliitteille."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Kaksivaiheisen kirjautumisen erikoisvaihtoehdot, kuten YubiKey ja Duo."
@@ -1840,14 +1885,14 @@
   "autoPromptTouchId": {
     "message": "Pyydä Touch ID -todennusta käynnistettäessä"
   },
-  "requirePasswordOnStart": {
-    "message": "Pyydä salasana tai PIN-koodi sovelluksen käynnistyessä"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Vaadi salasana sovelluksen käynnistyessä"
-  },
   "lockWithMasterPassOnRestart1": {
     "message": "Lukitse pääsalasanalla uudelleenkäynnistyksen yhteydessä"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Require master password or PIN on app restart"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Require master password on app restart"
   },
   "deleteAccount": {
     "message": "Poista tili"
@@ -2132,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Otettaessa selainintegraatiota käyttöön tapahtui virhe."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Valitettavasti selainintegraatiota tuetaan toistaiseksi vain Mac App Store -versiossa."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Valitettavasti selainintegraatiota ei toistaiseksi tueta Microsoft Store -versiossa."
   },
@@ -2212,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Yhteystiedot"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Kaikki Sendit",
@@ -2546,6 +2592,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum custom timeout is 1 minute."
+  },
   "inviteAccepted": {
     "message": "Kutsu hyväksyttiin"
   },
@@ -2657,6 +2706,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -2955,7 +3022,8 @@
     "message": "Haluatko varmasti käyttää asetusta \"Ei koskaan\"? Se tallentaa holvisi salausavaimen laitteellesi. Jos käytät asetusta, varmista, että laite on suojattu hyvin."
   },
   "vault": {
-    "message": "Holvi"
+    "message": "Holvi",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Kirjaudu pääsalasanalla"
@@ -3491,15 +3559,11 @@
   "selectImportCollection": {
     "message": "Valitse kokoelma"
   },
-  "importTargetHint": {
-    "message": "Valitse tämä, jos haluat tuoda tiedoston sisällön kohteeseen \"$DESTINATION$\".",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Tiedosto sisältää määrittämättömiä kohteita."
@@ -3594,6 +3658,12 @@
   },
   "awaitingSSODesc": {
     "message": "Jatka kirjautumista työtunnuksillasi."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
   },
   "seeDetailedInstructions": {
     "message": "Katso tarkemmat ohjeet tukisivustoltamme osoitteesta",
@@ -3837,6 +3907,12 @@
   "changeAtRiskPassword": {
     "message": "Vaihda vaarantunut salasana"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
     "placeholders": {
@@ -3931,6 +4007,12 @@
     "message": "Learn more about SSH agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "Assign to collections"
@@ -4072,10 +4154,106 @@
   "showLess": {
     "message": "Show less"
   },
-  "enableAutotype": {
-    "message": "Enable Autotype"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
+  },
+  "enableAutotypeShortcutDescription": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

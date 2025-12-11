@@ -6,8 +6,8 @@ import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { WebAuthnIFrame } from "@bitwarden/common/auth/webauthn-iframe";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -32,6 +32,8 @@ export interface WebAuthnResult {
   remember?: boolean;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-auth-webauthn",
   templateUrl: "two-factor-auth-webauthn.component.html",
@@ -50,7 +52,11 @@ export interface WebAuthnResult {
   providers: [],
 })
 export class TwoFactorAuthWebAuthnComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() webAuthnResultEmitter = new EventEmitter<WebAuthnResult>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() webAuthnInNewTabEmitter = new EventEmitter<boolean>();
 
   webAuthnReady = false;

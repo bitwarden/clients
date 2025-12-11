@@ -17,18 +17,24 @@ import { UserId } from "@bitwarden/common/types/guid";
 
 import { organizationRedirectGuard } from "./org-redirect.guard";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "<h1>This is the home screen!</h1>",
   standalone: false,
 })
 export class HomescreenComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "<h1>This is the admin console!</h1>",
   standalone: false,
 })
 export class AdminConsoleComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "<h1> This is a subroute of the admin console!</h1>",
   standalone: false,

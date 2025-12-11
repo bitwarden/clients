@@ -8,7 +8,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { NotificationType } from "@bitwarden/common/enums";
 import { NotificationResponse } from "@bitwarden/common/models/response/notification.response";
 import { Message, MessageListener } from "@bitwarden/common/platform/messaging";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { SecurityTaskId, UserId } from "@bitwarden/common/types/guid";
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
@@ -39,7 +39,9 @@ describe("Default task service", () => {
       { send: mockApiSend } as unknown as ApiService,
       { organizations$: mockGetAllOrgs$ } as unknown as OrganizationService,
       { authStatuses$: mockAuthStatuses$.asObservable() } as unknown as AuthService,
-      { notifications$: mockNotifications$.asObservable() } as unknown as NotificationsService,
+      {
+        notifications$: mockNotifications$.asObservable(),
+      } as unknown as ServerNotificationsService,
       { allMessages$: mockMessages$.asObservable() } as unknown as MessageListener,
     );
   });
@@ -49,10 +51,10 @@ describe("Default task service", () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: false,
+            canUseAccessIntelligence: false,
           },
           {
-            useRiskInsights: true,
+            canUseAccessIntelligence: true,
           },
         ] as Organization[]),
       );
@@ -68,10 +70,10 @@ describe("Default task service", () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: false,
+            canUseAccessIntelligence: false,
           },
           {
-            useRiskInsights: false,
+            canUseAccessIntelligence: false,
           },
         ] as Organization[]),
       );
@@ -89,17 +91,17 @@ describe("Default task service", () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: true,
+            canUseAccessIntelligence: true,
           },
         ] as Organization[]),
       );
     });
 
-    it("should return an empty array if tasks are not enabled", async () => {
+    it("should return no tasks if not present and canUserAccessIntelligence is false", async () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: false,
+            canUseAccessIntelligence: false,
           },
         ] as Organization[]),
       );
@@ -109,7 +111,6 @@ describe("Default task service", () => {
       const result = await firstValueFrom(tasks$("user-id" as UserId));
 
       expect(result.length).toBe(0);
-      expect(mockApiSend).not.toHaveBeenCalled();
     });
 
     it("should fetch tasks from the API when the state is null", async () => {
@@ -161,17 +162,17 @@ describe("Default task service", () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: true,
+            canUseAccessIntelligence: true,
           },
         ] as Organization[]),
       );
     });
 
-    it("should return an empty array if tasks are not enabled", async () => {
+    it("should return no tasks if not present and canUserAccessIntelligence is false", async () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: false,
+            canUseAccessIntelligence: false,
           },
         ] as Organization[]),
       );
@@ -181,7 +182,6 @@ describe("Default task service", () => {
       const result = await firstValueFrom(pendingTasks$("user-id" as UserId));
 
       expect(result.length).toBe(0);
-      expect(mockApiSend).not.toHaveBeenCalled();
     });
 
     it("should filter tasks to only pending tasks", async () => {

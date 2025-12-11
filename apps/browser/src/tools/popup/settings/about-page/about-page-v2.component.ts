@@ -5,11 +5,9 @@ import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DeviceType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService, ItemModule } from "@bitwarden/components";
+import { CenterPositionStrategy, DialogService, ItemModule } from "@bitwarden/components";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
@@ -31,6 +29,8 @@ const RateUrls = {
   [DeviceType.SafariExtension]: "https://apps.apple.com/app/bitwarden/id1352778147",
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "about-page-v2.component.html",
   imports: [
@@ -48,16 +48,13 @@ export class AboutPageV2Component {
     private dialogService: DialogService,
     private environmentService: EnvironmentService,
     private platformUtilsService: PlatformUtilsService,
-    private configService: ConfigService,
   ) {}
 
   about() {
-    this.dialogService.open(AboutDialogComponent);
+    this.dialogService.open(AboutDialogComponent, {
+      positionStrategy: new CenterPositionStrategy(),
+    });
   }
-
-  protected isNudgeFeatureEnabled$ = this.configService.getFeatureFlag$(
-    FeatureFlag.PM8851_BrowserOnboardingNudge,
-  );
 
   async launchHelp() {
     const confirmed = await this.dialogService.openSimpleDialog({

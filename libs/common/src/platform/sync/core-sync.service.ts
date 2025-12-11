@@ -9,6 +9,7 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "../../abstractions/api.service";
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
+import { TokenService } from "../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import {
   SyncCipherNotification,
@@ -26,7 +27,6 @@ import { SyncService } from "../../vault/abstractions/sync/sync.service.abstract
 import { CipherData } from "../../vault/models/data/cipher.data";
 import { FolderData } from "../../vault/models/data/folder.data";
 import { LogService } from "../abstractions/log.service";
-import { StateService } from "../abstractions/state.service";
 import { MessageSender } from "../messaging";
 import { StateProvider, SYNC_DISK, UserKeyDefinition } from "../state";
 
@@ -44,7 +44,7 @@ export abstract class CoreSyncService implements SyncService {
   syncInProgress = false;
 
   constructor(
-    protected readonly stateService: StateService,
+    readonly tokenService: TokenService,
     protected readonly folderService: InternalFolderService,
     protected readonly folderApiService: FolderApiServiceAbstraction,
     protected readonly messageSender: MessageSender,
@@ -230,7 +230,7 @@ export abstract class CoreSyncService implements SyncService {
         }),
       ),
     );
-    // Process only notifications for currently active user when user is not logged out
+    // Process only server notifications for currently active user when user is not logged out
     // TODO: once send service allows data manipulation of non-active users, this should process any received notification
     if (activeUserId === notification.userId && status !== AuthenticationStatus.LoggedOut) {
       try {
@@ -256,7 +256,13 @@ export abstract class CoreSyncService implements SyncService {
 
   async syncDeleteSend(notification: SyncSendNotification): Promise<boolean> {
     this.syncStarted();
-    if (await this.stateService.getIsAuthenticated()) {
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
+    if (
+      activeUserId != null &&
+      (await firstValueFrom(this.tokenService.hasAccessToken$(activeUserId)))
+    ) {
       await this.sendService.delete(notification.id);
       this.messageSender.send("syncedDeletedSend", { sendId: notification.id });
       // TODO: Update syncCompleted userId when send service allows modification of non-active users

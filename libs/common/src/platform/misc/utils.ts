@@ -128,19 +128,80 @@ export class Utils {
     return arr;
   }
 
-  static fromBufferToB64(buffer: ArrayBuffer): string {
+  /**
+   * Convert binary data into a Base64 string.
+   *
+   * Overloads are provided for two categories of input:
+   *
+   * 1. ArrayBuffer
+   *    - A raw, fixed-length chunk of memory (no element semantics).
+   *    - Example: `const buf = new ArrayBuffer(16);`
+   *
+   * 2. ArrayBufferView
+   *    - A *view* onto an existing buffer that gives the bytes meaning.
+   *    - Examples: Uint8Array, Int32Array, DataView, etc.
+   *    - Views can expose only a *window* of the underlying buffer via
+   *      `byteOffset` and `byteLength`.
+   *      Example:
+   *      ```ts
+   *      const buf = new ArrayBuffer(8);
+   *      const full = new Uint8Array(buf);       // sees all 8 bytes
+   *      const half = new Uint8Array(buf, 4, 4); // sees only last 4 bytes
+   *      ```
+   *
+   * Returns:
+   * - Base64 string for non-empty inputs,
+   * - null if `buffer` is `null` or `undefined`
+   * - empty string if `buffer` is empty (0 bytes)
+   */
+  static fromBufferToB64(buffer: null | undefined): null;
+  static fromBufferToB64(buffer: ArrayBuffer): string;
+  static fromBufferToB64(buffer: ArrayBufferView): string;
+  static fromBufferToB64(buffer: ArrayBuffer | ArrayBufferView | null | undefined): string | null {
+    // Handle null / undefined input
     if (buffer == null) {
       return null;
     }
+
+    const bytes: Uint8Array = Utils.normalizeToUint8Array(buffer);
+
+    // Handle empty input
+    if (bytes.length === 0) {
+      return "";
+    }
+
     if (Utils.isNode) {
-      return Buffer.from(buffer).toString("base64");
+      return Buffer.from(bytes).toString("base64");
     } else {
       let binary = "";
-      const bytes = new Uint8Array(buffer);
       for (let i = 0; i < bytes.byteLength; i++) {
         binary += String.fromCharCode(bytes[i]);
       }
       return Utils.global.btoa(binary);
+    }
+  }
+
+  /**
+   * Normalizes input into a Uint8Array so we always have a uniform,
+   * byte-level view of the data. This avoids dealing with differences
+   * between ArrayBuffer (raw memory with no indexing) and other typed
+   * views (which may have element sizes, offsets, and lengths).
+   * @param buffer ArrayBuffer or ArrayBufferView (e.g. Uint8Array, DataView, etc.)
+   */
+  private static normalizeToUint8Array(buffer: ArrayBuffer | ArrayBufferView): Uint8Array {
+    /**
+     * 1) Uint8Array: already bytes → use directly.
+     * 2) ArrayBuffer: wrap whole buffer.
+     * 3) Other ArrayBufferView (e.g., DataView, Int32Array):
+     *    wrap the view’s window (byteOffset..byteOffset+byteLength).
+     */
+    if (buffer instanceof Uint8Array) {
+      return buffer;
+    } else if (buffer instanceof ArrayBuffer) {
+      return new Uint8Array(buffer);
+    } else {
+      const view = buffer as ArrayBufferView;
+      return new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
     }
   }
 
@@ -314,7 +375,7 @@ export class Utils {
     }
   }
 
-  static getDomain(uriString: string): string {
+  static getDomain(uriString: string | null | undefined): string {
     if (Utils.isNullOrWhitespace(uriString)) {
       return null;
     }
@@ -392,11 +453,11 @@ export class Utils {
     };
   }
 
-  static isNullOrWhitespace(str: string): boolean {
+  static isNullOrWhitespace(str: string | null | undefined): boolean {
     return str == null || typeof str !== "string" || str.trim() === "";
   }
 
-  static isNullOrEmpty(str: string | null): boolean {
+  static isNullOrEmpty(str: string | null | undefined): boolean {
     return str == null || typeof str !== "string" || str == "";
   }
 
@@ -418,7 +479,7 @@ export class Utils {
     return (Object.keys(obj).filter((k) => Number.isNaN(+k)) as K[]).map((k) => obj[k]);
   }
 
-  static getUrl(uriString: string): URL {
+  static getUrl(uriString: string | undefined | null): URL {
     if (this.isNullOrWhitespace(uriString)) {
       return null;
     }
@@ -549,6 +610,55 @@ export class Utils {
    */
   static normalizePath(denormalizedPath: string): string {
     return path.normalize(decodeURIComponent(denormalizedPath)).replace(/^(\.\.(\/|\\|$))+/, "");
+  }
+
+  /**
+   * Validates an url checking against invalid patterns
+   * @param url
+   * @returns true if invalid patterns found, false if safe
+   */
+  static invalidUrlPatterns(url: string): boolean {
+    const invalidUrlPatterns = ["..", "%2e", "\\", "%5c"];
+
+    const decodedUrl = decodeURIComponent(url.toLocaleLowerCase());
+
+    // Check URL for invalidUrl patterns across entire URL
+    if (invalidUrlPatterns.some((p) => decodedUrl.includes(p))) {
+      return true;
+    }
+
+    // Check for additional invalid patterns inside URL params
+    if (decodedUrl.includes("?")) {
+      const hasInvalidParams = this.validateQueryParameters(decodedUrl);
+      if (hasInvalidParams) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Validates query parameters for additional invalid patterns
+   * @param url - The URL containing query parameters
+   * @returns true if invalid patterns found, false if safe
+   */
+  private static validateQueryParameters(url: string): boolean {
+    try {
+      let queryString: string;
+
+      if (url.includes("?")) {
+        queryString = url.split("?")[1];
+      } else {
+        return false;
+      }
+
+      const paramInvalidPatterns = ["/", "%2f", "#", "%23"];
+
+      return paramInvalidPatterns.some((p) => queryString.includes(p));
+    } catch (error) {
+      throw new Error(`Error validating query parameters: ${error}`);
+    }
   }
 
   private static isMobile(win: Window) {

@@ -11,6 +11,8 @@ import { FormFieldModule } from "@bitwarden/components";
  * @deprecated Jan 24, 2024: Use new libs/auth UserVerificationDialogComponent or UserVerificationFormInputComponent instead.
  * Each client specific component should eventually be converted over to use one of these new components.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-user-verification",
   imports: [CommonModule, JslibModule, ReactiveFormsModule, FormFieldModule, FormsModule],

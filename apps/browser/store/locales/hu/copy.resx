@@ -118,10 +118,10 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden Password Manager</value>
+    <value>Bitwarden Jelszókezelő</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Legyen otthon, munkában, vagy úton, a Bitwarden könnyen biztosítja jelszavát, kulcsait, és kényes információit.</value>
   </data>
   <data name="Description" xml:space="preserve">
     <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
@@ -144,7 +144,7 @@ Use Bitwarden to secure your workforce and share sensitive information with coll
 More reasons to choose Bitwarden:
 
 World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashtag, and PBKDF2 SHA-256) so your data stays secure and private.
+Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
 
 3rd-party Audits
 Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
@@ -169,7 +169,7 @@ End-to-end encrypted credential management solutions from Bitwarden empower orga
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Legyen otthon, munkában, vagy úton, a Bitwarden könnyen biztosítja jelszavát, kulcsait, és kényes információit.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>A széf szinkronizálása és elérése több eszközön.</value>

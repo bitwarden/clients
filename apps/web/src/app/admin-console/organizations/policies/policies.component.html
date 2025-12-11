@@ -1,36 +1,27 @@
-<app-header>
-  @let organization = organization$ | async;
-  @if (isBreadcrumbingEnabled$ | async) {
-    <button
-      bitBadge
-      class="!tw-align-middle"
-      (click)="changePlan(organization)"
-      slot="title-suffix"
-      type="button"
-      variant="primary"
-    >
-      {{ "upgrade" | i18n }}
-    </button>
-  }
-</app-header>
+<app-header></app-header>
+
+@let organization = organization$ | async;
+@let policiesEnabledMap = policiesEnabledMap$ | async;
+@let organizationId = organizationId$ | async;
 
 <bit-container>
-  @if (loading) {
+  @if (!organization || !policiesEnabledMap || !organizationId) {
     <i
       class="bwi bwi-spinner bwi-spin tw-text-muted"
       title="{{ 'loading' | i18n }}"
       aria-hidden="true"
     ></i>
     <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-  }
-  @if (!loading) {
+  } @else {
     <bit-table>
       <ng-template body>
-        @for (p of policies; track p.name) {
-          @if (p.display(organization, configService) | async) {
+        @for (p of policies$ | async; track $index) {
+          @if (p.display$(organization, configService) | async) {
             <tr bitRow>
               <td bitCell ngPreserveWhitespaces>
-                <button type="button" bitLink (click)="edit(p)">{{ p.name | i18n }}</button>
+                <button type="button" bitLink (click)="edit(p, organizationId)">
+                  {{ p.name | i18n }}
+                </button>
                 @if (policiesEnabledMap.get(p.type)) {
                   <span bitBadge variant="success">{{ "on" | i18n }}</span>
                 }

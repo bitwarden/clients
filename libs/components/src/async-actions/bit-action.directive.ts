@@ -1,6 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Directive, HostListener, model, Optional, inject, DestroyRef } from "@angular/core";
+import { DestroyRef, Directive, HostListener, inject, model, Optional } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BehaviorSubject, finalize, tap } from "rxjs";
 
@@ -38,7 +36,7 @@ export class BitActionDirective {
 
   disabled = false;
 
-  readonly handler = model<FunctionReturningAwaitable>(undefined, { alias: "bitAction" });
+  readonly handler = model.required<FunctionReturningAwaitable>({ alias: "bitAction" });
 
   private readonly destroyRef = inject(DestroyRef);
 

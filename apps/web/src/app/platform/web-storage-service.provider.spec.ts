@@ -2,14 +2,11 @@ import { mock } from "jest-mock-extended";
 
 import {
   AbstractStorageService,
-  ObservableStorageService,
-} from "@bitwarden/common/platform/abstractions/storage.service";
-import { PossibleLocation } from "@bitwarden/common/platform/services/storage-service.provider";
-import {
   ClientLocations,
+  ObservableStorageService,
+  PossibleLocation,
   StorageLocation,
-  // eslint-disable-next-line import/no-restricted-paths
-} from "@bitwarden/common/platform/state/state-definition";
+} from "@bitwarden/storage-core";
 
 import { WebStorageServiceProvider } from "./web-storage-service.provider";
 

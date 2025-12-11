@@ -4,8 +4,8 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import {
   CommandDefinition,
   MessageListener,
@@ -31,7 +31,7 @@ export const DO_FULL_SYNC = new CommandDefinition<FullSyncMessage>("doFullSync")
 
 export class ForegroundSyncService extends CoreSyncService {
   constructor(
-    stateService: StateService,
+    tokenService: TokenService,
     folderService: InternalFolderService,
     folderApiService: FolderApiServiceAbstraction,
     messageSender: MessageSender,
@@ -47,7 +47,7 @@ export class ForegroundSyncService extends CoreSyncService {
     stateProvider: StateProvider,
   ) {
     super(
-      stateService,
+      tokenService,
       folderService,
       folderApiService,
       messageSender,

@@ -19,6 +19,7 @@ import {
   DialogService,
   BitValidators,
   ToastService,
+  CenterPositionStrategy,
 } from "@bitwarden/components";
 
 import { SecretAccessPoliciesView } from "../../models/view/access-policies/secret-access-policies.view";
@@ -67,6 +68,8 @@ export interface SecretOperation {
   organizationEnabled: boolean;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./secret-dialog.component.html",
   standalone: false,
@@ -223,6 +226,7 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
         data: {
           secrets: secretListView,
         },
+        positionStrategy: new CenterPositionStrategy(),
       },
     );
 

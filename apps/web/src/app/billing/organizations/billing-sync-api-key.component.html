@@ -33,11 +33,11 @@
             showToast
             [valueLabel]="'billingSyncKey' | i18n"
             [appCopyClick]="clientSecret"
-            [appA11yTitle]="'copyValue' | i18n"
+            [label]="'copyValue' | i18n"
           ></button>
         </bit-form-field>
         <div class="tw-mt-2 tw-text-sm tw-text-muted" *ngIf="showLastSyncText">
-          <b class="tw-font-semibold">{{ "lastSync" | i18n }}:</b>
+          <b class="tw-font-medium">{{ "lastSync" | i18n }}:</b>
           {{ lastSyncDate | date: "medium" }}
         </div>
         <div class="tw-mt-2 tw-text-sm tw-text-danger" *ngIf="showAwaitingSyncText">

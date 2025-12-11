@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "You don't have permission to edit this item"
+  },
   "welcomeBack": {
     "message": "مرحبًا بعودتك"
   },
@@ -702,6 +705,12 @@
   "attachmentSaved": {
     "message": "تم حفظ المرفق."
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "ملف"
   },
@@ -764,6 +773,9 @@
   },
   "useSingleSignOn": {
     "message": "استخدام تسجيل دخول واحد"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
   },
   "submit": {
     "message": "إرسال"
@@ -954,9 +966,6 @@
   "insertU2f": {
     "message": "أدخل مفتاح الأمان الخاص بك في منفذ USB كمبيوترك، إذا كان يحتوي على زر، إلمسه."
   },
-  "recoveryCodeDesc": {
-    "message": "هل تفقد الوصول إلى جميع مزودي التحقق بعاملين؟ استخدم رمز الاسترداد الخاص بك لتعطيل جميع مزودي التحقق بعاملين من حسابك."
-  },
   "recoveryCodeTitle": {
     "message": "رمز الاسترداد"
   },
@@ -1029,6 +1038,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "يجب عليك إضافة رابط الخادم الأساسي أو على الأقل بيئة مخصصة."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
+  },
   "customEnvironment": {
     "message": "بيئة مخصصة"
   },
@@ -1080,6 +1092,24 @@
   },
   "learnMore": {
     "message": "اعرف المزيد"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
   },
   "featureUnavailable": {
     "message": "الميزة غير متوفرة"
@@ -1219,6 +1249,15 @@
   "invalidMasterPassword": {
     "message": "كلمة المرور الرئيسية غير صالحة"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "تسجيل الدخول بخطوتين يجعل حسابك أكثر أمنا من خلال مطالبتك بالتحقق من تسجيل الدخول باستخدام جهاز آخر مثل مفتاح الأمان، تطبيق المصادقة، الرسائل القصيرة، المكالمة الهاتفية، أو البريد الإلكتروني. يمكن تمكين تسجيل الدخول بخطوتين على خزانة الويب bitwarden.com. هل تريد زيارة الموقع الآن؟"
   },
@@ -1299,11 +1338,8 @@
     "message": "مسح القيم المنسوخة تلقائيًا من حافظتك.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "إظهار أيقونات الموقع"
-  },
-  "faviconDesc": {
-    "message": "إظهار صورة قابلة للتعرف بجانب كل تسجيل دخول."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "تصغير إلى أيقونة شريط المهام"
@@ -1471,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 جيغابايت وحدة تخزين مشفرة لمرفقات الملفات."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "خيارات تسجيل الدخول بخطوتين المملوكة مثل YubiKey و Duo."
@@ -1840,14 +1885,14 @@
   "autoPromptTouchId": {
     "message": "اطلب معرف اللمس عند التشغيل"
   },
-  "requirePasswordOnStart": {
-    "message": "يتطلب كلمة مرور أو رقم التعريف الشخصي عند بدء التطبيق"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
-  },
   "lockWithMasterPassOnRestart1": {
     "message": "قفل مع كلمة المرور الرئيسية عند إعادة تشغيل"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Require master password or PIN on app restart"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Require master password on app restart"
   },
   "deleteAccount": {
     "message": "حذف الحساب"
@@ -2132,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "حدث خطأ أثناء تمكين دمج المتصفح."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "للأسف، لا يتم دعم تكامل المتصفح إلا في إصدار متجر تطبيقات ماك في الوقت الحالي."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "للأسف، لا يتم دعم تكامل المتصفح في إصدار متجر ويندوز في الوقت الحالي."
   },
@@ -2212,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Contact information"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "كل الإرسالات",
@@ -2546,6 +2592,9 @@
       }
     }
   },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum custom timeout is 1 minute."
+  },
   "inviteAccepted": {
     "message": "تم قبول الدعوة"
   },
@@ -2657,6 +2706,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -2955,7 +3022,8 @@
     "message": "هل أنت متأكد من أنك تريد استخدام خيار \"مطلقا\"؟ إعداد خيارات القفل إلى \"مطلقا\" يخزن مفتاح تشفير المستودع الخاص بك على جهازك. إذا كنت تستخدم هذا الخيار، يجب أن تتأكد من الحفاظ على حماية جهازك بشكل صحيح."
   },
   "vault": {
-    "message": "الخزانة"
+    "message": "الخزانة",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "تسجيل الدخول باستخدام كلمة المرور الرئيسية"
@@ -3491,15 +3559,11 @@
   "selectImportCollection": {
     "message": "اختر مجموعة"
   },
-  "importTargetHint": {
-    "message": "حدد هذا الخيار إذا كنت تريد نقل محتويات الملف المستورد إلى $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "الملف يحتوي على عناصر غير معينة."
@@ -3594,6 +3658,12 @@
   },
   "awaitingSSODesc": {
     "message": "الرجاء الاستمرار في تسجيل الدخول باستخدام بيانات اعتماد الشركة الخاصة بك."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
   },
   "seeDetailedInstructions": {
     "message": "راجع التعليمات المفصلة في موقع المساعدة الخاص بنا في",
@@ -3837,6 +3907,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
     "placeholders": {
@@ -3931,6 +4007,12 @@
     "message": "Learn more about SSH agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "Assign to collections"
@@ -4072,10 +4154,106 @@
   "showLess": {
     "message": "Show less"
   },
-  "enableAutotype": {
-    "message": "Enable Autotype"
-  },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+  },
+  "typeShortcut": {
+    "message": "Type shortcut"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeShortcutPreview": {
+    "message": "Enable autotype shortcut (Feature Preview)"
+  },
+  "enableAutotypeShortcutDescription": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemWasSentToArchive": {
+    "message": "Item was sent to archive"
+  },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
   }
 }

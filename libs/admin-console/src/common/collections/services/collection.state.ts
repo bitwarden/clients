@@ -9,13 +9,14 @@ import { CollectionId } from "@bitwarden/common/types/guid";
 
 import { CollectionData, CollectionView } from "../models";
 
-export const ENCRYPTED_COLLECTION_DATA_KEY = UserKeyDefinition.record<
-  CollectionData | null,
-  CollectionId
->(COLLECTION_DISK, "collections", {
-  deserializer: (jsonData: Jsonify<CollectionData | null>) => CollectionData.fromJSON(jsonData),
-  clearOn: ["logout"],
-});
+export const ENCRYPTED_COLLECTION_DATA_KEY = UserKeyDefinition.record<CollectionData, CollectionId>(
+  COLLECTION_DISK,
+  "collections",
+  {
+    deserializer: (jsonData: Jsonify<CollectionData>) => CollectionData.fromJSON(jsonData),
+    clearOn: ["logout"],
+  },
+);
 
 export const DECRYPTED_COLLECTION_DATA_KEY = new UserKeyDefinition<CollectionView[] | null>(
   COLLECTION_MEMORY,

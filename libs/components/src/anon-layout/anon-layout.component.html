@@ -1,5 +1,5 @@
 <main
-  class="tw-flex tw-w-full tw-mx-auto tw-flex-col tw-bg-background-alt tw-px-6 tw-py-4 tw-text-main"
+  class="tw-relative tw-flex tw-w-full tw-mx-auto tw-flex-col tw-bg-background-alt tw-p-5 tw-text-main"
   [ngClass]="{
     'tw-min-h-screen': clientType === 'web',
     'tw-min-h-full': clientType === 'browser' || clientType === 'desktop',
@@ -8,23 +8,30 @@
   <a
     *ngIf="!hideLogo()"
     [routerLink]="['/']"
-    class="tw-w-[128px] tw-block tw-mb-12 [&>*]:tw-align-top"
+    class="tw-w-[200px] tw-block tw-mb-12 [&>*]:tw-align-top"
   >
     <bit-icon [icon]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-icon>
   </a>
 
   <div class="tw-text-center tw-mb-4 sm:tw-mb-6 tw-mx-auto" [ngClass]="maxWidthClass">
-    <div *ngIf="!hideIcon()" class="tw-w-24 sm:tw-w-28 md:tw-w-32 tw-mx-auto">
-      <bit-icon [icon]="icon()"></bit-icon>
+    @let iconInput = icon();
+
+    <!-- In some scenarios this icon's size is not limited by container width correctly -->
+    <!-- Targeting the SVG here to try and ensure it never grows too large in even the media queries are not working as expected -->
+    <div
+      *ngIf="iconInput !== null"
+      class="tw-size-20 sm:tw-size-24 [&_svg]:tw-w-full [&_svg]:tw-max-w-24 tw-mx-auto tw-content-center"
+    >
+      <bit-icon [icon]="iconInput"></bit-icon>
     </div>
 
     <ng-container *ngIf="title()">
       <!-- Small screens -->
-      <h1 bitTypography="h3" class="tw-mt-2 sm:tw-hidden">
+      <h1 bitTypography="h2" class="tw-mt-2 sm:tw-hidden">
         {{ title() }}
       </h1>
       <!-- Medium to Larger screens -->
-      <h1 bitTypography="h2" class="tw-mt-2 tw-hidden sm:tw-block">
+      <h1 bitTypography="h1" class="tw-mt-2 tw-hidden sm:tw-block">
         {{ title() }}
       </h1>
     </ng-container>
@@ -33,7 +40,7 @@
   </div>
 
   <div
-    class="tw-grow tw-w-full tw-mx-auto tw-flex tw-flex-col tw-items-center sm:tw-min-w-[28rem]"
+    class="tw-z-10 tw-grow tw-w-full tw-mx-auto tw-flex tw-flex-col tw-items-center sm:tw-min-w-[28rem]"
     [ngClass]="maxWidthClass"
   >
     @if (hideCardWrapper()) {
@@ -41,11 +48,11 @@
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
       </div>
     } @else {
-      <div
-        class="tw-rounded-2xl tw-mb-6 sm:tw-mb-10 tw-mx-auto tw-w-full sm:tw-bg-background sm:tw-border sm:tw-border-solid sm:tw-border-secondary-300 sm:tw-p-8"
+      <bit-base-card
+        class="!tw-rounded-2xl tw-mb-6 sm:tw-mb-10 tw-mx-auto tw-w-full tw-bg-transparent tw-border-none tw-shadow-none sm:tw-bg-background sm:tw-border sm:tw-border-solid sm:tw-border-secondary-100 sm:tw-shadow sm:tw-p-8"
       >
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
-      </div>
+      </bit-base-card>
     }
     <ng-content select="[slot=secondary]"></ng-content>
   </div>
@@ -62,6 +69,19 @@
       <div bitTypography="body2">{{ version }}</div>
     </ng-container>
   </footer>
+
+  @if (!hideBackgroundIllustration()) {
+    <div
+      class="tw-hidden md:tw-block [&_svg]:tw-absolute tw-z-[1] tw-opacity-[.11] [&_svg]:tw-bottom-0 [&_svg]:tw-start-0 [&_svg]:tw-w-[35%] [&_svg]:tw-max-w-[450px]"
+    >
+      <bit-icon [icon]="leftIllustration"></bit-icon>
+    </div>
+    <div
+      class="tw-hidden md:tw-block [&_svg]:tw-absolute tw-z-[1] tw-opacity-[.11] [&_svg]:tw-bottom-0 [&_svg]:tw-end-0 [&_svg]:tw-w-[35%] [&_svg]:tw-max-w-[450px]"
+    >
+      <bit-icon [icon]="rightIllustration"></bit-icon>
+    </div>
+  }
 </main>
 
 <ng-template #defaultContent>

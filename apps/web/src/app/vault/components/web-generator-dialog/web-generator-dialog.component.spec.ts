@@ -16,14 +16,26 @@ import {
   WebVaultGeneratorDialogResult,
 } from "./web-generator-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-cipher-form-generator",
   template: "",
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 class MockCipherFormGenerator {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() type: "password" | "username" = "password";
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() algorithmSelected: EventEmitter<AlgorithmInfo> = new EventEmitter();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() uri?: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() valueGenerated = new EventEmitter<string>();
 }
 
@@ -70,10 +82,8 @@ describe("WebVaultGeneratorDialogComponent", () => {
     generator.valueGenerated.emit("test-password");
     fixture.detectChanges();
 
-    const button = fixture.debugElement.query(
-      By.css("[data-testid='select-button']"),
-    ).nativeElement;
-    expect(button.disabled).toBe(false);
+    const button = fixture.debugElement.query(By.css("[data-testid='select-button']"));
+    expect(button.attributes["aria-disabled"]).toBe(undefined);
   });
 
   it("should disable the button if no value has been generated", () => {
@@ -84,10 +94,8 @@ describe("WebVaultGeneratorDialogComponent", () => {
     generator.algorithmSelected.emit({ useGeneratedValue: "Use Password" } as any);
     fixture.detectChanges();
 
-    const button = fixture.debugElement.query(
-      By.css("[data-testid='select-button']"),
-    ).nativeElement;
-    expect(button.disabled).toBe(true);
+    const button = fixture.debugElement.query(By.css("[data-testid='select-button']"));
+    expect(button.attributes["aria-disabled"]).toBe("true");
   });
 
   it("should disable the button if no algorithm is selected", () => {
@@ -98,10 +106,8 @@ describe("WebVaultGeneratorDialogComponent", () => {
     generator.valueGenerated.emit("test-password");
     fixture.detectChanges();
 
-    const button = fixture.debugElement.query(
-      By.css("[data-testid='select-button']"),
-    ).nativeElement;
-    expect(button.disabled).toBe(true);
+    const button = fixture.debugElement.query(By.css("[data-testid='select-button']"));
+    expect(button.attributes["aria-disabled"]).toBe("true");
   });
 
   it("should close with selected value when confirmed", () => {

@@ -9,17 +9,20 @@ import {} from "@bitwarden/web-vault/app/shared";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
-import { OrganizationIntegrationApiService } from "@bitwarden/bit-common/dirt/integrations";
+import { DatadogOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/datadog-organization-integration-service";
+import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-import { ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { IntegrationCardComponent } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/integrations/integration-card/integration-card.component";
-import { IntegrationGridComponent } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/integrations/integration-grid/integration-grid.component";
+
+import { IntegrationCardComponent } from "../../dirt/organization-integrations/integration-card/integration-card.component";
+import { IntegrationGridComponent } from "../../dirt/organization-integrations/integration-grid/integration-grid.component";
 
 import { IntegrationsComponent } from "./integrations.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-header",
   template: "<div></div>",
@@ -27,6 +30,8 @@ import { IntegrationsComponent } from "./integrations.component";
 })
 class MockHeaderComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-new-menu",
   template: "<div></div>",
@@ -36,8 +41,9 @@ class MockNewMenuComponent {}
 
 describe("IntegrationsComponent", () => {
   let fixture: ComponentFixture<IntegrationsComponent>;
+  const hecOrgIntegrationSvc = mock<HecOrganizationIntegrationService>();
+  const datadogOrgIntegrationSvc = mock<DatadogOrganizationIntegrationService>();
 
-  const mockOrgIntegrationApiService = mock<OrganizationIntegrationApiService>();
   const activatedRouteMock = {
     snapshot: { paramMap: { get: jest.fn() } },
   };
@@ -52,10 +58,10 @@ describe("IntegrationsComponent", () => {
         { provide: ThemeStateService, useValue: mock<ThemeStateService>() },
         { provide: SYSTEM_THEME_OBSERVABLE, useValue: of(ThemeType.Light) },
         { provide: ActivatedRoute, useValue: activatedRouteMock },
-        { provide: OrganizationIntegrationApiService, useValue: mockOrgIntegrationApiService },
-        { provide: ToastService, useValue: mock<ToastService>() },
         { provide: I18nPipe, useValue: mock<I18nPipe>() },
         { provide: I18nService, useValue: mockI18nService },
+        { provide: HecOrganizationIntegrationService, useValue: hecOrgIntegrationSvc },
+        { provide: DatadogOrganizationIntegrationService, useValue: datadogOrgIntegrationSvc },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(IntegrationsComponent);
@@ -72,7 +78,13 @@ describe("IntegrationsComponent", () => {
       (integrationList.componentInstance as IntegrationGridComponent).integrations.map(
         (i) => i.name,
       ),
-    ).toEqual(["GitHub Actions", "GitLab CI/CD", "Ansible", "Kubernetes Operator"]);
+    ).toEqual([
+      "GitHub Actions",
+      "GitLab CI/CD",
+      "Ansible",
+      "Kubernetes Operator",
+      "Terraform Provider",
+    ]);
 
     expect(
       (sdkList.componentInstance as IntegrationGridComponent).integrations.map((i) => i.name),

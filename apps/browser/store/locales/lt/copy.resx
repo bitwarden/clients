@@ -144,7 +144,7 @@ Use Bitwarden to secure your workforce and share sensitive information with coll
 More reasons to choose Bitwarden:
 
 World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashtag, and PBKDF2 SHA-256) so your data stays secure and private.
+Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
 
 3rd-party Audits
 Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
