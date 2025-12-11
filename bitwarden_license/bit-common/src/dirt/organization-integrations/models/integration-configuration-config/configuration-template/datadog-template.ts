@@ -8,8 +8,8 @@ export class DatadogTemplate implements OrgIntegrationTemplate {
     "ActingUser: #ActingUserId#\nUser: #UserId#\nEvent: #Type#\nOrganization: #OrganizationId#\nPolicyId: #PolicyId#\nIpAddress: #IpAddress#\nDomainName: #DomainName#\nCipherId: #CipherId#\n";
   service: OrganizationIntegrationServiceName;
 
-  constructor(service: string) {
-    this.service = service as OrganizationIntegrationServiceName;
+  constructor(service: OrganizationIntegrationServiceName) {
+    this.service = service;
   }
 
   toString(): string {

@@ -7,10 +7,10 @@ export class HecConfiguration implements OrgIntegrationConfiguration {
   token: string;
   service: OrganizationIntegrationServiceName;
 
-  constructor(uri: string, token: string, service: string) {
+  constructor(uri: string, token: string, service: OrganizationIntegrationServiceName) {
     this.uri = uri;
     this.token = token;
-    this.service = service as OrganizationIntegrationServiceName;
+    this.service = service;
   }
 
   toString(): string {

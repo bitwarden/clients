@@ -7,9 +7,9 @@ export class HecTemplate implements OrgIntegrationTemplate {
   index: string;
   service: OrganizationIntegrationServiceName;
 
-  constructor(index: string, service: string) {
+  constructor(index: string, service: OrganizationIntegrationServiceName) {
     this.index = index;
-    this.service = service as OrganizationIntegrationServiceName;
+    this.service = service;
   }
 
   toString(): string {

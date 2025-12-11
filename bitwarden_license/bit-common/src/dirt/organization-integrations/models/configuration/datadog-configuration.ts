@@ -6,10 +6,10 @@ export class DatadogConfiguration implements OrgIntegrationConfiguration {
   apiKey: string;
   service: OrganizationIntegrationServiceName;
 
-  constructor(uri: string, apiKey: string, service: string) {
+  constructor(uri: string, apiKey: string, service: OrganizationIntegrationServiceName) {
     this.uri = uri;
     this.apiKey = apiKey;
-    this.service = service as OrganizationIntegrationServiceName;
+    this.service = service;
   }
 
   toString(): string {
