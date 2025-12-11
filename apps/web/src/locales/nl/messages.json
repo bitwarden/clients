@@ -3062,6 +3062,15 @@
   "premiumSignUpStorage": {
     "message": "1 GB versleutelde opslag voor bijlagen."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ versleutelde opslag voor bijlagen.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Gepatenteerde 2 stap login opties zoals YubiKey en Duo."
   },
@@ -3123,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Je Premium-abonnement is afgelopen"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Herstart je Premium-abonnement om toegang tot je archief te krijgen. Als je de details wijzigt voor een gearchiveerd item voor het opnieuw opstarten, zal het terug naar je kluis worden verplaatst."
+  },
+  "restartPremium": {
+    "message": "Premium herstarten"
   },
   "additionalStorageGb": {
     "message": "Extra opslagruimte (GB)"
@@ -4607,6 +4625,24 @@
   },
   "learnMore": {
     "message": "Meer informatie"
+  },
+  "migrationsFailed": {
+    "message": "Er is een fout opgetreden bij het bijwerken van de versleutelingsinstellingen."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Je versleutelingsinstellingen bijwerken"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "De nieuwe aanbevolen versleutelingsinstellingen verbeteren de beveiliging van je account. Voer je hoofdwachtwoord in om nu bij te werken."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Bevestig je identiteit om door te gaan"
+  },
+  "enterYourMasterPassword": {
+    "message": "Voer je hoofdwachtwoord in"
+  },
+  "updateSettings": {
+    "message": "Instellingen bijwerken"
   },
   "deleteRecoverDesc": {
     "message": "Voer hieronder je e-mailadres in om je account te herstellen en te verwijderen."
@@ -12092,9 +12128,6 @@
   },
   "updateYourEncryptionSettings": {
     "message": "Je versleutelingsinstellingen bijwerken"
-  },
-  "updateSettings": {
-    "message": "Instellingen bijwerken"
   },
   "algorithm": {
     "message": "Algoritme"
