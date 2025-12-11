@@ -173,12 +173,12 @@ body * {
 }
 
 .theme_light .inline-menu-list-actions {
-  scrollbar-color: #d8d8d8 #fdfdfd;
+  scrollbar-color: #ced4da #ededed;
   border-right-color: #ced4dc;
 }
 
 .theme_dark .inline-menu-list-actions {
-  scrollbar-color: #4c525f #2f343d;
+  scrollbar-color: #4c525f #2d323a;
   border-right-color: #4c525f;
 }
 
