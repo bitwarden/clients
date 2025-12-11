@@ -87,8 +87,8 @@ export class OrgIntegrationBuilder {
   private static convertToJson<T>(jsonString?: string): T {
     try {
       return JSON.parse(jsonString || "{}") as T;
-    } catch {
-      throw new Error("Invalid JSON string provided for configuration/template.");
+    } catch (error) {
+      throw new Error(`Invalid integration configuration: ${error.message}`);
     }
   }
 }

@@ -56,7 +56,7 @@ export class OrganizationIntegrationService {
    * @returns Observable<void> that completes when the operation is done. Subscribe to trigger the load.
    */
   setOrganizationId(orgId: OrganizationId): Observable<void> {
-    if (orgId == this.organizationId$.getValue()) {
+    if (orgId === this.organizationId$.getValue()) {
       return of(void 0);
     }
     this._integrations$.next([]);
@@ -87,7 +87,7 @@ export class OrganizationIntegrationService {
     config: OrgIntegrationConfiguration,
     template: OrgIntegrationTemplate,
   ): Promise<IntegrationModificationResult> {
-    if (organizationId != this.organizationId$.getValue()) {
+    if (organizationId !== this.organizationId$.getValue()) {
       throw new Error("Organization ID mismatch");
     }
 
@@ -173,8 +173,10 @@ export class OrganizationIntegrationService {
         const index = integrations.findIndex((i) => i.id === integrationId);
         if (index !== -1) {
           integrations[index] = updatedIntegration;
-          this._integrations$.next([...integrations]);
+        } else {
+          integrations.push(updatedIntegration);
         }
+        this._integrations$.next([...integrations]);
       }
       return { mustBeOwner: false, success: true };
     } catch (error) {
