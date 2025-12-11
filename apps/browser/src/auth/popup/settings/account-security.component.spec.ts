@@ -3,9 +3,10 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { firstValueFrom, of } from "rxjs";
+import { firstValueFrom, of, BehaviorSubject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { NudgesService } from "@bitwarden/angular/vault";
 import { LockService } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -22,6 +23,7 @@ import {
   VaultTimeoutStringType,
   VaultTimeoutAction,
 } from "@bitwarden/common/key-management/vault-timeout";
+import { ProfileResponse } from "@bitwarden/common/models/response/profile.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -29,12 +31,12 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { newGuid } from "@bitwarden/guid";
 import { BiometricStateService, BiometricsService, KeyService } from "@bitwarden/key-management";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -56,9 +58,10 @@ describe("AccountSecurityComponent", () => {
   let component: AccountSecurityComponent;
   let fixture: ComponentFixture<AccountSecurityComponent>;
 
-  const mockUserId = Utils.newGuid() as UserId;
+  const mockUserId = newGuid() as UserId;
 
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
+  const apiService = mock<ApiService>();
   const billingService = mock<BillingAccountProfileStateService>();
   const biometricStateService = mock<BiometricStateService>();
   const configService = mock<ConfigService>();
@@ -66,14 +69,16 @@ describe("AccountSecurityComponent", () => {
   const keyService = mock<KeyService>();
   const lockService = mock<LockService>();
   const policyService = mock<PolicyService>();
-  const phishingDetectionSettingsService = mock<PhishingDetectionSettingsServiceAbstraction>({
-    enabled$: of(false),
-    available$: of(false),
-  });
+  const phishingDetectionSettingsService = mock<PhishingDetectionSettingsServiceAbstraction>();
   const pinServiceAbstraction = mock<PinServiceAbstraction>();
   const platformUtilsService = mock<PlatformUtilsService>();
   const validationService = mock<ValidationService>();
+  const vaultNudgesService = mock<NudgesService>();
   const vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
+
+  // Mock subjects to control the phishing detection observables
+  let phishingAvailableSubject: BehaviorSubject<boolean>;
+  let phishingEnabledSubject: BehaviorSubject<boolean>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -81,7 +86,7 @@ describe("AccountSecurityComponent", () => {
         { provide: AccountService, useValue: accountService },
         { provide: AccountSecurityComponent, useValue: mock<AccountSecurityComponent>() },
         { provide: ActivatedRoute, useValue: mock<ActivatedRoute>() },
-        { provide: ApiService, useValue: mock<ApiService>() },
+        { provide: ApiService, useValue: apiService },
         {
           provide: BillingAccountProfileStateService,
           useValue: billingService,
@@ -98,6 +103,7 @@ describe("AccountSecurityComponent", () => {
         { provide: LockService, useValue: lockService },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: MessageSender, useValue: mock<MessageSender>() },
+        { provide: NudgesService, useValue: vaultNudgesService },
         { provide: OrganizationService, useValue: mock<OrganizationService>() },
         { provide: PinServiceAbstraction, useValue: pinServiceAbstraction },
         {
@@ -110,8 +116,8 @@ describe("AccountSecurityComponent", () => {
         { provide: StateProvider, useValue: mock<StateProvider>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: UserVerificationService, useValue: mock<UserVerificationService>() },
-        { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
         { provide: ValidationService, useValue: validationService },
+        { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
       ],
     })
       .overrideComponent(AccountSecurityComponent, {
@@ -126,10 +132,13 @@ describe("AccountSecurityComponent", () => {
       })
       .compileComponents();
 
-    fixture = TestBed.createComponent(AccountSecurityComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-
+    apiService.getProfile.mockResolvedValue(
+      mock<ProfileResponse>({
+        id: mockUserId,
+        creationDate: new Date().toISOString(),
+      }),
+    );
+    vaultNudgesService.showNudgeSpotlight$.mockReturnValue(of(false));
     vaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockReturnValue(
       of(VaultTimeoutStringType.OnLocked),
     );
@@ -139,14 +148,35 @@ describe("AccountSecurityComponent", () => {
     vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockReturnValue(
       of(VaultTimeoutAction.Lock),
     );
+    vaultTimeoutSettingsService.availableVaultTimeoutActions$.mockReturnValue(of([]));
     biometricStateService.promptAutomatically$ = of(false);
+    // Provide a default policy observable so firstValueFrom(maximumVaultTimeoutPolicy)
+    // in ngOnInit has a valid stream. Individual tests override this when needed.
+    // vaultTimeoutSettingsService API: ensure availableVaultTimeoutActions$() returns an observable
+    // and other methods return observables used by the component.
+    // Provide sensible defaults; tests can override when needed.
+    // (vaultTimeoutSettingsService as any).availableVaultTimeoutActions$ = jest
+    //   .fn()
+    //   .mockReturnValue(of([]));
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);
     configService.getFeatureFlag$.mockReturnValue(of(false));
     billingService.hasPremiumPersonally$.mockReturnValue(of(true));
 
-    // Mock readonly observables
-    (phishingDetectionSettingsService.available$ as any) = of(true);
-    (phishingDetectionSettingsService.enabled$ as any) = of(true);
+    // Provide a default policy observable so firstValueFrom(maximumVaultTimeoutPolicy)
+    // in ngOnInit has a valid stream. Individual tests override this when needed.
+    policyService.policiesByType$.mockReturnValue(of([null]));
+
+    // Mock readonly observables for phishing detection using BehaviorSubjects so
+    // tests can push different values after component creation.
+    phishingAvailableSubject = new BehaviorSubject<boolean>(true);
+    phishingEnabledSubject = new BehaviorSubject<boolean>(true);
+
+    (phishingDetectionSettingsService.available$ as any) = phishingAvailableSubject.asObservable();
+    (phishingDetectionSettingsService.enabled$ as any) = phishingEnabledSubject.asObservable();
+
+    fixture = TestBed.createComponent(AccountSecurityComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   afterEach(() => {
@@ -253,6 +283,56 @@ describe("AccountSecurityComponent", () => {
 
     const pinInputElement = fixture.debugElement.query(By.css("#pin"));
     expect(pinInputElement).toBeNull();
+  });
+
+  describe("phishing detection UI and setting", () => {
+    it("updates phishing detection setting when form value changes", async () => {
+      policyService.policiesByType$.mockReturnValue(of([null]));
+
+      phishingAvailableSubject.next(true);
+      phishingEnabledSubject.next(true);
+
+      // Init component
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      // Initial form value should match enabled$ observable defaulting to true
+      expect(component.form.controls.enablePhishingDetection.value).toBe(true);
+
+      // Change the form value to false
+      component.form.controls.enablePhishingDetection.setValue(false);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(phishingDetectionSettingsService.setEnabled).toHaveBeenCalledWith(mockUserId, false);
+    });
+
+    it("shows phishing detection element when available$ is true", async () => {
+      policyService.policiesByType$.mockReturnValue(of([null]));
+      phishingAvailableSubject.next(true);
+      phishingEnabledSubject.next(true);
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      const phishingDetectionElement = fixture.debugElement.query(
+        By.css("#enablePhishingDetection"),
+      );
+      expect(phishingDetectionElement).not.toBeNull();
+    });
+
+    it("hides phishing detection element when available$ is false", async () => {
+      policyService.policiesByType$.mockReturnValue(of([null]));
+      phishingAvailableSubject.next(false);
+      phishingEnabledSubject.next(true);
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      const phishingDetectionElement = fixture.debugElement.query(
+        By.css("#enablePhishingDetection"),
+      );
+      expect(phishingDetectionElement).toBeNull();
+    });
   });
 
   describe("updateBiometric", () => {

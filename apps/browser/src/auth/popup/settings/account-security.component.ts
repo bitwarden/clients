@@ -179,7 +179,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       FeatureFlag.ConsolidatedSessionTimeoutComponent,
     );
 
-    // Check if user has premium and feature is enabled
+    // Check if user phishing detection available
     this.phishingDetectionAvailable$ = this.phishingDetectionSettingsService.available$;
   }
 
