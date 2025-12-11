@@ -1,53 +1,102 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, computed, input, inject } from "@angular/core";
 
-import { OrganizationFilterComponent as BaseOrganizationFilterComponent } from "@bitwarden/angular/vault/vault-filter/components/organization-filter.component";
 import { DisplayMode } from "@bitwarden/angular/vault/vault-filter/models/display-mode";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { ToastService } from "@bitwarden/components";
+import { OrganizationFilter, VaultFilter, CollectionFilter } from "@bitwarden/vault";
+
+import { VAULT_FILTER_IMPORTS } from "../shared-filter-imports";
+
+import { CollectionFilterComponent } from "./collection-filter.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-organization-filter",
   templateUrl: "organization-filter.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [...VAULT_FILTER_IMPORTS, CollectionFilterComponent],
 })
-export class OrganizationFilterComponent extends BaseOrganizationFilterComponent {
-  get show() {
+export class OrganizationFilterComponent {
+  private toastService: ToastService = inject(ToastService);
+  private i18nService: I18nService = inject(I18nService);
+
+  protected readonly hide = input(false);
+  protected readonly organizations = input<TreeNode<OrganizationFilter>>();
+  protected readonly activeFilter = input<VaultFilter>();
+  protected readonly activeOrganizationDataOwnership = input<boolean>(false);
+  protected readonly activeSingleOrganizationPolicy = input<boolean>(false);
+  protected readonly hideCollections = input(false);
+  protected readonly collections = input<TreeNode<CollectionFilter>>();
+
+  protected readonly show = computed(() => {
     const hiddenDisplayModes: DisplayMode[] = [
       "singleOrganizationAndOrganizatonDataOwnershipPolicies",
     ];
     return (
-      !this.hide &&
-      this.organizations.length > 0 &&
-      hiddenDisplayModes.indexOf(this.displayMode) === -1
+      !this.hide() &&
+      this.organizations()?.children.length > 0 &&
+      hiddenDisplayModes.indexOf(this.displayMode()) === -1
     );
-  }
+  });
 
-  constructor(
-    private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
-    private toastService: ToastService,
-  ) {
-    super();
-  }
+  protected readonly displayMode = computed<DisplayMode>(() => {
+    let displayMode: DisplayMode = "organizationMember";
+    if (this.organizations() == null || this.organizations().children.length < 1) {
+      displayMode = "noOrganizations";
+    } else if (this.activeOrganizationDataOwnership() && !this.activeSingleOrganizationPolicy()) {
+      displayMode = "organizationDataOwnershipPolicy";
+    } else if (!this.activeOrganizationDataOwnership() && this.activeSingleOrganizationPolicy()) {
+      displayMode = "singleOrganizationPolicy";
+    } else if (this.activeOrganizationDataOwnership() && this.activeSingleOrganizationPolicy()) {
+      displayMode = "singleOrganizationAndOrganizatonDataOwnershipPolicies";
+    }
 
-  async applyOrganizationFilter(organization: Organization) {
-    if (organization.enabled) {
-      //proceed with default behaviour for enabled organizations
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      super.applyOrganizationFilter(organization);
-    } else {
+    return displayMode;
+  });
+
+  protected applyFilter(organization: TreeNode<OrganizationFilter>) {
+    if (!organization.node.enabled) {
       this.toastService.showToast({
         variant: "error",
         title: null,
         message: this.i18nService.t("disabledOrganizationFilterError"),
       });
+      return;
     }
+
+    const filter = this.activeFilter();
+
+    if (filter) {
+      filter.selectedOrganizationNode = organization;
+    }
+  }
+
+  private readonly collectionsByOrganization = computed(() => {
+    const collections = this.collections();
+    const map = new Map<OrganizationId, TreeNode<CollectionFilter>>();
+    const orgs = this.organizations()?.children;
+
+    if (!collections || !orgs) {
+      return map;
+    }
+
+    for (const org of orgs) {
+      const filteredCollections = collections.children.filter(
+        (node) => node.node.organizationId === org.node.id,
+      );
+
+      const headNode = new TreeNode<CollectionFilter>(collections.node, null);
+      headNode.children = filteredCollections;
+      map.set(org.node.id, headNode);
+    }
+
+    return map;
+  });
+
+  protected getOrgCollections(organizationId: OrganizationId): TreeNode<CollectionFilter> {
+    return this.collectionsByOrganization().get(organizationId) ?? null;
   }
 }
