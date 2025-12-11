@@ -51,7 +51,7 @@ import {
 import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
-import { LockComponent } from "@bitwarden/key-management-ui";
+import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-management-ui";
 import { premiumInterestRedirectGuard } from "@bitwarden/web-vault/app/vault/guards/premium-interest-redirect/premium-interest-redirect.guard";
 
 import { flagEnabled, Flags } from "../utils/flags";
@@ -80,7 +80,6 @@ import { RouteDataProperties } from "./core";
 import { ReportsModule } from "./dirt/reports";
 import { DataRecoveryComponent } from "./key-management/data-recovery/data-recovery.component";
 import { ConfirmKeyConnectorDomainComponent } from "./key-management/key-connector/confirm-key-connector-domain.component";
-import { RemovePasswordComponent } from "./key-management/key-connector/remove-password.component";
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
 import { UserLayoutComponent } from "./layouts/user-layout.component";
 import { RequestSMAccessComponent } from "./secrets-manager/secrets-manager-landing/request-sm-access.component";
@@ -545,9 +544,9 @@ const routes: Routes = [
         canActivate: [authGuard],
         data: {
           pageTitle: {
-            key: "removeMasterPassword",
+            key: "verifyYourOrganization",
           },
-          titleId: "removeMasterPassword",
+          titleId: "verifyYourOrganization",
           pageIcon: LockIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
@@ -557,9 +556,9 @@ const routes: Routes = [
         canActivate: [],
         data: {
           pageTitle: {
-            key: "confirmKeyConnectorDomain",
+            key: "verifyYourOrganization",
           },
-          titleId: "confirmKeyConnectorDomain",
+          titleId: "verifyYourOrganization",
           pageIcon: DomainIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
