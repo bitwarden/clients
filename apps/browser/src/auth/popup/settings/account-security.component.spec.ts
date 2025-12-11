@@ -150,14 +150,6 @@ describe("AccountSecurityComponent", () => {
     );
     vaultTimeoutSettingsService.availableVaultTimeoutActions$.mockReturnValue(of([]));
     biometricStateService.promptAutomatically$ = of(false);
-    // Provide a default policy observable so firstValueFrom(maximumVaultTimeoutPolicy)
-    // in ngOnInit has a valid stream. Individual tests override this when needed.
-    // vaultTimeoutSettingsService API: ensure availableVaultTimeoutActions$() returns an observable
-    // and other methods return observables used by the component.
-    // Provide sensible defaults; tests can override when needed.
-    // (vaultTimeoutSettingsService as any).availableVaultTimeoutActions$ = jest
-    //   .fn()
-    //   .mockReturnValue(of([]));
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);
     configService.getFeatureFlag$.mockReturnValue(of(false));
     billingService.hasPremiumPersonally$.mockReturnValue(of(true));
