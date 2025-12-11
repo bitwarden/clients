@@ -78,12 +78,14 @@ export default {
           [hideFooter]="hideFooter"
           [hideBackgroundIllustration]="hideBackgroundIllustration"
         >
-          <div *ngIf="includeHeaderActions" slot="header-actions" class="tw-flex tw-items-center tw-gap-2">
-            <bit-avatar
-              size="small"
-              text="Bob Loblaw"
-            ></bit-avatar>
-          </div>
+          @if (includeHeaderActions) {
+            <div slot="header-actions" class="tw-flex tw-items-center tw-gap-2">
+              <bit-avatar
+                size="small"
+                text="Bob Loblaw"
+              ></bit-avatar>
+            </div>
+          }
           <ng-container [ngSwitch]="contentLength">
             <div *ngSwitchCase="'thin'" class="tw-text-center">  <div class="tw-font-medium">Thin Content</div></div>
             <div *ngSwitchCase="'long'">
