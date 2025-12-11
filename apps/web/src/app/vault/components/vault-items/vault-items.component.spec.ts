@@ -1,6 +1,6 @@
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { TestBed } from "@angular/core/testing";
-import { of } from "rxjs";
+import { of, Subject } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -18,6 +18,7 @@ import { VaultItemsComponent } from "./vault-items.component";
 
 describe("VaultItemsComponent", () => {
   let component: VaultItemsComponent<CipherViewLike>;
+  let filterSelect: Subject<any>;
 
   const cipher1: Partial<CipherView> = {
     id: "cipher-1",
@@ -32,6 +33,8 @@ describe("VaultItemsComponent", () => {
   };
 
   beforeEach(async () => {
+    filterSelect = new Subject<any>();
+
     await TestBed.configureTestingModule({
       declarations: [VaultItemsComponent],
       imports: [ScrollingModule, TableModule, I18nPipe, MenuModule],
@@ -65,7 +68,7 @@ describe("VaultItemsComponent", () => {
         {
           provide: RoutedVaultFilterService,
           useValue: {
-            filter$: of(null),
+            filter$: filterSelect,
           },
         },
       ],
@@ -148,6 +151,22 @@ describe("VaultItemsComponent", () => {
       component["selection"].select(...items);
 
       expect(component.bulkUnarchiveAllowed).toBe(false);
+    });
+  });
+
+  describe("filter change handling", () => {
+    it("clears selection when routed filter changes", () => {
+      const items: VaultItem<CipherView>[] = [
+        { cipher: cipher1 as CipherView },
+        { cipher: cipher2 as CipherView },
+      ];
+
+      component["selection"].select(...items);
+      expect(component["selection"].selected.length).toBeGreaterThan(0);
+
+      filterSelect.next("new-filter");
+
+      expect(component["selection"].selected.length).toBe(0);
     });
   });
 });
