@@ -36,7 +36,7 @@ export class PhishingDetectionAvailabilityService
 
   constructor(
     private accountService: AccountService,
-    private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private billingService: BillingAccountProfileStateService,
     private configService: ConfigService,
     private organizationService: OrganizationService,
   ) {
@@ -53,9 +53,7 @@ export class PhishingDetectionAvailabilityService
           return of(false);
         }
         return combineLatest([
-          this.billingAccountProfileStateService
-            .hasPremiumPersonally$(account.id)
-            .pipe(catchError(() => of(false))),
+          this.billingService.hasPremiumPersonally$(account.id).pipe(catchError(() => of(false))),
           this.organizationService.organizations$(account.id).pipe(catchError(() => of([]))),
         ]).pipe(
           map(([hasPremium, organizations]) => hasPremium || this.orgGrantsAccess(organizations)),
