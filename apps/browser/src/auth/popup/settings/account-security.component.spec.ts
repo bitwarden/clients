@@ -15,7 +15,7 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/phishing-detection-settings.service";
+import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   VaultTimeoutSettingsService,
@@ -57,19 +57,23 @@ describe("AccountSecurityComponent", () => {
   let fixture: ComponentFixture<AccountSecurityComponent>;
 
   const mockUserId = Utils.newGuid() as UserId;
+
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
-  const vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
+  const billingService = mock<BillingAccountProfileStateService>();
   const biometricStateService = mock<BiometricStateService>();
-  const policyService = mock<PolicyService>();
-  const pinServiceAbstraction = mock<PinServiceAbstraction>();
-  const keyService = mock<KeyService>();
-  const validationService = mock<ValidationService>();
-  const dialogService = mock<DialogService>();
-  const platformUtilsService = mock<PlatformUtilsService>();
-  const lockService = mock<LockService>();
   const configService = mock<ConfigService>();
-  const phishingDetectionSettingsService = mock<PhishingDetectionSettingsServiceAbstraction>();
-  const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
+  const dialogService = mock<DialogService>();
+  const keyService = mock<KeyService>();
+  const lockService = mock<LockService>();
+  const policyService = mock<PolicyService>();
+  const phishingDetectionSettingsService = mock<PhishingDetectionSettingsServiceAbstraction>({
+    enabled$: of(false),
+    available$: of(false),
+  });
+  const pinServiceAbstraction = mock<PinServiceAbstraction>();
+  const platformUtilsService = mock<PlatformUtilsService>();
+  const validationService = mock<ValidationService>();
+  const vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -77,34 +81,37 @@ describe("AccountSecurityComponent", () => {
         { provide: AccountService, useValue: accountService },
         { provide: AccountSecurityComponent, useValue: mock<AccountSecurityComponent>() },
         { provide: ActivatedRoute, useValue: mock<ActivatedRoute>() },
+        { provide: ApiService, useValue: mock<ApiService>() },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: billingService,
+        },
         { provide: BiometricsService, useValue: mock<BiometricsService>() },
         { provide: BiometricStateService, useValue: biometricStateService },
+        { provide: CipherService, useValue: mock<CipherService>() },
+        { provide: CollectionService, useValue: mock<CollectionService>() },
+        { provide: ConfigService, useValue: configService },
         { provide: DialogService, useValue: dialogService },
         { provide: EnvironmentService, useValue: mock<EnvironmentService>() },
         { provide: I18nService, useValue: mock<I18nService>() },
-        { provide: MessageSender, useValue: mock<MessageSender>() },
         { provide: KeyService, useValue: keyService },
-        { provide: PinServiceAbstraction, useValue: pinServiceAbstraction },
-        { provide: PlatformUtilsService, useValue: platformUtilsService },
-        { provide: PolicyService, useValue: policyService },
-        { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
-        { provide: ToastService, useValue: mock<ToastService>() },
-        { provide: UserVerificationService, useValue: mock<UserVerificationService>() },
-        { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
-        { provide: StateProvider, useValue: mock<StateProvider>() },
-        { provide: CipherService, useValue: mock<CipherService>() },
-        { provide: ApiService, useValue: mock<ApiService>() },
-        { provide: LogService, useValue: mock<LogService>() },
-        { provide: OrganizationService, useValue: mock<OrganizationService>() },
-        { provide: CollectionService, useValue: mock<CollectionService>() },
-        { provide: ValidationService, useValue: validationService },
         { provide: LockService, useValue: lockService },
-        { provide: ConfigService, useValue: configService },
+        { provide: LogService, useValue: mock<LogService>() },
+        { provide: MessageSender, useValue: mock<MessageSender>() },
+        { provide: OrganizationService, useValue: mock<OrganizationService>() },
+        { provide: PinServiceAbstraction, useValue: pinServiceAbstraction },
         {
           provide: PhishingDetectionSettingsServiceAbstraction,
           useValue: phishingDetectionSettingsService,
         },
-        { provide: BillingAccountProfileStateService, useValue: billingAccountProfileStateService },
+        { provide: PlatformUtilsService, useValue: platformUtilsService },
+        { provide: PolicyService, useValue: policyService },
+        { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
+        { provide: StateProvider, useValue: mock<StateProvider>() },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: UserVerificationService, useValue: mock<UserVerificationService>() },
+        { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
+        { provide: ValidationService, useValue: validationService },
       ],
     })
       .overrideComponent(AccountSecurityComponent, {
@@ -134,9 +141,12 @@ describe("AccountSecurityComponent", () => {
     );
     biometricStateService.promptAutomatically$ = of(false);
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);
-    phishingDetectionSettingsService.enablePhishingDetection$ = of(true);
     configService.getFeatureFlag$.mockReturnValue(of(false));
-    billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+    billingService.hasPremiumPersonally$.mockReturnValue(of(true));
+
+    // Mock readonly observables
+    (phishingDetectionSettingsService.available$ as any) = of(true);
+    (phishingDetectionSettingsService.enabled$ as any) = of(true);
   });
 
   afterEach(() => {

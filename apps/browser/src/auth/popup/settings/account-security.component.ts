@@ -32,8 +32,7 @@ import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/phishing-detection-settings.service";
+import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
@@ -175,28 +174,13 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private validationService: ValidationService,
     private logService: LogService,
     private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
-    private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
       FeatureFlag.ConsolidatedSessionTimeoutComponent,
     );
 
-    this.phishingDetectionFeatureEnabled$ = this.configService.getFeatureFlag$(
-      FeatureFlag.PhishingDetection,
-    );
-
     // Check if user has premium and feature is enabled
-    this.phishingDetectionAvailable$ = combineLatest([
-      this.accountService.activeAccount$,
-      this.phishingDetectionFeatureEnabled$,
-    ]).pipe(
-      switchMap(([account, featureEnabled]) => {
-        if (!account || !featureEnabled) {
-          return of(false);
-        }
-        return this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id);
-      }),
-    );
+    this.phishingDetectionAvailable$ = this.phishingDetectionSettingsService.available$;
   }
 
   async ngOnInit() {
@@ -277,9 +261,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       enableAutoBiometricsPrompt: await firstValueFrom(
         this.biometricStateService.promptAutomatically$,
       ),
-      enablePhishingDetection: await firstValueFrom(
-        this.phishingDetectionSettingsService.enablePhishingDetection$,
-      ),
+      enablePhishingDetection: await firstValueFrom(this.phishingDetectionSettingsService.enabled$),
     };
     this.form.patchValue(initialValues, { emitEvent: false });
 
@@ -394,7 +376,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       .pipe(
         concatMap(async (enabled) => {
           const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-          await this.phishingDetectionSettingsService.setEnablePhishingDetection(userId, enabled);
+          await this.phishingDetectionSettingsService.setEnabled(userId, enabled);
         }),
         takeUntil(this.destroy$),
       )

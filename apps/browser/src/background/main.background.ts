@@ -82,11 +82,9 @@ import {
 import { isUrlInList } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
+import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
-import {
-  PhishingDetectionSettingsService,
-  PhishingDetectionSettingsServiceAbstraction,
-} from "@bitwarden/common/dirt/services/phishing-detection-settings.service";
+import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import {
@@ -1484,13 +1482,14 @@ export default class MainBackground {
     );
 
     this.phishingDetectionSettingsService = new PhishingDetectionSettingsService(
+      this.accountService,
+      this.billingAccountProfileStateService,
+      this.configService,
+      this.organizationService,
       this.stateProvider,
     );
 
     PhishingDetectionService.initialize(
-      this.accountService,
-      this.billingAccountProfileStateService,
-      this.configService,
       this.logService,
       this.phishingDataService,
       this.phishingDetectionSettingsService,

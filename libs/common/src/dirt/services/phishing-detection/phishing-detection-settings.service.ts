@@ -1,9 +1,17 @@
-import { Observable, switchMap } from "rxjs";
-import { map } from "rxjs/operators";
+import { combineLatest, Observable, of, switchMap } from "rxjs";
+import { catchError, distinctUntilChanged, map, shareReplay } from "rxjs/operators";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/user-core";
 
 import { PHISHING_DETECTION_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
+import { PhishingDetectionSettingsServiceAbstraction } from "../abstractions/phishing-detection-settings.service.abstraction";
 
 const ENABLE_PHISHING_DETECTION = new UserKeyDefinition(
   PHISHING_DETECTION_DISK,
@@ -14,29 +22,25 @@ const ENABLE_PHISHING_DETECTION = new UserKeyDefinition(
   },
 );
 
-/**
- * Abstraction for phishing detection settings
- */
-export abstract class PhishingDetectionSettingsServiceAbstraction {
-  /**
-   * An observable for whether phishing detection is enabled
-   */
-  abstract enablePhishingDetection$: Observable<boolean>;
-  /**
-   * Sets whether phishing detection is enabled
-   *
-   * @param enabled True to enable, false to disable
-   */
-  abstract setEnablePhishingDetection: (userId: UserId, enabled: boolean) => Promise<void>;
-}
-
 export class PhishingDetectionSettingsService
   implements PhishingDetectionSettingsServiceAbstraction
 {
-  readonly enablePhishingDetection$: Observable<boolean>;
+  readonly available$: Observable<boolean>;
+  readonly enabled$: Observable<boolean>;
+  readonly on$: Observable<boolean>;
 
-  constructor(private stateProvider: StateProvider) {
-    this.enablePhishingDetection$ = this.stateProvider.activeUserId$.pipe(
+  constructor(
+    private accountService: AccountService,
+    private billingService: BillingAccountProfileStateService,
+    private configService: ConfigService,
+    private organizationService: OrganizationService,
+    private stateProvider: StateProvider,
+  ) {
+    this.available$ = this.buildAccessPipeline$().pipe(
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+    this.enabled$ = this.stateProvider.activeUserId$.pipe(
       switchMap((userId) =>
         userId != null
           ? this.stateProvider.getUser(userId, ENABLE_PHISHING_DETECTION).state$
@@ -44,9 +48,57 @@ export class PhishingDetectionSettingsService
       ),
       map((x) => x ?? true),
     );
+    this.on$ = combineLatest([this.available$, this.enabled$]).pipe(
+      map(([available, enabled]) => available && enabled),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
   }
 
-  async setEnablePhishingDetection(userId: UserId, enabled: boolean): Promise<void> {
+  async setEnabled(userId: UserId, enabled: boolean): Promise<void> {
     await this.stateProvider.getUser(userId, ENABLE_PHISHING_DETECTION).update(() => enabled);
+  }
+
+  /**
+   * Builds the observable pipeline to determine if phishing detection is available
+   *
+   * @returns An observable pipeline that determines if phishing detection is available
+   */
+  private buildAccessPipeline$(): Observable<boolean> {
+    return combineLatest([
+      this.accountService.activeAccount$,
+      this.configService.getFeatureFlag$(FeatureFlag.PhishingDetection),
+    ]).pipe(
+      switchMap(([account, featureEnabled]) => {
+        if (!account || !featureEnabled) {
+          return of(false);
+        }
+        return combineLatest([
+          this.billingService.hasPremiumPersonally$(account.id).pipe(catchError(() => of(false))),
+          this.organizationService.organizations$(account.id).pipe(catchError(() => of([]))),
+        ]).pipe(
+          map(([hasPremium, organizations]) => hasPremium || this.orgGrantsAccess(organizations)),
+          catchError(() => of(false)),
+        );
+      }),
+    );
+  }
+
+  /**
+   * Determines if any of the user's organizations grant access to phishing detection
+   *
+   * @param organizations The organizations the user is a member of
+   * @returns True if any organization grants access to phishing detection
+   */
+  private orgGrantsAccess(organizations: Organization[]): boolean {
+    return organizations.some((org) => {
+      if (!org.canAccess || !org.isMember || !org.usersGetPremium) {
+        return false;
+      }
+      return (
+        org.productTierType === ProductTierType.Families ||
+        (org.productTierType === ProductTierType.Enterprise && org.usePhishingBlocker)
+      );
+    });
   }
 }
