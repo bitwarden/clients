@@ -38,7 +38,7 @@ export const ENCRYPTED_MIGRATION_DISMISSED = new UserKeyDefinition<Date>(
   },
 );
 const DISMISS_TIME_HOURS = 24;
-const VAULT_ROUTE = "/vault";
+const VAULT_ROUTES = ["/vault", "/tabs/vault", "/tabs/current"];
 
 /**
  * This services schedules encrypted migrations for users on clients that are interactive (non-cli), and handles manual interaction,
@@ -85,7 +85,7 @@ export class DefaultEncryptedMigrationsSchedulerService implements EncryptedMigr
               ]).pipe(
                 filter(
                   ([authStatus, _date, url]) =>
-                    authStatus === AuthenticationStatus.Unlocked && url === VAULT_ROUTE,
+                    authStatus === AuthenticationStatus.Unlocked && VAULT_ROUTES.includes(url),
                 ),
                 concatMap(() => this.runMigrationsIfNeeded(userId)),
               ),
