@@ -224,6 +224,15 @@ module.exports.buildConfig = function buildConfig(params) {
       DEV_FLAGS: NODE_ENV === "development" ? envConfig["devFlags"] : {},
       ADDITIONAL_REGIONS: envConfig["additionalRegions"] ?? [],
     }),
+    // compile‑time constant for so that at compile time logic branches can be pruned that aren't
+    // possible.
+    new webpack.DefinePlugin({
+      __PM_6962_NATIVE_MOBILE_APPS_CLIENT_UPDATES__: JSON.stringify(
+        (process.env.PM_6962_NATIVE_MOBILE_APPS_CLIENT_UPDATES
+          ? process.env.PM_6962_NATIVE_MOBILE_APPS_CLIENT_UPDATES.toLowerCase() === "true"
+          : ENV !== "selfhosted") === true,
+      ),
+    }),
     new AngularWebpackPlugin({
       tsconfig: params.tsConfig,
       entryModule: params.app.entryModule,
