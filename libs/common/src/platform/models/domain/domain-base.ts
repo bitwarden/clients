@@ -76,16 +76,17 @@ export default class Domain {
     viewModel: ViewEncryptableKeys<V>,
     props: EncryptableKeys<D, V>[],
     orgId: null,
-    key: SymmetricCryptoKey | null,
+    key: SymmetricCryptoKey,
     objectContext: string = "No Domain Context",
   ): Promise<V> {
     const encryptService = Utils.getContainerService().getEncryptService();
     for (const prop of props) {
       if (domain[prop] == null) {
+        viewModel[prop] = null;
         continue;
       }
       try {
-        viewModel[prop] = await encryptService.decryptString(domain[prop]!, key!);
+        viewModel[prop] = await encryptService.decryptString(domain[prop]!, key);
       } catch (e) {
         throw new Error(
           `Failed to decrypt property '${String(
