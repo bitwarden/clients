@@ -1339,8 +1339,8 @@
   "onLocked": {
     "message": "On system lock"
   },
-  "onRestart": {
-    "message": "On restart"
+  "onAppRestart": {
+    "message": "On app restart"
   },
   "never": {
     "message": "Never"
@@ -1423,7 +1423,7 @@
     "message": "Language"
   },
   "languageDesc": {
-    "message": "Change the language used by the application. Restart is required."
+    "message": "Change the language used by the application. App restart is required."
   },
   "theme": {
     "message": "Theme"
@@ -1455,11 +1455,11 @@
       }
     }
   },
-  "restartToUpdate": {
-    "message": "Restart to update"
+  "restartAppToUpdate": {
+    "message": "Restart app to update"
   },
-  "restartToUpdateDesc": {
-    "message": "Version $VERSION_NUM$ is ready to install. You must restart the application to complete the installation. Do you want to restart and update now?",
+  "restartAppToUpdateDesc": {
+    "message": "Version $VERSION_NUM$ is ready to install. You must restart the application to complete the installation. Do you want to restart the app and update now?",
     "placeholders": {
       "version_num": {
         "content": "$1",
@@ -1903,8 +1903,8 @@
   "autoPromptTouchId": {
     "message": "Ask for Touch ID on app start"
   },
-  "lockWithMasterPassOnRestart1": {
-    "message": "Lock with master password on restart"
+  "lockWithMasterPassOnAppRestart1": {
+    "message": "Lock with master password on app restart"
   },
   "requireMasterPasswordOrPinOnAppRestart": {
     "message": "Require master password or PIN on app restart"
@@ -2211,7 +2211,7 @@
     "message": "Use hardware acceleration"
   },
   "enableHardwareAccelerationDesc": {
-    "message": "By default this setting is ON. Turn OFF only if you experience graphical issues. Restart is required."
+    "message": "By default this setting is ON. Turn OFF only if you experience graphical issues. App restart is required."
   },
   "approve": {
     "message": "Approve"
@@ -3733,11 +3733,11 @@
   "troubleshooting": {
     "message": "Troubleshooting"
   },
-  "disableHardwareAccelerationRestart": {
-    "message": "Disable hardware acceleration and restart"
+  "disableHardwareAccelerationAndRestartApp": {
+    "message": "Disable hardware acceleration and restart app"
   },
-  "enableHardwareAccelerationRestart": {
-    "message": "Enable hardware acceleration and restart"
+  "enableHardwareAccelerationAndRestartApp": {
+    "message": "Enable hardware acceleration and restart app"
   },
   "removePasskey": {
     "message": "Remove passkey"
@@ -4398,8 +4398,8 @@
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
     "message": "Your organization has set the default session timeout to On system lock."
   },
-  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
-    "message": "Your organization has set the default session timeout to On restart."
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnAppRestart": {
+    "message": "Your organization has set the default session timeout to On app restart."
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
     "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
@@ -4414,8 +4414,8 @@
       }
     }
   },
-  "sessionTimeoutOnRestart": {
-    "message": "On restart"
+  "sessionTimeoutOnAppRestart": {
+    "message": "On app restart"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"

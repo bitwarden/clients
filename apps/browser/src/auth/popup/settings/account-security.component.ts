@@ -211,7 +211,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     }
 
     this.vaultTimeoutOptions.push({
-      name: this.i18nService.t("onRestart"),
+      name: this.i18nService.t("onAppRestart"),
       value: VaultTimeoutStringType.OnRestart,
     });
     this.vaultTimeoutOptions.push({

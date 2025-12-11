@@ -172,12 +172,12 @@ describe("SessionTimeoutSettingsComponentService", () => {
           });
           if (availableTimeoutOrPromoted === VaultTimeoutStringType.OnLocked) {
             expect(options).not.toContainEqual({
-              name: "sessionTimeoutOnRestart",
+              name: "sessionTimeoutOnAppRestart",
               value: VaultTimeoutStringType.OnRestart,
             });
           } else {
             expect(options).toContainEqual({
-              name: "sessionTimeoutOnRestart",
+              name: "sessionTimeoutOnAppRestart",
               value: VaultTimeoutStringType.OnRestart,
             });
           }
@@ -206,7 +206,7 @@ describe("SessionTimeoutSettingsComponentService", () => {
 
         assertNumericTimeoutTypes(options);
         expect(options).toContainEqual({
-          name: "sessionTimeoutOnRestart",
+          name: "sessionTimeoutOnAppRestart",
           value: VaultTimeoutStringType.OnRestart,
         });
         expect(options).toContainEqual({ name: "custom", value: VaultTimeoutStringType.Custom });
@@ -274,7 +274,7 @@ describe("SessionTimeoutSettingsComponentService", () => {
             value: VaultTimeoutStringType.OnSleep,
           });
           expect(options).not.toContainEqual({
-            name: "sessionTimeoutOnRestart",
+            name: "sessionTimeoutOnAppRestart",
             value: VaultTimeoutStringType.OnRestart,
           });
           expect(options).not.toContainEqual({
@@ -315,7 +315,7 @@ describe("SessionTimeoutSettingsComponentService", () => {
     expect(options).toContainEqual({ name: "onSleep", value: VaultTimeoutStringType.OnSleep });
     expect(options).toContainEqual({ name: "onLocked", value: VaultTimeoutStringType.OnLocked });
     expect(options).toContainEqual({
-      name: "sessionTimeoutOnRestart",
+      name: "sessionTimeoutOnAppRestart",
       value: VaultTimeoutStringType.OnRestart,
     });
     expect(options).toContainEqual({ name: "never", value: VaultTimeoutStringType.Never });

@@ -233,8 +233,8 @@ export class HelpMenu implements IMenubarMenu {
         id: "hardwareAcceleration",
         label: this.localize(
           this.hardwareAccelerationEnabled
-            ? "disableHardwareAccelerationRestart"
-            : "enableHardwareAccelerationRestart",
+            ? "disableHardwareAccelerationAndRestartApp"
+            : "enableHardwareAccelerationAndRestartApp",
         ),
         click: async () => {
           await this.desktopSettingsService.setHardwareAcceleration(
