@@ -80,13 +80,15 @@
       </div>
     </div>
   </div>
-  <div class="tw-col-span-9">
+  <div class="tw-col-span-9 tw-@container/send-table">
     <!--Listing Table-->
     <bit-table [dataSource]="dataSource" *ngIf="filteredSends && filteredSends.length">
       <ng-container header>
         <tr>
           <th bitCell bitSortable="name" default>{{ "name" | i18n }}</th>
-          <th bitCell bitSortable="deletionDate">{{ "deletionDate" | i18n }}</th>
+          <th bitCell bitSortable="deletionDate" class="@lg/send-table:tw-table-cell tw-hidden">
+            {{ "deletionDate" | i18n }}
+          </th>
           <th bitCell>{{ "options" | i18n }}</th>
         </tr>
       </ng-container>
@@ -148,8 +150,14 @@
               </ng-container>
             </div>
           </td>
-          <td bitCell class="tw-text-muted" (click)="editSend(s)" class="tw-cursor-pointer">
-            <small bitTypography="body2" appStopProp>{{ s.deletionDate | date: "medium" }}</small>
+          <td
+            bitCell
+            (click)="editSend(s)"
+            class="tw-text-muted tw-cursor-pointer @lg/send-table:tw-table-cell tw-hidden"
+          >
+            <small bitTypography="body2" appStopProp>
+              {{ s.deletionDate | date: "medium" }}
+            </small>
           </td>
           <td bitCell class="tw-w-0 tw-text-right">
             <button
