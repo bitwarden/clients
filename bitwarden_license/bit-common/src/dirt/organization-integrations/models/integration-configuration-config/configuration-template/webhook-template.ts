@@ -1,4 +1,4 @@
-import { OrgIntegrationTemplate } from "../../integration-jsonify";
+import { OrgIntegrationTemplate } from "../../integration-builder";
 import { OrganizationIntegrationServiceName } from "../../organization-integration-service-type";
 
 // Added to reflect how future webhook integrations could be structured within the OrganizationIntegration

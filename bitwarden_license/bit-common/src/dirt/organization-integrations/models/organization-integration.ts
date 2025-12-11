@@ -1,6 +1,6 @@
 import { OrganizationIntegrationId } from "@bitwarden/common/types/guid";
 
-import { OrgIntegrationConfiguration } from "./integration-jsonify";
+import { OrgIntegrationConfiguration } from "./integration-builder";
 import { OrganizationIntegrationConfiguration } from "./organization-integration-configuration";
 import { OrganizationIntegrationServiceName } from "./organization-integration-service-type";
 import { OrganizationIntegrationType } from "./organization-integration-type";

@@ -4,7 +4,7 @@ import {
   OrganizationIntegrationId,
 } from "@bitwarden/common/types/guid";
 
-import { OrgIntegrationTemplate } from "./integration-jsonify";
+import { OrgIntegrationTemplate } from "./integration-builder";
 
 export class OrganizationIntegrationConfiguration {
   id: OrganizationIntegrationConfigurationId;

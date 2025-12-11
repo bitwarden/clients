@@ -1,4 +1,4 @@
-import { OrgIntegrationConfiguration } from "../integration-jsonify";
+import { OrgIntegrationConfiguration } from "../integration-builder";
 import { OrganizationIntegrationServiceName } from "../organization-integration-service-type";
 
 export class DatadogConfiguration implements OrgIntegrationConfiguration {

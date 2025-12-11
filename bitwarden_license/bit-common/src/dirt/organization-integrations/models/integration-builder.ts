@@ -2,10 +2,28 @@ import { DatadogConfiguration } from "./configuration/datadog-configuration";
 import { HecConfiguration } from "./configuration/hec-configuration";
 import { DatadogTemplate } from "./integration-configuration-config/configuration-template/datadog-template";
 import { HecTemplate } from "./integration-configuration-config/configuration-template/hec-template";
-import { OrgIntegrationConfiguration, OrgIntegrationTemplate } from "./integration-jsonify";
 import { OrganizationIntegrationServiceName } from "./organization-integration-service-type";
 import { OrganizationIntegrationType } from "./organization-integration-type";
 
+/**
+ * Defines the structure for organization integration configuration
+ */
+export interface OrgIntegrationConfiguration {
+  service: OrganizationIntegrationServiceName;
+  toString(): string;
+}
+
+/**
+ * Defines the structure for organization integration template
+ */
+export interface OrgIntegrationTemplate {
+  service: OrganizationIntegrationServiceName;
+  toString(): string;
+}
+
+/**
+ * Builder class for creating organization integration configurations and templates
+ */
 export class OrgIntegrationBuilder {
   static buildHecConfiguration(
     uri: string,

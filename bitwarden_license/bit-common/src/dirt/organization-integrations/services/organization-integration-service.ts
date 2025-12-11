@@ -7,8 +7,11 @@ import {
   OrganizationIntegrationConfigurationId,
 } from "@bitwarden/common/types/guid";
 
-import { OrgIntegrationBuilder } from "../models/integration-builder";
-import { OrgIntegrationConfiguration, OrgIntegrationTemplate } from "../models/integration-jsonify";
+import {
+  OrgIntegrationBuilder,
+  OrgIntegrationConfiguration,
+  OrgIntegrationTemplate,
+} from "../models/integration-builder";
 import { OrganizationIntegration } from "../models/organization-integration";
 import { OrganizationIntegrationConfiguration } from "../models/organization-integration-configuration";
 import { OrganizationIntegrationConfigurationRequest } from "../models/organization-integration-configuration-request";
