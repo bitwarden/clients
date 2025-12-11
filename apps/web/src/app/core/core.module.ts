@@ -113,6 +113,7 @@ import {
 } from "@bitwarden/common/platform/theming/theme-state.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
   KdfConfigService,
@@ -486,7 +487,7 @@ const safeProviders: SafeProvider[] = [
 
 @NgModule({
   declarations: [],
-  imports: [CommonModule, JslibServicesModule],
+  imports: [CommonModule, JslibServicesModule, GeneratorServicesModule],
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
   providers: safeProviders,
 })

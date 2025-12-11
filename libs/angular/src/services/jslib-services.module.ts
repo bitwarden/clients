@@ -186,7 +186,9 @@ import { DefaultChangeKdfApiService } from "@bitwarden/common/key-management/kdf
 import { ChangeKdfApiService } from "@bitwarden/common/key-management/kdf/change-kdf-api.service.abstraction";
 import { DefaultChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf.service";
 import { ChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf.service.abstraction";
+import { KeyConnectorApiService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector-api.service";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { DefaultKeyConnectorApiService } from "@bitwarden/common/key-management/key-connector/services/default-key-connector-api.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
 import { KeyApiService } from "@bitwarden/common/key-management/keys/services/abstractions/key-api-service.abstraction";
 import { RotateableKeySetService } from "@bitwarden/common/key-management/keys/services/abstractions/rotateable-key-set.service";
@@ -959,7 +961,7 @@ const safeProviders: SafeProvider[] = [
     deps: [
       FolderServiceAbstraction,
       CipherServiceAbstraction,
-      PinServiceAbstraction,
+      KeyGenerationService,
       KeyService,
       EncryptService,
       CryptoFunctionServiceAbstraction,
@@ -979,7 +981,7 @@ const safeProviders: SafeProvider[] = [
     deps: [
       CipherServiceAbstraction,
       VaultExportApiService,
-      PinServiceAbstraction,
+      KeyGenerationService,
       KeyService,
       EncryptService,
       CryptoFunctionServiceAbstraction,
@@ -1364,16 +1366,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: PinServiceAbstraction,
     useClass: PinService,
-    deps: [
-      AccountServiceAbstraction,
-      EncryptService,
-      KdfConfigService,
-      KeyGenerationService,
-      LogService,
-      KeyService,
-      SdkService,
-      PinStateServiceAbstraction,
-    ],
+    deps: [EncryptService, LogService, KeyService, SdkService, PinStateServiceAbstraction],
   }),
   safeProvider({
     provide: WebAuthnLoginPrfKeyServiceAbstraction,
@@ -1507,7 +1500,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SubscriptionPricingServiceAbstraction,
     useClass: DefaultSubscriptionPricingService,
-    deps: [BillingApiServiceAbstraction, ConfigService, I18nServiceAbstraction, LogService],
+    deps: [
+      BillingApiServiceAbstraction,
+      ConfigService,
+      I18nServiceAbstraction,
+      LogService,
+      EnvironmentService,
+    ],
   }),
   safeProvider({
     provide: OrganizationManagementPreferencesService,
@@ -1838,6 +1837,11 @@ const safeProviders: SafeProvider[] = [
     provide: IpcSessionRepository,
     useClass: IpcSessionRepository,
     deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: KeyConnectorApiService,
+    useClass: DefaultKeyConnectorApiService,
+    deps: [ApiServiceAbstraction],
   }),
   safeProvider({
     provide: PremiumInterestStateService,

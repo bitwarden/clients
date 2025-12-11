@@ -494,10 +494,7 @@ export class ServiceContainer {
 
     const pinStateService = new PinStateService(this.stateProvider);
     this.pinService = new PinService(
-      this.accountService,
       this.encryptService,
-      this.kdfConfigService,
-      this.keyGenerationService,
       this.logService,
       this.keyService,
       this.sdkService,
@@ -916,7 +913,7 @@ export class ServiceContainer {
       this.collectionService,
       this.keyService,
       this.encryptService,
-      this.pinService,
+      this.keyGenerationService,
       this.accountService,
       this.restrictedItemTypesService,
     );
@@ -924,7 +921,7 @@ export class ServiceContainer {
     this.individualExportService = new IndividualVaultExportService(
       this.folderService,
       this.cipherService,
-      this.pinService,
+      this.keyGenerationService,
       this.keyService,
       this.encryptService,
       this.cryptoFunctionService,
@@ -938,7 +935,7 @@ export class ServiceContainer {
     this.organizationExportService = new OrganizationVaultExportService(
       this.cipherService,
       this.vaultExportApiService,
-      this.pinService,
+      this.keyGenerationService,
       this.keyService,
       this.encryptService,
       this.cryptoFunctionService,
