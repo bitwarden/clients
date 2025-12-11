@@ -60,6 +60,7 @@ import { reactiveUnlockVaultGuard } from "../autofill/guards/reactive-vault-guar
 import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create.component";
 import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
 import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
+import { DesktopPremiumUpgradePromptService } from "../services/desktop-premium-upgrade-prompt.service";
 import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 import { VaultComponent } from "../vault/app/vault-v3/vault.component";
 

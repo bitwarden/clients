@@ -98,7 +98,7 @@ export class VaultFilterComponent implements OnInit {
     this.collections$ = this.vaultFilterService.collectionTree$;
 
     this.showArchiveVaultFilter = await firstValueFrom(
-      this.cipherArchiveService.hasArchiveFlagEnabled$(),
+      this.cipherArchiveService.hasArchiveFlagEnabled$,
     );
 
     // Subscribe to the active filter from the bridge service
