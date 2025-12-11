@@ -66,6 +66,7 @@ const somePolicy = new Policy({
   id: "" as PolicyId,
   organizationId: "" as OrganizationId,
   enabled: true,
+  revisionDate: new Date().toISOString(),
 });
 
 const stateProvider = new FakeStateProvider(accountService);
