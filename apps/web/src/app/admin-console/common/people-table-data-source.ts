@@ -13,7 +13,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { TableDataSource } from "@bitwarden/components";
 
-import { StatusType, UserViewTypes } from "./base-members.component";
+import { StatusType, UserViewTypes } from "./member-component-utils";
 
 /**
  * Default maximum for most bulk operations (confirm, remove, delete, etc.)

@@ -23,7 +23,6 @@ import {
   merge,
   Observable,
   shareReplay,
-  startWith,
   switchMap,
   take,
 } from "rxjs";
@@ -59,11 +58,11 @@ import { UserId } from "@bitwarden/user-core";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
+import { configureMemberFlags, MembersTableDataSource } from "../../common/member-component-utils";
 import {
   CloudBulkReinviteLimit,
   MaxCheckedCount,
   peopleFilter,
-  PeopleTableDataSource,
 } from "../../common/people-table-data-source";
 import { OrganizationUserView } from "../core/views/organization-user.view";
 import { UserConfirmComponent } from "../manage/user-confirm.component";
@@ -76,20 +75,6 @@ import {
   MemberActionsService,
   MemberActionResult,
 } from "./services/member-actions/member-actions.service";
-
-interface BulkFlags {
-  showConfirmUsers: boolean;
-  showBulkConfirmUsers: boolean;
-  showBulkReinviteUsers: boolean;
-  showBulkRestoreUsers: boolean;
-  showBulkRevokeUsers: boolean;
-  showBulkRemoveUsers: boolean;
-  showBulkDeleteUsers: boolean;
-}
-
-class MembersTableDataSource extends PeopleTableDataSource<OrganizationUserView> {
-  protected statusType = OrganizationUserStatusType;
-}
 
 @Component({
   templateUrl: "members.component.html",
@@ -137,57 +122,7 @@ export class MembersComponent {
   protected readonly organization: Signal<Organization | undefined>;
   protected readonly firstLoaded = signal(false);
 
-  bulkFlags$: Observable<BulkFlags> = this.dataSource.usersUpdated().pipe(
-    startWith(null), // initial emission to kick off reactive member options menu actions
-    map(() => {
-      const checkedUsers = this.dataSource.getCheckedUsers();
-      const result = {
-        showConfirmUsers: true,
-        showBulkConfirmUsers: true,
-        showBulkReinviteUsers: true,
-        showBulkRestoreUsers: true,
-        showBulkRevokeUsers: true,
-        showBulkRemoveUsers: true,
-        showBulkDeleteUsers: true,
-      };
-
-      if (checkedUsers.length) {
-        checkedUsers.forEach((member) => {
-          if (member.status !== this.userStatusType.Accepted) {
-            result.showBulkConfirmUsers = false;
-          }
-          if (member.status !== this.userStatusType.Invited) {
-            result.showBulkReinviteUsers = false;
-          }
-          if (member.status !== this.userStatusType.Revoked) {
-            result.showBulkRestoreUsers = false;
-          }
-          if (member.status == this.userStatusType.Revoked) {
-            result.showBulkRevokeUsers = false;
-          }
-
-          result.showBulkRemoveUsers = !member.managedByOrganization;
-
-          const validStatuses = [
-            this.userStatusType.Accepted,
-            this.userStatusType.Confirmed,
-            this.userStatusType.Revoked,
-          ];
-
-          result.showBulkDeleteUsers =
-            member.managedByOrganization && validStatuses.includes(member.status);
-        });
-      }
-
-      result.showConfirmUsers =
-        this.dataSource.activeUserCount > 1 &&
-        this.dataSource.confirmedUserCount > 0 &&
-        this.dataSource.confirmedUserCount < 3 &&
-        this.dataSource.acceptedUserCount > 0;
-
-      return result;
-    }),
-  );
+  protected bulkFlags$ = configureMemberFlags(this.dataSource);
 
   protected readonly canUseSecretsManager: Signal<boolean> = computed(
     () => this.organization()?.useSecretsManager ?? false,
@@ -352,13 +287,13 @@ export class MembersComponent {
       const publicKeyResponse = await this.apiService.getUserPublicKey(user.userId);
       const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
 
-      const autoConfirm = await firstValueFrom(
+      const autoConfirmFingerPrint = await firstValueFrom(
         this.organizationManagementPreferencesService.autoConfirmFingerPrints.state$,
       );
       if (user == null) {
         throw new Error("Cannot confirm null user.");
       }
-      if (autoConfirm == null || !autoConfirm) {
+      if (autoConfirmFingerPrint == null || !autoConfirmFingerPrint) {
         const dialogRef = UserConfirmComponent.open(this.dialogService, {
           data: {
             name: this.userNamePipe.transform(user),
