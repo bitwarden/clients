@@ -1,8 +1,15 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  signal,
+  WritableSignal,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { firstValueFrom, lastValueFrom, Observable, switchMap, withLatestFrom } from "rxjs";
+import { firstValueFrom, map, Observable, of, switchMap, tap, withLatestFrom } from "rxjs";
 
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
@@ -45,7 +52,7 @@ import { UserId } from "@bitwarden/user-core";
 export class AdminSettingsComponent implements OnInit {
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
-  protected formLoading = true;
+  protected readonly formLoading: WritableSignal<boolean> = signal(true);
   protected adminForm = this.formBuilder.group({
     autoConfirm: false,
   });
@@ -65,27 +72,21 @@ export class AdminSettingsComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.formLoading = false;
-
     const userId = await firstValueFrom(this.userId$);
     const autoConfirmEnabled = (
       await firstValueFrom(this.autoConfirmService.configuration$(userId))
     ).enabled;
     this.adminForm.setValue({ autoConfirm: autoConfirmEnabled });
 
+    this.formLoading.set(false);
+
     this.adminForm.controls.autoConfirm.valueChanges
       .pipe(
-        switchMap(async (newValue) => {
+        switchMap((newValue) => {
           if (newValue) {
-            const ref = AutoConfirmWarningDialogComponent.open(this.dialogService);
-            const result = await lastValueFrom(ref.closed);
-
-            if (result) {
-              return newValue;
-            }
+            return this.confirm();
           }
-          this.adminForm.setValue({ autoConfirm: false }, { emitEvent: false });
-          return false;
+          return of(false);
         }),
         withLatestFrom(this.autoConfirmService.configuration$(userId)),
         switchMap(([newValue, existingState]) =>
@@ -98,6 +99,17 @@ export class AdminSettingsComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
+  }
+
+  private confirm(): Observable<boolean> {
+    return AutoConfirmWarningDialogComponent.open(this.dialogService).closed.pipe(
+      map((result) => result ?? false),
+      tap((result) => {
+        if (!result) {
+          this.adminForm.setValue({ autoConfirm: false }, { emitEvent: false });
+        }
+      }),
+    );
   }
 
   async dismissSpotlight() {
